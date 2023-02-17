@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from "electron";
-import * as path from "node:path";
+import { join } from "node:path";
 import connectDB from "./connectPrisma";
 import { waitForServerUp } from "./waitForServerUp";
 import { createIPCHandler } from 'electron-trpc/main';
@@ -7,7 +7,7 @@ import { appRouter, createTRPCContext } from '@codaco/api';
 
 // TODO: maybe better "production detection"
 const isProduction = import.meta.env.PROD;
-const FRONTEND_PROD_PATH = path.join(__dirname, "../dist-frontend/");
+const FRONTEND_PROD_PATH = join(__dirname, "../dist-frontend/");
 const FRONTEND_DEV_PATH = 'http://localhost:3000/';
 
 async function createWindow() {
@@ -15,7 +15,7 @@ async function createWindow() {
   const mainWindow = new BrowserWindow({
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: join(__dirname, "preload.js"),
       allowRunningInsecureContent: false, // https://www.electronjs.org/docs/latest/tutorial/security#8-do-not-enable-allowrunninginsecurecontent
       enableBlinkFeatures: "", // https://www.electronjs.org/docs/latest/tutorial/security#10-do-not-use-enableblinkfeatures
       experimentalFeatures: false, // https://www.electronjs.org/docs/latest/tutorial/security#9-do-not-enable-experimental-features
@@ -34,10 +34,10 @@ async function createWindow() {
 
   if (isProduction) {
     // load bundled React app
-    mainWindow.loadFile(path.join(FRONTEND_PROD_PATH, "index.html"));
+    mainWindow.loadFile(join(FRONTEND_PROD_PATH, "index.html"));
   } else {
     // show loading spinner while local server is ready
-    mainWindow.loadFile(path.join(__dirname, "../loading.html"));
+    mainWindow.loadFile(join(__dirname, "../loading.html"));
     await waitForServerUp(FRONTEND_DEV_PATH)
     // load locally served React app in dev mode
     mainWindow.loadURL(FRONTEND_DEV_PATH);

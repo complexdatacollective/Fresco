@@ -1,6 +1,6 @@
-import { PrismaClient } from "../client/index";
+import { PrismaClient } from "@prisma/client"
 
-export * from '../client';
+export * from "@prisma/client";
 
 let globalForPrisma;
 
