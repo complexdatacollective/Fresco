@@ -76,9 +76,9 @@ function App() {
     const [trpcClient] = useState(() => {
       
       // Electron
-      return trpcReact.createClient({
-        links: [loggerLink(), ipcLink()],
-      })
+      // return trpcReact.createClient({
+      //   links: [loggerLink(), ipcLink()],
+      // })
 
       // Browser
       return trpc.createClient({
@@ -86,7 +86,7 @@ function App() {
         links: [
           loggerLink(),
           httpBatchLink({
-            url: "http://localhost:3001/api/trpc",
+            url: "http://localhost:3000/api/trpc",
             fetch: async (input, init?) => {
               const fetch = getFetch();
               return fetch(input, {
