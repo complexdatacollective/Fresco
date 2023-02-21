@@ -3,8 +3,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../client"
-  binaryTargets = ["native", "windows", "darwin"]
+  binaryTargets = ["native", "windows", "darwin"] // This needs to match the platforms you want to deploy to
 }
 
 datasource db {

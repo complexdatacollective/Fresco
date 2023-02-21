@@ -13,6 +13,7 @@
     "db:migrate:deploy": "turbo run db:migrate:deploy",
     "db:push": "turbo run db:push",
     "db:seed": "turbo run db:seed",
+    "preinstall": "npx only-allow pnpm",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate": "turbo run generate",
@@ -21,6 +22,6 @@
   "devDependencies": {
     "prettier": "^2.5.1",
     "tsx": "^3.7.1",
-    "turbo": "1.7.4"
+    "turbo": "^1.7.4"
   }
 }

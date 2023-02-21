@@ -1,25 +1,7 @@
 {
-  "compilerOptions": {
-    "alwaysStrict": true,
-    "strict": true,
-    "target": "ESNext",
-    "esModuleInterop": true,
-    "composite": true,
-    "module": "ESNext",
-    "moduleResolution": "nodenext",
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "outDir": "dist",
-  },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    // "vite.config.ts",
-    "package.json",
-    "src/**/*"
+  "files": [],
+  "references": [
+    {"path": "./src/client"},
+    {"path": "./src/server"}
   ]
 }

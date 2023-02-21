@@ -76,9 +76,9 @@ function App() {
     const [trpcClient] = useState(() => {
       
       // Electron
-      // return trpcReact.createClient({
-      //   links: [loggerLink(), ipcLink()],
-      // })
+      return trpcReact.createClient({
+        links: [loggerLink(), ipcLink()],
+      })
 
       // Browser
       return trpc.createClient({
