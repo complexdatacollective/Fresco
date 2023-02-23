@@ -1,13 +1,12 @@
 {
-  "name": "database",
+  "name": "@codaco/database",
   "version": "1.0.0",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist/**",
-    "client/**"
+    "dist/**"
   ],
   "scripts": {
     "build": "tsup",
@@ -28,8 +27,7 @@
     "@prisma/client": "^4.10.1"
   },
   "devDependencies": {
-    "config": "*",
-    "eslint": "^8.12.0",
+    "@types/node": "18",
     "prisma": "^4.10.1",
     "rimraf": "^3.0.2",
     "tsconfig": "*",

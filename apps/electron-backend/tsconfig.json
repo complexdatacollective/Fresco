@@ -1,7 +1,14 @@
 {
   "files": [],
+  "compilerOptions": {
+    "skipLibCheck": true,
+  },
   "references": [
-    {"path": "./src/client"},
-    {"path": "./src/server"}
+    {
+      "path": "./src/renderer"
+    },
+    {
+      "path": "./src/main"
+    }
   ]
 }

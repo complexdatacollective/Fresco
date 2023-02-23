@@ -8,12 +8,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@codaco/api": "*",
     "electron-trpc": "^0.4.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
+    "react-dom": "^18.2.0",
     "@tanstack/react-query": "^4.24.6",
     "@tanstack/react-query-devtools": "^4.24.6",
     "@trpc/client": "^10.11.1",

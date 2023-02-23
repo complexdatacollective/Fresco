@@ -1,17 +1,17 @@
 module.exports = {
-  extends: ["next", "turbo", "prettier"],
-  settings: {
-    next: {
-      rootDir: ["apps/*/", "packages/*/"],
-    },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
   },
-  rules: {
-    "@next/next/no-html-link-for-pages": "off",
-    "react/jsx-key": "off",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+
   },
-  parserOptions: {
-    babelOptions: {
-      presets: [require.resolve("next/babel")],
-    },
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true,
   },
-};
+}

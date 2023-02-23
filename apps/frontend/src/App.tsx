@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createTRPCReact, getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
 import { AppRouter } from '@codaco/api'
 import { ipcLink } from 'electron-trpc/renderer'
+import superjson from 'superjson';
 
 const trpcReact = createTRPCReact<AppRouter>();
 
@@ -77,12 +78,13 @@ function App() {
       
       // Electron
       return trpcReact.createClient({
+        transformer: superjson,
         links: [loggerLink(), ipcLink()],
       })
 
       // Browser
       return trpc.createClient({
-        // transformer: superjson,
+        transformer: superjson,
         links: [
           loggerLink(),
           httpBatchLink({

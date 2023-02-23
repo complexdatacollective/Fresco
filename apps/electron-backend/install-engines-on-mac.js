@@ -7,13 +7,13 @@
 // Specifying both darwin and darwin-arm64 is also necessary in the schema.prisma file, so that the generated
 // client will be able to use either.
 if (process.platform === "darwin") {
-    const child_process = require('child_process');
+  const child_process = require('child_process');
 
-    child_process.execSync('rm -rf node_modules/@prisma/engines && pnpm install @prisma/engines', {
-        stdio: [0, 1, 2],
-        env: {
-            ...process.env,
-            PRISMA_CLI_BINARY_TARGETS: "darwin,darwin-arm64",
-        },
-    });
+  child_process.execSync('rm -rf node_modules/@prisma/engines && pnpm install @prisma/engines', {
+    stdio: [0, 1, 2],
+    env: {
+      ...process.env,
+      PRISMA_CLI_BINARY_TARGETS: "darwin,darwin-arm64",
+    },
+  });
 }

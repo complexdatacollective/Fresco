@@ -1,0 +1,25 @@
+{
+  "name": "@codaco/api",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": "./dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trpc/client": "^10.11.1",
+    "@trpc/server": "^10.11.1",
+    "@codaco/database": "*",
+    "superjson": "1.12.2",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "eslint": "^8.32.0",
+    "tsup": "^5.11.13",
+    "typescript": "^4.9.5"
+  }
+}

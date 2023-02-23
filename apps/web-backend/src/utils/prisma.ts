@@ -1,7 +1,7 @@
-import { PrismaClient } from 'database';
+import { PrismaClient } from '@codaco/database';
 
 declare global {
-  var prisma: PrismaClient | undefined;
+  let prisma: PrismaClient | undefined;
 }
 
 export const prisma =
