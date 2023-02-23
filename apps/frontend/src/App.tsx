@@ -17,9 +17,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
 import { trpcReact } from './utils/trpc/trpc';
 
-
-console.log(React.version);
-
 const list = {
   visible: {
     opacity: 1,
@@ -77,21 +74,21 @@ const App = ({
     })
   });
 
-  // const interfaceScale = useSelector(state => state.deviceSettings.interfaceScale);
-  // const useDynamicScaling = useSelector(state => state.deviceSettings.useDynamicScaling);
+  const interfaceScale = useSelector(state => state.deviceSettings.interfaceScale);
+  const useDynamicScaling = useSelector(state => state.deviceSettings.useDynamicScaling);
 
-  // const setFontSize = useCallback(() => {
-  //   const root = document.documentElement;
-  //   const newFontSize = useDynamicScaling
-  //     ? `${(1.65 * interfaceScale) / 100}vmin`
-  //     : `${(16 * interfaceScale) / 100}px`;
+  const setFontSize = useCallback(() => {
+    const root = document.documentElement;
+    const newFontSize = useDynamicScaling
+      ? `${(1.65 * interfaceScale) / 100}vmin`
+      : `${(16 * interfaceScale) / 100}px`;
 
-  //   root.style.setProperty('--base-font-size', newFontSize);
-  // }, [useDynamicScaling, interfaceScale]);
+    root.style.setProperty('--base-font-size', newFontSize);
+  }, [useDynamicScaling, interfaceScale]);
 
-  // useUpdater('https://api.github.com/repos/complexdatacollective/Interviewer/releases/latest', 2500);
+  useUpdater('https://api.github.com/repos/complexdatacollective/Interviewer/releases/latest', 2500);
 
-  // setFontSize();
+  setFontSize();
 
   return (
     <trpcReact.Provider queryClient={queryClient} client={trpcClient}>

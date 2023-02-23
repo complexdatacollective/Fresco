@@ -12,11 +12,11 @@ datasource db {
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String?    @unique
-  emailVerified DateTime?
-  protocols     Protocol[]
+  id         String      @id @default(cuid())
+  name       String
+  email      String      @unique
+  role       String?     @default("user")
+  interviews Interview[]
 }
 
 model Protocol {
@@ -24,5 +24,15 @@ model Protocol {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  users     User[]
+  data      String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+}
+
+model Interview {
+  id          String    @id @default(cuid())
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+  lastUpdated DateTime  @updatedAt
+  network     String? // Another json field we can't store yet :/
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
 }

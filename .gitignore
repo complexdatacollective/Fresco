@@ -2,16 +2,15 @@
 
 # dependencies
 node_modules
-.pnp
-.pnp.js
 
 # testing
 coverage
 
-# next.js
+# build folders
 .next/
 out/
 build
+dist
 
 # misc
 .DS_Store

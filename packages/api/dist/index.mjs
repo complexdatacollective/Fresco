@@ -1,9 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// src/root.ts
-import { z } from "zod";
-
 // src/trpc.ts
 import { initTRPC } from "@trpc/server";
 import { ZodError } from "zod";
@@ -30,7 +27,8 @@ var t = initTRPC.context().create({
 var createTRPCRouter = t.router;
 var publicProcedure = t.procedure;
 
-// src/root.ts
+// src/routers/user.ts
+import { z } from "zod";
 var userRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findMany({
@@ -54,7 +52,7 @@ var userRouter = createTRPCRouter({
       data: input
     });
   }),
-  delete: publicProcedure.input(z.string()).mutation(({ ctx, input }) => {
+  delete: publicProcedure.input(z.string().min(1)).mutation(({ ctx, input }) => {
     return ctx.prisma.user.delete({
       where: {
         id: input
@@ -62,6 +60,8 @@ var userRouter = createTRPCRouter({
     });
   })
 });
+
+// src/root.ts
 var appRouter = createTRPCRouter({
   user: userRouter
 });

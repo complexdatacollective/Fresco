@@ -19,6 +19,10 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -31,9 +35,6 @@ __export(api_exports, {
   createTRPCContext: () => createTRPCContext
 });
 module.exports = __toCommonJS(api_exports);
-
-// src/root.ts
-var import_zod2 = require("zod");
 
 // src/trpc.ts
 var import_server = require("@trpc/server");
@@ -61,7 +62,8 @@ var t = import_server.initTRPC.context().create({
 var createTRPCRouter = t.router;
 var publicProcedure = t.procedure;
 
-// src/root.ts
+// src/routers/user.ts
+var import_zod2 = require("zod");
 var userRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findMany({
@@ -85,7 +87,7 @@ var userRouter = createTRPCRouter({
       data: input
     });
   }),
-  delete: publicProcedure.input(import_zod2.z.string()).mutation(({ ctx, input }) => {
+  delete: publicProcedure.input(import_zod2.z.string().min(1)).mutation(({ ctx, input }) => {
     return ctx.prisma.user.delete({
       where: {
         id: input
@@ -93,6 +95,8 @@ var userRouter = createTRPCRouter({
     });
   })
 });
+
+// src/root.ts
 var appRouter = createTRPCRouter({
   user: userRouter
 });

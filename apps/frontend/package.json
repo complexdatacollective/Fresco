@@ -6,7 +6,7 @@
   "author": "Complex Data Collective",
   "private": true,
   "scripts": {
-    "dev": "VITE_APP_PLATFORM=electron vite --port 4000",
+    "dev": "npm run dev:web",
     "dev:web": "VITE_APP_PLATFORM=web vite --port 3000 --open",
     "dev:electron": "VITE_APP_PLATFORM=electron vite --port 4000",
     "build:web": "VITE_APP_PLATFORM=web vite build",
