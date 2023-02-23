@@ -1,0 +1,42 @@
+$module-name: prompt;
+
+.#{$module-name} {
+  --local-prompt-text-size: var(--prompt-text-size, 1.75rem);
+  --local-number-of-lines: var(--number-of-lines, 3);
+  --local-text: var(--text, inherit);
+  --local-underline-duration: var(--underline-duration, 2s);
+
+  color: var(--local-text);
+  font-size: var(--local-prompt-text-size);
+  text-align: center;
+  font-family: var(--heading-font-family);
+  display: -webkit-box;
+  -webkit-line-clamp: var(--local-number-of-lines);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: not-allowed;
+  padding-bottom: 0.1em;
+
+  &--speakable {
+    cursor: pointer;
+  }
+
+  &--isSpeaking {
+
+    .#{$module-name}__text {
+      transition: background-size var(--local-underline-duration) linear;
+      background-size: 0 0.1em, 100% 0.1em;
+    }
+  }
+
+  &__text {
+    display:inline;
+    background:
+      linear-gradient(to right, transparent, transparent),
+      linear-gradient(to right, var(--local-text), var(--local-text));
+    background-size: 100% 0.1em, 0 0.1em;
+    background-position: 100% 100%, 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0 linear;
+  }
+}

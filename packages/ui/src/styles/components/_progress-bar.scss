@@ -1,0 +1,87 @@
+@keyframes progress-bar-animation {
+  from {
+    background-position: var(--progress-indeterminate-gradient-width) 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+.progress-bar {
+  --progress-indeterminate-background-color: var(--transparent-md);
+  --progress-indeterminate-highlight-color: var(--transparent-light);
+  --progress-indeterminate-gradient-width: 100rem;
+  --progress-indeterminate-animation-duration: 2s;
+
+  @include modifier(indeterminate) {
+    .progress-bar__filler {
+      animation: progress-bar-animation var(--progress-indeterminate-animation-duration) linear infinite;
+      background-image: linear-gradient(
+        0.25turn,
+        var(--progress-indeterminate-background-color),
+        var(--progress-indeterminate-highlight-color),
+        var(--progress-indeterminate-background-color),
+      );
+      background-size: var(--progress-indeterminate-gradient-width);
+    }
+  }
+
+  background-color: var(--light-background);
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 4rem;
+  overflow: hidden;
+
+  &--vertical {
+    width: .7rem;
+
+    .progress-bar__filler {
+      width: 100%;
+      transition: height calc(var(--animation-duration-standard)*3) var(--animation-easing);
+    }
+  }
+
+  &--horizontal {
+    height: .7rem;
+
+    .progress-bar__filler {
+      height: 100%;
+      transition: width calc(var(--animation-duration-standard)) var(--animation-easing);
+    }
+
+  }
+
+  &__filler {
+    background-color: var(--transparent-light);
+    position: absolute;
+    border-radius: inherit;
+  }
+
+  &--complete {
+    @keyframes pulse {
+      // sass-lint:disable-block no-color-literals
+      0% {
+        box-shadow: 0 0 0 0 rgba(var(--color-sea-green---rgb), 0.8);
+      }
+
+      70% {
+        box-shadow: 0 0 0 2rem rgba(var(--color-sea-green---rgb), 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(var(--color-sea-green---rgb), 0);
+      }
+    }
+
+    animation: pulse 2s infinite;
+
+    .progress-bar__filler {
+      background-color: var(--primary);
+    }
+  }
+}
+
+

@@ -1,0 +1,28 @@
+// Paletee setter and mixins
+// =============================================================================
+$-palette-map: () !default;
+
+@mixin palette-set($palette-name, $palette-value) {
+  $-palette-map: map-merge($-palette-map, ($palette-name: $palette-value)) !global;
+}
+
+@function palette($palette-name, $use-mapped-value: false) {
+  @if $use-mapped-value == true {
+    @return map-get($-palette-map, $palette-name);
+  } @else {
+    @return var(--#{$palette-name});
+  }
+}
+
+@mixin palette-modifiers($include-fill: false) {
+  @each $palette-name, $palette-group in $-palette-map {
+    @include modifier($palette-name) {
+      background-color: palette($palette-name);
+
+      @if $include-fill {
+        background-color: initial;
+        fill: palette($palette-name);
+      }
+    }
+  }
+}

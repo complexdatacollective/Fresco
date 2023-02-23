@@ -1,0 +1,37 @@
+@keyframes skeleton {
+    0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+};
+
+.skeleton {
+  --defaultBaseColor: rgba(0, 0, 0, .09);
+  --defaultHighlightColor: rgb(255, 255, 255, .34);
+  background-color: var(--defaultBaseColor);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--defaultHighlightColor),
+    transparent
+  );
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  display: inline-block;
+  line-height: 1;
+  width: 100%;
+  animation: skeleton 1s ease-in-out infinite;
+
+  @each $ordinal-color in $ordinal-colors {
+    $i: index($ordinal-colors, $ordinal-color);
+
+    &--node-highlight-seq-#{$i} {
+      .node__node-trim {
+        stroke: color($ordinal-color);
+      }
+    }
+  }
+}

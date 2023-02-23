@@ -1,0 +1,9 @@
+.red {
+  &.boolean-option--selected {
+    border-color: red;
+  }
+
+  .round-checkbox--checked {
+    background: red;
+  }
+}

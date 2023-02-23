@@ -1,0 +1,57 @@
+$component: 'server-card';
+
+.#{$component} {
+  background: var(--color-platinum);
+  color: var(--color-navy-taupe);
+  border-radius: var(--border-radius);
+  display: flex;
+  overflow: hidden;
+
+  &__icon-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--color-mustard);
+    flex-direction: row;
+    width: 7rem;
+
+    .server-icon {
+      width: 4rem;
+      height: 4rem;
+    }
+  }
+
+  &__main-section {
+    width: calc(100% - 7rem);
+    padding: unit(2) unit(4);
+
+    .server-name {
+      margin: 0;
+    }
+
+    h6 {
+      margin: 0.3rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 0.64rem;
+    }
+
+  }
+
+  &--clickable {
+    @include clickable(2);
+  }
+
+  &--disabled {
+    .#{$component}__icon-section {
+      background: var(--color-platinum--dark);
+    }
+
+    .server-name, h6 {
+      opacity: 0.35;
+    }
+  }
+}

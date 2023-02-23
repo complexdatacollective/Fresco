@@ -14,6 +14,9 @@
     "generate": "turbo run generate",
     "lint": "turbo run lint"
   },
+  "overrides": {
+    "react": "18.2.0"
+  },
   "devDependencies": {
     "prettier": "^2.5.1",
     "tsx": "^3.7.1",

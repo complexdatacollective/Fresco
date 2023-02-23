@@ -1,65 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import { trpc } from './utils/trpc'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createTRPCReact, getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
-import { AppRouter } from '@codaco/api'
+import React, { useCallback, useState } from 'react';
+import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import cx from 'classnames';
+import './styles/main.scss';
+import {
+  isElectron, isWindows, isMacOS, isLinux, isPreview, getEnv, isIOS, isAndroid,
+} from '@utils/Environment';
+import DialogManager from '@components/DialogManager';
+import ToastManager from '@components/ToastManager';
+import { SettingsMenu } from '@components/SettingsMenu';
+import useUpdater from '@hooks/useUpdater';
 import { ipcLink } from 'electron-trpc/renderer'
 import superjson from 'superjson';
-
-const trpcReact = createTRPCReact<AppRouter>();
-
-const AppContent = () => {
-  const [userName, setUserName] = useState('');
-  const utils = trpc.useContext();
-
-  const { 
-    data: users,
-    isFetching,
-    isLoading,
-    error,    
-  } = trpc.user.all.useQuery();
-  
-  const {
-    mutate: createUser,
-    isLoading: isCreatingUser,
-    isError: isCreateUserError,
-  } = trpc.user.create.useMutation({
-    onSuccess: () => {
-      utils.user.all.invalidate(); // https://trpc.io/docs/useContext#query-invalidation
-    }
-  });
-
-  const handleSubmit = () => {
-    createUser({
-      name: userName,
-      email: `${userName}@places.com`
-    });
-    setUserName('');
-  }
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
+import { trpcReact } from './utils/trpc/trpc';
 
 
-  return (
-    <div>
-      <h1>Users</h1>
-      <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} />
-      <button onClick={handleSubmit}>Add user</button>
-      {isCreateUserError && <p>Error creating user</p>}
-      {isCreatingUser && <p>Creating user...</p>}
-      {isLoading && <p>Loading...</p>}
-      {isFetching && <p>Updating...</p>}
-      {error && <p>{error.message}</p>}
-      <ul>
-        {users && users.map((user) => (
-          <li key={user.id}>{user.name} - {user.email}</li>
-        ))}
-      </ul>
-    </div>
-  )
-}
+console.log(React.version);
 
-function App() {
+const list = {
+  visible: {
+    opacity: 1,
+    transition: {
+      when: 'beforeChildren',
+    },
+  },
+  hidden: {
+    opacity: 0,
+  },
+};
+
+/**
+  * Main app container.
+  * @param props {object} - children
+  */
+const App = ({
+  children,
+}) => {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -72,54 +51,90 @@ function App() {
     },
   }));
 
-  // const [trpcClient] = useState(() => getClient());
+  const [trpcClient] = useState(() => {
 
-    const [trpcClient] = useState(() => {
-      
-      // Electron
-      return trpcReact.createClient({
-        transformer: superjson,
-        links: [loggerLink(), ipcLink()],
-      })
+    // Electron
+    // return trpcReact.createClient({
+    //   transformer: superjson,
+    //   links: [loggerLink(), ipcLink()],
+    // })
 
-      // Browser
-      return trpc.createClient({
-        transformer: superjson,
-        links: [
-          loggerLink(),
-          httpBatchLink({
-            url: "http://localhost:3000/api/trpc",
-            fetch: async (input, init?) => {
-              const fetch = getFetch();
-              return fetch(input, {
-                ...init,
-              });
-            },
-          }),
-        ],
-      })
+    // Browser
+    return trpcReact.createClient({
+      transformer: superjson,
+      links: [
+        loggerLink(),
+        httpBatchLink({
+          url: "http://localhost:3001/api/trpc",
+          fetch: async (input, init?) => {
+            const fetch = getFetch();
+            return fetch(input, {
+              ...init,
+            });
+          },
+        }),
+      ],
+    })
+  });
 
-      
-    }
-  );
+  // const interfaceScale = useSelector(state => state.deviceSettings.interfaceScale);
+  // const useDynamicScaling = useSelector(state => state.deviceSettings.useDynamicScaling);
+
+  // const setFontSize = useCallback(() => {
+  //   const root = document.documentElement;
+  //   const newFontSize = useDynamicScaling
+  //     ? `${(1.65 * interfaceScale) / 100}vmin`
+  //     : `${(16 * interfaceScale) / 100}px`;
+
+  //   root.style.setProperty('--base-font-size', newFontSize);
+  // }, [useDynamicScaling, interfaceScale]);
+
+  // useUpdater('https://api.github.com/repos/complexdatacollective/Interviewer/releases/latest', 2500);
+
+  // setFontSize();
 
   return (
-    <trpc.Provider queryClient={queryClient} client={trpcClient}>
+    <trpcReact.Provider queryClient={queryClient} client={trpcClient}>
       <QueryClientProvider client={queryClient}>
-        <div className="App">
-          <div>
-            <a href="https://vitejs.dev" target="_blank">
-              <img src="/vite.svg" className="logo" alt="Vite logo" />
-            </a>
-            <a href="https://reactjs.org" target="_blank">
-              <img src={reactLogo} className="logo react" alt="React logo" />
-            </a>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={list}
+          className={cx({
+            app: true,
+            'app--electron': isElectron(),
+            'app--windows': isWindows(),
+            'app--macos': isMacOS(),
+            'app--ios': isIOS(),
+            'app-android': isAndroid(),
+            'app--linux': isLinux(),
+            'app--preview': isPreview(),
+          })}
+        >
+          <div className="electron-titlebar" />
+          <div
+            id="page-wrap"
+            className={cx({
+              app__content: true,
+            })}
+          >
+            <SettingsMenu />
+            {children}
           </div>
-          <AppContent />
-        </div>
+          <DialogManager />
+          <ToastManager />
+        </motion.div>
       </QueryClientProvider>
-    </trpc.Provider>
-  )
-}
+    </trpcReact.Provider>
+  );
+};
 
-export default App
+App.propTypes = {
+  children: PropTypes.any,
+};
+
+App.defaultProps = {
+  children: null,
+};
+
+export default App;

@@ -1,0 +1,45 @@
+@mixin clickable($depth: 1) {
+  $base-shadow: 0.2rem;
+  $base-blur: 0.2rem;
+
+  $adjusted-shadow-size: $base-shadow * $depth;
+  $adjusted-blur: $base-blur * $depth;
+
+  box-shadow: 0 $adjusted-shadow-size rgba(17, 21, 27, 0.664); //sass-lint:disable-line no-color-literals
+  transition: transform var(--animation-duration-very-fast) var(--animation-easing), box-shadow var(--animation-duration-very-fast) var(--animation-easing);
+
+  &:not(:disabled):hover {
+    text-decoration: none;
+    cursor: pointer;
+    transform: translateY(-#{$adjusted-shadow-size});
+    box-shadow: 0 #{$adjusted-shadow-size * 2} $adjusted-blur 0 rgba(0, 0, 0, 0.35);
+  }
+
+  &:not(:disabled):active {
+    box-shadow: unset;
+    transform: translateY($adjusted-shadow-size);
+  }
+}
+
+@mixin allow-text-selection {
+  user-select: text;
+  & * {
+    user-select: text;
+  }
+}
+
+// These includes/mixins are only to be used when absolutely necessary!
+
+@mixin platform-only-ios {
+  @at-root .app--ios #{&} {
+    @content;
+  }
+}
+
+@mixin platform-not-ios {
+  @at-root .app--electron #{&}, .app-android #{&} {
+    @content;
+  }
+}
+
+

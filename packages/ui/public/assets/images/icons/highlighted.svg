@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70">
+  <defs></defs>
+  <title>Highlighted</title>
+  <g id="Highlighted_-_Cerulean-" data-name="Highlighted - Cerulean-">
+    <circle class="cls-7" cx="35" cy="35" r="35" />
+    <circle class="cls-3" cx="35" cy="35" r="27.5" />
+    <path class="cls-2" d="M35,7.5A27.5,27.5,0,0,0,15.55,54.45L54.45,15.55A27.41,27.41,0,0,0,35,7.5Z" />
+    <circle class="cls-5" cx="35" cy="35" r="20" />
+    <path class="cls-4" d="M35,15A20,20,0,0,0,20.86,49.14L49.14,20.86A19.94,19.94,0,0,0,35,15Z" />
+  </g>
+</svg>

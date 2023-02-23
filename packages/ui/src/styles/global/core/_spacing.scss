@@ -1,0 +1,29 @@
+// TODO: Are these based on anything or are they legacy?
+$spacer: 1.2rem !default;
+$spacer-0: 0;
+$spacer-1: ($spacer * 0.25);
+$spacer-2: ($spacer * 0.5);
+$spacer-3: $spacer;
+$spacer-4: ($spacer * 1.5);
+$spacer-5: ($spacer * 3);
+
+$padding-base-vertical: $spacer-3;
+$padding-base-horizontal: $spacer-5;
+$headings-margin-bottom: calc($spacer / 2) !default;
+
+// TODO: Based on spacer-x etc, are these meaningful intervals?
+$spacing-intervals: (
+  'none': 0,    // 0
+  'tiny': 0.25,  // ~5px
+  'small': 0.5,  // ~10px
+  'medium': 1,  // ~20px
+  'large': 1.5, // ~30px
+  'huge': 3     // ~60px
+);
+
+@function spacing($interval) {
+  @if type-of($interval) == 'string' {
+    @return $spacer * map-get($spacing-intervals, $interval);
+  }
+  @return $spacer * $interval;
+}
