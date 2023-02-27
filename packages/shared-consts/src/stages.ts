@@ -1,5 +1,3 @@
-import { Color } from "./colors.js";
-
 export enum StageTypes {
   NameGenerator = 'NameGenerator',
   NameGeneratorQuickAdd = 'NameGeneratorQuickAdd',
@@ -36,17 +34,19 @@ export type AdditionalAttribute = {
 
 export type AdditionalAttributes = AdditionalAttribute[];
 
-export type Prompt = {
+export type BasePrompt = {
   id: string;
   text: string;
+};
+
+export type NameGeneratorPrompt = BasePrompt & {
   additionalAttributes?: AdditionalAttributes;
+};
+
+
+export type SociogramPrompt = BasePrompt & {
   createEdge?: string;
   edgeVariable?: string;
-  negativeLabel?: string;
-  variable?: string;
-  bucketSortOrder?: SortOption[];
-  binSortOrder?: SortOption[];
-  color?: Color;
   sortOrder?: SortOption[];
   layout?: {
     layoutVariable?: string;
@@ -56,9 +56,6 @@ export type Prompt = {
     allowHighlighting?: boolean;
     variable?: string;
   }
-  otherVariable?: string;
-  otherVariablePrompt?: string;
-  otherOptionLabel?: string;
 };
 
 export type FilterRule = {
@@ -100,10 +97,21 @@ export type ItemDefinition = {
   size: 'SMALL' | 'MEDIUM' | 'LARGE' | string;
 };
 
-export type StageSubject = {
-  entity: 'ego' | 'node' | 'edge';
+export interface EgoStageSubject {
+  entity: 'ego';
+}
+
+export interface NodeStageSubject {
+  entity: 'node';
   type: string;
 }
+
+export interface EdgeStageSubject {
+  entity: 'edge';
+  type: string;
+}
+
+export type StageSubject = EgoStageSubject | NodeStageSubject | EdgeStageSubject;
 
 export type FormField = {
   variable: string;
@@ -115,36 +123,127 @@ export type Form = {
   fields: FormField[];
 }
 
-export interface Stage {
+export type Panel = {
   id: string;
-  type: string;
+  title: string;
+  dataSource: "existing" | string;
+  filter?: FilterDefinition;
+}
+
+export type BaseStage = {
+  id: string;
+  type: StageTypes;
   label: string;
-  title?: string; // Todo: remove this
   interviewScript?: string;
-  form?: Form;
-  introductionPanel?: Object, // Todo: create a Panel type
-  subject?: StageSubject | StageSubject[];
-  panels?: object[];
-  prompts?: Prompt[];
-  quickAdd?: string,
-  behaviours?: object;
   filter?: FilterDefinition;
   skipLogic?: SkipDefinition;
-  dataSource?: string;
-  cardOptions?: object; // Todo: create a CardOptions type
-  sortOptions?: {
-    sortOrder: SortOption[];
-    sortableProperties: object[]; // Todo: create a SortableProperty type
-  }
+}
+
+export type BaseStageWithSubject = BaseStage & {
+  subject: StageSubject;
+}
+
+export type NameGeneratorFormStage = BaseStageWithSubject & {
+  type: StageTypes.NameGenerator;
+  form: Form;
+  prompts: NameGeneratorPrompt[];
+  panels?: Panel[];
+}
+
+export type NameGeneratorQuickAddStage = BaseStageWithSubject & {
+  type: StageTypes.NameGeneratorQuickAdd;
+  quickAdd: string;
+  prompts: NameGeneratorPrompt[];
+  panels?: Panel[];
+}
+
+export type IntroductionPanel = {
+  title: string;
+  text: string;
+}
+
+export type EgoFormStage = BaseStage & {
+  subject: EgoStageSubject;
+  type: StageTypes.EgoForm;
+  form: Form;
+  introductionPanel: IntroductionPanel;
+}
+
+export type SociogramStage = BaseStageWithSubject & {
+  type: StageTypes.Sociogram;
   background?: {
     image?: string;
     concentricCircles?: number;
     skewedTowardCenter?: boolean;
   }
-  searchOptions?: {
-    fuzziness?: number;
-    matchProperties?: string[];
+  prompts: SociogramPrompt[];
+  behaviours?: {
+    automaticLayout?: {
+      enabled: boolean;
+    }
   }
-  presets?: PresetDefinition[];
-  items?: ItemDefinition[];
 }
+
+
+export type Stage =
+  NameGeneratorFormStage |
+  NameGeneratorQuickAddStage |
+  EgoFormStage;
+
+
+// export interface Stage {
+//   id: string;
+//   type: string;
+//   label: string;
+//   title?: string; // Todo: remove this
+//   interviewScript?: string;
+//   form?: Form;
+//   introductionPanel?: Object, // Todo: create a Panel type
+//   subject?: StageSubject | StageSubject[];
+//   panels?: object[];
+//   prompts?: Prompt[];
+//   quickAdd?: string,
+//   behaviours?: object;
+//   filter?: FilterDefinition;
+//   skipLogic?: SkipDefinition;
+//   dataSource?: string;
+//   cardOptions?: object; // Todo: create a CardOptions type
+//   sortOptions?: {
+//     sortOrder: SortOption[];
+//     sortableProperties: object[]; // Todo: create a SortableProperty type
+//   }
+//   background?: {
+//     image?: string;
+//     concentricCircles?: number;
+//     skewedTowardCenter?: boolean;
+//   }
+//   searchOptions?: {
+//     fuzziness?: number;
+//     matchProperties?: string[];
+//   }
+//   presets?: PresetDefinition[];
+//   items?: ItemDefinition[];
+// }
+
+
+// export type Prompt = {
+//   createEdge?: string;
+//   edgeVariable?: string;
+//   negativeLabel?: string;
+//   variable?: string;
+//   bucketSortOrder?: SortOption[];
+//   binSortOrder?: SortOption[];
+//   color?: Color;
+//   sortOrder?: SortOption[];
+//   layout?: {
+//     layoutVariable?: string;
+//   },
+//   edges?: PromptEdges;
+//   highlight?: {
+//     allowHighlighting?: boolean;
+//     variable?: string;
+//   }
+//   otherVariable?: string;
+//   otherVariablePrompt?: string;
+//   otherOptionLabel?: string;
+// };

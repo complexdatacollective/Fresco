@@ -29,6 +29,9 @@
   "homepage": "https://github.com/complexdatacollective/protocol-utils#readme",
   "devDependencies": {
     "@codaco/shared-consts": "*",
+    "config": "*",
+    "tsconfig": "*",
+    "utils": "*",
     "@faker-js/faker": "^7.6.0",
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.191",
@@ -37,7 +40,6 @@
     "ajv": "^8.12.0",
     "chalk": "^5.2.0",
     "jest": "^27.5.1",
-    "lodash": "^4.17.21",
     "rimraf": "^4.1.2",
     "tsup": "^6.6.0",
     "typescript": "^4.9.5",

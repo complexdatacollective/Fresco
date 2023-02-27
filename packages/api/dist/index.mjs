@@ -61,9 +61,29 @@ var userRouter = createTRPCRouter({
   })
 });
 
+// src/routers/protocols.ts
+import { z as z2 } from "zod";
+var protocolsRouter = createTRPCRouter({
+  all: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.protocol.findMany({
+      orderBy: {
+        id: "desc"
+      }
+    });
+  }),
+  byId: publicProcedure.input(z2.string()).query(({ ctx, input }) => {
+    return ctx.prisma.protocol.findFirst({
+      where: {
+        id: input
+      }
+    });
+  })
+});
+
 // src/root.ts
 var appRouter = createTRPCRouter({
-  user: userRouter
+  user: userRouter,
+  protocols: protocolsRouter
 });
 export {
   appRouter,

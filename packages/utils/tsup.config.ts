@@ -4,9 +4,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   entryPoints: [
-    // 'src/migrate/index.ts',
-    // 'src/schemas/buildSchemas.ts',
-    'src/validate/index.ts'
+    'src/index.ts'
   ],
   format: ['esm', 'cjs'],
   dts: true,

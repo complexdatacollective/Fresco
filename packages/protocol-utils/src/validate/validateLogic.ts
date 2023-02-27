@@ -1,4 +1,3 @@
-import { get, isArray, has, isObject } from 'lodash';
 import Validator from './Validator.js';
 import {
   duplicateId,
@@ -11,7 +10,8 @@ import {
   getVariableNameFromID,
   getSubjectTypeName,
 } from './helpers.js';
-import { Codebook, NcNode, Protocol, Stage, StageSubject, FormField, VariableValidation, FilterRule, Prompt, ItemDefinition, VariableDefinition, AdditionalAttributes } from '@codaco/shared-consts';
+import { has, get } from '../../../utils/src';
+import type { Codebook, CodebookEntityTypeDefinition, Protocol, Stage, StageSubject, FormField, VariableValidation, FilterRule, BasePrompt, ItemDefinition, VariableDefinition, AdditionalAttributes, CodebookNodeTypeDefinition, SociogramStage, NodeStageSubject, EdgeStageSubject, EgoStageSubject } from '@codaco/shared-consts';
 
 /**
  * Define and run all dynamic validations (which aren't covered by the JSON Schema).
@@ -28,33 +28,45 @@ const validateLogic = (protocol: Protocol) => {
   );
 
   v.addValidation('codebook.node.*',
-    (nodeType: NcNode) => nodeVarsIncludeDisplayVar(nodeType),
-    (nodeType: NcNode) => `node displayVariable "${nodeType.displayVariable}" did not match any node variable`);
+    (nodeType: CodebookNodeTypeDefinition) => nodeVarsIncludeDisplayVar(nodeType),
+    (nodeType: CodebookNodeTypeDefinition) => `node displayVariable "${nodeType.displayVariable}" did not match any node variable`);
 
   // Subject can either by an object, or a collection, depending on the stage.
   // Currently, sociogram is the only stage type allowing a collection.
   v.addValidationSequence('stages[].subject',
     [
-      (subject: StageSubject, _: any, keypath: Array<string>) => {
-        const stage: Stage = get(protocol, `${keypath[1]}${keypath[2]}`);
-        return !(isArray(subject) && stage.type !== 'Sociogram');
+      (subject: StageSubject, _: void, keypath: Array<string>) => {
+        // We know that keypath will be in key order, with dedicated keys for array index.
+        // Therefore: keypath[1] = 'stages', keypath[2] = [index]
+        const stage = <SociogramStage>get(protocol, `${keypath[1]}${keypath[2]}`);
+
+        if (!stage) {
+          return false;
+        }
+
+        return !(Array.isArray(subject) && stage.type !== 'Sociogram');
       },
       () => 'Only the sociogram interface may use multiple node types',
     ],
     [
       (subject: StageSubject | StageSubject[]) => {
-        if (isArray(subject)) {
-          return !duplicateInArray(subject.map(getSubjectTypeName));
+        if (Array.isArray(subject)) {
+          const subjects = subject.map((subject: StageSubject) => getSubjectTypeName(codebook, subject));
+          return !duplicateInArray(subjects);
         }
 
         return true;
       },
-      (subject: StageSubject[]) => `Duplicate subject type "${duplicateInArray(subject.map(getSubjectTypeName))}"`,
+      (subject: StageSubject[]) => `Duplicate subject type "${duplicateInArray(subject.map((subject) => getSubjectTypeName(codebook, subject)))}"`,
     ],
     [
       (subject: StageSubject) => {
+        if (subject.entity === 'ego') {
+          return has(codebook, 'ego');
+        }
+
         // Check all subject entities are defined in the codebook section for their type
-        if (isArray(subject)) {
+        if (Array.isArray(subject)) {
           return subject.every(s => has(codebook, `${s.entity}.${s.type}`));
         }
 
@@ -72,21 +84,29 @@ const validateLogic = (protocol: Protocol) => {
       (field: FormField, _subject: StageSubject, keypath: Array<string>) => {
         // We know that keypath will be in key order, with dedicated keys for array index.
         // Therefore: keypath[1] = 'stages', keypath[2] = [index]
-        const stage = get(protocol, `${keypath[1]}${keypath[2]}`);
+        const stage = <Stage>get(protocol, `${keypath[1]}${keypath[2]}`);
         let codebookEntity;
+
+        if (!stage) {
+          return false;
+        }
 
         if (stage.type === 'EgoForm') {
           codebookEntity = codebook.ego;
         } else {
-          const stageSubject = stage.subject;
+          const stageSubject = <NodeStageSubject | EdgeStageSubject>stage.subject;
           const path = `codebook.${stageSubject.entity}.${stageSubject.type}`;
 
-          codebookEntity = get(protocol, path);
+          codebookEntity = <CodebookEntityTypeDefinition>get(protocol, path);
+        }
+
+        if (!codebookEntity) {
+          return false;
         }
 
         const variable = field.variable;
 
-        return codebookEntity.variables[variable];
+        return codebookEntity.variables[variable as keyof VariableDefinition];
       },
       () => 'Form field variable not found in codebook.',
     ],
@@ -100,19 +120,24 @@ const validateLogic = (protocol: Protocol) => {
   v.addValidation('codebook.ego.variables.*.validation',
     // First, check that unique is not applied on any ego variables
     (validation: VariableValidation) => !Object.keys(validation).includes('unique'),
-    (_: any, __: any, keypath: Array<string>) => `The 'unique' variable validation cannot be used on ego variables. Was used on ego variable "${getVariableNameFromID(codebook, { entity: 'ego' }, keypath[4])}".`,
+    (_: void, __: void, keypath: Array<string>) =>
+      `The 'unique' variable validation cannot be used on ego variables. Was used on ego variable "${getVariableNameFromID(codebook, { entity: 'ego' }, keypath[4])}".`,
   );
 
   v.addValidation('codebook.*.*.variables.*.validation',
     // Next, check that differentFrom and sameAs reference variables that exist in the codebook
     // for the variable type
-    (validations: VariableValidation, _: any, keypath: Array<string>) => {
+    (validations: VariableValidation, _: void, keypath: Array<string>) => {
       // List of validation types that reference variables
       const typesWithVariables = ['sameAs', 'differentFrom', 'greaterThanVariable', 'lessThanVariable'];
 
       // Get variable registryfor the current variable's entity type
       const path = `codebook.${keypath[2]}.${keypath[3]}.variables`;
-      const variablesForType = get(protocol, path, {});
+      const variablesForType = <Record<string, VariableDefinition>>get(protocol, path);
+
+      if (!variablesForType) {
+        return false;
+      }
 
       // Filter validations to only those that reference variables
       const typesToCheck: Array<string> = Object.keys(validations).filter(
@@ -121,15 +146,27 @@ const validateLogic = (protocol: Protocol) => {
 
       // Check that every validation references a variable defined in the codebook
       return typesToCheck.every((type) => {
-        const variable: string = get(validations, type);
+        const variable = <string>get(validations, type);
+        if (!variable) { return false; }
         return Object.keys(variablesForType).includes(variable);
       });
     },
-    (validation: VariableValidation, _: any, keypath: Array<string>) => {
-      const subject = {
-        entity: keypath[2],
-        type: keypath[3],
-      };
+    (validation: VariableValidation, _: void, keypath: Array<string>) => {
+      const subjectEntity = keypath[2];
+      let subject;
+
+      if (subjectEntity === 'ego') {
+        subject = <EgoStageSubject>{
+          entity: 'ego',
+        };
+      } else {
+        const subjectType: string = keypath[3];
+
+        subject = <NodeStageSubject | EdgeStageSubject>{
+          entity: subjectEntity,
+          type: subjectType,
+        };
+      }
       return `Validation configuration for the variable "${getVariableNameFromID(codebook, subject, keypath[5])}" on the ${subject.entity} type "${getSubjectTypeName(codebook, subject)}" is invalid! The variable "${Object.values(validation)[0]}" referenced by the validation does not exist in the codebook for this type.`;
     },
   );
@@ -143,7 +180,9 @@ const validateLogic = (protocol: Protocol) => {
     [
       (rule: FilterRule) => {
         if (!rule.options.attribute) { return true; } // Entity type rules do not have an attribute
-        const variables = entityDefFromRule(rule, codebook).variables;
+
+        const definition = entityDefFromRule(rule, codebook);
+        const variables = definition && definition.variables;
         return variables && variables[rule.options.attribute];
       },
       (rule: FilterRule) => `"${rule.options.attribute}" is not a valid variable ID`,
@@ -161,13 +200,13 @@ const validateLogic = (protocol: Protocol) => {
   );
 
   v.addValidation('.rules',
-    (rules: FilterRule) => !duplicateId(rules),
-    (rules: FilterRule) => `Rules contain duplicate ID "${duplicateId(rules)}"`,
+    (rules: FilterRule[]) => !duplicateId(rules),
+    (rules: FilterRule[]) => `Rules contain duplicate ID "${duplicateId(rules)}"`,
   );
 
   v.addValidation('stages[].prompts',
-    (prompts: Prompt[]) => !duplicateId(prompts),
-    (prompts: Prompt[]) => `Prompts contain duplicate ID "${duplicateId(prompts)}"`,
+    (prompts: BasePrompt[]) => !duplicateId(prompts),
+    (prompts: BasePrompt[]) => `Prompts contain duplicate ID "${duplicateId(prompts)}"`,
   );
 
   v.addValidation('stages[].items',
@@ -183,15 +222,15 @@ const validateLogic = (protocol: Protocol) => {
   // Ordinal and categorical bin interfaces have a variable property on the prompt.
   // Check this variable exists in the stage subject codebook
   v.addValidation('prompts[].variable',
-    (variable: string, subject: StageSubject) => getVariablesForSubject(codebook, subject)[variable],
-    (variable: string, subject: StageSubject) => `"${variable}" not defined in codebook[${subject.entity}][${subject.type}].variables`,
+    (variable: string, subject: NodeStageSubject) => getVariablesForSubject(codebook, subject)[variable],
+    (variable: string, subject: NodeStageSubject) => `"${variable}" not defined in codebook[${subject.entity}][${subject.type}].variables`,
   );
 
   // 'otherVariable' is used by categorical bin for 'other' responses. Check this variable
   // exists in the stage subject codebook
   v.addValidation('prompts[].otherVariable',
-    (otherVariable: string, subject: StageSubject) => getVariablesForSubject(codebook, subject)[otherVariable],
-    (otherVariable: string, subject: StageSubject) => `"${otherVariable}" not defined in codebook[${subject.entity}][${subject.type}].variables`,
+    (otherVariable: string, subject: NodeStageSubject) => getVariablesForSubject(codebook, subject)[otherVariable],
+    (otherVariable: string, subject: NodeStageSubject) => `"${otherVariable}" not defined in codebook[${subject.entity}][${subject.type}].variables`,
   );
 
   // Sociogram and TieStrengthCensus use createEdge to know which edge type to create.
@@ -209,23 +248,23 @@ const validateLogic = (protocol: Protocol) => {
   // Check that it exists on the edge type specified by createEdge, and that its type is ordinal.
   v.addValidationSequence('prompts[].edgeVariable',
     [
-      (edgeVariable: string, _: any, keypath: Array<string>) => {
+      (edgeVariable: string, _: unknown, keypath: Array<string>) => {
         // Keypath = [ 'protocol', 'stages', '[{stageIndex}]', 'prompts', '[{promptIndex}]', 'edgeVariable' ]
         const path = `stages.${keypath[2]}.prompts${keypath[4]}.createEdge`;
-        const createEdgeForPrompt = get(protocol, path);
+        const createEdgeForPrompt = <string>get(protocol, path);
         return getVariablesForSubject(codebook, { entity: 'edge', type: createEdgeForPrompt })[edgeVariable];
       },
-      (edgeVariable: string, _: any, keypath: Array<string>) => {
+      (edgeVariable: string, _: unknown, keypath: Array<string>) => {
         const path = `stages.${keypath[2]}.prompts${keypath[4]}.createEdge`;
         const createEdgeForPrompt = get(protocol, path);
         return `"${edgeVariable}" not defined in codebook[edge][${createEdgeForPrompt}].variables`;
       },
     ],
     [
-      (edgeVariable: string, _: any, keypath: Array<string>) => {
+      (edgeVariable: string, _: unknown, keypath: Array<string>) => {
         // Keypath = [ 'protocol', 'stages', '[{stageIndex}]', 'prompts', '[{promptIndex}]', 'edgeVariable' ]
         const path = `stages.${keypath[2]}.prompts${keypath[4]}.createEdge`;
-        const createEdgeForPrompt = get(protocol, path);
+        const createEdgeForPrompt = <string>get(protocol, path);
         const codebookEdgeVariable = getVariablesForSubject(codebook, { entity: 'edge', type: createEdgeForPrompt })[edgeVariable];
 
         return codebookEdgeVariable.type === 'ordinal';
@@ -234,22 +273,14 @@ const validateLogic = (protocol: Protocol) => {
     ],
   );
 
-  // layoutVariable can either be a string, or an object where the key is a node type and the value
-  // is a variable ID.
+
+  // Plan for schema 8 was to support different format for layoutVariable allowing multiple. I removed
+  // this temporarily to simplify the typechecking.
   v.addValidation('prompts[].layout.layoutVariable',
     (variable: string, subject: StageSubject) => {
-      if (isObject(variable)) {
-        return Object.keys(variable).every(nodeType => getVariablesForSubject(codebook, { entity: 'node', type: nodeType })[variable[nodeType]]);
-      }
-
       return getVariablesForSubject(codebook, subject)[variable];
     },
-    (variable: string, subject: StageSubject) => {
-      if (isObject(variable)) {
-        const missing = Object.keys(variable).filter(nodeType => !getVariablesForSubject(codebook, { entity: 'node', type: nodeType })[variable[nodeType]]);
-        return missing.map(nodeType => `Layout variable "${variable[nodeType]}" not defined in codebook[node][${nodeType}].variables.`).join(' ');
-      }
-
+    (variable: string, subject: NodeStageSubject) => {
       return `Layout variable "${variable}" not defined in codebook[${subject.entity}][${subject.type}].variables.`;
     },
   );

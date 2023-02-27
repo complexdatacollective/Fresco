@@ -15,6 +15,8 @@
   "author": "Ayron Wohletz",
   "license": "ISC",
   "devDependencies": {
+    "tsconfig": "*",
+    "config": "*",
     "@electron/notarize": "^1.2.1",
     "@prisma/engines": "^4.10.1",
     "@types/node": "^18.11.17",

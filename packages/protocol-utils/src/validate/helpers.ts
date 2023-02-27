@@ -1,24 +1,57 @@
-import { Codebook, Form, CodebookNodeTypeDefinition, FilterRule } from "@codaco/shared-consts";
+import { Codebook, VariableDefinition, CodebookNodeTypeDefinition, FilterRule, StageSubject } from "@codaco/shared-consts";
+import { get, has } from "../../../utils/src";
+
+interface AjvErrorObject {
+  dataPath: string;
+  message: string;
+  params?: {
+    additionalProperty?: string;
+    allowedValues?: string;
+    allowedValue?: string;
+  }
+}
 
 // For some error types, AJV returns info separate from message
-export const additionalErrorInfo = (errorObj: any) => {
-  const params = errorObj.params || {};
-  return params.additionalProperty
-    || params.allowedValues
-    || params.allowedValue;
-};
+export const additionalErrorInfo = (errorObj: AjvErrorObject) => {
+  if (!errorObj) {
+    return undefined;
+  }
 
-// Convert an AJV error object to a string
-export const errToString = (errorObj: any) => {
+  if (typeof errorObj === 'object') {
+    const params = errorObj.params || {};
+    return params.additionalProperty
+      || params.allowedValues
+      || params.allowedValue;
+  }
+
   if (typeof errorObj === 'string') {
     return errorObj;
   }
-  let str = `${errorObj.dataPath} ${errorObj.message}`;
-  const addlInfo = additionalErrorInfo(errorObj);
-  if (addlInfo) {
-    str += ` '${addlInfo}'`;
+
+  return undefined;
+};
+
+// Convert an AJV error object to a string
+export const errToString = (errorObj: unknown) => {
+  if (typeof errorObj === 'string') {
+    return errorObj;
   }
-  return `${str} \n\n`;
+
+  if (!errorObj || typeof errorObj !== 'object') {
+    return '';
+  }
+
+  // If the error object has a dataPath, it's an AJV error
+  if (errorObj && has(errorObj, 'dataPath')) {
+    const dataPath = <string>get(errorObj, 'dataPath', '');
+    const message = <string>get(errorObj, 'message', '');
+    let str = `${dataPath} ${message}`;
+    const addlInfo = additionalErrorInfo(errorObj as AjvErrorObject);
+    if (addlInfo) {
+      str += ` '${addlInfo}'`;
+    }
+    return `${str} \n\n`;
+  }
 };
 
 // Check that if a node has a displayVariable property, that it is defined in the node's variables
@@ -38,55 +71,68 @@ export const entityDefFromRule = (rule: FilterRule, codebook: Codebook) => {
     }
   }
 
-  return false;
+  return undefined;
 };
 
-export const getVariablesForSubject = (codebook: Codebook, subject: Sta) => {
-  if (subject && subject.entity === 'ego') {
-    return get(codebook, ['ego', 'variables'], {});
+export const getVariablesForSubject = (codebook: Codebook, subject: StageSubject) => {
+  if (!subject || !codebook) { return {}; }
+
+  if (subject.entity === 'ego') {
+    return codebook.ego?.variables || {};
   }
 
-  return get(codebook, [subject.entity, subject.type, 'variables'], {});
+  return codebook[subject.entity]?.[subject.type as keyof object]?.variables || {};
 };
 
-export const getVariableNameFromID = (codebook, subject, variableID) => {
+// @return a variable's human-readable name, based on its ID
+export const getVariableNameFromID = (codebook: Codebook, subject: StageSubject, variableID: string) => {
+  // Could be replaced with a brute-force search of all variables?
   const variables = getVariablesForSubject(codebook, subject);
-  return get(variables, [variableID, 'name'], variableID);
+  return variables[variableID]?.name || variableID;
 };
 
-export const getSubjectTypeName = (codebook, subject) => {
-  if (!subject) { return 'entity'; }
-
+// @return the name of the subject type, or false if not found. Used when mapping multiple subjects.
+export const getSubjectTypeName = (codebook: Codebook, subject: StageSubject) => {
   if (subject.entity === 'ego') {
     return 'ego';
   }
 
-  return get(codebook, [subject.entity, subject.type, 'name'], subject.type);
+  return codebook[subject.entity]?.[subject.type].name || false;
 };
 
-export const getVariableNames = registryVars => Object.values(registryVars).map(vari => vari.name);
+// @return an array of all variable names from a codebook entity variable list
+export const getVariableNames = (registryVariables: Record<string, VariableDefinition>) => Object.values(registryVariables).map(variable => variable.name);
 
-export const getEntityNames = registryVars => ([
-  ...Object.values(registryVars.node || {}).map(vari => vari.name),
-  ...Object.values(registryVars.edge || {}).map(vari => vari.name),
+// @return an array of all entity names in the codebook
+export const getEntityNames = (codebook: Codebook) => ([
+  ...Object.values(codebook.node || {}).map(entity => entity.name),
+  ...Object.values(codebook.edge || {}).map(entity => entity.name),
 ]);
 
-// @return the ID (or other unique prop) which is a duplicate, undefined otherwise
-export const duplicateId = (elements, uniqueProp = 'id') => {
-  const map = {};
+// @return the ID (or other unique prop) which is a duplicate, or undefined
+export const duplicateId = (elements: object[], uniqueProp = 'id') => {
+  const map: Record<string, unknown> = {};
+
   const dupe = elements.find((el) => {
-    if (map[el[uniqueProp]]) {
+    // Check if element is already in map
+    if (map[el[uniqueProp as keyof object]]) {
       return true;
     }
-    map[el[uniqueProp]] = 1;
+
+    // Push element to map
+
+    map[el[uniqueProp as keyof object]] = true;
+
     return false;
   });
-  return dupe && dupe[uniqueProp];
+
+  return dupe && dupe[uniqueProp as keyof object];
 };
 
-// @return the item which is a duplicate, undefined otherwise
-export const duplicateInArray = (items) => {
+// @return the item which is a duplicate, or undefined
+export const duplicateInArray = (items: Array<string | false>) => {
   const set = new Set();
+
   const dupe = items.find((item) => {
     if (set.has(item)) {
       return true;

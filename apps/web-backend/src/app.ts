@@ -4,24 +4,23 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import connectDB from "./utils/prisma";
+import connectDB from "@codaco/database";
 import { appRouter, createTRPCContext } from "@codaco/api";
+import protocolsRouter from "./routes/protocol";
 
 dotenv.config({ path: path.join(__dirname, "./.env") });
+const PORT = 3001; // TODO: make this configurable
 
 const app = express();
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
 app.use(cors());
 
-// Dev mode middleware to add 2 seconds delay to all requests
-if (process.env.NODE_ENV !== "production") {
-  app.use(async (_req, _res, next) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    next();
-  });
-}
+// Protocol upload handling
+app.use('/protocols', protocolsRouter)
 
+
+// TRPC API
 app.use(
   "/api/trpc",
   trpcExpress.createExpressMiddleware({
@@ -30,7 +29,14 @@ app.use(
   })
 );
 
-const PORT = 3001;
+
+// Serve the static front end in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);

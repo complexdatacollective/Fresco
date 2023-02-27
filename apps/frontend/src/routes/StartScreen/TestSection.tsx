@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, useMemo } from 'react';
+import { useState, ChangeEvent, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Spinner, Button } from '@codaco/ui';
 import Section from './Section';
@@ -9,6 +9,7 @@ import { getQueryKey } from '@trpc/react-query';
 
 const TestSection = () => {
   const [file, setFile] = useState<File>();
+  const [loading, setLoading] = useState(false);
 
   const [userName, setUserName] = useState('');
 
@@ -17,10 +18,13 @@ const TestSection = () => {
 
   const { 
     data: users,
-    isFetching,
-    isLoading,
-    error,    
+    isLoading: isUsersLoading,
   } = trpcReact.user.all.useQuery();
+
+  const {
+    data: protocols,
+    isLoading: isLoadingProtocols,
+  } = trpcReact.protocols.all.useQuery();
 
   /**
    * Create user mutation
@@ -32,7 +36,6 @@ const TestSection = () => {
   const {
     mutate: createUser,
     isLoading: isCreatingUser,
-    isError: isCreateUserError,
   } = trpcReact.user.create.useMutation({
     onMutate: async (newUser) => {
       // Cancel any outgoing refetches sso they don't overwrite our optimistic update
@@ -78,7 +81,6 @@ const TestSection = () => {
   const {
     mutate: deleteUser,
     isLoading: isDeletingUser,
-    isError: isDeleteUserError,
   } = trpcReact.user.delete.useMutation({
     onMutate: async (id) => {
       // Cancel any outgoing refetches sso they don't overwrite our optimistic update
@@ -109,6 +111,14 @@ const TestSection = () => {
     },
   });
 
+    useEffect(() => {
+      if (isUsersLoading || isCreatingUser || isDeletingUser) {
+        setLoading(true);
+      } else {
+        setLoading(false);
+      }
+  }, [isUsersLoading, isCreatingUser, isDeletingUser])
+
   const handleDeleteUser = (id: string) => {
     deleteUser(id);
   }
@@ -120,6 +130,29 @@ const TestSection = () => {
     });
     setUserName('');
   }
+
+  const handleCreateProtocol = async () => {
+    if (!file) {
+      return;
+    }
+
+    try {
+      const result = await fetch('http://127.0.0.1:3001/api/protocols', {
+        method: 'POST',
+        body: file,
+      });
+
+      console.log(result);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
 
   // Capture NODE_ENV
   const platform = import.meta.env.VITE_APP_PLATFORM || 'web';
@@ -135,8 +168,6 @@ const TestSection = () => {
         <h1>Users</h1>
         <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} />
         <button onClick={handleSubmit}>Add user</button>
-        {isCreateUserError && <p>Error creating user</p>}
-        {error && <p>{error.message}</p>}
         <AnimatePresence initial={false}>
           <ul>
             {users && users.map((user, index) => (
@@ -148,15 +179,14 @@ const TestSection = () => {
                 transition={{ duration: 0.2 }}
                 layout
               >
-                {user.name} - {user.email} <Button disabled={isDeletingUser} size="small" onClick={() => handleDeleteUser(user.id)}>Delete</Button>
+                {user.name} - {user.email} <Button size="small" onClick={() => handleDeleteUser(user.id)}>Delete</Button>
               </motion.li>
             ))}
           </ul>
         </AnimatePresence>
-        {isLoading && <Spinner />}
-        {isFetching || isCreatingUser || isDeletingUser && !isLoading && <Spinner small />}
+        {loading && <Spinner />}
       </div>
-      {/* <motion.section
+      <motion.section
         style={{
           background: 'var(--color-tomato)',
           padding: '1.2rem 3.6rem',
@@ -164,16 +194,12 @@ const TestSection = () => {
       >
         <h1>API Test</h1>
         <h2>Platform: {platform}</h2>
-        {isLoading && <Spinner />}
-        {isError && <p>{guardedError}</p>}
-        {isSuccess && (
-          <ul>
-            {protocols.map((protocol: Protocol) => (
-              <li key={protocol.name}>{protocol.name}</li>
-            ))}
-            {isFetching && <Spinner />}
-          </ul>
-        )}
+        {isLoadingProtocols && <Spinner />}
+        <ul>
+          {protocols?.map((protocol) => (
+            <li key={protocol.name}>{protocol.name}</li>
+          ))}
+        </ul>
       </motion.section>
       <section
         style={{
@@ -188,13 +214,10 @@ const TestSection = () => {
           onChange={handleFileChange}
         />
         <div>{file && `${file.name} - ${file.type}`}</div>
-        <button
-          onClick={handleCreateProtocol}
-          disabled={isAddingProtocol}
-        >
+        <Button onClick={handleCreateProtocol}>
           Upload
-        </button>
-      </section> */}
+        </Button>
+      </section>
     </Section>
   );
 };

@@ -1,8 +1,11 @@
 {
-  "files": [],
-  "compilerOptions": {
-    "skipLibCheck": true,
-  },
+  "extends": "tsconfig/electron.json",
+  "include": [
+    "**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "references": [
     {
       "path": "./src/renderer"

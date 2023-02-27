@@ -1,13 +1,12 @@
 {
+  "extends": "tsconfig/node.json",
+  "include": [
+    "**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "compilerOptions": {
-    "target": "es2018",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "skipLibCheck": true
+    "outDir": "./build",
   }
 }

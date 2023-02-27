@@ -96,9 +96,29 @@ var userRouter = createTRPCRouter({
   })
 });
 
+// src/routers/protocols.ts
+var import_zod3 = require("zod");
+var protocolsRouter = createTRPCRouter({
+  all: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.protocol.findMany({
+      orderBy: {
+        id: "desc"
+      }
+    });
+  }),
+  byId: publicProcedure.input(import_zod3.z.string()).query(({ ctx, input }) => {
+    return ctx.prisma.protocol.findFirst({
+      where: {
+        id: input
+      }
+    });
+  })
+});
+
 // src/root.ts
 var appRouter = createTRPCRouter({
-  user: userRouter
+  user: userRouter,
+  protocols: protocolsRouter
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
