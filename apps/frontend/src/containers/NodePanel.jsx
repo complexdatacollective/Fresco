@@ -9,7 +9,7 @@ import {
 import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
 import { Panel, NodeList } from '../components';
 import withExternalData from './withExternalData';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 
 const customFilter = () => {
   console.warn('Custom filter not implemented');

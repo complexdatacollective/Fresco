@@ -17,8 +17,7 @@ if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 app.use(cors());
 
 // Protocol upload handling
-app.use('/protocols', protocolsRouter)
-
+app.use('/api/protocols', protocolsRouter)
 
 // TRPC API
 app.use(

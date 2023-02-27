@@ -3,7 +3,7 @@ import environments from './environments';
 import inEnvironment from './Environment';
 import { readFile } from './filesystem';
 import getAssetUrl from './protocol/getAssetUrl';
-import { get } from './lodash-replacements';
+import { get } from 'utils';
 
 const CSVWorker = new Worker(new URL('./csvDecoder.worker.js', import.meta.url));
 

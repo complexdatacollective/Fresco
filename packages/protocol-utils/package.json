@@ -5,12 +5,11 @@
   "files": [
     "dist"
   ],
-  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "type": "module",
   "scripts": {
     "test": "jest",
-    "dev": "tsup --watch",
+    "dev": "nodemon",
     "build": "tsup",
     "validate-protocol": "node src/scripts/validate-protocol.js",
     "build-schemas": "node src/scripts/build-schemas.js",
@@ -39,9 +38,10 @@
     "@types/uuid": "^9.0.0",
     "ajv": "^8.12.0",
     "chalk": "^5.2.0",
+    "esbuild": "0.17.10",
+    "nodemon": "^2.0.20",
     "jest": "^27.5.1",
     "rimraf": "^4.1.2",
-    "tsup": "^6.6.0",
     "typescript": "^4.9.5",
     "uuid": "^9.0.0"
   }

@@ -60,7 +60,7 @@ export type SociogramPrompt = BasePrompt & {
 
 export type FilterRule = {
   id: string;
-  type: 'alter' | 'ego' | 'edge' | string;
+  type: 'alter' | 'ego' | 'edge'; // TODO: This should be 'ego' | 'node' | 'edge'
   options: {
     type?: string,
     operator: "EXISTS" | "NOT_EXISTS" | "EXACTLY" | "NOT" | "GREATER_THAN" | "GREATER_THAN_OR_EQUAL" | "LESS_THAN" | "LESS_THAN_OR_EQUAL" | "INCLUDES" | "EXCLUDES" | "OPTIONS_GREATER_THAN" | "OPTIONS_LESS_THAN" | "OPTIONS_EQUALS" | "OPTIONS_NOT_EQUALS" | string;

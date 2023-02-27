@@ -6,12 +6,12 @@ import { randomUUID } from 'node:crypto';
 
 const multipart = multer({
   storage: multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_req, _file, cb) => {
       // OS temp directory
       const tempDir = mkdtempSync(join(tmpdir(), `protocol-${randomUUID()}`));
       cb(null, tempDir);
     },
-    filename: (req, file, cb) => {
+    filename: (_req, file, cb) => {
       cb(null, file.originalname);
     },
   }),

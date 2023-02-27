@@ -12,7 +12,7 @@ import chalk from 'chalk';
 
 
 const protocolArg = process.argv[2];
-const forceSchemaArg: string = process.argv[3];
+const forceSchemaArg = process.argv[3];
 
 if (!protocolArg) {
   console.error(chalk.red('You must specify a protocol file to validate.'));
@@ -24,28 +24,31 @@ const protocolName = basename(protocolFilepath);
 const exitOnValidationFailure = !!process.env.CI;
 
 
-const validateJson = (jsonString: string) => {
+const validateJson = (jsonString) => {
   try {
-    validateProtocol(jsonString, forceSchemaArg);
-
+    validateProtocol(jsonString, forceSchemaArg); // Throws ValidationError if invalid
     console.log(chalk.green(`${protocolName} is valid.`));
   } catch (err) {
     // Test for our custom ValidationError
     if (err instanceof ValidationError) {
       console.log(chalk.red(`${protocolName} is NOT valid!`));
-      if (err.schemaErrors.length) {
-        console.error(`${protocolName} has the following schema errors:`);
-        err.schemaErrors.forEach(err => console.warn('-', errToString(err)));
+
+      // TODO: Format this as a tree structure for better readability
+
+      if (err.dataErrors.size > 0) {
+        console.log('Data Errors:');
+        err.dataErrors.forEach((err, key) => console.warn(`- ${key}: ${errToString(err)}`));
       }
 
-      if (err.dataErrors.length) {
-        console.error(`${protocolName} has the following data errors:`);
-        err.dataErrors.forEach(err => console.warn('-', errToString(err)));
+      if (err.schemaErrors.size > 0) {
+        console.log('Schema Errors:');
+        err.schemaErrors.forEach((err, key) => console.warn(`- ${key}: ${errToString(err)}`));
       }
+      return;
     }
 
     // Otherwise, it's an internal error
-    console.error(chalk.red(`${protocolName} has an internal validation error:`));
+    console.error(chalk.red('There was an internal error while validating the protocol.'));
     console.error(err);
 
     if (exitOnValidationFailure) {

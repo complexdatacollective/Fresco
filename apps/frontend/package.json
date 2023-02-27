@@ -18,6 +18,7 @@
     "@codaco/api": "*",
     "@codaco/shared-consts": "*",
     "@codaco/ui": "*",
+    "utils": "*",
     "@faker-js/faker": "^7.6.0",
     "@reduxjs/toolkit": "~1.9.2",
     "@testing-library/jest-dom": "^5.16.5",

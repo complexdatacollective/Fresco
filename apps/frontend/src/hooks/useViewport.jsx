@@ -3,7 +3,7 @@ import { useMotionValue } from 'framer-motion';
 import {
   clamp, max, min,
 } from 'lodash';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 
 const LAYOUT_SPACE = 1000;
 

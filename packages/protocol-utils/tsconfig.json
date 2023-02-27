@@ -2,7 +2,6 @@
   "extends": "tsconfig/lib.json",
   "include": [
     "src/**/*",
-    "scripts"
   ],
   "compilerOptions": {
     "outDir": "./build",

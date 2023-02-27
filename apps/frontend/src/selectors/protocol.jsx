@@ -7,7 +7,7 @@ import {
 } from 'lodash';
 import { createSelector } from '@reduxjs/toolkit';
 import { entityAttributesProperty } from '@codaco/shared-consts';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 
 const DefaultFinishStage = {
   // `id` is used as component key; must be unique from user input

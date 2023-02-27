@@ -9,7 +9,7 @@ import Accordion from './Accordion';
 import {
   makeGetEdgeColor, makeGetEdgeLabel, makeGetNodeAttributeLabel, makeGetCategoricalOptions,
 } from '../../selectors/network';
-import { get } from '../../utils/lodash-replacements';
+import { get } from 'utils';
 
 class PresetSwitcherKey extends Component {
   constructor() {

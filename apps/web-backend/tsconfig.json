@@ -4,9 +4,10 @@
     "**/*.ts",
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "./dist"
   ],
   "compilerOptions": {
-    "outDir": "./build",
+    "outDir": "./dist",
   }
 }

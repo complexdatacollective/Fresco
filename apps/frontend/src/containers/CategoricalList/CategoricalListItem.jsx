@@ -8,7 +8,7 @@ import { getEntityAttributes } from '../../ducks/modules/network';
 import { CategoricalItem } from '../../components';
 import Overlay from '../Overlay';
 import OtherVariableForm from './OtherVariableForm';
-import { get } from '../../utils/lodash-replacements';
+import { get } from 'utils';
 
 const formatBinDetails = (nodes, getNodeLabel) => {
   if (nodes.length === 0) {

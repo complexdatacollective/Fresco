@@ -7,10 +7,6 @@ console.log('protocols')
 const router: Router = express.Router();
 
 // Handle protocol upload
-router.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-router.post('api/protocols', multipartUpload.single('protocolFile'), protocolController)
+router.post('/', multipartUpload.single('protocolFile'), protocolController)
 
 export default router;

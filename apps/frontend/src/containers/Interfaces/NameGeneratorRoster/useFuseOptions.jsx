@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { compact, isEmpty } from 'lodash';
-import { get } from '../../../utils/lodash-replacements';
+import { get } from '../../utils';
 
 const defaultFuseOptions = {
   keys: [['props', 'label']],

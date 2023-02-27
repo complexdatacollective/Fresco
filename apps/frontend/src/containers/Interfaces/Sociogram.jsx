@@ -17,7 +17,7 @@ import {
   getEdges, getNextUnplacedNode, getNodes, getPlacedNodes,
 } from '../../selectors/canvas';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
-import { get } from '../../utils/lodash-replacements';
+import { get } from 'utils';
 
 const withResetInterfaceHandler = withHandlers({
   handleResetInterface: ({

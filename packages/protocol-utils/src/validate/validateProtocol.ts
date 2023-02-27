@@ -1,16 +1,16 @@
 import validateSchema from "./validateSchema.js";
 import validateLogic from "./validateLogic.js";
 
-type ValidateProtocolReturn = boolean | ValidationError;
-
 export class ValidationError extends Error {
-  constructor(message: string, public schemaErrors: Array<string>, public dataErrors: Array<string>) {
+  constructor(message: string, public schemaErrors: Map<string, string>, public dataErrors: Map<string, string>) {
     super(message); // (1)
     this.name = "ValidationError"; // (2)
-    this.schemaErrors = [];
-    this.dataErrors = [];
+    this.schemaErrors = schemaErrors;
+    this.dataErrors = dataErrors;
   }
 }
+
+type ValidateProtocolReturn = void | ValidationError;
 
 export const validateProtocol = (jsonString: string, forceVersion?: number): ValidateProtocolReturn => {
   let data;
@@ -18,26 +18,24 @@ export const validateProtocol = (jsonString: string, forceVersion?: number): Val
   try {
     data = JSON.parse(jsonString);
   } catch (e) {
-    console.error(e);
     throw new Error('Invalid JSON file');
   }
 
-  let schemaErrors: [] = [];
-  let dataErrors: [] = [];
-  let isValid: boolean = false;
+  let schemaErrors;
+  let dataErrors;
+  let isValid = false;
 
   try {
-    const schemaErrors = validateSchema(data, forceVersion);
-    const dataErrors = validateLogic(data);
-    isValid = !schemaErrors.length && !dataErrors.length;
+    schemaErrors = <Map<string, string>>validateSchema(data, forceVersion)
+    dataErrors = <Map<string, string>>validateLogic(data);
+
+    isValid = schemaErrors.size === 0 && dataErrors.size === 0;
   } catch (e) {
     console.error(e);
     throw new Error('Internal error with validation process.');
   }
 
-  if (isValid) {
-    return true;
+  if (!isValid) {
+    throw new ValidationError('Invalid protocol', schemaErrors, dataErrors);
   }
-
-  throw new ValidationError('Invalid protocol', schemaErrors, dataErrors);
 };

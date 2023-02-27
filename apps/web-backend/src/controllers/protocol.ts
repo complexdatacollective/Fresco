@@ -7,27 +7,25 @@ import { validateProtocol } from "@codaco/protocol-utils";
 const protocolController = async (req: Request, res: Response) => {
   const protocol = req.file;
 
-  console.log('protocol: ', protocol);
-
   if (!protocol) {
-    res.status(400).send("Protocol file not found");
+    res.status(400).send({ error: "Protocol file not found" });
     return;
   }
 
-  if (!protocol?.originalname.endsWith(".zip")) {
-    res.status(400).send("Protocol file must be a zip file.");
+  if (!protocol?.originalname.endsWith(".netcanvas")) {
+    res.status(400).send({ error: "Protocol file must be a .netcanvas file." });
     return;
   }
 
   if (!protocol.path) {
-    res.status(400).send("No path provided for protocol file.");
+    res.status(500).send({ error: "Internal error when creating temporary path for protocol file." });
     return;
   }
 
   const filename = protocol.originalname;
 
   if (!filename) {
-    res.status(400).send("No filename provided for protocol file.");
+    res.status(400).send({ error: "No filename provided for protocol file." });
   }
 
   // 1. Unzip the protocol file
@@ -39,7 +37,7 @@ const protocolController = async (req: Request, res: Response) => {
 
   unzip.stdout.on('error', (error) => {
     console.log('Error: ', error);
-    res.status(500).send('Error unzipping protocol file.');
+    res.status(500).send({ error: 'Error unzipping protocol file.' });
     unzip.kill();
     // Cleanup
     if (tempDir) {
@@ -62,7 +60,11 @@ const protocolController = async (req: Request, res: Response) => {
   // 2. Read the protocol.json file
   const protocolJson = await readFile(`${tempDir}/protocol.json`, 'utf-8');
 
-  console.log('PROTOCOL!!!', protocolJson);
+  // 3. Validate the protocol
+  const validationErrors = validateProtocol(protocolJson);
+
+  res.status(200).send({ message: 'Protocol file is valid.' });
+
 
   // Cleanup
   if (tempDir) {

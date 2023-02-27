@@ -1,4 +1,4 @@
-import { get } from '../../utils/lodash-replacements';
+import { get } from 'utils';
 
 // eslint-disable-next-line import/prefer-default-export
 export const getTwoModeLayoutVariable = (twoMode, nodeType, layout) => {

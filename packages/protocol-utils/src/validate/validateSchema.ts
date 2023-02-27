@@ -1,4 +1,5 @@
 import { Protocol } from '@codaco/shared-consts';
+import { ErrorObject } from 'ajv';
 import schemas from '../schemas/compiled/index.js';
 
 const getSchema = (version: number) =>
@@ -7,9 +8,9 @@ const getSchema = (version: number) =>
 /**
  * Statically validate the protocol based on JSON schema
  */
-const validateSchema = (protocol: Protocol, forceVersion?: number) => {
+const validateSchema = (protocol: Protocol, forceVersion?: number): Map<string, string> => {
   let version: number;
-  let { schemaVersion } = protocol;
+  const { schemaVersion } = protocol;
 
   // If forceVersion if provided, use that instead of the protocol's schemaVersion
   if (forceVersion) {
@@ -21,24 +22,34 @@ const validateSchema = (protocol: Protocol, forceVersion?: number) => {
     } else {
       version = schemaVersion;
     }
+
+    console.info(`Validating against schema version ${version}`);
   }
 
   const schema = getSchema(version);
 
   // Check resultant version exists
   if (!schema) {
-    return [new Error(`Provided schema version '${version}' is not defined`)];
+    throw new Error(`Provided schema version '${version}' is not defined`);
   }
 
   // Validate
   const validator = schema.validator;
   const result = validator(protocol);
-  if (!result) {
-    // @ts-ignore
-    return validator.errors;
-  };
+  if (!result && 'errors' in validator) {
+    const errors = new Map();
 
-  return [];
+    if (Array.isArray(validator.errors)) {
+      // Iterate validator.errors and add each item into a Map
+      validator.errors.forEach((error: ErrorObject) => {
+        errors.set(error.schemaPath, error.message);
+      });
+    }
+
+    return errors;
+  }
+
+  return new Map();
 
 };
 

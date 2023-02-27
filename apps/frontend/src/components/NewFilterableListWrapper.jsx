@@ -6,7 +6,7 @@ import { Spinner } from '@codaco/ui';
 import { Search } from '@codaco/ui';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import createSorter from '../utils/createSorter';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 
 export const getFilteredList = (items, filterTerm, propertyPath) => {
   if (!filterTerm) { return items; }

@@ -4,7 +4,7 @@ import { SessionCard } from '@codaco/ui';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import formatDatestamp from '../../utils/formatDatestamp';
 import Picker from '../../components/Picker';
-import { get } from '../../utils/lodash-replacements';
+import { get } from 'utils';
 
 const oneBasedIndex = (i) => parseInt(i || 0, 10) + 1;
 

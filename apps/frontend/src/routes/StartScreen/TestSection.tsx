@@ -136,15 +136,21 @@ const TestSection = () => {
       return;
     }
 
+    console.log(file);
+
+    // FormData is how we send files to the backend
+    const formData = new FormData();
+    formData.append('protocolFile', file);
+
     try {
       const result = await fetch('http://127.0.0.1:3001/api/protocols', {
         method: 'POST',
-        body: file,
+        body: formData,
       });
 
-      console.log(result);
+      console.log('result', result);
     } catch (err) {
-      console.error(err);
+      console.log("error with request: ", err);
     }
   }
 

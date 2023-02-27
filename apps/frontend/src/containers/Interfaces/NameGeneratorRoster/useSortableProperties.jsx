@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { compact } from 'lodash';
 import { convertNamesToUUIDs } from './helpers';
-import { get } from '../../../utils/lodash-replacements';
+import { get } from '../../utils';
 
 /**
  * Convert protocol config options into a format

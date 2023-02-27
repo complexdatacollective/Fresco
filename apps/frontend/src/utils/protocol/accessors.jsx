@@ -1,4 +1,4 @@
-import { get } from "../lodash-replacements";
+import { get } from "utils";
 
 export const getSubject = (stage, prompt) => {
   return stage.subject || prompt.subject;

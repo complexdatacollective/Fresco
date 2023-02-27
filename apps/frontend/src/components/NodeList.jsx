@@ -15,7 +15,7 @@ import {
   MonitorDragSource,
 } from '../behaviours/DragAndDrop';
 import createSorter from '../utils/createSorter';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 
 const EnhancedNode = DragSource(Node);
 

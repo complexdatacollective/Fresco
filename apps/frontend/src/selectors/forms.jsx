@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 import { getProtocolCodebook } from './protocol';
 
 // Prop selectors

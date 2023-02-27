@@ -9,7 +9,7 @@ import { getAdditionalAttributes, getSubject } from '../utils/protocol/accessors
 import { createDeepEqualSelector } from './utils';
 import { initialState } from '../ducks/modules/session';
 import { getProtocolCodebook, getProtocolStages, getCurrentSessionProtocol } from './protocol';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 
 const currentPathname = (router) => router && router.location && router.location.pathname;
 const stageIndexForCurrentSession = (state) => currentStageIndex(currentPathname(state.router));

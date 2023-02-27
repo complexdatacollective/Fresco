@@ -36,7 +36,7 @@ import DropOverlay from './DropOverlay';
 import {
   MaxNodesReached, maxNodesWithDefault, MinNodesNotMet, minNodesWithDefault,
 } from '../NameGeneratorQuickAdd';
-import { get } from '../../../utils/lodash-replacements';
+import { get } from '../../utils';
 
 const countColumns = (width) => (
   width < 140 ? 1 : Math.floor(width / 450)

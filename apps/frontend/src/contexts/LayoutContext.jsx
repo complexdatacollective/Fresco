@@ -11,7 +11,7 @@ import {
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
 import useForceSimulation from '../hooks/useForceSimulation';
-import { get } from '../utils/lodash-replacements';
+import { get } from 'utils';
 import { getTwoModeLayoutVariable } from '../components/RealtimeCanvas/utils';
 
 const SIMULATION_OPTIONS = {

@@ -60,10 +60,14 @@ export const nodeVarsIncludeDisplayVar = (node: CodebookNodeTypeDefinition) =>
   || Object.keys(node.variables).some(variableId => variableId === node.displayVariable);
 
 // Return the entity definition for a given rule based on its type
-export const entityDefFromRule = (rule: FilterRule, codebook: Codebook) => {
-  if (rule.type === 'ego') { return codebook.ego; } // Ego is always defined
-  if (rule.type === 'edge' || rule.type === 'node') {
-    const codebookEntity = codebook[rule.type];
+export const getEntityDefinitionFromRule = (rule: FilterRule, codebook: Codebook) => {
+  if (rule.type === 'ego') { return codebook.ego; }
+
+  if (rule.type === 'edge' || rule.type === 'alter') {
+    // Need to convert 'alter' to 'node' for codebook lookup
+    const codebookType = rule.type === 'edge' ? 'edge' : 'node';
+
+    const codebookEntity = codebook[codebookType]; // codebook.node or codebook.edge
     const ruleEntityType = rule.options?.type;
 
     if (codebookEntity && ruleEntityType) {
@@ -143,11 +147,12 @@ export const duplicateInArray = (items: Array<string | false>) => {
   return dupe;
 };
 
+
 export default {
   additionalErrorInfo,
   errToString,
   nodeVarsIncludeDisplayVar,
-  entityDefFromRule,
+  getEntityDefinitionFromRule,
   getVariablesForSubject,
   getVariableNameFromID,
   getSubjectTypeName,

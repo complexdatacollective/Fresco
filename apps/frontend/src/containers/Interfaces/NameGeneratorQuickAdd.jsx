@@ -17,7 +17,7 @@ import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../selectors
 import NodePanels from '../NodePanels';
 import QuickNodeForm from '../QuickNodeForm';
 import { NodeList, NodeBin } from '../../components';
-import { get } from '../../utils/lodash-replacements';
+import { get } from 'utils';
 
 export const useSelfDismissingNote = (
   {

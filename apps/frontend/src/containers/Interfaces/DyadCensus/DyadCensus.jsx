@@ -17,7 +17,7 @@ import useSteps from './useSteps';
 import useNetworkEdgeState from './useEdgeState';
 import useAutoAdvance from './useAutoAdvance';
 import Pair from './Pair';
-import { get } from '../../../utils/lodash-replacements';
+import { get } from '../../utils';
 
 const fadeVariants = {
   show: { opacity: 1, transition: { duration: 0.5 } },

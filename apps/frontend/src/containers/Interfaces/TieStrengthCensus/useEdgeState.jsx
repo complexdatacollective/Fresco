@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as sessionsActions } from '../../../ducks/modules/sessions';
-import { get } from '../../../utils/lodash-replacements';
+import { get } from '../../utils';
 
 export const getEdgeInNetwork = (edges, pair, edgeType) => {
   if (!pair) { return null; }

@@ -7,10 +7,11 @@ const ajv = new Ajv({
   allErrors: true,
   allowUnionTypes: true, // Lets us use type: [string, object]
   code: {
-    esm: true,
+    // esm: true,
     source: true, // ?
   }
 });
+
 ajv.addFormat('integer', /\d+/);
 ajv.addFormat('date-time', /\d+/);
 
