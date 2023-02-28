@@ -182,7 +182,7 @@ class Validator {
    * Run a sequence validations in-order until a failure is hit
    * @private
    */
-  validateSequence(keypath: Keypath, fragment: unknown, sequence: Sequence, subject: StageSubject) {
+  validateSequence(keypath: Keypath, fragment: Fragment, sequence: Sequence, subject: StageSubject) {
     sequence.every(
       ([validate, makeFailureMessage]: [validate: ValidateFunction, makeFailureMessage: MakeFailureMessageFunction]) =>
         this.validateSingle(keypath, fragment, { validate, makeFailureMessage }, subject),
@@ -193,7 +193,7 @@ class Validator {
    * Run supplied validations if the validation's pattern matches the keypath
    * @private
    */
-  checkFragment(keypath: Keypath, fragment: unknown, subject: StageSubject) {
+  checkFragment(keypath: Keypath, fragment: Fragment, subject: StageSubject) {
     this.validations.forEach((validation) => {
       const { pattern } = validation;
 
@@ -233,7 +233,7 @@ class Validator {
    * Recursively traverse to validate parts of a protocol for which we have validations
    * @private
    */
-  traverse(fragment: unknown, keypath: Keypath = ['protocol'], subject?: StageSubject) {
+  traverse(fragment: Fragment, keypath: Keypath = ['protocol'], subject?: StageSubject) {
     if (!fragment) {
       return;
     }
