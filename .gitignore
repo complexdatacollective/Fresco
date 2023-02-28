@@ -11,6 +11,7 @@ coverage
 out/
 build
 dist
+packed
 
 # misc
 .DS_Store
