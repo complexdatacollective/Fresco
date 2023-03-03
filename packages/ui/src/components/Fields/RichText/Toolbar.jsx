@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSlate } from 'slate-react';
-import { includes } from 'lodash';
 import { isBlockActive, smartInsertThematicBreak } from './lib/actions';
 import { toggleBlockquote } from './lib/blockquotes';
 import { MarkButton, BlockButton, ToolbarButton } from './ToolbarButton';
@@ -13,9 +12,9 @@ const Toolbar = () => {
 
   return (
     <div className="rich-text__toolbar">
-      { includes(filteredItems, 'bold') && <MarkButton format="bold" icon="bold" tooltip="Bold" /> }
-      { includes(filteredItems, 'italic') && <MarkButton format="italic" icon="italic" tooltip="Italic" /> }
-      { includes(filteredItems, 'headings') && (
+      {filteredItems.includes('bold') && <MarkButton format="bold" icon="bold" tooltip="Bold" />}
+      {filteredItems.includes('italic') && <MarkButton format="italic" icon="italic" tooltip="Italic" />}
+      {filteredItems.includes('headings') && (
         <>
           <div className="toolbar-spacer" />
           <BlockButton format="heading_one" icon="h1" tooltip="Heading One" />
@@ -24,7 +23,7 @@ const Toolbar = () => {
           <BlockButton format="heading_four" icon="h4" tooltip="Heading Four" />
         </>
       )}
-      { includes(filteredItems, 'quote') && (
+      {filteredItems.includes('quote') && (
         <>
           <div className="toolbar-spacer" />
           <ToolbarButton
@@ -35,20 +34,20 @@ const Toolbar = () => {
           />
         </>
       )}
-      { includes(filteredItems, 'lists') && (
+      {filteredItems.includes('lists') && (
         <>
           <div className="toolbar-spacer" />
           <BlockButton format="ol_list" icon="ol" tooltip="Numbered List" />
           <BlockButton format="ul_list" icon="ul" tooltip="Bulleted List" />
         </>
       )}
-      { includes(filteredItems, 'thematic_break') && (
+      {filteredItems.includes('thematic_break') && (
         <>
           <div className="toolbar-spacer" />
           <ToolbarButton action={() => smartInsertThematicBreak(editor)} icon="hr" tooltip="Thematic Break" />
         </>
       )}
-      { includes(filteredItems, 'history') && (
+      {filteredItems.includes('history') && (
         <>
           <div className="toolbar-spacer" />
           <ToolbarButton

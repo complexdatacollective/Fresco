@@ -16,6 +16,7 @@ import superjson from 'superjson';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
 import { trpcReact } from './utils/trpc/trpc';
+import FetchingIndicator from './FetchingIndicator';
 
 const list = {
   visible: {
@@ -109,6 +110,7 @@ const App = ({
           })}
         >
           <div className="electron-titlebar" />
+          <FetchingIndicator />
           <div
             id="page-wrap"
             className={cx({

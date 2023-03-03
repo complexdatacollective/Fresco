@@ -10,7 +10,7 @@ import { createDeepEqualSelector } from './utils';
 import createSorter, { processProtocolSortRule } from '../utils/createSorter';
 import { getEntityAttributes } from '../ducks/modules/network';
 import { getStageSubject } from './session';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 import { getAllVariableUUIDsByEntity } from './protocol';
 
 const getLayout = (_, props) => get(props, 'prompt.layout.layoutVariable');

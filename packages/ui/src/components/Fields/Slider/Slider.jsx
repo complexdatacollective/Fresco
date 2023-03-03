@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { round, get, isNil } from 'lodash';
+import { round, get, isNil } from '@codaco/utils';
 import cx from 'classnames';
 import {
   Slider, Handles, Tracks, Ticks,
@@ -141,21 +141,21 @@ class SliderInput extends Component {
               </div>
             )}
           </Tracks>
-          { tickCount
+          {tickCount
             && (
-            <Ticks count={tickCount}>
-              {({ ticks }) => (
-                <div className="form-field-slider__ticks">
-                  {ticks.map((tick, index) => (
-                    <Tick
-                      tick={tick}
-                      key={`${this.getLabelForValue}_${index}`}
-                      getLabelForValue={this.getLabelForValue}
-                    />
-                  ))}
-                </div>
-              )}
-            </Ticks>
+              <Ticks count={tickCount}>
+                {({ ticks }) => (
+                  <div className="form-field-slider__ticks">
+                    {ticks.map((tick, index) => (
+                      <Tick
+                        tick={tick}
+                        key={`${this.getLabelForValue}_${index}`}
+                        getLabelForValue={this.getLabelForValue}
+                      />
+                    ))}
+                  </div>
+                )}
+              </Ticks>
             )}
         </Slider>
       </div>

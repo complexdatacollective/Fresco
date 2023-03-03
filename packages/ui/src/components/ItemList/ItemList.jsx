@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import { debounce, isEmpty } from 'lodash';
+import { debounce, isEmpty } from '@codaco/utils';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {
   AnimatePresence,

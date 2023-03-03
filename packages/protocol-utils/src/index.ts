@@ -1,5 +1,5 @@
 // Migrate
-export * from './migrate/index.js';
+// export * from './migrate/index.js';
 
 // Schemas
 export * from './schemas/buildSchemas.js';

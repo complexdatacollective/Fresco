@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useId } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
-import { isEqual, get } from 'lodash';
+import { isEqual, get } from '@codaco/utils';
 import Button from '../Button';
 import { getCSSVariableAsNumber } from '../../utils/CSSVariables';
 import Search from '../Fields/Search';

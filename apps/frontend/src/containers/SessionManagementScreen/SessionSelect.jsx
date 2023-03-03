@@ -5,7 +5,7 @@ import { SessionCard } from '@codaco/ui';
 import { Switch } from '../../components';
 import NewFilterableListWrapper, { getFilteredList } from '../../components/NewFilterableListWrapper';
 import formatDatestamp from '../../utils/formatDatestamp';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const oneBasedIndex = (i) => parseInt(i || 0, 10) + 1;
 

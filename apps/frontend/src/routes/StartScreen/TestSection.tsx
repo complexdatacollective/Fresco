@@ -1,10 +1,9 @@
-import { useState, ChangeEvent, useMemo, useEffect } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Spinner, Button } from '@codaco/ui';
 import Section from './Section';
 import { trpcReact } from '@/utils/trpc/trpc';
-import { useQueryClient } from '@tanstack/react-query';
-import { getQueryKey } from '@trpc/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 
 const TestSection = () => {
@@ -15,6 +14,17 @@ const TestSection = () => {
 
   // Gives access to helpers: https://trpc.io/docs/useContext#helpers
   const utils = trpcReact.useContext();
+
+  // https://tanstack.com/query/v4/docs/react/reference/useMutation
+  const {
+    mutate: uploadProtocol,
+    isLoading: isUploadingProtocol,
+  } = useMutation(formData => {
+    return fetch('http://127.0.0.1:3001/api/protocols', {
+      method: 'POST',
+      body: formData,
+    })
+  })
 
   const { 
     data: users,
@@ -141,17 +151,11 @@ const TestSection = () => {
     // FormData is how we send files to the backend
     const formData = new FormData();
     formData.append('protocolFile', file);
-
-    try {
-      const result = await fetch('http://127.0.0.1:3001/api/protocols', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('result', result);
-    } catch (err) {
-      console.log("error with request: ", err);
-    }
+    uploadProtocol(formData, {
+      onSuccess: (data) => {
+        console.log('success', data);
+      },
+    })
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +177,7 @@ const TestSection = () => {
       >
         <h1>Users</h1>
         <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} />
-        <button onClick={handleSubmit}>Add user</button>
+        <Button onClick={handleSubmit}>Add user</Button>
         <AnimatePresence initial={false}>
           <ul>
             {users && users.map((user, index) => (
@@ -192,35 +196,26 @@ const TestSection = () => {
         </AnimatePresence>
         {loading && <Spinner />}
       </div>
-      <motion.section
-        style={{
-          background: 'var(--color-tomato)',
-          padding: '1.2rem 3.6rem',
-        }}
-      >
-        <h1>API Test</h1>
-        <h2>Platform: {platform}</h2>
-        {isLoadingProtocols && <Spinner />}
-        <ul>
-          {protocols?.map((protocol) => (
-            <li key={protocol.name}>{protocol.name}</li>
-          ))}
-        </ul>
-      </motion.section>
       <section
         style={{
           background: 'var(--color-tomato)',
           padding: '1.2rem 3.6rem',
         }}
       >
-        <h1>Add protocol</h1>
+        <h1>Protocols</h1>
+        {isLoadingProtocols && <Spinner />}
+        <ul>
+          {protocols?.map((protocol) => (
+            <li key={protocol.name}>{protocol.name}</li>
+          ))}
+        </ul>
         <input
           type="file"
           accept=".netcanvas"
           onChange={handleFileChange}
         />
         <div>{file && `${file.name} - ${file.type}`}</div>
-        <Button onClick={handleCreateProtocol}>
+        <Button onClick={handleCreateProtocol} disabled={isUploadingProtocol}>
           Upload
         </Button>
       </section>

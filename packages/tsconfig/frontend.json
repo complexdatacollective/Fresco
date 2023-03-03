@@ -12,19 +12,18 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"],
-      "@components/*": ["components/*"],
-      "@containers/*": ["containers/*"],
-      "@contexts/*": ["contexts/*"],
-      "@ducks/*": ["ducks/*"],
-      "@hooks/*": ["hooks/*"],
-      "@interfaces/*": ["components/interfaces/*"],
-      "@images/*": ["images/*"],
-      "@routes/*": ["routes/*"],
-      "@selectors/*": ["selectors/*"],
-      "@utils/*": ["utils/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@containers/*": ["./src/containers/*"],
+      "@contexts/*": ["./src/contexts/*"],
+      "@ducks/*": ["./src/ducks/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@interfaces/*": ["./src/components/interfaces/*"],
+      "@images/*": ["./src/images/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@selectors/*": ["./src/selectors/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "exclude": ["node_modules", "build"]

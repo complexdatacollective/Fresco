@@ -1,8 +1,7 @@
 import { useContext } from 'react';
-import { range } from 'lodash';
 import { Interval } from 'luxon';
 import DatePickerContext from './DatePickerContext';
-import { formatRangeItem, getMonthName } from './helpers';
+import { formatRangeItem, getMonthName, rangeOfYears } from './helpers';
 
 /**
  * Supplies `months` range.
@@ -10,7 +9,7 @@ import { formatRangeItem, getMonthName } from './helpers';
 const Months = ({ children }) => {
   const { date, range: dateRange } = useContext(DatePickerContext);
 
-  const months = range(1, 13)
+  const months = rangeOfYears(1, 13)
     .map((month) => {
       // Create a month long period
       const m = Interval.after({ ...date, month, day: 1 }, { months: 1 });

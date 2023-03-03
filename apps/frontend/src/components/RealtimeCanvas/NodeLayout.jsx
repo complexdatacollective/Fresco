@@ -5,7 +5,7 @@ import { entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shar
 import { isEmpty, find } from 'lodash';
 import LayoutContext from '../../contexts/LayoutContext';
 import LayoutNode from './LayoutNode';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 import { getTwoModeLayoutVariable } from './utils';
 
 class NodeLayout extends React.Component {

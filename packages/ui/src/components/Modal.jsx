@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
-import window from './window';
 import { getCSSVariableAsNumber } from '../utils/CSSVariables';
 
 class Modal extends Component {
@@ -67,4 +66,4 @@ Modal.defaultProps = {
 
 export { Modal };
 
-export default window(Modal);
+export default Modal;

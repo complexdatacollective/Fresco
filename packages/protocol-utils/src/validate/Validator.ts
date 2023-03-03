@@ -1,5 +1,5 @@
 import type { Protocol, StageSubject } from "@codaco/shared-consts";
-import { isObject } from "utils";
+import { isObject } from "@codaco/utils";
 
 const getErrorString = (error: unknown) => {
   if (typeof error === 'string') {

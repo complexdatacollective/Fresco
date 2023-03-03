@@ -9,7 +9,7 @@ import Accordion from './Accordion';
 import {
   makeGetEdgeColor, makeGetEdgeLabel, makeGetNodeAttributeLabel, makeGetCategoricalOptions,
 } from '../../selectors/network';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 class PresetSwitcherKey extends Component {
   constructor() {

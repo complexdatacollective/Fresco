@@ -1,5 +1,5 @@
 import { Codebook, VariableDefinition, CodebookNodeTypeDefinition, FilterRule, StageSubject } from "@codaco/shared-consts";
-import { get, has } from "../../../utils/src";
+import { get, has } from "@codaco/utils";
 
 interface AjvErrorObject {
   dataPath: string;

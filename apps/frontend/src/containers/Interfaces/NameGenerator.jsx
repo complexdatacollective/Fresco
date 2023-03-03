@@ -18,7 +18,7 @@ import { NodeList, NodeBin } from '../../components';
 import {
   MaxNodesReached, maxNodesWithDefault, MinNodesNotMet, minNodesWithDefault,
 } from './NameGeneratorQuickAdd';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 /**
   * Name Generator Interface

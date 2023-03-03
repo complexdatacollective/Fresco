@@ -10,7 +10,7 @@
   "scripts": {
     "test": "jest",
     "dev": "nodemon",
-    "build": "tsup",
+    "build": "rm -rf ./dist && tsc --build",
     "validate-protocol": "node src/scripts/validate-protocol.js",
     "build-schemas": "node src/scripts/build-schemas.js",
     "lint": "eslint src/**/*.ts",
@@ -30,7 +30,7 @@
     "@codaco/shared-consts": "*",
     "config": "*",
     "tsconfig": "*",
-    "utils": "*",
+    "@codaco/utils": "*",
     "@faker-js/faker": "^7.6.0",
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.191",

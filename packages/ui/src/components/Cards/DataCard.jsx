@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { noop } from 'lodash';
+import { noop } from '@codaco/utils';
 
 const DataCard = ({
   label,

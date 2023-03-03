@@ -1,5 +1,5 @@
 import { entityAttributesProperty } from '@codaco/shared-consts';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 /**
  * Creating a collator that is reused by string comparison is significantly faster

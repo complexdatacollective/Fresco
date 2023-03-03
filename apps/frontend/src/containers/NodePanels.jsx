@@ -10,7 +10,7 @@ import { Panels } from '../components';
 import { makeGetPanelConfiguration } from '../selectors/name-generator';
 import NodePanel from './NodePanel';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 /**
   * Configures and renders `NodePanels` according to the protocol config

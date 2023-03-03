@@ -1,4 +1,4 @@
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const DISMISS_UPDATE = 'DISMISSED_UPDATES/DISMISS_UPDATE';
 const RESET = 'DISMISSED_UPDATES/RESET';

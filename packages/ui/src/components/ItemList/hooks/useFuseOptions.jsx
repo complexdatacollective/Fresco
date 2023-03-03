@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { get, compact } from 'lodash';
+import { get, compact } from '@codaco/utils';
 
 const defaultFuseOptions = {
   keys: [['props', 'label']],

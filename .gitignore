@@ -9,9 +9,11 @@ coverage
 # build folders
 .next/
 out/
-build
-dist
-packed
+build/
+dist/
+packed/
+
+packages/ui/dist
 
 # misc
 .DS_Store

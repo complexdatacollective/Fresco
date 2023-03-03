@@ -21,9 +21,6 @@ export { default as Skeleton } from './Skeleton';
 export { default as SpeakText } from './SpeakText';
 export { default as Spinner } from './Spinner';
 export { default as ToastManager } from './Toast/ToastManager';
-export { default as window } from './window';
-export { default as windowRootConsumer } from './windowRootConsumer';
-export { default as windowRootProvider } from './windowRootProvider';
 
 export { fields as Fields } from './Fields';
 

@@ -60,3 +60,56 @@ export const has = (obj: object, key: string): boolean => {
 export const isObject = (obj: unknown): boolean => {
   return obj instanceof Object;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const noop = () => { };
+
+export const random = (a = 1, b = 0) => {
+  const lower = Math.min(a, b);
+  const upper = Math.max(a, b);
+  return lower + Math.random() * (upper - lower);
+};
+
+export const randomInt = (a = 1, b = 0) => {
+  const lower = Math.ceil(Math.min(a, b));
+  const upper = Math.floor(Math.max(a, b));
+  return Math.floor(lower + Math.random() * (upper - lower + 1))
+};
+
+export const omit = (obj: object, keys: string[]) => {
+  const result = { ...obj };
+  keys.forEach(key => delete result[key as keyof object]);
+  return result;
+}
+
+export const isEmpty = (value: unknown) => {
+  return (
+    value == null || // From standard.js: Always use === - but obj == null is allowed to check null || undefined
+    (typeof value === 'object' && Object.keys(value).length === 0) ||
+    (typeof value === 'string' && value.trim().length === 0)
+  )
+}
+
+export const clamp = (num: number, clamp: number, higher: number) =>
+  higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp)
+
+
+export const times = (n: number, func = (i: unknown) => i) =>
+  Array.from({ length: n }).map((_, i) => func(i))
+
+export const difference = (arr1: Array<unknown>, arr2: Array<unknown>) => arr1.filter(x => !arr2.includes(x))
+
+export const intersection = (...arrays: Array<unknown[]>) => arrays.reduce((a, b) => a.filter(c => b.includes(c)))
+
+export const round = (num: number, precision: number) => {
+  const modifier = 10 ** precision
+  return Math.round(num * modifier) / modifier
+}
+
+export const isNil = (val: unknown) => val == null
+
+export const uniqueId = (
+  counter =>
+    (str = '') =>
+      `${str}${++counter}`
+)(0)

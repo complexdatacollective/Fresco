@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { isBoolean } from 'lodash';
 import { v4 as uuid } from 'uuid';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
@@ -10,7 +9,7 @@ class Toggle extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.id = uuid();
+    this.id = uuid(); // Todo: refactor as functional component, and use useId hook
 
     const {
       input: {
@@ -18,11 +17,10 @@ class Toggle extends PureComponent {
         onChange,
       },
     } = this.props;
-
-    // Because redux forms will just not pass on this
-    // field if it was never touched and we need it to
-    // return `false`.
-    if (!isBoolean(value)) {
+    // Value will be initially set to `undefined` before the component is touched.
+    // redux-form will not include this field in the form values if it is `undefined`.
+    // We therefore need to set the value to `false` if it is not set to a boolean.
+    if (value !== true && value !== false) {
       onChange(false);
     }
   }
@@ -58,7 +56,7 @@ class Toggle extends PureComponent {
 
     return (
       <div className={containerClassNames} name={input.name}>
-        { fieldLabel
+        {fieldLabel
           && <MarkdownLabel label={fieldLabel} />}
         <label className={componentClasses} htmlFor={this.id} title={title}>
           <input
@@ -79,10 +77,10 @@ class Toggle extends PureComponent {
           {label && <MarkdownLabel inline label={label} className="form-field-inline-label" />}
         </label>
         {invalid && touched && (
-        <div className="form-field-toggle__error">
-          <Icon name="warning" />
-          {error}
-        </div>
+          <div className="form-field-toggle__error">
+            <Icon name="warning" />
+            {error}
+          </div>
         )}
       </div>
     );

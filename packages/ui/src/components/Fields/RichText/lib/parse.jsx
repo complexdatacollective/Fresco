@@ -1,7 +1,7 @@
 import slate from 'remark-slate';
 import unified from 'unified';
 import markdown from 'remark-parse';
-import { isEmpty } from 'lodash';
+import { isEmpty } from '@codaco/utils';
 
 export const defaultValue = [{
   type: 'paragraph',

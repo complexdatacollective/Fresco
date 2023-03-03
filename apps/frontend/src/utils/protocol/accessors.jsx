@@ -1,4 +1,4 @@
-import { get } from "utils";
+import { get } from "@codaco/utils";
 
 export const getSubject = (stage, prompt) => {
   return stage.subject || prompt.subject;

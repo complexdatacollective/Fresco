@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { findIndex } from 'lodash';
+import { findIndex } from '@codaco/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import Prompt from './Prompt';
 import Pips from './Pips';
@@ -34,9 +34,9 @@ const Prompts = (props) => {
         duration: 0.5,
       }}
     >
-      { prompts.length > 1 ? (<Pips count={prompts.length} currentIndex={currentIndex} />) : (<div className="prompts__spacer" />)}
+      {prompts.length > 1 ? (<Pips count={prompts.length} currentIndex={currentIndex} />) : (<div className="prompts__spacer" />)}
       <AnimatePresence custom={backwards} exitBeforeEnter initial={false}>
-        { prompts.map(({
+        {prompts.map(({
           id,
           text,
         }) => (prompts[currentIndex].id === id && (

@@ -3,7 +3,7 @@ import {
   Transforms,
   Node,
 } from 'slate';
-import { get } from 'lodash';
+import { get } from '@codaco/utils';
 import { getBlocks } from './utils';
 
 const toggleBlock = (editor, block) => {

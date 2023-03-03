@@ -11,7 +11,7 @@ import { asNetworkWithSessionVariables } from '../../utils/networkFormat';
 import SessionSelect from './SessionSelect';
 import ExportOptions from '../../components/SettingsMenu/Sections/ExportOptions';
 import { isCordova } from '../../utils/Environment';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const fatalExportErrorAction = withErrorDialog((error) => ({
   type: 'SESSION_EXPORT_FATAL_ERROR',

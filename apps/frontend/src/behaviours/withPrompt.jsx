@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
 import { getPromptIndexForCurrentSession } from '../selectors/session';
 import { getProtocolStages } from '../selectors/protocol';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 export default function withPrompt(WrappedComponent) {
   class WithPrompt extends Component {

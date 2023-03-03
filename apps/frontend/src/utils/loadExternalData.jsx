@@ -3,7 +3,7 @@ import environments from './environments';
 import inEnvironment from './Environment';
 import { readFile } from './filesystem';
 import getAssetUrl from './protocol/getAssetUrl';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const CSVWorker = new Worker(new URL('./csvDecoder.worker.js', import.meta.url));
 

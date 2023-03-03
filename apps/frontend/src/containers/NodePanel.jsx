@@ -9,7 +9,7 @@ import {
 import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
 import { Panel, NodeList } from '../components';
 import withExternalData from './withExternalData';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const customFilter = () => {
   console.warn('Custom filter not implemented');

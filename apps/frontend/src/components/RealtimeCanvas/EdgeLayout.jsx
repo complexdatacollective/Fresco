@@ -2,7 +2,7 @@ import { useRef, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import LayoutContext from '../../contexts/LayoutContext';
 import { getProtocolCodebook } from '../../selectors/protocol';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const viewBoxScale = 100;
 

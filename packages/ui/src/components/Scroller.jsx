@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useImperativeHandle } from 'react';
-import { clamp } from 'lodash';
+import { clamp } from '@codaco/utils';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 
@@ -43,7 +43,7 @@ const Scroller = React.forwardRef(({
 
 Scroller.defaultProps = {
   className: '',
-  onScroll: () => {},
+  onScroll: () => { },
   useSmoothScrolling: true,
 };
 

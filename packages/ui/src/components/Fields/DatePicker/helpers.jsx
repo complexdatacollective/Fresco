@@ -1,5 +1,5 @@
 import { DateTime, Info } from 'luxon';
-import { difference, intersection, get } from 'lodash';
+import { difference, get, intersection } from '@codaco/utils';
 
 export const now = () => DateTime.local();
 
@@ -18,7 +18,9 @@ export const getProperties = (obj) => Object.keys(obj)
 export const hasProperties = (includes = [], excludes = []) => (obj) => {
   const props = getProperties(obj);
   const hasIncludes = difference(includes, props).length === 0;
-  const noExcludes = intersection(props, excludes).length === 0;
+
+  const noExcludes = intersection(props, includes).length === 0;
+
   return hasIncludes && noExcludes;
 };
 

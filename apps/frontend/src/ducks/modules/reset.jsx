@@ -2,7 +2,7 @@ import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as sessionsActions } from './sessions';
 import { actionCreators as deviceActions } from './deviceSettings';
 import resetProtocolFiles from '../../utils/protocol/resetProtocolFiles';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const RESET_STATE = 'RESET_STATE';
 const RESET_EDGES_OF_TYPE = 'RESET/EDGES_OF_TYPE';

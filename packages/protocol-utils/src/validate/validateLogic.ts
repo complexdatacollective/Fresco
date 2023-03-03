@@ -10,7 +10,7 @@ import {
   getVariableNameFromID,
   getSubjectTypeName,
 } from './helpers.js';
-import { has, get } from '../../../utils/src';
+import { has, get } from '@codaco/utils';
 import type { Codebook, CodebookEntityTypeDefinition, Protocol, Stage, StageSubject, FormField, VariableValidation, FilterRule, BasePrompt, ItemDefinition, VariableDefinition, AdditionalAttributes, CodebookNodeTypeDefinition, SociogramStage, NodeStageSubject, EdgeStageSubject, EgoStageSubject } from '@codaco/shared-consts';
 
 /**

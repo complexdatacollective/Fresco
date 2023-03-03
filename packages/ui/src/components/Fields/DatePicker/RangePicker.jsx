@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { times, find } from 'lodash';
+import { times } from '@codaco/utils';
 
 // If today's date isn't in range, what's the closest value?
 const getScrollToValue = (range = [], today) => {
@@ -9,7 +9,8 @@ const getScrollToValue = (range = [], today) => {
     return null;
   }
 
-  const findToday = find(range, ({ value }) => value === today);
+  const findToday = range.find(({ value }) => value === today);
+
   if (findToday) {
     return findToday.value;
   }

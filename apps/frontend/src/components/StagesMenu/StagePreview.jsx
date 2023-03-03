@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { getCSSVariableAsNumber } from '@codaco/ui';
 import timelineImages from '../../images/timeline';
 import { currentStageIndex } from '../../utils/matchSessionPath';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const getTimelineImage = (type) => get(timelineImages, type, timelineImages.Default);
 

@@ -5,7 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import { getAssetManifest } from '../selectors/protocol';
 import getMediaAssetUrl from '../utils/protocol/getMediaAssetUrl';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 // curry asset fetcher with protocol path from state
 const mapStateToProps = (state) => ({

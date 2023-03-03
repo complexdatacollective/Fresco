@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { AnimatePresence } from 'framer-motion';
 import Toast from './Toast';
-import window from '../window';
 
 const ToastManager = ({
   toasts,
@@ -40,4 +39,4 @@ ToastManager.propTypes = {
   removeToast: PropTypes.func.isRequired,
 };
 
-export default window(ToastManager);
+export default ToastManager;

@@ -15,7 +15,7 @@ import {
   MonitorDragSource,
 } from '../behaviours/DragAndDrop';
 import createSorter from '../utils/createSorter';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const EnhancedNode = DragSource(Node);
 

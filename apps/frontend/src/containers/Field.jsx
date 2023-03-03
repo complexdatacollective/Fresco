@@ -6,7 +6,7 @@ import { map, toPairs } from 'lodash';
 import { Fields } from '@codaco/ui';
 import validations from '../utils/Validations';
 import { FormComponent } from '../protocol-consts';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const ComponentTypeNotFound = (componentType) => () => (
   <div>

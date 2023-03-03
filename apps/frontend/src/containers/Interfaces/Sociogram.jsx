@@ -17,7 +17,7 @@ import {
   getEdges, getNextUnplacedNode, getNodes, getPlacedNodes,
 } from '../../selectors/canvas';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const withResetInterfaceHandler = withHandlers({
   handleResetInterface: ({

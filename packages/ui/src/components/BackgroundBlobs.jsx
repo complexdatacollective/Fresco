@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as blobs2 from 'blobs/v2';
 import { interpolatePath as interpolate } from 'd3-interpolate-path';
-import { random } from 'lodash';
+import { random } from '@codaco/utils';
 import Canvas from './Canvas';
 
 const gradients = [

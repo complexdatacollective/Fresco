@@ -10,7 +10,7 @@ export class ValidationError extends Error {
   }
 }
 
-type ValidateProtocolReturn = void | ValidationError;
+export type ValidateProtocolReturn = void | ValidationError;
 
 export const validateProtocol = (jsonString: string, forceVersion?: number): ValidateProtocolReturn => {
   let data;

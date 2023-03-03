@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { noop, get, isEmpty } from 'lodash';
-import SearchIcon from '@material-ui/icons/SearchRounded';
-import ClearIcon from '@material-ui/icons/ClearRounded';
+import { noop, get, isEmpty } from '@codaco/utils';
 import { getCSSVariableAsString } from '../../utils/CSSVariables';
 import Text from './Text';
+
+const SearchIcon = () => null;
+const ClearIcon = () => null;
+console.warn('UI/SearchIcon was removed. Needs reimplementation');
 
 const Search = (props) => {
   const color = getCSSVariableAsString('--input-text');

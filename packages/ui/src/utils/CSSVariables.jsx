@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import { isEmpty } from '@codaco/utils';
 
 const CSSVariable = (variableName) => {
   if (document.readyState !== 'complete') {

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { getAssetManifest } from '../selectors/protocol';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 
 const mapStateToProps = (state, { asset }) => {
   const assetManifest = getAssetManifest(state);

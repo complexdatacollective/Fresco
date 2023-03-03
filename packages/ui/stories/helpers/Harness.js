@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { merge } from 'lodash';
+import { merge } from '@codaco/utils';
 
 const Harness = ({ children, requiredProps, ...props }) => {
   const fullProps = merge({}, requiredProps, props);

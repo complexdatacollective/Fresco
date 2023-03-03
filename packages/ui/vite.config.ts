@@ -6,16 +6,18 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
   plugins: [
     react(),
-    // dts({
-    //   insertTypesEntry: true,
-    // }),
+    dts({
+      outputDir: 'dist',
+    }),
   ],
   build: {
+    emptyOutDir: true,
+    outDir: 'dist',
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: '@codaco/ui',
-      formats: ['es', 'umd'],
-      fileName: (format) => `index.${format}.js`,
+      formats: ['es'],
+      fileName: (format) => `index.js`,
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'framer-motion'],

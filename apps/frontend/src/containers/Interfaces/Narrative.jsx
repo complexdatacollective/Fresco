@@ -12,7 +12,7 @@ import Canvas from '../../components/Canvas/Canvas';
 import { getNetworkEdges, getNetworkNodes } from '../../selectors/network';
 import { edgesToCoords } from '../../selectors/canvas';
 import { entityAttributesProperty } from '@codaco/shared-consts';
-import { get } from 'utils';
+import { get } from '@codaco/utils';
 import { LayoutProvider } from '../../contexts/LayoutContext';
 
 /**

@@ -1,14 +1,7 @@
 import React from 'react';
-import { get } from 'lodash';
-import SearchIcon from '@material-ui/icons/SearchRounded';
-import ClearIcon from '@material-ui/icons/ClearRounded';
+import { get } from '@codaco/utils';
 import Text from '../src/components/Fields/Text';
 import '../src/styles/_all.scss';
-
-const adornments = {
-  search: <SearchIcon style={{ color: '#fff' }} />,
-  clear: <ClearIcon style={{ color: '#fff' }} />,
-};
 
 export default {
   title: 'Fields/Text',
@@ -28,18 +21,6 @@ export default {
       },
     },
     onChange: { action: 'onChange' },
-    adornmentLeft: {
-      control: {
-        type: 'select',
-        options: ['search', 'clear'],
-      },
-    },
-    adornmentRight: {
-      control: {
-        type: 'select',
-        options: ['search', 'clear'],
-      },
-    },
   },
 };
 

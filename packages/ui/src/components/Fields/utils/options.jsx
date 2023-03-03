@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
+import { get } from '@codaco/utils';
 
-import { get, isString } from 'lodash';
+const isString = a => typeof a === 'string'
 
 const toString = (value) => (isString(value) ? value : JSON.stringify(value));
 export const getValue = (option) => get(option, 'value', option);

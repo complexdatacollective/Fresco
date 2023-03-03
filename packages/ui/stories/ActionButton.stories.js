@@ -1,7 +1,6 @@
 import React from 'react';
-import { noop } from 'lodash';
+import { noop } from '@codaco/utils';
 import PropTypes from 'prop-types';
-import * as muiIcons from '@material-ui/icons';
 import ActionButton from '../src/components/ActionButton';
 import colors from './helpers/Colors';
 import '../src/styles/_all.scss';
@@ -12,7 +11,6 @@ const iconOptions = [
   'add-a-relationship',
   'add-a-context',
   'add-a-protocol',
-  ...Object.keys(muiIcons),
 ];
 
 export default {

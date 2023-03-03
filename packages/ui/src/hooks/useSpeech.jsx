@@ -1,4 +1,4 @@
-import { noop } from 'lodash';
+import { noop } from '@codaco/utils';
 import { useEffect, useMemo, useState } from 'react';
 import useIsMounted from './useIsMounted';
 

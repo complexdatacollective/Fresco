@@ -1,25 +1,25 @@
 import { defineConfig } from "vite";
-import path from "node:path";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@behaviours': path.resolve(__dirname, './src/behaviours/'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@containers': path.resolve(__dirname, './src/containers'),
-      '@contexts': path.resolve(__dirname, './src/contexts'),
-      '@ducks': path.resolve(__dirname, './src/ducks'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@images': path.resolve(__dirname, './src/images'),
-      '@interfaces': path.resolve(__dirname, './src/components/interfaces'),
-      '@routes': path.resolve(__dirname, './src/routes'),
-      '@selectors': path.resolve(__dirname, './src/selectors'),
-      '@styles': path.resolve(__dirname, './src/styles'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-    },
+    alias: [
+      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
+      { find: '@behaviours', replacement: fileURLToPath(new URL('./src/behaviours/', import.meta.url)) },
+      { find: '@components', replacement: fileURLToPath(new URL('./src/components', import.meta.url)) },
+      { find: '@containers', replacement: fileURLToPath(new URL('./src/containers', import.meta.url)) },
+      { find: '@contexts', replacement: fileURLToPath(new URL('./src/contexts', import.meta.url)) },
+      { find: '@ducks', replacement: fileURLToPath(new URL('./src/ducks', import.meta.url)) },
+      { find: '@hooks', replacement: fileURLToPath(new URL('./src/hooks', import.meta.url)) },
+      { find: '@images', replacement: fileURLToPath(new URL('./src/images', import.meta.url)) },
+      { find: '@interfaces', replacement: fileURLToPath(new URL('./src/components/interfaces', import.meta.url)) },
+      { find: '@routes', replacement: fileURLToPath(new URL('./src/routes', import.meta.url)) },
+      { find: '@selectors', replacement: fileURLToPath(new URL('./src/selectors', import.meta.url)) },
+      { find: '@styles', replacement: fileURLToPath(new URL('./src/styles', import.meta.url)) },
+      { find: '@utils', replacement: fileURLToPath(new URL('./src/utils', import.meta.url)) },
+    ],
   },
   server: {
     host: '127.0.0.1', // For some reason, localhost doesn't work

@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import HearingRoundedIcon from '@material-ui/icons/HearingRounded';
-import VoiceOverOffIcon from '@material-ui/icons/VoiceOverOff';
 import useSpeech from '../hooks/useSpeech';
+
+console.warning('Missing icons');
+const HearingRoundedIcon = () => null;
+const VoiceOverOffIcon = () => null;
 
 const SpeakText = (props) => {
   const {

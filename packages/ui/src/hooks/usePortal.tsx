@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal, unmountComponentAtNode } from 'react-dom';
 
 type PortalState = {
@@ -17,7 +17,7 @@ const usePortal = (target: HTMLElement | null = document.querySelector('body')) 
       return;
     }
 
-    const Portal = ({ children }: { children: ReactNode }) => createPortal(children, target);
+    const Portal = ({ children }) => createPortal(children, target);
     const remove = () => unmountComponentAtNode(target);
 
     setPortal({ render: Portal, remove });
