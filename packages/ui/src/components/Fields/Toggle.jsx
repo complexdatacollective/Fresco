@@ -17,9 +17,10 @@ class Toggle extends PureComponent {
         onChange,
       },
     } = this.props;
+
     // Value will be initially set to `undefined` before the component is touched.
-    // redux-form will not include this field in the form values if it is `undefined`.
-    // We therefore need to set the value to `false` if it is not set to a boolean.
+    // redux-form will not include `undefined` values. We therefore need to set
+    // the value to `false` if it is not set to a boolean.
     if (value !== true && value !== false) {
       onChange(false);
     }

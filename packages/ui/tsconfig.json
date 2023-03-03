@@ -1,27 +1,44 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "noImplicitAny": false,
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
-  },
+  "extends": "tsconfig/frontend.json",
   "include": [
-    "public/assets"
-  ]
+    "src",
+    "./.eslintrc.cjs"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@containers/*": [
+        "./src/containers/*"
+      ],
+      "@contexts/*": [
+        "./src/contexts/*"
+      ],
+      "@ducks/*": [
+        "./src/ducks/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@interfaces/*": [
+        "./src/components/interfaces/*"
+      ],
+      "@images/*": [
+        "./src/images/*"
+      ],
+      "@routes/*": [
+        "./src/routes/*"
+      ],
+      "@selectors/*": [
+        "./src/selectors/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ]
+    }
+  }
 }

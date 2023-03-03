@@ -68,6 +68,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@codaco/eslint-config": "*",
     "@faker-js/faker": "^7.6.0",
     "@storybook/addon-actions": "^6.5.13",
     "@storybook/addon-essentials": "^6.5.13",
@@ -78,11 +79,6 @@
     "@storybook/react": "^6.5.13",
     "@storybook/testing-library": "^0.0.13",
     "@vitejs/plugin-react-swc": "^3.2.0",
-    "eslint": "^7.21.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-plugin-import": "2.22.1",
-    "eslint-plugin-jsx-a11y": "6.6.1",
-    "eslint-plugin-react": "^7.22.0",
     "framer-motion": "^10.0.1",
     "mkdirp": "^0.5.1",
     "prop-types": "^15.7.2",

@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "tsconfig": "*",
-    "config": "*",
+    "@codaco/eslint-config": "*",
     "@codaco/api": "*",
     "@codaco/shared-consts": "*",
     "@codaco/ui": "*",

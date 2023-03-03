@@ -7,9 +7,13 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import connectDB from "@codaco/database";
 import { appRouter, createTRPCContext } from "@codaco/api";
 import protocolsRouter from "./routes/protocol";
+import { tmpdir } from "node:os";
 
 dotenv.config({ path: path.join(__dirname, "./.env") });
-const PORT = 3001; // TODO: make this configurable
+
+// TODO: make these configurable via env vars
+const PORT = 3001;
+export const PROTOCOLS_DIR = path.join(tmpdir(), "protocols");
 
 const app = express();
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));

@@ -1,11 +1,14 @@
 import type { Request, Response } from "express";
+import { prisma } from "@codaco/database";
 import { tmpdir } from "node:os";
-import { mkdtemp, rm, readFile } from "node:fs/promises";
+import { mkdtemp, rm, readFile, cp } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { PROTOCOLS_DIR } from "../app";
 import { validateProtocol, ValidationError } from "@codaco/protocol-utils";
 
 // Generic typed response, we omit 'json' and we add a new json method with the desired parameter type
-type TypedResponse<T> = Omit<Response, 'json'> & { json(data: T): Response };
+export type TypedResponse<T> = Omit<Response, 'json'> & { json(data: T): Response };
+
 // An example of a typed response
 export type CreateProtocolResponse = TypedResponse<{
   success: boolean,
@@ -33,6 +36,8 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
       error: "Protocol file must be a .netcanvas file."
     });
   }
+
+  // TODO: check if this protocol has already been imported
 
   if (!protocol.path) {
     res.statusCode = 500;
@@ -108,9 +113,18 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
     return;
   }
 
-  // 4. Add the protocol to the database
+  // 4. Use node fs to copy assets folder to the protocol directory
+  const protocolAssetsDirectory = `${PROTOCOLS_DIR}/${protocol.originalname}`;
+  await cp(`${tempDir}/assets`, protocolAssetsDirectory, { recursive: true });
 
-  // 5. Copy assets to the protocol directory
+  // 5. Add the protocol to the database
+  await prisma.protocol.create({
+    data: {
+      name: protocol.originalname,
+      assetPath: protocolAssetsDirectory,
+      data: protocolJson.toString(),
+    },
+  });
 
   res.statusCode = 200;
   res.json({

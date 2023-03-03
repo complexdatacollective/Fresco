@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import useSpeech from '../hooks/useSpeech';
 
-console.warning('Missing icons');
+console.warn('Missing icons');
 const HearingRoundedIcon = () => null;
 const VoiceOverOffIcon = () => null;
 

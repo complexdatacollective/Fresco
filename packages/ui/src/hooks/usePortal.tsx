@@ -1,28 +1,36 @@
-import { useState, useEffect } from 'react';
+import {
+  useState,
+  useEffect,
+  ReactPortal,
+  ReactNode,
+} from 'react';
 import { createPortal, unmountComponentAtNode } from 'react-dom';
 
 type PortalState = {
-  render: Function;
-  remove: Function;
-}
+  render: ({ children }: { children: ReactNode; }) => ReactPortal | null;
+  remove: () => boolean;
+};
 
 const usePortal = (target: HTMLElement | null = document.querySelector('body')) => {
-  const [portal, setPortal] = useState < PortalState > ({
+  const [portal, setPortal] = useState<PortalState>({
     render: () => null,
-    remove: () => null,
+    remove: () => true,
   });
 
   useEffect(() => {
     if (!target) {
-      return;
+      return () => {};
     }
 
-    const Portal = ({ children }) => createPortal(children, target);
+    const Portal = ({ children }: { children: ReactNode }) => createPortal(children, target);
     const remove = () => unmountComponentAtNode(target);
 
     setPortal({ render: Portal, remove });
-    return () => portal.remove();
-  }, [target]);
+
+    return () => {
+      portal.remove();
+    };
+  }, [target, portal]);
 
   return portal.render;
 };
