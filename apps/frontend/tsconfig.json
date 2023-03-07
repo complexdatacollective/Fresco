@@ -2,5 +2,13 @@
   "extends": "tsconfig/frontend.json",
   "include": [
     "src"
-  ]
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+  }
 }

@@ -3,6 +3,11 @@
   width: 100%;
 }
 
+// TODO: We need proper outline styles for all components
+:focus {
+  outline: 3px dashed orange;
+}
+
 // NC specific override for stacking context
 .toast-container {
   z-index: var(--z-fx);

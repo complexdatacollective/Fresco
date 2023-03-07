@@ -7,16 +7,6 @@ $image-path: "~@codaco/ui/";
 @import "containers/all";
 @import "transitions";
 
-// Remove touch and focus outlines
-* {
-  outline-style: none;
-  -webkit-touch-callout: none; // sass-lint:disable-line no-vendor-prefixes
-
-  &:focus {
-    outline: none;
-  }
-}
-
 :root {
   --body-font-family: #{$netcanvas-font-stack}; // override Network Canvas UI
   --code-font: courier;

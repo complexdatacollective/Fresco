@@ -1,19 +1,17 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
 // src/trpc.ts
 import { initTRPC } from "@trpc/server";
 import { ZodError } from "zod";
 import { prisma } from "@codaco/database";
 import superjson from "superjson";
-var createTRPCContext = /* @__PURE__ */ __name(async () => {
+var createTRPCContext = async () => {
   return {
     prisma
   };
-}, "createTRPCContext");
+};
 var t = initTRPC.context().create({
   isServer: true,
   transformer: superjson,
+  // Allows more types in JSON: https://github.com/blitz-js/superjson
   errorFormatter({ shape, error }) {
     return {
       ...shape,
@@ -31,33 +29,16 @@ var publicProcedure = t.procedure;
 import { z } from "zod";
 var userRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findMany({
-      orderBy: {
-        id: "desc"
-      }
-    });
+    return ctx.prisma.user.findMany({ orderBy: { id: "desc" } });
   }),
-  byId: publicProcedure.input(z.string()).query(({ ctx, input }) => {
-    return ctx.prisma.user.findFirst({
-      where: {
-        id: input
-      }
-    });
+  byId: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.prisma.user.findFirst({ where: { id: input } });
   }),
-  create: publicProcedure.input(z.object({
-    name: z.string().min(1),
-    email: z.string().min(1)
-  })).mutation(({ ctx, input }) => {
-    return ctx.prisma.user.create({
-      data: input
-    });
+  create: publicProcedure.input(z.object({ name: z.string().min(1), email: z.string().min(1) })).mutation(({ ctx, input }) => {
+    return ctx.prisma.user.create({ data: input });
   }),
-  delete: publicProcedure.input(z.string().min(1)).mutation(({ ctx, input }) => {
-    return ctx.prisma.user.delete({
-      where: {
-        id: input
-      }
-    });
+  delete: publicProcedure.input(z.number()).mutation(({ ctx, input }) => {
+    return ctx.prisma.user.delete({ where: { id: input } });
   })
 });
 
@@ -65,18 +46,13 @@ var userRouter = createTRPCRouter({
 import { z as z2 } from "zod";
 var protocolsRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.protocol.findMany({
-      orderBy: {
-        id: "desc"
-      }
-    });
+    return ctx.prisma.protocol.findMany({ orderBy: { id: "desc" } });
   }),
-  byId: publicProcedure.input(z2.string()).query(({ ctx, input }) => {
-    return ctx.prisma.protocol.findFirst({
-      where: {
-        id: input
-      }
-    });
+  byId: publicProcedure.input(z2.number()).query(({ ctx, input }) => {
+    return ctx.prisma.protocol.findFirst({ where: { id: input } });
+  }),
+  byHash: publicProcedure.input(z2.string()).query(({ ctx, input }) => {
+    return ctx.prisma.protocol.findFirst({ where: { hash: input } });
   })
 });
 

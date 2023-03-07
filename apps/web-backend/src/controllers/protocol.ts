@@ -5,6 +5,8 @@ import { mkdtemp, rm, readFile, cp } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { PROTOCOLS_DIR } from "../app";
 import { validateProtocol, ValidationError } from "@codaco/protocol-utils";
+import { APP_SUPPORTED_SCHEMA_VERSIONS } from "../config";
+import { subtle } from "node:crypto";
 
 // Generic typed response, we omit 'json' and we add a new json method with the desired parameter type
 export type TypedResponse<T> = Omit<Response, 'json'> & { json(data: T): Response };
@@ -37,8 +39,9 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
     });
   }
 
-  // TODO: check if this protocol has already been imported
+  const protocolName = protocol.originalname.replace(".netcanvas", "");
 
+  // TODO: check if this protocol has already been imported
   if (!protocol.path) {
     res.statusCode = 500;
     return res.json({
@@ -57,7 +60,8 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
     }
   }
 
-  // To unzip the file, we use the unzip command line tool
+  // To unzip the file, we use the unzip command line tool because it is
+  // much faster than using node's unzip library.
   // This requires the unzip command to be installed on the system!
   console.log('Unzip start...');
   const unzip = spawn('unzip', [protocol.path, '-d', tempDir]);
@@ -70,6 +74,8 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
     await cleanUp();
     return;
   });
+
+  // This allows us to await the unzip process
   await new Promise<void>((resolve) => {
     unzip.stdout.on('close', () => {
       console.log('Unzip complete.');
@@ -78,11 +84,12 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
   })
 
   // 2. Read the protocol.json file
-  const protocolJson = await readFile(`${tempDir}/protocol.json`, 'utf-8');
+  const protocolString = await readFile(`${tempDir}/protocol.json`, 'utf-8');
 
   // 3. Validate the protocol
+  let protocolJson;
   try {
-    validateProtocol(protocolJson);
+    protocolJson = validateProtocol(protocolString);
     console.info('Protocol file is valid.');
   } catch (error: unknown) {
 
@@ -109,29 +116,51 @@ const protocolController = async (req: Request, res: CreateProtocolResponse) => 
     }
 
     await cleanUp();
-
     return;
   }
 
-  // 4. Use node fs to copy assets folder to the protocol directory
-  const protocolAssetsDirectory = `${PROTOCOLS_DIR}/${protocol.originalname}`;
+  // Check if the schema version is supported
+  const protocolVersion = protocolJson.schemaVersion;
+
+  if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
+    res.statusCode = 200;
+    res.json({
+      success: false,
+      error: `Protocol schema version ${protocolVersion} is not supported. Supported versions are: ${APP_SUPPORTED_SCHEMA_VERSIONS.join(', ')}`,
+    }).send();
+
+    await cleanUp();
+    return;
+  }
+
+  // Create a hash of the protocol codebook to use as the UUID
+  const protocolHash = await subtle.digest('SHA-256', await readFile(protocol.path))
+  const protocolHashHex = Array.from(new Uint8Array(protocolHash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+
+  // Use node fs to copy assets folder to the protocol directory
+  const protocolAssetsDirectory = `${PROTOCOLS_DIR}/${protocolHashHex}`;
   await cp(`${tempDir}/assets`, protocolAssetsDirectory, { recursive: true });
 
   // 5. Add the protocol to the database
   await prisma.protocol.create({
     data: {
-      name: protocol.originalname,
-      assetPath: protocolAssetsDirectory,
-      data: protocolJson.toString(),
+      name: protocolName,
+      description: protocolJson.description,
+      lastModified: protocolJson.lastModified,
+      hash: protocolHashHex,
+      schemaVersion: protocolVersion.toString(),
+      assetPath: protocolAssetsDirectory, // Do we need this? We could assume the path based on the hash
+      data: protocolString,
     },
   });
+
+
+  await cleanUp();
 
   res.statusCode = 200;
   res.json({
     success: true
   }).send();
-
-  await cleanUp();
 };
 
 

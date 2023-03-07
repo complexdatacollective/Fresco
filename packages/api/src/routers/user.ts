@@ -5,7 +5,7 @@ export const userRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findMany({ orderBy: { id: "desc" } });
   }),
-  byId: publicProcedure.input(z.string()).query(({ ctx, input }) => {
+  byId: publicProcedure.input(z.number()).query(({ ctx, input }) => {
     return ctx.prisma.user.findFirst({ where: { id: input } });
   }),
   create: publicProcedure
@@ -13,7 +13,7 @@ export const userRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return ctx.prisma.user.create({ data: input });
     }),
-  delete: publicProcedure.input(z.string().min(1)).mutation(({ ctx, input }) => {
+  delete: publicProcedure.input(z.number()).mutation(({ ctx, input }) => {
     return ctx.prisma.user.delete({ where: { id: input } });
   }),
 });

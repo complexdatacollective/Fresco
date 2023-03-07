@@ -141,7 +141,6 @@
 
     &:focus,
     &:active {
-      outline: 0;
 
       & + * .#{$text-class}__label {
         transform: scale(0.6) translate(0, 60px);
@@ -222,7 +221,6 @@
     &:hover {
       + .#{$checkbox-class}__label {
         &::before {
-          outline: none;
           border-color: color('sea-green');
         }
       }
@@ -299,7 +297,6 @@
     &:hover {
       + .#{$radio-class}__label {
         &::before {
-          outline: none;
           border-color: color('sea-green');
         }
       }

@@ -6,6 +6,11 @@
   "files": [
     "eslint-preset.js"
   ],
+  "overrides": {
+    "eslint-config-airbnb": {
+      "eslint-plugin-react": "7.32.2"
+    }
+  },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",

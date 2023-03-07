@@ -4,7 +4,7 @@ import { Dialogs } from '@codaco/ui';
 import { actionCreators as dialogsActions } from '../ducks/modules/dialogs';
 
 const mapStateToProps = (state) => ({
-  dialogs: state.dialogs.dialogs,
+  dialogs: state.dialogs,
 });
 
 const mapDispatchToProps = (dispatch) => ({

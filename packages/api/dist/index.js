@@ -5,7 +5,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -41,14 +40,15 @@ var import_server = require("@trpc/server");
 var import_zod = require("zod");
 var import_database = require("@codaco/database");
 var import_superjson = __toESM(require("superjson"));
-var createTRPCContext = /* @__PURE__ */ __name(async () => {
+var createTRPCContext = async () => {
   return {
     prisma: import_database.prisma
   };
-}, "createTRPCContext");
+};
 var t = import_server.initTRPC.context().create({
   isServer: true,
   transformer: import_superjson.default,
+  // Allows more types in JSON: https://github.com/blitz-js/superjson
   errorFormatter({ shape, error }) {
     return {
       ...shape,
@@ -66,33 +66,16 @@ var publicProcedure = t.procedure;
 var import_zod2 = require("zod");
 var userRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findMany({
-      orderBy: {
-        id: "desc"
-      }
-    });
+    return ctx.prisma.user.findMany({ orderBy: { id: "desc" } });
   }),
-  byId: publicProcedure.input(import_zod2.z.string()).query(({ ctx, input }) => {
-    return ctx.prisma.user.findFirst({
-      where: {
-        id: input
-      }
-    });
+  byId: publicProcedure.input(import_zod2.z.number()).query(({ ctx, input }) => {
+    return ctx.prisma.user.findFirst({ where: { id: input } });
   }),
-  create: publicProcedure.input(import_zod2.z.object({
-    name: import_zod2.z.string().min(1),
-    email: import_zod2.z.string().min(1)
-  })).mutation(({ ctx, input }) => {
-    return ctx.prisma.user.create({
-      data: input
-    });
+  create: publicProcedure.input(import_zod2.z.object({ name: import_zod2.z.string().min(1), email: import_zod2.z.string().min(1) })).mutation(({ ctx, input }) => {
+    return ctx.prisma.user.create({ data: input });
   }),
-  delete: publicProcedure.input(import_zod2.z.string().min(1)).mutation(({ ctx, input }) => {
-    return ctx.prisma.user.delete({
-      where: {
-        id: input
-      }
-    });
+  delete: publicProcedure.input(import_zod2.z.number()).mutation(({ ctx, input }) => {
+    return ctx.prisma.user.delete({ where: { id: input } });
   })
 });
 
@@ -100,18 +83,13 @@ var userRouter = createTRPCRouter({
 var import_zod3 = require("zod");
 var protocolsRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.protocol.findMany({
-      orderBy: {
-        id: "desc"
-      }
-    });
+    return ctx.prisma.protocol.findMany({ orderBy: { id: "desc" } });
   }),
-  byId: publicProcedure.input(import_zod3.z.string()).query(({ ctx, input }) => {
-    return ctx.prisma.protocol.findFirst({
-      where: {
-        id: input
-      }
-    });
+  byId: publicProcedure.input(import_zod3.z.number()).query(({ ctx, input }) => {
+    return ctx.prisma.protocol.findFirst({ where: { id: input } });
+  }),
+  byHash: publicProcedure.input(import_zod3.z.string()).query(({ ctx, input }) => {
+    return ctx.prisma.protocol.findFirst({ where: { hash: input } });
   })
 });
 

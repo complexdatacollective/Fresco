@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  id         String      @id @default(cuid())
+  id         Int         @id @default(autoincrement())
   name       String
   email      String      @unique
   role       String?     @default("user")
@@ -20,22 +20,27 @@ model User {
 }
 
 model Protocol {
-  id         String      @id @default(cuid())
-  name       String
-  assetPath  String
-  importedAt DateTime    @default(now())
-  data       String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
-  interviews Interview[]
+  id            Int         @id @default(autoincrement())
+  hash          String      @unique
+  name          String
+  schemaVersion String
+  description   String?
+  assetPath     String
+  importedAt    DateTime    @default(now())
+  lastModified  DateTime
+  data          String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  interviews    Interview[]
 }
 
 model Interview {
-  id          String    @id @default(cuid())
+  id          String    @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
   startedAt   DateTime  @default(now())
   finishedAt  DateTime?
+  exportedAt  DateTime?
   lastUpdated DateTime  @updatedAt
   network     String? // Another json field we can't store yet :/
   user        User      @relation(fields: [userId], references: [id])
-  userId      String
+  userId      Int
   protocol    Protocol  @relation(fields: [protocolId], references: [id])
-  protocolId  String
+  protocolId  Int
 }

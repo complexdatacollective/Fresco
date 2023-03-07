@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import PropTypes from 'prop-types';
 import Dialog from './Dialog';
 import Button from '../Button';
 
-const getErrorMessage = (error) => !!error
-  && (error.friendlyMessage ? error.friendlyMessage : error.toString());
+const getStack = (error: Error) => !!error && error.stack;
 
-const getMessage = ({ error, message }) => (error ? getErrorMessage(error) : message);
-
-const getStack = (error) => !!error && error.stack;
-
-const AdditionalInformation = ({ stack }) => {
+// Render an Error's stack trace in a collapsible box
+function AdditionalInformation({ stack = '' } : { stack: string }) {
   const [expanded, setExpanded] = useState(false);
 
   const buttonText = expanded ? 'Hide details \u25b2' : 'Show details \u25bc';
@@ -34,23 +29,30 @@ const AdditionalInformation = ({ stack }) => {
       </Button>
     </div>
   );
-};
-
-AdditionalInformation.propTypes = {
-  stack: PropTypes.string,
-};
-
-AdditionalInformation.defaultProps = {
-  stack: null,
-};
+}
 
 /*
  * Designed to present errors to the user. Unlike some other Dialog types user must
  * explicitly click Acknowledge to close.
  */
-const ErrorDialog = ({
-  error, message, onConfirm, show, confirmLabel, title,
-}) => {
+
+type ErrorDialogProps = {
+  error: Error,
+  title?: string,
+  message: string | React.ReactNode,
+  onConfirm: () => void,
+  confirmLabel?: string,
+  show: boolean,
+};
+
+function ErrorDialog({
+  error,
+  message,
+  onConfirm,
+  show,
+  confirmLabel = 'OK',
+  title = 'Something went wrong!',
+}: ErrorDialogProps) {
   const stack = getStack(error);
 
   return (
@@ -59,7 +61,7 @@ const ErrorDialog = ({
       icon="error"
       show={show}
       title={title}
-      message={getMessage({ error, message })}
+      message={message || error.message}
       options={[
         <Button key="confirm" onClick={onConfirm} color="neon-coral" content={confirmLabel} />,
       ]}
@@ -67,32 +69,6 @@ const ErrorDialog = ({
       {stack && <AdditionalInformation stack={stack} />}
     </Dialog>
   );
-};
-
-ErrorDialog.propTypes = {
-  error: PropTypes.oneOfType([
-    PropTypes.instanceOf(Error),
-    PropTypes.string,
-    PropTypes.shape({ friendlyMessage: PropTypes.string }),
-  ]),
-  title: PropTypes.string,
-  message: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node,
-  ]),
-  onConfirm: PropTypes.func.isRequired,
-  confirmLabel: PropTypes.string,
-  show: PropTypes.bool,
-};
-
-ErrorDialog.defaultProps = {
-  confirmLabel: 'OK',
-  title: 'Something went wrong!',
-  message: null,
-  error: null,
-  show: false,
-};
-
-export { ErrorDialog };
+}
 
 export default ErrorDialog;

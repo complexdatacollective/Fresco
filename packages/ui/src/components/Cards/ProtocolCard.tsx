@@ -1,25 +1,37 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { KeyboardEvent, MouseEvent } from 'react';
 import cx from 'classnames';
 import Icon from '../Icon';
 
-const formatDate = (timeString) => timeString && new Date(timeString).toLocaleString(undefined);
+const formatDate = (timeString: Date) => timeString
+  && new Date(timeString).toLocaleString(undefined);
 
-const ProtocolCard = (props) => {
-  const {
-    selected,
-    condensed,
-    schemaVersion,
-    lastModified,
-    installationDate,
-    name,
-    description,
-    isOutdated,
-    isObsolete,
-    onStatusClickHandler,
-    onClickHandler,
-  } = props;
+type ProtocolCardProps = {
+  selected?: boolean,
+  condensed?: boolean,
+  schemaVersion: string,
+  importedAt: Date,
+  lastModified: Date,
+  name: string,
+  description?: string,
+  isOutdated?: boolean,
+  isObsolete?: boolean,
+  onStatusClickHandler?: (() => void) | undefined,
+  onClickHandler?: (() => void) | undefined,
+};
 
+function ProtocolCard({
+  selected = false,
+  condensed = false,
+  schemaVersion,
+  importedAt,
+  lastModified,
+  name,
+  description = '',
+  isOutdated = false,
+  isObsolete = false,
+  onStatusClickHandler = undefined,
+  onClickHandler = undefined,
+}: ProtocolCardProps) {
   const modifierClasses = cx(
     'protocol-card',
     { 'protocol-card--clickable': onClickHandler },
@@ -28,10 +40,13 @@ const ProtocolCard = (props) => {
     { 'protocol-card--outdated': !isObsolete && isOutdated },
     { 'protocol-card--obsolete': isObsolete },
   );
-
-  const handleStatusClick = (e) => {
+  const handleStatusClick = (
+    e: KeyboardEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>,
+  ) => {
     e.stopPropagation();
-    onStatusClickHandler();
+    if (onStatusClickHandler) {
+      onStatusClickHandler();
+    }
   };
 
   const renderStatusIcon = () => {
@@ -90,20 +105,19 @@ const ProtocolCard = (props) => {
         {renderStatusIcon()}
         {!condensed && (
           <div className="protocol-meta">
-            {
-              installationDate && (
-                <h6>
-                  Installed:
-                  {formatDate(installationDate)}
-                </h6>
-              )
-            }
             <h6>
-              Last Modified:
+              Imported:
+              {' '}
+              {formatDate(importedAt)}
+            </h6>
+            <h6>
+              Modified:
+              {' '}
               {formatDate(lastModified)}
             </h6>
             <h6>
               Schema Version:
+              {' '}
               {schemaVersion}
             </h6>
           </div>
@@ -115,31 +129,6 @@ const ProtocolCard = (props) => {
       </div>
     </div>
   );
-};
-
-ProtocolCard.defaultProps = {
-  onClickHandler: undefined,
-  onStatusClickHandler: () => { },
-  description: null,
-  installationDate: null,
-  isOutdated: false,
-  isObsolete: false,
-  condensed: false,
-  selected: false,
-};
-
-ProtocolCard.propTypes = {
-  schemaVersion: PropTypes.number.isRequired,
-  lastModified: PropTypes.string.isRequired, // Expects ISO 8601 datetime string
-  installationDate: PropTypes.string, // Expects ISO 8601 datetime string
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string,
-  onClickHandler: PropTypes.func,
-  onStatusClickHandler: PropTypes.func,
-  isOutdated: PropTypes.bool,
-  isObsolete: PropTypes.bool,
-  condensed: PropTypes.bool,
-  selected: PropTypes.bool,
-};
+}
 
 export default ProtocolCard;

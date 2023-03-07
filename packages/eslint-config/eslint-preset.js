@@ -13,4 +13,9 @@ module.exports = {
     "es2021": true,
     "node": true,
   },
+  rules: {
+    'react/require-default-props': ['error', { functions: 'defaultArguments' }],
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off"
+  }
 }

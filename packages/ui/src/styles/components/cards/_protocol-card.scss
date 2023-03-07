@@ -12,6 +12,11 @@ $component: 'protocol-card';
 
   &--clickable {
     @include clickable(2);
+
+    // clickable(1) when also --condensed
+    &.#{$component}--condensed {
+      @include clickable(1);
+    }
   }
 
   &--selected {
@@ -28,7 +33,6 @@ $component: 'protocol-card';
   }
 
   &--condensed {
-    @include clickable(1);
     flex-direction: row;
     height: unit(7);
 

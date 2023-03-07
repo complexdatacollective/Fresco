@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { PropsWithChildren, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -6,11 +6,11 @@ import cx from 'classnames';
 import './styles/main.scss';
 import {
   isElectron, isWindows, isMacOS, isLinux, isPreview, getEnv, isIOS, isAndroid,
-} from '@utils/Environment';
-import DialogManager from '@components/DialogManager';
-import ToastManager from '@components/ToastManager';
-import { SettingsMenu } from '@components/SettingsMenu';
-import useUpdater from '@hooks/useUpdater';
+} from '@/utils/Environment';
+import DialogManager from '@/components/DialogManager';
+import ToastManager from '@/components/ToastManager';
+import { SettingsMenu } from '@/components/SettingsMenu';
+import useUpdater from '@/hooks/useUpdater';
 import { ipcLink } from 'electron-trpc/renderer'
 import superjson from 'superjson';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -30,13 +30,9 @@ const list = {
   },
 };
 
-/**
-  * Main app container.
-  * @param props {object} - children
-  */
 const App = ({
   children,
-}) => {
+}: PropsWithChildren) => {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -63,7 +59,7 @@ const App = ({
       links: [
         loggerLink(),
         httpBatchLink({
-          url: "http://localhost:3001/api/trpc",
+          url: "http://localhost:3001/api/trpc", // TODO: get from env
           fetch: async (input, init?) => {
             const fetch = getFetch();
             return fetch(input, {

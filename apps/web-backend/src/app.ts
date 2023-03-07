@@ -13,7 +13,7 @@ dotenv.config({ path: path.join(__dirname, "./.env") });
 
 // TODO: make these configurable via env vars
 const PORT = 3001;
-export const PROTOCOLS_DIR = path.join(tmpdir(), "protocols");
+export const PROTOCOLS_DIR = path.join(__dirname, "./protocols");
 
 const app = express();
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));

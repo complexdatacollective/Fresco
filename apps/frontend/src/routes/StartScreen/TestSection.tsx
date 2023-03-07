@@ -1,29 +1,51 @@
 import { useState, ChangeEvent, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Spinner, Button } from '@codaco/ui';
+import { Spinner, Button, ProtocolCard } from '@codaco/ui';
 import Section from './Section';
-import { trpcReact } from '@/utils/trpc/trpc';
+import { trpcReact, trpcVanilla } from '@/utils/trpc/trpc';
 import { useMutation } from '@tanstack/react-query';
-
+import { useDispatch } from 'react-redux';
+import { actionCreators as dialogActions } from '@/ducks/modules/dialogs';
+import { Dialog } from '@/ducks/modules/dialogs';
 
 const TestSection = () => {
   const [file, setFile] = useState<File>();
+  const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [userName, setUserName] = useState('');
+  const dispatch = useDispatch();
+  const openDialog = (dialog: Dialog) => dispatch(dialogActions.openDialog(dialog));
 
   // Gives access to helpers: https://trpc.io/docs/useContext#helpers
   const utils = trpcReact.useContext();
+
+  const confirmOverwriteProtocol = () => new Promise<void>((resolve, reject) => {
+  openDialog({
+    type: 'Warning',
+    title: 'Overwrite existing protocol?',
+    message: 'A protocol with this hash already exists. Are you sure you want to overwrite it?',
+    confirmLabel: 'Overwrite Existing Protocol',
+    onConfirm: () => {
+      resolve();
+    },
+    onCancel: () => {
+      reject();
+    },
+  });
+});
 
   // https://tanstack.com/query/v4/docs/react/reference/useMutation
   const {
     mutate: uploadProtocol,
     isLoading: isUploadingProtocol,
-  } = useMutation(formData => {
-    return fetch('http://127.0.0.1:3001/api/protocols', {
-      method: 'POST',
-      body: formData,
-    })
+    reset: resetUploadProtocol,
+  } = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return fetch('http://127.0.0.1:3001/api/protocols', {
+        method: 'POST',
+        body: formData,
+      }).then((response) => response.json());
+    },
   })
 
   const { 
@@ -35,6 +57,8 @@ const TestSection = () => {
     data: protocols,
     isLoading: isLoadingProtocols,
   } = trpcReact.protocols.all.useQuery();
+
+
 
   /**
    * Create user mutation
@@ -59,7 +83,6 @@ const TestSection = () => {
       // add them here so that the type is valid.
       const newUserWithMeta = {
         ...newUser,
-        id: 'temp-id',
         role: null,
       }
     
@@ -129,7 +152,7 @@ const TestSection = () => {
       }
   }, [isUsersLoading, isCreatingUser, isDeletingUser])
 
-  const handleDeleteUser = (id: string) => {
+  const handleDeleteUser = (id: BigInt) => {
     deleteUser(id);
   }
 
@@ -141,19 +164,92 @@ const TestSection = () => {
     setUserName('');
   }
 
+  // TODO: Obviously this all needs to be moved somewhere sensible...
   const handleCreateProtocol = async () => {
     if (!file) {
       return;
     }
 
-    console.log(file);
+    // Compute a hash of the file using the browser's crypto API
+    const hash = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+    
+    // convert result to hex string
+    const hashAsHexString = Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+    console.log(hashAsHexString);
 
+    // Check if a protocol exists with this hash
+    const existing = await trpcVanilla.protocols.byHash.query(hashAsHexString);
+
+    if (existing) {
+      // Check if the protocol has in progress interview sessions
+
+
+
+      // If it does, open a dialog to confirm the user wants to overwrite it
+      try {
+        await confirmOverwriteProtocol();
+      } catch (err) {
+        // If the user cancels, reset the file input
+        setFile(undefined);
+        return;
+      }
+    }
     // FormData is how we send files to the backend
     const formData = new FormData();
     formData.append('protocolFile', file);
     uploadProtocol(formData, {
       onSuccess: (data) => {
-        console.log('success', data);
+        console.log(data)
+
+        // If the mutation fails, check for validation errors
+        if (!data.success) {
+          const handleConfirmError = () => {
+                // Reset the mutation state, and the file input
+                setFile(undefined);
+                resetUploadProtocol();
+              }
+
+          if (data.schemaErrors && data.dataErrors) {
+            const Message = () => (
+              <>
+                <p>Your protocol file failed validation. See below for the specific problems we found. This is often caused by attempting to open a protocol file authored in an incompatible version of Architect.</p>
+              </>
+            );
+
+            const error = {
+              stack: [...data.schemaErrors, ...data.dataErrors].join(' \n'),
+            }
+
+            openDialog({
+              type: 'Error',
+              title: 'Invalid Protocol File',
+              message: <Message />,
+              onConfirm: handleConfirmError,
+            });
+
+            return;
+          }
+
+          // If there are no validation errors, show a generic error dialog
+          openDialog({
+            type: 'Error',
+            title: 'Error Uploading Protocol',
+            message: data.error,
+            error: data.error,
+            onConfirm: handleConfirmError,
+          });
+        }
+      },
+      onError: (err: unknown) => {
+        let errorObj = err as Error;
+
+        // If the request fails, show an error dialog
+        openDialog({
+          type: 'Error',
+          title: 'Error Uploading Protocol',
+          message: 'There was an error uploading your protocol. Please see the message below for more details.',
+          error: errorObj,
+        });
       },
     })
   }
@@ -206,16 +302,25 @@ const TestSection = () => {
         {isLoadingProtocols && <Spinner />}
         <ul>
           {protocols?.map((protocol) => (
-            <li key={protocol.name}>{protocol.name}</li>
+            <li key={protocol.hash}>
+              <ProtocolCard
+                name={protocol.name}
+                schemaVersion={protocol.schemaVersion}
+                importedAt={protocol.importedAt}
+                lastModified={protocol.lastModified}
+                description={protocol.description}
+              />
+            </li>
           ))}
         </ul>
         <input
           type="file"
           accept=".netcanvas"
           onChange={handleFileChange}
+          key={file ? file.name : 'empty'}
         />
         <div>{file && `${file.name} - ${file.type}`}</div>
-        <Button onClick={handleCreateProtocol} disabled={isUploadingProtocol}>
+        <Button onClick={handleCreateProtocol} disabled={!file || isUploadingProtocol}>
           Upload
         </Button>
       </section>

@@ -1,5 +1,6 @@
 import validateSchema from "./validateSchema.js";
 import validateLogic from "./validateLogic.js";
+import { Protocol } from "@codaco/shared-consts";
 
 export class ValidationError extends Error {
   constructor(message: string, public schemaErrors: Map<string, string>, public dataErrors: Map<string, string>) {
@@ -10,9 +11,7 @@ export class ValidationError extends Error {
   }
 }
 
-export type ValidateProtocolReturn = void | ValidationError;
-
-export const validateProtocol = (jsonString: string, forceVersion?: number): ValidateProtocolReturn => {
+export const validateProtocol = (jsonString: string, forceVersion?: number): Protocol => {
   let data;
 
   try {
@@ -38,4 +37,6 @@ export const validateProtocol = (jsonString: string, forceVersion?: number): Val
   if (!isValid) {
     throw new ValidationError('Invalid protocol', schemaErrors, dataErrors);
   }
+
+  return data;
 };

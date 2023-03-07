@@ -5,6 +5,7 @@ const SessionPath = '/session/:sessionId/:stageIndex';
 const matchSessionPath = (pathname) => matchPath(pathname, { path: SessionPath });
 
 const currentStageIndex = (path) => {
+  if (!path) { return 0; }
   const matchedPath = matchSessionPath(path);
   if (matchedPath) {
     return parseInt(matchedPath.params.stageIndex, 10);

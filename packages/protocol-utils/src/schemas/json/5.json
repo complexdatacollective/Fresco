@@ -150,8 +150,7 @@
               "type": "boolean"
             }
           },
-          "additionalProperties": false,
-          "required": ["concentricCircles", "skewedTowardCenter"]
+          "additionalProperties": false
         },
         "sortOptions": {
           "$ref": "#/definitions/SortOptions"
