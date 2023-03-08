@@ -64,7 +64,7 @@
     "uuid": "^9.0.0"
   },
   "peerDependencies": {
-    "framer-motion": "^10.0.1",
+    "framer-motion": "^10.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -80,7 +80,7 @@
     "@storybook/react": "^6.5.13",
     "@storybook/testing-library": "^0.0.13",
     "@vitejs/plugin-react-swc": "^3.2.0",
-    "framer-motion": "^10.0.1",
+    "framer-motion": "^10.2.3",
     "mkdirp": "^0.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
