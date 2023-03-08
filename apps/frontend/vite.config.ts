@@ -21,7 +21,7 @@ export default defineConfig({
       { find: '@utils', replacement: fileURLToPath(new URL('./src/utils', import.meta.url)) },
     ],
   },
-  server: {
-    host: '127.0.0.1', // For some reason, localhost doesn't work
-  }
+  // server: {
+  //   host: '127.0.0.1', // For some reason, localhost doesn't work
+  // }
 });

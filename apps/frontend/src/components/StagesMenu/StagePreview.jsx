@@ -1,12 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { withHandlers, compose } from 'recompose';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
 import { getCSSVariableAsNumber } from '@codaco/ui';
 import timelineImages from '../../images/timeline';
-import { currentStageIndex } from '../../utils/matchSessionPath';
 import { get } from '@codaco/utils';
 
 const getTimelineImage = (type) => get(timelineImages, type, timelineImages.Default);
@@ -85,10 +83,6 @@ const stagePreviewHandlers = withHandlers({
   },
 });
 
-const mapStateToProps = (state) => ({
-  currentStageIndex: currentStageIndex(state.router.location.pathname),
-});
-
 StagePreview.propTypes = {
   item: PropTypes.object.isRequired,
   active: PropTypes.bool.isRequired,
@@ -96,6 +90,5 @@ StagePreview.propTypes = {
 };
 
 export default compose(
-  connect(mapStateToProps),
   stagePreviewHandlers,
 )(StagePreview);

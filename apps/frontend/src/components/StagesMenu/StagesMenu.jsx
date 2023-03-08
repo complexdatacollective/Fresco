@@ -8,15 +8,16 @@ import { Scroller } from '@codaco/ui';
 import { getCSSVariableAsNumber, getCSSVariableAsString } from '@codaco/ui';
 import { getProtocolStages } from '../../selectors/protocol';
 import StagePreview from './StagePreview';
-import { currentStageIndex as getCurrentStageIndex } from '../../utils/matchSessionPath';
 
 const StagesMenu = (props) => {
   const {
-    currentStageIndex,
     stages,
     setExpanded,
     onStageSelect,
   } = props;
+
+  console.warn('CurrentStageIndex is hardcoded to 1! See StagesMenu.');
+  const currentStageIndex = 1
 
   const [filter, setFilter] = useState('');
 
@@ -219,13 +220,11 @@ function mapStateToProps(state) {
 
   return {
     stages: withIndex,
-    currentStageIndex: getCurrentStageIndex(state.router.location.pathname),
   };
 }
 
 StagesMenu.propTypes = {
   stages: PropTypes.array.isRequired,
-  currentStageIndex: PropTypes.number.isRequired,
   setExpanded: PropTypes.func.isRequired,
 };
 

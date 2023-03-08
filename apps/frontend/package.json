@@ -13,19 +13,18 @@
     "build:electron": "VITE_APP_PLATFORM=electron vite build"
   },
   "dependencies": {
-    "tsconfig": "*",
-    "@codaco/eslint-config": "*",
     "@codaco/api": "*",
+    "@codaco/eslint-config": "*",
     "@codaco/shared-consts": "*",
     "@codaco/ui": "*",
     "@codaco/utils": "*",
     "@faker-js/faker": "^7.6.0",
     "@reduxjs/toolkit": "~1.9.2",
+    "@tanstack/react-query": "^4.24.6",
+    "@tanstack/react-query-devtools": "^4.24.6",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "@tanstack/react-query": "^4.24.6",
-    "@tanstack/react-query-devtools": "^4.24.6",
     "@trpc/client": "^10.11.1",
     "@trpc/react-query": "^10.11.1",
     "@trpc/server": "^10.11.1",
@@ -57,8 +56,10 @@
     "sanitize-filename": "^1.6.3",
     "sass": "^1.58.3",
     "superjson": "^1.12.2",
+    "tsconfig": "*",
     "typescript": "^4.9.5",
     "uuid": "~9.0.0",
+    "wouter": "^2.10.0",
     "zod": "^3.20.6"
   },
   "browserslist": {

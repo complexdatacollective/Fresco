@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import HeaderSection from './HeaderSection';
 import InterviewSection from './InterviewSection';
@@ -7,6 +6,7 @@ import ImportSection from './ImportSection';
 import WhatsNewSection from './WhatsNewSection';
 import SessionManagementSection from './SessionManagementSection';
 import TestSection from './TestSection';
+import { Redirect } from 'wouter';
 
 const StartScreen = () => {
   const activeSessionId = useSelector((state) => state.activeSessionId);
@@ -26,7 +26,7 @@ const StartScreen = () => {
   if (activeSessionId) {
     const { stageIndex } = sessions[activeSessionId];
     const pathname = `/session/${activeSessionId}/${stageIndex}`;
-    return (<Navigate replace to={pathname} />);
+    return (<Redirect replace to={pathname} />);
   }
 
   return (

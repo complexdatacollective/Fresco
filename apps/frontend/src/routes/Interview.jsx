@@ -1,18 +1,18 @@
-import { Outlet, useParams } from 'react-router-dom';
 
-const Session = () => {
-  const { sessionId, stageIndex } = useParams();
+
+const Interview = (params) => {
+  console.log(params);
+  const { sessionId, stageIndex } = params;
 
   return (
     <>
       <h1>SessionID: {sessionId}</h1>
       <h1>StageIndex: {stageIndex}</h1>
-      <Outlet />
     </>
   )
 }
 
-export default Session;
+export default Interview;
 
 // const initialState = {
 //   pendingDirection: 1,
