@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useState } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
 import { trpcReact } from './utils/trpc/trpc';
 import FetchingIndicator from './FetchingIndicator';
+import { RootState } from './ducks/store';
 
 const list = {
   visible: {
@@ -71,8 +72,8 @@ const App = ({
     })
   });
 
-  const interfaceScale = useSelector(state => state.deviceSettings.interfaceScale);
-  const useDynamicScaling = useSelector(state => state.deviceSettings.useDynamicScaling);
+  const interfaceScale = useSelector((state: RootState) => state.deviceSettings.interfaceScale);
+  const useDynamicScaling = useSelector((state: RootState) => state.deviceSettings.useDynamicScaling);
 
   const setFontSize = useCallback(() => {
     const root = document.documentElement;
@@ -86,6 +87,18 @@ const App = ({
   useUpdater('https://api.github.com/repos/complexdatacollective/Interviewer/releases/latest', 2500);
 
   setFontSize();
+
+  useEffect(() => {
+    const errorLogger = (_e: Event) => {
+      console.error("Error logger would send error to server here");
+    }
+    
+    window.addEventListener('error', errorLogger);
+
+    return () => {
+      window.removeEventListener('error', errorLogger);
+    };
+  }, []);
 
   return (
     <trpcReact.Provider queryClient={queryClient} client={trpcClient}>

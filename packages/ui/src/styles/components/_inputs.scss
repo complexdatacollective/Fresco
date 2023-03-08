@@ -19,6 +19,7 @@
   $input-class: 'input'
 ) {
   .#{$input-class} {
+    appearance: none;
     -webkit-appearance: none; // sass-lint:disable-line no-vendor-prefixes
     border: 0;
     background: none;
@@ -128,7 +129,7 @@
 ) {
   .#{$text-class} {
     @include default-input-type;
-
+    appearance: none;
     -webkit-appearance: none; // sass-lint:disable-line no-vendor-prefixes
     border: 0;
     background: none;

@@ -8,7 +8,7 @@ const CLOSE_DIALOG = 'PROTOCOL/CLOSE_DIALOG';
 type BaseDialog = {
   type: 'Confirm' | 'Notice' | 'Warning' | 'Error',
   title: string,
-  message: string,
+  message: string | JSX.Element,
   onConfirm?: () => void,
   onCancel?: () => void,
   confirmLabel?: string,

@@ -9,3 +9,7 @@ export const store = configureStore({
   }).concat(logger),
   devTools: process.env.NODE_ENV !== 'production',
 });
+
+// Taken from https://redux.js.org/usage/usage-with-typescript
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

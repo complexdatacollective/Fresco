@@ -1,19 +1,20 @@
 import { useState, ChangeEvent, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Spinner, Button, ProtocolCard } from '@codaco/ui';
+import { Spinner, Button, ProtocolCard, Text } from '@codaco/ui';
 import Section from './Section';
 import { trpcReact, trpcVanilla } from '@/utils/trpc/trpc';
 import { useMutation } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { actionCreators as dialogActions } from '@/ducks/modules/dialogs';
 import { Dialog } from '@/ducks/modules/dialogs';
+import type { AppDispatch } from '@/ducks/store';
 
 const TestSection = () => {
   const [file, setFile] = useState<File>();
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch() as AppDispatch; // We need to use this custom type everywhere we use the useDispatch hook.
   const openDialog = (dialog: Dialog) => dispatch(dialogActions.openDialog(dialog));
 
   // Gives access to helpers: https://trpc.io/docs/useContext#helpers
@@ -72,7 +73,7 @@ const TestSection = () => {
     isLoading: isCreatingUser,
   } = trpcReact.user.create.useMutation({
     onMutate: async (newUser) => {
-      // Cancel any outgoing refetches sso they don't overwrite our optimistic update
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
       await utils.user.all.cancel()
 
       // Snapshot the current value
@@ -83,6 +84,7 @@ const TestSection = () => {
       // add them here so that the type is valid.
       const newUserWithMeta = {
         ...newUser,
+        id: Number.MAX_VALUE, // Todo: this should be based on the last id in the list since it will autoincrement
         role: null,
       }
     
@@ -152,7 +154,7 @@ const TestSection = () => {
       }
   }, [isUsersLoading, isCreatingUser, isDeletingUser])
 
-  const handleDeleteUser = (id: BigInt) => {
+  const handleDeleteUser = (id: number) => {
     deleteUser(id);
   }
 
@@ -216,14 +218,11 @@ const TestSection = () => {
               </>
             );
 
-            const error = {
-              stack: [...data.schemaErrors, ...data.dataErrors].join(' \n'),
-            }
-
             openDialog({
               type: 'Error',
               title: 'Invalid Protocol File',
               message: <Message />,
+              additionalInfo: [...data.schemaErrors, ...data.dataErrors].join(' \n'),
               onConfirm: handleConfirmError,
             });
 
@@ -235,20 +234,20 @@ const TestSection = () => {
             type: 'Error',
             title: 'Error Uploading Protocol',
             message: data.error,
-            error: data.error,
+            additionalInfo: data.error,
             onConfirm: handleConfirmError,
           });
         }
       },
       onError: (err: unknown) => {
-        let errorObj = err as Error;
+        const errorObj = err as Error;
 
         // If the request fails, show an error dialog
         openDialog({
           type: 'Error',
           title: 'Error Uploading Protocol',
           message: 'There was an error uploading your protocol. Please see the message below for more details.',
-          error: errorObj,
+          additionalInfo: errorObj.toString(),
         });
       },
     })
@@ -260,9 +259,6 @@ const TestSection = () => {
     }
   };
 
-  // Capture NODE_ENV
-  const platform = import.meta.env.VITE_APP_PLATFORM || 'web';
-
   return (
     <Section className="start-screen-section">
       <div
@@ -272,8 +268,15 @@ const TestSection = () => {
         }}
       >
         <h1>Users</h1>
-        <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} />
-        <Button onClick={handleSubmit}>Add user</Button>
+        <Text
+          label="Enter a username"
+          placeholder="Enter a user name"
+          input={{
+            value: userName,
+            onChange: (e: ChangeEvent<HTMLInputElement>) => setUserName(e.target.value),  
+          }}
+        />
+        <Button onClick={handleSubmit} disabled={!userName}>Add user</Button>
         <AnimatePresence initial={false}>
           <ul>
             {users && users.map((user, index) => (
@@ -308,7 +311,7 @@ const TestSection = () => {
                 schemaVersion={protocol.schemaVersion}
                 importedAt={protocol.importedAt}
                 lastModified={protocol.lastModified}
-                description={protocol.description}
+                description={protocol.description!}
               />
             </li>
           ))}
