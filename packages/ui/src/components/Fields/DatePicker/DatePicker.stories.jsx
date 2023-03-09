@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import DatePicker, { DATE_FORMATS } from '../src/components/Fields/DatePicker';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import DatePicker, { DATE_FORMATS } from '@/components/Fields/DatePicker';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   label: 'Please __choose__ a date',
@@ -27,7 +27,7 @@ export const Field = () => {
         value,
       }}
     >
-      {props => (
+      {(props) => (
         <div>
           <DatePicker {...props} />
           Next element
@@ -57,7 +57,7 @@ export const Parameters = () => {
         max: '3000-12',
       }}
     >
-      {props => (
+      {(props) => (
         <div>
           <DatePicker {...props} />
           Next element
@@ -68,13 +68,9 @@ export const Parameters = () => {
 };
 
 export const WithPlaceholder = () => {
-
   return (
-    <Harness
-      requiredProps={requiredProps}
-      placeholder="This is my placeholder"
-    >
-      {props => (
+    <Harness requiredProps={requiredProps} placeholder="This is my placeholder">
+      {(props) => (
         <div>
           <DatePicker {...props} />
           Next element
@@ -93,15 +89,15 @@ export const WithError = () => {
     action('toggleError')(!meta);
   };
 
-
-  const renderMeta = { error: 'Something was not right about the input', invalid: meta, touched: meta };
+  const renderMeta = {
+    error: 'Something was not right about the input',
+    invalid: meta,
+    touched: meta,
+  };
 
   return (
-    <Harness
-      requiredProps={requiredProps}
-      meta={renderMeta}
-    >
-      {props => (
+    <Harness requiredProps={requiredProps} meta={renderMeta}>
+      {(props) => (
         <div>
           <button onClick={toggleError}>Toggle Error</button>
           <div>
@@ -122,15 +118,16 @@ export const AutoScroll = () => (
       max: '3000-12',
     }}
   >
-    {props => (
-      <div style={{
-        backgroundColor: 'var(--color-slate-blue)',
-        height: '500px',
-        overflowY: 'scroll',
-        scrollBehavior: 'smooth',
-        position: 'relative',
-        top: '3rem',
-      }}
+    {(props) => (
+      <div
+        style={{
+          backgroundColor: 'var(--color-slate-blue)',
+          height: '500px',
+          overflowY: 'scroll',
+          scrollBehavior: 'smooth',
+          position: 'relative',
+          top: '3rem',
+        }}
       >
         <div style={{ padding: '400px 0' }}>
           <DatePicker {...props} />
@@ -155,10 +152,14 @@ export const LightPanelBackground = () => {
         value,
       }}
     >
-      {props => (
+      {(props) => (
         <div>
-          <div style={{"--input-panel-bg": "white",
-        "--input-text": "rgb(109, 111, 118)"}}>
+          <div
+            style={{
+              '--input-panel-bg': 'white',
+              '--input-text': 'rgb(109, 111, 118)',
+            }}
+          >
             <DatePicker {...props} />
           </div>
           Next element

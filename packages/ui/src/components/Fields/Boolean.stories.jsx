@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import Boolean from '../src/components/Fields/Boolean';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import Boolean from '@/components/Fields/Boolean';
+import '@/styles/_all.scss';
 
 import './Boolean.stories.scss';
-import Icon from '../src/components/Icon';
+import Icon from '@/components/Icon';
 
 export default { title: 'Fields/Boolean' };
 
@@ -118,7 +118,11 @@ export const longText = () => {
         value,
       }}
       options={[
-        { label: '**Yes**. This is a really long label that represents the value yes. Are there any other questions?', value: true },
+        {
+          label:
+            '**Yes**. This is a really long label that represents the value yes. Are there any other questions?',
+          value: true,
+        },
         { label: 'No', value: false },
       ]}
     >
@@ -149,8 +153,16 @@ export const longTextWithList = () => {
         value,
       }}
       options={[
-        { label: '# Yes\n\nThis is a really long label that represents the value yes.\n\n- Are there any other questions?\n\n- Are there any other questions?\n\n- Are there any other questions?', value: true },
-        { label: '# No\n\nThis is a really long label that represents the value no.\n\n- Are there any other questions?\n\n- Are there any other questions?\n\n- Are there any other questions?', value: false },
+        {
+          label:
+            '# Yes\n\nThis is a really long label that represents the value yes.\n\n- Are there any other questions?\n\n- Are there any other questions?\n\n- Are there any other questions?',
+          value: true,
+        },
+        {
+          label:
+            '# No\n\nThis is a really long label that represents the value no.\n\n- Are there any other questions?\n\n- Are there any other questions?\n\n- Are there any other questions?',
+          value: false,
+        },
       ]}
     >
       {(props) => (
@@ -211,7 +223,11 @@ export const WithError = () => {
     action('toggleError')(!meta);
   };
 
-  const renderMeta = { error: 'Something was not right about the input', invalid: meta, touched: meta };
+  const renderMeta = {
+    error: 'Something was not right about the input',
+    invalid: meta,
+    touched: meta,
+  };
 
   const [value, setValue] = useState();
 

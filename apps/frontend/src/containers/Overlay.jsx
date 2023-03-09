@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { Modal } from '@codaco/ui';
-import CloseButton from '../components/CloseButton';
+import CloseButton from '@/components/CloseButton';
 
 const ExpandLessIcon = () => { };
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import ProgressCircle from '../src/components/ProgressCircle';
+import ProgressCircle from '@/components/ProgressCircle';
 
-import '../src/styles/_all.scss';
+import '@/styles/_all.scss';
 
 export default {
   title: 'Components/Progress Circle',
@@ -16,10 +16,10 @@ export default {
   },
 };
 
-const Template = (props) => (
-  <div style={{ height: '7rem' }}>
-    <ProgressCircle {...props} />
-  </div>
-);
-
-export const normal = Template.bind({});
+export const normal = {
+  render: (props) => (
+    <div style={{ height: '7rem' }}>
+      <ProgressCircle {...props} />
+    </div>
+  ),
+};

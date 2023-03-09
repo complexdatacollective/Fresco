@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import logo from '../../../public/assets/images/Srv-Flat.svg';
+import logo from '../@/public/assets/images/Srv-Flat.svg';
 import HoverMarquee from '../HoverMarquee';
 
 /**

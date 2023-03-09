@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import ToggleButton from '../src/components/Fields/ToggleButton';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import ToggleButton from '@/components/Fields/ToggleButton';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   input: {},
@@ -18,7 +18,7 @@ export const off = () => (
       value: false,
     }}
   >
-    {props => <ToggleButton {...props} />}
+    {(props) => <ToggleButton {...props} />}
   </Harness>
 );
 
@@ -30,14 +30,14 @@ export const on = () => (
       value: true,
     }}
   >
-    {props => <ToggleButton {...props} />}
+    {(props) => <ToggleButton {...props} />}
   </Harness>
 );
 
 export const interaction = () => {
   const [value, setValue] = useState(false);
   const handleChange = (...args) => {
-    setValue(v => !v);
+    setValue((v) => !v);
     action('change')(...args);
   };
 
@@ -50,7 +50,7 @@ export const interaction = () => {
         value,
       }}
     >
-      {props => <ToggleButton {...props} />}
+      {(props) => <ToggleButton {...props} />}
     </Harness>
   );
 };

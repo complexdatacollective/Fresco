@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import VisualAnalogScale from '../src/components/Fields/VisualAnalogScale';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import VisualAnalogScale from '@/components/Fields/VisualAnalogScale';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   input: {},
@@ -32,7 +32,7 @@ export const interaction = () => {
         value,
       }}
     >
-      {props => <VisualAnalogScale {...props} />}
+      {(props) => <VisualAnalogScale {...props} />}
     </Harness>
   );
 };
@@ -47,7 +47,11 @@ export const withError = () => {
     action('toggleError')(!meta);
   };
 
-  const renderMeta = { error: 'Something was not right about the input', invalid: meta, touched: meta };
+  const renderMeta = {
+    error: 'Something was not right about the input',
+    invalid: meta,
+    touched: meta,
+  };
 
   const handleBlur = (...args) => {
     setValue(...args);
@@ -69,7 +73,7 @@ export const withError = () => {
         value,
       }}
     >
-      {props => (
+      {(props) => (
         <div>
           <button onClick={toggleError}>Toggle Error</button>
           <div>

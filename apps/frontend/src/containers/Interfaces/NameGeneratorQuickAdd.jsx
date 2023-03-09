@@ -9,14 +9,14 @@ import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shar
 import {
   has, omit, debounce, defaultTo, isUndefined,
 } from 'lodash';
-import Prompts from '../../components/Prompts';
+import Prompts from '../@/components/Prompts';
 import withPrompt from '../../behaviours/withPrompt';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import { makeNetworkNodesForPrompt, makeGetAdditionalAttributes, makeGetStageNodeCount } from '../../selectors/interface';
 import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../selectors/name-generator';
 import NodePanels from '../NodePanels';
 import QuickNodeForm from '../QuickNodeForm';
-import { NodeList, NodeBin } from '../../components';
+import { NodeList, NodeBin } from '../@/components';
 import { get } from '@codaco/utils';
 
 export const useSelfDismissingNote = (

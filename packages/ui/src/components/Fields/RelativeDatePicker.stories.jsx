@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import RelativeDatePicker from '../src/components/Fields/RelativeDatePicker';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import RelativeDatePicker from '@/components/Fields/RelativeDatePicker';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   label: 'Please __choose__ a date',
@@ -27,7 +27,7 @@ export const Field = () => {
         value,
       }}
     >
-      {props => (
+      {(props) => (
         <div>
           <RelativeDatePicker {...props} />
           Next element
@@ -38,13 +38,9 @@ export const Field = () => {
 };
 
 export const WithPlaceholder = () => {
-
   return (
-    <Harness
-      requiredProps={requiredProps}
-      placeholder="This is my placeholder"
-    >
-      {props => (
+    <Harness requiredProps={requiredProps} placeholder="This is my placeholder">
+      {(props) => (
         <div>
           <RelativeDatePicker {...props} />
           Next element
@@ -63,15 +59,15 @@ export const WithError = () => {
     action('toggleError')(!meta);
   };
 
-
-  const renderMeta = { error: 'Something was not right about the input', invalid: meta, touched: meta };
+  const renderMeta = {
+    error: 'Something was not right about the input',
+    invalid: meta,
+    touched: meta,
+  };
 
   return (
-    <Harness
-      requiredProps={requiredProps}
-      meta={renderMeta}
-    >
-      {props => (
+    <Harness requiredProps={requiredProps} meta={renderMeta}>
+      {(props) => (
         <div>
           <button onClick={toggleError}>Toggle Error</button>
           <div>
@@ -86,8 +82,10 @@ export const WithError = () => {
 
 export const AutoScroll = () => (
   <Harness requiredProps={requiredProps}>
-    {props => (
-      <div style={{ backgroundColor: 'var(--color-slate-blue)', height: '400px', overflowY: 'scroll' }}>
+    {(props) => (
+      <div
+        style={{ backgroundColor: 'var(--color-slate-blue)', height: '400px', overflowY: 'scroll' }}
+      >
         <div style={{ padding: '300px 0' }}>
           <RelativeDatePicker {...props} />
         </div>

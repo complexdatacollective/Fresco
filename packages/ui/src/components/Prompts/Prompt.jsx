@@ -1,4 +1,4 @@
-import React, {
+import {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
 import remark from 'remark';

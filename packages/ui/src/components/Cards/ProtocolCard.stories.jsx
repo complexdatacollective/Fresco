@@ -1,9 +1,9 @@
 import React from 'react';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import ProtocolCard from '../src/components/Cards/ProtocolCard';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import ProtocolCard from '@/components/Cards/ProtocolCard';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   name: faker.lorem.sentence(),
@@ -16,28 +16,18 @@ const requiredProps = {
 export default { title: 'Components/Cards/ProtocolCard' };
 
 export const normal = () => (
-  <Harness
-    requiredProps={requiredProps}
-  >
-    {props => <ProtocolCard {...props} />}
-  </Harness>
+  <Harness requiredProps={requiredProps}>{(props) => <ProtocolCard {...props} />}</Harness>
 );
 
 export const selected = () => (
-  <Harness
-    requiredProps={requiredProps}
-    selected
-  >
-    {props => <ProtocolCard {...props} />}
+  <Harness requiredProps={requiredProps} selected>
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
 export const Clickable = () => (
-  <Harness
-    requiredProps={requiredProps}
-    onClickHandler={action('onClickHandler')}
-  >
-    {props => <ProtocolCard {...props} />}
+  <Harness requiredProps={requiredProps} onClickHandler={action('onClickHandler')}>
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -50,7 +40,7 @@ export const condensed = () => (
     onClickHandler={action('onClickHandler')}
     onStatusClickHandler={action('onStatusClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -64,7 +54,7 @@ export const condensedSelected = () => (
     onClickHandler={action('onClickHandler')}
     onStatusClickHandler={action('onStatusClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -77,10 +67,9 @@ export const condensedWithDescription = () => (
     onClickHandler={action('onClickHandler')}
     onStatusClickHandler={action('onStatusClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
-
 
 export const longname = () => (
   <Harness
@@ -88,7 +77,7 @@ export const longname = () => (
     name={faker.lorem.sentence()}
     onClickHandler={action('onClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -98,7 +87,7 @@ export const longdescription = () => (
     description={faker.lorem.paragraphs()}
     onClickHandler={action('onClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -108,7 +97,7 @@ export const nodescription = () => (
     description={null}
     onClickHandler={action('onClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -119,7 +108,7 @@ export const isOutdated = () => (
     onClickHandler={action('onClickHandler')}
     onStatusClickHandler={action('onStatusClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );
 
@@ -130,6 +119,6 @@ export const isObsolete = () => (
     onClickHandler={action('onClickHandler')}
     onStatusClickHandler={action('onStatusClickHandler')}
   >
-    {props => <ProtocolCard {...props} />}
+    {(props) => <ProtocolCard {...props} />}
   </Harness>
 );

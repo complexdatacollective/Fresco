@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { action } from '@storybook/addon-actions';
-import '../src/styles/_all.scss';
-import { Dialogs } from '../src/components';
+import '@/styles/_all.scss';
+import { Dialogs } from '@/components';
 
 const confirmAction = () => {
   action('confirm')();
@@ -52,10 +52,7 @@ export const normal = () => {
   const [dialogs, setDialogs] = useState([]);
 
   const addDialog = (dialog) => {
-    setDialogs([
-      ...dialogs,
-      dialog,
-    ]);
+    setDialogs([...dialogs, dialog]);
   };
 
   return (
@@ -66,7 +63,7 @@ export const normal = () => {
       <button onClick={() => addDialog(noticeDialog)}>Notice Dialog</button>
       <Dialogs
         dialogs={dialogs}
-        closeDialog={id => setDialogs([...dialogs.filter(dialog => dialog.id !== id)])}
+        closeDialog={(id) => setDialogs([...dialogs.filter((dialog) => dialog.id !== id)])}
       />
     </React.Fragment>
   );

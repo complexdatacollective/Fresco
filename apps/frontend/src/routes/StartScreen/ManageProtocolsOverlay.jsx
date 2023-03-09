@@ -5,7 +5,7 @@ import { entityAttributesProperty } from '@codaco/shared-consts';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { actionCreators as installedProtocolActions } from '../../ducks/modules/installedProtocols';
 import { ProtocolCard } from '@codaco/ui';
-import Picker from '../../components/Picker';
+import Picker from '../@/components/Picker';
 
 const ManageProtocolsOverlay = ({
   show,

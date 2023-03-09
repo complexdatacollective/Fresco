@@ -1,48 +1,93 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import '../src/styles/_all.scss';
-import SpeakText from '../src/components/SpeakText';
+import '@/styles/_all.scss';
+import SpeakText from '@/components/SpeakText';
 
 const text = 'Good afternoon! How are you doing today?';
 
 export default {
   title: 'Components/SpeakText',
   argTypes: {
-    lang: { control: { type: 'select', options: [window.navigator.language, 'en-US', 'en-GB', 'es-ES', 'it-IT', 'missing'] } },
+    lang: {
+      control: {
+        type: 'select',
+        options: [window.navigator.language, 'en-US', 'en-GB', 'es-ES', 'it-IT', 'missing'],
+      },
+    },
   },
 };
 
-const Template = ({ ...args }) => {
-  const props = {
-    ...args,
-  };
+export const Primary = {
+  render: ({ ...args }) => {
+    const props = {
+      ...args,
+    };
 
-  return (
-    <>
-      <SpeakText {...props} />
-    </>
-  );
+    return (
+      <>
+        <SpeakText {...props} />
+      </>
+    );
+  },
+
+  args: {
+    text,
+  },
 };
 
-export const Primary = Template.bind({});
-Primary.args = {
-  text,
+export const Spanish = {
+  render: ({ ...args }) => {
+    const props = {
+      ...args,
+    };
+
+    return (
+      <>
+        <SpeakText {...props} />
+      </>
+    );
+  },
+
+  args: {
+    text: '¡Buenas tardes! ¿Cómo estás hoy?',
+    lang: 'es-ES',
+  },
 };
 
-export const Spanish = Template.bind({});
-Spanish.args = {
-  text: '¡Buenas tardes! ¿Cómo estás hoy?',
-  lang: 'es-ES',
+export const Italian = {
+  render: ({ ...args }) => {
+    const props = {
+      ...args,
+    };
+
+    return (
+      <>
+        <SpeakText {...props} />
+      </>
+    );
+  },
+
+  args: {
+    text: 'Buon pomeriggio! Come stai oggi?',
+    lang: 'it-IT',
+  },
 };
 
-export const Italian = Template.bind({});
-Italian.args = {
-  text: 'Buon pomeriggio! Come stai oggi?',
-  lang: 'it-IT',
-};
+export const MissingLanguage = {
+  render: ({ ...args }) => {
+    const props = {
+      ...args,
+    };
 
-export const MissingLanguage = Template.bind({});
-MissingLanguage.args = {
-  text: '¡Buenas tardes! ¿Cómo estás hoy?',
-  lang: 'missing',
+    return (
+      <>
+        <SpeakText {...props} />
+      </>
+    );
+  },
+
+  args: {
+    text: '¡Buenas tardes! ¿Cómo estás hoy?',
+    lang: 'missing',
+  },
 };

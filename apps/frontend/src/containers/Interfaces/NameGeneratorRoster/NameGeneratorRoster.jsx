@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { isEmpty, isUndefined } from 'lodash';
 import { DataCard } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import Prompts from '../../../components/Prompts';
+import Prompts from '../../@/components/Prompts';
 import withPrompt from '../../../behaviours/withPrompt';
 import {
   makeNetworkNodesForPrompt,
@@ -20,9 +20,9 @@ import {
 import { makeGetPromptNodeModelData } from '../../../selectors/name-generator';
 import { actionCreators as sessionsActions } from '../../../ducks/modules/sessions';
 import { getNodeColor } from '../../../selectors/network';
-import List from '../../../components/List';
-import Panel from '../../../components/Panel';
-import Loading from '../../../components/Loading';
+import List from '../../@/components/List';
+import Panel from '../../@/components/Panel';
+import Loading from '../../@/components/Loading';
 import useAnimationSettings from '../../../hooks/useAnimationSettings';
 import useDropMonitor from '../../../behaviours/DragAndDrop/useDropMonitor';
 import Node from '../../Node';

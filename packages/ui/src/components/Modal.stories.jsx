@@ -2,8 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
 import { action } from '@storybook/addon-actions';
-import Modal from '../src/components/Modal';
-import '../src/styles/_all.scss';
+import Modal from '@/components/Modal';
+import '@/styles/_all.scss';
 
 export default { title: 'Utilities/Modal' };
 

@@ -7,9 +7,9 @@ import NCLogo from '../../images/NC-Flat@4x.png';
 import networkCanvasLogo from '../../images/NC-Mark.svg';
 import { actionCreators as deviceSettingsActions } from '../../ducks/modules/deviceSettings';
 import { importProtocolFromURI } from '../../utils/protocol/importProtocol';
-import { SettingsMenuButton } from '../../components/SettingsMenu';
-import { openExternalLink } from '../../components/ExternalLink';
-import { Switch } from '../../components';
+import { SettingsMenuButton } from '../@/components/SettingsMenu';
+import { openExternalLink } from '../@/components/ExternalLink';
+import { Switch } from '../@/components';
 import getVersion from '../../utils/getVersion';
 import useOnlineStatus from '../../hooks/useOnlineStatus';
 

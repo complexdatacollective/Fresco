@@ -1,33 +1,47 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
-import '../src/styles/_all.scss';
-import Pips from '../src/components/Prompts/Pips';
+import '@/styles/_all.scss';
+import Pips from '@/components/Prompts/Pips';
 
 export default {
   title: 'Components/Pips',
 };
 
-const Template = ({ ...args }) => {
-  const props = {
-    ...args,
-  };
+export const Primary = {
+  render: ({ ...args }) => {
+    const props = {
+      ...args,
+    };
 
-  return (
-    <>
-      <Pips {...props} />
-    </>
-  );
+    return (
+      <>
+        <Pips {...props} />
+      </>
+    );
+  },
+
+  args: {
+    count: 3,
+    currentIndex: 2,
+  },
 };
 
-export const Primary = Template.bind({});
-Primary.args = {
-  count: 3,
-  currentIndex: 2,
-};
+export const Large = {
+  render: ({ ...args }) => {
+    const props = {
+      ...args,
+    };
 
-export const Large = Template.bind({});
-Large.args = {
-  count: 3,
-  currentIndex: 2,
-  large: true,
+    return (
+      <>
+        <Pips {...props} />
+      </>
+    );
+  },
+
+  args: {
+    count: 3,
+    currentIndex: 2,
+    large: true,
+  },
 };

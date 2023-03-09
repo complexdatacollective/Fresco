@@ -15,7 +15,11 @@
     "lint": "turbo run lint"
   },
   "overrides": {
-    "react": "18.2.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "redux-form": {
+      "react-redux": "8.0.5"
+    }
   },
   "devDependencies": {
     "prettier": "^2.5.1",

@@ -6,7 +6,7 @@ import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { getCSSVariableAsString } from '@codaco/ui';
 import { makeGetAdditionalAttributes } from '../selectors/interface';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
-import { Panels } from '../components';
+import { Panels } from '@/components';
 import { makeGetPanelConfiguration } from '../selectors/name-generator';
 import NodePanel from './NodePanel';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';

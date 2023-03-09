@@ -1,7 +1,7 @@
 import React from 'react';
-import ProgressBar from '../src/components/ProgressBar';
+import ProgressBar from '@/components/ProgressBar';
 
-import '../src/styles/_all.scss';
+import '@/styles/_all.scss';
 
 export default {
   title: 'Components/ProgressBar',
@@ -20,28 +20,49 @@ export default {
   },
 };
 
-const Template = (props) => (
-  <div style={{ height: '650px' }}>
-    <ProgressBar {...props} />
-  </div>
-);
-
-export const normal = Template.bind({});
-
-export const horizontal = Template.bind({});
-horizontal.args = {
-  orientation: 'horizontal',
+export const normal = {
+  render: (props) => (
+    <div style={{ height: '650px' }}>
+      <ProgressBar {...props} />
+    </div>
+  ),
 };
 
-export const indeterminate = Template.bind({});
-indeterminate.args = {
-  orientation: 'horizontal',
-  indeterminate: true,
+export const horizontal = {
+  render: (props) => (
+    <div style={{ height: '650px' }}>
+      <ProgressBar {...props} />
+    </div>
+  ),
+
+  args: {
+    orientation: 'horizontal',
+  },
 };
 
-export const complete = Template.bind({});
-complete.args = {
-  orientation: 'horizontal',
-  percentProgress: 100,
-  nudge: true,
+export const indeterminate = {
+  render: (props) => (
+    <div style={{ height: '650px' }}>
+      <ProgressBar {...props} />
+    </div>
+  ),
+
+  args: {
+    orientation: 'horizontal',
+    indeterminate: true,
+  },
+};
+
+export const complete = {
+  render: (props) => (
+    <div style={{ height: '650px' }}>
+      <ProgressBar {...props} />
+    </div>
+  ),
+
+  args: {
+    orientation: 'horizontal',
+    percentProgress: 100,
+    nudge: true,
+  },
 };

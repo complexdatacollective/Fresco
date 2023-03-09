@@ -4,8 +4,6 @@ export { default as Button } from './Button';
 export { default as Canvas } from './Canvas';
 export { default as CloseButton } from './CloseButton';
 export { default as CompleteIcon } from './CompleteIcon';
-export { default as Dialog } from './Dialog';
-export { default as Dialogs } from './Dialogs';
 export { default as Expandable } from './Expandable';
 export { default as ExportSprite } from './ExportSprite';
 export { default as GraphicButton } from './GraphicButton';

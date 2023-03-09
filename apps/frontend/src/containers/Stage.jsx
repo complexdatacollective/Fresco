@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import getInterface from './Interfaces';
-import StageErrorBoundary from '../components/StageErrorBoundary';
+import StageErrorBoundary from '@/components/StageErrorBoundary';
 
 /**
   * Render a protocol interface based on protocol info and id
@@ -31,14 +31,14 @@ class Stage extends Component {
       <div className="stage">
         <div className="stage__interface">
           <StageErrorBoundary>
-            { CurrentInterface
+            {CurrentInterface
               && (
-              <CurrentInterface
-                {...props} // eslint-disable-line react/jsx-props-no-spreading
-                registerBeforeNext={this.registerBeforeNext}
-                stage={stage}
-                key={stage.id}
-              />
+                <CurrentInterface
+                  {...props} // eslint-disable-line react/jsx-props-no-spreading
+                  registerBeforeNext={this.registerBeforeNext}
+                  stage={stage}
+                  key={stage.id}
+                />
               )}
           </StageErrorBoundary>
         </div>

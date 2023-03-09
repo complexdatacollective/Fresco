@@ -7,14 +7,14 @@ import {
 } from 'lodash';
 import { Icon } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import Prompts from '../../components/Prompts';
+import Prompts from '../@/components/Prompts';
 import withPrompt from '../../behaviours/withPrompt';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import { makeNetworkNodesForPrompt, makeGetAdditionalAttributes, makeGetStageNodeCount } from '../../selectors/interface';
 import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../selectors/name-generator';
 import NodePanels from '../NodePanels';
 import NodeForm from '../NodeForm';
-import { NodeList, NodeBin } from '../../components';
+import { NodeList, NodeBin } from '../@/components';
 import {
   MaxNodesReached, maxNodesWithDefault, MinNodesNotMet, minNodesWithDefault,
 } from './NameGeneratorQuickAdd';

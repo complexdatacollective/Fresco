@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import LikertScale from '../src/components/Fields/LikertScale';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import LikertScale from '@/components/Fields/LikertScale';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   input: {},
@@ -33,7 +33,7 @@ export const interaction = () => {
         value,
       }}
     >
-      {props => <LikertScale {...props} />}
+      {(props) => <LikertScale {...props} />}
     </Harness>
   );
 };

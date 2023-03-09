@@ -1,5 +1,5 @@
 import React from 'react';
-import '../src/styles/_all.scss';
+import '@/styles/_all.scss';
 import colors from './helpers/Colors';
 
 export default { title: 'Global/Palette' };
@@ -25,13 +25,9 @@ const Swatch = ({ color }) => {
     backgroundColor: `var(--color-${color})`,
   };
 
-  return (
-    <div style={style}>--color-{color}</div>
-  );
+  return <div style={style}>--color-{color}</div>;
 };
 
 export const all = () => {
-  return colors.map(color => (
-    <Swatch color={color} />
-  ));
+  return colors.map((color) => <Swatch color={color} />);
 };

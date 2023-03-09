@@ -9,7 +9,7 @@ import { withErrorDialog } from '../../ducks/modules/errors';
 import { exportToFile } from '../../utils/exportProcess';
 import { asNetworkWithSessionVariables } from '../../utils/networkFormat';
 import SessionSelect from './SessionSelect';
-import ExportOptions from '../../components/SettingsMenu/Sections/ExportOptions';
+import ExportOptions from '../@/components/SettingsMenu/Sections/ExportOptions';
 import { isCordova } from '../../utils/Environment';
 import { get } from '@codaco/utils';
 

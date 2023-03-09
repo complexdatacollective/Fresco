@@ -8,7 +8,7 @@ import { Markdown } from '@codaco/ui';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import getVersion from '../utils/getVersion';
-import ExternalLink, { openExternalLink } from '../components/ExternalLink';
+import ExternalLink, { openExternalLink } from '@/components/ExternalLink';
 import {
   isAndroid, isIOS, isLinux, isMacOS, isPreview, isWindows,
 } from '../utils/Environment';

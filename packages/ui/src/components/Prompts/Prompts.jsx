@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { findIndex } from '@codaco/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import Prompt from './Prompt';
 import Pips from './Pips';
@@ -17,7 +16,7 @@ const Prompts = (props) => {
 
   const prevPromptRef = useRef();
 
-  const currentIndex = findIndex(prompts, (prompt) => prompt.id === currentPrompt);
+  const currentIndex = prompts.findIndex((prompt) => prompt.id === currentPrompt);
 
   useEffect(() => {
     prevPromptRef.current = currentIndex;

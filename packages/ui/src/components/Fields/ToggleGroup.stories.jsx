@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import ToggleButtonGroup from '../src/components/Fields/ToggleButtonGroup';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import ToggleButtonGroup from '@/components/Fields/ToggleButtonGroup';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   input: {},
@@ -33,7 +33,7 @@ export const interaction = () => {
         value,
       }}
     >
-      {props => <ToggleButtonGroup {...props} />}
+      {(props) => <ToggleButtonGroup {...props} />}
     </Harness>
   );
 };
@@ -65,14 +65,13 @@ export const moreThanTenValues = () => {
         { label: 'Thirteen', value: 13 },
         { label: 'Fourteen', value: 14 },
         { label: 'Fifteen', value: 15 },
-
       ]}
       input={{
         onChange: handleChange,
         value,
       }}
     >
-      {props => <ToggleButtonGroup {...props} />}
+      {(props) => <ToggleButtonGroup {...props} />}
     </Harness>
   );
 };

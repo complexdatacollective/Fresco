@@ -9,7 +9,7 @@ import { getCSSVariableAsString } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { makeNetworkNodesForType, makeGetVariableOptions, makeGetPromptVariable } from '../selectors/interface';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
-import { NodeList } from '../components';
+import { NodeList } from '@/components';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';
 import { getEntityAttributes } from '../ducks/modules/network';
 

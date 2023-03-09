@@ -1,9 +1,5 @@
-import React from 'react';
-import { noop } from '@codaco/utils';
-import PropTypes from 'prop-types';
-import ActionButton from '../src/components/ActionButton';
-import colors from './helpers/Colors';
-import '../src/styles/_all.scss';
+import ActionButton from './ActionButton';
+import colors from './StorybookHelpers/Colors';
 
 const iconOptions = [
   'add-a-person',
@@ -48,42 +44,27 @@ export default {
   },
 };
 
-const Template = ({
-  disabled,
-  icon,
-  onClick,
-  color,
-  title,
-}) => (
-  <>
-    <ActionButton
-      disabled={disabled}
-      icon={icon}
-      onClick={onClick}
-      color={color}
-      title={title}
-    />
-    Next element
-  </>
-);
+// Template.propTypes = {
+//   disabled: PropTypes.bool,
+//   icon: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+//   onClick: PropTypes.func,
+//   color: PropTypes.string,
+//   title: PropTypes.string,
+// };
 
-Template.propTypes = {
-  disabled: PropTypes.bool,
-  icon: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.element,
-  ]),
-  onClick: PropTypes.func,
-  color: PropTypes.string,
-  title: PropTypes.string,
+// Template.defaultProps = {
+//   disabled: false,
+//   icon: null,
+//   onClick: noop,
+//   color: '',
+//   title: 'Add',
+// };
+
+export const Normal = {
+  render: ({ disabled, icon, onClick, color, title }) => (
+    <>
+      <ActionButton disabled={disabled} icon={icon} onClick={onClick} color={color} title={title} />
+      Next element
+    </>
+  ),
 };
-
-Template.defaultProps = {
-  disabled: false,
-  icon: null,
-  onClick: noop,
-  color: '',
-  title: 'Add',
-};
-
-export const Normal = Template.bind({});

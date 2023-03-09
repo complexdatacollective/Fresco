@@ -113,3 +113,50 @@ export const uniqueId = (
     (str = '') =>
       `${str}${++counter}`
 )(0)
+
+/**
+* Performs a deep merge of objects and returns new object. Does not modify
+* objects (immutable) and merges arrays via concatenation.
+*
+* @param {...object} objects - Objects to merge
+* @returns {object} New object with merged key/values
+*/
+export const merge = (...objects: Array<Record<string, unknown>>) => {
+  const isObject = (obj: unknown): boolean => typeof obj === 'object';
+
+  return objects.reduce((prev, obj) => {
+    Object.keys(obj).forEach(key => {
+      const pVal = prev[key];
+      const oVal = obj[key];
+
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = [...new Set([...oVal, ...pVal])]; // Merge arrays and remove duplicates
+      }
+      else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = merge(pVal as Record<string, unknown>, oVal as Record<string, unknown>);
+      }
+      else {
+        prev[key] = oVal;
+      }
+    });
+
+    return prev;
+  }, {});
+}
+
+export const debounce = (func: (...rest: unknown[]) => void, delay: number, { leading, trailing } = { leading: false, trailing: undefined }) => {
+  if (trailing !== undefined) {
+    console.warn("Trailing option not implemented in lodash replacements debounce");
+  }
+
+  let timerId: NodeJS.Timeout;
+
+  return (...args: unknown[]) => {
+    if (!timerId && leading) {
+      func(...args)
+    }
+    clearTimeout(timerId)
+
+    timerId = setTimeout(() => func(...args), delay)
+  }
+}

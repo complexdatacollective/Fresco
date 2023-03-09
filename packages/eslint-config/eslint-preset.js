@@ -16,6 +16,7 @@ module.exports = {
   rules: {
     'react/require-default-props': ['error', { functions: 'defaultArguments' }],
     "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": ["**/*.test.ts", "**/*.test.tsx", "**/vite.config.ts",] }]
   }
 }

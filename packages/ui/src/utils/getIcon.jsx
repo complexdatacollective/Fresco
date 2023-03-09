@@ -1,4 +1,4 @@
-import icons from '../../public/assets/img/icons';
+import icons from '@/icons';
 
 // const getMUIIcon = (name) => {
 //   if (!Object.prototype.hasOwnProperty.call(muiIcons, name)) { return null; }

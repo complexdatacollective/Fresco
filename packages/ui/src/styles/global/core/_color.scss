@@ -1,4 +1,5 @@
-// sass-lint:disable no-warn
+@use './bem';
+
 
 // Color setter and mixins
 // =============================================================================
@@ -29,7 +30,7 @@ $-color-alpha-map: (0.1, 0.15, 0.3, 0.6, 0.7, 0.8, 1) !default;
 
 @mixin color-modifiers($include-hover: false) {
   @each $color-name, $color-group in $-color-map {
-    @include modifier($color-name) {
+    @include bem.modifier($color-name) {
       background-color: color($color-name);
 
       @if $include-hover {
@@ -40,3 +41,225 @@ $-color-alpha-map: (0.1, 0.15, 0.3, 0.6, 0.7, 0.8, 1) !default;
     }
   }
 }
+
+// Color sequences
+@mixin color-sequence($name, $color-list, $with-dark: true) {
+  @each $current-color in $color-list {
+    $i: index($color-list, $current-color);
+    @include palette-set('#{$name}-#{$i}', color($current-color));
+    @if $with-dark {
+      @include palette-set('#{$name}-#{$i}--dark', color('#{$current-color}--dark'));
+    }
+  }
+}
+
+// Palette setter and mixins
+// =============================================================================
+$-palette-map: () !default;
+
+@mixin palette-set($palette-name, $palette-value) {
+  $-palette-map: map-merge($-palette-map, ($palette-name: $palette-value)) !global;
+}
+
+@function palette($palette-name, $use-mapped-value: false) {
+  @if $use-mapped-value == true {
+    @return map-get($-palette-map, $palette-name);
+  } @else {
+    @return var(--#{$palette-name});
+  }
+}
+
+@mixin palette-modifiers($include-fill: false) {
+  @each $palette-name, $palette-group in $-palette-map {
+    @include bem.modifier($palette-name) {
+      background-color: palette($palette-name);
+
+      @if $include-fill {
+        background-color: initial;
+        fill: palette($palette-name);
+      }
+    }
+  }
+}
+
+// Default Color Settings
+// =============================================================================
+@include color-set('neon-coral', '226, 33, 91');
+@include color-set('neon-coral--dark', '206, 28, 84');
+@include color-set('mustard', '242, 183, 0');
+@include color-set('mustard--dark', '219, 165, 0');
+@include color-set('sea-green', '0, 201, 162');
+@include color-set('sea-green--dark', '0, 160, 129');
+@include color-set('white', '255, 255, 255');
+@include color-set('slate-blue', '107, 114, 236');
+@include color-set('slate-blue--dark', '85, 91, 188');
+@include color-set('navy-taupe', '45, 41, 85');
+@include color-set('cyber-grape', '58, 58, 117');
+@include color-set('rich-black', '22, 21, 43');
+@include color-set('charcoal', '109, 111, 118');
+@include color-set('platinum', '242, 246, 247');
+@include color-set('platinum--dark', '218, 227, 229');
+@include color-set('sea-serpent', '15, 178, 226');
+@include color-set('sea-serpent--dark', '15, 163, 206');
+@include color-set('purple-pizazz', '211, 15, 239');
+@include color-set('purple-pizazz--dark', '191, 12, 216');
+@include color-set('paradise-pink', '255, 58, 140');
+@include color-set('paradise-pink--dark', '232, 53, 124');
+@include color-set('cerulean-blue', '15, 112, 255');
+@include color-set('cerulean-blue--dark', '15, 102, 232');
+@include color-set('kiwi', '112, 191, 84');
+@include color-set('kiwi--dark', '102, 173, 76');
+@include color-set('neon-carrot', '247, 137, 30');
+@include color-set('neon-carrot--dark', '224, 124, 28');
+@include color-set('barbie-pink', '237, 0, 140');
+@include color-set('barbie-pink--dark', '214, 0, 127');
+@include color-set('tomato', '232, 45, 63');
+@include color-set('tomato--dark', '211, 43, 58');
+
+
+// Palettes
+@include palette-set('primary', color('sea-green'));
+@include palette-set('menu-panel--active', color('white'));
+@include palette-set('menu-panel', color('cyber-grape'));
+@include palette-set('selected', color('white'));
+@include palette-set('settings', color('mustard'));
+@include palette-set('background', color('navy-taupe'));
+@include palette-set('text', color('white'));
+@include palette-set('text-dark', color('charcoal'));
+@include palette-set('tex-muted', color('cyber-grape'));
+@include palette-set('link', color('neon-coral'));
+@include palette-set('light-background', color('cyber-grape'));
+@include palette-set('dark-background', color('rich-black'));
+@include palette-set('modal-main-panel', color('navy-taupe'));
+@include palette-set('modal-background', color('cyber-grape'));
+@include palette-set('info', color('sea-serpent'));
+@include palette-set('notice', color('sea-green'));
+@include palette-set('warning', color('mustard'));
+@include palette-set('error', color('neon-coral'));
+@include palette-set('headings', color('white'));
+@include palette-set('menu-headings', color('charcoal'));
+@include palette-set('divider', color('platinum--dark'));
+@include palette-set('ring--background', var(--background));
+@include palette-set('ring--accent', color('cyber-grape'));
+@include palette-set('graph-tooltip', color('charcoal'));
+@include palette-set('graph-data-1', color('sea-green'));
+@include palette-set('graph-data-2', color('slate-blue'));
+@include palette-set('graph-data-3', color('neon-carrot'));
+@include palette-set('graph-data-4', color('sea-serpent'));
+@include palette-set('graph-data-5', color('barbie-pink--dark'));
+@include palette-set('graph-data-6', color('cyber-grape'));
+@include palette-set('graph-data-7', color('kiwi'));
+@include palette-set('graph-data-8', color('tomato--dark'));
+@include palette-set('graph-data-9', color('mustard'));
+@include palette-set('graph-data-10', color('purple-pizazz'));
+@include palette-set('graph-data-11', color('paradise-pink'));
+@include palette-set('graph-data-12', color('cerulean-blue'));
+@include palette-set('graph-data-13', color('platinum--dark'));
+@include palette-set('graph-data-14', color('charcoal'));
+@include palette-set('graph-data-15', color('navy-taupe'));
+
+// Form elements and inputs
+@include palette-set('input-border', palette('text'));
+@include palette-set('input-text', palette('text'));
+@include palette-set('input-accent', palette('primary'));
+@include palette-set('input-disabled', color('charcoal'));
+@include palette-set('form-error-text', color('white'));
+
+// Text inputs
+
+// Checknox/radio
+@include palette-set('input-radio--fill', palette('input-accent'));
+
+
+
+// Root sequence
+$root-colors: (
+  'neon-coral',
+  'sea-serpent',
+  'purple-pizazz',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('primary-color-seq', $root-colors, true);
+
+// Edge sequence
+$edge-colors: (
+  'mustard',
+  'purple-pizazz',
+  'neon-coral',
+  'kiwi',
+  'paradise-pink',
+  'tomato',
+  'sea-serpent',
+  'slate-blue',
+  'sea-green',
+  'cerulean-blue'
+);
+
+@include color-sequence('edge-color-seq', $edge-colors, false);
+
+// Node Sequence
+@include palette-set('node-label', color('white'));
+
+$node-colors: (
+  'neon-coral',
+  'sea-serpent',
+  'purple-pizazz',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('node-color-seq', $node-colors, true);
+
+// Ordinal Bin Sequence
+$ordinal-colors: (
+  'sea-green',
+  'sea-serpent',
+  'tomato',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('ord-color-seq', $ordinal-colors, true);
+
+// Categorical Bin Sequence
+$categorical-colors: (
+  'sea-serpent',
+  'purple-pizazz',
+  'mustard',
+  'paradise-pink',
+  'kiwi',
+  'cerulean-blue',
+  'neon-carrot',
+  'barbie-pink',
+  'tomato',
+  'slate-blue'
+);
+
+@include color-sequence('cat-color-seq', $categorical-colors, true);
+
+
+// Protocol Schema Sequence
+$schema-colors: (
+  'platinum--dark',
+  'cyber-grape',
+  'slate-blue',
+  'sea-serpent',
+  'cerulean-blue',
+  'mustard',
+  'neon-carrot',
+  'barbie-pink',
+  'tomato'
+);
+
+@include color-sequence('schema-color-seq', $schema-colors, true);

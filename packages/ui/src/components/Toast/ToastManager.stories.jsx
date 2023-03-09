@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import ToastManager from '../src/components/Toast/ToastManager';
-import { ProgressBar, Spinner } from '../src/components/';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import ToastManager from '@/components/Toast/ToastManager';
+import { ProgressBar, Spinner } from '@/components/';
+import '@/styles/_all.scss';
 
 const initialToasts = [
   {
@@ -33,7 +33,7 @@ const initialToasts = [
     id: uuid(),
     type: 'info',
     title: 'Custom Icon',
-    CustomIcon: (<Spinner small />),
+    CustomIcon: <Spinner small />,
     content: () => (
       <React.Fragment>
         <ProgressBar orientation="horizontal" percentProgress={40} />
@@ -52,9 +52,7 @@ export const normal = () => {
     toasts,
     removeToast: (id) => {
       action('asking to remove toast', id);
-      setToasts(existing => ([
-        ...existing.filter(toast => toast.id !== id),
-      ]));
+      setToasts((existing) => [...existing.filter((toast) => toast.id !== id)]);
     },
   };
 
@@ -62,7 +60,7 @@ export const normal = () => {
     const randomType = () => faker.random.arrayElement(['info', 'success', 'warning', 'error']);
     const randomContent = () => faker.lorem.paragraph();
     const randomTitle = () => faker.hacker.phrase();
-    setToasts(existing => ([
+    setToasts((existing) => [
       ...existing,
       {
         id: uuid(),
@@ -71,17 +69,13 @@ export const normal = () => {
         autoDismiss: false,
         content: <p>{randomContent()}</p>,
       },
-    ]));
+    ]);
   };
 
   return (
     <React.Fragment>
       <button onClick={addToast}>Add</button>
-      <Harness
-        requiredProps={requiredProps}
-      >
-        {props => <ToastManager {...props} />}
-      </Harness>
+      <Harness requiredProps={requiredProps}>{(props) => <ToastManager {...props} />}</Harness>
     </React.Fragment>
   );
 };

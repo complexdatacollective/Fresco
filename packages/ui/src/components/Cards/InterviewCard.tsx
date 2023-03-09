@@ -2,11 +2,17 @@ import type { MouseEvent, KeyboardEvent } from 'react';
 import cx from 'classnames';
 import ProgressBar from '../ProgressBar';
 import HoverMarquee from '../HoverMarquee';
-// import StartedIcon from '../../../public/assets/images/StartedIcon.svg';
-// import ModifiedIcon from '../../../public/assets/images/ModifiedIcon.svg';
-// import FinishedIcon from '../../../public/assets/images/FinishedIcon.svg';
-// import ExportedIcon from '../../../public/assets/images/ExportedIcon.svg';
+// import StartedIcon from '../@/public/assets/images/StartedIcon.svg';
+// import ModifiedIcon from '../@/public/assets/images/ModifiedIcon.svg';
+// import FinishedIcon from '../@/public/assets/images/FinishedIcon.svg';
+// import ExportedIcon from '../@/public/assets/images/ExportedIcon.svg';
 import './InterviewCard.scss';
+
+// const HoverMarquee = ({ children }: { children: React.ReactNode }) => (
+//   <div className="hover-marquee">
+//     {children}
+//   </div>
+// );
 
 const formatDate = (dateString: Date) => dateString
   && new Date(dateString).toLocaleString(undefined);

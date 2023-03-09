@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import Harness from './helpers/Harness';
-import Toggle from '../src/components/Fields/Toggle';
-import '../src/styles/_all.scss';
+import Harness from '@/components/StorybookHelpers/Harness';
+import Toggle from '@/components/Fields/Toggle';
+import '@/styles/_all.scss';
 
 const requiredProps = {
   input: {},
@@ -18,7 +18,7 @@ export const off = () => (
       value: false,
     }}
   >
-    {props => <Toggle {...props} />}
+    {(props) => <Toggle {...props} />}
   </Harness>
 );
 
@@ -30,14 +30,14 @@ export const on = () => (
       value: true,
     }}
   >
-    {props => <Toggle {...props} />}
+    {(props) => <Toggle {...props} />}
   </Harness>
 );
 
 export const interaction = () => {
   const [value, setValue] = useState(false);
   const handleChange = (...args) => {
-    setValue(v => !v);
+    setValue((v) => !v);
     action('change')(...args);
   };
 
@@ -50,7 +50,7 @@ export const interaction = () => {
         value,
       }}
     >
-      {props => <Toggle {...props} />}
+      {(props) => <Toggle {...props} />}
     </Harness>
   );
 };
@@ -58,7 +58,7 @@ export const interaction = () => {
 export const fieldLabelInteraction = () => {
   const [value, setValue] = useState(false);
   const handleChange = (...args) => {
-    setValue(v => !v);
+    setValue((v) => !v);
     action('change')(...args);
   };
 
@@ -71,7 +71,7 @@ export const fieldLabelInteraction = () => {
         value,
       }}
     >
-      {props => <Toggle {...props} />}
+      {(props) => <Toggle {...props} />}
     </Harness>
   );
 };
@@ -79,7 +79,7 @@ export const fieldLabelInteraction = () => {
 export const disabled = () => {
   const [value, setValue] = useState(false);
   const handleChange = (...args) => {
-    setValue(v => !v);
+    setValue((v) => !v);
     action('change')(...args);
   };
 
@@ -93,7 +93,7 @@ export const disabled = () => {
         value,
       }}
     >
-      {props => <Toggle {...props} />}
+      {(props) => <Toggle {...props} />}
     </Harness>
   );
 };

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findIndex } from 'lodash';
 import getAbsoluteBoundingRect from '../../utils/getAbsoluteBoundingRect';
 import { ConvexHull } from './ConvexHull';
 
 const getColor = (group, options) => {
-  const colorIndex = findIndex(options, ['value', group]) + 1 || 1;
+  const colorIndex = options.findIndex((option) => option.value === group) + 1 || 1;
   const color = `cat-color-seq-${colorIndex}`;
   return color;
 };

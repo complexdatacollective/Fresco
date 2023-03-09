@@ -1,45 +1,22 @@
 {
   "extends": "tsconfig/frontend.json",
   "include": [
-    "src",
+    "./src",
+    "./public",
+    "./tsconfig.json",
+    "./vite.config.ts",
     "./.eslintrc.cjs",
     "./index.d.ts",
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ],
-      "@components/*": [
-        "./src/components/*"
+      "@/public/*": [
+        "./public/*"
       ],
-      "@containers/*": [
-        "./src/containers/*"
-      ],
-      "@contexts/*": [
-        "./src/contexts/*"
-      ],
-      "@ducks/*": [
-        "./src/ducks/*"
-      ],
-      "@hooks/*": [
-        "./src/hooks/*"
-      ],
-      "@interfaces/*": [
-        "./src/components/interfaces/*"
-      ],
-      "@images/*": [
-        "./src/images/*"
-      ],
-      "@routes/*": [
-        "./src/routes/*"
-      ],
-      "@selectors/*": [
-        "./src/selectors/*"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ]
-    }
+    },
   }
 }

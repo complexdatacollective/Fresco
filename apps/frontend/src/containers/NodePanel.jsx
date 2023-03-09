@@ -7,7 +7,7 @@ import {
   makeNetworkNodesForOtherPrompts as makeGetNodesForOtherPrompts,
 } from '../selectors/interface';
 import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
-import { Panel, NodeList } from '../components';
+import { Panel, NodeList } from '@/components';
 import withExternalData from './withExternalData';
 import { get } from '@codaco/utils';
 

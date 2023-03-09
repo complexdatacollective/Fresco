@@ -4,7 +4,7 @@ import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shar
 import { withBounds } from '../../behaviours';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import { DropTarget } from '../../behaviours/DragAndDrop';
-import NodeLayout from '../../components/RealtimeCanvas/NodeLayout';
+import NodeLayout from '../@/components/RealtimeCanvas/NodeLayout';
 import { get } from '@codaco/utils';
 
 const relativeCoords = (container, node) => ({

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import SearchField from '../src/components/Fields/Search';
-import '../src/styles/_all.scss';
+import SearchField from '@/components/Fields/Search';
+import '@/styles/_all.scss';
 
 export default { title: 'Fields/Search' };
 
@@ -15,9 +15,5 @@ export const Search = () => {
     },
   };
 
-  return (
-    <SearchField
-      input={input}
-    />
-  );
+  return <SearchField input={input} />;
 };
