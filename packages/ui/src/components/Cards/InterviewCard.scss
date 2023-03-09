@@ -1,5 +1,6 @@
+@use "../../styles/global/core/helpers";
 
-.session-card {
+.interview-card {
   background-color: var(--color-platinum);
   border-radius: var(--border-radius);
   display: flex;
@@ -15,7 +16,7 @@
   margin: 0.3rem 0.6rem;
 
   &--clickable {
-    @include clickable(2);
+    @include helpers.clickable(2);
   }
 
   &--selected {
@@ -128,8 +129,6 @@
         text-overflow: ellipsis;
         width: 100%;
       }
-
-
     }
   }
 

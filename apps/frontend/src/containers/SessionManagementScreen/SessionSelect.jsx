@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { difference } from 'lodash';
 import { useSelector } from 'react-redux';
-import { SessionCard } from '@codaco/ui';
+import { InterviewCard as SessionCard } from '@codaco/ui';
 import { Switch } from '../../components';
 import NewFilterableListWrapper, { getFilteredList } from '../../components/NewFilterableListWrapper';
 import formatDatestamp from '../../utils/formatDatestamp';

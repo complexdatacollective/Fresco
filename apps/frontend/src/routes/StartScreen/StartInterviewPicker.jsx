@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import ProtocolCard from '../../components/Cards/ProtocolCard';
+import { ProtocolCard } from '@codaco/ui';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import NewFilterableListWrapper from '../../components/NewFilterableListWrapper';
 import NewSessionOverlay from './NewSessionOverlay';

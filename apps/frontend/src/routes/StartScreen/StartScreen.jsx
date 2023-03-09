@@ -5,7 +5,7 @@ import InterviewSection from './InterviewSection';
 import ImportSection from './ImportSection';
 import WhatsNewSection from './WhatsNewSection';
 import SessionManagementSection from './SessionManagementSection';
-import TestSection from './TestSection';
+import TestSection from './TestSection/TestSection';
 import { Redirect } from 'wouter';
 
 const StartScreen = () => {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import Section from './Section';
-import { ProtocolCard, SessionCard } from '../../components/Cards';
+// import { ProtocolCard, SessionCard } from '../../components/Cards';
 import { actionCreators as sessionActions } from '../../ducks/modules/sessions';
 import { actionCreators as uiActions } from '../../ducks/modules/ui';
 import { getLastActiveSession } from '../../selectors/session';
@@ -105,7 +105,7 @@ const InterviewSection = () => {
             </motion.div>
           )
         }
-        { Object.keys(sessions).length > 0 && (
+        {Object.keys(sessions).length > 0 && (
           <motion.div key="resume-section" layout>
             <main className="interview-section__resume-section">
               <div className="content-area">
@@ -118,7 +118,7 @@ const InterviewSection = () => {
                     attributes={lastActiveSession.attributes}
                   />
                 </div>
-                { Object.keys(sessions).length > 1 && (
+                {Object.keys(sessions).length > 1 && (
                   <div className="content-area__other">
                     <StackButton
                       label="Select interview"

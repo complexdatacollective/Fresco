@@ -34,13 +34,15 @@ model Protocol {
 
 model Interview {
   id          String    @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
+  caseId      String?
   startedAt   DateTime  @default(now())
   finishedAt  DateTime?
   exportedAt  DateTime?
   lastUpdated DateTime  @updatedAt
-  network     String? // Another json field we can't store yet :/
+  network     String?   @default("{}") // Another json field we can't store yet :/
   user        User      @relation(fields: [userId], references: [id])
   userId      Int
   protocol    Protocol  @relation(fields: [protocolId], references: [id])
   protocolId  Int
+  currentStep Int       @default(0)
 }

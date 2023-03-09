@@ -2,7 +2,8 @@
   "extends": "tsconfig/frontend.json",
   "include": [
     "src",
-    "./.eslintrc.cjs"
+    "./.eslintrc.cjs",
+    "./index.d.ts",
   ],
   "compilerOptions": {
     "paths": {

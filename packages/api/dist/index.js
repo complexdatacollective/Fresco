@@ -93,10 +93,75 @@ var protocolsRouter = createTRPCRouter({
   })
 });
 
+// src/routers/interviews.ts
+var import_zod4 = require("zod");
+var interviewsRouter = createTRPCRouter({
+  // Get all interviews, with optional sorting and pagination
+  all: publicProcedure.input(
+    import_zod4.z.object({
+      orderBy: import_zod4.z.object({
+        id: import_zod4.z.enum(["asc", "desc"]),
+        createdAt: import_zod4.z.enum(["asc", "desc"]),
+        updatedAt: import_zod4.z.enum(["asc", "desc"])
+      }).optional(),
+      skip: import_zod4.z.number().optional(),
+      take: import_zod4.z.number().optional()
+    }).optional()
+  ).query(({ ctx, input }) => {
+    return ctx.prisma.interview.findMany({
+      ...input,
+      include: {
+        protocol: {
+          select: {
+            name: true
+          }
+        }
+      }
+    });
+  }),
+  // Get a single interview by ID
+  get: publicProcedure.input(import_zod4.z.number()).query(
+    ({ ctx, input }) => {
+      return ctx.prisma.interview.findUnique({ where: { id: input } });
+    }
+  ),
+  // Create a new interview
+  create: publicProcedure.input(
+    import_zod4.z.object({
+      caseId: import_zod4.z.string(),
+      protocol: import_zod4.z.string()
+    })
+  ).mutation(
+    ({ ctx, input }) => {
+      return ctx.prisma.interview.create({
+        data: {
+          caseId: input.caseId,
+          protocol: input.protocol
+        }
+      });
+    }
+  ),
+  // Update the network of an existing interview. Used to sync between stages.
+  updateNetwork: publicProcedure.input(
+    import_zod4.z.object({
+      id: import_zod4.z.number(),
+      network: import_zod4.z.string()
+    })
+  ).mutation(({ ctx, input }) => {
+    return ctx.prisma.interview.update({
+      where: { id: input.id },
+      data: {
+        network: input.network
+      }
+    });
+  })
+});
+
 // src/root.ts
 var appRouter = createTRPCRouter({
   user: userRouter,
-  protocols: protocolsRouter
+  protocols: protocolsRouter,
+  interviews: interviewsRouter
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

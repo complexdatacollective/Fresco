@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { SessionCard } from '@codaco/ui';
+import { InterviewCard as SessionCard } from '@codaco/ui';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import formatDatestamp from '../../utils/formatDatestamp';
 import Picker from '../../components/Picker';

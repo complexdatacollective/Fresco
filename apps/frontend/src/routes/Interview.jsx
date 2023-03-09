@@ -1,13 +1,32 @@
+import { useState, useEffect } from "react";
+import { trpcReact, trpcVanilla } from "@/utils/trpc/trpc";
+
+const Interview = ({ params }) => {
+  const {
+    protocolId,
+    interviewId,
+    stageIndex,
+  } = params;
+
+  // const [protocol, setProtocol] = useState(null);
+
+  const {
+    data: protocol,
+    isLoading: protocolIsLoading,
+    error: protocolError,
+  } = trpcReact.protocols.byHash.useQuery(protocolId);
+
+  useEffect(() => {
+    console.log("protocol", protocol);
+  }, [protocol])
+
+  // Fetch the protocol and interview data
 
 
-const Interview = (params) => {
-  console.log(params);
-  const { sessionId, stageIndex } = params;
 
   return (
     <>
-      <h1>SessionID: {sessionId}</h1>
-      <h1>StageIndex: {stageIndex}</h1>
+      <h1>Protocol Getter</h1>
     </>
   )
 }
