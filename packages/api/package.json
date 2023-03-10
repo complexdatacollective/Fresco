@@ -12,14 +12,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@codaco/eslint-config": "workspace:*",
     "@trpc/client": "^10.14.1",
     "@trpc/server": "^10.14.1",
-    "@codaco/database": "*",
+    "@codaco/database": "workspace:*",
     "superjson": "1.12.2",
     "zod": "^3.20.6"
   },
   "devDependencies": {
-    "eslint": "^8.32.0",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"
   }

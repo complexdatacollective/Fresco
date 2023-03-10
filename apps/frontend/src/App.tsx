@@ -1,29 +1,41 @@
-import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
-import cx from 'classnames';
-import './styles/main.scss';
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { motion } from "framer-motion";
+import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
+import cx from "classnames";
+import "./styles/main.scss";
 import {
-  isElectron, isWindows, isMacOS, isLinux, isPreview, getEnv, isIOS, isAndroid,
-} from '@/utils/Environment';
-import DialogManager from '@/components/DialogManager';
-import ToastManager from '@/components/ToastManager';
-import { SettingsMenu } from '@/components/SettingsMenu';
-import useUpdater from '@/hooks/useUpdater';
-import { ipcLink } from 'electron-trpc/renderer'
-import superjson from 'superjson';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { getFetch, httpBatchLink, loggerLink } from '@trpc/react-query';
-import { trpcReact } from './utils/trpc/trpc';
-import FetchingIndicator from './FetchingIndicator';
-import { RootState } from './ducks/store';
+  isElectron,
+  isWindows,
+  isMacOS,
+  isLinux,
+  isPreview,
+  getEnv,
+  isIOS,
+  isAndroid,
+} from "@/utils/Environment";
+import DialogManager from "@/components/DialogManager";
+import ToastManager from "@/components/ToastManager";
+import { SettingsMenu } from "@/components/SettingsMenu";
+import useUpdater from "@/hooks/useUpdater";
+import { ipcLink } from "electron-trpc/renderer";
+import superjson from "superjson";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { getFetch, httpBatchLink, loggerLink } from "@trpc/react-query";
+import { trpcReact } from "./utils/trpc/trpc";
+import FetchingIndicator from "./FetchingIndicator";
+import { RootState } from "./ducks/store";
 
 const list = {
   visible: {
     opacity: 1,
     transition: {
-      when: 'beforeChildren',
+      when: "beforeChildren",
     },
   },
   hidden: {
@@ -31,23 +43,23 @@ const list = {
   },
 };
 
-const App = ({
-  children,
-}: PropsWithChildren) => {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        // https://react-query.tanstack.com/guides/window-focus-refetching
-        // Should set to true for web but false for Electron.
-        // This is because on Electron we know the data won't have changed
-        // when we weren't looking!
-        refetchOnWindowFocus: false,
-      },
-    },
-  }));
+const App = ({ children }: PropsWithChildren) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // https://react-query.tanstack.com/guides/window-focus-refetching
+            // Should set to true for web but false for Electron.
+            // This is because on Electron we know the data won't have changed
+            // when we weren't looking!
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  );
 
   const [trpcClient] = useState(() => {
-
     // Electron
     // return trpcReact.createClient({
     //   transformer: superjson,
@@ -69,11 +81,15 @@ const App = ({
           },
         }),
       ],
-    })
+    });
   });
 
-  const interfaceScale = useSelector((state: RootState) => state.deviceSettings.interfaceScale);
-  const useDynamicScaling = useSelector((state: RootState) => state.deviceSettings.useDynamicScaling);
+  const interfaceScale = useSelector(
+    (state: RootState) => state.deviceSettings.interfaceScale
+  );
+  const useDynamicScaling = useSelector(
+    (state: RootState) => state.deviceSettings.useDynamicScaling
+  );
 
   const setFontSize = useCallback(() => {
     const root = document.documentElement;
@@ -81,22 +97,25 @@ const App = ({
       ? `${(1.65 * interfaceScale) / 100}vmin`
       : `${(16 * interfaceScale) / 100}px`;
 
-    root.style.setProperty('--base-font-size', newFontSize);
+    root.style.setProperty("--base-font-size", newFontSize);
   }, [useDynamicScaling, interfaceScale]);
 
-  useUpdater('https://api.github.com/repos/complexdatacollective/Interviewer/releases/latest', 2500);
+  useUpdater(
+    "https://api.github.com/repos/complexdatacollective/Interviewer/releases/latest",
+    2500
+  );
 
   setFontSize();
 
   useEffect(() => {
     const errorLogger = (_e: Event) => {
       console.error("Error logger would send error to server here");
-    }
-    
-    window.addEventListener('error', errorLogger);
+    };
+
+    window.addEventListener("error", errorLogger);
 
     return () => {
-      window.removeEventListener('error', errorLogger);
+      window.removeEventListener("error", errorLogger);
     };
   }, []);
 
@@ -109,13 +128,13 @@ const App = ({
           variants={list}
           className={cx({
             app: true,
-            'app--electron': isElectron(),
-            'app--windows': isWindows(),
-            'app--macos': isMacOS(),
-            'app--ios': isIOS(),
-            'app-android': isAndroid(),
-            'app--linux': isLinux(),
-            'app--preview': isPreview(),
+            "app--electron": isElectron(),
+            "app--windows": isWindows(),
+            "app--macos": isMacOS(),
+            "app--ios": isIOS(),
+            "app-android": isAndroid(),
+            "app--linux": isLinux(),
+            "app--preview": isPreview(),
           })}
         >
           <div className="electron-titlebar" />

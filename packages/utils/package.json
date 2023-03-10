@@ -12,8 +12,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "config": "*",
-    "tsconfig": "*",
+    "@codaco/eslint-config": "workspace:*",
+    "tsconfig": "workspace:*",
     "tsup": "^6.6.0",
     "typescript": "^4.9.5"
   }

@@ -27,8 +27,8 @@
     "@prisma/client": "^4.10.1"
   },
   "devDependencies": {
-    "config": "*",
-    "tsconfig": "*",
+    "@codaco/eslint-config": "workspace:*",
+    "tsconfig": "workspace:*",
     "@types/node": "18",
     "prisma": "^4.10.1",
     "rimraf": "^3.0.2",

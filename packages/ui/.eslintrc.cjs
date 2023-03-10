@@ -1,9 +1,12 @@
+// require("@rushstack/eslint-patch/modern-module-resolution");
+
 module.exports = {
   root: true,
-  extends: ['@codaco/eslint-config'],
+  extends: [
+    "@codaco/eslint-config"
+  ],
   parserOptions: {
-    project: 'tsconfig.json',
-    tsconfigRootDir: __dirname,
     sourceType: 'module',
-  },
+    tsconfigRootDir: __dirname
+  }
 };
