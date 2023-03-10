@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { countBy } from 'lodash';
+import { countBy } from '@codaco/utils';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import {

@@ -4,7 +4,7 @@ import {
   values,
   mapValues,
   omit,
-} from 'lodash';
+} from '@codaco/utils';
 import { createSelector } from '@reduxjs/toolkit';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from '@codaco/utils';

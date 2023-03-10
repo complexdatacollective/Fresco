@@ -160,3 +160,46 @@ export const debounce = (func: (...rest: unknown[]) => void, delay: number, { le
     timerId = setTimeout(() => func(...args), delay)
   }
 }
+
+export const flowRight = (funcs: Array<(...args: unknown[]) => void>) =>
+  (...args: unknown[]) =>
+    funcs.reverse().reduce((prev, fnc) => [fnc(...prev)], args)[0]
+
+// // Native implementation of lodash sortBy
+// export const sortBy = (
+//   collection: Array<Record<string, unknown>>,
+//   properties: Array<string>,
+// ) => {
+//   // Create a function to be passed to Array.sort using the properties array
+//   const generateComparitorFunction = () => {
+//     const comparitors = properties.map(prop => {
+//       const [propName, order = 'asc'] = prop.split(':')
+//       return (a: Record<string, unknown>, b: Record<string, unknown>) => {
+//         const aValue = a[propName]
+//         const bValue = b[propName]
+//         if (aValue < bValue) {
+//           return order === 'asc' ? -1 : 1
+//         }
+
+//         if (aValue > bValue) {
+//           return order === 'asc' ? 1 : -1
+//         }
+
+//         return 0
+//       }
+//     })
+
+//     return (a: Record<string, unknown>, b: Record<string, unknown>) => {
+//       for (const comparitor of comparitors) {
+//         const result = comparitor(a, b)
+//         if (result !== 0) {
+//           return result
+//         }
+//       }
+
+//       return 0
+//     }
+//   }
+
+//   return [...collection].sort(generateComparitorFunction())
+// }

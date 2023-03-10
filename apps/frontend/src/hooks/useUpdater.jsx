@@ -2,7 +2,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button } from '@codaco/ui';
-import { find } from 'lodash';
+import { find } from '@codaco/utils';
 import { compare } from 'compare-versions';
 import { Markdown } from '@codaco/ui';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';

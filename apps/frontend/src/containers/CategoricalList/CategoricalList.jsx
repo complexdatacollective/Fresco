@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { compose } from 'redux';
-import { throttle } from 'lodash';
+import { throttle } from '@codaco/utils';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import cx from 'classnames';

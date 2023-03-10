@@ -2,7 +2,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import {
   clamp, orderBy, values, mapValues, omit,
-} from 'lodash';
+} from '@codaco/utils';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { getAdditionalAttributes, getSubject } from '../utils/protocol/accessors';
 import { createDeepEqualSelector } from './utils';

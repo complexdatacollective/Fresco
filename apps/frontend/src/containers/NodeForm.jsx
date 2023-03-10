@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators, compose } from 'redux';
 import { connect } from 'react-redux';
 import { submit } from 'redux-form';
-import { debounce } from 'lodash';
+import { debounce } from '@codaco/utils';
 import { Button, Scroller } from '@codaco/ui';
 import { entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shared-consts';
 import Overlay from './Overlay';

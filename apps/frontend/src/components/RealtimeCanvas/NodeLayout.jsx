@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shared-consts';
-import { isEmpty, find } from 'lodash';
+import { isEmpty, find } from '@codaco/utils';
 import LayoutContext from '../../contexts/LayoutContext';
 import LayoutNode from './LayoutNode';
 import { get } from '@codaco/utils';

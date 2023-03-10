@@ -1,7 +1,7 @@
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import {
   reject, find, isMatch, omit, keys, get,
-} from 'lodash';
+} from '@codaco/utils';
 import { v4 as uuid } from 'uuid';
 
 /*

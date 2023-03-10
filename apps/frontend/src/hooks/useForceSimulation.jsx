@@ -4,7 +4,7 @@ import {
   useState,
   useEffect,
 } from 'react';
-import get from 'lodash/get';
+import { get } from '@codaco/utils';
 import screenManager from '@/components/RealtimeCanvas/ScreenManager';
 import useViewport from './useViewport';
 

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isEmpty, isUndefined } from 'lodash';
+import { isEmpty, isUndefined } from '@codaco/utils';
 import { DataCard } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import Prompts from '../../@/components/Prompts';

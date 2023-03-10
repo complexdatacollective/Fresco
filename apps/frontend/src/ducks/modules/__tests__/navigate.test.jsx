@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { last } from 'lodash';
+import { last } from '@codaco/utils';
 import { actionCreators } from '../navigate';
 
 const getState = jest.fn();

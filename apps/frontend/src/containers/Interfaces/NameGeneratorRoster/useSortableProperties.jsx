@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { compact } from 'lodash';
+import { compact } from '@codaco/utils';
 import { convertNamesToUUIDs } from './helpers';
 import { get } from '../../utils';
 

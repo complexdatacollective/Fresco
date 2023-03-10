@@ -2,7 +2,7 @@ import React from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { isNil } from 'lodash';
+import { isNil } from '@codaco/utils';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import Prompts from '../@/components/Prompts';
 import withPrompt from '../../behaviours/withPrompt';

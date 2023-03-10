@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import cx from 'classnames';
 import { v4 as uuid } from 'uuid';
 import PropTypes from 'prop-types';
-import { debounce } from 'lodash';
+import { debounce } from '@codaco/utils';
 import { connect, useDispatch } from 'react-redux';
 import { ProgressBar } from '@codaco/ui';
 import { Markdown } from '@codaco/ui';

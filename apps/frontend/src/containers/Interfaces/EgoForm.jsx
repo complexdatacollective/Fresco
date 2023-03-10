@@ -7,7 +7,7 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { debounce } from 'lodash';
+import { debounce } from '@codaco/utils';
 import { connect } from 'react-redux';
 import { Icon, Scroller } from '@codaco/ui';
 import { Markdown } from '@codaco/ui';

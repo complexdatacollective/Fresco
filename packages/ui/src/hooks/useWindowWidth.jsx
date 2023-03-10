@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '@codaco/utils';
 
 const useWindowWidth = () => {
   const [width, setWidth] = useState(window.innerWidth);

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { debounce } from 'lodash';
+import { debounce } from '@codaco/utils';
 
 const useDebouncedEffect = (func, wait, deps) => {
   const currentFunc = useRef(null);

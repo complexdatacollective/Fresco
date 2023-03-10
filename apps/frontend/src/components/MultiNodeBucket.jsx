@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual } from 'lodash';
+import { isEqual } from '@codaco/utils';
 import { getCSSVariableAsNumber } from '@codaco/ui';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import Node from '../containers/Node';

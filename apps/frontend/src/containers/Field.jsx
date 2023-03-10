@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useStore } from 'react-redux';
 import { Field as ReduxFormField } from 'redux-form';
-import { map, toPairs } from 'lodash';
+import { map, toPairs } from '@codaco/utils';
 import { Fields } from '@codaco/ui';
 import validations from '../utils/Validations';
 import { FormComponent } from '../protocol-consts';

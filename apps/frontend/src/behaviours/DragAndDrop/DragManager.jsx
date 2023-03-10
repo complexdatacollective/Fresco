@@ -1,4 +1,4 @@
-import { throttle } from 'lodash';
+import { throttle } from '@codaco/utils';
 
 export const VERTICAL_SCROLL = 'VERTICAL_SCROLL';
 export const HORIZONTAL_SCROLL = 'HORIZONTAL_SCROLL';

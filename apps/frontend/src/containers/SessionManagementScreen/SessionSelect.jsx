@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { difference } from 'lodash';
+import { difference } from '@codaco/utils';
 import { useSelector } from 'react-redux';
 import { InterviewCard as SessionCard } from '@codaco/ui';
 import { Switch } from '../@/components';

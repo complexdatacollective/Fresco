@@ -1,7 +1,7 @@
 import { createSelectorCreator, defaultMemoize } from 'reselect';
-import { isEqual } from 'lodash';
+import { isEqual } from '@codaco/utils';
 
-// create a "selector creator" that uses lodash.isEqual instead of ===
+// create a "selector creator" that uses isEqual instead of ===
 export const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
   isEqual,

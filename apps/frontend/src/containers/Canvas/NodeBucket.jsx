@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { isUndefined } from 'lodash';
+import { isUndefined } from '@codaco/utils';
 import { compose } from 'recompose';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'framer-motion';

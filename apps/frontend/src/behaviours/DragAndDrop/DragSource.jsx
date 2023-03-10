@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
-import { throttle } from 'lodash';
+import { throttle } from '@codaco/utils';
 import DragPreview from './DragPreview';
 import DragManager, { VERTICAL_SCROLL } from './DragManager';
 import { actionCreators as actions } from './reducer';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { omit, findKey, get } from 'lodash';
+import { omit, findKey, get } from '@codaco/utils';
 import { actionCreators as dialogActions } from './dialogs';
 import { withErrorDialog } from './errors';
 import deleteProtocol from '../../utils/protocol/deleteProtocol';

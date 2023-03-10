@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { has } from 'lodash';
+import { has } from '@codaco/utils';
 import { Icon } from '@codaco/ui';
 import NameGenerator from './NameGenerator';
 import NameGeneratorQuickAdd from './NameGeneratorQuickAdd';

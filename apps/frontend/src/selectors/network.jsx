@@ -1,4 +1,4 @@
-import { findKey, find, get } from 'lodash';
+import { findKey, find, get } from '@codaco/utils';
 import { getActiveSession, getStageSubjectType } from './session';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolCodebook } from './protocol';

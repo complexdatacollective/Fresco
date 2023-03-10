@@ -1,4 +1,4 @@
-import { findKey } from 'lodash';
+import { findKey } from '@codaco/utils';
 import { store } from '../../ducks/store';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import {

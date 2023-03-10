@@ -7,7 +7,7 @@ import React, {
 import { useDispatch } from 'react-redux';
 import {
   noop, clamp,
-} from 'lodash';
+} from '@codaco/utils';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
 import useForceSimulation from '../hooks/useForceSimulation';

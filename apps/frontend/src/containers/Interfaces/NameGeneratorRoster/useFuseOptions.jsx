@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { compact, isEmpty } from 'lodash';
+import { compact, isEmpty } from '@codaco/utils';
 import { get } from '../../utils';
 
 const defaultFuseOptions = {

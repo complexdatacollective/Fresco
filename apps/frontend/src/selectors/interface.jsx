@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 
 import { createSelector } from '@reduxjs/toolkit';
-import { filter, includes, intersection } from 'lodash';
+import { filter, includes, intersection } from '@codaco/utils';
 import { assert, createDeepEqualSelector } from './utils';
 import { getProtocolCodebook } from './protocol';
 import { getNetwork, getNetworkEdges, getNetworkNodes } from './network';

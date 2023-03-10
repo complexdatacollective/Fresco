@@ -9,6 +9,10 @@ import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import cx from "classnames";
 import "./styles/main.scss";
+import { ipcLink } from "electron-trpc/renderer";
+import superjson from "superjson";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { getFetch, httpBatchLink, loggerLink } from "@trpc/react-query";
 import {
   isElectron,
   isWindows,
@@ -23,10 +27,7 @@ import DialogManager from "@/components/DialogManager";
 import ToastManager from "@/components/ToastManager";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import useUpdater from "@/hooks/useUpdater";
-import { ipcLink } from "electron-trpc/renderer";
-import superjson from "superjson";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { getFetch, httpBatchLink, loggerLink } from "@trpc/react-query";
+
 import { trpcReact } from "./utils/trpc/trpc";
 import FetchingIndicator from "./FetchingIndicator";
 import { RootState } from "./ducks/store";

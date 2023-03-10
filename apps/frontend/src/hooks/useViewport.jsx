@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useMotionValue } from 'framer-motion';
 import {
   clamp, max, min,
-} from 'lodash';
+} from '@codaco/utils';
 import { get } from '@codaco/utils';
 
 const LAYOUT_SPACE = 1000;

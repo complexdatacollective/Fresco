@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { find } from 'lodash';
+import { find } from '@codaco/utils';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withProps, compose } from 'recompose';

@@ -1,5 +1,5 @@
 import { edgeSourceProperty, edgeTargetProperty, VariableDefinition, NcEdge, NcEntity, NcNode, entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shared-consts';
-import { has } from 'lodash';
+import { has } from '@codaco/utils';
 import { v4 as uuid } from 'uuid';
 import make from './make-mock-value.js';
 

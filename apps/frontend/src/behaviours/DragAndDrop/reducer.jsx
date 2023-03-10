@@ -1,6 +1,6 @@
 import {
   filter, reject, omit, isEmpty, thru, some,
-} from 'lodash';
+} from '@codaco/utils';
 
 const UPSERT_TARGET = Symbol('DRAG_AND_DROP/UPSERT_TARGET');
 const RENAME_TARGET = Symbol('DRAG_AND_DROP/RENAME_TARGET');

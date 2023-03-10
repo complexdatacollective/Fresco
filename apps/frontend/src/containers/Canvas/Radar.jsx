@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { range, last, zipWith } from 'lodash';
+import { range, last, zipWith } from '@codaco/utils';
 import color from 'color';
 import { getCSSVariableAsString } from '@codaco/ui';
 

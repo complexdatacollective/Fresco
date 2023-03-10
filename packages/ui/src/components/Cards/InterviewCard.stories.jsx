@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-// import { action } from '@storybook/addon-actions';
-import Harness from '@/components/StorybookHelpers/Harness';
-import InterviewCard from '@/components/Cards/InterviewCard';
+import { action } from '@storybook/addon-actions';
+import Harness from '../StorybookHelpers/Harness';
+import InterviewCard from './InterviewCard';
 
 const requiredProps = {
   caseId: faker.lorem.sentence(),

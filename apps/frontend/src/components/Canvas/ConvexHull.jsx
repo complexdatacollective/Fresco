@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { map, isEqual } from 'lodash';
+import { map, isEqual } from '@codaco/utils';
 import ConcaveMan from 'concaveman';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 

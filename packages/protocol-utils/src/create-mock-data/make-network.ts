@@ -1,5 +1,5 @@
 import { entityPrimaryKeyProperty, NcNetwork, Protocol, NcNode, NcEdge, NcEgo } from '@codaco/shared-consts';
-import { get } from 'lodash';
+import { get } from '@codaco/utils';
 import { makeNode, makeEgo, makeEdge } from './make-entities.js';
 
 // Assumes protocol is valid

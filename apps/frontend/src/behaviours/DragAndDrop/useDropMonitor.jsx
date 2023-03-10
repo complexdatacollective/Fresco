@@ -4,7 +4,7 @@ import {
   get,
   pick,
   isEqual,
-} from 'lodash';
+} from '@codaco/utils';
 
 import store from './store';
 

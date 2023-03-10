@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import objectHash from 'object-hash';
-import { mapValues, mapKeys } from 'lodash';
+import { mapValues, mapKeys } from '@codaco/utils';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import loadExternalData from '../utils/loadExternalData';
 import getParentKeyByNameValue from '../utils/getParentKeyByNameValue';

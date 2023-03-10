@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { isEqual } from 'lodash';
+import { isEqual } from '@codaco/utils';
 import createSorter from '../utils/createSorter';
 
 const defaultSortOrder = {

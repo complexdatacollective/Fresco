@@ -8,7 +8,7 @@ import { Icon } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import {
   has, omit, debounce, defaultTo, isUndefined,
-} from 'lodash';
+} from '@codaco/utils';
 import Prompts from '../@/components/Prompts';
 import withPrompt from '../../behaviours/withPrompt';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';

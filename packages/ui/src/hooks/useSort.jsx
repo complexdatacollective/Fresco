@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react';
-import { sortBy, get } from 'lodash/fp';
+import { get } from '@codaco/utils';
 
 const defaultSortOrder = {
   direction: 'asc',
   property: null,
 };
-
-const sorter = (property) => (item) => get(item, property);
 
 /**
  * Sort a list of items
@@ -51,9 +49,19 @@ const useSort = (list, initialSortOrder = defaultSortOrder) => {
 
   const sortedList = useMemo(() => {
     if (!sortByProperty) { return list; }
+
+    const sorted = list.sort((a, b) => {
+      const aValue = get(a, sortByProperty);
+      const bValue = get(b, sortByProperty);
+
+      if (aValue < bValue) { return -1; }
+      if (aValue > bValue) { return 1; }
+      return 0;
+    });
+
     return sortDirection === 'desc'
-      ? sortBy([sorter(sortByProperty)])(list).reverse()
-      : sortBy([sorter(sortByProperty)])(list);
+      ? sorted.reverse()
+      : sorted;
   }, [list, sortByProperty, sortDirection]);
 
   return [sortedList, sortByProperty, sortDirection, updateSortByProperty, toggleSortDirection];

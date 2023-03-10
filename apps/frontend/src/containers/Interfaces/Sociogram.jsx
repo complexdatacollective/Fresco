@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { isArray } from 'lodash';
+import { isArray } from '@codaco/utils';
 import { bindActionCreators } from 'redux';
 import { connect, useSelector } from 'react-redux';
 import { withHandlers, compose } from 'recompose';

@@ -1,4 +1,4 @@
-import { throttle, clamp } from 'lodash';
+import { throttle, clamp } from '@codaco/utils';
 import getAbsoluteBoundingRect from '../../utils/getAbsoluteBoundingRect';
 
 const screenManager = () => {

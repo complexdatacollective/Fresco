@@ -16,7 +16,7 @@ import {
   mapKeys,
   toNumber,
   reduce,
-} from 'lodash';
+} from '@codaco/utils';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import loadExternalData from '../utils/loadExternalData';
 import getParentKeyByNameValue from '../utils/getParentKeyByNameValue';

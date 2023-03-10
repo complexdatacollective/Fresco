@@ -3,7 +3,7 @@
 import React from 'react';
 import { createStore } from 'redux';
 import { mount } from 'enzyme';
-import { last } from 'lodash';
+import { last } from '@codaco/utils';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import withExternalData from '../withExternalData';
 import loadExternalData from '../../utils/loadExternalData';

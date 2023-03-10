@@ -6,7 +6,7 @@ import {
   isString,
   some,
   get,
-} from 'lodash';
+} from '@codaco/utils';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { makeNetworkEntitiesForType } from '../selectors/interface';
 import { getCodebookVariablesForType } from '../selectors/session';

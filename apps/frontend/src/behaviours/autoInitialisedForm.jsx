@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { fromPairs, map } from 'lodash';
+import { fromPairs, map } from '@codaco/utils';
 
 // TODO: Seems like this knowledge should be part of the field component?
 const typeInitalValue = (field) => {

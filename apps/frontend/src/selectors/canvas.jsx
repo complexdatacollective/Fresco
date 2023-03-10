@@ -3,7 +3,7 @@ import {
   has,
   isArray,
   isNil,
-} from 'lodash';
+} from '@codaco/utils';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { getNetworkNodes, getNetworkEdges } from './network';
 import { createDeepEqualSelector } from './utils';

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { isEmpty } from 'lodash';
+import { isEmpty } from '@codaco/utils';
 import { Icon, Radio, MarkdownLabel } from '@codaco/ui';
 import Accordion from './Accordion';
 import {

@@ -1,4 +1,4 @@
-import { has, omit, reduce } from 'lodash';
+import { has, omit, reduce } from '@codaco/utils';
 import { v4 as uuid } from 'uuid';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as SessionWorkerActions } from './sessionWorkers';

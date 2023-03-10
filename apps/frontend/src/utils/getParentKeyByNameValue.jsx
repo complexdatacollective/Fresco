@@ -1,6 +1,6 @@
 import {
   isEmpty, find, findKey, has,
-} from 'lodash';
+} from '@codaco/utils';
 
 const findCategoricalKey = (object, toFind) => {
   // make list of possible var_option pairs

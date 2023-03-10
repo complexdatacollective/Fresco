@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
-import { throttle, isEqual } from 'lodash';
+import { throttle, isEqual } from '@codaco/utils';
 import getAbsoluteBoundingRect from '../utils/getAbsoluteBoundingRect';
 
 const maxUpdatesPerSecond = 6;

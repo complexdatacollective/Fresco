@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import { omit } from '@codaco/utils';
 import objectHash from 'object-hash';
 import {
   entityAttributesProperty,

@@ -1,6 +1,6 @@
 /* eslint-disable implicit-arrow-linebreak, react/jsx-props-no-spreading */
 import React, { PureComponent } from 'react';
-import { pick, isEqual } from 'lodash';
+import { pick, isEqual } from '@codaco/utils';
 import store from './store';
 
 const monitor = (getMonitorProps, types) => (WrappedComponent) =>

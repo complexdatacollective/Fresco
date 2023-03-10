@@ -2,7 +2,7 @@
 
 import { faker } from '@faker-js/faker';
 import { v4 as uuid } from 'uuid';
-import { has, times, omit } from 'lodash';
+import { has, times, omit } from '@codaco/utils';
 import { entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shared-consts';
 import { actionCreators as sessionsActions } from './sessions';
 

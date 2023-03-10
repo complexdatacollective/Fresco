@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 
-import { isString } from 'lodash';
+import { isString } from '@codaco/utils';
 import environments from '../environments';
 import inEnvironment from '../Environment';
 import { appPath } from '../filesystem';

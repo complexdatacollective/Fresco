@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { compose, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { isNil } from 'lodash';
+import { isNil } from '@codaco/utils';
 import color from 'color';
 import { MarkdownLabel } from '@codaco/ui';
 import { getCSSVariableAsString } from '@codaco/ui';

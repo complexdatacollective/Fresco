@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { v4 as uuid } from 'uuid';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
-import { isEqual, get } from 'lodash';
+import { isEqual, get } from '@codaco/utils';
 import { getCSSVariableAsNumber, Search } from '@codaco/ui';
 import Loading from '@/components/Loading';
 import Panel from '@/components/Panel';

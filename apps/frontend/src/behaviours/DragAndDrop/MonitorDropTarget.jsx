@@ -1,5 +1,5 @@
 import { PropTypes } from 'prop-types';
-import { find, get } from 'lodash';
+import { find, get } from '@codaco/utils';
 import Monitor from './Monitor';
 
 const defaultMonitorProps = {

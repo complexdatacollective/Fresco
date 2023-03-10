@@ -1,4 +1,4 @@
-import Spinner from '@/components/Spinner';
+import Spinner from './Spinner';
 import Harness from '@/components/StorybookHelpers/Harness';
 import Button from '@/components/Button';
 import colors from '@/components/StorybookHelpers/Colors';

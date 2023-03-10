@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   has, isUndefined, omit,
-} from 'lodash';
+} from '@codaco/utils';
 import { Icon } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import Prompts from '../@/components/Prompts';

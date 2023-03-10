@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as blobs2 from 'blobs/v2';
 import { interpolatePath as interpolate } from 'd3-interpolate-path';

@@ -1,4 +1,4 @@
-import { filter, differenceBy } from 'lodash';
+import { filter, differenceBy } from '@codaco/utils';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 
 const nodeIncludesAttributes = (network, attributes) => {

@@ -9,7 +9,7 @@ import { Editable, withReact, Slate } from 'slate-react';
 import { createEditor } from 'slate';
 import { withHistory } from 'slate-history';
 import isHotkey from 'is-hotkey';
-import { compose, isEmpty } from 'lodash/fp';
+import { flowRight, isEmpty } from '@codaco/utils';
 import { EditListPlugin } from '@productboard/slate-edit-list';
 import withNormalize from './lib/withNormalize';
 import withVoids from './lib/withVoids';
@@ -109,14 +109,14 @@ const RichText = ({
   });
 
   const editor = useMemo(
-    () => compose(
+    () => flowRight([
       withVoids,
       withNormalize,
       withOptions,
       withEditList,
       withHistory,
       withReact,
-    )(createEditor()),
+    ])(createEditor()),
     [disallowedTypesWithDefaults.join()],
   );
 
@@ -214,7 +214,7 @@ RichText.propTypes = {
 RichText.defaultProps = {
   value: '',
   placeholder: 'Enter some text...',
-  onChange: () => {},
+  onChange: () => { },
   inline: false,
   disallowedTypes: [],
   autoFocus: false,
