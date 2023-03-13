@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { AnimatePresence } from 'framer-motion';
-import '@/styles/_all.scss';
 import Steps from '@/components/Wizard/Steps';
 import Step from '@/components/Wizard/Step';
 

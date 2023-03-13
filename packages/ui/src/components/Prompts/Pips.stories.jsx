@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
-import '@/styles/_all.scss';
 import Pips from '@/components/Prompts/Pips';
 
 export default {

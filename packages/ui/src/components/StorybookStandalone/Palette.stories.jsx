@@ -1,6 +1,5 @@
 import React from 'react';
-import '@/styles/_all.scss';
-import colors from './helpers/Colors';
+import colors from '@/components/StorybookHelpers/Colors';
 
 export default { title: 'Global/Palette' };
 

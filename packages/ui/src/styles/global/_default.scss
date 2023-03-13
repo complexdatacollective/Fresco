@@ -11,18 +11,14 @@
 
 $export-ui-classes: true !default;
 
-$base-line-height: 1.5;
-$netcanvas-font-stack: 'Quicksand', 'Open Sans', sans-serif;
-$system-font-stack: 'system-ui', sans-serif;
-
 :root {
   // Typographic base styles
   --base-font-size: 16px;
-  --heading-font-family: #{$netcanvas-font-stack};
-  --body-font-family: #{$system-font-stack};
+  --heading-font-family: var(--netcanvas-font-stack);
+  --body-font-family: var(--netcanvas-font-stack);
 
   // Default border radius
-  --border-radius: .75rem;
+  --border-radius: #{unit(1)};
 
   // Link color
   --link-color: var(--color-neon-coral);
@@ -80,18 +76,6 @@ $system-font-stack: 'system-ui', sans-serif;
   }
 }
 
-// Default Breakpoint Settings
-// =============================================================================
-@include breakpoint-set('small', 'max-aspect-ratio: 0.625');
-@include breakpoint-set('full', 'min-aspect-ratio: 0.625');
-@include breakpoint-classes(hide) {
-  display: none;
-}
-
-@include breakpoint-classes(show--flex) {
-  display: flex;
-}
-
 @if $export-ui-classes {
   @include normalize;
 }
@@ -99,151 +83,8 @@ $system-font-stack: 'system-ui', sans-serif;
 html {
   font-family: var(--body-font-family);
   font-size: var(--base-font-size);
-
-
 }
 
 a {
   color: var(--link-color);
-}
-
-// Headings
-
-$headings-font-weight: 600 !default;
-$headings-line-height: 1.1 !default;
-
-// Based of px sizes in style guide (em values were inconsistent)
-$headings: (
-  h1: (1.75rem, var(--heading-font-family)),
-  h2: (1.25rem, var(--heading-font-family)),
-  h3: (1.1625rem, var(--heading-font-family)),
-  h4: (1rem, var(--heading-font-family)),
-  h5: (0.75rem, var(--heading-font-family)),
-);
-
-@mixin text($font-size, $font-family) {
-  font-family: $font-family;
-  font-size: $font-size;
-  font-weight: $headings-font-weight;
-  letter-spacing: 0.05rem;
-  line-height: $headings-line-height;
-}
-
-@each $heading-tag, $heading-properties in $headings {
-  #{$heading-tag} {
-    $font-size: nth($heading-properties, 1);
-    $font-family: nth($heading-properties, 2);
-
-    @include text($font-size, $font-family);
-  }
-}
-
-@include type-set(
-  'quicksand', base,
-  (
-    font-family: var(--heading-font-family),
-    font-size: 1rem,
-    line-height: $base-line-height,
-    font-weight: $headings-font-weight
-  )
-);
-@include type-set(
-  'light', base, (font-weight: 300)
-);
-@include type-set(
-  'medium', base, (font-weight: 500)
-);
-@include type-set(
-  'bold', base, (font-weight: 700)
-);
-@include type-set(
-  'center', base, (text-align: center)
-);
-// H1  - questions, form, and menu headlines
-@include type-set(
-  'main-title', base,
-  (
-    font-family: var(--heading-font-family),
-    font-size: 3rem,
-    line-height: 1.429,
-    font-weight: 700,
-    text-align: center,
-  )
-);
-
-@include type-set(
-  'title-1', base,
-  (
-    font-family: var(--heading-font-family),
-    font-size: 2.3rem,
-    line-height: 1.429,
-    font-weight: 700,
-    text-align: center,
-    width: 100%
-  )
-);
-
-// H2 - Form question headlines, buttons, text links
-@include type-set(
-  'title-2', base,
-  (
-    font-size: 1.2rem,
-    line-height: $base-line-height,
-    font-weight: 500,
-  )
-);
-
-// H3 - Large nodes, name generator panel, ordinal bins, categorial bins
-@include type-set(
-  'title-3', base,
-  (
-    font-size: 1.05rem,
-    line-height: $base-line-height,
-    font-weight: $headings-font-weight,
-    text-align: center,
-  )
-);
-// H4 - Menu items, error message headline, body copy
-@include type-set(
-  'title-4', base,
-  (
-    font-size: 1rem,
-    line-height: $base-line-height,
-  )
-);
-// H5 - Small nodes, context bins, number counter, form field label
-@include type-set(
-  'title-5', base,
-  (
-    font-size: 0.8rem,
-    line-height: $base-line-height,
-  )
-);
-
-// Copy sizes
-@include type-set(
-  'copy-large', base,
-  (
-    font-size: 1.1rem,
-    line-height: $base-line-height
-  )
-);
-@include type-set(
-  'copy-standard', base,
-  (
-    font-size: 1rem,
-    line-height: $base-line-height
-  )
-);
-@include type-set(
-  'copy-small', base,
-  (
-    font-size: 0.7rem,
-    line-height: $base-line-height,
-    font-weight: 100
-  )
-);
-
-@if $export-ui-classes {
-  @include typography-classes;
 }

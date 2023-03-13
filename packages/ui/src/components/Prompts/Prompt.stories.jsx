@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
-import '@/styles/_all.scss';
 import Prompt from '@/components/Prompts/Prompt';
 
 const prompt = `Within the **past 6 months**, who have you felt close to, or discussed important personal matters with?`;

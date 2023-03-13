@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
 import Harness from '@/components/StorybookHelpers/Harness';
 import DatePicker, { DATE_FORMATS } from '@/components/Fields/DatePicker';
-import '@/styles/_all.scss';
 
 const requiredProps = {
   label: 'Please __choose__ a date',

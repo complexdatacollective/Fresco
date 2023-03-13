@@ -32,3 +32,15 @@ $-breakpoint-map: (base: 'min-width: 0') !default;
     }
   }
 }
+
+// Default Breakpoint Settings
+// =============================================================================
+@include breakpoint-set('small', 'max-aspect-ratio: 0.625');
+@include breakpoint-set('full', 'min-aspect-ratio: 0.625');
+@include breakpoint-classes(hide) {
+  display: none;
+}
+
+@include breakpoint-classes(show--flex) {
+  display: flex;
+}

@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-export { default as Boolean } from './Boolean';
+export { default as Boolean } from './Boolean/BooleanField';
 export { default as Checkbox } from './Checkbox';
 export { default as CheckboxGroup } from './CheckboxGroup';
 export { default as DatePicker } from './DatePicker';
@@ -19,7 +19,7 @@ export { default as ToggleButton } from './ToggleButton';
 export { default as ToggleButtonGroup } from './ToggleButtonGroup';
 export { default as VisualAnalogScale } from './VisualAnalogScale';
 
-import Boolean from './Boolean';
+import Boolean from './Boolean/BooleanField';
 import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
 import DatePicker from './DatePicker';

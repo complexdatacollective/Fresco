@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
 import { isEqual, get } from '@codaco/utils';
-import Button from '../Button';
+import Button from '../Button/Button';
 import { getCSSVariableAsNumber } from '../../utils/CSSVariables';
 import Search from '../Fields/Search';
 import useSort from '../../hooks/useSort';

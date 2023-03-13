@@ -14,12 +14,6 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@/', replacement: fileURLToPath(new URL('./src/', import.meta.url)) },
-      // { find: '@components', replacement: fileURLToPath(new URL('./src/components', import.meta.url)) },
-      // { find: '@hooks', replacement: fileURLToPath(new URL('./src/hooks', import.meta.url)) },
-      // { find: '@styles', replacement: fileURLToPath(new URL('./src/styles', import.meta.url)) },
-      // { find: '@utils', replacement: fileURLToPath(new URL('./src/utils', import.meta.url)) },
-      // { find: '@public', replacement: fileURLToPath(new URL('./public', import.meta.url)) },
-      // { find: '@icons', replacement: fileURLToPath(new URL('./src/icons', import.meta.url)) },
     ],
   },
   // publicDir: 'public',

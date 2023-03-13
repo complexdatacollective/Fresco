@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Dialog from './Dialog';
-import Button from '../Button';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import Dialog from "./Dialog";
+import Button from "../Button/Button";
 
 const getStack = (error: Error) => !!error && error.stack;
 
 // Render an Error's stack trace in a collapsible box
-function AdditionalInformation({ stack = '' } : { stack: string }) {
+function AdditionalInformation({ stack = "" }: { stack: string }) {
   const [expanded, setExpanded] = useState(false);
 
-  const buttonText = expanded ? 'Hide details \u25b2' : 'Show details \u25bc';
+  const buttonText = expanded ? "Hide details \u25b2" : "Show details \u25bc";
 
   return (
     <div className="dialog__additional">
       <motion.div
         className="dialog__additional-box"
         initial={{ height: 0 }}
-        animate={expanded ? { height: 'auto' } : { height: 0 }}
+        animate={expanded ? { height: "auto" } : { height: 0 }}
       >
         <pre className="error__stack-trace">{stack}</pre>
       </motion.div>
@@ -37,12 +37,12 @@ function AdditionalInformation({ stack = '' } : { stack: string }) {
  */
 
 type ErrorDialogProps = {
-  error: Error,
-  title?: string,
-  message: string | React.ReactNode,
-  onConfirm: () => void,
-  confirmLabel?: string,
-  show: boolean,
+  error: Error;
+  title?: string;
+  message: string | React.ReactNode;
+  onConfirm: () => void;
+  confirmLabel?: string;
+  show: boolean;
 };
 
 function ErrorDialog({
@@ -50,8 +50,8 @@ function ErrorDialog({
   message,
   onConfirm,
   show,
-  confirmLabel = 'OK',
-  title = 'Something went wrong!',
+  confirmLabel = "OK",
+  title = "Something went wrong!",
 }: ErrorDialogProps) {
   const stack = getStack(error);
 
@@ -63,7 +63,12 @@ function ErrorDialog({
       title={title}
       message={message || error.message}
       options={[
-        <Button key="confirm" onClick={onConfirm} color="neon-coral" content={confirmLabel} />,
+        <Button
+          key="confirm"
+          onClick={onConfirm}
+          color="neon-coral"
+          content={confirmLabel}
+        />,
       ]}
     >
       {stack && <AdditionalInformation stack={stack} />}

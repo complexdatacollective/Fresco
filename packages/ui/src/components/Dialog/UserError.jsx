@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Dialog from './Dialog';
-import Button from '../Button';
+import Button from '../Button/Button';
 
 const getErrorMessage = (error) => !!error
   && (error.friendlyMessage ? error.friendlyMessage : error.toString());

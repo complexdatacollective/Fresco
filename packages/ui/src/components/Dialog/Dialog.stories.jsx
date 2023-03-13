@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { action } from '@storybook/addon-actions';
-import '@/styles/_all.scss';
 import { Dialogs } from '@/components';
 
 const confirmAction = () => {

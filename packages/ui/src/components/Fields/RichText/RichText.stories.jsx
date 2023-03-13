@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Field as RichTextField } from '@/components/Fields/RichText';
-import '@/styles/_all.scss';
 import MarkdownLabel from '@/components/Fields/MarkdownLabel';
 import Markdown from '@/components/Fields/Markdown';
 import { escapeAngleBracket } from '@/components/Fields/RichText/lib/parse';

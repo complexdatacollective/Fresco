@@ -5,7 +5,6 @@ import { action } from '@storybook/addon-actions';
 import Harness from '@/components/StorybookHelpers/Harness';
 import ToastManager from '@/components/Toast/ToastManager';
 import { ProgressBar, Spinner } from '@/components/';
-import '@/styles/_all.scss';
 
 const initialToasts = [
   {
