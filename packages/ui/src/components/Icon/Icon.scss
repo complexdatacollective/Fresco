@@ -1,7 +1,11 @@
+@use '@/styles/base/color';
+@use '@/styles/base/spacing';
+@use '@/styles/base/bem';
+
 // Icons
 // =============================================================================
 
-$icon-dimension-base: 2.5rem !default;
+$icon-dimension-base: spacing.unit(4) !default;
 
 $icon-small-width: $icon-dimension-base !default;
 $icon-small-height: $icon-dimension-base !default;
@@ -23,7 +27,7 @@ $-icon-color-modifiers: (
   'paradise-pink',
   'slate-blue',
   'white',
-) !default;
+);
 
 @mixin special-icon-colors(
   $main-color: 'sea-green'
@@ -32,35 +36,35 @@ $-icon-color-modifiers: (
   // and need to be styled individually
   &[name='add-a-context-button'] {
     .cls-1 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-2 {
-      fill: color('platinum--dark', 0.3);
+      fill: color.color('platinum--dark', 0.3);
     }
 
     .cls-3 {
-      fill: color('platinum--dark', 0.6);
+      fill: color.color('platinum--dark', 0.6);
     }
 
     .cls-4 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-5 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-6 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-7 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-8 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
   }
 
@@ -73,76 +77,75 @@ $-icon-color-modifiers: (
     }
   }
 
-
   &[name='add-a-person-button'],
   &[name='add-a-relationship-button'] {
     .cls-1 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-2 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-3 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-4 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-5 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-6 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
   }
 
   &[name='add-a-place-button'] {
     .cls-1 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-2 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-3 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-4 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-5 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-6 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
   }
 
   &[name='add-a-protocol'],
   &[name='add-a-protocol-button'] {
     .cls-1 {
-      fill: color('white');
+      fill: color.color('white');
     }
 
     .cls-2 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-3 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-4 {
-      fill: color('cyber-grape');
+      fill: color.color('cyber-grape');
     }
 
     .cls-5 {
@@ -158,134 +161,134 @@ $-icon-color-modifiers: (
     }
 
     .cls-7 {
-      fill: color('slate-blue');
+      fill: color.color('slate-blue');
     }
 
     .cls-9 {
-      fill: color('white');
+      fill: color.color('white');
     }
   }
 
   &[name='add-a-screen'] {
     .cls-1 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-2 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-3 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-4 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-5 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-6 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
   }
 
   &[name='pair-a-server'] {
     .cls-8 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-2 {
-      fill: color('mustard');
+      fill: color.color('mustard');
     }
 
     .cls-3 {
-      fill: color('neon-coral');
+      fill: color.color('neon-coral');
       clip-path: url('#clip-path');
     }
 
     .cls-4 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-5 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
   }
 
   &[name='tick'],
   &[name='cross'] {
     .cls-1 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
   }
 
   &[name='error'] {
     .cls-1 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-2 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-3 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-4 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-5 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-6 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-8 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
   }
 
   &[name='info'] {
     .cls-1 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-2 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-3 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-4 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-5 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
   }
 
   &[name='protocol-card'] {
 
     .cls-1 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-2 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-2 {
-      fill: color('cyber-grape');
+      fill: color.color('cyber-grape');
     }
 
     .cls-3 {
@@ -308,67 +311,67 @@ $-icon-color-modifiers: (
 
   &[name='warning'] {
     .cls-1 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-2 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-3 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-4 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
   }
 
   &[name='edit'] {
     .cls-1 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-2 {
-      fill: color('#{$main-color}--dark');
+      fill: color.color('#{$main-color}--dark');
     }
 
     .cls-3 {
-      fill: color('tomato');
+      fill: color.color('tomato');
     }
 
     .cls-4 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-5 {
-      fill: color('tomato--dark');
+      fill: color.color('tomato--dark');
     }
 
     .cls-6 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-7 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-8 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
   }
 
   &[name='trash-bin'] {
     .cls-1 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-2 {
-      fill: color('#{$main-color}');
+      fill: color.color('#{$main-color}');
     }
 
     .cls-3 {
-      fill: color('#{$main-color}--dark');
+      fill: color.color('#{$main-color}--dark');
     }
 
   }
@@ -381,7 +384,7 @@ $-icon-color-modifiers: (
 
   &[name='toggle-off'] {
     .cls-2 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
   }
 
@@ -398,8 +401,8 @@ $-icon-color-modifiers: (
       fill: rgba(255, 255, 255, 0.2);  //sass-lint:disable-line no-color-literals
     }
 
-    @each $ordinal-color in $ordinal-colors {
-      $i: index($ordinal-colors, $ordinal-color);
+    @each $ordinal-color in color.$ordinal-colors {
+      $i: index(color.$ordinal-colors, $ordinal-color);
 
       &.icon--node-highlight-seq-#{$i} {
         @include color-icon($ordinal-color);
@@ -418,8 +421,8 @@ $-icon-color-modifiers: (
       fill: rgba(255, 255, 255, 0.2);  //sass-lint:disable-line no-color-literals
     }
 
-    @each $categorical-color in $categorical-colors {
-      $i: index($categorical-colors, $categorical-color);
+    @each $categorical-color in color.$categorical-colors {
+      $i: index(color.$categorical-colors, $categorical-color);
 
       &.icon--cat-color-seq-#{$i} {
         @include color-icon($categorical-color);
@@ -428,8 +431,8 @@ $-icon-color-modifiers: (
   }
 
   &[name='links'] {
-    @each $edge-color in $edge-colors {
-      $i: index($edge-colors, $edge-color);
+    @each $edge-color in color.$edge-colors {
+      $i: index(color.$edge-colors, $edge-color);
 
       &.icon--edge-color-seq-#{$i} {
         @include color-icon($edge-color);
@@ -441,11 +444,11 @@ $-icon-color-modifiers: (
 @mixin color-icon($color: 'sea-green') {
   .cls-1,
   .cls-3 {
-    fill: color('#{$color}--dark');
+    fill: color.color('#{$color}--dark');
   }
 
   .cls-2 {
-    fill: color('#{$color}');
+    fill: color.color('#{$color}');
   }
 }
 
@@ -458,30 +461,31 @@ $-icon-color-modifiers: (
 
     .cls-1,
     .cls-3 {
-      fill: color('platinum--dark');
+      fill: color.color('platinum--dark');
     }
 
     .cls-2 {
-      fill: color('platinum');
+      fill: color.color('platinum');
     }
 
     .cls-4 {
-      fill: color('neon-coral');
+      fill: color.color('neon-coral');
     }
 
     .cls-5 {
-      fill: color('neon-coral--dark');
+      fill: color.color('neon-coral--dark');
     }
 
     @include special-icon-colors;
+
     // simpler icons can be targeted with color modifiers
     @each $color-name in $-icon-color-modifiers {
 
-      @include modifier('primary') {
+      @include bem.modifier('primary') {
         @include color-icon;
       }
 
-      @include modifier(#{$color-name}) {
+      @include bem.modifier(#{$color-name}) {
         @include color-icon($color-name);
 
         // edit the fancy icon colors
@@ -555,6 +559,4 @@ $-icon-color-modifiers: (
   }
 }
 
-@if $export-ui-classes {
-  @include icon;
-}
+@include icon;

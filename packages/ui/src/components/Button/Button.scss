@@ -1,6 +1,6 @@
-@use '@/styles/global/core/helpers';
-@use '@/styles/global/core/color';
-@use '@/styles/global/core/spacing';
+@use '@/styles/base/helpers';
+@use '@/styles/base/color';
+@use '@/styles/base/spacing';
 
 $button-class: 'button';
 
@@ -21,9 +21,9 @@ $button-class: 'button';
   text-decoration: none; // in the case that this is used on a link
   width: auto;
   height: auto;
-  min-width: 3rem;
-  min-height: 3.5rem;
-  border-radius: 2rem;
+  min-width: spacing.unit(5);
+  min-height: spacing.unit(5);
+  border-radius: spacing.unit(5);
   background-color: color.color('sea-green');
 
   &:disabled,

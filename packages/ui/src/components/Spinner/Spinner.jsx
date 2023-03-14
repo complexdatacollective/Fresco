@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import './Spinner.scss';
 
 class Spinner extends React.PureComponent {
   render() {

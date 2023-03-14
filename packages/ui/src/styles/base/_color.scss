@@ -1,5 +1,57 @@
 @use './bem';
 
+// This whole thing needs a total revamp. Aims are:
+// 1. Keep CSS variables as the core approach. They should eventually allow for
+//    all the other features once the color spec is implemented.
+// 2. Support dynamic modification of colors. We need to be able to change the
+//    saturation/lightness/hue/alpha etc. dynamically.
+// 3. Support semantic color slots, so that we can create themes based on named
+//    palette colors.
+// 
+// How about this as a starting point (https://stackoverflow.com/questions/55329996/how-to-create-color-shades-using-css-variables-similar-to-darken-of-sass):
+// First, we need to split a color into hsla values and save each one in a separate custom property. Luckily sass has some functions to do the job.
+//
+// @mixin define-color($title, $color) {
+//     --#{$title}-h: #{hue($color)};
+//     --#{$title}-l: #{lightness($color)};
+//     --#{$title}-s: #{saturation($color)};
+//     --#{$title}-a: #{alpha($color)};
+// }
+//
+// Now we can put it back together, making some adjustments on the way.
+//
+// @function color($title, $hue: 0deg, $lightness: 0%, $saturation: 0%, $alpha: 0) {
+//     @return hsla(
+//         calc(var(--#{$title}-h) + #{$hue}), 
+//         calc(var(--#{$title}-s) + #{$saturation}),
+//         calc(var(--#{$title}-l) + #{$lightness}),
+//         calc(var(--#{$title}-a) + #{$alpha}),
+//     );
+// }
+//
+// Now we are ready to define some color variables...
+//
+// :root {
+//     @include define-color("primary", #696969);
+//     @include define-color("secondary", blue);
+// }
+//
+// override them (to dynamically switch between themes for example)...
+//
+// :root.theme-light {
+//     @include define-color("primary", #424242);
+//     @include define-color("secondary", red);
+// }
+//
+// use and adjust them!
+//
+// .example-class {
+//     color: color("primary");
+//     background: color("secondary", $lightness: +20%, $alpha: -0.3);
+//     border: 1px solid color("primary", $hue: -30deg, $saturation: 5%);
+// }
+//
+
 
 // Color setter and mixins
 // =============================================================================

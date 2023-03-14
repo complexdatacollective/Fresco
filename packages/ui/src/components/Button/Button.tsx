@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 import "./Button.scss";
-import Icon from "../Icon";
+import Icon from "@/components/Icon/Icon";
 
 // Return an icon element if an icon is provided
 const getButtonIcon = ({

@@ -1,8 +1,10 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import useSize from '../hooks/useSize';
+import useSize from '@/hooks/useSize';
+import './HoverMarquee.scss';
 
+// eslint-disable-next-line react/display-name
 const HoverMarquee = React.memo(({
   speed,
   children,
@@ -25,7 +27,7 @@ const HoverMarquee = React.memo(({
     const delta = contentRef.current.offsetWidth - containerRef.current.offsetWidth;
     contentVariants.hover.left = `-${delta}px`;
     contentVariants.hover.transition.duration = delta / speed;
-  }, [containerRef.current, contentRef.current, size]);
+  }, [contentVariants.hover, size, speed]);
 
   return (
     <div

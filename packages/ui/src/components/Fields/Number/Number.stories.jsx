@@ -1,5 +1,4 @@
-import React from 'react';
-import Number from '@/components/Fields/Number';
+import Number from './Number';
 
 export default {
   title: 'Components/Number',

@@ -12,11 +12,11 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: [
-      { find: '@/', replacement: fileURLToPath(new URL('./src/', import.meta.url)) },
-    ],
+    alias: {
+      '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
+    },
   },
-  // publicDir: 'public',
+  publicDir: 'public',
   build: {
     emptyOutDir: true,
     outDir: 'dist',

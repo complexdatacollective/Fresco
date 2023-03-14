@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Electron",
+  "display": "Frontend",
   "extends": "./base.json",
   "compilerOptions": {
     "target": "ES2020",

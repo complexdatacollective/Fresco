@@ -1,6 +1,8 @@
+@use '@/styles/base/color';
 
-$light-color-list: (color('sea-serpent'), color('mustard'), color('neon-coral'), color('sea-green'));
-$dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('neon-coral--dark'), color('sea-green--dark'));
+
+$light-color-list: (color.color('sea-serpent'), color.color('mustard'), color.color('neon-coral'), color.color('sea-green'));
+$dark-color-list: (color.color('sea-serpent--dark'), color.color('mustard--dark'), color.color('neon-coral--dark'), color.color('sea-green--dark'));
 
 .spinner {
   --circle-size: 2rem;

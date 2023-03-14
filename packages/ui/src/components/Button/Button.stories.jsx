@@ -1,4 +1,4 @@
-import Spinner from '../Spinner/Spinner';
+import Spinner from '@/components/Spinner/Spinner';
 import Harness from '@/components/StorybookHelpers/Harness';
 import Button from '@/components/Button/Button';
 import colors from '@/components/StorybookHelpers/Colors';
@@ -67,9 +67,10 @@ export const sizes = () => (
         <Button {...props} size="small">
           Smol button
         </Button>
-        <br />
-        <br />
-        <Button {...props}>Standard button</Button>
+        <br /><br />
+        <Button {...props}>Standard Button</Button>
+        <br /><br />
+        <Button {...props} size="large">Humongous Chungus</Button>
       </p>
     )}
   </Harness>

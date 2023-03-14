@@ -1,3 +1,5 @@
+@use '@/styles/base/bem';
+
 @keyframes progress-bar-animation {
   from {
     background-position: var(--progress-indeterminate-gradient-width) 0;
@@ -14,7 +16,7 @@
   --progress-indeterminate-gradient-width: 100rem;
   --progress-indeterminate-animation-duration: 2s;
 
-  @include modifier(indeterminate) {
+  @include bem.modifier(indeterminate) {
     .progress-bar__filler {
       animation: progress-bar-animation var(--progress-indeterminate-animation-duration) linear infinite;
       background-image: linear-gradient(

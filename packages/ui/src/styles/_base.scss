@@ -1,13 +1,13 @@
-@import 'core/animation';
-@import 'core/bem';
-@import 'core/breakpoints';
-@import 'core/color';
-@import 'core/spacing';
-@import 'core/typography';
-@import 'core/quicksand';
-@import 'core/normalize';
-@import 'core/z-index';
-@import 'core/helpers';
+@import 'base/animation';
+@import 'base/bem';
+@import 'base/breakpoints';
+@import 'base/color';
+@import 'base/spacing';
+@import 'base/typography';
+@import 'base/quicksand';
+@import 'base/normalize';
+@import 'base/z-index';
+@import 'base/helpers';
 
 $export-ui-classes: true !default;
 

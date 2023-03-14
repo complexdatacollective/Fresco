@@ -1,6 +1,5 @@
-import React from 'react';
 import Harness from '@/components/StorybookHelpers/Harness';
-import HoverMarquee from '@/components/HoverMarquee';
+import HoverMarquee from './HoverMarquee';
 
 const requiredProps = {};
 

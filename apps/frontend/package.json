@@ -57,7 +57,7 @@
     "redux-form": "^8.3.9",
     "redux-logger": "^3.0.6",
     "sanitize-filename": "^1.6.3",
-    "sass": "^1.58.3",
+    "sass": "^1.59.2",
     "superjson": "^1.12.2",
     "tsconfig": "workspace:*",
     "typescript": "^4.9.5",

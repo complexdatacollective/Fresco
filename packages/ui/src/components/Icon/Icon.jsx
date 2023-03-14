@@ -1,22 +1,21 @@
-import React, { useCallback, memo } from 'react';
+import { useMemo, memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import icons from '../utils/getIcon';
+import icons from '@/utils/getIcon';
+import './Icon.scss';
 
-const Icon = (props) => {
-  const {
-    color,
-    name,
-    className,
-    ...rest
-  } = props;
-
+function Icon({
+  color = null,
+  name,
+  className = null,
+  ...rest
+}) {
   const iconClassNames = cx({
     icon: true,
     [`icon--${color}`]: !!color,
   }, [className]);
 
-  const IconComponent = useCallback(icons(name), [name]);
+  const IconComponent = useMemo(() => icons(name), [name]);
 
   if (!IconComponent) {
     console.warn('Invalid icon name:', name); // eslint-disable-line no-console
@@ -31,7 +30,7 @@ const Icon = (props) => {
       {...rest}
     />
   );
-};
+}
 
 Icon.propTypes = {
   name: PropTypes.string.isRequired,
@@ -39,12 +38,6 @@ Icon.propTypes = {
   color: PropTypes.string,
   // eslint-disable-next-line
   style: PropTypes.object,
-};
-
-Icon.defaultProps = {
-  className: '',
-  color: '',
-  style: {},
 };
 
 export default memo(Icon);

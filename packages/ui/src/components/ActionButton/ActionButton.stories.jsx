@@ -1,5 +1,5 @@
 import ActionButton from './ActionButton';
-import colors from './StorybookHelpers/Colors';
+import colors from '@/components/StorybookHelpers/Colors';
 
 const iconOptions = [
   'add-a-person',

@@ -6,9 +6,9 @@ import strip from 'strip-markdown';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
-import MarkdownLabel from '../Fields/MarkdownLabel';
-import useSpeech from '../../hooks/useSpeech';
-import useTimeout from '../../hooks/useTimeout';
+import MarkdownLabel from '@/components/Fields/Markdown/MarkdownLabel';
+import useSpeech from '@/hooks/useSpeech';
+import useTimeout from '@/hooks/useTimeout';
 
 // Words read per second (approximate). Used to calculate underline duration.
 const WORDS_PER_SECOND = 0.30;

@@ -1,7 +1,11 @@
+@use '@/styles/base/color';
+@use '@/styles/base/helpers';
+@use '@/styles/base/spacing';
+
 .action-button {
-  --size: #{unit(13)};
-  @include reset-button;
-  @include color-modifiers($include-hover: true);
+  --size: #{spacing.unit(13)};
+  @include helpers.reset-button;
+  @include color.color-modifiers($include-hover: true);
 
   position: relative;
 
@@ -45,7 +49,7 @@
   }
 
   .plus-button {
-    --size: #{unit(6.5)};
+    --size: #{spacing.unit(6.5)};
     position: absolute;
     top: calc(var(--size) / -8);
     right: calc(var(--size) / -2);
@@ -65,7 +69,7 @@
   }
 
   &--clickable:not(.action-button--disabled) {
-    @include clickable(2);
+    @include helpers.clickable(2);
   }
 
   &--disabled {

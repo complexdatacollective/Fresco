@@ -1,19 +1,14 @@
+const path = require("path");
+
 module.exports = {
+  root: true,
   extends: [
     'airbnb',
-    'airbnb-typescript',
     'airbnb/hooks',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'prettier',
   ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    tsconfigRootDir: __dirname,
-    project: ['./tsconfig.json'],
-  },
   env: {
     'browser': true,
     'es2021': true,
@@ -25,5 +20,21 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'import/no-extraneous-dependencies': ['error', { 'devDependencies': ['**/*.test.@(jsx|js|tsx|ts)', '**/*.stories.@(jsx|js|tsx|ts)', '**/vite.config.ts'] }],
     'import/extensions': 'off',
-  }
+  },
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      plugins: [
+        '@typescript-eslint',
+        'airbnb/typescript',
+      ],
+      extends: ['plugin:@typescript-eslint/recommended-requiring-type-checking', 'plugin:@typescript-eslint/recommended'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        project: "tsconfig.json",
+      },
+
+    },
+  ],
 }

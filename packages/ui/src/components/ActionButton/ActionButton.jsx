@@ -2,13 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { noop } from '@codaco/utils';
-import Icon from './Icon';
+import Icon from '@/components/Icon/Icon';
+import './ActionButton.scss';
 
 const renderIcon = ({ icon }) => {
   console.warn('UI/renderIcon was removed. Needs reimplementation');
   return (<div>Icon</div>)
 };
 
+// eslint-disable-next-line react/display-name
 const ActionButton = React.memo((props) => {
   const {
     disabled,

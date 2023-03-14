@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import DataCard from '@/components/Cards/DataCard';
+import DataCard from './DataCard';
 
 export default {
   title: 'Components/Cards/DataCard',
