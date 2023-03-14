@@ -1,10 +1,10 @@
-import React, { useMemo, memo } from 'react';
+import { useMemo, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import PropTypes from 'prop-types';
-import { ALLOWED_MARKDOWN_TAGS } from '../../utils/config';
-import { escapeAngleBracket } from './RichText/lib/parse';
+import { ALLOWED_MARKDOWN_TAGS } from '@/utils/config';
+import { escapeAngleBracket } from '@/components/Fields/RichText/lib/parse';
 
 const externalLinkRenderer = ({ href, children }) => (
   <a href={href} target="_blank" rel="noopener noreferrer">

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { AnimatePresence, motion } from 'framer-motion';
 import Prompt from './Prompt';
 import Pips from './Pips';
+import './Prompts.scss';
 
 /**
   * Displays prompts

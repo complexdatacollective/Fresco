@@ -1,6 +1,6 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
+import './Pips.scss';
 
 const container = {
   hidden: { opacity: 0 },
@@ -45,7 +45,7 @@ const Pips = (props) => {
       initial="hidden"
       animate="show"
     >
-      { [...Array(count)].map((_, index) => (
+      {[...Array(count)].map((_, index) => (
         <motion.div
           key={index}
           className={`pips__pip ${index === currentIndex ? 'pips__pip--active' : ''}`}

@@ -2,7 +2,7 @@ import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import RoundCheckbox from './RoundCheckbox';
-import Markdown from '../Markdown';
+import Markdown from '../../Markdown';
 import useSize from '../../../hooks/useSize';
 
 const BooleanOption = ({

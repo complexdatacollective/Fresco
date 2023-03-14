@@ -1,3 +1,6 @@
+@use '@/styles/base/spacing';
+@use '@/styles/base/helpers';
+
 $component: 'server-card';
 
 .#{$component} {
@@ -23,7 +26,7 @@ $component: 'server-card';
 
   &__main-section {
     width: calc(100% - 7rem);
-    padding: unit(2) unit(4);
+    padding: spacing.unit(2) spacing.unit(4);
 
     .server-name {
       margin: 0;
@@ -42,7 +45,7 @@ $component: 'server-card';
   }
 
   &--clickable {
-    @include clickable(2);
+    @include helpers.clickable(2);
   }
 
   &--disabled {

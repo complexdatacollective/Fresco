@@ -1,12 +1,6 @@
-@mixin scrollable($top-height: unit(2)) {
-  overflow-x: hidden;
-  overflow-y: auto;
-  // sass-lint:disable no-vendor-prefixes
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
+@use '@/styles/base/helpers';
 
 .scrollable {
-  @include scrollable;
+  @include helpers.scrollable;
   flex: 1;
 }

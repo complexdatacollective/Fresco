@@ -1,7 +1,7 @@
-/* eslint-disable no-param-reassign, no-mixed-operators */
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import ProgressCircle from './ProgressCircle';
+import ProgressCircle from '@/components/ProgressCircle/ProgressCircle';
+import './ExportSprite.scss';
 
 const NODE_COUNT = 10;
 const ROTATIONAL_SPEED = 0.015;

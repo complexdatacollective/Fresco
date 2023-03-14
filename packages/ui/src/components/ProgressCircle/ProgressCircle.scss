@@ -1,3 +1,6 @@
+
+@use '@/styles/base/bem';
+
 .progress-circle {
   --circle-text-color: var(--text);
   --circle-background-color: var(--transparent-md);
@@ -17,7 +20,7 @@
     stroke: var(--color-platinum);
   }
 
-  @include element(status) {
+  @include bem.element(status) {
     position: absolute;
     top: 0;
     left: 0;
@@ -30,7 +33,7 @@
     shape-outside: circle(50%);
   }
 
-  @include element(circle) {
+  @include bem.element(circle) {
     flex: 1;
     height: 100%;
   }

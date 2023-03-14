@@ -1,12 +1,12 @@
-import React from 'react';
 import { faker } from '@faker-js/faker';
 import { v4 as uuid } from 'uuid';
-import ItemList from '@/components/ItemList/ItemList';
-import Node from '@/components/Node/Node';
-import SessionCard from '@/components/Cards/SessionCard';
-import ProtocolCard from '@/components/Cards/ProtocolCard';
-import DataCard from '@/components/Cards/DataCard';
 import { DndContext, useDraggable } from '@dnd-kit/core';
+import ItemList from './ItemList';
+import Node from '@/components/Node/Node';
+import InterviewCard from '@/components/Cards/InterviewCard/InterviewCard';
+import ProtocolCard from '@/components/Cards/ProtocolCard/ProtocolCard';
+import DataCard from '@/components/Cards/DataCard/DataCard';
+
 
 function Draggable(props) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -50,7 +50,7 @@ const TestCard = (attributes) => (
   </div>
 );
 
-const TestSessionCard = (attributes) => <SessionCard {...attributes} />;
+const TestInterviewCard = (attributes) => <InterviewCard {...attributes} />;
 
 const TestProtocolCard = (attributes) => <ProtocolCard {...attributes} />;
 
@@ -88,11 +88,11 @@ export default {
       control: { type: 'radio' },
     },
     itemComponent: {
-      options: ['TestCard', 'Node', 'SessionCard', 'ProtocolCard', 'DataCard'],
+      options: ['TestCard', 'Node', 'InterviewCard', 'ProtocolCard', 'DataCard'],
       mapping: {
         TestCard,
         Node,
-        SessionCard: TestSessionCard,
+        InterviewCard: TestInterviewCard,
         ProtocolCard: TestProtocolCard,
         DataCard: TestDataCard,
       },

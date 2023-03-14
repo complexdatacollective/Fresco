@@ -1,19 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { noop } from '@codaco/utils';
+import './DataCard.scss';
 
 const DataCard = ({
   label,
   data,
-  onClick,
-  allowDrag,
+  onClick = undefined,
+  allowDrag = false,
 }) => {
   const classes = cx(
     'data-card',
     {
       'data-card--can-drag': allowDrag,
-      'data-card--can-click': onClick !== noop,
+      'data-card--can-click': !!onClick,
     },
   );
 
@@ -40,19 +38,6 @@ const DataCard = ({
       )}
     </div>
   );
-};
-
-DataCard.defaultProps = {
-  data: {},
-  onClick: noop,
-  allowDrag: false,
-};
-
-DataCard.propTypes = {
-  data: PropTypes.object,
-  label: PropTypes.string.isRequired,
-  onClick: PropTypes.func,
-  allowDrag: PropTypes.bool,
 };
 
 export default DataCard;

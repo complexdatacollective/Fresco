@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import logo from '@/images/Srv-Flat.svg';
-import HoverMarquee from '../HoverMarquee';
+import HoverMarquee from '@/components/HoverMarquee/HoverMarquee';
+import './ServerCard.scss';
 
 /**
  * Renders a server icon & label. The label defaults to server name, falling back

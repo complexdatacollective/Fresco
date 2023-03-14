@@ -1,8 +1,7 @@
-import React from 'react';
 import { faker } from '@faker-js/faker';
 import { action } from '@storybook/addon-actions';
 import Harness from '@/components/StorybookHelpers/Harness';
-import ProtocolCard from '@/components/Cards/ProtocolCard';
+import ProtocolCard from './ProtocolCard';
 
 const requiredProps = {
   name: faker.lorem.sentence(),

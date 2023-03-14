@@ -1,42 +1,27 @@
-import React from 'react';
-import useSpeech from '../hooks/useSpeech';
-
-// eslint-disable-next-line no-console
-console.warn('Missing icons');
-
-function HearingRoundedIcon() {
-  return null;
-}
-
-function VoiceOverOffIcon() {
-  return null;
-}
+import useSpeech from "@/hooks/useSpeech";
 
 type Props = {
-  text: string,
-  lang?: string,
+  text: string;
+  lang?: string;
 };
 
-function SpeakText(props: Props) {
-  const {
-    text,
-    lang = window.navigator.language,
-  } = props;
-
-  const {
-    speak, stop, isSpeaking, error,
-  } = useSpeech(text, lang);
+function SpeakText({ text, lang = window.navigator.language }: Props) {
+  const { speak, stop, isSpeaking, error } = useSpeech(text, lang);
 
   const styles = {
-    cursor: 'pointer',
+    cursor: "pointer",
     opacity: 0.5,
-    fontSize: '1em',
-    display: 'inline-block',
-    verticalAlign: 'middle',
+    fontSize: "1em",
+    display: "inline-block",
+    verticalAlign: "middle",
   };
 
   if (error) {
-    return <span title={error} style={{ ...styles, cursor: 'not-allowed' }}><HearingRoundedIcon /></span>;
+    return (
+      <span title={error} style={{ ...styles, cursor: "not-allowed" }}>
+        🔇
+      </span>
+    );
   }
 
   if (isSpeaking) {
@@ -48,7 +33,7 @@ function SpeakText(props: Props) {
         tabIndex={0}
         onKeyDown={stop}
       >
-        <VoiceOverOffIcon />
+        🙉
       </span>
     );
   }
@@ -61,13 +46,9 @@ function SpeakText(props: Props) {
       onClick={speak}
       style={styles}
     >
-      <HearingRoundedIcon />
+      🗣️
     </span>
   );
 }
-
-SpeakText.defaultProps = {
-  lang: window.navigator.language,
-};
 
 export default SpeakText;

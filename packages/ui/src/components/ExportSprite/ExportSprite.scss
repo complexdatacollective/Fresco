@@ -1,3 +1,5 @@
+@use '@/styles/base/spacing';
+
 .export-sprite {
   display: flex;
   align-items: center;
@@ -9,8 +11,8 @@
   &__node {
     position: absolute;
     background: lime;
-    width: unit(5);
-    height: unit(5);
+    width: spacing.unit(5);
+    height: spacing.unit(5);
     background: repeating-linear-gradient(
       145deg,
       rgba(255, 255, 255, .15),
@@ -21,13 +23,13 @@
   }
 
   &__destination {
-    --destination-size: #{unit(12)};
+    --destination-size: #{spacing.unit(12)};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: var(--z-global-ui);
-    margin-bottom: -#{unit(2)};
+    margin-bottom: -#{spacing.unit(2)};
 
     &__circle {
       flex: 0 0 var(--destination-size);
@@ -41,12 +43,12 @@
     }
 
     &__text {
-      flex: 0 0 unit(2);
-      height: unit(2);
+      flex: 0 0 spacing.unit(2);
+      height: spacing.unit(2);
 
       h4 {
         margin-bottom: 0;
-        margin-top: unit(1);
+        margin-top: spacing.unit(1);
         color: var(--text);
       }
     }

@@ -1,22 +1,23 @@
-import { KeyboardEvent, MouseEvent } from 'react';
-import cx from 'classnames';
-import Icon from '../Icon';
+import { KeyboardEvent, MouseEvent } from "react";
+import cx from "classnames";
+import Icon from "@/components/Icon/Icon";
+import "./ProtocolCard.scss";
 
-const formatDate = (timeString: Date) => timeString
-  && new Date(timeString).toLocaleString(undefined);
+const formatDate = (timeString: Date) =>
+  timeString && new Date(timeString).toLocaleString(undefined);
 
 type ProtocolCardProps = {
-  selected?: boolean,
-  condensed?: boolean,
-  schemaVersion: string,
-  importedAt: Date,
-  lastModified: Date,
-  name: string,
-  description?: string,
-  isOutdated?: boolean,
-  isObsolete?: boolean,
-  onStatusClickHandler?: (() => void) | undefined,
-  onClickHandler?: (() => void) | undefined,
+  selected?: boolean;
+  condensed?: boolean;
+  schemaVersion: string;
+  importedAt: Date;
+  lastModified: Date;
+  name: string;
+  description?: string;
+  isOutdated?: boolean;
+  isObsolete?: boolean;
+  onStatusClickHandler?: (() => void) | undefined;
+  onClickHandler?: (() => void) | undefined;
 };
 
 function ProtocolCard({
@@ -26,22 +27,22 @@ function ProtocolCard({
   importedAt,
   lastModified,
   name,
-  description = '',
+  description = "",
   isOutdated = false,
   isObsolete = false,
   onStatusClickHandler = undefined,
   onClickHandler = undefined,
 }: ProtocolCardProps) {
   const modifierClasses = cx(
-    'protocol-card',
-    { 'protocol-card--clickable': onClickHandler },
-    { 'protocol-card--condensed': condensed },
-    { 'protocol-card--selected': selected },
-    { 'protocol-card--outdated': !isObsolete && isOutdated },
-    { 'protocol-card--obsolete': isObsolete },
+    "protocol-card",
+    { "protocol-card--clickable": onClickHandler },
+    { "protocol-card--condensed": condensed },
+    { "protocol-card--selected": selected },
+    { "protocol-card--outdated": !isObsolete && isOutdated },
+    { "protocol-card--obsolete": isObsolete }
   );
   const handleStatusClick = (
-    e: KeyboardEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>,
+    e: KeyboardEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>
   ) => {
     e.stopPropagation();
     if (onStatusClickHandler) {
@@ -52,9 +53,9 @@ function ProtocolCard({
   const renderStatusIcon = () => {
     if (isOutdated || isObsolete) {
       const classes = cx(
-        'status-icon',
-        { 'status-icon--outdated': !isObsolete && isOutdated },
-        { 'status-icon--obsolete': isObsolete },
+        "status-icon",
+        { "status-icon--outdated": !isObsolete && isOutdated },
+        { "status-icon--obsolete": isObsolete }
       );
 
       return (
@@ -65,7 +66,7 @@ function ProtocolCard({
           role="button"
           tabIndex={0}
         >
-          <Icon name={isOutdated ? 'warning' : 'error'} />
+          <Icon name={isOutdated ? "warning" : "error"} />
         </div>
       );
     }
@@ -86,11 +87,7 @@ function ProtocolCard({
       );
     }
 
-    return (
-      <div className="protocol-description">
-        {description}
-      </div>
-    );
+    return <div className="protocol-description">{description}</div>;
   };
 
   return (
@@ -105,21 +102,9 @@ function ProtocolCard({
         {renderStatusIcon()}
         {!condensed && (
           <div className="protocol-meta">
-            <h6>
-              Imported:
-              {' '}
-              {formatDate(importedAt)}
-            </h6>
-            <h6>
-              Modified:
-              {' '}
-              {formatDate(lastModified)}
-            </h6>
-            <h6>
-              Schema Version:
-              {' '}
-              {schemaVersion}
-            </h6>
+            <h6>Imported: {formatDate(importedAt)}</h6>
+            <h6>Modified: {formatDate(lastModified)}</h6>
+            <h6>Schema Version: {schemaVersion}</h6>
           </div>
         )}
       </div>

@@ -1,7 +1,4 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-import ExportSprite from '../@/components/Sprites/ExportSprite';
+import ExportSprite from './ExportSprite';
 
 export default {
   title: 'Components/Sprites/ExportSprite',

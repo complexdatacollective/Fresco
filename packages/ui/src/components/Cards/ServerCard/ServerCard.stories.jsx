@@ -1,8 +1,7 @@
-import React from 'react';
 import { faker } from '@faker-js/faker';
 import { action } from '@storybook/addon-actions';
 import Harness from '@/components/StorybookHelpers/Harness';
-import ServerCard from '@/components/Cards/ServerCard';
+import ServerCard from './ServerCard';
 
 const requiredProps = {
   name: faker.internet.domainWord(),

@@ -1,3 +1,6 @@
+@use '@/styles/base/helpers';
+@use '@/styles/base/spacing';
+
 $component: 'protocol-card';
 
 .#{$component} {
@@ -11,11 +14,10 @@ $component: 'protocol-card';
   position: relative;
 
   &--clickable {
-    @include clickable(2);
+    @include helpers.clickable(2);
 
-    // clickable(1) when also --condensed
     &.#{$component}--condensed {
-      @include clickable(1);
+      @include helpers.clickable(1);
     }
   }
 
@@ -34,7 +36,7 @@ $component: 'protocol-card';
 
   &--condensed {
     flex-direction: row;
-    height: unit(7);
+    height: spacing.unit(7);
 
     .#{$component}__icon-section {
       padding: 0;
@@ -51,7 +53,7 @@ $component: 'protocol-card';
     }
 
     .#{$component}__main-section {
-      padding: unit(1) unit(2);
+      padding: spacing.unit(1) spacing.unit(2);
       width: calc(100% - 4rem);
 
       .protocol-name {
@@ -72,13 +74,13 @@ $component: 'protocol-card';
     color: #aab0fd;
     background: var(--color-slate-blue--dark);
     flex-direction: row;
-    padding: unit(1) unit(4);
+    padding: spacing.unit(1) spacing.unit(4);
     flex: 0 0 auto;
     min-height: 0;
 
     .protocol-icon {
       height: 100%;
-      flex: 0 0 unit(4);
+      flex: 0 0 spacing.unit(4);
       display: flex;
 
       .icon {
@@ -107,7 +109,7 @@ $component: 'protocol-card';
   }
 
   &__main-section {
-    padding: unit(2) unit(4) unit(1);
+    padding: spacing.unit(2) spacing.unit(4) spacing.unit(1);
     flex-direction: column;
     display: flex;
     justify-content: center;
@@ -123,8 +125,8 @@ $component: 'protocol-card';
     }
 
     .protocol-description {
-      @include scrollable(unit(1));
-      padding-top: unit(1);
+      @include helpers.scrollable(spacing.unit(1));
+      padding-top: spacing.unit(1);
       flex: 1 1 auto;
       font-size: 0.8rem;
 
@@ -144,8 +146,8 @@ $component: 'protocol-card';
     width: 3rem;
     text-align: center;
     // background: var(--warning);
-    padding: unit(1);
-    margin-left: unit(1);
+    padding: spacing.unit(1);
+    margin-left: spacing.unit(1);
     border-radius: 50%;
     display: inline-block;
 

@@ -1,6 +1,6 @@
 import { has } from '@codaco/utils';
 import { useMemo } from 'react';
-import TextInput from './Text';
+import TextInput from '../Text/Text';
 
 const toInt = (value) => {
   const int = parseInt(value, 10);

@@ -1,4 +1,4 @@
-import React, {
+import {
   useMemo,
   useRef,
   useEffect,
@@ -14,13 +14,14 @@ import {
 } from 'framer-motion';
 import { VariableSizeGrid as Grid } from 'react-window';
 import cx from 'classnames';
+import { useDroppable } from '@dnd-kit/core';
 import useGridSizer from './hooks/useGridSizer';
 import useSize from '../../hooks/useSize';
 import getCellRenderer from './utils/getCellRenderer';
 import ListContext from './ListContext';
 import DefaultEmptyComponent from './DefaultEmptyComponent';
 import DefaultDropOverlay from './DefaultDropOverlay';
-import { useDroppable } from '@dnd-kit/core';
+import './ItemList.scss';
 
 const ItemList = ({
   className,
@@ -116,7 +117,7 @@ const ItemList = ({
       <AnimatePresence>
         {active && <DefaultDropOverlay isOver={isOver} />}
       </AnimatePresence>
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence mode='wait'>
         <div className="item-list__container" key={key}>
           <ListContext.Provider value={context}>
             {isEmpty(items) ? (<EmptyComponent />) : (

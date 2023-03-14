@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { motion, animate } from 'framer-motion';
+import './ProgressCircle.scss';
 
 // This component animates between text values to give the appearance
 // of intermediate values. e.g when changing from 25 to 30, this will
@@ -50,7 +51,7 @@ const ProgressCircle = ({
   return (
     <div className="progress-circle" ref={ref}>
       <div className="progress-circle__status">
-        { !hideCounter && (
+        {!hideCounter && (
           <h1 style={{ margin: 0 }}>
             <Counter incomingValue={percentProgress} />
             %

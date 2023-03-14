@@ -18,6 +18,8 @@ module.exports = {
     'react/require-default-props': ['error', { functions: 'defaultArguments' }],
     'react/jsx-uses-react': 'off',
     'react/react-in-jsx-scope': 'off',
+    'react/jsx-filename-extension': [1, { 'extensions': ['.js', '.jsx', '.tsx'] }],
+    'react/function-component-definition': 'off',
     'import/no-extraneous-dependencies': ['error', { 'devDependencies': ['**/*.test.@(jsx|js|tsx|ts)', '**/*.stories.@(jsx|js|tsx|ts)', '**/vite.config.ts'] }],
     'import/extensions': 'off',
   },
@@ -26,7 +28,6 @@ module.exports = {
       files: ['**/*.ts', '**/*.tsx'],
       plugins: [
         '@typescript-eslint',
-        'airbnb/typescript',
       ],
       extends: ['plugin:@typescript-eslint/recommended-requiring-type-checking', 'plugin:@typescript-eslint/recommended'],
       parser: '@typescript-eslint/parser',

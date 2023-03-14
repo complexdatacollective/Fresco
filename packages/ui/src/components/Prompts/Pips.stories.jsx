@@ -1,9 +1,8 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
-import Pips from '@/components/Prompts/Pips';
+import Pips from './Pips';
 
 export default {
   title: 'Components/Pips',
+  component: Pips,
 };
 
 export const Primary = {
@@ -13,9 +12,9 @@ export const Primary = {
     };
 
     return (
-      <>
+      <div style={{ background: 'var(--background)' }}>
         <Pips {...props} />
-      </>
+      </div>
     );
   },
 
@@ -32,9 +31,9 @@ export const Large = {
     };
 
     return (
-      <>
+      <div style={{ background: 'var(--background)' }}>
         <Pips {...props} />
-      </>
+      </div>
     );
   },
 

@@ -1,15 +1,16 @@
-import SpeakText from '@/components/SpeakText';
+import SpeakText from './SpeakText';
 
 const text = 'Good afternoon! How are you doing today?';
 
 export default {
-  title: 'Components/SpeakText',
+  title: 'Utilities/SpeakText',
+  component: SpeakText,
   argTypes: {
     lang: {
       control: {
         type: 'select',
-        options: [window.navigator.language, 'en-US', 'en-GB', 'es-ES', 'it-IT', 'missing'],
       },
+      options: [window.navigator.language, 'en-US', 'en-GB', 'es-ES', 'it-IT', 'missing'],
     },
   },
 };

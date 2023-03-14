@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import PropTypes from 'prop-types';
-import { ALLOWED_MARKDOWN_LABEL_TAGS, ALLOWED_MARKDOWN_INLINE_LABEL_TAGS } from '../../utils/config';
-import Markdown from './Markdown';
+import { ALLOWED_MARKDOWN_LABEL_TAGS, ALLOWED_MARKDOWN_INLINE_LABEL_TAGS } from '@/utils/config';
+import Markdown from '@/components/Markdown/Markdown';
 
 const MarkdownLabel = ({ label, className, inline }) => (
   <Markdown

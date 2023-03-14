@@ -1,8 +1,10 @@
+@use '@/styles/base/spacing';
+
 $block: pips;
 
 .#{$block} {
-  --local-pip-size:  var(--pip-size, #{unit(1.2)});
-  --local-pip-size-flex: calc(var(--local-pip-size) + #{unit(1)});
+  --local-pip-size:  var(--pip-size, #{spacing.unit(1.2)});
+  --local-pip-size-flex: calc(var(--local-pip-size) + #{spacing.unit(1)});
   --local-pip-border-color: var(--pip-border-color, hsla(0, 0%, 100%, 0.15));
 
   width: 100%;
@@ -20,7 +22,7 @@ $block: pips;
     transition: background-color var(--animation-duration-fast) ease-in;
 
     &:not(:last-child):not(:only-child) {
-      margin-right: unit(0.5);
+      margin-right: spacing.unit(0.5);
     }
 
     &--active {
@@ -29,7 +31,7 @@ $block: pips;
   }
 
   &--large {
-    --local-pip-size:  var(--pip-size, #{unit(2)});
-    --local-pip-size-flex: calc(var(--local-pip-size) + #{unit(1)});
+    --local-pip-size:  var(--pip-size, #{spacing.unit(2)});
+    --local-pip-size-flex: calc(var(--local-pip-size) + #{spacing.unit(1)});
   }
 }

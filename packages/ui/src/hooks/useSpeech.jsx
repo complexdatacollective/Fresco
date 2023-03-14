@@ -1,5 +1,5 @@
 import { noop } from '@codaco/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useIsMounted from './useIsMounted';
 
 // Used when we bail out of the hook to provide a consistent surface for consumers.
@@ -21,6 +21,41 @@ const useSpeech = (text, lang = window.navigator.language) => {
   const [error, setError] = useState(null);
   const isMounted = useIsMounted();
 
+  const voices = useMemo(() => 'speechSynthesis' in window ? speechSynthesis.getVoices() : null, []);
+
+  // Find the first speech synthesis voice available for our current language.
+  // The first voice may not always be the best, so this could be improved.
+  const voiceForLanguage = useMemo(() => {
+
+    if (!voices) {
+      return null;
+    }
+
+    return voices.find(
+      // iOS/macOS seem to lower-case navigator.language (which is the default language)
+      (voice) => voice.lang.toLowerCase() === lang.toLowerCase()
+    );
+  }, [lang, voices]);
+
+  const stop = useCallback(() => {
+    if (error) { return; }
+    speechSynthesis.cancel();
+    setIsSpeaking(false);
+  }, [error]);
+
+  useEffect(
+    () => {
+      if (!voiceForLanguage) {
+        setError(`No voice available for language "${lang}". Cannot speak!`);
+      }
+
+      return () => {
+        stop();
+      };
+    },
+    [voiceForLanguage, lang, stop],
+  );
+
   // No text means nothing to do.
   if (!text) {
     return noopReturnValues;
@@ -33,15 +68,6 @@ const useSpeech = (text, lang = window.navigator.language) => {
       error: 'Speech API not supported',
     };
   }
-
-  const voices = useMemo(() => speechSynthesis.getVoices(), []);
-
-  // Find the first speech synthesis voice available for our current language.
-  // The first voice may not always be the best, so this could be improved.
-  const voiceForLanguage = useMemo(() => voices.find(
-    // iOS/macOS seem to lower-case navigator.language (which is the default language)
-    (voice) => voice.lang.toLowerCase() === lang.toLowerCase(),
-  ), [lang]);
 
   const speak = () => {
     if (error) {
@@ -62,25 +88,6 @@ const useSpeech = (text, lang = window.navigator.language) => {
     utterance.onend = () => isMounted() && setIsSpeaking(false);
     speechSynthesis.speak(utterance);
   };
-
-  const stop = () => {
-    if (error) { return; }
-    speechSynthesis.cancel();
-    setIsSpeaking(false);
-  };
-
-  useEffect(
-    () => {
-      if (!voiceForLanguage) {
-        setError(`No voice available for language "${lang}". Cannot speak!`);
-      }
-
-      return () => {
-        stop();
-      };
-    },
-    [voiceForLanguage],
-  );
 
   return {
     speak, stop, isSpeaking, error,

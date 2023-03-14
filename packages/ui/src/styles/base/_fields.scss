@@ -3,13 +3,7 @@ $global-input-border-size: 0.125rem;
 $global-input-border-space: 0.25rem;
 
 @mixin form-field {
-  &__label {
-    @include typography(copy-standard, font-size);
-    font-weight: 200;
-    display: block;
-    margin: 0;
-    color: var(--input-label);
-  }
+
 }
 
 .form-field-label {
@@ -66,17 +60,3 @@ $global-input-border-space: 0.25rem;
     justify-content: center;
   }
 }
-
-@import './fields/boolean';
-@import './fields/radio';
-@import './fields/radio-group';
-@import './fields/checkbox';
-@import './fields/checkbox-group';
-@import './fields/toggle';
-@import './fields/toggle-button';
-@import './fields/toggle-button-group';
-@import './fields/text';
-@import './fields/range';
-@import './fields/slider';
-@import './fields/date-picker';
-@import './fields/rich-text';

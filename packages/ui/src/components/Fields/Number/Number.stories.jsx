@@ -1,7 +1,7 @@
 import Number from './Number';
 
 export default {
-  title: 'Components/Number',
+  title: 'Fields/Number',
   args: {
     value: 0,
     error: 'Something was not right about the input',

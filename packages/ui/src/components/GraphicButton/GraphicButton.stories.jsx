@@ -1,8 +1,7 @@
-import React from 'react';
 import { action } from '@storybook/addon-actions';
 import Harness from '@/components/StorybookHelpers/Harness';
-import GraphicButton from '@/components/GraphicButton';
-import openIcon from '../images/open-button.svg';
+import GraphicButton from './GraphicButton';
+import openIcon from '@/images/open-button.svg';
 import colors from '@/components/StorybookHelpers/Colors';
 
 const requiredProps = {
@@ -15,7 +14,10 @@ const requiredProps = {
   onClick: () => action('onClick'),
 };
 
-export default { title: 'Components/GraphicButton' };
+export default {
+  title: 'Components/GraphicButton',
+  component: GraphicButton,
+};
 
 export const normal = () => (
   <Harness requiredProps={requiredProps}>{(props) => <GraphicButton {...props} />}</Harness>

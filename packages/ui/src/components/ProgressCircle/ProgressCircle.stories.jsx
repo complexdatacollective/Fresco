@@ -1,8 +1,8 @@
-import React from 'react';
-import ProgressCircle from '@/components/ProgressCircle';
+import ProgressCircle from './ProgressCircle';
 
 export default {
   title: 'Components/Progress Circle',
+  component: ProgressCircle,
   args: {
     percentProgress: 50,
   },
