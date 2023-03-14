@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import cx from "classnames";
 import "./Button.scss";
 import Icon from "@/components/Icon/Icon";
@@ -11,8 +11,7 @@ const getButtonIcon = ({
   icon: string | JSX.Element;
   iconPosition: ButtonProps["iconPosition"];
 }) => {
-  const iconClassNames = cx({
-    button__icon: true,
+  const iconClassNames = cx("button__icon", {
     "button__icon--right": iconPosition === "right",
   });
 
@@ -31,31 +30,31 @@ const getButtonIcon = ({
 type ButtonProps = {
   color?: string;
   size?: "small" | "medium" | "large";
-  children?: string | undefined;
-  content?: string | undefined;
-  onClick?: () => void;
+  onClick: () => void;
   icon?: string | React.ReactElement | undefined;
   type?: "button" | "submit";
   iconPosition?: "left" | "right";
   disabled?: boolean;
+  fullWidth?: boolean;
 };
 
 function Button({
   color = "primary",
   size = "medium",
-  children = undefined,
-  content = "Button",
-  onClick = () => {},
+  onClick,
   icon = undefined,
+  children = "Button",
   type = "button",
   iconPosition = "left",
   disabled = false,
-}: ButtonProps) {
+  fullWidth = false,
+}: PropsWithChildren<ButtonProps>) {
   const buttonClassNames = cx({
     button: true,
     [`button--${color}`]: !!color,
     [`button--${size}`]: !!size,
     "button--has-icon": !!icon,
+    "button--full-width": fullWidth,
     "button--icon-pos-right": iconPosition === "right",
   });
 
@@ -67,9 +66,7 @@ function Button({
       disabled={disabled}
     >
       {icon && getButtonIcon({ icon, iconPosition })}
-      {(content || children) && (
-        <span className="button__content">{children || content}</span>
-      )}
+      <span className="button__content">{children}</span>
     </button>
   );
 }

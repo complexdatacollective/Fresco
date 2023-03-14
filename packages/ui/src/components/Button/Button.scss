@@ -6,8 +6,11 @@ $button-class: 'button';
 
 .#{$button-class} {
   @include helpers.reset-button;
-  @include helpers.clickable;
 
+  &:not(:disabled) {
+    @include helpers.clickable;
+  }
+  
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -35,15 +38,20 @@ $button-class: 'button';
   @include color.color-modifiers($include-hover: true);
 
   &--small {
-    min-width: inherit;
-    min-height: 2.5rem;
-    font-size: 0.5rem;
+    min-width: spacing.unit(4);
+    min-height: spacing.unit(4);
+    font-size: spacing.unit(1);
   }
 
   &--large {
-    min-width: inherit;
-    min-height: 4.5rem;
-    font-size: 1rem;
+    min-width: spacing.unit(7);
+    min-height: spacing.unit(7);
+    font-size: spacing.unit(2);
+  }
+
+  &--full-width {
+    width: 100%;
+    flex-grow: 1;
   }
 
   &--has-icon {
@@ -95,8 +103,8 @@ $button-class: 'button';
   }
 
   .icon.button__icon {
-    height: spacing.unit(2) !important;
-    width: spacing.unit(2) !important;
+    height: spacing.unit(3) !important;
+    width: spacing.unit(3) !important;
   }
 }
 

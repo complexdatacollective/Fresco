@@ -1,3 +1,13 @@
+// This also needs a complete overhaul!
+// 
+// Objectives:
+// 1. Implement a type-scale! This should set line height, letter spacing and
+//    font size.
+// 2. Should account for breakpoints
+// 3. Should be based on a root font size in px, but generate rem values
+// 4. Should also contain definitions for named semantic variants, such as
+//   "body", "small", "large", "title", "subtitle", "button" etc.
+
 // Typography setter, mixins and classes based on breakpoints
 // ==========================================================
 $base-line-height: 1.5;
