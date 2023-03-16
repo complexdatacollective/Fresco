@@ -6,17 +6,17 @@ import { withHandlers, compose } from 'recompose';
 import PropTypes from 'prop-types';
 import withPrompt from '../../behaviours/withPrompt';
 import { LayoutProvider } from '../../contexts/LayoutContext';
-import Canvas from '../@/components/RealtimeCanvas/Canvas';
+import Canvas from '@/components/RealtimeCanvas/Canvas';
 import NodeBucket from '../Canvas/NodeBucket';
 import NodeLayout from '../RealtimeCanvas/NodeLayout';
-import EdgeLayout from '../@/components/RealtimeCanvas/EdgeLayout';
-import SimulationPanel from '../@/components/RealtimeCanvas/SimulationPanel';
+import EdgeLayout from '@/components/RealtimeCanvas/EdgeLayout';
+import SimulationPanel from '@/components/RealtimeCanvas/SimulationPanel';
 import Background from '../Canvas/Background';
 import { actionCreators as resetActions } from '../../ducks/modules/reset';
 import {
   getEdges, getNextUnplacedNode, getNodes, getPlacedNodes,
 } from '../../selectors/canvas';
-import CollapsablePrompts from '../@/components/CollapsablePrompts';
+import CollapsablePrompts from '@/components/CollapsablePrompts';
 import { get } from '@codaco/utils';
 
 const withResetInterfaceHandler = withHandlers({

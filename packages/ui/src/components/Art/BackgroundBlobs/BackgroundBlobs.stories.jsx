@@ -1,6 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-import BackgroundBlobs from '@/components/BackgroundBlobs';
+import BackgroundBlobs from '@/components/Art/BackgroundBlobs/BackgroundBlobs';
 
 const requiredProps = {};
 

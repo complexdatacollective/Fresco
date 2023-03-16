@@ -1,3 +1,5 @@
+@use '@codaco/ui/src/styles/base/color';
+
 $add-count-button-height: 6rem;
 $add-count-button-width: 7rem;
 $add-count-button-inner-size: $add-count-button-width * .8; // width of the core circle (without badge)
@@ -6,10 +8,10 @@ $module-name: add-count-button;
 // Provides alternate colors (e.g., to represent different node types)
 // 'flash' is the darkened 45° overlay
 @mixin add-count-colors($base-color, $flash-color) {
-  fill: color($base-color);
+  fill: color.color($base-color);
 
   &-flash {
-    fill: color($flash-color);
+    fill: color.color($flash-color);
   }
 }
 
@@ -17,7 +19,7 @@ $module-name: add-count-button;
 .#{$module-name} {
   background-color: transparent;
   border: 0;
-  color: color('white');
+  color: color.color('white');
   cursor: pointer;
   display: block;
   font-size: 3rem;
@@ -47,7 +49,7 @@ $module-name: add-count-button;
   }
 
   // Allow button to take on any available named color
-  @each $color, $_ in $-color-map {
+  @each $color, $_ in $color-map {
     &--#{$color} {
       .#{$module-name}__base {
         @include add-count-colors($color, '#{$color}--dark');
@@ -56,11 +58,11 @@ $module-name: add-count-button;
   }
 
   &__badge {
-    fill: color('white');
+    fill: color.color('white');
   }
 
   &__plus {
-    fill: color('charcoal');
+    fill: color.color('charcoal');
   }
 
 }

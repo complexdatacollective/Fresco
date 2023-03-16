@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { BooleanOption, Markdown } from '@codaco/ui';
 import { AnimatePresence, motion } from 'framer-motion';
-import Prompts from '../../@/components/Prompts';
+import Prompts from '../@/components/Prompts';
 import withPrompt from '../../../behaviours/withPrompt';
 import { makeNetworkNodesForType as makeGetNodes } from '../../../selectors/interface';
 import { getNetworkEdges as getEdges } from '../../../selectors/network';

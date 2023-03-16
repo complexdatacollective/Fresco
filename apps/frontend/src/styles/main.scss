@@ -1,14 +1,15 @@
 $font-path: "~@codaco/ui/src/assets/fonts";
 $image-path: "~@codaco/ui/";
 
-@import "@codaco/ui/src/styles/_all.scss";
-@import "helpers/all";
-@import "components/all";
-@import "containers/all";
-@import "transitions";
+@import "@codaco/ui/src/styles/_base.scss";
+
+// @import "helpers/all";
+// @import "components/all";
+// @import "containers/all";
+// @import "transitions";
 
 :root {
-  --body-font-family: #{$netcanvas-font-stack}; // override Network Canvas UI
+  --body-font-family: var(--netcanvas-font-stack);
   --code-font: courier;
   --session-panel-width: 9rem; // Does *not* change actual timeline width (which is automatically calculated). Used for drop obstacle and stage margins
   --interface-prompt-flex-basis: 8rem;

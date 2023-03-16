@@ -9,6 +9,7 @@
 @import 'base/z-index';
 @import 'base/helpers';
 @import 'base/fields';
+@import 'base/inputs';
 
 $export-ui-classes: true !default;
 
@@ -25,7 +26,7 @@ $export-ui-classes: true !default;
   --link-color: var(--color-neon-coral);
 
   // each item in color map
-  @each $name, $color in $-color-map {
+  @each $name, $color in $color-map {
     #{'--'}color-#{$name}: #{'rgb('}#{$color}#{')'};
     #{'--'}color-#{$name}---rgb: #{$color};
   }
@@ -72,7 +73,7 @@ $export-ui-classes: true !default;
 
 // to export out into css modules for js
 :export {
-  @each $name, $color in $-color-map {
+  @each $name, $color in $color-map {
     #{$name}: #{$color};
   }
 }

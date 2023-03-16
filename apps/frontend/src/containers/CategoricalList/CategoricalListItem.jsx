@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import { getEntityAttributes } from '../../ducks/modules/network';
-import { CategoricalItem } from '../@/components';
+import { CategoricalItem } from '@/components';
 import Overlay from '../Overlay';
 import OtherVariableForm from './OtherVariableForm';
 import { get } from '@codaco/utils';

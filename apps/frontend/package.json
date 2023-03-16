@@ -1,5 +1,5 @@
 {
-  "name": "network-canvas-interviewer",
+  "name": "frontend",
   "version": "7.0.0-alpha.1",
   "productName": "Network Canvas Interviewer",
   "description": "A tool for conducting Network Canvas interviews.",
@@ -80,6 +80,7 @@
   "devDependencies": {
     "@vitejs/plugin-react-swc": "^3.2.0",
     "cross-env": "~7.0.3",
+    "eslint-import-resolver-alias": "^1.1.2",
     "vite": "^4.1.4"
   }
 }

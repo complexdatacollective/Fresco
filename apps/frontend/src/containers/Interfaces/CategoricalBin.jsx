@@ -4,11 +4,11 @@ import { connect } from 'react-redux';
 import { withStateHandlers } from 'recompose';
 import PropTypes from 'prop-types';
 import { entityAttributesProperty } from '@codaco/shared-consts';
-import Prompts from '../@/components/Prompts';
+import Prompts from '@/components/Prompts';
 import withPrompt from '../../behaviours/withPrompt';
 import CategoricalList from '../CategoricalList';
 import { makeGetPromptVariable, getPromptOtherVariable, makeNetworkNodesForType } from '../../selectors/interface';
-import MultiNodeBucket from '../@/components/MultiNodeBucket';
+import MultiNodeBucket from '@/components/MultiNodeBucket';
 
 const categoricalBinStateHandler = withStateHandlers(
   {

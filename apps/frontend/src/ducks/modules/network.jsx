@@ -1,7 +1,5 @@
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import {
-  reject, find, isMatch, omit, keys, get,
-} from '@codaco/utils';
+import { isMatch, omit, get } from '@codaco/utils';
 import { v4 as uuid } from 'uuid';
 
 /*
@@ -58,8 +56,15 @@ function flipEdge(edge) {
 }
 
 function edgeExists(edges, from, to, type) {
-  const forwardsEdge = find(edges, { from, to, type });
-  const reverseEdge = find(edges, flipEdge({ from, to, type }));
+  const forwardsEdge = edges.find((edge) => (
+    edge.from === from && edge.to === to && edge.type === type
+  ));
+
+  const flipped = flipEdge({ from, to, type });
+
+  const reverseEdge = edges.find((edge) => (
+    edge.from === flipped.from && edge.to === flipped.to && edge.type === flipped.type
+  ));
 
   if ((forwardsEdge && forwardsEdge !== -1) || (reverseEdge && reverseEdge !== -1)) {
     const foundEdge = forwardsEdge || reverseEdge;
@@ -125,7 +130,7 @@ const addEdge = (state, action) => ({
 
 const removeEdge = (state, edgeId) => ({
   ...state,
-  edges: reject(state.edges, (edge) => edge[entityPrimaryKeyProperty] === edgeId),
+  edges: [...state.edges].filter((edge) => edge[entityPrimaryKeyProperty] === edgeId),
 });
 
 export default function reducer(state = getInitialState(), action = {}) {
@@ -227,21 +232,20 @@ export default function reducer(state = getInitialState(), action = {}) {
       const removeentityPrimaryKeyProperty = action[entityPrimaryKeyProperty];
       return {
         ...state,
-        nodes: reject(
-          state.nodes,
+        nodes: [...state.nodes].filter(
           (node) => node[entityPrimaryKeyProperty] === removeentityPrimaryKeyProperty,
         ),
-        edges: reject(
-          state.edges,
-          (edge) => (
-            edge.from === removeentityPrimaryKeyProperty
-            || edge.to === removeentityPrimaryKeyProperty
+        edges:
+          [...state.edges].filter(
+            (edge) => (
+              edge.from === removeentityPrimaryKeyProperty
+              || edge.to === removeentityPrimaryKeyProperty
+            ),
           ),
-        ),
       };
     }
     case REMOVE_NODE_FROM_PROMPT: {
-      const togglePromptAttributes = keys(action.promptAttributes)
+      const togglePromptAttributes = Object.keys(action.promptAttributes)
         .reduce(
           (attributes, attrKey) => ({
             ...attributes,

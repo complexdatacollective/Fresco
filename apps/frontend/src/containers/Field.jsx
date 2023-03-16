@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useStore } from 'react-redux';
 import { Field as ReduxFormField } from 'redux-form';
-import { map, toPairs } from '@codaco/utils';
+import { toPairs } from '@codaco/utils';
 import { Fields } from '@codaco/ui';
 import validations from '../utils/Validations';
 import { FormComponent } from '../protocol-consts';
@@ -35,12 +35,10 @@ export const getInputComponent = (componentType = 'Text') => {
 * which will always fail.
 * @param {string} validation The name of the validation function to return.
   */
-const getValidation = (validation, store) => map(
-  toPairs(validation),
-  ([type, options]) => (
-    Object.hasOwnProperty.call(validations, type) ? validations[type](options, store) : () => (`Validation "${type}" not found`)
-  ),
-);
+const getValidation = (validation, store) => toPairs(validation).map(([type, options]) => (
+  Object.hasOwnProperty.call(validations, type) ? validations[type](options, store) : () => (`Validation "${type}" not found`)
+));
+
 
 /**
   * Renders a redux-form field in the style of our app.

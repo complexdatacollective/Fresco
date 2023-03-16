@@ -1,7 +1,4 @@
-/* eslint-disable global-require */
-
-import { isArray, isString } from '@codaco/utils';
-import environments from '../environments';
+// import environments from '../environments';
 import inEnvironment from '../Environment';
 import { userDataPath, appPath } from '../filesystem';
 

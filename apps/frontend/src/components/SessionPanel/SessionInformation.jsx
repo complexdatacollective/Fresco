@@ -40,7 +40,7 @@ const SessionInformation = (props) => {
       );
     }
 
-    const networkEntitiesByType = countBy(sessionNetwork[type], 'type');
+    const networkEntitiesByType = countBy(sessionNetwork[type], (entity) => entity.type);
 
     return Object.keys(networkEntitiesByType).map((entity) => {
       const codebookType = type === 'nodes' ? 'node' : 'edge';

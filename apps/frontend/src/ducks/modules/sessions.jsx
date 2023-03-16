@@ -1,4 +1,4 @@
-import { has, omit, reduce } from '@codaco/utils';
+import { has, omit } from '@codaco/utils';
 import { v4 as uuid } from 'uuid';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { actionCreators as SessionWorkerActions } from './sessionWorkers';
@@ -27,11 +27,14 @@ const sessionExists = (sessionId, sessions) => has(sessions, sessionId);
 const getReducer = (network) => (state = initialState, action = {}) => {
   switch (action.type) {
     case installedProtocolsActionTypes.DELETE_PROTOCOL:
-      return reduce(state, (result, sessionData, sessionId) => {
-        if (sessionData.protocolUID !== action.protocolUID) {
-          return { ...result, [sessionId]: sessionData };
+      return state.reduce((result, sessionData, sessionId) => {
+        if (sessionData.protocolUID === action.protocolUID) {
+          return result;
         }
-        return result;
+        return {
+          ...result,
+          [sessionId]: sessionData,
+        };
       }, {});
     case networkActionTypes.ADD_NODE:
     case networkActionTypes.BATCH_ADD_NODES:

@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import { actionCreators as modalActions } from '../../ducks/modules/modals';
 import { PromptSwiper } from '../../containers';
-import { NodeList, DropZone } from '../@/components';
+import { NodeList, DropZone } from '@/components';
 
 const actions = {
   network: sessionsActions,

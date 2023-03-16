@@ -1,3 +1,5 @@
+@use './breakpoints';
+
 // This also needs a complete overhaul!
 // 
 // Objectives:
@@ -49,7 +51,7 @@ $-type-map: () !default;
   @if map-has-key($-type-map, $type-name) {
     $type-group: map-get($-type-map, $type-name);
     @each $breakpoint-name, $type-properties in $type-group {
-      @include breakpoint($breakpoint-name) {
+      @include breakpoints.breakpoint($breakpoint-name) {
         @each $property, $value in $type-properties {
           @if not $type-property or $type-property == $property {
             #{$property}: #{$value};

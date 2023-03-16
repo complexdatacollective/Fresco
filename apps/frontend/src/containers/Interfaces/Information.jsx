@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Markdown } from '@codaco/ui';
-import { Audio, BackgroundImage, Video } from '../@/components';
+import { Audio, BackgroundImage, Video } from '@/components';
 import { InformationContentType, AssetType } from '../../protocol-consts';
 import AssetMetaProvider from '../../behaviours/AssetMetaProvider';
 

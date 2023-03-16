@@ -1,6 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import useCanvas from '../hooks/useCanvas';
+import useCanvas from '@/hooks/useCanvas';
 
 const Canvas = (props) => {
   const { draw, predraw, postdraw } = props;

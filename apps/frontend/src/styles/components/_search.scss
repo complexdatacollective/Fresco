@@ -1,15 +1,18 @@
+@use '@codaco/ui/src/styles/base/inputs';
+@use '@codaco/ui/src/styles/base/color';
+
 $content-padding: 1rem 2rem;
 $module-name: search;
 $results-height: calc(100vh - 23rem);
 
 // Base input on global styling; override as needed below.
-@include text-input('#{$module-name}__input');
+@include inputs.text-input('#{$module-name}__input');
 
 .#{$module-name} {
   --collapsed-square-size-js: 6.5rem;
   --content-padding: 1rem;
 
-  background-color: color('cyber-grape');
+  background-color: color.color('cyber-grape');
   border-radius: var(--border-radius);
   max-height: 100%;
   position: absolute;
@@ -78,7 +81,7 @@ $results-height: calc(100vh - 23rem);
   }
 
   &__input {
-    background-color: color('white');
+    background-color: color.color('white');
     border-radius: spacing(small);
     bottom: var(--content-padding);
     color: palette('text-dark');
@@ -122,8 +125,8 @@ $results-height: calc(100vh - 23rem);
 
   &__result {
     &--selected {
-      background-color: color('white', .15);
-      border: 1px solid color('white');
+      background-color: color.color('white', .15);
+      border: 1px solid color.color('white');
     }
   }
 

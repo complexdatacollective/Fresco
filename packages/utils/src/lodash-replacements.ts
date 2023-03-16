@@ -165,6 +165,63 @@ export const flowRight = (funcs: Array<(...args: unknown[]) => void>) =>
   (...args: unknown[]) =>
     funcs.reverse().reduce((prev, fnc) => [fnc(...prev)], args)[0]
 
+// Function that accepts an array of unknown items, and a function that returns a promise. 
+// It will run the function on each item in the array, and wait for the promise to resolve before moving on to the next item.
+export const inSequence = async (items: Array<unknown>, apply: (item: unknown) => Promise<unknown>) => {
+  for (const item of items) {
+    await apply(item)
+  }
+}
+
+// Replacement for lodash/fp trimChars
+export const trimChars = (chars: string) => (str: string) => {
+  const charsRegex = new RegExp(`^[${chars}]+|[${chars}]+$`, 'g')
+  return str.replace(charsRegex, '')
+}
+
+// This method is like _.find except that it returns the key of the first element predicate returns truthy for instead of the element itself.
+export const findKey = (obj: Record<string, unknown>, predicate: (value: unknown) => boolean) => {
+  const keys = Object.keys(obj)
+  for (const key of keys) {
+    if (predicate(obj[key])) {
+      return key
+    }
+  }
+}
+
+// Creates an array of own enumerable string keyed-value pairs for object. If object is a map or set, its entries are returned.
+export const toPairs = (obj: Record<string, unknown>) => {
+  const keys = Object.keys(obj)
+  return keys.map(key => [key, obj[key]])
+}
+
+
+// Creates an object composed of keys generated from the results of running each element of collection thru iteratee. The corresponding value of each key is the number of times the key was returned by iteratee. The iteratee is invoked with one argument: (value).
+export const countBy = (collection: Array<unknown>, iteratee: (value: unknown) => unknown) => {
+  const result: Record<string, number> = {}
+  for (const item of collection) {
+    const key = iteratee(item)
+    if (result[key as keyof typeof result]) {
+      result[key as keyof typeof result]++
+    } else {
+      result[key as keyof typeof result] = 1
+    }
+  }
+  return result
+}
+
+export const isMatch = (obj: Record<string, unknown>, properties: Record<string, unknown>) => Object.keys(properties).every(
+  (key) => obj[key] === properties[key],
+);
+
+// If condition is not met, throws. When thrown from a selector, the error
+// will be handled by stage boundary and displayed to the user.
+export const assert = (condition: boolean, errorMessage: string) => {
+  if (!condition) {
+    throw new Error(errorMessage);
+  }
+};
+
 // // Native implementation of lodash sortBy
 // export const sortBy = (
 //   collection: Array<Record<string, unknown>>,
