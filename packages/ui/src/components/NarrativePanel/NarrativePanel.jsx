@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Expandable from './Expandable';
+import Expandable from '@/components/Expandable';
 
 class NarrativePanel extends Component {
   constructor() {

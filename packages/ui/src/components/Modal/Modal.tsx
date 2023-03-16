@@ -1,21 +1,21 @@
-import type { ReactNode, FocusEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { getCSSVariableAsNumber } from '../utils/CSSVariables';
+import type { ReactNode, FocusEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { getCSSVariableAsNumber } from "@/utils/CSSVariables";
 
 type ModalProps = {
-  show: boolean,
-  zIndex?: number | null,
-  onBlur: (event: FocusEvent<HTMLElement>) => void,
-  children: ReactNode
+  show: boolean;
+  zIndex?: number | null;
+  onBlur: (event: FocusEvent<HTMLElement>) => void;
+  children: ReactNode;
 };
 
-function Modal({
-  children, show, zIndex = null, onBlur,
-}: ModalProps) {
+function Modal({ children, show, zIndex = null, onBlur }: ModalProps) {
   const style = zIndex ? { zIndex } : undefined;
 
   const handleBlur = (event: FocusEvent<HTMLElement>) => {
-    if (event.target !== event.currentTarget) { return; }
+    if (event.target !== event.currentTarget) {
+      return;
+    }
     onBlur(event);
   };
 
@@ -23,14 +23,14 @@ function Modal({
     visible: {
       opacity: 1,
       transition: {
-        duration: getCSSVariableAsNumber('--animation-duration-fast'),
-        when: 'beforeChildren',
+        duration: getCSSVariableAsNumber("--animation-duration-fast"),
+        when: "beforeChildren",
       },
     },
     hidden: {
       opacity: 0,
       transition: {
-        when: 'afterChildren',
+        when: "afterChildren",
       },
     },
   };

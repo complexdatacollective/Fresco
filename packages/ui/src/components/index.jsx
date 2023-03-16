@@ -14,7 +14,7 @@ export { default as NarrativePanel } from './NarrativePanel/NarrativePanel';
 export { default as Node } from './Node/Node';
 export { default as ProgressBar } from './ProgressBar/ProgressBar';
 export { default as ProgressCircle } from './ProgressCircle/ProgressCircle';
-export { default as Scroller } from './Scroller/Scroller';
+export { default as Scroller } from './Scrollable/Scroller';
 export { default as Skeleton } from './Skeleton/Skeleton';
 export { default as SpeakText } from './SpeakText/SpeakText';
 export { default as Spinner } from './Spinner/Spinner';

@@ -1,7 +1,7 @@
-import React from 'react';
-import cx from 'classnames';
-import Modal from '../Modal';
-import Icon from '../Icon';
+import React from "react";
+import cx from "classnames";
+import Modal from "@/components/Modal/Modal";
+import Icon from "@/components/Icon/Icon";
 
 /*
  * Top level Dialog component, not intended to be used directly, if you need
@@ -9,36 +9,35 @@ import Icon from '../Icon';
  */
 
 type DialogProps = {
-  show: boolean,
-  showIcon?: boolean,
-  title: string,
-  message: React.ReactNode | string,
-  type?: string,
-  icon?: string,
-  children?: React.ReactNode,
-  options?: React.ReactNode,
-  onBlur?: () => void,
-  classNames?: string,
+  show: boolean;
+  showIcon?: boolean;
+  title: string;
+  message: React.ReactNode | string;
+  type?: string;
+  icon?: string;
+  children?: React.ReactNode;
+  options?: React.ReactNode;
+  onBlur?: () => void;
+  classNames?: string;
 };
 
 function Dialog({
   children = null,
-  type = '',
-  icon = '',
+  type = "",
+  icon = "",
   show,
   showIcon = true,
   options = null,
   title,
   message,
   onBlur = () => {},
-  classNames = '',
+  classNames = "",
 }: DialogProps) {
   return (
     <Modal show={show} onBlur={onBlur}>
-      <div className={cx('dialog', { [`dialog--${type}`]: type }, classNames)}>
+      <div className={cx("dialog", { [`dialog--${type}`]: type }, classNames)}>
         <div className="dialog__main">
-          {icon && showIcon
-          && (
+          {icon && showIcon && (
             <div className="dialog__main-icon">
               <Icon name={icon} />
             </div>
@@ -49,9 +48,7 @@ function Dialog({
             {children}
           </div>
         </div>
-        <footer className="dialog__footer">
-          {options}
-        </footer>
+        <footer className="dialog__footer">{options}</footer>
       </div>
     </Modal>
   );
