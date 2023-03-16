@@ -177,6 +177,7 @@ importers:
       '@trpc/client': ^10.14.1
       '@trpc/server': ^10.14.1
       superjson: 1.12.2
+      tsconfig: workspace:*
       tsup: ^6.6.3
       typescript: ^4.9.5
       zod: ^3.20.6
@@ -188,6 +189,7 @@ importers:
       superjson: 1.12.2
       zod: 3.21.4
     devDependencies:
+      tsconfig: link:../ts-config
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
 

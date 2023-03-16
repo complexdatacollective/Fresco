@@ -2,11 +2,11 @@ import * as _trpc_server from '@trpc/server';
 import * as superjson from 'superjson';
 import * as _trpc_server_dist_rpc from '@trpc/server/dist/rpc';
 import * as zod from 'zod';
-import * as _prisma_client from '.prisma/client';
+import * as _codaco_database from '@codaco/database';
 
 declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<{
     ctx: {
-        prisma: _prisma_client.PrismaClient<{
+        prisma: _codaco_database.PrismaClient<{
             log: ("query" | "warn" | "error")[];
         }, never, false>;
     };
@@ -26,7 +26,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
 }>, {
     user: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<{
         ctx: {
-            prisma: _prisma_client.PrismaClient<{
+            prisma: _codaco_database.PrismaClient<{
                 log: ("query" | "warn" | "error")[];
             }, never, false>;
         };
@@ -47,7 +47,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
         all: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -66,7 +66,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
                 transformer: typeof superjson.default;
             }>;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -75,11 +75,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
             _meta: object;
-        }, _prisma_client.User[]>;
+        }, _codaco_database.User[]>;
         byId: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -99,7 +99,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -107,11 +107,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _input_out: number;
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.User | null>;
+        }, _codaco_database.User | null>;
         create: _trpc_server.BuildProcedure<"mutation", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -131,7 +131,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -145,11 +145,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             };
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.User>;
+        }, _codaco_database.User>;
         delete: _trpc_server.BuildProcedure<"mutation", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -169,7 +169,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -177,11 +177,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _input_out: number;
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.User>;
+        }, _codaco_database.User>;
     }>;
     protocols: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<{
         ctx: {
-            prisma: _prisma_client.PrismaClient<{
+            prisma: _codaco_database.PrismaClient<{
                 log: ("query" | "warn" | "error")[];
             }, never, false>;
         };
@@ -202,7 +202,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
         all: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -221,7 +221,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
                 transformer: typeof superjson.default;
             }>;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -230,11 +230,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
             _meta: object;
-        }, _prisma_client.Protocol[]>;
+        }, _codaco_database.Protocol[]>;
         byId: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -254,7 +254,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -262,11 +262,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _input_out: number;
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.Protocol | null>;
+        }, _codaco_database.Protocol | null>;
         byHash: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -286,7 +286,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -294,11 +294,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _input_out: string;
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.Protocol | null>;
+        }, _codaco_database.Protocol | null>;
     }>;
     interviews: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<{
         ctx: {
-            prisma: _prisma_client.PrismaClient<{
+            prisma: _codaco_database.PrismaClient<{
                 log: ("query" | "warn" | "error")[];
             }, never, false>;
         };
@@ -319,7 +319,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
         all: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -339,7 +339,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -363,7 +363,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             } | undefined;
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, (_prisma_client.Interview & {
+        }, (_codaco_database.Interview & {
             protocol: {
                 name: string;
             };
@@ -371,7 +371,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
         get: _trpc_server.BuildProcedure<"query", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -391,7 +391,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -399,11 +399,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             _input_out: number;
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.Interview | null>;
+        }, _codaco_database.Interview | null>;
         create: _trpc_server.BuildProcedure<"mutation", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -423,7 +423,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -437,11 +437,11 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             };
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.Interview>;
+        }, _codaco_database.Interview>;
         updateNetwork: _trpc_server.BuildProcedure<"mutation", {
             _config: _trpc_server.RootConfig<{
                 ctx: {
-                    prisma: _prisma_client.PrismaClient<{
+                    prisma: _codaco_database.PrismaClient<{
                         log: ("query" | "warn" | "error")[];
                     }, never, false>;
                 };
@@ -461,7 +461,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             }>;
             _meta: object;
             _ctx_out: {
-                prisma: _prisma_client.PrismaClient<{
+                prisma: _codaco_database.PrismaClient<{
                     log: ("query" | "warn" | "error")[];
                 }, never, false>;
             };
@@ -475,7 +475,7 @@ declare const appRouter: _trpc_server.CreateRouterInner<_trpc_server.RootConfig<
             };
             _output_in: typeof _trpc_server.unsetMarker;
             _output_out: typeof _trpc_server.unsetMarker;
-        }, _prisma_client.Interview>;
+        }, _codaco_database.Interview>;
     }>;
 }>;
 type AppRouter = typeof appRouter;
@@ -486,7 +486,7 @@ type AppRouter = typeof appRouter;
  * @link https://trpc.io/docs/context
  */
 declare const createTRPCContext: () => Promise<{
-    prisma: _prisma_client.PrismaClient<{
+    prisma: _codaco_database.PrismaClient<{
         log: ("query" | "warn" | "error")[];
     }, never, false>;
 }>;
