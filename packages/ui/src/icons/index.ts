@@ -55,7 +55,9 @@ import add from './add.svg.react';
 import remove from './delete.svg.react';
 import move from './move.svg.react';
 
-export default {
+type Icons = Record<string, React.PureComponent>;
+
+const icons: Icons = {
   'add-a-context-button': addAContext,
   'add-a-context': addAContextSingle,
   'add-a-protocol-button': addAProtocol,
@@ -113,3 +115,5 @@ export default {
   delete: remove,
   move,
 };
+
+export default icons;

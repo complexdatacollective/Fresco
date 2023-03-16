@@ -1,6 +1,6 @@
 import { useMemo, memo } from "react";
 import cx from "classnames";
-import icons from "@/utils/getIcon";
+import { getIcon } from "@/utils/getIcon";
 import "./Icon.scss";
 
 type IconProps = {
@@ -9,24 +9,24 @@ type IconProps = {
   color?: string;
   // eslint-disable-next-line
   style?: object;
+  size?: 'small' | 'medium' | 'large';
 };
 
 function Icon({
   name,
   className = undefined,
   color = undefined,
-  // eslint-disable-next-line
-  ...rest
+  size = 'medium',
 }: IconProps) {
   const iconClassNames = cx(
+    'icon',
     {
-      icon: true,
-      [`icon--${color}`]: !!color,
+      [`icon--${color || ''}`]: !!color,
     },
     [className]
   );
 
-  const IconComponent = useMemo(() => icons(name), [name]);
+  const IconComponent = useMemo(() => getIcon(name), [name]);
 
   if (!IconComponent) {
     console.warn("Invalid icon name:", name); // eslint-disable-line no-console
@@ -37,8 +37,7 @@ function Icon({
     <IconComponent
       className={iconClassNames}
       name={name}
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...rest}
+      size={size}
     />
   );
 }

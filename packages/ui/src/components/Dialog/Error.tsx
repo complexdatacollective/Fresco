@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Dialog from "./Dialog";
-import Button from "../Button/Button";
+import Button from "@/components/Button/Button";
 
 const getStack = (error: Error) => !!error && error.stack;
 
@@ -67,8 +67,9 @@ function ErrorDialog({
           key="confirm"
           onClick={onConfirm}
           color="neon-coral"
-          content={confirmLabel}
-        />,
+        >
+          {confirmLabel}
+        </Button>,
       ]}
     >
       {stack && <AdditionalInformation stack={stack} />}
