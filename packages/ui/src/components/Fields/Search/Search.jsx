@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { noop, get, isEmpty } from '@codaco/utils';
-import { getCSSVariableAsString } from '../../utils/CSSVariables';
-import Text from './Text';
+import { getCSSVariableAsString } from '../../../utils/CSSVariables';
+import Text from '../Text/Text';
 
 const SearchIcon = () => null;
 const ClearIcon = () => null;

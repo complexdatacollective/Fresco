@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import MarkdownLabel from '../MarkdownLabel';
+import MarkdownLabel from '../MarkdownLabel/MarkdownLabel';
 import Boolean from './Boolean';
-import Icon from '../../Icon';
+import Icon from '../../Icon/Icon';
 
 const BooleanField = ({
   label,

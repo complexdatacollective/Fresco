@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import useTimeout from '../../hooks/useTimeout';
 import CloseButton from '../CloseButton';
-import Icon from '../Icon';
+import Icon from '../Icon/Icon';
 import CompleteIcon from '../CompleteIcon';
 
 const Toast = ({

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Slider from './Slider';
+import Slider from '../Slider/Slider';
 
 // eslint-disable-next-line react/jsx-props-no-spreading
 const LikertScale = (props) => <Slider {...props} />;

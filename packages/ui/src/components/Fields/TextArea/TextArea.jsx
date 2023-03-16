@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { uniqueId } from '@codaco/utils';
 import cx from 'classnames';
-import Icon from '../Icon';
-import MarkdownLabel from './MarkdownLabel';
+import Icon from '../../Icon/Icon';
+import MarkdownLabel from '../MarkdownLabel/MarkdownLabel';
 
 class TextArea extends PureComponent {
   constructor(props) {

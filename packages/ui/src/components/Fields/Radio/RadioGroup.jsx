@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { v4 as uuid } from 'uuid';
 import Radio from './Radio';
-import { asOptionObject, getValue } from './utils/options';
-import Icon from '../Icon';
-import MarkdownLabel from './MarkdownLabel';
+import { asOptionObject, getValue } from '../utils/options';
+import Icon from '../../Icon/Icon';
+import MarkdownLabel from '../MarkdownLabel/MarkdownLabel';
 
 class RadioGroup extends Component {
   constructor(props) {
