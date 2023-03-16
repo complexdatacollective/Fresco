@@ -1,4 +1,4 @@
-import { findKey, find, get } from '@codaco/utils';
+import { get } from '@codaco/utils';
 import { getActiveSession, getStageSubjectType } from './session';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolCodebook } from './protocol';
@@ -64,11 +64,9 @@ export const makeGetNodeTypeDefinition = () => createDeepEqualSelector(
 export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   // 1. In the codebook for the stage's subject, look for a variable with a name
   // property of "name", and try to retrieve this value by key in the node's
-  // attributes
-  const variableCalledName = codebookForNodeType
-    && codebookForNodeType.variables
-    // Ignore case when looking for 'name'
-    && findKey(codebookForNodeType.variables, (variable) => variable.name.toLowerCase() === 'name');
+
+  const codebookVariables = codebookForNodeType.variables || {};
+  const variableCalledName = Object.keys(codebookVariables).find((variable) => codebookVariables[variable].name.toLowerCase() === 'name');
 
   if (variableCalledName && nodeAttributes[variableCalledName]) {
     return nodeAttributes[variableCalledName];
@@ -78,10 +76,7 @@ export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   // value as a key in the node's attributes.
   // const nodeVariableCalledName = get(nodeAttributes, 'name');
 
-  const nodeVariableCalledName = find(
-    nodeAttributes,
-    (_, key) => key.toLowerCase() === 'name',
-  );
+  const nodeVariableCalledName = Object.keys(nodeAttributes).find((variable) => variable.toLowerCase() === 'name');
 
   if (nodeVariableCalledName) {
     return nodeVariableCalledName;

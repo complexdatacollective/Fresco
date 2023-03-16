@@ -1,10 +1,8 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { Button } from '@codaco/ui';
-import { find } from '@codaco/utils';
+import { Button, Markdown } from '@codaco/ui';
 import { compare } from 'compare-versions';
-import { Markdown } from '@codaco/ui';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import getVersion from '../utils/getVersion';
@@ -42,7 +40,7 @@ export const getPlatformSpecificContent = (assets) => {
   }
 
   if (isMacOS()) {
-    const dmg = find(assets, (value) => value.name.split('.').pop() === 'dmg');
+    const dmg = assets.find((value) => value.name.split('.').pop() === 'dmg');
     return {
       buttonText: 'Download Installer',
       buttonLink: dmg.browser_download_url,
@@ -50,7 +48,7 @@ export const getPlatformSpecificContent = (assets) => {
   }
 
   if (isWindows()) {
-    const exe = find(assets, (value) => value.name.split('.').pop() === 'exe');
+    const exe = assets.find((value) => value.name.split('.').pop() === 'exe');
     return {
       buttonText: 'Download Installer',
       buttonLink: exe.browser_download_url,

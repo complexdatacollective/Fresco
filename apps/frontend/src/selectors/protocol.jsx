@@ -1,13 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import {
   orderBy,
+  get,
   values,
   mapValues,
   omit,
 } from '@codaco/utils';
 import { createSelector } from '@reduxjs/toolkit';
 import { entityAttributesProperty } from '@codaco/shared-consts';
-import { get } from '@codaco/utils';
 
 const DefaultFinishStage = {
   // `id` is used as component key; must be unique from user input

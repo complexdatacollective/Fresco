@@ -222,41 +222,58 @@ export const assert = (condition: boolean, errorMessage: string) => {
   }
 };
 
-// // Native implementation of lodash sortBy
-// export const sortBy = (
-//   collection: Array<Record<string, unknown>>,
-//   properties: Array<string>,
-// ) => {
-//   // Create a function to be passed to Array.sort using the properties array
-//   const generateComparitorFunction = () => {
-//     const comparitors = properties.map(prop => {
-//       const [propName, order = 'asc'] = prop.split(':')
-//       return (a: Record<string, unknown>, b: Record<string, unknown>) => {
-//         const aValue = a[propName]
-//         const bValue = b[propName]
-//         if (aValue < bValue) {
-//           return order === 'asc' ? -1 : 1
-//         }
+export const isEqual = function (a: unknown, b: unknown): boolean {
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (!exports.deepEqual(a[i], b[i])) return false;
+    }
+    return true;
+  }
+  if (typeof a === 'object' && a !== null && b !== null) {
+    if (!(typeof b === 'object')) return false;
+    const keys = Object.keys(a);
+    if (keys.length !== Object.keys(b).length) return false;
+    for (const key in a) {
+      if (!exports.deepEqual(a[key as keyof typeof a], b[key as keyof typeof b])) return false;
+    }
+    return true;
+  }
+  return a === b;
+};
 
-//         if (aValue > bValue) {
-//           return order === 'asc' ? 1 : -1
-//         }
+export const mapValues = (obj: Record<string, unknown>, iteratee: (value: unknown) => unknown) => {
+  return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, iteratee(value)]))
+}
 
-//         return 0
-//       }
-//     })
+export const mapKeys = (obj: Record<string, unknown>, iteratee: (value: unknown) => unknown) => {
+  return Object.fromEntries(Object.entries(obj).map(([key, value]) => [iteratee(key), value]))
+}
 
-//     return (a: Record<string, unknown>, b: Record<string, unknown>) => {
-//       for (const comparitor of comparitors) {
-//         const result = comparitor(a, b)
-//         if (result !== 0) {
-//           return result
-//         }
-//       }
+export const orderBy = (collection: Array<Record<string, unknown>> | Array<string>, iteratees: Array<unknown>, orders: Array<unknown>) => {
+  const result = [...collection];
 
-//       return 0
-//     }
-//   }
+  result.sort((a, b) => {
+    for (let i = 0; i < iteratees.length; i++) {
+      const iteratee = iteratees[i]
+      const order = orders[i]
 
-//   return [...collection].sort(generateComparitorFunction())
-// }
+      const aValue = typeof iteratee === 'function' ? iteratee(a) : a[iteratee as keyof typeof a]
+      const bValue = typeof iteratee === 'function' ? iteratee(b) : b[iteratee as keyof typeof b]
+      if (aValue > bValue) {
+        return order === 'desc' ? -1 : 1
+      }
+      if (aValue < bValue) {
+        return order === 'desc' ? 1 : -1
+      }
+    }
+    return 0
+  })
+  return result
+}
+
+export const sortBy = (collection: Array<Record<string, unknown>> | Array<string>, iteratees: Array<unknown>) => {
+  return orderBy(collection, iteratees, iteratees.map(() => 'asc'))
+}
+
+export const values = (obj: Record<string, unknown>) => Object.values(obj);
