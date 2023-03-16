@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import Icon from './Icon';
+import Icon from '@/components/Icon/Icon';
 
 const CloseButton = (props) => (
   <motion.div
