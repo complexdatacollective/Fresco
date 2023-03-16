@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Checkbox from './Checkbox';
-import { asOptionObject, getValue } from './utils/options';
-import Icon from '../Icon';
-import MarkdownLabel from './MarkdownLabel';
+import { asOptionObject, getValue } from '../utils/options';
+import Icon from '@/components/Icon/Icon';
+import MarkdownLabel from '@/components/Fields/MarkdownLabel/MarkdownLabel';
 
 class CheckboxGroup extends PureComponent {
   get value() {
@@ -72,16 +72,16 @@ class CheckboxGroup extends PureComponent {
 
     return (
       <div className={classNames}>
-        { anyLabel
+        {anyLabel
           && <MarkdownLabel label={anyLabel} />}
         <div className="form-field" name={name}>
-          { options.map(this.renderOption) }
+          {options.map(this.renderOption)}
         </div>
         {invalid && touched && (
-        <div className="form-field-checkbox-group__error">
-          <Icon name="warning" />
-          {error}
-        </div>
+          <div className="form-field-checkbox-group__error">
+            <Icon name="warning" />
+            {error}
+          </div>
         )}
       </div>
     );
