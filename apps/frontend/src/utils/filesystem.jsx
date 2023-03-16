@@ -21,12 +21,6 @@ export const splitUrl = (targetPath) => {
   return [baseDirectory, directory];
 };
 
-const inSequence = (items, apply) => items
-  .reduce(
-    (result, item) => result.then(() => apply(item)),
-    Promise.resolve(),
-  );
-
 const userDataPath = inEnvironment((environment) => {
   // if (environment === environments.ELECTRON) {
   //   const electron = window.require('electron');
