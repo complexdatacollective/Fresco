@@ -1,30 +1,28 @@
-# Fresco Monorepo
+# Create T3 App
 
-## Structure
+This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-Turbo monorepo, with the following structure:
+## What's next? How do I make an app with this?
 
-```
-├── apps
-│   ├── web-backend // Node/Deno/Express backend for web
-│   ├── frontend // Current Interviewer frontend React app
-│   └── electron-backend // Node/Electron backend
-├── packages
-│   ├── api // TRPC Router definition share between frontend and backends
-│   ├── config // Shared eslint/ts configuration files
-│   ├── database // Prisma db client
-```
+We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
 
-## TODO
+If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
 
-- [ ] Frontend build mode switch for web/electron
-- [ ] tsconfig package for reuse across the project. like [this]<https://turbo.build/repo/docs/handbook/linting/typescript>
-- [ ] esling configuration
-- [ ] testing. Note that enzyme [is dead]<https://github.com/react-recompose/react-recompose/issues/40>
-- [ ] Docker packaging of web-backend
-- [ ] CI/CD
-- [ ] .env file for project configuration
-- [ ] Electron packaging with prisma. Real PITA.
-  - See [here]<https://github.com/florianbepunkt/electron-prisma> and [here]<https://github.com/awohletz/electron-prisma-trpc-example/tree/react> for examples. See [here]<https://github.com/prisma/prisma/issues/9613> for prisma discussion.
-  - Ideally, we want to switch to electron-forge since it seems a bit less bonkers.
-- [ ] ...cordova/capacitor. not sure that these will be possible.
+- [Next.js](https://nextjs.org)
+- [NextAuth.js](https://next-auth.js.org)
+- [Prisma](https://prisma.io)
+- [Tailwind CSS](https://tailwindcss.com)
+- [tRPC](https://trpc.io)
+
+## Learn More
+
+To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+
+- [Documentation](https://create.t3.gg/)
+- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+
+You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+
+## How do I deploy this?
+
+Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
