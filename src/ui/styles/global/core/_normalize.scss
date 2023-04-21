@@ -1,0 +1,262 @@
+// sass-lint:disable-all
+// Reboot
+//
+// Normalization of HTML elements, manually forked from Normalize.css to remove
+// styles targeting irrelevant browsers while applying new styles.
+//
+// Normalize is licensed MIT. https://github.com/necolas/normalize.css
+
+
+// Document
+//
+// 1. Change from `box-sizing: content-box` so that `width` is not affected by `padding` or `border`.
+// 2. Change the default font family in all browsers.
+// 3. Correct the line height in all browsers.
+// 4. Prevent adjustments of font size after orientation changes in IE on Windows Phone and in iOS.
+// 5. Setting @viewport causes scrollbars to overlap content in IE11 and Edge, so
+//    we force a non-overlapping, non-auto-hiding scrollbar to counteract.
+// 6. Change the default tap highlight to be completely transparent in iOS.
+// 7. Prevent any text selection, except for when an element has a specific class
+
+@mixin normalize {
+  html {
+    box-sizing: border-box; // 1
+    line-height: 1.15; // 3
+    -webkit-text-size-adjust: 100%; // 4
+    -ms-text-size-adjust: 100%; // 4
+    -ms-overflow-style: scrollbar; // 5
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0); // 6
+  }
+
+
+  // Prevent text selection except when an element has a given class.
+  // IMPORTANT: input and textarea are excepted because including them
+  // locks the input on iOS!
+  *:not(input):not(textarea) {
+    user-select: none;
+
+    // Contenteditable covers our rich text input
+    [contenteditable="true"],
+    [contenteditable="true"] *,
+    .allow-text-selection,
+    .allow-text-selection * {
+      user-select: auto;
+    }
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit; // 1
+  }
+
+  body {
+    margin: 0; // 1
+    font-weight: 400;
+  }
+
+  //
+  // Typography
+  //
+
+  // Reset margins on paragraphs
+  //
+  // Similarly, the top margin on `<p>`s get reset. However, we also reset the
+  // bottom margin to use `rem` units instead of `em`.
+  p {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.25;
+  }
+
+  // RichText uses <p> inside <li> elements as part of its schema.
+  // Remove margin in this case for display purposes.
+  li {
+    > p {
+      margin: 0;
+    }
+  }
+
+  dt {
+    font-weight: 500;
+  }
+
+  dd {
+    margin-bottom: 0.5rem;
+    margin-left: 0; // Undo browser default
+  }
+
+  blockquote {
+    margin: 0 0 1rem;
+    border-left: 3px solid var(--transparent-light);
+    padding-left: 1.2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.25;
+  }
+
+  dfn {
+    font-style: italic; // Add the correct font style in Android 4.3-
+  }
+
+  b,
+  strong {
+    font-weight: bolder; // Add the correct font weight in Chrome, Edge, and Safari
+  }
+
+  small {
+    font-size: 80%; // Add the correct font size in all browsers
+  }
+
+  //
+  // Prevent `sub` and `sup` elements from affecting the line height in
+  // all browsers.
+  //
+
+  sub,
+  sup {
+    position: relative;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: baseline;
+  }
+
+  sub { bottom: -.25em; }
+  sup { top: -.5em; }
+
+  //
+  // Code
+  //
+
+  pre,
+  code,
+  kbd,
+  samp {
+    font-family: monospace, monospace; // Correct the inheritance and scaling of font size in all browsers.
+    font-size: 1em; // Correct the odd `em` font sizing in all browsers.
+  }
+
+  pre {
+    // Remove browser default top margin
+    margin-top: 0;
+    // Reset browser default of `1em` to use `rem`s
+    margin-bottom: 1rem;
+    // Don't allow content to break outside
+    overflow: auto;
+  }
+
+
+  //
+  // Figures
+  //
+
+  figure {
+    // Apply a consistent margin strategy (matches our type styles).
+    margin: 0 0 1rem;
+  }
+
+
+  //
+  // Images and content
+  //
+
+  img {
+    vertical-align: middle;
+    border-style: none; // Remove the border on images inside links in IE 10-.
+    -webkit-user-drag: none; // Prevent ability to drag image outside the app.
+  }
+
+  //
+  // Tables
+  //
+
+  table {
+    border-collapse: collapse; // Prevent double borders
+  }
+
+  th {
+    // Matches default `<td>` alignment
+    text-align: left;
+  }
+
+
+  //
+  // Forms
+  //
+
+  label {
+    // Allow labels to use `margin` for spacing.
+    display: inline-block;
+    margin: 0;
+  }
+
+  fieldset {
+    // Browsers set a default `min-width: min-content;` on fieldsets,
+    // unlike e.g. `<div>`s, which have `min-width: 0;` by default.
+    // So we reset that to ensure fieldsets behave more like a standard block element.
+    // See https://github.com/twbs/bootstrap/issues/12359
+    // and https://html.spec.whatwg.org/multipage/#the-fieldset-and-legend-elements
+    min-width: 0;
+    // Reset the default outline behavior of fieldsets so they don't affect page layout.
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  progress {
+    vertical-align: baseline; // Add the correct vertical alignment in Chrome, Firefox, and Opera.
+  }
+
+  // Correct the cursor style of increment and decrement buttons in Chrome.
+  [type='number']::-webkit-inner-spin-button,
+  [type='number']::-webkit-outer-spin-button {
+    height: auto;
+  }
+
+  [type="search"] {
+    // This overrides the extra rounded corners on search inputs in iOS so that our
+    // `.form-control` class can properly style them. Note that this cannot simply
+    // be added to `.form-control` as it's not specific enough. For details, see
+    // https://github.com/twbs/bootstrap/issues/11586.
+    outline-offset: -2px; // 2. Correct the outline style in Safari.
+    -webkit-appearance: none;
+  }
+
+  //
+  // Remove the inner padding and cancel buttons in Chrome and Safari on macOS.
+  //
+
+  [type="search"]::-webkit-search-cancel-button,
+  [type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  //
+  // 1. Correct the inability to style clickable types in iOS and Safari.
+  // 2. Change font properties to `inherit` in Safari.
+  //
+
+  ::-webkit-file-upload-button {
+    font: inherit; // 2
+    -webkit-appearance: button; // 1
+  }
+
+  //
+  // Correct element displays
+  //
+
+  output {
+    display: inline-block;
+  }
+
+  summary {
+    display: list-item; // Add the correct display in all browsers
+  }
+
+  // Always hide an element with the `hidden` HTML attribute (from PureCSS).
+  // Needed for proper display in IE 10-.
+  [hidden] {
+    display: none !important;
+  }
+
+}

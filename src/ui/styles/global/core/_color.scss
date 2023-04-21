@@ -1,0 +1,42 @@
+// sass-lint:disable no-warn
+
+// Color setter and mixins
+// =============================================================================
+$-color-map: () !default;
+$-color-alpha-map: (0.1, 0.15, 0.3, 0.6, 0.7, 0.8, 1) !default;
+
+@mixin color-set($color-name, $color-value) {
+  $-color-map: map-merge($-color-map, ($color-name: $color-value)) !global;
+}
+
+@function color($color-name, $alpha: 1, $use-mapped-value: false) {
+  $color: #fff;
+  @if $use-mapped-value == true {
+    @if index($-color-alpha-map, $alpha) == null {
+      @warn 'color: Only use #{$-color-alpha-map} for alpha values.';
+    }
+
+    @if map-has-key($-color-map, $color-name) {
+      $color: map-get($-color-map, $color-name);
+      @return rgba($color, $alpha);
+    } @else {
+      @return $color;
+    }
+  } @else {
+    @return var(--color-#{$color-name});
+  }
+}
+
+@mixin color-modifiers($include-hover: false) {
+  @each $color-name, $color-group in $-color-map {
+    @include modifier($color-name) {
+      background-color: color($color-name);
+
+      @if $include-hover {
+        &:hover {
+          background-color: color($color-name, 0.8);
+        }
+      }
+    }
+  }
+}

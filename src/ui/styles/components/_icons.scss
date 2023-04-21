@@ -1,0 +1,560 @@
+// Icons
+// =============================================================================
+
+$icon-dimension-base: 2.5rem !default;
+
+$icon-small-width: $icon-dimension-base !default;
+$icon-small-height: $icon-dimension-base !default;
+$icon-medium-width: $icon-dimension-base * 2 !default;
+$icon-medium-height: $icon-dimension-base * 2 !default;
+$icon-large-width: $icon-dimension-base * 4 !default;
+$icon-large-height: $icon-dimension-base * 4 !default;
+
+$-icon-color-modifiers: (
+  'mustard',
+  'neon-coral',
+  'tomato',
+  'sea-green',
+  'sea-serpent',
+  'barbie-pink',
+  'purple-pizazz',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'slate-blue',
+  'white',
+) !default;
+
+@mixin special-icon-colors(
+  $main-color: 'sea-green'
+) {
+  // action / notification icons are a bit more detailed
+  // and need to be styled individually
+  &[name='add-a-context-button'] {
+    .cls-1 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-2 {
+      fill: color('platinum--dark', 0.3);
+    }
+
+    .cls-3 {
+      fill: color('platinum--dark', 0.6);
+    }
+
+    .cls-4 {
+      fill: color('platinum');
+    }
+
+    .cls-5 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-6 {
+      fill: color('platinum');
+    }
+
+    .cls-7 {
+      fill: color('tomato');
+    }
+
+    .cls-8 {
+      fill: color('tomato--dark');
+    }
+  }
+
+  &[name='add-a-context'] {
+    .cls-9 {
+      fill: rgba(0,0,0, 0.1);
+    }
+    .cls-10 {
+      fill: rgba(0,0,0, 0.2);
+    }
+  }
+
+
+  &[name='add-a-person-button'],
+  &[name='add-a-relationship-button'] {
+    .cls-1 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-2 {
+      fill: color('platinum');
+    }
+
+    .cls-3 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-4 {
+      fill: color('tomato');
+    }
+
+    .cls-5 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-6 {
+      fill: color('platinum');
+    }
+  }
+
+  &[name='add-a-place-button'] {
+    .cls-1 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-2 {
+      fill: color('platinum');
+    }
+
+    .cls-3 {
+      fill: color('tomato');
+    }
+
+    .cls-4 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-5 {
+      fill: color('platinum');
+    }
+
+    .cls-6 {
+      fill: color('platinum--dark');
+    }
+  }
+
+  &[name='add-a-protocol'],
+  &[name='add-a-protocol-button'] {
+    .cls-1 {
+      fill: color('white');
+    }
+
+    .cls-2 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-3 {
+      fill: color('platinum');
+    }
+
+    .cls-4 {
+      fill: color('cyber-grape');
+    }
+
+    .cls-5 {
+      fill: rgba(var(--color-navy-taupe---rgb), 0.5); //sass-lint:disable-line no-color-literals
+    }
+
+    .cls-6 {
+      fill: var(--color-platinum--dark);
+    }
+
+    .cls-8 {
+      fill: var(--color-navy-taupe);
+    }
+
+    .cls-7 {
+      fill: color('slate-blue');
+    }
+
+    .cls-9 {
+      fill: color('white');
+    }
+  }
+
+  &[name='add-a-screen'] {
+    .cls-1 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-2 {
+      fill: color('platinum');
+    }
+
+    .cls-3 {
+      fill: color('tomato');
+    }
+
+    .cls-4 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-5 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-6 {
+      fill: color('platinum');
+    }
+  }
+
+  &[name='pair-a-server'] {
+    .cls-8 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-2 {
+      fill: color('mustard');
+    }
+
+    .cls-3 {
+      fill: color('neon-coral');
+      clip-path: url('#clip-path');
+    }
+
+    .cls-4 {
+      fill: color('platinum');
+    }
+
+    .cls-5 {
+      fill: color('platinum--dark');
+    }
+  }
+
+  &[name='tick'],
+  &[name='cross'] {
+    .cls-1 {
+      fill: color('#{$main-color}');
+    }
+  }
+
+  &[name='error'] {
+    .cls-1 {
+      fill: color('tomato');
+    }
+
+    .cls-2 {
+      fill: color('platinum');
+    }
+
+    .cls-3 {
+      fill: color('platinum');
+    }
+
+    .cls-4 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-5 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-6 {
+      fill: color('tomato');
+    }
+
+    .cls-8 {
+      fill: color('#{$main-color}');
+    }
+  }
+
+  &[name='info'] {
+    .cls-1 {
+      fill: color('tomato');
+    }
+
+    .cls-2 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-3 {
+      fill: color('platinum');
+    }
+
+    .cls-4 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-5 {
+      fill: color('#{$main-color}');
+    }
+  }
+
+  &[name='protocol-card'] {
+
+    .cls-1 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-2 {
+      fill: color('platinum');
+    }
+
+    .cls-2 {
+      fill: color('cyber-grape');
+    }
+
+    .cls-3 {
+      fill: var(--color-navy-taupe);
+    }
+
+    .cls-4 {
+      fill: rgba(var(--color-navy-taupe---rgb), 0.5); //sass-lint:disable-line no-color-literals
+    }
+
+    .cls-5 {
+      fill: var(--color-platinum);
+    }
+
+    .cls-6 {
+      fill: var(--color-slate-blue);
+    }
+
+  }
+
+  &[name='warning'] {
+    .cls-1 {
+      fill: color('platinum');
+    }
+
+    .cls-2 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-3 {
+      fill: color('tomato');
+    }
+
+    .cls-4 {
+      fill: color('tomato--dark');
+    }
+  }
+
+  &[name='edit'] {
+    .cls-1 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-2 {
+      fill: color('#{$main-color}--dark');
+    }
+
+    .cls-3 {
+      fill: color('tomato');
+    }
+
+    .cls-4 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-5 {
+      fill: color('tomato--dark');
+    }
+
+    .cls-6 {
+      fill: color('platinum');
+    }
+
+    .cls-7 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-8 {
+      fill: color('platinum--dark');
+    }
+  }
+
+  &[name='trash-bin'] {
+    .cls-1 {
+      fill: color('platinum');
+    }
+
+    .cls-2 {
+      fill: color('#{$main-color}');
+    }
+
+    .cls-3 {
+      fill: color('#{$main-color}--dark');
+    }
+
+  }
+
+  &[name='settings'] {
+    .cls-3 {
+      fill: transparent;
+    }
+  }
+
+  &[name='toggle-off'] {
+    .cls-2 {
+      fill: color('platinum--dark');
+    }
+  }
+
+  &[name='highlighted'] {
+    .cls-4 {
+      fill: var(--node-color-seq-1);
+    }
+
+    .cls-5 {
+      fill: var(--node-color-seq-1--dark);
+    }
+
+    .cls-7 {
+      fill: rgba(255, 255, 255, 0.2);  //sass-lint:disable-line no-color-literals
+    }
+
+    @each $ordinal-color in $ordinal-colors {
+      $i: index($ordinal-colors, $ordinal-color);
+
+      &.icon--node-highlight-seq-#{$i} {
+        @include color-icon($ordinal-color);
+      }
+    }
+
+  }
+
+  &[name='contexts'] {
+
+    .cls-6 {
+      fill: var(--color-cyber-grape);
+    }
+
+    .cls-7 {
+      fill: rgba(255, 255, 255, 0.2);  //sass-lint:disable-line no-color-literals
+    }
+
+    @each $categorical-color in $categorical-colors {
+      $i: index($categorical-colors, $categorical-color);
+
+      &.icon--cat-color-seq-#{$i} {
+        @include color-icon($categorical-color);
+      }
+    }
+  }
+
+  &[name='links'] {
+    @each $edge-color in $edge-colors {
+      $i: index($edge-colors, $edge-color);
+
+      &.icon--edge-color-seq-#{$i} {
+        @include color-icon($edge-color);
+      }
+    }
+  }
+}
+
+@mixin color-icon($color: 'sea-green') {
+  .cls-1,
+  .cls-3 {
+    fill: color('#{$color}--dark');
+  }
+
+  .cls-2 {
+    fill: color('#{$color}');
+  }
+}
+
+@mixin icon (
+  $icon-class: 'icon'
+) {
+
+  .#{$icon-class} {
+    height: 50px;
+
+    .cls-1,
+    .cls-3 {
+      fill: color('platinum--dark');
+    }
+
+    .cls-2 {
+      fill: color('platinum');
+    }
+
+    .cls-4 {
+      fill: color('neon-coral');
+    }
+
+    .cls-5 {
+      fill: color('neon-coral--dark');
+    }
+
+    @include special-icon-colors;
+    // simpler icons can be targeted with color modifiers
+    @each $color-name in $-icon-color-modifiers {
+
+      @include modifier('primary') {
+        @include color-icon;
+      }
+
+      @include modifier(#{$color-name}) {
+        @include color-icon($color-name);
+
+        // edit the fancy icon colors
+        @include special-icon-colors($main-color: $color-name);
+      }
+    }
+
+    &[name='cancel'],
+    &[name='reset'],
+    &[name='next-arrow'],
+    &[name='back-arrow'],
+    &[name='form-arrow-right'],
+    &[name='form-arrow-left'],
+    &[name='toggle-on'],
+    &[name='toggle-off'] {
+      .cls-1 {
+        fill: transparent;
+      }
+    }
+
+    // icon sizes
+    // add button icons
+    &[name='add-a-person-button'],
+    &[name='add-a-context-button'],
+    &[name='add-a-relationship-button'],
+    &[name='add-a-screen-button'],
+    &[name='add-a-place-button'] {
+      height: $icon-large-height;
+      width: $icon-large-width;
+    }
+
+    // action icons
+    &[name='error'],
+    &[name='info'],
+    &[name='warning'],
+    &[name='edit'],
+    &[name='trash-bin'],
+    &[name='settings'],
+    &[name='toggle-off'],
+    &[name='toggle-on'] {
+      height: $icon-medium-height;
+      width: $icon-medium-width;
+    }
+
+    // menu icons
+    &[name='menu'],
+    &[name='menu-name-generator'],
+    &[name='menu-ordinal'],
+    &[name='menu-category'],
+    &[name='menu-sociogram'],
+    &[name='menu-map'],
+    &[name='menu-custom-interface'],
+    &[name='menu-default-interface'],
+    &[name='menu-new-session'],
+    &[name='menu-download-data'],
+    &[name='menu-purge-data'],
+    &[name='menu-quit'],
+    &[name='highlighted'],
+    &[name='links'],
+    &[name='contexts'],
+    &[name='close'] {
+      height: $icon-small-height;
+      width: $icon-small-width;
+    }
+
+    // other
+    &[name='cancel'],
+    &[name='reset'] {
+      height: $icon-small-height;
+    }
+  }
+}
+
+@if $export-ui-classes {
+  @include icon;
+}

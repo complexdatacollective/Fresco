@@ -1,0 +1,19 @@
+.hover-marquee {
+  width:100%;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-bottom: 0.1rem; // Needed because text is clipped for letters such as 'g'
+
+  &:not(:hover) {
+    text-overflow: ellipsis;
+  }
+
+  span {
+    position: relative;
+    left:0px;
+    width:100%;
+    transform:translateX(0%);
+    // transition:left .25s ease;
+  }
+}

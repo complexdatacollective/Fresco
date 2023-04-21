@@ -1,0 +1,130 @@
+.form-field-boolean {
+  margin-bottom: 2rem;
+
+  &__error {
+    opacity: 0;
+    background: var(--error);
+    color: var(--text);
+    transition: opacity var(--animation-easing) var(--animation-duration-standard),
+    max-height var(--animation-easing) var(--animation-duration-standard);
+    padding: 0.5rem 0.25rem;
+    display: flex;
+    align-items: center;
+
+    svg {
+      max-height: 1.2rem;
+    }
+  }
+
+  &--has-error {
+    .form-field-boolean__error {
+      opacity: 1;
+    }
+
+    .form-field {
+      margin-bottom: 0;
+      border: 0.125rem solid var(--error);
+    }
+
+  }
+}
+
+.boolean {
+  &__options {
+    display: flex;
+    width: 100%;
+  }
+
+  &__reset {
+    cursor: pointer;
+    display: block;
+    font-size: .9rem;
+    margin-top: 1rem;
+    color: var(--input-text);
+    text-decoration: underline;
+  }
+}
+
+.boolean-option {
+  @include clickable(1);
+  cursor: pointer;
+  flex: 1 1 100%;
+  width: 100%; // for when used outside of flex container;
+  display: inline-flex;
+  border-color: transparent;
+  border-width: $global-input-border-size;
+  border-style: solid;
+  padding: unit(2);
+  border-radius: var(--border-radius);
+  align-items: center;
+  margin-right: unit(0.5);
+  margin-left: 0;
+  background: var(--input-background);
+  color: var(--input-label);
+
+  &--collapsed {
+    border-width: $global-input-border-size * 2;
+    justify-content: center;
+    padding: unit(2) unit(1);
+
+    .form-field-inline-label {
+      text-align: center;
+    }
+
+    .round-checkbox {
+      display: none;
+    }
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &--selected {
+    border-color: var(--input-accent);
+
+    &.boolean-option--negative {
+      border-color: var(--error);
+    }
+  }
+}
+
+.round-checkbox {
+  flex: 0 0 $global-input-element-size;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: content-box;
+  width: $global-input-element-size;
+  height: $global-input-element-size;
+  border-radius: 100%;
+  border-color: var(--input-border);
+  border-width: $global-input-border-size;
+  border-style: solid;
+  transition-property: border-color, background-color;
+  transition-duration: var(--animation-duration-standard);
+  transition-timing-function: var(--animation-easing);
+  margin-right: unit(2);
+
+  svg {
+    width: $global-input-element-size * 0.5;
+    height: $global-input-element-size * 0.5;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: var(--animation-duration-standard);
+    transition-timing-function: var(--animation-easing);
+  }
+
+  &--checked {
+    background-color: var(--input-accent);
+    border-color: transparent;
+
+    &.round-checkbox--negative {
+      background-color: var(--error);
+    }
+
+    svg {
+      opacity: 1;
+    }
+  }
+}

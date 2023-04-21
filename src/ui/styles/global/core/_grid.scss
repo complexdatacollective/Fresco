@@ -1,0 +1,258 @@
+// Grid
+// Flex Rows, Columns, and Items
+// =============================================================================
+
+// Default Settings
+// =============================================================================
+$grid-container-max-width: 990px !default;
+$grid-num-columns: 12 !default;
+
+// mixin for a flex-container that's able to be nested in other flex elements
+// can specify whether or not it will be contained by a max-width.
+// by default, it will not take on
+// contained behavior (centered with a max-width)
+@mixin grid-container($contain: false, $width: 100%, $max-width: $grid-container-max-width) {
+  display: flex;
+  flex-flow: row wrap;
+  width: $width;
+  height: auto;
+  @if $contain {
+    max-width: $max-width;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// the basic building blocks that are housed by containers
+// the default behavior is that they will stack on top of each other
+// unless a specified width is given via the modifier classes
+// as they'll be forced to take up 100% of the container's width
+// the --fluid modifier makes it so that the items will split up
+// the space of a container equally, displayed inline
+// the --shrink modifier makes it so that the item will only
+// take up the space its content dictates
+@mixin grid-item-base {
+  display: flex;
+  // set flex to wrap so that we can nest containers in items
+  flex-wrap: wrap;
+  // min width makes it so that the item is forced to take the
+  // percentage we're specifying
+  min-width: 0;
+}
+
+@mixin grid-item($columns: $grid-num-columns, $total-columns: $grid-num-columns, $shrink: null) {
+  @include grid-item-base;
+  @if $shrink {
+    flex: 0 auto;
+  } @else {
+    @include grid-item-percent(percentage($columns / $total-columns));
+  }
+}
+
+@mixin grid-item-margin($offset: 0, $columns: $grid-num-columns, $direction: left) {
+  margin-#{$direction}: percentage($offset / $columns);
+}
+
+@mixin grid-item-fluid {
+  @include grid-item-base;
+  flex: 1;
+}
+
+@mixin grid-item-percent($pct: 100%) {
+  flex: 0 0 $pct;
+  @if is-number($pct) and unit($pct) == '%' {
+    max-width: $pct;
+  }
+}
+
+@mixin flex-stack {
+  display: flex;
+  flex-flow: column;
+}
+
+@mixin flex-inline {
+  display: flex;
+  flex-flow: row;
+}
+
+// Flex Modifiers: Horizontal & Vertical Alignments, Order
+// =============================================================================
+$flex-align-x: (center: center, left: flex-start, right: flex-end, bookend: space-between, spaced: space-around) !default;
+$flex-align-y: (middle: center, top: flex-start, bottom: flex-end, stretch: stretch, baseline: baseline) !default;
+$flex-align-self: (auto: auto, stretch: stretch, center: center, middle: center, top: flex-start, start: flex-start, bottom: flex-end, end: flex-end, baseline: baseline) !default;
+@mixin flex-align($x: null, $y: null, $self: null, $flow: 'row') {
+  @if $x {
+    @if map-has-key($flex-align-x, $x) {
+      $x: map-get($flex-align-x, $x);
+    }
+  }
+  @if $y {
+    @if map-has-key($flex-align-y, $y) {
+      $y: map-get($flex-align-y, $y);
+    }
+  }
+  @if $self {
+    @if map-has-key($flex-align-self, $self) {
+      $self: map-get($flex-align-self, $self);
+    }
+  }
+  @if $flow == 'column' {
+    justify-content: $y;
+    align-items: $x;
+    align-content: $y;
+  } @else {
+    justify-content: $x;
+    align-items: $y;
+    align-content: $y;
+  }
+  align-self: $self;
+}
+
+$flex-align-stack: (
+  left: flex-start,
+  right: flex-end,
+  center: center,
+  middle: center,
+  top: flex-start,
+  bottom: flex-end,
+  bookend: space-between,
+  spaced: space-around
+) !default;
+
+@mixin flex-align-stack($align-name: null) {
+  $align-prop: null;
+  @if map-has-key($flex-align-stack, $align-name) {
+    $align-prop: map-get($flex-align-stack, $align-name);
+  }
+  @if $align-name == 'left' {
+    align-items: $align-prop;
+  } @else if $align-name == 'right' {
+    align-items: $align-prop;
+  } @else if $align-name == 'center' {
+    align-items: $align-prop;
+  } @else {
+    justify-content: $align-prop;
+  }
+}
+
+// vertical align, horizontal align
+@mixin vcjc {
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-order($order: 0) {
+  order: $order;
+}
+
+// Allows for separate class names, uses the previously defined alignment maps to create the alignments
+@mixin grid-classes ($grid-class: 'grid', $section-class: 'section', $container-class: 'container', $block-class: 'block', $item-class: 'item', $columns: $grid-num-columns, $container-max-width: $grid-container-max-width, $container-width: percentage(1), $alignments: ('x', 'y', 'self')) {
+  .#{$grid-class} {
+
+    // Section: meant to take up the full height of something,
+    // 100% width
+    &__#{$section-class} {
+      height: auto;
+      width: 100%;
+    }
+
+    &__#{$block-class} {
+      display: block;
+    }
+
+    &__#{$container-class} {
+      @include grid-container(
+        $contain: true,
+        $width: $container-width,
+        $max-width: $container-max-width
+      );
+
+      & & {
+        @include grid-container;
+      }
+    }
+
+    &__#{$item-class} {
+      @include grid-item;
+    } @each $breakpoint-name, $min-width in $-breakpoint-map {
+      @include breakpoint($breakpoint-name) {
+        $breakpoint-class: '--#{$breakpoint-name}';
+        @if _breakpoint-is-zero($breakpoint-name) {
+          $breakpoint-class: null;
+        }
+
+        // vertical center, justify center
+        &#{$breakpoint-class}--vcjc {
+          @include vcjc;
+        }
+        // x align, assuming row flow
+        @each $align-name, $alignment in $flex-align-x {
+          &#{$breakpoint-class}--x-#{$align-name} {
+            @include flex-align($x: $align-name);
+          }
+        }
+        // y align, self align
+        @each $align-name, $alignment in $flex-align-y {
+          &#{$breakpoint-class}--y-#{$align-name} {
+            @include flex-align($y: $align-name);
+          }
+
+          &#{$breakpoint-class}--self-#{$align-name} {
+            @include flex-align($self: $align-name);
+          }
+        }
+
+        // grid sizes for column
+        &__#{$item-class}#{$breakpoint-class} {
+          @for $i from 1 through $columns {
+            $percent: percentage($i / $columns);
+            $reduced: _reduceFraction($i, $columns);
+            $fraction: #{nth($reduced, 1)}-#{nth($reduced, 2)};
+
+            &--#{$fraction},
+            &--#{$i}-#{$columns} {
+              @include grid-item-percent($pct: $percent);
+            }
+
+            &--margin-left--#{$fraction},
+            &--margin-left--#{$i}-#{$columns} {
+              @include grid-item-margin($i, $columns, 'left');
+            }
+
+            &--margin-right--#{$fraction},
+            &--margin-right--#{$i}-#{$columns} {
+              @include grid-item-margin($i, $columns, 'right');
+            }
+          }
+
+          &--expand {
+            @include grid-item;
+          }
+
+          &--shrink {
+            @include grid-item($shrink: true);
+          }
+
+          &--fluid {
+            @include grid-item-fluid;
+          }
+          @for $i from 1 through $columns {
+            // Column source ordering
+            &--order-#{$i} {
+              @include flex-order($i);
+            }
+          }
+        }
+
+        &__stack#{$breakpoint-class} {
+          @include flex-stack;
+          @each $align-name, $alignment in $flex-align-stack {
+            &--#{$align-name} {
+              @include flex-align-stack($align-name: $align-name);
+            }
+          }
+        }
+      }
+    }
+  }
+}
