@@ -1,5 +1,7 @@
 // import * as muiIcons from '@material-ui/icons';
-import icons from '../assets/img/icons';
+// import icons from 'public/images/icons';
+
+const icons = {};
 
 const muiIcons = {};
 

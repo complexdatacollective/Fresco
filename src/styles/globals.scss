@@ -1,7 +1,7 @@
-$font-path: '~@codaco/ui/src/assets/fonts';
-$image-path: '~@codaco/ui/src/assets/images';
+// $font-path: 'public/fonts';
+// $image-path: 'public/images';
 
-@import '~@codaco/ui/src/styles/all';
+@import '../ui/styles/all';
 
 @tailwind base;
 @tailwind components;
