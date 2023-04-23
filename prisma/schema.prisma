@@ -2,18 +2,48 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-}
-datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
-  relationMode = "prisma"
+    provider = "prisma-client-js"
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+datasource db {
+    provider     = "sqlite"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma" // Planetscale doesn't support foreign keys yet, so we need to use this
+}
+
+// NC Models
+model Protocol {
+    id            Int         @id @default(autoincrement())
+    hash          String      @unique
+    name          String
+    schemaVersion String
+    description   String?
+    assetPath     String
+    importedAt    DateTime    @default(now())
+    lastModified  DateTime
+    data          String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+    interviews    Interview[]
+    owner         User        @relation(fields: [ownerId], references: [id])
+    ownerId       String
+
+    @@index([ownerId])
+}
+
+model Interview {
+    id          String    @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
+    startTime   DateTime  @default(now())
+    finishTime  DateTime?
+    exportTime  DateTime?
+    lastUpdated DateTime  @updatedAt
+    network     String?   @default("{}") // Another json field we can't store yet :/
+    user        User      @relation(fields: [userId], references: [id])
+    userId      String
+    protocol    Protocol  @relation(fields: [protocolId], references: [id])
+    protocolId  Int
+    currentStep Int       @default(0)
+
+    @@index([userId])
+    @@index([protocolId])
 }
 
 // Necessary for Next auth
@@ -33,6 +63,7 @@ model Account {
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -41,16 +72,20 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    protocols     Protocol[]
+    Interview     Interview[]
 }
 
 model VerificationToken {

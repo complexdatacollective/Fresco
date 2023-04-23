@@ -1,5 +1,7 @@
-import * as muiIcons from '@material-ui/icons';
+// import * as muiIcons from '@material-ui/icons';
 import icons from '../assets/img/icons';
+
+const muiIcons = {};
 
 const getMUIIcon = (name) => {
   if (!Object.prototype.hasOwnProperty.call(muiIcons, name)) { return null; }
