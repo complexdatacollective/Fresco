@@ -4,7 +4,6 @@
 @import 'core/breakpoints';
 @import 'core/color';
 @import 'core/palette';
-@import 'core/grid';
 @import 'core/functions';
 @import 'core/spacing';
 @import 'core/typography';
@@ -439,5 +438,4 @@ $headings: (
 
 @if $export-ui-classes {
   @include typography-classes;
-  @include grid-classes;
 }

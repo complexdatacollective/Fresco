@@ -1,9 +1,5 @@
-// import * as muiIcons from '@material-ui/icons';
-// import icons from 'public/images/icons';
-
-const icons = {};
-
-const muiIcons = {};
+import * as muiIcons from 'lucide-react';
+import icons from '../assets/img/icons';
 
 const getMUIIcon = (name) => {
   if (!Object.prototype.hasOwnProperty.call(muiIcons, name)) { return null; }

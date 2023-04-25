@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import MarkdownLabel from './MarkdownLabel';
 
 class Radio extends PureComponent {

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
-import DatePicker, { DATE_FORMATS } from './DatePicker';
+import { DATE_FORMATS, DatePicker } from './DatePicker';
 
 const DATE_FORMAT = DATE_FORMATS.full;
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { Dialogs } from '../Dialogs';
+import { Dialogs } from '../Dialog';
 
 jest.mock('../../utils/CSSVariables');
 

@@ -15,7 +15,7 @@ export const ToolbarButton = ({
 }) => (
   <button
     title={tooltip}
-    active={isActive ? 'true' : undefined} // Why undefined and not false, why the ternary?
+    // active={isActive ? 'true' : undefined} // Why undefined and not false, why the ternary?
     onMouseDown={(event) => {
       event.preventDefault();
       action();

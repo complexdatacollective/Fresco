@@ -1,4 +1,3 @@
 export { default } from './Field';
-export { default as Field } from './Field';
-export { default as RichText } from './RichText';
+export { default as RichTextInput } from './RichText';
 export { MODES } from './lib/options';

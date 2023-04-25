@@ -1,38 +1,40 @@
-import React, { Component } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import Drop from './Transitions/Drop';
-import window from './window';
 import { getCSSVariableAsNumber } from '../utils/CSSVariables';
+import usePortal from '../hooks/usePortal.tsx';
 
-class Modal extends Component {
-  render() {
-    const {
-      children, show, zIndex, onBlur,
-    } = this.props;
+const Modal = (props) => {
+  const {
+    children, show, zIndex, onBlur,
+  } = props;
 
-    const style = zIndex ? { zIndex } : null;
+  const Portal = usePortal();
 
-    const handleBlur = (event) => {
-      if (event.target !== event.currentTarget) { return; }
-      onBlur(event);
-    };
+  const style = zIndex ? { zIndex } : null;
 
-    const variants = {
-      visible: {
-        opacity: 1,
-        transition: {
-          duration: getCSSVariableAsNumber('--animation-duration-fast'),
-        },
+  const handleBlur = useCallback((event) => {
+    if (event.target !== event.currentTarget) { return; }
+    onBlur(event);
+  }, [onBlur]);
+
+  const variants = useMemo(() => ({
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: getCSSVariableAsNumber('--animation-duration-fast'),
       },
-      hidden: {
-        opacity: 0,
-      },
-    };
+    },
+    hidden: {
+      opacity: 0,
+    },
+  }), []);
 
-    return (
+  return (
+    <Portal>
       <AnimatePresence>
-        { show && (
+        {show && (
           <motion.div
             className="modal"
             style={style}
@@ -44,19 +46,19 @@ class Modal extends Component {
             <div className="modal__background" />
             <div className="modal__content" onClick={handleBlur}>
               <Drop>
-                { children }
+                {children}
               </Drop>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    );
-  }
-}
+    </Portal>
+  );
+};
 
 Modal.propTypes = {
   show: PropTypes.bool,
-  children: PropTypes.element,
+  children: PropTypes.node,
   zIndex: PropTypes.number,
   onBlur: PropTypes.func,
 };
@@ -65,9 +67,7 @@ Modal.defaultProps = {
   show: false,
   zIndex: null,
   children: null,
-  onBlur: () => {},
+  onBlur: () => { },
 };
 
-export { Modal };
-
-export default window(Modal);
+export default Modal;

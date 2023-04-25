@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { range } from 'lodash';
 import { Interval } from 'luxon';
 import DatePickerContext from './DatePickerContext';
-import { formatRangeItem, getMonthName } from './helpers';
+import { formatRangeItem, getMonthName } from '../helpers';
 
 /**
  * Supplies `months` range.

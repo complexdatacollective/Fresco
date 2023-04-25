@@ -1,7 +1,7 @@
 import React, { memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
@@ -55,7 +55,7 @@ const TextInput = ({
 
   return (
     <div className="form-field-container" hidden={hidden}>
-      { anyLabel
+      {anyLabel
         && <MarkdownLabel label={anyLabel} />}
       <div className={seamlessClasses}>
         <input
@@ -70,21 +70,21 @@ const TextInput = ({
           onBlur={handleBlur}
           onFocus={handleFocus}
         />
-        { adornmentLeft && (
+        {adornmentLeft && (
           <div className="form-field-text__adornment-left">
             {adornmentLeft}
           </div>
         )}
-        { adornmentRight && (
+        {adornmentRight && (
           <div className="form-field-text__adornment-right">
             {adornmentRight}
           </div>
         )}
         {invalid && touched && (
-        <div className="form-field-text__error">
-          <Icon name="warning" />
-          {error}
-        </div>
+          <div className="form-field-text__error">
+            <Icon name="warning" />
+            {error}
+          </div>
         )}
       </div>
 

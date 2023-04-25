@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { Editable, withReact, Slate } from 'slate-react';
 import { createEditor } from 'slate';
 import { withHistory } from 'slate-history';
-import isHotkey from 'is-hotkey';
+import { isHotkey } from 'is-hotkey';
 import { compose, isEmpty } from 'lodash/fp';
 import { EditListPlugin } from '@productboard/slate-edit-list';
 import withNormalize from './lib/withNormalize';
@@ -214,7 +214,7 @@ RichText.propTypes = {
 RichText.defaultProps = {
   value: '',
   placeholder: 'Enter some text...',
-  onChange: () => {},
+  onChange: () => { },
   inline: false,
   disallowedTypes: [],
   autoFocus: false,

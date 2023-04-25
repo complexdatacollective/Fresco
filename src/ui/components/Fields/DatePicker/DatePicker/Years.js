@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { range } from 'lodash';
 import DatePickerContext from './DatePickerContext';
-import { formatRangeItem } from './helpers';
+import { formatRangeItem } from '../helpers';
 
 /**
  * Supplies `years` range based on min/max props.

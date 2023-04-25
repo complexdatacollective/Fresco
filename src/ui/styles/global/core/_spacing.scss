@@ -9,7 +9,7 @@ $spacer-5: ($spacer * 3);
 
 $padding-base-vertical: $spacer-3;
 $padding-base-horizontal: $spacer-5;
-$headings-margin-bottom: ($spacer / 2) !default;
+$headings-margin-bottom: calc($spacer / 2) !default;
 
 // TODO: Based on spacer-x etc, are these meaningful intervals?
 $spacing-intervals: (

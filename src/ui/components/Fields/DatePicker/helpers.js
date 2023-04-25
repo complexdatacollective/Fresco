@@ -1,9 +1,12 @@
 import { DateTime, Info } from 'luxon';
-import { difference, intersection, get } from 'lodash';
+import {
+  difference,
+  intersection,
+  isEqual,
+  get,
+} from 'lodash';
 
 export const now = () => DateTime.local();
-
-export const isEmpty = (value) => value === null || value === '';
 
 export const getFirstDayOfMonth = (dateObj) => DateTime.fromObject({ ...dateObj, day: 1 }).toFormat('c');
 
@@ -23,3 +26,25 @@ export const hasProperties = (includes = [], excludes = []) => (obj) => {
 };
 
 export const getMonthName = (numericMonth) => get(Info.months(), numericMonth - 1, numericMonth);
+
+/**
+ * Is date object fully complete?
+ */
+export const isComplete = (type) => ({ day, month, year }) => {
+  switch (type) {
+    case 'year':
+      return !!year;
+    case 'month':
+      return !!year && !!month;
+    default:
+      return !!year && !!month && !!day;
+  }
+};
+
+export const isEmpty = () => (date) => isEqual(date, { year: null, month: null, day: null });
+
+export const formatRangeItem = (value, props = {}) => ({
+  value,
+  label: value,
+  ...props,
+});

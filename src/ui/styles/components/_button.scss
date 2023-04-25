@@ -13,15 +13,16 @@
 ) {
   .#{$button-class} {
     @include reset-button;
-    @include vcjc; // vertical center, justify center
     @include clickable;
 
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     font-weight: 700;
     font-size: 0.8rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: palette('text');
-    display: inline-flex;
     font-family: var(--heading-font-family);
     text-align: center;
     text-decoration: none; // in the case that this is used on a link

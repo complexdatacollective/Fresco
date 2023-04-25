@@ -8,8 +8,6 @@ const renderIcon = ({ icon }) => {
   let iconElement = null;
   if (icon) {
     if (typeof icon === 'string') {
-      // eslint-disable-next-line
-      const Icon = require('./Icon').default;
       iconElement = <Icon name={icon} />;
     } else {
       iconElement = React.cloneElement(

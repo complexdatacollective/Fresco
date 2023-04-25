@@ -1,5 +1,4 @@
-import { withProps, compose } from 'recompose';
-import { has } from 'lodash';
+import React from 'react';
 import TextInput from './Text';
 
 const toInt = (value) => {
@@ -10,18 +9,25 @@ const toInt = (value) => {
   return int;
 };
 
-const withNumericChangeHandlers = withProps((props) => ({
-  type: 'number',
-  placeholder: props.placeholder ? props.placeholder : 'Enter a number...',
-  input: {
-    ...props.input,
-    onChange: (e) => has(props, 'input.onChange')
-      && props.input.onChange(toInt(e.target.value)),
-    onBlur: (e) => has(props, 'input.onBlur')
-      && props.input.onBlur(toInt(e.target.value)),
-  },
-}));
+const NumberInput = ({
+  placeholder = 'Enter a number...',
+  ...rest
+}) => (
+  <TextInput
+    type="number"
+    placeholder={placeholder}
+    input={{
+      onChange: (e) => rest.input.onChange(toInt(e.target.value)),
+      onBlur: (e) => rest.input.onBlur(toInt(e.target.value)),
+      ...rest.input,
+    }}
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...rest}
+  />
+);
 
-export default compose(
-  withNumericChangeHandlers,
-)(TextInput);
+NumberInput.propTypes = {
+  ...TextInput.propTypes,
+};
+
+export default NumberInput;

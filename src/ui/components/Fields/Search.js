@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { noop, get, isEmpty } from 'lodash';
-import SearchIcon from '@material-ui/icons/SearchRounded';
-import ClearIcon from '@material-ui/icons/ClearRounded';
+import SearchIcon from '@mui/icons-material/SearchRounded';
+import ClearIcon from '@mui/icons-material/ClearRounded';
 import { getCSSVariableAsString } from '../../utils/CSSVariables';
 import Text from './Text';
 

@@ -18,6 +18,5 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
-  transpilePackages: ['@codaco/ui'],
 };
 export default config;

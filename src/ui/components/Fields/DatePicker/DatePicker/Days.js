@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { range } from 'lodash';
 import { DateTime } from 'luxon';
 import DatePickerContext from './DatePickerContext';
-import { formatRangeItem } from './helpers';
+import { formatRangeItem } from '../helpers';
 
 /**
  * Supplies `days` range based on currently selected month.

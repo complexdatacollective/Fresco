@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import Radio from './Radio';
 import { asOptionObject, getValue } from './utils/options';
 import Icon from '../Icon';
@@ -76,16 +76,16 @@ class RadioGroup extends Component {
 
     return (
       <div className={containerClassNames}>
-        { anyLabel
+        {anyLabel
           && <MarkdownLabel label={anyLabel} />}
         <div className={classNames} name={name}>
-          { options.map(this.renderOption) }
+          {options.map(this.renderOption)}
         </div>
         {invalid && touched && (
-        <div className="form-field-radio-group__error">
-          <Icon name="warning" />
-          {error}
-        </div>
+          <div className="form-field-radio-group__error">
+            <Icon name="warning" />
+            {error}
+          </div>
         )}
       </div>
     );

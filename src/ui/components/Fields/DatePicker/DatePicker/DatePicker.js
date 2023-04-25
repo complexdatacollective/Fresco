@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime, Interval } from 'luxon';
 import DatePickerContext from './DatePickerContext';
-import { DATE_FORMATS, DEFAULT_TYPE, DEFAULT_MIN_DATE } from './config';
-import { now, isComplete, isEmpty } from './helpers';
+import { DATE_FORMATS, DEFAULT_TYPE, DEFAULT_MIN_DATE } from '../config';
+import { now, isComplete, isEmpty } from '../helpers';
 
 /**
  * Get date object from an ISO string
@@ -92,7 +92,7 @@ DatePicker.defaultProps = {
   date: null,
   min: null,
   max: null,
-  onChange: () => {},
+  onChange: () => { },
 };
 
 DatePicker.propTypes = {

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import HearingRoundedIcon from '@material-ui/icons/HearingRounded';
-import VoiceOverOffIcon from '@material-ui/icons/VoiceOverOff';
+import HearingRoundedIcon from '@mui/icons-material/HearingRounded';
+import VoiceOverOffIcon from '@mui/icons-material/VoiceOverOff';
 import useSpeech from '../hooks/useSpeech';
 
 const SpeakText = (props) => {
