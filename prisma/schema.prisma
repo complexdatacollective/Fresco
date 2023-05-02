@@ -80,8 +80,8 @@ model User {
     id            String      @id @default(cuid())
     name          String?
     email         String?     @unique
-    emailVerified DateTime?
-    image         String?
+    password      String?
+    role          String?     @default("PARTICIPANT")
     accounts      Account[]
     sessions      Session[]
     protocols     Protocol[]

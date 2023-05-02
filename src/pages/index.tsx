@@ -5,12 +5,16 @@ import Button from "~/ui/components/Button";
 import { api } from "~/utils/api";
 import { BusIcon, Eraser, Hammer } from "lucide-react";
 import { Baby } from "lucide-react";
+import { useRouter } from "next/router";
+
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const users = api.example.getAll.useQuery();
 
   console.log("users", users.data);
+
   return (
     <>
       <Head>
@@ -46,7 +50,7 @@ const Home: NextPage = () => {
             <p className="text-2xl">
               {hello.data ? hello.data.greeting : "Loading tRPC query..."}
             </p>
-            <AuthShowcase />
+            <Auth />
           </div>
         </div>
       </main>
@@ -56,7 +60,7 @@ const Home: NextPage = () => {
 
 export default Home;
 
-const AuthShowcase: React.FC = () => {
+const Auth: React.FC = () => {
   const { data: sessionData } = useSession();
 
   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
