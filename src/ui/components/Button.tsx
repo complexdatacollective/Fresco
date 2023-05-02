@@ -2,20 +2,19 @@ import type { LucideIcon } from "lucide-react";
 import type { PropsWithChildren } from "react";
 
 interface ButtonProps {
-  color?: string;
+  color?: "primary" | "secondary";
   size?: "small" | "medium" | "large";
   onClick?: () => void;
   icon?: LucideIcon;
   iconPosition?: "left" | "right";
   disabled?: boolean;
-  label?: string;
 }
 
 const Button = (props: PropsWithChildren<ButtonProps>) => {
   const {
     color = "primary",
     size = "medium",
-    onClick,
+    onClick = undefined,
     icon: Icon = null,
     iconPosition = "left",
     disabled = false,
@@ -35,7 +34,7 @@ const Button = (props: PropsWithChildren<ButtonProps>) => {
 
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-full font-bold uppercase tracking-wider transition duration-300 ${colorMap[color]} ${sizeMap[size]}`}
+      className={`inline-flex items-center justify-center rounded-full font-bold uppercase tracking-wider transition-colors duration-300 ${colorMap[color]} ${sizeMap[size]}`}
       onClick={onClick}
       disabled={disabled}
     >
