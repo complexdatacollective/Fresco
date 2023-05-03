@@ -71,7 +71,7 @@ const Auth: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl">
-        {sessionData && <span>Logged in as {sessionData.user?.id}</span>}
+        {sessionData && <span>Logged in as {sessionData.user.name}. Role: {JSON.stringify(sessionData)}</span>}
         {secretMessage && <span> - {secretMessage}</span>}
       </p>
       <Button

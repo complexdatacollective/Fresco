@@ -41,12 +41,12 @@ export const authOptions: NextAuthOptions = {
       return params.token;
     },
     session: ({ session, token }) => {
+      console.log('session', session);
       return {
         ...session,
         user: {
           ...session.user,
           id: token.id,
-          randomKey: token.randomKey
         }
       }
     },
