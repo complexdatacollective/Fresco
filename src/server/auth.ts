@@ -19,16 +19,15 @@ const verifyPassword = async (password: string, hashedPassword: string): Promise
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      role: string;
-    } & DefaultSession["user"];
-  }
-}
+// declare module "next-auth" {
+//   interface Session extends DefaultSession {
+//     user: {
+//       id: string;
+//       name: string;
+//       email: string;
+//     } & DefaultSession["user"];
+//   }
+// }
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -43,7 +42,7 @@ export const authOptions: NextAuthOptions = {
     jwt(params) {
       return params.token;
     },
-    session: ({ session, token }) => {
+    session: ({ session, token, }) => {
       console.log('session', session);
       return {
         ...session,

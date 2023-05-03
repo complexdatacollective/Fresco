@@ -3,7 +3,8 @@ import { prisma } from "../src/server/db";
 
 async function main() {
   const password = await hash('password', 8)
-  const user = await prisma.user.upsert({
+
+  await prisma.user.upsert({
     where: { email: 'admin@networkcanvas.com' },
     update: {},
     create: {
@@ -14,7 +15,17 @@ async function main() {
 
     },
   })
-  console.log({ user });
+
+  await prisma.user.upsert({
+    where: { email: 'participant@networkcanvas.com' },
+    update: {},
+    create: {
+      name: 'Test Participant User',
+      email: 'participant@networkcanvas.com',
+      password,
+      role: 'PARTICIPANT',
+    },
+  })
 }
 
 main()
