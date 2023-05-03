@@ -20,15 +20,11 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      name: string;
+      email: string;
+      role: string;
     } & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 /**
@@ -37,14 +33,23 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    jwt(params) {
+      return params.token;
+    },
+    session: ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+          randomKey: token.randomKey
+        }
+      }
+    },
   },
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -79,13 +84,11 @@ export const authOptions: NextAuthOptions = {
         // need to check encrypted password using bcrypt compare
         // for now, directly checking pw
         
-        const isPasswordValid = credentials.password === user.password
+        const isPasswordValid = credentials.password === user.password;
 
         if (!isPasswordValid) {
           return null
         }
-
-        console.log(user);
 
         return {
           id: user.id,
@@ -96,15 +99,6 @@ export const authOptions: NextAuthOptions = {
 
       },
     }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
   ],
 };
 

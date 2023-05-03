@@ -12,7 +12,6 @@ const Home: NextPage = () => {
   const router = useRouter();
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const users = api.example.getAll.useQuery();
-
   console.log("users", users.data);
 
   return (
@@ -62,6 +61,7 @@ export default Home;
 
 const Auth: React.FC = () => {
   const { data: sessionData } = useSession();
+  console.log('sessionData', sessionData);
 
   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
     undefined, // no input
@@ -71,7 +71,7 @@ const Auth: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
+        {sessionData && <span>Logged in as {sessionData.user?.id}</span>}
         {secretMessage && <span> - {secretMessage}</span>}
       </p>
       <Button
