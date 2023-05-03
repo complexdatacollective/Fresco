@@ -5,10 +5,13 @@ import {
   type DefaultSession,
 } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from "bcrypt";
+
+const verifyPassword = async (password: string, hashedPassword: string): Promise<boolean> => {
+  return compare(password, hashedPassword);
+}
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -54,19 +57,19 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: "Username and Password",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "user@networkcanvas.com" },
-        password: { label: "Password", type: "password"},
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-
-        // Authentication: find user using provided credentials
+        // Reject if no email or password
         if (!credentials?.email || !credentials?.password) {
+          console.log('no credentials');
           return null
         }
 
-        // first, check if user exists
+        // Check if user exists in db
         const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
@@ -74,21 +77,23 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (!user) {
-          return null
-        }
-        // next, check if password provided matches user's password in db
-        if(!user.password) {
+          console.log('no user found!');
           return null
         }
 
-        // need to check encrypted password using bcrypt compare
-        // for now, directly checking pw
-        
-        const isPasswordValid = credentials.password === user.password;
+        if (!user.password) {
+          console.log('no password found!');
+          return null
+        }
+
+        // Verify password against hashed password
+        const isPasswordValid = await verifyPassword(credentials.password, user.password);
 
         if (!isPasswordValid) {
           return null
         }
+
+        console.log('Successfully authenticated', user);
 
         return {
           id: user.id,
