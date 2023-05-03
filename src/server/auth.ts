@@ -71,17 +71,15 @@ export const authOptions: NextAuthOptions = {
         if (!user) {
           return null
         }
-
         // next, check if password provided matches user's password in db
-
         if(!user.password) {
           return null
         }
+
+        // need to check encrypted password using bcrypt compare
+        // for now, directly checking pw
         
-        const isPasswordValid = await compare(
-          credentials.password,
-          user.password
-        )
+        const isPasswordValid = credentials.password === user.password
 
         if (!isPasswordValid) {
           return null

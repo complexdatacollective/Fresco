@@ -9,10 +9,11 @@
     "lint": "next lint",
     "start": "next start",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "db-seed": "NODE_ENV=development prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@codaco/ui": "file:../network-canvas-ui",
@@ -61,6 +62,7 @@
     "sass": "^1.62.0",
     "storybook": "^7.0.6",
     "tailwindcss": "^3.3.1",
+    "tsx": "^3.12.7",
     "typescript": "^5.0.4"
   },
   "ct3aMetadata": {
