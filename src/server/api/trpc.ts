@@ -119,14 +119,14 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   });
 });
 
-const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+const enforceUserIsAdmin = enforceUserIsAuthed.unstable_pipe(async ({ ctx, next }) => {
+  if (!ctx.session.user.email) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
   const role = await prisma.user.findUnique({
     where: {
-      email: ctx.session.user.email!,
+      email: ctx.session.user.email,
     },
     select: {
       role: true,
@@ -139,8 +139,7 @@ const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
 
   return next({
     ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      ...ctx,
     },
   });
 });
