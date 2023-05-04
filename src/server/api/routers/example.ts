@@ -21,6 +21,26 @@ export const exampleRouter = createTRPCRouter({
     return ctx.prisma.user.findMany();
   }),
 
+  createUser: publicProcedure.mutation(({ ctx, input }) => {
+    if (!input || !input.name || !input.email || !input.password) {
+      return
+    }
+    const user = ctx.prisma.user.create({
+      data: {
+        name: input.name,
+        email: input.email,
+        password: input.password,
+        roles: {
+          connect: [{
+            id: '2',
+        }],
+      },
+      },
+    });
+
+    return user;
+  }),
+
   getSecretMessage: protectedProcedure.query(() => {
     return "Only authenticated users can see this message!";
   }),
@@ -28,4 +48,5 @@ export const exampleRouter = createTRPCRouter({
   getAdminMessage: adminProcedure.query(() => {
     return "Only admin users can see this message!";
   })
+
 });

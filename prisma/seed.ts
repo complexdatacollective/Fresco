@@ -13,6 +13,7 @@ async function main() {
       password,
       roles: {
         create: [{
+          id: '1',
           name: 'ADMIN',
       }],
       },
@@ -28,6 +29,7 @@ async function main() {
       password,
       roles: {
         create: [{
+          id: '2',
           name: 'PARTICIPANT',
       }],
       },
