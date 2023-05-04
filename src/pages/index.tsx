@@ -99,12 +99,11 @@ const Auth: React.FC = () => {
 
 const SignUp: React.FC = () => {
   const [userCredentials, setUserCredentials] = useState({name: '', email:'', password:'', roles:''});
+  const mutate = api.example.createUser.useMutation();
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    api.example.createUser.mutation({
-      input: userCredentials
-    })
+    mutate({data: userCredentials});
 
     console.log("submitted user info", userCredentials);
 

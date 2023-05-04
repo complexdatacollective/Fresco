@@ -22,7 +22,7 @@ export const exampleRouter = createTRPCRouter({
   }),
 
   createUser: publicProcedure.mutation(({ ctx, input }) => {
-    if (!input || !input.name || !input.email || !input.password) {
+    if (!input) {
       return
     }
     const user = ctx.prisma.user.create({
