@@ -124,16 +124,20 @@ const enforceUserIsAdmin = enforceUserIsAuthed.unstable_pipe(async ({ ctx, next 
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  const role = await prisma.user.findUnique({
+  const roles = await prisma.user.findUnique({
     where: {
       email: ctx.session.user.email,
     },
     select: {
-      role: true,
+      roles: true,
     },
   });
 
-  if (role?.role !== "ADMIN") {
+  if(!roles) {
+    return
+  }
+
+  if (roles.roles.find((role) => role.name !== 'ADMIN')) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 

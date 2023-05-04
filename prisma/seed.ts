@@ -11,8 +11,11 @@ async function main() {
       name: 'Test Admin User',
       email: 'admin@networkcanvas.com',
       password,
-      role: 'ADMIN',
-
+      roles: {
+        create: [{
+          name: 'ADMIN',
+      }],
+      },
     },
   })
 
@@ -23,9 +26,14 @@ async function main() {
       name: 'Test Participant User',
       email: 'participant@networkcanvas.com',
       password,
-      role: 'PARTICIPANT',
+      roles: {
+        create: [{
+          name: 'PARTICIPANT',
+      }],
+      },
     },
   })
+  
 }
 
 main()
