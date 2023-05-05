@@ -6,6 +6,7 @@ type TableProps = {
 };
 
 const Table = (props: TableProps) => {
+  console.log("Table rendering");
   const { columns = [], rows = [] } = props;
 
   return (

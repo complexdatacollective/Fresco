@@ -9,7 +9,7 @@ import Table from "~/components/Table";
 export default function Page() {
   const [users, setUsers] = useState<User[]>([]);
   // Get users from next api
-  const { data } = useQuery(["users"], () =>
+  const { data, isLoading } = useQuery(["users"], () =>
     fetch("/api/users").then((res) => res.json())
   );
 
@@ -27,6 +27,7 @@ export default function Page() {
   return (
     <div className="flex flex-col">
       <div className="w-full p-10">
+        {isLoading && <p>Loading users...</p>}
         <Table columns={["ID", "Name", "Email"]} rows={users} />
       </div>
       <div className="flex items-center justify-center">

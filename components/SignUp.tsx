@@ -1,15 +1,21 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { handleSubmit } from "~/app/signup/_actions";
 import Button from "~/ui/components/Button";
 
 export const SignUp: React.FC = () => {
+  const queryClient = useQueryClient();
+
   const doSubmit = async (e: FormData) => {
     // handleSubmit is a server action.
     const result = await handleSubmit(e);
 
     console.log("result", result);
     // ...handle form submission result.
+
+    // invalidate the query cache, so the table updates.
+    await queryClient.invalidateQueries(["users"]);
   };
 
   return (
