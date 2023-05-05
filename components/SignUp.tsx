@@ -4,10 +4,23 @@ import { useQueryClient } from "@tanstack/react-query";
 import { handleSubmit } from "~/app/signup/_actions";
 import Button from "~/ui/components/Button";
 import { useState } from "react";
+import { Formik } from "formik";
+import * as Yup from 'yup';
 
 export const SignUp: React.FC = () => {
   const queryClient = useQueryClient();
   const [userCredentials, setUserCredentials] = useState({name: '', email: '', password: ''})
+
+  const validateForm = () => {
+    //validation goes here - 
+    console.log('formik validation');
+  };
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string(),
+    email: Yup.string().email('Invalid email!!').required('Required'),
+    password: Yup.string(),
+  });
 
   const doSubmit = async (e: FormData) => {
     e.append('name', userCredentials.name);
@@ -20,6 +33,7 @@ export const SignUp: React.FC = () => {
     
 
     console.log("result", result);
+
     // ...handle form submission result.
 
     // invalidate the query cache, so the table updates.
@@ -27,6 +41,11 @@ export const SignUp: React.FC = () => {
   };
 
   return (
+    <Formik 
+      initialValues={{name: "jane", email:"you@somewhere.edu", password:"******************"}}
+      onSubmit={validateForm}
+      validationSchema={validationSchema}
+    >
     <form className="w-full max-w-lg" action={doSubmit}>
       <div className="-mx-3 mb-6 flex flex-wrap">
         <div className="mb-6 w-full px-3 md:mb-0">
@@ -41,6 +60,7 @@ export const SignUp: React.FC = () => {
             id="grid-first-name"
             type="text"
             placeholder="Jane"
+            required
             value={userCredentials.name}
             onChange={(e) => setUserCredentials({...userCredentials, name: e.target.value})}
           />
@@ -59,6 +79,7 @@ export const SignUp: React.FC = () => {
             id="grid-email"
             type="email"
             placeholder="you@somewhere.edu"
+            required
             value={userCredentials.email}
             onChange={(e) => setUserCredentials({...userCredentials, email: e.target.value})}
           />
@@ -77,6 +98,7 @@ export const SignUp: React.FC = () => {
             id="grid-password"
             type="password"
             placeholder="******************"
+            required
             value={userCredentials.password}
             onChange={(e) => setUserCredentials({...userCredentials, password: e.target.value})}
           />
@@ -91,5 +113,6 @@ export const SignUp: React.FC = () => {
         </div>
       </div>
     </form>
+    </Formik>
   );
 };
