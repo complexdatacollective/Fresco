@@ -77,21 +77,21 @@ model Session {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  name         String?
-  email        String?        @unique
-  password     String?
-  accounts     Account[]
-  sessions     Session[]
-  protocols    Protocol[]
-  Interview    Interview[]
-  roles        Role[]
+  id        String      @id @default(cuid())
+  name      String?
+  email     String?     @unique
+  password  String?
+  accounts  Account[]
+  sessions  Session[]
+  protocols Protocol[]
+  Interview Interview[]
+  roles     Role[]
 }
 
 model Role {
-  id           String         @id @default(cuid())
-  name         String         @default("PARTICIPANT")
-  users        User[]
+  id    String @id @default(cuid())
+  name  String @default("PARTICIPANT")
+  users User[]
 }
 
 model VerificationToken {
