@@ -3,13 +3,21 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { handleSubmit } from "~/app/signup/_actions";
 import Button from "~/ui/components/Button";
+import { useState } from "react";
 
 export const SignUp: React.FC = () => {
   const queryClient = useQueryClient();
+  const [userCredentials, setUserCredentials] = useState({name: '', email: '', password: ''})
 
   const doSubmit = async (e: FormData) => {
+    e.append('name', userCredentials.name);
+    e.append('email', userCredentials.email);
+    e.append('password', userCredentials.password);
+    console.log('formdata', e);
     // handleSubmit is a server action.
     const result = await handleSubmit(e);
+    console.log('userCredentials', userCredentials);
+    
 
     console.log("result", result);
     // ...handle form submission result.
@@ -33,6 +41,8 @@ export const SignUp: React.FC = () => {
             id="grid-first-name"
             type="text"
             placeholder="Jane"
+            value={userCredentials.name}
+            onChange={(e) => setUserCredentials({...userCredentials, name: e.target.value})}
           />
         </div>
       </div>
@@ -49,6 +59,8 @@ export const SignUp: React.FC = () => {
             id="grid-email"
             type="email"
             placeholder="you@somewhere.edu"
+            value={userCredentials.email}
+            onChange={(e) => setUserCredentials({...userCredentials, email: e.target.value})}
           />
         </div>
       </div>
@@ -65,6 +77,8 @@ export const SignUp: React.FC = () => {
             id="grid-password"
             type="password"
             placeholder="******************"
+            value={userCredentials.password}
+            onChange={(e) => setUserCredentials({...userCredentials, password: e.target.value})}
           />
           <p className="text-xs italic text-gray-600">
             Make it as long and as crazy as you'd like
