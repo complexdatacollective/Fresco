@@ -1,5 +1,5 @@
 import { hash } from 'bcrypt';
-import { prisma } from "~/server/db"
+import { prisma } from "~/utils/db"
 
 async function main() {
   const password = await hash('password', 8)
@@ -15,7 +15,7 @@ async function main() {
         create: [{
           id: '1',
           name: 'ADMIN',
-      }],
+        }],
       },
     },
   })
@@ -31,11 +31,11 @@ async function main() {
         create: [{
           id: '2',
           name: 'PARTICIPANT',
-      }],
+        }],
       },
     },
   })
-  
+
 }
 
 main()

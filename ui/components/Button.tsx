@@ -8,6 +8,7 @@ interface ButtonProps {
   icon?: LucideIcon;
   iconPosition?: "left" | "right";
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 const Button = (props: PropsWithChildren<ButtonProps>) => {
@@ -18,6 +19,7 @@ const Button = (props: PropsWithChildren<ButtonProps>) => {
     icon: Icon = null,
     iconPosition = "left",
     disabled = false,
+    type = "button",
     children,
   } = props;
 
@@ -37,6 +39,7 @@ const Button = (props: PropsWithChildren<ButtonProps>) => {
       className={`inline-flex items-center justify-center rounded-full font-bold uppercase tracking-wider transition-colors duration-300 ${colorMap[color]} ${sizeMap[size]}`}
       onClick={onClick}
       disabled={disabled}
+      type={type}
     >
       {Icon && (
         <span

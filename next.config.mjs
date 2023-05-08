@@ -8,7 +8,6 @@ await import("./env.mjs");
 const config = {
   reactStrictMode: true,
   experimental: {
-    appDir: true,
     serverActions: true,
   },
 };
