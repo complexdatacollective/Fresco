@@ -1,11 +1,30 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { verifyRole } from "~/app/(onboard)/signup/_actions";
+
+const doVerification = async (email: string) => {
+  const result = await verifyRole(email);
+  
+  if (!result) {
+    return false;
+  }
+};
 
 const ClientProtectPage = () => {
   const { data: session } = useSession({
     required: true,
   });
+
+  const hasAccess = doVerification(session?.user?.email);
+  if (!hasAccess) {
+   console.log('no access');
+   return (
+      <div>
+        <h1>Sorry, you do not have access to this page.</h1>
+      </div>
+   )
+  };
 
   return (
     <section className="container">
