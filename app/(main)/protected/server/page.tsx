@@ -1,12 +1,37 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "~/utils/auth";
+import { prisma } from "~/utils/db";
 
 const ServerProtectedPage = async () => {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     // Update to use current URL
+    redirect("/signin?callbackUrl=/protected/server");
+  }
+
+  if (!session.user) {
+    throw new Error("No user found");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      roles: true,
+    }
+  });
+
+  if (!user) {
+    throw new Error("No user found");
+  }
+  
+  if (user.roles && user.roles.some(e => e.name === 'PARTICIPANT')) {
     redirect("/signin?callbackUrl=/protected/server");
   }
 
