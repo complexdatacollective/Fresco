@@ -19,8 +19,6 @@ const UserMenu = () => {
     await signOut();
   };
 
-  console.log(session, status);
-
   if (!session) {
     return (
       <div className="flex items-center">

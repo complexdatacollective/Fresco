@@ -43,32 +43,3 @@ export const handleSubmit = async (data: FormData) => {
 
   return true;
 };
-
-export const verifyRole = async (email: string) => {
-  "use server"
-
-  // lookup user by email in database
-  const user = await prisma.user.findUnique({
-    where: {
-      email: email,
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      roles: true,
-    }
-  });
-
-  if (!user || !user.roles) {
-    return false;
-  }
-
-  // check if user has role of participant
-  if (user.roles.some(e => e.name === 'PARTICIPANT')) {
-    console.log('user is a participant');
-    return false;
-  }
-  
-  return true;
-};

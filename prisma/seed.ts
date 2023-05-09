@@ -1,37 +1,49 @@
 import { hash } from 'bcrypt';
 import { prisma } from "~/utils/db"
 
-async function main() {
-  const password = await hash('password', 8)
+const hashPassword = async (password: string) => await hash(password, 12);
 
-  await prisma.user.upsert({
-    where: { email: 'admin@networkcanvas.com' },
-    update: {},
-    create: {
-      name: 'Test Admin User',
+async function main() {
+  // Clear out existing data
+  await prisma.role.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  // Roles
+  await prisma.role.create({
+    data: {
+      name: 'ADMIN',
+    },
+  })
+
+  await prisma.role.create({
+    data: {
+      name: 'PARTICIPANT',
+    },
+  })
+
+  // Users
+  await prisma.user.create({
+    data: {
       email: 'admin@networkcanvas.com',
-      password,
+      name: 'Admin',
+      password: await hashPassword('admin'),
       roles: {
-        create: [{
-          id: '1',
+        connect: {
           name: 'ADMIN',
-        }],
+        },
       },
     },
   })
 
-  await prisma.user.upsert({
-    where: { email: 'participant@networkcanvas.com' },
-    update: {},
-    create: {
-      name: 'Test Participant User',
+  await prisma.user.create({
+    data: {
       email: 'participant@networkcanvas.com',
-      password,
+      name: 'Participant',
+      password: await hashPassword('participant'),
       roles: {
-        create: [{
-          id: '2',
+        connect: {
           name: 'PARTICIPANT',
-        }],
+        },
       },
     },
   })

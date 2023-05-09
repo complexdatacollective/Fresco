@@ -1,16 +1,33 @@
-import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
+  type DefaultUser,
 } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "~/utils/db";
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from "bcrypt";
+import { DefaultJWT } from "next-auth/jwt";
 
 const verifyPassword = async (password: string, hashedPassword: string): Promise<boolean> => {
   return compare(password, hashedPassword);
+}
+
+
+declare module "next-auth" {
+  /**
+   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    roles: Array<Record<string, string>>;
+  }
+
+  interface Session {
+    user: User;
+  }
 }
 
 /**
@@ -24,20 +41,25 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     jwt(params) {
-      return params.token;
+      const { token, user } = params;
+
+      if (user) {
+        token.roles = user.roles;
+      }
+
+      return token;
     },
     session: ({ session, token, }) => {
-      console.log('session', session);
       return {
         ...session,
         user: {
           ...session.user,
           id: token.id,
+          roles: token.roles,
         }
       }
     },
   },
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "Username and Password",
@@ -46,10 +68,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log('AUTHORIZE', credentials);
         // Reject if no email or password
         if (!credentials?.email || !credentials?.password) {
-          console.log('no credentials');
           return null
         }
 
@@ -83,8 +103,6 @@ export const authOptions: NextAuthOptions = {
         if (!isPasswordValid) {
           return null
         }
-
-        console.log('Successfully authenticated', user);
 
         return {
           id: user.id,

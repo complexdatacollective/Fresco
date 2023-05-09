@@ -14,6 +14,7 @@ export default function Page() {
     await signIn("credentials", {
       email: e.get("email"),
       password: e.get("password"),
+      callbackUrl: "/",
     });
   };
 
