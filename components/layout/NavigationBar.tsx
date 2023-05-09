@@ -14,6 +14,7 @@ const navigation = [
   { name: "Protected Server Route", href: "/protected/server", current: false },
   { name: "Protected Client Route", href: "/protected/client", current: false },
   { name: "Protected Api endpoint", href: "/api/users", current: false },
+  { name: "Interview", href: "/interview", current: false },
 ];
 
 const NavigationButton = ({
