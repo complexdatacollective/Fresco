@@ -9,6 +9,7 @@ async function main() {
   await prisma.role.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.protocol.deleteMany({});
+  await prisma.interview.deleteMany({});
 
   // Roles
   await prisma.role.create({
@@ -22,19 +23,6 @@ async function main() {
       name: 'PARTICIPANT',
     },
   })
-
-  // Protocols
-  await prisma.protocol.create({
-    data: {
-      name: 'Development Protocol',
-      hash: 'development-protocol',
-      schemaVersion: protocol.schemaVersion,
-      description: protocol.description,
-      assetPath: 'assets/path',
-      lastModified: protocol.lastModified,
-      stages: JSON.stringify(protocol.stages),
-    },
-  });
 
   // Users
   await prisma.user.create({
@@ -63,6 +51,25 @@ async function main() {
     },
   })
 
+
+  // Protocols
+  await prisma.protocol.create({
+    data: {
+      name: 'Development Protocol',
+      hash: 'development-protocol',
+      schemaVersion: protocol.schemaVersion,
+      description: protocol.description,
+      assetPath: 'assets/path',
+      lastModified: protocol.lastModified,
+      stages: JSON.stringify(protocol.stages),
+      owner: {
+        connect: {
+          email: 'admin@networkcanvas.com',
+        },
+      },
+    },
+  });
+
   // Interviews
   await prisma.interview.create({
     data: {
@@ -78,8 +85,7 @@ async function main() {
         }
       }
     },
-  })
-
+  });
 
 }
 
