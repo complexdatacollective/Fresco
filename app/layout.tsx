@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
+import {useLocale} from 'next-intl';
 
 export const metadata = {
   title: "Network Canvas Fresco",
@@ -7,8 +8,10 @@ export const metadata = {
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {
+  const { locale } = useLocale();
+
   return (
-    <html lang="en" className="h-full bg-gray-100">
+    <html lang={locale} className="h-full bg-gray-100">
       <body className="h-full">
         <Providers>{children}</Providers>
       </body>
