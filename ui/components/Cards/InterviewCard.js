@@ -24,9 +24,9 @@ const SessionCard = (props) => {
   } = props;
 
   const modifierClasses = cx(
-    'session-card',
-    { 'session-card--clickable': onClickHandler },
-    { 'session-card--selected': selected },
+    'interview-card',
+    { 'interview-card--clickable': onClickHandler },
+    { 'interview-card--selected': selected },
   );
 
   return (
