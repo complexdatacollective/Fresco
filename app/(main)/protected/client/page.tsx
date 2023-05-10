@@ -1,20 +1,48 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { verifyRole } from "~/app/(onboard)/signup/_actions";
 
 const ClientProtectPage = () => {
   const { data: session } = useSession({
     required: true,
   });
 
-  const hasAccess = session?.user?.roles.find((role) => role.name === "admin");
+  const [access, setAccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!hasAccess) {
-    console.log("no access", session?.user?.roles);
+  useEffect(() => {
+    const doVerification = async (email: string) => {
+      const hasAccess = await verifyRole(email);
+
+      if (!hasAccess) {
+        console.log("no access granted within func");
+        setAccess(false);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("access granted");
+      setIsLoading(false);
+      setAccess(true);
+    };
+
+    doVerification(session?.user?.email).catch((error) => {
+      console.log(error);
+    });
+  });
+
+  if (!access && !isLoading) {
+    console.log("redirecting");
     return (
-      <div>
-        <h1>Sorry, you do not have access to this page.</h1>
-      </div>
+      <section className="container">
+        <h1 className="text-2xl font-bold">
+          This is a <span className="text-emerald-400">client-side</span>{" "}
+          protected page
+        </h1>
+        <h2 className="mt-4 font-medium">You do not have acceess</h2>
+      </section>
     );
   }
 
