@@ -8,6 +8,7 @@ async function main() {
   // Clear out existing data
   await prisma.role.deleteMany({});
   await prisma.user.deleteMany({});
+  await prisma.protocol.deleteMany({});
 
   // Roles
   await prisma.role.create({
@@ -22,6 +23,19 @@ async function main() {
     },
   })
 
+  // Protocols
+  await prisma.protocol.create({
+    data: {
+      name: 'Development Protocol',
+      hash: 'development-protocol',
+      schemaVersion: protocol.schemaVersion,
+      description: protocol.description,
+      assetPath: 'assets/path',
+      lastModified: protocol.lastModified,
+      stages: JSON.stringify(protocol.stages),
+    },
+  });
+
   // Users
   await prisma.user.create({
     data: {
@@ -33,27 +47,6 @@ async function main() {
           name: 'ADMIN',
         },
       },
-      protocols: {
-        create: [{
-          name: 'Test Protocol',
-          hash: 'test-protocol',
-          schemaVersion: '7',
-          description: 'This is a test protocol',
-          assetPath: 'assets/path',
-          importedAt: '2023-05-09T16:35:55Z',
-          lastModified: '2023-05-09T16:35:55Z',
-          data: JSON.stringify(protocol.stages),
-          interviews: {
-            //create: [{
-            //id: '1',
-            //name: 'Test Interview',
-            // startTime: '2023-05-09T16:35:55Z',
-            //lastUpdated: '2023-05-09T16:35:55Z',
-            //network: 'network',
-            //}],
-          },
-        }]
-      }
     },
   })
 
@@ -67,6 +60,23 @@ async function main() {
           name: 'PARTICIPANT',
         },
       },
+    },
+  })
+
+  // Interviews
+  await prisma.interview.create({
+    data: {
+      lastUpdated: new Date(),
+      protocol: {
+        connect: {
+          hash: 'development-protocol',
+        },
+      },
+      user: {
+        connect: {
+          email: 'participant@networkcanvas.com'
+        }
+      }
     },
   })
 

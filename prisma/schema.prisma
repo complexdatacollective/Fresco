@@ -16,12 +16,12 @@ model Protocol {
   id            Int         @id @default(autoincrement())
   hash          String      @unique
   name          String
-  schemaVersion String
+  schemaVersion Int
   description   String?
   assetPath     String
   importedAt    DateTime    @default(now())
   lastModified  DateTime
-  data          String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  stages        String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
   interviews    Interview[]
   owner         User        @relation(fields: [ownerId], references: [id])
   ownerId       String
