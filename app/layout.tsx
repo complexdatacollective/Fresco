@@ -13,7 +13,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={locale} className="h-full bg-gray-100">
       <body className="h-full">
-        <Providers>{children}</Providers>
+        <Providers loc={locale}>{children}</Providers>
       </body>
     </html>
   );

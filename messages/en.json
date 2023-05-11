@@ -3,6 +3,9 @@
       "title": "Welcome",
       "description": "This is the main dashboard",
       "subtitle": "Interviews"
+    },
+    "SignIn": {
+        "title": "Sign In"
     }
   }
 
