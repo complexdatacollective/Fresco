@@ -6,6 +6,7 @@ import { Menu as MenuIcon, X } from "lucide-react";
 import classNames from "~/utils/classnames";
 import UserMenu from "./UserMenu";
 import Link from "next/link";
+import LanguageMenu from "./LanguageMenu";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
@@ -84,6 +85,7 @@ const NavigationBar = () => {
                 </Disclosure.Button>
               </div>
               <UserMenu />
+              <LanguageMenu />
             </div>
           </div>
           <Disclosure.Panel className="md:hidden">
