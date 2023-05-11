@@ -3,13 +3,14 @@
 import Button from "~/ui/components/Button";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useTranslation } from "~/app/i18n/client";
 
 // export const metadata = {
 //   title: "Sign in",
 //   description: "Sign in to Network Canvas.",
 // };
 
-export default function Page() {
+export default function Page({ lng }) {
   const doSignIn = async (e: FormData) => {
     await signIn("credentials", {
       email: e.get("email"),
@@ -17,6 +18,8 @@ export default function Page() {
       callbackUrl: "/",
     });
   };
+
+  const { t } = useTranslation(lng, 'signin');
 
   return (
     <div className="flex w-5/12 flex-col rounded-lg bg-white shadow-lg">
