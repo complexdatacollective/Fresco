@@ -3,7 +3,6 @@ import { getServerAuthSession } from "~/utils/auth";
 import { prisma } from "~/utils/db";
 
 async function getInterviewData(id: string) {
-  console.log("Looking for interview with id", id);
   const interview = await prisma.interview.findUnique({
     where: {
       id: id,
@@ -30,7 +29,7 @@ export default async function Page({
   const session = await getServerAuthSession();
 
   if (!session) {
-    redirect("/login");
+    redirect("/signin");
   }
 
   // /interview/:interviewID/:page
@@ -50,7 +49,14 @@ export default async function Page({
 
   const interviewPage = interview?.[1]; // item || null
 
+  // If theres no interview page in the URL:
+  // (1) Check if there is a current stage in the DB
+  // (2) Redirect to the first page
   if (!interviewPage) {
+    if (interviewData.currentStep) {
+      redirect(`/interview/${interviewId}/${interviewData.currentStep}`);
+    }
+
     redirect(`/interview/${interviewId}/1`);
   }
 

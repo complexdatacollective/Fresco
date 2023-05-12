@@ -6,10 +6,12 @@ const hashPassword = async (password: string) => await hash(password, 12);
 
 async function main() {
   // Clear out existing data
-  await prisma.role.deleteMany({});
-  await prisma.user.deleteMany({});
-  await prisma.protocol.deleteMany({});
   await prisma.interview.deleteMany({});
+  await prisma.protocol.deleteMany({});
+  await prisma.user.deleteMany({});
+  await prisma.role.deleteMany({});
+
+
 
   // Roles
   await prisma.role.create({
