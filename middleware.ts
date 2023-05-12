@@ -1,11 +1,12 @@
-import { withAuth } from "next-auth/middleware"
+import { withAuth } from 'next-auth/middleware';
 import { NextRequest, NextResponse } from "next/server";
 import acceptLanguage from 'accept-language';
 import { defaultLang, languages } from './app/i18n/settings';
 
+acceptLanguage.languages(languages);
 
-// Attempt at a middleware for admin routes.
-// Not clear if implementing at the middleware level is a good idea or not...
+const cookieName = 'i18next';
+
 
 const authMiddleware = withAuth(
   // `withAuth` augments your `Request` with the user's token.
@@ -24,17 +25,19 @@ const authMiddleware = withAuth(
   }
 )
 
-acceptLanguage.languages(languages);
-
-const cookieName = 'i18next';
-
-
 const langLocMiddleware = (req) => {
   let lng
   if (req.cookies.has(cookieName)) lng = acceptLanguage.get(req.cookies.get(cookieName).value)
   if (!lng) lng = acceptLanguage.get(req.headers.get('Accept-Language'))
-  if (!lng) lng = fallbackLng
+  if (!lng) lng = defaultLang
 
+   // Redirect if lng in path is not supported
+   if (
+    !languages.some(loc => req.nextUrl.pathname.startsWith(`/${loc}`)) &&
+    !req.nextUrl.pathname.startsWith('/_next')
+  ) {
+    return NextResponse.redirect(new URL(`/${lng}${req.nextUrl.pathname}`, req.url))
+  }
 
   if (req.headers.has('referer')) {
     const refererUrl = new URL(req.headers.get('referer'))
@@ -55,7 +58,3 @@ export default function middleware(req: NextRequest) {
   }
 }
 
-// See "Matching Paths" below to learn more
-export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'],
-};
