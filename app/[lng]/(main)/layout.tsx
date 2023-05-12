@@ -5,7 +5,7 @@ export const metadata = {
   description: "Fresco.",
 };
 
-function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children }: { children: React.ReactNode }, lng: string) {
   return (
     <>
       <NavigationBar />

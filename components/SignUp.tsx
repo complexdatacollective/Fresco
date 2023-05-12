@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { handleSubmit } from "~/app/[locale]/(onboard)/signup/_actions";
+import { handleSubmit } from "~/app/[lng]/(onboard)/signup/_actions";
 import Button from "~/ui/components/Button";
 import { useState } from "react";
 import { Formik } from "formik";

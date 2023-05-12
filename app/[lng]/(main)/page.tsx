@@ -19,12 +19,12 @@ const getInterviews = async () => {
 
 export default async function Home({ params: { lng }}) {
   const interviews = await getInterviews();
-  const { t } = await useTranslation(lng);
+  const { t } = await useTranslation(lng, 'main');
   return (
     <main>
       <h1 className="text-3xl font-bold">{t('title')}</h1>
-      <p>This is the main dashboard.</p>
-      <h2 className="text-2xl font-bold">Interviews</h2>
+      <p>{t('description')}</p>
+      <h2 className="text-2xl font-bold">{t('subtitle')}</h2>
       {interviews.map((interview) => (
         <InterviewCard key={interview.id} interview={interview} />
       ))}
