@@ -1,3 +1,5 @@
 {
-    "title": "Iniciar Sesión"
+    "title": "Iniciar Sesión",
+    "message": "No tienes una cuenta?",
+    "button": "Regístrate"
 }

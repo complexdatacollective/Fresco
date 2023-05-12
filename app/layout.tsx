@@ -1,6 +1,6 @@
-import "../globals.css";
-import Providers from "../providers";
-import { languages } from "../i18n/settings";
+import "./globals.css";
+import Providers from "./providers";
+import { languages } from "./i18n/settings";
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }))

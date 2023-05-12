@@ -10,7 +10,7 @@ import { useTranslation } from "~/app/i18n/client";
 //   description: "Sign in to Network Canvas.",
 // };
 
-export default function Page({ lng }) {
+export default function Page({ params: { lng }}) {
   const doSignIn = async (e: FormData) => {
     await signIn("credentials", {
       email: e.get("email"),
@@ -19,14 +19,14 @@ export default function Page({ lng }) {
     });
   };
 
-  const { t } = useTranslation(lng, 'signin');
+  const { t } = useTranslation(lng, 'signIn');
 
   return (
     <div className="flex w-5/12 flex-col rounded-lg bg-white shadow-lg">
       <div className="m-6">
-        <h1 className="text-2xl font-bold">Sign in</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
         <p>
-          Don&apos;t have an account? <Link href="/signup">Sign up</Link>.
+          {t('message')}<Link href="/signup">{t('button')}</Link>.
         </p>
       </div>
       <div className="m-6 flex flex-col">
