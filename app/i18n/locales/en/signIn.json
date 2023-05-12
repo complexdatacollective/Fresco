@@ -1,5 +1,8 @@
 {
-    "title": "SignIn",
+    "title": "Sign In",
     "message": "Don't have an account?",
-    "button": "Sign Up"
+    "message-button": "Sign Up",
+    "email": "E-mail",
+    "password": "Password",
+    "submit-button": "Sign In"
 }

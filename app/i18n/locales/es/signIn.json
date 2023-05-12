@@ -1,5 +1,8 @@
 {
     "title": "Iniciar Sesión",
     "message": "No tienes una cuenta?",
-    "button": "Regístrate"
+    "message-button": "Regístrate",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "submit-button": "Iniciar Sesión"
 }

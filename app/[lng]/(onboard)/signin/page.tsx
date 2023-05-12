@@ -26,14 +26,14 @@ export default function Page({ params: { lng }}) {
       <div className="m-6">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
         <p>
-          {t('message')}<Link href="/signup">{t('button')}</Link>.
+          {t('message')}<Link href="/signup">{t('message-button')}</Link>.
         </p>
       </div>
       <div className="m-6 flex flex-col">
         <form action={doSignIn} className="w-full max-w-lg">
           <div className="mb-6 w-full md:mb-0">
             <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700">
-              E-mail
+              {t('email')}
             </label>
             <input
               name="email"
@@ -43,7 +43,7 @@ export default function Page({ params: { lng }}) {
           </div>
           <div className="mb-6 w-full md:mb-0">
             <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700">
-              Password
+              {t('password')}
             </label>
             <input
               name="password"
@@ -52,7 +52,7 @@ export default function Page({ params: { lng }}) {
             />
           </div>
           <div className="mb-6 w-full md:mb-0">
-            <Button type="submit">Sign in</Button>
+            <Button type="submit">{t('submit-button')}</Button>
           </div>
         </form>
       </div>
