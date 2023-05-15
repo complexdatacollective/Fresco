@@ -2,96 +2,69 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider     = "sqlite"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma" // Planetscale doesn't support foreign keys yet, so we need to use this
+  provider     = "sqlite"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma" // Planetscale doesn't support foreign keys yet, so we need to use this
 }
 
 // NC Models
 model Protocol {
-    id            Int         @id @default(autoincrement())
-    hash          String      @unique
-    name          String
-    schemaVersion String
-    description   String?
-    assetPath     String
-    importedAt    DateTime    @default(now())
-    lastModified  DateTime
-    data          String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
-    interviews    Interview[]
-    owner         User        @relation(fields: [ownerId], references: [id])
-    ownerId       String
+  id            Int         @id @default(autoincrement())
+  hash          String      @unique
+  name          String
+  schemaVersion String
+  description   String?
+  assetPath     String
+  importedAt    DateTime    @default(now())
+  lastModified  DateTime
+  data          String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  interviews    Interview[]
+  owner         User        @relation(fields: [ownerId], references: [id])
+  ownerId       String
 
-    @@index([ownerId])
+  @@index([ownerId])
 }
 
 model Interview {
-    id          String    @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
-    startTime   DateTime  @default(now())
-    finishTime  DateTime?
-    exportTime  DateTime?
-    lastUpdated DateTime  @updatedAt
-    network     String?   @default("{}") // Another json field we can't store yet :/
-    user        User      @relation(fields: [userId], references: [id])
-    userId      String
-    protocol    Protocol  @relation(fields: [protocolId], references: [id])
-    protocolId  Int
-    currentStep Int       @default(0)
+  id          String    @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
+  startTime   DateTime  @default(now())
+  finishTime  DateTime?
+  exportTime  DateTime?
+  lastUpdated DateTime  @updatedAt
+  network     String?   @default("{}") // Another json field we can't store yet :/
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  protocol    Protocol  @relation(fields: [protocolId], references: [id])
+  protocolId  Int
+  currentStep Int       @default(0)
 
-    @@index([userId])
-    @@index([protocolId])
-}
-
-// Necessary for Next auth
-model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([provider, providerAccountId])
-    @@index([userId])
-}
-
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
+  @@index([userId])
+  @@index([protocolId])
 }
 
 model User {
-    id            String      @id @default(cuid())
-    name          String?
-    email         String?     @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    protocols     Protocol[]
-    Interview     Interview[]
+  id         String      @id @default(cuid())
+  name       String?
+  email      String?     @unique
+  password   String?
+  protocols  Protocol[]
+  interviews Interview[]
+  roles      Role[]
+}
+
+model Role {
+  name  String @id @unique
+  users User[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
