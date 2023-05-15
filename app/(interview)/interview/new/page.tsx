@@ -12,14 +12,14 @@ const createInterview = async (user, protocolId) => {
     throw new Error("No user provided");
   }
 
-  console.log("create User", user, protocolId);
+  console.log("create User", user.id, protocolId);
 
   const interview = await prisma.interview.create({
     data: {
       user: {
         connect: {
-          // id: user.id,
-          email: user.email,
+          id: user.id,
+          // email: user.email,
         },
       },
       protocol: {

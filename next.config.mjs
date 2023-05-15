@@ -9,6 +9,7 @@ const config = {
   reactStrictMode: true,
   experimental: {
     serverActions: true,
+    typedRoutes: true,
   },
 };
 export default config;
