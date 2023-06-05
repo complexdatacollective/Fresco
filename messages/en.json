@@ -1,11 +1,19 @@
 {
-    "Home": {
-      "title": "Welcome",
-      "description": "This is the main dashboard",
-      "subtitle": "Interviews"
-    },
-    "SignIn": {
-        "title": "Sign In"
-    }
+  "NavigationBar": {
+    "openMenu": "Open Menu",
+    "home": "Home",
+    "protectedServer": "Protected Server",
+    "protectedClient": "Protected Client",
+    "protectedAPI": "Protected API",
+    "adminOnly": "Admin Only"
+  },
+  "Home": {
+    "title": "Welcome",
+    "description": "This is the main dashboard",
+    "subtitle": "Interviews"
+  },
+  "SignIn": {
+    "title": "Sign In",
+    "description": "Please sign in to continue."
   }
-
+}

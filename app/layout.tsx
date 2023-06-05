@@ -1,22 +1,12 @@
-import "./globals.css";
-import Providers from "./providers";
-import {useLocale} from 'next-intl';
+import { ReactNode } from "react";
 
-export const metadata = {
-  title: "Network Canvas Fresco",
-  description: "Fresco.",
+type Props = {
+  children: ReactNode;
 };
 
-function RootLayout({ children }: { children: React.ReactNode }) {
-  const { locale } = useLocale();
-
-  return (
-    <html lang={locale} className="h-full bg-gray-100">
-      <body className="h-full">
-        <Providers loc={locale}>{children}</Providers>
-      </body>
-    </html>
-  );
+// Even though this component is just passing its children through, the presence
+// of this file fixes an issue in Next.js 13.4 where link clicks that switch
+// the locale would otherwise cause a full reload.
+export default function RootLayout({ children }: Props) {
+  return children;
 }
-
-export default RootLayout;

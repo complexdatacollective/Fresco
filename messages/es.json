@@ -1,11 +1,19 @@
 {
-    "Home": {
-      "title": "Bienvenidos",
-      "description": "Este es el tablero principal",
-      "subtitle": "Entrevistas"
-    },
-    "SignIn": {
-        "title": "Iniciar Sesión"
-    }
+  "NavigationBar": {
+    "openMenu": "Menú abierto",
+    "home": "Hogar",
+    "protectedServer": "Servidor protegido",
+    "protectedClient": "Cliente protegida",
+    "protectedAPI": "API protegida",
+    "adminOnly": "Solo administrador"
+  },
+  "Home": {
+    "title": "Bienvenidos",
+    "description": "Este es el tablero principal",
+    "subtitle": "Entrevistas"
+  },
+  "SignIn": {
+    "title": "Iniciar Sesión",
+    "description": "Por favor, inicie sesión para continuar."
   }
-
+}

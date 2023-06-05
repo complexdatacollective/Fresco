@@ -3,7 +3,7 @@
 import Button from "~/ui/components/Button";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import {useTranslations} from 'next-intl';
+import { useTranslations } from "next-intl";
 
 // export const metadata = {
 //   title: "Sign in",
@@ -19,14 +19,14 @@ export default function Page() {
     });
   };
 
-  const t = useTranslations('SignIn');
+  const t = useTranslations("SignIn");
 
   return (
-    <div className="flex w-5/12 flex-col rounded-lg bg-white shadow-lg">
+    <div className="flex w-96 flex-col rounded-lg bg-white shadow-lg">
       <div className="m-6">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p>
-          Don&apos;t have an account? <Link href="/signup">Sign up</Link>.
+          {t("description")} <Link href="/signup">Sign up</Link>.
         </p>
       </div>
       <div className="m-6 flex flex-col">

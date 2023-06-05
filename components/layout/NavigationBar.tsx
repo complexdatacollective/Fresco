@@ -3,17 +3,38 @@
 import { Disclosure } from "@headlessui/react";
 import Image from "next/image";
 import { Menu as MenuIcon, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import classNames from "~/utils/classnames";
 import UserMenu from "./UserMenu";
 import Link from "next/link";
-import LanguageMenu from "./LanguageMenu";
+import LanguagePicker from "./LanguagePicker";
 
 const navigation = [
-  { name: "Home", href: "/", current: true },
-  { name: "Protected Server Route", href: "/protected/server", current: false },
-  { name: "Protected Client Route", href: "/protected/client", current: false },
-  { name: "Protected Api endpoint", href: "/api/users", current: false },
-  { name: "Admin only area", href: "/admin", current: false },
+  { token: "home", name: "Home", href: "/", current: true },
+  {
+    token: "protectedServer",
+    name: "Protected Server Route",
+    href: "/protected/server",
+    current: false,
+  },
+  {
+    token: "protectedClient",
+    name: "Protected Client Route",
+    href: "/protected/client",
+    current: false,
+  },
+  {
+    token: "protectedAPI",
+    name: "Protected Api endpoint",
+    href: "/api/users",
+    current: false,
+  },
+  {
+    token: "adminOnly",
+    name: "Admin only area",
+    href: "/admin",
+    current: false,
+  },
 ];
 
 const NavigationButton = ({
@@ -45,6 +66,8 @@ const NavigationButton = ({
 };
 
 const NavigationBar = () => {
+  const t = useTranslations("NavigationBar");
+
   return (
     <Disclosure as="nav" className="bg-violet-800">
       {({ open }) => (
@@ -65,7 +88,7 @@ const NavigationBar = () => {
                     {navigation.map((item) => (
                       <NavigationButton
                         key={item.name}
-                        text={item.name}
+                        text={t(item.token)}
                         link={item.href}
                         active={item.current}
                       />
@@ -76,7 +99,7 @@ const NavigationBar = () => {
               <div className="-mr-2 flex md:hidden">
                 {/* Mobile menu button */}
                 <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                  <span className="sr-only">Open main menu</span>
+                  <span className="sr-only">{t("openMenu")}</span>
                   {open ? (
                     <X className="block h-6 w-6" aria-hidden="true" />
                   ) : (
@@ -84,8 +107,10 @@ const NavigationBar = () => {
                   )}
                 </Disclosure.Button>
               </div>
-              <UserMenu />
-              <LanguageMenu />
+              <div className="flex items-center">
+                <LanguagePicker />
+                <UserMenu />
+              </div>
             </div>
           </div>
           <Disclosure.Panel className="md:hidden">

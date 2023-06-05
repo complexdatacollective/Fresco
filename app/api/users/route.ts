@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerAuthSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
-import { redirect } from "next/navigation";
 
 export async function GET() {
   const session = await getServerAuthSession()
@@ -22,10 +21,16 @@ export async function GET() {
     }
   });
 
+  if (!user) {
+    return NextResponse.json({ message: 'Unauthorized.', status: 401 })
+  }
 
-  if (user.roles && user.roles.some(e => e.name === 'PARTICIPANT')) {
-    redirect("/signin?callbackUrl=/api/users");
-  };
+  const roles = user.roles.map(e => e.name);
+
+
+  if (!roles.includes('admin')) {
+    return NextResponse.json({ message: 'Unauthorized.', status: 401 })
+  }
 
   const res = await prisma.user.findMany();
 

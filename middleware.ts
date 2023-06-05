@@ -1,37 +1,42 @@
 import createMiddleware from 'next-intl/middleware';
-import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
+import type { NextRequest, NextFetchEvent, NextMiddleware } from 'next/server';
+import { stackMiddlewares } from './utils/stackMiddlewares';
+import { getToken } from 'next-auth/jwt';
+// import { prisma } from './utils/db';
 
-const langLocMiddleware = createMiddleware({
+const localizationMiddleware = (next: NextMiddleware) => createMiddleware({
   locales: ['en', 'es'],
   // If this locale is matched, pathnames work without a prefix (e.g. `/about`)
   defaultLocale: 'en'
 });
 
-const authMiddleware = withAuth(
-  // `withAuth` augments your `Request` with the user's token.
-  function middleware(req: { nextauth: { token: any; }; }) {
-    console.log('middleware', req);
-    console.log(req.nextauth.token)
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        console.log('withAuth', token)
-        const isAdmin = token?.roles?.some((role) => role.name === 'ADMIN')
-        return !!isAdmin;
-      },
-    },
-  }
-)
+const authMiddleware = (next: NextMiddleware) => async (request: NextRequest, _next: NextFetchEvent) => {
+  const pathname = request.nextUrl.pathname;
 
-export default function middleware(req: NextRequest) {
-  if (!req.nextUrl.pathname.startsWith('/admin')) {
-    return langLocMiddleware(req);
-  } else {
-    return (authMiddleware as any)(req);
+  if (["/admin"]?.some((path) => pathname.startsWith(path))) {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+    if (!token) {
+      const url = new URL(`/signin`, request.url);
+      url.searchParams.set("callbackUrl ", encodeURI(request.url));
+      return NextResponse.redirect(url);
+    }
+
+    if (token.role !== "admin") {
+      const url = new URL(`/403`, request.url);
+      return NextResponse.rewrite(url);
+    }
   }
-}
- 
+  return next(request, _next);
+};
+
+
+const middlewares = [localizationMiddleware, authMiddleware];
+export default stackMiddlewares(middlewares);
+
 export const config = {
   // Skip all paths that should not be internationalized
   matcher: ['/((?!api|_next|.*\\..*).*)']
