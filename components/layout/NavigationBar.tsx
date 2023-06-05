@@ -13,7 +13,6 @@ const navigation = [
   { name: "Protected Client Route", href: "/protected/client", current: false },
   { name: "Protected Api endpoint", href: "/api/users", current: false },
   { name: "Admin only area", href: "/admin", current: false },
-  { name: "Interview", href: "/interview", current: false },
 ];
 
 const NavigationButton = ({
@@ -46,7 +45,7 @@ const NavigationButton = ({
 
 const NavigationBar = () => {
   return (
-    <Disclosure as="nav" className="bg-violet-800">
+    <Disclosure as="nav" className="sticky top-0 bg-violet-800">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

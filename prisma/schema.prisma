@@ -13,15 +13,15 @@ datasource db {
 
 // NC Models
 model Protocol {
-  id            Int         @id @default(autoincrement())
+  id            String      @id @default(cuid())
   hash          String      @unique
   name          String
-  schemaVersion String
+  schemaVersion Int
   description   String?
   assetPath     String
   importedAt    DateTime    @default(now())
   lastModified  DateTime
-  data          String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  stages        String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
   interviews    Interview[]
   owner         User        @relation(fields: [ownerId], references: [id])
   ownerId       String
@@ -35,11 +35,11 @@ model Interview {
   finishTime  DateTime?
   exportTime  DateTime?
   lastUpdated DateTime  @updatedAt
-  network     String?   @default("{}") // Another json field we can't store yet :/
+  network     String    @default("{}") // Another json field we can't store yet :/
   user        User      @relation(fields: [userId], references: [id])
   userId      String
   protocol    Protocol  @relation(fields: [protocolId], references: [id])
-  protocolId  Int
+  protocolId  String
   currentStep Int       @default(0)
 
   @@index([userId])

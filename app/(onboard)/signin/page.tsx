@@ -9,12 +9,12 @@ import { signIn } from "next-auth/react";
 //   description: "Sign in to Network Canvas.",
 // };
 
-export default function Page() {
+export default function Page({ searchParams }) {
   const doSignIn = async (e: FormData) => {
     await signIn("credentials", {
       email: e.get("email"),
       password: e.get("password"),
-      callbackUrl: "/",
+      callbackUrl: searchParams.callbackUrl || "/",
     });
   };
 
