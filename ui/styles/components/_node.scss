@@ -1,0 +1,146 @@
+:root {
+  --base-node-size: calc(var(--base-font-size) * 10);
+}
+
+@keyframes linking {
+  0% {
+    transform: scale(0.8);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(0.8);
+  }
+}
+
+.node {
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  font-size: var(--base-node-size);
+  vertical-align: middle;
+
+  &__node {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: visible;
+  }
+
+  &__node-base {
+    @include palette-modifiers($include-fill: true);
+    // fill: palette('node-color-seq-1');
+  }
+
+  &__node-flash {
+    @include palette-modifiers($include-fill: true);
+    // fill: palette('node-color-seq-1--dark');
+  }
+
+  &__node-trim {
+    fill: transparent;
+    stroke: transparent;
+    stroke-width: 0.75rem;
+    transition: stroke var(--animation-duration-standard) ease-in-out;
+  }
+
+  &__node-outer-trim {
+    fill: transparent;
+
+  }
+
+  &__label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 15%;
+    color: var(--node-label);
+
+    &-text {
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+      text-align: center;
+      font-size: 0.15em;
+      font-family: $netcanvas-font-stack;
+      color: palette('text');
+      hyphens: auto;
+      overflow: hidden;
+      white-space: pre-line;
+
+      &.len-1 {
+        font-size: 0.17em;
+      }
+
+      &.len-2 {
+        font-size: 0.17em;
+      }
+
+      &.len-3 {
+        font-size: 0.17em;
+      }
+
+      &.len-4 {
+        font-size: 0.17em;
+      }
+
+      &.len-5 {
+        font-size: 0.17em;
+      }
+
+      &.len-6 {
+        font-size: 0.17em;
+      }
+    }
+  }
+
+  &--inactive {
+    opacity: 0.5;
+  }
+
+  &--selected {
+    .node__node-trim {
+      stroke: palette('selected');
+    }
+
+    .node__node-outer-trim {
+      fill: var(--node-outer-trim-stroke);
+      transform-origin: 250px 250px;
+      animation: bounce var(--animation-duration-standard) ease-in-out;
+    }
+  }
+
+  @each $ordinal-color in $ordinal-colors {
+    $i: index($ordinal-colors, $ordinal-color);
+
+    &--node-highlight-seq-#{$i} {
+      .node__node-trim {
+        stroke: color($ordinal-color);
+      }
+    }
+  }
+
+  &--linking {
+    .node__node-trim {
+      stroke: palette('selected');
+    }
+
+    .node__node-outer-trim {
+      fill: var(--node-outer-trim-stroke);
+      transform-origin: 250px 250px;
+      animation: linking var(--animation-duration-slow) ease-in-out infinite;
+    }
+
+  }
+}

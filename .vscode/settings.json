@@ -1,0 +1,7 @@
+{
+  "css.customData": [
+    "./.vscode/css-data.json"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
