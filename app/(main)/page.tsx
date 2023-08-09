@@ -1,5 +1,6 @@
 import InterviewCard from "~/components/InterviewCard";
 import ProtocolCard from "~/components/ProtocolCard";
+import { Typography } from "~/components/Typography";
 import { prisma } from "~/utils/db";
 
 const getInterviews = async () => {
@@ -28,13 +29,13 @@ export default async function Home() {
   const protocols = await getProtocols();
   return (
     <main>
-      <h1 className="text-3xl font-bold">Welcome</h1>
-      <p>This is the main dashboard.</p>
-      <h2 className="m-2 text-2xl font-bold">Interviews</h2>
+      <Typography variant="h1">Welcome</Typography>
+      <Typography variant="body">This is the main dashboard</Typography>
+      <Typography variant="h2">Interviews</Typography>
       {interviews.map((interview) => (
         <InterviewCard key={interview.id} interview={interview} />
       ))}
-      <h2 className="m-2 text-2xl font-bold">Protocols</h2>
+      <Typography variant="h2">Protocols</Typography>
       {protocols.map((protocol) => (
         <ProtocolCard key={protocol.id} protocol={protocol} />
       ))}
