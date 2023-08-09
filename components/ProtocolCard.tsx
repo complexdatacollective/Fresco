@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Typography } from "./Typography";
 
 const ProtocolCard = ({ protocol }) => {
   const { id, name, description } = protocol;
@@ -10,12 +11,12 @@ const ProtocolCard = ({ protocol }) => {
       href={`/interview/new?protocol=${id}`}
       className="block max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
     >
-      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+      <Typography variant="h3" className="mb-2 tracking-tight">
         {name}
-      </h5>
-      <h5 className="text-md mb-2 font-bold tracking-tight text-gray-900 dark:text-white">
+      </Typography>
+      <Typography variant="h4" className="mb-2 tracking-tight">
         {description}
-      </h5>
+      </Typography>
     </Link>
   );
 };

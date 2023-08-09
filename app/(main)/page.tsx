@@ -31,11 +31,15 @@ export default async function Home() {
     <main>
       <Typography variant="h1">Welcome</Typography>
       <Typography variant="body">This is the main dashboard</Typography>
-      <Typography variant="h2">Interviews</Typography>
+      <Typography variant="h2" className="m-2">
+        Interviews
+      </Typography>
       {interviews.map((interview) => (
         <InterviewCard key={interview.id} interview={interview} />
       ))}
-      <Typography variant="h2">Protocols</Typography>
+      <Typography variant="h2" className="m-2">
+        Protocols
+      </Typography>
       {protocols.map((protocol) => (
         <ProtocolCard key={protocol.id} protocol={protocol} />
       ))}
