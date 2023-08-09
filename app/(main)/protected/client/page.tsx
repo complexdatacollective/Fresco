@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { Typography } from "~/components/Typography";
 
 const ClientProtectPage = () => {
   const { data: session } = useSession({
@@ -9,12 +10,13 @@ const ClientProtectPage = () => {
 
   return (
     <section className="container">
-      <h1 className="text-2xl font-bold">
+      <Typography variant="h2">
         This is a <span className="text-emerald-400">client-side</span>{" "}
         protected page
-      </h1>
-      <h2 className="mt-4 font-medium">You are logged in as:</h2>
-      <p className="mt-4">{session?.user?.name}</p>
+      </Typography>
+      <Typography variant="body" className="mt-4">
+        You are logged in as: {session?.user?.name}
+      </Typography>
     </section>
   );
 };
