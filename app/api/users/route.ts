@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import { getServerAuthSession } from '~/utils/auth';
-import { prisma } from '~/utils/db';
-import { redirect } from 'next/navigation';
+import { NextResponse } from "next/server";
+import { getServerAuthSession } from "~/utils/auth";
+import { prisma } from "~/utils/db";
+import { redirect } from "next/navigation";
 
 export async function GET() {
   const session = await getServerAuthSession();
 
   if (!session) {
-    return NextResponse.json({ message: 'Unauthorized.' });
+    return NextResponse.json({ message: "Unauthorized." });
   }
 
   const user = await prisma.user.findUnique({
@@ -22,8 +22,8 @@ export async function GET() {
     },
   });
 
-  if (user.roles && user.roles.some((e) => e.name === 'PARTICIPANT')) {
-    redirect('/signin?callbackUrl=/api/users');
+  if (user?.roles && user.roles.some((e) => e.name === "PARTICIPANT")) {
+    redirect("/signin?callbackUrl=/api/users");
   }
 
   const res = await prisma.user.findMany();

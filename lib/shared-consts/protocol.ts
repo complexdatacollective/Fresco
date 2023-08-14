@@ -1,5 +1,5 @@
-import { Codebook } from './codebook.js';
-import { Stage } from './stages.js';
+import type { Codebook } from "./codebook.js";
+import type { Stage } from "./stages.js";
 
 export interface Protocol {
   name: string;

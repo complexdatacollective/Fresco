@@ -23,6 +23,7 @@ const config = {
     'next/core-web-vitals',
     'plugin:@typescript-eslint/recommended',
     'plugin:storybook/recommended',
+    "prettier",
   ],
   rules: {
     '@typescript-eslint/consistent-type-imports': [
