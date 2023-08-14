@@ -2,24 +2,27 @@
  * Migration from v5 to v6
  */
 
-const migrateStages = (stages = []) => stages.map(stage => {
+const migrateStages = (stages = []) =>
+  stages.map((stage) => {
+    if (
+      stage.type !== 'NameGeneratorAutoComplete' &&
+      stage.type !== 'NameGeneratorList'
+    ) {
+      return stage;
+    }
 
-  if (stage.type !== 'NameGeneratorAutoComplete' && stage.type !== 'NameGeneratorList') {
-    return stage;
-  }
-
-  return {
-    ...stage,
-    type: 'NameGeneratorRoster',
-  }
-});
+    return {
+      ...stage,
+      type: 'NameGeneratorRoster',
+    };
+  });
 
 const migration = (protocol) => {
   return {
     ...protocol,
     stages: migrateStages(protocol.stages),
-  }
-}
+  };
+};
 
 // Markdown format
 const notes = `

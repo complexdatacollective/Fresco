@@ -37,7 +37,8 @@ $component-name: form-field-togglebutton;
       border-width: $border;
       border-style: solid;
       border-radius: 50%;
-      transition: border-color var(--animation-easing) var(--animation-duration-standard);
+      transition: border-color var(--animation-easing)
+        var(--animation-duration-standard);
     }
 
     &::after {
@@ -50,10 +51,10 @@ $component-name: form-field-togglebutton;
       background-color: var(--input-radio--fill);
       border-radius: 50%;
       opacity: 0;
-      transition: opacity var(--animation-easing) var(--animation-duration-standard);
+      transition: opacity var(--animation-easing)
+        var(--animation-duration-standard);
       z-index: -1;
     }
-
   }
 
   &__label {
@@ -71,7 +72,8 @@ $component-name: form-field-togglebutton;
     }
   }
 
-  &__input:checked + &__checkbox { // sass-lint:disable-line force-pseudo-nesting
+  &__input:checked + &__checkbox {
+    // sass-lint:disable-line force-pseudo-nesting
 
     &::after {
       opacity: 1;

@@ -16,19 +16,14 @@ const SimpleDialog = ({
   style,
 }) => (
   <Modal show={show} onBlur={onBlur}>
-    <div
-      className={cx('dialog', 'dialog--simple', className)}
-      style={style}
-    >
+    <div className={cx('dialog', 'dialog--simple', className)} style={style}>
       <div className="dialog__main">
         <div className="dialog__main-content">
           <h2 className="dialog__main-title">{title}</h2>
           {children}
         </div>
       </div>
-      <footer className="dialog__footer">
-        {options}
-      </footer>
+      <footer className="dialog__footer">{options}</footer>
     </div>
   </Modal>
 );
@@ -47,7 +42,7 @@ SimpleDialog.defaultProps = {
   show: false,
   children: null,
   options: [],
-  onBlur: () => { },
+  onBlur: () => {},
   style: {},
   className: null,
 };

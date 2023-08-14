@@ -110,6 +110,6 @@ export default {
   'chevron-up': chevronUp,
   'chevron-down': chevronDown,
   add,
-  delete: remove,
+  'delete': remove,
   move,
 };

@@ -15,7 +15,7 @@
   justify-content: center;
 
   background: var(--primary);
-  color:white;
+  color: white;
 
   .icon-container {
     clip-path: circle(50% at center);
@@ -30,8 +30,8 @@
       height: 60%;
       width: 60%;
 
-      &[name="add-a-person"],
-      &[name="add-a-relationship"] {
+      &[name='add-a-person'],
+      &[name='add-a-relationship'] {
         align-self: flex-end;
         height: 80%;
         width: 100%;

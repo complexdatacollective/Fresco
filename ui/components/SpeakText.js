@@ -5,14 +5,9 @@ import VoiceOverOffIcon from '@mui/icons-material/VoiceOverOff';
 import useSpeech from '../hooks/useSpeech';
 
 const SpeakText = (props) => {
-  const {
-    text,
-    lang,
-  } = props;
+  const { text, lang } = props;
 
-  const {
-    speak, stop, isSpeaking, error,
-  } = useSpeech(text, lang);
+  const { speak, stop, isSpeaking, error } = useSpeech(text, lang);
 
   const styles = {
     cursor: 'pointer',
@@ -23,19 +18,21 @@ const SpeakText = (props) => {
   };
 
   if (error) {
-    return <span title={error}><HearingRoundedIcon color="disabled" style={{ ...styles, cursor: 'not-allowed' }} /></span>;
+    return (
+      <span title={error}>
+        <HearingRoundedIcon
+          color="disabled"
+          style={{ ...styles, cursor: 'not-allowed' }}
+        />
+      </span>
+    );
   }
 
   if (isSpeaking) {
     return <VoiceOverOffIcon onClick={stop} style={styles} />;
   }
 
-  return (
-    <HearingRoundedIcon
-      onClick={speak}
-      style={styles}
-    />
-  );
+  return <HearingRoundedIcon onClick={speak} style={styles} />;
 };
 
 SpeakText.propTypes = {

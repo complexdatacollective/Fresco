@@ -6,24 +6,26 @@ import Prompt from './Prompt';
 import Pips from './Pips';
 
 /**
-  * Displays prompts
-  */
+ * Displays prompts
+ */
 const Prompts = (props) => {
-  const {
-    currentPrompt,
-    prompts,
-    speakable,
-  } = props;
+  const { currentPrompt, prompts, speakable } = props;
 
   const prevPromptRef = useRef();
 
-  const currentIndex = findIndex(prompts, (prompt) => prompt.id === currentPrompt);
+  const currentIndex = findIndex(
+    prompts,
+    (prompt) => prompt.id === currentPrompt,
+  );
 
   useEffect(() => {
     prevPromptRef.current = currentIndex;
   }, [currentPrompt]);
 
-  const backwards = useMemo(() => currentIndex < prevPromptRef.current, [currentIndex]);
+  const backwards = useMemo(
+    () => currentIndex < prevPromptRef.current,
+    [currentIndex],
+  );
 
   return (
     <motion.div
@@ -34,20 +36,24 @@ const Prompts = (props) => {
         duration: 0.5,
       }}
     >
-      { prompts.length > 1 ? (<Pips count={prompts.length} currentIndex={currentIndex} />) : (<div className="prompts__spacer" />)}
+      {prompts.length > 1 ? (
+        <Pips count={prompts.length} currentIndex={currentIndex} />
+      ) : (
+        <div className="prompts__spacer" />
+      )}
       <AnimatePresence custom={backwards} exitBeforeEnter initial={false}>
-        { prompts.map(({
-          id,
-          text,
-        }) => (prompts[currentIndex].id === id && (
-          <Prompt
-            key={id}
-            id={id}
-            text={text}
-            backwards={backwards}
-            speakable={speakable}
-          />
-        )))}
+        {prompts.map(
+          ({ id, text }) =>
+            prompts[currentIndex].id === id && (
+              <Prompt
+                key={id}
+                id={id}
+                text={text}
+                backwards={backwards}
+                speakable={speakable}
+              />
+            ),
+        )}
       </AnimatePresence>
       <div className="prompts__spacer" />
     </motion.div>

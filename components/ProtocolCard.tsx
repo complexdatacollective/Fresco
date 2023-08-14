@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import type { Prisma } from "@prisma/client";
-import Link from "next/link";
+import type { Prisma } from '@prisma/client';
+import Link from 'next/link';
 
 type Props = {
   protocol: Prisma.ProtocolGetPayload<object>;

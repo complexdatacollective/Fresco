@@ -5,8 +5,8 @@ const textOutOfBounds = (containerElement, textElement) => {
   const containerBounds = containerElement.getBoundingClientRect();
   const textBounds = textElement.getBoundingClientRect();
   return (
-    textBounds.height > containerBounds.height
-    || textBounds.width > containerBounds.width
+    textBounds.height > containerBounds.height ||
+    textBounds.width > containerBounds.width
   );
 };
 
@@ -17,10 +17,7 @@ const defaultOptions = {
 
 // TODO move padding: 33% into stylesheet
 const scaleTextToFit = (element, options) => {
-  const {
-    increment,
-    unit,
-  } = { ...defaultOptions, ...options };
+  const { increment, unit } = { ...defaultOptions, ...options };
 
   element.setAttribute('style', 'position: relative;');
   const text = element.textContent;
@@ -31,7 +28,10 @@ const scaleTextToFit = (element, options) => {
   element.appendChild(textElement);
 
   const findFontSize = (size) => {
-    textElement.setAttribute('style', `position: absolute; font-size: ${size}${unit};`);
+    textElement.setAttribute(
+      'style',
+      `position: absolute; font-size: ${size}${unit};`,
+    );
 
     return !textOutOfBounds(element, textElement)
       ? findFontSize(size + increment)
@@ -41,7 +41,10 @@ const scaleTextToFit = (element, options) => {
   const fontSize = findFontSize(0);
 
   element.innerHTML = text;
-  element.setAttribute('style', `font-size: ${fontSize}${unit}; overflow: hidden;`);
+  element.setAttribute(
+    'style',
+    `font-size: ${fontSize}${unit}; overflow: hidden;`,
+  );
 };
 
 export default scaleTextToFit;

@@ -9,14 +9,14 @@ import DatePickerContext from '../DatePickerContext';
 const getSubject = (props = {}) => {
   const mockFunctionalComponent = jest.fn(() => null);
 
-  mount((
+  mount(
     // eslint-disable-next-line react/jsx-props-no-spreading
     <DatePicker {...props}>
       <DatePickerContext.Consumer>
         {mockFunctionalComponent}
       </DatePickerContext.Consumer>
-    </DatePicker>
-  ));
+    </DatePicker>,
+  );
 
   return mockFunctionalComponent;
 };
@@ -67,18 +67,18 @@ describe('<DatePicker>', () => {
   });
 
   it('default min is 100 years ago', () => {
-    const { year, month, day } = DateTime.local().minus({ years: 100 }).toObject();
+    const { year, month, day } = DateTime.local()
+      .minus({ years: 100 })
+      .toObject();
     const subject = getSubject();
     const context = subject.mock.calls[0][0];
-    expect(context.range.start.toObject())
-      .toMatchObject({ year, month, day });
+    expect(context.range.start.toObject()).toMatchObject({ year, month, day });
   });
 
   it('default max is now', () => {
     const { year, month, day } = DateTime.local().toObject();
     const subject = getSubject();
     const context = subject.mock.calls[0][0];
-    expect(context.range.end.toObject())
-      .toMatchObject({ year, month, day });
+    expect(context.range.end.toObject()).toMatchObject({ year, month, day });
   });
 });

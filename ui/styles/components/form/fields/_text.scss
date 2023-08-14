@@ -17,7 +17,8 @@ $module-name: form-field-text;
     border-bottom-width: unit(0.25);
     border-bottom-style: solid;
     border-bottom-color: transparent;
-    transition: border-bottom-color var(--animation-easing) var(--animation-duration-standard);
+    transition: border-bottom-color var(--animation-easing)
+      var(--animation-duration-standard);
 
     &::placeholder {
       color: var(--input-placeholder);
@@ -61,8 +62,9 @@ $module-name: form-field-text;
     opacity: 0;
     background: var(--error);
     color: var(--form-error-text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;

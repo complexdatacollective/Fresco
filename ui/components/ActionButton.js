@@ -10,22 +10,14 @@ const renderIcon = ({ icon }) => {
     if (typeof icon === 'string') {
       iconElement = <Icon name={icon} />;
     } else {
-      iconElement = React.cloneElement(
-        icon,
-      );
+      iconElement = React.cloneElement(icon);
     }
   }
   return iconElement;
 };
 
 const ActionButton = React.memo((props) => {
-  const {
-    disabled,
-    onClick,
-    icon,
-    color,
-    title = 'Add',
-  } = props;
+  const { disabled, onClick, icon, color, title = 'Add' } = props;
 
   const classes = cx({
     'action-button': true,
@@ -42,15 +34,9 @@ const ActionButton = React.memo((props) => {
       title={title}
       tabIndex="0"
     >
-      <div className="icon-container">
-        {renderIcon({ icon })}
-      </div>
+      <div className="icon-container">{renderIcon({ icon })}</div>
       <div className="plus-button">
-        <Icon
-          name="menu-new-session"
-          color="sea-green"
-          size="small"
-        />
+        <Icon name="menu-new-session" color="sea-green" size="small" />
       </div>
     </button>
   );
@@ -59,10 +45,7 @@ const ActionButton = React.memo((props) => {
 ActionButton.propTypes = {
   disabled: PropTypes.bool,
   onClick: PropTypes.func,
-  icon: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.element,
-  ]),
+  icon: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   color: PropTypes.string,
   title: PropTypes.string,
 };

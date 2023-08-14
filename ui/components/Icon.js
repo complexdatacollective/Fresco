@@ -4,17 +4,15 @@ import cx from 'classnames';
 import icons from '../utils/getIcon';
 
 const Icon = (props) => {
-  const {
-    color,
-    name,
-    className,
-    ...rest
-  } = props;
+  const { color, name, className, ...rest } = props;
 
-  const iconClassNames = cx({
-    icon: true,
-    [`icon--${color}`]: !!color,
-  }, [className]);
+  const iconClassNames = cx(
+    {
+      icon: true,
+      [`icon--${color}`]: !!color,
+    },
+    [className],
+  );
 
   const IconComponent = useCallback(icons(name), [name]);
 

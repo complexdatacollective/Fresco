@@ -1,16 +1,11 @@
 /* eslint-disable import/prefer-default-export */
-import {
-  Editor,
-  Range,
-  Transforms,
-} from 'slate';
+import { Editor, Range, Transforms } from 'slate';
 
-export const getContainerBlockAtCursor = (editor) => (
+export const getContainerBlockAtCursor = (editor) =>
   Editor.above(editor, {
     match: (n) => Editor.isBlock(editor, n),
     mode: 'highest',
-  })
-);
+  });
 
 export const getContainerBlocksAtSelection = (editor) => {
   const nodes = Editor.nodes(editor);

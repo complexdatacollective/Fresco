@@ -51,7 +51,6 @@
 
   &__node-outer-trim {
     fill: transparent;
-
   }
 
   &__label {
@@ -141,6 +140,5 @@
       transform-origin: 250px 250px;
       animation: linking var(--animation-duration-slow) ease-in-out infinite;
     }
-
   }
 }

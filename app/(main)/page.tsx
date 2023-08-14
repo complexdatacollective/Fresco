@@ -1,6 +1,6 @@
-import InterviewCard from "~/components/InterviewCard";
-import ProtocolCard from "~/components/ProtocolCard";
-import { prisma } from "~/utils/db";
+import InterviewCard from '~/components/InterviewCard';
+import ProtocolCard from '~/components/ProtocolCard';
+import { prisma } from '~/utils/db';
 
 const getInterviews = async () => {
   const interviews = await prisma.interview.findMany({

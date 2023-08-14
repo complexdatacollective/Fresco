@@ -1,6 +1,6 @@
 import schemas from '../schemas/compiled/index.js';
 
-const getSchema = version =>
+const getSchema = (version) =>
   schemas.find(({ version: _version }) => _version === version);
 
 /**

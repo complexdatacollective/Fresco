@@ -13,11 +13,7 @@ export const ALLOWED_MARKDOWN_TAGS = [
   'hr',
 ];
 
-export const ALLOWED_MARKDOWN_PROMPT_TAGS = [
-  'p',
-  'em',
-  'strong',
-];
+export const ALLOWED_MARKDOWN_PROMPT_TAGS = ['p', 'em', 'strong'];
 
 export const ALLOWED_MARKDOWN_LABEL_TAGS = [
   'br',
@@ -29,7 +25,4 @@ export const ALLOWED_MARKDOWN_LABEL_TAGS = [
   'li',
 ];
 
-export const ALLOWED_MARKDOWN_INLINE_LABEL_TAGS = [
-  'em',
-  'strong',
-];
+export const ALLOWED_MARKDOWN_INLINE_LABEL_TAGS = ['em', 'strong'];

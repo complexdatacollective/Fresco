@@ -7,11 +7,7 @@ import MarkdownLabel from './MarkdownLabel';
 
 const TextInput = ({
   input,
-  meta: {
-    error,
-    invalid,
-    touched,
-  },
+  meta: { error, invalid, touched },
   label,
   placeholder,
   fieldLabel,
@@ -27,36 +23,35 @@ const TextInput = ({
 
   const handleFocus = (...args) => {
     setFocus(true);
-    if (input.onFocus) { input.onFocus(...args); }
+    if (input.onFocus) {
+      input.onFocus(...args);
+    }
   };
 
   const handleBlur = (...args) => {
     setFocus(false);
-    if (input.onBlur) { input.onBlur(...args); }
+    if (input.onBlur) {
+      input.onBlur(...args);
+    }
   };
 
   const hasLeftAdornment = !!adornmentLeft;
   const hasRightAdornment = !!adornmentRight;
   const hasAdornment = hasLeftAdornment || hasRightAdornment;
 
-  const seamlessClasses = cx(
-    className,
-    'form-field-text',
-    {
-      'form-field-text--has-focus': hasFocus,
-      'form-field-text--has-error': invalid && touched && error,
-      'form-field-text--adornment': hasAdornment,
-      'form-field-text--has-left-adornment': hasLeftAdornment,
-      'form-field-text--has-right-adornment': hasRightAdornment,
-    },
-  );
+  const seamlessClasses = cx(className, 'form-field-text', {
+    'form-field-text--has-focus': hasFocus,
+    'form-field-text--has-error': invalid && touched && error,
+    'form-field-text--adornment': hasAdornment,
+    'form-field-text--has-left-adornment': hasLeftAdornment,
+    'form-field-text--has-right-adornment': hasRightAdornment,
+  });
 
   const anyLabel = fieldLabel || label;
 
   return (
     <div className="form-field-container" hidden={hidden}>
-      {anyLabel
-        && <MarkdownLabel label={anyLabel} />}
+      {anyLabel && <MarkdownLabel label={anyLabel} />}
       <div className={seamlessClasses}>
         <input
           id={id.current}
@@ -71,9 +66,7 @@ const TextInput = ({
           onFocus={handleFocus}
         />
         {adornmentLeft && (
-          <div className="form-field-text__adornment-left">
-            {adornmentLeft}
-          </div>
+          <div className="form-field-text__adornment-left">{adornmentLeft}</div>
         )}
         {adornmentRight && (
           <div className="form-field-text__adornment-right">
@@ -87,9 +80,7 @@ const TextInput = ({
           </div>
         )}
       </div>
-
     </div>
-
   );
 };
 
@@ -103,15 +94,8 @@ TextInput.propTypes = {
   input: PropTypes.object,
   label: PropTypes.string,
   meta: PropTypes.object,
-  placeholder: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
-  type: PropTypes.oneOf([
-    'text',
-    'number',
-    'search',
-  ]),
+  placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  type: PropTypes.oneOf(['text', 'number', 'search']),
 };
 
 TextInput.defaultProps = {

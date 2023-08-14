@@ -8,7 +8,8 @@ input {
       outline: none;
     }
 
-    &::-webkit-slider-runnable-track { // sass-lint:disable-line no-vendor-prefixes
+    &::-webkit-slider-runnable-track {
+      // sass-lint:disable-line no-vendor-prefixes
       width: 100%;
       height: 1rem;
       cursor: pointer;
@@ -16,7 +17,8 @@ input {
       border-radius: 1rem;
     }
 
-    &::-webkit-slider-thumb { // sass-lint:disable-line no-vendor-prefixes
+    &::-webkit-slider-thumb {
+      // sass-lint:disable-line no-vendor-prefixes
       height: 2rem;
       width: 2rem;
       border-radius: 50%;

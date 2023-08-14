@@ -1,7 +1,11 @@
-import { type Config } from "tailwindcss";
+import { type Config } from 'tailwindcss';
 
 export default {
-  content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}", "./ui/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+    './ui/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
     extend: {},
     fontFamily: {
@@ -15,5 +19,3 @@ export default {
     require('@tailwindcss/container-queries'),
   ],
 } satisfies Config;
-
-

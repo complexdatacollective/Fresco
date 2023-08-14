@@ -11,7 +11,10 @@ const migrateStep = (protocol, { version, migration }) => {
 
 const migrateProtocol = (protocol, targetSchemaVersion) => {
   // Get migration steps between versions
-  const migrationPath = getMigrationPath(protocol.schemaVersion, targetSchemaVersion);
+  const migrationPath = getMigrationPath(
+    protocol.schemaVersion,
+    targetSchemaVersion,
+  );
 
   // Perform migration
   const updatedProtocol = migrationPath.reduce(migrateStep, protocol);
@@ -21,21 +24,17 @@ const migrateProtocol = (protocol, targetSchemaVersion) => {
     schemaVersion: targetSchemaVersion,
   };
 
-  const { migrations } = migrationPath
-    .reduce(
-      (acc, { version }) => {
-        return {
-          previous: version,
-          migrations: [...acc.migrations, [acc.previous, version]],
-        };
-      },
-      { previous: protocol.schemaVersion, migrations: [] },
-    );
+  const { migrations } = migrationPath.reduce(
+    (acc, { version }) => {
+      return {
+        previous: version,
+        migrations: [...acc.migrations, [acc.previous, version]],
+      };
+    },
+    { previous: protocol.schemaVersion, migrations: [] },
+  );
 
-  return [
-    resultProtocol,
-    migrations,
-  ];
+  return [resultProtocol, migrations];
 };
 
 export default migrateProtocol;

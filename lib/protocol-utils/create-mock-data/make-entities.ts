@@ -1,4 +1,13 @@
-import { edgeSourceProperty, edgeTargetProperty, VariableDefinition, NcEdge, NcEntity, NcNode, entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shared-consts';
+import {
+  edgeSourceProperty,
+  edgeTargetProperty,
+  VariableDefinition,
+  NcEdge,
+  NcEntity,
+  NcNode,
+  entityPrimaryKeyProperty,
+  entityAttributesProperty,
+} from '@codaco/shared-consts';
 import { has } from 'lodash';
 import { v4 as uuid } from 'uuid';
 import make from './make-mock-value.js';
@@ -51,7 +60,8 @@ export const makeEdge = (
   to: string,
   variables: Record<string, VariableDefinition> = {},
   promptAttributes: Record<string, VariableDefinition> = {},
-): NcEdge => { // eslint-disable-line max-params
+): NcEdge => {
+  // eslint-disable-line max-params
   const entity = makeEntity(variables, promptAttributes);
 
   return {

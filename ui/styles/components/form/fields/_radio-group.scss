@@ -7,8 +7,9 @@ $component-name: form-field-radio-group;
     opacity: 0;
     background: var(--error);
     color: var(--text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;
@@ -27,6 +28,5 @@ $component-name: form-field-radio-group;
       border: 0.125rem solid var(--error);
       margin-bottom: 0;
     }
-
   }
 }

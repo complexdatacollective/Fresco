@@ -1,12 +1,18 @@
-
 // Breakpoints, setter and mixins for mobile-first layouts
 // =============================================================================
 
-$-breakpoint-map: (base: 'min-width: 0') !default;
+$-breakpoint-map: (
+  base: 'min-width: 0',
+) !default;
 
 // !global allows us to scope different sets of settings within the list
 @mixin breakpoint-set($breakpoint-name, $rule) {
-  $-breakpoint-map: map-merge($-breakpoint-map, ($breakpoint-name: $rule)) !global;
+  $-breakpoint-map: map-merge(
+    $-breakpoint-map,
+    (
+      $breakpoint-name: $rule,
+    )
+  ) !global;
 }
 
 @mixin breakpoint($name) {

@@ -1,11 +1,10 @@
-"use server"
+'use server';
 
-import { prisma } from "~/utils/db";
+import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
 
-
 export const handleSubmit = async (data: FormData) => {
-  "use server";
+  'use server';
 
   // Data is an object containing the submitted form data.
   console.log('data', data);
@@ -17,7 +16,7 @@ export const handleSubmit = async (data: FormData) => {
   const isEmailInDb = await prisma.user.findUnique({
     where: {
       email: data.get('email'),
-    }
+    },
   });
 
   if (isEmailInDb) {
@@ -34,12 +33,14 @@ export const handleSubmit = async (data: FormData) => {
       email: data.get('email'),
       password,
       roles: {
-        connect: [{
-          id: '1',
-        }],
+        connect: [
+          {
+            id: '1',
+          },
+        ],
       },
     },
-  })
+  });
 
   return true;
 };

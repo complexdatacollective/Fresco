@@ -189,9 +189,7 @@
           "layoutVariable": "b1374173-d4b5-4739-bc8f-6317c82c338f",
           "groupVariable": "",
           "edges": {
-            "display": [
-              "f29313cc-7dbf-42e2-9b15-800e1db6ad3b"
-            ]
+            "display": ["f29313cc-7dbf-42e2-9b15-800e1db6ad3b"]
           },
           "id": "25dd7fc7-965f-491d-ac3f-62654a99f9aa",
           "label": "fds"
@@ -295,9 +293,7 @@
           },
           "edges": {
             "create": "4be6a38f-0c5b-497f-9d95-209dea1f16e5",
-            "display": [
-              "4be6a38f-0c5b-497f-9d95-209dea1f16e5"
-            ]
+            "display": ["4be6a38f-0c5b-497f-9d95-209dea1f16e5"]
           },
           "text": "fds",
           "layout": {

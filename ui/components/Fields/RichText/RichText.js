@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Editable, withReact, Slate } from 'slate-react';
 import { createEditor } from 'slate';
@@ -103,38 +98,41 @@ const RichText = ({
     ...ALWAYS_DISALLOWED,
   ];
 
-  const withOptions = (e) => Object.assign(e, {
-    inline,
-    disallowedTypes: disallowedTypesWithDefaults,
-  });
+  const withOptions = (e) =>
+    Object.assign(e, {
+      inline,
+      disallowedTypes: disallowedTypesWithDefaults,
+    });
 
   const editor = useMemo(
-    () => compose(
-      withVoids,
-      withNormalize,
-      withOptions,
-      withEditList,
-      withHistory,
-      withReact,
-    )(createEditor()),
+    () =>
+      compose(
+        withVoids,
+        withNormalize,
+        withOptions,
+        withEditList,
+        withHistory,
+        withReact,
+      )(createEditor()),
     [disallowedTypesWithDefaults.join()],
   );
 
   // Test if there is no text content in the tree
-  const childrenAreEmpty = (children) => children.every((child) => {
-    // Thematic break has no text, but still counts as content.
-    if (child.type === 'thematic_break') {
-      return false;
-    }
+  const childrenAreEmpty = (children) =>
+    children.every((child) => {
+      // Thematic break has no text, but still counts as content.
+      if (child.type === 'thematic_break') {
+        return false;
+      }
 
-    if (child.children) {
-      return childrenAreEmpty(child.children);
-    }
+      if (child.children) {
+        return childrenAreEmpty(child.children);
+      }
 
-    // The regexp here means that content only containing spaces or
-    // tabs will be considered empty!
-    return isEmpty(child.text) || !/\S/.test(child.text);
-  });
+      // The regexp here means that content only containing spaces or
+      // tabs will be considered empty!
+      return isEmpty(child.text) || !/\S/.test(child.text);
+    });
 
   const getSerializedValue = () => {
     if (childrenAreEmpty(editor.children)) {
@@ -143,8 +141,8 @@ const RichText = ({
     return serialize(value);
   };
 
-  const setInitialValue = () => parse(initialValue)
-    .then((parsedValue) => {
+  const setInitialValue = () =>
+    parse(initialValue).then((parsedValue) => {
       // we need to reset the cursor state because the value length may have changed
       Transforms.deselect(editor);
       setValue(parsedValue);
@@ -152,20 +150,23 @@ const RichText = ({
 
   // Set starting state from prop value on start up
   useEffect(() => {
-    setInitialValue()
-      .then(() => setIsInitialized(true));
+    setInitialValue().then(() => setIsInitialized(true));
   }, []);
 
   // Set value again when initial value changes
   useEffect(() => {
     // If value matches the last reported change do not set value;
-    if (initialValue === lastChange) { return; }
+    if (initialValue === lastChange) {
+      return;
+    }
     setInitialValue();
   }, [initialValue]);
 
   // Update upstream on change
   useEffect(() => {
-    if (!isInitialized) { return; }
+    if (!isInitialized) {
+      return;
+    }
 
     const nextValue = getSerializedValue();
 
@@ -178,20 +179,27 @@ const RichText = ({
     onChange(nextValue);
   }, [value]);
 
-  const handleKeyDown = useCallback((event) => {
-    hotkeyOnKeyDown(editor)(event);
-    listOnKeyDown(editor)(event);
-  }, [editor]);
+  const handleKeyDown = useCallback(
+    (event) => {
+      hotkeyOnKeyDown(editor)(event);
+      listOnKeyDown(editor)(event);
+    },
+    [editor],
+  );
 
   return (
     <Slate editor={editor} value={value} onChange={setValue}>
       <RichTextContainer>
         <Toolbar />
-        <div className={`rich-text__editable ${inline ? 'rich-text__editable--inline' : ''}`}>
+        <div
+          className={`rich-text__editable ${
+            inline ? 'rich-text__editable--inline' : ''
+          }`}
+        >
           <Editable
             renderElement={Element}
             renderLeaf={Leaf}
-            placeholder={(<em style={{ userSelect: 'none' }}>{placeholder}</em>)}
+            placeholder={<em style={{ userSelect: 'none' }}>{placeholder}</em>}
             spellCheck
             autoFocus={autoFocus}
             onKeyDown={handleKeyDown}
@@ -214,7 +222,7 @@ RichText.propTypes = {
 RichText.defaultProps = {
   value: '',
   placeholder: 'Enter some text...',
-  onChange: () => { },
+  onChange: () => {},
   inline: false,
   disallowedTypes: [],
   autoFocus: false,

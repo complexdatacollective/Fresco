@@ -6,9 +6,7 @@ import Button from '../../Button';
 /*
  * Designed to present notices to the user.
  */
-const Notice = ({
-  title, message, onConfirm, confirmLabel, show,
-}) => (
+const Notice = ({ title, message, onConfirm, confirmLabel, show }) => (
   <Dialog
     type="notice"
     icon="info"
@@ -17,7 +15,12 @@ const Notice = ({
     message={message}
     onBlur={onConfirm}
     options={[
-      <Button key="confirm" onClick={onConfirm} color="primary" content={confirmLabel} />,
+      <Button
+        key="confirm"
+        onClick={onConfirm}
+        color="primary"
+        content={confirmLabel}
+      />,
     ]}
   />
 );

@@ -8,7 +8,8 @@ import ModifiedIcon from '../../assets/images/ModifiedIcon.svg';
 import FinishedIcon from '../../assets/images/FinishedIcon.svg';
 import ExportedIcon from '../../assets/images/ExportedIcon.svg';
 
-const formatDate = (dateString) => dateString && new Date(dateString).toLocaleString(undefined);
+const formatDate = (dateString) =>
+  dateString && new Date(dateString).toLocaleString(undefined);
 
 const SessionCard = (props) => {
   const {
@@ -36,7 +37,11 @@ const SessionCard = (props) => {
           <HoverMarquee>{caseId}</HoverMarquee>
         </h2>
         <h5 className="card__protocol">
-          <HoverMarquee>{protocolName || (<span className="highlight">Unavailable protocol!</span>)}</HoverMarquee>
+          <HoverMarquee>
+            {protocolName || (
+              <span className="highlight">Unavailable protocol!</span>
+            )}
+          </HoverMarquee>
         </h5>
       </div>
       <div className="meta-wrapper">
@@ -44,13 +49,21 @@ const SessionCard = (props) => {
           <h6 className="meta-wrapper__attribute">
             <HoverMarquee>
               <img src={StartedIcon} alt="Interview started at" />
-              {startedAt ? formatDate(startedAt) : (<span className="highlight">No start date!</span>)}
+              {startedAt ? (
+                formatDate(startedAt)
+              ) : (
+                <span className="highlight">No start date!</span>
+              )}
             </HoverMarquee>
           </h6>
           <h6 className="meta-wrapper__attribute">
             <HoverMarquee>
               <img src={ModifiedIcon} alt="Interview modified at" />
-              {updatedAt ? formatDate(updatedAt) : (<span className="highlight">Never changed!</span>)}
+              {updatedAt ? (
+                formatDate(updatedAt)
+              ) : (
+                <span className="highlight">Never changed!</span>
+              )}
             </HoverMarquee>
           </h6>
         </div>
@@ -58,25 +71,25 @@ const SessionCard = (props) => {
           <div className="progress-wrapper">
             <img src={FinishedIcon} alt="Interview finished at" />
             {progress === 100 && finishedAt ? (
-              <span>
-                {formatDate(finishedAt)}
-              </span>
+              <span>{formatDate(finishedAt)}</span>
             ) : (
               <>
-                <span>
-                  {' '}
-                  {progress}
-                  %
-                </span>
-                <ProgressBar percentProgress={progress} orientation="horizontal" />
+                <span> {progress}%</span>
+                <ProgressBar
+                  percentProgress={progress}
+                  orientation="horizontal"
+                />
               </>
             )}
-
           </div>
           <h6 className="meta-wrapper__attribute">
             <HoverMarquee>
               <img src={ExportedIcon} alt="Interview exported at" />
-              {exportedAt ? formatDate(exportedAt) : (<span className="highlight">Not yet exported</span>)}
+              {exportedAt ? (
+                formatDate(exportedAt)
+              ) : (
+                <span className="highlight">Not yet exported</span>
+              )}
             </HoverMarquee>
           </h6>
         </div>

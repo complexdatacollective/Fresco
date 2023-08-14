@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 /**
-  * Renders a Node.
-  */
+ * Renders a Node.
+ */
 
 class Node extends Component {
   render() {
@@ -18,15 +18,12 @@ class Node extends Component {
       handleClick,
     } = this.props;
 
-    const classes = classNames(
-      'node',
-      {
-        'node--inactive': inactive,
-        'node--selected': selected,
-        'node--linking': linking,
-        [`node--${selectedColor}`]: selected && selectedColor,
-      },
-    );
+    const classes = classNames('node', {
+      'node--inactive': inactive,
+      'node--selected': selected,
+      'node--linking': linking,
+      [`node--${selectedColor}`]: selected && selectedColor,
+    });
 
     const labelClasses = () => {
       const labelLength = label.length;
@@ -36,7 +33,8 @@ class Node extends Component {
     const nodeBaseColor = `var(--${color})`;
     const nodeFlashColor = `var(--${color}--dark)`;
 
-    const labelWithEllipsis = label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`; // Add ellipsis for really long labels
+    const labelWithEllipsis =
+      label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`; // Add ellipsis for really long labels
 
     return (
       <div className={classes} onClick={handleClick}>
@@ -46,9 +44,21 @@ class Node extends Component {
           className="node__node"
           preserveAspectRatio="xMidYMid meet"
         >
-          <circle cx="250" cy="270" r="200" className="node__node-shadow" opacity="0.25" />
+          <circle
+            cx="250"
+            cy="270"
+            r="200"
+            className="node__node-shadow"
+            opacity="0.25"
+          />
           <circle cx="250" cy="250" r="250" className="node__node-outer-trim" />
-          <circle cx="250" cy="250" r="200" fill={nodeBaseColor} className="node__node-base" />
+          <circle
+            cx="250"
+            cy="250"
+            r="200"
+            fill={nodeBaseColor}
+            className="node__node-base"
+          />
           <path
             d="m50,250 a1,1 0 0,0 400,0"
             fill={nodeFlashColor}
@@ -60,7 +70,9 @@ class Node extends Component {
         <div className="node__label">
           <div
             className={labelClasses()}
-            ref={(labelText) => { this.labelText = labelText; }}
+            ref={(labelText) => {
+              this.labelText = labelText;
+            }}
           >
             {labelWithEllipsis}
           </div>

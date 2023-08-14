@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Network Canvas Fresco - Interview",
-  description: "Interview",
+  title: 'Network Canvas Fresco - Interview',
+  description: 'Interview',
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {

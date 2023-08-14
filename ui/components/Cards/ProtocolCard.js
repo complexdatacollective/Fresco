@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Icon from '../Icon';
 
-const formatDate = (timeString) => timeString && new Date(timeString).toLocaleString(undefined);
+const formatDate = (timeString) =>
+  timeString && new Date(timeString).toLocaleString(undefined);
 
 const ProtocolCard = (props) => {
   const {
@@ -32,7 +33,13 @@ const ProtocolCard = (props) => {
   const renderStatusIcon = () => {
     if (isOutdated) {
       return (
-        <div className="status-icon status-icon--outdated" onClick={(e) => { e.stopPropagation(); onStatusClickHandler(); }}>
+        <div
+          className="status-icon status-icon--outdated"
+          onClick={(e) => {
+            e.stopPropagation();
+            onStatusClickHandler();
+          }}
+        >
           <Icon name="warning" />
         </div>
       );
@@ -40,7 +47,13 @@ const ProtocolCard = (props) => {
 
     if (isObsolete) {
       return (
-        <div className="status-icon status-icon--obsolete" onClick={(e) => { e.stopPropagation(); onStatusClickHandler(); }}>
+        <div
+          className="status-icon status-icon--obsolete"
+          onClick={(e) => {
+            e.stopPropagation();
+            onStatusClickHandler();
+          }}
+        >
           <Icon name="error" />
         </div>
       );
@@ -57,32 +70,26 @@ const ProtocolCard = (props) => {
     if (condensed) {
       return (
         <div className="protocol-description protocol-description--condensed">
-          { description }
+          {description}
         </div>
       );
     }
 
-    return (
-      <div className="protocol-description">
-        { description }
-      </div>
-    );
+    return <div className="protocol-description">{description}</div>;
   };
 
   return (
     <div className={modifierClasses} onClick={onClickHandler}>
       <div className="protocol-card__icon-section">
-        { renderStatusIcon() }
-        { !condensed && (
+        {renderStatusIcon()}
+        {!condensed && (
           <div className="protocol-meta">
-            {
-              installationDate && (
-                <h6>
-                  Installed:
-                  {formatDate(installationDate)}
-                </h6>
-              )
-            }
+            {installationDate && (
+              <h6>
+                Installed:
+                {formatDate(installationDate)}
+              </h6>
+            )}
             <h6>
               Last Modified:
               {formatDate(lastModified)}
@@ -92,11 +99,11 @@ const ProtocolCard = (props) => {
               {schemaVersion}
             </h6>
           </div>
-        ) }
+        )}
       </div>
       <div className="protocol-card__main-section">
         <h2 className="protocol-name">{name}</h2>
-        { description && renderDescription() }
+        {description && renderDescription()}
       </div>
     </div>
   );

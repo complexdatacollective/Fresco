@@ -1,9 +1,5 @@
 /* eslint-disable no-param-reassign,no-restricted-syntax */
-import {
-  Transforms,
-  Node,
-  Element,
-} from 'slate';
+import { Transforms, Node, Element } from 'slate';
 
 /**
  * This extends the editor with a custom normalization
@@ -34,7 +30,11 @@ const withNormalize = (editor) => {
       // Force the first node to always be a paragraph and merge any
       // later nodes
       for (const [child, childPath] of Node.children(editor, path)) {
-        if (Element.isElement(child) && childPath[0] === 0 && node.type !== 'paragraph') {
+        if (
+          Element.isElement(child) &&
+          childPath[0] === 0 &&
+          node.type !== 'paragraph'
+        ) {
           Transforms.setNodes(
             editor,
             { type: 'paragraph', break: false },

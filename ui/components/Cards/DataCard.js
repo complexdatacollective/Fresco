@@ -3,25 +3,14 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { noop } from 'lodash';
 
-const DataCard = ({
-  label,
-  data,
-  onClick,
-  allowDrag,
-}) => {
-  const classes = cx(
-    'data-card',
-    {
-      'data-card--can-drag': allowDrag,
-      'data-card--can-click': onClick !== noop,
-    },
-  );
+const DataCard = ({ label, data, onClick, allowDrag }) => {
+  const classes = cx('data-card', {
+    'data-card--can-drag': allowDrag,
+    'data-card--can-click': onClick !== noop,
+  });
 
   return (
-    <div
-      className={classes}
-      onClick={onClick}
-    >
+    <div className={classes} onClick={onClick}>
       <div className="data-card__label">
         <h2>{label}</h2>
       </div>

@@ -1,6 +1,4 @@
-import React, {
-  useState, useEffect, useMemo, useCallback,
-} from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import remark from 'remark';
 import strip from 'strip-markdown';
 import PropTypes from 'prop-types';
@@ -11,7 +9,7 @@ import useSpeech from '../../hooks/useSpeech';
 import useTimeout from '../../hooks/useTimeout';
 
 // Words read per second (approximate). Used to calculate underline duration.
-const WORDS_PER_SECOND = 0.30;
+const WORDS_PER_SECOND = 0.3;
 
 const variants = {
   enter: (backwards) => ({
@@ -29,15 +27,10 @@ const variants = {
 };
 
 /**
-  * Renders a single prompt.
-  */
+ * Renders a single prompt.
+ */
 const Prompt = (props) => {
-  const {
-    id,
-    text,
-    backwards,
-    speakable,
-  } = props;
+  const { id, text, backwards, speakable } = props;
   const [animationDuration, setAnimationDuration] = useState(0);
 
   const rawText = useMemo(() => {
@@ -52,26 +45,24 @@ const Prompt = (props) => {
     return contents;
   }, [text]);
 
-  const {
-    speak, stop, isSpeaking, error,
-  } = useSpeech(rawText);
+  const { speak, stop, isSpeaking, error } = useSpeech(rawText);
 
   // use timeout to allow mount animation to complete and synthesis engine to be ready.
   useTimeout(speak, 1000);
 
-  useEffect(() => () => {
-    if (stop) {
-      stop();
-    }
-  }, []);
-
-  const classes = cx(
-    'prompt',
-    {
-      'prompt--speakable': speakable,
-      'prompt--isSpeaking': isSpeaking,
+  useEffect(
+    () => () => {
+      if (stop) {
+        stop();
+      }
     },
+    [],
   );
+
+  const classes = cx('prompt', {
+    'prompt--speakable': speakable,
+    'prompt--isSpeaking': isSpeaking,
+  });
 
   const getTitle = useMemo(() => {
     if (error) {
@@ -86,7 +77,9 @@ const Prompt = (props) => {
   }, [error, speakable]);
 
   const handleTap = useCallback(() => {
-    if (!speakable || error) { return; }
+    if (!speakable || error) {
+      return;
+    }
 
     if (isSpeaking) {
       stop();

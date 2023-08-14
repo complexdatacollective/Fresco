@@ -17,9 +17,7 @@ const Search = (props) => {
     onChange('');
   };
 
-  const adornmentLeft = color && (
-    <SearchIcon style={{ color }} />
-  );
+  const adornmentLeft = color && <SearchIcon style={{ color }} />;
 
   const adornmentRight = color && hasValue && (
     <ClearIcon

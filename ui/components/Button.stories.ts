@@ -32,6 +32,6 @@ export const Primary: Story = {
       control: {
         type: 'select',
       },
-    }
+    },
   },
 };

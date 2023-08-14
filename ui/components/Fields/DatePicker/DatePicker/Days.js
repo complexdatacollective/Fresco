@@ -10,14 +10,15 @@ import { formatRangeItem } from '../helpers';
 const Days = ({ children }) => {
   const { date, range: dateRange } = useContext(DatePickerContext);
 
-  const days = range(1, DateTime.fromObject(date).daysInMonth + 1)
-    .map((day) => {
+  const days = range(1, DateTime.fromObject(date).daysInMonth + 1).map(
+    (day) => {
       const d = DateTime.fromObject({ ...date, day });
       if (dateRange.contains(d)) {
         return formatRangeItem(day);
       }
       return formatRangeItem(day, { isOutOfRange: true });
-    });
+    },
+  );
 
   return children({ days });
 };

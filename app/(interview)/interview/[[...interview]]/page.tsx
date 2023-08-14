@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
-import { NetworkProvider } from "~/contexts/NetworkProvider";
-import Stage from "~/components/Stage";
-import { getServerAuthSession } from "~/utils/auth";
-import { prisma } from "~/utils/db";
-import InterviewNavigation from "~/components/interview/InterviewNavigation";
-import { NcNetwork, Stage as StageType } from "~/lib/shared-consts";
+import { redirect } from 'next/navigation';
+import { NetworkProvider } from '~/contexts/NetworkProvider';
+import Stage from '~/components/Stage';
+import { getServerAuthSession } from '~/utils/auth';
+import { prisma } from '~/utils/db';
+import InterviewNavigation from '~/components/interview/InterviewNavigation';
+import { NcNetwork, Stage as StageType } from '~/lib/shared-consts';
 
 async function getInterviewData(id: string) {
   const interview = await prisma.interview.findUnique({
@@ -34,7 +34,7 @@ export default async function Page({
 
   // If theres no interview ID in the URL, redirect to the main dashboard
   if (!interviewId) {
-    redirect("/");
+    redirect('/');
   }
 
   // Get session so we can check if the user is allowed to view this interview
@@ -42,7 +42,7 @@ export default async function Page({
 
   // If the user is not logged in, redirect to the signin page
   if (!session) {
-    redirect("/signin");
+    redirect('/signin');
   }
 
   // Fetch interview data from the database
@@ -50,7 +50,7 @@ export default async function Page({
 
   // If theres no interview data in the database, redirect to the main dashboard
   if (!interviewData) {
-    redirect("/");
+    redirect('/');
   }
 
   // TODO: Check here that the logged in user has access to this interview
@@ -78,9 +78,9 @@ export default async function Page({
   const currentStageConfig = stagesJson[currentInterviewPage - 1];
 
   const updateNetwork = async (network: NcNetwork) => {
-    "use server";
+    'use server';
 
-    console.log("updateNetwork", network);
+    console.log('updateNetwork', network);
 
     // Simulate 2 second delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -93,7 +93,7 @@ export default async function Page({
         network: JSON.stringify(network),
       },
     });
-    console.log("update complete!");
+    console.log('update complete!');
   };
 
   return (

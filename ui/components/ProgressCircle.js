@@ -36,10 +36,7 @@ Counter.propTypes = {
   incomingValue: PropTypes.number.isRequired,
 };
 
-const ProgressCircle = ({
-  percentProgress,
-  hideCounter,
-}) => {
+const ProgressCircle = ({ percentProgress, hideCounter }) => {
   const ref = useRef(null);
   const radius = 45;
   const circumference = Math.ceil(2 * Math.PI * radius);
@@ -50,10 +47,9 @@ const ProgressCircle = ({
   return (
     <div className="progress-circle" ref={ref}>
       <div className="progress-circle__status">
-        { !hideCounter && (
+        {!hideCounter && (
           <h1 style={{ margin: 0 }}>
-            <Counter incomingValue={percentProgress} />
-            %
+            <Counter incomingValue={percentProgress} />%
           </h1>
         )}
       </div>
@@ -65,18 +61,17 @@ const ProgressCircle = ({
           width="100%"
           height="100%"
         >
-          <circle
-            className="background-circle"
-            cx="50"
-            cy="50"
-            r={radius}
-          />
+          <circle className="background-circle" cx="50" cy="50" r={radius} />
           <motion.circle
             className="animated-circle"
             cx="50"
             cy="50"
             r={radius}
-            stroke={percentProgress === 100 ? 'var(--circle-complete-color)' : 'var(--circle-color)'}
+            stroke={
+              percentProgress === 100
+                ? 'var(--circle-complete-color)'
+                : 'var(--circle-color)'
+            }
             fill="transparent"
             strokeDasharray={circumference}
             transform="rotate(-90)"

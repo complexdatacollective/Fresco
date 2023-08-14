@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import useResizeAware from 'react-resize-aware';
 
-const HoverMarquee = ({
-  speed,
-  children,
-}) => {
+const HoverMarquee = ({ speed, children }) => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
   const [resizeListener, sizes] = useResizeAware();
@@ -22,18 +19,21 @@ const HoverMarquee = ({
   };
 
   useEffect(() => {
-    const delta = contentRef.current.offsetWidth - containerRef.current.offsetWidth;
+    const delta =
+      contentRef.current.offsetWidth - containerRef.current.offsetWidth;
     contentVariants.hover.left = `-${delta}px`;
     contentVariants.hover.transition.duration = delta / speed;
   }, [containerRef.current, contentRef.current, sizes]);
 
   return (
-    <div
-      className="hover-marquee"
-      ref={containerRef}
-    >
+    <div className="hover-marquee" ref={containerRef}>
       {resizeListener}
-      <motion.span transition={{ duration: 0 }} whileHover="hover" variants={contentVariants} ref={contentRef}>
+      <motion.span
+        transition={{ duration: 0 }}
+        whileHover="hover"
+        variants={contentVariants}
+        ref={contentRef}
+      >
         {children}
       </motion.span>
     </div>

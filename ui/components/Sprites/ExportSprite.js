@@ -9,9 +9,7 @@ const GRAVITATIONAL_SPEED = 0.9834;
 
 const px = (f) => `${Math.round(f)}px`;
 
-const range = (min, max) => (
-  Math.random() * (max - min) + min
-);
+const range = (min, max) => Math.random() * (max - min) + min;
 
 const palette = [
   'rgb(226, 33, 91)',
@@ -27,31 +25,35 @@ const palette = [
   'rgb(232, 45, 63)',
 ];
 
-const generateNode = (el, options = {}) => () => {
-  const maxRange = options.size / 2;
+const generateNode =
+  (el, options = {}) =>
+  () => {
+    const maxRange = options.size / 2;
 
-  const node = {
-    a: range(-Math.PI, Math.PI),
-    h: maxRange,
-    f: range(1, 3),
-    d: 1,
-    s: range(options.size / 12, options.size / 8),
-    c: palette[Math.floor(range(0, palette.length))],
-    el: document.createElement('div'),
+    const node = {
+      a: range(-Math.PI, Math.PI),
+      h: maxRange,
+      f: range(1, 3),
+      d: 1,
+      s: range(options.size / 12, options.size / 8),
+      c: palette[Math.floor(range(0, palette.length))],
+      el: document.createElement('div'),
+    };
+
+    node.el.classList.add('export-sprite__node');
+    node.el.style.backgroundColor = node.c;
+    node.el.style.borderRadius = px(node.s);
+    node.el.style.opacity = 0;
+    el.appendChild(node.el);
+
+    return node;
   };
-
-  node.el.classList.add('export-sprite__node');
-  node.el.style.backgroundColor = node.c;
-  node.el.style.borderRadius = px(node.s);
-  node.el.style.opacity = 0;
-  el.appendChild(node.el);
-
-  return node;
-};
 
 class ExportAnimation {
   constructor(el, options = {}) {
-    if (!el) { throw new Error('Element not found'); }
+    if (!el) {
+      throw new Error('Element not found');
+    }
     this.el = el;
     this.options = options;
     this.nodes = [];
@@ -59,9 +61,7 @@ class ExportAnimation {
   }
 
   start() {
-    this.nodes = Array(NODE_COUNT)
-      .fill(undefined)
-      .map(this.generateNode());
+    this.nodes = Array(NODE_COUNT).fill(undefined).map(this.generateNode());
 
     this.loop();
   }
@@ -77,37 +77,40 @@ class ExportAnimation {
   loop() {
     // render
     this.nodes.forEach((node) => {
-      const displaySize = (node.s * 0.5) + (node.s * node.h / this.maxRange());
+      const displaySize = node.s * 0.5 + (node.s * node.h) / this.maxRange();
 
-      node.el.style.opacity = 1 - (node.h / this.maxRange());
+      node.el.style.opacity = 1 - node.h / this.maxRange();
 
-      node.el.style.left = px(Math.sin(node.a) * node.h + this.maxRange() - displaySize * 0.5);
-      node.el.style.top = px(Math.cos(node.a) * node.h + this.maxRange() - displaySize * 0.5);
+      node.el.style.left = px(
+        Math.sin(node.a) * node.h + this.maxRange() - displaySize * 0.5,
+      );
+      node.el.style.top = px(
+        Math.cos(node.a) * node.h + this.maxRange() - displaySize * 0.5,
+      );
 
       node.el.style.width = px(displaySize);
       node.el.style.height = px(displaySize);
     });
 
-    this.nodes = this.nodes
-      .reduce((nodes, node) => {
-        const a = node.a - node.d * ROTATIONAL_SPEED * node.f;
-        const h = node.h * (GRAVITATIONAL_SPEED ** node.f);
-        const cutoff = node.s / 5;
+    this.nodes = this.nodes.reduce((nodes, node) => {
+      const a = node.a - node.d * ROTATIONAL_SPEED * node.f;
+      const h = node.h * GRAVITATIONAL_SPEED ** node.f;
+      const cutoff = node.s / 5;
 
-        if (h <= cutoff) {
-          this.el.removeChild(node.el);
-          return nodes;
-        }
+      if (h <= cutoff) {
+        this.el.removeChild(node.el);
+        return nodes;
+      }
 
-        return [
-          ...nodes,
-          {
-            ...node,
-            a,
-            h,
-          },
-        ];
-      }, []);
+      return [
+        ...nodes,
+        {
+          ...node,
+          a,
+          h,
+        },
+      ];
+    }, []);
 
     this.nodes = [
       ...this.nodes,
@@ -130,11 +133,7 @@ class ExportAnimation {
   }
 }
 
-const ExportSprite = ({
-  size,
-  percentProgress,
-  statusText,
-}) => {
+const ExportSprite = ({ size, percentProgress, statusText }) => {
   const el = useRef();
   const animation = useRef();
 
@@ -143,7 +142,9 @@ const ExportSprite = ({
       size,
     });
 
-    return () => { animation.current.destroy(); };
+    return () => {
+      animation.current.destroy();
+    };
   }, [el.current, size]);
 
   return (

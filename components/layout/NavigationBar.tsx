@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { Disclosure } from "@headlessui/react";
-import Image from "next/image";
-import { Menu as MenuIcon, X } from "lucide-react";
-import classNames from "~/utils/classnames";
-import UserMenu from "./UserMenu";
-import Link from "next/link";
+import { Disclosure } from '@headlessui/react';
+import Image from 'next/image';
+import { Menu as MenuIcon, X } from 'lucide-react';
+import classNames from '~/utils/classnames';
+import UserMenu from './UserMenu';
+import Link from 'next/link';
 
 const navigation = [
-  { name: "Home", href: "/", current: false },
-  { name: "Protected Server Route", href: "/protected/server", current: false },
-  { name: "Protected Client Route", href: "/protected/client", current: false },
-  { name: "Protected Api endpoint", href: "/api/users", current: false },
+  { name: 'Home', href: '/', current: false },
+  { name: 'Protected Server Route', href: '/protected/server', current: false },
+  { name: 'Protected Client Route', href: '/protected/client', current: false },
+  { name: 'Protected Api endpoint', href: '/api/users', current: false },
 ];
 
 const NavigationButton = ({
@@ -29,13 +29,13 @@ const NavigationButton = ({
     <Link
       href={link}
       className={classNames(
-        block ? "block" : "inline-block",
+        block ? 'block' : 'inline-block',
         active
-          ? "bg-emerald-400 text-white hover:bg-emerald-500"
-          : "text-gray-300 hover:bg-opacity-10  hover:text-white",
-        "rounded-md px-3 py-2 font-medium"
+          ? 'bg-emerald-400 text-white hover:bg-emerald-500'
+          : 'text-gray-300 hover:bg-opacity-10  hover:text-white',
+        'rounded-md px-3 py-2 font-medium',
       )}
-      aria-current={active ? "page" : undefined}
+      aria-current={active ? 'page' : undefined}
     >
       {text}
     </Link>

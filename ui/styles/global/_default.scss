@@ -48,7 +48,6 @@ $export-ui-classes: true !default;
 @include color-set('tomato', '232, 45, 63');
 @include color-set('tomato--dark', '211, 43, 58');
 
-
 // Palettes
 @include palette-set('primary', color('sea-green'));
 @include palette-set('menu-panel--active', color('white'));
@@ -108,7 +107,10 @@ $export-ui-classes: true !default;
     $i: index($color-list, $current-color);
     @include palette-set('#{$name}-#{$i}', color($current-color));
     @if $with-dark {
-      @include palette-set('#{$name}-#{$i}--dark', color('#{$current-color}--dark'));
+      @include palette-set(
+        '#{$name}-#{$i}--dark',
+        color('#{$current-color}--dark')
+      );
     }
   }
 }
@@ -189,7 +191,6 @@ $categorical-colors: (
 
 @include color-sequence('cat-color-seq', $categorical-colors, true);
 
-
 // Protocol Schema Sequence
 $schema-colors: (
   'platinum--dark',
@@ -216,7 +217,7 @@ $system-font-stack: 'system-ui', sans-serif;
   --body-font-family: #{$system-font-stack};
 
   // Default border radius
-  --border-radius: .75rem;
+  --border-radius: 0.75rem;
 
   // Link color
   --link-color: var(--color-neon-coral);
@@ -243,7 +244,11 @@ $system-font-stack: 'system-ui', sans-serif;
   --narrative-border-bottom-color: #{transparentize(rgb(22, 21, 43), 0.85)};
 
   --node-outer-trim-stroke: #{transparentize(rgb(255, 255, 255), 0.75)};
-  --node-bucket-bg: #{radial-gradient(ellipse at center, transparentize(rgb(45, 41, 85), 0.5) 0%, transparentize(rgb(58, 58, 117), 0.5) 100%)};
+  --node-bucket-bg: #{radial-gradient(
+      ellipse at center,
+      transparentize(rgb(45, 41, 85), 0.5) 0%,
+      transparentize(rgb(58, 58, 117), 0.5) 100%
+    )};
   --node-list-action-bg: #{transparentize(rgb(58, 58, 117), 0.5)};
 
   --drop-shadow-color: #{transparentize(rgb(22, 21, 43), 0.25)};
@@ -306,11 +311,26 @@ $headings-line-height: 1.1 !default;
 
 // Based of px sizes in style guide (em values were inconsistent)
 $headings: (
-  h1: (1.75rem, var(--heading-font-family)),
-  h2: (1.25rem, var(--heading-font-family)),
-  h3: (1.1625rem, var(--heading-font-family)),
-  h4: (1rem, var(--heading-font-family)),
-  h5: (0.75rem, var(--heading-font-family)),
+  h1: (
+    1.75rem,
+    var(--heading-font-family),
+  ),
+  h2: (
+    1.25rem,
+    var(--heading-font-family),
+  ),
+  h3: (
+    1.1625rem,
+    var(--heading-font-family),
+  ),
+  h4: (
+    1rem,
+    var(--heading-font-family),
+  ),
+  h5: (
+    0.75rem,
+    var(--heading-font-family),
+  ),
 );
 
 @mixin text($font-size, $font-family) {
@@ -331,29 +351,47 @@ $headings: (
 }
 
 @include type-set(
-  'quicksand', base,
+  'quicksand',
+  base,
   (
     font-family: var(--heading-font-family),
     font-size: 1rem,
     line-height: $base-line-height,
-    font-weight: $headings-font-weight
+    font-weight: $headings-font-weight,
   )
 );
 @include type-set(
-  'light', base, (font-weight: 300)
+  'light',
+  base,
+  (
+    font-weight: 300,
+  )
 );
 @include type-set(
-  'medium', base, (font-weight: 500)
+  'medium',
+  base,
+  (
+    font-weight: 500,
+  )
 );
 @include type-set(
-  'bold', base, (font-weight: 700)
+  'bold',
+  base,
+  (
+    font-weight: 700,
+  )
 );
 @include type-set(
-  'center', base, (text-align: center)
+  'center',
+  base,
+  (
+    text-align: center,
+  )
 );
 // H1  - questions, form, and menu headlines
 @include type-set(
-  'main-title', base,
+  'main-title',
+  base,
   (
     font-family: var(--heading-font-family),
     font-size: 3rem,
@@ -364,20 +402,22 @@ $headings: (
 );
 
 @include type-set(
-  'title-1', base,
+  'title-1',
+  base,
   (
     font-family: var(--heading-font-family),
     font-size: 2.3rem,
     line-height: 1.429,
     font-weight: 700,
     text-align: center,
-    width: 100%
+    width: 100%,
   )
 );
 
 // H2 - Form question headlines, buttons, text links
 @include type-set(
-  'title-2', base,
+  'title-2',
+  base,
   (
     font-size: 1.2rem,
     line-height: $base-line-height,
@@ -387,7 +427,8 @@ $headings: (
 
 // H3 - Large nodes, name generator panel, ordinal bins, categorial bins
 @include type-set(
-  'title-3', base,
+  'title-3',
+  base,
   (
     font-size: 1.05rem,
     line-height: $base-line-height,
@@ -397,7 +438,8 @@ $headings: (
 );
 // H4 - Menu items, error message headline, body copy
 @include type-set(
-  'title-4', base,
+  'title-4',
+  base,
   (
     font-size: 1rem,
     line-height: $base-line-height,
@@ -405,7 +447,8 @@ $headings: (
 );
 // H5 - Small nodes, context bins, number counter, form field label
 @include type-set(
-  'title-5', base,
+  'title-5',
+  base,
   (
     font-size: 0.8rem,
     line-height: $base-line-height,
@@ -414,25 +457,28 @@ $headings: (
 
 // Copy sizes
 @include type-set(
-  'copy-large', base,
+  'copy-large',
+  base,
   (
     font-size: 1.1rem,
-    line-height: $base-line-height
+    line-height: $base-line-height,
   )
 );
 @include type-set(
-  'copy-standard', base,
+  'copy-standard',
+  base,
   (
     font-size: 1rem,
-    line-height: $base-line-height
+    line-height: $base-line-height,
   )
 );
 @include type-set(
-  'copy-small', base,
+  'copy-small',
+  base,
   (
     font-size: 0.7rem,
     line-height: $base-line-height,
-    font-weight: 100
+    font-weight: 100,
   )
 );
 

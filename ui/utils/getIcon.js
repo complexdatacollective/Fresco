@@ -2,12 +2,16 @@ import * as muiIcons from 'lucide-react';
 import icons from '../assets/img/icons';
 
 const getMUIIcon = (name) => {
-  if (!Object.prototype.hasOwnProperty.call(muiIcons, name)) { return null; }
+  if (!Object.prototype.hasOwnProperty.call(muiIcons, name)) {
+    return null;
+  }
   return muiIcons[name];
 };
 
 const getNCIcon = (name) => {
-  if (!Object.prototype.hasOwnProperty.call(icons, name)) { return null; }
+  if (!Object.prototype.hasOwnProperty.call(icons, name)) {
+    return null;
+  }
   return icons[name];
 };
 

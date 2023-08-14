@@ -1,6 +1,6 @@
 import { hash } from 'bcrypt';
-import { prisma } from "~/utils/db"
-import protocol from '~/lib/development-protocol/protocol.json' assert { type: "json" };
+import { prisma } from '~/utils/db';
+import protocol from '~/lib/development-protocol/protocol.json' assert { type: 'json' };
 
 const hashPassword = async (password: string) => await hash(password, 12);
 
@@ -11,20 +11,18 @@ async function main() {
   await prisma.user.deleteMany({});
   await prisma.role.deleteMany({});
 
-
-
   // Roles
   await prisma.role.create({
     data: {
       name: 'ADMIN',
     },
-  })
+  });
 
   await prisma.role.create({
     data: {
       name: 'PARTICIPANT',
     },
-  })
+  });
 
   // Users
   await prisma.user.create({
@@ -38,7 +36,7 @@ async function main() {
         },
       },
     },
-  })
+  });
 
   await prisma.user.create({
     data: {
@@ -51,8 +49,7 @@ async function main() {
         },
       },
     },
-  })
-
+  });
 
   // Protocols
   await prisma.protocol.create({
@@ -83,20 +80,19 @@ async function main() {
       },
       user: {
         connect: {
-          email: 'participant@networkcanvas.com'
-        }
-      }
+          email: 'participant@networkcanvas.com',
+        },
+      },
     },
   });
-
 }
 
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

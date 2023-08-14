@@ -13,12 +13,17 @@ $headings-margin-bottom: calc($spacer / 2) !default;
 
 // TODO: Based on spacer-x etc, are these meaningful intervals?
 $spacing-intervals: (
-  'none': 0,    // 0
-  'tiny': 0.25,  // ~5px
-  'small': 0.5,  // ~10px
-  'medium': 1,  // ~20px
-  'large': 1.5, // ~30px
-  'huge': 3     // ~60px
+  'none': 0,
+  // 0
+  'tiny': 0.25,
+  // ~5px
+  'small': 0.5,
+  // ~10px
+  'medium': 1,
+  // ~20px
+  'large': 1.5,
+  // ~30px
+  'huge': 3 // ~60px,
 );
 
 @function spacing($interval) {

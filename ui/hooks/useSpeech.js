@@ -38,10 +38,14 @@ const useSpeech = (text, lang = window.navigator.language) => {
 
   // Find the first speech synthesis voice available for our current language.
   // The first voice may not always be the best, so this could be improved.
-  const voiceForLanguage = useMemo(() => voices.find(
-    // iOS/macOS seem to lower-case navigator.language (which is the default language)
-    (voice) => voice.lang.toLowerCase() === lang.toLowerCase(),
-  ), [lang]);
+  const voiceForLanguage = useMemo(
+    () =>
+      voices.find(
+        // iOS/macOS seem to lower-case navigator.language (which is the default language)
+        (voice) => voice.lang.toLowerCase() === lang.toLowerCase(),
+      ),
+    [lang],
+  );
 
   const speak = () => {
     if (error) {
@@ -64,26 +68,28 @@ const useSpeech = (text, lang = window.navigator.language) => {
   };
 
   const stop = () => {
-    if (error) { return; }
+    if (error) {
+      return;
+    }
     speechSynthesis.cancel();
     setIsSpeaking(false);
   };
 
-  useEffect(
-    () => {
-      if (!voiceForLanguage) {
-        setError(`No voice available for language "${lang}". Cannot speak!`);
-      }
+  useEffect(() => {
+    if (!voiceForLanguage) {
+      setError(`No voice available for language "${lang}". Cannot speak!`);
+    }
 
-      return () => {
-        stop();
-      };
-    },
-    [voiceForLanguage],
-  );
+    return () => {
+      stop();
+    };
+  }, [voiceForLanguage]);
 
   return {
-    speak, stop, isSpeaking, error,
+    speak,
+    stop,
+    isSpeaking,
+    error,
   };
 };
 

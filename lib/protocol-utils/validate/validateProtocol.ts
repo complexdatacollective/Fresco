@@ -1,18 +1,25 @@
-import validateSchema from "./validateSchema";
-import validateLogic from "./validateLogic";
+import validateSchema from './validateSchema';
+import validateLogic from './validateLogic';
 
 type ValidateProtocolReturn = boolean | ValidationError;
 
 export class ValidationError extends Error {
-  constructor(message: string, public schemaErrors: Array<string>, public dataErrors: Array<string>) {
+  constructor(
+    message: string,
+    public schemaErrors: Array<string>,
+    public dataErrors: Array<string>,
+  ) {
     super(message); // (1)
-    this.name = "ValidationError"; // (2)
+    this.name = 'ValidationError'; // (2)
     this.schemaErrors = [];
     this.dataErrors = [];
   }
 }
 
-const validateProtocol = (jsonString: string, forceVersion: string): ValidateProtocolReturn => {
+const validateProtocol = (
+  jsonString: string,
+  forceVersion: string,
+): ValidateProtocolReturn => {
   let data;
 
   try {

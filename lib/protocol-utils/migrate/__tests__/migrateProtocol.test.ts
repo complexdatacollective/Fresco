@@ -11,12 +11,23 @@ jest.mock('../migrations');
  */
 
 const specificMigrationError = new Error('whoops');
-migrations.push({ version: 1, migration: jest.fn(protocol => protocol) });
-migrations.push({ version: 2, migration: jest.fn(protocol => ({ ...protocol, foo: 'bar', bazz: 'buzz' })) });
-migrations.push({ version: 3, migration: jest.fn(({ foo, ...protocol }) => ({ ...protocol, fizz: 'pop' })) });
+migrations.push({ version: 1, migration: jest.fn((protocol) => protocol) });
+migrations.push({
+  version: 2,
+  migration: jest.fn((protocol) => ({ ...protocol, foo: 'bar', bazz: 'buzz' })),
+});
+migrations.push({
+  version: 3,
+  migration: jest.fn(({ foo, ...protocol }) => ({ ...protocol, fizz: 'pop' })),
+});
 migrations.push({ version: 4, migration: null });
-migrations.push({ version: 5, migration: jest.fn(protocol => protocol) });
-migrations.push({ version: 6, migration: jest.fn(() => { throw specificMigrationError; }) });
+migrations.push({ version: 5, migration: jest.fn((protocol) => protocol) });
+migrations.push({
+  version: 6,
+  migration: jest.fn(() => {
+    throw specificMigrationError;
+  }),
+});
 
 const mockProtocol = {
   schemaVersion: 1,
@@ -39,13 +50,20 @@ describe('migrateProtocol', () => {
   it('migrations transform protocol successively', () => {
     const [resultProtocol] = migrateProtocol(mockProtocol, 3);
 
-    expect(resultProtocol).toEqual({ bazz: 'buzz', fizz: 'pop', schemaVersion: 3 });
+    expect(resultProtocol).toEqual({
+      bazz: 'buzz',
+      fizz: 'pop',
+      schemaVersion: 3,
+    });
   });
 
   it('will migrate when there are no steps', () => {
-    const [newProtocol] = migrateProtocol({
-      schemaVersion: 99,
-    }, 999);
+    const [newProtocol] = migrateProtocol(
+      {
+        schemaVersion: 99,
+      },
+      999,
+    );
 
     expect(newProtocol).toEqual({
       schemaVersion: 999,
@@ -54,17 +72,23 @@ describe('migrateProtocol', () => {
 
   it('throws an error if we try to migrate downwards', () => {
     expect(() => {
-      migrateProtocol({
-        schemaVersion: 3,
-      }, 1);
+      migrateProtocol(
+        {
+          schemaVersion: 3,
+        },
+        1,
+      );
     }).toThrow('Nonsensical migration path (3 -> 1).');
   });
 
   it('throws an error if we try to migrate to existing version', () => {
     expect(() => {
-      migrateProtocol({
-        schemaVersion: 1,
-      }, 1);
+      migrateProtocol(
+        {
+          schemaVersion: 1,
+        },
+        1,
+      );
     }).toThrow('Nonsensical migration path (1 -> 1).');
   });
 
@@ -76,9 +100,12 @@ describe('migrateProtocol', () => {
 
   it('throws a generic MigrationError error migration step throws an error', () => {
     expect(() => {
-      migrateProtocol({
-        schemaVersion: 5,
-      }, 6);
+      migrateProtocol(
+        {
+          schemaVersion: 5,
+        },
+        6,
+      );
     }).toThrow('Migration step failed (6)');
   });
 });

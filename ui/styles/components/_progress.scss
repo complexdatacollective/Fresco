@@ -22,12 +22,13 @@
 
 .progress {
   @include modifier(indeterminate) {
-    animation: progress-bar-animation var(--progress-indeterminate-animation-duration) linear infinite;
+    animation: progress-bar-animation
+      var(--progress-indeterminate-animation-duration) linear infinite;
     background-image: linear-gradient(
       0.25turn,
       var(--progress-indeterminate-background-color),
       var(--progress-indeterminate-highlight-color),
-      var(--progress-indeterminate-background-color),
+      var(--progress-indeterminate-background-color)
     );
     background-size: var(--progress-indeterminate-gradient-width);
   }
@@ -36,7 +37,8 @@
   height: var(--progress-height);
   width: 100%;
 
-  &[value] { // determinate
+  &[value] {
+    // determinate
     // sass-lint:disable-block no-vendor-prefixes
     // 'progress-*' is non-standard and won't be autoprefixed
     appearance: none;

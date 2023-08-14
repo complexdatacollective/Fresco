@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
-import validateProtocol, { ValidationError } from '../validate/validateProtocol.js';
+import validateProtocol, {
+  ValidationError,
+} from '../validate/validateProtocol.js';
 import { errToString } from '../validate/helpers.js';
 import chalk from 'chalk';
 
@@ -10,7 +12,6 @@ import chalk from 'chalk';
  *
  * Errors & Validation failures are written to stderr.
  */
-
 
 const protocolArg = process.argv[2];
 const forceSchemaArg: string = process.argv[3];
@@ -24,7 +25,6 @@ const protocolFilepath = protocolArg;
 const protocolName = basename(protocolFilepath);
 const exitOnValidationFailure = !!process.env.CI;
 
-
 const validateJson = (jsonString: string) => {
   try {
     validateProtocol(jsonString, forceSchemaArg);
@@ -36,17 +36,19 @@ const validateJson = (jsonString: string) => {
       console.log(chalk.red(`${protocolName} is NOT valid!`));
       if (err.schemaErrors.length) {
         console.error(`${protocolName} has the following schema errors:`);
-        err.schemaErrors.forEach(err => console.warn('-', errToString(err)));
+        err.schemaErrors.forEach((err) => console.warn('-', errToString(err)));
       }
 
       if (err.dataErrors.length) {
         console.error(`${protocolName} has the following data errors:`);
-        err.dataErrors.forEach(err => console.warn('-', errToString(err)));
+        err.dataErrors.forEach((err) => console.warn('-', errToString(err)));
       }
     }
 
     // Otherwise, it's an internal error
-    console.error(chalk.red(`${protocolName} has an internal validation error:`));
+    console.error(
+      chalk.red(`${protocolName} has an internal validation error:`),
+    );
     console.error(err);
 
     if (exitOnValidationFailure) {

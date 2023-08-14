@@ -1,5 +1,5 @@
-import { Color } from "./colors.js";
-import { VariableDefinition } from "./variables.js";
+import { Color } from './colors.js';
+import { VariableDefinition } from './variables.js';
 
 // Docs: https://github.com/complexdatacollective/Network-Canvas/wiki/protocol.json#variable-registry
 export enum EntityTypes {
@@ -8,9 +8,9 @@ export enum EntityTypes {
 }
 
 export type EntityTypeDefinition = {
-  name?: string,
-  color?: Color,
-  iconVariant?: string,
+  name?: string;
+  color?: Color;
+  iconVariant?: string;
   variables: Record<string, VariableDefinition>;
 };
 

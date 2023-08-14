@@ -35,10 +35,13 @@ const Markdown = ({
   allowedElements = ALLOWED_MARKDOWN_TAGS,
   markdownRenderers,
 }) => {
-  const combinedRenderers = useMemo(() => ({
-    ...defaultMarkdownRenderers,
-    ...markdownRenderers,
-  }), [markdownRenderers]);
+  const combinedRenderers = useMemo(
+    () => ({
+      ...defaultMarkdownRenderers,
+      ...markdownRenderers,
+    }),
+    [markdownRenderers],
+  );
 
   const rawText = useMemo(() => {
     if (!label) {

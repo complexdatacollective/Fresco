@@ -17,7 +17,7 @@
     z-index: var(--z-modal);
   }
 }
- 
+
 .toast {
   width: 40rem;
   background: var(--color-platinum);
@@ -58,7 +58,7 @@
       width: 100% !important;
       height: 100% !important;
 
-      &[name="info"] {
+      &[name='info'] {
         .cls-3 {
           fill: var(--color-platinum--dark);
         }
@@ -68,7 +68,7 @@
         }
       }
 
-      &[name="warning"] {
+      &[name='warning'] {
         .cls-1 {
           fill: var(--color-platinum--dark);
         }

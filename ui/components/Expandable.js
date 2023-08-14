@@ -3,17 +3,9 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 
 const Expandable = ({ open, children, className }) => {
-  const classes = cx(
-    className,
-    'expandable',
-    { 'expandable--open': open },
-  );
+  const classes = cx(className, 'expandable', { 'expandable--open': open });
 
-  return (
-    <div className={classes}>
-      {children}
-    </div>
-  );
+  return <div className={classes}>{children}</div>;
 };
 
 Expandable.propTypes = {

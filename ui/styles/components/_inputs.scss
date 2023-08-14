@@ -15,9 +15,7 @@
   @include typography('title-2');
 }
 
-@mixin input-global (
-  $input-class: 'input'
-) {
+@mixin input-global($input-class: 'input') {
   .#{$input-class} {
     -webkit-appearance: none; // sass-lint:disable-line no-vendor-prefixes
     border: 0;
@@ -128,9 +126,7 @@
   }
 }
 
-@mixin text-input (
-  $text-class: 'text'
-) {
+@mixin text-input($text-class: 'text') {
   .#{$text-class} {
     @include default-input-type;
 
@@ -164,7 +160,9 @@
         position: absolute;
         top: 0;
         left: 0;
-        transition: scale 250ms ease-in-out, translate 250ms ease-in-out;
+        transition:
+          scale 250ms ease-in-out,
+          translate 250ms ease-in-out;
         transform: scale(1) translate(0, 0);
         transform-origin: left top 0;
         pointer-events: none;
@@ -178,10 +176,7 @@
   }
 }
 
-@mixin checkbox(
-  $checkbox-class: 'checkbox',
-  $checkbox-button-size: 2em
-) {
+@mixin checkbox($checkbox-class: 'checkbox', $checkbox-button-size: 2em) {
   .#{$checkbox-class} {
     @include reset-input;
     cursor: pointer;
@@ -245,10 +240,7 @@
   }
 }
 
-@mixin radio(
-  $radio-class: 'radio',
-  $radio-button-size: 2em
-) {
+@mixin radio($radio-class: 'radio', $radio-button-size: 2em) {
   .#{$radio-class} {
     @include reset-input;
     cursor: pointer;
@@ -312,7 +304,6 @@
 
     &:disabled {
       + .#{$radio-class}__label {
-
         &::before {
           box-shadow: inset 0 0 0 4px color('white');
           border-color: color('white', 0.7);
@@ -323,11 +314,7 @@
   }
 }
 
-@mixin toggle(
-  $toggle-class: 'toggle',
-  $toggle-height: 2em,
-  $switch-size: 2em
-) {
+@mixin toggle($toggle-class: 'toggle', $toggle-height: 2em, $switch-size: 2em) {
   .#{$toggle-class} {
     @include reset-input;
     cursor: pointer;
@@ -410,13 +397,10 @@
   }
 }
 
-@mixin context(
-  $context-class: 'context'
-) {
+@mixin context($context-class: 'context') {
   .#{$context-class} {
     @include reset-input;
     cursor: pointer;
-
 
     &__container {
       position: relative;
@@ -457,7 +441,8 @@
       }
 
       &::after {
-        transition: all var(--animation-duration-standard) var(--animation-easing); //sass-lint:disable-line no-transition-all
+        transition: all var(--animation-duration-standard)
+          var(--animation-easing); //sass-lint:disable-line no-transition-all
         position: absolute;
         top: 6%;
         left: 6%;
@@ -479,7 +464,8 @@
       background-color: transparent;
 
       &::after {
-        transition: all var(--animation-duration-standard) var(--animation-easing); //sass-lint:disable-line no-transition-all
+        transition: all var(--animation-duration-standard)
+          var(--animation-easing); //sass-lint:disable-line no-transition-all
         opacity: 1;
         background-color: var(--cat-color-seq-1);
       }

@@ -5,7 +5,11 @@ import PropTypes from 'prop-types';
 const withMarks = (content, leaf) => {
   if (leaf.bold) {
     if (leaf.italic) {
-      return <strong><em>{content}</em></strong>;
+      return (
+        <strong>
+          <em>{content}</em>
+        </strong>
+      );
     }
 
     return <strong>{content}</strong>;

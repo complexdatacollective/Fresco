@@ -5,8 +5,9 @@
     opacity: 0;
     background: var(--error);
     color: var(--text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;
@@ -25,7 +26,6 @@
       margin-bottom: 0;
       border: 0.125rem solid var(--error);
     }
-
   }
 }
 
@@ -38,7 +38,7 @@
   &__reset {
     cursor: pointer;
     display: block;
-    font-size: .9rem;
+    font-size: 0.9rem;
     margin-top: 1rem;
     color: var(--input-text);
     text-decoration: underline;

@@ -4,7 +4,7 @@ export enum InformationContentType {
   asset = 'asset',
 }
 
-export enum AssetType{
+export enum AssetType {
   image = 'image',
   video = 'video',
   audio = 'audio',

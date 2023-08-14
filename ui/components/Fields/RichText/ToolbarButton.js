@@ -10,9 +10,7 @@ import {
   isBlockActive,
 } from './lib/actions';
 
-export const ToolbarButton = ({
-  isActive, icon, tooltip, action,
-}) => (
+export const ToolbarButton = ({ isActive, icon, tooltip, action }) => (
   <button
     title={tooltip}
     // active={isActive ? 'true' : undefined} // Why undefined and not false, why the ternary?
@@ -21,10 +19,9 @@ export const ToolbarButton = ({
       action();
     }}
     type="button"
-    className={cx(
-      'rich-text__button',
-      { 'rich-text__button--is-active': isActive },
-    )}
+    className={cx('rich-text__button', {
+      'rich-text__button--is-active': isActive,
+    })}
   >
     <Icon name={icon} />
   </button>

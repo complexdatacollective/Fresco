@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useInterview } from "~/contexts/NetworkProvider";
-import { Stage } from "~/lib/shared-consts";
-import Button from "~/ui/components/Button";
+import { useInterview } from '~/contexts/NetworkProvider';
+import { Stage } from '~/lib/shared-consts';
+import Button from '~/ui/components/Button';
 
 const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
   const { network, addNode } = useInterview();
@@ -22,7 +22,7 @@ const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
         </div>
       </div>
       <div>
-        <Button onClick={() => addNode({ id: "1", label: "test" })}>
+        <Button onClick={() => addNode({ id: '1', label: 'test' })}>
           Add Node
         </Button>
       </div>

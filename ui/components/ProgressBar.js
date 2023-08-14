@@ -18,17 +18,16 @@ const ProgressBar = ({
   nudge,
 }) => (
   <div
-    className={cx(
-      'progress-bar',
-      `progress-bar--${orientation}`,
-      {
-        'progress-bar--indeterminate': indeterminate || percentProgress === null,
-        'progress-bar--complete': percentProgress === 100 && nudge,
-      },
-    )}
+    className={cx('progress-bar', `progress-bar--${orientation}`, {
+      'progress-bar--indeterminate': indeterminate || percentProgress === null,
+      'progress-bar--complete': percentProgress === 100 && nudge,
+    })}
     onClick={onClick}
   >
-    <div className="progress-bar__filler" style={fillerValue(orientation, percentProgress)} />
+    <div
+      className="progress-bar__filler"
+      style={fillerValue(orientation, percentProgress)}
+    />
   </div>
 );
 

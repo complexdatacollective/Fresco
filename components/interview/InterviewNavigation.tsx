@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useInterview } from "~/contexts/NetworkProvider";
-import Button from "~/ui/components/Button";
+import { useInterview } from '~/contexts/NetworkProvider';
+import Button from '~/ui/components/Button';
 
 const InterviewNavigation = () => {
   const { nextPage, previousPage, hasNextPage, hasPreviousPage } =

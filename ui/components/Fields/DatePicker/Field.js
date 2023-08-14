@@ -24,17 +24,14 @@ class DatePickerField extends Component {
       hidden,
     } = this.props;
 
-    const formFieldClasses = cx(
-      className,
-      'form-field-date-picker',
-      { 'form-field-date-picker--has-error': invalid && touched },
-    );
+    const formFieldClasses = cx(className, 'form-field-date-picker', {
+      'form-field-date-picker--has-error': invalid && touched,
+    });
 
     const anyLabel = fieldLabel || label;
     return (
       <div className="form-field-container" hidden={hidden} ref={this.ref}>
-        { anyLabel
-          && <MarkdownLabel label={anyLabel} />}
+        {anyLabel && <MarkdownLabel label={anyLabel} />}
         <div className={formFieldClasses} name={input.name}>
           <DatePicker
             parameters={parameters}
@@ -44,19 +41,16 @@ class DatePickerField extends Component {
             parentRef={this.ref}
             placeholder={placeholder}
           />
-          {invalid && touched
-            && (
+          {invalid && touched && (
             <div className="form-field-date-picker__error">
               <div className="form-field-date-picker__error-message">
                 <Icon name="warning" />
                 {error}
               </div>
             </div>
-            )}
+          )}
         </div>
-
       </div>
-
     );
   }
 }

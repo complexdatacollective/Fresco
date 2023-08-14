@@ -1,5 +1,5 @@
-"use client";
-import { SignUp } from "~/components/SignUp";
+'use client';
+import { SignUp } from '~/components/SignUp';
 
 export default function Page() {
   return (

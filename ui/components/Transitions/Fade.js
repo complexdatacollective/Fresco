@@ -2,12 +2,13 @@ import React from 'react';
 import { Transition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import anime from 'animejs';
-import { getCSSVariableAsNumber, getCSSVariableAsObject } from '../../utils/CSSVariables';
+import {
+  getCSSVariableAsNumber,
+  getCSSVariableAsObject,
+} from '../../utils/CSSVariables';
 
 function Fade(props) {
-  const {
-    children, customDuration, customEasing, enter, onExited,
-  } = props;
+  const { children, customDuration, customEasing, enter, onExited } = props;
 
   const defaultDuration = {
     enter: getCSSVariableAsNumber('--animation-duration-fast-ms'),
@@ -22,28 +23,24 @@ function Fade(props) {
   return (
     <Transition
       timeout={duration}
-      onEnter={
-        (el) => {
-          anime({
-            targets: el,
-            opacity: [0, 1],
-            elasticity: 0,
-            easing,
-            duration: duration.enter,
-          });
-        }
-      }
-      onExit={
-        (el) => {
-          anime({
-            targets: el,
-            opacity: [1, 0],
-            elasticity: 0,
-            easing,
-            duration: duration.exit,
-          });
-        }
-      }
+      onEnter={(el) => {
+        anime({
+          targets: el,
+          opacity: [0, 1],
+          elasticity: 0,
+          easing,
+          duration: duration.enter,
+        });
+      }}
+      onExit={(el) => {
+        anime({
+          targets: el,
+          opacity: [1, 0],
+          elasticity: 0,
+          easing,
+          duration: duration.exit,
+        });
+      }}
       enter={enter}
       // eslint-disable-next-line react/destructuring-assignment
       in={props.in}
@@ -51,7 +48,7 @@ function Fade(props) {
       unmountOnExit
       onExited={onExited}
     >
-      { children }
+      {children}
     </Transition>
   );
 }

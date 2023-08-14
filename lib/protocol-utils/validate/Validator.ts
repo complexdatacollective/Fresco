@@ -5,16 +5,16 @@ const debugLog = (...args: any[]) => {
 };
 
 type ValidationArgs = {
-  validate: Function,
-  makeFailureMessage: Function,
-}
+  validate: Function;
+  makeFailureMessage: Function;
+};
 
 type ValidateSingleArgs = {
   keypath: [];
   fragment: string;
   validation: ValidationArgs;
   subject: object;
-}
+};
 
 /**
  * See addValidation().
@@ -49,7 +49,7 @@ const makePattern = (pattern: string | RegExp) => {
 // Takes a keypath array and returns a string representation with elements separated by dots.
 const keypathString = (keypath: Array<string>): string =>
   keypath.reduce((acc, path) => {
-    if ((/\[\d+\]/).test(path)) {
+    if (/\[\d+\]/.test(path)) {
       return `${acc}${path}`;
     }
     return `${acc}.${path}`;
@@ -90,8 +90,16 @@ class Validator {
    *                                      `makeFailureMessage(fragment) => string`
    *                                      Return a user-facing error message.
    */
-  addValidation(pattern: string, validate: Function, makeFailureMessage: Function) {
-    this.validations.push({ pattern: makePattern(pattern), validate, makeFailureMessage });
+  addValidation(
+    pattern: string,
+    validate: Function,
+    makeFailureMessage: Function,
+  ) {
+    this.validations.push({
+      pattern: makePattern(pattern),
+      validate,
+      makeFailureMessage,
+    });
   }
 
   /**
@@ -116,14 +124,21 @@ class Validator {
    *                          true if validation passed, or if validation couldn't be completed
    */
 
-  validateSingle(keypath: [], fragment: string, validation: ValidationArgs, subject: object) {
+  validateSingle(
+    keypath: [],
+    fragment: string,
+    validation: ValidationArgs,
+    subject: object,
+  ) {
     const { validate, makeFailureMessage } = validation;
     let result;
     try {
       result = validate(fragment, subject, keypath);
     } catch (err: any) {
       debugLog(err);
-      this.warnings.push(`Validation error for ${keypathString(keypath)}: ${err.toString()}`);
+      this.warnings.push(
+        `Validation error for ${keypathString(keypath)}: ${err.toString()}`,
+      );
       return true;
     }
     if (!result) {
@@ -136,7 +151,9 @@ class Validator {
       } catch (err: any) {
         debugLog(err);
         const value = keypath.shift() || 'root';
-        this.warnings.push(`makeFailureMessage error for ${value}: ${err.toString()}`);
+        this.warnings.push(
+          `makeFailureMessage error for ${value}: ${err.toString()}`,
+        );
         return true;
       }
       this.errors.push(`${keypathString(keypath)}: ${failureMessage}`);
@@ -149,10 +166,19 @@ class Validator {
    * Run a sequence validations in-order until a failure is hit
    * @private
    */
-  validateSequence(keypath: [], fragment: string, sequence: any, subject: object) {
-    sequence.every(
-      (s: any) =>
-        this.validateSingle(keypath, fragment, { validate: s.validate, makeFailureMessage: s.makeFailureMessage }, subject),
+  validateSequence(
+    keypath: [],
+    fragment: string,
+    sequence: any,
+    subject: object,
+  ) {
+    sequence.every((s: any) =>
+      this.validateSingle(
+        keypath,
+        fragment,
+        { validate: s.validate, makeFailureMessage: s.makeFailureMessage },
+        subject,
+      ),
     );
   }
 
@@ -161,16 +187,23 @@ class Validator {
    * @private
    */
   checkFragment(keypath: [], fragment: string, subject: object) {
-    this.validations.forEach(({ pattern, sequence, validate, makeFailureMessage }) => {
-      if (!pattern.test(keypathString(keypath))) {
-        return;
-      }
-      if (sequence) {
-        this.validateSequence(keypath, fragment, sequence, subject);
-      } else {
-        this.validateSingle(keypath, fragment, { validate, makeFailureMessage }, subject);
-      }
-    });
+    this.validations.forEach(
+      ({ pattern, sequence, validate, makeFailureMessage }) => {
+        if (!pattern.test(keypathString(keypath))) {
+          return;
+        }
+        if (sequence) {
+          this.validateSequence(keypath, fragment, sequence, subject);
+        } else {
+          this.validateSingle(
+            keypath,
+            fragment,
+            { validate, makeFailureMessage },
+            subject,
+          );
+        }
+      },
+    );
   }
 
   /**
@@ -207,7 +240,8 @@ class Validator {
       Object.entries(fragment).forEach(([key, val]) => {
         this.traverse(val, [...keypath, key], stageSubject);
       });
-    } else { // Leaf node
+    } else {
+      // Leaf node
       debugLog('-', keypathString(keypath));
     }
   }

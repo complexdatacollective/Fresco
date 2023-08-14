@@ -16,9 +16,7 @@ class RadioGroup extends Component {
 
   onChange = (index) => {
     const {
-      input: {
-        onChange,
-      },
+      input: { onChange },
       options,
     } = this.props;
 
@@ -31,7 +29,11 @@ class RadioGroup extends Component {
       optionComponent: OptionComponent,
     } = this.props;
 
-    const { value: optionValue, label: optionLabel, ...optionRest } = asOptionObject(option);
+    const {
+      value: optionValue,
+      label: optionLabel,
+      ...optionRest
+    } = asOptionObject(option);
     const selected = optionValue === value;
 
     return (
@@ -47,7 +49,7 @@ class RadioGroup extends Component {
         {...optionRest}
       />
     );
-  }
+  };
 
   render() {
     const {
@@ -59,25 +61,17 @@ class RadioGroup extends Component {
       meta: { error, invalid, touched },
     } = this.props;
 
-    const containerClassNames = cx(
-      'form-field-container',
-      {
-        'form-field-radio-group--has-error': invalid && touched && error,
-      },
-    );
+    const containerClassNames = cx('form-field-container', {
+      'form-field-radio-group--has-error': invalid && touched && error,
+    });
 
-    const classNames = cx(
-      'form-field',
-      'form-field-radio-group',
-      className,
-    );
+    const classNames = cx('form-field', 'form-field-radio-group', className);
 
     const anyLabel = fieldLabel || label;
 
     return (
       <div className={containerClassNames}>
-        {anyLabel
-          && <MarkdownLabel label={anyLabel} />}
+        {anyLabel && <MarkdownLabel label={anyLabel} />}
         <div className={classNames} name={name}>
           {options.map(this.renderOption)}
         </div>

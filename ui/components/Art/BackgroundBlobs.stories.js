@@ -3,8 +3,7 @@ import React from 'react';
 import '../src/styles/_all.scss';
 import BackgroundBlobs from '../src/components/art/BackgroundBlobs';
 
-const requiredProps = {
-};
+const requiredProps = {};
 
 export default { title: 'Art/Background Blobs' };
 
@@ -64,14 +63,15 @@ export const customNumbers = () => (
       }}
     >
       <h4>Loadsa large</h4>
-      <div style={{
-        width: '300px',
-        height: '300px',
-        border: '1px solid white',
-        borderRadius: 'var(--border-radius)',
-        overflow: 'hidden',
-        background: 'white',
-      }}
+      <div
+        style={{
+          width: '300px',
+          height: '300px',
+          border: '1px solid white',
+          borderRadius: 'var(--border-radius)',
+          overflow: 'hidden',
+          background: 'white',
+        }}
       >
         <BackgroundBlobs large={7} medium={0} small={0} />
       </div>
@@ -85,14 +85,15 @@ export const customNumbers = () => (
       }}
     >
       <h4>Twenty Small</h4>
-      <div style={{
-        width: '300px',
-        height: '300px',
-        border: '1px solid white',
-        borderRadius: 'var(--border-radius)',
-        overflow: 'hidden',
-        background: 'white',
-      }}
+      <div
+        style={{
+          width: '300px',
+          height: '300px',
+          border: '1px solid white',
+          borderRadius: 'var(--border-radius)',
+          overflow: 'hidden',
+          background: 'white',
+        }}
       >
         <BackgroundBlobs large={0} medium={0} small={20} />
       </div>
@@ -106,14 +107,15 @@ export const customNumbers = () => (
       }}
     >
       <h4>Medium and Small</h4>
-      <div style={{
-        width: '300px',
-        height: '300px',
-        border: '1px solid white',
-        borderRadius: 'var(--border-radius)',
-        overflow: 'hidden',
-        background: 'white',
-      }}
+      <div
+        style={{
+          width: '300px',
+          height: '300px',
+          border: '1px solid white',
+          borderRadius: 'var(--border-radius)',
+          overflow: 'hidden',
+          background: 'white',
+        }}
       >
         <BackgroundBlobs large={0} medium={5} small={5} />
       </div>

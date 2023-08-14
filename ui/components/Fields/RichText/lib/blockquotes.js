@@ -1,8 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import {
-  Transforms,
-  Node,
-} from 'slate';
+import { Transforms, Node } from 'slate';
 import { get } from 'lodash';
 import { getBlocks } from './utils';
 
@@ -13,35 +10,25 @@ const toggleBlock = (editor, block) => {
   switch (type) {
     case 'block_quote':
       // de-blockquote
-      Transforms.unwrapNodes(
-        editor,
-        {
-          at: path,
-          match: (n) => n.type === 'block_quote',
-          mode: 'all',
-        },
-      );
+      Transforms.unwrapNodes(editor, {
+        at: path,
+        match: (n) => n.type === 'block_quote',
+        mode: 'all',
+      });
       break;
     case 'ul_list':
     case 'ol_list':
       // Unwrap all list items
-      Transforms.unwrapNodes(
-        editor,
-        {
-          at: path,
-          match: (n) => n.type === 'list_item',
-          mode: 'all',
-        },
-      );
+      Transforms.unwrapNodes(editor, {
+        at: path,
+        match: (n) => n.type === 'list_item',
+        mode: 'all',
+      });
       // Set top level element to a block quote
       Transforms.setNodes(editor, { type: 'block_quote' }, { at: path });
       break;
     case 'paragraph':
-      Transforms.wrapNodes(
-        editor,
-        { type: 'block_quote' },
-        { at: path },
-      );
+      Transforms.wrapNodes(editor, { type: 'block_quote' }, { at: path });
       break;
     default:
   }
@@ -56,15 +43,14 @@ export const toggleBlockquote = (editor) => {
     toggleBlock(editor, block);
   });
 
-  const reversedPaths = blocks.reduce(
-    (acc, [, path]) => ([path, ...acc]),
-    [],
-  );
+  const reversedPaths = blocks.reduce((acc, [, path]) => [path, ...acc], []);
 
   // Merge adjacent block quotes
   reversedPaths.forEach((path, index) => {
     const nextPath = get(reversedPaths, [index + 1]);
-    if (!nextPath) { return; }
+    if (!nextPath) {
+      return;
+    }
     const next = Node.get(editor, nextPath);
     const current = Node.get(editor, path);
     if (current.type === 'block_quote' && next.type === 'block_quote') {

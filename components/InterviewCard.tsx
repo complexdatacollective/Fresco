@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import type { Prisma } from "@prisma/client";
+import Link from 'next/link';
+import type { Prisma } from '@prisma/client';
 
 type Props = {
   interview: Prisma.InterviewGetPayload<{

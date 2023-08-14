@@ -32,7 +32,9 @@ const icons = {
 
 const Icon = ({ name }) => {
   const IconComponent = icons[name];
-  if (!IconComponent) { return <span>{name}</span>; }
+  if (!IconComponent) {
+    return <span>{name}</span>;
+  }
   return <IconComponent style={{ color: 'white' }} />;
 };
 

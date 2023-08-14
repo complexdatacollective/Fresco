@@ -4,14 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 
-const Step = ({
-  children,
-  component: Container,
-  ...props
-}) => (
-  <Container {...props}>
-    {children}
-  </Container>
+const Step = ({ children, component: Container, ...props }) => (
+  <Container {...props}>{children}</Container>
 );
 
 Step.propTypes = {

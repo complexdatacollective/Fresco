@@ -1,9 +1,11 @@
 # networkQuery [![Build Status](https://travis-ci.org/codaco/networkQuery.svg?branch=master)](https://travis-ci.org/codaco/networkQuery)
+
 utility for querying against a network
 
 ## Methods
 
 ### `query(network, query)`
+
 Query a network, and return a boolean depending on whether the query matches.
 
 A query can be comprised of multiple rules, joined by an operator.

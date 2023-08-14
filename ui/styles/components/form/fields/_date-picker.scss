@@ -57,7 +57,8 @@ $darken: rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     border-bottom: 2px solid transparent;
-    transition: border-bottom-color var(--animation-easing) var(--animation-duration-fast);
+    transition: border-bottom-color var(--animation-easing)
+      var(--animation-duration-fast);
 
     &-divider {
       color: var(--active-color);

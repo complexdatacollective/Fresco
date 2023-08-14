@@ -4,19 +4,12 @@ import classNames from 'classnames';
 
 class Spinner extends React.PureComponent {
   render() {
-    const {
-      small,
-      large,
-      size,
-    } = this.props;
+    const { small, large, size } = this.props;
 
-    const classes = classNames(
-      'spinner',
-      {
-        'spinner--small': small,
-        'spinner--large': large,
-      },
-    );
+    const classes = classNames('spinner', {
+      'spinner--small': small,
+      'spinner--large': large,
+    });
 
     const circleSize = () => {
       if (size) {

@@ -12,21 +12,14 @@ const getDate = (dateString) => {
   const { year, month, day } = dateString
     ? DateTime.fromISO(dateString).toObject()
     : {
-      month: null,
-      day: null,
-      year: null,
-    };
+        month: null,
+        day: null,
+        year: null,
+      };
   return { year, month, day };
 };
 
-const DatePicker = ({
-  children,
-  date,
-  min,
-  max,
-  onChange,
-  type,
-}) => {
+const DatePicker = ({ children, date, min, max, onChange, type }) => {
   const [pickerState, setPickerState] = useState({
     date: getDate(date),
   });
@@ -47,11 +40,12 @@ const DatePicker = ({
     ? DateTime.fromISO(min)
     : now().minus(DEFAULT_MIN_DATE);
 
-  const maxWithDefault = max
-    ? DateTime.fromISO(max)
-    : now();
+  const maxWithDefault = max ? DateTime.fromISO(max) : now();
 
-  const range = Interval.fromDateTimes(minWithDefault.startOf('day'), maxWithDefault.endOf('day'));
+  const range = Interval.fromDateTimes(
+    minWithDefault.startOf('day'),
+    maxWithDefault.endOf('day'),
+  );
 
   const handleOnChange = (values) => {
     const newDate = { ...pickerState.date, ...values };
@@ -92,7 +86,7 @@ DatePicker.defaultProps = {
   date: null,
   min: null,
   max: null,
-  onChange: () => { },
+  onChange: () => {},
 };
 
 DatePicker.propTypes = {

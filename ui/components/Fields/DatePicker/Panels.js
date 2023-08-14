@@ -12,10 +12,7 @@ const Panels = ({ children }) => (
     transition={{ duration: 0.2, type: 'tween' }}
     layout
   >
-    <motion.div
-      className="date-picker__panels-container"
-      layout
-    >
+    <motion.div className="date-picker__panels-container" layout>
       {children}
     </motion.div>
   </motion.div>

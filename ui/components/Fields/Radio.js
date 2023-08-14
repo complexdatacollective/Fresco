@@ -12,22 +12,12 @@ class Radio extends PureComponent {
   }
 
   render() {
-    const {
-      label,
-      className,
-      input,
-      disabled,
-      fieldLabel,
-      ...rest
-    } = this.props;
+    const { label, className, input, disabled, fieldLabel, ...rest } =
+      this.props;
 
-    const componentClasses = cx(
-      'form-field-radio',
-      className,
-      {
-        'form-field-radio--disabled': disabled,
-      },
-    );
+    const componentClasses = cx('form-field-radio', className, {
+      'form-field-radio--disabled': disabled,
+    });
 
     return (
       <label className={componentClasses} htmlFor={this.id}>
@@ -45,7 +35,13 @@ class Radio extends PureComponent {
           {...rest}
         />
         <div className="form-field-radio__radio" />
-        {label && <MarkdownLabel inline label={label} className="form-field-inline-label" />}
+        {label && (
+          <MarkdownLabel
+            inline
+            label={label}
+            className="form-field-inline-label"
+          />
+        )}
       </label>
     );
   }

@@ -24,43 +24,39 @@ const getScrollToValue = (range = [], today) => {
   return last;
 };
 
-const RangePicker = ({
-  type,
-  range,
-  today,
-  value,
-  onSelect,
-  offset,
-}) => {
+const RangePicker = ({ type, range, today, value, onSelect, offset }) => {
   const datePickerRef = React.createRef();
   const scrollRef = React.createRef();
 
   const datePickerKey = !!datePickerRef.current;
-  const scrollRefKey = scrollRef.current && scrollRef.current.getAttribute('data-value');
+  const scrollRefKey =
+    scrollRef.current && scrollRef.current.getAttribute('data-value');
   const rangeKey = range.toString();
 
   useEffect(() => {
     // only scroll year
-    if (type !== 'year') { return; }
+    if (type !== 'year') {
+      return;
+    }
     // only scroll when value is empty
-    if (value !== null) { return; }
-    if (!datePickerRef.current || !scrollRef.current) { return; }
+    if (value !== null) {
+      return;
+    }
+    if (!datePickerRef.current || !scrollRef.current) {
+      return;
+    }
     const { offsetTop } = scrollRef.current;
     const { offsetHeight } = scrollRef.current;
-    datePickerRef.current.scrollTop = offsetTop - (offsetHeight * 0.5);
+    datePickerRef.current.scrollTop = offsetTop - offsetHeight * 0.5;
   }, [rangeKey, datePickerKey, scrollRefKey, value]);
 
-  const classes = cx(
-    'date-picker__range-picker',
-    { [`date-picker__range-picker--${type}`]: !!type },
-  );
+  const classes = cx('date-picker__range-picker', {
+    [`date-picker__range-picker--${type}`]: !!type,
+  });
 
-  const padding = times(
-    offset,
-    (index) => (
-      <div key={`padding${index}`} className="date-picker__range-item" />
-    ),
-  );
+  const padding = times(offset, (index) => (
+    <div key={`padding${index}`} className="date-picker__range-item" />
+  ));
 
   const scrollToValue = getScrollToValue(range, today);
   return (

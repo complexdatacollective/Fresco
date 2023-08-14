@@ -14,11 +14,11 @@ class Handle extends Component {
 
   handleMouseOver = () => {
     this.setState({ mouseOver: true });
-  }
+  };
 
   handleMouseLeave = () => {
     this.setState({ mouseOver: false });
-  }
+  };
 
   render() {
     const {
@@ -33,13 +33,10 @@ class Handle extends Component {
     const { mouseOver } = this.state;
 
     const showTooltip = showTooltips && (mouseOver || isActive) && !isDisabled;
-    const handleProps = getHandleProps(
-      id,
-      {
-        onMouseEnter: this.handleMouseEnter,
-        onMouseLeave: this.handleMouseLeave,
-      },
-    );
+    const handleProps = getHandleProps(id, {
+      onMouseEnter: this.handleMouseEnter,
+      onMouseLeave: this.handleMouseLeave,
+    });
 
     const markerClasses = cx(
       'form-field-slider__marker',
@@ -47,24 +44,23 @@ class Handle extends Component {
       { 'form-field-slider__marker--is-disabled': isDisabled },
     );
 
-    const tooltipClasses = cx(
-      'form-field-slider__tooltip',
-      { 'form-field-slider__tooltip--is-active': showTooltip },
-    );
+    const tooltipClasses = cx('form-field-slider__tooltip', {
+      'form-field-slider__tooltip--is-active': showTooltip,
+    });
 
     const label = getLabelForValue(value);
 
     return (
       <>
-        { showTooltips
-          && (
-          <div
-            className={tooltipClasses}
-            style={{ left: `${percent}%` }}
-          >
-            <MarkdownLabel inline label={label} className="form-field-slider__tooltip-label" />
+        {showTooltips && (
+          <div className={tooltipClasses} style={{ left: `${percent}%` }}>
+            <MarkdownLabel
+              inline
+              label={label}
+              className="form-field-slider__tooltip-label"
+            />
           </div>
-          )}
+        )}
         <div
           className="form-field-slider__handle"
           style={{ left: `${percent}%` }}

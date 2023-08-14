@@ -25,7 +25,9 @@ const hasValue = (value) => value !== '';
  * building the input object...
  */
 const getValue = (value) => {
-  if (!hasValue(value)) { return null; }
+  if (!hasValue(value)) {
+    return null;
+  }
   return value;
 };
 
@@ -42,19 +44,16 @@ const SliderField = (props) => {
     type,
   } = props;
 
-  const formFieldClasses = cx(
-    className,
-    'form-field-slider',
-    { 'form-field-slider--has-error': invalid && touched },
-  );
+  const formFieldClasses = cx(className, 'form-field-slider', {
+    'form-field-slider--has-error': invalid && touched,
+  });
 
   const anyLabel = fieldLabel || label;
   const sliderType = getSliderType(type);
 
   return (
     <div className="form-field-container" hidden={hidden}>
-      { anyLabel
-        && <MarkdownLabel label={anyLabel} />}
+      {anyLabel && <MarkdownLabel label={anyLabel} />}
       <div className={formFieldClasses} name={input.name}>
         <Slider
           options={options}

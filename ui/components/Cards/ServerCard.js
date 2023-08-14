@@ -9,13 +9,7 @@ import HoverMarquee from '../HoverMarquee';
  * to its first address (both provided via the `data` prop). If `secondaryLabel`
  * is provided, then it will be appended.
  */
-const ServerCard = ({
-  name,
-  addresses,
-  host,
-  onClickHandler,
-  disabled,
-}) => {
+const ServerCard = ({ name, addresses, host, onClickHandler, disabled }) => {
   const label = name || addresses[0];
 
   const modifierClasses = cx(
@@ -32,20 +26,17 @@ const ServerCard = ({
         </div>
       </div>
       <div className="server-card__main-section">
-        <h2 className="server-name"><HoverMarquee>{label}</HoverMarquee></h2>
+        <h2 className="server-name">
+          <HoverMarquee>{label}</HoverMarquee>
+        </h2>
         <h6>
           <HoverMarquee>
             Addresses:
-            {
-            addresses.map((address, index) => (
+            {addresses.map((address, index) => (
               <React.Fragment key={index}>
-                [
-                {address}
-                ]
-                {index !== addresses.length - 1 && (',')}
+                [{address}]{index !== addresses.length - 1 && ','}
               </React.Fragment>
-            ))
-}
+            ))}
           </HoverMarquee>
         </h6>
         <h6>

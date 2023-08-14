@@ -63,16 +63,12 @@ const Toast = ({
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       className={`toast toast--${type} ${className}`}
     >
-      <div className="toast-icon">
-        {getIcon()}
-      </div>
+      <div className="toast-icon">{getIcon()}</div>
       <div className="toast-content">
         <h4 className="toast-content__title">{title}</h4>
         {getContent()}
       </div>
-      <CloseButton
-        onClick={dismissHandler}
-      />
+      <CloseButton onClick={dismissHandler} />
     </motion.li>
   );
 };
@@ -81,12 +77,7 @@ Toast.propTypes = {
   id: PropTypes.any.isRequired,
   title: PropTypes.string.isRequired,
   content: PropTypes.any.isRequired,
-  type: PropTypes.oneOf([
-    'info',
-    'warning',
-    'error',
-    'success',
-  ]).isRequired,
+  type: PropTypes.oneOf(['info', 'warning', 'error', 'success']).isRequired,
   autoDismiss: PropTypes.bool,
   dismissHandler: PropTypes.func,
   dismissDuration: PropTypes.number,

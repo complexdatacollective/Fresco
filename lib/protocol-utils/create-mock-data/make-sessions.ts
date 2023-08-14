@@ -1,4 +1,9 @@
-import { caseProperty, protocolProperty, NcNetwork, Protocol } from '@codaco/shared-consts';
+import {
+  caseProperty,
+  protocolProperty,
+  NcNetwork,
+  Protocol,
+} from '@codaco/shared-consts';
 import { v4 as uuid } from 'uuid';
 import { makeNetwork } from './make-network.js';
 
@@ -34,6 +39,7 @@ export const makeSession = (protocol: Protocol): NcSession => {
 export const makeSessions = (
   protocol: Protocol,
   sessionCount: number,
-): NcSession[] => Array.from({ length: sessionCount }).map(() => makeSession(protocol));
+): NcSession[] =>
+  Array.from({ length: sessionCount }).map(() => makeSession(protocol));
 
 export default makeSessions;

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Button from "~/ui/components/Button";
-import Link from "next/link";
-import { signIn } from "next-auth/react";
+import Button from '~/ui/components/Button';
+import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 // export const metadata = {
 //   title: "Sign in",
@@ -11,10 +11,10 @@ import { signIn } from "next-auth/react";
 
 export default function Page({ searchParams }) {
   const doSignIn = async (e: FormData) => {
-    await signIn("credentials", {
-      email: e.get("email"),
-      password: e.get("password"),
-      callbackUrl: searchParams.callbackUrl || "/",
+    await signIn('credentials', {
+      email: e.get('email'),
+      password: e.get('password'),
+      callbackUrl: searchParams.callbackUrl || '/',
     });
   };
 

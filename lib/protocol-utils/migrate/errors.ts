@@ -7,7 +7,9 @@ export class MigrationNotPossibleError extends Error {
     }
 
     this.name = 'MigrationNotPossibleError';
-    this.message = `Migration to this version is not possible (${JSON.stringify(from)} -> ${JSON.stringify(to)}).`;
+    this.message = `Migration to this version is not possible (${JSON.stringify(
+      from,
+    )} -> ${JSON.stringify(to)}).`;
   }
 }
 
@@ -20,7 +22,9 @@ export class VersionMismatchError extends Error {
     }
 
     this.name = 'VersionMismatchError';
-    this.message = `Nonsensical migration path (${JSON.stringify(from)} -> ${JSON.stringify(to)}).`;
+    this.message = `Nonsensical migration path (${JSON.stringify(
+      from,
+    )} -> ${JSON.stringify(to)}).`;
   }
 }
 
@@ -46,7 +50,9 @@ export class StringVersionError extends Error {
     }
 
     this.name = 'StringVersionError';
-    this.message = `The ${type} schema version is not recognised, must be an integer (${JSON.stringify(version)}).`;
+    this.message = `The ${type} schema version is not recognised, must be an integer (${JSON.stringify(
+      version,
+    )}).`;
   }
 }
 

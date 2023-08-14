@@ -1,12 +1,11 @@
-
-import { get } from 'lodash';
+import { get } from '~/utils/lodash-replacements';
 
 // For some error types, AJV returns info separate from message
 export const additionalErrorInfo = (errorObj) => {
   const params = errorObj.params || {};
-  return params.additionalProperty
-    || params.allowedValues
-    || params.allowedValue;
+  return (
+    params.additionalProperty || params.allowedValues || params.allowedValue
+  );
 };
 
 export const errToString = (errorObj) => {
@@ -23,15 +22,21 @@ export const errToString = (errorObj) => {
 
 export const undefinedFormVariables = (form, codebook) =>
   form.fields
-    .map(f => f.variable)
-    .filter(variable => !codebook[form.entity][form.type].variables[variable]);
+    .map((f) => f.variable)
+    .filter(
+      (variable) => !codebook[form.entity][form.type].variables[variable],
+    );
 
-export const nodeVarsIncludeDisplayVar = node =>
-  !node.displayVariable // displayVariable is optional
-  || Object.keys(node.variables).some(variableId => variableId === node.displayVariable);
+export const nodeVarsIncludeDisplayVar = (node) =>
+  !node.displayVariable || // displayVariable is optional
+  Object.keys(node.variables).some(
+    (variableId) => variableId === node.displayVariable,
+  );
 
 export const entityDefFromRule = (rule, codebook) => {
-  if (rule.type === 'ego') { return codebook.ego; } // Ego is always defined
+  if (rule.type === 'ego') {
+    return codebook.ego;
+  } // Ego is always defined
   return codebook[rule.type === 'edge' ? 'edge' : 'node'][rule.options.type];
 };
 
@@ -49,7 +54,9 @@ export const getVariableNameFromID = (codebook, subject, variableID) => {
 };
 
 export const getSubjectTypeName = (codebook, subject) => {
-  if (!subject) { return 'entity'; }
+  if (!subject) {
+    return 'entity';
+  }
 
   if (subject.entity === 'ego') {
     return 'ego';
@@ -58,12 +65,13 @@ export const getSubjectTypeName = (codebook, subject) => {
   return get(codebook, [subject.entity, subject.type, 'name'], subject.type);
 };
 
-export const getVariableNames = registryVars => Object.values(registryVars).map(vari => vari.name);
+export const getVariableNames = (registryVars) =>
+  Object.values(registryVars).map((vari) => vari.name);
 
-export const getEntityNames = registryVars => ([
-  ...Object.values(registryVars.node || {}).map(vari => vari.name),
-  ...Object.values(registryVars.edge || {}).map(vari => vari.name),
-]);
+export const getEntityNames = (registryVars) => [
+  ...Object.values(registryVars.node || {}).map((vari) => vari.name),
+  ...Object.values(registryVars.edge || {}).map((vari) => vari.name),
+];
 
 // @return the ID (or other unique prop) which is a duplicate, undefined otherwise
 export const duplicateId = (elements, uniqueProp = 'id') => {

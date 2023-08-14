@@ -3,12 +3,12 @@ import unified from 'unified';
 import markdown from 'remark-parse';
 import { isEmpty } from 'lodash';
 
-export const defaultValue = [{
-  type: 'paragraph',
-  children: [
-    { text: '' },
-  ],
-}];
+export const defaultValue = [
+  {
+    type: 'paragraph',
+    children: [{ text: '' }],
+  },
+];
 
 /**
  * Hack for `>` characters that already exist in some protocols
@@ -22,7 +22,8 @@ export const defaultValue = [{
  * rather than a single regex, because Safari does not support
  * lookbehind.
  */
-export const escapeAngleBracket = (value = '') => value.replace(/>/g, '&gt;').replace(/<br&gt;/g, '<br>');
+export const escapeAngleBracket = (value = '') =>
+  value.replace(/>/g, '&gt;').replace(/<br&gt;/g, '<br>');
 
 // TODO: Can we make this synchronous? JM - yes, use `processSync` below
 const parse = (value) => {
@@ -39,7 +40,7 @@ const parse = (value) => {
     .use(markdown)
     .use(slate)
     .process(escapeAngleBracket(value))
-    .then(({ result }) => (result));
+    .then(({ result }) => result);
 };
 
 export default parse;

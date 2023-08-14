@@ -17,10 +17,10 @@ $component: 'protocol-card';
   &--selected {
     &:before {
       content: '';
-      position:absolute;
-      top:0;
-      bottom:0;
-      left:0;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
       right: 0;
       border: 0.4rem solid var(--color-mustard);
       border-radius: var(--border-radius);
@@ -161,7 +161,8 @@ $component: 'protocol-card';
       background: var(--error);
     }
 
-    .protocol-name, .protocol-description {
+    .protocol-name,
+    .protocol-description {
       opacity: 0.35;
     }
   }

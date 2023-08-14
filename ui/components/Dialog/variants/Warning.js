@@ -24,8 +24,20 @@ const Warning = ({
     title={title}
     message={message}
     options={[
-      canCancel ? <Button key="cancel" onClick={onCancel} color="navy-taupe" content={cancelLabel} /> : null,
-      <Button key="confirm" onClick={onConfirm} color="mustard" content={confirmLabel} />,
+      canCancel ? (
+        <Button
+          key="cancel"
+          onClick={onCancel}
+          color="navy-taupe"
+          content={cancelLabel}
+        />
+      ) : null,
+      <Button
+        key="confirm"
+        onClick={onConfirm}
+        color="mustard"
+        content={confirmLabel}
+      />,
     ]}
   />
 );

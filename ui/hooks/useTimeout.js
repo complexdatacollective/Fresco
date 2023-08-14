@@ -4,28 +4,22 @@ function useTimeout(callback, delay) {
   const savedCallback = useRef();
 
   // Remember the latest callback.
-  useEffect(
-    () => {
-      savedCallback.current = callback;
-    },
-    [callback],
-  );
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
 
   // Set up the interval.
-  useEffect(
-    () => {
-      function tick() {
-        savedCallback.current();
-      }
-      if (delay !== null) {
-        const id = setTimeout(tick, delay);
-        return () => clearTimeout(id);
-      }
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      const id = setTimeout(tick, delay);
+      return () => clearTimeout(id);
+    }
 
-      return true;
-    },
-    [delay],
-  );
+    return true;
+  }, [delay]);
 }
 
 export default useTimeout;

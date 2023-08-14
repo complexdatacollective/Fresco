@@ -8,12 +8,12 @@ import Date from '../Date';
 const getSubject = (props) => {
   const mockFunctionalComponent = jest.fn(() => null);
 
-  mount((
+  mount(
     // eslint-disable-next-line react/jsx-props-no-spreading
     <DatePicker {...props}>
       <Date>{mockFunctionalComponent}</Date>
-    </DatePicker>
-  ));
+    </DatePicker>,
+  );
 
   return mockFunctionalComponent;
 };
@@ -40,8 +40,11 @@ describe('<Date>', () => {
 
     context.onChange({ year: 2020, month: 1, day: 2 });
 
-    expect(subject.mock.calls[1][0].date)
-      .toMatchObject({ year: 2020, month: 1, day: 2 });
+    expect(subject.mock.calls[1][0].date).toMatchObject({
+      year: 2020,
+      month: 1,
+      day: 2,
+    });
   });
 
   it('has null date when date is empty string <DatePicker />', () => {

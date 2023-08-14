@@ -5,24 +5,13 @@ import { v4 as uuid } from 'uuid';
 import MarkdownLabel from './MarkdownLabel';
 
 const Checkbox = (props) => {
-  const {
-    label,
-    className,
-    input,
-    disabled,
-    fieldLabel,
-    ...rest
-  } = props;
+  const { label, className, input, disabled, fieldLabel, ...rest } = props;
 
   const id = useRef(uuid());
 
-  const componentClasses = cx(
-    'form-field-checkbox',
-    className,
-    {
-      'form-field-checkbox--disabled': disabled,
-    },
-  );
+  const componentClasses = cx('form-field-checkbox', className, {
+    'form-field-checkbox--disabled': disabled,
+  });
 
   return (
     <label className={componentClasses} htmlFor={id.current}>
@@ -40,7 +29,13 @@ const Checkbox = (props) => {
         type="checkbox"
       />
       <div className="form-field-checkbox__checkbox" />
-      {label && <MarkdownLabel inline label={label} className="form-field-inline-label" />}
+      {label && (
+        <MarkdownLabel
+          inline
+          label={label}
+          className="form-field-inline-label"
+        />
+      )}
     </label>
   );
 };
@@ -61,8 +56,14 @@ Checkbox.defaultProps = {
 };
 
 const areEqual = (prevProps, nextProps) => {
-  const { input: { value: prevValue }, ...prevRest } = prevProps;
-  const { input: { value: nextValue }, ...nextRest } = nextProps;
+  const {
+    input: { value: prevValue },
+    ...prevRest
+  } = prevProps;
+  const {
+    input: { value: nextValue },
+    ...nextRest
+  } = nextProps;
 
   return prevValue === nextValue && prevRest === nextRest;
 };

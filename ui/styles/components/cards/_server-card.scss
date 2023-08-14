@@ -38,7 +38,6 @@ $component: 'server-card';
       justify-content: flex-end;
       font-size: 0.64rem;
     }
-
   }
 
   &--clickable {
@@ -50,7 +49,8 @@ $component: 'server-card';
       background: var(--color-platinum--dark);
     }
 
-    .server-name, h6 {
+    .server-name,
+    h6 {
       opacity: 0.35;
     }
   }

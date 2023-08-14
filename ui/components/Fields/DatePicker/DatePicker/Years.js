@@ -8,8 +8,9 @@ import { formatRangeItem } from '../helpers';
  */
 const Years = ({ children }) => {
   const { range: dateRange } = useContext(DatePickerContext);
-  const years = range(dateRange.start.year, dateRange.end.year + 1)
-    .map((y) => formatRangeItem(y));
+  const years = range(dateRange.start.year, dateRange.end.year + 1).map((y) =>
+    formatRangeItem(y),
+  );
   return children({ years });
 };
 

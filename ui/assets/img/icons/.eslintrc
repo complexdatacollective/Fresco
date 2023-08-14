@@ -1,5 +1,5 @@
 {
-    "rules": {
-        "react/jsx-props-no-spreading": "off"
-    }
+  "rules": {
+    "react/jsx-props-no-spreading": "off"
+  }
 }

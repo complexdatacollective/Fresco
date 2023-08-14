@@ -13,7 +13,10 @@ const resizeCanvas = (
   const { width, height } = currentCanvas.getBoundingClientRect();
   const { devicePixelRatio: ratio = 1 } = window;
 
-  if (currentCanvas.width !== width * ratio || currentCanvas.height !== height * ratio) {
+  if (
+    currentCanvas.width !== width * ratio ||
+    currentCanvas.height !== height * ratio
+  ) {
     currentCanvas.width = width * ratio;
     currentCanvas.height = height * ratio;
     context.scale(ratio, ratio);
@@ -23,7 +26,11 @@ const resizeCanvas = (
   return false;
 };
 
-type DrawFunction = (ctx: CanvasRenderingContext2D, time: number, canvasRef: React.RefObject<HTMLCanvasElement>) => void;
+type DrawFunction = (
+  ctx: CanvasRenderingContext2D,
+  time: number,
+  canvasRef: React.RefObject<HTMLCanvasElement>,
+) => void;
 
 const defaultPredraw: DrawFunction = (context: CanvasRenderingContext2D) => {
   context.save();
@@ -35,7 +42,11 @@ const defaultPostdraw: DrawFunction = (context: CanvasRenderingContext2D) => {
   context.restore();
 };
 
-const useCanvas = (draw: DrawFunction, predraw = defaultPredraw, postdraw = defaultPostdraw) => {
+const useCanvas = (
+  draw: DrawFunction,
+  predraw = defaultPredraw,
+  postdraw = defaultPostdraw,
+) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

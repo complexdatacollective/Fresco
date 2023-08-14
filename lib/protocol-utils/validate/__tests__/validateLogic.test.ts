@@ -13,7 +13,7 @@ describe('validateLogic', () => {
     invalidProtocol.stages[0].skipLogic.filter.rules = undefined;
 
     expect(() => {
-      validateLogic(invalidProtocol)
+      validateLogic(invalidProtocol);
     }).not.toThrow();
   });
-})
+});

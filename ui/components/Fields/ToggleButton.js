@@ -12,15 +12,8 @@ class ToggleButton extends PureComponent {
   }
 
   render() {
-    const {
-      label,
-      className,
-      input,
-      disabled,
-      color,
-      fieldLabel,
-      ...rest
-    } = this.props;
+    const { label, className, input, disabled, color, fieldLabel, ...rest } =
+      this.props;
 
     const componentClasses = cx(
       'form-field-togglebutton',

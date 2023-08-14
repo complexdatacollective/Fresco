@@ -3,33 +3,39 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import Drop from './Transitions/Drop';
 import { getCSSVariableAsNumber } from '../utils/CSSVariables';
-import usePortal from '../hooks/usePortal.tsx';
+import usePortal from '../hooks/usePortal';
 
 const Modal = (props) => {
-  const {
-    children, show, zIndex, onBlur,
-  } = props;
+  const { children, show, zIndex, onBlur } = props;
 
   const Portal = usePortal();
 
   const style = zIndex ? { zIndex } : null;
 
-  const handleBlur = useCallback((event) => {
-    if (event.target !== event.currentTarget) { return; }
-    onBlur(event);
-  }, [onBlur]);
+  const handleBlur = useCallback(
+    (event) => {
+      if (event.target !== event.currentTarget) {
+        return;
+      }
+      onBlur(event);
+    },
+    [onBlur],
+  );
 
-  const variants = useMemo(() => ({
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: getCSSVariableAsNumber('--animation-duration-fast'),
+  const variants = useMemo(
+    () => ({
+      visible: {
+        opacity: 1,
+        transition: {
+          duration: getCSSVariableAsNumber('--animation-duration-fast'),
+        },
       },
-    },
-    hidden: {
-      opacity: 0,
-    },
-  }), []);
+      hidden: {
+        opacity: 0,
+      },
+    }),
+    [],
+  );
 
   return (
     <Portal>
@@ -45,9 +51,7 @@ const Modal = (props) => {
           >
             <div className="modal__background" />
             <div className="modal__content" onClick={handleBlur}>
-              <Drop>
-                {children}
-              </Drop>
+              <Drop>{children}</Drop>
             </div>
           </motion.div>
         )}

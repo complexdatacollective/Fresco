@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import classNames from "classnames";
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
-import Button from "~/ui/components/Button";
+import classNames from 'classnames';
+import { Menu, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import Button from '~/ui/components/Button';
 
 const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
+  { name: 'Your Profile', href: '#' },
+  { name: 'Settings', href: '#' },
 ];
 
 const UserMenu = () => {
@@ -68,8 +68,8 @@ const UserMenu = () => {
                   <a
                     href={item.href}
                     className={classNames(
-                      active ? "bg-gray-100" : "",
-                      "block px-4 py-2 text-sm text-gray-700"
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-sm text-gray-700',
                     )}
                   >
                     {item.name}

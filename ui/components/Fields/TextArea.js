@@ -13,9 +13,7 @@ class TextArea extends PureComponent {
 
   render() {
     const {
-      meta: {
-        active, error, invalid, touched,
-      },
+      meta: { active, error, invalid, touched },
       label,
       placeholder,
       fieldLabel,
@@ -26,14 +24,10 @@ class TextArea extends PureComponent {
       input,
     } = this.props;
 
-    const seamlessClasses = cx(
-      className,
-      'form-field-text',
-      {
-        'form-field-text--has-focus': active,
-        'form-field-text--has-error': invalid && touched && error,
-      },
-    );
+    const seamlessClasses = cx(className, 'form-field-text', {
+      'form-field-text--has-focus': active,
+      'form-field-text--has-error': invalid && touched && error,
+    });
 
     return (
       <label
@@ -42,11 +36,11 @@ class TextArea extends PureComponent {
         hidden={hidden}
         name={input.name}
       >
-        {
-          (fieldLabel || label)
-            ? (<MarkdownLabel label={fieldLabel || label} />)
-            : ''
-        }
+        {fieldLabel || label ? (
+          <MarkdownLabel label={fieldLabel || label} />
+        ) : (
+          ''
+        )}
         <div className={seamlessClasses}>
           <textarea
             id={this.id}
@@ -58,10 +52,10 @@ class TextArea extends PureComponent {
             {...input}
           />
           {invalid && touched && (
-          <div className="form-field-text__error">
-            <Icon name="warning" />
-            {error}
-          </div>
+            <div className="form-field-text__error">
+              <Icon name="warning" />
+              {error}
+            </div>
           )}
         </div>
       </label>

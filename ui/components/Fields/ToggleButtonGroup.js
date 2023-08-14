@@ -9,18 +9,13 @@ import MarkdownLabel from './MarkdownLabel';
 class ToggleButtonGroup extends PureComponent {
   get value() {
     const {
-      input: {
-        value,
-      },
+      input: { value },
     } = this.props;
     return value;
   }
 
   handleClickOption = (event) => {
-    const {
-      options,
-      input,
-    } = this.props;
+    const { options, input } = this.props;
 
     const option = getValue(options[event.target.value]);
     const newValue = this.isOptionChecked(option)
@@ -28,17 +23,15 @@ class ToggleButtonGroup extends PureComponent {
       : [...this.value, option];
 
     input.onChange(newValue);
-  }
+  };
 
   isOptionChecked = (option) => {
     const {
-      input: {
-        value = [],
-      },
+      input: { value = [] },
     } = this.props;
     const included = value.includes(option);
     return included;
-  }
+  };
 
   renderOption = (option, index) => {
     const { value: optionValue, label: optionLabel } = asOptionObject(option);
@@ -81,16 +74,15 @@ class ToggleButtonGroup extends PureComponent {
 
     return (
       <div className={classNames}>
-        { anyLabel
-          && <MarkdownLabel label={anyLabel} />}
+        {anyLabel && <MarkdownLabel label={anyLabel} />}
         <div className="form-field form-field__inline" name={name}>
-          { options.map(this.renderOption) }
+          {options.map(this.renderOption)}
         </div>
         {invalid && touched && (
-        <div className="form-field-togglebutton-group__error">
-          <Icon name="warning" />
-          {error}
-        </div>
+          <div className="form-field-togglebutton-group__error">
+            <Icon name="warning" />
+            {error}
+          </div>
         )}
       </div>
     );

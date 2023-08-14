@@ -3,7 +3,9 @@ import { isEmpty } from 'lodash';
 const CSSVariable = (variableName) => {
   if (document.readyState !== 'complete') {
     // eslint-disable-next-line no-console
-    console.error('You attempted to read the value of a CSS variable before all app resources were loaded! Move calls to getCSSVariableAs* outside of the top level scope of your components.');
+    console.error(
+      'You attempted to read the value of a CSS variable before all app resources were loaded! Move calls to getCSSVariableAs* outside of the top level scope of your components.',
+    );
   }
 
   const variable = getComputedStyle(document.body)
@@ -17,11 +19,14 @@ const CSSVariable = (variableName) => {
   return variable;
 };
 
-export const getCSSVariableAsString = (variableName) => CSSVariable(variableName);
+export const getCSSVariableAsString = (variableName) =>
+  CSSVariable(variableName);
 
-export const getCSSVariableAsNumber = (variableName) => parseInt(CSSVariable(variableName), 10);
+export const getCSSVariableAsNumber = (variableName) =>
+  parseInt(CSSVariable(variableName), 10);
 
-export const getCSSVariableAsObject = (variableName) => JSON.parse(CSSVariable(variableName));
+export const getCSSVariableAsObject = (variableName) =>
+  JSON.parse(CSSVariable(variableName));
 
 export const getCSSVariable = (variableName) => {
   const variable = CSSVariable(variableName);

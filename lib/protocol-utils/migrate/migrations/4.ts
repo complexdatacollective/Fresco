@@ -3,64 +3,92 @@
  */
 
 const setProps = (props, source = {}) =>
-  Object.keys(props)
-    .reduce((acc, key) => {
-      if (!source[key]) { return acc; }
-      return { ...acc, [key]: props[key] };
-    }, source);
+  Object.keys(props).reduce((acc, key) => {
+    if (!source[key]) {
+      return acc;
+    }
+    return { ...acc, [key]: props[key] };
+  }, source);
 
 const getNextSafeValue = (value, existing, inc = 1) => {
   const incrementedValue = inc > 1 ? `${value}${inc}` : value;
-  if (!existing.includes(incrementedValue)) { return incrementedValue; }
+  if (!existing.includes(incrementedValue)) {
+    return incrementedValue;
+  }
 
   return getNextSafeValue(value, existing, inc + 1);
 };
 
 const getSafeValue = (value, existing = []) => {
-  if (typeof value !== 'string') { return value; } // some option values are numeric
+  if (typeof value !== 'string') {
+    return value;
+  } // some option values are numeric
 
-  const safeValue = value.replace(/[\s]+/g, '_').replace(/[^a-zA-Z0-9._:-]+/g, '');
+  const safeValue = value
+    .replace(/[\s]+/g, '_')
+    .replace(/[^a-zA-Z0-9._:-]+/g, '');
 
   return getNextSafeValue(safeValue, existing);
 };
 
-const getNames = (obj = {}) =>
-  Object.keys(obj)
-    .map(key => obj[key].name);
+const getNames = (obj = {}) => Object.keys(obj).map((key) => obj[key].name);
 
 const migrateOptionValues = (options = []) =>
-  options.reduce((acc, { value, ...rest }) => ([
-    ...acc,
-    { ...rest, value: getSafeValue(value, acc.map(o => o.value)) },
-  ]), []);
+  options.reduce(
+    (acc, { value, ...rest }) => [
+      ...acc,
+      {
+        ...rest,
+        value: getSafeValue(
+          value,
+          acc.map((o) => o.value),
+        ),
+      },
+    ],
+    [],
+  );
 
-const migrateVariable = (variable = {}, acc = {}) => setProps({
-  options: migrateOptionValues(variable.options),
-  name: getSafeValue(variable.name, getNames(acc)),
-}, variable);
+const migrateVariable = (variable = {}, acc = {}) =>
+  setProps(
+    {
+      options: migrateOptionValues(variable.options),
+      name: getSafeValue(variable.name, getNames(acc)),
+    },
+    variable,
+  );
 
 const migrateVariables = (variables = {}) =>
-  Object.keys(variables)
-    .reduce((acc, variableId) => ({
+  Object.keys(variables).reduce(
+    (acc, variableId) => ({
       ...acc,
       [variableId]: migrateVariable(variables[variableId], acc),
-    }), {});
+    }),
+    {},
+  );
 
-const migrateType = (type = {}, acc = {}) => setProps({
-  name: getSafeValue(type.name, getNames(acc)),
-  variables: migrateVariables(type.variables),
-}, type);
+const migrateType = (type = {}, acc = {}) =>
+  setProps(
+    {
+      name: getSafeValue(type.name, getNames(acc)),
+      variables: migrateVariables(type.variables),
+    },
+    type,
+  );
 
 const migrateTypes = (types = {}) =>
-  Object.keys(types)
-    .reduce((acc, typeId) => ({
+  Object.keys(types).reduce(
+    (acc, typeId) => ({
       ...acc,
       [typeId]: migrateType(types[typeId], acc),
-    }), {});
+    }),
+    {},
+  );
 
 const migratePrompt = (prompt = {}) => {
-  const booleanOnlyAttributes = prompt.additionalAttributes.filter(additionalAttribute =>
-    additionalAttribute.value === true || additionalAttribute.value === false);
+  const booleanOnlyAttributes = prompt.additionalAttributes.filter(
+    (additionalAttribute) =>
+      additionalAttribute.value === true || additionalAttribute.value === false,
+  );
   return Object.keys(prompt).reduce((object, key) => {
     if (key !== 'additionalAttributes') {
       object[key] = prompt[key];
@@ -73,23 +101,26 @@ const migratePrompt = (prompt = {}) => {
 
 const migrateStage = (stage = {}) => ({
   ...stage,
-  prompts: stage.prompts.map(prompt =>
-    prompt.additionalAttributes ? migratePrompt(prompt) : prompt),
+  prompts: stage.prompts.map((prompt) =>
+    prompt.additionalAttributes ? migratePrompt(prompt) : prompt,
+  ),
 });
 
-const migrateStages = (stages = []) => stages.map(stage =>
-  stage.prompts ? migrateStage(stage) : stage,
-);
+const migrateStages = (stages = []) =>
+  stages.map((stage) => (stage.prompts ? migrateStage(stage) : stage));
 
 const migration = (protocol) => {
   const codebook = protocol.codebook;
   const stages = protocol.stages;
 
-  const newCodebook = setProps({
-    node: migrateTypes(codebook.node),
-    edge: migrateTypes(codebook.edge),
-    ego: migrateType(codebook.ego),
-  }, codebook);
+  const newCodebook = setProps(
+    {
+      node: migrateTypes(codebook.node),
+      edge: migrateTypes(codebook.edge),
+      ego: migrateType(codebook.ego),
+    },
+    codebook,
+  );
 
   const newStages = migrateStages(stages);
 

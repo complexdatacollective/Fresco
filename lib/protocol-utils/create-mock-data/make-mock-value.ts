@@ -1,14 +1,16 @@
 import { faker } from '@faker-js/faker';
-import { InputComponents, VariableDefinition, VariableType } from '@codaco/shared-consts'
+import {
+  InputComponents,
+  VariableDefinition,
+  VariableType,
+} from '@codaco/shared-consts';
 
-const mockCoord = () => faker.datatype.number({ min: 0, max: 1, precision: 0.000_001 });
+const mockCoord = () =>
+  faker.datatype.number({ min: 0, max: 1, precision: 0.000_001 });
 
 // Based on the variable type, return a mock value
 const makeMockValue = (variable: VariableDefinition) => {
-  const {
-    type,
-    name,
-  } = variable;
+  const { type, name } = variable;
 
   switch (type) {
     case VariableType.boolean:
@@ -26,11 +28,17 @@ const makeMockValue = (variable: VariableDefinition) => {
     case VariableType.layout:
       return { x: mockCoord(), y: mockCoord() };
     case VariableType.text: {
-      if (name.toLowerCase() === 'name' || name.toLowerCase().includes('name')) {
+      if (
+        name.toLowerCase() === 'name' ||
+        name.toLowerCase().includes('name')
+      ) {
         return faker.name.fullName();
       }
 
-      if (variable.component && variable.component === InputComponents.TextArea) {
+      if (
+        variable.component &&
+        variable.component === InputComponents.TextArea
+      ) {
         return faker.lorem.paragraph();
       }
 

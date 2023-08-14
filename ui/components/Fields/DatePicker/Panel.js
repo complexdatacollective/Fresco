@@ -4,22 +4,21 @@ import cx from 'classnames';
 import { motion } from 'framer-motion';
 
 const getAnimation = ({ isComplete, isActive }) => {
-  if (isComplete) { return { x: '-100%' }; }
-  if (isActive) { return { x: 0 }; }
+  if (isComplete) {
+    return { x: '-100%' };
+  }
+  if (isActive) {
+    return { x: 0 };
+  }
   return { x: '100%' };
 };
 
-const Panel = ({
-  type, isComplete, isActive, children,
-}) => {
-  const className = cx(
-    'date-picker__panel',
-    {
-      [`date-picker__panel--${type}`]: type,
-      'date-picker__panel--is-complete': isComplete,
-      'date-picker__panel--is-active': isActive,
-    },
-  );
+const Panel = ({ type, isComplete, isActive, children }) => {
+  const className = cx('date-picker__panel', {
+    [`date-picker__panel--${type}`]: type,
+    'date-picker__panel--is-complete': isComplete,
+    'date-picker__panel--is-active': isActive,
+  });
 
   const animate = getAnimation({ isActive, isComplete });
 

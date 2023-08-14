@@ -3,18 +3,20 @@ import {
   type NextAuthOptions,
   type DefaultSession,
   type DefaultUser,
-} from "next-auth";
-import { prisma } from "~/utils/db";
+} from 'next-auth';
+import { prisma } from '~/utils/db';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare } from "bcrypt";
-import { DefaultJWT } from "next-auth/jwt";
+import { compare } from 'bcrypt';
+import { DefaultJWT } from 'next-auth/jwt';
 
-const verifyPassword = async (password: string, hashedPassword: string): Promise<boolean> => {
+const verifyPassword = async (
+  password: string,
+  hashedPassword: string,
+): Promise<boolean> => {
   return compare(password, hashedPassword);
-}
+};
 
-
-declare module "next-auth" {
+declare module 'next-auth' {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
    */
@@ -37,7 +39,7 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   callbacks: {
     jwt(params) {
@@ -51,7 +53,7 @@ export const authOptions: NextAuthOptions = {
 
       return token;
     },
-    session: ({ session, token, }) => {
+    session: ({ session, token }) => {
       // console.log('session callback', session, token);
       return {
         expires: session.expires,
@@ -60,21 +62,25 @@ export const authOptions: NextAuthOptions = {
           roles: token.roles,
           name: token.name,
           email: token.email,
-        }
-      }
+        },
+      };
     },
   },
   providers: [
     CredentialsProvider({
-      name: "Username and Password",
+      name: 'Username and Password',
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "user@networkcanvas.com" },
-        password: { label: "Password", type: "password" },
+        email: {
+          label: 'Email',
+          type: 'email',
+          placeholder: 'user@networkcanvas.com',
+        },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         // Reject if no email or password
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         // Check if user exists in db
@@ -88,24 +94,27 @@ export const authOptions: NextAuthOptions = {
             name: true,
             password: true,
             roles: true,
-          }
-        })
+          },
+        });
 
         if (!user) {
           console.log('no user found!');
-          return null
+          return null;
         }
 
         if (!user.password) {
           console.log('no password found!');
-          return null
+          return null;
         }
 
         // Verify password against hashed password
-        const isPasswordValid = await verifyPassword(credentials.password, user.password);
+        const isPasswordValid = await verifyPassword(
+          credentials.password,
+          user.password,
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
@@ -113,8 +122,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           roles: user.roles,
-        }
-
+        };
       },
     }),
   ],
@@ -124,7 +132,7 @@ export const authOptions: NextAuthOptions = {
     // error: '/auth/error', // Error code passed in query string as ?error=
     // verifyRequest: '/auth/verify-request', // (used for check email message)
     // newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
-  }
+  },
 };
 
 /**

@@ -4,10 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import Toast from './Toast';
 import { usePortal } from '../../hooks/index.ts';
 
-const ToastManager = ({
-  toasts,
-  removeToast,
-}) => {
+const ToastManager = ({ toasts, removeToast }) => {
   const Portal = usePortal();
   return (
     <Portal>

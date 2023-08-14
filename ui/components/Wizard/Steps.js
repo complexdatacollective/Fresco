@@ -4,11 +4,7 @@ import PropTypes from 'prop-types';
 const Steps = ({ index, children }) => {
   const step = children[index - 1];
 
-  return (
-    <>
-      {step}
-    </>
-  );
+  return <>{step}</>;
 };
 
 Steps.propTypes = {

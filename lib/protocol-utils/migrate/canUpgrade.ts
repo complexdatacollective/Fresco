@@ -1,4 +1,4 @@
-import getMigrationPath from "./getMigrationPath.js";
+import getMigrationPath from './getMigrationPath.js';
 
 const canUpgrade = (sourceSchemaVersion, targetSchemaVersion) => {
   try {

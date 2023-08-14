@@ -89,7 +89,7 @@ $module-name: form-field-slider;
     }
 
     &-label {
-      transform: translate(-50%, - 0.2 * $touch-height);
+      transform: translate(-50%, -0.2 * $touch-height);
       font-size: 0.8rem;
       background: var(--tooltip-color);
       border-radius: var(--border-radius);
@@ -167,7 +167,8 @@ $module-name: form-field-slider;
     border-radius: 100%;
     background-color: var(--active-color);
     transition-property: transform, opacity, filter;
-    transition-duration: var(--animation-duration-fast), var(--animation-duration-fast), var(--animation-duration-fast);
+    transition-duration: var(--animation-duration-fast),
+      var(--animation-duration-fast), var(--animation-duration-fast);
 
     &--is-disabled {
       background-color: var(--disabled-color);
@@ -218,8 +219,9 @@ $module-name: form-field-slider;
     opacity: 0;
     background: var(--error);
     color: var(--form-error-text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;
@@ -230,7 +232,6 @@ $module-name: form-field-slider;
   }
 
   &--has-error {
-
     .form-field {
       border-width: 0.1rem;
       border-style: solid;

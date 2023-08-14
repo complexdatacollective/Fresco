@@ -64,10 +64,7 @@ BooleanField.propTypes = {
   input: PropTypes.object.isRequired,
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func,
-      ]).isRequired,
+      label: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
       value: valuePropTypes,
       classes: PropTypes.string,
       icon: PropTypes.func,

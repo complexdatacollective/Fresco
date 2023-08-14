@@ -17,10 +17,12 @@ const RelativeDatePicker = ({ parameters = {}, ...rest }) => {
     ? DateTime.fromISO(parameters.anchor)
     : DateTime.local();
 
-  const min = anchor.minus({ days: parameters.before || 180 })
+  const min = anchor
+    .minus({ days: parameters.before || 180 })
     .toFormat(DATE_FORMAT);
 
-  const max = anchor.plus({ days: parameters.after || 0 })
+  const max = anchor
+    .plus({ days: parameters.after || 0 })
     .toFormat(DATE_FORMAT);
 
   const newParameters = {

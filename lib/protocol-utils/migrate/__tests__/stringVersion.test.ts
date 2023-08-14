@@ -31,16 +31,23 @@ describe('string version handling', () => {
 
   it('throws an error for other source string version numbers', () => {
     expect(() => {
-      migrateProtocol({
-        ...v1Protocol,
-        schemaVersion: '2.0.0',
-      }, 4);
-    }).toThrow('The source schema version is not recognised, must be an integer ("2.0.0").');
+      migrateProtocol(
+        {
+          ...v1Protocol,
+          schemaVersion: '2.0.0',
+        },
+        4,
+      );
+    }).toThrow(
+      'The source schema version is not recognised, must be an integer ("2.0.0").',
+    );
   });
 
   it('throws an error for target string version numbers', () => {
     expect(() => {
       migrateProtocol(v1Protocol, '4.0.0');
-    }).toThrow('The target schema version is not recognised, must be an integer ("4.0.0").');
+    }).toThrow(
+      'The target schema version is not recognised, must be an integer ("4.0.0").',
+    );
   });
 });

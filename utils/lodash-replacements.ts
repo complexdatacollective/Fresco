@@ -27,33 +27,33 @@
 //   return parts.reduce(pathReducer, object) ?? defaultValue;
 // };
 
-
 type Path = string | Array<string>;
 
 // WARNING: This is not a drop in replacement solution and
-// it might not work for some edge cases. Test your code! 
+// it might not work for some edge cases. Test your code!
 export const get = (obj: object, path: Path, defValue: unknown = undefined) => {
   // If path is not defined or it has false value
-  if (!path) return undefined
+  if (!path) return undefined;
   // Check if path is string or array. Regex : ensure that we do not have '.' and brackets.
   // Regex explained: https://regexr.com/58j0k
-  const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g)
+  const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g);
   // Find value
   const result = pathArray?.reduce(
     (prevObj, key) => prevObj && prevObj[key as keyof object],
-    obj
-  )
+    obj,
+  );
   // If found value is undefined return default value; otherwise return the value
-  return result === undefined ? defValue : result
-}
+  return result === undefined ? defValue : result;
+};
 
 export const has = (obj: object, key: string): boolean => {
   const keyParts = key.split('.');
 
-  return !!obj && (
-    keyParts.length > 1
+  return (
+    !!obj &&
+    (keyParts.length > 1
       ? has(obj[key.split('.')[0] as keyof object], keyParts.slice(1).join('.'))
-      : Object.hasOwnProperty.call(obj, key)
+      : Object.hasOwnProperty.call(obj, key))
   );
 };
 
@@ -62,7 +62,7 @@ export const isObject = (obj: unknown): boolean => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => { };
+export const noop = () => {};
 
 export const random = (a = 1, b = 0) => {
   const lower = Math.min(a, b);
@@ -73,146 +73,164 @@ export const random = (a = 1, b = 0) => {
 export const randomInt = (a = 1, b = 0) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
-  return Math.floor(lower + Math.random() * (upper - lower + 1))
+  return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
 export const omit = (obj: object, keys: string[]) => {
   const result = { ...obj };
-  keys.forEach(key => delete result[key as keyof object]);
+  keys.forEach((key) => delete result[key as keyof object]);
   return result;
-}
+};
 
 export const isEmpty = (value: unknown) => {
   return (
     value == null || // From standard.js: Always use === - but obj == null is allowed to check null || undefined
     (typeof value === 'object' && Object.keys(value).length === 0) ||
     (typeof value === 'string' && value.trim().length === 0)
-  )
-}
+  );
+};
 
 export const clamp = (num: number, clamp: number, higher: number) =>
-  higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp)
-
+  higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp);
 
 export const times = (n: number, func = (i: unknown) => i) =>
-  Array.from({ length: n }).map((_, i) => func(i))
+  Array.from({ length: n }).map((_, i) => func(i));
 
-export const difference = (arr1: Array<unknown>, arr2: Array<unknown>) => arr1.filter(x => !arr2.includes(x))
+export const difference = (arr1: Array<unknown>, arr2: Array<unknown>) =>
+  arr1.filter((x) => !arr2.includes(x));
 
-export const intersection = (...arrays: Array<unknown[]>) => arrays.reduce((a, b) => a.filter(c => b.includes(c)))
+export const intersection = (...arrays: Array<unknown[]>) =>
+  arrays.reduce((a, b) => a.filter((c) => b.includes(c)));
 
 export const round = (num: number, precision: number) => {
-  const modifier = 10 ** precision
-  return Math.round(num * modifier) / modifier
-}
+  const modifier = 10 ** precision;
+  return Math.round(num * modifier) / modifier;
+};
 
-export const isNil = (val: unknown) => val == null
+export const isNil = (val: unknown) => val == null;
 
 export const uniqueId = (
-  counter =>
-    (str = '') =>
-      `${str}${++counter}`
-)(0)
+  (counter) =>
+  (str = '') =>
+    `${str}${++counter}`
+)(0);
 
 /**
-* Performs a deep merge of objects and returns new object. Does not modify
-* objects (immutable) and merges arrays via concatenation.
-*
-* @param {...object} objects - Objects to merge
-* @returns {object} New object with merged key/values
-*/
+ * Performs a deep merge of objects and returns new object. Does not modify
+ * objects (immutable) and merges arrays via concatenation.
+ *
+ * @param {...object} objects - Objects to merge
+ * @returns {object} New object with merged key/values
+ */
 export const merge = (...objects: Array<Record<string, unknown>>) => {
   const isObject = (obj: unknown): boolean => typeof obj === 'object';
 
   return objects.reduce((prev, obj) => {
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
       const pVal = prev[key];
       const oVal = obj[key];
 
       if (Array.isArray(pVal) && Array.isArray(oVal)) {
         prev[key] = [...new Set([...oVal, ...pVal])]; // Merge arrays and remove duplicates
-      }
-      else if (isObject(pVal) && isObject(oVal)) {
-        prev[key] = merge(pVal as Record<string, unknown>, oVal as Record<string, unknown>);
-      }
-      else {
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = merge(
+          pVal as Record<string, unknown>,
+          oVal as Record<string, unknown>,
+        );
+      } else {
         prev[key] = oVal;
       }
     });
 
     return prev;
   }, {});
-}
+};
 
-export const debounce = (func: (...rest: unknown[]) => void, delay: number, { leading, trailing } = { leading: false, trailing: undefined }) => {
+export const debounce = (
+  func: (...rest: unknown[]) => void,
+  delay: number,
+  { leading, trailing } = { leading: false, trailing: undefined },
+) => {
   if (trailing !== undefined) {
-    console.warn("Trailing option not implemented in lodash replacements debounce");
+    console.warn(
+      'Trailing option not implemented in lodash replacements debounce',
+    );
   }
 
   let timerId: NodeJS.Timeout;
 
   return (...args: unknown[]) => {
     if (!timerId && leading) {
-      func(...args)
+      func(...args);
     }
-    clearTimeout(timerId)
+    clearTimeout(timerId);
 
-    timerId = setTimeout(() => func(...args), delay)
-  }
-}
+    timerId = setTimeout(() => func(...args), delay);
+  };
+};
 
-export const flowRight = (funcs: Array<(...args: unknown[]) => void>) =>
+export const flowRight =
+  (funcs: Array<(...args: unknown[]) => void>) =>
   (...args: unknown[]) =>
-    funcs.reverse().reduce((prev, fnc) => [fnc(...prev)], args)[0]
+    funcs.reverse().reduce((prev, fnc) => [fnc(...prev)], args)[0];
 
-// Function that accepts an array of unknown items, and a function that returns a promise. 
+// Function that accepts an array of unknown items, and a function that returns a promise.
 // It will run the function on each item in the array, and wait for the promise to resolve before moving on to the next item.
-export const inSequence = async (items: Array<unknown>, apply: (item: unknown) => Promise<unknown>) => {
+export const inSequence = async (
+  items: Array<unknown>,
+  apply: (item: unknown) => Promise<unknown>,
+) => {
   for (const item of items) {
-    await apply(item)
+    await apply(item);
   }
-}
+};
 
 // Replacement for lodash/fp trimChars
 export const trimChars = (chars: string) => (str: string) => {
-  const charsRegex = new RegExp(`^[${chars}]+|[${chars}]+$`, 'g')
-  return str.replace(charsRegex, '')
-}
+  const charsRegex = new RegExp(`^[${chars}]+|[${chars}]+$`, 'g');
+  return str.replace(charsRegex, '');
+};
 
 // This method is like _.find except that it returns the key of the first element predicate returns truthy for instead of the element itself.
-export const findKey = (obj: Record<string, unknown>, predicate: (value: unknown) => boolean) => {
-  const keys = Object.keys(obj)
+export const findKey = (
+  obj: Record<string, unknown>,
+  predicate: (value: unknown) => boolean,
+) => {
+  const keys = Object.keys(obj);
   for (const key of keys) {
     if (predicate(obj[key])) {
-      return key
+      return key;
     }
   }
-}
+};
 
 // Creates an array of own enumerable string keyed-value pairs for object. If object is a map or set, its entries are returned.
 export const toPairs = (obj: Record<string, unknown>) => {
-  const keys = Object.keys(obj)
-  return keys.map(key => [key, obj[key]])
-}
-
+  const keys = Object.keys(obj);
+  return keys.map((key) => [key, obj[key]]);
+};
 
 // Creates an object composed of keys generated from the results of running each element of collection thru iteratee. The corresponding value of each key is the number of times the key was returned by iteratee. The iteratee is invoked with one argument: (value).
-export const countBy = (collection: Array<unknown>, iteratee: (value: unknown) => unknown) => {
-  const result: Record<string, number> = {}
+export const countBy = (
+  collection: Array<unknown>,
+  iteratee: (value: unknown) => unknown,
+) => {
+  const result: Record<string, number> = {};
   for (const item of collection) {
-    const key = iteratee(item)
+    const key = iteratee(item);
     if (result[key as keyof typeof result]) {
-      result[key as keyof typeof result]++
+      result[key as keyof typeof result]++;
     } else {
-      result[key as keyof typeof result] = 1
+      result[key as keyof typeof result] = 1;
     }
   }
-  return result
-}
+  return result;
+};
 
-export const isMatch = (obj: Record<string, unknown>, properties: Record<string, unknown>) => Object.keys(properties).every(
-  (key) => obj[key] === properties[key],
-);
+export const isMatch = (
+  obj: Record<string, unknown>,
+  properties: Record<string, unknown>,
+) => Object.keys(properties).every((key) => obj[key] === properties[key]);
 
 // If condition is not met, throws. When thrown from a selector, the error
 // will be handled by stage boundary and displayed to the user.
@@ -235,45 +253,75 @@ export const isEqual = function (a: unknown, b: unknown): boolean {
     const keys = Object.keys(a);
     if (keys.length !== Object.keys(b).length) return false;
     for (const key in a) {
-      if (!exports.deepEqual(a[key as keyof typeof a], b[key as keyof typeof b])) return false;
+      if (
+        !exports.deepEqual(a[key as keyof typeof a], b[key as keyof typeof b])
+      )
+        return false;
     }
     return true;
   }
   return a === b;
 };
 
-export const mapValues = (obj: Record<string, unknown>, iteratee: (value: unknown) => unknown) => {
-  return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, iteratee(value)]))
-}
+export const mapValues = (
+  obj: Record<string, unknown>,
+  iteratee: (value: unknown) => unknown,
+) => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key, iteratee(value)]),
+  );
+};
 
-export const mapKeys = (obj: Record<string, unknown>, iteratee: (value: unknown) => unknown) => {
-  return Object.fromEntries(Object.entries(obj).map(([key, value]) => [iteratee(key), value]))
-}
+export const mapKeys = (
+  obj: Record<string, unknown>,
+  iteratee: (value: unknown) => unknown,
+) => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [iteratee(key), value]),
+  );
+};
 
-export const orderBy = (collection: Array<Record<string, unknown>> | Array<string>, iteratees: Array<unknown>, orders: Array<unknown>) => {
+export const orderBy = (
+  collection: Array<Record<string, unknown>> | Array<string>,
+  iteratees: Array<unknown>,
+  orders: Array<unknown>,
+) => {
   const result = [...collection];
 
   result.sort((a, b) => {
     for (let i = 0; i < iteratees.length; i++) {
-      const iteratee = iteratees[i]
-      const order = orders[i]
+      const iteratee = iteratees[i];
+      const order = orders[i];
 
-      const aValue = typeof iteratee === 'function' ? iteratee(a) : a[iteratee as keyof typeof a]
-      const bValue = typeof iteratee === 'function' ? iteratee(b) : b[iteratee as keyof typeof b]
+      const aValue =
+        typeof iteratee === 'function'
+          ? iteratee(a)
+          : a[iteratee as keyof typeof a];
+      const bValue =
+        typeof iteratee === 'function'
+          ? iteratee(b)
+          : b[iteratee as keyof typeof b];
       if (aValue > bValue) {
-        return order === 'desc' ? -1 : 1
+        return order === 'desc' ? -1 : 1;
       }
       if (aValue < bValue) {
-        return order === 'desc' ? 1 : -1
+        return order === 'desc' ? 1 : -1;
       }
     }
-    return 0
-  })
-  return result
-}
+    return 0;
+  });
+  return result;
+};
 
-export const sortBy = (collection: Array<Record<string, unknown>> | Array<string>, iteratees: Array<unknown>) => {
-  return orderBy(collection, iteratees, iteratees.map(() => 'asc'))
-}
+export const sortBy = (
+  collection: Array<Record<string, unknown>> | Array<string>,
+  iteratees: Array<unknown>,
+) => {
+  return orderBy(
+    collection,
+    iteratees,
+    iteratees.map(() => 'asc'),
+  );
+};
 
 export const values = (obj: Record<string, unknown>) => Object.values(obj);

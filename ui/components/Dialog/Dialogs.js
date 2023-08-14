@@ -30,7 +30,7 @@ import * as DialogVariants from './variants';
  *     message: 'More detail...',
  *     onConfirm: () => {},
  *   },
-*   {
+ *   {
  *     id: '1234-1234-3',
  *     type: 'Warning',
  *     title: 'Something to warn the user about, maybe a non-failing error',
@@ -54,15 +54,19 @@ class Dialogs extends Component {
 
   handleConfirm = (dialog) => {
     const { closeDialog } = this.props;
-    if (dialog.onConfirm) { dialog.onConfirm(dialog); }
+    if (dialog.onConfirm) {
+      dialog.onConfirm(dialog);
+    }
     closeDialog(dialog.id);
-  }
+  };
 
   handleCancel = (dialog) => {
     const { closeDialog } = this.props;
-    if (dialog.onCancel) { dialog.onCancel(dialog); }
+    if (dialog.onCancel) {
+      dialog.onCancel(dialog);
+    }
     closeDialog(dialog.id);
-  }
+  };
 
   renderDialog = (dialog) => {
     const Dialog = DialogVariants[dialog.type];
@@ -80,7 +84,7 @@ class Dialogs extends Component {
         {...omit(dialog, ['onConfirm', 'onCancel'])}
       />
     );
-  }
+  };
 
   render() {
     return this.dialogs.map(this.renderDialog);

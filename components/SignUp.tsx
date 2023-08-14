@@ -1,54 +1,54 @@
-"use client";
+'use client';
 
-import { useQueryClient } from "@tanstack/react-query";
-import { handleSubmit } from "~/app/(onboard)/signup/_actions";
-import Button from "~/ui/components/Button";
-import { useState } from "react";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { useQueryClient } from '@tanstack/react-query';
+import { handleSubmit } from '~/app/(onboard)/signup/_actions';
+import Button from '~/ui/components/Button';
+import { useState } from 'react';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export const SignUp: React.FC = () => {
   const queryClient = useQueryClient();
   const [userCredentials, setUserCredentials] = useState({
-    name: "",
-    email: "",
-    password: "",
+    name: '',
+    email: '',
+    password: '',
   });
 
   const validateForm = () => {
     //validation goes here -
-    console.log("formik validation");
+    console.log('formik validation');
   };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string(),
-    email: Yup.string().email("Invalid email!!").required("Required"),
+    email: Yup.string().email('Invalid email!!').required('Required'),
     password: Yup.string(),
   });
 
   const doSubmit = async (e: FormData) => {
-    e.append("name", userCredentials.name);
-    e.append("email", userCredentials.email);
-    e.append("password", userCredentials.password);
-    console.log("formdata", e);
+    e.append('name', userCredentials.name);
+    e.append('email', userCredentials.email);
+    e.append('password', userCredentials.password);
+    console.log('formdata', e);
     // handleSubmit is a server action.
     const result = await handleSubmit(e);
-    console.log("userCredentials", userCredentials);
+    console.log('userCredentials', userCredentials);
 
-    console.log("result", result);
+    console.log('result', result);
 
     // ...handle form submission result.
 
     // invalidate the query cache, so the table updates.
-    await queryClient.invalidateQueries(["users"]);
+    await queryClient.invalidateQueries(['users']);
   };
 
   return (
     <Formik
       initialValues={{
-        name: "jane",
-        email: "you@somewhere.edu",
-        password: "******************",
+        name: 'jane',
+        email: 'you@somewhere.edu',
+        password: '******************',
       }}
       onSubmit={validateForm}
       validationSchema={validationSchema}

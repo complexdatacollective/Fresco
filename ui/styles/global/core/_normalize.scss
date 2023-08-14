@@ -6,7 +6,6 @@
 //
 // Normalize is licensed MIT. https://github.com/necolas/normalize.css
 
-
 // Document
 //
 // 1. Change from `box-sizing: content-box` so that `width` is not affected by `padding` or `border`.
@@ -28,7 +27,6 @@
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0); // 6
   }
 
-
   // Prevent text selection except when an element has a given class.
   // IMPORTANT: input and textarea are excepted because including them
   // locks the input on iOS!
@@ -36,8 +34,8 @@
     user-select: none;
 
     // Contenteditable covers our rich text input
-    [contenteditable="true"],
-    [contenteditable="true"] *,
+    [contenteditable='true'],
+    [contenteditable='true'] *,
     .allow-text-selection,
     .allow-text-selection * {
       user-select: auto;
@@ -121,8 +119,12 @@
     vertical-align: baseline;
   }
 
-  sub { bottom: -.25em; }
-  sup { top: -.5em; }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
 
   //
   // Code
@@ -145,7 +147,6 @@
     overflow: auto;
   }
 
-
   //
   // Figures
   //
@@ -154,7 +155,6 @@
     // Apply a consistent margin strategy (matches our type styles).
     margin: 0 0 1rem;
   }
-
 
   //
   // Images and content
@@ -178,7 +178,6 @@
     // Matches default `<td>` alignment
     text-align: left;
   }
-
 
   //
   // Forms
@@ -213,7 +212,7 @@
     height: auto;
   }
 
-  [type="search"] {
+  [type='search'] {
     // This overrides the extra rounded corners on search inputs in iOS so that our
     // `.form-control` class can properly style them. Note that this cannot simply
     // be added to `.form-control` as it's not specific enough. For details, see
@@ -226,8 +225,8 @@
   // Remove the inner padding and cancel buttons in Chrome and Safari on macOS.
   //
 
-  [type="search"]::-webkit-search-cancel-button,
-  [type="search"]::-webkit-search-decoration {
+  [type='search']::-webkit-search-cancel-button,
+  [type='search']::-webkit-search-decoration {
     -webkit-appearance: none;
   }
 
@@ -258,5 +257,4 @@
   [hidden] {
     display: none !important;
   }
-
 }

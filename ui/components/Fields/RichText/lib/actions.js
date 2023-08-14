@@ -1,8 +1,4 @@
-import {
-  Element as SlateElement,
-  Editor,
-  Transforms,
-} from 'slate';
+import { Element as SlateElement, Editor, Transforms } from 'slate';
 import { EditListPlugin } from '@productboard/slate-edit-list';
 import { insertThematicBreak } from './utils';
 import { BLOCK_TYPES } from './options';
@@ -12,18 +8,21 @@ const LIST_TYPES = ['ul_list', 'ol_list'];
 const [, , { Transforms: EditListTransforms }] = EditListPlugin();
 
 const getNewType = ({ isActive, isList, format }) => {
-  if (isList) { return 'list_item'; }
+  if (isList) {
+    return 'list_item';
+  }
   // If isActive is set, format already set. Remove it.
-  if (isActive) { return 'paragraph'; }
+  if (isActive) {
+    return 'paragraph';
+  }
   // Otherwise return the new format ready to apply
   return format;
 };
 
 const isBlockActive = (editor, format) => {
   const [match] = Editor.nodes(editor, {
-    match: (n) => (
-      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format
-    ),
+    match: (n) =>
+      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
   });
 
   return !!match;
@@ -69,9 +68,13 @@ const toggleMark = (editor, format) => {
 };
 
 const smartInsertThematicBreak = (editor) => {
-  const isWithinBlock = BLOCK_TYPES.some((format) => isBlockActive(editor, format));
+  const isWithinBlock = BLOCK_TYPES.some((format) =>
+    isBlockActive(editor, format),
+  );
 
-  if (isWithinBlock) { return; }
+  if (isWithinBlock) {
+    return;
+  }
 
   insertThematicBreak(editor);
 };

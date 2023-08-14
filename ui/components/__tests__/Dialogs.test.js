@@ -32,11 +32,7 @@ const noticeDialog = () => ({
   onConfirm: jest.fn(),
 });
 
-const makeDialogs = () => ([
-  warningDialog(),
-  confirmDialog(),
-  noticeDialog(),
-]);
+const makeDialogs = () => [warningDialog(), confirmDialog(), noticeDialog()];
 
 const makeProps = () => ({
   closeDialog: jest.fn(),
@@ -53,7 +49,9 @@ describe('<Dialogs />', () => {
 
   it('It renders dialogs', () => {
     // eslint-disable-next-line react/jsx-props-no-spreading
-    const component = shallow(<Dialogs {...makeProps()} dialogs={makeDialogs()} />);
+    const component = shallow(
+      <Dialogs {...makeProps()} dialogs={makeDialogs()} />,
+    );
     expect(component.find('Warning').length).toBe(1);
     expect(component.find('Confirm').length).toBe(1);
     expect(component.find('Notice').length).toBe(1);
@@ -64,15 +62,15 @@ describe('<Dialogs />', () => {
       const mockProps = makeProps();
       const mockWarningDialog = warningDialog();
       // eslint-disable-next-line react/jsx-props-no-spreading
-      const component = mount(<Dialogs {...mockProps} dialogs={[mockWarningDialog]} />);
+      const component = mount(
+        <Dialogs {...mockProps} dialogs={[mockWarningDialog]} />,
+      );
 
-      component.find('Warning button').at(1)
-        .simulate('click');
+      component.find('Warning button').at(1).simulate('click');
       expect(mockWarningDialog.onConfirm.mock.calls.length).toBe(1);
       expect(mockProps.closeDialog.mock.calls.length).toBe(1);
 
-      component.find('Warning button').at(0)
-        .simulate('click');
+      component.find('Warning button').at(0).simulate('click');
       expect(mockWarningDialog.onCancel.mock.calls.length).toBe(1);
       expect(mockProps.closeDialog.mock.calls.length).toBe(2);
     });
@@ -81,7 +79,9 @@ describe('<Dialogs />', () => {
       const mockProps = makeProps();
       const mockNoticeDialog = noticeDialog();
       // eslint-disable-next-line react/jsx-props-no-spreading
-      const component = mount(<Dialogs {...mockProps} dialogs={[mockNoticeDialog]} />);
+      const component = mount(
+        <Dialogs {...mockProps} dialogs={[mockNoticeDialog]} />,
+      );
 
       component.find('Notice button').at(0).simulate('click');
       expect(mockNoticeDialog.onConfirm.mock.calls.length).toBe(1);
@@ -92,15 +92,15 @@ describe('<Dialogs />', () => {
       const mockProps = makeProps();
       const mockConfirmDialog = confirmDialog();
       // eslint-disable-next-line react/jsx-props-no-spreading
-      const component = mount(<Dialogs {...mockProps} dialogs={[mockConfirmDialog]} />);
+      const component = mount(
+        <Dialogs {...mockProps} dialogs={[mockConfirmDialog]} />,
+      );
 
-      component.find('Confirm button').at(1)
-        .simulate('click');
+      component.find('Confirm button').at(1).simulate('click');
       expect(mockConfirmDialog.onConfirm.mock.calls.length).toBe(1);
       expect(mockProps.closeDialog.mock.calls.length).toBe(1);
 
-      component.find('Confirm button').at(0)
-        .simulate('click');
+      component.find('Confirm button').at(0).simulate('click');
       expect(mockConfirmDialog.onCancel.mock.calls.length).toBe(1);
       expect(mockProps.closeDialog.mock.calls.length).toBe(2);
     });

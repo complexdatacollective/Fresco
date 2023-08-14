@@ -1,7 +1,7 @@
 import { readdir, writeFile, readFile, access } from 'node:fs/promises';
 import { extname, join, basename } from 'node:path';
-import Ajv from "ajv";
-import standaloneCode from "ajv/dist/standalone/index.js";
+import Ajv from 'ajv';
+import standaloneCode from 'ajv/dist/standalone/index.js';
 
 const ajv = new Ajv({
   allErrors: true,
@@ -9,7 +9,7 @@ const ajv = new Ajv({
   code: {
     esm: true,
     source: true, // ?
-  }
+  },
 });
 ajv.addFormat('integer', /\d+/);
 ajv.addFormat('date-time', /\d+/);
@@ -19,11 +19,12 @@ const readJson = async (path) => {
   return JSON.parse(file);
 };
 
-const isJsonFile = fileName => extname(fileName) === '.json';
+const isJsonFile = (fileName) => extname(fileName) === '.json';
 
-const getBaseName = schemaFileName => basename(schemaFileName, '.json');
+const getBaseName = (schemaFileName) => basename(schemaFileName, '.json');
 
-const asVariableName = schemaName => `version_${schemaName.replace(/\./g, '_')}`;
+const asVariableName = (schemaName) =>
+  `version_${schemaName.replace(/\./g, '_')}`;
 
 const asIntName = (schemaName) => {
   if (isNaN(parseInt(schemaName, 10))) {
@@ -32,21 +33,25 @@ const asIntName = (schemaName) => {
   return parseInt(schemaName, 10);
 };
 
-
 /**
  * Helper function to generate the index.js file for the schemas directory
  * containing the ES6 module exports for each schema.
- * @param {*} schemas 
- * @returns 
+ * @param {*} schemas
+ * @returns
  */
 const generateModuleIndex = async (schemas, outputPath) => {
   console.log('Generating module index...');
   const formatRequire = (baseSchemaName) => {
     const relativeModulePath = join(`./${baseSchemaName}.js`);
-    return `import ${asVariableName(baseSchemaName)} from './${relativeModulePath}';`;
+    return `import ${asVariableName(
+      baseSchemaName,
+    )} from './${relativeModulePath}';`;
   };
 
-  const formatVersions = baseSchemaName => `  { version: ${asIntName(baseSchemaName)}, validator: ${asVariableName(baseSchemaName)} },`;
+  const formatVersions = (baseSchemaName) =>
+    `  { version: ${asIntName(baseSchemaName)}, validator: ${asVariableName(
+      baseSchemaName,
+    )} },`;
 
   const schemaRequires = schemas.map(formatRequire).join('\n');
   const schemaVersions = `${schemas.map(formatVersions).join('\n')}`;
@@ -65,7 +70,7 @@ export default versions;
 };
 
 /**
- * Compile 
+ * Compile
  */
 export const buildSchemas = async (sourcePath, outputPath) => {
   // Check if the source directory exists
@@ -85,7 +90,7 @@ export const buildSchemas = async (sourcePath, outputPath) => {
   }
 
   const files = await readdir(sourcePath);
-  const schemas = files.filter(isJsonFile).map(getBaseName)
+  const schemas = files.filter(isJsonFile).map(getBaseName);
 
   // If no schemas are found, exit
   if (schemas.length === 0) {
@@ -126,5 +131,3 @@ export const buildSchema = async (schema, sourceDirectory, outputDirectory) => {
   console.log(`...done.`);
   return modulePath;
 };
-
-

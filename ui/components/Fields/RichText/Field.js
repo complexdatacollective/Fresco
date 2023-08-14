@@ -8,9 +8,7 @@ import MarkdownLabel from '../MarkdownLabel';
 
 const RichTextField = ({
   input,
-  meta: {
-    error, active, invalid, touched,
-  },
+  meta: { error, active, invalid, touched },
   label,
   placeholder,
   autoFocus,
@@ -22,19 +20,14 @@ const RichTextField = ({
 
   const anyLabel = label;
 
-  const seamlessClasses = cx(
-    className,
-    'form-field-rich-text',
-    {
-      'form-field-rich-text--has-focus': active,
-      'form-field-rich-text--has-error': invalid && touched && error,
-    },
-  );
+  const seamlessClasses = cx(className, 'form-field-rich-text', {
+    'form-field-rich-text--has-focus': active,
+    'form-field-rich-text--has-error': invalid && touched && error,
+  });
 
   return (
     <div className="form-field-container">
-      {anyLabel
-        && <MarkdownLabel label={anyLabel} />}
+      {anyLabel && <MarkdownLabel label={anyLabel} />}
       <div className={seamlessClasses}>
         <RichText
           id={id.current}

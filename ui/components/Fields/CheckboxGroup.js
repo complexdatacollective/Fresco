@@ -8,30 +8,41 @@ import MarkdownLabel from './MarkdownLabel';
 
 class CheckboxGroup extends PureComponent {
   get value() {
-    const { input: { value } } = this.props;
+    const {
+      input: { value },
+    } = this.props;
     return value;
   }
 
   handleClickOption = (index) => {
-    const { input: { onChange }, options } = this.props;
+    const {
+      input: { onChange },
+      options,
+    } = this.props;
     const option = getValue(options[index]);
     const newValue = this.isOptionChecked(option)
       ? this.value.filter((value) => value !== option)
       : [...this.value, option];
 
     onChange(newValue);
-  }
+  };
 
   isOptionChecked = (option) => {
-    const { input: { value = [] } } = this.props;
+    const {
+      input: { value = [] },
+    } = this.props;
     const included = value.includes(option);
     return included;
-  }
+  };
 
   renderOption = (option, index) => {
     const { optionComponent } = this.props;
     const OptionComponent = optionComponent;
-    const { value: optionValue, label: optionLabel, ...optionRest } = asOptionObject(option);
+    const {
+      value: optionValue,
+      label: optionLabel,
+      ...optionRest
+    } = asOptionObject(option);
 
     return (
       <OptionComponent
@@ -72,16 +83,15 @@ class CheckboxGroup extends PureComponent {
 
     return (
       <div className={classNames}>
-        { anyLabel
-          && <MarkdownLabel label={anyLabel} />}
+        {anyLabel && <MarkdownLabel label={anyLabel} />}
         <div className="form-field" name={name}>
-          { options.map(this.renderOption) }
+          {options.map(this.renderOption)}
         </div>
         {invalid && touched && (
-        <div className="form-field-checkbox-group__error">
-          <Icon name="warning" />
-          {error}
-        </div>
+          <div className="form-field-checkbox-group__error">
+            <Icon name="warning" />
+            {error}
+          </div>
         )}
       </div>
     );

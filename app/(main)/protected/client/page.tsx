@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 const ClientProtectPage = () => {
   const { data: session } = useSession({
@@ -14,7 +14,7 @@ const ClientProtectPage = () => {
   return (
     <section className="container">
       <h1 className="text-2xl font-bold">
-        This is a <span className="text-emerald-400">client-side</span>{" "}
+        This is a <span className="text-emerald-400">client-side</span>{' '}
         protected page
       </h1>
       <h2 className="mt-4 font-medium">You are logged in as:</h2>

@@ -9,10 +9,7 @@ const toInt = (value) => {
   return int;
 };
 
-const NumberInput = ({
-  placeholder = 'Enter a number...',
-  ...rest
-}) => (
+const NumberInput = ({ placeholder = 'Enter a number...', ...rest }) => (
   <TextInput
     type="number"
     placeholder={placeholder}

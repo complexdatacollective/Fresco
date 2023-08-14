@@ -8,12 +8,12 @@ import Years from '../Years';
 const getSubject = (props) => {
   const mockFunctionalComponent = jest.fn(() => null);
 
-  mount((
+  mount(
     // eslint-disable-next-line react/jsx-props-no-spreading
     <DatePicker {...props}>
       <Years>{mockFunctionalComponent}</Years>
-    </DatePicker>
-  ));
+    </DatePicker>,
+  );
 
   return mockFunctionalComponent;
 };
@@ -25,7 +25,6 @@ describe('<Years>', () => {
       max: '1989-09-09',
     });
 
-    expect(subject.mock.calls[0][0])
-      .toMatchSnapshot();
+    expect(subject.mock.calls[0][0]).toMatchSnapshot();
   });
 });

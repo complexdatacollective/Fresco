@@ -13,10 +13,7 @@ class Toggle extends PureComponent {
     this.id = uuid();
 
     const {
-      input: {
-        value,
-        onChange,
-      },
+      input: { value, onChange },
     } = this.props;
 
     // Because redux forms will just not pass on this
@@ -39,27 +36,18 @@ class Toggle extends PureComponent {
       ...rest
     } = this.props;
 
-    const containerClassNames = cx(
-      'form-field-container',
-      {
-        'form-field-toggle--has-error': invalid && touched && error,
-      },
-    );
+    const containerClassNames = cx('form-field-container', {
+      'form-field-toggle--has-error': invalid && touched && error,
+    });
 
-    const componentClasses = cx(
-      'form-field',
-      'form-field-toggle',
-      className,
-      {
-        'form-field-toggle--disabled': disabled,
-        'form-field-toggle--has-error': invalid && touched && error,
-      },
-    );
+    const componentClasses = cx('form-field', 'form-field-toggle', className, {
+      'form-field-toggle--disabled': disabled,
+      'form-field-toggle--has-error': invalid && touched && error,
+    });
 
     return (
       <div className={containerClassNames} name={input.name}>
-        {fieldLabel
-          && <MarkdownLabel label={fieldLabel} />}
+        {fieldLabel && <MarkdownLabel label={fieldLabel} />}
         <label className={componentClasses} htmlFor={this.id} title={title}>
           <input
             className="form-field-toggle__input"
@@ -76,7 +64,13 @@ class Toggle extends PureComponent {
           <div className="form-field-toggle__toggle">
             <span className="form-field-toggle__button" />
           </div>
-          {label && <MarkdownLabel inline label={label} className="form-field-inline-label" />}
+          {label && (
+            <MarkdownLabel
+              inline
+              label={label}
+              className="form-field-inline-label"
+            />
+          )}
         </label>
         {invalid && touched && (
           <div className="form-field-toggle__error">

@@ -25,7 +25,7 @@ describe('Slider/Field', () => {
       ],
     });
     // eslint-disable-next-line react/jsx-props-no-spreading
-    const subject = mount((<Field {...mockProps} />));
+    const subject = mount(<Field {...mockProps} />);
     expect(subject.html()).toMatchSnapshot();
 
     const slider = subject.find(Slider);
@@ -49,7 +49,7 @@ describe('Slider/Field', () => {
       },
     });
     // eslint-disable-next-line react/jsx-props-no-spreading
-    const subject = mount((<Field {...mockProps} />));
+    const subject = mount(<Field {...mockProps} />);
     expect(subject.html()).toMatchSnapshot();
 
     const slider = subject.find(Slider);
@@ -69,7 +69,7 @@ describe('Slider/Field', () => {
       type: 'number',
     });
     // eslint-disable-next-line react/jsx-props-no-spreading
-    const subject = mount((<Field {...mockProps} />));
+    const subject = mount(<Field {...mockProps} />);
     expect(subject.html()).toMatchSnapshot();
 
     const slider = subject.find(Slider);
