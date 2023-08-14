@@ -1,5 +1,5 @@
-import validateSchema from "./validateSchema.js";
-import validateLogic from "./validateLogic.js";
+import validateSchema from "./validateSchema";
+import validateLogic from "./validateLogic";
 
 type ValidateProtocolReturn = boolean | ValidationError;
 

@@ -8,11 +8,10 @@ import UserMenu from "./UserMenu";
 import Link from "next/link";
 
 const navigation = [
-  { name: "Home", href: "/", current: true },
+  { name: "Home", href: "/", current: false },
   { name: "Protected Server Route", href: "/protected/server", current: false },
   { name: "Protected Client Route", href: "/protected/client", current: false },
   { name: "Protected Api endpoint", href: "/api/users", current: false },
-  { name: "Admin only area", href: "/admin", current: false },
 ];
 
 const NavigationButton = ({

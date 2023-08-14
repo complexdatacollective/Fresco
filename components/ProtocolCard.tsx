@@ -1,8 +1,13 @@
 "use client";
 
+import type { Prisma } from "@prisma/client";
 import Link from "next/link";
 
-const ProtocolCard = ({ protocol }) => {
+type Props = {
+  protocol: Prisma.ProtocolGetPayload<object>;
+};
+
+const ProtocolCard = ({ protocol }: Props) => {
   const { id, name, description } = protocol;
 
   return (

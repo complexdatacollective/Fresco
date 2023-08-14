@@ -1,8 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 
-const InterviewCard = ({ interview }) => {
+type Props = {
+  interview: Prisma.InterviewGetPayload<{
+    include: { protocol: true; user: true };
+  }>;
+};
+
+const InterviewCard = ({ interview }: Props) => {
   const {
     id,
     protocol: { name: protocolName },
@@ -25,12 +32,8 @@ const InterviewCard = ({ interview }) => {
         User: {userName}
       </h5>
       <h5 className="text-md mb-2 font-bold tracking-tight text-gray-900 dark:text-white">
-        Last Updated: {lastUpdated.toLocaleDateString()}
+        Last Updated: {lastUpdated.toDateString()}
       </h5>
-      {/* <p className="font-normal text-gray-700 dark:text-gray-400">
-        Here are the biggest enterprise technology acquisitions of 2021 so far,
-        in reverse chronological order.
-      </p> */}
     </Link>
   );
 };

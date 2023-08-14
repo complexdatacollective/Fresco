@@ -7,6 +7,10 @@ const ClientProtectPage = () => {
     required: true,
   });
 
+  if (!session) {
+    return <div>loading...</div>;
+  }
+
   return (
     <section className="container">
       <h1 className="text-2xl font-bold">

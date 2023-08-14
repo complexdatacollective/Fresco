@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="prose">
+    <div>
       <h2 className="">Interview error boundary: Something went wrong!</h2>
       <pre>
         <code>{error.message}</code>

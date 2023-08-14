@@ -1,4 +1,4 @@
-import { Color } from "./colors.js";
+import type { Color } from "./colors.js";
 
 export enum StageTypes {
   NameGenerator = 'NameGenerator',
@@ -21,7 +21,7 @@ export enum StageTypes {
 
 export type SortOption = {
   property: string;
-  direction: 'asc' | 'desc' | string;
+  direction: 'asc' | 'desc';
 };
 
 export type PromptEdges = {
@@ -63,22 +63,22 @@ export type Prompt = {
 
 export type FilterRule = {
   id: string;
-  type: 'alter' | 'ego' | 'edge' | string;
+  type: 'alter' | 'ego' | 'edge';
   options: {
     type?: string,
-    operator: "EXISTS" | "NOT_EXISTS" | "EXACTLY" | "NOT" | "GREATER_THAN" | "GREATER_THAN_OR_EQUAL" | "LESS_THAN" | "LESS_THAN_OR_EQUAL" | "INCLUDES" | "EXCLUDES" | "OPTIONS_GREATER_THAN" | "OPTIONS_LESS_THAN" | "OPTIONS_EQUALS" | "OPTIONS_NOT_EQUALS" | string;
+    operator: "EXISTS" | "NOT_EXISTS" | "EXACTLY" | "NOT" | "GREATER_THAN" | "GREATER_THAN_OR_EQUAL" | "LESS_THAN" | "LESS_THAN_OR_EQUAL" | "INCLUDES" | "EXCLUDES" | "OPTIONS_GREATER_THAN" | "OPTIONS_LESS_THAN" | "OPTIONS_EQUALS" | "OPTIONS_NOT_EQUALS";
     attribute?: string;
     value?: boolean | number | string;
   }
 }
 
 export type FilterDefinition = {
-  join: 'AND' | 'OR' | string;
+  join: 'AND' | 'OR';
   rules: FilterRule[];
 }
 
 export type SkipDefinition = {
-  action: 'SKIP' | 'SHOW' | string;
+  action: 'SKIP' | 'SHOW';
   filter: FilterDefinition;
 }
 
@@ -95,9 +95,9 @@ export type PresetDefinition = {
 
 export type ItemDefinition = {
   id: string;
-  type: 'asset' | 'text' | string;
+  type: 'asset' | 'text';
   content: string;
-  size: 'SMALL' | 'MEDIUM' | 'LARGE' | string;
+  size: 'SMALL' | 'MEDIUM' | 'LARGE';
 };
 
 export type StageSubject = {
@@ -122,7 +122,7 @@ export interface Stage {
   title?: string; // Todo: remove this
   interviewScript?: string;
   form?: Form;
-  introductionPanel?: Object, // Todo: create a Panel type
+  introductionPanel?: object, // Todo: create a Panel type
   subject?: StageSubject | StageSubject[];
   panels?: object[];
   prompts?: Prompt[];
