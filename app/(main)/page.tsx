@@ -1,8 +1,13 @@
-import InterviewCard from "~/components/InterviewCard";
-import Link from "~/components/Link";
-import ProtocolCard from "~/components/ProtocolCard";
-import { Button } from "~/components/ui/Button";
-import { prisma } from "~/utils/db";
+import InterviewCard from '~/components/InterviewCard';
+import ProtocolCard from '~/components/ProtocolCard';
+import { Button } from '~/components/ui/Button';
+import { prisma } from '~/utils/db';
+import { DataTable } from '~/components/ui/DataTable/DataTable';
+import {
+  InterviewColumns,
+  ProtocolColumns,
+  ParticipantColumns,
+} from '~/components/ui/DataTable/Columns';
 
 const getInterviews = async () => {
   const interviews = await prisma.interview.findMany({
@@ -25,9 +30,23 @@ const getProtocols = async () => {
   return protocols;
 };
 
+const getParticipants = async () => {
+  const participants = await prisma.user.findMany({
+    where: {
+      roles: {
+        some: {
+          name: 'PARTICIPANT',
+        },
+      },
+    },
+  });
+  return participants;
+};
+
 export default async function Home() {
   const interviews = await getInterviews();
   const protocols = await getProtocols();
+  const participants = await getParticipants();
   return (
     <main className="flex flex-col gap-10 p-10">
       <div>
@@ -41,6 +60,7 @@ export default async function Home() {
             <InterviewCard key={interview.id} interview={interview} />
           ))}
         </div>
+        <DataTable columns={InterviewColumns} data={interviews} />
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Protocols</h2>
@@ -49,9 +69,14 @@ export default async function Home() {
             <ProtocolCard key={protocol.id} protocol={protocol} />
           ))}
         </div>
+        <DataTable columns={ProtocolColumns} data={protocols} />
         <Button className="mt-6" disabled>
           Upload Protocol
         </Button>
+      </div>
+      <div className="rounded-lg bg-white p-6">
+        <h2 className="mb-6 text-2xl font-bold">Participants</h2>
+        <DataTable columns={ParticipantColumns} data={participants} />
       </div>
     </main>
   );
