@@ -2,15 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { type Interview, type Protocol, type User } from '@prisma/client';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+import { ActionsDropdown } from './ActionsDropdown';
 
 export const InterviewColumns: ColumnDef<Interview>[] = [
   {
@@ -79,6 +73,12 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     accessorKey: 'currentStep',
     header: 'Current Step',
   },
+  {
+    id: 'actions',
+    cell: () => {
+      return <ActionsDropdown menuItems={['Edit', 'Resume', 'Delete']} />;
+    },
+  },
 ];
 
 export const ProtocolColumns: ColumnDef<Protocol>[] = [
@@ -127,22 +127,7 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
   {
     id: 'actions',
     cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Resume</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
     },
   },
 ];
@@ -169,5 +154,11 @@ export const ParticipantColumns: ColumnDef<User>[] = [
   {
     accessorKey: 'email',
     header: 'E-mail',
+  },
+  {
+    id: 'actions',
+    cell: () => {
+      return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
+    },
   },
 ];
