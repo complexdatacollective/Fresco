@@ -20,18 +20,14 @@ const InterviewCard = ({ interview }: Props) => {
   return (
     <Link
       href={`/interview/${id}`}
-      className="m-2 block w-full rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+      className="m-2 block w-[500px] rounded-lg border border-l-8 border-violet-700 bg-white p-6 shadow"
     >
-      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-        ID: {id}
-      </h5>
-      <h5 className="text-md mb-2 font-bold tracking-tight text-gray-900 dark:text-white">
+      <h5 className="mb-6 text-2xl tracking-tight text-gray-900">ID: {id}</h5>
+      <h5 className="text-md tracking-tight text-gray-900">
         Protocol: {protocolName}
       </h5>
-      <h5 className="text-md mb-2 font-bold tracking-tight text-gray-900 dark:text-white">
-        User: {userName}
-      </h5>
-      <h5 className="text-md mb-2 font-bold tracking-tight text-gray-900 dark:text-white">
+      <h5 className="text-md tracking-tight text-gray-900">User: {userName}</h5>
+      <h5 className="text-md tracking-tight text-gray-900">
         Last Updated: {lastUpdated.toDateString()}
       </h5>
     </Link>

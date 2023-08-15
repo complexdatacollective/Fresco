@@ -1,14 +1,13 @@
-'use client';
+"use client";
 
 import {
   createContext,
   useReducer,
   useContext,
   useEffect,
-  PropsWithChildren,
-} from 'react';
-import type { NcNetwork } from '~/lib/shared-consts';
-import { prisma } from '~/utils/db';
+  type PropsWithChildren,
+} from "react";
+import type { NcNetwork } from "~/lib/shared-consts";
 
 const initialState: NcNetwork = {
   nodes: [],
@@ -18,47 +17,47 @@ const initialState: NcNetwork = {
 
 type NetworkAction = {
   type:
-    | 'ADD_NODE'
-    | 'ADD_EDGE'
-    | 'UPDATE_NODE'
-    | 'UPDATE_EDGE'
-    | 'DELETE_NODE'
-    | 'DELETE_EDGE';
+    | "ADD_NODE"
+    | "ADD_EDGE"
+    | "UPDATE_NODE"
+    | "UPDATE_EDGE"
+    | "DELETE_NODE"
+    | "DELETE_EDGE";
   payload: Record<string, unknown>;
 };
 
 function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
   switch (action.type) {
-    case 'ADD_NODE':
+    case "ADD_NODE":
       return {
         ...state,
         nodes: [...state.nodes, action.payload],
       };
-    case 'ADD_EDGE':
+    case "ADD_EDGE":
       return {
         ...state,
         edges: [...state.edges, action.payload],
       };
-    case 'UPDATE_NODE':
+    case "UPDATE_NODE":
       return {
         ...state,
         nodes: state.nodes.map((node) =>
           node.id === action.payload.id ? action.payload : node,
         ),
       };
-    case 'UPDATE_EDGE':
+    case "UPDATE_EDGE":
       return {
         ...state,
         edges: state.edges.map((edge) =>
           edge.id === action.payload.id ? action.payload : edge,
         ),
       };
-    case 'DELETE_NODE':
+    case "DELETE_NODE":
       return {
         ...state,
         nodes: state.nodes.filter((node) => node.id !== action.payload),
       };
-    case 'DELETE_EDGE':
+    case "DELETE_EDGE":
       return {
         ...state,
         edges: state.edges.filter((edge) => edge.id !== action.payload),
@@ -93,8 +92,9 @@ function NetworkProvider({
   updateNetwork,
   children,
 }: PropsWithChildren<NetworkProviderProps>) {
-  console.log('network provider initial state', network);
-  const [state, dispatch] = useReducer(reducer, getInitialState(network));
+  const [state, dispatch] = useReducer(reducer, initialState, () =>
+    getInitialState(network),
+  );
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
@@ -111,40 +111,38 @@ function NetworkProvider({
 const useInterview = () => {
   const { state, dispatch } = useContext(NetworkContext);
 
-  console.log('use Interview', state);
-
   const addNode = (node) => {
-    dispatch({ type: 'ADD_NODE', payload: node });
+    dispatch({ type: "ADD_NODE", payload: node });
   };
 
   const addEdge = (edge) => {
-    dispatch({ type: 'ADD_EDGE', payload: edge });
+    dispatch({ type: "ADD_EDGE", payload: edge });
   };
 
   const updateNode = (node) => {
-    dispatch({ type: 'UPDATE_NODE', payload: node });
+    dispatch({ type: "UPDATE_NODE", payload: node });
   };
 
   const updateEdge = (edge) => {
-    dispatch({ type: 'UPDATE_EDGE', payload: edge });
+    dispatch({ type: "UPDATE_EDGE", payload: edge });
   };
 
   const deleteNode = (nodeId) => {
-    dispatch({ type: 'DELETE_NODE', payload: nodeId });
+    dispatch({ type: "DELETE_NODE", payload: nodeId });
   };
 
   const deleteEdge = (edgeId) => {
-    dispatch({ type: 'DELETE_EDGE', payload: edgeId });
+    dispatch({ type: "DELETE_EDGE", payload: edgeId });
   };
 
   const nextPage = () => {
     // ...
-    console.log('nextPage');
+    console.log("nextPage");
   };
 
   const previousPage = () => {
     // ...
-    console.log('previousPage');
+    console.log("previousPage");
   };
 
   const hasNextPage = () => {

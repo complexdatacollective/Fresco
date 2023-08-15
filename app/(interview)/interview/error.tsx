@@ -1,7 +1,7 @@
-'use client'; // Error components must be Client components
+"use client"; // Error components must be Client components
 
-import { useEffect } from 'react';
-import Button from '~/ui/components/Button';
+import { useEffect } from "react";
+import { Button } from "~/components/ui/Button";
 
 export default function Error({
   error,

@@ -35,7 +35,7 @@ model Interview {
   finishTime  DateTime?
   exportTime  DateTime?
   lastUpdated DateTime  @updatedAt
-  network     String    @default("{}") // Another json field we can't store yet :/
+  network     String    @default("")
   user        User      @relation(fields: [userId], references: [id])
   userId      String
   protocol    Protocol  @relation(fields: [protocolId], references: [id])
