@@ -2,11 +2,23 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { type Interview, type Protocol, type User } from '@prisma/client';
+import { ArrowUpDown } from 'lucide-react';
+import { Button } from '~/components/ui/Button';
 
 export const InterviewColumns: ColumnDef<Interview>[] = [
   {
     accessorKey: 'id',
-    header: 'Interview ID',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Interview ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'startTime',
@@ -43,7 +55,6 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   },
   {
     accessorKey: 'lastUpdated',
-    header: 'Last Updated',
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
       return date.toLocaleString();
@@ -54,7 +65,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     header: 'User ID',
   },
   {
-    accessorKey: 'protocolID',
+    accessorKey: 'protocolId',
     header: 'Protocol ID',
   },
   {
@@ -66,7 +77,17 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
 export const ProtocolColumns: ColumnDef<Protocol>[] = [
   {
     accessorKey: 'id',
-    header: 'Protocol ID',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Protocol ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'name',
@@ -101,7 +122,17 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
 export const ParticipantColumns: ColumnDef<User>[] = [
   {
     accessorKey: 'id',
-    header: 'Protocol ID',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Participant ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'name',
