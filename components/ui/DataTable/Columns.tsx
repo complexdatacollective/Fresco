@@ -2,8 +2,15 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { type Interview, type Protocol, type User } from '@prisma/client';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
 
 export const InterviewColumns: ColumnDef<Interview>[] = [
   {
@@ -115,6 +122,27 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     cell: ({ row }) => {
       const date = new Date(row.original.lastModified);
       return date.toLocaleString();
+    },
+  },
+  {
+    id: 'actions',
+    cell: () => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem>Resume</DropdownMenuItem>
+            <DropdownMenuItem>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
     },
   },
 ];
