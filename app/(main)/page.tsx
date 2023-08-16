@@ -55,20 +55,10 @@ export default async function Home() {
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Interviews</h2>
-        <div className="grid grid-cols-2">
-          {interviews.map((interview) => (
-            <InterviewCard key={interview.id} interview={interview} />
-          ))}
-        </div>
         <DataTable columns={InterviewColumns} data={interviews} />
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Protocols</h2>
-        <div className="grid grid-cols-2">
-          {protocols.map((protocol) => (
-            <ProtocolCard key={protocol.id} protocol={protocol} />
-          ))}
-        </div>
         <DataTable columns={ProtocolColumns} data={protocols} />
         <Button className="mt-6" disabled>
           Upload Protocol
