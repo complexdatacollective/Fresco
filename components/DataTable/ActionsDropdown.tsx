@@ -8,13 +8,13 @@ import {
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 
-type MenuItem = 'Edit' | 'Delete' | 'Resume';
-
-interface Props {
-  menuItems: MenuItem[];
+interface Props<TMenuItem = string> {
+  menuItems: TMenuItem[];
 }
 
-export const ActionsDropdown = ({ menuItems }: Props) => {
+export const ActionsDropdown = <TMenuItem extends string>({
+  menuItems,
+}: Props<TMenuItem>) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
