@@ -1,7 +1,7 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { type Interview, type Protocol, type User } from '@prisma/client';
+import type { Interview, Protocol, User } from '@prisma/client';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { ActionsDropdown } from './ActionsDropdown';
