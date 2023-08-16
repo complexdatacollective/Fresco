@@ -1,52 +1,8 @@
-import InterviewCard from '~/components/InterviewCard';
-import ProtocolCard from '~/components/ProtocolCard';
 import { Button } from '~/components/ui/Button';
-import { prisma } from '~/utils/db';
-import { DataTable } from '~/components/ui/DataTable/DataTable';
-import {
-  InterviewColumns,
-  ProtocolColumns,
-  ParticipantColumns,
-} from '~/components/ui/DataTable/Columns';
-
-const getInterviews = async () => {
-  const interviews = await prisma.interview.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-        },
-      },
-      protocol: true,
-    },
-  });
-
-  return interviews;
-};
-
-const getProtocols = async () => {
-  const protocols = await prisma.protocol.findMany();
-
-  return protocols;
-};
-
-const getParticipants = async () => {
-  const participants = await prisma.user.findMany({
-    where: {
-      roles: {
-        some: {
-          name: 'PARTICIPANT',
-        },
-      },
-    },
-  });
-  return participants;
-};
-
-export default async function Home() {
-  const interviews = await getInterviews();
-  const protocols = await getProtocols();
-  const participants = await getParticipants();
+import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
+import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
+import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
+export default function Home() {
   return (
     <main className="flex flex-col gap-10 p-10">
       <div>
@@ -55,18 +11,18 @@ export default async function Home() {
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Interviews</h2>
-        <DataTable columns={InterviewColumns} data={interviews} />
+        <InterviewsTable />
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Protocols</h2>
-        <DataTable columns={ProtocolColumns} data={protocols} />
+        <ProtocolsTable />
         <Button className="mt-6" disabled>
           Upload Protocol
         </Button>
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Participants</h2>
-        <DataTable columns={ParticipantColumns} data={participants} />
+        <ParticipantsTable />
       </div>
     </main>
   );
