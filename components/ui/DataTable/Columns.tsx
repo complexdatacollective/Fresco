@@ -5,8 +5,28 @@ import { type Interview, type Protocol, type User } from '@prisma/client';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { ActionsDropdown } from './ActionsDropdown';
+import { Checkbox } from '~/components/ui/checkbox';
 
 export const InterviewColumns: ColumnDef<Interview>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'id',
     header: ({ column }) => {
@@ -83,6 +103,25 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
 
 export const ProtocolColumns: ColumnDef<Protocol>[] = [
   {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: 'id',
     header: ({ column }) => {
       return (
@@ -133,6 +172,25 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
 ];
 
 export const ParticipantColumns: ColumnDef<User>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'id',
     header: ({ column }) => {
