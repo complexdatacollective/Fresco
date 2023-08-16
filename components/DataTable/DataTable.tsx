@@ -22,16 +22,21 @@ import {
 import { Button } from '~/components/ui/Button';
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+  columns?: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
 export function DataTable<TData, TValue>({
-  columns,
+  columns = [],
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
+
+  if (columns.length === 0) {
+    // make default columns from data
+    columns = []; // this is where we will assign the default columns
+  }
 
   const table = useReactTable({
     data,
