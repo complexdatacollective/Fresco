@@ -46,7 +46,8 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     header: 'Start Time',
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      return JSON.stringify(date);
+      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
+      return isoString + ' UTC';
     },
   },
   {
@@ -57,9 +58,9 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
       if (!row.original.finishTime) {
         return 'Not completed';
       }
-      const finishTime = row.original.finishTime;
-      const date = new Date(finishTime);
-      return JSON.stringify(date);
+      const date = new Date(row.original.finishTime);
+      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
+      return isoString + ' UTC';
     },
   },
   {
@@ -71,14 +72,16 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
         return 'Not yet exported';
       }
       const date = new Date(row.original.exportTime);
-      return JSON.stringify(date);
+      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
+      return isoString + ' UTC';
     },
   },
   {
     accessorKey: 'lastUpdated',
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return JSON.stringify(date);
+      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
+      return isoString + ' UTC';
     },
   },
   {
