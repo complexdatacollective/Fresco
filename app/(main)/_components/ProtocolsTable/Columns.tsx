@@ -65,7 +65,7 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     header: 'Imported At',
     cell: ({ row }) => {
       const date = new Date(row.original.importedAt);
-      return date.toLocaleString();
+      return JSON.stringify(date);
     },
   },
   {
@@ -73,7 +73,7 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     header: 'Last Modified',
     cell: ({ row }) => {
       const date = new Date(row.original.lastModified);
-      return date.toLocaleString();
+      return JSON.stringify(date);
     },
   },
   {

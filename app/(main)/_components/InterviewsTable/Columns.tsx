@@ -46,7 +46,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     header: 'Start Time',
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      return date.toLocaleString();
+      return JSON.stringify(date);
     },
   },
   {
@@ -59,7 +59,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
       }
       const finishTime = row.original.finishTime;
       const date = new Date(finishTime);
-      return date.toLocaleString();
+      return JSON.stringify(date);
     },
   },
   {
@@ -71,14 +71,14 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
         return 'Not yet exported';
       }
       const date = new Date(row.original.exportTime);
-      return date.toLocaleString();
+      return JSON.stringify(date);
     },
   },
   {
     accessorKey: 'lastUpdated',
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return date.toLocaleString();
+      return JSON.stringify(date);
     },
   },
   {
