@@ -21,6 +21,8 @@ import {
 } from '~/components/ui/table';
 import { Button } from '~/components/ui/Button';
 
+import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
+
 interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -34,8 +36,7 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = useState({});
 
   if (columns.length === 0) {
-    // make default columns from data
-    columns = []; // this is where we will assign the default columns
+    columns = makeDefaultColumns(data);
   }
 
   const table = useReactTable({
