@@ -11,6 +11,11 @@ const getParticipants = async () => {
         },
       },
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
   });
   return participants;
 };

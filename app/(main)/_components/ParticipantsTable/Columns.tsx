@@ -7,7 +7,9 @@ import { Button } from '~/components/ui/Button';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 
-export const ParticipantColumns: ColumnDef<User>[] = [
+type UserWithoutPassword = Omit<User, 'password'>;
+
+export const ParticipantColumns: ColumnDef<UserWithoutPassword>[] = [
   {
     id: 'select',
     header: ({ table }) => (
