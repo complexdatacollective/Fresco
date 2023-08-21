@@ -1,6 +1,6 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef, flexRender } from '@tanstack/react-table';
 import type { Protocol } from '@prisma/client';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
@@ -52,6 +52,13 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
   {
     accessorKey: 'description',
     header: 'Description',
+    cell: ({ row }) => {
+      return (
+        <div key={row.original.description} className="min-w-[200px]">
+          {flexRender(row.original.description, row)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'importedAt',
