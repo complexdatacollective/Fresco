@@ -78,6 +78,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   },
   {
     accessorKey: 'lastUpdated',
+    header: 'Last Updated',
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
       const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
