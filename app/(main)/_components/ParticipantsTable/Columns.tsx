@@ -5,6 +5,13 @@ import type { User } from '@prisma/client';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
+import { Settings } from 'lucide-react';
 
 type UserWithoutPassword = Omit<User, 'password'>;
 
@@ -48,6 +55,18 @@ export const ParticipantColumns: ColumnDef<UserWithoutPassword>[] = [
   },
   {
     id: 'actions',
+    header: () => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Settings />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Edit or delete an individual participant.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
     cell: () => {
       return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
     },

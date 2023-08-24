@@ -4,7 +4,15 @@ import { type ColumnDef, flexRender } from '@tanstack/react-table';
 import type { Protocol } from '@prisma/client';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
+import { Settings } from 'lucide-react';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
 
 export const ProtocolColumns: ColumnDef<Protocol>[] = [
   {
@@ -71,6 +79,18 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
   },
   {
     id: 'actions',
+    header: () => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Settings />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Edit or delete an individual protocol.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
     cell: () => {
       return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
     },

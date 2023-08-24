@@ -6,6 +6,14 @@ import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
+import { Settings } from 'lucide-react';
+
 export const InterviewColumns: ColumnDef<Interview>[] = [
   {
     id: 'select',
@@ -96,6 +104,18 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   },
   {
     id: 'actions',
+    header: () => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Settings />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Edit, resume, or delete an individual interview.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
     cell: () => {
       return <ActionsDropdown menuItems={['Edit', 'Resume', 'Delete']} />;
     },
