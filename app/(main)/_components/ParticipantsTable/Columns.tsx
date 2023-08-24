@@ -2,10 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import type { User } from '@prisma/client';
-import { ArrowUpDown } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
 type UserWithoutPassword = Omit<User, 'password'>;
 
@@ -32,24 +31,20 @@ export const ParticipantColumns: ColumnDef<UserWithoutPassword>[] = [
   {
     accessorKey: 'id',
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Participant ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return <DataTableColumnHeader column={column} title="Participant ID" />;
     },
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Name" />;
+    },
   },
   {
     accessorKey: 'email',
-    header: 'E-mail',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="E-mail" />;
+    },
   },
   {
     id: 'actions',

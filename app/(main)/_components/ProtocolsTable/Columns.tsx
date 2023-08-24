@@ -2,10 +2,9 @@
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
 import type { Protocol } from '@prisma/client';
-import { ArrowUpDown } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
 export const ProtocolColumns: ColumnDef<Protocol>[] = [
   {
@@ -28,26 +27,10 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'id',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Protocol ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-  },
-  {
     accessorKey: 'name',
-    header: 'Name',
-  },
-  {
-    accessorKey: 'schemaVersion',
-    header: 'Schema Version',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Name" />;
+    },
   },
   {
     accessorKey: 'description',
@@ -62,7 +45,9 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
   },
   {
     accessorKey: 'importedAt',
-    header: 'Imported At',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Imported" />;
+    },
     cell: ({ row }) => {
       const date = new Date(row.original.importedAt);
       const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
@@ -71,12 +56,18 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
   },
   {
     accessorKey: 'lastModified',
-    header: 'Last Modified',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Modified" />;
+    },
     cell: ({ row }) => {
       const date = new Date(row.original.lastModified);
       const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
       return isoString + ' UTC';
     },
+  },
+  {
+    accessorKey: 'schemaVersion',
+    header: 'Schema Version',
   },
   {
     id: 'actions',

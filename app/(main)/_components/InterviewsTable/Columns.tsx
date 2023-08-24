@@ -2,10 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Interview } from '@prisma/client';
-import { ArrowUpDown } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
 export const InterviewColumns: ColumnDef<Interview>[] = [
   {
@@ -30,15 +29,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   {
     accessorKey: 'id',
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Interview ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return <DataTableColumnHeader column={column} title="Interview ID" />;
     },
   },
   {
@@ -78,7 +69,9 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   },
   {
     accessorKey: 'lastUpdated',
-    header: 'Last Updated',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Updated" />;
+    },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
       const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
@@ -87,7 +80,9 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   },
   {
     accessorKey: 'userId',
-    header: 'User ID',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="User ID" />;
+    },
   },
   {
     accessorKey: 'protocolId',
@@ -95,7 +90,9 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
   },
   {
     accessorKey: 'currentStep',
-    header: 'Current Step',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Step" />;
+    },
   },
   {
     id: 'actions',
