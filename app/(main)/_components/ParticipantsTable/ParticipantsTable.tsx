@@ -22,5 +22,11 @@ const getParticipants = async () => {
 const participants = await getParticipants();
 
 export const ParticipantsTable = () => {
-  return <DataTable columns={ParticipantColumns} data={participants} />;
+  return (
+    <DataTable
+      columns={ParticipantColumns}
+      data={participants}
+      filterColumnAccessorKey="name"
+    />
+  );
 };

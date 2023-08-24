@@ -9,5 +9,11 @@ const getProtocols = async () => {
 const protocols = await getProtocols();
 
 export const ProtocolsTable = () => {
-  return <DataTable columns={ProtocolColumns} data={protocols} />;
+  return (
+    <DataTable
+      columns={ProtocolColumns}
+      data={protocols}
+      filterColumnAccessorKey="name"
+    />
+  );
 };

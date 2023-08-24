@@ -3,8 +3,10 @@
 import {
   type ColumnDef,
   type SortingState,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -20,20 +22,25 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
 
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 
 interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterColumnAccessorKey?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns = [],
   data,
+  filterColumnAccessorKey = '',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
@@ -47,14 +54,35 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       rowSelection,
+      columnFilters,
     },
   });
 
   return (
     <div>
+      {filterColumnAccessorKey && (
+        <div className="flex items-center py-4">
+          <Input
+            placeholder={`Filter by ${filterColumnAccessorKey}...`}
+            value={
+              (table
+                .getColumn(filterColumnAccessorKey)
+                ?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table
+                .getColumn(filterColumnAccessorKey)
+                ?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+      )}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

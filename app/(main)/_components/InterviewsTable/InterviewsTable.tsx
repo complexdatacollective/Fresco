@@ -20,5 +20,11 @@ const getInterviews = async () => {
 const interviews = await getInterviews();
 
 export const InterviewsTable = () => {
-  return <DataTable columns={InterviewColumns} data={interviews} />;
+  return (
+    <DataTable
+      columns={InterviewColumns}
+      data={interviews}
+      filterColumnAccessorKey="id"
+    />
+  );
 };
