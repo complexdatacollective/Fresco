@@ -1,6 +1,6 @@
 import { DataTable } from '~/components/DataTable/DataTable';
 import { InterviewColumns } from '~/app/(main)/_components/InterviewsTable/Columns';
-import { safeLoadInterviews } from './Loader';
+import { safeLoadInterviews } from '~/app/(main)/_components/InterviewsTable/Loader';
 
 const interviews = await safeLoadInterviews();
 

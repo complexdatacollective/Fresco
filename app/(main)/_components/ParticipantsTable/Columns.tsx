@@ -13,9 +13,9 @@ import {
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
 
-type UserWithoutPassword = Omit<User, 'password'>;
+type SafeUser = Omit<User, 'password' | 'email'>;
 
-export const ParticipantColumns: ColumnDef<UserWithoutPassword>[] = [
+export const ParticipantColumns: ColumnDef<SafeUser>[] = [
   {
     id: 'select',
     header: ({ table }) => (

@@ -1,6 +1,6 @@
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from '~/app/(main)/_components/ProtocolsTable/Columns';
-import { safeLoadProtocols } from './Loader';
+import { safeLoadProtocols } from '~/app/(main)/_components/ProtocolsTable/Loader';
 
 const protocols = await safeLoadProtocols();
 
