@@ -1,21 +1,6 @@
 import { prisma } from '~/utils/db';
-import { safeLoader } from '~/lib/safeLoader';
-import { z } from 'zod';
-
-const ProtocolValidation = z.array(
-  z.object({
-    id: z.string(),
-    hash: z.string(),
-    name: z.string(),
-    schemaVersion: z.number(),
-    description: z.string(),
-    assetPath: z.string(),
-    importedAt: z.date(),
-    lastModified: z.date(),
-    stages: z.string(),
-    ownerId: z.string(),
-  }),
-);
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { ProtocolValidation } from '~/lib/data-mapper/validation';
 
 async function loadProtocols() {
   const protocols = await prisma.protocol.findMany();

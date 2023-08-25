@@ -1,13 +1,6 @@
 import { prisma } from '~/utils/db';
-import { safeLoader } from '~/lib/safeLoader';
-import { z } from 'zod';
-
-const ParticipantValidation = z.array(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-  }),
-);
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { UserValidation } from '~/lib/data-mapper/validation';
 
 async function loadParticiapnts() {
   const participants = await prisma.user.findMany({
@@ -23,6 +16,6 @@ async function loadParticiapnts() {
 }
 
 export const safeLoadParticipants = safeLoader({
-  outputValidation: ParticipantValidation,
+  outputValidation: UserValidation,
   loader: loadParticiapnts,
 });

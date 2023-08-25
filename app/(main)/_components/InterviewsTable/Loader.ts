@@ -1,20 +1,6 @@
 import { prisma } from '~/utils/db';
-import { safeLoader } from '~/lib/safeLoader';
-import { z } from 'zod';
-
-const InterviewValidation = z.array(
-  z.object({
-    id: z.string(),
-    startTime: z.date(),
-    finishTime: z.date().nullable(),
-    exportTime: z.date().nullable(),
-    lastUpdated: z.date(),
-    userId: z.string(),
-    protocolId: z.string(),
-    currentStep: z.number(),
-    network: z.string(),
-  }),
-);
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { InterviewValidation } from '~/lib/data-mapper/validation';
 
 async function loadInterviews() {
   const interviews = await prisma.interview.findMany({
