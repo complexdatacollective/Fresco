@@ -1,6 +1,9 @@
 import { hash } from 'bcrypt';
 import { prisma } from '~/utils/db';
 import protocol from '~/lib/development-protocol/protocol.json' assert { type: 'json' };
+import mockParticipant from '~/utils/generateMockData/participant';
+import mockProtocol from '~/utils/generateMockData/protocol/protocol';
+import mockInterview from '~/utils/generateMockData/interview/interview';
 
 const hashPassword = async (password: string) => await hash(password, 12);
 
@@ -51,6 +54,20 @@ async function main() {
     },
   });
 
+  for (let i = 0; i < 20; i++) {
+    const participantData = mockParticipant();
+    await prisma.user.create({
+      data: {
+        ...participantData,
+        roles: {
+          connect: {
+            name: 'PARTICIPANT',
+          },
+        },
+      },
+    });
+  }
+
   // Protocols
   await prisma.protocol.create({
     data: {
@@ -69,22 +86,40 @@ async function main() {
     },
   });
 
+  for (let i = 0; i < 4; i++) {
+    const protocolData = mockProtocol();
+    await prisma.protocol.create({
+      data: {
+        ...protocolData,
+        owner: {
+          connect: {
+            email: 'admin@networkcanvas.com',
+          },
+        },
+      },
+    });
+  }
+
   // Interviews
-  await prisma.interview.create({
-    data: {
-      lastUpdated: new Date(),
-      protocol: {
-        connect: {
-          hash: 'development-protocol',
+
+  for (let i = 0; i < 100; i++) {
+    const interviewData = mockInterview();
+    await prisma.interview.create({
+      data: {
+        ...interviewData,
+        protocol: {
+          connect: {
+            hash: 'development-protocol',
+          },
+        },
+        user: {
+          connect: {
+            email: 'participant@networkcanvas.com',
+          },
         },
       },
-      user: {
-        connect: {
-          email: 'participant@networkcanvas.com',
-        },
-      },
-    },
-  });
+    });
+  }
 }
 
 main()

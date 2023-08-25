@@ -1,33 +1,8 @@
-import InterviewCard from "~/components/InterviewCard";
-import Link from "~/components/Link";
-import ProtocolCard from "~/components/ProtocolCard";
-import { Button } from "~/components/ui/Button";
-import { prisma } from "~/utils/db";
-
-const getInterviews = async () => {
-  const interviews = await prisma.interview.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-        },
-      },
-      protocol: true,
-    },
-  });
-
-  return interviews;
-};
-
-const getProtocols = async () => {
-  const protocols = await prisma.protocol.findMany();
-
-  return protocols;
-};
-
-export default async function Home() {
-  const interviews = await getInterviews();
-  const protocols = await getProtocols();
+import { Button } from '~/components/ui/Button';
+import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
+import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
+import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
+export default function Home() {
   return (
     <main className="flex flex-col gap-10 p-10">
       <div>
@@ -36,22 +11,18 @@ export default async function Home() {
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Interviews</h2>
-        <div className="grid grid-cols-2">
-          {interviews.map((interview) => (
-            <InterviewCard key={interview.id} interview={interview} />
-          ))}
-        </div>
+        <InterviewsTable />
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Protocols</h2>
-        <div className="grid grid-cols-2">
-          {protocols.map((protocol) => (
-            <ProtocolCard key={protocol.id} protocol={protocol} />
-          ))}
-        </div>
+        <ProtocolsTable />
         <Button className="mt-6" disabled>
           Upload Protocol
         </Button>
+      </div>
+      <div className="rounded-lg bg-white p-6">
+        <h2 className="mb-6 text-2xl font-bold">Participants</h2>
+        <ParticipantsTable />
       </div>
     </main>
   );

@@ -1,0 +1,84 @@
+{
+  "stages": [
+    {
+      "label": "Friend Name Generator",
+      "type": "NameGeneratorQuickAdd",
+      "subject": {
+        "entity": "node",
+        "type": "2a5a0e16-0b60-49fb-876e-fcd2c36bdbb9"
+      },
+      "quickAdd": "6df93baa-9d53-40d0-9979-6c5da8fa8950",
+      "prompts": [
+        {
+          "id": "20e7b10c-1776-4e89-b3dc-90d484668f94",
+          "text": "Please nominate your friends.\n"
+        }
+      ],
+      "id": "b3815060-056b-11ee-b837-bf5ead9dd90b"
+    },
+    {
+      "label": "Friend Sociogram",
+      "type": "Sociogram",
+      "background": {
+        "concentricCircles": 4,
+        "skewedTowardCenter": false
+      },
+      "subject": {
+        "type": "2a5a0e16-0b60-49fb-876e-fcd2c36bdbb9",
+        "entity": "node"
+      },
+      "prompts": [
+        {
+          "id": "b6565863-8fc6-41a1-878c-ae4583c803be",
+          "text": "Please position your friends on the sociogram.\n",
+          "layout": {
+            "layoutVariable": "3c24593e-11cb-4e4a-a621-df67be382da5"
+          }
+        },
+        {
+          "id": "0b788c7b-aa62-4cee-a884-b1c6e35016a2",
+          "edges": {
+            "display": ["876283aa-dbb0-4491-8dfe-591d8c25b809"],
+            "create": "876283aa-dbb0-4491-8dfe-591d8c25b809"
+          },
+          "text": "Connect people who know each other.\n",
+          "layout": {
+            "layoutVariable": "3c24593e-11cb-4e4a-a621-df67be382da5"
+          },
+          "highlight": {
+            "allowHighlighting": false
+          }
+        }
+      ],
+      "id": "dd604ee0-056b-11ee-b837-bf5ead9dd90b"
+    }
+  ],
+  "codebook": {
+    "node": {
+      "2a5a0e16-0b60-49fb-876e-fcd2c36bdbb9": {
+        "color": "node-color-seq-1",
+        "variables": {
+          "6df93baa-9d53-40d0-9979-6c5da8fa8950": {
+            "name": "name",
+            "type": "text"
+          },
+          "3c24593e-11cb-4e4a-a621-df67be382da5": {
+            "name": "layout",
+            "type": "layout"
+          }
+        },
+        "iconVariant": "add-a-person",
+        "name": "Person"
+      }
+    },
+    "edge": {
+      "876283aa-dbb0-4491-8dfe-591d8c25b809": {
+        "color": "edge-color-seq-1",
+        "name": "know"
+      }
+    }
+  },
+  "assetManifest": {},
+  "schemaVersion": 7,
+  "lastModified": "2023-06-07T20:20:32.090Z"
+}
