@@ -1,12 +1,8 @@
-import { prisma } from '~/utils/db';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from '~/app/(main)/_components/ProtocolsTable/Columns';
+import { safeLoadProtocols } from './Loader';
 
-const getProtocols = async () => {
-  const protocols = await prisma.protocol.findMany();
-  return protocols;
-};
-const protocols = await getProtocols();
+const protocols = await safeLoadProtocols();
 
 export const ProtocolsTable = () => {
   return (

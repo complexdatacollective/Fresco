@@ -1,23 +1,8 @@
-import { prisma } from '~/utils/db';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { InterviewColumns } from '~/app/(main)/_components/InterviewsTable/Columns';
+import { safeLoadInterviews } from './Loader';
 
-const getInterviews = async () => {
-  const interviews = await prisma.interview.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-        },
-      },
-      protocol: true,
-    },
-  });
-
-  return interviews;
-};
-
-const interviews = await getInterviews();
+const interviews = await safeLoadInterviews();
 
 export const InterviewsTable = () => {
   return (

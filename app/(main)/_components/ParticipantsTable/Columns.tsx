@@ -48,12 +48,6 @@ export const ParticipantColumns: ColumnDef<UserWithoutPassword>[] = [
     },
   },
   {
-    accessorKey: 'email',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="E-mail" />;
-    },
-  },
-  {
     id: 'actions',
     header: () => (
       <TooltipProvider>
