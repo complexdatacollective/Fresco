@@ -25,4 +25,5 @@ async function loadParticiapnts() {
 export const safeLoadParticipants = safeLoader({
   outputValidation: ParticipantValidation,
   loader: loadParticiapnts,
+  isArray: true,
 });

@@ -25,4 +25,5 @@ async function loadProtocols() {
 export const safeLoadProtocols = safeLoader({
   outputValidation: ProtocolValidation,
   loader: loadProtocols,
+  isArray: true,
 });
