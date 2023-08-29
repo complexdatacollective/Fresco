@@ -65,6 +65,9 @@ dependencies:
   d3-interpolate-path:
     specifier: ^2.3.0
     version: 2.3.0
+  eslint-plugin-local-rules:
+    specifier: ^2.0.0
+    version: 2.0.0
   formik:
     specifier: ^2.4.3
     version: 2.4.3(react@18.2.0)
@@ -7329,6 +7332,10 @@ packages:
       object.fromentries: 2.0.6
       semver: 6.3.1
     dev: true
+
+  /eslint-plugin-local-rules@2.0.0:
+    resolution: {integrity: sha512-sWueme0kUcP0JC1+6OBDQ9edBDVFJR92WJHSRbhiRExlenMEuUisdaVBPR+ItFBFXo2Pdw6FD2UfGZWkz8e93g==}
+    dev: false
 
   /eslint-plugin-react-hooks@5.0.0-canary-7118f5dd7-20230705(eslint@8.47.0):
     resolution: {integrity: sha512-AZYbMo/NW9chdL7vk6HQzQhT+PvTAEVqWk9ziruUoW2kAOcN5qNyelv70e0F1VNQAbvutOC9oc+xfWycI9FxDw==}

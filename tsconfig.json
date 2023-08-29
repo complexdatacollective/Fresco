@@ -33,7 +33,8 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "eslint-local-rules.js"
   ],
   "exclude": ["node_modules"]
 }
