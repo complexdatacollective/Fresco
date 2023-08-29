@@ -8,6 +8,8 @@ import { prisma } from '~/utils/db';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
 import { DefaultJWT } from 'next-auth/jwt';
+import { z } from 'zod';
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
 
 const verifyPassword = async (
   password: string,
@@ -84,18 +86,44 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Check if user exists in db
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            password: true,
-            roles: true,
-          },
+
+        const UserValidation = z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            email: z.string(),
+            password: z.string(),
+            roles: z.array(
+              z.object({
+                id: z.string(),
+                name: z.string(),
+              }),
+            ),
+          }),
+        );
+
+        async function loadUser() {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email,
+            },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              password: true,
+              roles: true,
+            },
+          });
+          return user;
+        }
+
+        const safeLoadUser = safeLoader({
+          outputValidation: UserValidation,
+          loader: loadUser,
         });
+
+        const user = await safeLoadUser();
 
         if (!user) {
           console.log('no user found!');

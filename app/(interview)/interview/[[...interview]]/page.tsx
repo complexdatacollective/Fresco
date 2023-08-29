@@ -39,13 +39,10 @@ async function getInterviewData(id: string) {
   return interview;
 }
 
-const safeLoadInterview = (id: string) => {
-  safeLoader({
-    outputValidation: InterviewValidation,
-    loader: () => getInterviewData(id),
-    isArray: false,
-  });
-};
+const safeLoadInterview = safeLoader({
+  outputValidation: InterviewValidation,
+  loader: getInterviewData,
+});
 
 export default async function Page({
   params,
@@ -69,7 +66,7 @@ export default async function Page({
   }
 
   // Fetch interview data from the database
-  const interviewData = safeLoadInterview(interviewId);
+  const interviewData = await safeLoadInterview(interviewId);
 
   // If theres no interview data in the database, redirect to the main dashboard
   if (!interviewData) {

@@ -2,6 +2,8 @@
 
 import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
+import { z } from 'zod';
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
 
 export const handleSubmit = async (data: FormData) => {
   'use server';
@@ -13,11 +15,30 @@ export const handleSubmit = async (data: FormData) => {
   const password = await hash(data.get('password'), 8);
 
   // check if email already exists in database
-  const isEmailInDb = await prisma.user.findUnique({
-    where: {
-      email: data.get('email'),
-    },
+
+  const UserValidation = z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      email: z.string(),
+    }),
+  );
+
+  async function loadUsers() {
+    const users = await prisma.user.findMany({
+      where: {
+        email: data.get('email'),
+      },
+    });
+    return users;
+  }
+
+  const safeLoadUsers = safeLoader({
+    outputValidation: UserValidation,
+    loader: loadUsers,
   });
+
+  const isEmailInDb = await safeLoadUsers();
 
   if (isEmailInDb) {
     console.log('email is not unique');

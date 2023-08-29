@@ -34,5 +34,4 @@ async function loadInterviews() {
 export const safeLoadInterviews = safeLoader({
   outputValidation: InterviewValidation,
   loader: loadInterviews,
-  isArray: true,
 });
