@@ -17,12 +17,10 @@ const ProtocolValidation = z.array(
   }),
 );
 
-async function loadProtocols() {
-  const protocols = await prisma.protocol.findMany();
-  return protocols;
-}
-
 export const safeLoadProtocols = safeLoader({
   outputValidation: ProtocolValidation,
-  loader: loadProtocols,
+  loader: async function loadProtocols() {
+    const protocols = await prisma.protocol.findMany();
+    return protocols;
+  },
 });

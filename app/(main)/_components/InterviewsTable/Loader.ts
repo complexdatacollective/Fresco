@@ -16,22 +16,20 @@ const InterviewValidation = z.array(
   }),
 );
 
-async function loadInterviews() {
-  const interviews = await prisma.interview.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-        },
-      },
-      protocol: true,
-    },
-  });
-
-  return interviews;
-}
-
 export const safeLoadInterviews = safeLoader({
   outputValidation: InterviewValidation,
-  loader: loadInterviews,
+  loader: async function loadInterviews() {
+    const interviews = await prisma.interview.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        protocol: true,
+      },
+    });
+
+    return interviews;
+  },
 });

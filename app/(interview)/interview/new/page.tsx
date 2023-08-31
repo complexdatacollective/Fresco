@@ -18,6 +18,7 @@ const createInterview = async (user, protocolId) => {
 
   console.log('create User', user.id, protocolId);
 
+  // eslint-disable-next-line local-rules/require-data-mapper
   const interview = await prisma.interview.create({
     data: {
       user: {

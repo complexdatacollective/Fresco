@@ -102,25 +102,23 @@ export const authOptions: NextAuthOptions = {
           }),
         );
 
-        async function loadUser() {
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email,
-            },
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              password: true,
-              roles: true,
-            },
-          });
-          return user;
-        }
-
         const safeLoadUser = safeLoader({
           outputValidation: UserValidation,
-          loader: loadUser,
+          loader: async function loadUser() {
+            const user = await prisma.user.findUnique({
+              where: {
+                email: credentials.email,
+              },
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                password: true,
+                roles: true,
+              },
+            });
+            return user;
+          },
         });
 
         const user = await safeLoadUser();

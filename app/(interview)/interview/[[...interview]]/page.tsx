@@ -21,27 +21,25 @@ const InterviewValidation = z.object({
   network: z.string(),
 });
 
-async function getInterviewData(id: string) {
-  const interview = await prisma.interview.findUnique({
-    where: {
-      id: id,
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-        },
-      },
-      protocol: true,
-    },
-  });
-
-  return interview;
-}
-
 const safeLoadInterview = safeLoader({
   outputValidation: InterviewValidation,
-  loader: getInterviewData,
+  loader: async function getInterviewData(id: string) {
+    const interview = await prisma.interview.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+        protocol: true,
+      },
+    });
+
+    return interview;
+  },
 });
 
 export default async function Page({
@@ -112,6 +110,7 @@ export default async function Page({
     // Simulate 2 second delay to test for slow API response not holding up UI.
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
+    // eslint-disable-next-line local-rules/require-data-mapper
     await prisma.interview.update({
       where: {
         id: interviewId,

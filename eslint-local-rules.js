@@ -13,15 +13,29 @@ module.exports = {
       schema: [],
     },
     create: function (context) {
-      return {
-        MemberExpression: function (node) {
-          const objectName = node.object.name;
+      let insideSafeLoader = false;
 
-          if (objectName === 'prisma') {
-            context.report({
-              node,
-              message: `Avoid using Prisma queries directly. Use the data mapper safeLoader instead.`,
-            });
+      function reportPrismaUsage(node) {
+        context.report({
+          node,
+          message: `Avoid using Prisma queries directly. Use the data mapper safeLoader function for querying the database.`,
+        });
+      }
+
+      return {
+        'CallExpression': function (node) {
+          if (node.callee.name === 'safeLoader') {
+            insideSafeLoader = true;
+          }
+        },
+        'MemberExpression': function (node) {
+          if (!insideSafeLoader && node.object.name === 'prisma') {
+            reportPrismaUsage(node);
+          }
+        },
+        'CallExpression:exit': function (node) {
+          if (node.callee.name === 'safeLoader') {
+            insideSafeLoader = false;
           }
         },
       };

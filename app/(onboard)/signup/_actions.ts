@@ -24,18 +24,16 @@ export const handleSubmit = async (data: FormData) => {
     }),
   );
 
-  async function loadUsers() {
-    const users = await prisma.user.findMany({
-      where: {
-        email: data.get('email'),
-      },
-    });
-    return users;
-  }
-
   const safeLoadUsers = safeLoader({
     outputValidation: UserValidation,
-    loader: loadUsers,
+    loader: async function loadUsers() {
+      const users = await prisma.user.findMany({
+        where: {
+          email: data.get('email'),
+        },
+      });
+      return users;
+    },
   });
 
   const isEmailInDb = await safeLoadUsers();
