@@ -15,6 +15,9 @@ export function safeLoader<
     ...args: LoaderInputs
   ): Promise<z.infer<OutputValidation>> {
     const outputs = await loader(...args);
+    if (!outputs) {
+      return null; // no data found for this query
+    }
     const parsedOutput = outputValidation.parse(
       outputs,
     ) as z.infer<OutputValidation>;
