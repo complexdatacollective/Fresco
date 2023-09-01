@@ -23,7 +23,7 @@ const InterviewValidation = z.object({
 
 const safeLoadInterview = safeLoader({
   outputValidation: InterviewValidation,
-  loader: async function getInterviewData(id: string) {
+  loader: async (id: string) => {
     const interview = await prisma.interview.findUnique({
       where: {
         id: id,

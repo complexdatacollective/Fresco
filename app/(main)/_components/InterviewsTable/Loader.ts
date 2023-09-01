@@ -18,7 +18,7 @@ const InterviewValidation = z.array(
 
 export const safeLoadInterviews = safeLoader({
   outputValidation: InterviewValidation,
-  loader: async function loadInterviews() {
+  loader: async () => {
     const interviews = await prisma.interview.findMany({
       include: {
         user: {

@@ -19,7 +19,7 @@ const ProtocolValidation = z.array(
 
 export const safeLoadProtocols = safeLoader({
   outputValidation: ProtocolValidation,
-  loader: async function loadProtocols() {
+  loader: async () => {
     const protocols = await prisma.protocol.findMany();
     return protocols;
   },

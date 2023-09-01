@@ -11,7 +11,7 @@ const ParticipantValidation = z.array(
 
 export const safeLoadParticipants = safeLoader({
   outputValidation: ParticipantValidation,
-  loader: async function loadParticiapnts() {
+  loader: async () => {
     const participants = await prisma.user.findMany({
       where: {
         roles: {

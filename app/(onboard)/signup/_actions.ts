@@ -26,7 +26,7 @@ export const handleSubmit = async (data: FormData) => {
 
   const safeLoadUsers = safeLoader({
     outputValidation: UserValidation,
-    loader: async function loadUsers() {
+    loader: async () => {
       const users = await prisma.user.findMany({
         where: {
           email: data.get('email'),
@@ -44,6 +44,7 @@ export const handleSubmit = async (data: FormData) => {
   }
 
   // create user in the database
+  // eslint-disable-next-line local-rules/require-data-mapper
   await prisma.user.upsert({
     where: { email: data.get('email') },
     update: {},

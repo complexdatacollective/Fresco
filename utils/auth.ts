@@ -104,7 +104,7 @@ export const authOptions: NextAuthOptions = {
 
         const safeLoadUser = safeLoader({
           outputValidation: UserValidation,
-          loader: async function loadUser() {
+          loader: async () => {
             const user = await prisma.user.findUnique({
               where: {
                 email: credentials.email,
