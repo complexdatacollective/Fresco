@@ -15,7 +15,7 @@
     "start": "next start",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "db-seed": "NODE_ENV=development prisma db seed"
+    "db-seed": "cross-env NODE_ENV=development prisma db seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -78,6 +78,7 @@
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
     "autoprefixer": "^10.4.15",
+    "cross-env": "^7.0.3",
     "eslint": "^8.47.0",
     "eslint-config-next": "^13.4.13",
     "eslint-config-prettier": "^9.0.0",
