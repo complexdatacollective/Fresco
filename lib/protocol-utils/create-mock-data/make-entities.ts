@@ -10,7 +10,7 @@ import {
 } from '@codaco/shared-consts';
 import { has } from 'lodash';
 import { v4 as uuid } from 'uuid';
-import make from './make-mock-value.js';
+import make from './make-mock-value';
 
 export const makeEntity = (
   variables: Record<string, VariableDefinition> = {},

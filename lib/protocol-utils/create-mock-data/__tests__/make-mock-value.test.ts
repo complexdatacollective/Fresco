@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import makeMockValue from '../make-mock-value.js';
+import makeMockValue from '../make-mock-value';
 import { VariableType } from '@codaco/shared-consts';
 
 describe('make mock values for variable type...', () => {

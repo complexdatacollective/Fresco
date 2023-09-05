@@ -1,5 +1,15 @@
-import type { Codebook } from "./codebook.js";
-import type { Stage } from "./stages.js";
+import type { Codebook } from './codebook.js';
+import type { Stage } from './stages.js';
+
+export interface AssetDefinition {
+  source: string;
+  name: string;
+  type: 'network' | 'image' | 'audio' | 'video';
+}
+
+export interface AssetManifest {
+  [key: string]: AssetDefinition;
+}
 
 export interface Protocol {
   name: string;
@@ -8,5 +18,5 @@ export interface Protocol {
   schemaVersion: number;
   stages: Stage[];
   codebook: Codebook;
-  assetManifest?: Record<string, unknown>;
+  assetManifest?: AssetManifest;
 }

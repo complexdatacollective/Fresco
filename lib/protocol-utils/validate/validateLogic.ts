@@ -1,5 +1,5 @@
-import { get, has, isObject } from '~/utils/lodash-replacements.js';
-import Validator from './Validator.js';
+import { get, has, isObject } from '~/utils/lodash-replacements';
+import Validator from './Validator';
 import {
   duplicateId,
   duplicateInArray,
@@ -10,7 +10,7 @@ import {
   nodeVarsIncludeDisplayVar,
   getVariableNameFromID,
   getSubjectTypeName,
-} from './helpers.js';
+} from './helpers';
 import type {
   Codebook,
   NcNode,
