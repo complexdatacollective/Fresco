@@ -12,9 +12,10 @@ export const ourFileRouter = {
     // Set permissions and file types for this FileRoute
     .middleware(async () => {
       const session = await getServerAuthSession();
-      if (!session?.user.id) {
-        throw new Error('Unauthorized');
-      }
+      console.log('🚀 ~ file: core.ts:15 ~ .middleware ~ session:', session);
+      // if (!session?.user.id) {
+      //   throw new Error('Unauthorized');
+      // }
       return {};
     })
     .onUploadComplete(async () => {}),

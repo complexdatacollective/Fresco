@@ -29,7 +29,7 @@ export const useUploadThing = <T extends string>({
   endpoint: T;
   onClientUploadComplete?: (
     res?: Awaited<ReturnType<typeof DANGEROUS__uploadFiles>>,
-  ) => void;
+  ) => Promise<void>;
   onUploadError?: (e: Error) => void;
   onUploadBegin?: () => void;
   onUploadProgress?: (file: string, progress: number) => void;

@@ -3,7 +3,7 @@ import type { Asset } from '@prisma/client';
 import { hash } from 'bcrypt';
 import type Zip from 'jszip';
 import JSZip from 'jszip';
-import { UploadFileResponse } from 'uploadthing/client';
+import type { UploadFileResponse } from 'uploadthing/client';
 import type { FileEsque } from 'uploadthing/dist/sdk/utils';
 import { utapi } from 'uploadthing/server';
 import type {
@@ -46,6 +46,7 @@ export const getProtocolJson = async (zip: Zip) => {
 };
 
 const MOCK_validateProtocol = async (_protocol: NCProtocol) => {
+  await sleep(100);
   return {
     dataErrors: [],
     schemaErrors: [],
@@ -171,13 +172,17 @@ export const removeProtocolFile = async (fileKey: string) => {
 
 export const importProtocol = async (file: UploadFileResponse) => {
   const session = await getServerAuthSession();
-  if (!session?.user.id) {
-    await removeProtocolFile(file.key);
-    return {
-      error: 'Auth error, you need to be logged in to perform this action',
-      success: false,
-    };
-  }
+  console.log(
+    '🚀 ~ file: importProtocol.ts:174 ~ importProtocol ~ session:',
+    session,
+  );
+  // if (!session?.user.id) {
+  //   await removeProtocolFile(file.key);
+  //   return {
+  //     error: 'Auth error, you need to be logged in to perform this action',
+  //     success: false,
+  //   };
+  // }
   try {
     const protocolName = file.name.split('.')[0]!;
 
@@ -208,7 +213,9 @@ export const importProtocol = async (file: UploadFileResponse) => {
     const assets = (await uploadProtocolAssets(protocolJson, zip)) as Asset[];
 
     // Inserting protocol...
-    await insertProtocol(protocolName, protocolJson, assets, session.user.id);
+    // await insertProtocol(protocolName, protocolJson, assets, session.user.id);
+    // Todo
+    await insertProtocol(protocolName, protocolJson, assets, '123');
 
     // Removing protocol file...');
     await removeProtocolFile(file.key);
