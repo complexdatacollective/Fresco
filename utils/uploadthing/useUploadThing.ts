@@ -5,7 +5,7 @@ import type { FileRouter } from 'uploadthing/server';
 
 import { useEvent } from './useEvent';
 import useFetch from './useFetch';
-import { OurFileRouter } from '../../app/api/uploadthing/core';
+import type { OurFileRouter } from '../../app/api/uploadthing/core';
 
 type EndpointMetadata = {
   slug: string;
@@ -50,7 +50,7 @@ export const useUploadThing = <T extends string>({
         files,
       });
       setUploading(false);
-      onClientUploadComplete?.(res);
+      await onClientUploadComplete?.(res);
       return res;
     } catch (e) {
       setUploading(false);

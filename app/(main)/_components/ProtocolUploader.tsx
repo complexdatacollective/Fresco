@@ -98,6 +98,12 @@ export default function ProtocolUploader() {
         error: '',
       });
     },
+    onUploadProgress: (file, progress) => {
+      console.log(
+        '🚀 ~ file: ProtocolUploader.tsx:102 ~ ProtocolUploader ~ file>:progress',
+        `${file}>${progress}`,
+      );
+    },
   });
 
   const onDrop = useCallback(
@@ -109,7 +115,15 @@ export default function ProtocolUploader() {
           type: 'application/zip',
         });
 
-        return startUpload([file]);
+        startUpload([file]).catch((e: Error) => {
+          setOpen(true);
+          setDialogContent({
+            title: 'Protocol import',
+            description: 'Error uploading protocol',
+            progress: false,
+            error: e.message,
+          });
+        });
       }
     },
     [startUpload],
