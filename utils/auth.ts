@@ -1,13 +1,7 @@
-import {
-  getServerSession,
-  type NextAuthOptions,
-  type DefaultSession,
-  type DefaultUser,
-} from 'next-auth';
+import { getServerSession, type NextAuthOptions } from 'next-auth';
 import { prisma } from '~/utils/db';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
-import { DefaultJWT } from 'next-auth/jwt';
 import { z } from 'zod';
 import { safeLoader } from '~/lib/data-mapper/safeLoader';
 
@@ -17,22 +11,6 @@ const verifyPassword = async (
 ): Promise<boolean> => {
   return compare(password, hashedPassword);
 };
-
-declare module 'next-auth' {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
-  interface User {
-    id: string;
-    email: string;
-    name: string;
-    roles: Array<Record<string, string>>;
-  }
-
-  interface Session {
-    user: User;
-  }
-}
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -45,12 +23,10 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     jwt(params) {
-      // console.log('jwt callback', params);
       const { token, user } = params;
 
       if (user) {
         token.id = user.id;
-        token.roles = user.roles;
       }
 
       return token;
@@ -61,7 +37,6 @@ export const authOptions: NextAuthOptions = {
         expires: session.expires,
         user: {
           id: token.id,
-          roles: token.roles,
           name: token.name,
           email: token.email,
         },
@@ -86,26 +61,15 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Check if user exists in db
-
-        const UserValidation = z.array(
-          z.object({
+        const user = await safeLoader({
+          outputValidation: z.object({
             id: z.string(),
             name: z.string(),
             email: z.string(),
             password: z.string(),
-            roles: z.array(
-              z.object({
-                id: z.string(),
-                name: z.string(),
-              }),
-            ),
           }),
-        );
-
-        const safeLoadUser = safeLoader({
-          outputValidation: UserValidation,
-          loader: async () => {
-            const user = await prisma.user.findUnique({
+          loader: () =>
+            prisma.user.findUnique({
               where: {
                 email: credentials.email,
               },
@@ -114,14 +78,9 @@ export const authOptions: NextAuthOptions = {
                 email: true,
                 name: true,
                 password: true,
-                roles: true,
               },
-            });
-            return user;
-          },
+            }),
         });
-
-        const user = await safeLoadUser();
 
         if (!user) {
           console.log('no user found!');

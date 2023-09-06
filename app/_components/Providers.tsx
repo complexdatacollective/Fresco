@@ -1,12 +1,14 @@
 'use client';
 
-import { type PropsWithChildren, useState, type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from 'next-auth/react';
 
 export default function Providers({
   children,
-}: PropsWithChildren): ReactElement {
+}: {
+  children: React.ReactNode;
+}): ReactElement {
   const [queryClient] = useState(() => new QueryClient());
 
   return (

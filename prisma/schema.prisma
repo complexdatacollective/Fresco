@@ -23,42 +23,35 @@ model Protocol {
   lastModified  DateTime
   stages        String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
   interviews    Interview[]
-  owner         User        @relation(fields: [ownerId], references: [id])
-  ownerId       String
-
-  @@index([ownerId])
 }
 
 model Interview {
-  id          String    @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
-  startTime   DateTime  @default(now())
-  finishTime  DateTime?
-  exportTime  DateTime?
-  lastUpdated DateTime  @updatedAt
-  network     String    @default("")
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
-  protocol    Protocol  @relation(fields: [protocolId], references: [id])
-  protocolId  String
-  currentStep Int       @default(0)
+  id            String      @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
+  startTime     DateTime    @default(now())
+  finishTime    DateTime?
+  exportTime    DateTime?
+  lastUpdated   DateTime    @updatedAt
+  network       String      @default("")
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId String      @unique
+  protocol      Protocol    @relation(fields: [protocolId], references: [id])
+  protocolId    String      @map("protocolId")
+  currentStep   Int         @default(0)
 
-  @@index([userId])
   @@index([protocolId])
 }
 
 model User {
-  id         String      @id @default(cuid())
-  name       String?
-  email      String?     @unique
-  password   String?
-  protocols  Protocol[]
-  interviews Interview[]
-  roles      Role[]
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
 }
 
-model Role {
-  name  String @id @unique
-  users User[]
+model Participant {
+  id         String      @id @default(cuid())
+  identifier String
+  interviews Interview[]
 }
 
 model VerificationToken {

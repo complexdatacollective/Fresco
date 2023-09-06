@@ -1,9 +1,9 @@
-import "~/styles/globals.scss";
-import Providers from "./_components/Providers";
+import '~/styles/globals.scss';
+import Providers from './_components/Providers';
 
 export const metadata = {
-  title: "Network Canvas Fresco",
-  description: "Fresco.",
+  title: 'Network Canvas Fresco',
+  description: 'Fresco.',
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {

@@ -2,6 +2,7 @@ import { Button } from '~/components/ui/Button';
 import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
 import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
 import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
+
 export default function Home() {
   return (
     <main className="flex flex-col gap-10 p-10">

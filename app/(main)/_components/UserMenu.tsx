@@ -1,17 +1,12 @@
-"use client";
+'use client';
 
-import classNames from "classnames";
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "~/components/Link";
-import Image from "next/image";
-import Beam from "~/public/images/beam.svg";
-
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-];
+import classNames from 'classnames';
+import { Menu, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import { signOut, useSession } from 'next-auth/react';
+import Link from '~/components/Link';
+import Image from 'next/image';
+import Beam from '~/public/images/beam.svg';
 
 const UserMenu = () => {
   const { data: session } = useSession();
@@ -70,8 +65,8 @@ const UserMenu = () => {
                   <Link
                     href={item.href}
                     className={classNames(
-                      active ? "bg-gray-100" : "",
-                      "block px-4 py-2 text-gray-700",
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-gray-700',
                     )}
                   >
                     {item.name}
@@ -82,7 +77,7 @@ const UserMenu = () => {
             <Menu.Item>
               <Link
                 onClick={() => void handleSignOut}
-                href={""}
+                href={''}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 Sign out

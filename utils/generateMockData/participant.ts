@@ -1,11 +1,8 @@
 import { faker } from '@faker-js/faker';
-import { type Prisma } from '@prisma/client';
 
-const mockParticipant = (): Prisma.UserCreateInput => {
+const mockParticipant = () => {
   return {
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
+    identifier: faker.person.fullName(),
   };
 };
 

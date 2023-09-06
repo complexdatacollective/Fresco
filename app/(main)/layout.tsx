@@ -1,8 +1,8 @@
-import NavigationBar from "~/app/(main)/_components/NavigationBar";
+import { NavigationBar } from '~/app/(main)/_components/NavigationBar';
 
 export const metadata = {
-  title: "Network Canvas Fresco",
-  description: "Fresco.",
+  title: 'Network Canvas Fresco',
+  description: 'Fresco.',
 };
 
 function Layout({ children }: { children: React.ReactNode }) {
