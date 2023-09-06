@@ -1,5 +1,5 @@
 import { prisma } from '~/utils/db';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { safeLoader } from '~/utils/safeLoader';
 import { z } from 'zod';
 
 const ProtocolValidation = z.array(

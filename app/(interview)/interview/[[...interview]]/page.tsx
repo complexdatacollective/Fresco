@@ -7,40 +7,30 @@ import InterviewNavigation from '~/app/(interview)/interview/_components/Intervi
 import type { NcNetwork, Stage as StageType } from '~/lib/shared-consts';
 import Link from 'next/link';
 import { z } from 'zod';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { safeLoader } from '~/utils/safeLoader';
 
-const InterviewValidation = z.object({
-  id: z.string(),
-  startTime: z.date(),
-  finishTime: z.date().nullable(),
-  exportTime: z.date().nullable(),
-  lastUpdated: z.date(),
-  userId: z.string(),
-  protocolId: z.string(),
-  currentStep: z.number(),
-  network: z.string(),
-});
-
-const safeLoadInterview = safeLoader({
-  outputValidation: InterviewValidation,
-  loader: async (id: string) => {
-    const interview = await prisma.interview.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-          },
+const getInterview = async (id: string) =>
+  await safeLoader({
+    outputValidation: z.object({
+      id: z.string(),
+      startTime: z.date(),
+      finishTime: z.date().nullable(),
+      exportTime: z.date().nullable(),
+      lastUpdated: z.date(),
+      protocolId: z.string(),
+      currentStep: z.number(),
+      network: z.string(),
+    }),
+    loader: () =>
+      prisma.interview.findUnique({
+        where: {
+          id: id,
         },
-        protocol: true,
-      },
-    });
-
-    return interview;
-  },
-});
+        include: {
+          protocol: true,
+        },
+      }),
+  });
 
 export default async function Page({
   params,
@@ -64,7 +54,7 @@ export default async function Page({
   }
 
   // Fetch interview data from the database
-  const interviewData = await safeLoadInterview(interviewId);
+  const interviewData = await getInterview(interviewId);
 
   // If theres no interview data in the database, redirect to the main dashboard
   if (!interviewData) {

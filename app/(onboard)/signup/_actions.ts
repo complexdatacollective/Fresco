@@ -3,7 +3,7 @@
 import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
 import { z } from 'zod';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { safeLoader } from '~/utils/safeLoader';
 
 export const handleSubmit = async (data: FormData) => {
   'use server';

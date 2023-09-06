@@ -2,8 +2,16 @@ import { Button } from '~/components/ui/Button';
 import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
 import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
 import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
+import { redirect } from 'next/navigation';
+import { getServerAuthSession } from '~/utils/auth';
 
-export default function Home() {
+async function Home() {
+  const session = await getServerAuthSession();
+
+  if (!session) {
+    redirect('/api/auth/signin');
+  }
+
   return (
     <main className="flex flex-col gap-10 p-10">
       <div>
@@ -28,3 +36,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default Home;
