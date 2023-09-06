@@ -9,9 +9,9 @@ import { utapi } from 'uploadthing/server';
 import type {
   AssetManifest,
   Protocol as NCProtocol,
-} from '../../../lib/shared-consts';
-import { getServerAuthSession } from '../../../utils/auth';
-import { prisma } from '../../../utils/db';
+} from '~/lib/shared-consts';
+import { getServerAuthSession } from '~/utils/auth';
+import { prisma } from '~/utils/db';
 
 class ValidationError extends Error {
   constructor(
@@ -50,10 +50,6 @@ const MOCK_validateProtocol = async (_protocol: NCProtocol) => {
   return {
     dataErrors: [],
     schemaErrors: [],
-  };
-  return {
-    dataErrors: ['this is an error', 'this is another error'],
-    schemaErrors: ['this is a schema error'],
   };
 };
 

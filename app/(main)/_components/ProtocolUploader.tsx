@@ -17,7 +17,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../../../components/ui/dialog';
+} from '~/components/ui/dialog';
 import type { UploadFileResponse } from 'uploadthing/client';
 import React from 'react';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
@@ -160,7 +160,7 @@ export default function ProtocolUploader() {
           {dialogContent.progress && (
             <div className="w-full">
               <div className="h-1.5 w-full overflow-hidden bg-pink-100">
-                <div className="animate-indeterminate-progress-bar origin-left-right h-full w-full bg-violet-800"></div>
+                <div className="h-full w-full origin-left-right animate-indeterminate-progress-bar bg-violet-800"></div>
               </div>
             </div>
           )}
