@@ -1,25 +1,8 @@
-import { prisma } from '~/utils/db';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(main)/_components/ParticipantsTable/Columns';
+import { safeLoadParticipants } from '~/app/(main)/_components/ParticipantsTable/Loader';
 
-const getParticipants = async () => {
-  const participants = await prisma.user.findMany({
-    where: {
-      roles: {
-        some: {
-          name: 'PARTICIPANT',
-        },
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-    },
-  });
-  return participants;
-};
-const participants = await getParticipants();
+const participants = await safeLoadParticipants();
 
 export const ParticipantsTable = () => {
   return (

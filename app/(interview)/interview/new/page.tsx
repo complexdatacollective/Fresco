@@ -3,21 +3,21 @@
  * and then redirect to the interview/[id]/1 route.
  */
 
-import { redirect } from "next/navigation";
-import { getServerAuthSession } from "~/utils/auth";
-import { prisma } from "~/utils/db";
+import type { User } from '@prisma/client';
+import { redirect } from 'next/navigation';
+import { getServerAuthSession } from '~/utils/auth';
+import { prisma } from '~/utils/db';
 
-const createInterview = async (user, protocolId) => {
-  if (!user) {
-    throw new Error("No user provided");
+const createInterview = async (user: User, protocolId: string) => {
+  if (!user || !user.id) {
+    throw new Error('No user provided');
   }
 
   if (!protocolId) {
-    throw new Error("No protocol ID provided");
+    throw new Error('No protocol ID provided');
   }
 
-  console.log("create User", user.id, protocolId);
-
+  // eslint-disable-next-line local-rules/require-data-mapper
   const interview = await prisma.interview.create({
     data: {
       user: {
@@ -26,7 +26,7 @@ const createInterview = async (user, protocolId) => {
           // email: user.email,
         },
       },
-      network: "",
+      network: '',
       protocol: {
         connect: {
           id: protocolId,
@@ -39,8 +39,6 @@ const createInterview = async (user, protocolId) => {
 };
 
 export default async function Page({ params, searchParams }) {
-  console.log("params", params);
-  console.log("searchParams", searchParams);
   // Get the protocol ID from the search params
   const { protocol } = searchParams;
 
@@ -50,13 +48,11 @@ export default async function Page({ params, searchParams }) {
   const session = await getServerAuthSession();
 
   if (!session) {
-    redirect("/");
+    redirect('/');
   }
 
-  // // Create a new interview
+  // Create a new interview
   const interview = await createInterview(session.user, protocol);
-
-  console.log("interview created", interview);
 
   // Redirect to the interview/[id] route
   redirect(`/interview/${interview.id}`);

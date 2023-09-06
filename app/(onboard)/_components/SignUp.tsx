@@ -1,59 +1,56 @@
-"use client";
+'use client';
 
-import { useQueryClient } from "@tanstack/react-query";
-import { handleSubmit } from "~/app/(onboard)/signup/_actions";
-import { Button } from "~/components/ui/Button";
-import { useState } from "react";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { useQueryClient } from '@tanstack/react-query';
+import { handleSubmit } from '~/app/(onboard)/signup/_actions';
+import { Button } from '~/components/ui/Button';
+import { useState } from 'react';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export const SignUp: React.FC = () => {
   const queryClient = useQueryClient();
   const [userCredentials, setUserCredentials] = useState({
-    name: "",
-    email: "",
-    password: "",
+    name: '',
+    email: '',
+    password: '',
   });
 
   const validateForm = () => {
     //validation goes here -
-    console.log("formik validation");
+    // eslint-disable-next-line no-console
+    console.log('formik validation');
   };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string(),
-    email: Yup.string().email("Invalid email!!").required("Required"),
+    email: Yup.string().email('Invalid email!!').required('Required'),
     password: Yup.string(),
   });
 
   const doSubmit = async (e: FormData) => {
-    e.append("name", userCredentials.name);
-    e.append("email", userCredentials.email);
-    e.append("password", userCredentials.password);
-    console.log("formdata", e);
+    e.append('name', userCredentials.name);
+    e.append('email', userCredentials.email);
+    e.append('password', userCredentials.password);
     // handleSubmit is a server action.
-    const result = await handleSubmit(e);
-    console.log("userCredentials", userCredentials);
-
-    console.log("result", result);
+    await handleSubmit(e);
 
     // ...handle form submission result.
 
     // invalidate the query cache, so the table updates.
-    await queryClient.invalidateQueries(["users"]);
+    await queryClient.invalidateQueries(['users']);
   };
 
   return (
     <Formik
       initialValues={{
-        name: "jane",
-        email: "you@somewhere.edu",
-        password: "******************",
+        name: 'jane',
+        email: 'you@somewhere.edu',
+        password: '******************',
       }}
       onSubmit={validateForm}
       validationSchema={validationSchema}
     >
-      <form className="w-full max-w-lg" action={doSubmit}>
+      <form className="w-full max-w-lg" action={() => void doSubmit}>
         <div className="-mx-3 mb-6 flex flex-wrap">
           <div className="mb-6 w-full px-3 md:mb-0">
             <label
@@ -122,7 +119,7 @@ export const SignUp: React.FC = () => {
               }
             />
             <p className="text-xs italic text-gray-600">
-              Make it as long and as crazy as you'd like
+              Make it as long and as crazy as you&apos;d like
             </p>
           </div>
         </div>
