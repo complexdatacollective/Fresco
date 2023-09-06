@@ -136,18 +136,14 @@ export default function ProtocolUploader() {
 
   return (
     <>
-      <div {...getRootProps()}>
-        <div
-          className={cn(
-            buttonVariants({
-              variant: 'default',
-              size: 'sm',
-            }),
-          )}
-        >
+      <div
+        {...getRootProps()}
+        className="mt-2 rounded-sm border-2 border-dashed border-gray-500 bg-gray-200 p-4 text-center"
+      >
+        <Button variant="default" size="sm">
           <input {...getInputProps()} />
           Import protocol
-        </div>
+        </Button>
         <div>Click to select .netcanvas file or drag and drop here</div>
       </div>
 
