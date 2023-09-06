@@ -105,6 +105,7 @@ export default async function Page({
   const updateNetwork = async (network: NcNetwork) => {
     'use server';
 
+    // eslint-disable-next-line no-console
     console.log('update network', network);
 
     // Simulate 2 second delay to test for slow API response not holding up UI.

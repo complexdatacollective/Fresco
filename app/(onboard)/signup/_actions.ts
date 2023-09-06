@@ -8,9 +8,6 @@ import { safeLoader } from '~/lib/data-mapper/safeLoader';
 export const handleSubmit = async (data: FormData) => {
   'use server';
 
-  // Data is an object containing the submitted form data.
-  console.log('data', data);
-
   // Hash the submitted password.
   const password = await hash(data.get('password'), 8);
 
@@ -39,7 +36,6 @@ export const handleSubmit = async (data: FormData) => {
   const isEmailInDb = await safeLoadUsers();
 
   if (isEmailInDb) {
-    console.log('email is not unique');
     return 'Email is associated with an existing account. Please log in.';
   }
 

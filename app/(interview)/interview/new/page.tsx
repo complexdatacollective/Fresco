@@ -3,20 +3,19 @@
  * and then redirect to the interview/[id]/1 route.
  */
 
+import type { User } from '@prisma/client';
 import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
-const createInterview = async (user, protocolId) => {
-  if (!user) {
+const createInterview = async (user: User, protocolId: string) => {
+  if (!user || !user.id) {
     throw new Error('No user provided');
   }
 
   if (!protocolId) {
     throw new Error('No protocol ID provided');
   }
-
-  console.log('create User', user.id, protocolId);
 
   // eslint-disable-next-line local-rules/require-data-mapper
   const interview = await prisma.interview.create({
@@ -40,8 +39,6 @@ const createInterview = async (user, protocolId) => {
 };
 
 export default async function Page({ params, searchParams }) {
-  console.log('params', params);
-  console.log('searchParams', searchParams);
   // Get the protocol ID from the search params
   const { protocol } = searchParams;
 
@@ -54,10 +51,8 @@ export default async function Page({ params, searchParams }) {
     redirect('/');
   }
 
-  // // Create a new interview
+  // Create a new interview
   const interview = await createInterview(session.user, protocol);
-
-  console.log('interview created', interview);
 
   // Redirect to the interview/[id] route
   redirect(`/interview/${interview.id}`);
