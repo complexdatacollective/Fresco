@@ -3,7 +3,7 @@
 import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
 import { z } from 'zod';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { safeLoader } from '~/utils/safeLoader';
 import type { SignUpData } from '../_components/SignUp';
 
 export const handleSubmit = async (data: SignUpData) => {

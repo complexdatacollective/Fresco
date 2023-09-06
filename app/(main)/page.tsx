@@ -1,7 +1,7 @@
-import { Button } from '~/components/ui/Button';
-import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
-import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
-import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
+// import { Button } from '~/components/ui/Button';
+// import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
+// import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
+// import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
 import { redirect } from 'next/navigation';
 import { getServerAuthSession } from '~/utils/auth';
 
@@ -18,7 +18,7 @@ async function Home() {
         <h1 className="mb-2 text-3xl font-bold">Welcome</h1>
         <p>This is the main dashboard.</p>
       </div>
-      <div className="rounded-lg bg-white p-6">
+      {/* <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Interviews</h2>
         <InterviewsTable />
       </div>
@@ -32,7 +32,7 @@ async function Home() {
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Participants</h2>
         <ParticipantsTable />
-      </div>
+      </div> */}
     </main>
   );
 }

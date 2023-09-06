@@ -7,7 +7,7 @@ import InterviewNavigation from '~/app/(interview)/interview/_components/Intervi
 import type { NcNetwork, Stage as StageType } from '~/lib/shared-consts';
 import Link from 'next/link';
 import { z } from 'zod';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { safeLoader } from '~/utils/safeLoader';
 
 const getInterview = async (id: string) =>
   await safeLoader({
