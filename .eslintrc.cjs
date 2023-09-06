@@ -23,7 +23,7 @@ const config = {
     'next/core-web-vitals',
     'plugin:@typescript-eslint/recommended',
     'plugin:storybook/recommended',
-    "prettier",
+    'prettier',
   ],
   rules: {
     '@typescript-eslint/consistent-type-imports': [
@@ -39,6 +39,8 @@ const config = {
         argsIgnorePattern: '^_',
       },
     ],
+    'no-unreachable': 'error',
+    'no-console': 'error',
   },
 };
 module.exports = config;

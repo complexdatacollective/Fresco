@@ -121,8 +121,11 @@ export const uploadProtocolAssets = async (protocol: NCProtocol, zip: Zip) => {
       throw new Error('incomplete file uploads: name mismatch');
     }
 
+    const { id, ...otherAssetAttributes } = asset;
+
     return {
-      ...asset,
+      assetId: id as string,
+      ...otherAssetAttributes,
       ...uploadedFile.data,
       alias: asset.name,
     };

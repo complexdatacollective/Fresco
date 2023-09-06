@@ -5,6 +5,7 @@ export interface AssetDefinition {
   source: string;
   name: string;
   type: 'network' | 'image' | 'audio' | 'video';
+  id?: string;
 }
 
 export interface AssetManifest {

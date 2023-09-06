@@ -32,7 +32,8 @@ model Protocol {
 }
 
 model Asset {
-  id         String   @id @default(cuid()) // from manifest
+  id         String   @id @default(cuid())
+  assetId    String // from manifest
   type       String // from manifest
   source     String // from manifest
   alias      String // name as from manifest
