@@ -1,5 +1,5 @@
 import { prisma } from '~/utils/db';
-import { safeLoader } from '~/utils/safeLoader';
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
 import { z } from 'zod';
 
 const ProtocolValidation = z.array(
@@ -19,8 +19,5 @@ const ProtocolValidation = z.array(
 
 export const safeLoadProtocols = safeLoader({
   outputValidation: ProtocolValidation,
-  loader: async () => {
-    const protocols = await prisma.protocol.findMany();
-    return protocols;
-  },
+  loader: () => prisma.protocol.findMany(),
 });

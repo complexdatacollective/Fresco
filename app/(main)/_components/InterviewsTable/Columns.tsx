@@ -87,12 +87,6 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     },
   },
   {
-    accessorKey: 'userId',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="User ID" />;
-    },
-  },
-  {
     accessorKey: 'protocolId',
     header: 'Protocol ID',
   },

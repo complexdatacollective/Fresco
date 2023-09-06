@@ -3,58 +3,43 @@
 import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
 import { z } from 'zod';
-import { safeLoader } from '~/utils/safeLoader';
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import type { SignUpData } from '../_components/SignUp';
 
-export const handleSubmit = async (data: FormData) => {
-  'use server';
+export const handleSubmit = async (data: SignUpData) => {
+  ('use server');
 
-  // Hash the submitted password.
-  const password = await hash(data.get('password'), 8);
+  const { email, password } = data;
 
   // check if email already exists in database
-
-  const UserValidation = z.array(
-    z.object({
+  const userExists = await safeLoader({
+    outputValidation: z.object({
       id: z.string(),
-      name: z.string(),
       email: z.string(),
     }),
-  );
-
-  const safeLoadUsers = safeLoader({
-    outputValidation: UserValidation,
-    loader: async () => {
-      const users = await prisma.user.findMany({
+    loader: () =>
+      prisma.user.findFirst({
         where: {
-          email: data.get('email'),
+          email,
         },
-      });
-      return users;
-    },
+      }),
   });
 
-  const isEmailInDb = await safeLoadUsers();
-
-  if (isEmailInDb) {
+  if (userExists) {
     return 'Email is associated with an existing account. Please log in.';
   }
+
+  // Hash the submitted password.
+  const hashedPassword = await hash(password, 8);
 
   // create user in the database
   // eslint-disable-next-line local-rules/require-data-mapper
   await prisma.user.upsert({
-    where: { email: data.get('email') },
+    where: { email },
     update: {},
     create: {
-      name: data.get('name'),
-      email: data.get('email'),
-      password,
-      roles: {
-        connect: [
-          {
-            id: '1',
-          },
-        ],
-      },
+      email,
+      password: hashedPassword,
     },
   });
 

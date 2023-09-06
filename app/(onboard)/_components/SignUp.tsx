@@ -1,78 +1,37 @@
 'use client';
-
-import { useQueryClient } from '@tanstack/react-query';
-import { handleSubmit } from '~/app/(onboard)/signup/_actions';
+import { handleSubmit as serverHandleSubmit } from '~/app/(onboard)/signup/_actions';
 import { Button } from '~/components/ui/Button';
-import { useState } from 'react';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+export const formValidationSchema = z.object({
+  email: z.string().email({ message: 'Invalid email address' }),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters' }),
+});
+
+export type SignUpData = z.infer<typeof formValidationSchema>;
 
 export const SignUp: React.FC = () => {
-  const queryClient = useQueryClient();
-  const [userCredentials, setUserCredentials] = useState({
-    name: '',
-    email: '',
-    password: '',
+  const {
+    register,
+    handleSubmit,
+    // watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(formValidationSchema),
   });
-
-  const validateForm = () => {
-    //validation goes here -
-    // eslint-disable-next-line no-console
-    console.log('formik validation');
-  };
-
-  const validationSchema = Yup.object().shape({
-    name: Yup.string(),
-    email: Yup.string().email('Invalid email!!').required('Required'),
-    password: Yup.string(),
-  });
-
-  const doSubmit = async (e: FormData) => {
-    e.append('name', userCredentials.name);
-    e.append('email', userCredentials.email);
-    e.append('password', userCredentials.password);
-    // handleSubmit is a server action.
-    await handleSubmit(e);
-
-    // ...handle form submission result.
-
-    // invalidate the query cache, so the table updates.
-    await queryClient.invalidateQueries(['users']);
+  const onSubmit = async (data: unknown) => {
+    const result = formValidationSchema.parse(data);
+    await serverHandleSubmit(result);
   };
 
   return (
-    <Formik
-      initialValues={{
-        name: 'jane',
-        email: 'you@somewhere.edu',
-        password: '******************',
-      }}
-      onSubmit={validateForm}
-      validationSchema={validationSchema}
-    >
-      <form className="w-full max-w-lg" action={() => void doSubmit}>
-        <div className="-mx-3 mb-6 flex flex-wrap">
-          <div className="mb-6 w-full px-3 md:mb-0">
-            <label
-              className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              htmlFor="grid-first-name"
-            >
-              Full Name
-            </label>
-            <input
-              className="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:bg-white focus:outline-none"
-              id="grid-first-name"
-              type="text"
-              placeholder="Jane"
-              required
-              value={userCredentials.name}
-              onChange={(e) =>
-                setUserCredentials({ ...userCredentials, name: e.target.value })
-              }
-            />
-          </div>
-        </div>
-        <div className="-mx-3 mb-6 flex flex-wrap">
+    <>
+      <form className="" onSubmit={handleSubmit(onSubmit)}>
+        <div className="m-6 -mx-3 flex flex-wrap">
           <div className="w-full px-3">
             <label
               className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
@@ -82,18 +41,12 @@ export const SignUp: React.FC = () => {
             </label>
             <input
               className="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              id="grid-email"
-              type="email"
-              placeholder="you@somewhere.edu"
               required
-              value={userCredentials.email}
-              onChange={(e) =>
-                setUserCredentials({
-                  ...userCredentials,
-                  email: e.target.value,
-                })
-              }
+              placeholder="you@example.com"
+              defaultValue=""
+              {...register('email')}
             />
+            {errors.email?.message && <p>{errors.email?.message}</p>}
           </div>
         </div>
         <div className="-mx-3 mb-6 flex flex-wrap">
@@ -105,19 +58,13 @@ export const SignUp: React.FC = () => {
               Password
             </label>
             <input
-              className="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              id="grid-password"
               type="password"
-              placeholder="******************"
+              className="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
               required
-              value={userCredentials.password}
-              onChange={(e) =>
-                setUserCredentials({
-                  ...userCredentials,
-                  password: e.target.value,
-                })
-              }
+              placeholder="******************"
+              {...register('password')}
             />
+            {errors.password?.message && <p>{errors.password?.message}</p>}
             <p className="text-xs italic text-gray-600">
               Make it as long and as crazy as you&apos;d like
             </p>
@@ -129,6 +76,6 @@ export const SignUp: React.FC = () => {
           </div>
         </div>
       </form>
-    </Formik>
+    </>
   );
 };

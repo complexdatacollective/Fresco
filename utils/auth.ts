@@ -3,7 +3,7 @@ import { prisma } from '~/utils/db';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
 import { z } from 'zod';
-import { safeLoader } from '~/utils/safeLoader';
+import { safeLoader } from '~/lib/data-mapper/safeLoader';
 
 const verifyPassword = async (
   password: string,

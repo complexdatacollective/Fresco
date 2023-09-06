@@ -1,7 +1,7 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import type { User } from '@prisma/client';
+import type { Participant } from '@prisma/client';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -13,9 +13,7 @@ import {
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
 
-type SafeUser = Omit<User, 'password' | 'email'>;
-
-export const ParticipantColumns: ColumnDef<SafeUser>[] = [
+export const ParticipantColumns: ColumnDef<Participant>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -42,9 +40,9 @@ export const ParticipantColumns: ColumnDef<SafeUser>[] = [
     },
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'identifier',
     header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Name" />;
+      return <DataTableColumnHeader column={column} title="Identifier" />;
     },
   },
   {
