@@ -1,11 +1,11 @@
-import version_1 from './1.js';
-import version_2 from './2.js';
-import version_3 from './3.js';
-import version_4 from './4.js';
-import version_5 from './5.js';
-import version_6 from './6.js';
-import version_7 from './7.js';
-import version_8 from './8.js';
+import version_1 from './1';
+import version_2 from './2';
+import version_3 from './3';
+import version_4 from './4';
+import version_5 from './5';
+import version_6 from './6';
+import version_7 from './7';
+import version_8 from './8';
 
 const versions = [
   { version: 1, validator: version_1 },

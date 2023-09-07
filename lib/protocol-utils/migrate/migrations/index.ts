@@ -1,8 +1,8 @@
-import version4 from './4.js';
-import version5 from './5.js';
-import version6 from './6.js';
-import version7 from './7.js';
-import version8 from './8.js';
+import version4 from './4';
+import version5 from './5';
+import version6 from './6';
+import version7 from './7';
+import version8 from './8';
 
 /**
  * These must be in order!

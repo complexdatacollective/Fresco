@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import version4 from '../4.js';
+import version4 from '../4';
 
 const v3Protocol = {
   codebook: {

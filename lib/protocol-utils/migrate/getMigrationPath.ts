@@ -1,9 +1,9 @@
-import migrations from './migrations/index.js';
+import migrations from './migrations/index';
 import {
   MigrationNotPossibleError,
   VersionMismatchError,
   StringVersionError,
-} from './errors.js';
+} from './errors';
 
 const isMigrationPathValid = (path) =>
   !path.some(({ migration }) => !migration);

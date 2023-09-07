@@ -1,7 +1,5 @@
-import { entityAttributesProperty } from '@codaco/shared-consts';
+import { entityAttributesProperty } from '~/lib/shared-consts';
 
-// Variables and option values must respect NMTOKEN rules so that
-// they are compatable with XML export formats
 const allowedVariableName = (value) => {
   if (!/^[a-zA-Z0-9._\-:]+$/.test(value)) {
     return 'Not a valid variable name. Only letters, numbers and the symbols ._-: are supported.';

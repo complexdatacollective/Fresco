@@ -1,4 +1,4 @@
-import getMigrationPath from './getMigrationPath.js';
+import getMigrationPath from './getMigrationPath';
 
 const getMigrationNotes = (sourceSchemaVersion, targetSchemaVersion) => {
   try {

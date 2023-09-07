@@ -1,4 +1,4 @@
-import { errToString } from './helpers.js';
+import { errToString } from './helpers';
 
 /* eslint-disable no-console */
 const logErrors = (errors, title) => {

@@ -41,6 +41,8 @@ const config = {
       },
     ],
     'local-rules/require-data-mapper': 'error',
+    'no-unreachable': 'error',
+    'no-console': 'error',
   },
 };
 module.exports = config;

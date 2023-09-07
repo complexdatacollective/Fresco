@@ -19,9 +19,9 @@ const readJson = async (path) => {
   return JSON.parse(file);
 };
 
-const isJsonFile = (fileName) => extname(fileName) === '.json';
+const isJsonFile = (fileName) => extname(fileName) === 'on';
 
-const getBaseName = (schemaFileName) => basename(schemaFileName, '.json');
+const getBaseName = (schemaFileName) => basename(schemaFileName, 'on');
 
 const asVariableName = (schemaName) =>
   `version_${schemaName.replace(/\./g, '_')}`;
@@ -34,7 +34,7 @@ const asIntName = (schemaName) => {
 };
 
 /**
- * Helper function to generate the index.js file for the schemas directory
+ * Helper function to generate the index file for the schemas directory
  * containing the ES6 module exports for each schema.
  * @param {*} schemas
  * @returns
@@ -42,7 +42,7 @@ const asIntName = (schemaName) => {
 const generateModuleIndex = async (schemas, outputPath) => {
   console.log('Generating module index...');
   const formatRequire = (baseSchemaName) => {
-    const relativeModulePath = join(`./${baseSchemaName}.js`);
+    const relativeModulePath = join(`./${baseSchemaName}`);
     return `import ${asVariableName(
       baseSchemaName,
     )} from './${relativeModulePath}';`;
@@ -64,7 +64,7 @@ ${schemaVersions}
 export default versions;
 \r\n`;
 
-  const moduleIndexPath = join(outputPath, 'index.js');
+  const moduleIndexPath = join(outputPath, 'index');
   await writeFile(moduleIndexPath, output);
   console.log('Finished generating module index.');
 };
@@ -112,8 +112,8 @@ export const buildSchemas = async (sourcePath, outputPath) => {
 };
 
 export const buildSchema = async (schema, sourceDirectory, outputDirectory) => {
-  const schemaPath = join(sourceDirectory, `${schema}.json`);
-  const modulePath = join(outputDirectory, `${schema}.js`);
+  const schemaPath = join(sourceDirectory, `${schema}on`);
+  const modulePath = join(outputDirectory, `${schema}`);
 
   console.log('Building schema:', schemaPath, '...');
 

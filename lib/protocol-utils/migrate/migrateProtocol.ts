@@ -1,5 +1,5 @@
-import getMigrationPath from './getMigrationPath.js';
-import { MigrationStepError } from './errors.js';
+import getMigrationPath from './getMigrationPath';
+import { MigrationStepError } from './errors';
 
 const migrateStep = (protocol, { version, migration }) => {
   try {

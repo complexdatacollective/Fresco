@@ -1,11 +1,11 @@
 // Migrate
-export * from './migrate/index.js';
+export * from './migrate/index';
 
 // Schemas
-export * from './schemas/buildSchemas.js';
+export * from './schemas/buildSchemas';
 
 // Validate
-export * from './validate/index.js';
+export * from './validate/index';
 
 // Create Mock Data
 // export * from './create-mock-data/make-entities';

@@ -2,8 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 import validateProtocol, {
   ValidationError,
-} from '../validate/validateProtocol.js';
-import { errToString } from '../validate/helpers.js';
+} from '../validate/validateProtocol';
+import { errToString } from '../validate/helpers';
 import chalk from 'chalk';
 
 /**
