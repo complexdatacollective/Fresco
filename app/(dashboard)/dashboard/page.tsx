@@ -2,17 +2,9 @@
 // import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
 // import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
 // import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
-import { redirect } from 'next/navigation';
-import { getServerAuthSession } from '~/utils/auth';
 import { NavigationBar } from './_components/NavigationBar';
 
-async function Home() {
-  const session = await getServerAuthSession();
-
-  if (!session) {
-    redirect('/signin');
-  }
-
+function Home() {
   return (
     <>
       <NavigationBar />

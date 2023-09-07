@@ -4,7 +4,7 @@ import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
 import { z } from 'zod';
 import { safeLoader } from '~/utils/safeLoader';
-import type { SignUpData } from '../_components/SignUpForm';
+import type { SignUpData } from '../_shared';
 
 export const handleSubmit = async (data: SignUpData) => {
   const { email, password } = data;

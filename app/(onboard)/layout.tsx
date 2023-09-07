@@ -1,7 +1,7 @@
-import BackgroundBlobs from "~/components/BackgroundBlobs/BackgroundBlobs";
-import Image from "next/image";
-import type { PropsWithChildren } from "react";
-import Link from "next/link";
+import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
+import Image from 'next/image';
+import type { PropsWithChildren } from 'react';
+import Link from 'next/link';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -13,8 +13,9 @@ export default function Layout({ children }: PropsWithChildren) {
               src="/images/NC-Type and Mark Wide Pos_LRG@4x.png"
               width={300}
               height={84.05}
+              priority
               alt="Network Canvas"
-              style={{ width: "auto", height: "auto" }} // Needed to supress console warning: https://github.com/vercel/next.js/issues/40762#issuecomment-1443868704
+              style={{ width: 'auto', height: 'auto' }} // Needed to supress console warning: https://github.com/vercel/next.js/issues/40762#issuecomment-1443868704
             />
           </Link>
         </div>

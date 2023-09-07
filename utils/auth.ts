@@ -56,6 +56,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         // Reject if no email or password
         if (!credentials?.email || !credentials?.password) {
+          console.log('no credentials found!', credentials);
           return null;
         }
 
@@ -108,6 +109,7 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: '/signin',
+    newUser: '/signup',
     // signOut: '/auth/signout',
     // error: '/auth/error', // Error code passed in query string as ?error=
     // verifyRequest: '/auth/verify-request', // (used for check email message)

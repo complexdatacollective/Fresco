@@ -1,26 +1,18 @@
 'use client';
-import { handleSubmit as serverHandleSubmit } from '~/app/(onboard)/signup/_actions';
 import { Button } from '~/components/ui/Button';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '~/components/ui/Input';
+import { formValidationSchema } from '../_shared';
+import { handleSubmit as serverHandleSubmit } from '../signup/_actions';
+import { Loader2 } from 'lucide-react';
 
-export const formValidationSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(8, { message: 'Password must be at least 8 characters' }),
-});
-
-export type SignUpData = z.infer<typeof formValidationSchema>;
-
-export const SignUpForm: React.FC = () => {
+export const SignUpForm = () => {
   const {
     register,
     handleSubmit,
     // watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(formValidationSchema),
   });
@@ -56,7 +48,14 @@ export const SignUpForm: React.FC = () => {
         {errors.password?.message && <p>{errors.password?.message}</p>}
       </div>
       <div className="flex flex-wrap">
-        <Button>Create Account</Button>
+        {isSubmitting ? (
+          <Button disabled>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating account...
+          </Button>
+        ) : (
+          <Button type="submit">Create account</Button>
+        )}
       </div>
     </form>
   );

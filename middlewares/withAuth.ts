@@ -10,7 +10,7 @@ export const withAuth: MiddlewareFactory = (next) => {
   return async (request: NextRequest, _next: NextFetchEvent) => {
     const pathname = request.nextUrl.pathname;
 
-    if (['/admin']?.some((path) => pathname.startsWith(path))) {
+    if (['/dashboard']?.some((path) => pathname.startsWith(path))) {
       const token = await getToken({
         req: request,
         secret: process.env.NEXTAUTH_SECRET,
