@@ -27,9 +27,9 @@ export default function ProtocolUploader() {
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [dialogContent, setDialogContent] = useState({
     title: 'Protocol import',
-    description: 'dfdsfds',
-    progress: true,
-    error: 'dsfsdf',
+    description: '',
+    progress: false,
+    error: '',
   });
 
   const handleUploadComplete = async (
@@ -147,7 +147,7 @@ export default function ProtocolUploader() {
         <div>Click to select .netcanvas file or drag and drop here</div>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={dialogContent.progress || open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{dialogContent.title}</DialogTitle>

@@ -139,10 +139,9 @@ export const insertProtocol = async (
   protocol: NCProtocol,
   assets: Asset[] | undefined,
   ownerId: string,
+  protocolHash: string,
 ) => {
   try {
-    const protocolHash = await hash(JSON.stringify(protocol), 8);
-
     await prisma.protocol.create({
       data: {
         assetPath: '',
@@ -193,6 +192,8 @@ export const importProtocol = async (file: UploadFileResponse) => {
 
     const protocolJson = (await getProtocolJson(zip)) as NCProtocol;
 
+    const protocolHash = await hash(JSON.stringify(protocolJson), 8);
+
     // Validating protocol...
     try {
       await validateProtocolJson(protocolJson);
@@ -214,7 +215,13 @@ export const importProtocol = async (file: UploadFileResponse) => {
     // Inserting protocol...
     // await insertProtocol(protocolName, protocolJson, assets, session.user.id);
     // Todo
-    await insertProtocol(protocolName, protocolJson, assets, '123');
+    await insertProtocol(
+      protocolName,
+      protocolJson,
+      assets,
+      '123',
+      protocolHash,
+    );
 
     // Removing protocol file...');
     await removeProtocolFile(file.key);
