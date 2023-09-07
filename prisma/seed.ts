@@ -10,6 +10,7 @@ const hashPassword = async (password: string) => await hash(password, 12);
 async function main() {
   // Clear out existing data
   await prisma.interview.deleteMany({});
+  await prisma.asset.deleteMany({});
   await prisma.protocol.deleteMany({});
   await prisma.user.deleteMany({});
 
@@ -17,7 +18,6 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'admin@networkcanvas.com',
-      name: 'Admin',
       password: await hashPassword('admin'),
     },
   });
@@ -32,6 +32,7 @@ async function main() {
       assetPath: 'assets/path',
       lastModified: protocol.lastModified,
       stages: JSON.stringify(protocol.stages),
+      codebook: JSON.stringify(protocol.codebook),
     },
   });
 

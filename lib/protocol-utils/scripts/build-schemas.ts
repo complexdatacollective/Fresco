@@ -1,6 +1,6 @@
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildSchemas } from '../schemas/buildSchemas.js';
+import { buildSchemas } from '../schemas/buildSchemas';
 
 const defaultSourcePath = join(dirname(fileURLToPath(import.meta.url)), 'json');
 const defaultOutputPath = join(

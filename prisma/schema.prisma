@@ -22,7 +22,25 @@ model Protocol {
   importedAt    DateTime    @default(now())
   lastModified  DateTime
   stages        String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  codebook      String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  assetManifest Asset[]
   interviews    Interview[]
+}
+
+model Asset {
+  id         String   @id @default(cuid())
+  assetId    String // from manifest
+  type       String // from manifest
+  source     String // from manifest
+  alias      String // name as from manifest
+  key        String // from upload thing
+  url        String // from upload thing
+  name       String // from upload thing
+  size       Int // from upload thing
+  protocol   Protocol @relation(fields: [protocolId], references: [id])
+  protocolId String // from db
+
+  @@index([protocolId])
 }
 
 model Interview {

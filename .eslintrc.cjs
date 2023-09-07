@@ -40,6 +40,8 @@ const config = {
         argsIgnorePattern: '^_',
       },
     ],
+    'no-unreachable': 'error',
+    'no-console': 'error',
     'local-rules/require-data-mapper': 'error',
   },
 };

@@ -37,7 +37,6 @@ export const authOptions: NextAuthOptions = {
         expires: session.expires,
         user: {
           id: token.id,
-          name: token.name,
           email: token.email,
         },
       };
@@ -64,7 +63,6 @@ export const authOptions: NextAuthOptions = {
         const user = await safeLoader({
           outputValidation: z.object({
             id: z.string(),
-            name: z.string(),
             email: z.string(),
             password: z.string(),
           }),
@@ -104,8 +102,6 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
-          roles: user.roles,
         };
       },
     }),

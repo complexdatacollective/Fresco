@@ -11,6 +11,7 @@ const mockProtocol = (): Prisma.ProtocolUncheckedCreateWithoutOwnerInput => {
     assetPath: 'assets/path',
     lastModified: faker.date.past(),
     stages: JSON.stringify(stages),
+    codebook: '{}',
   };
 };
 

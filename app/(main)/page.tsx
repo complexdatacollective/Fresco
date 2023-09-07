@@ -25,9 +25,7 @@ async function Home() {
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Protocols</h2>
         <ProtocolsTable />
-        <Button className="mt-6" disabled>
-          Upload Protocol
-        </Button>
+        <ProtocolUploader />
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Participants</h2>

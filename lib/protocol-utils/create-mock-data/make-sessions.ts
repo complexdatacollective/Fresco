@@ -5,7 +5,7 @@ import {
   Protocol,
 } from '@codaco/shared-consts';
 import { v4 as uuid } from 'uuid';
-import { makeNetwork } from './make-network.js';
+import { makeNetwork } from './make-network';
 
 // These keys should be in @codaco/shared-consts
 export type NcSession = {
