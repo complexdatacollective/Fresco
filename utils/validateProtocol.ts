@@ -1,7 +1,7 @@
 import friendlyErrorMessage from './friendlyErrorMessage';
 import { validateSchema, validateLogic } from '../lib/protocol-utils';
 import { errToString } from '../lib/protocol-utils/validate/helpers';
-import { APP_SUPPORTED_SCHEMA_VERSIONS } from '../config';
+import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 
 const openError = friendlyErrorMessage(
   "There was an error reading that protocol file. It doesn't seem to be a valid JSON object. Check the format of your protocol, and try again.",
