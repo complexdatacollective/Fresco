@@ -15,14 +15,11 @@ export const withAuth: MiddlewareFactory = (next) => {
         req: request,
         secret: process.env.NEXTAUTH_SECRET,
       });
+
       if (!token) {
         const url = new URL(`/api/auth/signin`, request.url);
         url.searchParams.set('callbackUrl ', encodeURI(request.url));
         return NextResponse.redirect(url);
-      }
-      if (token.role !== 'admin') {
-        const url = new URL(`/403`, request.url);
-        return NextResponse.rewrite(url);
       }
     }
     return next(request, _next);

@@ -4,11 +4,9 @@ import { prisma } from '~/utils/db';
 import { hash } from 'bcrypt';
 import { z } from 'zod';
 import { safeLoader } from '~/utils/safeLoader';
-import type { SignUpData } from '../_components/SignUp';
+import type { SignUpData } from '../_components/SignUpForm';
 
 export const handleSubmit = async (data: SignUpData) => {
-  ('use server');
-
   const { email, password } = data;
 
   // check if email already exists in database
