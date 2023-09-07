@@ -46,6 +46,7 @@
     "classnames": "^2.3.2",
     "clsx": "^2.0.0",
     "d3-interpolate-path": "^2.3.0",
+    "eslint-plugin-local-rules": "^2.0.0",
     "formik": "^2.4.3",
     "framer-motion": "^10.15.2",
     "jszip": "^3.10.1",
@@ -60,6 +61,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.6",
     "uploadthing": "^5.3.3",
+    "ts-node": "^10.9.1",
     "uuid": "^9.0.0",
     "yup": "^1.2.0",
     "zod": "^3.21.4"

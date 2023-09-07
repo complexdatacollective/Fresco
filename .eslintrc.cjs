@@ -18,7 +18,7 @@ const config = {
   parserOptions: {
     project: path.join(__dirname, 'tsconfig.json'),
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'eslint-plugin-local-rules'],
   extends: [
     'next/core-web-vitals',
     'plugin:@typescript-eslint/recommended',
@@ -26,6 +26,7 @@ const config = {
     'prettier',
   ],
   rules: {
+    'no-console': 'error',
     '@typescript-eslint/consistent-type-imports': [
       'warn',
       {
@@ -41,6 +42,7 @@ const config = {
     ],
     'no-unreachable': 'error',
     'no-console': 'error',
+    'local-rules/require-data-mapper': 'error',
   },
 };
 module.exports = config;
