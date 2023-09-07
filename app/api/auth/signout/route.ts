@@ -3,7 +3,7 @@ import { auth } from '~/utils/auth';
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
-export const GET = async (request: NextRequest) => {
+export const POST = async (request: NextRequest) => {
   console.log('signout');
 
   const authRequest = auth.handleRequest({ request, cookies });
@@ -29,4 +29,4 @@ export const GET = async (request: NextRequest) => {
   return NextResponse.redirect(url);
 };
 
-export const POST = GET;
+export const GET = POST;

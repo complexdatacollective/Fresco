@@ -6,15 +6,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '~/utils';
 import UserMenu from './UserMenu';
+import { UrlObject } from 'url';
 
-const NavButton = ({
+export const NavButton = ({
   children,
   href,
-  isActive,
+  isActive = false,
 }: {
   children: React.ReactNode;
-  href: string;
-  isActive: boolean;
+  href: UrlObject;
+  isActive?: boolean;
 }) => {
   return (
     <Link
