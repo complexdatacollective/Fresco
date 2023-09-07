@@ -1,9 +1,19 @@
+import { redirect } from 'next/navigation';
+import { getPageSession } from '~/utils/getPageSession';
+
 export const metadata = {
   title: 'Network Canvas Fresco - Dashboard',
   description: 'Fresco.',
 };
 
-function Layout({ children }: { children: React.ReactNode }) {
+async function Layout({ children }: { children: React.ReactNode }) {
+  const session = await getPageSession();
+
+  if (!session) {
+    console.log('no session');
+    redirect('/signin');
+  }
+
   return (
     <>
       <div className="h-full">

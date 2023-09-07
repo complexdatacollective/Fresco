@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { NetworkProvider } from '~/contexts/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
-import { getServerAuthSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Stage as StageType } from '~/lib/shared-consts';
@@ -46,7 +45,8 @@ export default async function Page({
   }
 
   // Get session so we can check if the user is allowed to view this interview
-  const session = await getServerAuthSession();
+  const session = false;
+  console.error('UPDATE ME');
 
   // If the user is not logged in, redirect to the signin page
   if (!session) {

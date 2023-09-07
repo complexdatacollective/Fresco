@@ -59,12 +59,6 @@ model Interview {
   @@index([protocolId])
 }
 
-model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  password String
-}
-
 model Participant {
   id         String      @id @default(cuid())
   identifier String
@@ -77,4 +71,30 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  auth_session Session[]
+  key          Key[]
+}
+
+model Session {
+  id             String @id @unique
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Key {
+  id              String  @id @unique
+  hashed_password String?
+  user_id         String
+  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
 }

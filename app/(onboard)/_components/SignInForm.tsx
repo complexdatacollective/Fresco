@@ -3,10 +3,10 @@
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { formValidationSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function SignInForm() {
   const {
@@ -18,30 +18,36 @@ export default function SignInForm() {
     resolver: zodResolver(formValidationSchema),
   });
 
+  const router = useRouter();
+
   const onSubmit = async (data: unknown) => {
     const result = formValidationSchema.parse(data);
 
-    console.log(result);
-    const sign = await signIn('credentials', {
-      email: result.email,
-      password: result.password,
-      redirect: false,
-      callbackUrl: '/dashboard',
+    const formData = new FormData();
+    formData.append('username', result.username);
+    formData.append('password', result.password);
+
+    const response = await fetch('/api/auth/signin', {
+      method: 'POST',
+      body: formData,
+      redirect: 'manual',
     });
 
-    console.log(sign);
+    if (response.status === 0) {
+      // when using `redirect: "manual"`, response status 0 is returned
+      router.replace('/dashboard');
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col">
       <div className="mb-6 flex flex-wrap">
         <Input
-          type="email"
-          label="E-mail Address"
-          autoComplete="email"
-          {...register('email')}
+          label="Username"
+          autoComplete="username"
+          {...register('username')}
         />
-        {errors.email?.message && <p>{errors.email?.message}</p>}
+        {errors.username?.message && <p>{errors.username?.message}</p>}
       </div>
       <div className="mb-6 flex flex-wrap">
         <Input

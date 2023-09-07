@@ -10,7 +10,6 @@ import type {
   AssetManifest,
   Protocol as NCProtocol,
 } from '~/lib/shared-consts';
-import { getServerAuthSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 class ValidationError extends Error {
@@ -170,7 +169,7 @@ export const removeProtocolFile = async (fileKey: string) => {
 };
 
 export const importProtocol = async (file: UploadFileResponse) => {
-  const session = await getServerAuthSession();
+  const session = 'mock session';
   console.log(
     '🚀 ~ file: importProtocol.ts:174 ~ importProtocol ~ session:',
     session,

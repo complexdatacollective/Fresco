@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 export const formValidationSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
+  username: z
+    .string()
+    .min(4, { message: 'Username must be at least 4 characters' }),
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters' }),

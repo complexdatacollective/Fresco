@@ -1,14 +1,6 @@
-import { redirect } from 'next/navigation';
-import { getServerAuthSession } from '~/utils/auth';
 import { OnboardTabs } from './_components/OnboardTabs';
 
-async function Home() {
-  const session = await getServerAuthSession();
-
-  if (session) {
-    redirect('/dashboard');
-  }
-
+function Home() {
   return (
     <div className="mt-[-60px] flex w-[30rem] flex-col rounded-xl bg-white/80 p-6 shadow-xl backdrop-blur-md">
       <div className="mb-6">

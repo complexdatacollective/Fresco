@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '~/components/ui/Input';
 import { formValidationSchema } from '../_shared';
-import { handleSubmit as serverHandleSubmit } from '../signup/_actions';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export const SignUpForm = () => {
   const {
@@ -16,9 +16,27 @@ export const SignUpForm = () => {
   } = useForm({
     resolver: zodResolver(formValidationSchema),
   });
+
+  const router = useRouter();
+
   const onSubmit = async (data: unknown) => {
     const result = formValidationSchema.parse(data);
-    await serverHandleSubmit(result);
+
+    const formData = new FormData();
+
+    formData.append('username', result.username);
+    formData.append('password', result.password);
+
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      body: formData,
+      redirect: 'manual',
+    });
+
+    if (response.status === 0) {
+      // when using `redirect: "manual"`, response status 0 is returned
+      router.replace('/dashboard');
+    }
   };
 
   return (
@@ -29,13 +47,13 @@ export const SignUpForm = () => {
     >
       <div className="mb-6 flex flex-wrap">
         <Input
-          label="E-mail Address"
-          type="email"
-          placeholder="you@somewhere.com"
+          label="Username"
+          type="text"
+          placeholder="username..."
           autoComplete="do-not-autofill"
-          {...register('email')}
+          {...register('username')}
         />
-        {errors.email?.message && <p>{errors.email?.message}</p>}
+        {errors.username?.message && <p>{errors.username?.message}</p>}
       </div>
       <div className="mb-6 flex flex-wrap">
         <Input
