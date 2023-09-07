@@ -1,7 +1,8 @@
-import { Button } from '~/components/ui/Button';
 import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
 import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
 import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
+import ProtocolUploader from './_components/ProtocolUploader';
+
 export default function Home() {
   return (
     <main className="flex flex-col gap-10 p-10">
@@ -16,9 +17,7 @@ export default function Home() {
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Protocols</h2>
         <ProtocolsTable />
-        <Button className="mt-6" disabled>
-          Upload Protocol
-        </Button>
+        <ProtocolUploader />
       </div>
       <div className="rounded-lg bg-white p-6">
         <h2 className="mb-6 text-2xl font-bold">Participants</h2>

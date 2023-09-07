@@ -7,7 +7,7 @@ import {
   NcEgo,
 } from '@codaco/shared-consts';
 import { get } from 'lodash';
-import { makeNode, makeEgo, makeEdge } from './make-entities.js';
+import { makeNode, makeEgo, makeEdge } from './make-entities';
 
 // Assumes protocol is valid
 export const makeNetwork = (protocol: Protocol): NcNetwork => {
