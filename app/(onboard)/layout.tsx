@@ -4,11 +4,13 @@ import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { getPageSession } from '~/utils/auth';
 import { redirect } from 'next/navigation';
+import getSetupMetadata from '~/utils/getSetupMetadata';
 
 export default async function Layout({ children }: PropsWithChildren) {
   const session = await getPageSession();
+  const setupMetadata = await getSetupMetadata();
 
-  if (session) {
+  if (session && setupMetadata.configured) {
     console.log('onboard layout: session exists. redirecting.');
     redirect('/dashboard');
   }
