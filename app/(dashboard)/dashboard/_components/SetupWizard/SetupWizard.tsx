@@ -1,33 +1,27 @@
+'use client';
+
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from "~/components/ui/dialog"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
 
-  import { Checkbox } from "~/components/ui/checkbox"
-
-  
-
+import { SetupChecklist } from '~/app/(dashboard)/dashboard/_components/SetupWizard/SetupChecklist';
 
 export default function SetupWizard() {
-    return (
-        <Dialog>
-  <DialogTrigger>Start Setup Wizard</DialogTrigger>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Setup Wizard</DialogTitle>
-      <DialogDescription>
-        A few tasks to get started
-      </DialogDescription>
-    </DialogHeader>
-    <Checkbox /> Create User Account
-    <Checkbox /> Upload a Protocol
-    <Checkbox /> Complete Orientation
-    <Checkbox /> Review Documentation
-  </DialogContent>
-</Dialog>
-    )
+  return (
+    <Dialog>
+      <DialogTrigger>Get Started</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Getting Started</DialogTitle>
+          <DialogDescription>A few tasks to get you started</DialogDescription>
+        </DialogHeader>
+        <SetupChecklist />
+      </DialogContent>
+    </Dialog>
+  );
 }
