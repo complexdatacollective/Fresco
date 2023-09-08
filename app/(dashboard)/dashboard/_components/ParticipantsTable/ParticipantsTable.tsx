@@ -1,6 +1,6 @@
 import { DataTable } from '~/components/DataTable/DataTable';
-import { ParticipantColumns } from '~/app/(main)/_components/ParticipantsTable/Columns';
-import { safeLoadParticipants } from '~/app/(main)/_components/ParticipantsTable/Loader';
+import { ParticipantColumns } from './Columns';
+import { safeLoadParticipants } from './Loader';
 
 const participants = await safeLoadParticipants;
 
