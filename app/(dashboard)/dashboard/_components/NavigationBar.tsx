@@ -4,7 +4,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '~/utils';
+import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
 import { UrlObject } from 'url';
 

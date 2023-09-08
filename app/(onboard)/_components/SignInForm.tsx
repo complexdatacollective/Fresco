@@ -12,7 +12,6 @@ export default function SignInForm() {
   const {
     register,
     handleSubmit,
-    // watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(formValidationSchema),
@@ -23,6 +22,7 @@ export default function SignInForm() {
   const onSubmit = async (data: unknown) => {
     const result = formValidationSchema.parse(data);
 
+    // The route handler wants this in the form of a FormData object
     const formData = new FormData();
     formData.append('username', result.username);
     formData.append('password', result.password);

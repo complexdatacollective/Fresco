@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '~/utils';
+import { cn } from '~/utils/shadcn';
 import { Label } from '~/components/ui/Label';
 
 export interface InputProps
