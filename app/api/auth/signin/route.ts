@@ -39,24 +39,28 @@ export const POST = async (request: NextRequest) => {
     );
   }
   try {
-    // find user by key
-    // and validate password
     const key = await auth.useKey('username', username.toLowerCase(), password);
+
     const session = await auth.createSession({
       userId: key.userId,
       attributes: {},
     });
+
     const authRequest = auth.handleRequest({
       request,
       cookies,
     });
+
     authRequest.setSession(session);
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: '/', // redirect to profile page
+
+    return NextResponse.json(
+      {
+        success: true,
       },
-    });
+      {
+        status: 200,
+      },
+    );
   } catch (e) {
     if (
       e instanceof LuciaError &&
@@ -73,6 +77,9 @@ export const POST = async (request: NextRequest) => {
         },
       );
     }
+
+    console.log(e);
+
     return NextResponse.json(
       {
         error: 'An unknown error occurred',

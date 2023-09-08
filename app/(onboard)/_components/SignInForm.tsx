@@ -27,15 +27,15 @@ export default function SignInForm() {
     formData.append('username', result.username);
     formData.append('password', result.password);
 
-    const response = await fetch('/api/auth/signin', {
-      method: 'POST',
-      body: formData,
-      redirect: 'manual',
-    });
+    try {
+      await fetch('/api/auth/signin', {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (response.status === 0) {
-      // when using `redirect: "manual"`, response status 0 is returned
-      router.replace('/dashboard');
+      router.refresh();
+    } catch (error) {
+      console.error(error);
     }
   };
 

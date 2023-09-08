@@ -4,15 +4,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
 export const POST = async (request: NextRequest) => {
-  console.log('signout');
-
   const authRequest = auth.handleRequest({ request, cookies });
   // check if user is authenticated
   const session = await authRequest.validate();
 
-  console.log('session', session);
-
   if (!session) {
+    console.log('Signout: requested signout, but there was no session!');
     return new Response(null, {
       status: 401,
     });
@@ -23,10 +20,14 @@ export const POST = async (request: NextRequest) => {
 
   // delete session cookie
   authRequest.setSession(null);
-
-  const url = request.nextUrl.clone();
-  url.pathname = '/';
-  return NextResponse.redirect(url);
+  return NextResponse.json(
+    {
+      success: true,
+    },
+    {
+      status: 200,
+    },
+  );
 };
 
 export const GET = POST;
