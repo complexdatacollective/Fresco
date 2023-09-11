@@ -35,7 +35,7 @@ export const SignUpForm = () => {
 
     if (response.status === 0) {
       // when using `redirect: "manual"`, response status 0 is returned
-      router.replace('/dashboard');
+      router.replace('/');
     }
   };
 
