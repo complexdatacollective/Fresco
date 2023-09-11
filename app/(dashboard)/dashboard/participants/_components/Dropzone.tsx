@@ -58,10 +58,10 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
         <div className="flex flex-col items-center justify-center gap-2">
           <ImagePlus className="text-red-400" size={28} />
           {isDragActive ? (
-            <p className="text-sm">drop files here...</p>
+            <p className="text-sm">drop file here...</p>
           ) : (
             <p className="text-sm">
-              Drag & drop files here, or click to select files
+              Drag & drop file here, or click to select file
             </p>
           )}
         </div>

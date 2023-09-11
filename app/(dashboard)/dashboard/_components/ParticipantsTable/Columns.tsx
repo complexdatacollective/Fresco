@@ -12,6 +12,8 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
+import Link from 'next/link';
+import CopyButton from '~/components/DataTable/CopyButton';
 
 export const ParticipantColumns: ColumnDef<Participant>[] = [
   {
@@ -46,6 +48,25 @@ export const ParticipantColumns: ColumnDef<Participant>[] = [
     },
   },
   {
+    accessorKey: 'Unique_interview_URL',
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader column={column} title="Unique interview URL" />
+      );
+    },
+    cell: ({ row }) => (
+      <Link
+        target="_blank"
+        className="text-blue-500 underline hover:text-blue-300"
+        href={`/interview/${row.original.id}`}
+      >
+        interview/{row.original.id}
+      </Link>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     id: 'actions',
     header: () => (
       <TooltipProvider>
@@ -59,8 +80,16 @@ export const ParticipantColumns: ColumnDef<Participant>[] = [
         </Tooltip>
       </TooltipProvider>
     ),
-    cell: () => {
-      return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
+    cell: ({ row }) => {
+      return (
+        <ActionsDropdown
+          menuItems={[
+            'Edit',
+            'Delete',
+            <CopyButton text={`/interview/${row.original.id}`} />,
+          ]}
+        />
+      );
     },
   },
 ];

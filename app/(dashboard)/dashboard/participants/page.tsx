@@ -1,7 +1,7 @@
-import React from 'react';
 import { ParticipantsTable } from '../_components/ParticipantsTable/ParticipantsTable';
-import ParticipantModal from './_components/ParticipantModal';
+import ExportCSVParticipants from './_components/ExportCSVParticipants';
 import ImportCSVModal from './_components/ImportCSVModal';
+import ParticipantModal from './_components/ParticipantModal';
 
 const ParticipantPage = () => {
   return (
@@ -10,6 +10,7 @@ const ParticipantPage = () => {
       <div className="flex gap-2">
         <ParticipantModal />
         <ImportCSVModal />
+        <ExportCSVParticipants />
       </div>
       <ParticipantsTable />
     </div>

@@ -7,12 +7,13 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
+import { ReactNode } from 'react';
 
-interface Props<TMenuItem = string> {
+interface Props<TMenuItem = ReactNode> {
   menuItems: TMenuItem[];
 }
 
-export const ActionsDropdown = <TMenuItem extends string>({
+export const ActionsDropdown = <TMenuItem extends ReactNode>({
   menuItems,
 }: Props<TMenuItem>) => {
   return (
@@ -25,8 +26,8 @@ export const ActionsDropdown = <TMenuItem extends string>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        {menuItems.map((item) => (
-          <DropdownMenuItem key={item}>{item}</DropdownMenuItem>
+        {menuItems.map((item, index) => (
+          <DropdownMenuItem key={index}>{item}</DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

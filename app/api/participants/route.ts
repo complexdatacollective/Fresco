@@ -6,6 +6,7 @@ interface IParticipantData {
   identifier: string;
 }
 
+// Create a new participant
 export const POST = async (req: Request) => {
   try {
     const participantData: IParticipantData | any = await req.json();
@@ -32,6 +33,20 @@ export const POST = async (req: Request) => {
       msg: 'Participant created successfully',
       newParticipant,
     });
+  } catch (error) {
+    return NextResponse.json(
+      { msg: 'Something happened', error },
+      { status: 500 },
+    );
+  }
+};
+
+// Get all participants
+export const GET = async (req: Request) => {
+  try {
+    const participants = await prisma.participant.findMany();
+
+    return NextResponse.json({ participants });
   } catch (error) {
     return NextResponse.json(
       { msg: 'Something happened', error },
