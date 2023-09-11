@@ -1,4 +1,9 @@
+'use client';
+
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
+import { Label } from '~/components/ui/Label';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +13,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { Input } from '~/components/ui/Input';
-import { Label } from '~/components/ui/Label';
 
 function ParticipantModal() {
+  const [identifier, setIdentifier] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data = await fetch('http://localhost:3000/api/participants', {
+      method: 'POST',
+      body: JSON.stringify({ identifier }),
+    }).then(async (res) => await res.json());
+
+    console.log(data);
+    setIdentifier('');
+    document.getElementById('closeDialog')?.click();
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -25,15 +43,23 @@ function ParticipantModal() {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div>
+          <form id="add-participant" onSubmit={handleSubmit}>
             <Label htmlFor="name" className="text-right">
               Identifier
             </Label>
-            <Input id="name" placeholder="participant id..." />
-          </div>
+            <Input
+              required
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              id="name"
+              placeholder="participant id..."
+            />
+          </form>
         </div>
         <DialogFooter>
-          <Button type="submit">Submit</Button>
+          <Button form="add-participant" type="submit">
+            Submit
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

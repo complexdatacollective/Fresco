@@ -61,7 +61,7 @@ model Interview {
 
 model Participant {
   id         String      @id @default(cuid())
-  identifier String
+  identifier String      @unique
   interviews Interview[]
 }
 
