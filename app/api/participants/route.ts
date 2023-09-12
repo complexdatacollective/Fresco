@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '~/utils/db';
 import mockInterview from '~/utils/generateMockData/interview/interview';
 
@@ -41,15 +42,23 @@ export const POST = async (req: Request) => {
   }
 };
 
+const ParticipantValidation = z.array(
+  z.object({
+    id: z.string(),
+    identifier: z.string(),
+  }),
+);
+
 // Get all participants
 export const GET = async (req: Request) => {
   try {
     const participants = await prisma.participant.findMany();
+    const result = ParticipantValidation.parse(participants);
 
-    return NextResponse.json({ participants });
+    return NextResponse.json({ participants: result });
   } catch (error) {
     return NextResponse.json(
-      { msg: 'Something happened', error },
+      { msg: 'Something went wrong!', error },
       { status: 500 },
     );
   }

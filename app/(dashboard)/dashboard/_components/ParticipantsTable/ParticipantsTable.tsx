@@ -9,7 +9,7 @@ export const ParticipantsTable = () => {
     <DataTable
       columns={ParticipantColumns}
       data={participants}
-      filterColumnAccessorKey="name"
+      filterColumnAccessorKey="identifier"
     />
   );
 };

@@ -20,10 +20,13 @@ function ParticipantModal() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const data = await fetch('http://localhost:3000/api/participants', {
-      method: 'POST',
-      body: JSON.stringify({ identifier }),
-    }).then(async (res) => await res.json());
+    const data = await fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/participants`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ identifier }),
+      },
+    ).then(async (res) => await res.json());
 
     console.log(data);
     setIdentifier('');

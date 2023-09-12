@@ -24,7 +24,7 @@ const ImportCSVModal = () => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Import participants</DialogTitle>
-          <DialogDescription>Drag and drop CSV file here</DialogDescription>
+          <DialogDescription>Drag and drop CSV file below</DialogDescription>
         </DialogHeader>
         <form id="uploadFile" onSubmit={handleSubmit}>
           <Dropzone
