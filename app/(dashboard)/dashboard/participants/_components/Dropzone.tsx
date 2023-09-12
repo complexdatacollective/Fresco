@@ -18,7 +18,7 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
       event: DropEvent,
     ) => {
       if (acceptedFiles?.length) {
-        setFiles((previousFiles) => [...previousFiles, ...acceptedFiles]);
+        setFiles((previousFiles) => [...acceptedFiles]);
       }
 
       if (fileRejections?.length) {
@@ -43,8 +43,9 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
     setFiles((files) => files.filter((file) => file.name !== name));
   };
 
-  const removeRejected = (name: string) => {
-    setRejected((files) => files.filter(({ file }) => file.name !== name));
+  const removeRejected = (i: number) => {
+    rejected.splice(i, 1);
+    setRejected([...rejected]);
   };
 
   return (
@@ -70,16 +71,16 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
       {/* Preview */}
       <section className="mt-1">
         {files?.length > 0 && (
-          <div className="h-[160px] w-full overflow-y-auto overflow-x-hidden px-4">
+          <div className="w-full px-4">
             {/* Accepted files */}
-            <h3 className="mt-3 border-b pb-2 text-sm font-semibold text-neutral-600 dark:text-white">
+            <h3 className="mt-3 border-b pb-2 text-sm font-semibold text-neutral-600">
               Accepted file
             </h3>
-            <ul className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <ul className="mt-3 gap-4">
               {files.map((file) => (
                 <li
                   key={file.name}
-                  className="relative max-w-[200px] rounded-md shadow-lg"
+                  className="relative w-full rounded-md p-2 shadow-lg"
                 >
                   <span>{file.name}</span>
                   <button
@@ -94,16 +95,13 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
             </ul>
             {/* Rejected Files */}
             {rejected?.length > 0 && (
-              <h3 className="mt-3 border-b pb-2 text-sm font-semibold text-neutral-600 dark:text-white">
-                Rejected file
+              <h3 className="mt-3 border-b pb-2 text-sm font-semibold text-neutral-600">
+                Rejected files
               </h3>
             )}
             <ul className="mt-3 flex flex-col">
-              {rejected.map(({ file, errors }) => (
-                <li
-                  key={file.name}
-                  className="flex items-start justify-between"
-                >
+              {rejected.map(({ file, errors }, index) => (
+                <li key={index} className="flex items-start justify-between">
                   <div>
                     <p className="mt-2 text-sm font-medium text-neutral-500">
                       {file.name}
@@ -116,8 +114,8 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
                   </div>
                   <button
                     type="button"
-                    className="border-secondary-400 mt-1 rounded-md border px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-neutral-500 transition-colors hover:bg-red-400 hover:text-white dark:text-white"
-                    onClick={() => removeRejected(file.name)}
+                    className="border-secondary-400 mt-1 rounded-md border px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-neutral-500 transition-colors hover:bg-red-400 hover:text-white"
+                    onClick={() => removeRejected(index)}
                   >
                     remove
                   </button>
