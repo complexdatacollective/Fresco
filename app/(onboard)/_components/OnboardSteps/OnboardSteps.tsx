@@ -15,11 +15,16 @@ function OnboardSteps({ currentStep }: OnboardStepsProps) {
     },
     {
       number: 2,
+      description: 'Sign In',
+      optional: false,
+    },
+    {
+      number: 3,
       description: 'Configure Study',
       optional: true,
     },
     {
-      number: 3,
+      number: 4,
       description: 'Documentation',
       optional: false,
     },
