@@ -33,14 +33,14 @@ export const getPageSession = () => {
   return authRequest.validate();
 };
 
-export const sessionGuard = async () => {
+export const sessionGuard = async ({ returnPath }: { returnPath: string }) => {
   const session = await getPageSession();
 
   console.log('session guard', session);
 
   if (!session) {
     console.log('session guard: no session. redirecting.');
-    redirect('/signin');
+    redirect('/signin?returnPath=' + returnPath);
   }
 
   return session;

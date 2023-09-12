@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import isStrongPassword from 'validator/es/lib/isStrongPassword';
 
-export const formValidationSchema = z.object({
+export const userFormSchema = z.object({
   username: z
     .string()
+    .trim()
+    .toLowerCase()
     .min(4, { message: 'Username must be at least 4 characters' }),
   password: z.string().refine(
     (password) =>
@@ -20,4 +22,4 @@ export const formValidationSchema = z.object({
   ),
 });
 
-export type SignUpData = z.infer<typeof formValidationSchema>;
+export type UserSignupData = z.infer<typeof userFormSchema>;

@@ -2,7 +2,7 @@ import { sessionGuard } from '~/utils/auth';
 import { NavigationBar } from './_components/NavigationBar';
 
 async function Home() {
-  await sessionGuard();
+  await sessionGuard({ returnPath: '/dashboard' });
   return (
     <>
       <NavigationBar />

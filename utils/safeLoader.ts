@@ -10,6 +10,11 @@ export const safeLoader = async <T>({
   loader,
 }: LoaderParams<T>) => {
   const result = await loader();
+
+  if (!result) {
+    return null;
+  }
+
   outputValidation.parse(result);
 
   return result;
