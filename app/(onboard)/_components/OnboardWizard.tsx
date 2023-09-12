@@ -1,14 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import OnboardSteps from '~/app/(onboard)/_components/OnboardSteps/OnboardSteps';
 import CreateAccount from '~/app/(onboard)/_components/OnboardSteps/CreateAccount';
 import ConfigureStudy from '~/app/(onboard)/_components/OnboardSteps/ConfigureStudy';
 import Documentation from '~/app/(onboard)/_components/OnboardSteps/Documentation';
 import { cn } from '~/utils/shadcn';
+import { checkUserExists } from '~/app/actions';
 
 function OnboardWizard() {
   const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    // If the user already exists, skip the first step. Prevents multiple users from being created.
+    checkUserExists()
+      .then((userExists) => {
+        if (userExists) {
+          setStep(2);
+        }
+      })
+      .catch((error) => {
+        console.error('Error checking user existence:', error);
+      });
+  }, []);
 
   const handleNextStep = () => {
     setStep(step + 1);

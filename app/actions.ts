@@ -12,3 +12,9 @@ export async function updateSetupMetadata() {
     },
   });
 }
+
+export async function checkUserExists() {
+  // eslint-disable-next-line local-rules/require-data-mapper
+  const userCount = await prisma.user.count();
+  return userCount > 0;
+}

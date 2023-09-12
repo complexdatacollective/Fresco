@@ -1,13 +1,15 @@
-'use client';
 import { Button } from '~/components/ui/Button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '~/components/ui/Input';
 import { formValidationSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
-export const SignUpForm = () => {
+interface SignUpFormProps {
+  handleUserCreated: () => void;
+}
+
+export const SignUpForm = ({ handleUserCreated }: SignUpFormProps) => {
   const {
     register,
     handleSubmit,
@@ -16,8 +18,6 @@ export const SignUpForm = () => {
   } = useForm({
     resolver: zodResolver(formValidationSchema),
   });
-
-  const router = useRouter();
 
   const onSubmit = async (data: unknown) => {
     const result = formValidationSchema.parse(data);
@@ -35,7 +35,7 @@ export const SignUpForm = () => {
 
     if (response.status === 0) {
       // when using `redirect: "manual"`, response status 0 is returned
-      router.replace('/');
+      handleUserCreated();
     }
   };
 
