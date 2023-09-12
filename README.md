@@ -4,7 +4,7 @@
 
 **1. Use the Vercel deploy button to configure your project's deployment in Vercel.**
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco%2Ftree%2Ffeature%2Finitial-setup-flow&env=DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID&envDescription=Environment%20Variables%20for%20Fresco&envLink=https%3A%2F%2Fnetworkcanvas.com%2F&project-name=fresco&repository-name=fresco&demo-title=Fresco&demo-description=Bringing%20Network%20Canvas%20Interviews%20to%20the%20web%20browser!&demo-url=https%3A%2F%2Fnetworkcanvas.com%2F&demo-image=https%3A%2F%2Fframerusercontent.com%2Fimages%2FUvNFzJTlj8T2Tn8zWSNGpnrkOI.svg)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco%2Ftree%2Ffeature%2Finitial-setup-flow&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID)
 
 **2. Create Git Repository**
 
