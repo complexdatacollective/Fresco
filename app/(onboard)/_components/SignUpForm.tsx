@@ -9,20 +9,58 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import { trpc } from '~/app/_trpc/client';
 import { debounce } from '~/utils/lodash-replacements';
 
 export const SignUpForm = () => {
-  const [usernameTaken, setUsernameTaken] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isValid },
   } = useForm<UserSignupData>({
     resolver: zodResolver(userFormSchema),
   });
+
+  const username = watch('username');
+
+  const { success: usernameIsValid } = userFormSchema
+    .pick({ username: true })
+    .safeParse({
+      username,
+    });
+
+  const {
+    data: { userExists },
+    refetch,
+  } = trpc.checkUsername.useQuery(
+    { username },
+    {
+      enabled: !!usernameIsValid,
+      initialData: { userExists: false },
+    },
+  );
+
+  const doWork = useCallback(
+    debounce(async () => {
+      await refetch();
+      setCheckingUsername(false);
+    }, 1000),
+    [refetch],
+  );
+
+  useEffect(() => {
+    if (!username) {
+      return;
+    }
+
+    setCheckingUsername(true);
+
+    doWork();
+  }, [username, refetch, usernameIsValid, doWork]);
 
   const { mutateAsync: signUp, isLoading } = useMutation({
     mutationFn: (data: UserSignupData) => axios.post('/api/auth/signup', data),
@@ -31,39 +69,21 @@ export const SignUpForm = () => {
     },
   });
 
-  const { mutateAsync: checkUsername, isLoading: isCheckingUsername } =
-    useMutation({
-      mutationFn: (username: string) =>
-        axios.post('/api/auth/signup/checkUsername', {
-          username,
-        }),
-    });
-
-  const debouncedCheckUsername = useCallback(
-    debounce(async (username: string) => {
-      const result = await checkUsername(username);
-      setUsernameTaken(!result.data.success);
-      setCheckingUsername(false);
-    }, 500),
-    [],
-  );
-
-  const preCheck = async (username) => {
-    setCheckingUsername(true);
-    await debouncedCheckUsername(username);
-  };
-
   const usernameAdornment = useMemo(() => {
+    if (!usernameIsValid) {
+      return null;
+    }
+
     if (checkingUsername) {
       return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
     }
 
-    if (usernameTaken) {
+    if (userExists) {
       return <XCircle className="mr-2 h-4 w-4 text-red-500" />;
     }
 
     return <CheckCircle className="mr-2 h-4 w-4 text-green-500" />;
-  }, [checkingUsername, usernameTaken]);
+  }, [checkingUsername, userExists, usernameIsValid]);
 
   return (
     <form
@@ -78,15 +98,20 @@ export const SignUpForm = () => {
           placeholder="username..."
           autoComplete="do-not-autofill"
           rightAdornment={usernameAdornment}
-          error={
-            errors.username?.message || usernameTaken
-              ? 'Username is already in use'
-              : undefined
-          }
+          error={errors.username?.message}
           {...register('username', {
-            onChange: async (e) => {
-              const username = e.target.value;
-              await preCheck(username);
+            validate: {
+              positive: (v) => parseInt(v) > 0 || 'should be greater than 0',
+              noSpaces: (v) => !v.includes(' ') || 'should not contain spaces',
+              notExists: async () => {
+                await refetch();
+
+                if (userExists) {
+                  return 'username already exists';
+                }
+
+                return true;
+              },
             },
           })}
         />
@@ -108,7 +133,7 @@ export const SignUpForm = () => {
             Creating account...
           </Button>
         ) : (
-          <Button type="submit" disabled={usernameTaken}>
+          <Button type="submit" disabled={!isValid}>
             Create account
           </Button>
         )}
