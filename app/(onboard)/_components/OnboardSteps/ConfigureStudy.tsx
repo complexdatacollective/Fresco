@@ -1,16 +1,14 @@
 import { Check } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { Switch } from '~/components/ui/switch';
+import { useRouter } from 'next/navigation';
 
-interface ConfigureStudyProps {
-  handleNextStep: () => void;
-}
-
-function ConfigureStudy({ handleNextStep }: ConfigureStudyProps) {
+function ConfigureStudy() {
   const [protocolUploaded, setProtocolUploaded] = useState(false);
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
+  const router = useRouter();
 
   const handleProtocolUploaded = () => {
     setProtocolUploaded(true);
@@ -20,6 +18,10 @@ function ConfigureStudy({ handleNextStep }: ConfigureStudyProps) {
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
     // TODO: Upload participants
+  };
+
+  const handleNextStep = () => {
+    router.replace('?step=3');
   };
 
   return (

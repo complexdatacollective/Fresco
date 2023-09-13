@@ -1,31 +1,31 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
-import { useState, useEffect } from 'react';
+import { checkUserExists } from '~/app/actions';
 
-interface CreateAccountProps {
-  handleNextStep: () => void;
-}
-
-function CreateAccount({ handleNextStep }: CreateAccountProps) {
-  const [userCreated, setUserCreated] = useState(false);
-
-  const handleUserCreated = () => {
-    setUserCreated(true);
-  };
+function CreateAccount() {
+  const router = useRouter();
 
   useEffect(() => {
-    if (userCreated) {
-      handleNextStep();
-    }
-  });
+    checkUserExists()
+      .then((userExists) => {
+        if (userExists) {
+          router.replace('/?step=2');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [router]);
   return (
     <div>
       <div className="mb-4 flex flex-col">
         <h1 className="text-3xl font-bold">Create an Account</h1>
         <p>Create an administrator account</p>
       </div>
-      <SignUpForm handleUserCreated={handleUserCreated} />
+      <SignUpForm />
     </div>
   );
 }

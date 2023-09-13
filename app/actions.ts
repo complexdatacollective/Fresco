@@ -18,9 +18,3 @@ export async function checkUserExists() {
   const userCount = await prisma.user.count();
   return userCount > 0;
 }
-
-export async function checkSessionExists() {
-  // eslint-disable-next-line local-rules/require-data-mapper
-  const sessionCount = await prisma.session.count();
-  return sessionCount > 0;
-}
