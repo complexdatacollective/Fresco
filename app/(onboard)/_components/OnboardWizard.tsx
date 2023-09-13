@@ -33,8 +33,8 @@ function OnboardWizard() {
     <div className={cardClasses}>
       <OnboardSteps currentStep={step} />
       <div className={userFormClasses}>
-        {step === '1' && <CreateAccount step={step} />}
-        {step === '2' && <ConfigureStudy step={step} />}
+        {step === '1' && <CreateAccount />}
+        {step === '2' && <ConfigureStudy />}
         {step === '3' && <Documentation />}
       </div>
     </div>
