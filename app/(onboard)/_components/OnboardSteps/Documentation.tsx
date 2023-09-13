@@ -2,14 +2,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { updateSetupMetadata } from '~/app/actions';
+import { setOnboarded } from '~/app/actions';
 import { useRouter } from 'next/navigation';
 
 function Documentation() {
   const router = useRouter();
 
   const handleFinishOnboarding = async () => {
-    await updateSetupMetadata();
+    await setOnboarded();
     router.replace('/dashboard');
   };
   return (

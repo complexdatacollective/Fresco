@@ -10,9 +10,16 @@ export default async function Layout({ children }: PropsWithChildren) {
   const session = await getPageSession();
   const setupMetadata = await getSetupMetadata();
 
-  if (session && setupMetadata.configured) {
+  if (session && setupMetadata.onboarded) {
     console.log('onboard layout: session exists. redirecting.');
     redirect('/dashboard');
+  }
+
+  const configExpired: boolean =
+    Date.now() - setupMetadata.initializedAt.getTime() > 300000;
+  if (!setupMetadata.configured && configExpired) {
+    // do something
+    console.log('config expired');
   }
 
   return (

@@ -103,5 +103,6 @@ model SetupMetadata {
   id        Int   @id
   configured Boolean  @default(false)
   initializedAt DateTime @default(now())
-  configuredAt DateTime? 
+  configuredAt DateTime?
+  onboarded Boolean @default(false)
 }

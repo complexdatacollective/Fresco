@@ -1,9 +1,8 @@
 /* eslint-disable local-rules/require-data-mapper */
-import type { SetupMetadata } from "@prisma/client";
-import { prisma } from "~/utils/db";
+import type { SetupMetadata } from '@prisma/client';
+import { prisma } from '~/utils/db';
 
 export default async function getSetupMetadata(): Promise<SetupMetadata> {
-
   let setupMetadata = await prisma.setupMetadata.findFirst();
 
   // if no setup metadata exists, seed it
@@ -13,6 +12,7 @@ export default async function getSetupMetadata(): Promise<SetupMetadata> {
         id: 1,
         configured: false,
         initializedAt: new Date(),
+        onboarded: false,
       },
     });
   }

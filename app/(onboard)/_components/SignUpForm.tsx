@@ -5,6 +5,7 @@ import { Input } from '~/components/ui/Input';
 import { formValidationSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { setConfigured } from '~/app/actions';
 
 export const SignUpForm = () => {
   const {
@@ -33,6 +34,7 @@ export const SignUpForm = () => {
     });
 
     if (response.status === 0) {
+      await setConfigured();
       // when using `redirect: "manual"`, response status 0 is returned
       router.push('/?step=2');
     }

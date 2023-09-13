@@ -2,13 +2,23 @@
 
 import { prisma } from '~/utils/db';
 
-export async function updateSetupMetadata() {
+export async function setConfigured() {
   // eslint-disable-next-line local-rules/require-data-mapper
   await prisma.setupMetadata.update({
     where: { id: 1 },
     data: {
       configured: true,
       configuredAt: new Date(),
+    },
+  });
+}
+
+export async function setOnboarded() {
+  // eslint-disable-next-line local-rules/require-data-mapper
+  await prisma.setupMetadata.update({
+    where: { id: 1 },
+    data: {
+      onboarded: true,
     },
   });
 }
