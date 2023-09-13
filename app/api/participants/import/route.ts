@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '~/utils/db';
 import mockInterview from '~/utils/generateMockData/interview/interview';
-import type { Participant } from '@prisma/client';
 
 interface IParticipantData {
   identifier: string;
@@ -12,46 +11,28 @@ export const POST = async (req: Request) => {
   try {
     const participantData: IParticipantData[] | any = await req.json();
     const interview = mockInterview();
-    let existingParticipants: Participant[] = [];
 
-    for (const item of participantData) {
-      console.log('ITEM', item);
-
-      const existingParticipant = await prisma.participant.findUnique({
-        where: {
-          identifier: item.identifier,
+    const existingParticipants = await prisma.participant.findMany({
+      where: {
+        identifier: {
+          in: participantData.map((p: IParticipantData) => p.identifier),
         },
-      });
+      },
+    });
 
-      if (!existingParticipant) {
-        await prisma.participant.create({
-          data: {
-            identifier: item.identifier,
-            interviews: {
-              create: {
-                startTime: interview.startTime,
-                network: '',
-                protocol: {
-                  connect: {
-                    hash: 'development-protocol',
-                  },
-                },
-              },
-            },
-          },
-        });
-      } else {
-        existingParticipants.push(existingParticipant);
-      }
-    }
+    const createdParticipants = await prisma.participant.createMany({
+      data: participantData,
+      skipDuplicates: true,
+    });
 
     return NextResponse.json({
       msg: 'Participants created successfully',
       existingParticipants,
+      createdParticipants,
     });
   } catch (error) {
     return NextResponse.json(
-      { msg: 'Something happened', error },
+      { msg: 'Something went wrong!', error },
       { status: 500 },
     );
   }
