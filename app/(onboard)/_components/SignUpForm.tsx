@@ -5,7 +5,7 @@ import { Input } from '~/components/ui/Input';
 import { formValidationSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { setConfigured } from '~/app/actions';
+import { checkConfigExpired, setConfigured } from '~/app/actions';
 
 export const SignUpForm = () => {
   const {
@@ -20,6 +20,11 @@ export const SignUpForm = () => {
   const router = useRouter();
 
   const onSubmit = async (data: unknown) => {
+    const configExpired = await checkConfigExpired();
+    if (configExpired) {
+      router.push('/?step=expired');
+      return;
+    }
     const result = formValidationSchema.parse(data);
 
     const formData = new FormData();

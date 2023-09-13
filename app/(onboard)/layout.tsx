@@ -18,8 +18,7 @@ export default async function Layout({ children }: PropsWithChildren) {
   const configExpired: boolean =
     Date.now() - setupMetadata.initializedAt.getTime() > 300000;
   if (!setupMetadata.configured && configExpired) {
-    // do something
-    console.log('config expired');
+    redirect('/?step=expired');
   }
 
   return (

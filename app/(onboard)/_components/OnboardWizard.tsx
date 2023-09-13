@@ -7,11 +7,24 @@ import ConfigureStudy from '~/app/(onboard)/_components/OnboardSteps/ConfigureSt
 import Documentation from '~/app/(onboard)/_components/OnboardSteps/Documentation';
 import { cn } from '~/utils/shadcn';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { checkConfigExpired } from '~/app/actions';
 
 function OnboardWizard() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(searchParams.get('step') ?? '1');
   const router = useRouter();
+
+  useEffect(() => {
+    checkConfigExpired()
+      .then((configExpired) => {
+        if (configExpired) {
+          router.replace('/?step=expired');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [router]);
 
   useEffect(() => {
     const queryStep = searchParams.get('step');
@@ -31,12 +44,21 @@ function OnboardWizard() {
 
   return (
     <div className={cardClasses}>
-      <OnboardSteps currentStep={step} />
-      <div className={userFormClasses}>
-        {step === '1' && <CreateAccount />}
-        {step === '2' && <ConfigureStudy />}
-        {step === '3' && <Documentation />}
-      </div>
+      {step === 'expired' ? (
+        <div>
+          <h1 className="text-3xl font-bold">Configuration Expired</h1>
+          <p>Your configuration has expired.</p>
+        </div>
+      ) : (
+        <>
+          <OnboardSteps currentStep={step} />
+          <div className={userFormClasses}>
+            {step === '1' && <CreateAccount />}
+            {step === '2' && <ConfigureStudy />}
+            {step === '3' && <Documentation />}
+          </div>
+        </>
+      )}
     </div>
   );
 }
