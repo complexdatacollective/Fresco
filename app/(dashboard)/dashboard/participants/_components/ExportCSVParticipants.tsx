@@ -2,11 +2,15 @@
 
 import type { Participant } from '@prisma/client';
 import { unparse } from 'papaparse';
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 
-async function ExportCSVParticipants() {
+function ExportCSVParticipants() {
+  const [isExporting, setIsExporting] = useState(false);
+
   const handleExport = async () => {
     try {
+      setIsExporting(true);
       const data: any = await fetch(
         `${process.env.NEXT_PUBLIC_URL}/api/participants`,
         {
@@ -43,9 +47,14 @@ async function ExportCSVParticipants() {
     } catch (error) {
       console.error(error);
     }
+    setIsExporting(false);
   };
 
-  return <Button onClick={handleExport}>Export Data</Button>;
+  return (
+    <Button disabled={isExporting} onClick={handleExport}>
+      {isExporting ? 'Exporting...' : 'Export Data'}
+    </Button>
+  );
 }
 
 export default ExportCSVParticipants;
