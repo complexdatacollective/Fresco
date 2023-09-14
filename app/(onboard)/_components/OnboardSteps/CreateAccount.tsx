@@ -16,7 +16,7 @@ function CreateAccount() {
         }
       })
       .catch((error) => {
-        console.error(error);
+        alert(error);
       });
   }, [router]);
   return (

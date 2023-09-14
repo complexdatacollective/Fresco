@@ -8,9 +8,14 @@ import { useRouter } from 'next/navigation';
 function Documentation() {
   const router = useRouter();
 
-  const handleFinishOnboarding = async () => {
-    await setOnboarded();
-    router.replace('/dashboard');
+  const handleFinishOnboarding = () => {
+    setOnboarded()
+      .then(() => {
+        router.replace('/dashboard');
+      })
+      .catch((error) => {
+        alert(error);
+      });
   };
   return (
     <div>
