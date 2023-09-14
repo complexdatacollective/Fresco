@@ -16,17 +16,6 @@ export const POST = async (req: Request) => {
     const newParticipant = await prisma.participant.create({
       data: {
         identifier: participantData.identifier,
-        interviews: {
-          create: {
-            startTime: interview.startTime,
-            network: '',
-            protocol: {
-              connect: {
-                hash: 'development-protocol',
-              },
-            },
-          },
-        },
       },
     });
 
@@ -42,7 +31,7 @@ export const POST = async (req: Request) => {
   }
 };
 
-const ParticipantValidation = z.array(
+export const ParticipantValidation = z.array(
   z.object({
     id: z.string(),
     identifier: z.string(),

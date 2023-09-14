@@ -1,18 +1,20 @@
 'use client';
 
 import {
-  type ColumnDef,
-  type SortingState,
-  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 
+import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
 import {
   Table,
   TableBody,
@@ -21,8 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
 
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 

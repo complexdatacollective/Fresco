@@ -5,48 +5,38 @@ import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 
-function ExportCSVParticipants() {
+function ExportCSVParticipants({
+  participants,
+}: {
+  participants: Participant[];
+}) {
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = async () => {
-    try {
-      setIsExporting(true);
-      const data: any = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/participants`,
-        {
-          method: 'GET',
-          cache: 'no-store',
-        },
-      ).then(async (res) => await res.json());
+  const handleExport = () => {
+    setIsExporting(true);
 
-      if (data.error) throw new Error(data.msg);
+    // CSV file format
+    const csvData = participants.map((participant) => ({
+      id: participant.id,
+      identifier: participant.identifier,
+      interview_url: `interview/${participant.id}`,
+    }));
 
-      const participants: Participant[] = data.participants;
+    const csv = unparse(csvData, { header: true });
 
-      // CSV file format
-      const csvData = participants.map((participant) => ({
-        id: participant.id,
-        identifier: participant.identifier,
-        interview_url: `interview/${participant.id}`,
-      }));
+    // Create a download link
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'participants.csv';
 
-      const csv = unparse(csvData, { header: true });
+    // Simulate a click on the link to trigger the download
+    link.click();
 
-      // Create a download link
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'participants.csv';
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
 
-      // Simulate a click on the link to trigger the download
-      link.click();
-
-      // Clean up the URL object
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error(error);
-    }
     setIsExporting(false);
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Label } from '~/components/ui/Label';
@@ -15,7 +16,10 @@ import {
 } from '~/components/ui/dialog';
 
 function ParticipantModal() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [identifier, setIdentifier] = useState('');
+  const [open, setOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,13 +32,18 @@ function ParticipantModal() {
       },
     ).then(async (res) => await res.json());
 
+    startTransition(() => {
+      // Refresh the current route and fetch new data from the server without losing client-side browser or React state
+      router.refresh();
+    });
+
     console.log(data);
     setIdentifier('');
-    document.getElementById('closeDialog')?.click();
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Add Participant</Button>
       </DialogTrigger>
