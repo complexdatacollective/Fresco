@@ -12,16 +12,20 @@ function ConfigureStudy() {
 
   const handleProtocolUploaded = () => {
     setProtocolUploaded(true);
-    // TODO: Upload protocol
+    // will be replaced with ProtocolUploader handling protocol upload
   };
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
-    // TODO: Upload participants
+    // will be replaced with participants uplodaing handling participants upload
   };
 
   const handleNextStep = () => {
     router.replace('?step=3');
+  };
+
+  const allowAnonymousRecruitment = () => {
+    // will be replaced with switch handling
   };
 
   return (
@@ -74,7 +78,7 @@ function ConfigureStudy() {
                     Allow anonymous recruitment of participants.
                   </p>
                 </div>
-                <Switch />
+                <Switch onCheckedChange={allowAnonymousRecruitment} />
               </div>
             </div>
           </>
@@ -82,7 +86,6 @@ function ConfigureStudy() {
 
         <div className="flex justify-start">
           <Button onClick={handleNextStep}>
-            {' '}
             {protocolUploaded ? 'Next' : 'Skip'}
           </Button>
         </div>
