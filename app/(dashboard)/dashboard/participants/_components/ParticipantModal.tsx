@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Label } from '~/components/ui/Label';
@@ -14,30 +13,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { env } from '~/env.mjs';
+import { createParticipant } from '../_actions/actions';
+import { Loader2 } from 'lucide-react';
 
 function ParticipantModal() {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [identifier, setIdentifier] = useState('');
+  const [pending, setPending] = useState(false);
+  const [errorText, setErrorText] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: FormData) => {
+    setErrorText(null);
+    setPending(true);
+    const result = await createParticipant(formData);
+    setPending(false);
 
-    const data = await fetch(`${env.NEXT_PUBLIC_URL}/api/participants`, {
-      method: 'POST',
-      body: JSON.stringify({ identifier }),
-    }).then(async (res) => await res.json());
+    if (result.participant) {
+      setOpen(false);
+    }
 
-    startTransition(() => {
-      // Refresh the current route and fetch new data from the server without losing client-side browser or React state
-      router.refresh();
-    });
-
-    console.log(data);
-    setIdentifier('');
-    setOpen(false);
+    if (result.error) {
+      setErrorText(result.error);
+    }
   };
 
   return (
@@ -53,21 +49,17 @@ function ParticipantModal() {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <form id="add-participant" onSubmit={handleSubmit}>
+          <form id="add-participant" action={handleSubmit}>
+            {errorText && <p className="text-red-500">{errorText}</p>}
             <Label htmlFor="name" className="text-right">
               Identifier
             </Label>
-            <Input
-              required
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              id="name"
-              placeholder="participant id..."
-            />
+            <Input name="identifier" required placeholder="participant id..." />
           </form>
         </div>
         <DialogFooter>
-          <Button form="add-participant" type="submit">
+          <Button form="add-participant" type="submit" disabled={pending}>
+            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Submit
           </Button>
         </DialogFooter>
