@@ -11,7 +11,7 @@ import {
   type ColumnFiltersState,
   type SortingState,
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
@@ -25,14 +25,17 @@ import {
 } from '~/components/ui/table';
 
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
+import { Skeleton } from '../ui/skeleton';
 
 interface DataTableProps<TData, TValue> {
+  loading: boolean;
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
 }
 
 export function DataTable<TData, TValue>({
+  loading,
   columns = [],
   data,
   filterColumnAccessorKey = '',
@@ -42,13 +45,28 @@ export function DataTable<TData, TValue>({
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const tableData = useMemo(
+    () => (loading ? Array(30).fill({}) : data),
+    [loading, data],
+  );
+  const tableColumns = useMemo(
+    () =>
+      loading
+        ? columns.map((column) => ({
+            ...column,
+            cell: () => <Skeleton className="h-full w-full rounded-lg" />,
+          }))
+        : columns,
+    [loading, columns],
+  );
+
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
   }
 
   const table = useReactTable({
-    data,
-    columns,
+    data: tableData,
+    columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,

@@ -4,13 +4,15 @@ import type { Participant } from '@prisma/client';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
+import { useParticipants } from '../../_components/ParticipantsProvider';
 
-function ExportCSVParticipants({
-  participants,
-}: {
-  participants: Participant[];
-}) {
+function ExportCSVParticipants() {
   const [isExporting, setIsExporting] = useState(false);
+  const { isLoading, participants } = useParticipants();
+
+  if (isLoading) {
+    return 'Loading...';
+  }
 
   const handleExport = () => {
     setIsExporting(true);

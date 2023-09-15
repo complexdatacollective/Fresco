@@ -1,13 +1,15 @@
 'use client';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from './Columns';
-import type { Participant } from '@prisma/client';
+import { useParticipants } from '../ParticipantsProvider';
 
-export const ParticipantsTable = ({
-  participants,
-}: {
-  participants: Participant[];
-}) => {
+export const ParticipantsTable = () => {
+  const { isLoading, participants } = useParticipants();
+
+  if (isLoading) {
+    return 'Loading...';
+  }
+
   return (
     <DataTable
       columns={ParticipantColumns}
