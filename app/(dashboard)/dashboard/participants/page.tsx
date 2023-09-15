@@ -1,3 +1,4 @@
+import { env } from '~/env.mjs';
 import { ParticipantsTable } from '../_components/ParticipantsTable/ParticipantsTable';
 import ExportCSVParticipants from './_components/ExportCSVParticipants';
 import ImportCSVModal from './_components/ImportCSVModal';
@@ -6,12 +7,9 @@ import ParticipantModal from './_components/ParticipantModal';
 export const revalidate = 0;
 
 const ParticipantPage = async () => {
-  const data: any = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/participants`,
-    {
-      method: 'GET',
-    },
-  ).then(async (res) => await res.json());
+  const data: any = await fetch(`${env.NEXT_PUBLIC_URL}/api/participants`, {
+    method: 'GET',
+  }).then(async (res) => await res.json());
 
   if (data.error) return null;
 

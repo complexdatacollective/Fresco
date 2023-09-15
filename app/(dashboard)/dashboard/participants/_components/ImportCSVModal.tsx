@@ -15,6 +15,7 @@ import Dropzone from './Dropzone';
 import SelectCSVColumn from './SelectCSVColumn';
 import AlertDialogCSV from './AlertDialogCSV';
 import type { Participant } from '@prisma/client';
+import { env } from '~/env.mjs';
 
 export interface ICsvParticipant {
   identifier: string;
@@ -81,7 +82,7 @@ const ImportCSVModal = () => {
     try {
       setIsLoading(true);
       const data: any = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/participants/import`,
+        `${env.NEXT_PUBLIC_URL}/api/participants/import`,
         {
           method: 'POST',
           body: JSON.stringify(csvParticipants),

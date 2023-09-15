@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
+import { env } from '~/env.mjs';
 
 function ParticipantModal() {
   const router = useRouter();
@@ -24,13 +25,10 @@ function ParticipantModal() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/participants`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ identifier }),
-      },
-    ).then(async (res) => await res.json());
+    const data = await fetch(`${env.NEXT_PUBLIC_URL}/api/participants`, {
+      method: 'POST',
+      body: JSON.stringify({ identifier }),
+    }).then(async (res) => await res.json());
 
     startTransition(() => {
       // Refresh the current route and fetch new data from the server without losing client-side browser or React state
