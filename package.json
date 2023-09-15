@@ -84,6 +84,8 @@
     "@storybook/nextjs": "^7.4.0",
     "@storybook/react": "^7.4.0",
     "@storybook/testing-library": "^0.2.0",
+    "@t3-oss/env-core": "^0.6.1",
+    "@t3-oss/env-nextjs": "^0.6.1",
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/bcrypt": "^5.0.0",
     "@types/d3-interpolate-path": "^2.0.0",
