@@ -12,15 +12,15 @@ async function main() {
   await prisma.interview.deleteMany({});
   await prisma.asset.deleteMany({});
   await prisma.protocol.deleteMany({});
-  await prisma.user.deleteMany({});
+  // await prisma.user.deleteMany({});
 
   // Users
-  await prisma.user.create({
-    data: {
-      email: 'admin@networkcanvas.com',
-      password: await hashPassword('admin'),
-    },
-  });
+  // await prisma.user.create({
+  //   data: {
+  //     email: 'admin@networkcanvas.com',
+  //     password: await hashPassword('admin'),
+  //   },
+  // });
 
   // Protocols
   await prisma.protocol.create({
@@ -31,12 +31,12 @@ async function main() {
       description: protocol.description,
       assetPath: 'assets/path',
       lastModified: protocol.lastModified,
-      stages: JSON.stringify(protocol.stages),
-      codebook: JSON.stringify(protocol.codebook),
+      stages: protocol.stages,
+      codebook: protocol.codebook,
     },
   });
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 100; i++) {
     const participantData = mockParticipant();
     const interview = mockInterview();
 

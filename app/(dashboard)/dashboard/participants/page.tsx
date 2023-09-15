@@ -1,17 +1,13 @@
-import { env } from '~/env.mjs';
 import { ParticipantsTable } from '../_components/ParticipantsTable/ParticipantsTable';
 import ExportCSVParticipants from './_components/ExportCSVParticipants';
 import ImportCSVModal from './_components/ImportCSVModal';
 import ParticipantModal from './_components/ParticipantModal';
+import { safeLoadParticipants } from '../_components/ParticipantsTable/Loader';
 
 export const revalidate = 0;
 
 const ParticipantPage = async () => {
-  const data: any = await fetch(`${env.NEXT_PUBLIC_URL}/api/participants`, {
-    method: 'GET',
-  }).then(async (res) => await res.json());
-
-  if (data.error) return null;
+  const participants = await safeLoadParticipants();
 
   return (
     <div className="rounded-lg bg-white p-6">
@@ -19,9 +15,9 @@ const ParticipantPage = async () => {
       <div className="flex gap-2">
         <ParticipantModal />
         <ImportCSVModal />
-        <ExportCSVParticipants participants={data.participants} />
+        <ExportCSVParticipants participants={participants} />
       </div>
-      <ParticipantsTable participants={data.participants} />
+      <ParticipantsTable participants={participants} />
     </div>
   );
 };

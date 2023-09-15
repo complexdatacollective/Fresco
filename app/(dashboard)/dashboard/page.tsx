@@ -2,12 +2,10 @@
 // import { InterviewsTable } from '~/app/(main)/_components/InterviewsTable/InterviewsTable';
 // import { ProtocolsTable } from '~/app/(main)/_components/ProtocolsTable/ProtocolsTable';
 // import { ParticipantsTable } from '~/app/(main)/_components/ParticipantsTable/ParticipantsTable';
-import { NavigationBar } from './_components/NavigationBar';
 
 function Home() {
   return (
     <>
-      <NavigationBar />
       <main className="flex flex-col gap-10 p-10">
         <div>
           <h1 className="mb-2 text-3xl font-bold">Welcome</h1>
