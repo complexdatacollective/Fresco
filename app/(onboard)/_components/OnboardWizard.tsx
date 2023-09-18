@@ -4,25 +4,12 @@ import { useState, useEffect } from 'react';
 import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
 import { cn } from '~/utils/shadcn';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { checkConfigExpired } from '~/app/_actions';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 
 function OnboardWizard() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(searchParams.get('step') ?? '1');
   const router = useRouter();
-
-  useEffect(() => {
-    checkConfigExpired()
-      .then((configExpired) => {
-        if (configExpired) {
-          router.replace('/?step=expired');
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  }, [router]);
 
   useEffect(() => {
     const queryStep = searchParams.get('step');
