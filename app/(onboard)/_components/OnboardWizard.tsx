@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import OnboardSteps from '~/app/(onboard)/_components/OnboardSteps/OnboardSteps';
-import CreateAccount from '~/app/(onboard)/_components/OnboardSteps/CreateAccount';
-import ConfigureStudy from '~/app/(onboard)/_components/OnboardSteps/ConfigureStudy';
-import Documentation from '~/app/(onboard)/_components/OnboardSteps/Documentation';
+import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
 import { cn } from '~/utils/shadcn';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { checkConfigExpired } from '~/app/_actions';
+import OnboardSteps from './OnboardSteps/StepsSidebar';
 
 function OnboardWizard() {
   const searchParams = useSearchParams();
@@ -53,9 +51,11 @@ function OnboardWizard() {
         <>
           <OnboardSteps currentStep={step} />
           <div className={userFormClasses}>
-            {step === '1' && <CreateAccount />}
-            {step === '2' && <ConfigureStudy />}
-            {step === '3' && <Documentation />}
+            {steps
+              .filter((stepItem) => stepItem.number === step)
+              .map((stepItem) => (
+                <stepItem.component key={stepItem.number} />
+              ))}
           </div>
         </>
       )}
