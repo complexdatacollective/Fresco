@@ -9,10 +9,8 @@ export default async function getSetupMetadata(): Promise<SetupMetadata> {
   if (!setupMetadata) {
     setupMetadata = await prisma.setupMetadata.create({
       data: {
-        id: 1,
         configured: false,
         initializedAt: new Date(),
-        onboarded: false,
       },
     });
   }

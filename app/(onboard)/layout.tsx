@@ -10,7 +10,7 @@ export default async function Layout({ children }: PropsWithChildren) {
   const session = await getPageSession();
   const setupMetadata = await getSetupMetadata();
 
-  if (session && setupMetadata.onboarded) {
+  if (session && setupMetadata.configured) {
     console.log('onboard layout: session exists. redirecting.');
     redirect('/dashboard');
   }

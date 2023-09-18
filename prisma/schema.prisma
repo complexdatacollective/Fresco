@@ -100,9 +100,8 @@ model Key {
 }
 
 model SetupMetadata {
-  id        Int   @id
   configured Boolean  @default(false)
   initializedAt DateTime @default(now())
   configuredAt DateTime?
-  onboarded Boolean @default(false)
+  @@id([configured, initializedAt])
 }

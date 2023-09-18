@@ -2,20 +2,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { setOnboarded } from '~/app/actions';
 import { useRouter } from 'next/navigation';
 
 function Documentation() {
   const router = useRouter();
 
   const handleFinishOnboarding = () => {
-    setOnboarded()
-      .then(() => {
-        router.replace('/dashboard');
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    router.replace('/dashboard');
   };
   return (
     <div>
