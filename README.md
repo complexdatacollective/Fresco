@@ -17,8 +17,6 @@ Provide required environment variables:
 | Variable           | Description                                                                                  |
 | ------------------ | -------------------------------------------------------------------------------------------- |
 | DATABASE_URL       | [PlanetScale](https://planetscale.com/)                                                      |
-| NEXTAUTH_SECRET    | generate a new secret on the command line with `openssl rand -base64 32`                     |
-| NEXTAUTH_URL       | URL to your app                                                                              |
 | UPLOADTHING_SECRET | Create a project on [uploadthing](https://uploadthing.com/) and copy the generated API keys. |
 | UPLOADTHING_APP_ID |                                                                                              |
 
