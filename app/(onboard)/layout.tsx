@@ -2,25 +2,8 @@ import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import Image from 'next/image';
 import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
-import { getPageSession } from '~/utils/auth';
-import { redirect } from 'next/navigation';
-import getSetupMetadata from '~/utils/getSetupMetadata';
 
 export default async function Layout({ children }: PropsWithChildren) {
-  const session = await getPageSession();
-  const setupMetadata = await getSetupMetadata();
-
-  if (session && setupMetadata.configured) {
-    console.log('onboard layout: session exists. redirecting.');
-    redirect('/dashboard');
-  }
-
-  const configExpired: boolean =
-    Date.now() - setupMetadata.initializedAt.getTime() > 300000;
-  if (!setupMetadata.configured && configExpired) {
-    redirect('/?step=expired');
-  }
-
   return (
     <>
       <div className="relative z-10 flex h-[100vh] w-[100vw] flex-col">
