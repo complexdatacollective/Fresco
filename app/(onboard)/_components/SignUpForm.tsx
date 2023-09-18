@@ -5,7 +5,7 @@ import { Input } from '~/components/ui/Input';
 import { type UserSignupData, userFormSchema } from '../_shared';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { checkConfigExpired, setConfigured } from '~/app/actions';
+import { checkConfigExpired, setConfigured } from '~/app/_actions';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';

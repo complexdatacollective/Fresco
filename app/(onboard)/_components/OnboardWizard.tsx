@@ -7,7 +7,7 @@ import ConfigureStudy from '~/app/(onboard)/_components/OnboardSteps/ConfigureSt
 import Documentation from '~/app/(onboard)/_components/OnboardSteps/Documentation';
 import { cn } from '~/utils/shadcn';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { checkConfigExpired } from '~/app/actions';
+import { checkConfigExpired } from '~/app/_actions';
 
 function OnboardWizard() {
   const searchParams = useSearchParams();

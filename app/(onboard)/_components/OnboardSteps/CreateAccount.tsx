@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
-import { checkUserExists } from '~/app/actions';
+import { checkUserExists } from '~/app/_actions';
 
 function CreateAccount() {
   const router = useRouter();
