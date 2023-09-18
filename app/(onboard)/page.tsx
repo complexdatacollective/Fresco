@@ -1,9 +1,18 @@
+import getSetupMetadata from '~/utils/getSetupMetadata';
 import OnboardWizard from './_components/OnboardWizard';
+import { OnboardTabs } from './_components/OnboardTabs';
+import { userFormClasses } from './_shared';
 
-function Home() {
+async function Home() {
+  const { configured } = await getSetupMetadata();
+  
   return (
-    <div>
-      <OnboardWizard />
+    <div className={userFormClasses}>
+      { configured ? (
+        <OnboardTabs />
+      ) : (
+        <OnboardWizard />        
+     )}
     </div>
   );
 }
