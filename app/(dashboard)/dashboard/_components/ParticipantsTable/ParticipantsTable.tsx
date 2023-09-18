@@ -1,12 +1,12 @@
 'use client';
 import { DataTable } from '~/components/DataTable/DataTable';
-import { ParticipantColumns } from './Columns';
 import { useParticipants } from '../ParticipantsProvider';
+import { ParticipantColumns } from './Columns';
 
 export const ParticipantsTable = () => {
   const { isLoading, participants } = useParticipants();
 
-  if (isLoading) {
+  if (isLoading || !participants) {
     return 'Loading...';
   }
 
@@ -15,6 +15,7 @@ export const ParticipantsTable = () => {
       columns={ParticipantColumns}
       data={participants}
       filterColumnAccessorKey="identifier"
+      // deleteAction={deleteParticipants}
     />
   );
 };

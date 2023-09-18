@@ -16,6 +16,7 @@ function ExportCSVParticipants() {
 
   const handleExport = () => {
     setIsExporting(true);
+    if (!participants) return;
 
     // CSV file format
     const csvData = participants.map((participant) => ({

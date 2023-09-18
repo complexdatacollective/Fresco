@@ -159,6 +159,7 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
         <Button
+          onClick={() => console.log('Hello')}
           variant="destructive"
           size="sm"
           disabled={!table.getFilteredSelectedRowModel().rows.length}

@@ -38,3 +38,7 @@ export const createParticipant = async (formData: FormData) => {
     participant: result,
   };
 };
+
+// export const deleteParticipants = (text: string) => {
+//   // console.log('message:', text);
+// };

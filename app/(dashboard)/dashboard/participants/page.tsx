@@ -1,9 +1,9 @@
+import { ParticipantsProvider } from '../_components/ParticipantsProvider';
+import { safeLoadParticipants } from '../_components/ParticipantsTable/Loader';
 import { ParticipantsTable } from '../_components/ParticipantsTable/ParticipantsTable';
 import ExportCSVParticipants from './_components/ExportCSVParticipants';
 import ImportCSVModal from './_components/ImportCSVModal';
 import ParticipantModal from './_components/ParticipantModal';
-import { safeLoadParticipants } from '../_components/ParticipantsTable/Loader';
-import { ParticipantsProvider } from '../_components/ParticipantsProvider';
 
 export const revalidate = 0;
 
