@@ -1,19 +1,18 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
 import type { Participant } from '@prisma/client';
+import { type ColumnDef } from '@tanstack/react-table';
+import { Settings } from 'lucide-react';
+import Link from 'next/link';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
-import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { Checkbox } from '~/components/ui/checkbox';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
-import { Settings } from 'lucide-react';
-import Link from 'next/link';
-import CopyButton from '~/components/DataTable/CopyButton';
 
 export const ParticipantColumns: ColumnDef<Participant>[] = [
   {
@@ -84,9 +83,9 @@ export const ParticipantColumns: ColumnDef<Participant>[] = [
       return (
         <ActionsDropdown
           menuItems={[
-            'Edit',
-            'Delete',
-            <CopyButton text={`/interview/${row.original.id}`} />,
+            { label: 'Edit', id: row.original.id },
+            { label: 'Delete', id: row.original.id },
+            { label: 'Copy', id: row.original.id },
           ]}
         />
       );

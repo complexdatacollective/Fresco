@@ -12,6 +12,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
+import { type Participant } from '@prisma/client';
 
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
@@ -30,11 +31,13 @@ interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
+  deleteAction: (selectedParticipants: Participant[]) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns = [],
   data,
+  deleteAction,
   filterColumnAccessorKey = '',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -159,7 +162,13 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
         <Button
-          onClick={() => console.log('Hello')}
+          onClick={() => {
+            const arr = table.getSelectedRowModel().rows.map((r) => ({
+              id: r.original.id as string,
+              identifier: r.original.identifier as string,
+            }));
+            deleteAction(arr);
+          }}
           variant="destructive"
           size="sm"
           disabled={!table.getFilteredSelectedRowModel().rows.length}

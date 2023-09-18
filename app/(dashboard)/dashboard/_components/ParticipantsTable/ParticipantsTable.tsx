@@ -2,6 +2,7 @@
 import { DataTable } from '~/components/DataTable/DataTable';
 import { useParticipants } from '../ParticipantsProvider';
 import { ParticipantColumns } from './Columns';
+import { deleteParticipants } from '../../participants/_actions/actions';
 
 export const ParticipantsTable = () => {
   const { isLoading, participants } = useParticipants();
@@ -15,7 +16,7 @@ export const ParticipantsTable = () => {
       columns={ParticipantColumns}
       data={participants}
       filterColumnAccessorKey="identifier"
-      // deleteAction={deleteParticipants}
+      deleteAction={deleteParticipants}
     />
   );
 };
