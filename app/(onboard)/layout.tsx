@@ -2,17 +2,8 @@ import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import Image from 'next/image';
 import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
-import { getPageSession } from '~/utils/auth';
-import { redirect } from 'next/navigation';
 
-export default async function Layout({ children }: PropsWithChildren) {
-  const session = await getPageSession();
-
-  if (session) {
-    console.log('onboard layout: session exists. redirecting.');
-    redirect('/dashboard');
-  }
-
+export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
       <div className="relative z-10 flex h-[100vh] w-[100vw] flex-col">

@@ -1,25 +1,34 @@
 'use client';
 
+import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 
 const UserMenu = () => {
   const router = useRouter();
 
-  const doSignout = async () => {
-    await fetch('/api/auth/signout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  const { mutate: doSignout, isLoading: isSigningOut } =
+    trpc.signOut.useMutation({
+      onSuccess: () => {
+        router.push('/');
       },
     });
 
-    router.refresh();
-  };
+  const { data: session, isLoading } = trpc.getSession.useQuery();
+
+  console.log('userMenu', session);
 
   return (
     <div className="flex flex-row items-center gap-6">
-      <Button onClick={() => void doSignout()}>Sign out</Button>
+      {isLoading ? 'Loading...' : session?.user?.username}
+      <Button
+        onClick={() => void doSignout()}
+        disabled={isLoading || isSigningOut}
+      >
+        {isSigningOut && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+        Sign out
+      </Button>
     </div>
   );
 };

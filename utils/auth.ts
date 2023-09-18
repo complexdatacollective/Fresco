@@ -1,14 +1,13 @@
 import { lucia } from 'lucia';
-import { nextjs } from 'lucia/middleware';
 import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
 import { prisma as client } from '~/utils/db';
 import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
 import { cache } from 'react';
-import { cookies } from 'next/headers';
+import * as context from 'next/headers';
 import { redirect } from 'next/navigation';
-import { User } from '@prisma/client';
 import { nextjs_future } from 'lucia/middleware';
 import { env } from '~/env.mjs';
+import { User } from '@prisma/client';
 
 export const auth = lucia({
   env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
@@ -30,10 +29,7 @@ export const auth = lucia({
 export type Auth = typeof auth;
 
 export const getPageSession = cache(() => {
-  const authRequest = auth.handleRequest({
-    request: null,
-    cookies,
-  });
+  const authRequest = auth.handleRequest('GET', context);
 
   return authRequest.validate();
 });
