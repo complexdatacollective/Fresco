@@ -7,10 +7,12 @@ import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { User } from '@prisma/client';
+import { nextjs_future } from 'lucia/middleware';
+import { env } from '~/env.mjs';
 
 export const auth = lucia({
-  env: process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
-  middleware: nextjs(),
+  env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
+  middleware: nextjs_future(),
   sessionCookie: {
     expires: false,
   },
@@ -21,7 +23,7 @@ export const auth = lucia({
   },
   adapter: prismaAdapter(client),
   experimental: {
-    debugMode: process.env.NODE_ENV !== 'production',
+    debugMode: env.NODE_ENV !== 'production',
   },
 });
 

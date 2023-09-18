@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider     = "sqlite"
+  provider     = "mysql"
   url          = env("DATABASE_URL")
   relationMode = "prisma" // Planetscale doesn't support foreign keys yet, so we need to use this
 }
@@ -21,8 +21,8 @@ model Protocol {
   assetPath     String
   importedAt    DateTime    @default(now())
   lastModified  DateTime
-  stages        String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
-  codebook      String // This is actually JSON, but prisma doesn't support it with sqlite: https://github.com/prisma/prisma/issues/3786
+  stages        Json
+  codebook      Json
   assetManifest Asset[]
   interviews    Interview[]
 }
@@ -49,7 +49,7 @@ model Interview {
   finishTime    DateTime?
   exportTime    DateTime?
   lastUpdated   DateTime    @updatedAt
-  network       String      @default("")
+  network       Json
   participant   Participant @relation(fields: [participantId], references: [id])
   participantId String      @unique
   protocol      Protocol    @relation(fields: [protocolId], references: [id])
