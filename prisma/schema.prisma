@@ -98,3 +98,10 @@ model Key {
 
   @@index([user_id])
 }
+
+model SetupMetadata {
+  configured Boolean  @default(false)
+  initializedAt DateTime @default(now())
+  configuredAt DateTime?
+  @@id([configured, initializedAt])
+}

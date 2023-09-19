@@ -1,14 +1,18 @@
+import getSetupMetadata from '~/utils/getSetupMetadata';
+import OnboardWizard from './_components/OnboardWizard';
 import { OnboardTabs } from './_components/OnboardTabs';
 import { userFormClasses } from './_shared';
 
-function Home() {
+async function Home() {
+  const { configured } = await getSetupMetadata();
+  
   return (
     <div className={userFormClasses}>
-      <div className="mb-6">
-        <h1 className="mb-2 text-3xl font-bold">Welcome to Fresco</h1>
-        <p>This is where we might have some info about the project.</p>
-      </div>
-      <OnboardTabs />
+      { configured ? (
+        <OnboardTabs />
+      ) : (
+        <OnboardWizard />        
+     )}
     </div>
   );
 }
