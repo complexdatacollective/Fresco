@@ -11,6 +11,8 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { type AxiosError } from 'axios';
+import { trpc } from '~/app/_trpc/client';
+import { tr } from '@faker-js/faker';
 
 const LoginError = ({
   errorTitle,
@@ -47,34 +49,36 @@ export default function SignInForm() {
   });
 
   const router = useRouter();
-  const { mutateAsync, isLoading } = useMutation({
-    mutationFn: (data: UserSignupData) => axios.post('/api/auth/signin', data),
-    onSuccess: () => {
-      router.refresh();
-    },
-    onError: (error: AxiosError) => {
-      console.log('onError', error);
-      if (error.response?.status === 401) {
-        setResponseError({
-          title: 'Invalid username or password',
-          description: 'Please check your username and password and try again.',
-        });
-      } else {
-        setResponseError({
-          title: 'An error occurred',
-          description: 'Please try again later.',
-        });
-      }
-    },
-  });
+
+  const { mutateAsync: signIn, isLoading: isSigningIn } =
+    trpc.signIn.useMutation();
+
+  const { mutateAsync: signOut, isLoading: isSigningOut } =
+    trpc.signOut.useMutation();
 
   const onSubmit = async (data: unknown) => {
     const payload = userFormSchema.parse(data);
-    await mutateAsync(payload);
+    const result = await signIn(payload);
+    console.log('result', result);
+
+    if (result.error) {
+      setResponseError({
+        title: 'Sign in failed',
+        description: result.error,
+      });
+    }
+
+    if (result.session) {
+      router.push('/dashboard');
+    }
   };
 
   return (
     <>
+      <Button onClick={async () => await signOut()} disabled={isSigningOut}>
+        {isSigningOut && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        Sign out
+      </Button>
       <form
         onSubmit={(event) => void handleSubmit(onSubmit)(event)}
         className="flex w-full flex-col"
@@ -105,7 +109,7 @@ export default function SignInForm() {
           />
         </div>
         <div className="flex flex-wrap">
-          {isLoading ? (
+          {isSigningIn ? (
             <Button disabled>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Signing in...

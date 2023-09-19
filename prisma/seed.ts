@@ -1,11 +1,10 @@
 /* eslint-disable local-rules/require-data-mapper */
-import { hash } from 'bcrypt';
 import { prisma } from '~/utils/db';
 import protocol from '~/lib/development-protocol/protocol.json' assert { type: 'json' };
 import mockParticipant from '~/utils/generateMockData/participant';
 import mockInterview from '~/utils/generateMockData/interview/interview';
-
-const hashPassword = async (password: string) => await hash(password, 12);
+import { generateLuciaPasswordHash } from 'lucia/utils';
+import { createKeyId } from 'lucia';
 
 async function main() {
   // Clear out existing data
@@ -17,8 +16,13 @@ async function main() {
   // Users
   await prisma.user.create({
     data: {
-      email: 'admin@networkcanvas.com',
-      password: await hashPassword('admin'),
+      username: 'admin',
+      key: {
+        create: {
+          id: createKeyId('username', 'admin'),
+          hashed_password: await generateLuciaPasswordHash('administrator'),
+        },
+      },
     },
   });
 

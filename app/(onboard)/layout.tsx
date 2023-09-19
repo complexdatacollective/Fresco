@@ -3,7 +3,7 @@ import Image from 'next/image';
 import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
 
-export default async function Layout({ children }: PropsWithChildren) {
+export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
       <div className="relative z-10 flex h-[100vh] w-[100vw] flex-col">
