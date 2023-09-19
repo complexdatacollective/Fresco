@@ -2,38 +2,59 @@
 
 import { Check } from 'lucide-react';
 import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
+import { cn } from '~/utils/shadcn';
 
 interface OnboardStepsProps {
   currentStep: string;
 }
 
+const StepNumber = ({
+  number,
+  description,
+  active = false,
+  complete = false,
+}: {
+  number: string;
+  description: string;
+  active?: boolean;
+  complete?: boolean;
+}) => {
+  if (complete) {
+    return <Check size={15} />;
+  }
+
+  const outerClasses = cn(
+    'flex items-center gap-2 py-2 px-6 rounded-xl',
+    active && 'bg-white',
+  );
+
+  return (
+    <div key={number} className={outerClasses}>
+      <div
+        className={cn(
+          'text-md flex h-10 w-10 items-center justify-center rounded-full border border-primary font-bold',
+        )}
+      >
+        {number}
+      </div>
+      <div className="flex flex-col">
+        <p className="text-md">{description}</p>
+      </div>
+    </div>
+  );
+};
+
 function OnboardSteps({ currentStep }: OnboardStepsProps) {
   return (
-    <div className="flex flex-col space-y-4 rounded-xl border border-foreground p-4">
+    <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-6">
       {steps.map((stepItem) => (
-        <div key={stepItem.number} className="flex items-center space-x-2">
-          {currentStep > stepItem.number ? (
-            <div className="h-8 w-8">
-              <Check size={24} />
-            </div>
-          ) : (
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                currentStep === stepItem.number
-                  ? 'bg-foreground text-white'
-                  : 'border border-foreground bg-transparent'
-              }`}
-            >
-              {stepItem.number}
-            </div>
-          )}
-          <div className="flex flex-col">
-            <p className="text-xs text-muted-foreground">
-              Step {stepItem.number}
-            </p>
-            <p className="text-sm">{stepItem.description}</p>
-          </div>
-        </div>
+        <StepNumber
+          key={stepItem.number}
+          number={stepItem.number}
+          description={stepItem.description}
+          active={stepItem.number === currentStep}
+          complete={stepItem.number < currentStep}
+        />
       ))}
     </div>
   );

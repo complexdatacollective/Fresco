@@ -8,7 +8,7 @@ type SetupMetadataWithExpired = SetupMetadata & {
   expired: boolean;
 };
 
-async function getSetupMetadata(): Promise<SetupMetadataWithExpired> {
+export async function getSetupMetadata(): Promise<SetupMetadataWithExpired> {
   let setupMetadata = await prisma.setupMetadata.findFirst();
 
   // if no setup metadata exists, seed it

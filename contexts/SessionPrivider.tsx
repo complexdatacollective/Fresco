@@ -4,7 +4,12 @@ import type { Session } from 'lucia';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 
-const SessionContext = createContext<Session | undefined>(undefined);
+type SessionWithLoading = {
+  session: Session | null;
+  isLoading: boolean;
+};
+
+const SessionContext = createContext<SessionWithLoading | undefined>(undefined);
 
 export const useSession = () => {
   const session = useContext(SessionContext);
@@ -15,24 +20,31 @@ export const useSession = () => {
   return session;
 };
 
+type GetQueryReturn = {
+  session: Session | null;
+};
+
 export const SessionProvider = ({
   children,
   session: initialSession,
 }: {
   children: React.ReactNode;
-  session?: Session | null | undefined;
+  session: Session | null;
 }) => {
-  const hasInitialSession = initialSession !== undefined;
-  const [session, setSession] = useState<Session | null | undefined>(
-    initialSession,
-  );
-  const [loading, setLoading] = useState(!!hasInitialSession);
+  const [session, setSession] = useState<Session | null>(initialSession);
+  const [loading, setLoading] = useState(!initialSession);
 
   const { refetch: getSession } = trpc.getSession.useQuery(undefined, {
-    initialData: initialSession,
-    onSuccess: (data) => {
-      console.log('use query', data);
-      setSession(data);
+    initialData: { session: initialSession },
+    refetchOnMount: false,
+    onSuccess: (data: GetQueryReturn) => {
+      if (!data || !data.session) {
+        setSession(null);
+        setLoading(false);
+        return;
+      }
+
+      setSession(data.session);
       setLoading(false);
     },
     onError: () => {
@@ -42,16 +54,12 @@ export const SessionProvider = ({
 
   // Revalidate session on mount
   useEffect(() => {
-    if (hasInitialSession) {
-      async function doStuff() {
-        await getSession();
-      }
-
-      doStuff().catch((err) => {
+    if (initialSession) {
+      getSession().catch((err) => {
         console.error(err);
       });
     }
-  }, [hasInitialSession, getSession]);
+  }, [initialSession, getSession]);
 
   const value = useMemo(
     () => ({

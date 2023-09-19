@@ -39,27 +39,8 @@ export default async function Page({
   const interviewId = params.interview?.[0];
   const currentInterviewPage = params.interview?.[1]; // item || null
 
-  // If theres no interview ID in the URL, redirect to the main dashboard
-  if (!interviewId) {
-    redirect('/');
-  }
-
-  // Get session so we can check if the user is allowed to view this interview
-  const session = false;
-  console.error('UPDATE ME');
-
-  // If the user is not logged in, redirect to the signin page
-  if (!session) {
-    redirect('/signin');
-  }
-
   // Fetch interview data from the database
   const interviewData = await getInterview(interviewId);
-
-  // If theres no interview data in the database, redirect to the main dashboard
-  if (!interviewData) {
-    redirect('/');
-  }
 
   // TODO: Check here that the logged in user has access to this interview
   // If not, redirect to the main dashboard

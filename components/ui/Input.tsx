@@ -5,6 +5,7 @@ import { Label } from '~/components/ui/Label';
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  hint?: string;
   id?: string;
   error?: string;
   leftAdornment?: React.ReactNode;
@@ -13,13 +14,27 @@ export interface InputProps
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
-    { className, type, label, rightAdornment, leftAdornment, error, ...props },
+    {
+      className,
+      type,
+      label,
+      hint,
+      rightAdornment,
+      leftAdornment,
+      error,
+      ...props
+    },
     ref,
   ) => {
     const id = props.id || props.name;
     return (
       <div className="relative grid w-full items-center gap-1.5">
         {label && <Label htmlFor={id}>{label}</Label>}
+        {hint && (
+          <span className="mb-4 text-sm leading-5 text-muted-foreground">
+            {hint}
+          </span>
+        )}
         <div className="relative flex w-full items-center justify-end">
           {leftAdornment && (
             <div className="absolute left-2">{leftAdornment}</div>

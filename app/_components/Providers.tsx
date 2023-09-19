@@ -12,7 +12,7 @@ export default function Providers({
   initialSession,
 }: {
   children: React.ReactNode;
-  initialSession?: Session | null;
+  initialSession: Session | null;
 }): ReactElement {
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>

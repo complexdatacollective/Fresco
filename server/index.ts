@@ -7,8 +7,21 @@ import { auth } from '~/utils/auth';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as context from 'next/headers';
 import { LuciaError } from 'lucia';
+import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 
 export const appRouter = router({
+  getSetupMetadata: publicProcedure.query(async () => {
+    // eslint-disable-next-line local-rules/require-data-mapper
+    const setupMetadata = await prisma.setupMetadata.findFirstOrThrow();
+
+    return {
+      ...setupMetadata,
+      expired:
+        !!setupMetadata.configured &&
+        setupMetadata.initializedAt.getTime() <
+          Date.now() - UNCONFIGURED_TIMEOUT,
+    };
+  }),
   test: protectedProcedure.query(({ ctx }) => {
     // eslint-disable-next-line no-console
     console.log('ctx', ctx);
@@ -40,11 +53,15 @@ export const appRouter = router({
 
       authRequest.setSession(session);
 
-      return user;
+      return {
+        error: null,
+        session,
+      };
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError && e.code === 'P2002') {
         return {
           error: 'Username already exists.',
+          session: null,
         };
       }
 
@@ -106,8 +123,10 @@ export const appRouter = router({
   }),
   getSession: publicProcedure.query(async () => {
     const authRequest = auth.handleRequest('GET', context);
-
-    return authRequest.validate();
+    const session = await authRequest.validate();
+    return {
+      session,
+    };
   }),
   checkUsername: publicProcedure
     .input(userFormSchema.pick({ username: true }))

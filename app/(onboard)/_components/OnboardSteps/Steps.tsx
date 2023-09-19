@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+import type { ComponentType } from 'react';
 import ConfigureStudy from '~/app/(onboard)/_components/OnboardSteps/ConfigureStudy';
 import CreateAccount from '~/app/(onboard)/_components/OnboardSteps/CreateAccount';
 import Documentation from '~/app/(onboard)/_components/OnboardSteps/Documentation';

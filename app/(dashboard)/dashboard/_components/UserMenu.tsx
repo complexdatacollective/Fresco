@@ -4,6 +4,7 @@ import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
+import { useSession } from '~/contexts/SessionPrivider';
 
 const UserMenu = () => {
   const router = useRouter();
@@ -15,13 +16,11 @@ const UserMenu = () => {
       },
     });
 
-  const { data: session, isLoading } = trpc.getSession.useQuery();
-
-  console.log('userMenu', session);
+  const { session, isLoading } = useSession();
 
   return (
     <div className="flex flex-row items-center gap-6">
-      {isLoading ? 'Loading...' : session?.user?.username}
+      {isLoading ? 'Loading...' : session.user.username}
       <Button
         onClick={() => void doSignout()}
         disabled={isLoading || isSigningOut}

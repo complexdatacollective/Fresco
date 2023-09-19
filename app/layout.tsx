@@ -1,8 +1,6 @@
 import '~/styles/globals.scss';
 import Providers from './_components/Providers';
-import { redirect } from 'next/navigation';
 import { getPageSession } from '~/utils/auth';
-import getSetupMetadataCached from '~/utils/getSetupMetadata';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -11,15 +9,7 @@ export const metadata = {
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getPageSession();
-  const { configured, expired } = await getSetupMetadataCached();
 
-  if (session && configured) {
-    redirect('/dashboard');
-  }
-
-  if (!configured && expired) {
-    redirect('/?step=expired');
-  }
   return (
     <html lang="en">
       <body>
