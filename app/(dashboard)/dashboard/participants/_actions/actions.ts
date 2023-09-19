@@ -1,14 +1,12 @@
 'use server';
 
-import { type Participant } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '~/utils/db';
 import { safeLoader } from '~/utils/safeLoader';
 
-export const createParticipant = async (formData: FormData) => {
-  const identifier = formData.get('identifier');
-
+// Create Participant
+export const createParticipant = async (identifier: string) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   if (!identifier || typeof identifier !== 'string') {
@@ -40,10 +38,7 @@ export const createParticipant = async (formData: FormData) => {
   };
 };
 
-export const deleteParticipants = (selectedParticipants: Participant[]) => {
-  console.log(selectedParticipants);
-};
-
+// Delete Participant
 export const deleteParticipant = async (id: string) => {
   const result = await safeLoader({
     outputValidation: z.object({
@@ -64,6 +59,37 @@ export const deleteParticipant = async (id: string) => {
 
   return {
     message: 'Participant deleted',
+    participant: result,
+  };
+};
+
+// Update Participant
+export const updateParticipant = async (
+  identifier: string,
+  newIdentifier: string,
+) => {
+  const result = await safeLoader({
+    outputValidation: z.object({
+      id: z.string(),
+      identifier: z.string(),
+    }),
+    loader: () =>
+      prisma.participant.update({
+        where: { identifier },
+        data: {
+          identifier: newIdentifier,
+        },
+      }),
+  });
+
+  if (!result) {
+    return { error: 'Failed to update participant' };
+  }
+
+  revalidatePath('/dashboard/participants');
+
+  return {
+    message: 'Participant updated',
     participant: result,
   };
 };

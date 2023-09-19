@@ -2,6 +2,7 @@
 
 import type { Participant } from '@prisma/client';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { ModalContext } from './ModalProvider';
 
 const ParticipantsContext = createContext<Promise<Participant[]> | null>(null);
 
@@ -44,9 +45,16 @@ export const ParticipantsProvider = ({
   children: React.ReactNode;
   getParticipants: Promise<Participant[]>;
 }) => {
+  const [state, setState] = useState({
+    open: false,
+    currentParticipant: undefined,
+  });
+
   return (
     <ParticipantsContext.Provider value={getParticipants}>
-      {children}
+      <ModalContext.Provider value={{ state, setState }}>
+        {children}
+      </ModalContext.Provider>
     </ParticipantsContext.Provider>
   );
 };

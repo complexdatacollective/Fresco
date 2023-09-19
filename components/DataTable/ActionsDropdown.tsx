@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader, MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -10,12 +11,13 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import CopyButton from './CopyButton';
-import { deleteParticipant } from '~/app/(dashboard)/dashboard/participants/_actions/actions';
-import { useState } from 'react';
 
 interface Actions {
   label: string;
   id: string;
+  idendtifier: string;
+  editAction?: (identifier: string) => void;
+  deleteParticipant?: (id: string) => Promise<void>;
 }
 
 interface Props<TMenuItem = Actions> {
@@ -27,10 +29,11 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
 }: Props<TMenuItem>) => {
   const [pending, setPending] = useState(false);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (item: Actions) => {
     setPending(true);
-    const data = await deleteParticipant(id);
-    if (data.error) throw new Error(data.error);
+    if (item.deleteParticipant) {
+      await item.deleteParticipant(item.id);
+    }
     setPending(false);
   };
 
@@ -54,11 +57,20 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
               <CopyButton text={`/interview/${item.id}`} />
             )}
             {item.label === 'Edit' && (
-              <button className="w-full text-left">Edit</button>
+              <button
+                onClick={() => {
+                  if (item.editAction) {
+                    item.editAction(item.idendtifier);
+                  }
+                }}
+                className="w-full text-left"
+              >
+                Edit
+              </button>
             )}
             {item.label === 'Delete' && (
               <button
-                onClick={() => handleDelete(item.id)}
+                onClick={() => handleDelete(item)}
                 className="w-full text-left"
               >
                 Delete

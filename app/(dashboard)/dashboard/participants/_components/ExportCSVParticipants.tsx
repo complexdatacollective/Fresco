@@ -1,6 +1,5 @@
 'use client';
 
-import type { Participant } from '@prisma/client';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';

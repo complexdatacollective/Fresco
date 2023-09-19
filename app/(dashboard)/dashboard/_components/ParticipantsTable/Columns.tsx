@@ -14,7 +14,11 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 
-export const ParticipantColumns: ColumnDef<Participant>[] = [
+// export const ParticipantColumns: ColumnDef<Participant>[] =
+export const ParticipantColumns = (
+  editAction: (identifier: string) => void,
+  handleDelete: (id: string) => Promise<void>,
+): ColumnDef<Participant>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -83,9 +87,23 @@ export const ParticipantColumns: ColumnDef<Participant>[] = [
       return (
         <ActionsDropdown
           menuItems={[
-            { label: 'Edit', id: row.original.id },
-            { label: 'Delete', id: row.original.id },
-            { label: 'Copy', id: row.original.id },
+            {
+              label: 'Edit',
+              id: row.original.id,
+              idendtifier: row.original.identifier,
+              editAction,
+            },
+            {
+              label: 'Delete',
+              id: row.original.id,
+              idendtifier: row.original.identifier,
+              deleteParticipant: handleDelete,
+            },
+            {
+              label: 'Copy',
+              id: row.original.identifier,
+              idendtifier: row.original.identifier,
+            },
           ]}
         />
       );
