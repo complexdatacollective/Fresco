@@ -4,11 +4,15 @@ import { useState, type ReactElement } from 'react';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { trpc } from '~/app/_trpc/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SessionProvider } from '~/contexts/SessionPrivider';
+import type { Session } from 'lucia';
 
 export default function Providers({
   children,
+  initialSession,
 }: {
   children: React.ReactNode;
+  initialSession?: Session | null;
 }): ReactElement {
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
@@ -27,7 +31,9 @@ export default function Providers({
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider session={initialSession}>{children}</SessionProvider>
+      </QueryClientProvider>
     </trpc.Provider>
   );
 }

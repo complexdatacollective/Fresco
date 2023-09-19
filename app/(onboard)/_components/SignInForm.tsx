@@ -36,6 +36,8 @@ type ResponseError = {
 };
 
 export default function SignInForm() {
+  const [loading, setLoading] = useState(false);
+
   const [responseError, setResponseError] = useState<ResponseError | null>(
     null,
   );
@@ -50,18 +52,16 @@ export default function SignInForm() {
 
   const router = useRouter();
 
-  const { mutateAsync: signIn, isLoading: isSigningIn } =
-    trpc.signIn.useMutation();
-
-  const { mutateAsync: signOut, isLoading: isSigningOut } =
-    trpc.signOut.useMutation();
+  const { mutateAsync: signIn } = trpc.signIn.useMutation({
+    onMutate: () => setLoading(true),
+  });
 
   const onSubmit = async (data: unknown) => {
     const payload = userFormSchema.parse(data);
     const result = await signIn(payload);
-    console.log('result', result);
 
     if (result.error) {
+      setLoading(false);
       setResponseError({
         title: 'Sign in failed',
         description: result.error,
@@ -75,10 +75,6 @@ export default function SignInForm() {
 
   return (
     <>
-      <Button onClick={async () => await signOut()} disabled={isSigningOut}>
-        {isSigningOut && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Sign out
-      </Button>
       <form
         onSubmit={(event) => void handleSubmit(onSubmit)(event)}
         className="flex w-full flex-col"
@@ -109,7 +105,7 @@ export default function SignInForm() {
           />
         </div>
         <div className="flex flex-wrap">
-          {isSigningIn ? (
+          {loading ? (
             <Button disabled>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Signing in...
