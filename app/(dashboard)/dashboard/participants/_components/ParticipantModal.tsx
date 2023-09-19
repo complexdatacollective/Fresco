@@ -90,7 +90,7 @@ function ParticipantModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button className="mt-2" variant="outline">
           Add Participant
         </Button>

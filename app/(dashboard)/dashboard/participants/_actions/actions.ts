@@ -1,5 +1,6 @@
 'use server';
 
+import { type Participant } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '~/utils/db';
@@ -59,6 +60,36 @@ export const deleteParticipant = async (id: string) => {
 
   return {
     message: 'Participant deleted',
+    participant: result,
+  };
+};
+
+// Delete Multiple Participants
+export const deleteParticipants = async (data: Participant[]) => {
+  const idsToDelete = data.map((p) => p.id);
+
+  const result = await safeLoader({
+    outputValidation: z.object({
+      count: z.number(),
+    }),
+    loader: () =>
+      prisma.participant.deleteMany({
+        where: {
+          id: {
+            in: idsToDelete,
+          },
+        },
+      }),
+  });
+
+  if (!result) {
+    return { error: 'Failed to delete participants' };
+  }
+
+  revalidatePath('/dashboard/participants');
+
+  return {
+    message: 'Participants deleted',
     participant: result,
   };
 };

@@ -25,16 +25,21 @@ import {
 } from '~/components/ui/table';
 
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
+import { Loader } from 'lucide-react';
 
 interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
+  handleDeleteSelected: (data: TData[]) => void;
+  isDeletingSelected?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns = [],
   data,
+  handleDeleteSelected,
+  isDeletingSelected,
   filterColumnAccessorKey = '',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -159,11 +164,25 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
         <Button
+          onClick={() => {
+            const selectedData = table
+              .getSelectedRowModel()
+              .rows.map((r) => r.original);
+            handleDeleteSelected(selectedData);
+            setRowSelection({});
+          }}
           variant="destructive"
           size="sm"
           disabled={!table.getFilteredSelectedRowModel().rows.length}
         >
-          Delete Selected
+          {isDeletingSelected ? (
+            <span className="flex items-center gap-2">
+              Deleting...
+              <Loader className="h-4 w-4 animate-spin text-white" />
+            </span>
+          ) : (
+            'Delete Selected'
+          )}
         </Button>
       </div>
     </div>
