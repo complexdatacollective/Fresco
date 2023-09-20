@@ -3,9 +3,10 @@ import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { Switch } from '~/components/ui/switch';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
-function ConfigureStudy() {
+function ManageParticipants() {
+  const pathname = usePathname();
   const [protocolUploaded, setProtocolUploaded] = useState(false);
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
   const router = useRouter();
@@ -21,7 +22,7 @@ function ConfigureStudy() {
   };
 
   const handleNextStep = () => {
-    router.replace('?step=3');
+    router.replace(pathname + '?step=3');
   };
 
   const allowAnonymousRecruitment = () => {
@@ -31,7 +32,7 @@ function ConfigureStudy() {
   return (
     <div>
       <div className="mb-4 flex flex-col">
-        <h1 className="text-3xl font-bold">Configure Study</h1>
+        <h1 className="text-3xl font-bold">Configure Your Study</h1>
         <p>Configure a study</p>
       </div>
       <div>
@@ -94,4 +95,4 @@ function ConfigureStudy() {
   );
 }
 
-export default ConfigureStudy;
+export default ManageParticipants;

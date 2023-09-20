@@ -19,10 +19,6 @@ const StepNumber = ({
   active?: boolean;
   complete?: boolean;
 }) => {
-  if (complete) {
-    return <Check size={15} />;
-  }
-
   const outerClasses = cn(
     'flex items-center gap-2 py-2 px-6 rounded-xl',
     active && 'bg-white',
@@ -33,9 +29,10 @@ const StepNumber = ({
       <div
         className={cn(
           'text-md flex h-10 w-10 items-center justify-center rounded-full border border-primary font-bold',
+          complete && 'bg-primary text-white',
         )}
       >
-        {number}
+        {complete ? <Check strokeWidth={3} size={18} /> : number}
       </div>
       <div className="flex flex-col">
         <p className="text-md">{description}</p>

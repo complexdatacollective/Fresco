@@ -1,28 +1,37 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
 import { cn } from '~/utils/shadcn';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { router } from 'next/client';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
+import { useSession } from '~/contexts/SessionPrivider';
+import { useEffect } from 'react';
 
 function OnboardWizard() {
-  const searchParams = useSearchParams();
+  const { session } = useSession();
   const pathname = usePathname();
-  const [step, setStep] = useState(searchParams.get('step') ?? '1');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialStep = searchParams.get('step');
+  const [step, setStep] = useState<string>(initialStep || '1');
 
   useEffect(() => {
-    const queryStep = searchParams.get('step');
-    if (queryStep === null) {
-      console.log('no step');
-      // router.replace('/?step=1');
-      router.push(pathname + '?step=1');
+    // If there's no search params, set the step to 1
+    if (!initialStep) {
+      router.push(pathname + '?step=' + step);
       return;
     }
-    setStep(queryStep);
-  }, [searchParams, router, pathname]);
+
+    // If we have a user session, skip step 1
+    if (session && step === '1') {
+      setStep('2');
+      router.push(pathname + '?step=2');
+      return;
+    }
+  }, [session, pathname, step, router, initialStep]);
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
 

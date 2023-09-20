@@ -26,7 +26,7 @@ const routeIsLandingPage = (pathname: Route) => {
 };
 
 const routeIsOnboarding = (pathname: Route) => {
-  return pathname === '/onboard';
+  return pathname === '/setup';
 };
 
 const routeIsInverviewing = (pathname: Route) => {
@@ -87,7 +87,7 @@ const calculateRedirect = ({
 
     if (!isOnboarding) {
       console.log('redirecting to onboard');
-      return safeRedirect('/onboard');
+      return safeRedirect('/setup');
     }
 
     console.log('already on onboard page');

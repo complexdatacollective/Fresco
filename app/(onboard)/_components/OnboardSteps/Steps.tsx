@@ -1,12 +1,12 @@
 import type { ComponentType } from 'react';
-import ConfigureStudy from '~/app/(onboard)/_components/OnboardSteps/ConfigureStudy';
+import UploadProtocol from '~/app/(onboard)/_components/OnboardSteps/UploadProtocol';
 import CreateAccount from '~/app/(onboard)/_components/OnboardSteps/CreateAccount';
 import Documentation from '~/app/(onboard)/_components/OnboardSteps/Documentation';
+import ManageParticipants from './ManageParticipants';
 
 export interface Step {
   number: string;
   description: string;
-  optional: boolean;
   component: ComponentType;
 }
 
@@ -14,19 +14,21 @@ export const steps: Step[] = [
   {
     number: '1',
     description: 'Create Account',
-    optional: false,
     component: CreateAccount,
   },
   {
     number: '2',
-    description: 'Configure Study',
-    optional: true,
-    component: ConfigureStudy,
+    description: 'Upload Protocol',
+    component: UploadProtocol,
   },
   {
     number: '3',
+    description: 'Configure Participation',
+    component: ManageParticipants,
+  },
+  {
+    number: '4',
     description: 'Documentation',
-    optional: false,
     component: Documentation,
   },
 ];
