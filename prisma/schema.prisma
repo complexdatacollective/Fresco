@@ -49,7 +49,7 @@ model Interview {
   finishTime    DateTime?
   exportTime    DateTime?
   lastUpdated   DateTime    @updatedAt
-  network       String      @default("")
+  network       Json
   participant   Participant @relation(fields: [participantId], references: [id])
   participantId String      @unique
   protocol      Protocol    @relation(fields: [protocolId], references: [id])
@@ -97,4 +97,11 @@ model Key {
   user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
+}
+
+model SetupMetadata {
+  configured Boolean  @default(false)
+  initializedAt DateTime @default(now())
+  configuredAt DateTime?
+  @@id([configured, initializedAt])
 }

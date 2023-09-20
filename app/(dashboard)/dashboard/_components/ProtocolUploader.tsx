@@ -138,7 +138,7 @@ export default function ProtocolUploader() {
     <>
       <div
         {...getRootProps()}
-        className="mt-2 rounded-sm border-2 border-dashed border-gray-500 bg-gray-200 p-4 text-center"
+        className="mt-2 rounded-xl border-2 border-dashed border-gray-500 bg-gray-200 p-12 text-center"
       >
         <Button variant="default" size="sm">
           <input {...getInputProps()} />

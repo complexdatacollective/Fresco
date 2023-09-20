@@ -1,78 +1,96 @@
 'use client';
+
 import { Button } from '~/components/ui/Button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '~/components/ui/Input';
-import { formValidationSchema } from '../_shared';
+import { type UserSignupData, userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { trpc } from '~/app/_trpc/client';
+import { useState } from 'react';
+import ActionError from '../../../components/ActionError';
 
-export const SignUpForm = () => {
+export const SignUpForm = ({
+  completeCallback,
+}: {
+  completeCallback?: () => void;
+}) => {
+  const [signupError, setSignupError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
-    // watch,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(formValidationSchema),
+    formState: { errors, isValid },
+  } = useForm<UserSignupData>({
+    mode: 'all',
+    resolver: zodResolver(userFormSchema),
   });
 
-  const router = useRouter();
+  const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
+    onSuccess: async (result) => {
+      if (result.error) {
+        const error = result.error;
+        setSignupError(error);
+        return;
+      }
 
-  const onSubmit = async (data: unknown) => {
-    const result = formValidationSchema.parse(data);
+      if (result.session) {
+        completeCallback?.();
+      }
+    },
+  });
 
-    const formData = new FormData();
-
-    formData.append('username', result.username);
-    formData.append('password', result.password);
-
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      body: formData,
-      redirect: 'manual',
-    });
-
-    if (response.status === 0) {
-      // when using `redirect: "manual"`, response status 0 is returned
-      router.replace('/dashboard');
-    }
+  const onSubmit = async (data: UserSignupData) => {
+    setSignupError(null);
+    await signUp(data);
   };
 
   return (
     <form
-      className="flex w-full flex-col"
-      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col"
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       autoComplete="do-not-autofill"
     >
+      {signupError && (
+        <div className="mb-6 flex flex-wrap">
+          <ActionError
+            errorTitle="There was a problem creating your account"
+            errorDescription={signupError}
+          />
+        </div>
+      )}
       <div className="mb-6 flex flex-wrap">
         <Input
           label="Username"
+          hint="Your username should be at least 4 characters, and must not contain any spaces."
           type="text"
           placeholder="username..."
           autoComplete="do-not-autofill"
+          error={errors.username?.message}
           {...register('username')}
         />
-        {errors.username?.message && <p>{errors.username?.message}</p>}
       </div>
       <div className="mb-6 flex flex-wrap">
         <Input
           label="Password"
+          hint="Your password must be at least 8 characters long, and contain at least one each of lowercase, uppercase, number and symbol characters."
           type="password"
           placeholder="******************"
           autoComplete="do-not-autofill"
+          error={errors.password?.message}
           {...register('password')}
         />
-        {errors.password?.message && <p>{errors.password?.message}</p>}
       </div>
       <div className="flex flex-wrap">
-        {isSubmitting ? (
+        {isLoading ? (
           <Button disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Creating account...
           </Button>
         ) : (
-          <Button type="submit">Create account</Button>
+          <Button type="submit" disabled={!isValid}>
+            Create account
+          </Button>
         )}
       </div>
     </form>

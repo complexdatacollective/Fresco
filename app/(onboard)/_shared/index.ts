@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import isStrongPassword from 'validator/es/lib/isStrongPassword';
+import { cn } from '~/utils/shadcn';
 
-export const formValidationSchema = z.object({
+export const userFormSchema = z.object({
   username: z
     .string()
-    .min(4, { message: 'Username must be at least 4 characters' }),
+    .min(4, { message: 'Username must be at least 4 characters' })
+    .refine((s) => !s.includes(' '), 'Username cannot contain spaces'),
   password: z.string().refine(
     (password) =>
       isStrongPassword(password, {
@@ -20,4 +22,9 @@ export const formValidationSchema = z.object({
   ),
 });
 
-export type SignUpData = z.infer<typeof formValidationSchema>;
+export type UserSignupData = z.infer<typeof userFormSchema>;
+
+export const userFormClasses = cn(
+  'relative mt-[-60px] flex flex-col rounded-xl min-w-full-[30rem] bg-white p-8',
+  'after:absolute after:inset-[-20px] after:z-[-1] after:rounded-3xl after:bg-white/30 after:shadow-2xl after:backdrop-blur-sm',
+);

@@ -47,13 +47,19 @@ export function NavigationBar() {
         </span>
       </Link>
       <div className="flex items-center space-x-6">
-        <NavButton href="/" isActive={pathname === '/'}>
+        <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
           Home
         </NavButton>
-        <NavButton href="/protocols" isActive={pathname === '/protocols'}>
+        <NavButton
+          href="/dashboard/protocols"
+          isActive={pathname === '/dashboard/protocols'}
+        >
           Protocols
         </NavButton>
-        <NavButton href="/interviews" isActive={pathname === '/interviews'}>
+        <NavButton
+          href="/dashboard/interviews"
+          isActive={pathname === '/dashboard/interviews'}
+        >
           Interviews
         </NavButton>
         <NavButton
