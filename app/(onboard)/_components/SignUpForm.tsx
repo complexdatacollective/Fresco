@@ -26,8 +26,6 @@ export const SignUpForm = ({
     resolver: zodResolver(userFormSchema),
   });
 
-  const utils = trpc.useContext();
-
   const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
     onSuccess: async (result) => {
       if (result.error) {
@@ -37,7 +35,6 @@ export const SignUpForm = ({
       }
 
       if (result.session) {
-        await utils.session.get.refetch();
         completeCallback?.();
       }
     },

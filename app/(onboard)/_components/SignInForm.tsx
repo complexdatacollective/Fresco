@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import ActionError from '../../../components/ActionError';
-import clearCachesByServerAction from '~/app/_actions';
 
 type ResponseError = {
   title: string;
@@ -32,7 +31,6 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     resolver: zodResolver(userFormSchema),
   });
 
-  const router = useRouter();
   const utils = trpc.useContext();
 
   const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
