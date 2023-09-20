@@ -1,7 +1,7 @@
 'use server';
 
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/react-query';
-import { type AppRouter } from '~/server';
+import { type AppRouter } from '~/server/router';
 
 export const proxy = createTRPCProxyClient<AppRouter>({
   links: [

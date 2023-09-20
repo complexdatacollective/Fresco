@@ -4,24 +4,26 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { useRouter } from 'next/navigation';
 import { setConfigured } from '~/app/_actions';
 
 function Documentation() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleFinishOnboarding = async () => {
     setLoading(true);
     await setConfigured();
-    setLoading(false);
-    router.push('/dashboard');
+    window.location.reload();
   };
 
   if (loading) {
-    <div className="flex h-screen items-center justify-center">
-      <Loader2 size={50} />
-    </div>;
+    return (
+      <div className="flex w-[30rem] items-center justify-center">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <h2 className="text-2xl font-bold">Finalizing setup...</h2>
+          <Loader2 size={50} className="animate-spin" />
+        </div>
+      </div>
+    );
   }
 
   return (

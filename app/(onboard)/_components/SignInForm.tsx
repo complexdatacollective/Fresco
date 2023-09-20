@@ -33,7 +33,7 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
   const router = useRouter();
 
-  const { mutateAsync: signIn } = trpc.signIn.useMutation({
+  const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
     onMutate: () => setLoading(true),
   });
 
@@ -50,7 +50,6 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     }
 
     if (result.session) {
-      setLoading(false);
       if (callbackUrl) {
         router.replace(callbackUrl);
       }

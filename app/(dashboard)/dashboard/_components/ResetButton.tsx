@@ -1,23 +1,24 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { resetConfigured } from '~/app/_actions';
+import { Button } from '~/components/ui/Button';
 
 const ResetButton = () => {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const reset = async () => {
+    setLoading(true);
     await resetConfigured();
-    router.push('/');
+    window.location.reload();
   };
 
   return (
-    <button
-      className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-      onClick={() => reset()}
-    >
+    <Button variant="destructive" onClick={reset} disabled={loading}>
+      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       Reset
-    </button>
+    </Button>
   );
 };
 

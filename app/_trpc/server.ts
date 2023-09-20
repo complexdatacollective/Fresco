@@ -4,7 +4,7 @@ import { loggerLink } from '@trpc/client';
 import { experimental_nextCacheLink } from '@trpc/next/app-dir/links/nextCache';
 import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
 import { cookies } from 'next/headers';
-import { type AppRouter, appRouter } from '~/server';
+import { type AppRouter, appRouter } from '~/server/router';
 import { getPageSession } from '~/utils/auth';
 
 /**

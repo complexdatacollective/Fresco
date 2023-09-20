@@ -8,7 +8,7 @@ export const withURLHeader: MiddlewareFactory =
 
     // Todo: I can't work out how exactly to prevent the middleware stack from
     // being cancelled when I return a vanilla NextResponse.
-    const res = await next(request, _next);
+    await next(request, _next);
 
     return NextResponse.next({
       request: {

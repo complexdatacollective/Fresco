@@ -9,7 +9,7 @@ type SessionWithLoading = {
   isLoading: boolean;
 };
 
-const SessionContext = createContext<SessionWithLoading | undefined>(undefined);
+const SessionContext = createContext<SessionWithLoading | null>(null);
 
 export const useSession = () => {
   const session = useContext(SessionContext);
@@ -32,9 +32,9 @@ export const SessionProvider = ({
   const [session, setSession] = useState<Session | null>(initialSession);
   const [loading, setLoading] = useState(!initialSession);
 
-  const { refetch: getSession } = trpc.getSession.useQuery(undefined, {
+  const { refetch: getSession } = trpc.session.get.useQuery(undefined, {
     initialData: { session: initialSession },
-    refetchOnMount: false,
+    // refetchOnMount: false,
     onSuccess: (data: GetQueryReturn) => {
       if (!data) {
         setSession(null);
@@ -55,6 +55,7 @@ export const SessionProvider = ({
     if (initialSession) {
       setLoading(true);
       getSession().catch((err) => {
+        // eslint-disable-next-line no-console
         console.error(err);
       });
     }

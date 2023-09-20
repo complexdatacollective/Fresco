@@ -1,35 +1,11 @@
-import { safeLoader } from '~/utils/safeLoader';
-import { protectedProcedure, publicProcedure, router } from './trpc';
-import { z } from 'zod';
-import { prisma } from '~/utils/db';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { LuciaError, type Session } from 'lucia';
 import { userFormSchema } from '~/app/(onboard)/_shared';
 import { auth } from '~/utils/auth';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { protectedProcedure, publicProcedure, router } from '../trpc';
 import * as context from 'next/headers';
-import { LuciaError, Session } from 'lucia';
-import { getSetupMetadata } from '~/utils/getSetupMetadata';
 
-const metadataRouter = router({
-  get: publicProcedure.query(async () => {
-    const setupMetadata = await getSetupMetadata();
-
-    return setupMetadata;
-  }),
-  reset: protectedProcedure.mutation(async () => {
-    // eslint-disable-next-line local-rules/require-data-mapper
-    await prisma.setupMetadata.deleteMany();
-    // eslint-disable-next-line local-rules/require-data-mapper
-    await prisma.user.deleteMany();
-  }),
-});
-
-export const appRouter = router({
-  metadata: metadataRouter,
-  test: protectedProcedure.query(() => {
-    return {
-      test: 'test',
-    };
-  }),
+export const sessionRouter = router({
   signUp: publicProcedure.input(userFormSchema).mutation(async ({ input }) => {
     const { username, password } = input;
 
@@ -122,41 +98,9 @@ export const appRouter = router({
       success: true,
     };
   }),
-  getSession: publicProcedure.query(async (): Promise<Session | null> => {
+  get: publicProcedure.query(async (): Promise<Session | null> => {
     const authRequest = auth.handleRequest('GET', context);
     const session = await authRequest.validate();
     return session;
   }),
-  checkUsername: publicProcedure
-    .input(userFormSchema.pick({ username: true }))
-    .query(async ({ input }) => {
-      const { username } = input;
-
-      const userExists = await safeLoader({
-        outputValidation: z.object({
-          username: z.string(),
-        }),
-        loader: () =>
-          prisma.user.findFirst({
-            where: {
-              username,
-            },
-            select: {
-              username: true,
-            },
-          }),
-      });
-
-      if (userExists) {
-        return {
-          userExists: true,
-        };
-      }
-
-      return {
-        userExists: false,
-      };
-    }),
 });
-
-export type AppRouter = typeof appRouter;
