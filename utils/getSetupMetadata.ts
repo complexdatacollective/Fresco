@@ -8,6 +8,11 @@ type SetupMetadataWithExpired = SetupMetadata & {
   expired: boolean;
 };
 
+export async function resetSetupMetadata() {
+  await prisma.setupMetadata.deleteMany();
+  await prisma.user.deleteMany();
+}
+
 export async function getSetupMetadata(): Promise<SetupMetadataWithExpired> {
   let setupMetadata = await prisma.setupMetadata.findFirst();
 
@@ -21,11 +26,13 @@ export async function getSetupMetadata(): Promise<SetupMetadataWithExpired> {
     });
   }
 
+  const expired =
+    !setupMetadata.configured &&
+    setupMetadata.initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
+
   return {
     ...setupMetadata,
-    expired:
-      !!setupMetadata.configured &&
-      setupMetadata.initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT,
+    expired,
   };
 }
 

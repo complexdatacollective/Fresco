@@ -4,17 +4,13 @@ import { Check } from 'lucide-react';
 import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
 import { cn } from '~/utils/shadcn';
 
-interface OnboardStepsProps {
-  currentStep: string;
-}
-
 const StepNumber = ({
   number,
   description,
   active = false,
   complete = false,
 }: {
-  number: string;
+  number: number;
   description: string;
   active?: boolean;
   complete?: boolean;
@@ -32,7 +28,7 @@ const StepNumber = ({
           complete && 'bg-primary text-white',
         )}
       >
-        {complete ? <Check strokeWidth={3} size={18} /> : number}
+        {complete ? <Check strokeWidth={3} size={18} /> : number + 1}
       </div>
       <div className="flex flex-col">
         <p className="text-md">{description}</p>
@@ -41,16 +37,16 @@ const StepNumber = ({
   );
 };
 
-function OnboardSteps({ currentStep }: OnboardStepsProps) {
+function OnboardSteps({ currentStep }: { currentStep: keyof typeof steps }) {
   return (
     <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-6">
-      {steps.map((stepItem) => (
+      {steps.map((stepItem, index) => (
         <StepNumber
-          key={stepItem.number}
-          number={stepItem.number}
+          key={index}
+          number={index}
           description={stepItem.description}
-          active={stepItem.number === currentStep}
-          complete={stepItem.number < currentStep}
+          active={index === currentStep}
+          complete={index < currentStep}
         />
       ))}
     </div>

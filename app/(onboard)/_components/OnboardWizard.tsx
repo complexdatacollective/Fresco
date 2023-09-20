@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
+import {
+  type Step,
+  steps,
+} from '~/app/(onboard)/_components/OnboardSteps/Steps';
 import { cn } from '~/utils/shadcn';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { router } from 'next/client';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
 import { useSession } from '~/contexts/SessionPrivider';
@@ -15,37 +16,37 @@ function OnboardWizard() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialStep = searchParams.get('step');
-  const [step, setStep] = useState<string>(initialStep || '1');
+  const step = searchParams.get('step');
 
   useEffect(() => {
     // If there's no search params, set the step to 1
-    if (!initialStep) {
-      router.push(pathname + '?step=' + step);
-      return;
+    if (!step) {
+      router.push(pathname + '?step=1');
     }
+  }, [session, pathname, step, router]);
 
+  useEffect(() => {
     // If we have a user session, skip step 1
     if (session && step === '1') {
-      setStep('2');
       router.push(pathname + '?step=2');
-      return;
     }
-  }, [session, pathname, step, router, initialStep]);
+  }, [session, pathname, step, router]);
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
 
   const mainClasses = cn('bg-white flex w-full p-8 rounded-xl');
 
+  if (!step) return null;
+
+  const stepIndex = (parseInt(step || '1') - 1) as keyof typeof steps;
+
+  const { component: StepComponent } = steps[stepIndex] as Step;
+
   return (
     <div className={cardClasses}>
-      <OnboardSteps currentStep={step} />
+      <OnboardSteps currentStep={stepIndex} />
       <div className={mainClasses}>
-        {steps
-          .filter((stepItem) => stepItem.number === step)
-          .map((stepItem) => (
-            <stepItem.component key={stepItem.number} />
-          ))}
+        <StepComponent />
       </div>
     </div>
   );

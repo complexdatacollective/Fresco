@@ -3,12 +3,13 @@ import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { Switch } from '~/components/ui/switch';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 function ConfigureStudy() {
   const pathname = usePathname();
   const [protocolUploaded, setProtocolUploaded] = useState(false);
-  const [participantsUploaded, setParticipantsUploaded] = useState(false);
+  const searchParams = useSearchParams();
+  const currentStep = searchParams.get('step') as string;
   const router = useRouter();
 
   const handleProtocolUploaded = () => {
@@ -16,17 +17,8 @@ function ConfigureStudy() {
     // will be replaced with ProtocolUploader handling protocol upload
   };
 
-  const handleParticipantsUploaded = () => {
-    setParticipantsUploaded(true);
-    // will be replaced with participants uplodaing handling participants upload
-  };
-
   const handleNextStep = () => {
-    router.replace(pathname + '?step=3');
-  };
-
-  const allowAnonymousRecruitment = () => {
-    // will be replaced with switch handling
+    router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
   };
 
   return (
@@ -42,12 +34,6 @@ function ConfigureStudy() {
       <div>
         <div className="mb-4">
           <div className="flex justify-between">
-            <div>
-              <h3 className="font-bold">Upload Protocol</h3>
-              <p className="text-sm text-gray-600">
-                Upload a .netcanvas protocol file.
-              </p>
-            </div>
             {protocolUploaded && <Check />}
           </div>
           {!protocolUploaded && <ProtocolUploader />}

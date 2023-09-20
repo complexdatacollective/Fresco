@@ -1,15 +1,16 @@
 import '~/styles/globals.scss';
 import Providers from './_components/Providers';
 import { headers } from 'next/headers';
-import { api } from './_trpc/server';
 import { redirect } from 'next/navigation';
 import type { Session } from 'lucia';
 import { cache } from 'react';
 import type { Route } from 'next';
+import { getSetupMetadata } from '~/utils/getSetupMetadata';
+import { getPageSession } from '~/utils/auth';
 
 // Normal redirect will accept anything, which can easily cause a redirect loop. Use this instead.
 const safeRedirect = (url: Route) => {
-  redirect(url);
+  return redirect(url);
 };
 
 export const metadata = {
@@ -110,8 +111,8 @@ const calculateRedirect = ({
       return;
     }
 
-    console.log('redirecting to login');
-    return safeRedirect('/signin');
+    console.log('redirecting to login', path, encodeURI(path));
+    return safeRedirect('/signin?callbackUrl=' + encodeURI(path));
   }
 
   // APP IS CONFIGURED AND SESSION EXISTS
@@ -130,12 +131,17 @@ const calculateRedirect = ({
 const calculateRedirectCached = cache(calculateRedirect);
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = (await api.getSession.query()) as Session | null;
-  const { expired, configured } = await api.getSetupMetadata.query();
+  const session = await getPageSession();
+  const { expired, configured } = await getSetupMetadata();
   const headersList = headers();
   const path = headersList.get('x-url');
 
-  console.log({ expired, configured });
+  console.log({
+    session,
+    expired,
+    configured,
+    path,
+  });
 
   calculateRedirect({ session, path, expired, configured });
 

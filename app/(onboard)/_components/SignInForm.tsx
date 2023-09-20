@@ -53,8 +53,6 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       setLoading(false);
       if (callbackUrl) {
         router.replace(callbackUrl);
-      } else {
-        router.push('/');
       }
     }
   };

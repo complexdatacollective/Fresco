@@ -9,12 +9,22 @@ import * as context from 'next/headers';
 import { LuciaError, Session } from 'lucia';
 import { getSetupMetadata } from '~/utils/getSetupMetadata';
 
-export const appRouter = router({
-  getSetupMetadata: publicProcedure.query(async () => {
+const metadataRouter = router({
+  get: publicProcedure.query(async () => {
     const setupMetadata = await getSetupMetadata();
 
     return setupMetadata;
   }),
+  reset: protectedProcedure.mutation(async () => {
+    // eslint-disable-next-line local-rules/require-data-mapper
+    await prisma.setupMetadata.deleteMany();
+    // eslint-disable-next-line local-rules/require-data-mapper
+    await prisma.user.deleteMany();
+  }),
+});
+
+export const appRouter = router({
+  metadata: metadataRouter,
   test: protectedProcedure.query(() => {
     return {
       test: 'test',

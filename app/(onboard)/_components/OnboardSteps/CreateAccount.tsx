@@ -1,17 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useCallback } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
-import { setConfigured } from '~/app/_actions';
 
 function CreateAccount() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const step = searchParams.get('step');
 
-  const completeCallback = useCallback(async () => {
-    await setConfigured();
-    router.replace('/?step=2');
-  }, [router]);
+  const completeCallback = () => {
+    router.replace(`${pathname}?step=${parseInt(step || '1') + 1}`);
+  };
 
   return (
     <div className="max-w-[30rem]">
@@ -23,7 +23,7 @@ function CreateAccount() {
           administrator account can be created.
         </p>
       </div>
-      <SignUpForm completeCallback={void completeCallback} />
+      <SignUpForm completeCallback={completeCallback} />
     </div>
   );
 }

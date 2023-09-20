@@ -1,20 +1,38 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { FileText, MonitorPlay } from 'lucide-react';
+import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { useRouter } from 'next/navigation';
+import { setConfigured } from '~/app/_actions';
 
 function Documentation() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const handleFinishOnboarding = () => {
-    router.replace('/dashboard');
+  const handleFinishOnboarding = async () => {
+    setLoading(true);
+    await setConfigured();
+    setLoading(false);
+    router.push('/dashboard');
   };
+
+  if (loading) {
+    <div className="flex h-screen items-center justify-center">
+      <Loader2 size={50} />
+    </div>;
+  }
+
   return (
-    <div>
+    <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
         <h1 className="text-3xl font-bold">Documentation</h1>
-        <p>Learn more about Fresco</p>
+        <p className="mb-4 mt-4">
+          This is the end of the onboarding process. You are now ready to use
+          Fresco! For further help and information, consider using the resources
+          below.
+        </p>
       </div>
       <Card className="mb-2">
         <CardHeader className="pb-2">
@@ -46,7 +64,9 @@ function Documentation() {
       </Card>
 
       <div className="flex justify-start pt-4">
-        <Button onClick={handleFinishOnboarding}>Finish Onboarding</Button>
+        <Button type="submit" onClick={handleFinishOnboarding}>
+          Finish Onboarding
+        </Button>
       </div>
     </div>
   );
