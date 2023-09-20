@@ -24,6 +24,7 @@ export async function getSetupMetadata(): Promise<SetupMetadataWithExpired> {
   return {
     ...setupMetadata,
     expired:
+      !!setupMetadata.configured &&
       setupMetadata.initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT,
   };
 }

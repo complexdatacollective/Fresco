@@ -22,7 +22,7 @@ export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
         }),
         experimental_nextCacheLink({
           // requests are cached for 5 seconds
-          revalidate: 5,
+          revalidate: false,
           router: appRouter,
           createContext: async () => ({
             session: await getPageSession(),

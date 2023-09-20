@@ -1,3 +1,4 @@
+/* eslint-disable local-rules/require-data-mapper */
 import { env } from '~/env.mjs';
 import { userFormClasses } from '../_shared';
 import { Button } from '~/components/ui/Button';
@@ -7,8 +8,8 @@ import { redirect } from 'next/navigation';
 export default function Page() {
   const handleResetSetup = async () => {
     'use server';
-    // eslint-disable-next-line local-rules/require-data-mapper
     await prisma.setupMetadata.deleteMany();
+    await prisma.user.deleteMany();
     redirect('/');
   };
 

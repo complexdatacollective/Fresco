@@ -3,23 +3,26 @@
 import { useState, useEffect } from 'react';
 import { steps } from '~/app/(onboard)/_components/OnboardSteps/Steps';
 import { cn } from '~/utils/shadcn';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
 
 function OnboardWizard() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [step, setStep] = useState(searchParams.get('step') ?? '1');
   const router = useRouter();
 
   useEffect(() => {
     const queryStep = searchParams.get('step');
     if (queryStep === null) {
-      router.replace('/?step=1');
+      console.log('no step');
+      // router.replace('/?step=1');
+      router.push(pathname + '?step=1');
       return;
     }
     setStep(queryStep);
-  }, [searchParams, router]);
+  }, [searchParams, router, pathname]);
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
 

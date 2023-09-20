@@ -7,20 +7,13 @@ import { auth } from '~/utils/auth';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as context from 'next/headers';
 import { LuciaError, Session } from 'lucia';
-import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
+import { getSetupMetadata } from '~/utils/getSetupMetadata';
 
 export const appRouter = router({
   getSetupMetadata: publicProcedure.query(async () => {
-    // eslint-disable-next-line local-rules/require-data-mapper
-    const setupMetadata = await prisma.setupMetadata.findFirstOrThrow();
+    const setupMetadata = await getSetupMetadata();
 
-    return {
-      ...setupMetadata,
-      expired:
-        !!setupMetadata.configured &&
-        setupMetadata.initializedAt.getTime() <
-          Date.now() - UNCONFIGURED_TIMEOUT,
-    };
+    return setupMetadata;
   }),
   test: protectedProcedure.query(() => {
     return {
