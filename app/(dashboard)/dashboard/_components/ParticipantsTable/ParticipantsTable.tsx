@@ -32,7 +32,6 @@ export const ParticipantsTable = () => {
     const result = await deleteParticipants(data);
     if (result.error) throw new Error(result.error);
     setIsDeletingSelected(false);
-    console.log('RESULT:', result);
   };
 
   if (isLoading || !participants) {

@@ -1,7 +1,7 @@
 'use client';
 
-import Papa from 'papaparse';
-import { useEffect, useState } from 'react';
+import type { Prisma } from '@prisma/client';
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -12,98 +12,65 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
+import { importParticipants } from '../_actions/actions';
+import AlertDialogCSV from './AlertDialogCSV';
 import Dropzone from './Dropzone';
 import SelectCSVColumn from './SelectCSVColumn';
-import AlertDialogCSV from './AlertDialogCSV';
-import type { Participant } from '@prisma/client';
-import { env } from '~/env.mjs';
 
-export interface ICsvParticipant {
-  identifier: string;
-}
-
-export interface IResponseData {
-  msg: string;
-  existingParticipants: Participant[];
-  createdParticipants: { count: number };
-}
+export type IResponseData = {
+  existingParticipants: {
+    id: string;
+    identifier: string;
+  }[];
+  createdParticipants: Prisma.BatchPayload;
+};
 
 const ImportCSVModal = () => {
   const [openAlertDialog, setOpenAlertDialog] = useState(false);
   const [openImportDialog, setOpenImportDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [responseData, setResponseData] = useState<IResponseData | null>(null);
+  const [responseData, setResponseData] = useState<IResponseData | undefined>(
+    undefined,
+  );
+
   const [files, setFiles] = useState<Array<File>>([]);
-  const [parsedData, setParsedData] = useState<Array<any>>([]);
+  const [selectedColumn, setSelectedColumn] = useState<string>('');
+  const [errMsg, setErrMsg] = useState<string>('');
   const [csvColumns, setCsvColumns] = useState<Array<string>>([]);
   const [csvParticipants, setCsvParticipants] = useState<
-    Array<ICsvParticipant>
+    Array<Record<string, string>>
   >([]);
-
-  useEffect(() => {
-    if (files.length) {
-      parseCSV(files[0] as File);
-    } else {
-      setCsvColumns([]);
-    }
-  }, [files]);
-
-  function parseCSV(csvFile: File) {
-    // Parse local CSV file
-    Papa.parse(csvFile, {
-      skipEmptyLines: true,
-      header: true,
-      complete: function (results: Papa.ParseResult<any>) {
-        setParsedData([...results.data]);
-        const ObjKeys = Object.keys(results.data[0]);
-        setCsvColumns([]);
-
-        // check if the file contains 'identifier' column or has at least one column to use as an identifier
-        if (ObjKeys.includes('identifier') || ObjKeys.length === 1) {
-          const objKey =
-            ObjKeys.find((item) => item === 'identifier') ?? ObjKeys[0];
-
-          // convert the file data into the 'participant' format to save in DB
-          const participants = results.data.map((item: any) => ({
-            identifier: item[objKey as string],
-          }));
-
-          setCsvParticipants([...participants]);
-        } else {
-          setCsvColumns(ObjKeys);
-        }
-      },
-    });
-  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!files.length) return;
+    if (!files.length) return setErrMsg('File is required!');
+    setIsLoading(true);
+    let participants;
+    const ObjKeys = Object.keys(csvParticipants[0] || {});
 
-    try {
-      setIsLoading(true);
-      const data: any = await fetch(
-        `${env.NEXT_PUBLIC_URL}/api/participants/import`,
-        {
-          method: 'POST',
-          body: JSON.stringify(csvParticipants),
-        },
-      ).then(async (res) => await res.json());
-
-      console.log(data);
-      setResponseData(data);
-      setOpenAlertDialog(true);
-    } catch (error) {
-      console.error(error);
+    // check if the file contains 'identifier' column or has at least one column to use as an identifier
+    if (!(ObjKeys.includes('identifier') || ObjKeys.length === 1)) {
+      setCsvColumns(ObjKeys);
+      participants = csvParticipants.map((item) => ({
+        identifier: item[selectedColumn] + '',
+      }));
+    } else {
+      const objKey =
+        ObjKeys.find((item) => item === 'identifier') ?? ObjKeys[0];
+      participants = csvParticipants.map((item) => ({
+        identifier: item[objKey as string] + '',
+      }));
     }
-    setOpenImportDialog(false);
+    const result = await importParticipants(participants);
+    if (result.error) throw new Error(result.error);
+    setResponseData(result.data);
+    setOpenAlertDialog(true);
     clearAll();
   };
 
   const clearAll = () => {
     setFiles([]);
     setCsvColumns([]);
-    setParsedData([]);
     setCsvParticipants([]);
     setIsLoading(false);
     setOpenImportDialog(false);
@@ -128,7 +95,14 @@ const ImportCSVModal = () => {
           </DialogHeader>
           <form id="uploadFile" onSubmit={handleSubmit}>
             <Dropzone
-              {...{ files, setFiles }}
+              {...{
+                files,
+                setFiles,
+                setCsvColumns,
+                setCsvParticipants,
+                setErrMsg,
+                errMsg,
+              }}
               className="mx-auto mt-5 cursor-pointer border border-dashed border-neutral-300 p-8 transition-colors hover:border-red-400"
             />
             {csvColumns.length ? (
@@ -138,9 +112,8 @@ const ImportCSVModal = () => {
                   participant
                 </p>
                 <SelectCSVColumn
+                  setSelectedColumn={setSelectedColumn}
                   csvColumns={csvColumns}
-                  setCsvParticipants={setCsvParticipants}
-                  parsedData={parsedData}
                 />
               </div>
             ) : (

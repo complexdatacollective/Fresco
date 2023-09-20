@@ -1,5 +1,6 @@
 'use client';
 
+import { type Dispatch, type SetStateAction } from 'react';
 import {
   Select,
   SelectContent,
@@ -9,29 +10,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import { ICsvParticipant } from './ImportCSVModal';
 
 interface SelectCSVColumnProps {
-  setCsvParticipants: React.Dispatch<React.SetStateAction<ICsvParticipant[]>>;
   csvColumns: string[];
-  parsedData: any[];
+  setSelectedColumn: Dispatch<SetStateAction<string>>;
 }
 
 function SelectCSVColumn({
   csvColumns,
-  setCsvParticipants,
-  parsedData,
+  setSelectedColumn,
 }: SelectCSVColumnProps) {
-  const handleSelectChange = (val: string) => {
-    const participants = parsedData.map((item: any) => ({
-      identifier: item[val],
-    }));
-
-    setCsvParticipants([...participants]);
-  };
-
   return (
-    <Select onValueChange={handleSelectChange}>
+    <Select required onValueChange={setSelectedColumn}>
       <SelectTrigger>
         <SelectValue placeholder="Select a column" />
       </SelectTrigger>

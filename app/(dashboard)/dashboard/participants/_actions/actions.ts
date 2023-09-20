@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { prisma } from '~/utils/db';
 import { safeLoader } from '~/utils/safeLoader';
 
+type ParticipantWithoutId = Omit<Participant, 'id'>;
+
 // Create Participant
 export const createParticipant = async (identifier: string) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -122,5 +124,47 @@ export const updateParticipant = async (
   return {
     message: 'Participant updated',
     participant: result,
+  };
+};
+
+// Import Participants
+export const importParticipants = async (data: ParticipantWithoutId[]) => {
+  const existingParticipants = await safeLoader({
+    outputValidation: z.array(
+      z.object({
+        id: z.string(),
+        identifier: z.string(),
+      }),
+    ),
+    loader: () =>
+      prisma.participant.findMany({
+        where: {
+          identifier: {
+            in: data.map((p: ParticipantWithoutId) => p.identifier),
+          },
+        },
+      }),
+  });
+
+  const createdParticipants = await safeLoader({
+    outputValidation: z.object({
+      count: z.number(),
+    }),
+    loader: () =>
+      prisma.participant.createMany({
+        data,
+        skipDuplicates: true,
+      }),
+  });
+
+  if (!(existingParticipants && createdParticipants)) {
+    return { error: 'Failed to update participant' };
+  }
+
+  revalidatePath('/dashboard/participants');
+
+  return {
+    message: 'Participants imported',
+    data: { existingParticipants, createdParticipants },
   };
 };

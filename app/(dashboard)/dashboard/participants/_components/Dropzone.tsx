@@ -1,31 +1,72 @@
 import { ImagePlus } from 'lucide-react';
-import React, { useCallback, useState } from 'react';
-import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
+import Papa from 'papaparse';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
+import { useDropzone, type FileRejection } from 'react-dropzone';
 
-interface IDropZone {
+interface DropZoneProps {
   className: string;
   files: Array<File>;
-  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  setFiles: Dispatch<SetStateAction<File[]>>;
+  setCsvColumns: Dispatch<SetStateAction<string[]>>;
+  setCsvParticipants: Dispatch<SetStateAction<Record<string, string>[]>>;
+  setErrMsg: Dispatch<SetStateAction<string>>;
+  errMsg: string;
 }
 
-const Dropzone = ({ className, files, setFiles }: IDropZone) => {
+const Dropzone = ({
+  className,
+  files,
+  errMsg,
+  setFiles,
+  setCsvColumns,
+  setCsvParticipants,
+  setErrMsg,
+}: DropZoneProps) => {
   const [rejected, setRejected] = useState<FileRejection[]>([]);
 
+  useEffect(() => {
+    if (files.length) {
+      setErrMsg('');
+      parseCSV(files[0] as File);
+    } else {
+      setCsvColumns([]);
+    }
+  }, [files]);
+
+  function parseCSV(csvFile: File) {
+    // Parse local CSV file
+    Papa.parse(csvFile, {
+      skipEmptyLines: true,
+      header: true,
+      complete: function (results: Papa.ParseResult<Record<string, string>>) {
+        setCsvParticipants([...results.data]);
+        const ObjKeys = Object.keys(results.data[0] || {});
+
+        // check if the file contains 'identifier' column or has at least one column to use as an identifier
+        if (!(ObjKeys.includes('identifier') || ObjKeys.length === 1)) {
+          setCsvColumns(ObjKeys);
+        }
+      },
+    });
+  }
+
   const onDrop = useCallback(
-    (
-      acceptedFiles: File[],
-      fileRejections: FileRejection[],
-      event: DropEvent,
-    ) => {
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       if (acceptedFiles?.length) {
-        setFiles((previousFiles) => [...acceptedFiles]);
+        setFiles([...acceptedFiles]);
       }
 
       if (fileRejections?.length) {
         setRejected((previousFiles) => [...previousFiles, ...fileRejections]);
       }
     },
-    [],
+    [setFiles],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -67,6 +108,8 @@ const Dropzone = ({ className, files, setFiles }: IDropZone) => {
           )}
         </div>
       </div>
+
+      {errMsg && <p className="text-red-500">{errMsg}</p>}
 
       {/* Preview */}
       <section className="mt-1">

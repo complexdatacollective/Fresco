@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction } from 'react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -7,12 +7,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog';
-import { IResponseData } from './ImportCSVModal';
+import { type IResponseData } from './ImportCSVModal';
 
 interface AlertDialogCSVProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  responseData: IResponseData | null;
+  responseData: IResponseData | undefined;
 }
 
 const AlertDialogCSV = ({
@@ -38,11 +38,11 @@ const AlertDialogCSV = ({
               <p className="mb-1">
                 Participants with the following identifiers already exist:
               </p>
-              <ul className="grid grid-cols-2 gap-x-3 text-sm">
-                {responseData?.existingParticipants.map((p, i) => (
+              <ul className="grid h-[350px] grid-cols-2 gap-x-2 overflow-hidden overflow-y-auto px-1 text-sm">
+                {responseData?.existingParticipants.map((p) => (
                   <li key={p.id}>
                     <span className="text-green-400">identifier:</span>{' '}
-                    {p.identifier}
+                    <span className="break-words">{p.identifier}</span>
                   </li>
                 ))}
               </ul>

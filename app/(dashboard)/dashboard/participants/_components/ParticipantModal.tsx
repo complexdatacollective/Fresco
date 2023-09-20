@@ -1,11 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { type Participant } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
 import { useState, type Dispatch, type SetStateAction, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { z } from 'zod';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Label } from '~/components/ui/Label';
