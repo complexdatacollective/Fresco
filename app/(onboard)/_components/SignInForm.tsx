@@ -16,7 +16,7 @@ type ResponseError = {
   description: string;
 };
 
-export default function SignInForm() {
+export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const [loading, setLoading] = useState(false);
 
   const [responseError, setResponseError] = useState<ResponseError | null>(
@@ -50,7 +50,12 @@ export default function SignInForm() {
     }
 
     if (result.session) {
-      router.push('/dashboard');
+      setLoading(false);
+      if (callbackUrl) {
+        router.replace(callbackUrl);
+      } else {
+        router.push('/');
+      }
     }
   };
 

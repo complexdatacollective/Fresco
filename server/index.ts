@@ -6,7 +6,7 @@ import { userFormSchema } from '~/app/(onboard)/_shared';
 import { auth } from '~/utils/auth';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as context from 'next/headers';
-import { LuciaError } from 'lucia';
+import { LuciaError, Session } from 'lucia';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 
 export const appRouter = router({
@@ -22,9 +22,7 @@ export const appRouter = router({
           Date.now() - UNCONFIGURED_TIMEOUT,
     };
   }),
-  test: protectedProcedure.query(({ ctx }) => {
-    // eslint-disable-next-line no-console
-    console.log('ctx', ctx);
+  test: protectedProcedure.query(() => {
     return {
       test: 'test',
     };
@@ -121,12 +119,10 @@ export const appRouter = router({
       success: true,
     };
   }),
-  getSession: publicProcedure.query(async () => {
+  getSession: publicProcedure.query(async (): Promise<Session | null> => {
     const authRequest = auth.handleRequest('GET', context);
     const session = await authRequest.validate();
-    return {
-      session,
-    };
+    return session;
   }),
   checkUsername: publicProcedure
     .input(userFormSchema.pick({ username: true }))

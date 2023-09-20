@@ -3,12 +3,13 @@ import { withAuth } from './middlewares/withAuth';
 import { withErrorHandler } from './middlewares/withErrorHandler';
 import { withExpirationCheck } from './middlewares/withExpirationCheck';
 import { withLogger } from './middlewares/withLogger';
+import { withURLHeader } from './middlewares/withURLHeader';
 
 export default stackMiddlewares([
-  withExpirationCheck,
-  withAuth,
-  withErrorHandler,
+  // withAuth,
+  withURLHeader,
   withLogger,
+  withErrorHandler,
 ]);
 
 export const config = {

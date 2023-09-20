@@ -20,9 +20,7 @@ export const useSession = () => {
   return session;
 };
 
-type GetQueryReturn = {
-  session: Session | null;
-};
+type GetQueryReturn = Session | null;
 
 export const SessionProvider = ({
   children,
@@ -38,13 +36,13 @@ export const SessionProvider = ({
     initialData: { session: initialSession },
     refetchOnMount: false,
     onSuccess: (data: GetQueryReturn) => {
-      if (!data || !data.session) {
+      if (!data) {
         setSession(null);
         setLoading(false);
         return;
       }
 
-      setSession(data.session);
+      setSession(data);
       setLoading(false);
     },
     onError: () => {
@@ -55,6 +53,7 @@ export const SessionProvider = ({
   // Revalidate session on mount
   useEffect(() => {
     if (initialSession) {
+      setLoading(true);
       getSession().catch((err) => {
         console.error(err);
       });
