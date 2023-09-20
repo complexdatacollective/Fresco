@@ -1,27 +1,17 @@
 'use server';
+import { revalidatePath } from 'next/cache';
 
-import { prisma } from '~/utils/db';
-import { getSetupMetadata } from '~/utils/getSetupMetadata';
+const clearCachesByServerAction = async (path?: string) => {
+  try {
+    if (path) {
+      revalidatePath(path);
+    } else {
+      revalidatePath('/');
+      revalidatePath('/[lang]');
+    }
+  } catch (error) {
+    console.error('clearCachesByServerAction=> ', error);
+  }
+};
 
-export async function setConfigured() {
-  const { configured, initializedAt } = await getSetupMetadata();
-
-  // eslint-disable-next-line local-rules/require-data-mapper
-  await prisma.setupMetadata.update({
-    where: {
-      configured_initializedAt: {
-        configured,
-        initializedAt,
-      },
-    },
-    data: {
-      configured: true,
-      configuredAt: new Date(),
-    },
-  });
-}
-
-export async function resetConfigured() {
-  await prisma.setupMetadata.deleteMany();
-  await prisma.user.deleteMany();
-}
+export default clearCachesByServerAction;

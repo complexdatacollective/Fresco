@@ -68,12 +68,6 @@ export function NavigationBar() {
         >
           Participants
         </NavButton>
-        <NavButton
-          href="/dashboard/unprotected"
-          isActive={pathname === '/dashboard/unprotected'}
-        >
-          Unprotected
-        </NavButton>
       </div>
       <UserMenu />
     </nav>

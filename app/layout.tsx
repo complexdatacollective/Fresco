@@ -3,8 +3,9 @@ import '~/styles/globals.scss';
 import Providers from './_components/Providers';
 import { headers } from 'next/headers';
 import { getSetupMetadata } from '~/utils/getSetupMetadata';
-import { getPageSession } from '~/utils/auth';
 import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
+import { api } from './_trpc/server';
+import { caller } from './_trpc/caller';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -12,10 +13,13 @@ export const metadata = {
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getPageSession();
+  // const session = await api.session.get.query();
+  const session = await caller.session.get();
   const { expired, configured } = await getSetupMetadata();
   const headersList = headers();
   const path = headersList.get('x-url');
+
+  console.log('rootlayout', session);
 
   calculateRedirect({ session, path, expired, configured });
 

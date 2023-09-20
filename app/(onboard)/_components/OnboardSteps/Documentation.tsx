@@ -4,15 +4,20 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { setConfigured } from '~/app/_actions';
+import { trpc } from '~/app/_trpc/client';
+import { useRouter } from 'next/navigation';
 
 function Documentation() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const { mutateAsync: setConfigured } =
+    trpc.metadata.setConfigured.useMutation();
 
   const handleFinishOnboarding = async () => {
     setLoading(true);
     await setConfigured();
-    window.location.reload();
+    router.push('/dashboard');
   };
 
   if (loading) {

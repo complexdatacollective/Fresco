@@ -98,7 +98,8 @@ export const sessionRouter = router({
       success: true,
     };
   }),
-  get: publicProcedure.query(async (): Promise<Session | null> => {
+  get: publicProcedure.query(async (ctx): Promise<Session | null> => {
+    console.log('ctx', ctx);
     const authRequest = auth.handleRequest('GET', context);
     const session = await authRequest.validate();
     return session;

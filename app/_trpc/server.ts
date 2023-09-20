@@ -1,6 +1,6 @@
 'use server';
 
-import { loggerLink } from '@trpc/client';
+import { httpBatchLink, loggerLink } from '@trpc/client';
 import { experimental_nextCacheLink } from '@trpc/next/app-dir/links/nextCache';
 import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
 import { cookies } from 'next/headers';
@@ -20,9 +20,12 @@ export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
               typeof window !== 'undefined') ||
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
+        // httpBatchLink({
+        //   url: 'http://localhost:3000/api/trpc',
+        // }),
         experimental_nextCacheLink({
           // requests are cached for 5 seconds
-          revalidate: 0.1,
+          revalidate: 1,
           router: appRouter,
           createContext: async () => ({
             session: await getPageSession(),

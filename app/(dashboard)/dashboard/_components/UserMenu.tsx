@@ -8,9 +8,12 @@ import { useSession } from '~/contexts/SessionPrivider';
 const UserMenu = () => {
   const { session, isLoading } = useSession();
 
+  const utils = trpc.useContext();
+
   const { mutate: doSignout, isLoading: isSigningOut } =
     trpc.session.signOut.useMutation({
-      onSuccess: () => {
+      onSuccess: async () => {
+        await utils.session.get.refetch();
         window.location.reload();
       },
     });

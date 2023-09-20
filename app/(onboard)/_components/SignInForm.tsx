@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import ActionError from '../../../components/ActionError';
+import clearCachesByServerAction from '~/app/_actions';
 
 type ResponseError = {
   title: string;
@@ -32,28 +33,31 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   });
 
   const router = useRouter();
+  const utils = trpc.useContext();
 
   const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
     onMutate: () => setLoading(true),
+    onSuccess: async (result) => {
+      if (result.error) {
+        setLoading(false);
+        setResponseError({
+          title: 'Sign in failed',
+          description: result.error,
+        });
+      }
+
+      if (result.session) {
+        await utils.session.get.refetch();
+        if (callbackUrl) {
+          window.location.href = callbackUrl;
+        }
+      }
+    },
   });
 
   const onSubmit = async (data: unknown) => {
     const payload = userFormSchema.parse(data);
-    const result = await signIn(payload);
-
-    if (result.error) {
-      setLoading(false);
-      setResponseError({
-        title: 'Sign in failed',
-        description: result.error,
-      });
-    }
-
-    if (result.session) {
-      if (callbackUrl) {
-        router.replace(callbackUrl);
-      }
-    }
+    await signIn(payload);
   };
 
   return (

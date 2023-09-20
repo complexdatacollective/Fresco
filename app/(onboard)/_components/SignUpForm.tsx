@@ -26,21 +26,26 @@ export const SignUpForm = ({
     resolver: zodResolver(userFormSchema),
   });
 
-  const { mutateAsync: signUp, isLoading } = trpc.signUp.useMutation({});
+  const utils = trpc.useContext();
+
+  const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
+    onSuccess: async (result) => {
+      if (result.error) {
+        const error = result.error;
+        setSignupError(error);
+        return;
+      }
+
+      if (result.session) {
+        await utils.session.get.refetch();
+        completeCallback?.();
+      }
+    },
+  });
 
   const onSubmit = async (data: UserSignupData) => {
     setSignupError(null);
-    const result = await signUp(data);
-
-    if (result.error) {
-      const error = result.error;
-      setSignupError(error);
-      return;
-    }
-
-    if (result.session) {
-      completeCallback?.();
-    }
+    await signUp(data);
   };
 
   return (

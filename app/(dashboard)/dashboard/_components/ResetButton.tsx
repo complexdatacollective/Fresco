@@ -2,11 +2,13 @@
 
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { resetConfigured } from '~/app/_actions';
+import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
+
+  const { mutateAsync: resetConfigured } = trpc.metadata.reset.useMutation();
 
   const reset = async () => {
     setLoading(true);
