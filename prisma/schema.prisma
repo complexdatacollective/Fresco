@@ -60,8 +60,8 @@ model Interview {
 }
 
 model Participant {
-  id         String      @id @default(cuid())
-  identifier String
+  id         String      @id @unique @default(cuid())
+  identifier String      @unique
   interviews Interview[]
 }
 

@@ -35,12 +35,12 @@ async function main() {
       description: protocol.description,
       assetPath: 'assets/path',
       lastModified: protocol.lastModified,
-      stages: JSON.stringify(protocol.stages),
-      codebook: JSON.stringify(protocol.codebook),
+      stages: protocol.stages,
+      codebook: protocol.codebook,
     },
   });
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 100; i++) {
     const participantData = mockParticipant();
     const interview = mockInterview();
 

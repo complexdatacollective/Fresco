@@ -1,19 +1,24 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
 import type { Participant } from '@prisma/client';
+import { type ColumnDef } from '@tanstack/react-table';
+import { Settings } from 'lucide-react';
+import Link from 'next/link';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
-import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { Checkbox } from '~/components/ui/checkbox';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
-import { Settings } from 'lucide-react';
 
-export const ParticipantColumns: ColumnDef<Participant>[] = [
+// export const ParticipantColumns: ColumnDef<Participant>[] =
+export const ParticipantColumns = (
+  editAction: (identifier: string) => void,
+  handleDelete: (id: string) => Promise<void>,
+): ColumnDef<Participant>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -46,6 +51,25 @@ export const ParticipantColumns: ColumnDef<Participant>[] = [
     },
   },
   {
+    accessorKey: 'Unique_interview_URL',
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader column={column} title="Unique interview URL" />
+      );
+    },
+    cell: ({ row }) => (
+      <Link
+        target="_blank"
+        className="text-blue-500 underline hover:text-blue-300"
+        href={`/interview/${row.original.id}`}
+      >
+        interview/{row.original.id}
+      </Link>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     id: 'actions',
     header: () => (
       <TooltipProvider>
@@ -59,8 +83,30 @@ export const ParticipantColumns: ColumnDef<Participant>[] = [
         </Tooltip>
       </TooltipProvider>
     ),
-    cell: () => {
-      return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
+    cell: ({ row }) => {
+      return (
+        <ActionsDropdown
+          menuItems={[
+            {
+              label: 'Edit',
+              id: row.original.id,
+              idendtifier: row.original.identifier,
+              editAction,
+            },
+            {
+              label: 'Delete',
+              id: row.original.id,
+              idendtifier: row.original.identifier,
+              deleteParticipant: handleDelete,
+            },
+            {
+              label: 'Copy',
+              id: row.original.identifier,
+              idendtifier: row.original.identifier,
+            },
+          ]}
+        />
+      );
     },
   },
 ];

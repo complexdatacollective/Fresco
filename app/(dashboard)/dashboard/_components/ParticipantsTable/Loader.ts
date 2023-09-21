@@ -1,6 +1,6 @@
+import { z } from 'zod';
 import { prisma } from '~/utils/db';
 import { safeLoader } from '~/utils/safeLoader';
-import { z } from 'zod';
 
 const ParticipantValidation = z.array(
   z.object({
@@ -9,7 +9,8 @@ const ParticipantValidation = z.array(
   }),
 );
 
-export const safeLoadParticipants = safeLoader({
-  outputValidation: ParticipantValidation,
-  loader: () => prisma.participant.findMany(),
-});
+export const safeLoadParticipants = () =>
+  safeLoader({
+    outputValidation: ParticipantValidation,
+    loader: () => prisma.participant.findMany(),
+  });
