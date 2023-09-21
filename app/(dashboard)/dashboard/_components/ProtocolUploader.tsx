@@ -22,7 +22,11 @@ import type { UploadFileResponse } from 'uploadthing/client';
 import React from 'react';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 
-export default function ProtocolUploader() {
+export default function ProtocolUploader({
+  onUploaded,
+}: {
+  onUploaded: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [dialogContent, setDialogContent] = useState({
@@ -75,6 +79,7 @@ export default function ProtocolUploader() {
       progress: false,
       error: '',
     });
+    onUploaded();
   };
 
   const { startUpload } = useUploadThing({
