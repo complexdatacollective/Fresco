@@ -1,56 +1,103 @@
-"use client";
+'use client';
 
-import { signIn } from "next-auth/react";
-import Link from "~/components/Link";
-import { Button } from "~/components/ui/Button";
+import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { type UserSignupData, userFormSchema } from '../_shared';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { trpc } from '~/app/_trpc/client';
+import ActionError from '../../../components/ActionError';
 
-const doSignIn = async (e: FormData) => {
-  await signIn("credentials", {
-    email: e.get("email"),
-    password: e.get("password"),
-  });
+type ResponseError = {
+  title: string;
+  description: string;
 };
 
-export default function SignInForm() {
+export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const [responseError, setResponseError] = useState<ResponseError | null>(
+    null,
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserSignupData>({
+    resolver: zodResolver(userFormSchema),
+  });
+
+  const utils = trpc.useContext();
+
+  const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
+    onMutate: () => setLoading(true),
+    onSuccess: async (result) => {
+      if (result.error) {
+        setLoading(false);
+        setResponseError({
+          title: 'Sign in failed',
+          description: result.error,
+        });
+      }
+
+      if (result.session) {
+        await utils.session.get.refetch();
+        if (callbackUrl) {
+          window.location.href = callbackUrl;
+        }
+      }
+    },
+  });
+
+  const onSubmit = async (data: unknown) => {
+    const payload = userFormSchema.parse(data);
+    await signIn(payload);
+  };
+
   return (
-    <div className="flex flex-col rounded-lg bg-white shadow-lg">
-      <div className="m-6">
-        <h1 className="text-2xl font-bold">Sign in</h1>
-        <p>
-          Don&apos;t have an account? <Link href="/signup">Sign up</Link>.
-        </p>
+    <form
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+      className="flex w-full flex-col"
+    >
+      {responseError && (
+        <div className="mb-6 flex flex-wrap">
+          <ActionError
+            errorTitle={responseError.title}
+            errorDescription={responseError.description}
+          />
+        </div>
+      )}
+      <div className="mb-6 flex flex-wrap">
+        <Input
+          label="Username"
+          autoComplete="username"
+          error={errors.username?.message}
+          {...register('username')}
+        />
       </div>
-      <div className="m-6 flex flex-col">
-        <form
-          action={(e) => {
-            void doSignIn(e);
-          }}
-        >
-          <div className="mb-6 flex flex-col md:mb-0">
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700">
-              E-mail
-            </label>
-            <input
-              name="email"
-              type="email"
-              className="mb-3 block appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:bg-white focus:outline-none"
-            />
-          </div>
-          <div className="mb-6 flex flex-col md:mb-0">
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700">
-              Password
-            </label>
-            <input
-              name="password"
-              type="password"
-              className="mb-3 block appearance-none rounded border border-gray-200 bg-gray-200 px-4 py-3 leading-tight text-gray-700 focus:bg-white focus:outline-none"
-            />
-          </div>
-          <div className="mb-6 md:mb-0">
-            <Button type="submit">Sign in</Button>
-          </div>
-        </form>
+      <div className="mb-6 flex flex-wrap">
+        <Input
+          type="password"
+          label="Password"
+          autoComplete="current-password"
+          error={errors.password?.message}
+          {...register('password')}
+        />
       </div>
-    </div>
+      <div className="flex flex-wrap">
+        {loading ? (
+          <Button disabled>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Signing in...
+          </Button>
+        ) : (
+          <Button type="submit">Sign in</Button>
+        )}
+      </div>
+    </form>
   );
 }

@@ -26,6 +26,7 @@ const config = {
     'prettier',
   ],
   rules: {
+    'no-process-env': 'error',
     'no-console': 'error',
     '@typescript-eslint/consistent-type-imports': [
       'warn',
@@ -41,7 +42,6 @@ const config = {
       },
     ],
     'no-unreachable': 'error',
-    'no-console': 'error',
     'local-rules/require-data-mapper': 'error',
   },
 };

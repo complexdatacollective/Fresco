@@ -1,21 +1,10 @@
-import { withAuth } from 'next-auth/middleware';
+import { stackMiddlewares } from './middlewares/stackMiddleware';
+import { withErrorHandler } from './middlewares/withErrorHandler';
+import { withLogger } from './middlewares/withLogger';
+import { withURLHeader } from './middlewares/withURLHeader';
 
-// Attempt at a middleware for admin routes.
-// Not clear if implementing at the middleware level is a good idea or not...
-export default withAuth(
-  // `withAuth` augments your `Request` with the user's token.
-  function middleware(_req) {},
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        const isAdmin = token?.roles?.some((role) => role.name === 'ADMIN');
-        return !!isAdmin;
-      },
-    },
-  },
-);
+export default stackMiddlewares([withURLHeader, withLogger, withErrorHandler]);
 
-// See "Matching Paths" below to learn more
 export const config = {
-  matcher: '/admin',
+  matcher: ['/((?!api|_next/static|images|_next/image|favicon.ico).*)'],
 };

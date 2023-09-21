@@ -1,169 +1,33 @@
-import {
-  getServerSession,
-  type NextAuthOptions,
-  type DefaultSession,
-  type DefaultUser,
-} from 'next-auth';
-import { prisma } from '~/utils/db';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare } from 'bcrypt';
-import { DefaultJWT } from 'next-auth/jwt';
-import { z } from 'zod';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { lucia } from 'lucia';
+import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
+import { prisma as client } from '~/utils/db';
+import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
+import * as context from 'next/headers';
+import { nextjs_future } from 'lucia/middleware';
+import { env } from '~/env.mjs';
+import { User } from '@prisma/client';
 
-const verifyPassword = async (
-  password: string,
-  hashedPassword: string,
-): Promise<boolean> => {
-  return compare(password, hashedPassword);
+export const auth = lucia({
+  env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
+  middleware: nextjs_future(),
+  sessionCookie: {
+    expires: false,
+  },
+  getUserAttributes: (data: User) => {
+    return {
+      username: data.username,
+    };
+  },
+  adapter: prismaAdapter(client),
+  // experimental: {
+  //   debugMode: env.NODE_ENV !== 'production',
+  // },
+});
+
+export type Auth = typeof auth;
+
+export const getPageSession = () => {
+  const authRequest = auth.handleRequest('GET', context);
+
+  return authRequest.validate();
 };
-
-declare module 'next-auth' {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
-  interface User {
-    id: string;
-    email: string;
-    name: string;
-    roles: Array<Record<string, string>>;
-  }
-
-  interface Session {
-    user: User;
-  }
-}
-
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
-export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: 'jwt',
-  },
-  callbacks: {
-    jwt(params) {
-      // console.log('jwt callback', params);
-      const { token, user } = params;
-
-      if (user) {
-        token.id = user.id;
-        token.roles = user.roles;
-      }
-
-      return token;
-    },
-    session: ({ session, token }) => {
-      // console.log('session callback', session, token);
-      return {
-        expires: session.expires,
-        user: {
-          id: token.id,
-          roles: token.roles,
-          name: token.name,
-          email: token.email,
-        },
-      };
-    },
-  },
-  providers: [
-    CredentialsProvider({
-      name: 'Username and Password',
-      credentials: {
-        email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'user@networkcanvas.com',
-        },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        // Reject if no email or password
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        // Check if user exists in db
-
-        const UserValidation = z.array(
-          z.object({
-            id: z.string(),
-            name: z.string(),
-            email: z.string(),
-            password: z.string(),
-            roles: z.array(
-              z.object({
-                id: z.string(),
-                name: z.string(),
-              }),
-            ),
-          }),
-        );
-
-        const safeLoadUser = safeLoader({
-          outputValidation: UserValidation,
-          loader: async () => {
-            const user = await prisma.user.findUnique({
-              where: {
-                email: credentials.email,
-              },
-              select: {
-                id: true,
-                email: true,
-                name: true,
-                password: true,
-                roles: true,
-              },
-            });
-            return user;
-          },
-        });
-
-        const user = await safeLoadUser();
-
-        if (!user) {
-          console.log('no user found!');
-          return null;
-        }
-
-        if (!user.password) {
-          console.log('no password found!');
-          return null;
-        }
-
-        // Verify password against hashed password
-        const isPasswordValid = await verifyPassword(
-          credentials.password,
-          user.password,
-        );
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          roles: user.roles,
-        };
-      },
-    }),
-  ],
-  pages: {
-    signIn: '/signin',
-    // signOut: '/auth/signout',
-    // error: '/auth/error', // Error code passed in query string as ?error=
-    // verifyRequest: '/auth/verify-request', // (used for check email message)
-    // newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
-  },
-};
-
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
-export const getServerAuthSession = () => getServerSession(authOptions);

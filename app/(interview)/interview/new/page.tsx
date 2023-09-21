@@ -5,7 +5,6 @@
 
 import type { User } from '@prisma/client';
 import { redirect } from 'next/navigation';
-import { getServerAuthSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 const createInterview = async (user: User, protocolId: string) => {
@@ -45,7 +44,8 @@ export default async function Page({ params, searchParams }) {
   // Check we have a currently logged in user. Eventually, we want
   // to optionally create a new user automatically as part of the
   // onboarding flow.
-  const session = await getServerAuthSession();
+  const session = false;
+  console.error('UPDATE ME');
 
   if (!session) {
     redirect('/');

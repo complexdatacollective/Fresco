@@ -1,46 +1,35 @@
 import { redirect } from 'next/navigation';
 import { NetworkProvider } from '~/contexts/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
-import { getServerAuthSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Stage as StageType } from '~/lib/shared-consts';
 import Link from 'next/link';
 import { z } from 'zod';
-import { safeLoader } from '~/lib/data-mapper/safeLoader';
+import { safeLoader } from '~/utils/safeLoader';
 
-const InterviewValidation = z.object({
-  id: z.string(),
-  startTime: z.date(),
-  finishTime: z.date().nullable(),
-  exportTime: z.date().nullable(),
-  lastUpdated: z.date(),
-  userId: z.string(),
-  protocolId: z.string(),
-  currentStep: z.number(),
-  network: z.string(),
-});
-
-const safeLoadInterview = safeLoader({
-  outputValidation: InterviewValidation,
-  loader: async (id: string) => {
-    const interview = await prisma.interview.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-          },
+const getInterview = async (id: string) =>
+  await safeLoader({
+    outputValidation: z.object({
+      id: z.string(),
+      startTime: z.date(),
+      finishTime: z.date().nullable(),
+      exportTime: z.date().nullable(),
+      lastUpdated: z.date(),
+      protocolId: z.string(),
+      currentStep: z.number(),
+      network: z.string(),
+    }),
+    loader: () =>
+      prisma.interview.findUnique({
+        where: {
+          id: id,
         },
-        protocol: true,
-      },
-    });
-
-    return interview;
-  },
-});
+        include: {
+          protocol: true,
+        },
+      }),
+  });
 
 export default async function Page({
   params,
@@ -50,26 +39,8 @@ export default async function Page({
   const interviewId = params.interview?.[0];
   const currentInterviewPage = params.interview?.[1]; // item || null
 
-  // If theres no interview ID in the URL, redirect to the main dashboard
-  if (!interviewId) {
-    redirect('/');
-  }
-
-  // Get session so we can check if the user is allowed to view this interview
-  const session = await getServerAuthSession();
-
-  // If the user is not logged in, redirect to the signin page
-  if (!session) {
-    redirect('/signin');
-  }
-
   // Fetch interview data from the database
-  const interviewData = await safeLoadInterview(interviewId);
-
-  // If theres no interview data in the database, redirect to the main dashboard
-  if (!interviewData) {
-    redirect('/');
-  }
+  const interviewData = await getInterview(interviewId);
 
   // TODO: Check here that the logged in user has access to this interview
   // If not, redirect to the main dashboard
