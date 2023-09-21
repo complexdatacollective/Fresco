@@ -1,21 +1,25 @@
 'use client';
 
+import { type Participant } from '@prisma/client';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { trpc } from '~/app/_trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
+import ParticipantModal from '../../participants/_components/ParticipantModal';
 import { useParticipants } from '../ParticipantsProvider';
 import { ParticipantColumns } from './Columns';
-import ParticipantModal from '../../participants/_components/ParticipantModal';
-import { useState } from 'react';
-import {
-  deleteParticipant,
-  deleteParticipants,
-} from '../../participants/_actions/actions';
-import { type Participant } from '@prisma/client';
 
 export const ParticipantsTable = () => {
   const { isLoading, participants } = useParticipants();
   const [seletedParticipant, setSeletedParticipant] = useState('');
-  const [isDeletingSelected, setIsDeletingSelected] = useState(false);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const { mutateAsync: deleteParticipant } =
+    trpc.participants.deleteSingle.useMutation();
+
+  const { mutateAsync: deleteParticipants, isLoading: isDeletingSelected } =
+    trpc.participants.deleteMany.useMutation();
 
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
@@ -23,15 +27,15 @@ export const ParticipantsTable = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const result = await deleteParticipant(id);
+    const result = await deleteParticipant({ id });
     if (result.error) throw new Error(result.error);
+    router.refresh();
   };
 
   const handleDeleteSelected = async (data: Participant[]) => {
-    setIsDeletingSelected(true);
     const result = await deleteParticipants(data);
     if (result.error) throw new Error(result.error);
-    setIsDeletingSelected(false);
+    router.refresh();
   };
 
   if (isLoading || !participants) {

@@ -158,7 +158,7 @@ export const importParticipants = async (data: ParticipantWithoutId[]) => {
   });
 
   if (!(existingParticipants && createdParticipants)) {
-    return { error: 'Failed to update participant' };
+    return { error: 'Failed to import participants' };
   }
 
   revalidatePath('/dashboard/participants');

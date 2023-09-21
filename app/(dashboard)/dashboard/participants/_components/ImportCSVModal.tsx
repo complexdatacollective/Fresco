@@ -2,6 +2,7 @@
 
 import type { Prisma } from '@prisma/client';
 import { useState } from 'react';
+import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -12,10 +13,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { importParticipants } from '../_actions/actions';
 import AlertDialogCSV from './AlertDialogCSV';
 import Dropzone from './Dropzone';
 import SelectCSVColumn from './SelectCSVColumn';
+import { useRouter } from 'next/navigation';
 
 export type IResponseData = {
   existingParticipants: {
@@ -26,9 +27,9 @@ export type IResponseData = {
 };
 
 const ImportCSVModal = () => {
+  const router = useRouter();
   const [openAlertDialog, setOpenAlertDialog] = useState(false);
   const [openImportDialog, setOpenImportDialog] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [responseData, setResponseData] = useState<IResponseData | undefined>(
     undefined,
   );
@@ -41,10 +42,12 @@ const ImportCSVModal = () => {
     Array<Record<string, string>>
   >([]);
 
+  const { mutateAsync: importParticipants, isLoading } =
+    trpc.participants.createMany.useMutation();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!files.length) return setErrMsg('File is required!');
-    setIsLoading(true);
     let participants;
     const ObjKeys = Object.keys(csvParticipants[0] || {});
 
@@ -62,7 +65,7 @@ const ImportCSVModal = () => {
       }));
     }
     const result = await importParticipants(participants);
-    if (result.error) throw new Error(result.error);
+    if (result.data === null) throw new Error(result.error);
     setResponseData(result.data);
     setOpenAlertDialog(true);
     clearAll();
@@ -72,8 +75,8 @@ const ImportCSVModal = () => {
     setFiles([]);
     setCsvColumns([]);
     setCsvParticipants([]);
-    setIsLoading(false);
     setOpenImportDialog(false);
+    router.refresh();
   };
 
   return (

@@ -1,11 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { type Participant } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
-import { useState, type Dispatch, type SetStateAction, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
+import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Label } from '~/components/ui/Label';
@@ -18,7 +20,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { createParticipant, updateParticipant } from '../_actions/actions';
 
 interface ParticipantModalProps {
   open: boolean;
@@ -51,7 +52,12 @@ function ParticipantModal({
 
   type ValidationSchema = z.infer<typeof validationSchema>;
 
-  const [pending, setPending] = useState(false);
+  const { mutateAsync: createParticipant, isLoading: createLodaing } =
+    trpc.participants.create.useMutation();
+
+  const { mutateAsync: updateParticipant, isLoading: updateLoading } =
+    trpc.participants.update.useMutation();
+
   const {
     register,
     handleSubmit,
@@ -60,6 +66,7 @@ function ParticipantModal({
   } = useForm<ValidationSchema>({
     resolver: zodResolver(validationSchema),
   });
+  const router = useRouter();
 
   useEffect(() => {
     reset({ identifier: seletedParticipant });
@@ -67,25 +74,26 @@ function ParticipantModal({
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
     let result;
-    setPending(true);
     if (seletedParticipant) {
       // update participant
-      result = await updateParticipant(seletedParticipant, data.identifier);
-      setPending(false);
+      result = await updateParticipant({
+        identifier: seletedParticipant,
+        newIdentifier: data.identifier,
+      });
     } else {
       // add participant
-      result = await createParticipant(data.identifier);
-      setPending(false);
+      result = await createParticipant(data);
     }
-    if (result.participant) setOpen(false);
 
     if (result.error) throw new Error(result.error);
+    if (result.participant) setOpen(false);
     clearAll();
   };
 
   function clearAll() {
     setSeletedParticipant('');
     reset({});
+    router.refresh();
   }
 
   return (
@@ -117,8 +125,14 @@ function ParticipantModal({
           </form>
         </div>
         <DialogFooter>
-          <Button form="add-participant" type="submit" disabled={pending}>
-            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button
+            form="add-participant"
+            type="submit"
+            disabled={createLodaing || updateLoading}
+          >
+            {(createLodaing || updateLoading) && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             {seletedParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>
