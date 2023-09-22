@@ -1,7 +1,7 @@
-import { metadataRouter } from './routers/metadata';
-import { sessionRouter } from './routers/session';
-import { protocolRouter } from './routers/protocol';
-import { router } from './trpc';
+import { metadataRouter } from '~/server/routers/metadata';
+import { sessionRouter } from '~/server/routers/session';
+import { protocolRouter } from '~/server/routers/protocol';
+import { router } from '~/server/trpc';
 
 export const appRouter = router({
   metadata: metadataRouter,

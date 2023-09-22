@@ -1,6 +1,6 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
-import { protectedProcedure, router } from '../trpc';
+import { protectedProcedure, router } from '~/server/trpc';
 import { z } from 'zod';
 
 const updateActive = z.object({
