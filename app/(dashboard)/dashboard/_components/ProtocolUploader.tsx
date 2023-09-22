@@ -6,8 +6,20 @@ import { generateReactHelpers } from '~/utils/uploadthing/useUploadThing';
 import { useState, useCallback } from 'react';
 
 import { importProtocol } from '../_actions/importProtocol';
-import { Button, buttonVariants } from '~/components/ui/Button';
-import { cn } from '~/utils';
+import { Button } from '~/components/ui/Button';
+import { Switch } from '~/components/ui/switch';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '~/components/ui/form';
+
+const ActivateProtocolFormSchema = z.object({
+  mark_protocol_active: z.boolean().default(false),
+});
 
 const { useUploadThing } = generateReactHelpers();
 
@@ -21,6 +33,9 @@ import {
 import type { UploadFileResponse } from 'uploadthing/client';
 import React from 'react';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
 export default function ProtocolUploader() {
   const [open, setOpen] = useState(false);
@@ -134,6 +149,14 @@ export default function ProtocolUploader() {
     accept: { 'application/octect-stream': ['.netcanvas'] },
   });
 
+  const form = useForm<z.infer<typeof ActivateProtocolFormSchema>>({
+    resolver: zodResolver(ActivateProtocolFormSchema),
+  });
+
+  function onSubmit(data: z.infer<typeof ActivateProtocolFormSchema>) {
+    console.log(data, 'submitted');
+  }
+
   return (
     <>
       <div
@@ -182,6 +205,44 @@ export default function ProtocolUploader() {
                 </code>
               </CollapsibleContent>
             </Collapsible>
+          )}
+          {!dialogContent.progress && !dialogContent.error && (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full space-y-6"
+              >
+                <div>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="mark_protocol_active"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Mark protocol as active?
+                            </FormLabel>
+                            <FormDescription>
+                              Only one protocol may be active at a time. If you
+                              already have an active protocol, activating this
+                              one will make it inactive.
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <Button type="submit">Finish Import</Button>
+              </form>
+            </Form>
           )}
         </DialogContent>
       </Dialog>
