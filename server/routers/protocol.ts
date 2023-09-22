@@ -5,12 +5,13 @@ import { z } from 'zod';
 
 const updateActive = z.object({
   setActive: z.boolean(),
+  hash: z.string().optional(),
 });
 
 export const protocolRouter = router({
   setActive: protectedProcedure
     .input(updateActive)
-    .mutation(async ({ input: { setActive } }) => {
+    .mutation(async ({ input: { setActive, hash } }) => {
       if (!setActive) {
         return;
       }
@@ -34,16 +35,29 @@ export const protocolRouter = router({
       }
 
       // find the most recently imported protocol
-      const recentlyUploaded = await prisma.protocol.findFirst({
-        orderBy: {
-          importedAt: 'desc',
-        },
-      });
+      if (!hash) {
+        const recentlyUploaded = await prisma.protocol.findFirst({
+          orderBy: {
+            importedAt: 'desc',
+          },
+        });
 
-      // make the selected protocol active
+        // make the most recent protocol active
+        await prisma.protocol.update({
+          where: {
+            hash: recentlyUploaded?.hash,
+          },
+          data: {
+            active: true,
+          },
+        });
+        return;
+      }
+
+      // make the protocol with the given hash active
       await prisma.protocol.update({
         where: {
-          hash: recentlyUploaded?.hash,
+          hash,
         },
         data: {
           active: true,
