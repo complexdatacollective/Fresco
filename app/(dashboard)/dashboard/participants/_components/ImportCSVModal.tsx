@@ -16,7 +16,6 @@ import {
 import AlertDialogCSV from './AlertDialogCSV';
 import Dropzone from './Dropzone';
 import SelectCSVColumn from './SelectCSVColumn';
-import { useRouter } from 'next/navigation';
 
 export type IResponseData = {
   existingParticipants: {
@@ -26,8 +25,11 @@ export type IResponseData = {
   createdParticipants: Prisma.BatchPayload;
 };
 
-const ImportCSVModal = () => {
-  const router = useRouter();
+type ImportCSVModalProps = {
+  refetch: () => Promise<unknown>;
+};
+
+const ImportCSVModal = ({ refetch }: ImportCSVModalProps) => {
   const [openAlertDialog, setOpenAlertDialog] = useState(false);
   const [openImportDialog, setOpenImportDialog] = useState(false);
   const [responseData, setResponseData] = useState<IResponseData | undefined>(
@@ -43,7 +45,11 @@ const ImportCSVModal = () => {
   >([]);
 
   const { mutateAsync: importParticipants, isLoading } =
-    trpc.participants.createMany.useMutation();
+    trpc.participants.createMany.useMutation({
+      async onSuccess() {
+        await refetch();
+      },
+    });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,7 +82,6 @@ const ImportCSVModal = () => {
     setCsvColumns([]);
     setCsvParticipants([]);
     setOpenImportDialog(false);
-    router.refresh();
   };
 
   return (

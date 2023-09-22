@@ -26,12 +26,14 @@ interface ParticipantModalProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
   participants: Participant[];
   seletedParticipant: string;
+  refetch: () => Promise<unknown>;
   setSeletedParticipant: Dispatch<SetStateAction<string>>;
 }
 
 function ParticipantModal({
   open,
   setOpen,
+  refetch,
   participants,
   seletedParticipant,
   setSeletedParticipant,
@@ -43,20 +45,27 @@ function ParticipantModal({
         .min(5, { message: 'Identifier must be at least 5 characters long' }),
     })
     .refine(
-      (data) => !participants.find((p) => p.identifier === data.identifier),
+      (data) => !participants?.find((p) => p.identifier === data.identifier),
       {
         path: ['identifier'],
         message: 'Identifier already exist!',
       },
     );
-
   type ValidationSchema = z.infer<typeof validationSchema>;
 
   const { mutateAsync: createParticipant, isLoading: createLodaing } =
-    trpc.participants.create.useMutation();
+    trpc.participants.create.useMutation({
+      async onSuccess() {
+        await refetch();
+      },
+    });
 
   const { mutateAsync: updateParticipant, isLoading: updateLoading } =
-    trpc.participants.update.useMutation();
+    trpc.participants.update.useMutation({
+      async onSuccess() {
+        await refetch();
+      },
+    });
 
   const {
     register,
@@ -74,6 +83,7 @@ function ParticipantModal({
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
     let result;
+
     if (seletedParticipant) {
       // update participant
       result = await updateParticipant({

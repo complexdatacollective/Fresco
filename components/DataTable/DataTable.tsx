@@ -31,15 +31,15 @@ interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
-  handleDeleteSelected: (data: TData[]) => void;
-  isDeletingSelected?: boolean;
+  handleDeleteSelected: (data: TData[]) => Promise<void>;
+  isDeletedSelected?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns = [],
   data,
   handleDeleteSelected,
-  isDeletingSelected,
+  isDeletedSelected,
   filterColumnAccessorKey = '',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -71,7 +71,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       {filterColumnAccessorKey && (
-        <div className="flex items-center py-4">
+        <div className="flex items-center pb-4 pt-1">
           <Input
             placeholder={`Filter by ${filterColumnAccessorKey}...`}
             value={
@@ -175,7 +175,7 @@ export function DataTable<TData, TValue>({
           size="sm"
           disabled={!table.getFilteredSelectedRowModel().rows.length}
         >
-          {isDeletingSelected ? (
+          {isDeletedSelected ? (
             <span className="flex items-center gap-2">
               Deleting...
               <Loader className="h-4 w-4 animate-spin text-white" />

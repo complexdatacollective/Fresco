@@ -3,17 +3,39 @@ import { z } from 'zod';
 import { prisma } from '~/utils/db';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 
+const createSchema = z.object({
+  identifier: z.string(),
+});
+
+const updateSchema = z.object({
+  identifier: z.string(),
+  newIdentifier: z.string(),
+});
+
+const deleteSingleSchema = z.object({
+  id: z.string(),
+});
+
+const deleteManySchema = z.array(
+  z.object({
+    id: z.string(),
+    identifier: z.string(),
+  }),
+);
+
+const createManySchema = z.array(
+  z.object({
+    identifier: z.string(),
+  }),
+);
+
 export const participantsRouter = router({
   get: publicProcedure.query(async () => {
     const participants = await prisma.participant.findMany();
     return participants;
   }),
   create: protectedProcedure
-    .input(
-      z.object({
-        identifier: z.string(),
-      }),
-    )
+    .input(createSchema)
     .mutation(async ({ input: { identifier } }) => {
       try {
         // check if participant already exist
@@ -34,12 +56,7 @@ export const participantsRouter = router({
       }
     }),
   update: protectedProcedure
-    .input(
-      z.object({
-        identifier: z.string(),
-        newIdentifier: z.string(),
-      }),
-    )
+    .input(updateSchema)
     .mutation(async ({ input: { identifier, newIdentifier } }) => {
       try {
         const updatedParticipant = await prisma.participant.update({
@@ -54,11 +71,7 @@ export const participantsRouter = router({
       }
     }),
   deleteSingle: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      }),
-    )
+    .input(deleteSingleSchema)
     .mutation(async ({ input: { id } }) => {
       try {
         const deletedParticipant = await prisma.participant.delete({
@@ -70,14 +83,7 @@ export const participantsRouter = router({
       }
     }),
   deleteMany: protectedProcedure
-    .input(
-      z.array(
-        z.object({
-          id: z.string(),
-          identifier: z.string(),
-        }),
-      ),
-    )
+    .input(deleteManySchema)
     .mutation(async ({ input: data }) => {
       const idsToDelete = data.map((p) => p.id);
 
@@ -95,13 +101,7 @@ export const participantsRouter = router({
       }
     }),
   createMany: protectedProcedure
-    .input(
-      z.array(
-        z.object({
-          identifier: z.string(),
-        }),
-      ),
-    )
+    .input(createManySchema)
     .mutation(async ({ input: data }) => {
       try {
         const existingParticipants = await prisma.participant.findMany({
