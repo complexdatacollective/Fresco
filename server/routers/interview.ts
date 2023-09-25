@@ -15,7 +15,12 @@ const deleteManySchema = z.array(
 
 export const interviewRouter = router({
   get: publicProcedure.query(async () => {
-    const interviews = await prisma.interview.findMany();
+    const interviews = await prisma.interview.findMany({
+      include: {
+        participant: true,
+        protocol: true,
+      },
+    });
     return interviews;
   }),
   deleteSingle: protectedProcedure

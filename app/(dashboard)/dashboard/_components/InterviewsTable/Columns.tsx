@@ -89,15 +89,17 @@ export const InterviewColumns = (
     },
   },
   {
-    accessorKey: 'network',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Network" />;
-    },
-  },
-  {
     accessorKey: 'participantId',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Participant ID" />;
+    },
+  },
+  {
+    accessorKey: 'participant.identifier',
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader column={column} title="Participant Identifier" />
+      );
     },
   },
   {
@@ -106,7 +108,12 @@ export const InterviewColumns = (
       return <DataTableColumnHeader column={column} title="Protocol ID" />;
     },
   },
-
+  {
+    accessorKey: 'protocol.name',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Protocol Name" />;
+    },
+  },
   {
     accessorKey: 'currentStep',
     header: ({ column }) => {
