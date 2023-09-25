@@ -14,7 +14,7 @@ export const InterviewsTable = () => {
       },
     });
 
-  const { mutateAsync: deleteInterviews, isLoading: isDeletedSelected } =
+  const { mutateAsync: deleteInterviews } =
     trpc.interview.deleteMany.useMutation({
       async onSuccess() {
         await interviews.refetch();

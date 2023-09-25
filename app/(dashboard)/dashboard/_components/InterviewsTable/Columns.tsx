@@ -135,7 +135,7 @@ export const InterviewColumns = (
               label: 'Delete',
               id: row.original.id,
               idendtifier: row.original.id,
-              handleDeleteInterview: handleDelete,
+              deleteItem: handleDelete,
             },
           ]}
         />
