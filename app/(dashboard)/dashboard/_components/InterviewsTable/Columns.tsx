@@ -14,7 +14,9 @@ import {
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
 
-export const InterviewColumns: ColumnDef<Interview>[] = [
+export const InterviewColumns = (
+  handleDelete: (id: string) => Promise<void>,
+): ColumnDef<Interview>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -87,9 +89,24 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     },
   },
   {
-    accessorKey: 'protocolId',
-    header: 'Protocol ID',
+    accessorKey: 'network',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Network" />;
+    },
   },
+  {
+    accessorKey: 'participantId',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Participant ID" />;
+    },
+  },
+  {
+    accessorKey: 'protocolId',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Protocol ID" />;
+    },
+  },
+
   {
     accessorKey: 'currentStep',
     header: ({ column }) => {
@@ -105,13 +122,24 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
             <Settings />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Edit, resume, or delete an individual interview.</p>
+            <p>Delete an individual interview.</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     ),
-    cell: () => {
-      return <ActionsDropdown menuItems={['Edit', 'Resume', 'Delete']} />;
+    cell: ({ row }) => {
+      return (
+        <ActionsDropdown
+          menuItems={[
+            {
+              label: 'Delete',
+              id: row.original.id,
+              idendtifier: row.original.id,
+              handleDeleteInterview: handleDelete,
+            },
+          ]}
+        />
+      );
     },
   },
 ];

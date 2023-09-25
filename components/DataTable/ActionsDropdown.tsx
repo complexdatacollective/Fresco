@@ -18,6 +18,7 @@ interface Actions {
   idendtifier: string;
   editAction?: (identifier: string) => void;
   deleteParticipant?: (id: string) => Promise<void>;
+  deleteInterview?: (id: string) => Promise<void>;
 }
 
 interface Props<TMenuItem = Actions> {
@@ -70,7 +71,9 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
             )}
             {item.label === 'Delete' && (
               <button
-                onClick={() => handleDelete(item)}
+                onClick={() => {
+                  handleDelete(item).catch(console.error);
+                }}
                 className="w-full text-left"
               >
                 Delete
