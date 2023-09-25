@@ -1,4 +1,4 @@
-import { ParticipantsTable } from '../_components/ParticipantsTable/ParticipantsTable';
+import { ParticipantsTable } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ParticipantsTable';
 
 const ParticipantPage = () => {
   return (

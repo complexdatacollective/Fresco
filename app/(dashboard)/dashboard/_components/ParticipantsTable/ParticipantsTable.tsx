@@ -4,10 +4,10 @@ import { type Participant } from '@prisma/client';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
-import ParticipantModal from '../../participants/_components/ParticipantModal';
-import { ParticipantColumns } from './Columns';
-import ImportCSVModal from '../../participants/_components/ImportCSVModal';
-import ExportCSVParticipants from '../../participants/_components/ExportCSVParticipants';
+import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
+import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
+import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
+import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 
 export const ParticipantsTable = () => {
   const participants = trpc.participants.get.useQuery();

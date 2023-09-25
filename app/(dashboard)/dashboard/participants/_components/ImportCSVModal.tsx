@@ -13,9 +13,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import AlertDialogCSV from './AlertDialogCSV';
-import Dropzone from './Dropzone';
-import SelectCSVColumn from './SelectCSVColumn';
+import AlertDialogCSV from '~/app/(dashboard)/dashboard/participants/_components/AlertDialogCSV';
+import Dropzone from '~/app/(dashboard)/dashboard/participants/_components/Dropzone';
+import SelectCSVColumn from '~/app/(dashboard)/dashboard/participants/_components/SelectCSVColumn';
 
 export type IResponseData = {
   existingParticipants: {
