@@ -32,10 +32,6 @@ export const InterviewsTable = () => {
     return <div>Loading...</div>;
   }
 
-  if (!interviews.data) {
-    return <div>Loading...</div>;
-  }
-
   const convertedData: InterviewWithoutNetwork[] = interviews.data.map(
     (interview) => ({
       ...interview,
