@@ -47,8 +47,7 @@ export const InterviewColumns = (
     header: 'Start Time',
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -60,8 +59,7 @@ export const InterviewColumns = (
         return 'Not completed';
       }
       const date = new Date(row.original.finishTime);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -73,8 +71,7 @@ export const InterviewColumns = (
         return 'Not yet exported';
       }
       const date = new Date(row.original.exportTime);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -84,10 +81,10 @@ export const InterviewColumns = (
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
+
   {
     accessorKey: 'participantId',
     header: ({ column }) => {

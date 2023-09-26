@@ -33,10 +33,23 @@ export const InterviewsTable = () => {
   if (!interviews.data) {
     return <div>Loading...</div>;
   }
+
+  if (!interviews.data) {
+    return <div>Loading...</div>;
+  }
+
+  const convertedData: Interview[] = interviews.data.map((interview) => ({
+    ...interview,
+    startTime: new Date(interview.startTime),
+    finishTime: interview.finishTime ? new Date(interview.finishTime) : null,
+    exportTime: interview.exportTime ? new Date(interview.exportTime) : null,
+    lastUpdated: new Date(interview.lastUpdated),
+  }));
+
   return (
     <DataTable
       columns={InterviewColumns(handleDelete)}
-      data={interviews.data}
+      data={convertedData}
       filterColumnAccessorKey="id"
       handleDeleteSelected={handleDeleteSelected}
     />
