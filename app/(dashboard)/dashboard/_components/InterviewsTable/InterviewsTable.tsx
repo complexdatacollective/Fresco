@@ -5,6 +5,8 @@ import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/Interv
 import { trpc } from '~/app/_trpc/client';
 import { type Interview } from '@prisma/client';
 
+type InterviewWithoutNetwork = Omit<Interview, 'network'>;
+
 export const InterviewsTable = () => {
   const interviews = trpc.interview.get.useQuery();
   const { mutateAsync: deleteInterview } =
@@ -26,7 +28,7 @@ export const InterviewsTable = () => {
     if (result.error) throw new Error(result.error);
   };
 
-  const handleDeleteSelected = async (data: Interview[]) => {
+  const handleDeleteSelected = async (data: InterviewWithoutNetwork[]) => {
     const result = await deleteInterviews(data);
     if (result.error) throw new Error(result.error);
   };
@@ -38,13 +40,15 @@ export const InterviewsTable = () => {
     return <div>Loading...</div>;
   }
 
-  const convertedData: Interview[] = interviews.data.map((interview) => ({
-    ...interview,
-    startTime: new Date(interview.startTime),
-    finishTime: interview.finishTime ? new Date(interview.finishTime) : null,
-    exportTime: interview.exportTime ? new Date(interview.exportTime) : null,
-    lastUpdated: new Date(interview.lastUpdated),
-  }));
+  const convertedData: InterviewWithoutNetwork[] = interviews.data.map(
+    (interview) => ({
+      ...interview,
+      startTime: new Date(interview.startTime),
+      finishTime: interview.finishTime ? new Date(interview.finishTime) : null,
+      exportTime: interview.exportTime ? new Date(interview.exportTime) : null,
+      lastUpdated: new Date(interview.lastUpdated),
+    }),
+  );
 
   return (
     <DataTable

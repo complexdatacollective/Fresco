@@ -1,7 +1,7 @@
-/* eslint-disable local-rules/require-data-mapper */
 import * as z from 'zod';
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
+import { safeLoader } from '~/utils/safeLoader';
 
 const deleteSingleSchema = z.object({
   id: z.string(),
@@ -13,13 +13,38 @@ const deleteManySchema = z.array(
   }),
 );
 
+const InterviewValidation = z.array(
+  z.object({
+    id: z.string(),
+    startTime: z.date(),
+    finishTime: z.date().nullable(),
+    exportTime: z.date().nullable(),
+    lastUpdated: z.date(),
+    participantId: z.string(),
+    protocolId: z.string(),
+    currentStep: z.number(),
+    participant: z.object({
+      id: z.string(),
+      identifier: z.string(),
+    }),
+    protocol: z.object({
+      id: z.string(),
+      name: z.string(),
+    }),
+  }),
+);
+
 export const interviewRouter = router({
   get: publicProcedure.query(async () => {
-    const interviews = await prisma.interview.findMany({
-      include: {
-        participant: true,
-        protocol: true,
-      },
+    const interviews = safeLoader({
+      outputValidation: InterviewValidation,
+      loader: () =>
+        prisma.interview.findMany({
+          include: {
+            protocol: true,
+            participant: true,
+          },
+        }),
     });
     return interviews;
   }),
@@ -27,6 +52,7 @@ export const interviewRouter = router({
     .input(deleteSingleSchema)
     .mutation(async ({ input: { id } }) => {
       try {
+        // eslint-disable-next-line local-rules/require-data-mapper
         const deletedInterivew = await prisma.interview.delete({
           where: { id },
         });
@@ -41,6 +67,7 @@ export const interviewRouter = router({
       const idsToDelete = data.map((p) => p.id);
 
       try {
+        // eslint-disable-next-line local-rules/require-data-mapper
         const deletedInterviews = await prisma.interview.deleteMany({
           where: {
             id: {

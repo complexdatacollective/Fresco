@@ -14,9 +14,11 @@ import {
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
 
+type InterviewWithoutNetwork = Omit<Interview, 'network'>;
+
 export const InterviewColumns = (
   handleDelete: (id: string) => Promise<void>,
-): ColumnDef<Interview>[] => [
+): ColumnDef<InterviewWithoutNetwork>[] => [
   {
     id: 'select',
     header: ({ table }) => (
