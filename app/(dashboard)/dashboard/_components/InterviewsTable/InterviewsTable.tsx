@@ -28,10 +28,6 @@ export const InterviewsTable = () => {
     if (result.error) throw new Error(result.error);
   };
 
-  const handleDeleteSelected = async (data: InterviewWithoutNetwork[]) => {
-    const result = await deleteInterviews(data);
-    if (result.error) throw new Error(result.error);
-  };
   if (!interviews.data) {
     return <div>Loading...</div>;
   }
@@ -55,7 +51,15 @@ export const InterviewsTable = () => {
       columns={InterviewColumns(handleDelete)}
       data={convertedData}
       filterColumnAccessorKey="id"
-      handleDeleteSelected={handleDeleteSelected}
+      handleDeleteSelected={(data: InterviewWithoutNetwork[]) => {
+        deleteInterviews(data)
+          .then((result) => {
+            if (result.error) throw new Error(result.error);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }}
     />
   );
 };
