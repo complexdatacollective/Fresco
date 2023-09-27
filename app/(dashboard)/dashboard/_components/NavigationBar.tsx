@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
-import { UrlObject } from 'url';
+import { type UrlObject } from 'url';
 
 export const NavButton = ({
   children,
@@ -35,7 +35,10 @@ export function NavigationBar() {
 
   return (
     <nav className="flex justify-between p-10">
-      <Link href="/" className="mr-6 flex items-center space-x-2">
+      <Link
+        href={{ pathname: '/' }}
+        className="mr-6 flex items-center space-x-2"
+      >
         <Image
           src="/images/NC-Mark@4x.png"
           alt="Fresco"
@@ -47,23 +50,26 @@ export function NavigationBar() {
         </span>
       </Link>
       <div className="flex items-center space-x-6">
-        <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
+        <NavButton
+          href={{ pathname: '/' }}
+          isActive={pathname === '/dashboard'}
+        >
           Home
         </NavButton>
         <NavButton
-          href="/dashboard/protocols"
+          href={{ pathname: '/dashboard/protocols' }}
           isActive={pathname === '/dashboard/protocols'}
         >
           Protocols
         </NavButton>
         <NavButton
-          href="/dashboard/interviews"
+          href={{ pathname: 'dashboard/interviews' }}
           isActive={pathname === '/dashboard/interviews'}
         >
           Interviews
         </NavButton>
         <NavButton
-          href="/dashboard/participants"
+          href={{ pathname: '/dashboard/participants' }}
           isActive={pathname === '/dashboard/participants'}
         >
           Participants

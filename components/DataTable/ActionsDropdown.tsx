@@ -71,6 +71,7 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
             {item.label === 'Delete' && (
               <button
                 onClick={() => {
+                  // eslint-disable-next-line no-console
                   handleDelete(item).catch(console.error);
                 }}
                 className="w-full text-left"
