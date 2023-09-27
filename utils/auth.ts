@@ -5,7 +5,7 @@ import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
 import * as context from 'next/headers';
 import { nextjs_future } from 'lucia/middleware';
 import { env } from '~/env.mjs';
-import { User } from '@prisma/client';
+import type { User } from '@prisma/client';
 
 export const auth = lucia({
   env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
@@ -26,7 +26,7 @@ export const auth = lucia({
 
 export type Auth = typeof auth;
 
-export const getPageSession = () => {
+export const getDefaultSession = () => {
   const authRequest = auth.handleRequest('GET', context);
 
   return authRequest.validate();

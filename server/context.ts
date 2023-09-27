@@ -1,31 +1,11 @@
-import type { NextRequest } from 'next/server';
-import * as context from 'next/headers';
-import { cache } from 'react';
-import { auth } from '~/utils/auth';
-import type { Session } from 'lucia';
+import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+import { getDefaultSession } from '~/utils/auth';
 
-export const getDefaultSession = cache(() => {
-  const authRequest = auth.handleRequest('GET', context);
-
-  return authRequest.validate();
-});
-
-const createInnerTRPCContext = ({
-  session,
-  request,
-}: {
-  session: Session | null;
-  request: NextRequest;
-}) => {
+export const createTRPCContext = async (opts?: FetchCreateContextFnOptions) => {
   return {
-    request,
-    session,
+    session: await getDefaultSession(),
+    headers: opts && Object.fromEntries(opts.req.headers),
   };
 };
 
-export const createTRPCContext = async (req: NextRequest) => {
-  return createInnerTRPCContext({
-    request: req,
-    session: await getDefaultSession(),
-  });
-};
+export type Context = Awaited<ReturnType<typeof createTRPCContext>>;

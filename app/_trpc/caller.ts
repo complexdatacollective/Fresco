@@ -1,6 +1,6 @@
 import { createTRPCContext } from '~/server/context';
 import { appRouter } from '~/server/router';
 
-export const caller = appRouter.createCaller({
+export const trpc = appRouter.createCaller({
   ...(await createTRPCContext()),
 });
