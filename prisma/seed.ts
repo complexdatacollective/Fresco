@@ -3,6 +3,7 @@ import { prisma } from '~/utils/db';
 import protocol from '~/lib/development-protocol/protocol.json' assert { type: 'json' };
 import mockParticipant from '~/utils/generateMockData/participant';
 import mockInterview from '~/utils/generateMockData/interview/interview';
+import 'lucia/polyfill/node';
 import { generateLuciaPasswordHash } from 'lucia/utils';
 import { createKeyId } from 'lucia';
 
@@ -20,7 +21,7 @@ async function main() {
       key: {
         create: {
           id: createKeyId('username', 'admin'),
-          hashed_password: await generateLuciaPasswordHash('administrator'),
+          hashed_password: await generateLuciaPasswordHash('Administrator1!'),
         },
       },
     },
