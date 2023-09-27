@@ -14,7 +14,11 @@ import {
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
 
-export const InterviewColumns: ColumnDef<Interview>[] = [
+type InterviewWithoutNetwork = Omit<Interview, 'network'>;
+
+export const InterviewColumns = (
+  handleDelete: (id: string) => Promise<void>,
+): ColumnDef<InterviewWithoutNetwork>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -45,8 +49,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     header: 'Start Time',
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -58,8 +61,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
         return 'Not completed';
       }
       const date = new Date(row.original.finishTime);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -71,8 +73,7 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
         return 'Not yet exported';
       }
       const date = new Date(row.original.exportTime);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -82,13 +83,35 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
+    },
+  },
+
+  {
+    accessorKey: 'participantId',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Participant ID" />;
+    },
+  },
+  {
+    accessorKey: 'participant.identifier',
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader column={column} title="Participant Identifier" />
+      );
     },
   },
   {
     accessorKey: 'protocolId',
-    header: 'Protocol ID',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Protocol ID" />;
+    },
+  },
+  {
+    accessorKey: 'protocol.name',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Protocol Name" />;
+    },
   },
   {
     accessorKey: 'currentStep',
@@ -105,13 +128,24 @@ export const InterviewColumns: ColumnDef<Interview>[] = [
             <Settings />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Edit, resume, or delete an individual interview.</p>
+            <p>Delete an individual interview.</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     ),
-    cell: () => {
-      return <ActionsDropdown menuItems={['Edit', 'Resume', 'Delete']} />;
+    cell: ({ row }) => {
+      return (
+        <ActionsDropdown
+          menuItems={[
+            {
+              label: 'Delete',
+              id: row.original.id,
+              idendtifier: row.original.id,
+              deleteItem: handleDelete,
+            },
+          ]}
+        />
+      );
     },
   },
 ];
