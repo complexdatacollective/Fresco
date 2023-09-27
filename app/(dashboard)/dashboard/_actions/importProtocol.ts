@@ -141,6 +141,7 @@ export const insertProtocol = async (
   try {
     const protocolHash = await hash(JSON.stringify(protocol), 8);
 
+    // eslint-disable-next-line local-rules/require-data-mapper
     await prisma.protocol.create({
       data: {
         assetPath: '',

@@ -38,7 +38,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { trpc } from '~/app/_trpc/client';
 
-export default function ProtocolUploader() {
+export default function ProtocolUploader({
+  onUploaded,
+}: {
+  onUploaded: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [dialogContent, setDialogContent] = useState({
@@ -96,6 +100,7 @@ export default function ProtocolUploader() {
       progress: false,
       error: '',
     });
+    onUploaded();
   };
 
   const { startUpload } = useUploadThing({
