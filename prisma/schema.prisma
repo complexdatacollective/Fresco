@@ -25,6 +25,7 @@ model Protocol {
   codebook      Json
   assetManifest Asset[]
   interviews    Interview[]
+  active       Boolean     @default(false)
 }
 
 model Asset {
