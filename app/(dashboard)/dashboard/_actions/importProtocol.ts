@@ -137,11 +137,11 @@ export const insertProtocol = async (
   protocolName: string,
   protocol: NCProtocol,
   assets: Asset[] | undefined,
-  ownerId: string,
 ) => {
   try {
     const protocolHash = await hash(JSON.stringify(protocol), 8);
 
+    // eslint-disable-next-line local-rules/require-data-mapper
     await prisma.protocol.create({
       data: {
         assetPath: '',
@@ -152,7 +152,6 @@ export const insertProtocol = async (
         stages: JSON.stringify(protocol.stages),
         codebook: JSON.stringify(protocol.codebook),
         description: protocol.description,
-        ownerId,
         assetManifest: {
           create: assets,
         },
@@ -213,7 +212,7 @@ export const importProtocol = async (file: UploadFileResponse) => {
     // Inserting protocol...
     // await insertProtocol(protocolName, protocolJson, assets, session.user.id);
     // Todo
-    await insertProtocol(protocolName, protocolJson, assets, '123');
+    await insertProtocol(protocolName, protocolJson, assets);
 
     // Removing protocol file...');
     await removeProtocolFile(file.key);
