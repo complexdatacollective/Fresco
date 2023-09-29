@@ -29,7 +29,7 @@ const createManySchema = z.array(
   }),
 );
 
-export const participantsRouter = router({
+export const participantRouter = router({
   get: publicProcedure.query(async () => {
     const participants = await prisma.participant.findMany();
     return participants;

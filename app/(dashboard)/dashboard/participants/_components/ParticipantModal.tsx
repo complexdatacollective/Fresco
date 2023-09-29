@@ -54,14 +54,14 @@ function ParticipantModal({
   type ValidationSchema = z.infer<typeof validationSchema>;
 
   const { mutateAsync: createParticipant, isLoading: createLodaing } =
-    trpc.participants.create.useMutation({
+    trpc.participant.create.useMutation({
       async onSuccess() {
         await refetch();
       },
     });
 
   const { mutateAsync: updateParticipant, isLoading: updateLoading } =
-    trpc.participants.update.useMutation({
+    trpc.participant.update.useMutation({
       async onSuccess() {
         await refetch();
       },

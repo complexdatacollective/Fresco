@@ -45,7 +45,7 @@ const ImportCSVModal = ({ refetch }: ImportCSVModalProps) => {
   >([]);
 
   const { mutateAsync: importParticipants, isLoading } =
-    trpc.participants.createMany.useMutation({
+    trpc.participant.createMany.useMutation({
       async onSuccess() {
         await refetch();
       },

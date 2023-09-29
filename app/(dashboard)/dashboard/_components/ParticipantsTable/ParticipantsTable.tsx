@@ -10,19 +10,19 @@ import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_com
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 
 export const ParticipantsTable = () => {
-  const participants = trpc.participants.get.useQuery();
+  const participants = trpc.participant.get.useQuery();
   const [seletedParticipant, setSeletedParticipant] = useState('');
   const [open, setOpen] = useState(false);
 
   const { mutateAsync: deleteParticipant } =
-    trpc.participants.deleteSingle.useMutation({
+    trpc.participant.deleteSingle.useMutation({
       async onSuccess() {
         await participants.refetch();
       },
     });
 
   const { mutateAsync: deleteParticipants, isLoading: isDeletedSelected } =
-    trpc.participants.deleteMany.useMutation({
+    trpc.participant.deleteMany.useMutation({
       async onSuccess() {
         await participants.refetch();
       },

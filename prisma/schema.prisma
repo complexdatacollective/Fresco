@@ -23,6 +23,7 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
+  active       Boolean     @default(false)
 }
 
 model Asset {

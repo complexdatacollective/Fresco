@@ -12,5 +12,5 @@ const ParticipantValidation = z.array(
 export const safeLoadParticipants = () =>
   safeLoader({
     outputValidation: ParticipantValidation,
-    loader: () => trpc.participants.get.query(),
+    loader: () => trpc.participant.get.query(),
   });
