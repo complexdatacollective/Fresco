@@ -17,7 +17,7 @@ interface Actions {
   id: string;
   idendtifier: string;
   editAction?: (identifier: string) => void;
-  deleteParticipant?: (id: string) => Promise<void>;
+  deleteItem?: (id: string) => Promise<void>;
 }
 
 interface Props<TMenuItem = Actions> {
@@ -31,8 +31,8 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
 
   const handleDelete = async (item: Actions) => {
     setPending(true);
-    if (item.deleteParticipant) {
-      await item.deleteParticipant(item.id);
+    if (item.deleteItem) {
+      await item.deleteItem(item.id);
     }
     setPending(false);
   };
@@ -70,7 +70,9 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
             )}
             {item.label === 'Delete' && (
               <button
-                onClick={() => handleDelete(item)}
+                onClick={() => {
+                  handleDelete(item).catch(console.error);
+                }}
                 className="w-full text-left"
               >
                 Delete

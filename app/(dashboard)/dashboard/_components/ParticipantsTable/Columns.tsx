@@ -97,7 +97,7 @@ export const ParticipantColumns = (
               label: 'Delete',
               id: row.original.id,
               idendtifier: row.original.identifier,
-              deleteParticipant: handleDelete,
+              deleteItem: handleDelete,
             },
             {
               label: 'Copy',

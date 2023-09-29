@@ -1,8 +1,8 @@
+'use client';
 import { Check } from 'lucide-react';
 import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
-import { Switch } from '~/components/ui/switch';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 function ConfigureStudy() {
@@ -14,7 +14,6 @@ function ConfigureStudy() {
 
   const handleProtocolUploaded = () => {
     setProtocolUploaded(true);
-    // will be replaced with ProtocolUploader handling protocol upload
   };
 
   const handleNextStep = () => {
@@ -36,9 +35,8 @@ function ConfigureStudy() {
           <div className="flex justify-between">
             {protocolUploaded && <Check />}
           </div>
-          {!protocolUploaded && <ProtocolUploader />}
           {!protocolUploaded && (
-            <button onClick={handleProtocolUploaded}>Confirm Uploaded</button>
+            <ProtocolUploader onUploaded={handleProtocolUploaded} />
           )}
         </div>
         <div className="flex justify-start">
