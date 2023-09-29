@@ -11,7 +11,6 @@ datasource db {
   relationMode = "prisma" // Planetscale doesn't support foreign keys yet, so we need to use this
 }
 
-// NC Models
 model Protocol {
   id            String      @id @default(cuid())
   hash          String      @unique
@@ -22,7 +21,7 @@ model Protocol {
   lastModified  DateTime
   stages        Json
   codebook      Json
-  assetManifest Asset[]
+  assets        Asset[]
   interviews    Interview[]
 }
 

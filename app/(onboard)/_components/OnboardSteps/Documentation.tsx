@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
@@ -8,19 +7,17 @@ import { trpc } from '~/app/_trpc/client';
 import { useRouter } from 'next/navigation';
 
 function Documentation() {
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { mutateAsync: setConfigured } =
-    trpc.metadata.setConfigured.useMutation();
+  const { mutate: setConfigured, isLoading } =
+    trpc.metadata.setConfigured.useMutation({
+      onSuccess: () => {
+        router.push('/dashboard');
+        router.refresh();
+      },
+    });
 
-  const handleFinishOnboarding = async () => {
-    setLoading(true);
-    await setConfigured();
-    router.push('/dashboard');
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex w-[30rem] items-center justify-center">
         <div className="flex flex-col items-center justify-center gap-4">
@@ -71,7 +68,7 @@ function Documentation() {
       </Card>
 
       <div className="flex justify-start pt-4">
-        <Button type="submit" onClick={handleFinishOnboarding}>
+        <Button type="submit" onClick={() => setConfigured()}>
           Finish Onboarding
         </Button>
       </div>

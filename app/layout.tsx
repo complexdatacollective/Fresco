@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
-import { getSetupMetadata } from '~/utils/getSetupMetadata';
-import { caller } from './_trpc/caller';
 import RedirectWrapper from '~/components/RedirectWrapper';
+import { Suspense } from 'react';
+import { api } from './_trpc/server';
+import type { Session } from 'lucia';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -11,10 +12,9 @@ export const metadata = {
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await caller.session.get();
-  const { expired, configured } = await getSetupMetadata();
-
-  console.log('rootlayout', session);
+  const session = (await api.session.get.query()) as Session | null;
+  const { expired, configured } =
+    await api.metadata.get.allSetupMetadata.query();
 
   return (
     <html lang="en">
@@ -24,7 +24,9 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           expired={expired}
           session={session}
         >
-          <Providers initialSession={session}>{children}</Providers>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Providers initialSession={session}>{children}</Providers>
+          </Suspense>
         </RedirectWrapper>
       </body>
     </html>

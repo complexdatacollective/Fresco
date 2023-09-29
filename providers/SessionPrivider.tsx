@@ -30,42 +30,38 @@ export const SessionProvider = ({
   session: Session | null;
 }) => {
   const [session, setSession] = useState<Session | null>(initialSession);
-  const [loading, setLoading] = useState(!initialSession);
 
-  const { refetch: getSession } = trpc.session.get.useQuery(undefined, {
-    initialData: { session: initialSession },
-    refetchOnMount: false,
-    onSuccess: (data: GetQueryReturn) => {
-      if (data) {
-        setSession(data);
-      } else {
-        setSession(null);
-      }
-
-      setLoading(false);
+  const { refetch: getSession, isLoading } = trpc.session.get.useQuery(
+    undefined,
+    {
+      initialData: { session: initialSession },
+      onSuccess: (data: GetQueryReturn) => {
+        if (data) {
+          setSession(data);
+        } else {
+          setSession(null);
+        }
+      },
     },
-    onError: () => {
-      setLoading(false);
-    },
-  });
+  );
 
-  // Revalidate session on mount
+  // If initialSession is updated, update the session state and refetch
+  // client side.
   useEffect(() => {
-    if (initialSession) {
-      setLoading(true);
-      getSession().catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error(err);
-      });
-    }
+    console.log('initial session changed', initialSession);
+    setSession(initialSession);
+    getSession().catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(err);
+    });
   }, [initialSession, getSession]);
 
   const value = useMemo(
     () => ({
       session,
-      isLoading: loading,
+      isLoading,
     }),
-    [session, loading],
+    [session, isLoading],
   );
 
   return (

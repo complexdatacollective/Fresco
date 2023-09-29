@@ -1,11 +1,10 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { type Participant } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { type SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
@@ -20,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
+import useZodForm from '~/hooks/useZodForm';
 
 interface ParticipantModalProps {
   open: boolean;
@@ -72,9 +72,10 @@ function ParticipantModal({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ValidationSchema>({
-    resolver: zodResolver(validationSchema),
+  } = useZodForm({
+    schema: validationSchema,
   });
+
   const router = useRouter();
 
   useEffect(() => {

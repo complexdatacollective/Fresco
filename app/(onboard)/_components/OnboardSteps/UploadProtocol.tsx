@@ -2,11 +2,11 @@ import { Check } from 'lucide-react';
 import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
-import { Switch } from '~/components/ui/switch';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import type { Route } from 'next';
 
 function ConfigureStudy() {
-  const pathname = usePathname();
+  const pathname = usePathname() as Route;
   const [protocolUploaded, setProtocolUploaded] = useState(false);
   const searchParams = useSearchParams();
   const currentStep = searchParams.get('step') as string;
