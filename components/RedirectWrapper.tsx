@@ -1,8 +1,8 @@
 'use client';
 
 import type { Session } from 'lucia';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import type { Route } from 'next';
+import { usePathname, redirect } from 'next/navigation';
 import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
 
 /**
@@ -28,21 +28,18 @@ export default function RedirectWrapper({
   configured: boolean;
   expired: boolean;
 }) {
-  const router = useRouter();
-  const path = usePathname();
+  const path = usePathname() as Route;
 
-  useEffect(() => {
-    const redirect = calculateRedirect({
-      session,
-      path,
-      expired,
-      configured,
-    });
+  const shouldRedirect = calculateRedirect({
+    session,
+    path,
+    expired,
+    configured,
+  });
 
-    if (redirect) {
-      router.push(redirect);
-    }
-  }, [session, path, router, configured, expired]);
+  if (shouldRedirect) {
+    redirect(shouldRedirect);
+  }
 
   return children;
 }

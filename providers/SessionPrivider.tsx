@@ -37,7 +37,7 @@ export const SessionProvider = ({
 
   const { refetch: getSession, isFetching: isLoading } =
     trpc.session.get.useQuery(undefined, {
-      initialData: { session: initialSession },
+      initialData: initialSession,
       onSuccess: (data: GetQueryReturn) => {
         if (data) {
           setSession(data);

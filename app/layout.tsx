@@ -24,9 +24,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           expired={expired}
           session={session}
         >
-          <Suspense fallback={<div>Loading...</div>}>
-            <Providers initialSession={session}>{children}</Providers>
-          </Suspense>
+          <Providers initialSession={session}>{children}</Providers>
         </RedirectWrapper>
       </body>
     </html>
