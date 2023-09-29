@@ -2,7 +2,7 @@
 
 import type { Session } from 'lucia';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpcReact } from '~/app/_trpc/client';
 
 type SessionWithLoading = {
   session: Session | null;
@@ -32,31 +32,29 @@ export const SessionProvider = ({
   const [session, setSession] = useState<Session | null>(initialSession);
   const [loading, setLoading] = useState(!initialSession);
 
-  const { refetch: getSession } = trpc.session.get.useQuery(undefined, {
-    initialData: { session: initialSession },
-    refetchOnMount: false,
-    onSuccess: (data: GetQueryReturn) => {
-      if (data) {
-        setSession(data);
-      } else {
-        setSession(null);
-      }
+  const { data: freshSession, refetch: getSession } =
+    trpcReact.session.get.useQuery(undefined, {
+      refetchOnMount: true,
+    });
 
-      setLoading(false);
-    },
-    onError: () => {
-      setLoading(false);
-    },
-  });
+  useEffect(() => {
+    console.log('freshSession', freshSession);
+    if (!freshSession) return;
+
+    setSession(freshSession);
+  }, [freshSession]);
 
   // Revalidate session on mount
   useEffect(() => {
+    console.log('initialSession', initialSession);
     if (initialSession) {
       setLoading(true);
       getSession().catch((err) => {
         // eslint-disable-next-line no-console
         console.error(err);
       });
+
+      setLoading(false);
     }
   }, [initialSession, getSession]);
 

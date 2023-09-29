@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
-import { trpc } from '~/app/_trpc/client';
+import { trpcReact } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Label } from '~/components/ui/Label';
@@ -54,14 +54,14 @@ function ParticipantModal({
   type ValidationSchema = z.infer<typeof validationSchema>;
 
   const { mutateAsync: createParticipant, isLoading: createLodaing } =
-    trpc.participants.create.useMutation({
+    trpcReact.participants.create.useMutation({
       async onSuccess() {
         await refetch();
       },
     });
 
   const { mutateAsync: updateParticipant, isLoading: updateLoading } =
-    trpc.participants.update.useMutation({
+    trpcReact.participants.update.useMutation({
       async onSuccess() {
         await refetch();
       },
@@ -75,7 +75,6 @@ function ParticipantModal({
   } = useForm<ValidationSchema>({
     resolver: zodResolver(validationSchema),
   });
-  const router = useRouter();
 
   useEffect(() => {
     reset({ identifier: seletedParticipant });
@@ -103,7 +102,6 @@ function ParticipantModal({
   function clearAll() {
     setSeletedParticipant('');
     reset({});
-    router.refresh();
   }
 
   return (

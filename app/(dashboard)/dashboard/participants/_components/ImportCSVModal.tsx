@@ -2,7 +2,7 @@
 
 import type { Prisma } from '@prisma/client';
 import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpcReact } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -45,7 +45,7 @@ const ImportCSVModal = ({ refetch }: ImportCSVModalProps) => {
   >([]);
 
   const { mutateAsync: importParticipants, isLoading } =
-    trpc.participants.createMany.useMutation({
+    trpcReact.participants.createMany.useMutation({
       async onSuccess() {
         await refetch();
       },

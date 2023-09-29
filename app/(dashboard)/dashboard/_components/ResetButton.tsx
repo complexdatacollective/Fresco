@@ -1,26 +1,24 @@
-'use client';
-
-import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpcRscHTTP } from '~/app/_trpc/server';
+// import { Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 
 const ResetButton = () => {
-  const [loading, setLoading] = useState(false);
+  const resetMetaAction = async () => {
+    'use server';
 
-  const { mutateAsync: resetConfigured } = trpc.metadata.reset.useMutation();
+    await trpcRscHTTP.metadata.reset.mutate();
 
-  const reset = async () => {
-    setLoading(true);
-    await resetConfigured();
-    window.location.reload();
+    await trpcRscHTTP.session.get.revalidate();
+    await trpcRscHTTP.metadata.get.revalidate();
   };
 
   return (
-    <Button variant="destructive" onClick={reset} disabled={loading}>
-      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Reset
-    </Button>
+    <form action={resetMetaAction}>
+      <Button variant="destructive" type="submit">
+        {/* {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} */}
+        Reset
+      </Button>
+    </form>
   );
 };
 

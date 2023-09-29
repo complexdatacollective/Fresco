@@ -1,11 +1,10 @@
-'use client';
 import { useDropzone } from 'react-dropzone';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FileWithPath } from 'react-dropzone';
 import { generateReactHelpers } from '~/utils/uploadthing/useUploadThing';
 import { useState, useCallback } from 'react';
 
-import { importProtocol } from '../_actions/importProtocol';
+import { importProtocol } from '../../../_actions/importProtocol';
 import { Button, buttonVariants } from '~/components/ui/Button';
 import { cn } from '~/utils';
 

@@ -2,23 +2,16 @@
 
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { type UserSignupData, userFormSchema } from '../_shared';
+import { userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { useRef, useState } from 'react';
+import { useAction } from '~/app/_trpc/client';
 import ActionError from '../../../components/ActionError';
-
-type ResponseError = {
-  title: string;
-  description: string;
-};
+import useZodForm from '~/utils/useZodForm';
+import { signInAction } from '~/app/_actions/session';
 
 export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
-  const [loading, setLoading] = useState(false);
-
   const [responseError, setResponseError] = useState<ResponseError | null>(
     null,
   );
@@ -26,40 +19,53 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<UserSignupData>({
-    resolver: zodResolver(userFormSchema),
+    formState: { errors, isSubmitting },
+  } = useZodForm({
+    schema: userFormSchema,
   });
 
-  const utils = trpc.useContext();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
-    onMutate: () => setLoading(true),
-    onSuccess: async (result) => {
-      if (result.error) {
-        setLoading(false);
-        setResponseError({
-          title: 'Sign in failed',
-          description: result.error,
-        });
-      }
-
-      if (result.session) {
-        await utils.session.get.refetch();
-        if (callbackUrl) {
-          window.location.href = callbackUrl;
-        }
-      }
+  const { mutateAsync } = useAction(signInAction, {
+    onError: (error) => {
+      setResponseError({
+        title: 'Sign in failed',
+        description: error,
+      });
     },
   });
 
-  const onSubmit = async (data: unknown) => {
-    const payload = userFormSchema.parse(data);
-    await signIn(payload);
+  const router = useRouter();
+
+  // const { mutate: signIn } = trpcReact.session.signIn.useMutation({
+  //   onMutate: () => setLoading(true),
+  //   onSuccess: async (result) => {
+  //     console.log(result);
+  //     if (result.error) {
+  //       setLoading(false);
+  //       setResponseError({
+  //         title: 'Sign in failed',
+  //         description: result.error,
+  //       });
+  //     }
+
+  //     if (result.session) {
+  //       if (callbackUrl) {
+  //         console.log('callbackUrl', callbackUrl);
+  //         router.replace(callbackUrl);
+  //       }
+  //     }
+  //   },
+  // });
+
+  const onSubmit = async () => {
+    await mutateAsync(new FormData(formRef.current));
   };
 
   return (
     <form
+      action={signInAction}
+      ref={formRef}
       onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       className="flex w-full flex-col"
     >
@@ -89,7 +95,7 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         />
       </div>
       <div className="flex flex-wrap">
-        {loading ? (
+        {isSubmitting ? (
           <Button disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Signing in...

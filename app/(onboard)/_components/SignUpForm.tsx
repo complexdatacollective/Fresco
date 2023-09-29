@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { Input } from '~/components/ui/Input';
 import { type UserSignupData, userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { trpc } from '~/app/_trpc/client';
+import { trpcReact } from '~/app/_trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
 
@@ -26,19 +26,20 @@ export const SignUpForm = ({
     resolver: zodResolver(userFormSchema),
   });
 
-  const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
-    onSuccess: async (result) => {
-      if (result.error) {
-        const error = result.error;
-        setSignupError(error);
-        return;
-      }
+  const { mutateAsync: signUp, isLoading } =
+    trpcReact.session.signUp.useMutation({
+      onSuccess: (result) => {
+        if (result.error) {
+          const error = result.error;
+          setSignupError(error);
+          return;
+        }
 
-      if (result.session) {
-        completeCallback?.();
-      }
-    },
-  });
+        if (result.session) {
+          completeCallback?.();
+        }
+      },
+    });
 
   const onSubmit = async (data: UserSignupData) => {
     setSignupError(null);

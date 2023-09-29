@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -31,7 +29,8 @@ export const NavButton = ({
 };
 
 export function NavigationBar() {
-  const pathname = usePathname();
+  // const pathname = usePathname();
+  const pathname = '/dashboard';
 
   return (
     <nav className="flex justify-between p-10">
