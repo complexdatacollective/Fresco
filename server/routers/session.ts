@@ -4,7 +4,7 @@ import { userFormSchema } from '~/app/(onboard)/_shared';
 import { auth } from '~/utils/auth';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 import * as context from 'next/headers';
-import { trpc } from '~/app/_trpc/server';
+import { helpers } from '~/app/_trpc/proxy';
 
 export const sessionRouter = router({
   signUp: publicProcedure.input(userFormSchema).mutation(async ({ input }) => {
@@ -31,7 +31,7 @@ export const sessionRouter = router({
 
       authRequest.setSession(session);
 
-      await trpc.session.get.revalidate();
+      await helpers.session.get.fetch();
 
       return {
         error: null,
@@ -63,7 +63,7 @@ export const sessionRouter = router({
 
       authRequest.setSession(session);
 
-      await trpc.session.get.revalidate();
+      await helpers.session.get.fetch();
 
       return {
         error: null,
@@ -99,7 +99,7 @@ export const sessionRouter = router({
 
     authRequest.setSession(null);
 
-    await trpc.session.get.revalidate();
+    await helpers.session.get.fetch();
 
     return {
       success: true,

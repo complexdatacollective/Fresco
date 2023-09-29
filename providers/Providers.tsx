@@ -25,6 +25,15 @@ export default function Providers({
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
         httpBatchLink({ url: '/api/trpc' }),
+        // The unstable stream link seems to cause issues with the login process.
+        // unstable_httpBatchStreamLink({
+        //   url: '/api/trpc',
+        //   headers() {
+        //     const newHeaders = new Map(headers);
+        //     newHeaders.delete('content-length');
+        //     return Object.fromEntries(newHeaders);
+        //   },
+        // }),
       ],
     }),
   );

@@ -3,7 +3,7 @@ import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { Suspense } from 'react';
-import { trpc } from './_trpc/server';
+import { trpc } from './_trpc/proxy';
 import type { Session } from 'lucia';
 
 export const metadata = {
