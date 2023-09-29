@@ -77,8 +77,6 @@ function ParticipantModal({
   });
   const router = useRouter();
 
-  const router = useRouter();
-
   useEffect(() => {
     reset({ identifier: seletedParticipant });
   }, [seletedParticipant, reset]);
