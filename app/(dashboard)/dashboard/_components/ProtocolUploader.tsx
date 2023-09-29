@@ -41,7 +41,7 @@ import { trpc } from '~/app/_trpc/client';
 export default function ProtocolUploader({
   onUploaded,
 }: {
-  onUploaded: () => void;
+  onUploaded?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
@@ -100,7 +100,6 @@ export default function ProtocolUploader({
       progress: false,
       error: '',
     });
-    onUploaded();
   };
 
   const { startUpload } = useUploadThing({
@@ -166,6 +165,9 @@ export default function ProtocolUploader({
 
   function onSubmit(data: z.infer<typeof ActivateProtocolFormSchema>) {
     setActive({ setActive: data.mark_protocol_active });
+    if (typeof onUploaded === 'function') {
+      onUploaded();
+    }
   }
 
   return (

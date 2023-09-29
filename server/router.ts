@@ -1,14 +1,16 @@
 import { metadataRouter } from './routers/metadata';
-import { participantRouter } from './routers/participants';
 import { sessionRouter } from './routers/session';
-import { protocolRouter } from './routers/protocol';
-import { router } from '~/server/trpc';
+import { interviewRouter } from './routers/interview';
+import { protocolRouter } from '~/server/routers/protocol';
+import { participantRouter } from './routers/participants';
+import { router } from './trpc';
 
 export const appRouter = router({
   metadata: metadataRouter,
   session: sessionRouter,
-  participant: participantRouter,
+  interview: interviewRouter,
   protocol: protocolRouter,
+  participant: participantRouter,
 });
 
 export type AppRouter = typeof appRouter;
