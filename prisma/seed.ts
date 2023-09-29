@@ -7,11 +7,9 @@ import { generateLuciaPasswordHash } from 'lucia/utils';
 import { createKeyId } from 'lucia';
 
 async function main() {
-  // Clear out existing data
-  await prisma.interview.deleteMany({});
-  await prisma.asset.deleteMany({});
-  await prisma.protocol.deleteMany({});
+  // Clear out existing data. These two cascade to the other models
   await prisma.user.deleteMany({});
+  await prisma.protocol.deleteMany({});
 
   // Users
   await prisma.user.create({
@@ -33,7 +31,6 @@ async function main() {
       hash: 'development-protocol',
       schemaVersion: protocol.schemaVersion,
       description: protocol.description,
-      assetPath: 'assets/path',
       lastModified: protocol.lastModified,
       stages: protocol.stages,
       codebook: protocol.codebook,
@@ -68,6 +65,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
+    // eslint-disable-next-line no-console
     console.error(e);
     await prisma.$disconnect();
     process.exit(1);

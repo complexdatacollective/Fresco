@@ -1,17 +1,19 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import { useSession } from '~/providers/SessionPrivider';
 
 const UserMenu = () => {
   const { session, isLoading } = useSession();
+  const router = useRouter();
 
   const { mutate: doSignout, isLoading: isSigningOut } =
     trpc.session.signOut.useMutation({
-      onSuccess: async () => {
-        window.location.reload();
+      onSuccess: () => {
+        router.refresh();
       },
     });
 

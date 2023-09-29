@@ -1,19 +1,20 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   const { mutateAsync: resetConfigured } = trpc.metadata.reset.useMutation();
 
   const reset = async () => {
     setLoading(true);
     await resetConfigured();
-    window.location.reload();
+    router.refresh();
   };
 
   return (

@@ -10,13 +10,14 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import ActionError from '../../../components/ActionError';
+import type { Route } from 'next';
 
 type ResponseError = {
   title: string;
   description: string;
 };
 
-export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
+export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
   const [loading, setLoading] = useState(false);
 
   const [responseError, setResponseError] = useState<ResponseError | null>(
@@ -32,6 +33,7 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   });
 
   const utils = trpc.useContext();
+  const router = useRouter();
 
   const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
     onMutate: () => setLoading(true),
@@ -47,7 +49,8 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       if (result.session) {
         await utils.session.get.refetch();
         if (callbackUrl) {
-          window.location.href = callbackUrl;
+          router.replace(callbackUrl);
+          router.refresh();
         }
       }
     },

@@ -39,8 +39,6 @@ export default function RedirectWrapper({
       configured,
     });
 
-    console.log('redirect', redirect, session);
-
     if (redirect) {
       router.push(redirect);
     }
