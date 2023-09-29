@@ -1,8 +1,10 @@
 'use client';
 
 import type { Session } from 'lucia';
+import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
+import usePrevious from '~/hooks/usePrevious';
 
 type SessionWithLoading = {
   session: Session | null;
@@ -30,10 +32,11 @@ export const SessionProvider = ({
   session: Session | null;
 }) => {
   const [session, setSession] = useState<Session | null>(initialSession);
+  const previousSession = usePrevious(session);
+  const router = useRouter();
 
-  const { refetch: getSession, isLoading } = trpc.session.get.useQuery(
-    undefined,
-    {
+  const { refetch: getSession, isFetching: isLoading } =
+    trpc.session.get.useQuery(undefined, {
       initialData: { session: initialSession },
       onSuccess: (data: GetQueryReturn) => {
         if (data) {
@@ -42,19 +45,25 @@ export const SessionProvider = ({
           setSession(null);
         }
       },
-    },
-  );
+    });
 
   // If initialSession is updated, update the session state and refetch
   // client side.
   useEffect(() => {
-    console.log('initial session changed', initialSession);
     setSession(initialSession);
     getSession().catch((err) => {
       // eslint-disable-next-line no-console
       console.error(err);
     });
   }, [initialSession, getSession]);
+
+  // If session changes from Session to null, refresh the router to trigger
+  // the redirect to the login page.
+  useEffect(() => {
+    if (session === null && previousSession !== null) {
+      router.refresh();
+    }
+  }, [session, router, previousSession]);
 
   const value = useMemo(
     () => ({
