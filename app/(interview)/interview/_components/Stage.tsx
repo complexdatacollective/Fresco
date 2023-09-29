@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useInterview } from "~/contexts/NetworkProvider";
-import { Stage } from "~/lib/shared-consts";
-import Button from "@codaco/ui/lib/components/Button";
-import { v4 as uuid } from "uuid";
+import { useInterview } from '~/providers/NetworkProvider';
+import { Stage } from '~/lib/shared-consts';
+import Button from '@codaco/ui/lib/components/Button';
+import { v4 as uuid } from 'uuid';
 
 const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
   const { network, addNode } = useInterview();
@@ -30,7 +30,7 @@ const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
         </pre>
       </div>
       <div>
-        <Button onClick={() => addNode({ id: uuid(), label: "test" })}>
+        <Button onClick={() => addNode({ id: uuid(), label: 'test' })}>
           Add Node
         </Button>
       </div>

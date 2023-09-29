@@ -3,7 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
-import { useSession } from '~/contexts/SessionPrivider';
+import { useSession } from '~/providers/SessionPrivider';
 
 const UserMenu = () => {
   const { session, isLoading } = useSession();

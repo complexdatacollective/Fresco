@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { NetworkProvider } from '~/contexts/NetworkProvider';
+import { NetworkProvider } from '~/providers/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
 import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';

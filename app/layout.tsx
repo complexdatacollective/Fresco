@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import '~/styles/globals.scss';
-import Providers from './_components/Providers';
+import Providers from '../providers/Providers';
 import { headers } from 'next/headers';
 import { getSetupMetadata } from '~/utils/getSetupMetadata';
 import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';

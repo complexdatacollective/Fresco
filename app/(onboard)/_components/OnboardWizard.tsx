@@ -8,7 +8,7 @@ import { cn } from '~/utils/shadcn';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
-import { useSession } from '~/contexts/SessionPrivider';
+import { useSession } from '~/providers/SessionPrivider';
 import { useEffect } from 'react';
 
 function OnboardWizard() {
