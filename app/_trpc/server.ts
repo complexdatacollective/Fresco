@@ -1,9 +1,10 @@
 'use server';
 
-import { httpBatchLink, loggerLink } from '@trpc/client';
+import { loggerLink } from '@trpc/client';
 import { experimental_nextCacheLink } from '@trpc/next/app-dir/links/nextCache';
 import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
 import { cookies } from 'next/headers';
+import { env } from '~/env.mjs';
 import { type AppRouter, appRouter } from '~/server/router';
 import { getPageSession } from '~/utils/auth';
 
@@ -16,8 +17,7 @@ export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
       links: [
         loggerLink({
           enabled: (opts) =>
-            (process.env.NODE_ENV === 'development' &&
-              typeof window !== 'undefined') ||
+            (env.NODE_ENV === 'development' && typeof window !== 'undefined') ||
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
         // httpBatchLink({

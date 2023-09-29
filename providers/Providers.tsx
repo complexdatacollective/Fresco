@@ -6,6 +6,7 @@ import { trpc } from '~/app/_trpc/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from '~/providers/SessionPrivider';
 import type { Session } from 'lucia';
+import { env } from '~/env.mjs';
 
 export default function Providers({
   children,
@@ -20,8 +21,7 @@ export default function Providers({
       links: [
         loggerLink({
           enabled: (opts) =>
-            (process.env.NODE_ENV === 'development' &&
-              typeof window !== 'undefined') ||
+            (env.NODE_ENV === 'development' && typeof window !== 'undefined') ||
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
         httpBatchLink({ url: '/api/trpc' }),
