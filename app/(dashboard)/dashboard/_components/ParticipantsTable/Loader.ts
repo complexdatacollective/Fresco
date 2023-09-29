@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { prisma } from '~/utils/db';
+import { api } from '~/app/_trpc/server';
 import { safeLoader } from '~/utils/safeLoader';
 
 const ParticipantValidation = z.array(
@@ -12,5 +12,5 @@ const ParticipantValidation = z.array(
 export const safeLoadParticipants = () =>
   safeLoader({
     outputValidation: ParticipantValidation,
-    loader: () => prisma.participant.findMany(),
+    loader: () => api.participants.get.query(),
   });
