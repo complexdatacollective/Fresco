@@ -2,7 +2,7 @@
 import { prisma } from '~/utils/db';
 import { devProcedure, publicProcedure, router } from '../trpc';
 import { auth } from '~/utils/auth';
-import { api } from '~/app/_trpc/server';
+import { trpc } from '~/app/_trpc/server';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
@@ -56,7 +56,7 @@ export const metadataRouter = router({
     if (userID) {
       // eslint-disable-next-line no-console
       console.info('Active user session found during reset. Invalidating...');
-      await api.session.signOut.mutate();
+      await trpc.session.signOut.mutate();
       await auth.invalidateAllUserSessions(userID);
     }
 
@@ -69,7 +69,7 @@ export const metadataRouter = router({
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
 
-    await api.metadata.get.allSetupMetadata.revalidate();
+    await trpc.metadata.get.allSetupMetadata.revalidate();
   }),
   setConfigured: publicProcedure.mutation(async () => {
     const { configured, initializedAt } = await getSetupMetadata();
@@ -87,6 +87,6 @@ export const metadataRouter = router({
       },
     });
 
-    await api.metadata.get.allSetupMetadata.revalidate();
+    await trpc.metadata.get.allSetupMetadata.revalidate();
   }),
 });

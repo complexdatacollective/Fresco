@@ -1,10 +1,14 @@
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/react-query';
+import {
+  createTRPCProxyClient,
+  unstable_httpBatchStreamLink,
+} from '@trpc/react-query';
 import { type AppRouter } from '~/server/router';
+import { getUrl } from '~/utils/getURL';
 
-export const proxy = createTRPCProxyClient<AppRouter>({
+export const trpc = createTRPCProxyClient<AppRouter>({
   links: [
-    httpBatchLink({
-      url: 'http://localhost:3000/api/trpc',
+    unstable_httpBatchStreamLink({
+      url: getUrl(),
     }),
   ],
 });
