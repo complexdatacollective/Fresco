@@ -75,6 +75,7 @@ function ParticipantModal({
   } = useZodForm({
     schema: validationSchema,
   });
+  const router = useRouter();
 
   const router = useRouter();
 
