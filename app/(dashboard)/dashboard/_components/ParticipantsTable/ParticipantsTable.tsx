@@ -47,15 +47,15 @@ export const ParticipantsTable = ({
   return (
     <>
       <div className="flex gap-2">
+        <ParticipantModal
+          open={showModal}
+          setOpen={setShowModal}
+          existingParticipants={participants}
+          editingParticipant={seletedParticipant}
+        />
         <ImportCSVModal />
         <ExportCSVParticipants />
       </div>
-      <ParticipantModal
-        open={showModal}
-        setOpen={setShowModal}
-        existingParticipants={participants}
-        editingParticipant={seletedParticipant}
-      />
       {isLoading && <div>Loading...</div>}
       <DataTable
         columns={ParticipantColumns(editParticipant, handleDelete)}

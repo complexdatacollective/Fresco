@@ -42,7 +42,7 @@ function ExportCSVParticipants({
   };
 
   return (
-    <Button disabled={isExporting} onClick={handleExport}>
+    <Button disabled={isExporting} onClick={handleExport} variant="outline">
       {isExporting ? 'Exporting...' : 'Export Participant List'}
     </Button>
   );

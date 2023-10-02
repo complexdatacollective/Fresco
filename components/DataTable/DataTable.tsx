@@ -81,6 +81,8 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
+
   return (
     <div>
       {filterColumnAccessorKey && (
@@ -176,23 +178,23 @@ export function DataTable<TData, TValue>({
             </Button>
           </div>
         </div>
-        <Button
-          onClick={() => void deleteHandler()}
-          variant="destructive"
-          size="sm"
-          disabled={
-            !table.getFilteredSelectedRowModel().rows.length || isDeleting
-          }
-        >
-          {isDeleting ? (
-            <span className="flex items-center gap-2">
-              Deleting...
-              <Loader className="h-4 w-4 animate-spin text-white" />
-            </span>
-          ) : (
-            'Delete Selected'
-          )}
-        </Button>
+        {hasSelectedRows && (
+          <Button
+            onClick={() => void deleteHandler()}
+            variant="destructive"
+            size="sm"
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <span className="flex items-center gap-2">
+                Deleting...
+                <Loader className="h-4 w-4 animate-spin text-white" />
+              </span>
+            ) : (
+              'Delete Selected'
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );

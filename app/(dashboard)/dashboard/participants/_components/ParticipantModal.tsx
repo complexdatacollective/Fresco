@@ -123,15 +123,14 @@ function ParticipantModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="mt-2" variant="outline">
-          Add Participant
-        </Button>
+        <Button>Add Participant</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Participant</DialogTitle>
           <DialogDescription>
-            Enter a unique identifier for the participant (could be a name)
+            Fresco requires a participant identifier to create a participant.
+            Enter one below.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -145,12 +144,11 @@ function ParticipantModal({
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSubmit={handleSubmit(async (data) => await onSubmit(data))}
           >
-            <Label htmlFor="name" className="text-right">
-              Identifier
-            </Label>
             <Input
               {...register('identifier')}
-              placeholder="participant id..."
+              label="Identifier"
+              hint="This could be a participant ID, a name, or a number."
+              placeholder="Enter a participant identifier..."
               error={errors.identifier?.message}
             />
           </form>
