@@ -1,20 +1,11 @@
 /* eslint-disable local-rules/require-data-mapper */
-import { z } from 'zod';
 import { prisma } from '~/utils/db';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
-
-export const participantIdentifierSchema = z
-  .string()
-  .min(4, { message: 'Identifier too short' })
-  .max(255, { message: 'Identifier too long' })
-  .nonempty({ message: 'Identifier cannot be empty' });
-
-const participantListInput = z.array(participantIdentifierSchema);
-
-const updateSchema = z.object({
-  identifier: participantIdentifierSchema,
-  newIdentifier: participantIdentifierSchema,
-});
+import {
+  participantIdentifierSchema,
+  participantListInputSchema,
+  updateSchema,
+} from '~/shared/schemas';
 
 export const participantRouter = router({
   get: router({
@@ -32,7 +23,7 @@ export const participantRouter = router({
       }),
   }),
   create: protectedProcedure
-    .input(participantListInput)
+    .input(participantListInputSchema)
     .mutation(async ({ input: identifiers }) => {
       try {
         const existingParticipants = await prisma.participant.findMany({
@@ -81,7 +72,7 @@ export const participantRouter = router({
       }
     }),
     byId: protectedProcedure
-      .input(participantListInput)
+      .input(participantListInputSchema)
       .mutation(async ({ input: identifiers }) => {
         try {
           const deletedParticipants = await prisma.participant.deleteMany({

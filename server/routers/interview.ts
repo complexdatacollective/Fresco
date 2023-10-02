@@ -3,11 +3,11 @@ import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
 import { safeLoader } from '~/utils/safeLoader';
 
-const deleteSingleSchema = z.object({
+const deleteSingleInterviewSchema = z.object({
   id: z.string(),
 });
 
-const deleteManySchema = z.array(
+const deleteManyInterviewsSchema = z.array(
   z.object({
     id: z.string(),
   }),
@@ -49,7 +49,7 @@ export const interviewRouter = router({
     return interviews;
   }),
   deleteSingle: protectedProcedure
-    .input(deleteSingleSchema)
+    .input(deleteSingleInterviewSchema)
     .mutation(async ({ input: { id } }) => {
       try {
         // eslint-disable-next-line local-rules/require-data-mapper
@@ -62,7 +62,7 @@ export const interviewRouter = router({
       }
     }),
   deleteMany: protectedProcedure
-    .input(deleteManySchema)
+    .input(deleteManyInterviewsSchema)
     .mutation(async ({ input: data }) => {
       const idsToDelete = data.map((p) => p.id);
 

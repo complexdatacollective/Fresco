@@ -9,62 +9,59 @@ import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 
-export const ParticipantsTable = () => {
-  const participants = trpc.participant.get.useQuery();
-  const [seletedParticipant, setSeletedParticipant] = useState('');
-  const [open, setOpen] = useState(false);
+export const ParticipantsTable = ({
+  initialData,
+}: {
+  initialData: Participant[];
+}) => {
+  const [participants, setParticipants] = useState(initialData);
+  const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
+    null,
+  );
+  const [showModal, setShowModal] = useState(false);
 
-  const { mutateAsync: deleteParticipant } =
-    trpc.participant.deleteSingle.useMutation({
-      async onSuccess() {
-        await participants.refetch();
-      },
-    });
+  const { isLoading, refetch } = trpc.participant.get.all.useQuery(undefined, {
+    initialData,
+    refetchOnMount: false,
+    onSuccess(data) {
+      setParticipants(data);
+    },
+    onError(error) {
+      console.error(error);
+    },
+  });
 
-  const { mutateAsync: deleteParticipants, isLoading: isDeletedSelected } =
-    trpc.participant.deleteMany.useMutation({
-      async onSuccess() {
-        await participants.refetch();
-      },
-    });
+  const { mutateAsync: deleteParticipants } =
+    trpc.participant.delete.byId.useMutation();
 
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
-    setOpen(true);
+    setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
-    const result = await deleteParticipant({ id });
-    if (result.error) throw new Error(result.error);
+  const handleDelete = async (data: Participant[]) => {
+    await deleteParticipants(data.map((d) => d.identifier));
+    await refetch();
   };
-
-  const handleDeleteSelected = async (data: Participant[]) => {
-    const result = await deleteParticipants(data);
-    if (result.error) throw new Error(result.error);
-  };
-
-  if (!participants.data) return 'Loading...';
 
   return (
     <>
       <div className="flex gap-2">
-        <ImportCSVModal refetch={participants.refetch} />
-        <ExportCSVParticipants participants={participants.data} />
+        <ImportCSVModal />
+        <ExportCSVParticipants />
       </div>
       <ParticipantModal
-        open={open}
-        setOpen={setOpen}
-        participants={participants.data}
-        refetch={participants.refetch}
-        seletedParticipant={seletedParticipant}
-        setSeletedParticipant={setSeletedParticipant}
+        open={showModal}
+        setOpen={setShowModal}
+        existingParticipants={participants}
+        editingParticipant={seletedParticipant}
       />
+      {isLoading && <div>Loading...</div>}
       <DataTable
         columns={ParticipantColumns(editParticipant, handleDelete)}
-        data={participants.data}
+        data={participants}
         filterColumnAccessorKey="identifier"
-        handleDeleteSelected={handleDeleteSelected}
-        isDeletedSelected={isDeletedSelected}
+        handleDeleteSelected={handleDelete}
       />
     </>
   );

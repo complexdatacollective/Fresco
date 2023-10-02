@@ -3,14 +3,14 @@ import { prisma } from '~/utils/db';
 import { protectedProcedure, router } from '~/server/trpc';
 import { z } from 'zod';
 
-const updateActive = z.object({
+const updateActiveProtocolSchema = z.object({
   setActive: z.boolean(),
   hash: z.string().optional(),
 });
 
 export const protocolRouter = router({
   setActive: protectedProcedure
-    .input(updateActive)
+    .input(updateActiveProtocolSchema)
     .mutation(async ({ input: { setActive, hash } }) => {
       if (!setActive) {
         return;

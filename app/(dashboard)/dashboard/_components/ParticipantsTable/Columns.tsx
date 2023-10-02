@@ -14,7 +14,6 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 
-// export const ParticipantColumns: ColumnDef<Participant>[] =
 export const ParticipantColumns = (
   editAction: (identifier: string) => void,
   handleDelete: (id: string) => Promise<void>,

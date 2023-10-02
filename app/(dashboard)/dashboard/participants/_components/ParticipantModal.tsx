@@ -1,12 +1,8 @@
 'use client';
 
-import { type Participant } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { type SubmitHandler } from 'react-hook-form';
+import { type Dispatch, type SetStateAction, useState } from 'react';
 import { z } from 'zod';
-import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Label } from '~/components/ui/Label';
@@ -20,50 +16,72 @@ import {
   DialogTrigger,
 } from '~/components/ui/dialog';
 import useZodForm from '~/hooks/useZodForm';
+import ActionError from '~/components/ActionError';
+import { trpc } from '~/app/_trpc/client';
+import { participantIdentifierSchema } from '~/shared/schemas';
+import { Participant } from '@prisma/client';
 
 interface ParticipantModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  participants: Participant[];
-  seletedParticipant: string;
-  refetch: () => Promise<unknown>;
-  setSeletedParticipant: Dispatch<SetStateAction<string>>;
+  editingParticipant: string | null;
+  existingParticipants: Participant[];
 }
 
 function ParticipantModal({
   open,
   setOpen,
-  refetch,
-  participants,
-  seletedParticipant,
-  setSeletedParticipant,
+  editingParticipant,
+  existingParticipants,
 }: ParticipantModalProps) {
-  const validationSchema = z
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const utils = trpc.useContext();
+
+  const formSchema = z
     .object({
-      identifier: z
-        .string()
-        .min(5, { message: 'Identifier must be at least 5 characters long' }),
+      identifier: participantIdentifierSchema,
     })
     .refine(
-      (data) => !participants?.find((p) => p.identifier === data.identifier),
+      (data) =>
+        !existingParticipants?.find((p) => p.identifier === data.identifier),
       {
         path: ['identifier'],
-        message: 'Identifier already exist!',
+        message: 'This identifier is already in use.',
       },
     );
-  type ValidationSchema = z.infer<typeof validationSchema>;
 
-  const { mutateAsync: createParticipant, isLoading: createLodaing } =
+  type ValidationSchema = z.infer<typeof formSchema>;
+
+  const { mutateAsync: createParticipant } =
     trpc.participant.create.useMutation({
+      onMutate() {
+        setIsLoading(true);
+      },
       async onSuccess() {
-        await refetch();
+        await utils.participant.get.invalidate();
+      },
+      onError(error) {
+        setError(error.message);
+      },
+      onSettled() {
+        setIsLoading(false);
       },
     });
 
-  const { mutateAsync: updateParticipant, isLoading: updateLoading } =
+  const { mutateAsync: updateParticipant } =
     trpc.participant.update.useMutation({
+      onMutate() {
+        setIsLoading(true);
+      },
       async onSuccess() {
-        await refetch();
+        await utils.participant.get.invalidate();
+      },
+      onError(error) {
+        setError(error.message);
+      },
+      onSettled() {
+        setIsLoading(false);
       },
     });
 
@@ -73,38 +91,34 @@ function ParticipantModal({
     reset,
     formState: { errors },
   } = useZodForm({
-    schema: validationSchema,
+    schema: formSchema,
   });
-  const router = useRouter();
 
-  useEffect(() => {
-    reset({ identifier: seletedParticipant });
-  }, [seletedParticipant, reset]);
+  const onSubmit = async (data: ValidationSchema) => {
+    setError(null);
 
-  const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
-    let result;
-
-    if (seletedParticipant) {
-      // update participant
-      result = await updateParticipant({
-        identifier: seletedParticipant,
+    // If we are editing a participant, update the identifier.
+    if (editingParticipant) {
+      await updateParticipant({
+        identifier: editingParticipant,
         newIdentifier: data.identifier,
       });
     } else {
-      // add participant
-      result = await createParticipant(data);
+      const { error } = await createParticipant([data.identifier]);
+
+      if (error) {
+        setError(error);
+        return;
+      }
     }
 
-    if (result.error) throw new Error(result.error);
-    if (result.participant) setOpen(false);
-    clearAll();
-  };
+    await utils.participant.get.invalidate();
 
-  function clearAll() {
-    setSeletedParticipant('');
-    reset({});
-    router.refresh();
-  }
+    if (!error) {
+      setOpen(false);
+      reset();
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -120,30 +134,31 @@ function ParticipantModal({
             Enter a unique identifier for the participant (could be a name)
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <div className="mb-6 flex flex-wrap">
+            <ActionError errorTitle="Error" errorDescription={error} />
+          </div>
+        )}
         <div className="grid gap-4 py-4">
-          <form id="add-participant" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            id="participant-form"
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+          >
             <Label htmlFor="name" className="text-right">
               Identifier
             </Label>
             <Input
               {...register('identifier')}
               placeholder="participant id..."
+              error={errors.identifier?.message}
             />
-            {errors.identifier && (
-              <p className="text-red-500">{errors.identifier.message}</p>
-            )}
           </form>
         </div>
         <DialogFooter>
-          <Button
-            form="add-participant"
-            type="submit"
-            disabled={createLodaing || updateLoading}
-          >
-            {(createLodaing || updateLoading) && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {seletedParticipant ? 'Update' : 'Submit'}
+          <Button form="participant-form" type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {editingParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>
       </DialogContent>
