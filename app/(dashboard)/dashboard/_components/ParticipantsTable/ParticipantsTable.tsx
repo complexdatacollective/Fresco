@@ -41,7 +41,6 @@ export const ParticipantsTable = ({
   };
 
   const handleDelete = async (data: Participant[]) => {
-    console.log(data);
     await deleteParticipants(data.map((d) => d.identifier));
     await refetch();
   };

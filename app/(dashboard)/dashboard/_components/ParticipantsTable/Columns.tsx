@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import CopyButton from './CopyButton';
-import { Button } from '~/components/ui/Button';
 import { Checkbox } from '~/components/ui/checkbox';
 import {
   Tooltip,
@@ -98,7 +97,9 @@ export const ParticipantColumns = (
               label: 'Delete',
               row,
               component: (
-                <DropdownMenuItem onClick={() => handleDelete([row.original])}>
+                <DropdownMenuItem
+                  onClick={() => void handleDelete([row.original])}
+                >
                   Delete
                 </DropdownMenuItem>
               ),
