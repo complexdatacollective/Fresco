@@ -28,6 +28,9 @@ const formSchema = z.object({
 const ImportCSVModal = () => {
   const { toast } = useToast();
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
+  const utils = trpc.useContext();
+  const { mutateAsync: importParticipants } =
+    trpc.participant.create.useMutation();
   const isSubmitting = methods.formState.isSubmitting;
   const [showImportDialog, setShowImportDialog] = useState(false);
   const selectedCSV = methods.watch('csvFile');
@@ -52,9 +55,6 @@ const ImportCSVModal = () => {
 
     return Object.keys(selectedCSV[0] || {});
   }, [selectedCSV]);
-
-  const { mutateAsync: importParticipants } =
-    trpc.participant.create.useMutation({});
 
   const onSubmit = async (data: unknown) => {
     const validData = formSchema.parse(data);
@@ -98,6 +98,8 @@ const ImportCSVModal = () => {
       console.log(result.error);
       return;
     }
+
+    await utils.participant.get.all.refetch();
 
     if (result.existingParticipants && result.existingParticipants.length > 0) {
       toast({

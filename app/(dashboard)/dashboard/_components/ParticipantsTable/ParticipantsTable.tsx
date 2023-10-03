@@ -8,6 +8,7 @@ import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/Part
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
+import { DeleteAllParticipantsButton } from '../../participants/_components/DeleteAllParticipantsButton';
 
 export const ParticipantsTable = ({
   initialData,
@@ -40,6 +41,7 @@ export const ParticipantsTable = ({
   };
 
   const handleDelete = async (data: Participant[]) => {
+    console.log(data);
     await deleteParticipants(data.map((d) => d.identifier));
     await refetch();
   };
@@ -55,6 +57,7 @@ export const ParticipantsTable = ({
         />
         <ImportCSVModal />
         <ExportCSVParticipants participants={participants} />
+        <DeleteAllParticipantsButton />
       </div>
       {isLoading && <div>Loading...</div>}
       <DataTable

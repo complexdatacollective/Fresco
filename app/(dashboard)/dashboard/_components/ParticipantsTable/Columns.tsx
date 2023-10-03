@@ -6,6 +6,8 @@ import { Settings } from 'lucide-react';
 import Link from 'next/link';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import CopyButton from './CopyButton';
+import { Button } from '~/components/ui/Button';
 import { Checkbox } from '~/components/ui/checkbox';
 import {
   Tooltip,
@@ -16,7 +18,7 @@ import {
 
 export const ParticipantColumns = (
   editAction: (identifier: string) => void,
-  handleDelete: (id: string) => Promise<void>,
+  handleDelete: (data: Participant[]) => Promise<void>,
 ): ColumnDef<Participant>[] => [
   {
     id: 'select',
@@ -36,12 +38,6 @@ export const ParticipantColumns = (
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: 'id',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Participant ID" />;
-    },
   },
   {
     accessorKey: 'identifier',
@@ -88,20 +84,38 @@ export const ParticipantColumns = (
           menuItems={[
             {
               label: 'Edit',
-              id: row.original.id,
-              idendtifier: row.original.identifier,
-              editAction,
+              row,
+              component: (
+                <Button
+                  variant="ghost"
+                  className="h-8 w-full p-0"
+                  onClick={() => editAction(row.original.identifier)}
+                >
+                  Edit
+                </Button>
+              ),
             },
             {
               label: 'Delete',
-              id: row.original.id,
-              idendtifier: row.original.identifier,
-              deleteItem: handleDelete,
+              row,
+              component: (
+                <Button
+                  variant="ghost"
+                  className="h-8 w-full p-0"
+                  onClick={() => handleDelete([row.original])}
+                >
+                  Delete
+                </Button>
+              ),
             },
             {
-              label: 'Copy',
-              id: row.original.identifier,
-              idendtifier: row.original.identifier,
+              label: 'Copy URL',
+              row,
+              component: (
+                <CopyButton text={`/interview/${row.original.id}`}>
+                  Copy URL
+                </CopyButton>
+              ),
             },
           ]}
         />
