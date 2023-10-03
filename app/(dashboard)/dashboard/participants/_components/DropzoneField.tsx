@@ -9,6 +9,42 @@ import {
 import { Label } from '~/components/ui/Label';
 import { cn } from '~/utils/shadcn';
 import parseCSV from '~/utils/parseCSV';
+import {
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '../../../../../components/ui/form';
+import type { Control } from 'react-hook-form';
+
+export const DropzoneField = ({
+  label,
+  description,
+  control,
+  error,
+}: {
+  label: string;
+  description: string;
+  control: Control<{
+    csvFile: Record<string, string>[] | null;
+    csvColumn?: string | undefined;
+  }>;
+  error?: string;
+}) => (
+  <FormField
+    control={control}
+    name="csvFile"
+    defaultValue={null}
+    rules={{ required: false }}
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormDescription>{description}</FormDescription>
+        <Dropzone value={field.value} onChange={field.onChange} error={error} />
+      </FormItem>
+    )}
+  />
+);
 
 export const Dropzone = ({
   id,

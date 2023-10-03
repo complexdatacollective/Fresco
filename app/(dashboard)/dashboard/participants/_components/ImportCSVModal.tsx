@@ -12,26 +12,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { Dropzone } from '~/components/ui/DropzoneField';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '~/components/ui/select';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '~/components/ui/form';
+import { DropzoneField } from './DropzoneField';
+import { Form } from '~/components/ui/form';
 import useZodForm from '~/hooks/useZodForm';
 import { z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
+import { ColumnSelectField } from './ColumnSelectField';
 
 const formSchema = z.object({
   csvFile: z.array(z.record(z.string())).nullable(),
@@ -164,65 +151,18 @@ const ImportCSVModal = () => {
               )}
               className="flex flex-col gap-6"
             >
-              <FormField
+              <DropzoneField
+                label="Select a CSV file"
+                description="Your CSV file must contain a column named 'identifier' with the participant identifier. For information about the format of this file, see our documentation."
                 control={methods.control}
-                name="csvFile"
-                defaultValue={null}
-                rules={{ required: false }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select a CSV File</FormLabel>
-                    <FormDescription>
-                      For information about the format of this file, see our
-                      documentation.
-                    </FormDescription>
-                    <Dropzone
-                      value={field.value}
-                      onChange={field.onChange}
-                      error={methods.formState.errors.csvFile?.message}
-                    />
-                  </FormItem>
-                )}
+                error={methods.formState.errors.csvFile?.message}
               />
               {showColumnSelect && (
-                <FormField
+                <ColumnSelectField
                   control={methods.control}
-                  name="csvColumn"
-                  rules={{ required: false }}
-                  render={({ field, fieldState: { error } }) => (
-                    <FormItem>
-                      <FormLabel>Select identifier column</FormLabel>
-                      <FormDescription>
-                        Your CSV file did not contain a column named
-                        &quot;identifiers&quot;. Please select the column that
-                        you wish to use to uniquely identify the participants
-                        you are importing.
-                      </FormDescription>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue=""
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a column..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {csvColumns.map((item) => (
-                            <SelectItem value={item} key={item}>
-                              {item}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {error && (
-                        <span className="text-sm text-destructive">
-                          {error?.message}
-                        </span>
-                      )}
-                    </FormItem>
-                  )}
+                  csvColumns={csvColumns}
+                  label="Select identifier column"
+                  description='Your CSV file did not contain a column named "identifiers". Please select the column that you wish to use to uniquely identify the participants you are importing.'
                 />
               )}
             </form>
