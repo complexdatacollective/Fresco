@@ -1,11 +1,10 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { type Dispatch, type SetStateAction, useState } from 'react';
+import { type Dispatch, type SetStateAction, useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { Label } from '~/components/ui/Label';
 import {
   Dialog,
   DialogContent,
@@ -19,12 +18,13 @@ import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
 import { trpc } from '~/app/_trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas';
-import { Participant } from '@prisma/client';
+import type { Participant } from '@prisma/client';
 
 interface ParticipantModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   editingParticipant: string | null;
+  setEditingParticipant: Dispatch<SetStateAction<string | null>>;
   existingParticipants: Participant[];
 }
 
@@ -32,6 +32,7 @@ function ParticipantModal({
   open,
   setOpen,
   editingParticipant,
+  setEditingParticipant,
   existingParticipants,
 }: ParticipantModalProps) {
   const [error, setError] = useState<string | null>(null);
@@ -89,9 +90,11 @@ function ParticipantModal({
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useZodForm({
     schema: formSchema,
+    shouldUnregister: true,
   });
 
   const onSubmit = async (data: ValidationSchema) => {
@@ -120,8 +123,23 @@ function ParticipantModal({
     }
   };
 
+  useEffect(() => {
+    if (editingParticipant) {
+      setValue('identifier', editingParticipant);
+    }
+  }, [editingParticipant, setValue]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setEditingParticipant(null);
+      setError(null);
+      reset();
+    }
+    setOpen(isOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>Add Participant</Button>
       </DialogTrigger>

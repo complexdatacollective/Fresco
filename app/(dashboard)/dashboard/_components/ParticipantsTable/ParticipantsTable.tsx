@@ -54,6 +54,7 @@ export const ParticipantsTable = ({
           setOpen={setShowModal}
           existingParticipants={participants}
           editingParticipant={seletedParticipant}
+          setEditingParticipant={setSeletedParticipant}
         />
         <ImportCSVModal />
         <ExportCSVParticipants participants={participants} />
