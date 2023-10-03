@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Button } from '~/components/ui/Button';
+import type { FC } from 'react';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { useToast } from '~/components/ui/use-toast';
 
 interface CopyButtonProps {
@@ -7,9 +7,8 @@ interface CopyButtonProps {
   children: React.ReactNode;
 }
 
-const CopyButton: React.FC<CopyButtonProps> = ({ text, children }) => {
+const CopyButton: FC<CopyButtonProps> = ({ text, children }) => {
   const { toast } = useToast();
-  const copyButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleCopyClick = () => {
     const copyText = text;
@@ -24,6 +23,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text, children }) => {
           });
         })
         .catch((error) => {
+          // eslint-disable-next-line no-console
           console.error('Could not copy text: ', error);
           toast({
             title: 'Error',
@@ -35,14 +35,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text, children }) => {
   };
 
   return (
-    <Button
-      variant="ghost"
-      className="h-8 w-full p-0"
-      ref={copyButtonRef}
-      onClick={handleCopyClick}
-    >
-      {children}
-    </Button>
+    <DropdownMenuItem onClick={handleCopyClick}>{children}</DropdownMenuItem>
   );
 };
 

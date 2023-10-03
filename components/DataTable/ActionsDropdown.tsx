@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import type { Row } from '@tanstack/react-table';
+import { Fragment } from 'react';
 
 interface Actions {
   label: string;
@@ -35,7 +36,7 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         {menuItems.map((item, index) => (
-          <DropdownMenuItem key={index}>{item.component}</DropdownMenuItem>
+          <Fragment key={index}>{item.component}</Fragment>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

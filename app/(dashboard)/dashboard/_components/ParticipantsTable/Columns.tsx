@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 
 export const ParticipantColumns = (
   editAction: (identifier: string) => void,
@@ -86,26 +87,20 @@ export const ParticipantColumns = (
               label: 'Edit',
               row,
               component: (
-                <Button
-                  variant="ghost"
-                  className="h-8 w-full p-0"
+                <DropdownMenuItem
                   onClick={() => editAction(row.original.identifier)}
                 >
                   Edit
-                </Button>
+                </DropdownMenuItem>
               ),
             },
             {
               label: 'Delete',
               row,
               component: (
-                <Button
-                  variant="ghost"
-                  className="h-8 w-full p-0"
-                  onClick={() => handleDelete([row.original])}
-                >
+                <DropdownMenuItem onClick={() => handleDelete([row.original])}>
                   Delete
-                </Button>
+                </DropdownMenuItem>
               ),
             },
             {
