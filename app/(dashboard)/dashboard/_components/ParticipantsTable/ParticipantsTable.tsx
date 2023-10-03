@@ -54,7 +54,7 @@ export const ParticipantsTable = ({
           editingParticipant={seletedParticipant}
         />
         <ImportCSVModal />
-        <ExportCSVParticipants />
+        <ExportCSVParticipants participants={participants} />
       </div>
       {isLoading && <div>Loading...</div>}
       <DataTable
