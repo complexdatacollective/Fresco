@@ -1,12 +1,7 @@
-const debugLog = (...args: any[]) => {
-  if (typeof process !== 'undefined' && process.env.NC_DEBUG_VALIDATOR) {
-    console.log(...args); // eslint-disable-line no-console
-  }
-};
-
 type ValidationArgs = {
-  validate: Function;
-  makeFailureMessage: Function;
+  pattern: RegExp;
+  validate: (fragment: string, subject: object, keypath: []) => boolean;
+  makeFailureMessage: () => string;
 };
 
 type ValidateSingleArgs = {
@@ -68,9 +63,9 @@ const keypathString = (keypath: Array<string>): string =>
  * Validations are added with `addValidation()` or `addValidationSequence()`.
  */
 class Validator {
-  public errors: Array<any>;
-  public warnings: Array<any>;
-  public validations: Array<any>;
+  public errors: Array<string>;
+  public warnings: Array<string>;
+  public validations: Array<ValidationArgs>;
   public protocol: object;
 
   constructor(protocol: object) {
@@ -92,8 +87,8 @@ class Validator {
    */
   addValidation(
     pattern: string,
-    validate: Function,
-    makeFailureMessage: Function,
+    validate: (fragment: string, subject: object, keypath: []) => boolean,
+    makeFailureMessage: () => string,
   ) {
     this.validations.push({
       pattern: makePattern(pattern),
@@ -108,7 +103,7 @@ class Validator {
    *
    * To always run multiple validations on the same pattern, call addValidation multiple times.
    */
-  addValidationSequence(pattern: string, ...sequence: any) {
+  addValidationSequence(pattern: string, ...sequence: []) {
     this.validations.push({ pattern: makePattern(pattern), sequence });
   }
 
@@ -135,7 +130,7 @@ class Validator {
     try {
       result = validate(fragment, subject, keypath);
     } catch (err: any) {
-      debugLog(err);
+      console.log(err);
       this.warnings.push(
         `Validation error for ${keypathString(keypath)}: ${err.toString()}`,
       );
@@ -149,7 +144,7 @@ class Validator {
         // console.log('subjtn', subjectTypeName);
         failureMessage = makeFailureMessage(fragment, subject, keypath);
       } catch (err: any) {
-        debugLog(err);
+        console.log(err);
         const value = keypath.shift() || 'root';
         this.warnings.push(
           `makeFailureMessage error for ${value}: ${err.toString()}`,
@@ -224,7 +219,7 @@ class Validator {
    */
   traverse(fragment: any, keypath: any = ['protocol'], subject = null) {
     if (!fragment) {
-      debugLog('-', keypathString(keypath));
+      console.log('-', keypathString(keypath));
       return;
     }
 
@@ -242,7 +237,7 @@ class Validator {
       });
     } else {
       // Leaf node
-      debugLog('-', keypathString(keypath));
+      console.log('-', keypathString(keypath));
     }
   }
 }

@@ -3,6 +3,8 @@ import validateLogic from './validateLogic';
 
 type ValidateProtocolReturn = boolean | ValidationError;
 
+// We throw a custom error type which we can catch in the UI and use to display
+// the errors in a nice way.
 export class ValidationError extends Error {
   constructor(
     message: string,
@@ -25,7 +27,6 @@ const validateProtocol = (
   try {
     data = JSON.parse(jsonString);
   } catch (e) {
-    console.error(e);
     throw new Error('Invalid JSON file');
   }
 
