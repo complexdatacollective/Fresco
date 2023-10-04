@@ -94,6 +94,7 @@ model SetupMetadata {
   configured    Boolean   @default(false)
   initializedAt DateTime  @default(now())
   configuredAt  DateTime?
+  allowAnonymousRecruitment Boolean   @default(false)
 
   @@id([configured, initializedAt])
 }

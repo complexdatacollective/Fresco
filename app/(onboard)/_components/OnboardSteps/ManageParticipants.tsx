@@ -4,6 +4,7 @@ import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUp
 import { Button } from '~/components/ui/Button';
 import { Switch } from '~/components/ui/switch';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { trpc } from '~/app/_trpc/client';
 
 function ManageParticipants() {
   const pathname = usePathname();
@@ -11,6 +12,8 @@ function ManageParticipants() {
   const currentStep = searchParams.get('step') as string;
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
   const router = useRouter();
+  const updateAnonymousRecruitment = trpc.metadata.updateAnonymousRecruitment.useMutation();
+
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
@@ -21,9 +24,9 @@ function ManageParticipants() {
     router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
   };
 
-  const allowAnonymousRecruitment = () => {
-    // will be replaced with switch handling
-  };
+  const allowAnonymousRecruitment = async () => {
+    await updateAnonymousRecruitment.mutateAsync();
+  }
 
   return (
     <div className="max-w-[30rem]">
