@@ -12,8 +12,8 @@ function ManageParticipants() {
   const currentStep = searchParams.get('step') as string;
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
   const router = useRouter();
-  const updateAnonymousRecruitment = trpc.metadata.updateAnonymousRecruitment.useMutation();
-
+  const updateAnonymousRecruitment =
+    trpc.metadata.updateAnonymousRecruitment.useMutation();
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
@@ -26,7 +26,7 @@ function ManageParticipants() {
 
   const allowAnonymousRecruitment = async () => {
     await updateAnonymousRecruitment.mutateAsync();
-  }
+  };
 
   return (
     <div className="max-w-[30rem]">

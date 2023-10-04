@@ -1,6 +1,11 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
-import { devProcedure, protectedProcedure, publicProcedure, router } from '../trpc';
+import {
+  devProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
+} from '../trpc';
 import { auth } from '~/utils/auth';
 import { trpc } from '~/app/_trpc/server';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
@@ -52,7 +57,8 @@ export const metadataRouter = router({
   get: getPropertiesRouter,
 
   updateAnonymousRecruitment: protectedProcedure.mutation(async () => {
-    const { configured, initializedAt, allowAnonymousRecruitment } = await getSetupMetadata();
+    const { configured, initializedAt, allowAnonymousRecruitment } =
+      await getSetupMetadata();
     try {
       const updatedMetadata = await prisma.setupMetadata.update({
         where: {
@@ -64,11 +70,10 @@ export const metadataRouter = router({
         data: {
           allowAnonymousRecruitment: !allowAnonymousRecruitment,
         },
-      }); 
+      });
       return { error: null, metadata: updatedMetadata };
     } catch (error) {
       return { error: 'Failed to update metadata', metadata: null };
-
     }
   }),
 
