@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import makeMockValue from '../make-mock-value';
-import { VariableType } from '@codaco/shared-consts';
+import { VariableType } from '~/lib/shared-consts';
 
 describe('make mock values for variable type...', () => {
   it.todo('All tests should use seeding for deterministic values');

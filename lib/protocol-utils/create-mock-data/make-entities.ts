@@ -7,7 +7,7 @@ import {
   NcNode,
   entityPrimaryKeyProperty,
   entityAttributesProperty,
-} from '@codaco/shared-consts';
+} from '~/lib/shared-consts';
 import { has } from 'lodash';
 import { v4 as uuid } from 'uuid';
 import make from './make-mock-value';

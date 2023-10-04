@@ -3,11 +3,11 @@ import {
   protocolProperty,
   NcNetwork,
   Protocol,
-} from '@codaco/shared-consts';
+} from '~/lib/shared-consts';
 import { v4 as uuid } from 'uuid';
 import { makeNetwork } from './make-network';
 
-// These keys should be in @codaco/shared-consts
+// These keys should be in ~/lib/shared-consts
 export type NcSession = {
   [protocolProperty]: string;
   promptIndex: number;

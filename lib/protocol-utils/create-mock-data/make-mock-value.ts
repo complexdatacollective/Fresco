@@ -3,7 +3,7 @@ import {
   InputComponents,
   VariableDefinition,
   VariableType,
-} from '@codaco/shared-consts';
+} from '~/lib/shared-consts';
 
 const mockCoord = () =>
   faker.datatype.number({ min: 0, max: 1, precision: 0.000_001 });

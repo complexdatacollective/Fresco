@@ -5,7 +5,7 @@ import {
   NcNode,
   NcEdge,
   NcEgo,
-} from '@codaco/shared-consts';
+} from '~/lib/shared-consts';
 import { get } from 'lodash';
 import { makeNode, makeEgo, makeEdge } from './make-entities';
 
