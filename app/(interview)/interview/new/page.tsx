@@ -3,57 +3,28 @@
  * and then redirect to the interview/[id]/1 route.
  */
 
-import type { User } from '@prisma/client';
 import { redirect } from 'next/navigation';
-import { prisma } from '~/utils/db';
+import { trpc } from '~/app/_trpc/server';
 
-const createInterview = async (user: User, protocolId: string) => {
-  if (!user || !user.id) {
-    throw new Error('No user provided');
+export default async function Page() {
+  // check if anonymous recruitment is enabled
+  const { allowAnonymousRecruitment } =
+    await trpc.metadata.get.allSetupMetadata.query();
+
+  if (!allowAnonymousRecruitment) {
+    // TODO: decide what to do here
+    return <div>Anonymous recruitment disabled.</div>;
   }
 
-  if (!protocolId) {
-    throw new Error('No protocol ID provided');
-  }
-
-  // eslint-disable-next-line local-rules/require-data-mapper
-  const interview = await prisma.interview.create({
-    data: {
-      user: {
-        connect: {
-          id: user.id,
-          // email: user.email,
-        },
-      },
-      network: '',
-      protocol: {
-        connect: {
-          id: protocolId,
-        },
-      },
-    },
-  });
-
-  return interview;
-};
-
-export default async function Page({ params, searchParams }) {
-  // Get the protocol ID from the search params
-  const { protocol } = searchParams;
-
-  // Check we have a currently logged in user. Eventually, we want
-  // to optionally create a new user automatically as part of the
-  // onboarding flow.
-  const session = false;
-  console.error('UPDATE ME');
-
-  if (!session) {
-    redirect('/');
-  }
+  // Anonymous recruitment is enabled
 
   // Create a new interview
-  const interview = await createInterview(session.user, protocol);
+  const { createdInterview } = await trpc.interview.create.mutate();
 
+  if (!createdInterview) {
+    console.error('Error creating interview');
+    return;
+  }
   // Redirect to the interview/[id] route
-  redirect(`/interview/${interview.id}`);
+  redirect(`/interview/${createdInterview.id}`);
 }

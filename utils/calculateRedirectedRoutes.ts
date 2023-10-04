@@ -15,8 +15,8 @@ const routeIsOnboarding = (pathname: Route) => {
   return pathname === '/setup';
 };
 
-const routeIsInverviewing = (pathname: Route) => {
-  return pathname === '/interview';
+const routeIsInterviewing = (pathname: Route) => {
+  return pathname.startsWith('/interview');
 };
 
 const routeIsExpiredPage = (pathname: Route) => {
@@ -42,7 +42,7 @@ export const calculateRedirect = ({
   const isLoginPage = routeIsLoginPage(path);
   const isLandingPage = routeIsLandingPage(path);
   const isOnboarding = routeIsOnboarding(path);
-  const isInverviewing = routeIsInverviewing(path);
+  const isInterviewing = routeIsInterviewing(path);
   const isExpiredPage = routeIsExpiredPage(path);
 
   /**
@@ -74,7 +74,7 @@ export const calculateRedirect = ({
       return;
     }
 
-    if (isInverviewing) {
+    if (isInterviewing) {
       return;
     }
 

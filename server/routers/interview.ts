@@ -35,6 +35,50 @@ const InterviewValidation = z.array(
 );
 
 export const interviewRouter = router({
+  create: publicProcedure.mutation(async () => {
+    try {
+      // get the active protocol id to connect to the interview
+      // eslint-disable-next-line local-rules/require-data-mapper
+      const activeProtocol = await prisma.protocol.findFirst({
+        where: { active: true },
+      });
+
+      if (!activeProtocol) {
+        console.log('no active protocol');
+        return {
+          error: 'Failed to create interview: no active protocol',
+          createdInterview: null,
+        };
+      }
+
+      // eslint-disable-next-line local-rules/require-data-mapper
+      const createdInterview = await prisma.interview.create({
+        data: {
+          startTime: new Date(),
+          lastUpdated: new Date(),
+          currentStep: 0,
+          network: '',
+          participant: {
+            create: {
+              identifier: 'test',
+            },
+          },
+          protocol: {
+            connect: {
+              id: activeProtocol.id,
+            },
+          },
+        },
+      });
+
+      return { error: null, createdInterview };
+    } catch (error) {
+      return {
+        error: 'Failed to create interview',
+        createdInterview: null,
+      };
+    }
+  }),
   get: publicProcedure.query(async () => {
     const interviews = safeLoader({
       outputValidation: InterviewValidation,
