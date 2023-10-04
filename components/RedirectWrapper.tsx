@@ -38,7 +38,6 @@ export default function RedirectWrapper({
   });
 
   if (shouldRedirect) {
-    console.log('redirecting', shouldRedirect);
     redirect(shouldRedirect);
   }
 
