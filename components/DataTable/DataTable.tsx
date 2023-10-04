@@ -1,5 +1,3 @@
-'use client';
-
 import {
   flexRender,
   getCoreRowModel,
@@ -32,17 +30,16 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   filterColumnAccessorKey?: string;
   handleDeleteSelected: (data: TData[]) => Promise<void>;
-  isDeletedSelected?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns = [],
   data,
   handleDeleteSelected,
-  isDeletedSelected,
   filterColumnAccessorKey = '',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -50,6 +47,22 @@ export function DataTable<TData, TValue>({
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
   }
+
+  const deleteHandler = async () => {
+    setIsDeleting(true);
+    const selectedData = table
+      .getSelectedRowModel()
+      .rows.map((r) => r.original);
+
+    try {
+      await handleDeleteSelected(selectedData);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setIsDeleting(false);
+    setRowSelection({});
+  };
 
   const table = useReactTable({
     data,
@@ -67,6 +80,8 @@ export function DataTable<TData, TValue>({
       columnFilters,
     },
   });
+
+  const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
 
   return (
     <div>
@@ -163,27 +178,23 @@ export function DataTable<TData, TValue>({
             </Button>
           </div>
         </div>
-        <Button
-          onClick={() => {
-            const selectedData = table
-              .getSelectedRowModel()
-              .rows.map((r) => r.original);
-            handleDeleteSelected(selectedData);
-            setRowSelection({});
-          }}
-          variant="destructive"
-          size="sm"
-          disabled={!table.getFilteredSelectedRowModel().rows.length}
-        >
-          {isDeletedSelected ? (
-            <span className="flex items-center gap-2">
-              Deleting...
-              <Loader className="h-4 w-4 animate-spin text-white" />
-            </span>
-          ) : (
-            'Delete Selected'
-          )}
-        </Button>
+        {hasSelectedRows && (
+          <Button
+            onClick={() => void deleteHandler()}
+            variant="destructive"
+            size="sm"
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <span className="flex items-center gap-2">
+                Deleting...
+                <Loader className="h-4 w-4 animate-spin text-white" />
+              </span>
+            ) : (
+              'Delete Selected'
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );
