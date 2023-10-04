@@ -25,6 +25,14 @@ export default async function Page() {
     console.error('Error creating interview');
     return;
   }
+
   // Redirect to the interview/[id] route
   redirect(`/interview/${createdInterview.id}`);
+
+  return (
+    <div>
+      <h1>Interview created</h1>
+      {JSON.stringify(createdInterview)}
+    </div>
+  );
 }

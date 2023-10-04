@@ -50,10 +50,10 @@ export default async function Page({
   // (2) Else, redirect to the stage 1
   if (!currentInterviewPage && interviewId) {
     if (interviewData.currentStep) {
-      redirect(`/interview/${interviewId}/${interviewData.currentStep}`);
+      // redirect(`/interview/${interviewId}/${interviewData.currentStep}`);
     }
 
-    redirect(`/interview/${interviewId}/1`);
+    // redirect(`/interview/${interviewId}/1`);
 
     return null;
   }
@@ -70,7 +70,7 @@ export default async function Page({
     stagesJson[parseInt(currentInterviewPage!, 10) - 1];
 
   if (!currentStageConfig) {
-    redirect(`/interview/${interviewId}/1`);
+    // redirect(`/interview/${interviewId}/1`);
   }
 
   const updateNetwork = async (network: NcNetwork) => {

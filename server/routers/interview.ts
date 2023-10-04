@@ -2,6 +2,7 @@ import * as z from 'zod';
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
 import { safeLoader } from '~/utils/safeLoader';
+import { faker } from '@faker-js/faker';
 
 const deleteSingleInterviewSchema = z.object({
   id: z.string(),
@@ -51,6 +52,8 @@ export const interviewRouter = router({
         };
       }
 
+      const randomIdentifier = faker.internet.userName();
+
       // eslint-disable-next-line local-rules/require-data-mapper
       const createdInterview = await prisma.interview.create({
         data: {
@@ -60,7 +63,7 @@ export const interviewRouter = router({
           network: '',
           participant: {
             create: {
-              identifier: 'test',
+              identifier: randomIdentifier,
             },
           },
           protocol: {
