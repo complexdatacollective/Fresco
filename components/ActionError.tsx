@@ -10,7 +10,7 @@ const ActionError = ({
 }) => {
   return (
     <Alert variant="destructive" className="bg-white">
-      <AlertCircle className="h-4 w-4" />
+      <AlertCircle className="h-10 w-10" />
       <AlertTitle>{errorTitle} </AlertTitle>
       <AlertDescription>{errorDescription}</AlertDescription>
     </Alert>

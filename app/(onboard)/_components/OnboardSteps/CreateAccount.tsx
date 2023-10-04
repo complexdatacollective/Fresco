@@ -1,16 +1,17 @@
 'use client';
 
+import type { Route } from 'next';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
 
 function CreateAccount() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() as Route;
   const searchParams = useSearchParams();
   const step = searchParams.get('step');
 
   const completeCallback = () => {
-    router.replace(`${pathname}?step=${parseInt(step || '1') + 1}`);
+    router.push(`${pathname}?step=${parseInt(step || '1') + 1}`);
   };
 
   return (

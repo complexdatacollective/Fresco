@@ -11,19 +11,17 @@ datasource db {
   relationMode = "prisma" // Planetscale doesn't support foreign keys yet, so we need to use this
 }
 
-// NC Models
 model Protocol {
   id            String      @id @default(cuid())
   hash          String      @unique
   name          String
   schemaVersion Int
   description   String?
-  assetPath     String
   importedAt    DateTime    @default(now())
   lastModified  DateTime
   stages        Json
   codebook      Json
-  assetManifest Asset[]
+  assets        Asset[]
   interviews    Interview[]
   active       Boolean     @default(false)
 }
@@ -38,7 +36,7 @@ model Asset {
   url        String // from upload thing
   name       String // from upload thing
   size       Int // from upload thing
-  protocol   Protocol @relation(fields: [protocolId], references: [id])
+  protocol   Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId String // from db
 
   @@index([protocolId])
@@ -51,9 +49,9 @@ model Interview {
   exportTime    DateTime?
   lastUpdated   DateTime    @updatedAt
   network       Json
-  participant   Participant @relation(fields: [participantId], references: [id])
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
   participantId String      @unique
-  protocol      Protocol    @relation(fields: [protocolId], references: [id])
+  protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
 
@@ -64,14 +62,6 @@ model Participant {
   id         String      @id @unique @default(cuid())
   identifier String      @unique
   interviews Interview[]
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
 }
 
 model User {
@@ -101,8 +91,9 @@ model Key {
 }
 
 model SetupMetadata {
-  configured Boolean  @default(false)
-  initializedAt DateTime @default(now())
-  configuredAt DateTime?
+  configured    Boolean   @default(false)
+  initializedAt DateTime  @default(now())
+  configuredAt  DateTime?
+
   @@id([configured, initializedAt])
 }

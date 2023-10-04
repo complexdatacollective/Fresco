@@ -1,16 +1,10 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { type Participant } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { type Dispatch, type SetStateAction, useState, useEffect } from 'react';
 import { z } from 'zod';
-import { trpc } from '~/app/_trpc/client';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { Label } from '~/components/ui/Label';
 import {
   Dialog,
   DialogContent,
@@ -20,50 +14,75 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
+import useZodForm from '~/hooks/useZodForm';
+import ActionError from '~/components/ActionError';
+import { trpc } from '~/app/_trpc/client';
+import { participantIdentifierSchema } from '~/shared/schemas';
+import type { Participant } from '@prisma/client';
 
 interface ParticipantModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  participants: Participant[];
-  seletedParticipant: string;
-  refetch: () => Promise<unknown>;
-  setSeletedParticipant: Dispatch<SetStateAction<string>>;
+  editingParticipant: string | null;
+  setEditingParticipant: Dispatch<SetStateAction<string | null>>;
+  existingParticipants: Participant[];
 }
 
 function ParticipantModal({
   open,
   setOpen,
-  refetch,
-  participants,
-  seletedParticipant,
-  setSeletedParticipant,
+  editingParticipant,
+  setEditingParticipant,
+  existingParticipants,
 }: ParticipantModalProps) {
-  const validationSchema = z
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const utils = trpc.useContext();
+
+  const formSchema = z
     .object({
-      identifier: z
-        .string()
-        .min(5, { message: 'Identifier must be at least 5 characters long' }),
+      identifier: participantIdentifierSchema,
     })
     .refine(
-      (data) => !participants?.find((p) => p.identifier === data.identifier),
+      (data) =>
+        !existingParticipants?.find((p) => p.identifier === data.identifier),
       {
         path: ['identifier'],
-        message: 'Identifier already exist!',
+        message: 'This identifier is already in use.',
       },
     );
-  type ValidationSchema = z.infer<typeof validationSchema>;
 
-  const { mutateAsync: createParticipant, isLoading: createLodaing } =
-    trpc.participants.create.useMutation({
+  type ValidationSchema = z.infer<typeof formSchema>;
+
+  const { mutateAsync: createParticipant } =
+    trpc.participant.create.useMutation({
+      onMutate() {
+        setIsLoading(true);
+      },
       async onSuccess() {
-        await refetch();
+        await utils.participant.get.invalidate();
+      },
+      onError(error) {
+        setError(error.message);
+      },
+      onSettled() {
+        setIsLoading(false);
       },
     });
 
-  const { mutateAsync: updateParticipant, isLoading: updateLoading } =
-    trpc.participants.update.useMutation({
+  const { mutateAsync: updateParticipant } =
+    trpc.participant.update.useMutation({
+      onMutate() {
+        setIsLoading(true);
+      },
       async onSuccess() {
-        await refetch();
+        await utils.participant.get.invalidate();
+      },
+      onError(error) {
+        setError(error.message);
+      },
+      onSettled() {
+        setIsLoading(false);
       },
     });
 
@@ -71,79 +90,91 @@ function ParticipantModal({
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
-  } = useForm<ValidationSchema>({
-    resolver: zodResolver(validationSchema),
+  } = useZodForm({
+    schema: formSchema,
+    shouldUnregister: true,
   });
-  const router = useRouter();
 
-  useEffect(() => {
-    reset({ identifier: seletedParticipant });
-  }, [seletedParticipant, reset]);
+  const onSubmit = async (data: ValidationSchema) => {
+    setError(null);
 
-  const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
-    let result;
-
-    if (seletedParticipant) {
-      // update participant
-      result = await updateParticipant({
-        identifier: seletedParticipant,
+    // If we are editing a participant, update the identifier.
+    if (editingParticipant) {
+      await updateParticipant({
+        identifier: editingParticipant,
         newIdentifier: data.identifier,
       });
     } else {
-      // add participant
-      result = await createParticipant(data);
+      const { error } = await createParticipant([data.identifier]);
+
+      if (error) {
+        setError(error);
+        return;
+      }
     }
 
-    if (result.error) throw new Error(result.error);
-    if (result.participant) setOpen(false);
-    clearAll();
+    await utils.participant.get.invalidate();
+
+    if (!error) {
+      setOpen(false);
+      reset();
+    }
   };
 
-  function clearAll() {
-    setSeletedParticipant('');
-    reset({});
-    router.refresh();
-  }
+  useEffect(() => {
+    if (editingParticipant) {
+      setValue('identifier', editingParticipant);
+    }
+  }, [editingParticipant, setValue]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setEditingParticipant(null);
+      setError(null);
+      reset();
+    }
+    setOpen(isOpen);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="mt-2" variant="outline">
-          Add Participant
-        </Button>
+        <Button>Add Participant</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Participant</DialogTitle>
           <DialogDescription>
-            Enter a unique identifier for the participant (could be a name)
+            Fresco requires a participant identifier to create a participant.
+            Enter one below.
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <div className="mb-6 flex flex-wrap">
+            <ActionError errorTitle="Error" errorDescription={error} />
+          </div>
+        )}
         <div className="grid gap-4 py-4">
-          <form id="add-participant" onSubmit={handleSubmit(onSubmit)}>
-            <Label htmlFor="name" className="text-right">
-              Identifier
-            </Label>
+          <form
+            id="participant-form"
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+          >
             <Input
               {...register('identifier')}
-              placeholder="participant id..."
+              label="Identifier"
+              hint="This could be a participant ID, a name, or a number."
+              placeholder="Enter a participant identifier..."
+              error={errors.identifier?.message}
             />
-            {errors.identifier && (
-              <p className="text-red-500">{errors.identifier.message}</p>
-            )}
           </form>
         </div>
         <DialogFooter>
-          <Button
-            form="add-participant"
-            type="submit"
-            disabled={createLodaing || updateLoading}
-          >
-            {(createLodaing || updateLoading) && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {seletedParticipant ? 'Update' : 'Submit'}
+          <Button form="participant-form" type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {editingParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import * as blobs2 from "blobs/v2";
-import { interpolatePath as interpolate } from "d3-interpolate-path";
-import { random, randomInt } from "~/utils/lodash-replacements";
-import Canvas from "./Canvas";
+import { useMemo } from 'react';
+import * as blobs2 from 'blobs/v2';
+import { interpolatePath as interpolate } from 'd3-interpolate-path';
+import { random, randomInt } from '~/utils/lodash-replacements';
+import Canvas from './Canvas';
 
 const gradients = [
-  ["rgb(237,0,140)", "rgb(226,33,91)"],
-  ["#00c9ff", "#92fe9d"],
-  ["#fc466b", "#3f5efb"],
-  ["#d53369", "#daae51"],
-  ["#3f2b96", "#a8c0ff"],
-  ["rgb(0, 201, 162)", "rgb(0, 160, 129)"],
-  ["rgb(107, 114, 236)", "rgb(58, 58, 117)"],
-  ["rgb(242, 183, 0)", "rgb(247,137,30)"],
-  ["rgb(15, 178, 226)", "rgb(15, 112, 255)"],
-  ["rgb(45, 41, 85)", "rgb(58,58,117)"],
+  ['rgb(237,0,140)', 'rgb(226,33,91)'],
+  ['#00c9ff', '#92fe9d'],
+  ['#fc466b', '#3f5efb'],
+  ['#d53369', '#daae51'],
+  ['#3f2b96', '#a8c0ff'],
+  ['rgb(0, 201, 162)', 'rgb(0, 160, 129)'],
+  ['rgb(107, 114, 236)', 'rgb(58, 58, 117)'],
+  ['rgb(242, 183, 0)', 'rgb(247,137,30)'],
+  ['rgb(15, 178, 226)', 'rgb(15, 112, 255)'],
+  ['rgb(45, 41, 85)', 'rgb(58,58,117)'],
 ];
 
 const SPEED_FACTOR = 1;
@@ -29,41 +29,23 @@ const speeds = {
 
 class NCBlob {
   layer: 1 | 2 | 3;
-
   speed: number;
-
   angle: number;
-
   size: number;
-
   velocityX: number;
-
   velocityY: number;
-
   gradient;
-
   firstRender: boolean;
-
   animateForward: boolean;
-
   lastUpdate: number | null;
-
   positionX: number;
-
   positionY: number;
-
   canvasWidth: number;
-
   canvasHeight: number;
-
   startFrameTime: number | undefined;
-
   endFrameTime: number | undefined;
-
   shape: string | null;
-
   shape2: string | null;
-
   interpolator: ((t: number) => string) | null;
 
   constructor(layer: 1 | 2 | 3) {
@@ -201,8 +183,8 @@ class NCBlob {
     });
 
     // Initialize the interpolation function
-    if (typeof this.shape !== "string" || typeof this.shape2 !== "string") {
-      throw new Error("Shape is not a string");
+    if (typeof this.shape !== 'string' || typeof this.shape2 !== 'string') {
+      throw new Error('Shape is not a string');
     }
 
     this.interpolator = interpolate(this.shape, this.shape2);
@@ -267,7 +249,7 @@ const BackgroundBlobs = ({
   );
 
   const drawBlobs = (ctx: CanvasRenderingContext2D, time: number) => {
-    ctx.globalCompositeOperation = "screen";
+    ctx.globalCompositeOperation = 'screen';
     blobs.forEach((layer) => layer.forEach((blob) => blob.render(ctx, time)));
   };
 

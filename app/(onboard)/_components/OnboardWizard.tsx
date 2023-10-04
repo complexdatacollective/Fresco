@@ -8,37 +8,44 @@ import { cn } from '~/utils/shadcn';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
-import { useSession } from '~/contexts/SessionPrivider';
+import { useSession } from '~/providers/SessionPrivider';
 import { useEffect } from 'react';
+import type { Route } from 'next';
+import { trpc } from '~/app/_trpc/client';
 
 function OnboardWizard() {
   const { session } = useSession();
-  const pathname = usePathname();
+  const pathname = usePathname() as Route;
   const router = useRouter();
   const searchParams = useSearchParams();
   const step = searchParams.get('step');
+  const stepInt = parseInt(step ?? '1', 10);
+
+  const { data: expired } = trpc.metadata.get.expired.useQuery(undefined, {
+    refetchInterval: 1000 * 10,
+  });
 
   useEffect(() => {
-    // If there's no search params, set the step to 1
-    if (!step) {
-      router.push(pathname + '?step=1');
+    if (expired) {
+      router.refresh();
     }
-  }, [session, pathname, step, router]);
 
-  useEffect(() => {
+    if (!step || (!session && stepInt !== 1)) {
+      router.push(`${pathname}?step=1`);
+      return;
+    }
+
     // If we have a user session, skip step 1
-    if (session && step === '1') {
-      router.push(pathname + '?step=2');
+    if (session && stepInt === 1) {
+      router.push(`${pathname}?step=2`);
+      return;
     }
-  }, [session, pathname, step, router]);
+  }, [expired, router, pathname, session, step, stepInt]);
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
-
   const mainClasses = cn('bg-white flex w-full p-8 rounded-xl');
 
-  if (!step) return null;
-
-  const stepIndex = (parseInt(step || '1') - 1) as keyof typeof steps;
+  const stepIndex = (stepInt - 1) as keyof typeof steps;
 
   const { component: StepComponent } = steps[stepIndex] as Step;
 

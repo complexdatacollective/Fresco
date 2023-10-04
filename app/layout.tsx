@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 import '~/styles/globals.scss';
-import Providers from './_components/Providers';
-import { headers } from 'next/headers';
-import { getSetupMetadata } from '~/utils/getSetupMetadata';
-import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
-import { api } from './_trpc/server';
-import { caller } from './_trpc/caller';
+import Providers from '../providers/Providers';
+import RedirectWrapper from '~/components/RedirectWrapper';
+import { Suspense } from 'react';
+import { trpc } from './_trpc/proxy';
+import type { Session } from 'lucia';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -13,20 +12,20 @@ export const metadata = {
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  // const session = await api.session.get.query();
-  const session = await caller.session.get();
-  const { expired, configured } = await getSetupMetadata();
-  const headersList = headers();
-  const path = headersList.get('x-url');
-
-  console.log('rootlayout', session);
-
-  calculateRedirect({ session, path, expired, configured });
+  const session = (await trpc.session.get.query()) as Session | null;
+  const { expired, configured } =
+    await trpc.metadata.get.allSetupMetadata.query();
 
   return (
     <html lang="en">
       <body>
-        <Providers initialSession={session}>{children}</Providers>
+        <RedirectWrapper
+          configured={configured}
+          expired={expired}
+          session={session}
+        >
+          <Providers initialSession={session}>{children}</Providers>
+        </RedirectWrapper>
       </body>
     </html>
   );

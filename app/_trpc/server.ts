@@ -1,28 +1,25 @@
 'use server';
 
-import { httpBatchLink, loggerLink } from '@trpc/client';
+import { loggerLink } from '@trpc/client';
 import { experimental_nextCacheLink } from '@trpc/next/app-dir/links/nextCache';
 import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
 import { cookies } from 'next/headers';
+import { env } from '~/env.mjs';
 import { type AppRouter, appRouter } from '~/server/router';
 import { getPageSession } from '~/utils/auth';
 
 /**
  * This client invokes procedures directly on the server without fetching over HTTP.
  */
-export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
+export const trpc = experimental_createTRPCNextAppDirServer<AppRouter>({
   config() {
     return {
       links: [
         loggerLink({
           enabled: (opts) =>
-            (process.env.NODE_ENV === 'development' &&
-              typeof window !== 'undefined') ||
+            (env.NODE_ENV === 'development' && typeof window !== 'undefined') ||
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
-        // httpBatchLink({
-        //   url: 'http://localhost:3000/api/trpc',
-        // }),
         experimental_nextCacheLink({
           // requests are cached for 5 seconds
           revalidate: 1,

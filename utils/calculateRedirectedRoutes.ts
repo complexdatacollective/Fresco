@@ -1,13 +1,7 @@
 /* eslint-disable no-console */
 import type { Session } from 'lucia';
 import type { Route } from 'next';
-import { redirect } from 'next/navigation';
 import { cache } from 'react';
-
-// Normal redirect will accept anything, which can easily cause a redirect loop. Use this instead.
-export const safeRedirect = (url: Route) => {
-  return redirect(url);
-};
 
 const routeIsLoginPage = (pathname: Route) => {
   return pathname === '/signin';
@@ -36,23 +30,20 @@ export const calculateRedirect = ({
   configured,
 }: {
   session: Session | null;
-  path: string | null;
+  path: Route;
   expired: boolean;
   configured: boolean;
-}) => {
-  // If for some reason we couldn't get the path from the headers, bail out.
+}): undefined | Route => {
+  // If for some reason we weren't given a path, bail out.
   if (!path) {
-    return;
+    throw new Error('No path provided to calculateRedirect!');
   }
 
-  const pathUrl = new URL(path);
-
-  const pathname = pathUrl.pathname as Route;
-  const isLoginPage = routeIsLoginPage(pathname);
-  const isLandingPage = routeIsLandingPage(pathname);
-  const isOnboarding = routeIsOnboarding(pathname);
-  const isInverviewing = routeIsInverviewing(pathname);
-  const isExpiredPage = routeIsExpiredPage(pathname);
+  const isLoginPage = routeIsLoginPage(path);
+  const isLandingPage = routeIsLandingPage(path);
+  const isOnboarding = routeIsOnboarding(path);
+  const isInverviewing = routeIsInverviewing(path);
+  const isExpiredPage = routeIsExpiredPage(path);
 
   /**
    * `configured` - setup has been completed
@@ -60,61 +51,44 @@ export const calculateRedirect = ({
    */
 
   if (expired) {
-    console.log('app is expired');
-
-    if (isExpiredPage) {
-      console.log('already on expired page');
-      return;
+    if (!isExpiredPage) {
+      return '/expired';
     }
 
-    console.log('redirecting to expired');
-    return safeRedirect('/expired');
+    return;
   }
 
   // APP IS NOT EXPIRED
   // If not configured, but not expired, redirect to onboard.
   if (!configured) {
-    console.log('app is not configured');
-
     if (!isOnboarding) {
-      console.log('redirecting to onboard');
-      return safeRedirect('/setup');
+      return '/setup';
     }
 
-    console.log('already on onboard page');
     return;
   }
 
   // APP IS CONFIGURED
-  console.log('app is configured');
-
   if (!session) {
-    console.log('no session');
-
     if (isLoginPage) {
-      console.log('already on login page');
       return;
     }
 
     if (isInverviewing) {
-      console.log('on interviewing page. no auth required');
       return;
     }
 
-    console.log('redirecting to login', path, encodeURI(path));
-    return safeRedirect('/signin?callbackUrl=' + encodeURI(path));
+    return '/signin?callbackUrl=' + encodeURI(path);
   }
 
   // APP IS CONFIGURED AND SESSION EXISTS
 
   // Redirect authed users away from these pages and to the dashboard
   if (isLoginPage || isOnboarding || isLandingPage || isExpiredPage) {
-    console.log('redirecting to dashboard');
-    return safeRedirect('/dashboard');
+    return '/dashboard';
   }
 
   // APP IS CONFIGURED AND SESSION EXISTS AND USER IS ON DASHBOARD
-  console.log('app is configured and session exists and user is on dashboard');
   return;
 };
 

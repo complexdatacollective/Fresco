@@ -2,21 +2,21 @@
 
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { type UserSignupData, userFormSchema } from '../_shared';
+import { userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import ActionError from '../../../components/ActionError';
+import type { Route } from 'next';
+import useZodForm from '~/hooks/useZodForm';
 
 type ResponseError = {
   title: string;
   description: string;
 };
 
-export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
+export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
   const [loading, setLoading] = useState(false);
 
   const [responseError, setResponseError] = useState<ResponseError | null>(
@@ -27,11 +27,12 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserSignupData>({
-    resolver: zodResolver(userFormSchema),
+  } = useZodForm({
+    schema: userFormSchema,
   });
 
   const utils = trpc.useContext();
+  const router = useRouter();
 
   const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
     onMutate: () => setLoading(true),
@@ -47,7 +48,8 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       if (result.session) {
         await utils.session.get.refetch();
         if (callbackUrl) {
-          window.location.href = callbackUrl;
+          router.replace(callbackUrl);
+          router.refresh();
         }
       }
     },

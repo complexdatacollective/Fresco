@@ -1,14 +1,14 @@
 'use client';
 
 import { Button } from '~/components/ui/Button';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
 import { type UserSignupData, userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { trpc } from '~/app/_trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
+import { useRouter } from 'next/navigation';
 
 export const SignUpForm = ({
   completeCallback,
@@ -16,14 +16,15 @@ export const SignUpForm = ({
   completeCallback?: () => void;
 }) => {
   const [signupError, setSignupError] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<UserSignupData>({
+  } = useZodForm({
+    schema: userFormSchema,
     mode: 'all',
-    resolver: zodResolver(userFormSchema),
   });
 
   const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
@@ -34,7 +35,8 @@ export const SignUpForm = ({
         return;
       }
 
-      if (result.session) {
+      if (result.user) {
+        router.refresh();
         completeCallback?.();
       }
     },

@@ -1,17 +1,19 @@
-/* eslint-disable local-rules/require-data-mapper */
+'use client';
+
 import { env } from '~/env.mjs';
 import { userFormClasses } from '../_shared';
 import { Button } from '~/components/ui/Button';
-import { prisma } from '~/utils/db';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { trpc } from '~/app/_trpc/client';
+import { Loader2 } from 'lucide-react';
 
 export default function Page() {
-  const handleResetSetup = async () => {
-    'use server';
-    await prisma.setupMetadata.deleteMany();
-    await prisma.user.deleteMany();
-    redirect('/');
-  };
+  const router = useRouter();
+  const { mutate: resetExpired, isLoading } = trpc.metadata.reset.useMutation({
+    onSuccess: () => {
+      router.refresh();
+    },
+  });
 
   return (
     <div className={userFormClasses}>
@@ -24,9 +26,14 @@ export default function Page() {
         Please redploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <form action={void handleResetSetup} className="mt-6">
-          <Button type="submit">Dev mode: Reset Configuration</Button>
-        </form>
+        <Button
+          onClick={() => resetExpired()}
+          disabled={isLoading}
+          className="mt-6 max-w-[20rem]"
+        >
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Dev mode: Reset Configuration
+        </Button>
       )}
     </div>
   );

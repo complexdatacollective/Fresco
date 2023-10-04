@@ -1,7 +1,6 @@
 'use client';
 
-import { Loader, MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { MoreHorizontal } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -10,14 +9,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import CopyButton from './CopyButton';
+import type { Row } from '@tanstack/react-table';
+import { Fragment } from 'react';
 
 interface Actions {
   label: string;
-  id: string;
-  idendtifier: string;
-  editAction?: (identifier: string) => void;
-  deleteItem?: (id: string) => Promise<void>;
+  row: Row<unknown>;
+  component: React.ReactNode;
 }
 
 interface Props<TMenuItem = Actions> {
@@ -27,58 +25,18 @@ interface Props<TMenuItem = Actions> {
 export const ActionsDropdown = <TMenuItem extends Actions>({
   menuItems,
 }: Props<TMenuItem>) => {
-  const [pending, setPending] = useState(false);
-
-  const handleDelete = async (item: Actions) => {
-    setPending(true);
-    if (item.deleteItem) {
-      await item.deleteItem(item.id);
-    }
-    setPending(false);
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
-          {pending ? (
-            <Loader className="h-4 w-4 animate-spin text-red-400" />
-          ) : (
-            <MoreHorizontal className="h-4 w-4" />
-          )}
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         {menuItems.map((item, index) => (
-          <DropdownMenuItem key={index}>
-            {item.label === 'Copy' && (
-              <CopyButton text={`/interview/${item.id}`} />
-            )}
-            {item.label === 'Edit' && (
-              <button
-                onClick={() => {
-                  if (item.editAction) {
-                    item.editAction(item.idendtifier);
-                  }
-                }}
-                className="w-full text-left"
-              >
-                Edit
-              </button>
-            )}
-            {item.label === 'Delete' && (
-              <button
-                onClick={() => {
-                  handleDelete(item).catch(console.error);
-                }}
-                className="w-full text-left"
-              >
-                Delete
-              </button>
-            )}
-          </DropdownMenuItem>
+          <Fragment key={index}>{item.component}</Fragment>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
