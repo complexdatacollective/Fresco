@@ -15,18 +15,18 @@ export const ParticipantsTable = ({
 }: {
   initialData: Participant[];
 }) => {
-  const [participants, setParticipants] = useState(initialData);
   const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
     null,
   );
   const [showModal, setShowModal] = useState(false);
 
-  const { isLoading, refetch } = trpc.participant.get.all.useQuery(undefined, {
+  const {
+    isLoading,
+    refetch,
+    data: participants,
+  } = trpc.participant.get.all.useQuery(undefined, {
     initialData,
     refetchOnMount: false,
-    onSuccess(data) {
-      setParticipants(data);
-    },
     onError(error) {
       console.error(error);
     },
