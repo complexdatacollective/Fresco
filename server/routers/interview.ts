@@ -1,51 +1,19 @@
-import * as z from 'zod';
+/* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { safeLoader } from '~/utils/safeLoader';
 import { faker } from '@faker-js/faker';
 
-const deleteSingleInterviewSchema = z.object({
-  id: z.string(),
-});
-
-const deleteManyInterviewsSchema = z.array(
-  z.object({
-    id: z.string(),
-  }),
-);
-
-const InterviewValidation = z.array(
-  z.object({
-    id: z.string(),
-    startTime: z.date(),
-    finishTime: z.date().nullable(),
-    exportTime: z.date().nullable(),
-    lastUpdated: z.date(),
-    participantId: z.string(),
-    protocolId: z.string(),
-    currentStep: z.number(),
-    participant: z.object({
-      id: z.string(),
-      identifier: z.string(),
-    }),
-    protocol: z.object({
-      id: z.string(),
-      name: z.string(),
-    }),
-  }),
-);
+import { interviewIdSchema, interviewListInputSchema } from '~/shared/schemas';
 
 export const interviewRouter = router({
   create: publicProcedure.mutation(async () => {
     try {
       // get the active protocol id to connect to the interview
-      // eslint-disable-next-line local-rules/require-data-mapper
       const activeProtocol = await prisma.protocol.findFirst({
         where: { active: true },
       });
 
       if (!activeProtocol) {
-        console.log('no active protocol');
         return {
           error: 'Failed to create interview: no active protocol',
           createdInterview: null,
@@ -54,7 +22,6 @@ export const interviewRouter = router({
 
       const randomIdentifier = faker.internet.userName();
 
-      // eslint-disable-next-line local-rules/require-data-mapper
       const createdInterview = await prisma.interview.create({
         data: {
           startTime: new Date(),
@@ -82,21 +49,29 @@ export const interviewRouter = router({
       };
     }
   }),
-  get: publicProcedure.query(async () => {
-    const interviews = safeLoader({
-      outputValidation: InterviewValidation,
-      loader: () =>
-        prisma.interview.findMany({
+  get: router({
+    all: publicProcedure.query(async () => {
+      const interviews = await prisma.interview.findMany({
+        include: {
+          protocol: true,
+        },
+      });
+      return interviews;
+    }),
+    byId: publicProcedure
+      .input(interviewIdSchema)
+      .query(async ({ input: id }) => {
+        const interview = await prisma.interview.findFirst({
+          where: id,
           include: {
             protocol: true,
-            participant: true,
           },
-        }),
-    });
-    return interviews;
+        });
+        return interview;
+      }),
   }),
   deleteSingle: protectedProcedure
-    .input(deleteSingleInterviewSchema)
+    .input(interviewIdSchema)
     .mutation(async ({ input: { id } }) => {
       try {
         // eslint-disable-next-line local-rules/require-data-mapper
@@ -109,7 +84,7 @@ export const interviewRouter = router({
       }
     }),
   deleteMany: protectedProcedure
-    .input(deleteManyInterviewsSchema)
+    .input(interviewListInputSchema)
     .mutation(async ({ input: data }) => {
       const idsToDelete = data.map((p) => p.id);
 
