@@ -35,9 +35,6 @@ function ManageParticipants() {
           configured later from the dashboard.
         </p>
       </div>
-      <AnonymousRecruitmentSwitch
-        initialCheckedState={allowAnonymousRecruitment}
-      />
       <div className="mb-4">
         <div className="flex justify-between">
           <div>
@@ -53,6 +50,9 @@ function ManageParticipants() {
           <button onClick={handleParticipantsUploaded}>Confirm Uploaded</button>
         )}
       </div>
+      <AnonymousRecruitmentSwitch
+        initialCheckedState={allowAnonymousRecruitment}
+      />
       <div className="flex justify-start">
         <Button onClick={handleNextStep}>
           {participantsUploaded ? 'Next' : 'Skip'}
