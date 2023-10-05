@@ -51,6 +51,11 @@ const getPropertiesRouter = router({
 
     return initializedAt;
   }),
+  allowAnonymousRecruitment: publicProcedure.query(async () => {
+    const { allowAnonymousRecruitment } = await getSetupMetadata();
+
+    return allowAnonymousRecruitment;
+  }),
 });
 
 export const metadataRouter = router({

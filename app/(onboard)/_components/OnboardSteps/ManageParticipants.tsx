@@ -2,9 +2,9 @@ import { Check } from 'lucide-react';
 import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
-import { Switch } from '~/components/ui/switch';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { trpc } from '~/app/_trpc/client';
+import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
   const pathname = usePathname();
@@ -12,8 +12,8 @@ function ManageParticipants() {
   const currentStep = searchParams.get('step') as string;
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
   const router = useRouter();
-  const updateAnonymousRecruitment =
-    trpc.metadata.updateAnonymousRecruitment.useMutation();
+  const allowAnonymousRecruitment =
+    trpc.metadata.get.allowAnonymousRecruitment.useQuery().data;
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
@@ -22,10 +22,6 @@ function ManageParticipants() {
 
   const handleNextStep = () => {
     router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
-  };
-
-  const allowAnonymousRecruitment = async () => {
-    await updateAnonymousRecruitment.mutateAsync();
   };
 
   return (
@@ -39,17 +35,9 @@ function ManageParticipants() {
           configured later from the dashboard.
         </p>
       </div>
-      <div className="mb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-bold">Anonymous Recruitment</h3>
-            <p className="text-sm text-gray-600">
-              Allow anonymous recruitment of participants.
-            </p>
-          </div>
-          <Switch onCheckedChange={allowAnonymousRecruitment} />
-        </div>
-      </div>
+      <AnonymousRecruitmentSwitch
+        initialCheckedState={allowAnonymousRecruitment}
+      />
       <div className="mb-4">
         <div className="flex justify-between">
           <div>
