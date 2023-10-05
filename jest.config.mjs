@@ -17,6 +17,9 @@ const config = {
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/$1',
   },
+  automock: true,
+  watchPathIgnorePatterns: ['<rootDir>/lib/network-exporters', '<rootDir>/lib/network-query'],
+  verbose: false,
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

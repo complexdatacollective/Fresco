@@ -11,6 +11,10 @@ import type {
   Protocol as NCProtocol,
 } from '~/lib/shared-consts';
 import { prisma } from '~/utils/db';
+import schemas from '@codaco/protocol-validation';
+
+const getValidatorForSchemaVersion = (schemaVersion: number) =>
+  schemas.find((schema) => schema.version === schemaVersion)?.validator;
 
 class ValidationError extends Error {
   constructor(
@@ -21,8 +25,6 @@ class ValidationError extends Error {
     super(message);
   }
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Move to utils
 export const fetchFileAsBuffer = async (url: string) => {
@@ -44,26 +46,19 @@ export const getProtocolJson = async (zip: Zip) => {
   return protocol;
 };
 
-const MOCK_validateProtocol = async (_protocol: NCProtocol) => {
-  await sleep(100);
-  return {
-    dataErrors: [],
-    schemaErrors: [],
-  };
-};
-
 export const validateProtocolJson = async (protocol: NCProtocol) => {
-  // Let's pretend this is the function signature. We can refactor to make it
-  // work this way later.
-  const { dataErrors, schemaErrors } = await MOCK_validateProtocol(protocol);
+  const validator = getValidatorForSchemaVersion(protocol.schemaVersion);
 
-  if (dataErrors.length || schemaErrors.length) {
-    throw new ValidationError(
-      'Protocol failed validation',
-      dataErrors,
-      schemaErrors,
-    );
+  if (!validator) {
+    throw new Error('No validator found for schema version');
   }
+
+  if (!validator(protocol)) {
+    console.log('errorsList', validator.errors);
+    throw new ValidationError('Protocol failed validation', [], []);
+  }
+
+  console.log('Protocol is valid!');
 
   return;
 };
@@ -144,7 +139,6 @@ export const insertProtocol = async (
     // eslint-disable-next-line local-rules/require-data-mapper
     await prisma.protocol.create({
       data: {
-        assetPath: '',
         hash: protocolHash,
         lastModified: protocol.lastModified,
         name: protocolName,
@@ -152,7 +146,7 @@ export const insertProtocol = async (
         stages: JSON.stringify(protocol.stages),
         codebook: JSON.stringify(protocol.codebook),
         description: protocol.description,
-        assetManifest: {
+        assets: {
           create: assets,
         },
       },
@@ -162,24 +156,12 @@ export const insertProtocol = async (
   }
 };
 
-export const removeProtocolFile = async (fileKey: string) => {
+export const removeProtocolFromCloudStorage = async (fileKey: string) => {
   const response = await utapi.deleteFiles(fileKey);
   return response;
 };
 
 export const importProtocol = async (file: UploadFileResponse) => {
-  const session = 'mock session';
-  console.log(
-    '🚀 ~ file: importProtocol.ts:174 ~ importProtocol ~ session:',
-    session,
-  );
-  // if (!session?.user.id) {
-  //   await removeProtocolFile(file.key);
-  //   return {
-  //     error: 'Auth error, you need to be logged in to perform this action',
-  //     success: false,
-  //   };
-  // }
   try {
     const protocolName = file.name.split('.')[0]!;
 
@@ -210,12 +192,10 @@ export const importProtocol = async (file: UploadFileResponse) => {
     const assets = (await uploadProtocolAssets(protocolJson, zip)) as Asset[];
 
     // Inserting protocol...
-    // await insertProtocol(protocolName, protocolJson, assets, session.user.id);
-    // Todo
     await insertProtocol(protocolName, protocolJson, assets);
 
     // Removing protocol file...');
-    await removeProtocolFile(file.key);
+    await removeProtocolFromCloudStorage(file.key);
 
     // Done!
     return { error: null, success: true };

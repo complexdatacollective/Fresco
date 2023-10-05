@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@codaco/protocol-validation':
+    specifier: file:../protocol-validation
+    version: file:../protocol-validation
   '@codaco/ui':
     specifier: 5.8.3
     version: 5.8.3(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -223,6 +226,9 @@ devDependencies:
   '@types/eslint':
     specifier: ^8.44.2
     version: 8.44.2
+  '@types/jest':
+    specifier: ^29.5.5
+    version: 29.5.5
   '@types/node':
     specifier: ^20.6.3
     version: 20.6.3
@@ -5303,6 +5309,13 @@ packages:
     resolution: {integrity: sha512-c3mAZEuK0lvBp8tmuL74XRKn1+y2dcwOUpH7x4WrF6gk1GIgiluDRgMYQtw2OFcBvAJWlt6ASU3tSqxp0Uu0Aw==}
     dependencies:
       '@types/istanbul-lib-report': 3.0.0
+    dev: true
+
+  /@types/jest@29.5.5:
+    resolution: {integrity: sha512-ebylz2hnsWR9mYvmBFbXJXr+33UPc4+ZdxyDXh5w0FlPBTfCVN3wPL+kuOiQt3xvrK419v7XWeAs+AeOksafXg==}
+    dependencies:
+      expect: 29.7.0
+      pretty-format: 29.7.0
     dev: true
 
   /@types/json-schema@7.0.13:
@@ -14148,4 +14161,9 @@ packages:
 
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
+    dev: false
+
+  file:../protocol-validation:
+    resolution: {directory: ../protocol-validation, type: directory}
+    name: '@codaco/protocol-validation'
     dev: false
