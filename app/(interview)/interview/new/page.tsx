@@ -7,6 +7,13 @@ import { redirect } from 'next/navigation';
 import { trpc } from '~/app/_trpc/server';
 
 export default async function Page() {
+  // check if active protocol exists
+  console.log('page rendered');
+  const activeProtocol = await trpc.protocol.getActive.query();
+  if (!activeProtocol) {
+    console.log('No active protocol');
+    return <div>No active protocol</div>;
+  }
   // check if anonymous recruitment is enabled
   const { allowAnonymousRecruitment } =
     await trpc.metadata.get.allSetupMetadata.query();
