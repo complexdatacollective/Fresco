@@ -10,15 +10,38 @@ export default async function Page() {
   // check if active protocol exists
   const activeProtocol = await trpc.protocol.getActive.query();
   if (!activeProtocol) {
-    return <div>No active protocol</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-2 text-2xl font-bold">No Active Protocol</div>
+          <p className="max-w-md text-lg">
+            There is no active protocol for this account. Researchers may
+            optionally mark an uploaded protocol as active from the{' '}
+            <a href="/dashboard/protocols">protocols dashboard</a>.
+          </p>
+        </div>
+      </div>
+    );
   }
   // check if anonymous recruitment is enabled
   const { allowAnonymousRecruitment } =
     await trpc.metadata.get.allSetupMetadata.query();
 
   if (!allowAnonymousRecruitment) {
-    // TODO: decide what to do here
-    return <div>Anonymous recruitment disabled.</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-2 text-2xl font-bold">
+            Anonymous Recruitment Disabled
+          </div>
+          <p className="max-w-md text-lg">
+            Anonymous recruitment is disabled for this study. Reserachers may
+            optionally enable anonymous recruitment from the{' '}
+            <a href="/dashboard">main dashboard</a>.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   // Anonymous recruitment is enabled
