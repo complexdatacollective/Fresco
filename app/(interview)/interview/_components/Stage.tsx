@@ -1,7 +1,7 @@
 'use client';
 
 import { useInterview } from '~/providers/NetworkProvider';
-import { Stage } from '~/lib/shared-consts';
+import { Stage } from '@codaco/shared-consts';
 import Button from '@codaco/ui/lib/components/Button';
 import { v4 as uuid } from 'uuid';
 

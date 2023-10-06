@@ -22,8 +22,9 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@codaco/ui": "5.8.3",
     "@codaco/protocol-validation": "file:../protocol-validation",
+    "@codaco/shared-consts": "^0.0.2",
+    "@codaco/ui": "5.8.3",
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.3.1",
     "@lucia-auth/adapter-prisma": "^3.0.1",

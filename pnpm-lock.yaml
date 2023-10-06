@@ -8,6 +8,9 @@ dependencies:
   '@codaco/protocol-validation':
     specifier: file:../protocol-validation
     version: file:../protocol-validation
+  '@codaco/shared-consts':
+    specifier: ^0.0.2
+    version: 0.0.2
   '@codaco/ui':
     specifier: 5.8.3
     version: 5.8.3(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -1716,6 +1719,10 @@ packages:
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@codaco/shared-consts@0.0.2:
+    resolution: {integrity: sha512-qPmZQm50NhIuQGznQx00kdCxXJ/rOW8UkCrLPQObmPFjq3iIOTwBjAWddq7gRBsDByRfdB/gMCwcd7Pay2aOFQ==}
+    dev: false
 
   /@codaco/ui@5.8.3(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-rRb9cwpO5STD8gcdyPyNzloHpKOU1zOcS7o/wnx5jpBlpVaX9bWuNQ2k2/p5gNFj+EnuXslnNcVFI8k4Om35dQ==}

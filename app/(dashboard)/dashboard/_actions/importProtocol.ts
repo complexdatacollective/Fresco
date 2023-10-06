@@ -9,12 +9,53 @@ import { utapi } from 'uploadthing/server';
 import type {
   AssetManifest,
   Protocol as NCProtocol,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
 import { prisma } from '~/utils/db';
 import schemas from '@codaco/protocol-validation';
 
+type ValidatorResultWithErrors = Array<{
+  message: string;
+}>;
+
+type ValidatorType = {
+  (data: unknown): boolean;
+  errors: ValidatorResultWithErrors | null;
+};
+
+type SchemasType = Array<{
+  version: number;
+  validator: ValidatorType;
+}>;
+
+interface FixedValidatorReturn {
+  dataErrors: string[];
+  schemaErrors: string[];
+  valid: boolean;
+}
+
+const typedSchemas = schemas as SchemasType;
+
 const getValidatorForSchemaVersion = (schemaVersion: number) =>
-  schemas.find((schema) => schema.version === schemaVersion)?.validator;
+  typedSchemas.find((schema) => schema.version === schemaVersion)?.validator;
+
+const runValidator = (
+  validator: ValidatorType,
+  document: unknown,
+): FixedValidatorReturn => {
+  if (!validator(document)) {
+    return {
+      dataErrors: validator.errors!.map((error) => error.message) ?? [],
+      schemaErrors: [],
+      valid: false,
+    };
+  }
+
+  return {
+    dataErrors: [],
+    schemaErrors: [],
+    valid: true,
+  };
+};
 
 class ValidationError extends Error {
   constructor(
@@ -53,14 +94,11 @@ export const validateProtocolJson = async (protocol: NCProtocol) => {
     throw new Error('No validator found for schema version');
   }
 
-  if (!validator(protocol)) {
-    console.log('errorsList', validator.errors);
-    throw new ValidationError('Protocol failed validation', [], []);
+  const { dataErrors, schemaErrors, valid } = runValidator(validator, protocol);
+
+  if (!valid) {
+    throw new ValidationError('Protocol is invalid', dataErrors, schemaErrors);
   }
-
-  console.log('Protocol is valid!');
-
-  return;
 };
 
 export const uploadProtocolAssets = async (protocol: NCProtocol, zip: Zip) => {

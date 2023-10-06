@@ -7,7 +7,7 @@ import {
   useEffect,
   type PropsWithChildren,
 } from 'react';
-import type { NcNetwork } from '~/lib/shared-consts';
+import type { NcNetwork } from '@codaco/shared-consts';
 
 const initialState: NcNetwork = {
   nodes: [],
