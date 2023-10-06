@@ -20,17 +20,12 @@ const AnonymousRecruitmentSwitch = ({
   const allowAnonymousRecruitment =
     trpc.metadata.get.allowAnonymousRecruitment.useQuery(undefined, {
       initialData: initialCheckedState,
+      onSuccess(newData) {
+        setChecked(newData);
+      },
     });
 
   const [checked, setChecked] = useState(allowAnonymousRecruitment.data);
-
-  useEffect(() => {
-    setLoading(true);
-    if (typeof allowAnonymousRecruitment.data === 'boolean') {
-      setChecked(allowAnonymousRecruitment.data);
-    }
-    setLoading(false);
-  }, [allowAnonymousRecruitment.data]);
 
   const handleCheckedChange = async () => {
     // Optimistically update the UI
