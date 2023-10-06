@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import { Switch } from '~/components/ui/switch';
 
@@ -17,6 +17,17 @@ const AnonymousRecruitmentSwitch = ({
   const updateAnonymousRecruitment =
     trpc.metadata.updateAnonymousRecruitment.useMutation();
 
+  const validData = trpc.metadata.get.allowAnonymousRecruitment.useQuery();
+
+  // revalidate the data
+  useEffect(() => {
+    setLoading(true);
+    if (typeof validData.data === 'boolean') {
+      setChecked(validData.data);
+    }
+    setLoading(false);
+  }, [validData.data]);
+
   const handleCheckedChange = async () => {
     // Optimistically update the UI
     setChecked(!checked);
@@ -30,7 +41,7 @@ const AnonymousRecruitmentSwitch = ({
       console.error('Failed to update setting:', error);
 
       // Revert the UI state on failure
-      setChecked(checked);
+      setChecked(!checked);
     }
   };
 
