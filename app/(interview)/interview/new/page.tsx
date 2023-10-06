@@ -5,8 +5,15 @@
 
 import { redirect } from 'next/navigation';
 import { trpc } from '~/app/_trpc/server';
+import { faker } from '@faker-js/faker';
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: {
+    identifier?: string;
+  };
+}) {
   // check if active protocol exists
   const activeProtocol = await trpc.protocol.getActive.query();
   if (!activeProtocol) {
@@ -47,7 +54,8 @@ export default async function Page() {
   // Anonymous recruitment is enabled
 
   // Create a new interview
-  const { createdInterview } = await trpc.interview.create.mutate();
+  const identifier = searchParams.identifier || faker.string.uuid();
+  const { createdInterview } = await trpc.interview.create.mutate(identifier);
 
   if (!createdInterview) {
     console.error('Error creating interview');
@@ -56,11 +64,4 @@ export default async function Page() {
 
   // Redirect to the interview/[id] route
   redirect(`/interview/${createdInterview.id}`);
-
-  return (
-    <div>
-      <h1>Interview created</h1>
-      {JSON.stringify(createdInterview)}
-    </div>
-  );
 }
