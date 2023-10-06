@@ -12,6 +12,7 @@ const AnonymousRecruitmentSwitch = ({
   initialCheckedState,
 }: AnonymousRecruitmentSwitchProps) => {
   const [checked, setChecked] = useState(initialCheckedState);
+  const [loading, setLoading] = useState(false);
 
   const updateAnonymousRecruitment =
     trpc.metadata.updateAnonymousRecruitment.useMutation();
@@ -19,10 +20,12 @@ const AnonymousRecruitmentSwitch = ({
   const handleCheckedChange = async () => {
     // Optimistically update the UI
     setChecked(!checked);
+    setLoading(true);
 
     // Update the setting in the database
     try {
       await updateAnonymousRecruitment.mutateAsync();
+      setLoading(false);
     } catch (error) {
       console.error('Failed to update setting:', error);
 
@@ -40,7 +43,11 @@ const AnonymousRecruitmentSwitch = ({
             Allow anonymous recruitment of participants.
           </p>
         </div>
-        <Switch checked={checked} onCheckedChange={handleCheckedChange} />
+        <Switch
+          checked={checked}
+          onCheckedChange={handleCheckedChange}
+          disabled={loading}
+        />
       </div>
     </div>
   );
