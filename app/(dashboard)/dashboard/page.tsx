@@ -5,6 +5,7 @@ import { trpc } from '~/app/_trpc/server';
 async function Home() {
   const allowAnonymousRecruitment =
     await trpc.metadata.get.allowAnonymousRecruitment.query();
+
   return (
     <>
       <main className="mx-auto flex w-[80%] max-w-[1200px] flex-col gap-10 p-10">

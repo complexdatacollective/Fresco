@@ -11,22 +11,26 @@ interface AnonymousRecruitmentSwitchProps {
 const AnonymousRecruitmentSwitch = ({
   initialCheckedState,
 }: AnonymousRecruitmentSwitchProps) => {
-  const [checked, setChecked] = useState(initialCheckedState);
   const [loading, setLoading] = useState(false);
+  const utils = trpc.useContext();
 
   const updateAnonymousRecruitment =
     trpc.metadata.updateAnonymousRecruitment.useMutation();
 
-  const validData = trpc.metadata.get.allowAnonymousRecruitment.useQuery();
+  const allowAnonymousRecruitment =
+    trpc.metadata.get.allowAnonymousRecruitment.useQuery(undefined, {
+      initialData: initialCheckedState,
+    });
 
-  // revalidate the data
+  const [checked, setChecked] = useState(allowAnonymousRecruitment.data);
+
   useEffect(() => {
     setLoading(true);
-    if (typeof validData.data === 'boolean') {
-      setChecked(validData.data);
+    if (typeof allowAnonymousRecruitment.data === 'boolean') {
+      setChecked(allowAnonymousRecruitment.data);
     }
     setLoading(false);
-  }, [validData.data]);
+  }, [allowAnonymousRecruitment.data]);
 
   const handleCheckedChange = async () => {
     // Optimistically update the UI
@@ -36,6 +40,7 @@ const AnonymousRecruitmentSwitch = ({
     // Update the setting in the database
     try {
       await updateAnonymousRecruitment.mutateAsync();
+      await utils.metadata.get.allowAnonymousRecruitment.invalidate();
       setLoading(false);
     } catch (error) {
       console.error('Failed to update setting:', error);
