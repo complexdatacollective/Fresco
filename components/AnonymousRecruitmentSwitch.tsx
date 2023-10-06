@@ -1,16 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import { Switch } from '~/components/ui/switch';
 
-interface AnonymousRecruitmentSwitchProps {
-  initialCheckedState: boolean;
-}
-
-const AnonymousRecruitmentSwitch = ({
-  initialCheckedState,
-}: AnonymousRecruitmentSwitchProps) => {
+const AnonymousRecruitmentSwitch = () => {
   const [loading, setLoading] = useState(false);
   const utils = trpc.useContext();
 
@@ -19,9 +13,8 @@ const AnonymousRecruitmentSwitch = ({
 
   const allowAnonymousRecruitment =
     trpc.metadata.get.allowAnonymousRecruitment.useQuery(undefined, {
-      initialData: initialCheckedState,
-      onSuccess(newData) {
-        setChecked(newData);
+      onSuccess: (data) => {
+        setChecked(data);
       },
     });
 

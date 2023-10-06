@@ -3,7 +3,6 @@ import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { trpc } from '~/app/_trpc/client';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
@@ -12,8 +11,6 @@ function ManageParticipants() {
   const currentStep = searchParams.get('step') as string;
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
   const router = useRouter();
-  const allowAnonymousRecruitment =
-    trpc.metadata.get.allowAnonymousRecruitment.useQuery().data;
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
@@ -50,9 +47,7 @@ function ManageParticipants() {
           <button onClick={handleParticipantsUploaded}>Confirm Uploaded</button>
         )}
       </div>
-      <AnonymousRecruitmentSwitch
-        initialCheckedState={allowAnonymousRecruitment}
-      />
+      <AnonymousRecruitmentSwitch />
       <div className="flex justify-start">
         <Button onClick={handleNextStep}>
           {participantsUploaded ? 'Next' : 'Skip'}
