@@ -1,3 +1,4 @@
+import ProtocolUploader from './_components/ProtocolUploader';
 import ResetButton from './_components/ResetButton';
 
 function Home() {
@@ -8,6 +9,7 @@ function Home() {
           <h1 className="mb-2 text-3xl font-bold">Welcome</h1>
           <p>This is the main dashboard.</p>
           <ResetButton />
+          <ProtocolUploader />
         </div>
       </main>
     </>
