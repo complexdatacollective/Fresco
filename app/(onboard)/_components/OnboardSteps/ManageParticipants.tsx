@@ -3,7 +3,7 @@ import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
+import AnonymousRecruitmentSwitch from '~/app/(dashboard)/dashboard/_components/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
   const pathname = usePathname();

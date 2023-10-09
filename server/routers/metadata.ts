@@ -9,6 +9,7 @@ import {
 import { auth } from '~/utils/auth';
 import { trpc } from '~/app/_trpc/server';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
+import { z } from 'zod';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
@@ -60,27 +61,27 @@ const getPropertiesRouter = router({
 
 export const metadataRouter = router({
   get: getPropertiesRouter,
-
-  updateAnonymousRecruitment: protectedProcedure.mutation(async () => {
-    const { configured, initializedAt, allowAnonymousRecruitment } =
-      await getSetupMetadata();
-    try {
-      const updatedMetadata = await prisma.setupMetadata.update({
-        where: {
-          configured_initializedAt: {
-            configured,
-            initializedAt,
+  updateAnonymousRecruitment: protectedProcedure
+    .input(z.boolean())
+    .mutation(async ({ input }) => {
+      const { configured, initializedAt } = await getSetupMetadata();
+      try {
+        const updatedMetadata = await prisma.setupMetadata.update({
+          where: {
+            configured_initializedAt: {
+              configured,
+              initializedAt,
+            },
           },
-        },
-        data: {
-          allowAnonymousRecruitment: !allowAnonymousRecruitment,
-        },
-      });
-      return { error: null, metadata: updatedMetadata };
-    } catch (error) {
-      return { error: 'Failed to update metadata', metadata: null };
-    }
-  }),
+          data: {
+            allowAnonymousRecruitment: input,
+          },
+        });
+        return { error: null, metadata: updatedMetadata };
+      } catch (error) {
+        return { error: 'Failed to update metadata', metadata: null };
+      }
+    }),
 
   reset: devProcedure.mutation(async ({ ctx }) => {
     const userID = ctx.session?.user.userId;
