@@ -2,8 +2,8 @@ import { trpc } from '~/app/_trpc/server';
 import AnonymousRecruitmentSwitch from './AnonymousRecruitmentSwitch';
 
 const AnonymousRecruitment = async () => {
-  const allowAnonymousRecruitment =
-    await trpc.metadata.get.allowAnonymousRecruitment.query(undefined, {});
+  const { allowAnonymousRecruitment } =
+    await trpc.metadata.get.allSetupMetadata.query();
 
   return <AnonymousRecruitmentSwitch initialData={allowAnonymousRecruitment} />;
 };

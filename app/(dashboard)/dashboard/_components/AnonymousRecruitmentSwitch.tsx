@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { trpc } from '~/app/_trpc/client';
 import { Switch } from '~/components/ui/switch';
-import { useEffect, useState } from 'react';
 
 const AnonymousRecruitmentSwitch = ({
   initialData,
