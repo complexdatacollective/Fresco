@@ -47,7 +47,7 @@ function ManageParticipants() {
           <button onClick={handleParticipantsUploaded}>Confirm Uploaded</button>
         )}
       </div>
-      <AnonymousRecruitmentSwitch />
+      <AnonymousRecruitmentSwitch initialData={false} />
       <div className="flex justify-start">
         <Button onClick={handleNextStep}>
           {participantsUploaded ? 'Next' : 'Skip'}

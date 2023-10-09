@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { trpc } from '~/app/_trpc/client';
 import { Switch } from '~/components/ui/switch';
+import { useEffect, useState } from 'react';
 
 const AnonymousRecruitmentSwitch = ({
   initialData,
@@ -11,24 +12,31 @@ const AnonymousRecruitmentSwitch = ({
 }) => {
   const utils = trpc.useContext();
   const router = useRouter();
+  const [visualState, setVisualState] = useState(initialData);
 
   const { data: allowAnonymousRecruitment } =
     trpc.metadata.get.allowAnonymousRecruitment.useQuery(undefined, {
       initialData,
     });
 
+  useEffect(() => {
+    setVisualState(allowAnonymousRecruitment);
+  }, [allowAnonymousRecruitment]);
+
   const {
     mutateAsync: updateAnonymousRecruitment,
-    // isLoading: isUpdatingAnonymousRecruitment,
+    isLoading: isUpdatingAnonymousRecruitment,
   } = trpc.metadata.updateAnonymousRecruitment.useMutation({
     onMutate: async (newState) => {
       await utils.metadata.get.allowAnonymousRecruitment.cancel();
 
       utils.metadata.get.allowAnonymousRecruitment.setData(undefined, newState);
     },
-    // onError: (err, newState, context) => {
-    //   // todo: handle putting the visual state back to the previous state
-    // },
+    onError: (err, newState) => {
+      // todo: handle putting the visual state back to the previous state
+      setVisualState(!newState);
+      console.error(err);
+    },
     onSettled: async () => {
       router.refresh();
     },
@@ -48,8 +56,9 @@ const AnonymousRecruitmentSwitch = ({
           </p>
         </div>
         <Switch
-          checked={allowAnonymousRecruitment}
+          checked={visualState}
           onCheckedChange={handleCheckedChange}
+          disabled={isUpdatingAnonymousRecruitment}
         />
       </div>
     </div>
