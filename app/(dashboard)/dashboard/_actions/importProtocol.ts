@@ -9,20 +9,9 @@ import { utapi } from 'uploadthing/server';
 import type {
   AssetManifest,
   Protocol as NCProtocol,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
 import { prisma } from '~/utils/db';
-
-class ValidationError extends Error {
-  constructor(
-    message: string,
-    public dataErrors: string[],
-    public schemaErrors: string[],
-  ) {
-    super(message);
-  }
-}
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { ValidationError, validateProtocol } from '@codaco/protocol-validation';
 
 // Move to utils
 export const fetchFileAsBuffer = async (url: string) => {
@@ -42,30 +31,6 @@ export const getProtocolJson = async (zip: Zip) => {
   const protocol = await JSON.parse(protocolString);
 
   return protocol;
-};
-
-const MOCK_validateProtocol = async (_protocol: NCProtocol) => {
-  await sleep(100);
-  return {
-    dataErrors: [],
-    schemaErrors: [],
-  };
-};
-
-export const validateProtocolJson = async (protocol: NCProtocol) => {
-  // Let's pretend this is the function signature. We can refactor to make it
-  // work this way later.
-  const { dataErrors, schemaErrors } = await MOCK_validateProtocol(protocol);
-
-  if (dataErrors.length || schemaErrors.length) {
-    throw new ValidationError(
-      'Protocol failed validation',
-      dataErrors,
-      schemaErrors,
-    );
-  }
-
-  return;
 };
 
 export const uploadProtocolAssets = async (protocol: NCProtocol, zip: Zip) => {
@@ -161,24 +126,12 @@ export const insertProtocol = async (
   }
 };
 
-export const removeProtocolFile = async (fileKey: string) => {
+export const removeProtocolFromCloudStorage = async (fileKey: string) => {
   const response = await utapi.deleteFiles(fileKey);
   return response;
 };
 
 export const importProtocol = async (file: UploadFileResponse) => {
-  const session = 'mock session';
-  console.log(
-    '🚀 ~ file: importProtocol.ts:174 ~ importProtocol ~ session:',
-    session,
-  );
-  // if (!session?.user.id) {
-  //   await removeProtocolFile(file.key);
-  //   return {
-  //     error: 'Auth error, you need to be logged in to perform this action',
-  //     success: false,
-  //   };
-  // }
   try {
     const protocolName = file.name.split('.')[0]!;
 
@@ -192,12 +145,12 @@ export const importProtocol = async (file: UploadFileResponse) => {
 
     // Validating protocol...
     try {
-      await validateProtocolJson(protocolJson);
+      await validateProtocol(protocolJson);
     } catch (error) {
       if (error instanceof ValidationError) {
         return {
-          error: 'The protocol is invalid',
-          errorDetails: [...error.dataErrors, ...error.schemaErrors],
+          error: error.message,
+          errorDetails: [...error.logicErrors, ...error.schemaErrors],
           success: false,
         };
       }
@@ -209,12 +162,10 @@ export const importProtocol = async (file: UploadFileResponse) => {
     const assets = (await uploadProtocolAssets(protocolJson, zip)) as Asset[];
 
     // Inserting protocol...
-    // await insertProtocol(protocolName, protocolJson, assets, session.user.id);
-    // Todo
     await insertProtocol(protocolName, protocolJson, assets);
 
     // Removing protocol file...');
-    await removeProtocolFile(file.key);
+    await removeProtocolFromCloudStorage(file.key);
 
     // Done!
     return { error: null, success: true };

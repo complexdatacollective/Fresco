@@ -3,7 +3,7 @@ import { NetworkProvider } from '~/providers/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
 import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
-import type { NcNetwork, Stage as StageType } from '~/lib/shared-consts';
+import type { NcNetwork, Stage as StageType } from '@codaco/shared-consts';
 import Link from 'next/link';
 import { trpc } from '~/app/_trpc/server';
 

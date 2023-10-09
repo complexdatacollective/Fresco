@@ -1,4 +1,5 @@
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
+import ProtocolUploader from './_components/ProtocolUploader';
 import ResetButton from './_components/ResetButton';
 
 function Home() {
@@ -10,6 +11,7 @@ function Home() {
           <p>This is the main dashboard.</p>
           <ResetButton />
           <AnonymousRecruitmentSwitch />
+          <ProtocolUploader />
         </div>
       </main>
     </>

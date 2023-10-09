@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from 'uploadthing/next';
+import { getDefaultSession } from '~/server/context';
 
 const f = createUploadthing();
 
@@ -10,11 +11,10 @@ export const ourFileRouter = {
   })
     // Set permissions and file types for this FileRoute
     .middleware(async () => {
-      const session = 'mock session';
-      console.log('🚀 ~ file: core.ts:15 ~ .middleware ~ session:', session);
-      // if (!session?.user.id) {
-      //   throw new Error('Unauthorized');
-      // }
+      const session = await getDefaultSession();
+      if (!session?.user) {
+        throw new Error('Unauthorized');
+      }
       return {};
     })
     .onUploadComplete(async () => {}),
