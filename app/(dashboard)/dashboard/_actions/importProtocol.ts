@@ -11,61 +11,7 @@ import type {
   Protocol as NCProtocol,
 } from '@codaco/shared-consts';
 import { prisma } from '~/utils/db';
-import schemas from '@codaco/protocol-validation';
-
-type ValidatorResultWithErrors = Array<{
-  message: string;
-}>;
-
-type ValidatorType = {
-  (data: unknown): boolean;
-  errors: ValidatorResultWithErrors | null;
-};
-
-type SchemasType = Array<{
-  version: number;
-  validator: ValidatorType;
-}>;
-
-interface FixedValidatorReturn {
-  dataErrors: string[];
-  schemaErrors: string[];
-  valid: boolean;
-}
-
-const typedSchemas = schemas as SchemasType;
-
-const getValidatorForSchemaVersion = (schemaVersion: number) =>
-  typedSchemas.find((schema) => schema.version === schemaVersion)?.validator;
-
-const runValidator = (
-  validator: ValidatorType,
-  document: unknown,
-): FixedValidatorReturn => {
-  if (!validator(document)) {
-    return {
-      dataErrors: validator.errors!.map((error) => error.message) ?? [],
-      schemaErrors: [],
-      valid: false,
-    };
-  }
-
-  return {
-    dataErrors: [],
-    schemaErrors: [],
-    valid: true,
-  };
-};
-
-class ValidationError extends Error {
-  constructor(
-    message: string,
-    public dataErrors: string[],
-    public schemaErrors: string[],
-  ) {
-    super(message);
-  }
-}
+import { ValidationError, validateProtocol } from '@codaco/protocol-validation';
 
 // Move to utils
 export const fetchFileAsBuffer = async (url: string) => {
@@ -85,20 +31,6 @@ export const getProtocolJson = async (zip: Zip) => {
   const protocol = await JSON.parse(protocolString);
 
   return protocol;
-};
-
-export const validateProtocolJson = async (protocol: NCProtocol) => {
-  const validator = getValidatorForSchemaVersion(protocol.schemaVersion);
-
-  if (!validator) {
-    throw new Error('No validator found for schema version');
-  }
-
-  const { dataErrors, schemaErrors, valid } = runValidator(validator, protocol);
-
-  if (!valid) {
-    throw new ValidationError('Protocol is invalid', dataErrors, schemaErrors);
-  }
 };
 
 export const uploadProtocolAssets = async (protocol: NCProtocol, zip: Zip) => {
@@ -213,12 +145,12 @@ export const importProtocol = async (file: UploadFileResponse) => {
 
     // Validating protocol...
     try {
-      await validateProtocolJson(protocolJson);
+      await validateProtocol(protocolJson);
     } catch (error) {
       if (error instanceof ValidationError) {
         return {
-          error: 'The protocol is invalid',
-          errorDetails: [...error.dataErrors, ...error.schemaErrors],
+          error: error.message,
+          errorDetails: [...error.logicErrors, ...error.schemaErrors],
           success: false,
         };
       }

@@ -141,6 +141,7 @@ export default function ProtocolUploader({
         });
 
         startUpload([file]).catch((e: Error) => {
+          console.log(e);
           setOpen(true);
           setDialogContent({
             title: 'Protocol import',
