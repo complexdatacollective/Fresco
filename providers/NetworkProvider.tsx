@@ -7,7 +7,7 @@ import {
   useEffect,
   type PropsWithChildren,
 } from 'react';
-import type { NcNetwork } from '@codaco/shared-consts';
+import type { NcEdge, NcNetwork, NcNode } from '@codaco/shared-consts';
 
 const initialState: NcNetwork = {
   nodes: [],
@@ -15,7 +15,7 @@ const initialState: NcNetwork = {
   ego: undefined,
 };
 
-type NetworkAction = {
+type NetworkActionBase = {
   type:
     | 'ADD_NODE'
     | 'ADD_EDGE'
@@ -23,8 +23,46 @@ type NetworkAction = {
     | 'UPDATE_EDGE'
     | 'DELETE_NODE'
     | 'DELETE_EDGE';
-  payload: Record<string, unknown>;
+  payload: unknown;
 };
+
+type ActionAddNode = NetworkActionBase & {
+  type: 'ADD_NODE';
+  payload: NcNode;
+};
+
+type ActionAddEdge = NetworkActionBase & {
+  type: 'ADD_EDGE';
+  payload: NcEdge;
+};
+
+type ActionUpdateNode = NetworkActionBase & {
+  type: 'UPDATE_NODE';
+  payload: NcNode;
+};
+
+type ActionUpdateEdge = NetworkActionBase & {
+  type: 'UPDATE_EDGE';
+  payload: NcEdge;
+};
+
+type ActionDeleteNode = NetworkActionBase & {
+  type: 'DELETE_NODE';
+  payload: string;
+};
+
+type ActionDeleteEdge = NetworkActionBase & {
+  type: 'DELETE_EDGE';
+  payload: string;
+};
+
+type NetworkAction =
+  | ActionAddNode
+  | ActionAddEdge
+  | ActionUpdateNode
+  | ActionUpdateEdge
+  | ActionDeleteNode
+  | ActionDeleteEdge;
 
 function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
   switch (action.type) {
@@ -42,25 +80,25 @@ function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
       return {
         ...state,
         nodes: state.nodes.map((node) =>
-          node.id === action.payload.id ? action.payload : node,
+          node._uid === action.payload._uid ? action.payload : node,
         ),
       };
     case 'UPDATE_EDGE':
       return {
         ...state,
         edges: state.edges.map((edge) =>
-          edge.id === action.payload.id ? action.payload : edge,
+          edge._uid === action.payload._uid ? action.payload : edge,
         ),
       };
     case 'DELETE_NODE':
       return {
         ...state,
-        nodes: state.nodes.filter((node) => node.id !== action.payload),
+        nodes: state.nodes.filter((node) => node._uid !== action.payload),
       };
     case 'DELETE_EDGE':
       return {
         ...state,
-        edges: state.edges.filter((edge) => edge.id !== action.payload),
+        edges: state.edges.filter((edge) => edge._uid !== action.payload),
       };
     default:
       return state;
@@ -76,15 +114,8 @@ const NetworkContext = createContext({
 });
 
 type NetworkProviderProps = {
-  network: string | null;
+  network: NcNetwork;
   updateNetwork: (network: NcNetwork) => void;
-};
-
-const getInitialState = (network: string | null): NcNetwork => {
-  if (network) {
-    return JSON.parse(network) as NcNetwork;
-  }
-  return initialState;
 };
 
 function NetworkProvider({
@@ -92,9 +123,7 @@ function NetworkProvider({
   updateNetwork,
   children,
 }: PropsWithChildren<NetworkProviderProps>) {
-  const [state, dispatch] = useReducer(reducer, initialState, () =>
-    getInitialState(network),
-  );
+  const [state, dispatch] = useReducer(reducer, network);
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
@@ -111,27 +140,27 @@ function NetworkProvider({
 const useInterview = () => {
   const { state, dispatch } = useContext(NetworkContext);
 
-  const addNode = (node) => {
+  const addNode = (node: NcNode) => {
     dispatch({ type: 'ADD_NODE', payload: node });
   };
 
-  const addEdge = (edge) => {
+  const addEdge = (edge: NcEdge) => {
     dispatch({ type: 'ADD_EDGE', payload: edge });
   };
 
-  const updateNode = (node) => {
+  const updateNode = (node: NcNode) => {
     dispatch({ type: 'UPDATE_NODE', payload: node });
   };
 
-  const updateEdge = (edge) => {
+  const updateEdge = (edge: NcEdge) => {
     dispatch({ type: 'UPDATE_EDGE', payload: edge });
   };
 
-  const deleteNode = (nodeId) => {
+  const deleteNode = (nodeId: string) => {
     dispatch({ type: 'DELETE_NODE', payload: nodeId });
   };
 
-  const deleteEdge = (edgeId) => {
+  const deleteEdge = (edgeId: string) => {
     dispatch({ type: 'DELETE_EDGE', payload: edgeId });
   };
 

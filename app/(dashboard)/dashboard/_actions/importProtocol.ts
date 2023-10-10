@@ -57,7 +57,7 @@ export const uploadProtocolAssets = async (protocol: NCProtocol, zip: Zip) => {
 
       const file = new Blob([blob], {
         type: `application/${fileExtension}`,
-      }) as FileEsque;
+      }) as File;
 
       data.append('files', file, `${asset.id}.${fileExtension}`);
     }),

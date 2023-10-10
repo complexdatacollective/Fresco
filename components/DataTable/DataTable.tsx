@@ -29,7 +29,7 @@ interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
-  handleDeleteSelected: (data: TData[]) => Promise<void>;
+  handleDeleteSelected?: (data: TData[]) => Promise<void>;
 }
 
 export function DataTable<TData, TValue>({
@@ -55,8 +55,9 @@ export function DataTable<TData, TValue>({
       .rows.map((r) => r.original);
 
     try {
-      await handleDeleteSelected(selectedData);
+      await handleDeleteSelected?.(selectedData);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error);
     }
 

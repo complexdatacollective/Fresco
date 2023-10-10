@@ -64,6 +64,7 @@ export default async function Page({
   const { createdInterview } = await trpc.interview.create.mutate(identifier);
 
   if (!createdInterview) {
+    // eslint-disable-next-line no-console
     console.error('Error creating interview');
     return;
   }

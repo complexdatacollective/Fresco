@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
-import { UrlObject } from 'url';
+import type { UrlObject } from 'url';
 
 export const NavButton = ({
   children,

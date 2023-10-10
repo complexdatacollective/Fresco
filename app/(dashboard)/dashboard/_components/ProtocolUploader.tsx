@@ -124,6 +124,7 @@ export default function ProtocolUploader({
       });
     },
     onUploadProgress: (file, progress) => {
+      // eslint-disable-next-line no-console
       console.log(
         '🚀 ~ file: ProtocolUploader.tsx:102 ~ ProtocolUploader ~ file>:progress',
         `${file}>${progress}`,
@@ -141,6 +142,7 @@ export default function ProtocolUploader({
         });
 
         startUpload([file]).catch((e: Error) => {
+          // eslint-disable-next-line no-console
           console.log(e);
           setOpen(true);
           setDialogContent({
@@ -223,7 +225,7 @@ export default function ProtocolUploader({
           {!dialogContent.progress && !dialogContent.error && (
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={() => void form.handleSubmit(onSubmit)}
                 className="w-full space-y-6"
               >
                 <div>

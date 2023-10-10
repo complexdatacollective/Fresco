@@ -5,7 +5,6 @@ import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
@@ -19,7 +18,7 @@ interface Actions {
 }
 
 interface Props<TMenuItem = Actions> {
-  menuItems: TMenuItem[];
+  menuItems?: TMenuItem[];
 }
 
 export const ActionsDropdown = <TMenuItem extends Actions>({
@@ -35,9 +34,10 @@ export const ActionsDropdown = <TMenuItem extends Actions>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        {menuItems.map((item, index) => (
-          <Fragment key={index}>{item.component}</Fragment>
-        ))}
+        {menuItems &&
+          menuItems.map((item, index) => (
+            <Fragment key={index}>{item.component}</Fragment>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

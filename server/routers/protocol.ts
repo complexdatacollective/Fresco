@@ -9,6 +9,13 @@ const updateActiveProtocolSchema = z.object({
 });
 
 export const protocolRouter = router({
+  get: router({
+    all: protectedProcedure.query(async () => {
+      const protocols = await prisma.protocol.findMany();
+
+      return protocols;
+    }),
+  }),
   getActive: publicProcedure.query(async () => {
     const activeProtocol = await prisma.protocol.findFirst({
       where: {
