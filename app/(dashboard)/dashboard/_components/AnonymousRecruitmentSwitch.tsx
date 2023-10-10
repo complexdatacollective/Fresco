@@ -17,26 +17,33 @@ const AnonymousRecruitmentSwitch = ({
       initialData,
     });
 
-  const {
-    mutateAsync: updateAnonymousRecruitment,
-    isLoading: isUpdatingAnonymousRecruitment,
-  } = trpc.metadata.updateAnonymousRecruitment.useMutation({
-    onMutate: async (newState) => {
-      await utils.metadata.get.allowAnonymousRecruitment.cancel();
+  const { mutateAsync: updateAnonymousRecruitment } =
+    trpc.metadata.updateAnonymousRecruitment.useMutation({
+      async onMutate(newState: boolean) {
+        await utils.metadata.get.allowAnonymousRecruitment.cancel();
 
-      utils.metadata.get.allowAnonymousRecruitment.setData(undefined, newState);
-    },
-    onError: (err, newState, context) => {
-      utils.metadata.get.allowAnonymousRecruitment.setData(
-        undefined,
-        context.previousData,
-      );
-      console.error(err);
-    },
-    onSettled: async () => {
-      router.refresh();
-    },
-  });
+        const previousState =
+          utils.metadata.get.allowAnonymousRecruitment.getData();
+
+        utils.metadata.get.allowAnonymousRecruitment.setData(
+          undefined,
+          newState,
+        );
+
+        return previousState;
+      },
+      onError: (err, newState, previousState) => {
+        utils.metadata.get.allowAnonymousRecruitment.setData(
+          undefined,
+          previousState,
+        );
+        // eslint-disable-next-line no-console
+        console.error(err);
+      },
+      onSuccess: () => {
+        router.refresh(); // This causes the server component to provide the correct value on initial render
+      },
+    });
 
   const handleCheckedChange = async () => {
     await updateAnonymousRecruitment(!allowAnonymousRecruitment);
@@ -53,8 +60,7 @@ const AnonymousRecruitmentSwitch = ({
         </div>
         <Switch
           checked={allowAnonymousRecruitment}
-          onCheckedChange={handleCheckedChange}
-          disabled={isUpdatingAnonymousRecruitment}
+          onCheckedChange={() => void handleCheckedChange()}
         />
       </div>
     </div>
