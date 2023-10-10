@@ -3,7 +3,7 @@ import SignInForm from '../_components/SignInForm';
 import { cn } from '~/utils/shadcn';
 import { redirect } from 'next/navigation';
 
-export const appSettings = {
+export const metadata = {
   title: 'Fresco - Sign In',
   description: 'Sign in to Fresco.',
 };
