@@ -11,9 +11,3 @@ export const updateSchema = z.object({
   identifier: participantIdentifierSchema,
   newIdentifier: participantIdentifierSchema,
 });
-
-export const interviewIdSchema = z.object({
-  id: z.string(),
-});
-
-export const interviewListInputSchema = z.array(interviewIdSchema);

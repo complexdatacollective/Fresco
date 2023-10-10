@@ -2,11 +2,8 @@
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
 
-import {
-  interviewIdSchema,
-  interviewListInputSchema,
-  participantIdentifierSchema,
-} from '~/shared/schemas';
+import { participantIdentifierSchema } from '~/shared/schemas';
+import { z } from 'zod';
 
 export const interviewRouter = router({
   create: publicProcedure
@@ -81,7 +78,11 @@ export const interviewRouter = router({
       return interviews;
     }),
     byId: publicProcedure
-      .input(interviewIdSchema)
+      .input(
+        z.object({
+          id: z.string(),
+        }),
+      )
       .query(async ({ input: id }) => {
         const interview = await prisma.interview.findFirst({
           where: id,
@@ -94,7 +95,11 @@ export const interviewRouter = router({
       }),
   }),
   deleteSingle: protectedProcedure
-    .input(interviewIdSchema)
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
     .mutation(async ({ input: { id } }) => {
       try {
         // eslint-disable-next-line local-rules/require-data-mapper
@@ -107,7 +112,13 @@ export const interviewRouter = router({
       }
     }),
   deleteMany: protectedProcedure
-    .input(interviewListInputSchema)
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+        }),
+      ),
+    )
     .mutation(async ({ input: data }) => {
       const idsToDelete = data.map((p) => p.id);
 
