@@ -1,5 +1,5 @@
 import { ParticipantsTable } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ParticipantsTable';
-import { trpc } from '~/app/_trpc/proxy';
+import { trpc } from '~/app/_trpc/server';
 
 const ParticipantPage = async () => {
   const participants = await trpc.participant.get.all.query();

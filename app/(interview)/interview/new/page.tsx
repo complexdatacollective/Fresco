@@ -7,6 +7,8 @@ import { redirect } from 'next/navigation';
 import { trpc } from '~/app/_trpc/server';
 import { faker } from '@faker-js/faker';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({
   searchParams,
 }: {
@@ -31,8 +33,12 @@ export default async function Page({
     );
   }
   // check if anonymous recruitment is enabled
-  const { allowAnonymousRecruitment } =
-    await trpc.metadata.get.allSetupMetadata.query();
+  const allowAnonymousRecruitment =
+    await trpc.metadata.get.allowAnonymousRecruitment.query(undefined, {
+      context: {
+        revalidate: 0,
+      },
+    });
 
   if (!allowAnonymousRecruitment) {
     return (

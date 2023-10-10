@@ -2,8 +2,7 @@
 import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
-import { Suspense } from 'react';
-import { trpc } from './_trpc/proxy';
+import { trpc } from './_trpc/server';
 import type { Session } from 'lucia';
 
 export const metadata = {
@@ -12,9 +11,17 @@ export const metadata = {
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = (await trpc.session.get.query()) as Session | null;
+  const session = (await trpc.session.get.query(undefined, {
+    context: {
+      revalidate: 0,
+    },
+  })) as Session | null;
   const { expired, configured } =
-    await trpc.metadata.get.allSetupMetadata.query();
+    await trpc.metadata.get.allSetupMetadata.query(undefined, {
+      context: {
+        revalidate: 0,
+      },
+    });
 
   return (
     <html lang="en">

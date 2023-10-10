@@ -18,9 +18,13 @@ const ResetButton = () => {
   };
 
   return (
-    <Button variant="destructive" onClick={reset} disabled={loading}>
+    <Button
+      variant="destructive"
+      onClick={() => void reset()}
+      disabled={loading}
+    >
       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Reset
+      Reset all app data
     </Button>
   );
 };
