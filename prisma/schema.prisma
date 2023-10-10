@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -23,7 +24,7 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
-  active       Boolean     @default(false)
+  active        Boolean     @default(false)
 }
 
 model Asset {
@@ -91,9 +92,9 @@ model Key {
 }
 
 model AppSettings {
-  configured    Boolean   @default(false)
-  initializedAt DateTime  @default(now())
-  configuredAt  DateTime?
+  configured                Boolean   @default(false)
+  initializedAt             DateTime  @default(now())
+  configuredAt              DateTime?
   allowAnonymousRecruitment Boolean   @default(false)
 
   @@id([configured, initializedAt])
