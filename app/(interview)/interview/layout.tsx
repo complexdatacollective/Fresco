@@ -1,6 +1,6 @@
 import '~/styles/interview.scss';
 
-export const appSettings = {
+export const metadata = {
   title: 'Network Canvas Fresco - Interview',
   description: 'Interview',
 };

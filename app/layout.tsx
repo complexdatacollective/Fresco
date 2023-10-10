@@ -5,7 +5,7 @@ import RedirectWrapper from '~/components/RedirectWrapper';
 import { trpc } from './_trpc/server';
 import type { Session } from 'lucia';
 
-export const appSettings = {
+export const metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
