@@ -25,6 +25,7 @@ const config = {
     'plugin:storybook/recommended',
     'prettier',
   ],
+  ignorePatterns: ['node_modules', 'lib'],
   rules: {
     'no-process-env': 'error',
     'no-console': 'error',
