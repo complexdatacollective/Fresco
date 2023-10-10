@@ -17,7 +17,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     },
   })) as Session | null;
   const { expired, configured } =
-    await trpc.metadata.get.allSetupMetadata.query(undefined, {
+    await trpc.appSettings.get.allappSettings.query(undefined, {
       context: {
         revalidate: 0,
       },

@@ -9,7 +9,7 @@ import { Button } from '~/components/ui/Button';
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { mutateAsync: resetConfigured } = trpc.metadata.reset.useMutation();
+  const { mutateAsync: resetConfigured } = trpc.appSettings.reset.useMutation();
 
   const reset = async () => {
     setLoading(true);

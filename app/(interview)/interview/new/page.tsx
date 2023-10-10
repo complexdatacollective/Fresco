@@ -6,7 +6,8 @@
 import { redirect } from 'next/navigation';
 import { trpc } from '~/app/_trpc/server';
 import { faker } from '@faker-js/faker';
-
+import { participantIdentifierSchema } from '~/shared/schemas';
+import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';
 export const dynamic = 'force-dynamic';
 
 export default async function Page({
@@ -20,21 +21,16 @@ export default async function Page({
   const activeProtocol = await trpc.protocol.getActive.query();
   if (!activeProtocol) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-2 text-2xl font-bold">No Active Protocol</div>
-          <p className="max-w-md text-lg">
-            There is no active protocol for this account. Researchers may
-            optionally mark an uploaded protocol as active from the{' '}
-            <a href="/dashboard/protocols">protocols dashboard</a>.
-          </p>
-        </div>
-      </div>
+      <ErrorMessage
+        title="No Active Protocol"
+        message="There is no active protocol for this account. Researchers may
+      optionally mark an uploaded protocol as active from the protocols dashboard"
+      />
     );
   }
   // check if anonymous recruitment is enabled
   const allowAnonymousRecruitment =
-    await trpc.metadata.get.allowAnonymousRecruitment.query(undefined, {
+    await trpc.appSettings.get.allowAnonymousRecruitment.query(undefined, {
       context: {
         revalidate: 0,
       },
@@ -42,31 +38,42 @@ export default async function Page({
 
   if (!allowAnonymousRecruitment) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-2 text-2xl font-bold">
-            Anonymous Recruitment Disabled
-          </div>
-          <p className="max-w-md text-lg">
-            Anonymous recruitment is disabled for this study. Reserachers may
-            optionally enable anonymous recruitment from the{' '}
-            <a href="/dashboard">main dashboard</a>.
-          </p>
-        </div>
-      </div>
+      <ErrorMessage
+        title="Anonymous Recruitment Disabled"
+        message="Anonymous recruitment is disabled for this study. Reserachers may
+      optionally enable anonymous recruitment from the dashboard"
+      />
     );
   }
 
   // Anonymous recruitment is enabled
 
-  // Create a new interview
+  // Use the identifier from the URL, or generate a new one
   const identifier = searchParams.identifier || faker.string.uuid();
-  const { createdInterview } = await trpc.interview.create.mutate(identifier);
 
-  if (!createdInterview) {
-    // eslint-disable-next-line no-console
-    console.error('Error creating interview');
-    return;
+  // Validate the identifier
+  const isValid = participantIdentifierSchema.parse(identifier);
+
+  if (!isValid) {
+    return (
+      <ErrorMessage
+        title="Invalid Identifier"
+        message="The identifier you entered is invalid. Please check the URL and try again"
+      />
+    );
+  }
+
+  // Create the interview
+  const { createdInterview, error, errorType } =
+    await trpc.interview.create.mutate(identifier);
+
+  if (error || !createdInterview) {
+    return (
+      <ErrorMessage
+        title={`Error Creating Interview: ${errorType}`}
+        message={`An error occurred while creating the interview: ${error}`}
+      />
+    );
   }
 
   // Redirect to the interview/[id] route

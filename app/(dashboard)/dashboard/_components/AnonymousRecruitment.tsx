@@ -3,7 +3,7 @@ import AnonymousRecruitmentSwitch from './AnonymousRecruitmentSwitch';
 
 const AnonymousRecruitment = async () => {
   const allowAnonymousRecruitment =
-    await trpc.metadata.get.allowAnonymousRecruitment.query(undefined, {
+    await trpc.appSettings.get.allowAnonymousRecruitment.query(undefined, {
       context: {
         revalidate: 0,
       },

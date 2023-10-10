@@ -1,4 +1,4 @@
-import { metadataRouter } from './routers/metadata';
+import { appSettingsRouter } from './routers/settings';
 import { sessionRouter } from './routers/session';
 import { interviewRouter } from './routers/interview';
 import { protocolRouter } from '~/server/routers/protocol';
@@ -6,7 +6,7 @@ import { participantRouter } from './routers/participant';
 import { router } from './trpc';
 
 export const appRouter = router({
-  metadata: metadataRouter,
+  appSettings: appSettingsRouter,
   session: sessionRouter,
   interview: interviewRouter,
   protocol: protocolRouter,

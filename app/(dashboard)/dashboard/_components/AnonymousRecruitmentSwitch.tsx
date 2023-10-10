@@ -13,19 +13,19 @@ const AnonymousRecruitmentSwitch = ({
   const router = useRouter();
 
   const { data: allowAnonymousRecruitment } =
-    trpc.metadata.get.allowAnonymousRecruitment.useQuery(undefined, {
+    trpc.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
       initialData,
     });
 
   const { mutateAsync: updateAnonymousRecruitment } =
-    trpc.metadata.updateAnonymousRecruitment.useMutation({
+    trpc.appSettings.updateAnonymousRecruitment.useMutation({
       async onMutate(newState: boolean) {
-        await utils.metadata.get.allowAnonymousRecruitment.cancel();
+        await utils.appSettings.get.allowAnonymousRecruitment.cancel();
 
         const previousState =
-          utils.metadata.get.allowAnonymousRecruitment.getData();
+          utils.appSettings.get.allowAnonymousRecruitment.getData();
 
-        utils.metadata.get.allowAnonymousRecruitment.setData(
+        utils.appSettings.get.allowAnonymousRecruitment.setData(
           undefined,
           newState,
         );
@@ -33,7 +33,7 @@ const AnonymousRecruitmentSwitch = ({
         return previousState;
       },
       onError: (err, _newState, previousState) => {
-        utils.metadata.get.allowAnonymousRecruitment.setData(
+        utils.appSettings.get.allowAnonymousRecruitment.setData(
           undefined,
           previousState,
         );

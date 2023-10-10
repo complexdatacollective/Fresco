@@ -10,7 +10,7 @@ function Documentation() {
   const router = useRouter();
 
   const { mutate: setConfigured, isLoading } =
-    trpc.metadata.setConfigured.useMutation({
+    trpc.appSettings.setConfigured.useMutation({
       onSuccess: () => {
         router.push('/dashboard');
         router.refresh();

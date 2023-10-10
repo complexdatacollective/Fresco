@@ -14,11 +14,11 @@ import { z } from 'zod';
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-const getSetupMetadata = async () => {
-  let setupMetadata = await prisma.setupMetadata.findFirst();
-  // if no setup metadata exists, seed it
-  if (!setupMetadata) {
-    setupMetadata = await prisma.setupMetadata.create({
+const getappSettings = async () => {
+  let appSettings = await prisma.appSettings.findFirst();
+  // if no setup appSettings exists, seed it
+  if (!appSettings) {
+    appSettings = await prisma.appSettings.create({
       data: {
         configured: false,
         initializedAt: new Date(),
@@ -27,46 +27,46 @@ const getSetupMetadata = async () => {
   }
 
   return {
-    ...setupMetadata,
+    ...appSettings,
     expired: calculateIsExpired(
-      setupMetadata.configured,
-      setupMetadata.initializedAt,
+      appSettings.configured,
+      appSettings.initializedAt,
     ),
   };
 };
 
 const getPropertiesRouter = router({
-  allSetupMetadata: publicProcedure.query(getSetupMetadata),
+  allappSettings: publicProcedure.query(getappSettings),
   expired: publicProcedure.query(async () => {
-    const { expired } = await getSetupMetadata();
+    const { expired } = await getappSettings();
 
     return expired;
   }),
   configured: publicProcedure.query(async () => {
-    const { configured } = await getSetupMetadata();
+    const { configured } = await getappSettings();
 
     return configured;
   }),
   initializedAt: publicProcedure.query(async () => {
-    const { initializedAt } = await getSetupMetadata();
+    const { initializedAt } = await getappSettings();
 
     return initializedAt;
   }),
   allowAnonymousRecruitment: publicProcedure.query(async () => {
-    const { allowAnonymousRecruitment } = await getSetupMetadata();
+    const { allowAnonymousRecruitment } = await getappSettings();
 
     return allowAnonymousRecruitment;
   }),
 });
 
-export const metadataRouter = router({
+export const appSettingsRouter = router({
   get: getPropertiesRouter,
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
-      const { configured, initializedAt } = await getSetupMetadata();
+      const { configured, initializedAt } = await getappSettings();
       try {
-        const updatedMetadata = await prisma.setupMetadata.update({
+        const updatedappSettings = await prisma.appSettings.update({
           where: {
             configured_initializedAt: {
               configured,
@@ -77,9 +77,9 @@ export const metadataRouter = router({
             allowAnonymousRecruitment: input,
           },
         });
-        return { error: null, metadata: updatedMetadata };
+        return { error: null, appSettings: updatedappSettings };
       } catch (error) {
-        return { error: 'Failed to update metadata', metadata: null };
+        return { error: 'Failed to update appSettings', appSettings: null };
       }
     }),
 
@@ -94,7 +94,7 @@ export const metadataRouter = router({
     }
 
     // Delete the setup record:
-    await prisma.setupMetadata.deleteMany();
+    await prisma.appSettings.deleteMany();
 
     // Delete all data:
     await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
@@ -102,12 +102,12 @@ export const metadataRouter = router({
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
 
-    await trpc.metadata.get.allSetupMetadata.revalidate();
+    await trpc.appSettings.get.allappSettings.revalidate();
   }),
   setConfigured: publicProcedure.mutation(async () => {
-    const { configured, initializedAt } = await getSetupMetadata();
+    const { configured, initializedAt } = await getappSettings();
 
-    await prisma.setupMetadata.update({
+    await prisma.appSettings.update({
       where: {
         configured_initializedAt: {
           configured,
@@ -120,6 +120,6 @@ export const metadataRouter = router({
       },
     });
 
-    await trpc.metadata.get.allSetupMetadata.revalidate();
+    await trpc.appSettings.get.allappSettings.revalidate();
   }),
 });
