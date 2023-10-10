@@ -5,7 +5,6 @@ import type { Interview } from '@prisma/client';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-
 import {
   Tooltip,
   TooltipContent,
@@ -13,7 +12,6 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 
 type InterviewWithoutNetwork = Omit<Interview, 'network'>;
