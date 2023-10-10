@@ -32,7 +32,7 @@ const AnonymousRecruitmentSwitch = ({
 
         return previousState;
       },
-      onError: (err, newState, previousState) => {
+      onError: (err, _newState, previousState) => {
         utils.metadata.get.allowAnonymousRecruitment.setData(
           undefined,
           previousState,
