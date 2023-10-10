@@ -1,7 +1,7 @@
 import { Toaster } from '~/components/ui/toaster';
 import { NavigationBar } from './dashboard/_components/NavigationBar';
 
-export const metadata = {
+export const appSettings = {
   title: 'Network Canvas Fresco - Dashboard',
   description: 'Fresco.',
 };

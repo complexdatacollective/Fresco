@@ -1,8 +1,8 @@
-import "~/styles/interview.scss";
+import '~/styles/interview.scss';
 
-export const metadata = {
-  title: "Network Canvas Fresco - Interview",
-  description: "Interview",
+export const appSettings = {
+  title: 'Network Canvas Fresco - Interview',
+  description: 'Interview',
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {

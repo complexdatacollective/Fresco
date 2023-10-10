@@ -34,7 +34,7 @@ export default async function Page({
   }
   // check if anonymous recruitment is enabled
   const allowAnonymousRecruitment =
-    await trpc.metadata.get.allowAnonymousRecruitment.query(undefined, {
+    await trpc.appSettings.get.allowAnonymousRecruitment.query(undefined, {
       context: {
         revalidate: 0,
       },

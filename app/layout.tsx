@@ -5,7 +5,7 @@ import RedirectWrapper from '~/components/RedirectWrapper';
 import { trpc } from './_trpc/server';
 import type { Session } from 'lucia';
 
-export const metadata = {
+export const appSettings = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
@@ -17,7 +17,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     },
   })) as Session | null;
   const { expired, configured } =
-    await trpc.metadata.get.allSetupMetadata.query(undefined, {
+    await trpc.appSettings.get.allappSettings.query(undefined, {
       context: {
         revalidate: 0,
       },
