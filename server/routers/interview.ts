@@ -20,7 +20,24 @@ export const interviewRouter = router({
 
         if (!activeProtocol) {
           return {
+            errorType: 'NO_ACTIVE_PROTOCOL',
             error: 'Failed to create interview: no active protocol',
+            createdInterview: null,
+          };
+        }
+
+        const existingInterview = await prisma.interview.findFirst({
+          where: {
+            participant: {
+              identifier,
+            },
+          },
+        });
+
+        if (existingInterview) {
+          return {
+            errorType: 'IDENTIFIER_IN_USE',
+            error: 'Identifier is already in use',
             createdInterview: null,
           };
         }
@@ -44,9 +61,10 @@ export const interviewRouter = router({
           },
         });
 
-        return { error: null, createdInterview };
+        return { error: null, createdInterview, errorType: null };
       } catch (error) {
         return {
+          errorType: 'UNKNOWN',
           error: 'Failed to create interview',
           createdInterview: null,
         };
