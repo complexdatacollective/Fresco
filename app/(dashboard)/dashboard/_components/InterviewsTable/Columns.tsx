@@ -13,6 +13,8 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
+import { Button } from '~/components/ui/Button';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 
 type InterviewWithoutNetwork = Omit<Interview, 'network'>;
 
@@ -139,9 +141,14 @@ export const InterviewColumns = (
           menuItems={[
             {
               label: 'Delete',
-              id: row.original.id,
-              idendtifier: row.original.id,
-              deleteItem: handleDelete,
+              row,
+              component: (
+                <DropdownMenuItem
+                  onClick={() => void handleDelete(row.original.id)}
+                >
+                  Edit
+                </DropdownMenuItem>
+              ),
             },
           ]}
         />

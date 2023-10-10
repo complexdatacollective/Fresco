@@ -12,6 +12,7 @@
     "dev": "next dev",
     "postinstall": "prisma generate && prisma db push",
     "lint": "next lint",
+    "ts-lint": "tsc --noEmit --incremental --watch",
     "start": "next start",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",

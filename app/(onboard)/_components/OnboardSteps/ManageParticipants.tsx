@@ -4,9 +4,10 @@ import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUp
 import { Button } from '~/components/ui/Button';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AnonymousRecruitmentSwitch from '~/app/(dashboard)/dashboard/_components/AnonymousRecruitmentSwitch';
+import type { Route } from 'next';
 
 function ManageParticipants() {
-  const pathname = usePathname();
+  const pathname = usePathname() as Route;
   const searchParams = useSearchParams();
   const currentStep = searchParams.get('step') as string;
   const [participantsUploaded, setParticipantsUploaded] = useState(false);

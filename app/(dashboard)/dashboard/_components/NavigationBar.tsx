@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
 import type { UrlObject } from 'url';
+import type { Route } from 'next';
 
 export const NavButton = ({
   children,
@@ -14,7 +15,7 @@ export const NavButton = ({
   isActive = false,
 }: {
   children: React.ReactNode;
-  href: UrlObject;
+  href: UrlObject | Route;
   isActive?: boolean;
 }) => {
   return (
@@ -51,7 +52,7 @@ export function NavigationBar() {
           Home
         </NavButton>
         <NavButton
-          href="/dashboard/protocols"
+          href="/dashboard"
           isActive={pathname === '/dashboard/protocols'}
         >
           Protocols

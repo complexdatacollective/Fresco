@@ -10,7 +10,6 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
-
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -21,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Loader } from 'lucide-react';
 

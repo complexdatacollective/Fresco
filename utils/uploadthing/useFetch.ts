@@ -11,7 +11,7 @@ type Cache<T> = { [url: string]: T };
 // discriminated union type
 type Action<T> =
   | { type: 'loading' }
-  | { type: 'fetched'; payload: T }
+  | { type: 'fetched'; payload: T | undefined }
   | { type: 'error'; payload: Error };
 
 function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {

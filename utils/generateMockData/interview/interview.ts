@@ -4,7 +4,7 @@ import network from './network.json' assert { type: 'json' };
 
 type InterviewUncheckedCreateWithoutProtocolAndUserInput = Omit<
   Prisma.InterviewUncheckedCreateWithoutProtocolInput,
-  'userId'
+  'participantId'
 >;
 
 const mockInterview =
