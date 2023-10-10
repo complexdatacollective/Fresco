@@ -3,7 +3,6 @@ import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { trpc } from './_trpc/server';
-import type { Session } from 'lucia';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -11,11 +10,12 @@ export const metadata = {
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = (await trpc.session.get.query(undefined, {
+  const session = await trpc.session.get.query(undefined, {
     context: {
       revalidate: 0,
     },
-  })) as Session | null;
+  });
+
   const { expired, configured } =
     await trpc.appSettings.get.allappSettings.query(undefined, {
       context: {
