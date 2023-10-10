@@ -57,6 +57,7 @@ export const interviewRouter = router({
       const interviews = await prisma.interview.findMany({
         include: {
           protocol: true,
+          participant: true,
         },
       });
       return interviews;
@@ -68,6 +69,7 @@ export const interviewRouter = router({
           where: id,
           include: {
             protocol: true,
+            participant: true,
           },
         });
         return interview;
