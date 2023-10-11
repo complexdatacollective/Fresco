@@ -1,6 +1,6 @@
 'use client';
 
-import { type Participant } from '@prisma/client';
+import { type Participant, Prisma } from '@prisma/client';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
@@ -11,10 +11,19 @@ import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_componen
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import { DeleteParticipant } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 
+const participantWithInterviews =
+  Prisma.validator<Prisma.ParticipantDefaultArgs>()({
+    include: { interviews: true },
+  });
+
+type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
+  typeof participantWithInterviews
+>;
+
 export const ParticipantsTable = ({
   initialData,
 }: {
-  initialData: Participant[];
+  initialData: ParticipantWithInterviews[];
 }) => {
   const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
     null,

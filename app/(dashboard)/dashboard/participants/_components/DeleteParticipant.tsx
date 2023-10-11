@@ -1,4 +1,4 @@
-import { type Participant } from '@prisma/client';
+import { Prisma, type Participant } from '@prisma/client';
 import { Loader2, AlertCircle, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
@@ -13,15 +13,21 @@ import {
 
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 
-// Check if participant has interviews
-// Check if participant interviews have been exported using exportTime
+const participantWithInterviews =
+  Prisma.validator<Prisma.ParticipantDefaultArgs>()({
+    include: { interviews: true },
+  });
+
+type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
+  typeof participantWithInterviews
+>;
 
 interface DeleteParticipantProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   // get correct ParticipantWithInterviews type
-  selectedParticipants: Participant[];
+  selectedParticipants: ParticipantWithInterviews[];
   isDeleting: boolean;
 }
 
