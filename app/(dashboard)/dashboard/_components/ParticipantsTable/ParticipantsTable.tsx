@@ -30,6 +30,7 @@ export const ParticipantsTable = ({
     refetch,
     data: participants,
   } = trpc.participant.get.all.useQuery(undefined, {
+    // get correct ParticipantWithInterviews type
     initialData,
     refetchOnMount: false,
     onError(error) {
