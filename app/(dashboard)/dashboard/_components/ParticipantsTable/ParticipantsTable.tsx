@@ -8,7 +8,8 @@ import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/Part
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
-import { DeleteAllParticipantsButton } from '../../participants/_components/DeleteAllParticipantsButton';
+import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
+import { DeleteParticipant } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 
 export const ParticipantsTable = ({
   initialData,
@@ -19,6 +20,10 @@ export const ParticipantsTable = ({
     null,
   );
   const [showModal, setShowModal] = useState(false);
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [participantsToDelete, setParticipantsToDelete] = useState<
+    Participant[]
+  >([]);
 
   const {
     isLoading,
@@ -41,9 +46,15 @@ export const ParticipantsTable = ({
     setShowModal(true);
   };
 
-  const handleDelete = async (data: Participant[]) => {
-    await deleteParticipants(data.map((d) => d.identifier));
+  const handleDelete = (data: Participant[]) => {
+    setParticipantsToDelete(data);
+    setShowAlertDialog(true);
+  };
+
+  const handleConfirm = async () => {
+    await deleteParticipants(participantsToDelete.map((d) => d.identifier));
     await refetch();
+    setShowAlertDialog(false);
   };
 
   return (
@@ -66,6 +77,12 @@ export const ParticipantsTable = ({
         data={participants}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
+      />
+      <DeleteParticipant
+        open={showAlertDialog}
+        onCancel={() => setShowAlertDialog(false)}
+        onConfirm={handleConfirm}
+        selectedParticipants={participantsToDelete}
       />
     </>
   );
