@@ -1,7 +1,7 @@
 'use client';
 
 import { useInterview } from '~/providers/NetworkProvider';
-import Button from '@codaco/ui/lib/components/Button';
+import { Button } from '~/components/ui/Button';
 
 const InterviewNavigation = () => {
   const { nextPage, previousPage, hasNextPage, hasPreviousPage } =
