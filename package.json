@@ -10,7 +10,6 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "postinstall": "prisma generate && prisma db push",
     "lint": "next lint",
     "ts-lint": "tsc --noEmit --incremental --watch",
     "start": "next start",
