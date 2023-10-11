@@ -39,7 +39,7 @@ export const ParticipantsTable = ({
     },
   });
 
-  const { mutateAsync: deleteParticipants } =
+  const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
     trpc.participant.delete.byId.useMutation();
 
   const editParticipant = (identifier: string) => {
@@ -84,6 +84,7 @@ export const ParticipantsTable = ({
         onCancel={() => setShowAlertDialog(false)}
         onConfirm={handleConfirm}
         selectedParticipants={participantsToDelete}
+        isDeleting={isDeleting}
       />
     </>
   );

@@ -22,6 +22,7 @@ interface DeleteParticipantProps {
   onCancel: () => void;
   // get correct ParticipantWithInterviews type
   selectedParticipants: Participant[];
+  isDeleting: boolean;
 }
 
 export const DeleteParticipant = ({
@@ -29,10 +30,8 @@ export const DeleteParticipant = ({
   onConfirm,
   onCancel,
   selectedParticipants,
+  isDeleting,
 }: DeleteParticipantProps) => {
-  // TODO: get isLoading from parent
-  const isLoading = false;
-
   const hasInterviews = selectedParticipants.some(
     (participant) => participant.interviews.length > 0,
   );
@@ -48,15 +47,31 @@ export const DeleteParticipant = ({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{' '}
-            <strong>{selectedParticipants.length} participant(s).</strong>
+            <strong>
+              {selectedParticipants.length}{' '}
+              {selectedParticipants.length > 1 ? (
+                <>participants.</>
+              ) : (
+                <>participant.</>
+              )}
+            </strong>
           </AlertDialogDescription>
           {hasInterviews && !hasInterviewsNotYetExported && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
-                One or more of the selected participants has interview data that
-                will also be deleted.
+                {selectedParticipants.length > 1 ? (
+                  <>
+                    One or more of the selected participants have interview data
+                    that will also be deleted.
+                  </>
+                ) : (
+                  <>
+                    The selected participant has interview data that will also
+                    be deleted.
+                  </>
+                )}
               </AlertDescription>
             </Alert>
           )}
@@ -65,21 +80,30 @@ export const DeleteParticipant = ({
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
-                One or more of the selected participants has{' '}
-                <strong> unexported </strong>
-                interview data that will also be deleted.
+                {selectedParticipants.length > 1 ? (
+                  <>
+                    One or more of the selected participants have{' '}
+                    <strong> unexported </strong>
+                    interview data that will also be deleted.
+                  </>
+                ) : (
+                  <>
+                    The selected participant has <strong> unexported </strong>
+                    interview data that will also be deleted.
+                  </>
+                )}
               </AlertDescription>
             </Alert>
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading} onClick={onCancel}>
+          <AlertDialogCancel disabled={isDeleting} onClick={onCancel}>
             Cancel
           </AlertDialogCancel>
           <Button onClick={onConfirm} variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLoading ? 'Deleting...' : 'Permanently Delete'}
+            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
