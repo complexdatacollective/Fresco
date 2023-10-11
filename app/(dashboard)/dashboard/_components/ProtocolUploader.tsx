@@ -2,7 +2,7 @@
 import { useDropzone } from 'react-dropzone';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FileWithPath } from 'react-dropzone';
-import { generateReactHelpers } from '~/utils/uploadthing/useUploadThing';
+import { generateReactHelpers } from '@uploadthing/react/hooks';
 import { useState, useCallback } from 'react';
 
 import { importProtocol } from '../_actions/importProtocol';
@@ -102,9 +102,8 @@ export default function ProtocolUploader({
     });
   };
 
-  const { startUpload } = useUploadThing({
-    endpoint: 'protocolUploader',
-    onClientUploadComplete: handleUploadComplete,
+  const { startUpload } = useUploadThing('protocolUploader', {
+    onClientUploadComplete: (res) => void handleUploadComplete(res),
     onUploadError: (error) => {
       setOpen(true);
       setDialogContent({
@@ -122,13 +121,6 @@ export default function ProtocolUploader({
         progress: true,
         error: '',
       });
-    },
-    onUploadProgress: (file, progress) => {
-      // eslint-disable-next-line no-console
-      console.log(
-        '🚀 ~ file: ProtocolUploader.tsx:102 ~ ProtocolUploader ~ file>:progress',
-        `${file}>${progress}`,
-      );
     },
   });
 
