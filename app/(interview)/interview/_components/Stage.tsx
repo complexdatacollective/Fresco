@@ -6,7 +6,7 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
-import Button from '@codaco/ui/lib/components/Button';
+import { Button } from '~/components/ui/Button';
 import { v4 as uuid } from 'uuid';
 
 const Stage = ({ stageConfig }: { stageConfig: Stage }) => {

@@ -8,6 +8,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 import type { NcEdge, NcNetwork, NcNode } from '@codaco/shared-consts';
+import { trpc } from '~/app/_trpc/client';
 
 const initialState: NcNetwork = {
   nodes: [],
@@ -115,20 +116,22 @@ const NetworkContext = createContext({
 
 type NetworkProviderProps = {
   network: NcNetwork;
-  updateNetwork: (network: NcNetwork) => void;
+  interviewId: string;
 };
 
 function NetworkProvider({
   network,
-  updateNetwork,
+  interviewId,
   children,
 }: PropsWithChildren<NetworkProviderProps>) {
   const [state, dispatch] = useReducer(reducer, network);
 
+  const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
+
   // When state changes, sync it with the server using react query
   useEffect(() => {
-    updateNetwork(state);
-  }, [state, updateNetwork]);
+    // updateNetwork({ interviewId, network: state });
+  }, [state, updateNetwork, interviewId]);
 
   return (
     <NetworkContext.Provider value={{ state, dispatch }}>

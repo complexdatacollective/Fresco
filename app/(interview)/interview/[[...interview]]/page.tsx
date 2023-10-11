@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { NetworkProvider } from '~/providers/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
-import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
@@ -54,31 +53,8 @@ export default async function Page({
     return <div> No stage found</div>;
   }
 
-  const updateNetwork = async (network: NcNetwork) => {
-    'use server';
-
-    // eslint-disable-next-line no-console
-    console.log('update network', network);
-
-    // Simulate 2 second delay to test for slow API response not holding up UI.
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // eslint-disable-next-line local-rules/require-data-mapper
-    await prisma.interview.update({
-      where: {
-        id: interviewId,
-      },
-      data: {
-        network: JSON.stringify(network),
-      },
-    });
-  };
-
   return (
-    <NetworkProvider
-      network={network}
-      updateNetwork={(data) => void updateNetwork(data)}
-    >
+    <NetworkProvider network={network} interviewId={interviewId}>
       <div className="flex h-[100vh] grow flex-col gap-10 p-10">
         <h1>Interview</h1>
         <Link href="/">Exit interview</Link>
