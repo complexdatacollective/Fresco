@@ -1,7 +1,7 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import type { Interview } from '@prisma/client';
+import type { inferRouterOutputs } from '@trpc/server';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -13,12 +13,18 @@ import {
 } from '~/components/ui/tooltip';
 import { Settings } from 'lucide-react';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import { Button } from '~/components/ui/Button';
+import Link from 'next/link';
+import { Progress } from '~/components/ui/progress';
+import type { AppRouter } from '~/server/router';
+import type { Stage } from '@codaco/shared-consts';
 
-type InterviewWithoutNetwork = Omit<Interview, 'network'>;
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type Interviews = RouterOutput['interview']['get']['all'][0];
 
 export const InterviewColumns = (
   handleDelete: (id: string) => Promise<void>,
-): ColumnDef<InterviewWithoutNetwork>[] => [
+): ColumnDef<Interviews>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -44,38 +50,38 @@ export const InterviewColumns = (
       return <DataTableColumnHeader column={column} title="Interview ID" />;
     },
   },
-  {
-    accessorKey: 'startTime',
-    header: 'Start Time',
-    cell: ({ row }) => {
-      const date = new Date(row.original.startTime);
-      return date.toLocaleString();
-    },
-  },
-  {
-    accessorKey: 'finishTime',
-    header: 'Finish Time',
-    cell: ({ row }) => {
-      // finishTime is optional
-      if (!row.original.finishTime) {
-        return 'Not completed';
-      }
-      const date = new Date(row.original.finishTime);
-      return date.toLocaleString();
-    },
-  },
-  {
-    accessorKey: 'exportTime',
-    header: 'Export Time',
-    cell: ({ row }) => {
-      // exportTime is optional
-      if (!row.original.exportTime) {
-        return 'Not yet exported';
-      }
-      const date = new Date(row.original.exportTime);
-      return date.toLocaleString();
-    },
-  },
+  // {
+  //   accessorKey: 'startTime',
+  //   header: 'Start Time',
+  //   cell: ({ row }) => {
+  //     const date = new Date(row.original.startTime);
+  //     return date.toLocaleString();
+  //   },
+  // },
+  // {
+  //   accessorKey: 'finishTime',
+  //   header: 'Finish Time',
+  //   cell: ({ row }) => {
+  //     // finishTime is optional
+  //     if (!row.original.finishTime) {
+  //       return 'Not completed';
+  //     }
+  //     const date = new Date(row.original.finishTime);
+  //     return date.toLocaleString();
+  //   },
+  // },
+  // {
+  //   accessorKey: 'exportTime',
+  //   header: 'Export Time',
+  //   cell: ({ row }) => {
+  //     // exportTime is optional
+  //     if (!row.original.exportTime) {
+  //       return 'Not yet exported';
+  //     }
+  //     const date = new Date(row.original.exportTime);
+  //     return date.toLocaleString();
+  //   },
+  // },
   {
     accessorKey: 'lastUpdated',
     header: ({ column }) => {
@@ -84,13 +90,6 @@ export const InterviewColumns = (
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
       return date.toLocaleString();
-    },
-  },
-
-  {
-    accessorKey: 'participantId',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Participant ID" />;
     },
   },
   {
@@ -102,21 +101,41 @@ export const InterviewColumns = (
     },
   },
   {
-    accessorKey: 'protocolId',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Protocol ID" />;
-    },
-  },
-  {
     accessorKey: 'protocol.name',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Protocol Name" />;
     },
   },
   {
-    accessorKey: 'currentStep',
+    id: 'step',
     header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Step" />;
+      return <DataTableColumnHeader column={column} title="Progress" />;
+    },
+    cell: ({ row }) => {
+      const stages = row.original.protocol.stages! as unknown as Stage[];
+      const progress = (row.original.currentStep / stages.length) * 100;
+      return <Progress value={progress} />;
+    },
+  },
+  {
+    id: 'resume',
+    enableSorting: false,
+    enableHiding: false,
+    header: ({ column }) => {
+      return (
+        <Button variant="ghost" size="sm" className="h-8">
+          <span>Resume</span>
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <Link href={`/interview/${row.original.id}`}>
+          <Button variant="secondary" className="h-8">
+            <span>Resume</span>
+          </Button>
+        </Link>
+      );
     },
   },
   {
