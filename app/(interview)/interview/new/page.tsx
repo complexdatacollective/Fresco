@@ -3,57 +3,79 @@
  * and then redirect to the interview/[id]/1 route.
  */
 
-import type { User } from '@prisma/client';
 import { redirect } from 'next/navigation';
-import { prisma } from '~/utils/db';
+import { trpc } from '~/app/_trpc/server';
+import { faker } from '@faker-js/faker';
+import { participantIdentifierSchema } from '~/shared/schemas';
+import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';
+export const dynamic = 'force-dynamic';
 
-const createInterview = async (user: User, protocolId: string) => {
-  if (!user || !user.id) {
-    throw new Error('No user provided');
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: {
+    identifier?: string;
+  };
+}) {
+  // check if active protocol exists
+  const activeProtocol = await trpc.protocol.getActive.query();
+  if (!activeProtocol) {
+    return (
+      <ErrorMessage
+        title="No Active Protocol"
+        message="There is no active protocol for this account. Researchers may
+      optionally mark an uploaded protocol as active from the protocols dashboard"
+      />
+    );
   }
-
-  if (!protocolId) {
-    throw new Error('No protocol ID provided');
-  }
-
-  // eslint-disable-next-line local-rules/require-data-mapper
-  const interview = await prisma.interview.create({
-    data: {
-      user: {
-        connect: {
-          id: user.id,
-          // email: user.email,
-        },
+  // check if anonymous recruitment is enabled
+  const allowAnonymousRecruitment =
+    await trpc.appSettings.get.allowAnonymousRecruitment.query(undefined, {
+      context: {
+        revalidate: 0,
       },
-      network: '',
-      protocol: {
-        connect: {
-          id: protocolId,
-        },
-      },
-    },
-  });
+    });
 
-  return interview;
-};
-
-export default async function Page({ params, searchParams }) {
-  // Get the protocol ID from the search params
-  const { protocol } = searchParams;
-
-  // Check we have a currently logged in user. Eventually, we want
-  // to optionally create a new user automatically as part of the
-  // onboarding flow.
-  const session = false;
-  console.error('UPDATE ME');
-
-  if (!session) {
-    redirect('/');
+  if (!allowAnonymousRecruitment) {
+    return (
+      <ErrorMessage
+        title="Anonymous Recruitment Disabled"
+        message="Anonymous recruitment is disabled for this study. Reserachers may
+      optionally enable anonymous recruitment from the dashboard"
+      />
+    );
   }
 
-  // Create a new interview
-  const interview = await createInterview(session.user, protocol);
+  // Anonymous recruitment is enabled
+
+  // Use the identifier from the URL, or generate a new one
+  const identifier = searchParams.identifier || faker.string.uuid();
+
+  // Validate the identifier
+  const isValid = participantIdentifierSchema.parse(identifier);
+
+  if (!isValid) {
+    return (
+      <ErrorMessage
+        title="Invalid Identifier"
+        message="The identifier you entered is invalid. Please check the URL and try again"
+      />
+    );
+  }
+
+  // Create the interview
+  const { createdInterview, error, errorType } =
+    await trpc.interview.create.mutate(identifier);
+
+  if (error || !createdInterview) {
+    return (
+      <ErrorMessage
+        title={`Error Creating Interview: ${errorType}`}
+        message={`An error occurred while creating the interview: ${error}`}
+      />
+    );
+  }
 
   // Redirect to the interview/[id] route
-  redirect(`/interview/${interview.id}`);
+  redirect(`/interview/${createdInterview.id}`);
 }

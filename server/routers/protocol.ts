@@ -1,6 +1,6 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
-import { protectedProcedure, router } from '~/server/trpc';
+import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
 import { z } from 'zod';
 
 const updateActiveProtocolSchema = z.object({
@@ -9,6 +9,15 @@ const updateActiveProtocolSchema = z.object({
 });
 
 export const protocolRouter = router({
+  getActive: publicProcedure.query(async () => {
+    const activeProtocol = await prisma.protocol.findFirst({
+      where: {
+        active: true,
+      },
+    });
+
+    return activeProtocol;
+  }),
   setActive: protectedProcedure
     .input(updateActiveProtocolSchema)
     .mutation(async ({ input: { setActive, hash } }) => {

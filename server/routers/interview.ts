@@ -1,55 +1,105 @@
-import * as z from 'zod';
+/* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { safeLoader } from '~/utils/safeLoader';
 
-const deleteSingleInterviewSchema = z.object({
-  id: z.string(),
-});
-
-const deleteManyInterviewsSchema = z.array(
-  z.object({
-    id: z.string(),
-  }),
-);
-
-const InterviewValidation = z.array(
-  z.object({
-    id: z.string(),
-    startTime: z.date(),
-    finishTime: z.date().nullable(),
-    exportTime: z.date().nullable(),
-    lastUpdated: z.date(),
-    participantId: z.string(),
-    protocolId: z.string(),
-    currentStep: z.number(),
-    participant: z.object({
-      id: z.string(),
-      identifier: z.string(),
-    }),
-    protocol: z.object({
-      id: z.string(),
-      name: z.string(),
-    }),
-  }),
-);
+import { participantIdentifierSchema } from '~/shared/schemas';
+import { z } from 'zod';
 
 export const interviewRouter = router({
-  get: publicProcedure.query(async () => {
-    const interviews = safeLoader({
-      outputValidation: InterviewValidation,
-      loader: () =>
-        prisma.interview.findMany({
+  create: publicProcedure
+    .input(participantIdentifierSchema)
+    .mutation(async ({ input: identifier }) => {
+      try {
+        // get the active protocol id to connect to the interview
+        const activeProtocol = await prisma.protocol.findFirst({
+          where: { active: true },
+        });
+
+        if (!activeProtocol) {
+          return {
+            errorType: 'NO_ACTIVE_PROTOCOL',
+            error: 'Failed to create interview: no active protocol',
+            createdInterview: null,
+          };
+        }
+
+        const existingInterview = await prisma.interview.findFirst({
+          where: {
+            participant: {
+              identifier,
+            },
+          },
+        });
+
+        if (existingInterview) {
+          return {
+            errorType: 'IDENTIFIER_IN_USE',
+            error: 'Identifier is already in use',
+            createdInterview: null,
+          };
+        }
+
+        const createdInterview = await prisma.interview.create({
+          data: {
+            startTime: new Date(),
+            lastUpdated: new Date(),
+            currentStep: 0,
+            network: '',
+            participant: {
+              create: {
+                identifier: identifier,
+              },
+            },
+            protocol: {
+              connect: {
+                id: activeProtocol.id,
+              },
+            },
+          },
+        });
+
+        return { error: null, createdInterview, errorType: null };
+      } catch (error) {
+        return {
+          errorType: 'UNKNOWN',
+          error: 'Failed to create interview',
+          createdInterview: null,
+        };
+      }
+    }),
+  get: router({
+    all: publicProcedure.query(async () => {
+      const interviews = await prisma.interview.findMany({
+        include: {
+          protocol: true,
+          participant: true,
+        },
+      });
+      return interviews;
+    }),
+    byId: publicProcedure
+      .input(
+        z.object({
+          id: z.string(),
+        }),
+      )
+      .query(async ({ input: id }) => {
+        const interview = await prisma.interview.findFirst({
+          where: id,
           include: {
             protocol: true,
             participant: true,
           },
-        }),
-    });
-    return interviews;
+        });
+        return interview;
+      }),
   }),
   deleteSingle: protectedProcedure
-    .input(deleteSingleInterviewSchema)
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
     .mutation(async ({ input: { id } }) => {
       try {
         // eslint-disable-next-line local-rules/require-data-mapper
@@ -62,7 +112,13 @@ export const interviewRouter = router({
       }
     }),
   deleteMany: protectedProcedure
-    .input(deleteManyInterviewsSchema)
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+        }),
+      ),
+    )
     .mutation(async ({ input: data }) => {
       const idsToDelete = data.map((p) => p.id);
 

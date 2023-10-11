@@ -5,31 +5,7 @@ import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Stage as StageType } from '@codaco/shared-consts';
 import Link from 'next/link';
-import { z } from 'zod';
-import { safeLoader } from '~/utils/safeLoader';
-
-const getInterview = async (id: string) =>
-  await safeLoader({
-    outputValidation: z.object({
-      id: z.string(),
-      startTime: z.date(),
-      finishTime: z.date().nullable(),
-      exportTime: z.date().nullable(),
-      lastUpdated: z.date(),
-      protocolId: z.string(),
-      currentStep: z.number(),
-      network: z.string(),
-    }),
-    loader: () =>
-      prisma.interview.findUnique({
-        where: {
-          id: id,
-        },
-        include: {
-          protocol: true,
-        },
-      }),
-  });
+import { trpc } from '~/app/_trpc/server';
 
 export default async function Page({
   params,
@@ -40,17 +16,21 @@ export default async function Page({
   const currentInterviewPage = params.interview?.[1]; // item || null
 
   // Fetch interview data from the database
-  const interviewData = await getInterview(interviewId);
+  if (!interviewId) {
+    return;
+  }
+  const interview = await trpc.interview.get.byId.query({ id: interviewId });
 
-  // TODO: Check here that the logged in user has access to this interview
-  // If not, redirect to the main dashboard
+  if (!interview) {
+    return <div> No interview found</div>;
+  }
 
   // If theres no interview page in the URL:
   // (1) Check if there is a current stage in the DB, and redirect to it if there is
   // (2) Else, redirect to the stage 1
   if (!currentInterviewPage && interviewId) {
-    if (interviewData.currentStep) {
-      redirect(`/interview/${interviewId}/${interviewData.currentStep}`);
+    if (interview.currentStep) {
+      redirect(`/interview/${interviewId}/${interview.currentStep}`);
     }
 
     redirect(`/interview/${interviewId}/1`);
@@ -62,7 +42,11 @@ export default async function Page({
   const {
     network,
     protocol: { stages },
-  } = interviewData;
+  } = interview;
+
+  if (!stages) {
+    return <div> No stages found</div>;
+  }
 
   const stagesJson = JSON.parse(stages) as StageType[];
 
@@ -70,7 +54,7 @@ export default async function Page({
     stagesJson[parseInt(currentInterviewPage!, 10) - 1];
 
   if (!currentStageConfig) {
-    redirect(`/interview/${interviewId}/1`);
+    // redirect(`/interview/${interviewId}/1`);
   }
 
   const updateNetwork = async (network: NcNetwork) => {

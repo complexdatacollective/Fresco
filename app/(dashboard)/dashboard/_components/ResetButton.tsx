@@ -9,7 +9,7 @@ import { Button } from '~/components/ui/Button';
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { mutateAsync: resetConfigured } = trpc.metadata.reset.useMutation();
+  const { mutateAsync: resetConfigured } = trpc.appSettings.reset.useMutation();
 
   const reset = async () => {
     setLoading(true);
@@ -18,9 +18,13 @@ const ResetButton = () => {
   };
 
   return (
-    <Button variant="destructive" onClick={reset} disabled={loading}>
+    <Button
+      variant="destructive"
+      onClick={() => void reset()}
+      disabled={loading}
+    >
       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Reset
+      Reset all app data
     </Button>
   );
 };

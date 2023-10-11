@@ -8,7 +8,7 @@ import { type Interview } from '@prisma/client';
 type InterviewWithoutNetwork = Omit<Interview, 'network'>;
 
 export const InterviewsTable = () => {
-  const interviews = trpc.interview.get.useQuery();
+  const interviews = trpc.interview.get.all.useQuery();
   const { mutateAsync: deleteInterview } =
     trpc.interview.deleteSingle.useMutation({
       async onSuccess() {

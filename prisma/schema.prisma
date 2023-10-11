@@ -90,10 +90,11 @@ model Key {
   @@index([user_id])
 }
 
-model SetupMetadata {
+model AppSettings {
   configured    Boolean   @default(false)
   initializedAt DateTime  @default(now())
   configuredAt  DateTime?
+  allowAnonymousRecruitment Boolean   @default(false)
 
   @@id([configured, initializedAt])
 }

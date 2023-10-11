@@ -9,11 +9,12 @@ import { Loader2 } from 'lucide-react';
 
 export default function Page() {
   const router = useRouter();
-  const { mutate: resetExpired, isLoading } = trpc.metadata.reset.useMutation({
-    onSuccess: () => {
-      router.refresh();
-    },
-  });
+  const { mutate: resetExpired, isLoading } =
+    trpc.appSettings.reset.useMutation({
+      onSuccess: () => {
+        router.refresh();
+      },
+    });
 
   return (
     <div className={userFormClasses}>
