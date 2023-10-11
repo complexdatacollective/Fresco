@@ -1,6 +1,6 @@
 'use client';
 
-import { useInterview } from '~/providers/NetworkProvider';
+import { useInterview } from '~/providers/InterviewProvider';
 import {
   Stage,
   entityAttributesProperty,
@@ -24,12 +24,12 @@ const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
    */
 
   return (
-    <div className="flex grow flex-col ">
-      <div className="flex h-[500px] grow flex-row gap-10">
-        <pre className="flex basis-1/2 rounded-lg bg-white p-6">
+    <>
+      <div className="grid h-[500px] grid-cols-2 gap-10">
+        <pre className="flex basis-1/2 overflow-scroll rounded-lg bg-white p-6">
           <code>{JSON.stringify(stageConfig, null, 2)}</code>
         </pre>
-        <pre className="flex basis-1/2 rounded-lg bg-white p-6">
+        <pre className="flex basis-1/2 overflow-scroll rounded-lg bg-white p-6">
           <code>{JSON.stringify(network, null, 2)}</code>
         </pre>
       </div>
@@ -48,7 +48,7 @@ const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
           Add Node
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 

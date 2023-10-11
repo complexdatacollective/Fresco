@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  return <main className="bg-violet-200">{children}</main>;
+  return <main className="min-h-screen bg-violet-200">{children}</main>;
 }
 
 export default RootLayout;

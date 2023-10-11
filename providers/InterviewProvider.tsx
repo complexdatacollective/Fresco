@@ -7,8 +7,14 @@ import {
   useEffect,
   type PropsWithChildren,
 } from 'react';
-import type { NcEdge, NcNetwork, NcNode } from '@codaco/shared-consts';
+import type {
+  NcEdge,
+  NcNetwork,
+  NcNode,
+  Protocol,
+} from '@codaco/shared-consts';
 import { trpc } from '~/app/_trpc/client';
+import { usePathname, useRouter } from 'next/navigation';
 
 const initialState: NcNetwork = {
   nodes: [],
@@ -106,42 +112,59 @@ function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
   }
 }
 
-const NetworkContext = createContext({
-  state: initialState,
+const InterviewContext = createContext({
+  network: initialState,
   dispatch: () => null,
+  protocol: null,
+  interviewId: '',
 } as {
-  state: NcNetwork;
+  network: NcNetwork;
   dispatch: (action: NetworkAction) => void;
+  protocol: Protocol | null;
+  interviewId: string;
 });
 
-type NetworkProviderProps = {
+type InterviewProviderProps = {
   network: NcNetwork;
+  protocol: Protocol;
   interviewId: string;
 };
 
-function NetworkProvider({
+function InterviewProvider({
   network,
+  protocol,
   interviewId,
   children,
-}: PropsWithChildren<NetworkProviderProps>) {
-  const [state, dispatch] = useReducer(reducer, network);
+}: PropsWithChildren<InterviewProviderProps>) {
+  const [state, dispatch] = useReducer(reducer, network, () => initialState);
+
+  console.log('provider', network, state, protocol);
 
   const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
     // updateNetwork({ interviewId, network: state });
+    console.log('state changed', state);
   }, [state, updateNetwork, interviewId]);
 
   return (
-    <NetworkContext.Provider value={{ state, dispatch }}>
+    <InterviewContext.Provider
+      value={{ network: state, dispatch, protocol, interviewId }}
+    >
       {children}
-    </NetworkContext.Provider>
+    </InterviewContext.Provider>
   );
 }
 
 const useInterview = () => {
-  const { state, dispatch } = useContext(NetworkContext);
+  const { network, dispatch, protocol, interviewId } =
+    useContext(InterviewContext);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const currentStage = parseInt(pathname.split('/').pop()!, 10);
+  const protocolStageCount = protocol?.stages.length;
 
   const addNode = (node: NcNode) => {
     dispatch({ type: 'ADD_NODE', payload: node });
@@ -168,25 +191,26 @@ const useInterview = () => {
   };
 
   const nextPage = () => {
-    // ...
+    const nextStage = currentStage + 1;
+    if (nextStage > protocolStageCount!) return;
+
+    router.push(`/interview/${interviewId}/${nextStage}`);
   };
 
   const previousPage = () => {
-    // ...
+    const previousStage = currentStage - 1;
+    if (previousStage < 1) return;
+    router.push(`/interview/${interviewId}/${previousStage}`);
   };
 
-  const hasNextPage = () => {
-    // ...
-    return true;
-  };
+  const hasNextPage = () => currentStage < protocolStageCount!;
 
-  const hasPreviousPage = () => {
-    // ...
-    return true;
-  };
+  const hasPreviousPage = () => currentStage > 1;
+
+  console.log('useInterview', pathname);
 
   return {
-    network: state,
+    network,
     addNode,
     addEdge,
     updateNode,
@@ -195,9 +219,9 @@ const useInterview = () => {
     deleteEdge,
     nextPage,
     previousPage,
-    hasNextPage,
-    hasPreviousPage,
+    hasNextPage: hasNextPage(),
+    hasPreviousPage: hasPreviousPage(),
   };
 };
 
-export { NetworkContext, NetworkProvider, useInterview };
+export { InterviewContext, InterviewProvider, useInterview };

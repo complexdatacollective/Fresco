@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation';
-import { NetworkProvider } from '~/providers/NetworkProvider';
+import { InterviewProvider } from '~/providers/InterviewProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
 import { trpc } from '~/app/_trpc/server';
+import { Button } from '~/components/ui/Button';
 
 export default async function Page({
   params,
@@ -53,16 +54,24 @@ export default async function Page({
     return <div> No stage found</div>;
   }
 
+  console.log('network', network);
+
   return (
-    <NetworkProvider network={network} interviewId={interviewId}>
-      <div className="flex h-[100vh] grow flex-col gap-10 p-10">
-        <h1>Interview</h1>
-        <Link href="/">Exit interview</Link>
+    <InterviewProvider
+      network={network}
+      interviewId={interviewId}
+      protocol={protocol}
+    >
+      <div className="flex grow flex-col justify-between p-10">
+        <h1 className="text-3xl">Interview</h1>
+        <Link href="/">
+          <Button>Exit Interview</Button>
+        </Link>
         <Stage stageConfig={currentStageConfig} />
         <aside className="flex items-center justify-center">
           <InterviewNavigation />
         </aside>
       </div>
-    </NetworkProvider>
+    </InterviewProvider>
   );
 }
