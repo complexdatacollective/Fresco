@@ -6,6 +6,7 @@ import('./env.mjs');
 
 /** @type {import("next").NextConfig} */
 const config = {
+  output: 'standalone',
   reactStrictMode: true,
   experimental: {
     serverActions: true,

@@ -3,7 +3,7 @@ import { NetworkProvider } from '~/providers/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
 import { prisma } from '~/utils/db';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
-import type { NcNetwork, Stage as StageType } from '@codaco/shared-consts';
+import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
 import { trpc } from '~/app/_trpc/server';
 
@@ -19,7 +19,14 @@ export default async function Page({
   if (!interviewId) {
     return;
   }
-  const interview = await trpc.interview.get.byId.query({ id: interviewId });
+  const interview = await trpc.interview.get.byId.query(
+    { id: interviewId },
+    {
+      context: {
+        revalidate: 0,
+      },
+    },
+  );
 
   if (!interview) {
     return <div> No interview found</div>;
@@ -34,27 +41,17 @@ export default async function Page({
     }
 
     redirect(`/interview/${interviewId}/1`);
-
-    return null;
   }
 
   // Fetch the protocol stage configuration for the current page from the database
-  const {
-    network,
-    protocol: { stages },
-  } = interview;
+  const network = interview.network as NcNetwork;
+  const protocol = interview.protocol as unknown as Protocol;
+  const stages = protocol.stages;
 
-  if (!stages) {
-    return <div> No stages found</div>;
-  }
-
-  const stagesJson = JSON.parse(stages) as StageType[];
-
-  const currentStageConfig =
-    stagesJson[parseInt(currentInterviewPage!, 10) - 1];
+  const currentStageConfig = stages[parseInt(currentInterviewPage!, 10) - 1];
 
   if (!currentStageConfig) {
-    // redirect(`/interview/${interviewId}/1`);
+    return <div> No stage found</div>;
   }
 
   const updateNetwork = async (network: NcNetwork) => {
@@ -78,7 +75,10 @@ export default async function Page({
   };
 
   return (
-    <NetworkProvider network={network} updateNetwork={updateNetwork}>
+    <NetworkProvider
+      network={network}
+      updateNetwork={(data) => void updateNetwork(data)}
+    >
       <div className="flex h-[100vh] grow flex-col gap-10 p-10">
         <h1>Interview</h1>
         <Link href="/">Exit interview</Link>

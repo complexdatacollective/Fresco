@@ -2,7 +2,7 @@
 import { useDropzone } from 'react-dropzone';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FileWithPath } from 'react-dropzone';
-import { generateReactHelpers } from '~/utils/uploadthing/useUploadThing';
+import { generateReactHelpers } from '@uploadthing/react/hooks';
 import { useState, useCallback } from 'react';
 
 import { importProtocol } from '../_actions/importProtocol';
@@ -102,9 +102,8 @@ export default function ProtocolUploader({
     });
   };
 
-  const { startUpload } = useUploadThing({
-    endpoint: 'protocolUploader',
-    onClientUploadComplete: handleUploadComplete,
+  const { startUpload } = useUploadThing('protocolUploader', {
+    onClientUploadComplete: (res) => void handleUploadComplete(res),
     onUploadError: (error) => {
       setOpen(true);
       setDialogContent({
@@ -123,12 +122,6 @@ export default function ProtocolUploader({
         error: '',
       });
     },
-    onUploadProgress: (file, progress) => {
-      console.log(
-        '🚀 ~ file: ProtocolUploader.tsx:102 ~ ProtocolUploader ~ file>:progress',
-        `${file}>${progress}`,
-      );
-    },
   });
 
   const onDrop = useCallback(
@@ -141,6 +134,7 @@ export default function ProtocolUploader({
         });
 
         startUpload([file]).catch((e: Error) => {
+          // eslint-disable-next-line no-console
           console.log(e);
           setOpen(true);
           setDialogContent({
@@ -223,7 +217,7 @@ export default function ProtocolUploader({
           {!dialogContent.progress && !dialogContent.error && (
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={() => void form.handleSubmit(onSubmit)}
                 className="w-full space-y-6"
               >
                 <div>

@@ -1,8 +1,11 @@
 import { TRPCError, initTRPC } from '@trpc/server';
 import type { createTRPCContext } from './context';
+import superjson from 'superjson';
 import { env } from '~/env.mjs';
 
-const t = initTRPC.context<typeof createTRPCContext>().create();
+const t = initTRPC.context<typeof createTRPCContext>().create({
+  transformer: superjson,
+});
 
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.session || !ctx.session?.user) {

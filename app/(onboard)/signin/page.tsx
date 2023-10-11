@@ -1,7 +1,7 @@
 import { userFormClasses } from '../_shared';
 import SignInForm from '../_components/SignInForm';
 import { cn } from '~/utils/shadcn';
-import { redirect } from 'next/navigation';
+import type { Route } from 'next';
 
 export const metadata = {
   title: 'Fresco - Sign In',
@@ -12,7 +12,7 @@ export default function Page({
   searchParams,
 }: {
   searchParams: {
-    callbackUrl?: string;
+    callbackUrl?: Route;
   };
 }) {
   const { callbackUrl } = searchParams;

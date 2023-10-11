@@ -94,7 +94,8 @@ export const Dropzone = ({
     multiple: false,
     maxFiles,
     maxSize,
-    onDrop,
+    onDrop: (acceptedFiles, fileRejections) =>
+      void onDrop(acceptedFiles, fileRejections),
   });
 
   const componentId = id || name;

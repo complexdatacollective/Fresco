@@ -78,7 +78,7 @@ export const calculateRedirect = ({
       return;
     }
 
-    return '/signin?callbackUrl=' + encodeURI(path);
+    return ('/signin?callbackUrl=' + encodeURI(path)) as Route;
   }
 
   // APP IS CONFIGURED AND SESSION EXISTS

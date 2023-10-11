@@ -28,7 +28,7 @@ export const SignUpForm = ({
   });
 
   const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
-    onSuccess: async (result) => {
+    onSuccess: (result) => {
       if (result.error) {
         const error = result.error;
         setSignupError(error);

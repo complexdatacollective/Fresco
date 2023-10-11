@@ -46,7 +46,7 @@ function OnboardSteps({ currentStep }: { currentStep: keyof typeof steps }) {
           number={index}
           description={stepItem.description}
           active={index === currentStep}
-          complete={index < currentStep}
+          complete={index < Number(currentStep)}
         />
       ))}
     </div>

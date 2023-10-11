@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from '~/providers/SessionPrivider';
 import type { Session } from 'lucia';
 import { env } from '~/env.mjs';
+import SuperJSON from 'superjson';
 
 export default function Providers({
   children,
@@ -19,6 +20,7 @@ export default function Providers({
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
     trpc.createClient({
+      transformer: SuperJSON,
       links: [
         loggerLink({
           enabled: (opts) =>

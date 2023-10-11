@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Check, ChevronRight, Circle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 import { cn } from '~/utils/shadcn';
 
@@ -115,6 +115,7 @@ DialogDescription.displayName = DialogPrimitive.Description.displayName;
 const DialogClose = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Close>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Close ref={ref} {...props} />
 ));

@@ -1,7 +1,7 @@
-"use client"; // Error components must be Client components
+'use client'; // Error components must be Client components
 
-import { useEffect } from "react";
-import { Button } from "~/components/ui/Button";
+import { useEffect } from 'react';
+import { Button } from '~/components/ui/Button';
 
 export default function Error({
   error,
@@ -12,6 +12,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
+    // eslint-disable-next-line no-console
     console.error(error);
   }, [error]);
 

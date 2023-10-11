@@ -10,7 +10,6 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
-
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -21,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Loader } from 'lucide-react';
 
@@ -29,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
-  handleDeleteSelected: (data: TData[]) => Promise<void>;
+  handleDeleteSelected?: (data: TData[]) => Promise<void>;
 }
 
 export function DataTable<TData, TValue>({
@@ -55,8 +53,9 @@ export function DataTable<TData, TValue>({
       .rows.map((r) => r.original);
 
     try {
-      await handleDeleteSelected(selectedData);
+      await handleDeleteSelected?.(selectedData);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error);
     }
 

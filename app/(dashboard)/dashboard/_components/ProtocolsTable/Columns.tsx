@@ -92,7 +92,7 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
       </TooltipProvider>
     ),
     cell: () => {
-      return <ActionsDropdown menuItems={['Edit', 'Delete']} />;
+      return <ActionsDropdown />;
     },
   },
 ];

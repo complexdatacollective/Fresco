@@ -9,10 +9,6 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
-    VERCEL_URL: z.string().url().optional(),
   },
 
   /**
@@ -20,10 +16,10 @@ export const env = createEnv({
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_`.
    */
-  client: {
-    NEXT_PUBLIC_URL: z.string().url(),
-  },
+  client: {},
   shared: {
+    NEXT_PUBLIC_URL: z.string().url().optional(),
+    VERCEL_URL: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),

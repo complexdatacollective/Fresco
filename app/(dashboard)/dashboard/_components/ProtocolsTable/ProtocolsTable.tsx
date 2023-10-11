@@ -1,10 +1,14 @@
 import { DataTable } from '~/components/DataTable/DataTable';
-import { ProtocolColumns } from '~/app/(main)/_components/ProtocolsTable/Columns';
-import { safeLoadProtocols } from '~/app/(main)/_components/ProtocolsTable/Loader';
+import { ProtocolColumns } from './Columns';
+import { trpc } from '~/app/_trpc/server';
 
-const protocols = await safeLoadProtocols();
+export const ProtocolsTable = async () => {
+  const protocols = await trpc.protocol.get.all.query(undefined, {
+    context: {
+      revalidate: 0,
+    },
+  });
 
-export const ProtocolsTable = () => {
   return (
     <DataTable
       columns={ProtocolColumns}

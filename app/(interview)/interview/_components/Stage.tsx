@@ -1,7 +1,11 @@
 'use client';
 
 import { useInterview } from '~/providers/NetworkProvider';
-import { Stage } from '@codaco/shared-consts';
+import {
+  Stage,
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+} from '@codaco/shared-consts';
 import Button from '@codaco/ui/lib/components/Button';
 import { v4 as uuid } from 'uuid';
 
@@ -30,7 +34,17 @@ const Stage = ({ stageConfig }: { stageConfig: Stage }) => {
         </pre>
       </div>
       <div>
-        <Button onClick={() => addNode({ id: uuid(), label: 'test' })}>
+        <Button
+          onClick={() =>
+            addNode({
+              [entityPrimaryKeyProperty]: uuid(),
+              type: 'person',
+              [entityAttributesProperty]: {
+                label: 'New Node',
+              },
+            })
+          }
+        >
           Add Node
         </Button>
       </div>

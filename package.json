@@ -2,7 +2,7 @@
   "name": "fresco",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "^pnpm@8.6.3",
+  "packageManager": "pnpm@8.6.3",
   "engines": {
     "node": ">=18.16.0",
     "pnpm": ">=8.6.3"
@@ -10,8 +10,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "postinstall": "prisma generate && prisma db push",
-    "lint": "next lint",
+    "lint": "SKIP_ENV_VALIDATION=true next lint",
+    "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -54,7 +54,6 @@
     "@trpc/server": "^10.38.3",
     "@types/validator": "^13.11.1",
     "@uploadthing/react": "^5.6.1",
-    "@uploadthing/shared": "^5.2.2",
     "ajv": "^8.12.0",
     "axios": "^1.5.0",
     "bcrypt": "^5.1.1",
@@ -75,6 +74,7 @@
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.46.1",
     "sass": "^1.67.0",
+    "sharp": "^0.32.6",
     "superjson": "1.13.1",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",

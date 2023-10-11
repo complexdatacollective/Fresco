@@ -47,14 +47,13 @@ export const InterviewsTable = () => {
       columns={InterviewColumns(handleDelete)}
       data={convertedData}
       filterColumnAccessorKey="id"
-      handleDeleteSelected={(data: InterviewWithoutNetwork[]) => {
-        deleteInterviews(data)
-          .then((result) => {
-            if (result.error) throw new Error(result.error);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+      handleDeleteSelected={async (data: InterviewWithoutNetwork[]) => {
+        try {
+          await deleteInterviews(data);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error);
+        }
       }}
     />
   );
