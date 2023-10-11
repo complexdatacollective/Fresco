@@ -1,0 +1,35 @@
+name: Build docker container
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  SKIP_ENV_VALIDATION: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Build the production image
+        run: docker build -t fresco .
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push the production image to the container registry
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker tag app ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}
+          docker push ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}
