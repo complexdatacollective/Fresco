@@ -74,6 +74,7 @@
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.46.1",
     "sass": "^1.67.0",
+    "sharp": "^0.32.6",
     "superjson": "1.13.1",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
