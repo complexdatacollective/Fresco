@@ -19,7 +19,6 @@ import { usePathname, useRouter } from 'next/navigation';
 const initialState: NcNetwork = {
   nodes: [],
   edges: [],
-  ego: undefined,
 };
 
 type NetworkActionBase = {
@@ -144,7 +143,7 @@ function InterviewProvider({
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
-    // updateNetwork({ interviewId, network: state });
+    updateNetwork({ interviewId, network: state });
     console.log('state changed', state);
   }, [state, updateNetwork, interviewId]);
 

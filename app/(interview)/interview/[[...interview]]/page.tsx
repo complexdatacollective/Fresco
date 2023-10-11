@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { trpc } from '~/app/_trpc/server';
 import { Button } from '~/components/ui/Button';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({
   params,
 }: {

@@ -7,8 +7,6 @@ const InterviewNavigation = () => {
   const { nextPage, previousPage, hasNextPage, hasPreviousPage } =
     useInterview();
 
-  console.log('InterviewNavigation', hasNextPage, hasPreviousPage);
-
   return (
     <div className="flex gap-10">
       <Button onClick={previousPage} disabled={!hasPreviousPage}>
