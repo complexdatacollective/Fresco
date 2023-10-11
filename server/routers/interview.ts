@@ -7,6 +7,7 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
+import { Prisma } from '@prisma/client';
 
 const NcEntityZod = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),
@@ -72,7 +73,7 @@ export const interviewRouter = router({
             startTime: new Date(),
             lastUpdated: new Date(),
             currentStep: 0,
-            network: '',
+            network: Prisma.JsonNull,
             participant: {
               create: {
                 identifier: identifier,
