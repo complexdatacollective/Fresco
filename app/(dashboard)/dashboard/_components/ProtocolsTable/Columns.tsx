@@ -13,8 +13,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 
-export const ProtocolColumns: ColumnDef<Protocol>[] = [
+export const ProtocolColumns = (
+  handleDelete: (data: Protocol[]) => Promise<void>,
+): ColumnDef<Protocol>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -33,6 +36,12 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: 'active',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Active" />;
+    },
   },
   {
     accessorKey: 'name',
@@ -58,8 +67,7 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     },
     cell: ({ row }) => {
       const date = new Date(row.original.importedAt);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -69,8 +77,7 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastModified);
-      const isoString = date.toISOString().replace('T', ' ').replace('Z', '');
-      return isoString + ' UTC';
+      return date.toLocaleString();
     },
   },
   {
@@ -86,13 +93,42 @@ export const ProtocolColumns: ColumnDef<Protocol>[] = [
             <Settings />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Edit or delete an individual protocol.</p>
+            <p>Delete or set a protocol as active.</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     ),
-    cell: () => {
-      return <ActionsDropdown />;
+    cell: ({ row }) => {
+      return (
+        <ActionsDropdown
+          menuItems={[
+            {
+              label: 'Set Active',
+              row,
+              component: (
+                <DropdownMenuItem
+                  onClick={() => {
+                    console.log('clicked set active');
+                  }}
+                >
+                  Set Active
+                </DropdownMenuItem>
+              ),
+            },
+            {
+              label: 'Delete',
+              row,
+              component: (
+                <DropdownMenuItem
+                  onClick={() => void handleDelete([row.original])}
+                >
+                  Delete
+                </DropdownMenuItem>
+              ),
+            },
+          ]}
+        />
+      );
     },
   },
 ];

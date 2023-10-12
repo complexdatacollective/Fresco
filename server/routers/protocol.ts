@@ -80,4 +80,32 @@ export const protocolRouter = router({
         },
       });
     }),
+  delete: router({
+    all: protectedProcedure.mutation(async () => {
+      try {
+        const deletedProtocols = await prisma.protocol.deleteMany();
+        return { error: null, deletedProtocols };
+      } catch (error) {
+        return {
+          error: 'Failed to delete protocols',
+          deletedProtocols: null,
+        };
+      }
+    }),
+    byHash: protectedProcedure
+      .input(z.array(z.string()))
+      .mutation(async ({ input: hashes }) => {
+        try {
+          const deletedProtocols = await prisma.protocol.deleteMany({
+            where: { hash: { in: hashes } },
+          });
+          return { error: null, deletedProtocols: deletedProtocols };
+        } catch (error) {
+          return {
+            error: 'Failed to delete protocols',
+            deletedProtocols: null,
+          };
+        }
+      }),
+  }),
 });
