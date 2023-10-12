@@ -1,6 +1,5 @@
 'use client';
 
-import type { Participant } from '@prisma/client';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
@@ -15,11 +14,12 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import type { ParticipantWithInterviews } from '~/shared/types';
 
 export const ParticipantColumns = (
   editAction: (identifier: string) => void,
-  handleDelete: (data: Participant[]) => Promise<void>,
-): ColumnDef<Participant>[] => [
+  handleDelete: (data: ParticipantWithInterviews[]) => void,
+): ColumnDef<ParticipantWithInterviews>[] => [
   {
     id: 'select',
     header: ({ table }) => (

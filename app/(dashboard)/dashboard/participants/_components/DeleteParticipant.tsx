@@ -1,4 +1,3 @@
-import { Prisma, type Participant } from '@prisma/client';
 import { Loader2, AlertCircle, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
@@ -10,23 +9,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog';
-
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-
-const participantWithInterviews =
-  Prisma.validator<Prisma.ParticipantDefaultArgs>()({
-    include: { interviews: true },
-  });
-
-type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
-  typeof participantWithInterviews
->;
+import type { ParticipantWithInterviews } from '~/shared/types';
 
 interface DeleteParticipantProps {
   open: boolean;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   onCancel: () => void;
-  // get correct ParticipantWithInterviews type
   selectedParticipants: ParticipantWithInterviews[];
   isDeleting: boolean;
 }
@@ -106,7 +95,7 @@ export const DeleteParticipant = ({
           <AlertDialogCancel disabled={isDeleting} onClick={onCancel}>
             Cancel
           </AlertDialogCancel>
-          <Button onClick={onConfirm} variant="destructive">
+          <Button onClick={() => void onConfirm()} variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isDeleting ? 'Deleting...' : 'Permanently Delete'}

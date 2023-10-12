@@ -1,6 +1,5 @@
 'use client';
 
-import { type Participant, Prisma } from '@prisma/client';
 import { useState } from 'react';
 import { trpc } from '~/app/_trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
@@ -10,15 +9,7 @@ import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_com
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import { DeleteParticipant } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
-
-const participantWithInterviews =
-  Prisma.validator<Prisma.ParticipantDefaultArgs>()({
-    include: { interviews: true },
-  });
-
-type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
-  typeof participantWithInterviews
->;
+import type { ParticipantWithInterviews } from '~/shared/types';
 
 export const ParticipantsTable = ({
   initialData,
@@ -31,7 +22,7 @@ export const ParticipantsTable = ({
   const [showModal, setShowModal] = useState(false);
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [participantsToDelete, setParticipantsToDelete] = useState<
-    Participant[]
+    ParticipantWithInterviews[]
   >([]);
 
   const {
@@ -39,7 +30,6 @@ export const ParticipantsTable = ({
     refetch,
     data: participants,
   } = trpc.participant.get.all.useQuery(undefined, {
-    // get correct ParticipantWithInterviews type
     initialData,
     refetchOnMount: false,
     onError(error) {
@@ -56,7 +46,7 @@ export const ParticipantsTable = ({
     setShowModal(true);
   };
 
-  const handleDelete = (data: Participant[]) => {
+  const handleDelete = (data: ParticipantWithInterviews[]) => {
     setParticipantsToDelete(data);
     setShowAlertDialog(true);
   };

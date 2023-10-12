@@ -27,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
-  handleDeleteSelected?: (data: TData[]) => Promise<void>;
+  handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
 }
 
 export function DataTable<TData, TValue>({
