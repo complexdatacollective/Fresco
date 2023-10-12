@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type {
   NcEdge,
   NcNetwork,
@@ -48,13 +48,12 @@ function InterviewProvider({
     'stage',
     parseAsInteger.withDefault(1),
   );
+  const [initialized, setInitialized] = useState(false);
+  const { network, networkHandlers } = useNetwork(initialNetwork);
+  const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
 
   const protocolStageCount = protocol?.stages.length;
   const stageConfig = protocol.stages[currentStage - 1]!;
-
-  const { network, networkHandlers } = useNetwork(initialNetwork);
-
-  const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
 
   const navigationHandlers = {
     nextPage: () => {
@@ -78,9 +77,14 @@ function InterviewProvider({
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
-    // updateNetwork({ interviewId, network });
+    if (!initialized) {
+      setInitialized(true);
+      return;
+    }
+
+    updateNetwork({ interviewId, network });
     console.log('network changed', network);
-  }, [network]);
+  }, [network, updateNetwork, initialized, interviewId]);
 
   return (
     <InterviewContext.Provider
