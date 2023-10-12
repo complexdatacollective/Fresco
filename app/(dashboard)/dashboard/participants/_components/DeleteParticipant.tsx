@@ -77,14 +77,15 @@ export const DeleteParticipant = ({
               <AlertDescription>
                 {selectedParticipants.length > 1 ? (
                   <>
-                    One or more of the selected participants have{' '}
-                    <strong> unexported </strong>
-                    interview data that will also be deleted.
+                    One or more of the selected participants have interview data
+                    that <strong>has not yet been exported.</strong> Deleting
+                    these participants will also delete their interview data.
                   </>
                 ) : (
                   <>
-                    The selected participant has <strong> unexported </strong>
-                    interview data that will also be deleted.
+                    The selected participant has interview data that
+                    <strong> has not yet been exported.</strong> Deleting this
+                    participant will also delete their interview data.
                   </>
                 )}
               </AlertDescription>
