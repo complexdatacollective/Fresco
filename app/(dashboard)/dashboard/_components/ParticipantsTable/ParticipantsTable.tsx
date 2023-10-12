@@ -7,9 +7,9 @@ import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/Part
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
-import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import { DeleteParticipant } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 import type { ParticipantWithInterviews } from '~/shared/types';
+import { Button } from '~/components/ui/Button';
 
 export const ParticipantsTable = ({
   initialData,
@@ -24,6 +24,7 @@ export const ParticipantsTable = ({
   const [participantsToDelete, setParticipantsToDelete] = useState<
     ParticipantWithInterviews[]
   >([]);
+  const [deleteAll, setDeleteAll] = useState(false);
 
   const {
     isLoading,
@@ -41,17 +42,34 @@ export const ParticipantsTable = ({
   const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
     trpc.participant.delete.byId.useMutation();
 
+  const { mutateAsync: deleteAllParticipants, isLoading: isDeletingAll } =
+    trpc.participant.delete.all.useMutation();
+
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
     setShowModal(true);
   };
 
   const handleDelete = (data: ParticipantWithInterviews[]) => {
+    setDeleteAll(false);
     setParticipantsToDelete(data);
     setShowAlertDialog(true);
   };
 
+  const handleDeleteAll = () => {
+    setDeleteAll(true);
+    setParticipantsToDelete(participants);
+    setShowAlertDialog(true);
+  };
+
   const handleConfirm = async () => {
+    if (deleteAll) {
+      await deleteAllParticipants();
+      await refetch();
+      setShowAlertDialog(false);
+    }
+
+    // Delete selected participants
     await deleteParticipants(participantsToDelete.map((d) => d.identifier));
     await refetch();
     setShowAlertDialog(false);
@@ -69,7 +87,9 @@ export const ParticipantsTable = ({
         />
         <ImportCSVModal />
         <ExportCSVParticipants participants={participants} />
-        <DeleteAllParticipantsButton />
+        <Button onClick={handleDeleteAll} variant="destructive">
+          Delete All Participants
+        </Button>
       </div>
       {isLoading && <div>Loading...</div>}
       <DataTable
@@ -83,7 +103,7 @@ export const ParticipantsTable = ({
         onCancel={() => setShowAlertDialog(false)}
         onConfirm={handleConfirm}
         selectedParticipants={participantsToDelete}
-        isDeleting={isDeleting}
+        isDeleting={deleteAll ? isDeletingAll : isDeleting}
       />
     </>
   );
