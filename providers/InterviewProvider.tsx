@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   type PropsWithChildren,
+  useState,
 } from 'react';
 import type {
   NcEdge,
@@ -15,141 +16,60 @@ import type {
 } from '@codaco/shared-consts';
 import { trpc } from '~/app/_trpc/client';
 import { usePathname, useRouter } from 'next/navigation';
+import useNetwork from '../hooks/useNetwork';
+import { set } from 'react-hook-form';
 
-const initialState: NcNetwork = {
-  nodes: [],
-  edges: [],
-};
-
-type NetworkActionBase = {
-  type:
-    | 'ADD_NODE'
-    | 'ADD_EDGE'
-    | 'UPDATE_NODE'
-    | 'UPDATE_EDGE'
-    | 'DELETE_NODE'
-    | 'DELETE_EDGE';
-  payload: unknown;
-};
-
-type ActionAddNode = NetworkActionBase & {
-  type: 'ADD_NODE';
-  payload: NcNode;
-};
-
-type ActionAddEdge = NetworkActionBase & {
-  type: 'ADD_EDGE';
-  payload: NcEdge;
-};
-
-type ActionUpdateNode = NetworkActionBase & {
-  type: 'UPDATE_NODE';
-  payload: NcNode;
-};
-
-type ActionUpdateEdge = NetworkActionBase & {
-  type: 'UPDATE_EDGE';
-  payload: NcEdge;
-};
-
-type ActionDeleteNode = NetworkActionBase & {
-  type: 'DELETE_NODE';
-  payload: string;
-};
-
-type ActionDeleteEdge = NetworkActionBase & {
-  type: 'DELETE_EDGE';
-  payload: string;
-};
-
-type NetworkAction =
-  | ActionAddNode
-  | ActionAddEdge
-  | ActionUpdateNode
-  | ActionUpdateEdge
-  | ActionDeleteNode
-  | ActionDeleteEdge;
-
-function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
-  switch (action.type) {
-    case 'ADD_NODE':
-      return {
-        ...state,
-        nodes: [...state.nodes, action.payload],
-      };
-    case 'ADD_EDGE':
-      return {
-        ...state,
-        edges: [...state.edges, action.payload],
-      };
-    case 'UPDATE_NODE':
-      return {
-        ...state,
-        nodes: state.nodes.map((node) =>
-          node._uid === action.payload._uid ? action.payload : node,
-        ),
-      };
-    case 'UPDATE_EDGE':
-      return {
-        ...state,
-        edges: state.edges.map((edge) =>
-          edge._uid === action.payload._uid ? action.payload : edge,
-        ),
-      };
-    case 'DELETE_NODE':
-      return {
-        ...state,
-        nodes: state.nodes.filter((node) => node._uid !== action.payload),
-      };
-    case 'DELETE_EDGE':
-      return {
-        ...state,
-        edges: state.edges.filter((edge) => edge._uid !== action.payload),
-      };
-    default:
-      return state;
-  }
-}
-
-const InterviewContext = createContext({
-  network: initialState,
-  dispatch: () => null,
-  protocol: null,
-  interviewId: '',
-} as {
-  network: NcNetwork;
-  dispatch: (action: NetworkAction) => void;
-  protocol: Protocol | null;
-  interviewId: string;
-});
+const InterviewContext = createContext();
 
 type InterviewProviderProps = {
-  network: NcNetwork;
   protocol: Protocol;
   interviewId: string;
 };
 
-function InterviewProvider({
-  network,
-  protocol,
-  interviewId,
-  children,
-}: PropsWithChildren<InterviewProviderProps>) {
-  const [state, dispatch] = useReducer(reducer, network, () => initialState);
+function InterviewProvider({ children }) {
+  const pathname = usePathname();
 
-  console.log('provider', network, state, protocol);
+  const interviewId = pathname.split('/')[2];
 
+  console.log('interviewId', interviewId);
+
+  const [initialized, setInitialized] = useState(false);
+  const [network, handlers] = useNetwork();
+
+  const { data: interview, isLoading } = trpc.interview.get.byId.useQuery(
+    {
+      id: interviewId,
+    },
+    {
+      onSuccess: () => {
+        setInitialized(true);
+      },
+    },
+  );
   const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
+
+  // useEffect(() => {
+  //   console.log('network');
+  // }, [network]);
+
+  // useEffect(() => {
+  //   console.log('updateNetwork');
+  // }, [updateNetwork]);
+
+  // useEffect(() => {
+  //   console.log('interviewId', interviewId);
+  // }, [interviewId]);
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
-    updateNetwork({ interviewId, network: state });
-    console.log('state changed', state);
-  }, [state, updateNetwork, interviewId]);
+    if (!initialized) return;
+    updateNetwork({ interviewId, network });
+    console.log('network changed', network);
+  }, [network, updateNetwork, interviewId, initialized]);
 
   return (
     <InterviewContext.Provider
-      value={{ network: state, dispatch, protocol, interviewId }}
+      value={{ network, handlers, protocol: interview?.protocol, interviewId }}
     >
       {children}
     </InterviewContext.Provider>
@@ -157,37 +77,13 @@ function InterviewProvider({
 }
 
 const useInterview = () => {
-  const { network, dispatch, protocol, interviewId } =
+  const { protocol, interviewId, network, handlers } =
     useContext(InterviewContext);
   const pathname = usePathname();
   const router = useRouter();
 
   const currentStage = parseInt(pathname.split('/').pop()!, 10);
   const protocolStageCount = protocol?.stages.length;
-
-  const addNode = (node: NcNode) => {
-    dispatch({ type: 'ADD_NODE', payload: node });
-  };
-
-  const addEdge = (edge: NcEdge) => {
-    dispatch({ type: 'ADD_EDGE', payload: edge });
-  };
-
-  const updateNode = (node: NcNode) => {
-    dispatch({ type: 'UPDATE_NODE', payload: node });
-  };
-
-  const updateEdge = (edge: NcEdge) => {
-    dispatch({ type: 'UPDATE_EDGE', payload: edge });
-  };
-
-  const deleteNode = (nodeId: string) => {
-    dispatch({ type: 'DELETE_NODE', payload: nodeId });
-  };
-
-  const deleteEdge = (edgeId: string) => {
-    dispatch({ type: 'DELETE_EDGE', payload: edgeId });
-  };
 
   const nextPage = () => {
     const nextStage = currentStage + 1;
@@ -206,16 +102,9 @@ const useInterview = () => {
 
   const hasPreviousPage = () => currentStage > 1;
 
-  console.log('useInterview', pathname);
-
   return {
     network,
-    addNode,
-    addEdge,
-    updateNode,
-    updateEdge,
-    deleteNode,
-    deleteEdge,
+    ...handlers,
     nextPage,
     previousPage,
     hasNextPage: hasNextPage(),
