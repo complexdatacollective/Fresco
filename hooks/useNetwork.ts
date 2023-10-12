@@ -96,10 +96,10 @@ function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
   }
 }
 
-const useNetwork = () => {
-  const [network, dispatch] = useReducer(reducer, initialState);
+const useNetwork = (initialNetwork = initialState) => {
+  const [network, dispatch] = useReducer(reducer, initialNetwork);
 
-  const handlers = {
+  const networkHandlers = {
     addNode: (node: NcNode) => {
       dispatch({ type: 'ADD_NODE', payload: node });
     },
@@ -125,7 +125,7 @@ const useNetwork = () => {
     },
   };
 
-  return [network, handlers];
+  return { network, networkHandlers };
 };
 
 export default useNetwork;

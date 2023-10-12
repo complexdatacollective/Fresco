@@ -1,75 +1,97 @@
 'use client';
 
-import {
-  createContext,
-  useReducer,
-  useContext,
-  useEffect,
-  type PropsWithChildren,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import type {
   NcEdge,
   NcNetwork,
   NcNode,
   Protocol,
+  Stage,
 } from '@codaco/shared-consts';
 import { trpc } from '~/app/_trpc/client';
-import { usePathname, useRouter } from 'next/navigation';
 import useNetwork from '../hooks/useNetwork';
-import { set } from 'react-hook-form';
+import { parseAsInteger, useQueryState } from 'next-usequerystate';
 
-const InterviewContext = createContext();
+const InterviewContext = createContext({
+  network: {} as NcNetwork,
+  networkHandlers: {
+    addNode: (_node: NcNode) => {},
+    addEdge: (_edge: NcEdge) => {},
+    updateNode: (_node: NcNode) => {},
+    updateEdge: (_edge: NcEdge) => {},
+    deleteNode: (_nodeId: string) => {},
+    deleteEdge: (_edgeId: string) => {},
+  },
+  navigationHandlers: {
+    nextPage: () => {},
+    previousPage: () => {},
+    hasNextPage: false,
+    hasPreviousPage: false,
+  },
+  protocol: {} as Protocol,
+  interviewId: '',
+  stageConfig: {} as Stage,
+});
 
-type InterviewProviderProps = {
-  protocol: Protocol;
+function InterviewProvider({
+  children,
+  interviewId,
+  initialNetwork,
+  protocol,
+}: {
+  children: React.ReactNode;
   interviewId: string;
-};
-
-function InterviewProvider({ children }) {
-  const pathname = usePathname();
-
-  const interviewId = pathname.split('/')[2];
-
-  console.log('interviewId', interviewId);
-
-  const [initialized, setInitialized] = useState(false);
-  const [network, handlers] = useNetwork();
-
-  const { data: interview, isLoading } = trpc.interview.get.byId.useQuery(
-    {
-      id: interviewId,
-    },
-    {
-      onSuccess: () => {
-        setInitialized(true);
-      },
-    },
+  initialNetwork: NcNetwork;
+  protocol: Protocol;
+}) {
+  const [currentStage, setCurrentStage] = useQueryState(
+    'stage',
+    parseAsInteger.withDefault(1),
   );
+
+  const protocolStageCount = protocol?.stages.length;
+  const stageConfig = protocol.stages[currentStage - 1]!;
+
+  const { network, networkHandlers } = useNetwork(initialNetwork);
+
   const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
 
-  // useEffect(() => {
-  //   console.log('network');
-  // }, [network]);
+  const navigationHandlers = {
+    nextPage: () => {
+      const nextStage = currentStage + 1;
+      if (nextStage > protocolStageCount) return;
 
-  // useEffect(() => {
-  //   console.log('updateNetwork');
-  // }, [updateNetwork]);
+      void setCurrentStage(nextStage);
+    },
 
-  // useEffect(() => {
-  //   console.log('interviewId', interviewId);
-  // }, [interviewId]);
+    previousPage: () => {
+      const previousStage = currentStage - 1;
+      if (previousStage < 1) return;
+
+      void setCurrentStage(previousStage);
+    },
+
+    hasNextPage: currentStage < protocolStageCount,
+
+    hasPreviousPage: currentStage > 1,
+  };
 
   // When state changes, sync it with the server using react query
   useEffect(() => {
-    if (!initialized) return;
-    updateNetwork({ interviewId, network });
+    // updateNetwork({ interviewId, network });
     console.log('network changed', network);
-  }, [network, updateNetwork, interviewId, initialized]);
+  }, [network]);
 
   return (
     <InterviewContext.Provider
-      value={{ network, handlers, protocol: interview?.protocol, interviewId }}
+      value={{
+        network,
+        networkHandlers,
+        navigationHandlers,
+        protocol,
+        interviewId,
+        stageConfig,
+      }}
     >
       {children}
     </InterviewContext.Provider>
@@ -77,38 +99,20 @@ function InterviewProvider({ children }) {
 }
 
 const useInterview = () => {
-  const { protocol, interviewId, network, handlers } =
-    useContext(InterviewContext);
-  const pathname = usePathname();
-  const router = useRouter();
-
-  const currentStage = parseInt(pathname.split('/').pop()!, 10);
-  const protocolStageCount = protocol?.stages.length;
-
-  const nextPage = () => {
-    const nextStage = currentStage + 1;
-    if (nextStage > protocolStageCount!) return;
-
-    router.push(`/interview/${interviewId}/${nextStage}`);
-  };
-
-  const previousPage = () => {
-    const previousStage = currentStage - 1;
-    if (previousStage < 1) return;
-    router.push(`/interview/${interviewId}/${previousStage}`);
-  };
-
-  const hasNextPage = () => currentStage < protocolStageCount!;
-
-  const hasPreviousPage = () => currentStage > 1;
+  const {
+    protocol,
+    network,
+    networkHandlers,
+    navigationHandlers,
+    stageConfig,
+  } = useContext(InterviewContext);
 
   return {
     network,
-    ...handlers,
-    nextPage,
-    previousPage,
-    hasNextPage: hasNextPage(),
-    hasPreviousPage: hasPreviousPage(),
+    protocol,
+    stageConfig,
+    ...networkHandlers,
+    ...navigationHandlers,
   };
 };
 
