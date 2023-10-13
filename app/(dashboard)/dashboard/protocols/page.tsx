@@ -1,6 +1,5 @@
 import { ProtocolsTable } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/ProtocolsTable';
 import { trpc } from '~/app/_trpc/server';
-import ProtocolUploader from '../_components/ProtocolUploader';
 
 const ProtocolsPage = async () => {
   const protocols = await trpc.protocol.get.all.query(undefined, {
@@ -11,7 +10,6 @@ const ProtocolsPage = async () => {
   return (
     <div className="rounded-lg bg-white p-6">
       <h2 className="mb-6 text-2xl font-bold">Protocols management view</h2>
-      <ProtocolUploader />
       <ProtocolsTable initialData={protocols} />
     </div>
   );

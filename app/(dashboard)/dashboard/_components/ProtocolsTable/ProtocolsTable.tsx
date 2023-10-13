@@ -4,6 +4,7 @@ import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from './Columns';
 import { trpc } from '~/app/_trpc/client';
 import { type Protocol } from '@prisma/client';
+import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 
 export const ProtocolsTable = ({
   initialData,
@@ -25,17 +26,27 @@ export const ProtocolsTable = ({
     },
   });
 
+  const utils = trpc.useContext();
+
   const handleDelete = async (data: Protocol[]) => {
     await deleteProtocols(data.map((d) => d.hash));
     await refetch();
   };
 
+  const handleUploaded = () => {
+    void utils.protocol.get.all.refetch();
+  };
+
   return (
-    <DataTable
-      columns={ProtocolColumns(handleDelete)}
-      data={protocols}
-      filterColumnAccessorKey="name"
-      handleDeleteSelected={handleDelete}
-    />
+    <>
+      {isLoading && <div>Loading...</div>}
+      <ProtocolUploader onUploaded={handleUploaded} />
+      <DataTable
+        columns={ProtocolColumns(handleDelete)}
+        data={protocols}
+        filterColumnAccessorKey="name"
+        handleDeleteSelected={handleDelete}
+      />
+    </>
   );
 };
