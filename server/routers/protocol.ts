@@ -52,6 +52,15 @@ export const protocolRouter = router({
 
       return protocol?.active || false;
     }),
+  getCurrentlyActive: protectedProcedure.query(async () => {
+    const protocol = await prisma.protocol.findFirst({
+      where: {
+        active: true,
+      },
+    });
+
+    return protocol;
+  }),
   setActive: protectedProcedure
     .input(updateActiveProtocolSchema)
     .mutation(async ({ input: { input, hash } }) => {
