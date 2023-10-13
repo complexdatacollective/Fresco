@@ -7,19 +7,6 @@ import { useState, useCallback } from 'react';
 
 import { importProtocol } from '../_actions/importProtocol';
 import { Button } from '~/components/ui/Button';
-import { Switch } from '~/components/ui/switch';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '~/components/ui/form';
-
-const ActivateProtocolFormSchema = z.object({
-  mark_protocol_active: z.boolean().default(false),
-});
 
 const { useUploadThing } = generateReactHelpers();
 
@@ -31,11 +18,8 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import type { UploadFileResponse } from 'uploadthing/client';
-import React from 'react';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import ActiveProtocolSwitch from './ActiveProtocolSwitch';
 import { trpc } from '~/app/_trpc/client';
 
 export default function ProtocolUploader({
@@ -50,11 +34,6 @@ export default function ProtocolUploader({
     description: 'dfdsfds',
     progress: true,
     error: 'dsfsdf',
-  });
-  const { mutate: setActive } = trpc.protocol.setActive.useMutation({
-    onSuccess: () => {
-      setOpen(false);
-    },
   });
 
   const handleUploadComplete = async (
@@ -154,16 +133,15 @@ export default function ProtocolUploader({
     accept: { 'application/octect-stream': ['.netcanvas'] },
   });
 
-  const form = useForm<z.infer<typeof ActivateProtocolFormSchema>>({
-    resolver: zodResolver(ActivateProtocolFormSchema),
-  });
-
-  function onSubmit(data: z.infer<typeof ActivateProtocolFormSchema>) {
-    setActive({ input: data.mark_protocol_active });
+  function handleFinishImport() {
     if (typeof onUploaded === 'function') {
       onUploaded();
     }
+    setOpen(false);
   }
+
+  const { data: lastUploadedProtocol } =
+    trpc.protocol.get.lastUploaded.useQuery();
 
   return (
     <>
@@ -214,44 +192,35 @@ export default function ProtocolUploader({
               </CollapsibleContent>
             </Collapsible>
           )}
-          {!dialogContent.progress && !dialogContent.error && (
-            <Form {...form}>
-              <form
-                onSubmit={() => void form.handleSubmit(onSubmit)}
-                className="w-full space-y-6"
-              >
+          {!dialogContent.progress &&
+            !dialogContent.error &&
+            lastUploadedProtocol && (
+              <div className="w-full space-y-6">
                 <div>
                   <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="mark_protocol_active"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                              Mark protocol as active?
-                            </FormLabel>
-                            <FormDescription>
-                              Only one protocol may be active at a time. If you
-                              already have an active protocol, activating this
-                              one will make it inactive.
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    <div className="flex flex-row items-center rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <label>Mark protocol as active?</label>
+                        <p className="text-xs">
+                          Only one protocol may be active at a time. If you
+                          already have an active protocol, activating this one
+                          will make it inactive.
+                        </p>
+                      </div>
+                      <div>
+                        <ActiveProtocolSwitch
+                          initialData={lastUploadedProtocol.active}
+                          hash={lastUploadedProtocol.hash}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <Button type="submit">Finish Import</Button>
-              </form>
-            </Form>
-          )}
+                <Button type="submit" onClick={handleFinishImport}>
+                  Finish Import
+                </Button>
+              </div>
+            )}
         </DialogContent>
       </Dialog>
     </>

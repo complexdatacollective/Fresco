@@ -25,11 +25,9 @@ const ActiveProtocolSwitch = ({
 
       const previousState = utils.protocol.getActive.getData();
 
-      if (!hash) {
-        throw new Error('No hash provided');
+      if (hash) {
+        utils.protocol.getActive.setData(hash, newState);
       }
-
-      utils.protocol.getActive.setData(hash, newState);
 
       return previousState;
     },
