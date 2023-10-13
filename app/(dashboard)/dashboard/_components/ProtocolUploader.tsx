@@ -35,6 +35,7 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
+  const utils = trpc.useContext();
 
   const handleUploadComplete = async (
     res: UploadFileResponse[] | undefined,
@@ -72,6 +73,8 @@ export default function ProtocolUploader({
       });
       return;
     }
+
+    await utils.protocol.get.lastUploaded.refetch();
 
     setDialogContent({
       title: 'Protocol import',
