@@ -10,15 +10,7 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { Prisma } from '@prisma/client';
-
-const ProtocolWithInterviews = Prisma.validator<Prisma.ProtocolDefaultArgs>()({
-  include: { interviews: true },
-});
-
-export type ProtocolWithInterviews = Prisma.ProtocolGetPayload<
-  typeof ProtocolWithInterviews
->;
+import type { ProtocolWithInterviews } from '~/shared/types';
 
 interface DeleteProtocolProps {
   open: boolean;

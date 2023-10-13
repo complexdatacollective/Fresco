@@ -4,17 +4,9 @@ import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from './Columns';
 import { trpc } from '~/app/_trpc/client';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
-import { Prisma } from '@prisma/client';
 import { DeleteProtocol } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/DeleteProtocols';
 import { useState } from 'react';
-const ProtocolWithInterviews = Prisma.validator<Prisma.ProtocolDefaultArgs>()({
-  include: { interviews: true },
-});
-
-export type ProtocolWithInterviews = Prisma.ProtocolGetPayload<
-  typeof ProtocolWithInterviews
->;
-
+import type { ProtocolWithInterviews } from '~/shared/types';
 export const ProtocolsTable = ({
   initialData,
 }: {

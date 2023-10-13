@@ -1,7 +1,6 @@
 'use client';
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
-import { Prisma } from '@prisma/client';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Settings } from 'lucide-react';
@@ -16,13 +15,7 @@ import {
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import ActiveProtocolSwitch from '../ActiveProtocolSwitch';
 
-const ProtocolWithInterviews = Prisma.validator<Prisma.ProtocolDefaultArgs>()({
-  include: { interviews: true },
-});
-
-export type ProtocolWithInterviews = Prisma.ProtocolGetPayload<
-  typeof ProtocolWithInterviews
->;
+import type { ProtocolWithInterviews } from '~/shared/types';
 
 export const ProtocolColumns = (
   handleDelete: (data: ProtocolWithInterviews[]) => void,
