@@ -1,10 +1,10 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
-import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
+import { protectedProcedure, router } from '~/server/trpc';
 import { z } from 'zod';
 
 const updateActiveProtocolSchema = z.object({
-  setActive: z.boolean(),
+  input: z.boolean(),
   hash: z.string().optional(),
 });
 
@@ -15,20 +15,39 @@ export const protocolRouter = router({
 
       return protocols;
     }),
-  }),
-  getActive: publicProcedure.query(async () => {
-    const activeProtocol = await prisma.protocol.findFirst({
-      where: {
-        active: true,
-      },
-    });
+    byHash: protectedProcedure
+      .input(z.string())
+      .query(async ({ input: hash }) => {
+        const protocol = await prisma.protocol.findFirst({
+          where: {
+            hash,
+          },
+        });
 
-    return activeProtocol;
+        return protocol;
+      }),
   }),
+  getActive: protectedProcedure
+    .input(z.string())
+    .query(async ({ input: hash }) => {
+      const protocol = await prisma.protocol.findFirst({
+        where: {
+          hash,
+        },
+        select: {
+          active: true,
+        },
+      });
+
+      return protocol?.active || false;
+    }),
   setActive: protectedProcedure
     .input(updateActiveProtocolSchema)
-    .mutation(async ({ input: { setActive, hash } }) => {
-      if (!setActive) {
+    .mutation(async ({ input: { input, hash } }) => {
+      // if hash is undefined, this is being called from protocol uploader
+      // if setActive is also false then do nothing
+
+      if (!hash && !input) {
         return;
       }
 
@@ -38,25 +57,25 @@ export const protocolRouter = router({
         },
       });
 
-      // deactivate the current active protocol
-      if (currentActive) {
-        await prisma.protocol.update({
-          where: {
-            id: currentActive?.id,
-          },
-          data: {
-            active: false,
-          },
-        });
-      }
-
-      // find the most recently imported protocol
-      if (!hash) {
+      // update the most recently uploaded protocol to be active
+      if (!hash && input) {
         const recentlyUploaded = await prisma.protocol.findFirst({
           orderBy: {
             importedAt: 'desc',
           },
         });
+
+        // deactivate the current active protocol, if it exists
+        if (currentActive) {
+          await prisma.protocol.update({
+            where: {
+              id: currentActive?.id,
+            },
+            data: {
+              active: false,
+            },
+          });
+        }
 
         // make the most recent protocol active
         await prisma.protocol.update({
@@ -70,6 +89,35 @@ export const protocolRouter = router({
         return;
       }
 
+      // everything below this point is for when hash is defined
+
+      // if input is false, deactivate the active protocol
+      if (!input && hash) {
+        await prisma.protocol.update({
+          where: {
+            hash: hash,
+            active: true,
+          },
+          data: {
+            active: false,
+          },
+        });
+        return;
+      }
+
+      // setActive is true and hash is defined
+
+      // deactivate the current active protocol, if it exists
+      if (currentActive) {
+        await prisma.protocol.update({
+          where: {
+            id: currentActive?.id,
+          },
+          data: {
+            active: false,
+          },
+        });
+      }
       // make the protocol with the given hash active
       await prisma.protocol.update({
         where: {

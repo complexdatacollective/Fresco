@@ -159,7 +159,7 @@ export default function ProtocolUploader({
   });
 
   function onSubmit(data: z.infer<typeof ActivateProtocolFormSchema>) {
-    setActive({ setActive: data.mark_protocol_active });
+    setActive({ input: data.mark_protocol_active });
     if (typeof onUploaded === 'function') {
       onUploaded();
     }

@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import ActiveProtocolSwitch from '../ActiveProtocolSwitch';
 
 export const ProtocolColumns = (
   handleDelete: (data: Protocol[]) => Promise<void>,
@@ -39,8 +40,14 @@ export const ProtocolColumns = (
   },
   {
     accessorKey: 'active',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Active" />;
+    header: 'Active',
+    cell: ({ row }) => {
+      return (
+        <ActiveProtocolSwitch
+          initialData={row.original.active}
+          hash={row.original.hash}
+        />
+      );
     },
   },
   {
@@ -93,7 +100,7 @@ export const ProtocolColumns = (
             <Settings />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Delete or set a protocol as active.</p>
+            <p>Delete an individual protocol.</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -102,19 +109,6 @@ export const ProtocolColumns = (
       return (
         <ActionsDropdown
           menuItems={[
-            {
-              label: 'Set Active',
-              row,
-              component: (
-                <DropdownMenuItem
-                  onClick={() => {
-                    console.log('clicked set active');
-                  }}
-                >
-                  Set Active
-                </DropdownMenuItem>
-              ),
-            },
             {
               label: 'Delete',
               row,
