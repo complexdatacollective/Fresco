@@ -3,10 +3,10 @@
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from './Columns';
 import { trpc } from '~/app/_trpc/client';
-import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { DeleteProtocol } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/DeleteProtocols';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
+import ImportProtocolModal from '../../protocols/_components/ImportProtocolModal';
 export const ProtocolsTable = ({
   initialData,
 }: {
@@ -52,7 +52,7 @@ export const ProtocolsTable = ({
   return (
     <>
       {isLoading && <div>Loading...</div>}
-      <ProtocolUploader onUploaded={handleUploaded} />
+      <ImportProtocolModal onProtocolUploaded={handleUploaded} />
       <DataTable
         columns={ProtocolColumns(handleDelete)}
         data={protocols}
