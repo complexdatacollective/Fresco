@@ -25,7 +25,7 @@ const formSchema = z.object({
   csvColumn: z.string().optional(),
 });
 
-const ImportCSVModal = () => {
+const ImportCSVModal = ({ onUploaded }: { onUploaded?: () => void }) => {
   const { toast } = useToast();
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
   const utils = trpc.useContext();
@@ -127,6 +127,9 @@ const ImportCSVModal = () => {
         description: 'Participants have been imported successfully',
         variant: 'success',
       });
+      if (typeof onUploaded === 'function') {
+        onUploaded();
+      }
     }
 
     methods.reset();
