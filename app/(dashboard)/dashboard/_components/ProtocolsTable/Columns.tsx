@@ -40,21 +40,16 @@ export const ProtocolColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: 'active',
-    header: 'Active',
-    cell: ({ row }) => {
-      return (
-        <ActiveProtocolSwitch
-          initialData={row.original.active}
-          hash={row.original.hash}
-        />
-      );
-    },
-  },
-  {
     accessorKey: 'name',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Name" />;
+    },
+    cell: ({ row }) => {
+      return (
+        <div className={row.original.active ? '' : 'text-muted-foreground'}>
+          {flexRender(row.original.name, row)}
+        </div>
+      );
     },
   },
   {
@@ -62,7 +57,14 @@ export const ProtocolColumns = (
     header: 'Description',
     cell: ({ row }) => {
       return (
-        <div key={row.original.description} className="min-w-[200px]">
+        <div
+          className={
+            row.original.active
+              ? 'min-w-[200px]'
+              : 'min-w-[200px] text-muted-foreground'
+          }
+          key={row.original.description}
+        >
           {flexRender(row.original.description, row)}
         </div>
       );
@@ -73,24 +75,43 @@ export const ProtocolColumns = (
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Imported" />;
     },
-    cell: ({ row }) => {
-      const date = new Date(row.original.importedAt);
-      return date.toLocaleString();
-    },
+    cell: ({ row }) => (
+      <div className={row.original.active ? '' : 'text-muted-foreground'}>
+        {new Date(row.original.importedAt).toLocaleString()}
+      </div>
+    ),
   },
   {
     accessorKey: 'lastModified',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Modified" />;
     },
-    cell: ({ row }) => {
-      const date = new Date(row.original.lastModified);
-      return date.toLocaleString();
-    },
+    cell: ({ row }) => (
+      <div className={row.original.active ? '' : 'text-muted-foreground'}>
+        {new Date(row.original.lastModified).toLocaleString()}
+      </div>
+    ),
   },
   {
     accessorKey: 'schemaVersion',
     header: 'Schema Version',
+    cell: ({ row }) => (
+      <div className={row.original.active ? '' : 'text-muted-foreground'}>
+        {row.original.schemaVersion}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'active',
+    header: 'Active',
+    cell: ({ row }) => {
+      return (
+        <ActiveProtocolSwitch
+          initialData={row.original.active}
+          hash={row.original.hash}
+        />
+      );
+    },
   },
   {
     id: 'actions',
