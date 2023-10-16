@@ -52,8 +52,9 @@ function InterviewProvider({
   const { network, networkHandlers } = useNetwork(initialNetwork);
   const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
 
-  const protocolStageCount = protocol?.stages.length;
-  const stageConfig = protocol.stages[currentStage - 1]!;
+  const stages = JSON.parse(protocol?.stages) as Stage[];
+  const protocolStageCount = stages.length;
+  const stageConfig = stages[currentStage - 1] as Stage;
 
   const navigationHandlers = {
     nextPage: () => {
