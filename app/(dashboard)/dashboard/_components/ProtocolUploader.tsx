@@ -19,7 +19,7 @@ import {
 } from '~/components/ui/dialog';
 import type { UploadFileResponse } from 'uploadthing/client';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
-import ActiveProtocolSwitch from './ActiveProtocolSwitch';
+import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
 import { trpc } from '~/app/_trpc/client';
 
 export default function ProtocolUploader({

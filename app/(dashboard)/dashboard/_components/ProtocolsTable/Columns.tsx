@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
-import ActiveProtocolSwitch from '../ActiveProtocolSwitch';
+import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
 
 import type { ProtocolWithInterviews } from '~/shared/types';
 

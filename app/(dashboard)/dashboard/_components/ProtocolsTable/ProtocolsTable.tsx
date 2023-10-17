@@ -6,7 +6,7 @@ import { trpc } from '~/app/_trpc/client';
 import { DeleteProtocol } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/DeleteProtocols';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import ImportProtocolModal from '../../protocols/_components/ImportProtocolModal';
+import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
 export const ProtocolsTable = ({
   initialData,
 }: {
