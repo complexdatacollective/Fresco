@@ -66,7 +66,6 @@ export const ParticipantsTable = ({
     if (deleteAll) {
       await deleteAllParticipants();
       await refetch();
-      setShowAlertDialog(false);
     }
 
     // Delete selected participants
