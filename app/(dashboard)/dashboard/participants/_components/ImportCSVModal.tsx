@@ -127,9 +127,10 @@ const ImportCSVModal = ({ onUploaded }: { onUploaded?: () => void }) => {
         description: 'Participants have been imported successfully',
         variant: 'success',
       });
-      if (typeof onUploaded === 'function') {
-        onUploaded();
-      }
+    }
+
+    if (typeof onUploaded === 'function') {
+      onUploaded();
     }
 
     methods.reset();

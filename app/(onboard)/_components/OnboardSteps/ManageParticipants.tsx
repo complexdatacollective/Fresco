@@ -15,7 +15,6 @@ function ManageParticipants() {
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
-    // will be replaced with participants uplodaing handling participants upload
   };
 
   const handleNextStep = () => {
