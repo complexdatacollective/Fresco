@@ -54,22 +54,12 @@ export default function ProtocolUploader({
     });
     const { error, success } = await importProtocol(firstFile);
 
-    if (error) {
+    if (error || !success) {
       setDialogContent({
         title: 'Protocol import',
         description: 'Error importing protocol',
         progress: false,
-        error: error,
-      });
-      return;
-    }
-
-    if (!success) {
-      setDialogContent({
-        title: 'Protocol import',
-        description: 'Error importing protocol',
-        progress: false,
-        error: 'Unkown error occured',
+        error: error ?? 'Unkown error occured',
       });
       return;
     }
