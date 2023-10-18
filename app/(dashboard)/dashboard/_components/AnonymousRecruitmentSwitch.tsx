@@ -37,8 +37,7 @@ const AnonymousRecruitmentSwitch = ({
           undefined,
           previousState,
         );
-        // eslint-disable-next-line no-console
-        console.error(err);
+        throw new Error(err.message);
       },
       onSuccess: () => {
         router.refresh(); // This causes the server component to provide the correct value on initial render
