@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { NetworkProvider } from '~/providers/NetworkProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
 import { prisma } from '~/utils/db';
@@ -29,6 +29,7 @@ export default async function Page({
   );
 
   if (!interview) {
+    notFound();
     return <div> No interview found</div>;
   }
 
