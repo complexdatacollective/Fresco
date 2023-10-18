@@ -30,11 +30,19 @@ export const ParticipantsTable = ({
     onError(error) {
       // eslint-disable-next-line no-console
       console.error(error);
+      throw new Error(error.message);
     },
   });
 
   const { mutateAsync: deleteParticipants } =
-    trpc.participant.delete.byId.useMutation();
+    trpc.participant.delete.byId.useMutation({
+      async onSuccess() {
+        await refetch();
+      },
+      onError(error) {
+        throw new Error(error.message);
+      },
+    });
 
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
