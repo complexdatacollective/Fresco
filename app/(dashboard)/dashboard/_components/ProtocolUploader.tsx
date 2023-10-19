@@ -55,6 +55,9 @@ export default function ProtocolUploader({
     onSuccess: () => {
       setOpen(false);
     },
+    onError: (err) => {
+      throw new Error(err.message);
+    },
   });
 
   const handleUploadComplete = async (

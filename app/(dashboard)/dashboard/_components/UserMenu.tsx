@@ -15,6 +15,9 @@ const UserMenu = () => {
       onSuccess: () => {
         router.refresh();
       },
+      onError: (err) => {
+        throw new Error(err.message);
+      },
     });
 
   return (

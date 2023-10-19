@@ -51,9 +51,10 @@ export const SessionProvider = ({
   // client side.
   useEffect(() => {
     setSession(initialSession);
-    getSession().catch((err) => {
+    getSession().catch((err: Error) => {
       // eslint-disable-next-line no-console
-      console.error(err);
+      console.error(err.message);
+      throw new Error(err.message);
     });
   }, [initialSession, getSession]);
 

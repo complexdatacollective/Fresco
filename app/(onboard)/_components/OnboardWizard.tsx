@@ -21,9 +21,16 @@ function OnboardWizard() {
   const step = searchParams.get('step');
   const stepInt = parseInt(step ?? '1', 10);
 
-  const { data: expired } = trpc.appSettings.get.expired.useQuery(undefined, {
-    refetchInterval: 1000 * 10,
-  });
+  const { data: expired, error } = trpc.appSettings.get.expired.useQuery(
+    undefined,
+    {
+      refetchInterval: 1000 * 10,
+    },
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
 
   useEffect(() => {
     if (expired) {

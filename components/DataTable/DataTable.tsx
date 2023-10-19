@@ -55,8 +55,7 @@ export function DataTable<TData, TValue>({
     try {
       await handleDeleteSelected?.(selectedData);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      throw new Error(error.message);
     }
 
     setIsDeleting(false);

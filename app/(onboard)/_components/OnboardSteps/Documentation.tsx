@@ -15,6 +15,9 @@ function Documentation() {
         router.push('/dashboard');
         router.refresh();
       },
+      onError: (error) => {
+        throw new Error(error.message);
+      },
     });
 
   if (isLoading) {

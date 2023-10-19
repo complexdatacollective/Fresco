@@ -64,16 +64,11 @@ export default async function Page({
   }
 
   // Create the interview
-  const { createdInterview, error, errorType } =
+  const { createdInterview, error } =
     await trpc.interview.create.mutate(identifier);
 
   if (error || !createdInterview) {
-    return (
-      <ErrorMessage
-        title={`Error Creating Interview: ${errorType}`}
-        message={`An error occurred while creating the interview: ${error}`}
-      />
-    );
+    throw new Error(error || 'An error occurred while creating the interview');
   }
 
   // Redirect to the interview/[id] route

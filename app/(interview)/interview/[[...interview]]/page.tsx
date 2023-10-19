@@ -30,7 +30,6 @@ export default async function Page({
 
   if (!interview) {
     notFound();
-    return <div> No interview found</div>;
   }
 
   // If theres no interview page in the URL:
