@@ -18,9 +18,11 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="my-4 mx-auto p-4 rounded-lg border border-destructive max-w-md text-center flex flex-col items-center">
-      <AlertTriangle className="text-destructive mb-2 h-12 w-12" />
-      <h2 className="text-2xl font-semibold mb-2 text-destructive">Dashboard Error</h2>
+    <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">
+      <AlertTriangle className="mb-2 h-12 w-12 text-destructive" />
+      <h2 className="mb-2 text-2xl font-semibold text-destructive">
+        Dashboard Error
+      </h2>
       <p className="text-sm">{error.message}</p>
       <div className="mt-4">
         <Button onClick={() => reset()}>Try Again</Button>

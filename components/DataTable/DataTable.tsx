@@ -55,7 +55,10 @@ export function DataTable<TData, TValue>({
     try {
       await handleDeleteSelected?.(selectedData);
     } catch (error) {
-      throw new Error(error.message);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('An unknown error occurred.');
     }
 
     setIsDeleting(false);
