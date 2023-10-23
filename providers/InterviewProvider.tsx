@@ -8,7 +8,7 @@ import type {
   Protocol,
   Stage,
 } from '@codaco/shared-consts';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import useNetwork from '../hooks/useNetwork';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
 
@@ -50,7 +50,7 @@ function InterviewProvider({
   );
   const [initialized, setInitialized] = useState(false);
   const { network, networkHandlers } = useNetwork(initialNetwork);
-  const { mutate: updateNetwork } = trpc.interview.updateNetwork.useMutation();
+  const { mutate: updateNetwork } = api.interview.updateNetwork.useMutation();
 
   const stages = protocol.stages;
   const protocolStageCount = stages.length;

@@ -7,12 +7,12 @@ import { cookies } from 'next/headers';
 import SuperJSON from 'superjson';
 import { env } from '~/env.mjs';
 import { type AppRouter } from '~/server/router';
-import { getUrl } from '~/utils/getURL';
+import { getUrl } from '~/trpc/shared';
 
 /**
  * This client invokes procedures directly on the server without fetching over HTTP.
  */
-export const trpc = experimental_createTRPCNextAppDirServer<AppRouter>({
+export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
   config() {
     return {
       transformer: SuperJSON,
@@ -22,7 +22,7 @@ export const trpc = experimental_createTRPCNextAppDirServer<AppRouter>({
             (env.NODE_ENV === 'development' && typeof window !== 'undefined') ||
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
-        // This link doesn't alloe revalidate: 0, which is needed to disable caching
+        // This link doesn't allow revalidate: 0, which is needed to disable caching
         // entirely. It is also not considered production ready: https://nextjs.org/docs/app/building-your-application/caching#unstable_cache
         // experimental_nextCacheLink({
         //   revalidate: 1,

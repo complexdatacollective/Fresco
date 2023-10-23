@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from 'react';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from '~/providers/SessionPrivider';
 import type { Session } from 'lucia';
@@ -19,7 +19,7 @@ export default function Providers({
 }): ReactElement {
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
-    trpc.createClient({
+    api.createClient({
       transformer: SuperJSON,
       links: [
         loggerLink({
@@ -42,11 +42,11 @@ export default function Providers({
   );
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <api.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={true} />
         <SessionProvider session={initialSession}>{children}</SessionProvider>
       </QueryClientProvider>
-    </trpc.Provider>
+    </api.Provider>
   );
 }

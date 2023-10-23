@@ -1,9 +1,9 @@
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from './Columns';
-import { trpc } from '~/trpc/server';
+import { api } from '~/trpc/server';
 
 export const ProtocolsTable = async () => {
-  const protocols = await trpc.protocol.get.all.query(undefined, {
+  const protocols = await api.protocol.get.all.query(undefined, {
     context: {
       revalidate: 0,
     },

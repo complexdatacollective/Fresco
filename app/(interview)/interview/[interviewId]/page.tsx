@@ -3,7 +3,7 @@ import Stage from '~/app/(interview)/interview/_components/Stage';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
-import { trpc } from '~/trpc/server';
+import { api } from '~/trpc/server';
 import { Button } from '~/components/ui/Button';
 
 export default async function Page({
@@ -16,7 +16,7 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const interview = await trpc.interview.get.byId.query(
+  const interview = await api.interview.get.byId.query(
     { id: interviewId },
     {
       context: {

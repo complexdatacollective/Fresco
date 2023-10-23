@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 import {
   AlertDialog,
@@ -16,9 +16,9 @@ import {
 
 export const DeleteAllParticipantsButton = () => {
   const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const utils = trpc.useContext();
+  const utils = api.useContext();
   const { mutate: deleteAllParticipants, isLoading } =
-    trpc.participant.delete.all.useMutation({
+    api.participant.delete.all.useMutation({
       async onSuccess() {
         await utils.participant.get.all.refetch();
         setShowAlertDialog(false);

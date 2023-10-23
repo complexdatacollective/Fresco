@@ -7,7 +7,7 @@ import {
   router,
 } from '../trpc';
 import { auth } from '~/utils/auth';
-import { trpc } from '~/trpc/server';
+import { api } from '~/trpc/server';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 
@@ -89,7 +89,7 @@ export const appSettingsRouter = router({
     if (userID) {
       // eslint-disable-next-line no-console
       console.info('Active user session found during reset. Invalidating...');
-      await trpc.session.signOut.mutate();
+      await api.session.signOut.mutate();
       await auth.invalidateAllUserSessions(userID);
     }
 
@@ -102,7 +102,7 @@ export const appSettingsRouter = router({
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
 
-    await trpc.appSettings.get.allappSettings.revalidate();
+    await api.appSettings.get.allappSettings.revalidate();
   }),
   setConfigured: publicProcedure.mutation(async () => {
     const { configured, initializedAt } = await getappSettings();
@@ -120,6 +120,6 @@ export const appSettingsRouter = router({
       },
     });
 
-    await trpc.appSettings.get.allappSettings.revalidate();
+    await api.appSettings.get.allappSettings.revalidate();
   }),
 });

@@ -5,7 +5,7 @@ import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
 import { type UserSignupData, userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
 import { useRouter } from 'next/navigation';
@@ -27,7 +27,7 @@ export const SignUpForm = ({
     mode: 'all',
   });
 
-  const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
+  const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
     onSuccess: (result) => {
       if (result.error) {
         const error = result.error;

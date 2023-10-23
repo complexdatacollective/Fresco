@@ -2,7 +2,7 @@
 import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
-import { trpc } from '../trpc/server';
+import { api } from '../trpc/server';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -10,14 +10,14 @@ export const metadata = {
 };
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await trpc.session.get.query(undefined, {
+  const session = await api.session.get.query(undefined, {
     context: {
       revalidate: 0,
     },
   });
 
   const { expired, configured } =
-    await trpc.appSettings.get.allappSettings.query(undefined, {
+    await api.appSettings.get.allappSettings.query(undefined, {
       context: {
         revalidate: 0,
       },

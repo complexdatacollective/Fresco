@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 import { useSession } from '~/providers/SessionPrivider';
 
@@ -11,7 +11,7 @@ const UserMenu = () => {
   const router = useRouter();
 
   const { mutate: doSignout, isLoading: isSigningOut } =
-    trpc.session.signOut.useMutation({
+    api.session.signOut.useMutation({
       onSuccess: () => {
         router.refresh();
       },

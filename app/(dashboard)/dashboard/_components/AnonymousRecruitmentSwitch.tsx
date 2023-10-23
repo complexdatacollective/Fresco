@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { Switch } from '~/components/ui/switch';
 
 const AnonymousRecruitmentSwitch = ({
@@ -9,16 +9,16 @@ const AnonymousRecruitmentSwitch = ({
 }: {
   initialData: boolean;
 }) => {
-  const utils = trpc.useContext();
+  const utils = api.useContext();
   const router = useRouter();
 
   const { data: allowAnonymousRecruitment } =
-    trpc.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
+    api.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
       initialData,
     });
 
   const { mutateAsync: updateAnonymousRecruitment } =
-    trpc.appSettings.updateAnonymousRecruitment.useMutation({
+    api.appSettings.updateAnonymousRecruitment.useMutation({
       async onMutate(newState: boolean) {
         await utils.appSettings.get.allowAnonymousRecruitment.cancel();
 

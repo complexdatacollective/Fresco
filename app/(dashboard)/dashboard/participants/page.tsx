@@ -1,8 +1,8 @@
 import { ParticipantsTable } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ParticipantsTable';
-import { trpc } from '~/trpc/server';
+import { api } from '~/trpc/server';
 
 const ParticipantPage = async () => {
-  const participants = await trpc.participant.get.all.query(undefined, {
+  const participants = await api.participant.get.all.query(undefined, {
     context: {
       revalidate: 0,
     },

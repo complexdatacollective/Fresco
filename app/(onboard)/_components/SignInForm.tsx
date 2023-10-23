@@ -6,7 +6,7 @@ import { userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
 import type { Route } from 'next';
 import useZodForm from '~/hooks/useZodForm';
@@ -31,10 +31,10 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
     schema: userFormSchema,
   });
 
-  const utils = trpc.useContext();
+  const utils = api.useContext();
   const router = useRouter();
 
-  const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
+  const { mutateAsync: signIn } = api.session.signIn.useMutation({
     onMutate: () => setLoading(true),
     onSuccess: async (result) => {
       if (result.error) {

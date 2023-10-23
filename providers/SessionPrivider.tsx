@@ -3,7 +3,7 @@
 import type { Session } from 'lucia';
 import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import usePrevious from '~/hooks/usePrevious';
 
 type SessionWithLoading = {
@@ -36,7 +36,7 @@ export const SessionProvider = ({
   const router = useRouter();
 
   const { refetch: getSession, isFetching: isLoading } =
-    trpc.session.get.useQuery(undefined, {
+    api.session.get.useQuery(undefined, {
       initialData: initialSession,
       onSuccess: (data: GetQueryReturn) => {
         if (data) {

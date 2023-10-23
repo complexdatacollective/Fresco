@@ -3,14 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { useRouter } from 'next/navigation';
 
 function Documentation() {
   const router = useRouter();
 
   const { mutate: setConfigured, isLoading } =
-    trpc.appSettings.setConfigured.useMutation({
+    api.appSettings.setConfigured.useMutation({
       onSuccess: () => {
         router.push('/dashboard');
         router.refresh();

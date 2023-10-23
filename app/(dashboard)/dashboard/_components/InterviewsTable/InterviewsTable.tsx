@@ -2,15 +2,15 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { type Interview } from '@prisma/client';
 
 type InterviewWithoutNetwork = Omit<Interview, 'network'>;
 
 export const InterviewsTable = () => {
-  const interviews = trpc.interview.get.all.useQuery();
+  const interviews = api.interview.get.all.useQuery();
 
-  const { mutateAsync: deleteInterviews } = trpc.interview.delete.useMutation({
+  const { mutateAsync: deleteInterviews } = api.interview.delete.useMutation({
     async onSuccess() {
       await interviews.refetch();
     },

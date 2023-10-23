@@ -3,13 +3,13 @@
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { trpc } from '~/trpc/client';
+import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { mutateAsync: resetConfigured } = trpc.appSettings.reset.useMutation();
+  const { mutateAsync: resetConfigured } = api.appSettings.reset.useMutation();
 
   const reset = async () => {
     setLoading(true);
