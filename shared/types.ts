@@ -6,4 +6,13 @@ const ProtocolWithInterviews = Prisma.validator<Prisma.ProtocolDefaultArgs>()({
 
 export type ProtocolWithInterviews = Prisma.ProtocolGetPayload<
   typeof ProtocolWithInterviews
+
+const participantWithInterviews =
+  Prisma.validator<Prisma.ParticipantDefaultArgs>()({
+    include: { interviews: true },
+  });
+
+export type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
+  typeof participantWithInterviews
+
 >;

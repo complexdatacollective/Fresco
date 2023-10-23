@@ -1,18 +1,9 @@
-'use client';
-
-import {
-  createContext,
-  useReducer,
-  useContext,
-  useEffect,
-  type PropsWithChildren,
-} from 'react';
+import { useReducer } from 'react';
 import type { NcEdge, NcNetwork, NcNode } from '@codaco/shared-consts';
 
 const initialState: NcNetwork = {
   nodes: [],
   edges: [],
-  ego: undefined,
 };
 
 type NetworkActionBase = {
@@ -105,96 +96,36 @@ function reducer(state: NcNetwork, action: NetworkAction): NcNetwork {
   }
 }
 
-const NetworkContext = createContext({
-  state: initialState,
-  dispatch: () => null,
-} as {
-  state: NcNetwork;
-  dispatch: (action: NetworkAction) => void;
-});
+const useNetwork = (initialNetwork = initialState) => {
+  const [network, dispatch] = useReducer(reducer, initialNetwork);
 
-type NetworkProviderProps = {
-  network: NcNetwork;
-  updateNetwork: (network: NcNetwork) => void;
+  const networkHandlers = {
+    addNode: (node: NcNode) => {
+      dispatch({ type: 'ADD_NODE', payload: node });
+    },
+
+    addEdge: (edge: NcEdge) => {
+      dispatch({ type: 'ADD_EDGE', payload: edge });
+    },
+
+    updateNode: (node: NcNode) => {
+      dispatch({ type: 'UPDATE_NODE', payload: node });
+    },
+
+    updateEdge: (edge: NcEdge) => {
+      dispatch({ type: 'UPDATE_EDGE', payload: edge });
+    },
+
+    deleteNode: (nodeId: string) => {
+      dispatch({ type: 'DELETE_NODE', payload: nodeId });
+    },
+
+    deleteEdge: (edgeId: string) => {
+      dispatch({ type: 'DELETE_EDGE', payload: edgeId });
+    },
+  };
+
+  return { network, networkHandlers };
 };
 
-function NetworkProvider({
-  network,
-  updateNetwork,
-  children,
-}: PropsWithChildren<NetworkProviderProps>) {
-  const [state, dispatch] = useReducer(reducer, network);
-
-  // When state changes, sync it with the server using react query
-  useEffect(() => {
-    updateNetwork(state);
-  }, [state, updateNetwork]);
-
-  return (
-    <NetworkContext.Provider value={{ state, dispatch }}>
-      {children}
-    </NetworkContext.Provider>
-  );
-}
-
-const useInterview = () => {
-  const { state, dispatch } = useContext(NetworkContext);
-
-  const addNode = (node: NcNode) => {
-    dispatch({ type: 'ADD_NODE', payload: node });
-  };
-
-  const addEdge = (edge: NcEdge) => {
-    dispatch({ type: 'ADD_EDGE', payload: edge });
-  };
-
-  const updateNode = (node: NcNode) => {
-    dispatch({ type: 'UPDATE_NODE', payload: node });
-  };
-
-  const updateEdge = (edge: NcEdge) => {
-    dispatch({ type: 'UPDATE_EDGE', payload: edge });
-  };
-
-  const deleteNode = (nodeId: string) => {
-    dispatch({ type: 'DELETE_NODE', payload: nodeId });
-  };
-
-  const deleteEdge = (edgeId: string) => {
-    dispatch({ type: 'DELETE_EDGE', payload: edgeId });
-  };
-
-  const nextPage = () => {
-    // ...
-  };
-
-  const previousPage = () => {
-    // ...
-  };
-
-  const hasNextPage = () => {
-    // ...
-    return true;
-  };
-
-  const hasPreviousPage = () => {
-    // ...
-    return true;
-  };
-
-  return {
-    network: state,
-    addNode,
-    addEdge,
-    updateNode,
-    updateEdge,
-    deleteNode,
-    deleteEdge,
-    nextPage,
-    previousPage,
-    hasNextPage,
-    hasPreviousPage,
-  };
-};
-
-export { NetworkContext, NetworkProvider, useInterview };
+export default useNetwork;

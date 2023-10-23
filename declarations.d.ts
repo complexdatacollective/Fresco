@@ -1,1 +1,1 @@
-declare module '@codaco/ui/*';
+

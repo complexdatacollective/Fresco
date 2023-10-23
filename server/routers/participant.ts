@@ -10,7 +10,9 @@ import {
 export const participantRouter = router({
   get: router({
     all: publicProcedure.query(async () => {
-      const participants = await prisma.participant.findMany();
+      const participants = await prisma.participant.findMany({
+        include: { interviews: true },
+      });
       return participants;
     }),
     byIdentifier: publicProcedure
