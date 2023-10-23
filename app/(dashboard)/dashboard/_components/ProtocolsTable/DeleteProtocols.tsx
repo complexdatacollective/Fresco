@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '~/components/ui/alert-dialog';
+} from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import type { ProtocolWithInterviews } from '~/shared/types';
 
