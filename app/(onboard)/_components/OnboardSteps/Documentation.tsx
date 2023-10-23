@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { useRouter } from 'next/navigation';
 
 function Documentation() {

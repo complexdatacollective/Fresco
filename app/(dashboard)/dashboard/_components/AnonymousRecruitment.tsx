@@ -1,4 +1,4 @@
-import { trpc } from '~/app/_trpc/server';
+import { trpc } from '~/trpc/server';
 import AnonymousRecruitmentSwitch from './AnonymousRecruitmentSwitch';
 
 const AnonymousRecruitment = async () => {

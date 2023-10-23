@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { trpc } from '~/app/_trpc/server';
+import { trpc } from '~/trpc/server';
 import { safeLoader } from '~/utils/safeLoader';
 
 const ParticipantValidation = z.array(

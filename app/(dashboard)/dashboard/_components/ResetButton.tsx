@@ -3,7 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 
 const ResetButton = () => {

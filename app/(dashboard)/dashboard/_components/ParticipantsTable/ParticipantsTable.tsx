@@ -2,7 +2,7 @@
 
 import { type Participant } from '@prisma/client';
 import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';

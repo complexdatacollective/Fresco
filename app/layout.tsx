@@ -2,7 +2,7 @@
 import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
-import { trpc } from './_trpc/server';
+import { trpc } from '../trpc/server';
 
 export const metadata = {
   title: 'Network Canvas Fresco',

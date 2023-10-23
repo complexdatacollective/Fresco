@@ -16,7 +16,7 @@ import {
 } from '~/components/ui/dialog';
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import type { Participant } from '@prisma/client';
 

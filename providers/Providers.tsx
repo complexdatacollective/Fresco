@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from 'react';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from '~/providers/SessionPrivider';
 import type { Session } from 'lucia';

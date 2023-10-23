@@ -3,7 +3,7 @@
 import type { Session } from 'lucia';
 import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import usePrevious from '~/hooks/usePrevious';
 
 type SessionWithLoading = {

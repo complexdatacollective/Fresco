@@ -36,7 +36,7 @@ import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 
 export default function ProtocolUploader({
   onUploaded,

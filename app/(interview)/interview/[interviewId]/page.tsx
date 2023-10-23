@@ -3,7 +3,7 @@ import Stage from '~/app/(interview)/interview/_components/Stage';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
-import { trpc } from '~/app/_trpc/server';
+import { trpc } from '~/trpc/server';
 import { Button } from '~/components/ui/Button';
 
 export default async function Page({

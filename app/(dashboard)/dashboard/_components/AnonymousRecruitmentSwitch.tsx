@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { Switch } from '~/components/ui/switch';
 
 const AnonymousRecruitmentSwitch = ({

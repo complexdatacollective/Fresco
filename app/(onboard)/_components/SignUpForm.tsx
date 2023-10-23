@@ -5,7 +5,7 @@ import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
 import { type UserSignupData, userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
 import { useRouter } from 'next/navigation';

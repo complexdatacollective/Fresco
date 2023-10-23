@@ -11,7 +11,7 @@ import { userFormClasses } from '../_shared';
 import { useSession } from '~/providers/SessionPrivider';
 import { useEffect } from 'react';
 import type { Route } from 'next';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 
 function OnboardWizard() {
   const { session } = useSession();

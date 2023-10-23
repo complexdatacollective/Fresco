@@ -2,7 +2,7 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import { type Interview } from '@prisma/client';
 
 type InterviewWithoutNetwork = Omit<Interview, 'network'>;

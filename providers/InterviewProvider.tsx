@@ -8,7 +8,7 @@ import type {
   Protocol,
   Stage,
 } from '@codaco/shared-consts';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import useNetwork from '../hooks/useNetwork';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
 

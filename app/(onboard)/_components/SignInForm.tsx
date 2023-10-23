@@ -6,7 +6,7 @@ import { userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { trpc } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
 import type { Route } from 'next';
 import useZodForm from '~/hooks/useZodForm';

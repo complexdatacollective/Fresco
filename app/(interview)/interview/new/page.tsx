@@ -4,7 +4,7 @@
  */
 
 import { redirect } from 'next/navigation';
-import { trpc } from '~/app/_trpc/server';
+import { trpc } from '~/trpc/server';
 import { faker } from '@faker-js/faker';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';

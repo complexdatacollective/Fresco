@@ -7,7 +7,7 @@ import {
   router,
 } from '../trpc';
 import { auth } from '~/utils/auth';
-import { trpc } from '~/app/_trpc/server';
+import { trpc } from '~/trpc/server';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 
