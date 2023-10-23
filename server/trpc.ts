@@ -2,9 +2,20 @@ import { TRPCError, initTRPC } from '@trpc/server';
 import type { createTRPCContext } from './context';
 import superjson from 'superjson';
 import { env } from '~/env.mjs';
+import { ZodError } from 'zod';
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError:
+          error.cause instanceof ZodError ? error.cause.flatten() : null,
+      },
+    };
+  },
 });
 
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
