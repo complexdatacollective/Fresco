@@ -2,7 +2,6 @@ import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import Image from 'next/image';
 import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
-import { Toaster } from '~/components/ui/toaster';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -20,7 +19,6 @@ export default function Layout({ children }: PropsWithChildren) {
             />
           </Link>
         </div>
-        <Toaster />
         <main className="flex flex-grow items-center justify-center">
           {children}
         </main>
