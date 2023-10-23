@@ -18,7 +18,7 @@ export default async function Page({
   };
 }) {
   // check if active protocol exists
-  const activeProtocol = await trpc.protocol.getActive.query();
+  const activeProtocol = await trpc.protocol.getCurrentlyActive.query();
   if (!activeProtocol) {
     return (
       <ErrorMessage

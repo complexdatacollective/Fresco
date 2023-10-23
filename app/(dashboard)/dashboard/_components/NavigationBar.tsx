@@ -52,7 +52,7 @@ export function NavigationBar() {
           Home
         </NavButton>
         <NavButton
-          href="/dashboard"
+          href="/dashboard/protocols"
           isActive={pathname === '/dashboard/protocols'}
         >
           Protocols
