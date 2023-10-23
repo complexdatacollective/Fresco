@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '~/components/ui/alert-dialog';
+} from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import type { ParticipantWithInterviews } from '~/shared/types';
 
@@ -52,7 +52,7 @@ export const DeleteParticipant = ({
             </strong>
           </AlertDialogDescription>
           {hasInterviews && !hasInterviewsNotYetExported && (
-            <Alert>
+            <Alert className="p-4">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
