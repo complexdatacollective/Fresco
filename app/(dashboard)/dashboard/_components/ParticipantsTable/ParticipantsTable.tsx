@@ -7,9 +7,19 @@ import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/Part
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
-import { DeleteParticipant } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
+import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 import type { ParticipantWithInterviews } from '~/shared/types';
-import { Button } from '~/components/ui/Button';
+import CopyButton from './CopyButton';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import { Settings } from 'lucide-react';
+import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
+import { DeleteAllParticipantsButton } from '../../participants/_components/DeleteAllParticipantsButton';
 
 export const ParticipantsTable = ({
   initialData,
@@ -19,12 +29,13 @@ export const ParticipantsTable = ({
   const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
     null,
   );
-  const [showModal, setShowModal] = useState(false);
-  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [showParticipantModal, setShowParticipantModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [participantsToDelete, setParticipantsToDelete] = useState<
     ParticipantWithInterviews[]
   >([]);
-  const [deleteAll, setDeleteAll] = useState(false);
+  const [hasInterviews, setHasInterviews] = useState(false);
+  const [hasUnexportedInterviews, setHasUnexportedInterviews] = useState(false);
 
   const {
     isLoading,
@@ -42,67 +53,118 @@ export const ParticipantsTable = ({
   const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
     trpc.participant.delete.byId.useMutation();
 
-  const { mutateAsync: deleteAllParticipants, isLoading: isDeletingAll } =
-    trpc.participant.delete.all.useMutation();
-
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
-    setShowModal(true);
+    setShowParticipantModal(true);
   };
 
   const handleDelete = (data: ParticipantWithInterviews[]) => {
-    setDeleteAll(false);
     setParticipantsToDelete(data);
-    setShowAlertDialog(true);
-  };
-
-  const handleDeleteAll = () => {
-    setDeleteAll(true);
-    setParticipantsToDelete(participants);
-    setShowAlertDialog(true);
+    setHasInterviews(
+      participantsToDelete.some(
+        (participant) => participant.interviews.length > 0,
+      ),
+    );
+    setHasUnexportedInterviews(
+      participantsToDelete.some((participant) =>
+        participant.interviews.some((interview) => !interview.exportTime),
+      ),
+    );
+    setShowDeleteModal(true);
   };
 
   const handleConfirm = async () => {
-    if (deleteAll) {
-      await deleteAllParticipants();
-      await refetch();
-    }
-
     // Delete selected participants
     await deleteParticipants(participantsToDelete.map((d) => d.identifier));
     await refetch();
-    setShowAlertDialog(false);
+    setShowDeleteModal(false);
   };
 
   return (
     <>
       <div className="flex gap-2">
         <ParticipantModal
-          open={showModal}
-          setOpen={setShowModal}
+          open={showParticipantModal}
+          setOpen={setShowParticipantModal}
           existingParticipants={participants}
           editingParticipant={seletedParticipant}
           setEditingParticipant={setSeletedParticipant}
         />
         <ImportCSVModal />
         <ExportCSVParticipants participants={participants} />
-        <Button onClick={handleDeleteAll} variant="destructive">
-          Delete All Participants
-        </Button>
+        <DeleteAllParticipantsButton />
       </div>
       {isLoading && <div>Loading...</div>}
       <DataTable
-        columns={ParticipantColumns(editParticipant, handleDelete)}
+        columns={ParticipantColumns()}
         data={participants}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
+        actions={[
+          {
+            id: 'actions',
+            header: () => (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Settings />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit or delete an individual participant.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ),
+            cell: ({ row }) => {
+              return (
+                <ActionsDropdown
+                  menuItems={[
+                    {
+                      label: 'Edit',
+                      row,
+                      component: (
+                        <DropdownMenuItem
+                          onClick={() => void editParticipant(row.original.id)}
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                      ),
+                    },
+                    {
+                      label: 'Delete',
+                      row,
+                      component: (
+                        <DropdownMenuItem
+                          onClick={() => void handleDelete([row.original])}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      ),
+                    },
+                    {
+                      label: 'Copy URL',
+                      row,
+                      component: (
+                        <CopyButton text={`/interview/${row.original.id}`}>
+                          Copy URL
+                        </CopyButton>
+                      ),
+                    },
+                  ]}
+                />
+              );
+            },
+          },
+        ]}
       />
-      <DeleteParticipant
-        open={showAlertDialog}
-        onCancel={() => setShowAlertDialog(false)}
+      <DeleteParticipantConfirmationDialog
+        open={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
         onConfirm={handleConfirm}
-        selectedParticipants={participantsToDelete}
-        isDeleting={deleteAll ? isDeletingAll : isDeleting}
+        numberOfParticipants={participantsToDelete.length}
+        hasInterviews={hasInterviews}
+        hasUnexportedInterviews={hasUnexportedInterviews}
+        isDeleting={isDeleting}
       />
     </>
   );

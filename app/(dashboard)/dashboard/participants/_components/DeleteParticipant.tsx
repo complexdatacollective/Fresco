@@ -10,31 +10,26 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import type { ParticipantWithInterviews } from '~/shared/types';
 
-interface DeleteParticipantProps {
+interface DeleteParticipantConfirmationDialog {
   open: boolean;
   onConfirm: () => Promise<void>;
   onCancel: () => void;
-  selectedParticipants: ParticipantWithInterviews[];
-  isDeleting: boolean;
+  numberOfParticipants?: number;
+  hasInterviews?: boolean;
+  hasUnexportedInterviews?: boolean;
+  isDeleting?: boolean;
 }
 
-export const DeleteParticipant = ({
+export const DeleteParticipantConfirmationDialog = ({
   open,
   onConfirm,
   onCancel,
-  selectedParticipants,
+  numberOfParticipants,
+  hasInterviews,
+  hasUnexportedInterviews,
   isDeleting,
-}: DeleteParticipantProps) => {
-  const hasInterviews = selectedParticipants.some(
-    (participant) => participant.interviews.length > 0,
-  );
-
-  const hasInterviewsNotYetExported = selectedParticipants.some((participant) =>
-    participant.interviews.some((interview) => !interview.exportTime),
-  );
-
+}: DeleteParticipantConfirmationDialog) => {
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent>
@@ -43,20 +38,20 @@ export const DeleteParticipant = ({
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{' '}
             <strong>
-              {selectedParticipants.length}{' '}
-              {selectedParticipants.length > 1 ? (
+              {numberOfParticipants}{' '}
+              {numberOfParticipants && numberOfParticipants > 1 ? (
                 <>participants.</>
               ) : (
                 <>participant.</>
               )}
             </strong>
           </AlertDialogDescription>
-          {hasInterviews && !hasInterviewsNotYetExported && (
+          {hasInterviews && !hasUnexportedInterviews && (
             <Alert className="p-4">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
-                {selectedParticipants.length > 1 ? (
+                {numberOfParticipants && numberOfParticipants > 1 ? (
                   <>
                     One or more of the selected participants have interview data
                     that will also be deleted.
@@ -70,15 +65,15 @@ export const DeleteParticipant = ({
               </AlertDescription>
             </Alert>
           )}
-          {hasInterviewsNotYetExported && (
+          {hasUnexportedInterviews && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
-                {selectedParticipants.length > 1 ? (
+                {numberOfParticipants && numberOfParticipants > 1 ? (
                   <>
                     One or more of the selected participants have interview data
-                    that <strong>has not yet been exported.</strong> Deleting
+                    that <strong> has not yet been exported.</strong> Deleting
                     these participants will also delete their interview data.
                   </>
                 ) : (

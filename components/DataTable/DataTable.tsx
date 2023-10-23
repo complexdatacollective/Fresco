@@ -28,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   filterColumnAccessorKey?: string;
   handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
+  actions?: ColumnDef<TData, TValue>[];
 }
 
 export function DataTable<TData, TValue>({
@@ -35,6 +36,7 @@ export function DataTable<TData, TValue>({
   data,
   handleDeleteSelected,
   filterColumnAccessorKey = '',
+  actions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -44,6 +46,10 @@ export function DataTable<TData, TValue>({
 
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
+  }
+
+  if (actions && actions.length > 0) {
+    columns = [...columns, ...actions];
   }
 
   const deleteHandler = async () => {
