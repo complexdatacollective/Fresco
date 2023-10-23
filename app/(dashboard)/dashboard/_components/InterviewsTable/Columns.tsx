@@ -121,7 +121,7 @@ export const InterviewColumns = (
     id: 'resume',
     enableSorting: false,
     enableHiding: false,
-    header: ({ column }) => {
+    header: () => {
       return (
         <Button variant="ghost" size="sm" className="h-8">
           <span>Resume</span>

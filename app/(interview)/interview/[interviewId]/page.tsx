@@ -1,4 +1,3 @@
-import { redirect, usePathname } from 'next/navigation';
 import { InterviewProvider } from '~/providers/InterviewProvider';
 import Stage from '~/app/(interview)/interview/_components/Stage';
 import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
