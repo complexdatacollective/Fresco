@@ -25,7 +25,11 @@ const formSchema = z.object({
   csvColumn: z.string().optional(),
 });
 
-const ImportCSVModal = ({ onUploaded }: { onUploaded?: () => void }) => {
+const ImportCSVModal = ({
+  onImportComplete,
+}: {
+  onImportComplete?: () => void;
+}) => {
   const { toast } = useToast();
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
   const utils = trpc.useContext();
@@ -129,9 +133,7 @@ const ImportCSVModal = ({ onUploaded }: { onUploaded?: () => void }) => {
       });
     }
 
-    if (typeof onUploaded === 'function') {
-      onUploaded();
-    }
+    onImportComplete?.();
 
     methods.reset();
     setShowImportDialog(false);
