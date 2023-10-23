@@ -41,7 +41,7 @@ function ManageParticipants() {
         </div>
         {participantsUploaded && <Check />}
         {!participantsUploaded && (
-          <ImportCSVModal onUploaded={handleParticipantsUploaded} />
+          <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
         )}
       </div>
       <AnonymousRecruitmentSwitch initialData={false} />
