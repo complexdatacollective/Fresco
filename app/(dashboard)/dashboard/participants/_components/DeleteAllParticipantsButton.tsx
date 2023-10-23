@@ -12,7 +12,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '~/components/ui/alert-dialog';
+} from '~/components/ui/AlertDialog';
 
 export const DeleteAllParticipantsButton = () => {
   const [showAlertDialog, setShowAlertDialog] = useState(false);

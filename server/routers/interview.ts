@@ -146,24 +146,7 @@ export const interviewRouter = router({
         return interview;
       }),
   }),
-  deleteSingle: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      }),
-    )
-    .mutation(async ({ input: { id } }) => {
-      try {
-        // eslint-disable-next-line local-rules/require-data-mapper
-        const deletedInterivew = await prisma.interview.delete({
-          where: { id },
-        });
-        return { error: null, interview: deletedInterivew };
-      } catch (error) {
-        return { error: 'Failed to delete interview', interview: null };
-      }
-    }),
-  deleteMany: protectedProcedure
+  delete: protectedProcedure
     .input(
       z.array(
         z.object({
