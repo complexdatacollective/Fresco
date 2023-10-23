@@ -3,6 +3,7 @@ import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { trpc } from './_trpc/server';
+import { Toaster } from '~/components/ui/toaster';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -32,6 +33,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           session={session}
         >
           <Providers initialSession={session}>{children}</Providers>
+          <Toaster />
         </RedirectWrapper>
       </body>
     </html>
