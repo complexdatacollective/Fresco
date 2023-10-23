@@ -1,7 +1,7 @@
 'use client';
 
-import { useInterview } from '~/providers/NetworkProvider';
-import Button from '@codaco/ui/lib/components/Button';
+import { useInterview } from '~/providers/InterviewProvider';
+import { Button } from '~/components/ui/Button';
 
 const InterviewNavigation = () => {
   const { nextPage, previousPage, hasNextPage, hasPreviousPage } =
@@ -10,10 +10,10 @@ const InterviewNavigation = () => {
   return (
     <div className="flex gap-10">
       <Button onClick={previousPage} disabled={!hasPreviousPage}>
-        Previous Page
+        Previous Stage
       </Button>
       <Button onClick={nextPage} disabled={!hasNextPage}>
-        Next Page
+        Next Stage
       </Button>
     </div>
   );

@@ -9,22 +9,15 @@ type InterviewWithoutNetwork = Omit<Interview, 'network'>;
 
 export const InterviewsTable = () => {
   const interviews = trpc.interview.get.all.useQuery();
-  const { mutateAsync: deleteInterview } =
-    trpc.interview.deleteSingle.useMutation({
-      async onSuccess() {
-        await interviews.refetch();
-      },
-    });
 
-  const { mutateAsync: deleteInterviews } =
-    trpc.interview.deleteMany.useMutation({
-      async onSuccess() {
-        await interviews.refetch();
-      },
-    });
+  const { mutateAsync: deleteInterviews } = trpc.interview.delete.useMutation({
+    async onSuccess() {
+      await interviews.refetch();
+    },
+  });
 
   const handleDelete = async (id: string) => {
-    const result = await deleteInterview({ id });
+    const result = await deleteInterviews([{ id }]);
     if (result.error) throw new Error(result.error);
   };
 
@@ -32,15 +25,13 @@ export const InterviewsTable = () => {
     return <div>Loading...</div>;
   }
 
-  const convertedData: InterviewWithoutNetwork[] = interviews.data.map(
-    (interview) => ({
-      ...interview,
-      startTime: new Date(interview.startTime),
-      finishTime: interview.finishTime ? new Date(interview.finishTime) : null,
-      exportTime: interview.exportTime ? new Date(interview.exportTime) : null,
-      lastUpdated: new Date(interview.lastUpdated),
-    }),
-  );
+  const convertedData = interviews.data.map((interview) => ({
+    ...interview,
+    startTime: new Date(interview.startTime),
+    finishTime: interview.finishTime ? new Date(interview.finishTime) : null,
+    exportTime: interview.exportTime ? new Date(interview.exportTime) : null,
+    lastUpdated: new Date(interview.lastUpdated),
+  }));
 
   return (
     <DataTable
