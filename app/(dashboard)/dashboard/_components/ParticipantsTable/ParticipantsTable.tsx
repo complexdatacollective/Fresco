@@ -9,12 +9,6 @@ import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_com
 import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import CopyButton from './CopyButton';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '~/components/ui/tooltip';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { Settings } from 'lucide-react';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
@@ -32,11 +26,15 @@ export const ParticipantsTable = ({
   );
   const [showParticipantModal, setShowParticipantModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [participantsToDelete, setParticipantsToDelete] = useState<
-    ParticipantWithInterviews[]
-  >([]);
-  const [hasInterviews, setHasInterviews] = useState(false);
-  const [hasUnexportedInterviews, setHasUnexportedInterviews] = useState(false);
+  const [deleteParticipantsInfo, setDeleteParticipantsInfo] = useState<{
+    participantsToDelete: ParticipantWithInterviews[];
+    hasInterviews: boolean;
+    hasUnexportedInterviews: boolean;
+  }>({
+    participantsToDelete: [],
+    hasInterviews: false,
+    hasUnexportedInterviews: false,
+  });
 
   const {
     isLoading,
@@ -60,24 +58,38 @@ export const ParticipantsTable = ({
   };
 
   const handleDelete = (data: ParticipantWithInterviews[]) => {
-    setParticipantsToDelete(data);
-    setHasInterviews(
-      participantsToDelete.some(
+    setDeleteParticipantsInfo({
+      participantsToDelete: data,
+      hasInterviews: data.some(
         (participant) => participant.interviews.length > 0,
       ),
-    );
-    setHasUnexportedInterviews(
-      participantsToDelete.some((participant) =>
+      hasUnexportedInterviews: data.some((participant) =>
         participant.interviews.some((interview) => !interview.exportTime),
       ),
-    );
+    });
     setShowDeleteModal(true);
   };
 
   const handleConfirm = async () => {
     // Delete selected participants
-    await deleteParticipants(participantsToDelete.map((d) => d.identifier));
+    await deleteParticipants(
+      deleteParticipantsInfo.participantsToDelete.map((d) => d.identifier),
+    );
     await refetch();
+    setDeleteParticipantsInfo({
+      participantsToDelete: [],
+      hasInterviews: false,
+      hasUnexportedInterviews: false,
+    });
+    setShowDeleteModal(false);
+  };
+
+  const handleCancelDialog = () => {
+    setDeleteParticipantsInfo({
+      participantsToDelete: [],
+      hasInterviews: false,
+      hasUnexportedInterviews: false,
+    });
     setShowDeleteModal(false);
   };
 
@@ -105,18 +117,7 @@ export const ParticipantsTable = ({
         actions={[
           {
             id: 'actions',
-            header: () => (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Settings />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit or delete an individual participant.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ),
+            header: () => <Settings />,
             cell: ({ row }) => {
               return (
                 <ActionsDropdown
@@ -163,11 +164,13 @@ export const ParticipantsTable = ({
       />
       <DeleteParticipantConfirmationDialog
         open={showDeleteModal}
-        onCancel={() => setShowDeleteModal(false)}
+        onCancel={handleCancelDialog}
         onConfirm={handleConfirm}
-        numberOfParticipants={participantsToDelete.length}
-        hasInterviews={hasInterviews}
-        hasUnexportedInterviews={hasUnexportedInterviews}
+        numberOfParticipants={
+          deleteParticipantsInfo.participantsToDelete.length
+        }
+        hasInterviews={deleteParticipantsInfo.hasInterviews}
+        hasUnexportedInterviews={deleteParticipantsInfo.hasUnexportedInterviews}
         isDeleting={isDeleting}
       />
     </>
