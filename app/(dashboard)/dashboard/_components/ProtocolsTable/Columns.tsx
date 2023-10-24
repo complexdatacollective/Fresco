@@ -1,25 +1,16 @@
 'use client';
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
-import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
+
 import { Checkbox } from '~/components/ui/checkbox';
-import { Settings } from 'lucide-react';
+
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '~/components/ui/tooltip';
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
 
 import type { ProtocolWithInterviews } from '~/shared/types';
 
-export const ProtocolColumns = (
-  handleDelete: (data: ProtocolWithInterviews[]) => void,
-): ColumnDef<ProtocolWithInterviews>[] => [
+export const ProtocolColumns = (): ColumnDef<ProtocolWithInterviews>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -109,40 +100,6 @@ export const ProtocolColumns = (
         <ActiveProtocolSwitch
           initialData={row.original.active}
           hash={row.original.hash}
-        />
-      );
-    },
-  },
-  {
-    id: 'actions',
-    header: () => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <Settings />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Delete an individual protocol.</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    ),
-    cell: ({ row }) => {
-      return (
-        <ActionsDropdown
-          menuItems={[
-            {
-              label: 'Delete',
-              row,
-              component: (
-                <DropdownMenuItem
-                  onClick={() => void handleDelete([row.original])}
-                >
-                  Delete
-                </DropdownMenuItem>
-              ),
-            },
-          ]}
         />
       );
     },

@@ -7,6 +7,9 @@ import { DeleteProtocol } from '~/app/(dashboard)/dashboard/_components/Protocol
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
+import { Settings } from 'lucide-react';
+import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
+import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 export const ProtocolsTable = ({
   initialData,
 }: {
@@ -28,19 +31,33 @@ export const ProtocolsTable = ({
   });
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const [protocolsToDelete, setProtocolsToDelete] = useState<
-    ProtocolWithInterviews[]
-  >([]);
+  const [deleteProtocolsInfo, setDeleteProtocolsInfo] = useState<{
+    protocolsToDelete: ProtocolWithInterviews[];
+    hasInterviews: boolean;
+    hasUnexportedInterviews: boolean;
+  }>({
+    protocolsToDelete: [],
+    hasInterviews: false,
+    hasUnexportedInterviews: false,
+  });
 
   const utils = trpc.useContext();
 
   const handleDelete = (data: ProtocolWithInterviews[]) => {
-    setProtocolsToDelete(data);
+    setDeleteProtocolsInfo({
+      protocolsToDelete: data,
+      hasInterviews: data.some((protocol) => protocol.interviews.length > 0),
+      hasUnexportedInterviews: data.some((protocol) =>
+        protocol.interviews.some((interview) => !interview.exportTime),
+      ),
+    });
     setShowAlertDialog(true);
   };
 
   const handleConfirm = async () => {
-    await deleteProtocols(protocolsToDelete.map((d) => d.hash));
+    await deleteProtocols(
+      deleteProtocolsInfo.protocolsToDelete.map((d) => d.hash),
+    );
     await refetch();
     setShowAlertDialog(false);
   };
@@ -54,17 +71,44 @@ export const ProtocolsTable = ({
       {isLoading && <div>Loading...</div>}
       <ImportProtocolModal onProtocolUploaded={handleUploaded} />
       <DataTable
-        columns={ProtocolColumns(handleDelete)}
+        columns={ProtocolColumns()}
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
+        actions={[
+          {
+            id: 'actions',
+            header: () => <Settings />,
+            cell: ({ row }) => {
+              return (
+                <ActionsDropdown
+                  menuItems={[
+                    {
+                      label: 'Delete',
+                      row,
+                      component: (
+                        <DropdownMenuItem
+                          onClick={() => void handleDelete([row.original])}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      ),
+                    },
+                  ]}
+                />
+              );
+            },
+          },
+        ]}
       />
       <DeleteProtocol
         open={showAlertDialog}
         onCancel={() => setShowAlertDialog(false)}
         onConfirm={handleConfirm}
-        selectedProtocols={protocolsToDelete}
+        selectedProtocols={deleteProtocolsInfo.protocolsToDelete}
         isDeleting={isDeleting}
+        hasInterviews={deleteProtocolsInfo.hasInterviews}
+        hasUnexportedInterviews={deleteProtocolsInfo.hasUnexportedInterviews}
       />
     </>
   );

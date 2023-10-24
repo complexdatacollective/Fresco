@@ -15,10 +15,10 @@ interface DeleteParticipantConfirmationDialog {
   open: boolean;
   onConfirm: () => Promise<void>;
   onCancel: () => void;
-  numberOfParticipants?: number;
-  hasInterviews?: boolean;
-  hasUnexportedInterviews?: boolean;
-  isDeleting?: boolean;
+  numberOfParticipants: number;
+  hasInterviews: boolean;
+  hasUnexportedInterviews: boolean;
+  isDeleting: boolean;
 }
 
 export const DeleteParticipantConfirmationDialog = ({

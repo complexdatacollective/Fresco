@@ -18,6 +18,8 @@ interface DeleteProtocolProps {
   onCancel: () => void;
   selectedProtocols: ProtocolWithInterviews[];
   isDeleting: boolean;
+  hasInterviews: boolean;
+  hasUnexportedInterviews?: boolean;
 }
 
 export const DeleteProtocol = ({
@@ -26,15 +28,9 @@ export const DeleteProtocol = ({
   onCancel,
   selectedProtocols,
   isDeleting,
+  hasInterviews,
+  hasUnexportedInterviews,
 }: DeleteProtocolProps) => {
-  const hasInterviews = selectedProtocols.some(
-    (protocol) => protocol.interviews.length > 0,
-  );
-
-  const hasInterviewsNotYetExported = selectedProtocols.some((protocol) =>
-    protocol.interviews.some((interview) => !interview.exportTime),
-  );
-
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent>
@@ -47,7 +43,7 @@ export const DeleteProtocol = ({
               {selectedProtocols.length > 1 ? <>protocols.</> : <>protocol.</>}
             </strong>
           </AlertDialogDescription>
-          {hasInterviews && !hasInterviewsNotYetExported && (
+          {hasInterviews && !hasUnexportedInterviews && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
@@ -66,7 +62,7 @@ export const DeleteProtocol = ({
               </AlertDescription>
             </Alert>
           )}
-          {hasInterviewsNotYetExported && (
+          {hasUnexportedInterviews && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
