@@ -6,7 +6,6 @@ import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
-import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import CopyButton from './CopyButton';
@@ -20,6 +19,8 @@ import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { Settings } from 'lucide-react';
 import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { DeleteAllParticipantsButton } from '../../participants/_components/DeleteAllParticipantsButton';
+import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
+import EditParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/EditParticipantModal';
 
 export const ParticipantsTable = ({
   initialData,
@@ -83,7 +84,8 @@ export const ParticipantsTable = ({
   return (
     <>
       <div className="flex gap-2">
-        <ParticipantModal
+        <AddParticipantButton existingParticipants={participants} />
+        <EditParticipantModal
           open={showParticipantModal}
           setOpen={setShowParticipantModal}
           existingParticipants={participants}
