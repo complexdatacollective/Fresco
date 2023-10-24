@@ -98,9 +98,5 @@ export const sessionRouter = router({
       success: true,
     };
   }),
-  get: publicProcedure.query(async (): Promise<Session | null> => {
-    const authRequest = auth.handleRequest('GET', context);
-    const session = await authRequest.validate();
-    return session;
-  }),
+  get: publicProcedure.query(({ ctx }) => ctx.session ?? null),
 });

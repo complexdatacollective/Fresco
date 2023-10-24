@@ -31,14 +31,13 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
     schema: userFormSchema,
   });
 
-  const utils = api.useContext();
   const router = useRouter();
 
   const { mutateAsync: signIn } = api.session.signIn.useMutation({
     onMutate: () => setLoading(true),
-    onSuccess: async (result) => {
+    onSuccess: (result) => {
       if (result.error) {
-        setLoading(false);
+        setLoading(false); // Only reset loading state on error, otherwise we are signing in...
         setResponseError({
           title: 'Sign in failed',
           description: result.error,
@@ -46,10 +45,8 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
       }
 
       if (result.session) {
-        await utils.session.get.refetch();
         if (callbackUrl) {
           router.replace(callbackUrl);
-          router.refresh();
         }
       }
     },
