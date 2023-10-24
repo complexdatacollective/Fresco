@@ -126,7 +126,9 @@ export const ParticipantsTable = ({
                       row,
                       component: (
                         <DropdownMenuItem
-                          onClick={() => void editParticipant(row.original.id)}
+                          onClick={() =>
+                            void editParticipant(row.original.identifier)
+                          }
                         >
                           Edit
                         </DropdownMenuItem>
