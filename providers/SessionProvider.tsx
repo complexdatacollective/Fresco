@@ -3,7 +3,7 @@
 import type { Session } from 'lucia';
 import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import usePrevious from '~/hooks/usePrevious';
 
 type SessionWithLoading = {
@@ -32,11 +32,14 @@ export const SessionProvider = ({
   session: Session | null;
 }) => {
   const [session, setSession] = useState<Session | null>(initialSession);
+
   const previousSession = usePrevious(session);
   const router = useRouter();
 
   const { refetch: getSession, isFetching: isLoading } =
-    trpc.session.get.useQuery(undefined, {
+    api.session.get.useQuery(undefined, {
+      refetchOnMount: false,
+      refetchOnWindowFocus: true,
       initialData: initialSession,
       onSuccess: (data: GetQueryReturn) => {
         if (data) {
@@ -47,13 +50,16 @@ export const SessionProvider = ({
       },
     });
 
-  // If initialSession is updated, update the session state and refetch
-  // client side.
+  // If we have an initial session, we don't need to fetch it again.
   useEffect(() => {
-    setSession(initialSession);
+    if (initialSession) {
+      return;
+    }
+
     getSession().catch((err) => {
       // eslint-disable-next-line no-console
       console.error(err);
+      setSession(null);
     });
   }, [initialSession, getSession]);
 

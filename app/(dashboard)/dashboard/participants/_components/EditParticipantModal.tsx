@@ -12,10 +12,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '~/components/ui/dialog';
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import type { Participant } from '@prisma/client';
 
@@ -27,7 +28,7 @@ interface ParticipantModalProps {
   existingParticipants: Participant[];
 }
 
-function EditParticipantModal({
+function ParticipantModal({
   open,
   setOpen,
   editingParticipant,
@@ -36,7 +37,7 @@ function EditParticipantModal({
 }: ParticipantModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const utils = trpc.useContext();
+  const utils = api.useContext();
 
   const formSchema = z
     .object({
@@ -53,8 +54,8 @@ function EditParticipantModal({
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
-  const { mutateAsync: updateParticipant } =
-    trpc.participant.update.useMutation({
+  const { mutateAsync: createParticipant } = api.participant.create.useMutation(
+    {
       onMutate() {
         setIsLoading(true);
       },
@@ -67,7 +68,25 @@ function EditParticipantModal({
       onSettled() {
         setIsLoading(false);
       },
-    });
+    },
+  );
+
+  const { mutateAsync: updateParticipant } = api.participant.update.useMutation(
+    {
+      onMutate() {
+        setIsLoading(true);
+      },
+      async onSuccess() {
+        await utils.participant.get.invalidate();
+      },
+      onError(error) {
+        setError(error.message);
+      },
+      onSettled() {
+        setIsLoading(false);
+      },
+    },
+  );
 
   const {
     register,
@@ -83,11 +102,19 @@ function EditParticipantModal({
   const onSubmit = async (data: ValidationSchema) => {
     setError(null);
 
+    // If we are editing a participant, update the identifier.
     if (editingParticipant) {
       await updateParticipant({
         identifier: editingParticipant,
         newIdentifier: data.identifier,
       });
+    } else {
+      const { error } = await createParticipant([data.identifier]);
+
+      if (error) {
+        setError(error);
+        return;
+      }
     }
 
     await utils.participant.get.invalidate();
@@ -115,11 +142,15 @@ function EditParticipantModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button>Add Participant</Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Participant</DialogTitle>
+          <DialogTitle>Add Participant</DialogTitle>
           <DialogDescription>
-            Edit participant identifier below.
+            Fresco requires a participant identifier to create a participant.
+            Enter one below.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -145,7 +176,7 @@ function EditParticipantModal({
         <DialogFooter>
           <Button form="participant-form" type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Update
+            {editingParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -153,4 +184,4 @@ function EditParticipantModal({
   );
 }
 
-export default EditParticipantModal;
+export default ParticipantModal;

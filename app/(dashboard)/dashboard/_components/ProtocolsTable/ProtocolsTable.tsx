@@ -2,7 +2,7 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ProtocolColumns } from './Columns';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { DeleteProtocol } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/DeleteProtocols';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
@@ -16,12 +16,12 @@ export const ProtocolsTable = ({
   initialData: ProtocolWithInterviews[];
 }) => {
   const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
-    trpc.protocol.delete.byHash.useMutation();
+    api.protocol.delete.byHash.useMutation();
   const {
     isLoading,
     refetch,
     data: protocols,
-  } = trpc.protocol.get.all.useQuery(undefined, {
+  } = api.protocol.get.all.useQuery(undefined, {
     initialData,
     refetchOnMount: false,
     onError(error) {
@@ -41,7 +41,7 @@ export const ProtocolsTable = ({
     hasUnexportedInterviews: false,
   });
 
-  const utils = trpc.useContext();
+  const utils = api.useContext();
 
   const handleDelete = (data: ProtocolWithInterviews[]) => {
     setDeleteProtocolsInfo({

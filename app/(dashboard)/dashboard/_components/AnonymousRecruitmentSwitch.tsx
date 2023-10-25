@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { Switch } from '~/components/ui/switch';
 
 const AnonymousRecruitmentSwitch = ({
@@ -9,16 +8,15 @@ const AnonymousRecruitmentSwitch = ({
 }: {
   initialData: boolean;
 }) => {
-  const utils = trpc.useContext();
-  const router = useRouter();
+  const utils = api.useUtils();
 
   const { data: allowAnonymousRecruitment } =
-    trpc.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
+    api.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
       initialData,
     });
 
   const { mutateAsync: updateAnonymousRecruitment } =
-    trpc.appSettings.updateAnonymousRecruitment.useMutation({
+    api.appSettings.updateAnonymousRecruitment.useMutation({
       async onMutate(newState: boolean) {
         await utils.appSettings.get.allowAnonymousRecruitment.cancel();
 
@@ -39,9 +37,6 @@ const AnonymousRecruitmentSwitch = ({
         );
         // eslint-disable-next-line no-console
         console.error(err);
-      },
-      onSuccess: () => {
-        router.refresh(); // This causes the server component to provide the correct value on initial render
       },
     });
 

@@ -6,6 +6,7 @@ import * as context from 'next/headers';
 import { nextjs_future } from 'lucia/middleware';
 import { env } from '~/env.mjs';
 import type { User } from '@prisma/client';
+import { cache } from 'react';
 
 export const auth = lucia({
   env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
@@ -19,15 +20,14 @@ export const auth = lucia({
     };
   },
   adapter: prismaAdapter(client),
-  // experimental: {
-  //   debugMode: env.NODE_ENV !== 'production',
-  // },
+  experimental: {
+    debugMode: env.NODE_ENV !== 'production',
+  },
 });
 
 export type Auth = typeof auth;
 
-export const getPageSession = () => {
+export const getServerSession = cache(() => {
   const authRequest = auth.handleRequest('GET', context);
-
   return authRequest.validate();
-};
+});

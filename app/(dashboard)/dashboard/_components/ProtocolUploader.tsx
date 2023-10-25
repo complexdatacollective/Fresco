@@ -20,7 +20,7 @@ import {
 import type { UploadFileResponse } from 'uploadthing/client';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 
 export default function ProtocolUploader({
   onUploaded,
@@ -35,7 +35,7 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
-  const utils = trpc.useContext();
+  const utils = api.useContext();
 
   const handleUploadComplete = async (
     res: UploadFileResponse[] | undefined,
@@ -127,14 +127,12 @@ export default function ProtocolUploader({
   });
 
   function handleFinishImport() {
-    if (typeof onUploaded === 'function') {
-      onUploaded();
-    }
+    onUploaded?.();
     setOpen(false);
   }
 
   const { data: lastUploadedProtocol } =
-    trpc.protocol.get.lastUploaded.useQuery();
+    api.protocol.get.lastUploaded.useQuery();
 
   return (
     <>

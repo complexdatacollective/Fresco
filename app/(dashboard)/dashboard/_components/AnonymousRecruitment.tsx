@@ -1,9 +1,9 @@
-import { trpc } from '~/app/_trpc/server';
+import { api } from '~/trpc/server';
 import AnonymousRecruitmentSwitch from './AnonymousRecruitmentSwitch';
 
 const AnonymousRecruitment = async () => {
   const allowAnonymousRecruitment =
-    await trpc.appSettings.get.allowAnonymousRecruitment.query(undefined, {
+    await api.appSettings.get.allowAnonymousRecruitment.query(undefined, {
       context: {
         revalidate: 0,
       },

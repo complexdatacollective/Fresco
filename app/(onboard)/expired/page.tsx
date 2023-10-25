@@ -3,18 +3,20 @@
 import { env } from '~/env.mjs';
 import { userFormClasses } from '../_shared';
 import { Button } from '~/components/ui/Button';
-import { useRouter } from 'next/navigation';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { Loader2 } from 'lucide-react';
 
 export default function Page() {
-  const router = useRouter();
-  const { mutate: resetExpired, isLoading } =
-    trpc.appSettings.reset.useMutation({
-      onSuccess: () => {
-        router.refresh();
+  const utils = api.useUtils();
+  const { mutate: resetExpired, isLoading } = api.appSettings.reset.useMutation(
+    {
+      onSuccess: async () => {
+        await utils.appSettings.get.allappSettings.refetch();
+
+        window.location.replace('/setup');
       },
-    });
+    },
+  );
 
   return (
     <div className={userFormClasses}>
