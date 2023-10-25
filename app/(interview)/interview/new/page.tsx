@@ -4,7 +4,7 @@
  */
 
 import { redirect } from 'next/navigation';
-import { trpc } from '~/app/_trpc/server';
+import { api } from '~/trpc/server';
 import { faker } from '@faker-js/faker';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';
@@ -18,7 +18,7 @@ export default async function Page({
   };
 }) {
   // check if active protocol exists
-  const activeProtocol = await trpc.protocol.getActive.query();
+  const activeProtocol = await api.protocol.getActive.query();
   if (!activeProtocol) {
     return (
       <ErrorMessage
@@ -30,7 +30,7 @@ export default async function Page({
   }
   // check if anonymous recruitment is enabled
   const allowAnonymousRecruitment =
-    await trpc.appSettings.get.allowAnonymousRecruitment.query(undefined, {
+    await api.appSettings.get.allowAnonymousRecruitment.query(undefined, {
       context: {
         revalidate: 0,
       },
@@ -65,7 +65,7 @@ export default async function Page({
 
   // Create the interview
   const { createdInterview, error, errorType } =
-    await trpc.interview.create.mutate(identifier);
+    await api.interview.create.mutate(identifier);
 
   if (error || !createdInterview) {
     return (

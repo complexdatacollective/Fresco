@@ -5,10 +5,9 @@ import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
 import { type UserSignupData, userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
-import { useRouter } from 'next/navigation';
 
 export const SignUpForm = ({
   completeCallback,
@@ -16,7 +15,7 @@ export const SignUpForm = ({
   completeCallback?: () => void;
 }) => {
   const [signupError, setSignupError] = useState<string | null>(null);
-  const router = useRouter();
+  const utils = api.useUtils();
 
   const {
     register,
@@ -27,8 +26,8 @@ export const SignUpForm = ({
     mode: 'all',
   });
 
-  const { mutateAsync: signUp, isLoading } = trpc.session.signUp.useMutation({
-    onSuccess: (result) => {
+  const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
+    onSuccess: async (result) => {
       if (result.error) {
         const error = result.error;
         setSignupError(error);
@@ -36,7 +35,11 @@ export const SignUpForm = ({
       }
 
       if (result.user) {
-        router.refresh();
+        // We got a user, so the auth cookie was set. Trigger a refresh of the
+        // session provider. This is so that the OnboardWizard can redirect to
+        // the next step.
+        await utils.session.get.refetch();
+
         completeCallback?.();
       }
     },

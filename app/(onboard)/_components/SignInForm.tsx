@@ -4,9 +4,8 @@ import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
 import type { Route } from 'next';
 import useZodForm from '~/hooks/useZodForm';
@@ -31,14 +30,11 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
     schema: userFormSchema,
   });
 
-  const utils = trpc.useContext();
-  const router = useRouter();
-
-  const { mutateAsync: signIn } = trpc.session.signIn.useMutation({
+  const { mutateAsync: signIn } = api.session.signIn.useMutation({
     onMutate: () => setLoading(true),
-    onSuccess: async (result) => {
+    onSuccess: (result) => {
       if (result.error) {
-        setLoading(false);
+        setLoading(false); // Only reset loading state on error, otherwise we are signing in...
         setResponseError({
           title: 'Sign in failed',
           description: result.error,
@@ -46,10 +42,9 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
       }
 
       if (result.session) {
-        await utils.session.get.refetch();
         if (callbackUrl) {
-          router.replace(callbackUrl);
-          router.refresh();
+          window.location.replace(callbackUrl);
+          // router.replace(callbackUrl);
         }
       }
     },

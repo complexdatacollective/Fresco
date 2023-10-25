@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { trpc } from '~/app/_trpc/server';
+import { api } from '~/trpc/server';
 import { safeLoader } from '~/utils/safeLoader';
 
 const ParticipantValidation = z.array(
@@ -12,5 +12,5 @@ const ParticipantValidation = z.array(
 export const safeLoadParticipants = () =>
   safeLoader({
     outputValidation: ParticipantValidation,
-    loader: () => trpc.participant.get.all.query(),
+    loader: () => api.participant.get.all.query(),
   });

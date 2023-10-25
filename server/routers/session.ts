@@ -1,9 +1,32 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { LuciaError, type Session } from 'lucia';
+import { LuciaError } from 'lucia';
 import { userFormSchema } from '~/app/(onboard)/_shared';
 import { auth } from '~/utils/auth';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 import * as context from 'next/headers';
+import type { inferAsyncReturnType } from '@trpc/server';
+import type { createTRPCContext } from '../context';
+
+type Context = inferAsyncReturnType<typeof createTRPCContext>;
+
+export const signOutProc = async ({ ctx }: { ctx: Context }) => {
+  const { session } = ctx;
+
+  if (!session) {
+    return {
+      success: false,
+    };
+  }
+
+  const authRequest = auth.handleRequest('POST', context);
+  await auth.invalidateSession(session.sessionId);
+
+  authRequest.setSession(null);
+
+  return {
+    success: true,
+  };
+};
 
 export const sessionRouter = router({
   signUp: publicProcedure.input(userFormSchema).mutation(async ({ input }) => {
@@ -86,21 +109,6 @@ export const sessionRouter = router({
       };
     }
   }),
-  signOut: protectedProcedure.mutation(async ({ ctx }) => {
-    const { session } = ctx;
-
-    const authRequest = auth.handleRequest('POST', context);
-    await auth.invalidateSession(session.sessionId);
-
-    authRequest.setSession(null);
-
-    return {
-      success: true,
-    };
-  }),
-  get: publicProcedure.query(async (): Promise<Session | null> => {
-    const authRequest = auth.handleRequest('GET', context);
-    const session = await authRequest.validate();
-    return session;
-  }),
+  signOut: protectedProcedure.mutation(signOutProc),
+  get: publicProcedure.query(({ ctx }) => ctx.session ?? null),
 });

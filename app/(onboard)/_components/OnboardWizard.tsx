@@ -8,10 +8,10 @@ import { cn } from '~/utils/shadcn';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
-import { useSession } from '~/providers/SessionPrivider';
+import { useSession } from '~/providers/SessionProvider';
 import { useEffect } from 'react';
 import type { Route } from 'next';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 
 function OnboardWizard() {
   const { session } = useSession();
@@ -21,7 +21,7 @@ function OnboardWizard() {
   const step = searchParams.get('step');
   const stepInt = parseInt(step ?? '1', 10);
 
-  const { data: expired } = trpc.appSettings.get.expired.useQuery(undefined, {
+  const { data: expired } = api.appSettings.get.expired.useQuery(undefined, {
     refetchInterval: 1000 * 10,
   });
 

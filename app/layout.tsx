@@ -2,7 +2,8 @@
 import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
-import { trpc } from './_trpc/server';
+import { getServerSession } from '~/utils/auth';
+import { api } from '~/trpc/server';
 import { Toaster } from '~/components/ui/toaster';
 
 export const metadata = {
@@ -10,19 +11,15 @@ export const metadata = {
   description: 'Fresco.',
 };
 
-async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await trpc.session.get.query(undefined, {
-    context: {
-      revalidate: 0,
-    },
-  });
+export const revalidate = false;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-  const { expired, configured } =
-    await trpc.appSettings.get.allappSettings.query(undefined, {
-      context: {
-        revalidate: 0,
-      },
-    });
+async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession();
+
+  const { configured, expired } =
+    await api.appSettings.get.allappSettings.query();
 
   return (
     <html lang="en">

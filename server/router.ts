@@ -1,4 +1,4 @@
-import { appSettingsRouter } from './routers/settings';
+import { appSettingsRouter } from './routers/appSettings';
 import { sessionRouter } from './routers/session';
 import { interviewRouter } from './routers/interview';
 import { protocolRouter } from '~/server/routers/protocol';

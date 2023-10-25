@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -32,9 +32,9 @@ const ImportCSVModal = ({
 }) => {
   const { toast } = useToast();
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
-  const utils = trpc.useContext();
+  const utils = api.useContext();
   const { mutateAsync: importParticipants } =
-    trpc.participant.create.useMutation();
+    api.participant.create.useMutation();
   const isSubmitting = methods.formState.isSubmitting;
   const [showImportDialog, setShowImportDialog] = useState(false);
   const selectedCSV = methods.watch('csvFile');
