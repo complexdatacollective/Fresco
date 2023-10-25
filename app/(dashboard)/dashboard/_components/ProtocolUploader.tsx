@@ -35,7 +35,7 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const handleUploadComplete = async (
     res: UploadFileResponse[] | undefined,

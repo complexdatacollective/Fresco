@@ -28,7 +28,7 @@ function AddParticipantButton({
   const [isOpen, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const formSchema = z
     .object({
