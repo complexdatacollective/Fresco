@@ -28,7 +28,7 @@ export const ActionsDropdown = ({
   );
   const [showParticipantModal, setShowParticipantModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [participantsToDelete, setParticipantsToDelete] =
+  const [participantToDelete, setParticipantToDelete] =
     useState<ParticipantWithInterviews[]>();
 
   const editParticipant = (identifier: string) => {
@@ -36,8 +36,8 @@ export const ActionsDropdown = ({
     setShowParticipantModal(true);
   };
 
-  const handleDelete = (data: ParticipantWithInterviews[]) => {
-    setParticipantsToDelete(data);
+  const handleDelete = (data: ParticipantWithInterviews) => {
+    setParticipantToDelete([data]);
     setShowDeleteModal(true);
   };
 
@@ -53,7 +53,7 @@ export const ActionsDropdown = ({
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        participantsToDelete={participantsToDelete || []}
+        participantsToDelete={participantToDelete || []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -69,7 +69,7 @@ export const ActionsDropdown = ({
           >
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleDelete([row.original])}>
+          <DropdownMenuItem onClick={() => handleDelete(row.original)}>
             Delete
           </DropdownMenuItem>
 

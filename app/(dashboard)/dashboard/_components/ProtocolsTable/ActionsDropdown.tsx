@@ -20,11 +20,11 @@ export const ActionsDropdown = ({
   row: Row<ProtocolWithInterviews>;
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [protocolsToDelete, setProtocolsToDelete] =
+  const [protocolToDelete, setProtocolToDelete] =
     useState<ProtocolWithInterviews[]>();
 
-  const handleDelete = (data: ProtocolWithInterviews[]) => {
-    setProtocolsToDelete(data);
+  const handleDelete = (data: ProtocolWithInterviews) => {
+    setProtocolToDelete([data]);
     setShowDeleteModal(true);
   };
 
@@ -33,7 +33,7 @@ export const ActionsDropdown = ({
       <DeleteProtocolsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        protocolsToDelete={protocolsToDelete || []}
+        protocolsToDelete={protocolToDelete || []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -44,7 +44,7 @@ export const ActionsDropdown = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleDelete([row.original])}>
+          <DropdownMenuItem onClick={() => handleDelete(row.original)}>
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
