@@ -36,7 +36,7 @@ import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 
 export default function ProtocolUploader({
   onUploaded,
@@ -51,7 +51,7 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
-  const { mutate: setActive } = trpc.protocol.setActive.useMutation({
+  const { mutate: setActive } = api.protocol.setActive.useMutation({
     onSuccess: () => {
       setOpen(false);
     },
@@ -163,9 +163,7 @@ export default function ProtocolUploader({
 
   function onSubmit(data: z.infer<typeof ActivateProtocolFormSchema>) {
     setActive({ setActive: data.mark_protocol_active });
-    if (typeof onUploaded === 'function') {
-      onUploaded();
-    }
+    onUploaded?.();
   }
 
   return (

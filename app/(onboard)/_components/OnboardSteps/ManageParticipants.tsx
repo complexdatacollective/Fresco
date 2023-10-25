@@ -1,10 +1,10 @@
 import { Check } from 'lucide-react';
 import { useState } from 'react';
-import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AnonymousRecruitmentSwitch from '~/app/(dashboard)/dashboard/_components/AnonymousRecruitmentSwitch';
 import type { Route } from 'next';
+import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 
 function ManageParticipants() {
   const pathname = usePathname() as Route;
@@ -15,7 +15,6 @@ function ManageParticipants() {
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
-    // will be replaced with participants uplodaing handling participants upload
   };
 
   const handleNextStep = () => {
@@ -33,19 +32,16 @@ function ManageParticipants() {
           configured later from the dashboard.
         </p>
       </div>
-      <div className="mb-4">
-        <div className="flex justify-between">
-          <div>
-            <h3 className="font-bold">Upload Participants</h3>
-            <p className="text-sm text-gray-600">
-              Upload a CSV file of participants.
-            </p>
-          </div>
-          {participantsUploaded && <Check />}
+      <div className="mb-4 flex justify-between">
+        <div>
+          <h3 className="font-bold">Import Participants</h3>
+          <p className="text-sm text-gray-600">
+            Upload a CSV file of participants.
+          </p>
         </div>
-        {!participantsUploaded && <ProtocolUploader />}
+        {participantsUploaded && <Check />}
         {!participantsUploaded && (
-          <button onClick={handleParticipantsUploaded}>Confirm Uploaded</button>
+          <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
         )}
       </div>
       <AnonymousRecruitmentSwitch initialData={false} />

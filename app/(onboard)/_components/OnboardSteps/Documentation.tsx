@@ -3,24 +3,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { trpc } from '~/app/_trpc/client';
-import { useRouter } from 'next/navigation';
+import { api } from '~/trpc/client';
+import { useState } from 'react';
 
 function Documentation() {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const { mutate: setConfigured } = api.appSettings.setConfigured.useMutation({
+    onMutate: () => {
+      setLoading(true);
+    },
+    onSuccess: () => {
+      window.location.replace('/dashboard');
+    },
+    onError: (error) => {
+      setLoading(false);
+      throw new Error(error.message);
+    },
+  });
 
-  const { mutate: setConfigured, isLoading } =
-    trpc.appSettings.setConfigured.useMutation({
-      onSuccess: () => {
-        router.push('/dashboard');
-        router.refresh();
-      },
-      onError: (error) => {
-        throw new Error(error.message);
-      },
-    });
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex w-[30rem] items-center justify-center">
         <div className="flex flex-col items-center justify-center gap-4">

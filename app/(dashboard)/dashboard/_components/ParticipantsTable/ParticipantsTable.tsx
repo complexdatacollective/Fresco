@@ -2,7 +2,7 @@
 
 import { type Participant } from '@prisma/client';
 import { useState } from 'react';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
@@ -24,7 +24,7 @@ export const ParticipantsTable = ({
     isLoading,
     refetch,
     data: participants,
-  } = trpc.participant.get.all.useQuery(undefined, {
+  } = api.participant.get.all.useQuery(undefined, {
     initialData,
     refetchOnMount: false,
     onError(error) {
@@ -35,7 +35,7 @@ export const ParticipantsTable = ({
   });
 
   const { mutateAsync: deleteParticipants } =
-    trpc.participant.delete.byId.useMutation({
+    api.participant.delete.byId.useMutation({
       async onSuccess() {
         await refetch();
       },

@@ -1,5 +1,5 @@
 import { createUploadthing, type FileRouter } from 'uploadthing/next';
-import { getDefaultSession } from '~/server/context';
+import { getServerSession } from '~/utils/auth';
 
 const f = createUploadthing();
 
@@ -11,7 +11,7 @@ export const ourFileRouter = {
   })
     // Set permissions and file types for this FileRoute
     .middleware(async () => {
-      const session = await getDefaultSession();
+      const session = await getServerSession();
       if (!session?.user) {
         throw new Error('Unauthorized');
       }
