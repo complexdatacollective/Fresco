@@ -98,9 +98,6 @@ dependencies:
   '@trpc/server':
     specifier: ^10.41.0
     version: 10.41.0
-  '@types/validator':
-    specifier: ^13.11.5
-    version: 13.11.5
   '@uploadthing/react':
     specifier: ^5.7.0
     version: 5.7.0(next@13.5.6)(react@18.2.0)(uploadthing@5.7.2)(zod@3.22.4)
@@ -241,6 +238,9 @@ devDependencies:
   '@types/uuid':
     specifier: ^9.0.6
     version: 9.0.6
+  '@types/validator':
+    specifier: ^13.11.5
+    version: 13.11.5
   '@typescript-eslint/eslint-plugin':
     specifier: ^6.9.0
     version: 6.9.0(@typescript-eslint/parser@6.9.0)(eslint@8.52.0)(typescript@5.2.2)
@@ -5296,7 +5296,7 @@ packages:
 
   /@types/validator@13.11.5:
     resolution: {integrity: sha512-xW4qsT4UIYILu+7ZrBnfQdBYniZrMLYYK3wN9M/NdeIHgBN5pZI2/8Q7UfdWIcr5RLJv/OGENsx91JIpUUoC7Q==}
-    dev: false
+    dev: true
 
   /@types/yargs-parser@21.0.2:
     resolution: {integrity: sha512-5qcvofLPbfjmBfKaLfj/+f+Sbd6pN4zl7w7VSVI5uz7m9QZTuB2aZAa2uo1wHFBNN2x6g/SoTkXmd8mQnQF2Cw==}
