@@ -13,6 +13,7 @@ export const metadata = {
 
 export const revalidate = false;
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
