@@ -4,6 +4,7 @@ import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { getServerSession } from '~/utils/auth';
 import { api } from '~/trpc/server';
+import { Toaster } from '~/components/ui/toaster';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -28,6 +29,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           session={session}
         >
           <Providers initialSession={session}>{children}</Providers>
+          <Toaster />
         </RedirectWrapper>
       </body>
     </html>
