@@ -10,56 +10,51 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import type { ProtocolWithInterviews } from '~/shared/types';
+import { useEffect, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { api } from '~/trpc/client';
-import type { ParticipantWithInterviews } from '~/shared/types';
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
-interface DeleteParticipantsDialog {
+interface DeleteProtocolsDialogProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  participantsToDelete: ParticipantWithInterviews[];
+  protocolsToDelete: ProtocolWithInterviews[];
 }
 
-export const DeleteParticipantsDialog = ({
+export const DeleteProtocolsDialog = ({
   open,
   setOpen,
-  participantsToDelete,
-}: DeleteParticipantsDialog) => {
-  const [particpantsInfo, setParticipantsInfo] = useState<{
+  protocolsToDelete,
+}: DeleteProtocolsDialogProps) => {
+  const [protocolsInfo, setProtocolsInfo] = useState<{
     hasInterviews: boolean;
     hasUnexportedInterviews: boolean;
   }>({
     hasInterviews: false,
     hasUnexportedInterviews: false,
   });
-
   useEffect(() => {
-    setParticipantsInfo({
-      hasInterviews: participantsToDelete?.some(
-        (participant) => participant.interviews.length > 0,
+    setProtocolsInfo({
+      hasInterviews: protocolsToDelete?.some(
+        (protocol) => protocol.interviews.length > 0,
       ),
-      hasUnexportedInterviews: participantsToDelete?.some((participant) =>
-        participant.interviews.some((interview) => !interview.exportTime),
+      hasUnexportedInterviews: protocolsToDelete?.some((protocol) =>
+        protocol.interviews.some((interview) => !interview.exportTime),
       ),
     });
-  }, [participantsToDelete]);
-  const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
-    api.participant.delete.byId.useMutation();
-  const utils = api.useUtils();
+  }, [protocolsToDelete]);
+  const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
+    api.protocol.delete.byHash.useMutation();
 
+  const utils = api.useUtils();
   const handleConfirm = async () => {
-    // Delete selected participants
-    await deleteParticipants(participantsToDelete.map((d) => d.identifier));
-    await utils.participant.get.all.refetch();
-    setParticipantsInfo({
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
+    await deleteProtocols(protocolsToDelete.map((d) => d.hash));
+    await utils.protocol.get.all.refetch();
     setOpen(false);
   };
 
   const handleCancelDialog = () => {
-    setParticipantsInfo({
+    setProtocolsInfo({
       hasInterviews: false,
       hasUnexportedInterviews: false,
     });
@@ -74,50 +69,46 @@ export const DeleteParticipantsDialog = ({
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{' '}
             <strong>
-              {participantsToDelete.length}{' '}
-              {participantsToDelete.length > 1 ? (
-                <>participants.</>
-              ) : (
-                <>participant.</>
-              )}
+              {protocolsToDelete.length}{' '}
+              {protocolsToDelete.length > 1 ? <>protocols.</> : <>protocol.</>}
             </strong>
           </AlertDialogDescription>
-          {particpantsInfo.hasInterviews &&
-            !particpantsInfo.hasUnexportedInterviews && (
-              <Alert className="p-4">
+          {protocolsInfo.hasInterviews &&
+            !protocolsInfo.hasUnexportedInterviews && (
+              <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Warning</AlertTitle>
                 <AlertDescription>
-                  {participantsToDelete.length > 1 ? (
+                  {protocolsToDelete.length > 1 ? (
                     <>
-                      One or more of the selected participants have interview
-                      data that will also be deleted.
+                      One or more of the selected protocols have interview data
+                      that will also be deleted.
                     </>
                   ) : (
                     <>
-                      The selected participant has interview data that will also
-                      be deleted.
+                      The selected protocol has interview data that will also be
+                      deleted.
                     </>
                   )}
                 </AlertDescription>
               </Alert>
             )}
-          {particpantsInfo.hasUnexportedInterviews && (
+          {protocolsInfo.hasUnexportedInterviews && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
-                {participantsToDelete.length > 1 ? (
+                {protocolsToDelete.length > 1 ? (
                   <>
-                    One or more of the selected participants have interview data
-                    that <strong> has not yet been exported.</strong> Deleting
-                    these participants will also delete their interview data.
+                    One or more of the selected protocols have interview data
+                    that <strong>has not yet been exported.</strong> Deleting
+                    these protocols will also delete its interview data.
                   </>
                 ) : (
                   <>
-                    The selected participant has interview data that
+                    The selected protocol has interview data that
                     <strong> has not yet been exported.</strong> Deleting this
-                    participant will also delete their interview data.
+                    protocol will also delete its interview data.
                   </>
                 )}
               </AlertDescription>

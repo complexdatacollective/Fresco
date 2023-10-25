@@ -23,7 +23,7 @@ export const ActionsDropdown = ({
   row: Row<ParticipantWithInterviews>;
   participants: ParticipantWithInterviews[];
 }) => {
-  const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
+  const [selectedParticipant, setSelectedParticipant] = useState<string | null>(
     null,
   );
   const [showParticipantModal, setShowParticipantModal] = useState(false);
@@ -32,7 +32,7 @@ export const ActionsDropdown = ({
     useState<ParticipantWithInterviews[]>();
 
   const editParticipant = (identifier: string) => {
-    setSeletedParticipant(identifier);
+    setSelectedParticipant(identifier);
     setShowParticipantModal(true);
   };
 
@@ -47,8 +47,8 @@ export const ActionsDropdown = ({
         open={showParticipantModal}
         setOpen={setShowParticipantModal}
         existingParticipants={participants}
-        editingParticipant={seletedParticipant}
-        setEditingParticipant={setSeletedParticipant}
+        editingParticipant={selectedParticipant}
+        setEditingParticipant={setSelectedParticipant}
       />
       <DeleteParticipantsDialog
         open={showDeleteModal}
