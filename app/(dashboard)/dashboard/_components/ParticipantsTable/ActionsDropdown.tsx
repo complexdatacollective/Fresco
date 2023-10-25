@@ -12,7 +12,7 @@ import {
 import type { Row } from '@tanstack/react-table';
 import CopyButton from './CopyButton';
 import { useState } from 'react';
-import EditParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/EditParticipantModal';
+import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 
@@ -43,7 +43,7 @@ export const ActionsDropdown = ({
 
   return (
     <>
-      <EditParticipantModal
+      <ParticipantModal
         open={showParticipantModal}
         setOpen={setShowParticipantModal}
         existingParticipants={participants}

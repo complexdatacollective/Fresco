@@ -22,12 +22,12 @@ import type { Participant } from '@prisma/client';
 interface ParticipantModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  editingParticipant: string | null;
-  setEditingParticipant: Dispatch<SetStateAction<string | null>>;
+  editingParticipant?: string | null;
+  setEditingParticipant?: Dispatch<SetStateAction<string | null>>;
   existingParticipants: Participant[];
 }
 
-function EditParticipantModal({
+function ParticipantModal({
   open,
   setOpen,
   editingParticipant,
@@ -70,6 +70,23 @@ function EditParticipantModal({
     },
   );
 
+  const { mutateAsync: createParticipant } = api.participant.create.useMutation(
+    {
+      onMutate() {
+        setIsLoading(true);
+      },
+      async onSuccess() {
+        await utils.participant.get.invalidate();
+      },
+      onError(error) {
+        setError(error.message);
+      },
+      onSettled() {
+        setIsLoading(false);
+      },
+    },
+  );
+
   const {
     register,
     handleSubmit,
@@ -91,6 +108,10 @@ function EditParticipantModal({
       });
     }
 
+    if (!editingParticipant) {
+      await createParticipant([data.identifier]);
+    }
+
     await utils.participant.get.invalidate();
 
     if (!error) {
@@ -107,7 +128,7 @@ function EditParticipantModal({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setEditingParticipant(null);
+      setEditingParticipant?.(null);
       setError(null);
       reset();
     }
@@ -118,9 +139,12 @@ function EditParticipantModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Participant</DialogTitle>
+          <DialogTitle>
+            {editingParticipant ? 'Edit Participant' : 'Add Participant'}
+          </DialogTitle>
           <DialogDescription>
-            Edit participant identifier below.
+            Fresco requires a participant identifier to create a participant.
+            Enter one below.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -146,7 +170,7 @@ function EditParticipantModal({
         <DialogFooter>
           <Button form="participant-form" type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Update
+            {editingParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -154,4 +178,4 @@ function EditParticipantModal({
   );
 }
 
-export default EditParticipantModal;
+export default ParticipantModal;
