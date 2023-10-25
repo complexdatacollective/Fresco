@@ -1,8 +1,8 @@
 import { ProtocolsTable } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/ProtocolsTable';
-import { trpc } from '~/app/_trpc/server';
+import { api } from '~/trpc/server';
 
 const ProtocolsPage = async () => {
-  const protocols = await trpc.protocol.get.all.query(undefined, {
+  const protocols = await api.protocol.get.all.query(undefined, {
     context: {
       revalidate: 0,
     },

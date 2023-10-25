@@ -32,7 +32,7 @@ const ImportCSVModal = ({
 }) => {
   const { toast } = useToast();
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
-  const utils = api.useContext();
+  const utils = api.useUtils();
   const { mutateAsync: importParticipants } =
     api.participant.create.useMutation();
   const isSubmitting = methods.formState.isSubmitting;

@@ -41,7 +41,7 @@ export const ProtocolsTable = ({
     hasUnexportedInterviews: false,
   });
 
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const handleDelete = (data: ProtocolWithInterviews[]) => {
     setDeleteProtocolsInfo({

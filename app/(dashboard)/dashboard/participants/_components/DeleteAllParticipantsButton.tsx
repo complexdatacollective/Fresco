@@ -16,7 +16,7 @@ import {
 
 export const DeleteAllParticipantsButton = () => {
   const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const utils = api.useContext();
+  const utils = api.useUtils();
   const { mutate: deleteAllParticipants, isLoading } =
     api.participant.delete.all.useMutation({
       async onSuccess() {

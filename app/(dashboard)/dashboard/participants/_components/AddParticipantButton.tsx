@@ -13,7 +13,7 @@ import {
 } from '~/components/ui/dialog';
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import { type Participant } from '@prisma/client';
 import { useState } from 'react';
@@ -28,7 +28,7 @@ function AddParticipantButton({
   const [isOpen, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const utils = trpc.useContext();
+  const utils = api.useContext();
 
   const formSchema = z
     .object({
@@ -45,8 +45,8 @@ function AddParticipantButton({
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
-  const { mutateAsync: createParticipant } =
-    trpc.participant.create.useMutation({
+  const { mutateAsync: createParticipant } = api.participant.create.useMutation(
+    {
       onMutate() {
         setIsLoading(true);
       },
@@ -59,7 +59,8 @@ function AddParticipantButton({
       onSettled() {
         setIsLoading(false);
       },
-    });
+    },
+  );
 
   const {
     register,

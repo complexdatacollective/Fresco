@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { trpc } from '~/app/_trpc/client';
+import { api } from '~/trpc/client';
 import { Switch } from '~/components/ui/switch';
 
 const ActiveProtocolSwitch = ({
@@ -11,14 +11,14 @@ const ActiveProtocolSwitch = ({
   initialData: boolean;
   hash: string;
 }) => {
-  const utils = trpc.useContext();
+  const utils = api.useUtils();
   const router = useRouter();
 
-  const { data: isActive } = trpc.protocol.getActive.useQuery(hash, {
+  const { data: isActive } = api.protocol.getActive.useQuery(hash, {
     initialData,
   });
 
-  const { mutateAsync: setActive } = trpc.protocol.setActive.useMutation({
+  const { mutateAsync: setActive } = api.protocol.setActive.useMutation({
     async onMutate(variables) {
       const { input: newState, hash } = variables;
       await utils.protocol.getActive.cancel();
