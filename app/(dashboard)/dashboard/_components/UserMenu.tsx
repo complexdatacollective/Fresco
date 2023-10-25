@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
-import { useSession } from '~/providers/SessionPrivider';
+import { useSession } from '~/providers/SessionProvider';
 
 const UserMenu = () => {
   const { session } = useSession();

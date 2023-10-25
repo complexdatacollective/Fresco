@@ -16,7 +16,7 @@ export const SignUpForm = ({
   completeCallback?: () => void;
 }) => {
   const [signupError, setSignupError] = useState<string | null>(null);
-  const router = useRouter();
+  const utils = api.useUtils();
 
   const {
     register,
@@ -28,7 +28,7 @@ export const SignUpForm = ({
   });
 
   const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result.error) {
         const error = result.error;
         setSignupError(error);
@@ -36,7 +36,11 @@ export const SignUpForm = ({
       }
 
       if (result.user) {
-        router.refresh();
+        // We got a user, so the auth cookie was set. Trigger a refresh of the
+        // session provider. This is so that the OnboardWizard can redirect to
+        // the next step.
+        await utils.session.get.refetch();
+
         completeCallback?.();
       }
     },

@@ -6,10 +6,9 @@ import {
   publicProcedure,
   router,
 } from '../trpc';
-import { auth } from '~/utils/auth';
-import { api } from '~/trpc/server';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
+import { signOutProc } from './session';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
@@ -89,8 +88,7 @@ export const appSettingsRouter = router({
     if (userID) {
       // eslint-disable-next-line no-console
       console.info('Active user session found during reset. Invalidating...');
-      await api.session.signOut.mutate();
-      await auth.invalidateAllUserSessions(userID);
+      await signOutProc({ ctx });
     }
 
     // Delete the setup record:
@@ -98,11 +96,10 @@ export const appSettingsRouter = router({
 
     // Delete all data:
     await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
-    await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interview and Assets
+    await prisma.participant.deleteMany();
+    await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
-
-    await api.appSettings.get.allappSettings.revalidate();
   }),
   setConfigured: publicProcedure.mutation(async () => {
     const { configured, initializedAt } = await getappSettings();
@@ -119,7 +116,5 @@ export const appSettingsRouter = router({
         configuredAt: new Date(),
       },
     });
-
-    await api.appSettings.get.allappSettings.revalidate();
   }),
 });

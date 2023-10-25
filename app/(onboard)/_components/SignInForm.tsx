@@ -46,7 +46,8 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
 
       if (result.session) {
         if (callbackUrl) {
-          router.replace(callbackUrl);
+          window.location.replace(callbackUrl);
+          // router.replace(callbackUrl);
         }
       }
     },

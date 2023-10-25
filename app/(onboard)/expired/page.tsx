@@ -9,10 +9,13 @@ import { Loader2 } from 'lucide-react';
 
 export default function Page() {
   const router = useRouter();
+  const utils = api.useUtils();
   const { mutate: resetExpired, isLoading } = api.appSettings.reset.useMutation(
     {
-      onSuccess: () => {
-        router.refresh();
+      onSuccess: async () => {
+        await utils.appSettings.get.allappSettings.refetch();
+
+        window.location.replace('/setup');
       },
     },
   );

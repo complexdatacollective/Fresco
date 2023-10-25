@@ -2,23 +2,22 @@
 import '~/styles/globals.scss';
 import Providers from '../providers/Providers';
 import RedirectWrapper from '~/components/RedirectWrapper';
-import { api } from '../trpc/server';
 import { getServerSession } from '~/utils/auth';
+import { api } from '~/trpc/server';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
 
+export const revalidate = false;
+export const runtime = 'nodejs';
+
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
 
-  const { expired, configured } =
-    await api.appSettings.get.allappSettings.query(undefined, {
-      context: {
-        revalidate: 0,
-      },
-    });
+  const { configured, expired } =
+    await api.appSettings.get.allappSettings.query();
 
   return (
     <html lang="en">

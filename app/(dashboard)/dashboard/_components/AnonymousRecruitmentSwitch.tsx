@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { api } from '~/trpc/client';
 import { Switch } from '~/components/ui/switch';
 
@@ -9,8 +8,7 @@ const AnonymousRecruitmentSwitch = ({
 }: {
   initialData: boolean;
 }) => {
-  const utils = api.useContext();
-  const router = useRouter();
+  const utils = api.useUtils();
 
   const { data: allowAnonymousRecruitment } =
     api.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
@@ -39,9 +37,6 @@ const AnonymousRecruitmentSwitch = ({
         );
         // eslint-disable-next-line no-console
         console.error(err);
-      },
-      onSuccess: () => {
-        router.refresh(); // This causes the server component to provide the correct value on initial render
       },
     });
 

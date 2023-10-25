@@ -8,7 +8,7 @@ import { cn } from '~/utils/shadcn';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import OnboardSteps from './OnboardSteps/StepsSidebar';
 import { userFormClasses } from '../_shared';
-import { useSession } from '~/providers/SessionPrivider';
+import { useSession } from '~/providers/SessionProvider';
 import { useEffect } from 'react';
 import type { Route } from 'next';
 import { api } from '~/trpc/client';
