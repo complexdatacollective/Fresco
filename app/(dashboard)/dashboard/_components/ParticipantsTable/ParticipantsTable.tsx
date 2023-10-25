@@ -11,72 +11,30 @@ import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/Partici
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
-import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
+import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 export const ParticipantsTable = ({
   initialData,
 }: {
   initialData: ParticipantWithInterviews[];
 }) => {
-  const {
-    isLoading,
-    refetch,
-    data: participants,
-  } = api.participant.get.all.useQuery(undefined, {
-    initialData,
-    refetchOnMount: false,
-    onError(error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+  const { isLoading, data: participants } = api.participant.get.all.useQuery(
+    undefined,
+    {
+      initialData,
+      refetchOnMount: false,
+      onError(error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      },
     },
-  });
-  const [deleteParticipantsInfo, setDeleteParticipantsInfo] = useState<{
-    participantsToDelete: ParticipantWithInterviews[];
-    hasInterviews: boolean;
-    hasUnexportedInterviews: boolean;
-  }>({
-    participantsToDelete: [],
-    hasInterviews: false,
-    hasUnexportedInterviews: false,
-  });
+  );
+  const [participantsToDelete, setParticipantsToDelete] =
+    useState<ParticipantWithInterviews[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleDelete = (data: ParticipantWithInterviews[]) => {
-    setDeleteParticipantsInfo({
-      participantsToDelete: data,
-      hasInterviews: data.some(
-        (participant) => participant.interviews.length > 0,
-      ),
-      hasUnexportedInterviews: data.some((participant) =>
-        participant.interviews.some((interview) => !interview.exportTime),
-      ),
-    });
+    setParticipantsToDelete(data);
     setShowDeleteModal(true);
-  };
-
-  const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
-    api.participant.delete.byId.useMutation();
-
-  const handleConfirm = async () => {
-    // Delete selected participants
-    await deleteParticipants(
-      deleteParticipantsInfo.participantsToDelete.map((d) => d.identifier),
-    );
-    await refetch();
-    setDeleteParticipantsInfo({
-      participantsToDelete: [],
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
-    setShowDeleteModal(false);
-  };
-
-  const handleCancelDialog = () => {
-    setDeleteParticipantsInfo({
-      participantsToDelete: [],
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
-    setShowDeleteModal(false);
   };
 
   return (
@@ -88,16 +46,10 @@ export const ParticipantsTable = ({
         <DeleteAllParticipantsButton />
       </div>
       {isLoading && <div>Loading...</div>}
-      <DeleteParticipantConfirmationDialog
+      <DeleteParticipantsDialog
         open={showDeleteModal}
-        onCancel={handleCancelDialog}
-        onConfirm={handleConfirm}
-        numberOfParticipants={
-          deleteParticipantsInfo.participantsToDelete.length
-        }
-        hasInterviews={deleteParticipantsInfo.hasInterviews}
-        hasUnexportedInterviews={deleteParticipantsInfo.hasUnexportedInterviews}
-        isDeleting={isDeleting}
+        setOpen={setShowDeleteModal}
+        participantsToDelete={participantsToDelete || []}
       />
       <DataTable
         columns={ParticipantColumns()}

@@ -14,8 +14,7 @@ import CopyButton from './CopyButton';
 import { useState } from 'react';
 import EditParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/EditParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
-import { api } from '~/trpc/client';
-import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
+import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 
 export const ActionsDropdown = ({
   row,
@@ -28,60 +27,18 @@ export const ActionsDropdown = ({
     null,
   );
   const [showParticipantModal, setShowParticipantModal] = useState(false);
-  const [deleteParticipantsInfo, setDeleteParticipantsInfo] = useState<{
-    participantsToDelete: ParticipantWithInterviews[];
-    hasInterviews: boolean;
-    hasUnexportedInterviews: boolean;
-  }>({
-    participantsToDelete: [],
-    hasInterviews: false,
-    hasUnexportedInterviews: false,
-  });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [participantsToDelete, setParticipantsToDelete] =
+    useState<ParticipantWithInterviews[]>();
 
-  const utils = api.useUtils();
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
     setShowParticipantModal(true);
   };
 
   const handleDelete = (data: ParticipantWithInterviews[]) => {
-    setDeleteParticipantsInfo({
-      participantsToDelete: data,
-      hasInterviews: data.some(
-        (participant) => participant.interviews.length > 0,
-      ),
-      hasUnexportedInterviews: data.some((participant) =>
-        participant.interviews.some((interview) => !interview.exportTime),
-      ),
-    });
+    setParticipantsToDelete(data);
     setShowDeleteModal(true);
-  };
-
-  const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
-    api.participant.delete.byId.useMutation();
-
-  const handleConfirm = async () => {
-    // Delete selected participants
-    await deleteParticipants(
-      deleteParticipantsInfo.participantsToDelete.map((d) => d.identifier),
-    );
-    await utils.participant.get.all.refetch();
-    setDeleteParticipantsInfo({
-      participantsToDelete: [],
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
-    setShowDeleteModal(false);
-  };
-
-  const handleCancelDialog = () => {
-    setDeleteParticipantsInfo({
-      participantsToDelete: [],
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
-    setShowDeleteModal(false);
   };
 
   return (
@@ -93,16 +50,10 @@ export const ActionsDropdown = ({
         editingParticipant={seletedParticipant}
         setEditingParticipant={setSeletedParticipant}
       />
-      <DeleteParticipantConfirmationDialog
+      <DeleteParticipantsDialog
         open={showDeleteModal}
-        onCancel={handleCancelDialog}
-        onConfirm={handleConfirm}
-        numberOfParticipants={
-          deleteParticipantsInfo.participantsToDelete.length
-        }
-        hasInterviews={deleteParticipantsInfo.hasInterviews}
-        hasUnexportedInterviews={deleteParticipantsInfo.hasUnexportedInterviews}
-        isDeleting={isDeleting}
+        setOpen={setShowDeleteModal}
+        participantsToDelete={participantsToDelete || []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
