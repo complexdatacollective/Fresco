@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog';
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
@@ -28,7 +27,7 @@ interface ParticipantModalProps {
   existingParticipants: Participant[];
 }
 
-function ParticipantModal({
+function EditParticipantModal({
   open,
   setOpen,
   editingParticipant,
@@ -37,7 +36,7 @@ function ParticipantModal({
 }: ParticipantModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const formSchema = z
     .object({
@@ -53,23 +52,6 @@ function ParticipantModal({
     );
 
   type ValidationSchema = z.infer<typeof formSchema>;
-
-  const { mutateAsync: createParticipant } = api.participant.create.useMutation(
-    {
-      onMutate() {
-        setIsLoading(true);
-      },
-      async onSuccess() {
-        await utils.participant.get.invalidate();
-      },
-      onError(error) {
-        setError(error.message);
-      },
-      onSettled() {
-        setIsLoading(false);
-      },
-    },
-  );
 
   const { mutateAsync: updateParticipant } = api.participant.update.useMutation(
     {
@@ -102,19 +84,11 @@ function ParticipantModal({
   const onSubmit = async (data: ValidationSchema) => {
     setError(null);
 
-    // If we are editing a participant, update the identifier.
     if (editingParticipant) {
       await updateParticipant({
         identifier: editingParticipant,
         newIdentifier: data.identifier,
       });
-    } else {
-      const { error } = await createParticipant([data.identifier]);
-
-      if (error) {
-        setError(error);
-        return;
-      }
     }
 
     await utils.participant.get.invalidate();
@@ -142,15 +116,11 @@ function ParticipantModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button>Add Participant</Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Participant</DialogTitle>
+          <DialogTitle>Edit Participant</DialogTitle>
           <DialogDescription>
-            Fresco requires a participant identifier to create a participant.
-            Enter one below.
+            Edit participant identifier below.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -176,7 +146,7 @@ function ParticipantModal({
         <DialogFooter>
           <Button form="participant-form" type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {editingParticipant ? 'Update' : 'Submit'}
+            Update
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -184,4 +154,4 @@ function ParticipantModal({
   );
 }
 
-export default ParticipantModal;
+export default EditParticipantModal;
