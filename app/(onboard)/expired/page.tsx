@@ -3,12 +3,10 @@
 import { env } from '~/env.mjs';
 import { userFormClasses } from '../_shared';
 import { Button } from '~/components/ui/Button';
-import { useRouter } from 'next/navigation';
 import { api } from '~/trpc/client';
 import { Loader2 } from 'lucide-react';
 
 export default function Page() {
-  const router = useRouter();
   const utils = api.useUtils();
   const { mutate: resetExpired, isLoading } = api.appSettings.reset.useMutation(
     {

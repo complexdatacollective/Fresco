@@ -8,7 +8,6 @@ import { Loader2 } from 'lucide-react';
 import { api } from '~/trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
-import { useRouter } from 'next/navigation';
 
 export const SignUpForm = ({
   completeCallback,

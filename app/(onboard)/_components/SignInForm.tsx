@@ -4,7 +4,6 @@ import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { userFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
@@ -30,8 +29,6 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
   } = useZodForm({
     schema: userFormSchema,
   });
-
-  const router = useRouter();
 
   const { mutateAsync: signIn } = api.session.signIn.useMutation({
     onMutate: () => setLoading(true),
