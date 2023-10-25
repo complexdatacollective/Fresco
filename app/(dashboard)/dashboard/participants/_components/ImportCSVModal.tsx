@@ -25,7 +25,11 @@ const formSchema = z.object({
   csvColumn: z.string().optional(),
 });
 
-const ImportCSVModal = () => {
+const ImportCSVModal = ({
+  onImportComplete,
+}: {
+  onImportComplete?: () => void;
+}) => {
   const { toast } = useToast();
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
   const utils = api.useContext();
@@ -128,6 +132,8 @@ const ImportCSVModal = () => {
         variant: 'success',
       });
     }
+
+    onImportComplete?.();
 
     methods.reset();
     setShowImportDialog(false);
