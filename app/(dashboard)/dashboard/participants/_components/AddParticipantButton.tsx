@@ -20,7 +20,7 @@ function AddParticipantButton({
         setOpen={setOpen}
         existingParticipants={existingParticipants}
       />
-      <Button onClick={() => setOpen(true)}>Add Participant</Button>{' '}
+      <Button onClick={() => setOpen(true)}>Add Participant</Button>
     </div>
   );
 }
