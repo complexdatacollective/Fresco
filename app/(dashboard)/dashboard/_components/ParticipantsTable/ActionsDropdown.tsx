@@ -20,11 +20,9 @@ import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard
 export const ActionsDropdown = ({
   row,
   participants,
-  refetch,
 }: {
   row: Row<ParticipantWithInterviews>;
   participants: ParticipantWithInterviews[];
-  refetch: () => Promise<void>;
 }) => {
   const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
     null,
@@ -41,6 +39,7 @@ export const ActionsDropdown = ({
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const utils = api.useUtils();
   const editParticipant = (identifier: string) => {
     setSeletedParticipant(identifier);
     setShowParticipantModal(true);
@@ -67,7 +66,7 @@ export const ActionsDropdown = ({
     await deleteParticipants(
       deleteParticipantsInfo.participantsToDelete.map((d) => d.identifier),
     );
-    await refetch();
+    await utils.participant.get.all.refetch();
     setDeleteParticipantsInfo({
       participantsToDelete: [],
       hasInterviews: false,

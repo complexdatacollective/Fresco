@@ -79,10 +79,6 @@ export const ParticipantsTable = ({
     setShowDeleteModal(false);
   };
 
-  const handleRefetch = async () => {
-    await refetch();
-  };
-
   return (
     <>
       <div className="flex gap-2">
@@ -113,13 +109,7 @@ export const ParticipantsTable = ({
             id: 'actions',
             header: () => <Settings />,
             cell: ({ row }) => {
-              return (
-                <ActionsDropdown
-                  row={row}
-                  participants={participants}
-                  refetch={handleRefetch}
-                />
-              );
+              return <ActionsDropdown row={row} participants={participants} />;
             },
           },
         ]}
