@@ -8,9 +8,10 @@ import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_com
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { Settings } from 'lucide-react';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
-import { DeleteAllParticipantsButton } from '../../participants/_components/DeleteAllParticipantsButton';
+import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
-
+import { useState } from 'react';
+import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
 export const ParticipantsTable = ({
   initialData,
 }: {
@@ -18,7 +19,7 @@ export const ParticipantsTable = ({
 }) => {
   const {
     isLoading,
-    // refetch,
+    refetch,
     data: participants,
   } = api.participant.get.all.useQuery(undefined, {
     initialData,
@@ -28,6 +29,59 @@ export const ParticipantsTable = ({
       console.error(error);
     },
   });
+  const [deleteParticipantsInfo, setDeleteParticipantsInfo] = useState<{
+    participantsToDelete: ParticipantWithInterviews[];
+    hasInterviews: boolean;
+    hasUnexportedInterviews: boolean;
+  }>({
+    participantsToDelete: [],
+    hasInterviews: false,
+    hasUnexportedInterviews: false,
+  });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = (data: ParticipantWithInterviews[]) => {
+    setDeleteParticipantsInfo({
+      participantsToDelete: data,
+      hasInterviews: data.some(
+        (participant) => participant.interviews.length > 0,
+      ),
+      hasUnexportedInterviews: data.some((participant) =>
+        participant.interviews.some((interview) => !interview.exportTime),
+      ),
+    });
+    setShowDeleteModal(true);
+  };
+
+  const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
+    api.participant.delete.byId.useMutation();
+
+  const handleConfirm = async () => {
+    // Delete selected participants
+    await deleteParticipants(
+      deleteParticipantsInfo.participantsToDelete.map((d) => d.identifier),
+    );
+    await refetch();
+    setDeleteParticipantsInfo({
+      participantsToDelete: [],
+      hasInterviews: false,
+      hasUnexportedInterviews: false,
+    });
+    setShowDeleteModal(false);
+  };
+
+  const handleCancelDialog = () => {
+    setDeleteParticipantsInfo({
+      participantsToDelete: [],
+      hasInterviews: false,
+      hasUnexportedInterviews: false,
+    });
+    setShowDeleteModal(false);
+  };
+
+  const handleRefetch = async () => {
+    await refetch();
+  };
 
   return (
     <>
@@ -38,17 +92,34 @@ export const ParticipantsTable = ({
         <DeleteAllParticipantsButton />
       </div>
       {isLoading && <div>Loading...</div>}
+      <DeleteParticipantConfirmationDialog
+        open={showDeleteModal}
+        onCancel={handleCancelDialog}
+        onConfirm={handleConfirm}
+        numberOfParticipants={
+          deleteParticipantsInfo.participantsToDelete.length
+        }
+        hasInterviews={deleteParticipantsInfo.hasInterviews}
+        hasUnexportedInterviews={deleteParticipantsInfo.hasUnexportedInterviews}
+        isDeleting={isDeleting}
+      />
       <DataTable
         columns={ParticipantColumns()}
         data={participants}
         filterColumnAccessorKey="identifier"
-        /// handleDeleteSelected={handleDelete}
+        handleDeleteSelected={handleDelete}
         actions={[
           {
             id: 'actions',
             header: () => <Settings />,
             cell: ({ row }) => {
-              return <ActionsDropdown row={row} participants={participants} />;
+              return (
+                <ActionsDropdown
+                  row={row}
+                  participants={participants}
+                  refetch={handleRefetch}
+                />
+              );
             },
           },
         ]}

@@ -12,7 +12,7 @@ import {
 import type { Row } from '@tanstack/react-table';
 import CopyButton from './CopyButton';
 import { useState } from 'react';
-import EditParticipantModal from '../../participants/_components/EditParticipantModal';
+import EditParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/EditParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { api } from '~/trpc/client';
 import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipant';
@@ -20,9 +20,11 @@ import { DeleteParticipantConfirmationDialog } from '~/app/(dashboard)/dashboard
 export const ActionsDropdown = ({
   row,
   participants,
+  refetch,
 }: {
   row: Row<ParticipantWithInterviews>;
   participants: ParticipantWithInterviews[];
+  refetch: () => Promise<void>;
 }) => {
   const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
     null,
@@ -65,8 +67,7 @@ export const ActionsDropdown = ({
     await deleteParticipants(
       deleteParticipantsInfo.participantsToDelete.map((d) => d.identifier),
     );
-    // TODO: fix refetch of parent's data after delete. maybe pass a function from ParticipantsTable?
-    // await refetch();
+    await refetch();
     setDeleteParticipantsInfo({
       participantsToDelete: [],
       hasInterviews: false,
