@@ -18,10 +18,10 @@ import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participan
 
 export const ActionsDropdown = ({
   row,
-  participants,
+  data,
 }: {
   row: Row<ParticipantWithInterviews>;
-  participants: ParticipantWithInterviews[];
+  data: ParticipantWithInterviews[];
 }) => {
   const [selectedParticipant, setSelectedParticipant] = useState<string | null>(
     null,
@@ -46,7 +46,7 @@ export const ActionsDropdown = ({
       <ParticipantModal
         open={showParticipantModal}
         setOpen={setShowParticipantModal}
-        existingParticipants={participants}
+        existingParticipants={data}
         editingParticipant={selectedParticipant}
         setEditingParticipant={setSelectedParticipant}
       />

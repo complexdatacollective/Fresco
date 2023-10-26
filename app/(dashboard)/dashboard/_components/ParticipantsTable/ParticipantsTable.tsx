@@ -6,7 +6,6 @@ import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/Part
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import type { ParticipantWithInterviews } from '~/shared/types';
-import { Settings } from 'lucide-react';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
@@ -56,15 +55,7 @@ export const ParticipantsTable = ({
         data={participants}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
-        actions={[
-          {
-            id: 'actions',
-            header: () => <Settings />,
-            cell: ({ row }) => {
-              return <ActionsDropdown row={row} participants={participants} />;
-            },
-          },
-        ]}
+        actions={ActionsDropdown}
       />
     </>
   );

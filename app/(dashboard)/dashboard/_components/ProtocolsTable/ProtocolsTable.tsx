@@ -7,7 +7,6 @@ import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_co
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
-import { Settings } from 'lucide-react';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/ActionsDropdown';
 export const ProtocolsTable = ({
   initialData,
@@ -50,15 +49,7 @@ export const ProtocolsTable = ({
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
-        actions={[
-          {
-            id: 'actions',
-            header: () => <Settings />,
-            cell: ({ row }) => {
-              return <ActionsDropdown row={row} />;
-            },
-          },
-        ]}
+        actions={ActionsDropdown}
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}
