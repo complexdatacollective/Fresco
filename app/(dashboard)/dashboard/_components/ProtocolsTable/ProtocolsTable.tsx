@@ -8,8 +8,7 @@ import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
 import { Settings } from 'lucide-react';
-import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/ActionsDropdown';
 export const ProtocolsTable = ({
   initialData,
 }: {
@@ -56,23 +55,7 @@ export const ProtocolsTable = ({
             id: 'actions',
             header: () => <Settings />,
             cell: ({ row }) => {
-              return (
-                <ActionsDropdown
-                  menuItems={[
-                    {
-                      label: 'Delete',
-                      row,
-                      component: (
-                        <DropdownMenuItem
-                          onClick={() => void handleDelete([row.original])}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      ),
-                    },
-                  ]}
-                />
-              );
+              return <ActionsDropdown row={row} />;
             },
           },
         ]}
