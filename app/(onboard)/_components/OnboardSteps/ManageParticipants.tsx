@@ -1,25 +1,21 @@
 import { Check } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import AnonymousRecruitmentSwitch from '~/app/(dashboard)/dashboard/_components/AnonymousRecruitmentSwitch';
-import type { Route } from 'next';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
+import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
-  const pathname = usePathname() as Route;
-  const searchParams = useSearchParams();
-  const currentStep = searchParams.get('step') as string;
-  const [participantsUploaded, setParticipantsUploaded] = useState(false);
-  const router = useRouter();
+  // const pathname = usePathname() as Route;
+  // const searchParams = useSearchParams();
+  // const currentStep = searchParams.get('step') as string;
+  // const [participantsUploaded, setParticipantsUploaded] = useState(false);
+  // const router = useRouter();
 
-  const handleParticipantsUploaded = () => {
-    setParticipantsUploaded(true);
-  };
+  // const handleParticipantsUploaded = () => {
+  //   setParticipantsUploaded(true);
+  // };
 
-  const handleNextStep = () => {
-    router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
-  };
+  // const handleNextStep = () => {
+  //   router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
+  // };
 
   return (
     <div className="max-w-[30rem]">
@@ -39,17 +35,17 @@ function ManageParticipants() {
             Upload a CSV file of participants.
           </p>
         </div>
-        {participantsUploaded && <Check />}
+        {/* {participantsUploaded && <Check />}
         {!participantsUploaded && (
           <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
-        )}
+        )} */}
       </div>
-      <AnonymousRecruitmentSwitch initialData={false} />
-      <div className="flex justify-start">
+      <AnonymousRecruitmentSwitch />
+      {/* <div className="flex justify-start">
         <Button onClick={handleNextStep}>
           {participantsUploaded ? 'Next' : 'Skip'}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

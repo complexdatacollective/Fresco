@@ -1,23 +1,9 @@
-'use client';
-
 import { env } from '~/env.mjs';
 import { userFormClasses } from '../_shared';
 import { Button } from '~/components/ui/Button';
-import { api } from '~/trpc/client';
-import { Loader2 } from 'lucide-react';
+import { resetAppSettings } from '~/app/_actions';
 
 export default function Page() {
-  const utils = api.useUtils();
-  const { mutate: resetExpired, isLoading } = api.appSettings.reset.useMutation(
-    {
-      onSuccess: async () => {
-        await utils.appSettings.get.allappSettings.refetch();
-
-        window.location.replace('/setup');
-      },
-    },
-  );
-
   return (
     <div className={userFormClasses}>
       <h1 className="mb-4 text-2xl font-bold">Installation expired</h1>
@@ -29,14 +15,11 @@ export default function Page() {
         Please redploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <Button
-          onClick={() => resetExpired()}
-          disabled={isLoading}
-          className="mt-6 max-w-[20rem]"
-        >
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Dev mode: Reset Configuration
-        </Button>
+        <form action={resetAppSettings}>
+          <Button className="mt-6 max-w-[20rem]" type="submit">
+            Dev mode: Reset Configuration
+          </Button>
+        </form>
       )}
     </div>
   );

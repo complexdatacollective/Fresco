@@ -13,7 +13,7 @@ import { signOutProc } from './session';
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-const getappSettings = async () => {
+export const getAppSettings = async () => {
   let appSettings = await prisma.appSettings.findFirst();
   // if no setup appSettings exists, seed it
   if (!appSettings) {
@@ -35,24 +35,24 @@ const getappSettings = async () => {
 };
 
 const getPropertiesRouter = router({
-  allappSettings: publicProcedure.query(getappSettings),
+  allappSettings: publicProcedure.query(getAppSettings),
   expired: publicProcedure.query(async () => {
-    const { expired } = await getappSettings();
+    const { expired } = await getAppSettings();
 
     return expired;
   }),
   configured: publicProcedure.query(async () => {
-    const { configured } = await getappSettings();
+    const { configured } = await getAppSettings();
 
     return configured;
   }),
   initializedAt: publicProcedure.query(async () => {
-    const { initializedAt } = await getappSettings();
+    const { initializedAt } = await getAppSettings();
 
     return initializedAt;
   }),
   allowAnonymousRecruitment: publicProcedure.query(async () => {
-    const { allowAnonymousRecruitment } = await getappSettings();
+    const { allowAnonymousRecruitment } = await getAppSettings();
 
     return allowAnonymousRecruitment;
   }),
@@ -63,7 +63,7 @@ export const appSettingsRouter = router({
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
-      const { configured, initializedAt } = await getappSettings();
+      const { configured, initializedAt } = await getAppSettings();
       try {
         const updatedappSettings = await prisma.appSettings.update({
           where: {
@@ -102,7 +102,7 @@ export const appSettingsRouter = router({
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
   }),
   setConfigured: publicProcedure.mutation(async () => {
-    const { configured, initializedAt } = await getappSettings();
+    const { configured, initializedAt } = await getAppSettings();
 
     await prisma.appSettings.update({
       where: {

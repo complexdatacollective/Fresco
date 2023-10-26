@@ -5,6 +5,7 @@ import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
 import { useState } from 'react';
+import { revalidateTag } from 'next/cache';
 
 function Documentation() {
   const [loading, setLoading] = useState(false);
@@ -13,6 +14,7 @@ function Documentation() {
       setLoading(true);
     },
     onSuccess: () => {
+      revalidateTag('appConfigured');
       window.location.replace('/dashboard');
     },
     onError: () => {

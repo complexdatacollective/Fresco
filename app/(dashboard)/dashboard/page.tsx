@@ -1,5 +1,5 @@
 import ResetButton from './_components/ResetButton';
-import AnonymousRecruitment from './_components/AnonymousRecruitment';
+import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import Link from 'next/link';
 import { Button } from '~/components/ui/Button';
 
@@ -13,7 +13,7 @@ function Home() {
           <Button>Start anonymous interview</Button>
         </Link>
         <ResetButton />
-        <AnonymousRecruitment />
+        <AnonymousRecruitmentSwitch />
       </main>
     </>
   );

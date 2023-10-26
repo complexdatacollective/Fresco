@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
+import { revalidatePath } from 'next/cache';
 
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,7 @@ const ResetButton = () => {
   const reset = async () => {
     setLoading(true);
     await resetConfigured();
+    revalidatePath('/');
     router.refresh();
   };
 
