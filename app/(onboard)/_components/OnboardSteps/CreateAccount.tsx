@@ -1,30 +1,63 @@
 'use client';
 
-import type { Route } from 'next';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
+import { Button } from '~/components/ui/Button';
+import { useSession } from '~/providers/SessionProvider';
+import { useOnboardingContext } from '../OnboardingProvider';
+import { api } from '~/trpc/client';
+import { env } from '~/env.mjs';
+import { useRouter } from 'next/navigation';
 
 function CreateAccount() {
   const router = useRouter();
-  const pathname = usePathname() as Route;
-  const searchParams = useSearchParams();
-  const step = searchParams.get('step');
+  const { currentStep, setCurrentStep } = useOnboardingContext();
+  const { session, isLoading } = useSession();
+  const { data: adminUserExists, isLoading: isCheckingAdminUser } =
+    api.appSettings.get.adminUserExists.useQuery();
 
   const completeCallback = () => {
-    router.push(`${pathname}?step=${parseInt(step || '1') + 1}`);
+    setCurrentStep(2).catch(() => {});
   };
 
+  if (isLoading || isCheckingAdminUser) {
+    return null;
+  }
+
+  if (adminUserExists) {
+    router.push(`/signin?callbackUrl=${encodeURI('/setup')}`);
+  }
+
   return (
-    <div className="max-w-[30rem]">
+    <div className="w-[30rem]">
       <div className="mb-4 flex flex-col">
         <h1 className="text-3xl font-bold">Create an Account</h1>
-        <p className="mb-4 mt-4">
-          To use Fresco, you need to set up an administrator account which will
-          enable to you access the protect parts of the app. Only one
-          administrator account can be created.
-        </p>
       </div>
-      <SignUpForm completeCallback={completeCallback} />
+      {session && (
+        <div>
+          <p className="mb-10">
+            You have already created an admin account and are logged in. Please
+            continue to the next step in the setup process.
+          </p>
+          {env.NODE_ENV === 'development' && (
+            <Button className="mr-2" variant="destructive">
+              Dev mode: sign out
+            </Button>
+          )}
+          <Button onClick={() => setCurrentStep(currentStep + 1)}>
+            Continue
+          </Button>
+        </div>
+      )}
+      {!session && (
+        <>
+          <p className="mb-4 mt-4">
+            To use Fresco, you need to set up an administrator account which
+            will enable to you access the protect parts of the app. Only one
+            administrator account can be created.
+          </p>
+          <SignUpForm completeCallback={completeCallback} />
+        </>
+      )}
     </div>
   );
 }

@@ -1,21 +1,23 @@
+'use client';
+
 import { Check } from 'lucide-react';
+import { Button } from '~/components/ui/Button';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
-import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
+import { useOnboardingContext } from '../OnboardingProvider';
+import { useState } from 'react';
+// import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
-  // const pathname = usePathname() as Route;
-  // const searchParams = useSearchParams();
-  // const currentStep = searchParams.get('step') as string;
-  // const [participantsUploaded, setParticipantsUploaded] = useState(false);
-  // const router = useRouter();
+  const [participantsUploaded, setParticipantsUploaded] = useState(false);
+  const { currentStep, setCurrentStep } = useOnboardingContext();
 
-  // const handleParticipantsUploaded = () => {
-  //   setParticipantsUploaded(true);
-  // };
+  const handleParticipantsUploaded = () => {
+    setParticipantsUploaded(true);
+  };
 
-  // const handleNextStep = () => {
-  //   router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
-  // };
+  const handleNextStep = () => {
+    setCurrentStep(currentStep + 1).catch(() => {});
+  };
 
   return (
     <div className="max-w-[30rem]">
@@ -35,17 +37,17 @@ function ManageParticipants() {
             Upload a CSV file of participants.
           </p>
         </div>
-        {/* {participantsUploaded && <Check />}
+        {participantsUploaded && <Check />}
         {!participantsUploaded && (
           <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
-        )} */}
+        )}
       </div>
-      <AnonymousRecruitmentSwitch />
-      {/* <div className="flex justify-start">
+      {/* <AnonymousRecruitmentSwitch /> */}
+      <div className="flex justify-start">
         <Button onClick={handleNextStep}>
           {participantsUploaded ? 'Next' : 'Skip'}
         </Button>
-      </div> */}
+      </div>
     </div>
   );
 }

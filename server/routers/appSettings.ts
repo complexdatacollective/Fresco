@@ -36,6 +36,10 @@ export const getAppSettings = async () => {
 
 const getPropertiesRouter = router({
   allappSettings: publicProcedure.query(getAppSettings),
+  adminUserExists: publicProcedure.query(async () => {
+    const user = await prisma.user.count();
+    return user > 0;
+  }),
   expired: publicProcedure.query(async () => {
     const { expired } = await getAppSettings();
 

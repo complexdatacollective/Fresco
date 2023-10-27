@@ -2,20 +2,25 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
 import { useState } from 'react';
-import { revalidateTag } from 'next/cache';
+import { FancyButton } from '~/components/ui/FancyButton';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
+import { useRouter } from 'next/navigation';
 
 function Documentation() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const { mutate: setConfigured } = api.appSettings.setConfigured.useMutation({
     onMutate: () => {
       setLoading(true);
     },
     onSuccess: () => {
-      revalidateTag('appConfigured');
-      window.location.replace('/dashboard');
+      clientRevalidateTag('appConfigured')
+        .then(() => router.refresh())
+        // eslint-disable-next-line no-console
+        .catch((e) => console.error(e));
     },
     onError: () => {
       setLoading(false);
@@ -72,10 +77,10 @@ function Documentation() {
         <CardContent></CardContent>
       </Card>
 
-      <div className="flex justify-start pt-4">
-        <Button type="submit" onClick={() => setConfigured()}>
-          Finish Onboarding
-        </Button>
+      <div className="flex justify-start pt-12">
+        <FancyButton type="submit" onClick={() => setConfigured()}>
+          Go to the dashboard!
+        </FancyButton>
       </div>
     </div>
   );

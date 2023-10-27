@@ -50,6 +50,8 @@ export const SessionProvider = ({
       },
     });
 
+  const { mutateAsync: signOut } = api.session.signOut.useMutation();
+
   // If we have an initial session, we don't need to fetch it again.
   useEffect(() => {
     if (initialSession) {
@@ -75,8 +77,9 @@ export const SessionProvider = ({
     () => ({
       session,
       isLoading,
+      signOut,
     }),
-    [session, isLoading],
+    [session, isLoading, signOut],
   );
 
   return (

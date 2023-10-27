@@ -12,7 +12,7 @@ const routeIsLandingPage = (pathname: Route) => {
 };
 
 const routeIsOnboarding = (pathname: Route) => {
-  return pathname === '/setup';
+  return pathname.startsWith('/setup');
 };
 
 const routeIsInterviewing = (pathname: Route) => {

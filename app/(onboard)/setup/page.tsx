@@ -1,65 +1,120 @@
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { api } from '~/trpc/server';
-import { getServerSession } from '~/utils/auth';
+'use client';
+
 import { cn } from '~/utils/shadcn';
+import { usePathname, useRouter } from 'next/navigation';
+import OnboardSteps from '../_components/Sidebar';
+import { parseAsInteger, useQueryState } from 'next-usequerystate';
 import { userFormClasses } from '../_shared';
-import OnboardSteps from '../_components/OnboardSteps/StepsSidebar';
-
-import { Suspense } from 'react';
+import { useSession } from '~/providers/SessionProvider';
+import React, { useCallback, useEffect } from 'react';
+import type { Route } from 'next';
+import { api } from '~/trpc/client';
 import dynamic from 'next/dynamic';
-import { steps } from '../_components/OnboardSteps/Steps';
+import { AnimatePresence, motion } from 'framer-motion';
+import { OnboardingProvider } from '../_components/OnboardingProvider';
+import { StepLoadingState, StepMotionWrapper } from '../_components/Helpers';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
-async function Page({
-  searchParams: { step = '1' },
-}: {
-  searchParams: {
-    step?: string;
-  };
-}) {
-  const stepInt = parseInt(step ?? '1', 10);
+// Stages are dynamically imported, and then conditionally rendered, so that
+// we don't load all the code for all the stages at once.
+const CreateAccount = dynamic(
+  () => import('../_components/OnboardSteps/CreateAccount'),
+  {
+    loading: () => <StepLoadingState key="loading" />,
+  },
+);
+const UploadProtocol = dynamic(
+  () => import('../_components/OnboardSteps/UploadProtocol'),
+  {
+    loading: () => <StepLoadingState key="loading" />,
+  },
+);
+const ManageParticipants = dynamic(
+  () => import('../_components/OnboardSteps/ManageParticipants'),
+  {
+    loading: () => <StepLoadingState key="loading" />,
+  },
+);
+const Documentation = dynamic(
+  () => import('../_components/OnboardSteps/Documentation'),
+  {
+    loading: () => <StepLoadingState key="loading" />,
+  },
+);
 
-  const expired = await api.appSettings.get.expired.query(undefined, {
-    context: {
-      revalidate: 1,
-    },
-  });
+function Page() {
+  const { session, isLoading } = useSession();
+  const pathname = usePathname() as Route;
+  const router = useRouter();
 
-  if (expired) {
-    revalidateTag('appExpired');
-  }
-
-  const session = await getServerSession();
-
-  // If we have a session already, skip the account signup step
-  if (session && stepInt === 1) {
-    redirect('/setup?step=2');
-  }
-
-  if (!session && stepInt > 1) {
-    redirect('/setup?step=1');
-  }
-
-  console.log('step', step);
-
-  const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
-  const mainClasses = cn('bg-white flex w-full p-8 rounded-xl');
-
-  const StepComponent = steps[stepInt - 1].component;
-
-  const CustomModule = dynamic(
-    () => import(`../_components/OnboardSteps/${StepComponent}`),
+  const [currentStep, setCurrentStep] = useQueryState(
+    'step',
+    parseAsInteger.withDefault(1),
   );
 
+  const { data: expired } = api.appSettings.get.expired.useQuery(undefined, {
+    refetchInterval: 1000 * 10,
+  });
+
+  useEffect(() => {
+    if (expired) {
+      clientRevalidateTag('appExpired')
+        .then(() => router.refresh())
+        // eslint-disable-next-line no-console
+        .catch((e) => console.error(e));
+    }
+
+    if (isLoading) {
+      return;
+    }
+
+    if (!session && currentStep !== 1) {
+      setCurrentStep(1).catch(() => {});
+      return;
+    }
+  }, [
+    isLoading,
+    expired,
+    router,
+    pathname,
+    session,
+    currentStep,
+    setCurrentStep,
+  ]);
+
+  const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
+  const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
+
   return (
-    <div className={cardClasses}>
-      <OnboardSteps currentStep={stepInt - 1} />
-      <div className={mainClasses}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <CustomModule />
-        </Suspense>
-      </div>
-    </div>
+    <motion.div className={cardClasses}>
+      <OnboardingProvider>
+        <OnboardSteps />
+        <div className={mainClasses}>
+          <AnimatePresence mode="wait">
+            {currentStep === 1 && (
+              <StepMotionWrapper key="create">
+                <CreateAccount />
+              </StepMotionWrapper>
+            )}
+            {currentStep === 2 && (
+              <StepMotionWrapper key="upload">
+                <UploadProtocol />
+              </StepMotionWrapper>
+            )}
+            {currentStep === 3 && (
+              <StepMotionWrapper key="manage">
+                <ManageParticipants />
+              </StepMotionWrapper>
+            )}
+            {currentStep === 4 && (
+              <StepMotionWrapper key="docs">
+                <Documentation />
+              </StepMotionWrapper>
+            )}
+          </AnimatePresence>
+        </div>
+      </OnboardingProvider>
+    </motion.div>
   );
 }
 
