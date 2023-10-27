@@ -8,6 +8,7 @@ import {
   type ColumnDef,
   type ColumnFiltersState,
   type SortingState,
+  type Row,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
@@ -27,7 +28,9 @@ interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
-  handleDeleteSelected?: (data: TData[]) => Promise<void>;
+  handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
+  actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
+  actionsHeader?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -35,6 +38,8 @@ export function DataTable<TData, TValue>({
   data,
   handleDeleteSelected,
   filterColumnAccessorKey = '',
+  actions,
+  actionsHeader,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -44,6 +49,18 @@ export function DataTable<TData, TValue>({
 
   if (columns.length === 0) {
     columns = makeDefaultColumns(data);
+  }
+
+  if (actions) {
+    const actionsColumn = {
+      id: 'actions',
+      header: () => (actionsHeader ? actionsHeader : null),
+      cell: ({ row }: { row: Row<TData> }) => {
+        return flexRender(actions, { row, data });
+      },
+    };
+
+    columns = [...columns, actionsColumn];
   }
 
   const deleteHandler = async () => {
