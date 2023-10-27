@@ -18,7 +18,7 @@ export default async function Page({
   };
 }) {
   // check if active protocol exists
-  const activeProtocol = await api.protocol.getActive.query();
+  const activeProtocol = await api.protocol.getCurrentlyActive.query();
   if (!activeProtocol) {
     return (
       <ErrorMessage

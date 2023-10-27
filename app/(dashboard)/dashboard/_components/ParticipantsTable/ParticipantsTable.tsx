@@ -1,79 +1,62 @@
 'use client';
 
-import { type Participant } from '@prisma/client';
-import { useState } from 'react';
 import { api } from '~/trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
-import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
-import { DeleteAllParticipantsButton } from '../../participants/_components/DeleteAllParticipantsButton';
-
+import type { ParticipantWithInterviews } from '~/shared/types';
+import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
+import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
+import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
+import { useState } from 'react';
+import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 export const ParticipantsTable = ({
   initialData,
 }: {
-  initialData: Participant[];
+  initialData: ParticipantWithInterviews[];
 }) => {
-  const [seletedParticipant, setSeletedParticipant] = useState<string | null>(
-    null,
-  );
-  const [showModal, setShowModal] = useState(false);
-
-  const {
-    isLoading,
-    refetch,
-    data: participants,
-  } = api.participant.get.all.useQuery(undefined, {
-    initialData,
-    refetchOnMount: false,
-    onError(error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      throw new Error(error.message);
-    },
-  });
-
-  const { mutateAsync: deleteParticipants } =
-    api.participant.delete.byId.useMutation({
-      async onSuccess() {
-        await refetch();
-      },
+  const { isLoading, data: participants } = api.participant.get.all.useQuery(
+    undefined,
+    {
+      initialData,
+      refetchOnMount: false,
       onError(error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
         throw new Error(error.message);
       },
-    });
+    },
+  );
+  const [participantsToDelete, setParticipantsToDelete] =
+    useState<ParticipantWithInterviews[]>();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const editParticipant = (identifier: string) => {
-    setSeletedParticipant(identifier);
-    setShowModal(true);
-  };
-
-  const handleDelete = async (data: Participant[]) => {
-    await deleteParticipants(data.map((d) => d.identifier));
-    await refetch();
+  const handleDelete = (data: ParticipantWithInterviews[]) => {
+    setParticipantsToDelete(data);
+    setShowDeleteModal(true);
   };
 
   return (
     <>
       <div className="flex gap-2">
-        <ParticipantModal
-          open={showModal}
-          setOpen={setShowModal}
-          existingParticipants={participants}
-          editingParticipant={seletedParticipant}
-          setEditingParticipant={setSeletedParticipant}
-        />
+        <AddParticipantButton existingParticipants={participants} />
         <ImportCSVModal />
         <ExportCSVParticipants participants={participants} />
         <DeleteAllParticipantsButton />
       </div>
       {isLoading && <div>Loading...</div>}
+      <DeleteParticipantsDialog
+        open={showDeleteModal}
+        setOpen={setShowDeleteModal}
+        participantsToDelete={participantsToDelete || []}
+      />
       <DataTable
-        columns={ParticipantColumns(editParticipant, handleDelete)}
+        columns={ParticipantColumns()}
         data={participants}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
+        actions={ActionsDropdown}
       />
     </>
   );

@@ -1,4 +1,3 @@
-import ProtocolUploader from './_components/ProtocolUploader';
 import ResetButton from './_components/ResetButton';
 import AnonymousRecruitment from './_components/AnonymousRecruitment';
 import Link from 'next/link';
@@ -15,7 +14,6 @@ function Home() {
         </Link>
         <ResetButton />
         <AnonymousRecruitment />
-        <ProtocolUploader />
       </main>
     </>
   );
