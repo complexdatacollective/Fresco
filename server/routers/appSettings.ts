@@ -9,6 +9,7 @@ import {
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 import { signOutProc } from './session';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
@@ -102,6 +103,10 @@ export const appSettingsRouter = router({
     await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
     await prisma.participant.deleteMany();
     await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
+
+    revalidateTag('appConfigured');
+    revalidateTag('appExpired');
+    revalidatePath('/');
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
   }),
