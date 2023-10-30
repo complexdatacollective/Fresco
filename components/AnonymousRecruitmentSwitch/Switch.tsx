@@ -2,13 +2,14 @@
 
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { setAnonymousRecruitment } from './action';
-import { useOptimistic } from 'react';
+import { useOptimistic, useTransition } from 'react';
 
 const Switch = ({
   allowAnonymousRecruitment,
 }: {
   allowAnonymousRecruitment: boolean;
 }) => {
+  const [isPending, startTransition] = useTransition();
   const [
     optimisticAllowAnonymousRecruitment,
     setOptimisticAllowAnonymousRecruitment,
@@ -29,9 +30,11 @@ const Switch = ({
         <SwitchUI
           name="allowAnonymousRecruitment"
           checked={optimisticAllowAnonymousRecruitment}
-          onCheckedChange={async (value) => {
-            setOptimisticAllowAnonymousRecruitment(value);
-            await setAnonymousRecruitment(value);
+          onCheckedChange={(value) => {
+            startTransition(async () => {
+              setOptimisticAllowAnonymousRecruitment(value);
+              await setAnonymousRecruitment(value);
+            });
           }}
         />
       </div>
