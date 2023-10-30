@@ -55,7 +55,11 @@ export const SessionProvider = ({
     api.session.signOut.useMutation({
       onSuccess: () => {
         setSession(null);
-        router.replace('/');
+        // As with elsewhere, using the router causes a flash, so we use
+        // window.location.replace() instead.
+
+        window.location.replace('/');
+        // router.replace('/');
       },
     });
 

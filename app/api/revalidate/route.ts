@@ -1,5 +1,9 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 
+type Request = {
+  json: () => Promise<{ tag?: string; path?: string }>;
+};
+
 // Route handler for triggering revalidation based on a tag or a path from client components
 export async function POST(request: Request) {
   const { tag, path } = await request.json();

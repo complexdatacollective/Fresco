@@ -1,7 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { FileText, Loader2, MonitorPlay } from 'lucide-react';
-import { FancyButton } from '~/components/ui/FancyButton';
-import { useFormStatus } from 'react-dom';
+import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
 

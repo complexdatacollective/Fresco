@@ -1,13 +1,12 @@
 'use client';
 
 import { cn } from '~/utils/shadcn';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import OnboardSteps from '../_components/Sidebar';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
 import { userFormClasses } from '../_shared';
 import { useSession } from '~/providers/SessionProvider';
 import React, { useEffect } from 'react';
-import type { Route } from 'next';
 import { api } from '~/trpc/client';
 import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -44,7 +43,6 @@ const Documentation = dynamic(
 
 function Page() {
   const { session, isLoading } = useSession();
-  const pathname = usePathname() as Route;
   const router = useRouter();
 
   const [currentStep, setCurrentStep] = useQueryState(

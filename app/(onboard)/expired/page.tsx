@@ -15,7 +15,7 @@ export default function Page() {
         Please redploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <form action={resetAppSettings}>
+        <form action={() => void resetAppSettings()}>
           <Button className="mt-6 max-w-[20rem]" type="submit">
             Dev mode: Reset Configuration
           </Button>

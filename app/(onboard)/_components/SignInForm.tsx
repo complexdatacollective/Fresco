@@ -9,7 +9,6 @@ import { api } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
 import type { Route } from 'next';
 import useZodForm from '~/hooks/useZodForm';
-import { useRouter } from 'next/navigation';
 
 type ResponseError = {
   title: string;
@@ -18,7 +17,6 @@ type ResponseError = {
 
 export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const [responseError, setResponseError] = useState<ResponseError | null>(
     null,

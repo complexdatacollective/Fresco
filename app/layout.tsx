@@ -5,7 +5,6 @@ import RedirectWrapper from '~/components/RedirectWrapper';
 import { getServerSession } from '~/utils/auth';
 import { api } from '~/trpc/server';
 import { Toaster } from '~/components/ui/toaster';
-import { redirect } from 'next/navigation';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const metadata = {

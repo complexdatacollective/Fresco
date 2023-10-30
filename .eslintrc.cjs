@@ -42,6 +42,12 @@ const config = {
         argsIgnorePattern: '^_',
       },
     ],
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": false
+      }
+    ],
     'no-unreachable': 'error',
     'local-rules/require-data-mapper': 'error',
   },
