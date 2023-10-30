@@ -9,7 +9,6 @@ const config = {
   output: 'standalone',
   reactStrictMode: true,
   experimental: {
-    serverActions: true,
     typedRoutes: true,
   },
 };

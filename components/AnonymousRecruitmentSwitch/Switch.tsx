@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 'use client';
 
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { setAnonymousRecruitment } from './action';
-import { experimental_useOptimistic as useOptimistic } from 'react';
+import { useOptimistic } from 'react';
 
 const Switch = ({
   allowAnonymousRecruitment,

@@ -3,8 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { FancyButton } from '~/components/ui/FancyButton';
-import { useRouter } from 'next/navigation';
-import { experimental_useFormStatus as useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { setAppConfigured } from '~/app/_actions';
 
 function Documentation() {
