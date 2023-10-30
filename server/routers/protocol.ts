@@ -11,29 +11,21 @@ const updateActiveProtocolSchema = z.object({
 export const protocolRouter = router({
   get: router({
     all: protectedProcedure.query(async () => {
-      try {
-        const protocols = await prisma.protocol.findMany({
-          include: { interviews: true },
-        });
-        return protocols;
-      } catch (error) {
-        return { error: 'Failed to fetch all protocols', protocols: null };
-      }
+      const protocols = await prisma.protocol.findMany({
+        include: { interviews: true },
+      });
+      return protocols;
     }),
 
     byHash: protectedProcedure
       .input(z.string())
       .query(async ({ input: hash }) => {
-        try {
-          const protocol = await prisma.protocol.findFirst({
-            where: {
-              hash,
-            },
-          });
-          return protocol;
-        } catch (error) {
-          return { error: 'Failed to fetch protocol by hash', protocol: null };
-        }
+        const protocol = await prisma.protocol.findFirst({
+          where: {
+            hash,
+          },
+        });
+        return protocol;
       }),
 
     lastUploaded: protectedProcedure.query(async () => {
