@@ -16,14 +16,7 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const interview = await api.interview.get.byId.query(
-    { id: interviewId },
-    {
-      context: {
-        revalidate: 0,
-      },
-    },
-  );
+  const interview = await api.interview.get.byId.query({ id: interviewId });
 
   if (!interview) {
     return 'No interview found';

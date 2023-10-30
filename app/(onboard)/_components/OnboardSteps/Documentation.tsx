@@ -17,7 +17,7 @@ function Documentation() {
       setLoading(true);
     },
     onSuccess: () => {
-      clientRevalidateTag('appConfigured')
+      clientRevalidateTag('appSettings.get')
         .then(() => router.refresh())
         // eslint-disable-next-line no-console
         .catch((e) => console.error(e));

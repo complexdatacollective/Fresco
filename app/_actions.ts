@@ -7,3 +7,8 @@ export const resetAppSettings = async () => {
   await api.appSettings.reset.mutate();
   redirect('/');
 };
+
+export const setAppConfigured = async () => {
+  await api.appSettings.setConfigured.mutate();
+  redirect('/');
+};
