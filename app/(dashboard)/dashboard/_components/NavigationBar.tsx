@@ -35,7 +35,7 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex justify-between p-10">
+    <nav className="flex justify-between bg-[#e5e7eb] px-4 py-2">
       <Link href="/" className="mr-6 flex items-center space-x-2">
         <Image
           src="/images/NC-Mark@4x.png"

@@ -9,6 +9,7 @@ import usePrevious from '~/hooks/usePrevious';
 type SessionWithLoading = {
   session: Session | null;
   isLoading: boolean;
+  signOut: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionWithLoading | null>(null);
@@ -36,7 +37,7 @@ export const SessionProvider = ({
   const previousSession = usePrevious(session);
   const router = useRouter();
 
-  const { refetch: getSession, isFetching: isLoading } =
+  const { refetch: getSession, isFetching: isFetchingSession } =
     api.session.get.useQuery(undefined, {
       refetchOnMount: false,
       refetchOnWindowFocus: true,
@@ -50,7 +51,13 @@ export const SessionProvider = ({
       },
     });
 
-  const { mutateAsync: signOut } = api.session.signOut.useMutation();
+  const { mutateAsync: signOut, isLoading: isSigningOut } =
+    api.session.signOut.useMutation({
+      onSuccess: () => {
+        setSession(null);
+        router.replace('/');
+      },
+    });
 
   // If we have an initial session, we don't need to fetch it again.
   useEffect(() => {
@@ -76,10 +83,10 @@ export const SessionProvider = ({
   const value = useMemo(
     () => ({
       session,
-      isLoading,
+      isLoading: isFetchingSession || isSigningOut,
       signOut,
     }),
-    [session, isLoading, signOut],
+    [session, isFetchingSession, isSigningOut, signOut],
   );
 
   return (
