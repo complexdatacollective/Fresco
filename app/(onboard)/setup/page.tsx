@@ -6,7 +6,7 @@ import OnboardSteps from '../_components/Sidebar';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
 import { userFormClasses } from '../_shared';
 import { useSession } from '~/providers/SessionProvider';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import type { Route } from 'next';
 import { api } from '~/trpc/client';
 import dynamic from 'next/dynamic';
@@ -63,7 +63,9 @@ function Page() {
         // eslint-disable-next-line no-console
         .catch((e) => console.error(e));
     }
+  }, [data, router]);
 
+  useEffect(() => {
     if (isLoading) {
       return;
     }
@@ -72,7 +74,12 @@ function Page() {
       setCurrentStep(1).catch(() => {});
       return;
     }
-  }, [isLoading, data, router, pathname, session, currentStep, setCurrentStep]);
+
+    if (session && currentStep === 1) {
+      setCurrentStep(2).catch(() => {});
+      return;
+    }
+  }, [isLoading, session, currentStep, setCurrentStep]);
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');

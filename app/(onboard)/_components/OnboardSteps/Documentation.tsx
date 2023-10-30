@@ -1,25 +1,11 @@
-'use client';
-
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
 import { FancyButton } from '~/components/ui/FancyButton';
 import { useFormStatus } from 'react-dom';
 import { setAppConfigured } from '~/app/_actions';
+import SubmitButton from '~/components/ui/SubmitButton';
 
 function Documentation() {
-  const { pending: loading } = useFormStatus();
-
-  if (loading) {
-    return (
-      <div className="flex w-[30rem] items-center justify-center">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <h2 className="text-2xl font-bold">Finalizing setup...</h2>
-          <Loader2 size={50} className="animate-spin" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
@@ -61,7 +47,9 @@ function Documentation() {
 
       <div className="flex justify-start pt-12">
         <form action={setAppConfigured}>
-          <FancyButton type="submit">Go to the dashboard!</FancyButton>
+          <SubmitButton variant="default" size={'lg'}>
+            Go to the dashboard!
+          </SubmitButton>
         </form>
       </div>
     </div>

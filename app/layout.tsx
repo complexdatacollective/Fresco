@@ -5,7 +5,8 @@ import RedirectWrapper from '~/components/RedirectWrapper';
 import { getServerSession } from '~/utils/auth';
 import { api } from '~/trpc/server';
 import { Toaster } from '~/components/ui/toaster';
-import { revalidateTag } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -15,21 +16,22 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await api.session.get.query();
+  const session = await getServerSession();
   const appSettings = await api.appSettings.get.query();
 
   // If this is the first run, app settings must be created
   if (!appSettings) {
     await api.appSettings.create.mutate();
-    return;
+    revalidateTag('appSettings.get');
+    revalidatePath('/');
   }
 
   return (
     <html lang="en">
       <body>
         <RedirectWrapper
-          configured={appSettings.configured}
-          expired={appSettings.expired}
+          configured={!!appSettings?.configured}
+          expired={!!appSettings?.expired}
           session={session}
         >
           <Providers initialSession={session}>{children}</Providers>

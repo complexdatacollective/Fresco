@@ -24,8 +24,6 @@ export const signOutProc = async ({ ctx }: { ctx: Context }) => {
 
   authRequest.setSession(null);
 
-  revalidateTag('session.get');
-
   return {
     success: true,
   };
@@ -85,8 +83,6 @@ export const sessionRouter = router({
       const authRequest = auth.handleRequest('POST', context);
 
       authRequest.setSession(session);
-
-      revalidateTag('session.get');
 
       return {
         error: null,
