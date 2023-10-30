@@ -121,17 +121,13 @@ export const interviewRouter = router({
     }),
   get: router({
     all: publicProcedure.query(async () => {
-      try {
-        const interviews = await prisma.interview.findMany({
-          include: {
-            protocol: true,
-            participant: true,
-          },
-        });
-        return interviews;
-      } catch (error) {
-        return { error: 'Failed to fetch interviews', interviews: null };
-      }
+      const interviews = await prisma.interview.findMany({
+        include: {
+          protocol: true,
+          participant: true,
+        },
+      });
+      return interviews;
     }),
     byId: publicProcedure
       .input(
@@ -140,18 +136,14 @@ export const interviewRouter = router({
         }),
       )
       .query(async ({ input: id }) => {
-        try {
-          const interview = await prisma.interview.findFirst({
-            where: id,
-            include: {
-              protocol: true,
-              participant: true,
-            },
-          });
-          return interview;
-        } catch (error) {
-          return { error: 'Failed to fetch interview by ID', interview: null };
-        }
+        const interview = await prisma.interview.findFirst({
+          where: id,
+          include: {
+            protocol: true,
+            participant: true,
+          },
+        });
+        return interview;
       }),
   }),
   delete: protectedProcedure

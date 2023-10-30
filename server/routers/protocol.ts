@@ -37,19 +37,12 @@ export const protocolRouter = router({
       }),
 
     lastUploaded: protectedProcedure.query(async () => {
-      try {
-        const protocol = await prisma.protocol.findFirst({
-          orderBy: {
-            importedAt: 'desc',
-          },
-        });
-        return protocol;
-      } catch (error) {
-        return {
-          error: 'Failed to fetch last uploaded protocol',
-          protocol: null,
-        };
-      }
+      const protocol = await prisma.protocol.findFirst({
+        orderBy: {
+          importedAt: 'desc',
+        },
+      });
+      return protocol;
     }),
   }),
   getActive: protectedProcedure
@@ -67,19 +60,12 @@ export const protocolRouter = router({
     }),
 
   getCurrentlyActive: protectedProcedure.query(async () => {
-    try {
-      const protocol = await prisma.protocol.findFirst({
-        where: {
-          active: true,
-        },
-      });
-      return protocol;
-    } catch (error) {
-      return {
-        error: 'Failed to fetch currently active protocol',
-        active: false,
-      };
-    }
+    const protocol = await prisma.protocol.findFirst({
+      where: {
+        active: true,
+      },
+    });
+    return protocol;
   }),
 
   setActive: protectedProcedure
