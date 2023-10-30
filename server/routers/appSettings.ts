@@ -9,21 +9,16 @@ import {
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 import { signOutProc } from './session';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
 export const getAppSettings = async () => {
-  let appSettings = await prisma.appSettings.findFirst();
-  // if no setup appSettings exists, seed it
+  const appSettings = await prisma.appSettings.findFirst();
+
   if (!appSettings) {
-    appSettings = await prisma.appSettings.create({
-      data: {
-        configured: false,
-        initializedAt: new Date(),
-      },
-    });
+    return null;
   }
 
   return {
@@ -35,52 +30,30 @@ export const getAppSettings = async () => {
   };
 };
 
-const getPropertiesRouter = router({
-  allappSettings: publicProcedure.query(getAppSettings),
-  adminUserExists: publicProcedure.query(async () => {
-    const user = await prisma.user.count();
-    return user > 0;
-  }),
-  expired: publicProcedure.query(async () => {
-    const { expired } = await getAppSettings();
-
-    return expired;
-  }),
-  configured: publicProcedure.query(async () => {
-    const { configured } = await getAppSettings();
-
-    return configured;
-  }),
-  initializedAt: publicProcedure.query(async () => {
-    const { initializedAt } = await getAppSettings();
-
-    return initializedAt;
-  }),
-  allowAnonymousRecruitment: publicProcedure.query(async () => {
-    const { allowAnonymousRecruitment } = await getAppSettings();
-
-    return allowAnonymousRecruitment;
-  }),
-});
-
 export const appSettingsRouter = router({
-  get: getPropertiesRouter,
+  get: publicProcedure.query(getAppSettings),
+  create: publicProcedure.mutation(async () => {
+    const appSettings = await prisma.appSettings.create({
+      data: {
+        initializedAt: new Date(),
+      },
+    });
+
+    revalidateTag('appSettings.get');
+    return appSettings;
+  }),
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
-      const { configured, initializedAt } = await getAppSettings();
       try {
-        const updatedappSettings = await prisma.appSettings.update({
-          where: {
-            configured_initializedAt: {
-              configured,
-              initializedAt,
-            },
-          },
+        const updatedappSettings = await prisma.appSettings.updateMany({
           data: {
             allowAnonymousRecruitment: input,
           },
         });
+
+        revalidateTag('appSettings.get');
+
         return { error: null, appSettings: updatedappSettings };
       } catch (error) {
         return { error: 'Failed to update appSettings', appSettings: null };
@@ -103,27 +76,19 @@ export const appSettingsRouter = router({
     await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
     await prisma.participant.deleteMany();
     await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
+    await prisma.appSettings.deleteMany();
 
-    revalidateTag('appConfigured');
-    revalidateTag('appExpired');
-    revalidatePath('/');
+    revalidateTag('appSettings.get');
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
   }),
   setConfigured: publicProcedure.mutation(async () => {
-    const { configured, initializedAt } = await getAppSettings();
-
-    await prisma.appSettings.update({
-      where: {
-        configured_initializedAt: {
-          configured,
-          initializedAt,
-        },
-      },
+    await prisma.appSettings.updateMany({
       data: {
         configured: true,
-        configuredAt: new Date(),
       },
     });
+
+    revalidateTag('appSettings.get');
   }),
 });

@@ -92,10 +92,9 @@ model Key {
 }
 
 model AppSettings {
-  configured                Boolean   @default(false)
-  initializedAt             DateTime  @default(now())
-  configuredAt              DateTime?
-  allowAnonymousRecruitment Boolean   @default(false)
+  configured                Boolean  @default(false)
+  initializedAt             DateTime @default(now())
+  allowAnonymousRecruitment Boolean  @default(false)
 
   @@id([configured, initializedAt])
 }

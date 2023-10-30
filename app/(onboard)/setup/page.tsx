@@ -52,13 +52,13 @@ function Page() {
     parseAsInteger.withDefault(1),
   );
 
-  const { data: expired } = api.appSettings.get.expired.useQuery(undefined, {
+  const { data } = api.appSettings.get.useQuery(undefined, {
     refetchInterval: 1000 * 10,
   });
 
   useEffect(() => {
-    if (expired) {
-      clientRevalidateTag('appExpired')
+    if (data?.expired) {
+      clientRevalidateTag('appSettings.get')
         .then(() => router.refresh())
         // eslint-disable-next-line no-console
         .catch((e) => console.error(e));
@@ -72,15 +72,7 @@ function Page() {
       setCurrentStep(1).catch(() => {});
       return;
     }
-  }, [
-    isLoading,
-    expired,
-    router,
-    pathname,
-    session,
-    currentStep,
-    setCurrentStep,
-  ]);
+  }, [isLoading, data, router, pathname, session, currentStep, setCurrentStep]);
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
