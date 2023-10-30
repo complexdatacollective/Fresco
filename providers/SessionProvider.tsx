@@ -9,7 +9,7 @@ import usePrevious from '~/hooks/usePrevious';
 type SessionWithLoading = {
   session: Session | null;
   isLoading: boolean;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ success: boolean }>;
 };
 
 const SessionContext = createContext<SessionWithLoading | null>(null);

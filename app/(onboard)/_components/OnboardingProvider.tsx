@@ -1,9 +1,10 @@
 import { useQueryState, parseAsInteger } from 'next-usequerystate';
 import { createContext, useContext, type ReactNode } from 'react';
+import type { URLSearchParams } from 'url';
 
 type OnboardingContext = {
   currentStep: number;
-  setCurrentStep: (step: number) => Promise<void>;
+  setCurrentStep: (step: number) => Promise<URLSearchParams>;
 };
 
 const onboardingContext = createContext<OnboardingContext | null>(null);

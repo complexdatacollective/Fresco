@@ -9,7 +9,7 @@ const Switch = ({
 }: {
   allowAnonymousRecruitment: boolean;
 }) => {
-  const [startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [
     optimisticAllowAnonymousRecruitment,
     setOptimisticAllowAnonymousRecruitment,
