@@ -75,9 +75,6 @@ function ParticipantModal({
       onMutate() {
         setIsLoading(true);
       },
-      async onSuccess() {
-        await utils.participant.get.invalidate();
-      },
       onError(error) {
         setError(error.message);
       },
@@ -112,9 +109,8 @@ function ParticipantModal({
       await createParticipant([data.identifier]);
     }
 
-    await utils.participant.get.invalidate();
-
     if (!error) {
+      await utils.participant.get.invalidate();
       setOpen(false);
       reset();
     }

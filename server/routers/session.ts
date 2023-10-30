@@ -6,6 +6,7 @@ import { protectedProcedure, publicProcedure, router } from '../trpc';
 import * as context from 'next/headers';
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { createTRPCContext } from '../context';
+import { revalidateTag } from 'next/cache';
 
 type Context = inferAsyncReturnType<typeof createTRPCContext>;
 
@@ -22,6 +23,8 @@ export const signOutProc = async ({ ctx }: { ctx: Context }) => {
   await auth.invalidateSession(session.sessionId);
 
   authRequest.setSession(null);
+
+  revalidateTag('session.get');
 
   return {
     success: true,
@@ -82,6 +85,8 @@ export const sessionRouter = router({
       const authRequest = auth.handleRequest('POST', context);
 
       authRequest.setSession(session);
+
+      revalidateTag('session.get');
 
       return {
         error: null,

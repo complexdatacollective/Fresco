@@ -15,8 +15,7 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession();
-
+  const session = await api.session.get.query();
   const appSettings = await api.appSettings.get.query();
 
   // If this is the first run, app settings must be created

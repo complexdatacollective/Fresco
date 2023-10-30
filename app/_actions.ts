@@ -10,5 +10,5 @@ export const resetAppSettings = async () => {
 
 export const setAppConfigured = async () => {
   await api.appSettings.setConfigured.mutate();
-  redirect('/');
+  redirect('/dashboard');
 };

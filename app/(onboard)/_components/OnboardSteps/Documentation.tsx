@@ -2,30 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, Loader2, MonitorPlay } from 'lucide-react';
-import { api } from '~/trpc/client';
-import { useState } from 'react';
 import { FancyButton } from '~/components/ui/FancyButton';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
 import { useRouter } from 'next/navigation';
+import { experimental_useFormStatus as useFormStatus } from 'react-dom';
+import { setAppConfigured } from '~/app/_actions';
 
 function Documentation() {
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  const { mutate: setConfigured } = api.appSettings.setConfigured.useMutation({
-    onMutate: () => {
-      setLoading(true);
-    },
-    onSuccess: () => {
-      clientRevalidateTag('appSettings.get')
-        .then(() => router.refresh())
-        // eslint-disable-next-line no-console
-        .catch((e) => console.error(e));
-    },
-    onError: () => {
-      setLoading(false);
-    },
-  });
+  const { pending: loading } = useFormStatus();
 
   if (loading) {
     return (
@@ -78,9 +61,9 @@ function Documentation() {
       </Card>
 
       <div className="flex justify-start pt-12">
-        <FancyButton type="submit" onClick={() => setConfigured()}>
-          Go to the dashboard!
-        </FancyButton>
+        <form action={setAppConfigured}>
+          <FancyButton type="submit">Go to the dashboard!</FancyButton>
+        </form>
       </div>
     </div>
   );
