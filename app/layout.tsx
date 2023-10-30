@@ -18,23 +18,26 @@ export const dynamic = 'force-dynamic';
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
 
-  const { configured, expired } =
-    await api.appSettings.get.allappSettings.query();
-
-  return (
-    <html lang="en">
-      <body>
-        <RedirectWrapper
-          configured={configured}
-          expired={expired}
-          session={session}
-        >
-          <Providers initialSession={session}>{children}</Providers>
-          <Toaster />
-        </RedirectWrapper>
-      </body>
-    </html>
-  );
+  try {
+    const { configured, expired } =
+      await api.appSettings.get.allappSettings.query();
+    return (
+      <html lang="en">
+        <body>
+          <RedirectWrapper
+            configured={configured}
+            expired={expired}
+            session={session}
+          >
+            <Providers initialSession={session}>{children}</Providers>
+            <Toaster />
+          </RedirectWrapper>
+        </body>
+      </html>
+    );
+  } catch (error) {
+    throw new Error('Failed to fetch app settings');
+  }
 }
 
 export default RootLayout;

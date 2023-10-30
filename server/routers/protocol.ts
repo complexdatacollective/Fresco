@@ -11,31 +11,45 @@ const updateActiveProtocolSchema = z.object({
 export const protocolRouter = router({
   get: router({
     all: protectedProcedure.query(async () => {
-      const protocols = await prisma.protocol.findMany({
-        include: { interviews: true },
-      });
-
-      return protocols;
+      try {
+        const protocols = await prisma.protocol.findMany({
+          include: { interviews: true },
+        });
+        return protocols;
+      } catch (error) {
+        return { error: 'Failed to fetch all protocols', protocols: null };
+      }
     }),
+
     byHash: protectedProcedure
       .input(z.string())
       .query(async ({ input: hash }) => {
+        try {
+          const protocol = await prisma.protocol.findFirst({
+            where: {
+              hash,
+            },
+          });
+          return protocol;
+        } catch (error) {
+          return { error: 'Failed to fetch protocol by hash', protocol: null };
+        }
+      }),
+
+    lastUploaded: protectedProcedure.query(async () => {
+      try {
         const protocol = await prisma.protocol.findFirst({
-          where: {
-            hash,
+          orderBy: {
+            importedAt: 'desc',
           },
         });
-
         return protocol;
-      }),
-    lastUploaded: protectedProcedure.query(async () => {
-      const protocol = await prisma.protocol.findFirst({
-        orderBy: {
-          importedAt: 'desc',
-        },
-      });
-
-      return protocol;
+      } catch (error) {
+        return {
+          error: 'Failed to fetch last uploaded protocol',
+          protocol: null,
+        };
+      }
     }),
   }),
   getActive: protectedProcedure
@@ -49,61 +63,75 @@ export const protocolRouter = router({
           active: true,
         },
       });
-
       return protocol?.active || false;
     }),
-  getCurrentlyActive: protectedProcedure.query(async () => {
-    const protocol = await prisma.protocol.findFirst({
-      where: {
-        active: true,
-      },
-    });
 
-    return protocol;
+  getCurrentlyActive: protectedProcedure.query(async () => {
+    try {
+      const protocol = await prisma.protocol.findFirst({
+        where: {
+          active: true,
+        },
+      });
+      return protocol;
+    } catch (error) {
+      return {
+        error: 'Failed to fetch currently active protocol',
+        active: false,
+      };
+    }
   }),
+
   setActive: protectedProcedure
     .input(updateActiveProtocolSchema)
     .mutation(async ({ input: { input, hash } }) => {
-      const currentActive = await prisma.protocol.findFirst({
-        where: {
-          active: true,
-        },
-      });
-
-      // if input is false, deactivate the active protocol
-      if (!input) {
-        await prisma.protocol.update({
+      try {
+        const currentActive = await prisma.protocol.findFirst({
           where: {
-            hash: hash,
             active: true,
           },
-          data: {
-            active: false,
-          },
         });
-        return;
-      }
 
-      // deactivate the current active protocol, if it exists
-      if (currentActive) {
+        // If input is false, deactivate the active protocol
+        if (!input) {
+          await prisma.protocol.update({
+            where: {
+              hash: hash,
+              active: true,
+            },
+            data: {
+              active: false,
+            },
+          });
+          return { error: null, success: true };
+        }
+
+        // Deactivate the current active protocol, if it exists
+        if (currentActive) {
+          await prisma.protocol.update({
+            where: {
+              id: currentActive.id,
+            },
+            data: {
+              active: false,
+            },
+          });
+        }
+
+        // Make the protocol with the given hash active
         await prisma.protocol.update({
           where: {
-            id: currentActive?.id,
+            hash,
           },
           data: {
-            active: false,
+            active: true,
           },
         });
+
+        return { error: null, success: true };
+      } catch (error) {
+        return { error: 'Failed to set active protocol', success: false };
       }
-      // make the protocol with the given hash active
-      await prisma.protocol.update({
-        where: {
-          hash,
-        },
-        data: {
-          active: true,
-        },
-      });
     }),
   delete: router({
     all: protectedProcedure.mutation(async () => {

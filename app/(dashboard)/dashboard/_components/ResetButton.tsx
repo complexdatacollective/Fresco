@@ -9,7 +9,11 @@ import { Button } from '~/components/ui/Button';
 const ResetButton = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { mutateAsync: resetConfigured } = api.appSettings.reset.useMutation();
+  const { mutateAsync: resetConfigured } = api.appSettings.reset.useMutation({
+    onError(error) {
+      throw new Error(error.message);
+    },
+  });
 
   const reset = async () => {
     setLoading(true);

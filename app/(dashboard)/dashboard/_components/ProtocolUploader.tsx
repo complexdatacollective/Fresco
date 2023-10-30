@@ -132,8 +132,14 @@ export default function ProtocolUploader({
     setOpen(false);
   }
 
-  const { data: lastUploadedProtocol } =
-    api.protocol.get.lastUploaded.useQuery();
+  const { data: lastUploadedProtocol } = api.protocol.get.lastUploaded.useQuery(
+    undefined,
+    {
+      onError(error) {
+        throw new Error(error.message);
+      },
+    },
+  );
 
   return (
     <>

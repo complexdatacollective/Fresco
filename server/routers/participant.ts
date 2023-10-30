@@ -10,18 +10,32 @@ import {
 export const participantRouter = router({
   get: router({
     all: publicProcedure.query(async () => {
-      const participants = await prisma.participant.findMany({
-        include: { interviews: true },
-      });
-      return participants;
+      try {
+        const participants = await prisma.participant.findMany({
+          include: { interviews: true },
+        });
+        return participants;
+      } catch (error) {
+        return {
+          error: 'Failed to fetch all participants',
+          participants: null,
+        };
+      }
     }),
     byIdentifier: publicProcedure
       .input(participantIdentifierSchema)
       .query(async ({ input: identifier }) => {
-        const participant = await prisma.participant.findFirst({
-          where: { identifier },
-        });
-        return participant;
+        try {
+          const participant = await prisma.participant.findFirst({
+            where: { identifier },
+          });
+          return participant;
+        } catch (error) {
+          return {
+            error: 'Failed to fetch participant by identifier',
+            participant: null,
+          };
+        }
       }),
   }),
   create: protectedProcedure

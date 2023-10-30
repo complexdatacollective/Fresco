@@ -21,16 +21,12 @@ function OnboardWizard() {
   const step = searchParams.get('step');
   const stepInt = parseInt(step ?? '1', 10);
 
-  const { data: expired, error } = api.appSettings.get.expired.useQuery(
-    undefined,
-    {
-      refetchInterval: 1000 * 10,
+  const { data: expired } = api.appSettings.get.expired.useQuery(undefined, {
+    refetchInterval: 1000 * 10,
+    onError(error) {
+      throw new Error(error.message);
     },
-  );
-
-  if (error) {
-    throw new Error(error.message);
-  }
+  });
 
   useEffect(() => {
     if (expired) {

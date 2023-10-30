@@ -20,8 +20,7 @@ export const ProtocolsTable = ({
       initialData,
       refetchOnMount: false,
       onError(error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        throw new Error(error.message);
       },
     },
   );

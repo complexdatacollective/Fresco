@@ -13,6 +13,9 @@ const AnonymousRecruitmentSwitch = ({
   const { data: allowAnonymousRecruitment } =
     api.appSettings.get.allowAnonymousRecruitment.useQuery(undefined, {
       initialData,
+      onError(error) {
+        throw new Error(error.message);
+      },
     });
 
   const { mutateAsync: updateAnonymousRecruitment } =

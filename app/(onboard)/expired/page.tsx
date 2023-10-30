@@ -15,6 +15,9 @@ export default function Page() {
 
         window.location.replace('/setup');
       },
+      onError(error) {
+        throw new Error(error.message);
+      },
     },
   );
 

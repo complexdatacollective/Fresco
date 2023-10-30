@@ -44,7 +44,11 @@ export const DeleteParticipantsDialog = ({
     });
   }, [participantsToDelete]);
   const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
-    api.participant.delete.byId.useMutation();
+    api.participant.delete.byId.useMutation({
+      onError(error) {
+        throw new Error(error.message);
+      },
+    });
   const utils = api.useUtils();
 
   const handleConfirm = async () => {
