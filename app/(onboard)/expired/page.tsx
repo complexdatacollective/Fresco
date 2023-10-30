@@ -1,7 +1,7 @@
 import { env } from '~/env.mjs';
 import { userFormClasses } from '../_shared';
-import { Button } from '~/components/ui/Button';
 import { resetAppSettings } from '~/app/_actions';
+import SubmitButton from '~/components/ui/SubmitButton';
 
 export default function Page() {
   return (
@@ -15,10 +15,10 @@ export default function Page() {
         Please redploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <form action={() => void resetAppSettings()}>
-          <Button className="mt-6 max-w-[20rem]" type="submit">
+        <form action={resetAppSettings}>
+          <SubmitButton className="mt-6 max-w-[20rem]" type="submit">
             Dev mode: Reset Configuration
-          </Button>
+          </SubmitButton>
         </form>
       )}
     </div>
