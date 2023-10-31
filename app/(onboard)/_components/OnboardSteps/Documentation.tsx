@@ -15,8 +15,9 @@ function Documentation() {
     onSuccess: () => {
       window.location.replace('/dashboard');
     },
-    onError: () => {
+    onError: (error) => {
       setLoading(false);
+      throw new Error(error.message);
     },
   });
 

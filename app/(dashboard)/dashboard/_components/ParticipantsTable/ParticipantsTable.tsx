@@ -22,8 +22,7 @@ export const ParticipantsTable = ({
       initialData,
       refetchOnMount: false,
       onError(error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        throw new Error(error.message);
       },
     },
   );

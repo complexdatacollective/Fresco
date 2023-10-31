@@ -27,7 +27,11 @@ export const DeleteInterviewsDialog = ({
 }: DeleteInterviewsDialog) => {
   const [hasUnexported, setHasUnexported] = useState<boolean>(false);
   const { mutateAsync: deleteInterviews, isLoading: isDeleting } =
-    api.interview.delete.useMutation();
+    api.interview.delete.useMutation({
+      onError(error) {
+        throw new Error(error.message);
+      },
+    });
   const utils = api.useUtils();
 
   useEffect(() => {

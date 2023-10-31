@@ -1,13 +1,14 @@
 'use client';
 
 import { DataTable } from '~/components/DataTable/DataTable';
+import { ActionsDropdown } from './ActionsDropdown';
 import { ProtocolColumns } from './Columns';
 import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
-import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/ActionsDropdown';
+
 export const ProtocolsTable = ({
   initialData,
 }: {
@@ -19,8 +20,7 @@ export const ProtocolsTable = ({
       initialData,
       refetchOnMount: false,
       onError(error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        throw new Error(error.message);
       },
     },
   );

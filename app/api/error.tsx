@@ -1,4 +1,5 @@
 'use client';
+
 import Error from '~/components/Error';
 
 export default function DashboardError({
@@ -8,5 +9,5 @@ export default function DashboardError({
   error: Error;
   reset: () => void;
 }) {
-  return <Error error={error} reset={reset} heading="Interview Error" />;
+  return <Error error={error} reset={reset} heading="API Error" />;
 }

@@ -14,24 +14,28 @@ const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
 const getappSettings = async () => {
-  let appSettings = await prisma.appSettings.findFirst();
-  // if no setup appSettings exists, seed it
-  if (!appSettings) {
-    appSettings = await prisma.appSettings.create({
-      data: {
-        configured: false,
-        initializedAt: new Date(),
-      },
-    });
-  }
+  try {
+    let appSettings = await prisma.appSettings.findFirst();
+    // if no setup appSettings exists, seed it
+    if (!appSettings) {
+      appSettings = await prisma.appSettings.create({
+        data: {
+          configured: false,
+          initializedAt: new Date(),
+        },
+      });
+    }
 
-  return {
-    ...appSettings,
-    expired: calculateIsExpired(
-      appSettings.configured,
-      appSettings.initializedAt,
-    ),
-  };
+    return {
+      ...appSettings,
+      expired: calculateIsExpired(
+        appSettings.configured,
+        appSettings.initializedAt,
+      ),
+    };
+  } catch (error) {
+    throw new Error('Failed to retrieve appSettings');
+  }
 };
 
 const getPropertiesRouter = router({
@@ -102,19 +106,27 @@ export const appSettingsRouter = router({
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
   }),
   setConfigured: publicProcedure.mutation(async () => {
-    const { configured, initializedAt } = await getappSettings();
+    try {
+      const { configured, initializedAt } = await getappSettings();
 
-    await prisma.appSettings.update({
-      where: {
-        configured_initializedAt: {
-          configured,
-          initializedAt,
+      await prisma.appSettings.update({
+        where: {
+          configured_initializedAt: {
+            configured,
+            initializedAt,
+          },
         },
-      },
-      data: {
-        configured: true,
-        configuredAt: new Date(),
-      },
-    });
+        data: {
+          configured: true,
+          configuredAt: new Date(),
+        },
+      });
+      return { error: null, success: true };
+    } catch (error) {
+      return {
+        error: 'Failed to set appSettings as configured',
+        success: false,
+      };
+    }
   }),
 });

@@ -23,6 +23,9 @@ function OnboardWizard() {
 
   const { data: expired } = api.appSettings.get.expired.useQuery(undefined, {
     refetchInterval: 1000 * 10,
+    onError(error) {
+      throw new Error(error.message);
+    },
   });
 
   useEffect(() => {

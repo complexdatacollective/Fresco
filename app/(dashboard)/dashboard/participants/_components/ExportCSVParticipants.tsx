@@ -39,8 +39,7 @@ function ExportCSVParticipants({
       // Clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      throw new Error('An error occured while exporting participants');
     }
 
     setIsExporting(false);

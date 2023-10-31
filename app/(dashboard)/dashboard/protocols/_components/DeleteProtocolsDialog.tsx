@@ -44,7 +44,11 @@ export const DeleteProtocolsDialog = ({
     });
   }, [protocolsToDelete]);
   const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
-    api.protocol.delete.byHash.useMutation();
+    api.protocol.delete.byHash.useMutation({
+      onError(error) {
+        throw new Error(error.message);
+      },
+    });
 
   const utils = api.useUtils();
   const handleConfirm = async () => {

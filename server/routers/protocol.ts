@@ -14,9 +14,9 @@ export const protocolRouter = router({
       const protocols = await prisma.protocol.findMany({
         include: { interviews: true },
       });
-
       return protocols;
     }),
+
     byHash: protectedProcedure
       .input(z.string())
       .query(async ({ input: hash }) => {
@@ -25,16 +25,15 @@ export const protocolRouter = router({
             hash,
           },
         });
-
         return protocol;
       }),
+
     lastUploaded: protectedProcedure.query(async () => {
       const protocol = await prisma.protocol.findFirst({
         orderBy: {
           importedAt: 'desc',
         },
       });
-
       return protocol;
     }),
   }),
@@ -49,61 +48,68 @@ export const protocolRouter = router({
           active: true,
         },
       });
-
       return protocol?.active || false;
     }),
+
   getCurrentlyActive: protectedProcedure.query(async () => {
     const protocol = await prisma.protocol.findFirst({
       where: {
         active: true,
       },
     });
-
     return protocol;
   }),
+
   setActive: protectedProcedure
     .input(updateActiveProtocolSchema)
     .mutation(async ({ input: { input, hash } }) => {
-      const currentActive = await prisma.protocol.findFirst({
-        where: {
-          active: true,
-        },
-      });
-
-      // if input is false, deactivate the active protocol
-      if (!input) {
-        await prisma.protocol.update({
+      try {
+        const currentActive = await prisma.protocol.findFirst({
           where: {
-            hash: hash,
             active: true,
           },
-          data: {
-            active: false,
-          },
         });
-        return;
-      }
 
-      // deactivate the current active protocol, if it exists
-      if (currentActive) {
+        // If input is false, deactivate the active protocol
+        if (!input) {
+          await prisma.protocol.update({
+            where: {
+              hash: hash,
+              active: true,
+            },
+            data: {
+              active: false,
+            },
+          });
+          return { error: null, success: true };
+        }
+
+        // Deactivate the current active protocol, if it exists
+        if (currentActive) {
+          await prisma.protocol.update({
+            where: {
+              id: currentActive.id,
+            },
+            data: {
+              active: false,
+            },
+          });
+        }
+
+        // Make the protocol with the given hash active
         await prisma.protocol.update({
           where: {
-            id: currentActive?.id,
+            hash,
           },
           data: {
-            active: false,
+            active: true,
           },
         });
+
+        return { error: null, success: true };
+      } catch (error) {
+        return { error: 'Failed to set active protocol', success: false };
       }
-      // make the protocol with the given hash active
-      await prisma.protocol.update({
-        where: {
-          hash,
-        },
-        data: {
-          active: true,
-        },
-      });
     }),
   delete: router({
     all: protectedProcedure.mutation(async () => {
