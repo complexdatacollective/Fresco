@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type { Session } from 'lucia';
 import type { Route } from 'next';
+import { ReadonlyURLSearchParams } from 'next/navigation';
 import { cache } from 'react';
 
 const routeIsLoginPage = (pathname: Route) => {
@@ -12,7 +13,7 @@ const routeIsLandingPage = (pathname: Route) => {
 };
 
 const routeIsOnboarding = (pathname: Route) => {
-  return pathname === '/setup';
+  return pathname.startsWith('/setup');
 };
 
 const routeIsInterviewing = (pathname: Route) => {
@@ -26,11 +27,13 @@ const routeIsExpiredPage = (pathname: Route) => {
 export const calculateRedirect = ({
   session,
   path,
+  searchParams,
   expired,
   configured,
 }: {
   session: Session | null;
   path: Route;
+  searchParams: ReadonlyURLSearchParams;
   expired: boolean;
   configured: boolean;
 }): undefined | Route => {
@@ -85,10 +88,18 @@ export const calculateRedirect = ({
 
   // Redirect authed users away from these pages and to the dashboard
   if (isLoginPage || isOnboarding || isLandingPage || isExpiredPage) {
+    if (isLoginPage) {
+      const callbackUrl = searchParams.get('callbackUrl') as Route;
+
+      if (callbackUrl) {
+        return callbackUrl;
+      }
+    }
+
     return '/dashboard';
   }
 
-  // APP IS CONFIGURED AND SESSION EXISTS AND USER IS ON DASHBOARD
+  // APP IS CONFIGURED AND SESSION EXISTS AND USER IS WHERE THEY REQUESTED TO BE
   return;
 };
 

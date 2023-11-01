@@ -6,6 +6,7 @@ import { protectedProcedure, publicProcedure, router } from '../trpc';
 import * as context from 'next/headers';
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { createTRPCContext } from '../context';
+import { revalidateTag } from 'next/cache';
 
 type Context = inferAsyncReturnType<typeof createTRPCContext>;
 

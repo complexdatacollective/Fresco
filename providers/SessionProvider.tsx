@@ -9,6 +9,7 @@ import usePrevious from '~/hooks/usePrevious';
 type SessionWithLoading = {
   session: Session | null;
   isLoading: boolean;
+  signOut: () => Promise<{ success: boolean }>;
 };
 
 const SessionContext = createContext<SessionWithLoading | null>(null);
@@ -36,7 +37,7 @@ export const SessionProvider = ({
   const previousSession = usePrevious(session);
   const router = useRouter();
 
-  const { refetch: getSession, isFetching: isLoading } =
+  const { refetch: getSession, isFetching: isFetchingSession } =
     api.session.get.useQuery(undefined, {
       refetchOnMount: false,
       refetchOnWindowFocus: true,
@@ -50,6 +51,18 @@ export const SessionProvider = ({
       },
       onError: (error) => {
         throw new Error(error.message);
+      },
+    });
+
+  const { mutateAsync: signOut, isLoading: isSigningOut } =
+    api.session.signOut.useMutation({
+      onSuccess: () => {
+        setSession(null);
+        // As with elsewhere, using the router causes a flash, so we use
+        // window.location.replace() instead.
+
+        window.location.replace('/');
+        // router.replace('/');
       },
     });
 
@@ -76,9 +89,10 @@ export const SessionProvider = ({
   const value = useMemo(
     () => ({
       session,
-      isLoading,
+      isLoading: isFetchingSession || isSigningOut,
+      signOut,
     }),
-    [session, isLoading],
+    [session, isFetchingSession, isSigningOut, signOut],
   );
 
   return (

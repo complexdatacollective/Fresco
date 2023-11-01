@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
-      <div className="relative z-10 flex h-[100vh] w-[100vw] flex-col">
+      <div className="relative z-10 flex h-[100dvh] w-[100dvw] flex-col">
         <div className="p-6">
           <Link href="/">
             <Image
@@ -23,7 +23,7 @@ export default function Layout({ children }: PropsWithChildren) {
           {children}
         </main>
       </div>
-      <div className="absolute left-0 top-0 h-[100vh] w-[100vw] bg-violet-900">
+      <div className="absolute left-0 top-0 h-[100dvh] w-[100dvw] bg-violet-900">
         <BackgroundBlobs large={0} medium={3} small={4} />
       </div>
     </>

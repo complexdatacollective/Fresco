@@ -9,77 +9,51 @@ import {
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 import { signOutProc } from './session';
+import { revalidateTag } from 'next/cache';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-const getappSettings = async () => {
-  try {
-    let appSettings = await prisma.appSettings.findFirst();
-    // if no setup appSettings exists, seed it
-    if (!appSettings) {
-      appSettings = await prisma.appSettings.create({
-        data: {
-          configured: false,
-          initializedAt: new Date(),
-        },
-      });
-    }
+export const getAppSettings = async () => {
+  const appSettings = await prisma.appSettings.findFirst();
 
-    return {
-      ...appSettings,
-      expired: calculateIsExpired(
-        appSettings.configured,
-        appSettings.initializedAt,
-      ),
-    };
-  } catch (error) {
-    throw new Error('Failed to retrieve appSettings');
+  if (!appSettings) {
+    return null;
   }
+
+  return {
+    ...appSettings,
+    expired: calculateIsExpired(
+      appSettings.configured,
+      appSettings.initializedAt,
+    ),
+  };
 };
 
-const getPropertiesRouter = router({
-  allappSettings: publicProcedure.query(getappSettings),
-  expired: publicProcedure.query(async () => {
-    const { expired } = await getappSettings();
-
-    return expired;
-  }),
-  configured: publicProcedure.query(async () => {
-    const { configured } = await getappSettings();
-
-    return configured;
-  }),
-  initializedAt: publicProcedure.query(async () => {
-    const { initializedAt } = await getappSettings();
-
-    return initializedAt;
-  }),
-  allowAnonymousRecruitment: publicProcedure.query(async () => {
-    const { allowAnonymousRecruitment } = await getappSettings();
-
-    return allowAnonymousRecruitment;
-  }),
-});
-
 export const appSettingsRouter = router({
-  get: getPropertiesRouter,
+  get: publicProcedure.query(getAppSettings),
+  create: publicProcedure.mutation(async () => {
+    const appSettings = await prisma.appSettings.create({
+      data: {
+        initializedAt: new Date(),
+      },
+    });
+
+    revalidateTag('appSettings.get');
+    return appSettings;
+  }),
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
-      const { configured, initializedAt } = await getappSettings();
       try {
-        const updatedappSettings = await prisma.appSettings.update({
-          where: {
-            configured_initializedAt: {
-              configured,
-              initializedAt,
-            },
-          },
+        const updatedappSettings = await prisma.appSettings.updateMany({
           data: {
             allowAnonymousRecruitment: input,
           },
         });
+
+        revalidateTag('appSettings.get');
+
         return { error: null, appSettings: updatedappSettings };
       } catch (error) {
         return { error: 'Failed to update appSettings', appSettings: null };
@@ -102,31 +76,19 @@ export const appSettingsRouter = router({
     await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
     await prisma.participant.deleteMany();
     await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
+    await prisma.appSettings.deleteMany();
+
+    revalidateTag('appSettings.get');
 
     // Todo: we need to remove assets from uploadthing before deleting the reference record.
   }),
   setConfigured: publicProcedure.mutation(async () => {
-    try {
-      const { configured, initializedAt } = await getappSettings();
+    await prisma.appSettings.updateMany({
+      data: {
+        configured: true,
+      },
+    });
 
-      await prisma.appSettings.update({
-        where: {
-          configured_initializedAt: {
-            configured,
-            initializedAt,
-          },
-        },
-        data: {
-          configured: true,
-          configuredAt: new Date(),
-        },
-      });
-      return { error: null, success: true };
-    } catch (error) {
-      return {
-        error: 'Failed to set appSettings as configured',
-        success: false,
-      };
-    }
+    revalidateTag('appSettings.get');
   }),
 });

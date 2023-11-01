@@ -4,22 +4,13 @@ import { api } from '~/trpc/server';
 export const dynamic = 'force-dynamic';
 
 const ParticipantPage = async () => {
-  try {
-    const participants = await api.participant.get.all.query(undefined, {
-      context: {
-        revalidate: 0,
-      },
-    });
-
-    return (
-      <div className="rounded-lg bg-white p-6">
-        <h2 className="mb-6 text-2xl font-bold">Participant management view</h2>
-        <ParticipantsTable initialData={participants} />
-      </div>
-    );
-  } catch (error) {
-    throw new Error('An error occurred while fetching participants');
-  }
+  const participants = await api.participant.get.all.query();
+  return (
+    <div className="rounded-lg bg-white p-6">
+      <h2 className="mb-6 text-2xl font-bold">Participant management view</h2>
+      <ParticipantsTable initialData={participants} />
+    </div>
+  );
 };
 
 export default ParticipantPage;

@@ -3,28 +3,24 @@ import { Check } from 'lucide-react';
 import { useState } from 'react';
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import type { Route } from 'next';
+import { useOnboardingContext } from '../OnboardingProvider';
 
 function ConfigureStudy() {
-  const pathname = usePathname() as Route;
   const [protocolUploaded, setProtocolUploaded] = useState(false);
-  const searchParams = useSearchParams();
-  const currentStep = searchParams.get('step') as string;
-  const router = useRouter();
+  const { currentStep, setCurrentStep } = useOnboardingContext();
 
   const handleProtocolUploaded = () => {
     setProtocolUploaded(true);
   };
 
   const handleNextStep = () => {
-    router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
+    setCurrentStep(currentStep + 1).catch(() => {});
   };
 
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
-        <h1 className="text-3xl font-bold">Upload a protocol</h1>
+        <h1 className="text-3xl font-bold">Upload a Protocol</h1>
         <p className="mb-4 mt-4">
           Upload a Network Canvas protocol file (<code>.netcanvas</code>) to
           create your study. You can upload more protocol files later from the

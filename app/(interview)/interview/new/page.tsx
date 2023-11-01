@@ -29,14 +29,9 @@ export default async function Page({
     );
   }
   // check if anonymous recruitment is enabled
-  const allowAnonymousRecruitment =
-    await api.appSettings.get.allowAnonymousRecruitment.query(undefined, {
-      context: {
-        revalidate: 0,
-      },
-    });
+  const appSettings = await api.appSettings.get.query();
 
-  if (!allowAnonymousRecruitment) {
+  if (!appSettings || !appSettings.allowAnonymousRecruitment) {
     return (
       <ErrorMessage
         title="Anonymous Recruitment Disabled"

@@ -1,24 +1,22 @@
+'use client';
+
 import { Check } from 'lucide-react';
-import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import AnonymousRecruitmentSwitch from '~/app/(dashboard)/dashboard/_components/AnonymousRecruitmentSwitch';
-import type { Route } from 'next';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
+import { useOnboardingContext } from '../OnboardingProvider';
+import { useState } from 'react';
+// import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
-  const pathname = usePathname() as Route;
-  const searchParams = useSearchParams();
-  const currentStep = searchParams.get('step') as string;
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
-  const router = useRouter();
+  const { currentStep, setCurrentStep } = useOnboardingContext();
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
   };
 
   const handleNextStep = () => {
-    router.replace(`${pathname}?step=${parseInt(currentStep) + 1}`);
+    setCurrentStep(currentStep + 1).catch(() => {});
   };
 
   return (
@@ -44,7 +42,7 @@ function ManageParticipants() {
           <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
         )}
       </div>
-      <AnonymousRecruitmentSwitch initialData={false} />
+      {/* <AnonymousRecruitmentSwitch /> */}
       <div className="flex justify-start">
         <Button onClick={handleNextStep}>
           {participantsUploaded ? 'Next' : 'Skip'}

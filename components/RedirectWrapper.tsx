@@ -2,7 +2,7 @@
 
 import type { Session } from 'lucia';
 import type { Route } from 'next';
-import { usePathname, redirect } from 'next/navigation';
+import { usePathname, redirect, useSearchParams } from 'next/navigation';
 import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
 
 /**
@@ -29,10 +29,12 @@ export default function RedirectWrapper({
   expired: boolean;
 }) {
   const path = usePathname() as Route;
+  const searchParams = useSearchParams();
 
   const shouldRedirect = calculateRedirect({
     session,
     path,
+    searchParams,
     expired,
     configured,
   });

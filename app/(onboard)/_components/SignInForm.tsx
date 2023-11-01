@@ -43,8 +43,15 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
 
       if (result.session) {
         if (callbackUrl) {
-          window.location.replace(callbackUrl);
+          // For some reason, using the router causes the component to re-render
+          // which in turn causes a flash. Using window.location.replace() does
+          // not cause this issue.
+
           // router.replace(callbackUrl);
+          window.location.replace(callbackUrl);
+        } else {
+          // router.replace('/dashboard');
+          window.location.replace('/dashboard');
         }
       }
     },
