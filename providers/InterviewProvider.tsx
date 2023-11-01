@@ -50,7 +50,11 @@ function InterviewProvider({
   );
   const [initialized, setInitialized] = useState(false);
   const { network, networkHandlers } = useNetwork(initialNetwork);
-  const { mutate: updateNetwork } = api.interview.updateNetwork.useMutation();
+  const { mutate: updateNetwork } = api.interview.updateNetwork.useMutation({
+    onError: (error) => {
+      throw new Error(error.message);
+    },
+  });
 
   const stages = protocol.stages;
   const protocolStageCount = stages.length;

@@ -23,6 +23,9 @@ export const DeleteAllParticipantsButton = () => {
         await utils.participant.get.all.refetch();
         setShowAlertDialog(false);
       },
+      onError(error) {
+        throw new Error(error.message);
+      },
     });
   return (
     <>

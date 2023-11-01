@@ -35,6 +35,7 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
+
   const utils = api.useUtils();
 
   const handleUploadComplete = async (
@@ -131,8 +132,14 @@ export default function ProtocolUploader({
     setOpen(false);
   }
 
-  const { data: lastUploadedProtocol } =
-    api.protocol.get.lastUploaded.useQuery();
+  const { data: lastUploadedProtocol } = api.protocol.get.lastUploaded.useQuery(
+    undefined,
+    {
+      onError(error) {
+        throw new Error(error.message);
+      },
+    },
+  );
 
   return (
     <>

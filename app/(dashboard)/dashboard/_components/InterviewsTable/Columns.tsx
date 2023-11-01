@@ -2,17 +2,9 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import type { inferRouterOutputs } from '@trpc/server';
-import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '~/components/ui/tooltip';
-import { Settings } from 'lucide-react';
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+
 import { Button } from '~/components/ui/Button';
 import Link from 'next/link';
 import { Progress } from '~/components/ui/progress';
@@ -22,9 +14,7 @@ import type { Stage } from '@codaco/shared-consts';
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Interviews = RouterOutput['interview']['get']['all'][0];
 
-export const InterviewColumns = (
-  handleDelete: (id: string) => Promise<void>,
-): ColumnDef<Interviews>[] => [
+export const InterviewColumns = (): ColumnDef<Interviews>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -135,40 +125,6 @@ export const InterviewColumns = (
             <span>Resume</span>
           </Button>
         </Link>
-      );
-    },
-  },
-  {
-    id: 'actions',
-    header: () => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <Settings />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Delete an individual interview.</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    ),
-    cell: ({ row }) => {
-      return (
-        <ActionsDropdown
-          menuItems={[
-            {
-              label: 'Delete',
-              row,
-              component: (
-                <DropdownMenuItem
-                  onClick={() => void handleDelete(row.original.id)}
-                >
-                  Edit
-                </DropdownMenuItem>
-              ),
-            },
-          ]}
-        />
       );
     },
   },

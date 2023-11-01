@@ -1,15 +1,14 @@
 'use client';
 
 import { DataTable } from '~/components/DataTable/DataTable';
+import { ActionsDropdown } from './ActionsDropdown';
 import { ProtocolColumns } from './Columns';
 import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
-import { Settings } from 'lucide-react';
-import { ActionsDropdown } from '~/components/DataTable/ActionsDropdown';
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+
 export const ProtocolsTable = ({
   initialData,
 }: {
@@ -21,8 +20,7 @@ export const ProtocolsTable = ({
       initialData,
       refetchOnMount: false,
       onError(error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        throw new Error(error.message);
       },
     },
   );
@@ -51,31 +49,7 @@ export const ProtocolsTable = ({
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
-        actions={[
-          {
-            id: 'actions',
-            header: () => <Settings />,
-            cell: ({ row }) => {
-              return (
-                <ActionsDropdown
-                  menuItems={[
-                    {
-                      label: 'Delete',
-                      row,
-                      component: (
-                        <DropdownMenuItem
-                          onClick={() => void handleDelete([row.original])}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      ),
-                    },
-                  ]}
-                />
-              );
-            },
-          },
-        ]}
+        actions={ActionsDropdown}
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}

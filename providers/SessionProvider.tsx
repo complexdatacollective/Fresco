@@ -49,6 +49,9 @@ export const SessionProvider = ({
           setSession(null);
         }
       },
+      onError: (error) => {
+        throw new Error(error.message);
+      },
     });
 
   const { mutateAsync: signOut, isLoading: isSigningOut } =
@@ -69,10 +72,9 @@ export const SessionProvider = ({
       return;
     }
 
-    getSession().catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error(err);
+    getSession().catch((err: { message: string | undefined }) => {
       setSession(null);
+      throw new Error(err.message);
     });
   }, [initialSession, getSession]);
 

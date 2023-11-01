@@ -1,4 +1,4 @@
-import { ProtocolsTable } from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/ProtocolsTable';
+import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
 import { api } from '~/trpc/server';
 
 const ProtocolsPage = async () => {

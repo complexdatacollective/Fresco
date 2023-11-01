@@ -34,7 +34,11 @@ const ImportCSVModal = ({
   const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
   const utils = api.useUtils();
   const { mutateAsync: importParticipants } =
-    api.participant.create.useMutation();
+    api.participant.create.useMutation({
+      onError(error) {
+        throw new Error(error.message);
+      },
+    });
   const isSubmitting = methods.formState.isSubmitting;
   const [showImportDialog, setShowImportDialog] = useState(false);
   const selectedCSV = methods.watch('csvFile');

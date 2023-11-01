@@ -8,6 +8,7 @@ import {
   type ColumnDef,
   type ColumnFiltersState,
   type SortingState,
+  type Row,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
@@ -28,7 +29,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   filterColumnAccessorKey?: string;
   handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
-  actions?: ColumnDef<TData, TValue>[];
+  actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
+  actionsHeader?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -37,6 +39,7 @@ export function DataTable<TData, TValue>({
   handleDeleteSelected,
   filterColumnAccessorKey = '',
   actions,
+  actionsHeader,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -48,8 +51,16 @@ export function DataTable<TData, TValue>({
     columns = makeDefaultColumns(data);
   }
 
-  if (actions && actions.length > 0) {
-    columns = [...columns, ...actions];
+  if (actions) {
+    const actionsColumn = {
+      id: 'actions',
+      header: () => (actionsHeader ? actionsHeader : null),
+      cell: ({ row }: { row: Row<TData> }) => {
+        return flexRender(actions, { row, data });
+      },
+    };
+
+    columns = [...columns, actionsColumn];
   }
 
   const deleteHandler = async () => {
@@ -61,8 +72,10 @@ export function DataTable<TData, TValue>({
     try {
       await handleDeleteSelected?.(selectedData);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('An unknown error occurred.');
     }
 
     setIsDeleting(false);

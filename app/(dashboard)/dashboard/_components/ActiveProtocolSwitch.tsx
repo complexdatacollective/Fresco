@@ -16,6 +16,9 @@ const ActiveProtocolSwitch = ({
 
   const { data: isActive } = api.protocol.getActive.useQuery(hash, {
     initialData,
+    onError: (err) => {
+      throw new Error(err.message);
+    },
   });
 
   const { mutateAsync: setActive } = api.protocol.setActive.useMutation({
@@ -33,8 +36,7 @@ const ActiveProtocolSwitch = ({
     },
     onError: (err, _newState, previousState) => {
       utils.protocol.getActive.setData(hash, previousState);
-      // eslint-disable-next-line no-console
-      console.error(err);
+      throw new Error(err.message);
     },
     onSuccess: () => {
       router.refresh();

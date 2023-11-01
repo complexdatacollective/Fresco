@@ -12,7 +12,7 @@ export default function Page() {
         been locked down for your security.
       </p>
       <p>
-        Please redploy a new instance of Fresco to continue using the software.
+        Please redeploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
         <form action={resetAppSettings}>

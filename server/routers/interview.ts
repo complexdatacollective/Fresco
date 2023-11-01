@@ -166,7 +166,7 @@ export const interviewRouter = router({
             },
           },
         });
-        return { error: null, participant: deletedInterviews };
+        return { error: null, interview: deletedInterviews };
       } catch (error) {
         return { error: 'Failed to delete interviews', interview: null };
       }
