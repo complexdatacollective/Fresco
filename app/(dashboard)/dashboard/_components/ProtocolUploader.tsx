@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FileWithPath } from 'react-dropzone';
 import { generateReactHelpers } from '@uploadthing/react/hooks';
 import { useState, useCallback } from 'react';
+import { usePlausible } from 'next-plausible';
 
 import { importProtocol } from '../_actions/importProtocol';
 import { Button } from '~/components/ui/Button';
@@ -35,6 +36,7 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
+  const plausible = usePlausible();
 
   const utils = api.useUtils();
 
@@ -66,6 +68,11 @@ export default function ProtocolUploader({
     }
 
     await utils.protocol.get.lastUploaded.refetch();
+    plausible('ProtocolImported', {
+      props: {
+        installationID: '123',
+      },
+    });
 
     setDialogContent({
       title: 'Protocol import',

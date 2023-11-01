@@ -6,6 +6,7 @@ import { getServerSession } from '~/utils/auth';
 import { api } from '~/trpc/server';
 import { Toaster } from '~/components/ui/toaster';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import PlausibleProvider from 'next-plausible';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -27,6 +28,16 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
+      <head>
+        <PlausibleProvider
+          // this is the domain of the site you want to track
+          // TODO: figure out how to track all instances of fresco
+          domain="fresco.networkcanvas.com"
+          trackLocalhost={true}
+          enabled={true}
+          taggedEvents={true}
+        />
+      </head>
       <body>
         <RedirectWrapper
           configured={!!appSettings?.configured}

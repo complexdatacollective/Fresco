@@ -2,8 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
+import { usePlausible } from 'next-plausible';
 
 function Documentation() {
+  const plausible = usePlausible();
+  const handleAppConfigured = async () => {
+    await setAppConfigured();
+
+    plausible('AppSetup', { props: { installationID: '123' } });
+  };
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
@@ -44,10 +51,12 @@ function Documentation() {
       </Card>
 
       <div className="flex justify-start pt-12">
-        <form action={setAppConfigured}>
-          <SubmitButton variant="default" size={'lg'}>
-            Go to the dashboard!
-          </SubmitButton>
+        <form>
+          <button onClick={handleAppConfigured}>
+            <SubmitButton variant="default" size={'lg'}>
+              Go to the dashboard!
+            </SubmitButton>
+          </button>
         </form>
       </div>
     </div>
