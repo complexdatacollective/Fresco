@@ -36,6 +36,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           trackLocalhost={true}
           enabled={true}
           taggedEvents={true}
+          manualPageviews={true}
         />
       </head>
       <body>
