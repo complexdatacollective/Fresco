@@ -7,7 +7,6 @@ import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
 
 export const ProtocolsTable = ({
   initialData,
@@ -29,21 +28,14 @@ export const ProtocolsTable = ({
   const [protocolsToDelete, setProtocolsToDelete] =
     useState<ProtocolWithInterviews[]>();
 
-  const utils = api.useUtils();
-
   const handleDelete = (data: ProtocolWithInterviews[]) => {
     setProtocolsToDelete(data);
     setShowAlertDialog(true);
   };
 
-  const handleUploaded = () => {
-    void utils.protocol.get.all.refetch();
-  };
-
   return (
     <>
       {isLoading && <div>Loading...</div>}
-      <ImportProtocolModal onProtocolUploaded={handleUploaded} />
       <DataTable
         columns={ProtocolColumns()}
         data={protocols}
