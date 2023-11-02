@@ -3,14 +3,20 @@ import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { usePlausible } from 'next-plausible';
+import { api } from '~/trpc/client';
 
 function Documentation() {
+  const appSettings = api.appSettings.get.useQuery();
+
   const plausible = usePlausible();
   const handleAppConfigured = async () => {
     await setAppConfigured();
 
-    plausible('AppSetup', { props: { installationID: '123' } });
+    plausible('AppSetup', {
+      props: { installationID: appSettings?.data?.installationId },
+    });
   };
+
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
