@@ -15,13 +15,12 @@ const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
     <div className="mb-4">
       <div className="flex items-center justify-between">
         <div className="mr-20">
-          <h3 className="font-bold">Allow Analytics Reporting</h3>
+          <h3 className="font-bold">Allow Analytics</h3>
           <p className="text-sm text-gray-600">
-            Information collected includes: number of protocols uploaded, number
-            of interviews conducted, number of participants recruited, and
-            number of participants who completed the interview. No personally
-            identifiable information, interview data, or protocol data is
-            collected.
+            Information collected includes the number of protocols uploaded,
+            interviews conducted, participants recruited, and participants who
+            completed the interview. No personally identifiable information,
+            interview data, or protocol data is collected.
           </p>
         </div>
         <SwitchUI
