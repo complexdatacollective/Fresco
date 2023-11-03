@@ -2,6 +2,7 @@
 import { Button } from '~/components/ui/Button';
 import { useOnboardingContext } from '../OnboardingProvider';
 import AnalyticsSwitch from '~/components/AnalyticsSwitch/Switch';
+import { api } from '~/trpc/client';
 
 function Analytics() {
   const { currentStep, setCurrentStep } = useOnboardingContext();
@@ -10,6 +11,11 @@ function Analytics() {
     setCurrentStep(currentStep + 1).catch(() => {});
   };
 
+  const appSettings = api.appSettings.get.useQuery(undefined, {
+    onError(error) {
+      throw new Error(error.message);
+    },
+  });
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
@@ -21,7 +27,7 @@ function Analytics() {
         </p>
       </div>
       <div>
-        <AnalyticsSwitch allowAnalytics={true} />
+        <AnalyticsSwitch allowAnalytics={!!appSettings?.data?.allowAnalytics} />
         <div className="flex justify-start">
           <Button onClick={handleNextStep}>Next</Button>
         </div>

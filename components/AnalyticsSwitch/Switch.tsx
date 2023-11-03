@@ -3,6 +3,7 @@
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { setAnalytics } from './action';
 import { useOptimistic, useTransition } from 'react';
+import { api } from '~/trpc/client';
 
 const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
   const [, startTransition] = useTransition();
@@ -10,6 +11,7 @@ const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
     allowAnalytics,
     (state: boolean, newState: boolean) => newState,
   );
+  const utils = api.useUtils();
 
   return (
     <div className="mb-4">
@@ -29,7 +31,16 @@ const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
           onCheckedChange={(value) => {
             startTransition(async () => {
               setOptimisticAllowAnalytics(value);
-              await setAnalytics(value);
+
+              try {
+                await setAnalytics(value);
+                await utils.appSettings.get.refetch();
+              } catch (error) {
+                if (error instanceof Error) {
+                  throw new Error(error.message);
+                }
+                throw new Error('Something went wrong');
+              }
             });
           }}
         />
