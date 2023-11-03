@@ -7,6 +7,7 @@ import { api } from '~/trpc/server';
 import { Toaster } from '~/components/ui/toaster';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import PlausibleProvider from 'next-plausible';
+import { env } from '~/env.mjs';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -31,10 +32,14 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
       <head>
         <PlausibleProvider
           domain="fresco.networkcanvas.com"
-          trackLocalhost={true}
-          enabled={true}
           taggedEvents={true}
           manualPageviews={true}
+          trackLocalhost={env.NODE_ENV === 'development' ? true : false}
+          // for testing, remove env.NODE_ENV === 'production' enable tracking in dev
+          enabled={appSettings?.allowAnalytics && env.NODE_ENV === 'production'}
+          // Uncomment the following lines to use self hosted
+          // selfHosted={true}
+          // customDomain="https://analytics.networkcanvas.com"
         />
       </head>
       <body>
