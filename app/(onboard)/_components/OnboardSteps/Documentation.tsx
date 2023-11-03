@@ -57,12 +57,10 @@ function Documentation() {
       </Card>
 
       <div className="flex justify-start pt-12">
-        <form>
-          <button onClick={handleAppConfigured}>
-            <SubmitButton variant="default" size={'lg'}>
-              Go to the dashboard!
-            </SubmitButton>
-          </button>
+        <form action={handleAppConfigured}>
+          <SubmitButton variant="default" size={'lg'}>
+            Go to the dashboard!
+          </SubmitButton>
         </form>
       </div>
     </div>

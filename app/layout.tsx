@@ -30,8 +30,6 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <PlausibleProvider
-          // this is the domain of the site you want to track
-          // TODO: figure out how to track all instances of fresco
           domain="fresco.networkcanvas.com"
           trackLocalhost={true}
           enabled={true}
