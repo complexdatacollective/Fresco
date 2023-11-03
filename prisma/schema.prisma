@@ -96,6 +96,5 @@ model AppSettings {
   initializedAt             DateTime @default(now())
   allowAnonymousRecruitment Boolean  @default(false)
   installationId            String   @unique @default(cuid())
-
-  @@id([configured, initializedAt])
+  allowAnalytics            Boolean  @default(true)
 }
