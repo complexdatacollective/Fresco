@@ -29,9 +29,8 @@ export default async function Providers({
         enabled={appSettings?.allowAnalytics}
         // for production, add env.NODE_ENV === 'production' to disable tracking in dev
         //enabled={appSettings?.allowAnalytics && env.NODE_ENV === 'production'}
-        // Uncomment the following lines to use self hosted
-        // selfHosted={true}
-        // customDomain="https://analytics.networkcanvas.com"
+        selfHosted={true}
+        customDomain="https://analytics.networkcanvas.dev"
       />
     </TRPCReactProvider>
   );
