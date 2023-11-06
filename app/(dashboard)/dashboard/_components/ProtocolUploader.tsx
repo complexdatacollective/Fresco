@@ -4,8 +4,6 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FileWithPath } from 'react-dropzone';
 import { generateReactHelpers } from '@uploadthing/react/hooks';
 import { useState, useCallback } from 'react';
-import { usePlausible } from 'next-plausible';
-
 import { importProtocol } from '../_actions/importProtocol';
 import { Button } from '~/components/ui/Button';
 
@@ -22,6 +20,7 @@ import type { UploadFileResponse } from 'uploadthing/client';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
 import { api } from '~/trpc/client';
+import { useAnalytics } from '~/hooks/useAnalytics';
 
 export default function ProtocolUploader({
   onUploaded,
@@ -36,11 +35,10 @@ export default function ProtocolUploader({
     progress: true,
     error: 'dsfsdf',
   });
-  const plausible = usePlausible();
 
   const utils = api.useUtils();
-
   const appSettings = api.appSettings.get.useQuery();
+  const trackEvent = useAnalytics();
 
   const handleUploadComplete = async (
     res: UploadFileResponse[] | undefined,
@@ -70,11 +68,8 @@ export default function ProtocolUploader({
     }
 
     await utils.protocol.get.lastUploaded.refetch();
-    plausible('ProtocolImported', {
-      props: {
-        installationID: appSettings?.data?.installationId,
-      },
-    });
+
+    trackEvent('ProtocolImported', appSettings?.data?.installationId);
 
     setDialogContent({
       title: 'Protocol import',

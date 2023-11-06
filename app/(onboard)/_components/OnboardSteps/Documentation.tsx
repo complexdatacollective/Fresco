@@ -2,19 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
-import { usePlausible } from 'next-plausible';
 import { api } from '~/trpc/client';
+import { useAnalytics } from '~/hooks/useAnalytics';
 
 function Documentation() {
   const appSettings = api.appSettings.get.useQuery();
+  const trackEvent = useAnalytics();
 
-  const plausible = usePlausible();
   const handleAppConfigured = async () => {
     await setAppConfigured();
 
-    plausible('AppSetup', {
-      props: { installationID: appSettings?.data?.installationId },
-    });
+    trackEvent('AppSetup', appSettings?.data?.installationId);
   };
 
   return (
