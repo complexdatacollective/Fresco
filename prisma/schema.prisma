@@ -29,13 +29,11 @@ model Protocol {
 
 model Asset {
   id         String   @id @default(cuid())
-  assetId    String // from manifest
-  type       String // from manifest
+  name       String // from upload thing
   source     String // from manifest
-  alias      String // name as from manifest
+  type       String // from manifest
   key        String // from upload thing
   url        String // from upload thing
-  name       String // from upload thing
   size       Int // from upload thing
   protocol   Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId String // from db

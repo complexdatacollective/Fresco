@@ -1,23 +1,29 @@
-import { createUploadthing, type FileRouter } from 'uploadthing/next';
+import { createUploadthing } from 'uploadthing/next';
+import { UTApi } from 'uploadthing/server';
 import { getServerSession } from '~/utils/auth';
 
 const f = createUploadthing();
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique routeSlug
-  protocolUploader: f({
-    'application/zip': { maxFileSize: '256MB', maxFileCount: 5 },
+  assetRouter: f({
+    blob: { maxFileSize: '256MB', maxFileCount: 10 },
   })
-    // Set permissions and file types for this FileRoute
     .middleware(async () => {
       const session = await getServerSession();
-      if (!session?.user) {
-        throw new Error('Unauthorized');
+      if (!session) {
+        throw new Error('You must be logged in to upload assets.');
       }
       return {};
     })
-    .onUploadComplete(async () => {}),
-} satisfies FileRouter;
+    .onUploadError((error) => {
+      console.log('assetRouter onUploadError', error);
+    })
+    .onUploadComplete((file) => {
+      console.log('assetRouter onUploadComplete', file);
+    }),
+};
+
+export const utapi = new UTApi();
 
 export type OurFileRouter = typeof ourFileRouter;
