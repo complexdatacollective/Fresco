@@ -16,12 +16,7 @@ export const ourFileRouter = {
       }
       return {};
     })
-    .onUploadError((error) => {
-      console.log('assetRouter onUploadError', error);
-    })
-    .onUploadComplete((file) => {
-      console.log('assetRouter onUploadComplete', file);
-    }),
+    .onUploadComplete(() => {}),
 };
 
 export const utapi = new UTApi();

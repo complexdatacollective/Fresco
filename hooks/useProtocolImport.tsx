@@ -115,8 +115,8 @@ export const useProtocolImport = () => {
 
       // Calculate overall asset upload progress by summing the progress
       // of each asset, then dividing by the total number of assets * 100.
-      const completeCount = assets.length * 100 + 20;
-      let currentProgress = 20;
+      const completeCount = assets.length * 100;
+      let currentProgress = 0;
 
       const uploadedFiles = await uploadFiles({
         files: assets.map((asset) => asset.file),
@@ -154,7 +154,7 @@ export const useProtocolImport = () => {
 
       setProgress({
         percent: 100,
-        status: 'Creating database entry for protocol...',
+        status: 'Finishing up...',
       });
 
       const result = await insertProtocol({
