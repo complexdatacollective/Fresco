@@ -23,8 +23,10 @@ import { useRouter } from 'next/navigation';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
 import { ValidationError } from '@codaco/protocol-validation';
-import Link from 'next/link';
 import { ErrorDetails } from '~/components/ErrorDetails';
+import { XCircle } from 'lucide-react';
+import Link from '~/components/Link';
+import { AlertDescription } from '~/components/ui/Alert';
 
 type ErrorState = {
   title: string;
@@ -39,6 +41,7 @@ type ProgressState = {
 
 export default function ProtocolUploader() {
   const router = useRouter();
+  const utils = api.useUtils();
   const [error, setError] = useState<ErrorState | null>(null);
   const [progress, setProgress] = useState<ProgressState | null>(null);
   const { toast } = useToast();
@@ -77,12 +80,61 @@ export default function ProtocolUploader() {
         );
 
         // This function will throw on validation errors, with type ValidationError
-        await validateProtocol(protocolJson);
+        const validationResult = await validateProtocol(protocolJson);
+
+        if (!validationResult.isValid) {
+          // eslint-disable-next-line no-console
+          console.log('validationResult', validationResult);
+
+          setError({
+            title: 'The protocol is invalid!',
+            description: (
+              <>
+                <AlertDescription>
+                  The protocol you uploaded is invalid. See the details below
+                  for specific validation errors that were found.
+                </AlertDescription>
+                <AlertDescription>
+                  If you believe that your protocol should be valid please ask
+                  for help via our{' '}
+                  <Link
+                    href="https://community.networkcanvas.com"
+                    target="_blank"
+                  >
+                    community forum
+                  </Link>
+                  .
+                </AlertDescription>
+              </>
+            ),
+            additionalContent: (
+              <ErrorDetails>
+                <ul className="max-w-md list-inside space-y-2 text-white">
+                  {[
+                    ...validationResult.schemaErrors,
+                    ...validationResult.logicErrors,
+                  ].map((validationError, i) => (
+                    <li className="flex capitalize" key={i}>
+                      <XCircle className="mr-2 h-4 w-4 fill-red-500 stroke-white" />
+                      <span>
+                        {validationError.message}{' '}
+                        <span className="text-xs italic text-gray-500">
+                          ({validationError.path})
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </ErrorDetails>
+            ),
+          });
+
+          setProgress(null);
+          return;
+        }
 
         // After this point, assume the protocol is valid.
         const assets = await getProtocolAssets(protocolJson, zip);
-
-        console.log('assets', assets);
 
         setProgress({
           percent: 0,
@@ -151,59 +203,18 @@ export default function ProtocolUploader() {
 
         setProgress(null);
         await clientRevalidateTag('protocol.get.all');
+        await utils.protocol.get.all.invalidate();
         router.refresh();
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
 
         const error = ensureError(e);
-
-        // Validation errors come from @codaco/protocol-validation
-        if (error instanceof ValidationError) {
-          setError({
-            title: 'Protocol was invalid!',
-            description: (
-              <>
-                <p>
-                  The protocol you uploaded was invalid. Please see the details
-                  below for specific validation errors that were found.
-                </p>
-                <p>
-                  If you believe that your protocol should be valid please ask
-                  for help via our{' '}
-                  <Link
-                    href="https://community.networkcanvas.com"
-                    target="_blank"
-                  >
-                    community forum
-                  </Link>
-                  .
-                </p>
-              </>
-            ),
-            additionalContent: (
-              <ErrorDetails>
-                <>
-                  <p>{error.message}</p>
-                  <p>Errors:</p>
-                  <ul>
-                    {error.logicErrors.map((e, i) => (
-                      <li key={i}>{e}</li>
-                    ))}
-                    {error.schemaErrors.map((e, i) => (
-                      <li key={i}>{e}</li>
-                    ))}
-                  </ul>
-                </>
-              </ErrorDetails>
-            ),
-          });
-        }
         // Database errors are thrown inside our tRPC router
-        else if (error instanceof DatabaseError) {
+        if (error instanceof DatabaseError) {
           setError({
             title: 'Database error during protocol import',
-            description: error.message,
+            description: <AlertDescription>{error.message}</AlertDescription>,
             additionalContent: (
               <ErrorDetails>
                 <pre>{error.originalError.toString()}</pre>
@@ -213,17 +224,15 @@ export default function ProtocolUploader() {
         } else {
           setError({
             title: 'Error importing protocol',
-            description:
-              'There was an unknown error while importing your protocol. The information below might help us to debug the issue.',
+            description: (
+              <AlertDescription>
+                There was an unknown error while importing your protocol. The
+                information below might help us to debug the issue.
+              </AlertDescription>
+            ),
             additionalContent: (
               <ErrorDetails>
-                <pre>
-                  <strong>Message: </strong>
-                  {error.message}
-
-                  <strong>Stack: </strong>
-                  {error.stack}
-                </pre>
+                <pre className="whitespace-pre-wrap">{error.message}</pre>
               </ErrorDetails>
             ),
           });

@@ -13,16 +13,13 @@ export const ProtocolsTable = ({
 }: {
   initialData: ProtocolWithInterviews[];
 }) => {
-  const { isLoading, data: protocols } = api.protocol.get.all.useQuery(
-    undefined,
-    {
-      initialData,
-      refetchOnMount: false,
-      onError(error) {
-        throw new Error(error.message);
-      },
+  const { data: protocols } = api.protocol.get.all.useQuery(undefined, {
+    initialData,
+    refetchOnMount: false,
+    onError(error) {
+      throw new Error(error.message);
     },
-  );
+  });
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =
@@ -35,7 +32,6 @@ export const ProtocolsTable = ({
 
   return (
     <>
-      {isLoading && <div>Loading...</div>}
       <DataTable
         columns={ProtocolColumns()}
         data={protocols}

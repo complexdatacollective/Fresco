@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/protocol-validation':
-    specifier: 3.0.0-alpha.2
-    version: 3.0.0-alpha.2(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
+    specifier: 3.0.0-alpha.4
+    version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
   '@codaco/shared-consts':
     specifier: ^0.0.2
     version: 0.0.2
@@ -1683,8 +1683,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codaco/protocol-validation@3.0.0-alpha.2(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
-    resolution: {integrity: sha512-8eOC5sUiTl8sJhOZ2PsQ5exiogcx5oYKRb6epI28pA9dr2uXpYCiZ/P5CnZJJysDc4hzOoJddbR4L/3jFQNnCQ==}
+  /@codaco/protocol-validation@3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
+    resolution: {integrity: sha512-2vV5Tga/zco/vrdDwkmirkiEqvwq+pduV4U4bHJhIgivxFSxswy6Ae7VLsbgOsFRaypx/SMrh7kF9wmU30liLQ==}
     dependencies:
       '@codaco/shared-consts': 0.0.2
       '@types/lodash-es': 4.17.10

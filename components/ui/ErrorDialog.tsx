@@ -34,9 +34,7 @@ const ErrorDialog = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-red-500">{title}</AlertDialogTitle>
-          {description && (
-            <AlertDialogDescription>{description}</AlertDialogDescription>
-          )}
+          {description}
         </AlertDialogHeader>
         {additionalContent}
         <AlertDialogFooter>
