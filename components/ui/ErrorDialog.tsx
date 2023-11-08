@@ -37,8 +37,8 @@ const ErrorDialog = ({
           {description && (
             <AlertDialogDescription>{description}</AlertDialogDescription>
           )}
-          {additionalContent}
         </AlertDialogHeader>
+        {additionalContent}
         <AlertDialogFooter>
           <AlertDialogAction className="bg-red-500" onClick={onConfirm}>
             {confirmLabel}

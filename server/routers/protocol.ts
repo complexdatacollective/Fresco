@@ -2,7 +2,7 @@
 import { prisma } from '~/utils/db';
 import { protectedProcedure, router } from '~/server/trpc';
 import { z } from 'zod';
-import { hash } from 'bcrypt';
+import { hash } from 'ohash';
 import { Prisma } from '@prisma/client';
 import { utapi } from '~/app/api/uploadthing/core';
 
@@ -28,6 +28,12 @@ export const deleteProtocols = async (hashes: string[]) => {
       where: { protocolId: { in: protocolIds.map((p) => p.id) } },
       select: { key: true },
     });
+
+    if (assets.length === 0) {
+      // eslint-disable-next-line no-console
+      console.log('No assets to delete');
+      return;
+    }
 
     await deleteFilesFromUploadThing(assets.map((a) => a.key));
   } catch (error) {
@@ -190,6 +196,7 @@ export const protocolRouter = router({
         assets: z.array(
           z.object({
             key: z.string(),
+            assetId: z.string(),
             name: z.string(),
             type: z.string(),
             url: z.string(),
@@ -201,7 +208,7 @@ export const protocolRouter = router({
     .mutation(async ({ input }) => {
       const { protocol, protocolName, assets } = input;
       try {
-        const protocolHash = await hash(JSON.stringify(protocol), 8);
+        const protocolHash = hash(protocol);
 
         // eslint-disable-next-line local-rules/require-data-mapper
         await prisma.protocol.create({
@@ -210,25 +217,38 @@ export const protocolRouter = router({
             lastModified: protocol.lastModified,
             name: protocolName,
             schemaVersion: protocol.schemaVersion,
-            stages: JSON.stringify(protocol.stages),
-            codebook: JSON.stringify(protocol.codebook),
+            stages: protocol.stages,
+            codebook: protocol.codebook,
             description: protocol.description,
             assets: {
               create: assets,
             },
           },
         });
+
+        return { error: null, success: true };
       } catch (e) {
+        await deleteFilesFromUploadThing(assets.map((a) => a.key));
         // Check for protocol already existing
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           if (e.code === 'P2002') {
-            return { error: 'Protocol already exists', success: false };
+            return {
+              error:
+                'The protocol you attempted to add already exists in the database. Please remove it and try again.',
+              success: false,
+              errorDetails: e,
+            };
           }
 
-          return { error: 'Error adding to database', success: false };
+          return {
+            error:
+              'There was an error adding your protocol to the database. See the error details for more information.',
+            success: false,
+            errorDetails: e,
+          };
         }
 
-        throw new Error('Error adding to database');
+        throw e;
       }
     }),
 });
