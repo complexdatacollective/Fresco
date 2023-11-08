@@ -7,7 +7,7 @@ const f = createUploadthing();
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   assetRouter: f({
-    blob: { maxFileSize: '256MB', maxFileCount: 10 },
+    blob: { maxFileSize: '256MB', maxFileCount: 50 },
   })
     .middleware(async () => {
       const session = await getServerSession();

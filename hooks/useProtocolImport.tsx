@@ -38,11 +38,6 @@ export const useProtocolImport = () => {
 
       const fileName = protocolFile.name;
 
-      setProgress({
-        percent: 0,
-        status: 'Reading file...',
-      });
-
       const fileArrayBuffer = await fileAsArrayBuffer(protocolFile);
       const JSZip = (await import('jszip')).default; // Dynamic import to reduce bundle size
       const zip = await JSZip.loadAsync(fileArrayBuffer);
@@ -50,7 +45,7 @@ export const useProtocolImport = () => {
 
       // Validating protocol...
       setProgress({
-        percent: 0,
+        percent: 5,
         status: 'Validating protocol...',
       });
 
@@ -111,17 +106,17 @@ export const useProtocolImport = () => {
       }
 
       // After this point, assume the protocol is valid.
-      const assets = await getProtocolAssets(protocolJson, zip);
-
       setProgress({
-        percent: 0,
+        percent: 20,
         status: 'Uploading assets...',
       });
 
+      const assets = await getProtocolAssets(protocolJson, zip);
+
       // Calculate overall asset upload progress by summing the progress
       // of each asset, then dividing by the total number of assets * 100.
-      const completeCount = assets.length * 100;
-      let currentProgress = 0;
+      const completeCount = assets.length * 100 + 20;
+      let currentProgress = 20;
 
       const uploadedFiles = await uploadFiles({
         files: assets.map((asset) => asset.file),
