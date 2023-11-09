@@ -31,8 +31,11 @@ export default function ProtocolUploader() {
 
   return (
     <>
-      <motion.div className="text-md relative inline-block overflow-hidden rounded-xl border-2 border-dashed border-gray-500 bg-gray-200 p-6 leading-tight">
-        <div {...getRootProps()}>
+      <motion.div
+        layout
+        className="text-md relative inline-block overflow-hidden rounded-xl border-2 border-dashed border-gray-500 bg-gray-200 p-6 leading-tight"
+      >
+        <motion.div {...getRootProps()} layout>
           <div className="text flex flex-col items-center gap-2 text-center">
             <Button variant="default">
               <FileUp className="mr-2 inline-block h-4 w-4" />
@@ -45,13 +48,16 @@ export default function ProtocolUploader() {
             </p>
           </div>
           <AnimatePresence>
-            <div className="grid grid-cols-6 grid-rows-1 gap-6 overflow-x-auto rounded-xl bg-red-500 p-6 py-[20px]">
+            <motion.div
+              className="grid grid-cols-4 grid-rows-1 gap-6 overflow-x-auto rounded-xl bg-slate-400 p-6 py-[20px]"
+              layout
+            >
               {jobs.map((job, index) => (
                 <JobCard job={job} key={job.id} delay={index * 0.05} />
               ))}
-            </div>
+            </motion.div>
           </AnimatePresence>
-        </div>
+        </motion.div>
       </motion.div>
     </>
   );

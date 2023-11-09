@@ -246,7 +246,7 @@ export const useProtocolImport = () => {
     }
   };
 
-  const jobQueue = queue(processJob, 1);
+  const jobQueue = queue(processJob, 3);
 
   const importProtocols = async (files: File[]) => {
     files.forEach(async (file) => {
