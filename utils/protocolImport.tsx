@@ -1,6 +1,7 @@
 import type { AssetManifest, Protocol } from '@codaco/shared-consts';
 import type Zip from 'jszip';
 
+// Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
   const protocolString = await protocolZip
     ?.file('protocol.json')
@@ -15,13 +16,11 @@ export const getProtocolJson = async (protocolZip: Zip) => {
   return protocolJson;
 };
 
-type ProtocolAsset = {
-  assetId: string;
-  name: string;
-  type: string;
-  file: File;
-};
-
+/**
+ * Fetch all assets listed in the protocol json from the protocol zip, and
+ * return them as a collection of ProtocolAsset objects, which includes useful
+ * metadata about the asset.
+ */
 export const getProtocolAssets = async (
   protocolJson: Protocol,
   protocolZip: Zip,
@@ -33,16 +32,21 @@ export const getProtocolAssets = async (
   }
 
   /**
-   * Structure of an Asset:
-   *   - Asset is an object. Key is the UID.
-   *   - ID property is the same as the key.
+   * Structure of an asset in network canvas protocols:
+   *   - An asset in the manifest is an object whose key is a UID.
+   *   - The ID property is the same as the key (duplicated for convinience :/)
    *   - Name property is the original file name when added to Architect
    *   - Source property is the internal path to the file in the zip, which is a
    *     separate UID + file extension.
-   *   - The type property is one of the NC asset types (e.g. 'image', 'video', etc.)
+   *   - The type property is one of the NC asset types (e.g. 'image', 'video',
+   *     etc.)
    */
-
-  const files: ProtocolAsset[] = [];
+  const files: {
+    assetId: string;
+    name: string;
+    type: string;
+    file: File;
+  }[] = [];
 
   await Promise.all(
     Object.keys(assetManifest).map(async (key) => {
@@ -58,12 +62,11 @@ export const getProtocolAssets = async (
         );
       }
 
-      // data.append('files', file, asset.source);
       files.push({
         assetId: key,
         name: asset.source,
         type: asset.type,
-        file: new File([file], asset.source),
+        file: new File([file], asset.source), // Convert Blob to File with filename
       });
     }),
   );
@@ -71,6 +74,8 @@ export const getProtocolAssets = async (
   return files;
 };
 
+// Helper method for reading a file as an ArrayBuffer. Useful for preparing a
+// File to be read by JSZip.
 export function fileAsArrayBuffer(file: Blob | File): Promise<ArrayBuffer> {
   return new Promise((resolve) => {
     const reader = new FileReader();

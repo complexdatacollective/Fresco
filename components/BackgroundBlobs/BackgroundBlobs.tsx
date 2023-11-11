@@ -19,13 +19,7 @@ const gradients = [
   ['rgb(45, 41, 285)', 'rgb(58,58,217)'],
 ];
 
-const SPEED_FACTOR = 1;
-
-const speeds = {
-  1: SPEED_FACTOR * random(3, 6),
-  2: SPEED_FACTOR * random(0.5, 1.5),
-  3: SPEED_FACTOR * 0.5,
-};
+const DEFAULT_SPEED_FACTOR = 1;
 
 class NCBlob {
   layer: 1 | 2 | 3;
@@ -48,7 +42,13 @@ class NCBlob {
   shape2: string | null;
   interpolator: ((t: number) => string) | null;
 
-  constructor(layer: 1 | 2 | 3) {
+  constructor(layer: 1 | 2 | 3, speedFactor: number) {
+    const speeds = {
+      1: speedFactor * random(3, 6),
+      2: speedFactor * random(0.5, 1.5),
+      3: speedFactor * 0.5,
+    };
+
     this.layer = layer; // Used to determine size and speed
 
     this.speed = speeds[layer];
@@ -232,24 +232,31 @@ type BackgroundBlobsProps = {
   large?: number;
   medium?: number;
   small?: number;
+  speedFactor?: number;
+  compositeOperation?: GlobalCompositeOperation;
+  filter?: CanvasFilters['filter'];
 };
 
 const BackgroundBlobs = ({
   large = 2,
   medium = 4,
   small = 4,
+  speedFactor = DEFAULT_SPEED_FACTOR,
+  compositeOperation = 'screen',
+  filter = '',
 }: BackgroundBlobsProps) => {
   const blobs = useMemo(
     () => [
-      new Array(large).fill(null).map(() => new NCBlob(3)),
-      new Array(medium).fill(null).map(() => new NCBlob(2)),
-      new Array(small).fill(null).map(() => new NCBlob(1)),
+      new Array(large).fill(null).map(() => new NCBlob(3, speedFactor)),
+      new Array(medium).fill(null).map(() => new NCBlob(2, speedFactor)),
+      new Array(small).fill(null).map(() => new NCBlob(1, speedFactor)),
     ],
-    [large, medium, small],
+    [large, medium, small, speedFactor],
   );
 
   const drawBlobs = (ctx: CanvasRenderingContext2D, time: number) => {
-    ctx.globalCompositeOperation = 'screen';
+    ctx.globalCompositeOperation = compositeOperation;
+    ctx.filter = filter;
     blobs.forEach((layer) => layer.forEach((blob) => blob.render(ctx, time)));
   };
 

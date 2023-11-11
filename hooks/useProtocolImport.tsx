@@ -17,18 +17,62 @@ import { AlertDescription } from '~/components/ui/Alert';
 import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
-export type ErrorState = {
-  title: string;
-  description: React.ReactNode;
-  additionalContent?: React.ReactNode;
-};
+// Utility helper for adding artificial delay to async functions
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useProtocolImport = () => {
-  const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation();
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
 
+  const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation({
+    async onSuccess() {
+      await clientRevalidateTag('protocol.get.all');
+    },
+  });
+
+  // const testProcessJob = async (file: File) => {
+  //   await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  //   dispatch({
+  //     type: 'UPDATE_STATUS',
+  //     payload: {
+  //       id: file.name,
+  //       activeStep: 'Extracting protocol',
+  //     },
+  //   });
+
+  //   await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  //   dispatch({
+  //     type: 'UPDATE_STATUS',
+  //     payload: {
+  //       id: file.name,
+  //       activeStep: 'Complete',
+  //     },
+  //   });
+
+  //   await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  //   dispatch({
+  //     type: 'REMOVE_JOB',
+  //     payload: {
+  //       id: file.name,
+  //     },
+  //   });
+
+  //   return;
+  // };
+
+  /**
+   * This is the main job processing function. Takes a file, and handles all
+   * the steps required to import it into the database, updating the job
+   * status as it goes.
+   */
   const processJob = async (file: File) => {
+    // Small artificial delay to allow for the job card to animate in
+    await sleep(1500);
+
     try {
       const fileName = file.name;
 
@@ -46,6 +90,7 @@ export const useProtocolImport = () => {
       const JSZip = (await import('jszip')).default; // Dynamic import to reduce bundle size
       const zip = await JSZip.loadAsync(fileArrayBuffer);
       const protocolJson = await getProtocolJson(zip);
+      await sleep(1500);
 
       // Validating protocol...
       dispatch({
@@ -58,8 +103,8 @@ export const useProtocolImport = () => {
 
       const { validateProtocol } = await import('@codaco/protocol-validation');
 
-      // This function will throw on validation errors, with type ValidationError
       const validationResult = await validateProtocol(protocolJson);
+      await sleep(1500);
 
       if (!validationResult.isValid) {
         // eslint-disable-next-line no-console
@@ -150,10 +195,14 @@ export const useProtocolImport = () => {
         },
       });
 
-      // The asset 'name' prop matches across the assets array and the
-      // uploadedFiles array, so we can just map over one of them and
-      // merge the properties we need to add to the database.
-      const assetsWithUploadMeta = assets.map((asset) => {
+      /**
+       * We now need to merge the metadata from the uploaded files with the
+       * asset metadata from the protocol json, so that we can insert the
+       * assets into the database.
+       *
+       * The 'name' prop matches across both, we can use that to merge them.
+       */
+      const assetsWithCombinedMetadata = assets.map((asset) => {
         const uploadedAsset = uploadedFiles.find(
           (uploadedFile) => uploadedFile.name === asset.name,
         );
@@ -162,6 +211,7 @@ export const useProtocolImport = () => {
           throw new Error('Asset upload failed');
         }
 
+        // Ensure this matches the input schema in the protocol router
         return {
           key: uploadedAsset.key,
           assetId: asset.assetId,
@@ -183,26 +233,20 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        assets: assetsWithUploadMeta,
+        assets: assetsWithCombinedMetadata,
       });
 
       if (result.error) {
         throw new DatabaseError(result.error, result.errorDetails);
       }
 
-      dispatch({
-        type: 'REMOVE_JOB',
-        payload: {
-          id: file.name,
-        },
-      });
+      // Complete! 🚀
       return;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
-
       const error = ensureError(e);
-      // Database errors are thrown inside our tRPC router
+
       if (error instanceof DatabaseError) {
         dispatch({
           type: 'UPDATE_ERROR',
@@ -246,25 +290,51 @@ export const useProtocolImport = () => {
     }
   };
 
-  const jobQueue = queue(processJob, 3);
+  /**
+   * Create an async processing que for import jobs, to allow for multiple
+   * protocols to be imported with a nice UX.
+   *
+   * Concurrency set to 1 for now. We can increase this because unzipping and
+   * validation are basically instant, but the asset upload and db insertion
+   * need a separate queue to avoid consuming too much bandwidth or overloading
+   * the database.
+   */
+  const jobQueue = queue(processJob, 1);
 
-  const importProtocols = async (files: File[]) => {
-    files.forEach(async (file) => {
+  const importProtocols = (files: File[]) => {
+    files.forEach((file) => {
       dispatch({
         type: 'ADD_JOB',
         payload: {
           file,
         },
       });
-      await jobQueue.push(file);
+
+      jobQueue.push(file).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log('jobQueue error', error);
+      });
     });
   };
 
-  const reset = () => {};
+  const cancelAllJobs = () => {
+    jobQueue.kill();
+  };
+
+  const cancelJob = (id: string) => {
+    jobQueue.remove(({ data }) => data.name === id);
+    dispatch({
+      type: 'REMOVE_JOB',
+      payload: {
+        id,
+      },
+    });
+  };
 
   return {
     jobs,
-    reset,
     importProtocols,
+    cancelJob,
+    cancelAllJobs,
   };
 };

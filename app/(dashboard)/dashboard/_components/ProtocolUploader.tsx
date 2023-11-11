@@ -7,22 +7,14 @@ import { FileUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import JobCard from '~/components/ProtocolImport/JobCard';
 
-const variants = {
-  enter: {
-    transition: { staggerChildren: 1, delayChildren: 0.2 },
-  },
-  exit: {
-    transition: { staggerChildren: 0.05, staggerDirection: -1 },
-  },
-};
-
 export default function ProtocolUploader() {
-  const { importProtocols, jobs } = useProtocolImport();
+  const { importProtocols, jobs, cancelJob } = useProtocolImport();
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDropAccepted: async (acceptedFiles) => {
-      await importProtocols(acceptedFiles);
-    },
+  const { getRootProps, getInputProps, open } = useDropzone({
+    // Disable automatic opening of file dialog - we do it manually to allow for
+    // job cards to be clicked
+    noClick: true,
+    onDropAccepted: importProtocols,
     accept: {
       'application/octect-stream': ['.netcanvas'],
       'application/zip': ['.netcanvas'],
@@ -33,11 +25,14 @@ export default function ProtocolUploader() {
     <>
       <motion.div
         layout
-        className="text-md relative inline-block overflow-hidden rounded-xl border-2 border-dashed border-gray-500 bg-gray-200 p-6 leading-tight"
+        className="text-md inline-block max-w-sm overflow-hidden rounded-xl border-2 border-dashed border-gray-500 p-6 leading-tight"
       >
         <motion.div {...getRootProps()} layout>
-          <div className="text flex flex-col items-center gap-2 text-center">
-            <Button variant="default">
+          <motion.div
+            className="text flex flex-col items-center gap-2 text-center"
+            layout
+          >
+            <Button variant="default" onClick={open}>
               <FileUp className="mr-2 inline-block h-4 w-4" />
               <input {...getInputProps()} />
               Import protocol
@@ -46,17 +41,29 @@ export default function ProtocolUploader() {
               Click to select <code>.netcanvas</code> files or drag and drop
               here.
             </p>
-          </div>
-          <AnimatePresence>
-            <motion.div
-              className="grid grid-cols-4 grid-rows-1 gap-6 overflow-x-auto rounded-xl bg-slate-400 p-6 py-[20px]"
-              layout
-            >
-              {jobs.map((job, index) => (
-                <JobCard job={job} key={job.id} delay={index * 0.05} />
-              ))}
-            </motion.div>
-          </AnimatePresence>
+          </motion.div>
+          {jobs && jobs.length > 0 && (
+            <motion.ul className="relative mt-4 flex flex-col gap-2" layout>
+              <AnimatePresence mode="popLayout">
+                {jobs.map((job, index) => (
+                  <motion.li
+                    layout
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{
+                      scale: 1,
+                      opacity: 1,
+                      transition: { delay: index * 0.075 },
+                    }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: 'spring', damping: 15 }}
+                    key={job.id}
+                  >
+                    <JobCard job={job} onCancel={() => cancelJob(job.id)} />
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </motion.ul>
+          )}
         </motion.div>
       </motion.div>
     </>

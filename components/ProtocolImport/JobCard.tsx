@@ -1,70 +1,59 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import ErrorDialog from '../ui/ErrorDialog';
 import { CloseButton } from '../ui/CloseButton';
-import type { ImportJob } from './JobReducer';
+import { type ImportJob } from './JobReducer';
 import { cn } from '~/utils/shadcn';
 import { Progress } from '../ui/progress';
-import { CheckCircle, Loader, Loader2, XCircle } from 'lucide-react';
-import { importSteps } from './JobProgressReducer';
+import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
+import BackgroundBlobs from '../BackgroundBlobs/BackgroundBlobs';
+import { stat } from 'fs';
 
-const variants = (delay: number) => ({
-  enter: {
+const statusVariants = {
+  initial: {
+    opacity: 0,
+    y: 10,
+  },
+  animate: {
     opacity: 1,
-    scale: 1,
-    transition: {
-      delay,
-    },
+    y: 0,
   },
   exit: {
     opacity: 0,
-    scale: 0.5,
+    y: -10,
   },
-});
+};
 
-const JobCard = ({ job, delay }: { job: ImportJob; delay: number }) => {
+const iconVariants = {
+  initial: {
+    opacity: 0,
+    x: -10,
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+  },
+  exit: {
+    opacity: 0,
+    x: 10,
+  },
+};
+
+const JobCard = ({
+  job,
+  onCancel,
+}: {
+  job: ImportJob;
+  onCancel: () => void;
+}) => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const { error, status, id, cancel } = job;
+  const { error, status, id } = job;
+  const { activeStep } = status;
 
-  const activeStepIndex = importSteps.findIndex(
-    (step) => step === status.activeStep,
-  );
-
-  const waiting = activeStepIndex === -1;
-  const finished = activeStepIndex === importSteps.length - 1;
-
-  console.log('job', id, status);
-
-  useEffect(() => {
-    if (error) {
-      setShowErrorDialog(true);
-    }
-  }, [error]);
-
-  const getListItem = ({
-    isActive,
-    isFailed,
-    isComplete,
-  }: {
-    isActive: boolean;
-    isFailed: boolean;
-    isComplete: boolean;
-  }) => {
-    if (isFailed) {
-      return <XCircle className="h-4 w-4 text-red-500" />;
-    }
-
-    if (isComplete) {
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
-    }
-
-    if (isActive) {
-      return <Loader2 className="h-4 w-4 animate-spin text-gray-900" />;
-    }
-
-    return <span className="h-4 w-4" />;
-  };
+  const isWaiting = activeStep === 'Waiting to begin';
+  const isComplete = activeStep === 'Complete';
+  const isActive = !error && !isComplete && !isWaiting;
 
   return (
     <>
@@ -78,64 +67,119 @@ const JobCard = ({ job, delay }: { job: ImportJob; delay: number }) => {
         />
       )}
       <motion.div
-        layout
         className={cn(
-          'relative flex flex-col justify-center gap-4 rounded-xl border-2 bg-white p-8 text-center shadow-md',
-          error && ' border-red-500',
-          finished && 'border-green-500',
+          'relative inline-flex w-full gap-4 overflow-clip rounded-xl bg-gray-200 shadow-md transition-all',
+          isActive && 'bg-primary text-primary-foreground',
+          error && ' bg-red-500 text-white',
+          isComplete && 'bg-green-500 text-white',
         )}
-        variants={variants(delay)}
-        initial="exit"
-        animate="enter"
-        exit="exit"
+        title={id}
+        layout
       >
-        <CloseButton onClick={cancel} className="absolute right-4 top-4" />
-        <h1 className="text-sm leading-tight">{id}</h1>
-        {waiting ? (
-          <div>
-            <Loader2 className="h-4 w-4 animate-spin text-gray-900" />
-          </div>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {importSteps.map((s) => {
-              const isActive = s === status.activeStep;
-              const isFailed = s === status.activeStep && error;
-              const isComplete =
-                activeStepIndex > importSteps.findIndex((step) => step === s);
-
-              return (
-                <li
-                  key={s}
-                  className={cn(
-                    'flex gap-2 text-gray-500',
-                    isActive || (isComplete && 'text-gray-900'),
-                    isFailed && 'text-red-500',
-                  )}
-                >
-                  {getListItem({ isActive, isFailed, isComplete })}
-                  <span className="flex w-full flex-col items-start gap-1 text-xs leading-tight">
-                    {s}
-                    {status.progress && s === 'Uploading assets' && (
-                      <Progress value={status.progress} className="w-full" />
-                    )}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        {error && (
-          <Button
-            variant="destructive"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowErrorDialog(true);
-            }}
+        {/* {isActive && (
+          <motion.div
+            className={cn(`absolute inset-0 h-full w-full `)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
           >
-            View error
-          </Button>
-        )}
+            <BackgroundBlobs
+              large={3}
+              medium={5}
+              small={0}
+              speedFactor={5}
+              filter="blur(1rem)"
+            />
+          </motion.div>
+        )} */}
+        <motion.div
+          className={cn(
+            'relative z-10 m-2 flex w-full flex-row items-center justify-between gap-4 rounded-lg bg-transparent px-4 py-2 transition-all',
+            isActive && 'bg-primary/70 py-3 text-primary-foreground',
+            isComplete && 'py-3',
+          )}
+          layout
+        >
+          <motion.div
+            className="flex flex-row items-center justify-between gap-4"
+            layout
+          >
+            {!(isComplete || error) && (
+              <Loader2 className="h-4 w-4 shrink-0 grow-0 animate-spin" />
+            )}
+            {isComplete && <CheckCircle className="h-4 w-4  shrink-0 grow-0" />}
+            {error && <XCircle className="h-4 w-4 shrink-0  grow-0 " />}
+
+            <motion.div layout className="flex flex-col gap-1">
+              <motion.h1
+                layout
+                className={cn(
+                  'bold text-md line-clamp-1 leading-tight',
+                  isWaiting && 'text-sm',
+                )}
+              >
+                {id}
+              </motion.h1>
+              <AnimatePresence mode="popLayout">
+                {activeStep && (
+                  <motion.div
+                    className="flex w-full flex-col items-start gap-2"
+                    key={activeStep}
+                    variants={statusVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    layout
+                  >
+                    <p className="text-xs leading-tight" title={activeStep}>
+                      {activeStep}
+                    </p>
+                    {status.progress && (
+                      <motion.div
+                        className="flex w-full flex-col items-start gap-2"
+                        key="progress-bar"
+                        variants={statusVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        layout
+                      >
+                        <Progress
+                          value={status.progress}
+                          indicatorClasses="bg-green-500"
+                          className="w-full bg-white "
+                        />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+                {error && (
+                  <motion.div
+                    key="error"
+                    variants={statusVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="flex shrink-0"
+                  >
+                    <Button
+                      size="sm"
+                      className="bg-red-500"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowErrorDialog(true);
+                      }}
+                    >
+                      View error
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+          <CloseButton onClick={onCancel} className="shrink-0 grow-0" />
+        </motion.div>
       </motion.div>
     </>
   );

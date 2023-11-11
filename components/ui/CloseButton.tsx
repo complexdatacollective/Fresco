@@ -12,7 +12,8 @@ export const CloseButton = ({
       type="button"
       onClick={onClick}
       className={cn(
-        'rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
+        'text-red',
+        'rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted',
         className,
       )}
     >
@@ -26,7 +27,7 @@ export const CloseButton = ({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-4 w-4"
+        className="h-4 w-4 fill-current"
       >
         <line x1="18" x2="6" y1="6" y2="18"></line>
         <line x1="6" x2="18" y1="6" y2="18"></line>
