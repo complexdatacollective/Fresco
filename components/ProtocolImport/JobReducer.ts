@@ -1,5 +1,4 @@
 export const importStatuses = [
-  'Waiting to begin',
   'Extracting protocol',
   'Validating protocol',
   'Uploading assets',
@@ -7,18 +6,7 @@ export const importStatuses = [
   'Complete',
 ] as const;
 
-export type ActiveImportStep = (typeof importStatuses)[number];
-
-export type BaseImportStatus = {
-  activeStep: ActiveImportStep;
-};
-
-export type UploadingImportStatus = BaseImportStatus & {
-  activeStep: 'Uploading assets';
-  progress: number;
-};
-
-export type ImportStatus = BaseImportStatus | UploadingImportStatus;
+type ImportStatus = (typeof importStatuses)[number] | null;
 
 export type ErrorState = {
   title: string;
@@ -30,10 +18,15 @@ export type ImportJob = {
   id: string;
   file: File;
   status: ImportStatus;
+  progress: number | null;
   error?: ErrorState;
 };
 
 export const jobInitialState = [];
+
+type ClearJobsAction = {
+  type: 'CLEAR_JOBS';
+};
 
 type AddJobAction = {
   type: 'ADD_JOB';
@@ -53,7 +46,7 @@ type UpdateJobStatusAction = {
   type: 'UPDATE_STATUS';
   payload: {
     id: string;
-    activeStep: ActiveImportStep;
+    status: ImportStatus;
     progress?: number;
   };
 };
@@ -67,6 +60,7 @@ type UpdateErrorAction = {
 };
 
 type Action =
+  | ClearJobsAction
   | AddJobAction
   | RemoveJobAction
   | UpdateJobStatusAction
@@ -74,13 +68,15 @@ type Action =
 
 export function jobReducer(state: ImportJob[], action: Action) {
   switch (action.type) {
+    case 'CLEAR_JOBS': {
+      return [];
+    }
     case 'ADD_JOB': {
       const newJob: ImportJob = {
         id: action.payload.file.name,
         file: action.payload.file,
-        status: {
-          activeStep: 'Waiting to begin',
-        },
+        status: null,
+        progress: null,
       };
 
       return [...state, newJob];
@@ -88,7 +84,7 @@ export function jobReducer(state: ImportJob[], action: Action) {
     case 'REMOVE_JOB':
       return state.filter((job) => job.id !== action.payload.id);
     case 'UPDATE_STATUS': {
-      const { id, activeStep } = action.payload;
+      const { id, status, progress } = action.payload;
       const job = state.find((job) => job.id === id);
 
       if (!job) {
@@ -97,20 +93,10 @@ export function jobReducer(state: ImportJob[], action: Action) {
 
       return state.map((job) => {
         if (job.id === id) {
-          // Asset upload is the only step that has a progress bar
-          if (activeStep === 'Uploading assets') {
-            return {
-              ...job,
-              status: {
-                activeStep,
-                progress: action.payload.progress,
-              },
-            };
-          }
-
           return {
             ...job,
-            status: { activeStep },
+            status,
+            progress: progress ?? null, // Reset progress to null when it isn't provided
           };
         }
 

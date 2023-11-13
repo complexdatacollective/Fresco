@@ -11,6 +11,17 @@ const updateActiveProtocolSchema = z.object({
   hash: z.string(),
 });
 
+export const assetInsertSchema = z.array(
+  z.object({
+    key: z.string(),
+    assetId: z.string(),
+    name: z.string(),
+    type: z.string(),
+    url: z.string(),
+    size: z.number(),
+  }),
+);
+
 // When deleting protocols we must first delete the assets associated with them
 // from the cloud storage.
 export const deleteProtocols = async (hashes: string[]) => {
@@ -78,7 +89,7 @@ export const protocolRouter = router({
     }),
     byHash: protectedProcedure
       .input(z.string())
-      .query(async ({ input: hash }) => {
+      .mutation(async ({ input: hash }) => {
         const protocol = await prisma.protocol.findFirst({
           where: {
             hash,
@@ -185,24 +196,17 @@ export const protocolRouter = router({
   insert: protectedProcedure
     .input(
       z.object({
-        protocol: z.object({
-          lastModified: z.string(),
-          schemaVersion: z.number(),
-          stages: z.array(z.any()),
-          codebook: z.record(z.any()),
-          description: z.string().optional(),
-        }),
+        protocol: z
+          .object({
+            lastModified: z.string(),
+            schemaVersion: z.number(),
+            stages: z.array(z.any()),
+            codebook: z.record(z.any()),
+            description: z.string().optional(),
+          })
+          .passthrough(), // Don't strip keys not defined here so that hashing can use all properties
         protocolName: z.string(),
-        assets: z.array(
-          z.object({
-            key: z.string(),
-            assetId: z.string(),
-            name: z.string(),
-            type: z.string(),
-            url: z.string(),
-            size: z.number(),
-          }),
-        ),
+        assets: assetInsertSchema,
       }),
     )
     .mutation(async ({ input }) => {
@@ -228,7 +232,10 @@ export const protocolRouter = router({
 
         return { error: null, success: true };
       } catch (e) {
-        await deleteFilesFromUploadThing(assets.map((a) => a.key));
+        // Attempt to delete any assets we uploaded to storage
+        if (assets.length > 0) {
+          await deleteFilesFromUploadThing(assets.map((a) => a.key));
+        }
         // Check for protocol already existing
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           if (e.code === 'P2002') {

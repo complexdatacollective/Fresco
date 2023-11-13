@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import * as blobs2 from 'blobs/v2';
 import { interpolatePath as interpolate } from 'd3-interpolate-path';
 import { random, randomInt } from '~/utils/lodash-replacements';
@@ -237,30 +237,34 @@ type BackgroundBlobsProps = {
   filter?: CanvasFilters['filter'];
 };
 
-const BackgroundBlobs = ({
-  large = 2,
-  medium = 4,
-  small = 4,
-  speedFactor = DEFAULT_SPEED_FACTOR,
-  compositeOperation = 'screen',
-  filter = '',
-}: BackgroundBlobsProps) => {
-  const blobs = useMemo(
-    () => [
-      new Array(large).fill(null).map(() => new NCBlob(3, speedFactor)),
-      new Array(medium).fill(null).map(() => new NCBlob(2, speedFactor)),
-      new Array(small).fill(null).map(() => new NCBlob(1, speedFactor)),
-    ],
-    [large, medium, small, speedFactor],
-  );
+const BackgroundBlobs = memo(
+  ({
+    large = 2,
+    medium = 4,
+    small = 4,
+    speedFactor = DEFAULT_SPEED_FACTOR,
+    compositeOperation = 'screen',
+    filter = '',
+  }: BackgroundBlobsProps) => {
+    const blobs = useMemo(
+      () => [
+        new Array(large).fill(null).map(() => new NCBlob(3, speedFactor)),
+        new Array(medium).fill(null).map(() => new NCBlob(2, speedFactor)),
+        new Array(small).fill(null).map(() => new NCBlob(1, speedFactor)),
+      ],
+      [large, medium, small, speedFactor],
+    );
 
-  const drawBlobs = (ctx: CanvasRenderingContext2D, time: number) => {
-    ctx.globalCompositeOperation = compositeOperation;
-    ctx.filter = filter;
-    blobs.forEach((layer) => layer.forEach((blob) => blob.render(ctx, time)));
-  };
+    const drawBlobs = (ctx: CanvasRenderingContext2D, time: number) => {
+      ctx.globalCompositeOperation = compositeOperation;
+      ctx.filter = filter;
+      blobs.forEach((layer) => layer.forEach((blob) => blob.render(ctx, time)));
+    };
 
-  return <Canvas draw={drawBlobs} />;
-};
+    return <Canvas draw={drawBlobs} />;
+  },
+);
+
+BackgroundBlobs.displayName = 'BackgroundBlobs';
 
 export default BackgroundBlobs;

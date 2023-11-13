@@ -2,12 +2,16 @@
 
 import * as React from 'react';
 import * as ProgressPrimitive from '@radix-ui/react-progress';
-
 import { cn } from '~/utils/shadcn';
+
+interface ProgressTestProps
+  extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
+  indicatorClasses?: string;
+}
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
+  ProgressTestProps
 >(({ className, indicatorClasses, value, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
