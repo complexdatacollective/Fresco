@@ -8,7 +8,6 @@ import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogAction,
 } from '~/components/ui/AlertDialog';
 

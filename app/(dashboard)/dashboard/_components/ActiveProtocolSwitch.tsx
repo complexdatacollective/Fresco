@@ -16,6 +16,7 @@ const ActiveProtocolSwitch = ({
 
   const { data: isActive } = api.protocol.active.is.useQuery(hash, {
     initialData,
+    refetchOnMount: false,
     onError: (err) => {
       throw new Error(err.message);
     },
@@ -23,19 +24,22 @@ const ActiveProtocolSwitch = ({
 
   const { mutateAsync: setActive } = api.protocol.active.set.useMutation({
     async onMutate(variables) {
-      const { input: newState, hash } = variables;
+      const { input: newState } = variables;
+
       await utils.protocol.active.get.cancel();
+      const previous = utils.protocol.active.get.getData();
 
-      const previousState = utils.protocol.active.get.getData();
+      if (previous) {
+        utils.protocol.active.get.setData(undefined, {
+          ...previous,
+          active: newState,
+        });
 
-      if (hash) {
-        utils.protocol.active.get.setData(hash, newState);
+        return previous;
       }
-
-      return previousState;
     },
     onError: (err, _newState, previousState) => {
-      utils.protocol.active.get.setData(hash, previousState);
+      utils.protocol.active.get.setData(undefined, previousState);
       throw new Error(err.message);
     },
     onSuccess: () => {

@@ -6,12 +6,8 @@ import { Button } from '~/components/ui/Button';
 import { useOnboardingContext } from '../OnboardingProvider';
 
 function ConfigureStudy() {
-  const [protocolUploaded, setProtocolUploaded] = useState(false);
+  const [protocolUploaded] = useState(false);
   const { currentStep, setCurrentStep } = useOnboardingContext();
-
-  const handleProtocolUploaded = () => {
-    setProtocolUploaded(true);
-  };
 
   const handleNextStep = () => {
     setCurrentStep(currentStep + 1).catch(() => {});
@@ -32,9 +28,7 @@ function ConfigureStudy() {
           <div className="flex justify-between">
             {protocolUploaded && <Check />}
           </div>
-          {!protocolUploaded && (
-            <ProtocolUploader onUploaded={handleProtocolUploaded} />
-          )}
+          <ProtocolUploader />
         </div>
         <div className="flex justify-start">
           <Button onClick={handleNextStep}>

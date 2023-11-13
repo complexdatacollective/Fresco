@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { hash } from 'ohash';
 import { Prisma } from '@prisma/client';
 import { utapi } from '~/app/api/uploadthing/core';
+import type { Protocol } from '@codaco/shared-consts';
 
 const updateActiveProtocolSchema = z.object({
   input: z.boolean(),
@@ -194,23 +195,20 @@ export const protocolRouter = router({
       }),
   }),
   insert: protectedProcedure
-    .input(
-      z.object({
-        protocol: z
-          .object({
-            lastModified: z.string(),
-            schemaVersion: z.number(),
-            stages: z.array(z.any()),
-            codebook: z.record(z.any()),
-            description: z.string().optional(),
-          })
-          .passthrough(), // Don't strip keys not defined here so that hashing can use all properties
-        protocolName: z.string(),
-        assets: assetInsertSchema,
-      }),
-    )
+    .input((value) => {
+      return z
+        .object({
+          protocol: z.unknown(),
+          protocolName: z.string(),
+          assets: assetInsertSchema,
+        })
+        .passthrough()
+        .parse(value);
+    })
     .mutation(async ({ input }) => {
-      const { protocol, protocolName, assets } = input;
+      const { protocol: inputProtocol, protocolName, assets } = input;
+
+      const protocol = inputProtocol as Protocol;
       try {
         const protocolHash = hash(protocol);
 
@@ -221,7 +219,7 @@ export const protocolRouter = router({
             lastModified: protocol.lastModified,
             name: protocolName,
             schemaVersion: protocol.schemaVersion,
-            stages: protocol.stages,
+            stages: JSON.stringify(protocol.stages),
             codebook: protocol.codebook,
             description: protocol.description,
             assets: {
