@@ -2,17 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
-import { api } from '~/trpc/client';
-import { useAnalytics } from '~/hooks/useAnalytics';
+import { sendEvent } from '~/utils/sendEvent';
 
 function Documentation() {
-  const appSettings = api.appSettings.get.useQuery();
-  const trackEvent = useAnalytics();
-
   const handleAppConfigured = async () => {
     await setAppConfigured();
-
-    trackEvent('AppSetup', appSettings?.data?.installationId);
+    await sendEvent('AppSetup');
   };
 
   return (
