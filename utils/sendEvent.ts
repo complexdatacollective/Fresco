@@ -11,7 +11,6 @@ async function getGeoInfo() {
   const maxmindAccountId = env.MAXMIND_ACCOUNT_ID;
   const maxmindLicenseKey = env.MAXMIND_LICENSE_KEY;
   const ip = headers().get('x-forwarded-for');
-  console.log(ip);
 
   if (!maxmindAccountId || !maxmindLicenseKey) {
     throw new Error(
@@ -60,7 +59,7 @@ export async function sendEvent(
     type: type,
     metadata: metadata,
     installationid: appSettings.installationId,
-    isoCode: await getGeoInfo(),
+    isocode: await getGeoInfo(),
   };
   await trackEvent(event);
 }
