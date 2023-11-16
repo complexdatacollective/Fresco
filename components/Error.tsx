@@ -16,6 +16,7 @@ export default function Error({
 }) {
   useEffect(() => {
     sendError({ error, heading }).catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(err);
     });
   }, [error, heading]);

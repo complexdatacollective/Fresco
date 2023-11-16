@@ -19,7 +19,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@codaco/analytics": "file:../error-analytics-microservice/packages/analytics",
+    "@codaco/analytics": "^0.0.1",
     "@codaco/protocol-validation": "3.0.0-alpha.1",
     "@codaco/shared-consts": "^0.0.2",
     "@headlessui/react": "^1.7.17",
