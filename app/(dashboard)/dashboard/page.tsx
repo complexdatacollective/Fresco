@@ -5,6 +5,7 @@ import { Button } from '~/components/ui/Button';
 import AnalyticsSwitch from '~/components/AnalyticsSwitch/AnalyticsSwitch';
 
 function Home() {
+  throw new Error('This is an error');
   return (
     <>
       <main className="mx-auto flex w-[80%] max-w-[1200px] flex-col gap-10 p-10">

@@ -7,19 +7,20 @@ import { WebServiceClient } from '@maxmind/geoip2-node';
 import { env } from 'process';
 import { headers } from 'next/headers';
 
-async function getGeoInfo() {
+async function getGeoInfo(): Promise<string | null> {
   const maxmindAccountId = env.MAXMIND_ACCOUNT_ID;
   const maxmindLicenseKey = env.MAXMIND_LICENSE_KEY;
   const ip = headers().get('x-forwarded-for');
+
+  // if ip doesn't exit or is not an ipv4 address, return null
+  if (!ip || !ip.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
+    return null;
+  }
 
   if (!maxmindAccountId || !maxmindLicenseKey) {
     throw new Error(
       'MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY environment variables must be set',
     );
-  }
-
-  if (!ip) {
-    throw new Error('x-forwarded-for header must be set');
   }
 
   const client = new WebServiceClient(maxmindAccountId, maxmindLicenseKey, {
@@ -30,36 +31,43 @@ async function getGeoInfo() {
     const response = await client.country(ip);
 
     if (!response || !response.country || !response.country.isoCode) {
-      throw new Error('Could not get country code');
+      // eslint-disable-next-line no-console
+      console.error('Could not get country code');
+      return null;
     }
 
     return response.country.isoCode;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(error);
-    return 'unknown';
+    console.error('Error getting country code');
+    return null;
   }
 }
 
-// wrap analytics trackEvent to send events only if user has allowed analytics
+// wrap analytics trackEvent to send events only if the user has allowed analytics
 export async function sendEvent(
   type: EventPayload['type'],
   metadata?: EventPayload['metadata'],
 ) {
   const appSettings = await api.appSettings.get.query();
-  if (
-    !appSettings ||
-    !appSettings.installationId ||
-    !appSettings.allowAnalytics
-  ) {
+  if (!appSettings || !appSettings.installationId) {
     return;
   }
 
+  if (!appSettings.allowAnalytics) {
+    return;
+  }
+
+  const isocode = await getGeoInfo();
+
   const event: EventPayload = {
-    type: type,
-    metadata: metadata,
+    type,
+    metadata,
     installationid: appSettings.installationId,
-    isocode: await getGeoInfo(),
   };
+
+  if (isocode) {
+    event.isocode = isocode;
+  }
   await trackEvent(event);
 }

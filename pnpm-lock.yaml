@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/analytics':
-    specifier: ^0.0.1
-    version: 0.0.1(@swc/core@1.3.94)(postcss@8.4.31)(ts-node@10.9.1)
+    specifier: 1.0.0-alpha
+    version: 1.0.0-alpha(@swc/core@1.3.94)(postcss@8.4.31)(ts-node@10.9.1)
   '@codaco/protocol-validation':
     specifier: 3.0.0-alpha.1
     version: 3.0.0-alpha.1(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
@@ -1686,8 +1686,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codaco/analytics@0.0.1(@swc/core@1.3.94)(postcss@8.4.31)(ts-node@10.9.1):
-    resolution: {integrity: sha512-iDXgjOhdk21s/UZqlh/IUbUIrYr25t3T50u2m9ywm3QnmsfcQDe4nI7LH7DJqdNIG1aBR/W21njgjOgP3ygPwA==}
+  /@codaco/analytics@1.0.0-alpha(@swc/core@1.3.94)(postcss@8.4.31)(ts-node@10.9.1):
+    resolution: {integrity: sha512-TETNl5lZsi2ghSBzh1ByZxrRiyY8WC4zkdubUxUW6Q9sKN0PEvTKS7Th7lifDU7o0l48N5Z5iYiv1v30WVPs1w==}
     dependencies:
       tsup: 7.2.0(@swc/core@1.3.94)(postcss@8.4.31)(ts-node@10.9.1)(typescript@5.2.2)
       typescript: 5.2.2

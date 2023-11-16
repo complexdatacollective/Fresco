@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Button } from '~/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
-import { sendError } from '~/utils/sendError';
+import { api } from '~/trpc/client';
 
 export default function Error({
   error,
@@ -14,12 +13,12 @@ export default function Error({
   reset: () => void;
   heading?: string;
 }) {
-  useEffect(() => {
-    sendError({ error, heading }).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error(err);
-    });
-  }, [error, heading]);
+  api.errors.send.useMutation({
+    message: error.message,
+    stack: error.stack,
+    heading,
+  });
+
   return (
     <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">
       <AlertTriangle className="mb-2 h-12 w-12 text-destructive" />
