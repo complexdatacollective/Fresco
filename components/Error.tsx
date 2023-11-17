@@ -3,6 +3,7 @@
 import { Button } from '~/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
 import { api } from '~/trpc/client';
+import { useEffect } from 'react';
 
 export default function Error({
   error,
@@ -13,11 +14,15 @@ export default function Error({
   reset: () => void;
   heading?: string;
 }) {
-  api.errors.send.useMutation({
-    message: error.message,
-    stack: error.stack,
-    heading,
-  });
+  const { mutateAsync: sendError } = api.errors.send.useMutation();
+
+  useEffect(() => {
+    void sendError({
+      message: error.message,
+      stack: error.stack,
+      heading: heading,
+    });
+  }, [heading, sendError, error.message, error.stack]);
 
   return (
     <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">

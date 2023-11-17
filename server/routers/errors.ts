@@ -10,18 +10,26 @@ export const errorsRouter = router({
     .input(
       z.object({
         message: z.string(),
-        stack: z.string(),
-        heading: z.string(),
+        stack: z.string().optional(),
+        heading: z.string().optional(),
       }),
     )
     .mutation(async ({ input: { stack, message, heading } }) => {
-      console.log('sending error');
-      const code = 123; // TODO: Add error code
+      const code = 404; // TODO: Add error code
       const appSettings = await prisma.appSettings.findFirst();
 
       // TODO: how to handle errors when appSettings is not available?
       if (!appSettings || !appSettings.installationId) {
         return { error: 'App settings not available' };
+      }
+
+      function extractPathFromStackTrace(
+        stackTrace: string | undefined,
+      ): string | undefined {
+        const pathRegex = /\bapp\/(.+):\d+:\d+\)/;
+        const match = stackTrace?.match(pathRegex);
+
+        return match ? match[1] : '';
       }
 
       const errorPayload: ErrorPayload = {
@@ -30,11 +38,10 @@ export const errorsRouter = router({
         details: heading ? heading : '',
         stacktrace: stack ? stack : '',
         installationid: appSettings.installationId,
-        path: '/',
+        path: extractPathFromStackTrace(stack) ?? '',
       };
-      console.log('errorPayload', errorPayload);
       await trackError(errorPayload);
 
-      return { error: null }; // Indicate success
+      return { error: null };
     }),
 });
