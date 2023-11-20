@@ -7,11 +7,6 @@ import { Prisma } from '@prisma/client';
 import { utapi } from '~/app/api/uploadthing/core';
 import type { Protocol } from '@codaco/shared-consts';
 
-const updateActiveProtocolSchema = z.object({
-  input: z.boolean(),
-  hash: z.string(),
-});
-
 export const assetInsertSchema = z.array(
   z.object({
     key: z.string(),
@@ -114,64 +109,41 @@ export const protocolRouter = router({
           active: true,
         },
       });
-      return protocol;
+      return protocol?.id ?? null;
     }),
-    is: protectedProcedure.input(z.string()).query(async ({ input: hash }) => {
-      const protocol = await prisma.protocol.findFirst({
-        where: {
-          hash,
-        },
-        select: {
-          active: true,
-        },
-      });
-      return protocol?.active || false;
-    }),
-    set: protectedProcedure
-      .input(updateActiveProtocolSchema)
-      .mutation(async ({ input: { input, hash } }) => {
-        try {
-          const currentActive = await prisma.protocol.findFirst({
-            where: {
-              active: true,
-            },
-          });
+    is: protectedProcedure
+      .input(z.string())
+      .mutation(async ({ input: protocolId }) => {
+        const protocol = await prisma.protocol.findFirst({
+          where: {
+            id: protocolId,
+          },
+        });
 
-          // If input is false, deactivate the active protocol
-          if (!input) {
-            await prisma.protocol.update({
+        return protocol?.active ?? false;
+      }),
+    set: protectedProcedure
+      .input(z.string())
+      .mutation(async ({ input: protocolId }) => {
+        try {
+          await prisma.$transaction([
+            prisma.protocol.updateMany({
               where: {
-                hash: hash,
                 active: true,
               },
               data: {
                 active: false,
               },
-            });
-            return { error: null, success: true };
-          }
-
-          // Deactivate the current active protocol, if it exists
-          if (currentActive) {
-            await prisma.protocol.update({
+            }),
+            prisma.protocol.update({
               where: {
-                id: currentActive.id,
+                id: protocolId,
               },
               data: {
-                active: false,
+                active: true,
               },
-            });
-          }
-
-          // Make the protocol with the given hash active
-          await prisma.protocol.update({
-            where: {
-              hash,
-            },
-            data: {
-              active: true,
-            },
-          });
+            }),
+          ]);
 
           return { error: null, success: true };
         } catch (error) {

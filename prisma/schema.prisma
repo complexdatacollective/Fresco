@@ -14,6 +14,7 @@ datasource db {
 
 model Protocol {
   id            String      @id @default(cuid())
+  active        Boolean     @default(false)
   hash          String      @unique
   name          String
   schemaVersion Int
@@ -24,7 +25,6 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
-  active        Boolean     @default(false)
 }
 
 model Asset {

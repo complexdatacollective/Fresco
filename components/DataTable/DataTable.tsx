@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   flexRender,
   getCoreRowModel,
@@ -9,8 +10,9 @@ import {
   type ColumnFiltersState,
   type SortingState,
   type Row,
+  type Table as TTable,
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -23,6 +25,15 @@ import {
 } from '~/components/ui/table';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Loader } from 'lucide-react';
+
+type CustomTable<TData> = TTable<TData> & {
+  options?: {
+    meta?: {
+      getRowClasses?: (row: Row<TData>) => string | undefined;
+      navigatorLanguages?: string[];
+    };
+  };
+};
 
 interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
@@ -44,6 +55,15 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
+  const [navigatorLanguages, setNavigatorLanguages] = useState<
+    string[] | undefined
+  >();
+
+  useEffect(() => {
+    if (window.navigator.languages) {
+      setNavigatorLanguages(window.navigator.languages as string[]);
+    }
+  }, []);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -92,12 +112,17 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    meta: {
+      getRowClasses: (row) =>
+        row.original.active && 'bg-purple-500/30 hover:bg-purple-500/40',
+      navigatorLanguages,
+    },
     state: {
       sorting,
       rowSelection,
       columnFilters,
     },
-  });
+  }) as CustomTable<TData>;
 
   const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
 
@@ -147,6 +172,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className={table.options.meta?.getRowClasses?.(row)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

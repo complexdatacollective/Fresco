@@ -37,7 +37,7 @@ export const ProtocolsTable = ({
     <>
       {isLoading && <div>Loading...</div>}
       <DataTable
-        columns={ProtocolColumns()}
+        columns={ProtocolColumns}
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
