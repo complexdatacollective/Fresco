@@ -1,6 +1,7 @@
 'use client';
 import { api } from '~/trpc/client';
 import { BadgeCheck } from 'lucide-react';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
 const ActiveButton = ({
   active,
@@ -45,6 +46,7 @@ const ActiveButton = ({
       onSettled: () => {
         void utils.protocol.get.all.invalidate();
         void utils.protocol.active.get.invalidate();
+        void clientRevalidateTag('protocol.get.all');
       },
       onError: (_error, _newActiveProtocolId, context) => {
         utils.protocol.get.all.setData(undefined, context?.protocolGetAll);

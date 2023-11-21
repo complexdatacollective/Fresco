@@ -42,6 +42,7 @@ interface DataTableProps<TData, TValue> {
   handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
   actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
   actionsHeader?: React.ReactNode;
+  calculateRowClasses?: (row: Row<TData>) => string | undefined;
 }
 
 export function DataTable<TData, TValue>({
@@ -51,6 +52,7 @@ export function DataTable<TData, TValue>({
   filterColumnAccessorKey = '',
   actions,
   actionsHeader,
+  calculateRowClasses = () => undefined,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -113,8 +115,7 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
-      getRowClasses: (row) =>
-        row.original.active && 'bg-purple-500/30 hover:bg-purple-500/40',
+      getRowClasses: (row: Row<TData>) => calculateRowClasses(row),
       navigatorLanguages,
     },
     state: {

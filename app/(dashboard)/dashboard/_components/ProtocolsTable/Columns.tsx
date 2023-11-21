@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client';
 
@@ -67,9 +68,12 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
       },
     }) => (
       <div className="text-xs">
-        {new Intl.DateTimeFormat(meta.navigatorLanguages, dateOptions).format(
-          new Date(row.original.importedAt),
-        )}
+        {
+          // @ts-ignore
+          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
+            new Date(row.original.importedAt),
+          )
+        }
       </div>
     ),
   },
@@ -85,9 +89,12 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
       },
     }) => (
       <div className="text-xs">
-        {new Intl.DateTimeFormat(meta.navigatorLanguages, dateOptions).format(
-          new Date(row.original.lastModified),
-        )}
+        {
+          // @ts-ignore
+          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
+            new Date(row.original.lastModified),
+          )
+        }
       </div>
     ),
   },
