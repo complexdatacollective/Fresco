@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/protocol-validation':
-    specifier: 3.0.0-alpha.1
-    version: 3.0.0-alpha.1(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
+    specifier: 3.0.0-alpha.4
+    version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
   '@codaco/shared-consts':
     specifier: ^0.0.2
     version: 0.0.2
@@ -44,6 +44,9 @@ dependencies:
   '@radix-ui/react-progress':
     specifier: ^1.0.3
     version: 1.0.3(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
+  '@radix-ui/react-scroll-area':
+    specifier: ^1.0.5
+    version: 1.0.5(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
   '@radix-ui/react-select':
     specifier: ^2.0.0
     version: 2.0.0(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
@@ -98,9 +101,15 @@ dependencies:
   '@trpc/server':
     specifier: ^10.41.0
     version: 10.41.0
+  '@types/async':
+    specifier: ^3.2.23
+    version: 3.2.23
   '@uploadthing/react':
     specifier: ^5.7.0
-    version: 5.7.0(next@14.0.0)(react@18.2.0)(uploadthing@5.7.2)(zod@3.22.4)
+    version: 5.7.0(next@14.0.0)(react@18.2.0)(uploadthing@5.7.4)(zod@3.22.4)
+  async:
+    specifier: ^3.2.5
+    version: 3.2.5
   bcrypt:
     specifier: ^5.1.1
     version: 5.1.1
@@ -138,8 +147,11 @@ dependencies:
     specifier: ^14.0.0
     version: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
   next-usequerystate:
-    specifier: ^1.8.4
-    version: 1.8.4(next@14.0.0)
+    specifier: ^1.11.0
+    version: 1.11.0(next@14.0.0)
+  ohash:
+    specifier: ^1.1.3
+    version: 1.1.3
   papaparse:
     specifier: ^5.4.1
     version: 5.4.1
@@ -171,8 +183,8 @@ dependencies:
     specifier: ^10.9.1
     version: 10.9.1(@swc/core@1.3.94)(@types/node@20.8.8)(typescript@5.2.2)
   uploadthing:
-    specifier: ^5.7.2
-    version: 5.7.2(zod@3.22.4)
+    specifier: ^5.7.4
+    version: 5.7.4
   uuid:
     specifier: ^9.0.1
     version: 9.0.1
@@ -1677,8 +1689,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codaco/protocol-validation@3.0.0-alpha.1(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
-    resolution: {integrity: sha512-CucBlaX5/ojAShitLm5Ssdfu1LDYGf7OcwD4ZfNQfJjGamEZELcSMwXZ+XO3zTUBocnR1hG14Q/+djZ+uSXK5A==}
+  /@codaco/protocol-validation@3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
+    resolution: {integrity: sha512-2vV5Tga/zco/vrdDwkmirkiEqvwq+pduV4U4bHJhIgivxFSxswy6Ae7VLsbgOsFRaypx/SMrh7kF9wmU30liLQ==}
     dependencies:
       '@codaco/shared-consts': 0.0.2
       '@types/lodash-es': 4.17.10
@@ -3168,6 +3180,35 @@ packages:
       '@types/react-dom': 18.2.14
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+
+  /@radix-ui/react-scroll-area@1.0.5(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-b6PAgH4GQf9QEn8zbT2XUHpW5z8BzqEc7Kl11TwDrvuTrxlkcjTD5qa/bxgKr+nmuXKu4L/W5UZ4mlP/VG/5Gw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.2
+      '@radix-ui/number': 1.0.1
+      '@radix-ui/primitive': 1.0.1
+      '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.33)(react@18.2.0)
+      '@radix-ui/react-context': 1.0.1(@types/react@18.2.33)(react@18.2.0)
+      '@radix-ui/react-direction': 1.0.1(@types/react@18.2.33)(react@18.2.0)
+      '@radix-ui/react-presence': 1.0.1(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-use-callback-ref': 1.0.1(@types/react@18.2.33)(react@18.2.0)
+      '@radix-ui/react-use-layout-effect': 1.0.1(@types/react@18.2.33)(react@18.2.0)
+      '@types/react': 18.2.33
+      '@types/react-dom': 18.2.14
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /@radix-ui/react-select@1.2.2(@types/react-dom@18.2.14)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-zI7McXr8fNaSrUY9mZe4x/HC0jTLY9fWNhO1oLWYMQGDXuV4UCivIGTxwioSzO0ZCYX9iSLyWmAh/1TOmX3Cnw==}
@@ -5014,6 +5055,10 @@ packages:
     resolution: {integrity: sha512-0Z6Tr7wjKJIk4OUEjVUQMtyunLDy339vcMaj38Kpj6jM2OE1p3S4kXExKZ7a3uXQAPCoy3sbrP1wibDKaf39oA==}
     dev: true
 
+  /@types/async@3.2.23:
+    resolution: {integrity: sha512-/sDXs+HxCtt4/duO0AZFHs+ydQYHzd3qUybEFb+juRWQJNCFj3sYbqM2ABjWi8m7J93KXdJvIbDiARzqqIEESw==}
+    dev: false
+
   /@types/babel__core@7.20.3:
     resolution: {integrity: sha512-54fjTSeSHwfan8AyHWrKbfBWiEUrNTZsUwPTDSNaaP1QDQIZbeNUg3a59E9D+375MzUw/x1vx2/0F5LBz+AeYA==}
     dependencies:
@@ -5510,11 +5555,11 @@ packages:
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  /@uploadthing/mime-types@0.2.1:
-    resolution: {integrity: sha512-UDySsPbdi7wp52WG7mp5CiZwaTvokDubqhm1xhFm73Bqhp0PsGbwSSF5PdCXH4fe8Y4EKGrMyWQ4i1fF9+DVVQ==}
+  /@uploadthing/mime-types@0.2.2:
+    resolution: {integrity: sha512-ZUo1JHOPPMZDsUw1mOhhVDIvJGlsjj6T0xJ/YJtulyJwL43S9B5pxg1cHcRuTEgjaxj7B55jiqQ6r9mDrrjH9A==}
     dev: false
 
-  /@uploadthing/react@5.7.0(next@14.0.0)(react@18.2.0)(uploadthing@5.7.2)(zod@3.22.4):
+  /@uploadthing/react@5.7.0(next@14.0.0)(react@18.2.0)(uploadthing@5.7.4)(zod@3.22.4):
     resolution: {integrity: sha512-rSBzoC2eMRM2d6Mpis6RXfo1Y5JsV7oJanTmaVdltFLRxbO/4lwK1kvHM4qwDUvn01UpxBtcVayimMBXNJ0V8Q==}
     peerDependencies:
       next: '*'
@@ -5524,19 +5569,19 @@ packages:
       next:
         optional: true
     dependencies:
-      '@uploadthing/shared': 5.2.5(@uploadthing/mime-types@0.2.1)(zod@3.22.4)
+      '@uploadthing/shared': 5.2.5(zod@3.22.4)
       attr-accept: 2.2.2
       file-selector: 0.6.0
       next: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
       react: 18.2.0
       tailwind-merge: 1.14.0
-      uploadthing: 5.7.2(zod@3.22.4)
+      uploadthing: 5.7.4
     transitivePeerDependencies:
       - '@uploadthing/mime-types'
       - zod
     dev: false
 
-  /@uploadthing/shared@5.2.5(@uploadthing/mime-types@0.2.1)(zod@3.22.4):
+  /@uploadthing/shared@5.2.5(zod@3.22.4):
     resolution: {integrity: sha512-b6Nr0YzV9iinVK9OydBVQH0xPQEPgw7ty/q9aQbEnRQedc4TqARaYQEoMvTu7bRuiK7MIpKodzVTQdFKHhMLTg==}
     peerDependencies:
       '@uploadthing/mime-types': ^0.2.0
@@ -5545,8 +5590,18 @@ packages:
       '@uploadthing/mime-types':
         optional: true
     dependencies:
-      '@uploadthing/mime-types': 0.2.1
       zod: 3.22.4
+    dev: false
+
+  /@uploadthing/shared@5.2.7(@uploadthing/mime-types@0.2.2):
+    resolution: {integrity: sha512-gc+i66m0vPQpy5PC783iq1koE8Fm9lFTd3uPrJAr7kXwpNRteJs4dnu6etDkY8EilTjMFA6w4js/AhW8AUDuQg==}
+    peerDependencies:
+      '@uploadthing/mime-types': ^0.2.2
+    peerDependenciesMeta:
+      '@uploadthing/mime-types':
+        optional: true
+    dependencies:
+      '@uploadthing/mime-types': 0.2.2
     dev: false
 
   /@webassemblyjs/ast@1.11.6:
@@ -6071,9 +6126,8 @@ packages:
     resolution: {integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==}
     dev: true
 
-  /async@3.2.4:
-    resolution: {integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==}
-    dev: true
+  /async@3.2.5:
+    resolution: {integrity: sha512-baNZyqaaLhyLVKm/DlvdW051MSgO6b8eVfIezl9E5PqWxFgzLm/wQntEW4zOytVburDEr0JlALEpdOFwvErLsg==}
 
   /asynciterator.prototype@1.0.0:
     resolution: {integrity: sha512-wwHYEIS0Q80f5mosx3L/dfG5t5rjEa9Ft51GTaNt862EnpyGHpgz2RkZvLPp1oF5TnAiTohkEKVEu8pQPJI7Vg==}
@@ -9344,7 +9398,7 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      async: 3.2.4
+      async: 3.2.5
       chalk: 4.1.2
       filelist: 1.0.4
       minimatch: 3.1.2
@@ -10354,10 +10408,10 @@ packages:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
     dev: true
 
-  /next-usequerystate@1.8.4(next@14.0.0):
-    resolution: {integrity: sha512-V4xMh87cu950Zy1Jpw/H8GwWxAeAmqnLNJ8hAl5bdEWpyZV4UIKdkJePKMCUy1+h254EXGmY83BuCGJOASJRVg==}
+  /next-usequerystate@1.11.0(next@14.0.0):
+    resolution: {integrity: sha512-J+8v/ElbBC0sq7uvIjt6HmwHqHKgX1FGtWQYeXF1gaPLUmzXwxYErIzdG0l3lb/djq/DaOp7Q4aus07ywZnt8w==}
     peerDependencies:
-      next: ^13.4
+      next: ^13.4 || < 14.0.2
     dependencies:
       mitt: 3.0.1
       next: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
@@ -10626,6 +10680,10 @@ packages:
   /objectorarray@1.0.5:
     resolution: {integrity: sha512-eJJDYkhJFFbBBAxeh8xW+weHlkI28n2ZdQV/J/DNfWfSKlGEf2xcfAbZTv3riEXHAhL9SVOTs2pRmXiSTf78xg==}
     dev: true
+
+  /ohash@1.1.3:
+    resolution: {integrity: sha512-zuHHiGTYTA1sYJ/wZN+t5HKZaH23i4yI1HMwbuXm24Nid7Dv0KcuRlKoNKS9UNfAVSBlnGLcuQrnOKWOZoEGaw==}
+    dev: false
 
   /on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
@@ -13040,14 +13098,12 @@ packages:
       escalade: 3.1.1
       picocolors: 1.0.0
 
-  /uploadthing@5.7.2(zod@3.22.4):
-    resolution: {integrity: sha512-VgNJP+gn4k835BV6E+oOq7FLGNAlh9fUB+jAotvplvQBxCkglEKlI7Hd7iynydbx0wLC1R/idRpJJNiMCAR33A==}
+  /uploadthing@5.7.4:
+    resolution: {integrity: sha512-8pTPznWTUlvWRxwWME2Eo6A1VcpvjskRcxzx7aQ45yPjh1yVFZ9RUKG1sjBTNSJCArMdbeg5wlhJT5S2XGr/8Q==}
     engines: {node: '>=18.13.0'}
     dependencies:
-      '@uploadthing/mime-types': 0.2.1
-      '@uploadthing/shared': 5.2.5(@uploadthing/mime-types@0.2.1)(zod@3.22.4)
-    transitivePeerDependencies:
-      - zod
+      '@uploadthing/mime-types': 0.2.2
+      '@uploadthing/shared': 5.2.7(@uploadthing/mime-types@0.2.2)
     dev: false
 
   /uri-js@4.4.1:

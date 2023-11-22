@@ -1,8 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table';
-
-export const makeDefaultColumns = <TData, TValue>(
-  data: TData[],
-): ColumnDef<TData, TValue>[] => {
+export const makeDefaultColumns = <TData,>(data: TData[]) => {
   const firstRow = data[0];
 
   if (!firstRow || typeof firstRow !== 'object') {
@@ -11,7 +7,7 @@ export const makeDefaultColumns = <TData, TValue>(
 
   const columnKeys = Object.keys(firstRow);
 
-  const columns: ColumnDef<TData, TValue>[] = columnKeys.map((key) => {
+  const columns = columnKeys.map((key) => {
     return {
       accessorKey: key,
       header: key,

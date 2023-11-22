@@ -14,6 +14,7 @@ datasource db {
 
 model Protocol {
   id            String      @id @default(cuid())
+  active        Boolean     @default(false)
   hash          String      @unique
   name          String
   schemaVersion Int
@@ -24,23 +25,19 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
-  active        Boolean     @default(false)
 }
 
 model Asset {
-  id         String   @id @default(cuid())
-  assetId    String // from manifest
-  type       String // from manifest
-  source     String // from manifest
-  alias      String // name as from manifest
-  key        String // from upload thing
-  url        String // from upload thing
-  name       String // from upload thing
-  size       Int // from upload thing
+  key        String   @id @unique
+  assetId    String   @unique
+  name       String
+  type       String
+  url        String
+  size       Int
   protocol   Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId String // from db
 
-  @@index([protocolId])
+  @@index(fields: [protocolId, assetId, key])
 }
 
 model Interview {
@@ -56,7 +53,7 @@ model Interview {
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
 
-  @@index([protocolId])
+  @@index(fields: [protocolId])
 }
 
 model Participant {
