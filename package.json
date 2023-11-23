@@ -21,6 +21,7 @@
   "dependencies": {
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
+    "@codaco/ui": "6.0.0-alpha.10",
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.3.2",
     "@lucia-auth/adapter-prisma": "^3.0.2",
@@ -39,6 +40,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@reduxjs/toolkit": "^1.9.7",
     "@t3-oss/env-nextjs": "^0.7.1",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/container-queries": "^0.1.1",
@@ -73,6 +75,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.47.0",
+    "react-redux": "^8.1.3",
     "sharp": "^0.32.6",
     "superjson": "2.0.0",
     "tailwind-merge": "^1.14.0",

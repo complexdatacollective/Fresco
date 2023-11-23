@@ -18,6 +18,7 @@ import ActionError from '~/components/ActionError';
 import { api } from '~/trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import type { Participant } from '@prisma/client';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
 interface ParticipantModalProps {
   open: boolean;
@@ -59,6 +60,7 @@ function ParticipantModal({
         setIsLoading(true);
       },
       async onSuccess() {
+        void clientRevalidateTag('participant.get.all');
         await utils.participant.get.invalidate();
       },
       onError(error) {
@@ -79,6 +81,7 @@ function ParticipantModal({
         setError(error.message);
       },
       onSettled() {
+        void clientRevalidateTag('participant.get.all');
         setIsLoading(false);
       },
     },

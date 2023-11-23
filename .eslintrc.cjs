@@ -6,7 +6,8 @@ const config = {
   overrides: [
     {
       extends: [
-        'plugin:@typescript-eslint/recommended-requiring-type-checking',
+        'plugin:@typescript-eslint/stylistic-type-checked',
+        'plugin:@typescript-eslint/recommended-type-checked',
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
@@ -20,12 +21,14 @@ const config = {
   },
   plugins: ['@typescript-eslint', 'eslint-plugin-local-rules'],
   extends: [
-    'next/core-web-vitals',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/stylistic',
     'plugin:@typescript-eslint/recommended',
+    'next/core-web-vitals',
     'plugin:storybook/recommended',
     'prettier',
   ],
-  ignorePatterns: ['node_modules', 'lib', '*.stories.*', '*.test.*'],
+  ignorePatterns: ['node_modules', '*.stories.*', '*.test.*'],
   rules: {
     'no-process-env': 'error',
     'no-console': 'error',

@@ -52,27 +52,10 @@ export const interviewRouter = router({
           };
         }
 
-        const existingInterview = await prisma.interview.findFirst({
-          where: {
-            participant: {
-              identifier,
-            },
-          },
-        });
-
-        if (existingInterview) {
-          return {
-            errorType: 'IDENTIFIER_IN_USE',
-            error: 'Identifier is already in use',
-            createdInterview: null,
-          };
-        }
-
         const createdInterview = await prisma.interview.create({
           data: {
             startTime: new Date(),
             lastUpdated: new Date(),
-            currentStep: 0,
             network: Prisma.JsonNull,
             participant: {
               create: {
@@ -100,7 +83,7 @@ export const interviewRouter = router({
     .input(
       z.object({
         interviewId: z.string().cuid(),
-        network: NcNetworkZod,
+        network: NcNetworkZod.or(z.null()),
       }),
     )
     .mutation(async ({ input: { interviewId, network } }) => {
