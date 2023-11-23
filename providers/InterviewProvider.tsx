@@ -15,22 +15,23 @@ import { parseAsInteger, useQueryState } from 'next-usequerystate';
 const InterviewContext = createContext({
   network: {} as NcNetwork,
   networkHandlers: {
-    addNode: (_node: NcNode) => {},
-    addEdge: (_edge: NcEdge) => {},
-    updateNode: (_node: NcNode) => {},
-    updateEdge: (_edge: NcEdge) => {},
-    deleteNode: (_nodeId: string) => {},
-    deleteEdge: (_edgeId: string) => {},
+    addNode: (_node: NcNode) => null,
+    addEdge: (_edge: NcEdge) => null,
+    updateNode: (_node: NcNode) => null,
+    updateEdge: (_edge: NcEdge) => null,
+    deleteNode: (_nodeId: string) => null,
+    deleteEdge: (_edgeId: string) => null,
   },
   navigationHandlers: {
-    nextPage: () => {},
-    previousPage: () => {},
+    nextPage: () => null,
+    previousPage: () => null,
     hasNextPage: false,
     hasPreviousPage: false,
   },
   protocol: {} as Protocol,
   interviewId: '',
   stageConfig: {} as Stage,
+  currentStageIndex: 0,
 });
 
 function InterviewProvider({
@@ -58,7 +59,8 @@ function InterviewProvider({
 
   const stages = protocol.stages;
   const protocolStageCount = stages.length;
-  const stageConfig = stages[currentStage - 1] as Stage;
+  const currentStageIndex = currentStage - 1;
+  const stageConfig = stages[currentStageIndex]!;
 
   const navigationHandlers = {
     nextPage: () => {
@@ -99,6 +101,7 @@ function InterviewProvider({
         protocol,
         interviewId,
         stageConfig,
+        currentStageIndex,
       }}
     >
       {children}
@@ -113,12 +116,14 @@ const useInterview = () => {
     networkHandlers,
     navigationHandlers,
     stageConfig,
+    currentStageIndex,
   } = useContext(InterviewContext);
 
   return {
     network,
     protocol,
     stageConfig,
+    currentStageIndex,
     ...networkHandlers,
     ...navigationHandlers,
   };
