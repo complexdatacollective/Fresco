@@ -1,0 +1,127 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`migrate v7 -> v8 should migrate the protocol 1`] = `
+Object {
+  "stages": Array [
+    Object {
+      "type": "NotSociogram",
+    },
+    Object {
+      "background": Object {
+        "concentricCircles": 4,
+        "skewedTowardCenter": true,
+      },
+      "behaviours": Object {
+        "automaticLayout": Object {
+          "enabled": true,
+        },
+      },
+      "filter": Object {
+        "join": "AND",
+        "rules": Array [
+          Object {
+            "id": "6091efec-3ef1-4680-810f-d68f69441384",
+            "options": Object {
+              "attribute": "6be95f85-c2d9-4daf-9de1-3939418af888",
+              "operator": "NOT",
+              "type": "4aebf73e-95e3-4fd1-95e7-237dcc4a4466",
+              "value": "John",
+            },
+            "type": "alter",
+          },
+          Object {
+            "id": "69593513-dbb9-48b8-a588-92d74d416bf7",
+            "options": Object {
+              "attribute": "6be95f85-c2d9-4daf-9de1-3939418af888",
+              "operator": "NOT",
+              "type": "4aebf73e-95e3-4fd1-95e7-237dcc4a4466",
+              "value": "William",
+            },
+            "type": "alter",
+          },
+        ],
+      },
+      "id": "sociogram",
+      "label": "Sociogram",
+      "layout": Object {
+        "4aebf73e-95e3-4fd1-95e7-237dcc4a4466": "d13ca72d-aefe-4f48-841d-09f020e0e988",
+      },
+      "prompts": Array [
+        Object {
+          "edges": Object {
+            "create": "77199445-9d50-4646-b0bc-6d6b0c0e06bd",
+            "display": Array [
+              "867127d9-086b-403a-a3e7-2c7d32126546",
+              "77199445-9d50-4646-b0bc-6d6b0c0e06bd",
+            ],
+          },
+          "highlight": Object {
+            "allowHighlighting": false,
+          },
+          "id": "closeness1",
+          "text": "This interface uses the concentric circles background and excludes John and William",
+        },
+        Object {
+          "edges": Object {
+            "create": "867127d9-086b-403a-a3e7-2c7d32126546",
+            "display": Array [
+              "77199445-9d50-4646-b0bc-6d6b0c0e06bd",
+              "867127d9-086b-403a-a3e7-2c7d32126546",
+            ],
+          },
+          "highlight": Object {
+            "allowHighlighting": false,
+          },
+          "id": "edgeType2",
+          "text": "Creates a second edge type",
+        },
+        Object {
+          "edges": Object {
+            "display": Array [
+              "77199445-9d50-4646-b0bc-6d6b0c0e06bd",
+              "867127d9-086b-403a-a3e7-2c7d32126546",
+            ],
+          },
+          "highlight": Object {
+            "allowHighlighting": true,
+            "variable": "03b03617-46ae-41cb-9462-9acd8a17edd6",
+          },
+          "id": "closeness2",
+          "text": "Toggle variable",
+        },
+        Object {
+          "edges": Object {
+            "create": "77199445-9d50-4646-b0bc-6d6b0c0e06bd",
+            "display": Array [
+              "77199445-9d50-4646-b0bc-6d6b0c0e06bd",
+              "867127d9-086b-403a-a3e7-2c7d32126546",
+            ],
+          },
+          "highlight": Object {
+            "allowHighlighting": true,
+            "variable": "03b03617-46ae-41cb-9462-9acd8a17edd6",
+          },
+          "id": "closeness3",
+          "text": "This prompt shows 3 concentric circles and has create edge and allow highlight specified (against the rules!)",
+        },
+      ],
+      "sortOrder": Array [
+        Object {
+          "direction": "desc",
+          "property": "*",
+        },
+      ],
+      "subject": Array [
+        Object {
+          "entity": "node",
+          "type": "4aebf73e-95e3-4fd1-95e7-237dcc4a4466",
+        },
+      ],
+      "type": "Sociogram",
+    },
+    Object {
+      "type": "NotSociogram",
+    },
+  ],
+}
+`;
