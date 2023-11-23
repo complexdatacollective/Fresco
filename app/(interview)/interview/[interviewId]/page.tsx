@@ -40,16 +40,6 @@ export default async function Page({
       initialNetwork={initialNetwork}
       protocol={interviewProtocol}
     >
-      {/* <div className="flex grow flex-col justify-between p-10">
-        <h1 className="text-3xl">Interview</h1>
-        <Link href="/">
-          <Button>Exit Interview</Button>
-        </Link>
-        <Stage />
-        <aside className="flex items-center justify-center">
-          <InterviewNavigation />
-        </aside>
-      </div> */}
       <InterviewShell />
     </InterviewProvider>
   );
