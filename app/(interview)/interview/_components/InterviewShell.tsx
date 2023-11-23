@@ -7,7 +7,7 @@ import { store } from '~/lib/interviewer/store';
 
 const InterviewShell = () => {
   return (
-    <motion.div className="grid grid-cols-2">
+    <motion.div className="grid h-[100vh] grid-cols-2">
       <Provider store={store}>
         <ProtocolScreen stageIndex={0} />
       </Provider>
