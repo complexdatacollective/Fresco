@@ -1,0 +1,60 @@
+@use '~@codaco/ui/src/styles/global/core/units';
+
+.flip-form {
+  --open-width: 40rem;
+  --closed-width: 13rem;
+  --height: 11rem;
+
+  position: absolute;
+  height: var(--height);
+  width: var(--closed-width);
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  z-index: var(--z-global-ui);
+  overflow: hidden;
+
+  .button-container {
+    position: absolute;
+    right: units.unit(2);
+    margin-right: 2rem; // The node needs to be offset to account for the button's plus icon
+  }
+
+  .form-container {
+    position: absolute;
+    right: units.unit(2);
+    display: flex;
+    align-items: center;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -#{units.unit(3)};
+    }
+
+    .tool-tip {
+      height: units.unit(2);
+      margin-bottom: units.unit(1);
+      text-shadow: 0 0 0.5rem var(--text-dark);
+    }
+
+    .label-input {
+      padding: units.unit(2) units.unit(4);
+      margin-right: units.unit(0.5);
+      border-radius: 5rem;
+      border: 0;
+      background: var(--text);
+      color: var(--text-dark);
+      font-size: 1.2rem;
+      font-weight: bold;
+      font-family: var(--body-font-family);
+    }
+
+    &::placeholder {
+      font-style: italic;
+      font-weight: 300;
+    }
+  }
+}
