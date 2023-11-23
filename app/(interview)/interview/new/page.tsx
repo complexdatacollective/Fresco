@@ -1,13 +1,9 @@
-/**
- * The interview/new route should create a new interview item in the database,
- * and then redirect to the interview/[id]/1 route.
- */
-
 import { redirect } from 'next/navigation';
 import { api } from '~/trpc/server';
 import { faker } from '@faker-js/faker';
 import { participantIdentifierSchema } from '~/shared/schemas';
 import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';
+
 export const dynamic = 'force-dynamic';
 
 export default async function Page({
@@ -59,12 +55,14 @@ export default async function Page({
   }
 
   // Create the interview
-  const { createdInterview, error } =
+  const { error, createdInterview } =
     await api.interview.create.mutate(identifier);
 
   if (error || !createdInterview) {
     throw new Error(error || 'An error occurred while creating the interview');
   }
+
+  // TODO: check if the identifier already exists.
 
   // Redirect to the interview/[id] route
   redirect(`/interview/${createdInterview.id}`);

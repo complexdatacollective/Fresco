@@ -42,11 +42,10 @@ export const ParticipantColumns =
       },
       cell: ({ row }) => (
         <Link
-          target="_blank"
           className="text-blue-500 underline hover:text-blue-300"
-          href={`/interview/${row.original.id}`}
+          href={`/participant/${row.original.id}`}
         >
-          interview/{row.original.id}
+          Participant page
         </Link>
       ),
       enableSorting: false,
