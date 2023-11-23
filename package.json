@@ -63,6 +63,7 @@
     "clsx": "^2.0.0",
     "d3-interpolate-path": "^2.3.0",
     "eslint-plugin-local-rules": "^2.0.0",
+    "file-loader": "^6.2.0",
     "framer-motion": "^10.16.4",
     "jszip": "^3.10.1",
     "lucia": "^2.7.2",
