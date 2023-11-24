@@ -32,6 +32,7 @@ const InterviewContext = createContext({
   interviewId: '',
   stageConfig: {} as Stage,
   currentStageIndex: 0,
+  progress: 0,
 });
 
 function InterviewProvider({
@@ -58,8 +59,9 @@ function InterviewProvider({
   });
 
   const stages = protocol.stages;
-  const protocolStageCount = stages.length;
+  const protocolStageCount = stages.length + 1; // +1 for the finish stage which is inserted by the selectors
   const currentStageIndex = currentStage - 1;
+  const progress = (currentStage / protocolStageCount) * 100;
   const stageConfig = stages[currentStageIndex]!;
 
   const navigationHandlers = {
@@ -69,17 +71,15 @@ function InterviewProvider({
 
       void setCurrentStage(nextStage);
     },
-
     previousPage: () => {
       const previousStage = currentStage - 1;
       if (previousStage < 1) return;
 
       void setCurrentStage(previousStage);
     },
-
     hasNextPage: currentStage < protocolStageCount,
-
     hasPreviousPage: currentStage > 1,
+    goToPage: (page: number) => setCurrentStage(page),
   };
 
   // When state changes, sync it with the server using react query
@@ -102,6 +102,7 @@ function InterviewProvider({
         interviewId,
         stageConfig,
         currentStageIndex,
+        progress,
       }}
     >
       {children}
@@ -117,6 +118,7 @@ const useInterview = () => {
     navigationHandlers,
     stageConfig,
     currentStageIndex,
+    progress,
   } = useContext(InterviewContext);
 
   return {
@@ -124,6 +126,7 @@ const useInterview = () => {
     protocol,
     stageConfig,
     currentStageIndex,
+    progress,
     ...networkHandlers,
     ...navigationHandlers,
   };

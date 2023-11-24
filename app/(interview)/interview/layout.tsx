@@ -6,7 +6,11 @@ export const metadata = {
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  return <main className="min-h-screen bg-violet-200">{children}</main>;
+  return (
+    <main className="min-h-screen " style={{ background: 'var(--background)' }}>
+      {children}
+    </main>
+  );
 }
 
 export default RootLayout;

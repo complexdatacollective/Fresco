@@ -3,26 +3,54 @@ import thunk from 'redux-thunk';
 import logger from './ducks/middleware/logger';
 import sound from './ducks/middleware/sound';
 import { reducer as form } from 'redux-form';
-import sessions from '~/lib/interviewer/ducks/modules/sessions';
-import activeSessionId from '~/lib/interviewer/ducks/modules/session';
 import activeSessionWorkers from '~/lib/interviewer/ducks/modules/sessionWorkers';
+import activeSessionId from '~/lib/interviewer/ducks/modules/session';
+import sessions from '~/lib/interviewer/ducks/modules/sessions';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
-import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import search from '~/lib/interviewer/ducks/modules/search';
 import ui from '~/lib/interviewer/ducks/modules/ui';
+import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
+import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 
-export const store = configureStore({
-  reducer: {
-    form,
-    activeSessionId,
-    activeSessionWorkers,
-    sessions,
-    deviceSettings,
-    installedProtocols,
-    dialogs,
-    search,
-    ui,
-  },
-  middleware: [thunk, logger, sound],
-});
+type InitialData = {
+  protocol: Protocol;
+  network: NcNetwork;
+  currentStageIndex: number;
+};
+
+export default function configureAppStore(initialData: InitialData) {
+  const store = configureStore({
+    reducer: {
+      form,
+      activeSessionId,
+      sessions,
+      activeSessionWorkers,
+      installedProtocols,
+      deviceSettings,
+      dialogs,
+      search,
+      ui,
+    },
+    middleware: [thunk, logger, sound],
+    preloadedState: {
+      activeSessionId: '1',
+      sessions: {
+        '1': {
+          caseId: 'test',
+          finishedAt: null,
+          exportedAt: null,
+          network: initialData.network,
+          protocolUID: '1',
+          stageIndex: initialData.currentStageIndex,
+          promptIndex: 0,
+        },
+      },
+      installedProtocols: {
+        '1': initialData.protocol,
+      },
+    },
+  });
+
+  return store;
+}
