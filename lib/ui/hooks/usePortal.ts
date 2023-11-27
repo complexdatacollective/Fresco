@@ -6,9 +6,8 @@ type PortalState = {
   remove: () => void;
 };
 
-const usePortal = (
-  target: HTMLElement | null = document.querySelector('body'),
-) => {
+const usePortal = (target: HTMLElement | null) => {
+  const [doc, setDoc] = useState<Document | null>(null);
   const [portal, setPortal] = useState<PortalState>({
     render: () => null,
     remove: () => null,
@@ -25,7 +24,7 @@ const usePortal = (
 
     setPortal({ render: Portal, remove });
     return () => portal.remove();
-  }, [target]);
+  }, [target, portal]);
 
   return portal.render;
 };

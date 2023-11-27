@@ -5,6 +5,7 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 ## Known Limitations
 
+- Custom node label workers are not implemented.
 - Videos and audio cannot autoplay on load due to browser limitations. Participants must click the play button to start media.
 
 # Deployment instructions
