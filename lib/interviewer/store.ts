@@ -3,7 +3,6 @@ import thunk from 'redux-thunk';
 import logger from './ducks/middleware/logger';
 import sound from './ducks/middleware/sound';
 import { reducer as form } from 'redux-form';
-import activeSessionWorkers from '~/lib/interviewer/ducks/modules/sessionWorkers';
 import activeSessionId from '~/lib/interviewer/ducks/modules/session';
 import sessions from '~/lib/interviewer/ducks/modules/sessions';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
@@ -12,6 +11,7 @@ import search from '~/lib/interviewer/ducks/modules/search';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
+import { getInitialNetworkState } from './ducks/modules/network';
 
 type InitialData = {
   protocol: Protocol;
@@ -25,7 +25,6 @@ export default function configureAppStore(initialData: InitialData) {
       form,
       activeSessionId,
       sessions,
-      activeSessionWorkers,
       installedProtocols,
       deviceSettings,
       dialogs,
@@ -40,7 +39,7 @@ export default function configureAppStore(initialData: InitialData) {
           caseId: 'test',
           finishedAt: null,
           exportedAt: null,
-          network: initialData.network,
+          network: initialData.network ?? getInitialNetworkState(),
           protocolUID: '1',
           stageIndex: initialData.currentStageIndex,
           promptIndex: 0,
