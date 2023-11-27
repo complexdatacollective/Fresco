@@ -1,0 +1,259 @@
+$module-name: date-picker;
+$animation-speed: var(--animation-duration-fast);
+$height: 18rem;
+$lighten: rgba(255, 255, 255, 0.05);
+$darken: rgba(0, 0, 0, 0.2);
+
+.form-field-date-picker {
+  --datepicker-panel-bg: var(--input-panel-bg);
+  color: var(--input-text);
+  &__error {
+    opacity: 0;
+    transition: opacity var(--animation-easing) var(--animation-duration-fast);
+  }
+
+  &__error-message {
+    color: var(--form-error-text);
+    background: var(--error);
+    padding: 0.5rem 0.25rem;
+
+    svg {
+      max-height: 1.2rem;
+    }
+  }
+
+  &--has-error {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: var(--error);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+
+    .form-field-date-picker__error {
+      opacity: 1;
+    }
+  }
+}
+
+.#{$module-name} {
+  --active-color: var(--color-sea-green);
+  --background: var(--input-background);
+  --lighten: $lighten;
+  --darken: $darken;
+  max-width: 100%;
+  position: relative;
+
+  &__placeholder {
+    color: var(--input-placeholder);
+    font-style: italic;
+  }
+
+  &__preview {
+    font-size: 1rem;
+    background-color: var(--background);
+    border-radius: 1rem 1rem 0 0;
+    padding: 0 1rem;
+    line-height: 4rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom-color var(--animation-easing) var(--animation-duration-fast);
+
+    &-divider {
+      color: var(--active-color);
+      padding: 0 0.5rem;
+    }
+
+    &-part,
+    &-clear {
+      cursor: pointer;
+      display: inline-block;
+      transition: color var(--animation-easing) var(--animation-duration-fast);
+    }
+
+    &-part {
+      color: var(--input-placeholder);
+      font-style: italic;
+
+      &--is-set {
+        color: var(--input-text);
+        font-style: normal;
+      }
+    }
+
+    &-clear {
+      border-bottom: 1px solid var(--active-color);
+      line-height: 1.4rem;
+      height: 1.4rem;
+      margin-left: auto;
+      opacity: 0;
+
+      &--is-visible {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+
+    &--is-empty {
+      color: var(--input-placeholder);
+      cursor: pointer;
+      font-style: italic;
+    }
+
+    &:focus {
+      border-bottom-color: var(--active-color);
+    }
+  }
+
+  &__container {
+    position: absolute;
+    z-index: var(--z-global-ui);
+    width: 100%;
+    max-width: 30rem;
+    box-shadow: 0 2rem 3rem 0 var(--modal-window-box-shadow);
+    margin-bottom: 3rem;
+  }
+
+  &__panels {
+    background-color: var(--datepicker-panel-bg);
+    height: $height;
+    overflow: hidden;
+  }
+
+  &__panels-container {
+    height: $height;
+    position: relative;
+  }
+
+  &__panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: $height;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex: 0 1 100%;
+  }
+
+  &__highlight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0.75rem unit(2);
+    border-radius: 5rem;
+    background-color: transparent;
+    transition: background-color ease $animation-speed;
+  }
+
+  &__range-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    &--is-active {
+      .#{$module-name}__highlight {
+        background-color: var(--active-color);
+      }
+    }
+
+    &--is-today {
+      .#{$module-name}__highlight {
+        font-weight: bold;
+      }
+    }
+
+    &--is-disabled {
+      pointer-events: none;
+      opacity: 0.15;
+    }
+  }
+
+  &__range-picker-items {
+    display: grid;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__range-picker {
+    padding-top: 0 !important; // sass-lint:disable-line no-important
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+
+    &--year {
+      overflow-x: hidden;
+      overflow-y: auto;
+      // sass-lint:disable no-vendor-prefixes
+      -webkit-overflow-scrolling: touch;
+
+      .date-picker__range-picker-items {
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-template-rows: minmax(auto, 5rem);
+        padding: unit(2) 0;
+        height: calc(100% - 3rem); // double padding
+      }
+
+      .#{$module-name}__range-item {
+        padding: 1rem 0;
+        max-height: 5rem;
+        box-sizing: border-box;
+
+        &:nth-child(10n - 9),
+        &:nth-child(10n - 8),
+        &:nth-child(10n - 7),
+        &:nth-child(10n - 6),
+        &:nth-child(10n - 5) {
+          background-color: var(--lighten);
+        }
+      }
+    }
+
+    &--month {
+      .date-picker__range-picker-items {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .#{$module-name}__range-item {
+        &:nth-child(6n - 5),
+        &:nth-child(6n - 4),
+        &:nth-child(6n - 3) {
+          background-color: var(--lighten);
+        }
+      }
+    }
+
+    &--day {
+      .date-picker__range-picker-items {
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+      }
+
+      .#{$module-name}__range-item {
+        &:nth-child(14n - 13),
+        &:nth-child(14n - 12),
+        &:nth-child(14n - 11),
+        &:nth-child(14n - 10),
+        &:nth-child(14n - 9),
+        &:nth-child(14n - 8),
+        &:nth-child(14n - 7) {
+          background-color: var(--lighten);
+        }
+      }
+    }
+  }
+
+  &:focus,
+  &--is-active {
+    .#{$module-name}__preview {
+      border-bottom-color: var(--active-color);
+    }
+  }
+}

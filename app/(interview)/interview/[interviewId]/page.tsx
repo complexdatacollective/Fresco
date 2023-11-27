@@ -4,7 +4,6 @@ import InterviewNavigation from '~/app/(interview)/interview/_components/Intervi
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
 import { api } from '~/trpc/server';
-import { Button } from '~/components/ui/Button';
 import InterviewShell from '../_components/InterviewShell';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +15,6 @@ export default async function Page({
 }) {
   console.log(params);
   const { interviewId } = params;
-  console.log('interviewId', interviewId);
   // Fetch interview data from the database
   if (!interviewId) {
     console.log('no interview ID...creating one');
@@ -25,7 +23,7 @@ export default async function Page({
 
   const interview = await api.interview.get.byId.query({ id: interviewId });
 
-  console.log('interview', interview);
+  console.log('assets', interview?.protocol.assets);
 
   if (!interview) {
     return 'No interview found';

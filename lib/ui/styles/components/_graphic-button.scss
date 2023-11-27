@@ -1,0 +1,31 @@
+.graphic-button {
+  @include clickable;
+  display: inline-flex;
+  width: 100%;
+  color: var(--color-white);
+  background-repeat: no-repeat;
+  height: 10rem;
+  border-radius: 1rem;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+
+  &__label {
+    position: relative;
+
+    h2 {
+      font-size: type-scale(3);
+      margin: 0;
+    }
+
+    h3 {
+      text-transform: none !important;
+      font-size: type-scale(body);
+      margin: .5rem 0 0;
+    }
+
+    h2, h3 {
+      text-shadow: 1px 1px 0rem #000000, 0 0rem 0.5rem #000000b8;
+    }
+  }
+}

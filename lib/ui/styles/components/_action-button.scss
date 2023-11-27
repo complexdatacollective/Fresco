@@ -1,0 +1,75 @@
+.action-button {
+  --size: #{unit(13)};
+  @include reset-button;
+  @include color-modifiers($include-hover: true);
+
+  position: relative;
+
+  width: var(--size);
+  height: var(--size);
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--primary);
+  color:white;
+
+  .icon-container {
+    clip-path: circle(50% at center);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .icon {
+      height: 60%;
+      width: 60%;
+
+      &[name="add-a-person"],
+      &[name="add-a-relationship"] {
+        align-self: flex-end;
+        height: 80%;
+        width: 100%;
+      }
+
+      &[name='add-a-context'] {
+        height: 70%;
+        width: 70%;
+      }
+    }
+  }
+
+  .plus-button {
+    --size: #{unit(6.5)};
+    position: absolute;
+    top: calc(var(--size) / -8);
+    right: calc(var(--size) / -2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--primary);
+    background: var(--color-platinum);
+    border-radius: 50%;
+    height: var(--size);
+    width: var(--size);
+
+    .icon {
+      height: calc(var(--size) / 3);
+      width: calc(var(--size) / 3);
+    }
+  }
+
+  &--clickable:not(.action-button--disabled) {
+    @include clickable(2);
+  }
+
+  &--disabled {
+    filter: grayscale(100%);
+    cursor: not-allowed;
+  }
+}

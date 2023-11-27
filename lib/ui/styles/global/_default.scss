@@ -1,0 +1,446 @@
+@import 'core/animation';
+@import 'core/units';
+@import 'core/bem';
+@import 'core/breakpoints';
+@import 'core/color';
+@import 'core/palette';
+@import 'core/spacing';
+@import 'core/typography';
+@import 'core/quicksand';
+@import 'core/normalize';
+@import 'core/z-index';
+@import 'core/helpers';
+
+$export-ui-classes: true !default;
+
+// Default Color Settings
+// =============================================================================
+@include color-set('neon-coral', '226, 33, 91');
+@include color-set('neon-coral--dark', '206, 28, 84');
+@include color-set('mustard', '242, 183, 0');
+@include color-set('mustard--dark', '219, 165, 0');
+@include color-set('sea-green', '0, 201, 162');
+@include color-set('sea-green--dark', '0, 160, 129');
+@include color-set('white', '255, 255, 255');
+@include color-set('slate-blue', '107, 114, 236');
+@include color-set('slate-blue--dark', '85, 91, 188');
+@include color-set('navy-taupe', '45, 41, 85');
+@include color-set('cyber-grape', '58, 58, 117');
+@include color-set('rich-black', '22, 21, 43');
+@include color-set('charcoal', '109, 111, 118');
+@include color-set('platinum', '242, 246, 247');
+@include color-set('platinum--dark', '218, 227, 229');
+@include color-set('sea-serpent', '15, 178, 226');
+@include color-set('sea-serpent--dark', '15, 163, 206');
+@include color-set('purple-pizazz', '211, 15, 239');
+@include color-set('purple-pizazz--dark', '191, 12, 216');
+@include color-set('paradise-pink', '255, 58, 140');
+@include color-set('paradise-pink--dark', '232, 53, 124');
+@include color-set('cerulean-blue', '15, 112, 255');
+@include color-set('cerulean-blue--dark', '15, 102, 232');
+@include color-set('kiwi', '112, 191, 84');
+@include color-set('kiwi--dark', '102, 173, 76');
+@include color-set('neon-carrot', '247, 137, 30');
+@include color-set('neon-carrot--dark', '224, 124, 28');
+@include color-set('barbie-pink', '237, 0, 140');
+@include color-set('barbie-pink--dark', '214, 0, 127');
+@include color-set('tomato', '232, 45, 63');
+@include color-set('tomato--dark', '211, 43, 58');
+
+
+// Palettes
+@include palette-set('primary', color('sea-green'));
+@include palette-set('menu-panel--active', color('white'));
+@include palette-set('menu-panel', color('cyber-grape'));
+@include palette-set('selected', color('white'));
+@include palette-set('settings', color('mustard'));
+@include palette-set('background', color('navy-taupe'));
+@include palette-set('text', color('white'));
+@include palette-set('text-dark', color('charcoal'));
+@include palette-set('tex-muted', color('cyber-grape'));
+@include palette-set('link', color('neon-coral'));
+@include palette-set('light-background', color('cyber-grape'));
+@include palette-set('dark-background', color('rich-black'));
+@include palette-set('modal-main-panel', color('navy-taupe'));
+@include palette-set('modal-background', color('cyber-grape'));
+@include palette-set('info', color('sea-serpent'));
+@include palette-set('notice', color('sea-green'));
+@include palette-set('warning', color('mustard'));
+@include palette-set('error', color('neon-coral'));
+@include palette-set('headings', color('white'));
+@include palette-set('menu-headings', color('charcoal'));
+@include palette-set('divider', color('platinum--dark'));
+@include palette-set('ring--background', var(--background));
+@include palette-set('ring--accent', color('cyber-grape'));
+@include palette-set('graph-tooltip', color('charcoal'));
+@include palette-set('graph-data-1', color('sea-green'));
+@include palette-set('graph-data-2', color('slate-blue'));
+@include palette-set('graph-data-3', color('neon-carrot'));
+@include palette-set('graph-data-4', color('sea-serpent'));
+@include palette-set('graph-data-5', color('barbie-pink--dark'));
+@include palette-set('graph-data-6', color('cyber-grape'));
+@include palette-set('graph-data-7', color('kiwi'));
+@include palette-set('graph-data-8', color('tomato--dark'));
+@include palette-set('graph-data-9', color('mustard'));
+@include palette-set('graph-data-10', color('purple-pizazz'));
+@include palette-set('graph-data-11', color('paradise-pink'));
+@include palette-set('graph-data-12', color('cerulean-blue'));
+@include palette-set('graph-data-13', color('platinum--dark'));
+@include palette-set('graph-data-14', color('charcoal'));
+@include palette-set('graph-data-15', color('navy-taupe'));
+
+// Form elements and inputs
+@include palette-set('input-border', palette('text'));
+@include palette-set('input-text', palette('text'));
+@include palette-set('input-accent', palette('primary'));
+@include palette-set('input-disabled', color('charcoal'));
+@include palette-set('form-error-text', color('white'));
+
+// Text inputs
+
+// Checknox/radio
+@include palette-set('input-radio--fill', palette('input-accent'));
+
+// Color sequences
+@mixin color-sequence($name, $color-list, $with-dark: true) {
+  @each $current-color in $color-list {
+    $i: index($color-list, $current-color);
+    @include palette-set('#{$name}-#{$i}', color($current-color));
+    @if $with-dark {
+      @include palette-set('#{$name}-#{$i}--dark', color('#{$current-color}--dark'));
+    }
+  }
+}
+
+// vertical align, horizontal align
+@mixin vcjc {
+  justify-content: center;
+  align-items: center;
+}
+
+// Root sequence
+$root-colors: (
+  'neon-coral',
+  'sea-serpent',
+  'purple-pizazz',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('primary-color-seq', $root-colors, true);
+
+// Edge sequence
+$edge-colors: (
+  'mustard',
+  'purple-pizazz',
+  'neon-coral',
+  'kiwi',
+  'paradise-pink',
+  'tomato',
+  'sea-serpent',
+  'slate-blue',
+  'sea-green',
+  'cerulean-blue'
+);
+
+@include color-sequence('edge-color-seq', $edge-colors, false);
+
+// Node Sequence
+@include palette-set('node-label', color('white'));
+
+$node-colors: (
+  'neon-coral',
+  'sea-serpent',
+  'purple-pizazz',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('node-color-seq', $node-colors, true);
+
+// Ordinal Bin Sequence
+$ordinal-colors: (
+  'sea-green',
+  'sea-serpent',
+  'tomato',
+  'neon-carrot',
+  'kiwi',
+  'cerulean-blue',
+  'paradise-pink',
+  'mustard'
+);
+
+@include color-sequence('ord-color-seq', $ordinal-colors, true);
+
+// Categorical Bin Sequence
+$categorical-colors: (
+  'sea-serpent',
+  'purple-pizazz',
+  'mustard',
+  'paradise-pink',
+  'kiwi',
+  'cerulean-blue',
+  'neon-carrot',
+  'barbie-pink',
+  'tomato',
+  'slate-blue'
+);
+
+@include color-sequence('cat-color-seq', $categorical-colors, true);
+
+
+// Protocol Schema Sequence
+$schema-colors: (
+  'platinum--dark',
+  'cyber-grape',
+  'slate-blue',
+  'sea-serpent',
+  'cerulean-blue',
+  'mustard',
+  'neon-carrot',
+  'barbie-pink',
+  'tomato'
+);
+
+@include color-sequence('schema-color-seq', $schema-colors, true);
+
+$base-line-height: 1.5;
+$netcanvas-font-stack: 'Quicksand', 'Open Sans', sans-serif;
+$system-font-stack: 'system-ui', sans-serif;
+
+:root {
+  // Typographic base styles
+  --base-font-size: 16px;
+  --heading-font-family: #{$netcanvas-font-stack};
+  --body-font-family: #{$system-font-stack};
+
+  // Default border radius
+  --border-radius: .75rem;
+
+  // Link color
+  --link-color: var(--color-neon-coral);
+
+  // each item in color map
+  @each $name, $color in $-color-map {
+    #{'--'}color-#{$name}: #{'rgb('}#{$color}#{')'};
+    #{'--'}color-#{$name}---rgb: #{$color};
+  }
+
+  // each item in palette
+  @each $name, $palette in $-palette-map {
+    #{'--'}#{$name}: #{$palette};
+  }
+
+  // Top level transparentised values
+  --transparent-light: #{transparentize(rgb(255, 255, 255), 0.7)};
+  --transparent-md: #{transparentize(rgb(128, 128, 128), 0.7)};
+  --transparent-dark: #{transparentize(rgb(0, 0, 0), 0.3)};
+
+  // additional one-off palette values
+  --narrative-heading-color: #{transparentize(rgb(255, 255, 255), 0.3)};
+  --narrative-heading-bg-hover: #{transparentize(rgb(22, 21, 43), 0.85)};
+  --narrative-border-bottom-color: #{transparentize(rgb(22, 21, 43), 0.85)};
+
+  --node-outer-trim-stroke: #{transparentize(rgb(255, 255, 255), 0.75)};
+  --node-bucket-bg: #{radial-gradient(ellipse at center, transparentize(rgb(45, 41, 85), 0.5) 0%, transparentize(rgb(58, 58, 117), 0.5) 100%)};
+  --node-list-action-bg: #{transparentize(rgb(58, 58, 117), 0.5)};
+
+  --drop-shadow-color: #{transparentize(rgb(22, 21, 43), 0.25)};
+
+  --session-management-screen-bg: #{transparentize(rgb(58, 58, 117), 0.5)};
+
+  // Inputs
+  --input-background: #{transparentize(rgb(0, 0, 0), 0.67)};
+  --input-label: #{transparentize(rgb(255, 255, 255), 0)};
+  --input-placeholder: #{transparentize(rgb(255, 255, 255), 0.75)};
+  --input-panel-bg: var(--color-rich-black);
+
+  --modal-overlay: #{transparentize(rgb(39, 32, 76), 0.1)};
+  --modal-window-box-shadow: #{transparentize(rgb(22, 21, 43), 0.25)};
+
+  --panel-selected-node-bg-color: #{transparentize(rgb(255, 255, 255), 0.95)};
+
+  --panel-bg-muted: #36315f; //sass-lint:disable-line no-color-literals
+
+  --menu-item-hover: #{darken(rgb(0, 201, 162), 5%)};
+  --menu-item-hover-settings: #{darken(rgb(107, 114, 236), 5%)};
+}
+
+// to export out into css modules for js
+:export {
+  @each $name, $color in $-color-map {
+    #{$name}: #{$color};
+  }
+}
+
+// Default Breakpoint Settings
+// =============================================================================
+@include breakpoint-set('small', 'max-aspect-ratio: 0.625');
+@include breakpoint-set('full', 'min-aspect-ratio: 0.625');
+@include breakpoint-classes(hide) {
+  display: none;
+}
+
+@include breakpoint-classes(show--flex) {
+  display: flex;
+}
+
+@if $export-ui-classes {
+  @include normalize;
+}
+
+html {
+  font-family: var(--body-font-family);
+  font-size: var(--base-font-size);
+}
+
+a {
+  color: var(--link-color);
+}
+
+// Headings
+
+$headings-font-weight: 600 !default;
+$headings-line-height: 1.1 !default;
+
+// Based of px sizes in style guide (em values were inconsistent)
+$headings: (
+  h1: (1.75rem, var(--heading-font-family)),
+  h2: (1.25rem, var(--heading-font-family)),
+  h3: (1.1625rem, var(--heading-font-family)),
+  h4: (1rem, var(--heading-font-family)),
+  h5: (0.75rem, var(--heading-font-family)),
+);
+
+@mixin text($font-size, $font-family) {
+  font-family: $font-family;
+  font-size: $font-size;
+  font-weight: $headings-font-weight;
+  letter-spacing: 0.05rem;
+  line-height: $headings-line-height;
+}
+
+@each $heading-tag, $heading-properties in $headings {
+  #{$heading-tag} {
+    $font-size: nth($heading-properties, 1);
+    $font-family: nth($heading-properties, 2);
+
+    @include text($font-size, $font-family);
+  }
+}
+
+@include type-set(
+  'quicksand', base,
+  (
+    font-family: var(--heading-font-family),
+    font-size: 1rem,
+    line-height: $base-line-height,
+    font-weight: $headings-font-weight
+  )
+);
+@include type-set(
+  'light', base, (font-weight: 300)
+);
+@include type-set(
+  'medium', base, (font-weight: 500)
+);
+@include type-set(
+  'bold', base, (font-weight: 700)
+);
+@include type-set(
+  'center', base, (text-align: center)
+);
+// H1  - questions, form, and menu headlines
+@include type-set(
+  'main-title', base,
+  (
+    font-family: var(--heading-font-family),
+    font-size: 3rem,
+    line-height: 1.429,
+    font-weight: 700,
+    text-align: center,
+  )
+);
+
+@include type-set(
+  'title-1', base,
+  (
+    font-family: var(--heading-font-family),
+    font-size: 2.3rem,
+    line-height: 1.429,
+    font-weight: 700,
+    text-align: center,
+    width: 100%
+  )
+);
+
+// H2 - Form question headlines, buttons, text links
+@include type-set(
+  'title-2', base,
+  (
+    font-size: 1.2rem,
+    line-height: $base-line-height,
+    font-weight: 500,
+  )
+);
+
+// H3 - Large nodes, name generator panel, ordinal bins, categorial bins
+@include type-set(
+  'title-3', base,
+  (
+    font-size: 1.05rem,
+    line-height: $base-line-height,
+    font-weight: $headings-font-weight,
+    text-align: center,
+  )
+);
+// H4 - Menu items, error message headline, body copy
+@include type-set(
+  'title-4', base,
+  (
+    font-size: 1rem,
+    line-height: $base-line-height,
+  )
+);
+// H5 - Small nodes, context bins, number counter, form field label
+@include type-set(
+  'title-5', base,
+  (
+    font-size: 0.8rem,
+    line-height: $base-line-height,
+  )
+);
+
+// Copy sizes
+@include type-set(
+  'copy-large', base,
+  (
+    font-size: 1.1rem,
+    line-height: $base-line-height
+  )
+);
+@include type-set(
+  'copy-standard', base,
+  (
+    font-size: 1rem,
+    line-height: $base-line-height
+  )
+);
+@include type-set(
+  'copy-small', base,
+  (
+    font-size: 0.7rem,
+    line-height: $base-line-height,
+    font-weight: 100
+  )
+);
+
+@if $export-ui-classes {
+  @include typography-classes;
+}

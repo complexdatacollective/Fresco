@@ -1,0 +1,86 @@
+$component-name: form-field-toggle;
+
+.#{$component-name} {
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+  cursor: pointer;
+
+  &__input {
+    display: none;
+  }
+
+  &__toggle {
+    position: relative;
+    width: $global-input-element-size * 2;
+    height: $global-input-element-size;
+    display: inline-block;
+    margin-right: unit(1);
+  }
+
+  &__button {
+    position: absolute;
+    background-color: var(--input-background);
+    transition: background var(--animation-duration-fast) var(--animation-easing);
+    border-radius: $global-input-element-size;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    &::before {
+      position: absolute;
+      content: '';
+      border-radius: 50%;
+      height: $global-input-element-size;
+      width: $global-input-element-size;
+      background-color: var(--input-border);
+      transition: transform var(--animation-duration-fast) var(--animation-easing);
+    }
+  }
+
+  &__input:checked + &__toggle { // sass-lint:disable-line force-pseudo-nesting
+    .form-field-toggle__button {
+      background-color: var(--input-radio--fill);
+
+      &::before {
+        transform: translateX($global-input-element-size);
+      }
+    }
+  }
+
+  &__error {
+    opacity: 0;
+    background: var(--error);
+    color: var(--text);
+    transition: opacity var(--animation-easing) var(--animation-duration-standard),
+    max-height var(--animation-easing) var(--animation-duration-standard);
+    padding: 0.5rem 0.25rem;
+    display: flex;
+    align-items: center;
+
+    svg {
+      max-height: 1.2rem;
+    }
+  }
+
+  &--has-error {
+    .#{$component-name}__error {
+      opacity: 1;
+    }
+
+    .#{$component-name} {
+      border: 0.125rem solid var(--error);
+      margin-bottom: 0;
+    }
+
+  }
+
+  &--disabled {
+    .#{$component-name} {
+      &__button {
+        opacity: 0.5;
+      }
+    }
+  }
+}

@@ -20,9 +20,9 @@ export const auth = lucia({
     };
   },
   adapter: prismaAdapter(client),
-  experimental: {
-    debugMode: env.NODE_ENV !== 'production',
-  },
+  // experimental: {
+  //   debugMode: env.NODE_ENV !== 'production',
+  // },
 });
 
 export type Auth = typeof auth;

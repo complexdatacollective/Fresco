@@ -1,0 +1,246 @@
+$module-name: form-field-slider;
+
+.#{$module-name} {
+  $touch-height: $global-input-element-size;
+  $height: $touch-height * 2;
+  $align-margin: $touch-height * 2; // left-right margins
+
+  --active-color: var(--color-sea-green);
+  --slider-color: var(--color-platinum);
+  --disabled-color: var(--color-charcoal);
+  --label-color: var(--color-white);
+  --tooltip-color: var(--color-white);
+  --tooltip-label: var(--text-dark);
+
+  // border-radius: 1rem 1rem 0 0;
+  // background-color: var(--input-background);
+  // border-width: 0.1rem;
+  // border-style: solid;
+  // border-color: transparent;
+  // min-height: $touch-height * 3.5;
+
+  &__tracks {
+    position: absolute;
+    height: $touch-height;
+    width: 100%;
+    z-index: 1;
+    top: $height * 0.5;
+    transform: translate(0, -50%);
+  }
+
+  &__track-line {
+    position: absolute;
+    background-color: var(--slider-color);
+    height: $touch-height * 0.5;
+    width: 100%;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    border-radius: $touch-height * 0.5;
+  }
+
+  &__track {
+    position: absolute;
+    height: $touch-height;
+    z-index: 1;
+    top: 50%;
+    transform: translate(0, -50%);
+    box-sizing: content-box;
+    cursor: pointer;
+
+    &:first-child {
+      padding-left: $touch-height * 0.5;
+      transform: translate(-($touch-height * 0.5), -50%);
+
+      .form-field-slider__track-line {
+        left: $touch-height * 0.5;
+        width: calc(100% - #{$touch-height * 0.5});
+        background-color: var(--active-color);
+      }
+    }
+
+    &:last-child {
+      padding-right: $touch-height * 0.5;
+
+      .form-field-slider__track-line {
+        width: calc(100% - #{$touch-height * 0.5});
+      }
+    }
+  }
+
+  &__tooltip {
+    position: absolute;
+    bottom: 50%;
+    color: var(--tooltip-label);
+    opacity: 0;
+    transition: opacity var(--animation-duration-fast) ease;
+    transform: translate(-0.05rem, #{-0.75 * $touch-height});
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: 0;
+      height: $touch-height * 0.5;
+      width: $touch-height * 0.5;
+      transform-origin: bottom left;
+      transform: rotate(-45deg);
+      background: var(--tooltip-color);
+    }
+
+    &-label {
+      transform: translate(-50%, - 0.2 * $touch-height);
+      font-size: 0.8rem;
+      background: var(--tooltip-color);
+      border-radius: var(--border-radius);
+      padding: 0.5rem #{$touch-height * 0.5};
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: max-content;
+      min-height: $touch-height;
+      max-width: $align-margin * 1.75;
+    }
+
+    &--is-active {
+      opacity: 1;
+    }
+  }
+
+  &__ticks {
+    position: relative;
+    top: $height * 0.5;
+    left: 0;
+    width: 100%;
+  }
+
+  &__tick {
+    position: absolute;
+    top: 0;
+    left: -0.15rem;
+
+    &-label {
+      position: absolute;
+      top: unit(4);
+      transform: translate(-50%, 0);
+      display: flex;
+      justify-content: center;
+      width: max-content;
+      min-height: $touch-height;
+      max-width: $align-margin * 1.75;
+      text-align: center;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      border-left: 0.15rem solid var(--slider-color);
+      height: $touch-height + unit(2);
+      width: 0;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  // interactive element of handle/marker
+  &__handle {
+    position: absolute;
+    top: $height * 0.5;
+    transform: translate(-50%, -50%);
+    z-index: var(--z-global-ui);
+    width: $touch-height;
+    height: $touch-height;
+    cursor: pointer;
+    background-color: none;
+  }
+
+  // visual element of handle/marker
+  &__marker {
+    position: absolute;
+    top: $height * 0.5;
+    transform: translate(-50%, -50%);
+    z-index: var(--z-default);
+    width: $touch-height;
+    height: $touch-height;
+    border: 0;
+    border-radius: 100%;
+    background-color: var(--active-color);
+    transition-property: transform, opacity, filter;
+    transition-duration: var(--animation-duration-fast), var(--animation-duration-fast), var(--animation-duration-fast);
+
+    &--is-disabled {
+      background-color: var(--disabled-color);
+    }
+
+    &--is-active {
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  }
+
+  &__slider {
+    position: relative;
+    width: calc(100% - #{$align-margin * 2});
+    height: $height;
+    margin-left: $align-margin;
+    margin-right: $align-margin;
+    margin-bottom: unit(4);
+
+    &--vas,
+    &--likert {
+      .#{$module-name}__track-line {
+        border-radius: 0;
+      }
+
+      .#{$module-name}__track {
+        &:first-child {
+          .#{$module-name}__track-line {
+            background-color: var(--slider-color);
+          }
+        }
+      }
+    }
+
+    &--not-set {
+      .#{$module-name}__marker {
+        opacity: 0.8;
+        filter: saturate(0);
+
+        &--is-active {
+          opacity: 1;
+          filter: initial;
+        }
+      }
+    }
+  }
+
+  &__error {
+    opacity: 0;
+    background: var(--error);
+    color: var(--form-error-text);
+    transition: opacity var(--animation-easing) var(--animation-duration-standard),
+    max-height var(--animation-easing) var(--animation-duration-standard);
+    padding: 0.5rem 0.25rem;
+    display: flex;
+    align-items: center;
+
+    svg {
+      max-height: 1.2rem;
+    }
+  }
+
+  &--has-error {
+
+    .form-field {
+      border-width: 0.1rem;
+      border-style: solid;
+      border-color: var(--error);
+      margin-bottom: 0;
+    }
+
+    .#{$module-name}__error {
+      opacity: 1;
+      max-height: 2.5rem;
+    }
+  }
+}

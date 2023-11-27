@@ -122,10 +122,16 @@ export const interviewRouter = router({
         const interview = await prisma.interview.findFirst({
           where: id,
           include: {
-            protocol: true,
+            protocol: {
+              include: {
+                assets: true,
+              },
+            },
             participant: true,
           },
         });
+
+        console.log('interview', interview);
         return interview;
       }),
   }),
