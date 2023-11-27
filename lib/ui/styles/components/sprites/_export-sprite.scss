@@ -1,0 +1,55 @@
+.export-sprite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  &__node {
+    position: absolute;
+    background: lime;
+    width: unit(5);
+    height: unit(5);
+    background: repeating-linear-gradient(
+      145deg,
+      rgba(255, 255, 255, .15),
+      rgba(255, 255, 255, .15) 50%,
+      rgba(0, 0, 0, .1) 50%,
+      rgba(0, 0, 0, .1) 100%
+    );
+  }
+
+  &__destination {
+    --destination-size: #{unit(12)};
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: var(--z-global-ui);
+    margin-bottom: -#{unit(2)};
+
+    &__circle {
+      flex: 0 0 var(--destination-size);
+      height: var(--destination-size);
+
+      .progress-circle {
+        --circle-text-color: var(--color-charcoal);
+        --circle-background-color: var(--color-white);
+        --circle-complete-color: var(--primary);
+      }
+    }
+
+    &__text {
+      flex: 0 0 unit(2);
+      height: unit(2);
+
+      h4 {
+        margin-bottom: 0;
+        margin-top: unit(1);
+        color: var(--text);
+      }
+    }
+
+  }
+}

@@ -1,0 +1,54 @@
+:root {
+  --progress-background-color: var(--color-white);
+  --progress-value-color: var(--color-sea-green);
+  --progress-indeterminate-background-color: var(--color-sea-green);
+  --progress-indeterminate-highlight-color: var(--color-sea-green--dark);
+  --progress-indeterminate-gradient-width: 100rem;
+  --progress-indeterminate-animation-duration: 2s;
+
+  --progress-height: 2.5rem;
+  --progress-border-radius: var(--progress-height);
+}
+
+@keyframes progress-bar-animation {
+  from {
+    background-position: var(--progress-indeterminate-gradient-width) 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+.progress {
+  @include modifier(indeterminate) {
+    animation: progress-bar-animation var(--progress-indeterminate-animation-duration) linear infinite;
+    background-image: linear-gradient(
+      0.25turn,
+      var(--progress-indeterminate-background-color),
+      var(--progress-indeterminate-highlight-color),
+      var(--progress-indeterminate-background-color),
+    );
+    background-size: var(--progress-indeterminate-gradient-width);
+  }
+
+  border-radius: var(--progress-border-radius);
+  height: var(--progress-height);
+  width: 100%;
+
+  &[value] { // determinate
+    // sass-lint:disable-block no-vendor-prefixes
+    // 'progress-*' is non-standard and won't be autoprefixed
+    appearance: none;
+
+    &::-webkit-progress-bar {
+      background-color: var(--progress-background-color);
+      border-radius: var(--progress-border-radius);
+    }
+
+    &::-webkit-progress-value {
+      background-color: var(--progress-value-color);
+      border-radius: var(--progress-border-radius);
+    }
+  }
+}

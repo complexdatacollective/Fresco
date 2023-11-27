@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Years> provides years from min to max 1`] = `
+Object {
+  "years": Array [
+    Object {
+      "label": 1977,
+      "value": 1977,
+    },
+    Object {
+      "label": 1978,
+      "value": 1978,
+    },
+    Object {
+      "label": 1979,
+      "value": 1979,
+    },
+    Object {
+      "label": 1980,
+      "value": 1980,
+    },
+    Object {
+      "label": 1981,
+      "value": 1981,
+    },
+    Object {
+      "label": 1982,
+      "value": 1982,
+    },
+    Object {
+      "label": 1983,
+      "value": 1983,
+    },
+    Object {
+      "label": 1984,
+      "value": 1984,
+    },
+    Object {
+      "label": 1985,
+      "value": 1985,
+    },
+    Object {
+      "label": 1986,
+      "value": 1986,
+    },
+    Object {
+      "label": 1987,
+      "value": 1987,
+    },
+    Object {
+      "label": 1988,
+      "value": 1988,
+    },
+    Object {
+      "label": 1989,
+      "value": 1989,
+    },
+  ],
+}
+`;

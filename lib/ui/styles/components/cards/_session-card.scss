@@ -1,0 +1,132 @@
+
+.session-card {
+  background-color: var(--color-platinum);
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  height: 9rem;
+  color: var(--color-navy-taupe);
+  justify-content: space-between;
+  overflow: hidden;
+  box-sizing: border-box;
+  position: relative;
+
+  &--clickable {
+    @include clickable(2);
+  }
+
+  &--selected {
+    &:before {
+      content: '';
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      right: 0;
+      border: 0.4rem solid var(--color-mustard);
+      border-radius: var(--border-radius);
+    }
+  }
+
+  .meta-wrapper {
+    display: flex;
+    padding: 0 unit(4);
+    background: var(--color-platinum--dark);
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 45%;
+    width: 100%;
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      width: 50%;
+
+      .highlight {
+        color: var(--error);
+      }
+
+      h6 {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.6rem;
+        width: 100%;
+      }
+
+      img {
+        width: unit(2);
+        height: unit(2);
+        margin-right: unit(1);
+      }
+
+    }
+
+    .progress-wrapper {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      width: 100%;
+
+      span {
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.6rem;
+        font-weight: 700;
+        margin-right: unit(1);
+      }
+
+      .progress-bar {
+        background-color: var(--color-platinum);
+        flex: 1;
+
+        .progress-bar__filler {
+          background-color: var(--color-cerulean-blue);
+        }
+
+        &--complete {
+          .progress-bar__filler {
+            background-color: var(--primary);
+          }
+        }
+      }
+    }
+
+  }
+
+  .main-wrapper {
+    flex: 1 0 auto;
+    padding: 0 unit(4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .card {
+
+      &__label {
+        flex: 0 0 auto;
+        margin: 0;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+      &__protocol {
+        flex: 0 0 auto;
+        margin: 0.4rem 0 0;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+
+    }
+  }
+
+}
