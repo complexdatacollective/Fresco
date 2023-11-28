@@ -11,6 +11,8 @@ import { useInterview } from '~/providers/InterviewProvider';
 const InterviewShell = () => {
   const { protocol, network, currentStageIndex } = useInterview();
 
+  console.log('windiw', window.navigator.languages);
+
   return (
     <motion.div className="grid h-[100vh] grid-cols-2">
       <Provider
