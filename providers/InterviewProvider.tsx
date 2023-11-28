@@ -12,8 +12,32 @@ import { api } from '~/trpc/client';
 import useNetwork from '../hooks/useNetwork';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
 
-const InterviewContext = createContext({
-  network: {} as NcNetwork,
+type InterviewContextType = {
+  network: NcNetwork | null;
+  networkHandlers: {
+    addNode: (node: NcNode) => void;
+    addEdge: (edge: NcEdge) => void;
+    updateNode: (node: NcNode) => void;
+    updateEdge: (edge: NcEdge) => void;
+    deleteNode: (nodeId: string) => void;
+    deleteEdge: (edgeId: string) => void;
+  };
+  navigationHandlers: {
+    nextPage: () => void;
+    previousPage: () => void;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    goToPage: (page: number) => void;
+  };
+  protocol: Protocol;
+  interviewId: string;
+  stageConfig: Stage;
+  currentStageIndex: number;
+  progress: number;
+};
+
+const InterviewContext = createContext<InterviewContextType>({
+  network: null,
   networkHandlers: {
     addNode: (_node: NcNode) => null,
     addEdge: (_edge: NcEdge) => null,
@@ -27,6 +51,7 @@ const InterviewContext = createContext({
     previousPage: () => null,
     hasNextPage: false,
     hasPreviousPage: false,
+    goToPage: (_page: number) => null,
   },
   protocol: {} as Protocol,
   interviewId: '',
