@@ -5,6 +5,8 @@ import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import Link from 'next/link';
 import { api } from '~/trpc/server';
 import InterviewShell from '../_components/InterviewShell';
+import NoSSRWrapper from '~/utils/NoSSRWrapper';
+import Test from '../_components/Test';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +15,6 @@ export default async function Page({
 }: {
   params: { interviewId: string };
 }) {
-  console.log(params);
   const { interviewId } = params;
   // Fetch interview data from the database
   if (!interviewId) {
@@ -22,8 +23,6 @@ export default async function Page({
   }
 
   const interview = await api.interview.get.byId.query({ id: interviewId });
-
-  console.log('assets', interview?.protocol.assets);
 
   if (!interview) {
     return 'No interview found';
@@ -38,7 +37,9 @@ export default async function Page({
       initialNetwork={initialNetwork}
       protocol={interviewProtocol}
     >
-      <InterviewShell />
+      <NoSSRWrapper>
+        <InterviewShell />
+      </NoSSRWrapper>
     </InterviewProvider>
   );
 }
