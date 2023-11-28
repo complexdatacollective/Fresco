@@ -12,6 +12,7 @@ import { useInterview } from '~/providers/InterviewProvider';
 const InterviewShell = () => {
   const { protocol, network, currentStageIndex } = useInterview();
 
+  // I'm not sure this needs to be in a ref?
   const store = useRef(
     configureAppStore({ protocol, network, currentStageIndex }),
   );
