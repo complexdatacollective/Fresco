@@ -11,15 +11,15 @@ import search from '~/lib/interviewer/ducks/modules/search';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
-import { getInitialNetworkState } from './ducks/modules/network';
 
 type InitialData = {
   protocol: Protocol;
-  network: NcNetwork;
+  network: NcNetwork | null;
   currentStageIndex: number;
 };
 
 export default function configureAppStore(initialData: InitialData) {
+  // debugger;
   const store = configureStore({
     reducer: {
       form,
@@ -39,7 +39,7 @@ export default function configureAppStore(initialData: InitialData) {
           caseId: 'test',
           finishedAt: null,
           exportedAt: null,
-          network: initialData.network ?? getInitialNetworkState(),
+          ...(initialData.network && { network: initialData.network }),
           protocolUID: '1',
           stageIndex: initialData.currentStageIndex,
           promptIndex: 0,
