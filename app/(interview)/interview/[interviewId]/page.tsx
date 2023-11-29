@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { api } from '~/trpc/server';
 import InterviewShell from '../_components/InterviewShell';
 import NoSSRWrapper from '~/utils/NoSSRWrapper';
-import Test from '../_components/Test';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +37,7 @@ export default async function Page({
       protocol={interviewProtocol}
     >
       <NoSSRWrapper>
-        <InterviewShell />
+        <InterviewShell protocol={interviewProtocol} network={initialNetwork} />
       </NoSSRWrapper>
     </InterviewProvider>
   );

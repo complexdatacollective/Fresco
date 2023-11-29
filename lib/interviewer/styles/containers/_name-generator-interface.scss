@@ -1,7 +1,7 @@
 @use '~~/lib/ui/styles/global/core/units';
 
 .name-generator-interface {
-  @include interface-centering-padding;
+  @include interface-centering;
 
   flex-direction: column;
 

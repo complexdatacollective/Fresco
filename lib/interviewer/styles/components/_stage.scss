@@ -1,12 +1,5 @@
 .stage {
-  height: 100%;
-  width: 100vw;
-
-  &__interface {
-    flex: 1 auto;
-    height: 100%;
-    position: relative;
-  }
+  flex: 1 auto;
 
   &--transition {
     @include group-transition-with-delay(fade, var(--animation-duration-slow), var(--animation-duration-slow));

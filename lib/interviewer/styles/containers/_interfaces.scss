@@ -1,30 +1,18 @@
 @use '~~/lib/ui/styles/global/core/units';
 
 @mixin interface-prompt {
-  // flex: 0 0 var(--interface-prompt-flex-basis);
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-@mixin interface-centering($margins: true) {
-  padding: units.unit(2) 0;
-
-  /* stylelint-disable-next-line length-zero-no-unit */
-  $margin: if($margins, units.unit(4), 0px);
-
-  margin-left: calc(#{$margin} + var(--session-panel-width));
-  margin-right: $margin;
-  position: relative; // so that absolutely positioned child elements are correctly centered
-}
-
 // Trying this with padding instead of margins, so that absolutely
 // positioned child elements aren't clipped by overflow hidden.
-@mixin interface-centering-padding {
+@mixin interface-centering {
   display: flex;
   height: 100%;
   overflow: hidden;
-  padding: units.unit(2) units.unit(4) units.unit(2) calc(#{units.unit(4)} + var(--session-panel-width));
+  padding: units.unit(2) units.unit(4);
   position: relative;
 }

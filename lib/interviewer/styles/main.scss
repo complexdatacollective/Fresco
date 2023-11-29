@@ -21,9 +21,8 @@ $image-path: '~~/lib/ui/assets/images';
 :root {
   --body-font-family: #{$netcanvas-font-stack}; // override Network Canvas UI
   --code-font: courier;
-  --session-panel-width: 9rem; // Does *not* change actual timeline width (which is automatically calculated). Used for drop obstacle and stage margins
   --interface-prompt-flex-basis: 8rem;
-  --base-font-size: 1.75vmin;
+  --base-font-size: 18px;
   --border-radius: .75rem;
   --padding-unit: 1rem;
   --form-intro-panel-background: var(--color-cyber-grape);
@@ -32,16 +31,8 @@ $image-path: '~~/lib/ui/assets/images';
 html,
 body {
   cursor: default;
-  overflow: hidden;
   color: palette('text');
   background: palette('background');
-  width: 100%;
-  height: 100vh;
-}
-
-a {
-  color: palette('link');
-  text-decoration: none;
 }
 
 // Override UI toast style for now (make wider)

@@ -27,9 +27,7 @@ $asset-size-default: 17vh;
   }
 
   &__item {
-    // sass-lint:disable-block class-name-format
     margin-top: spacing('medium');
-    height: $asset-size-small;
     overflow: hidden;
 
     video {
@@ -59,23 +57,8 @@ $asset-size-default: 17vh;
       }
 
       &-text {
-        overflow-x: hidden;
-        overflow-y: auto;
         height: auto;
-        max-height: $asset-size-small;
         margin-top: 0; // Text paragraphs have their own margin
-
-        &.information-interface__item--size-SMALL {
-          max-height: $asset-size-small;
-        }
-
-        &.information-interface__item--size-MEDIUM {
-          max-height: $asset-size-medium;
-        }
-
-        &.information-interface__item--size-LARGE {
-          max-height: $asset-size-large;
-        }
       }
     }
   }

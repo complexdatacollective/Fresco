@@ -19,7 +19,6 @@ type InitialData = {
 };
 
 export default function configureAppStore(initialData: InitialData) {
-  // debugger;
   const store = configureStore({
     reducer: {
       form,

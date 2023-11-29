@@ -75,7 +75,9 @@ function InterviewProvider({
     'stage',
     parseAsInteger.withDefault(1),
   );
+
   const [initialized, setInitialized] = useState(false);
+
   const { network, networkHandlers } = useNetwork(initialNetwork);
   const { mutate: updateNetwork } = api.interview.updateNetwork.useMutation({
     onError: (error) => {
@@ -135,6 +137,18 @@ function InterviewProvider({
   );
 }
 
+const registerBeforeNext = () => {
+  // eslint-disable-next-line no-console
+  console.log('NOT IMMPLEMENTED: registerBeforeNext');
+  return;
+};
+
+const onComplete = () => {
+  // eslint-disable-next-line no-console
+  console.log('NOT IMMPLEMENTED: onComplete');
+  return;
+};
+
 const useInterview = () => {
   const {
     protocol,
@@ -154,6 +168,8 @@ const useInterview = () => {
     progress,
     ...networkHandlers,
     ...navigationHandlers,
+    registerBeforeNext,
+    onComplete,
   };
 };
 
