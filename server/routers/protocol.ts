@@ -39,7 +39,7 @@ export const deleteProtocols = async (hashes: string[]) => {
     if (assets.length === 0) {
       // eslint-disable-next-line no-console
       console.log('No assets to delete');
-      return;
+      // return;
     }
 
     await deleteFilesFromUploadThing(assets.map((a) => a.key));
