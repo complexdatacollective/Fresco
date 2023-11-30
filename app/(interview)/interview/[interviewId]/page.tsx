@@ -1,8 +1,4 @@
-import { InterviewProvider } from '~/providers/InterviewProvider';
-import Stage from '~/app/(interview)/interview/_components/Stage';
-import InterviewNavigation from '~/app/(interview)/interview/_components/InterviewNavigation';
 import type { NcNetwork, Protocol } from '@codaco/shared-consts';
-import Link from 'next/link';
 import { api } from '~/trpc/server';
 import InterviewShell from '../_components/InterviewShell';
 import NoSSRWrapper from '~/utils/NoSSRWrapper';
@@ -27,18 +23,15 @@ export default async function Page({
     return 'No interview found';
   }
 
-  const initialNetwork = interview.network as NcNetwork;
-  const interviewProtocol = interview.protocol as unknown as Protocol;
+  const { protocol, participant, ...session } = interview;
+
+  console.log('interview', protocol, session);
 
   return (
-    <InterviewProvider
-      interviewId={interviewId}
-      initialNetwork={initialNetwork}
-      protocol={interviewProtocol}
-    >
+    <div className="flex h-[100vh] flex-col bg-[var(--nc-background)] text-[var(--nc-text)]">
       <NoSSRWrapper>
-        <InterviewShell protocol={interviewProtocol} network={initialNetwork} />
+        <InterviewShell serverProtocol={protocol} serverSession={session} />
       </NoSSRWrapper>
-    </InterviewProvider>
+    </div>
   );
 }

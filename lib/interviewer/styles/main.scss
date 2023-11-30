@@ -28,13 +28,6 @@ $image-path: '~~/lib/ui/assets/images';
   --form-intro-panel-background: var(--color-cyber-grape);
 }
 
-html,
-body {
-  cursor: default;
-  color: palette('text');
-  background: palette('background');
-}
-
 // Override UI toast style for now (make wider)
 .toast-container-list {
   align-items: flex-end;
@@ -59,9 +52,9 @@ body {
 
 .dialog-release-notes {
   &__notes {
-    max-height: 50vh;
+    max-height: 50vh; 
     overflow-y: scroll;
-    background: var(--background);
+    background: var(--nc-background);
     padding: 0 1.2rem;
     border-radius: var(--border-radius);
   }

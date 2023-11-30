@@ -36,7 +36,7 @@
       .progress-circle {
         --circle-text-color: var(--color-charcoal);
         --circle-background-color: var(--color-white);
-        --circle-complete-color: var(--primary);
+        --circle-complete-color: var(--nc-primary);
       }
     }
 
@@ -47,7 +47,7 @@
       h4 {
         margin-bottom: 0;
         margin-top: unit(1);
-        color: var(--text);
+        color: var(--nc-text);
       }
     }
 

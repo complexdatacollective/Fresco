@@ -6,7 +6,7 @@
 .categorical-item {
   @include clip;
 
-  --categorical-item-color: var(--primary);
+  --categorical-item-color: var(--nc-primary);
 
   display: flex;
   width: 100%;
@@ -33,7 +33,7 @@
     @include transition-properties((background-color transform border-radius), var(--animation-easing), var(--animation-duration-standard));
 
     transform-origin: center;
-    background-color: var(--background);
+    background-color: var(--nc-background);
     border: solid .3rem var(--categorical-item-color);
     position: absolute;
     top: 0;

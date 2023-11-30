@@ -2,8 +2,9 @@ import React from 'react';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { ChevronDown, ChevronUp, SettingsIcon } from 'lucide-react';
-import { useInterview } from '~/providers/InterviewProvider';
 import { cn } from '~/utils/shadcn';
+import { useSelector } from 'react-redux';
+import { getNavigationInfo, getSessionProgress } from '../selectors/session';
 
 const NavigationButton = ({
   disabled,
@@ -35,14 +36,19 @@ const NavigationButton = ({
 
 const Navigation = () => {
   const [isReadyForNextStage] = useReadyForNextStage();
-  const { progress, hasNextPage, hasPreviousPage, nextPage, previousPage } =
-    useInterview();
+  const { progress } = useSelector(getNavigationInfo);
+
+  const previousPage = () => {};
+  const nextPage = () => {};
+
+  const hasNextPage = true;
+  const hasPreviousPage = true;
 
   return (
     <div
       role="navigation"
       className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f]"
-      style={{ '--light-background': '#4a4677' }} // Progress bar uses this variable to set background
+      style={{ '--nc-light-background': '#4a4677' }} // Progress bar uses this variable to set background
     >
       <NavigationButton>
         <SettingsIcon className="h-[2.4rem] w-[2.4rem]" />
@@ -55,8 +61,8 @@ const Navigation = () => {
       </div>
       <NavigationButton
         className={cn(
-          'bg-[var(--light-background)]',
-          'hover:bg-[var(--primary)]',
+          'bg-[var(--nc-light-background)]',
+          'hover:bg-[var(--nc-primary)]',
           isReadyForNextStage && 'animate-pulse',
         )}
         onClick={nextPage}

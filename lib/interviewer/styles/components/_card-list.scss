@@ -28,7 +28,7 @@
 
   &--single {
     .card {
-      background: var(--background);
+      background: var(--nc-background);
     }
   }
 
@@ -47,7 +47,7 @@
       width: calc(var(--button-size) + 2 * var(--button-padding));
 
       .cls-1 {
-        fill: var(--transparent-light);
+        fill: var(--nc-transparent-light);
       }
     }
   }

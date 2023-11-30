@@ -49,7 +49,7 @@ $sort-height: 3.2rem;
     overflow-x: auto;
     overflow-y: hidden;
     align-items: center;
-    border-bottom: 0.1em solid var(--background);
+    border-bottom: 0.1em solid var(--nc-background);
 
     .filter-button {
       display: flex;
@@ -68,7 +68,7 @@ $sort-height: 3.2rem;
   &__search {
     flex: 0 0 auto;
     background: var(--panel-bg-muted);
-    border-top: 0.1rem solid var(--background);
+    border-top: 0.1rem solid var(--nc-background);
     padding: 1rem;
     width: 100%;
     z-index: var(--z-panel);
@@ -106,9 +106,9 @@ $sort-height: 3.2rem;
 }
 
 .large-roster-notice {
-  background: var(--background);
+  background: var(--nc-background);
   padding: units.unit(2);
-  color: var(--text);
+  color: var(--nc-text);
   border-radius: units.unit(3);
   text-align: center;
   background-image: url('/interviewer/images/roster-list-bg-cards.svg');

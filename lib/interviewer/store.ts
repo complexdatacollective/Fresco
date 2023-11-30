@@ -3,22 +3,15 @@ import thunk from 'redux-thunk';
 import logger from './ducks/middleware/logger';
 import sound from './ducks/middleware/sound';
 import { reducer as form } from 'redux-form';
-import activeSessionId from '~/lib/interviewer/ducks/modules/session';
-import sessions from '~/lib/interviewer/ducks/modules/sessions';
+import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
+import sessions from '~/lib/interviewer/ducks/modules/session';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import search from '~/lib/interviewer/ducks/modules/search';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
-import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 
-type InitialData = {
-  protocol: Protocol;
-  network: NcNetwork | null;
-  currentStageIndex: number;
-};
-
-export default function configureAppStore(initialData: InitialData) {
+export default function configureAppStore({ protocol, session }) {
   const store = configureStore({
     reducer: {
       form,
@@ -38,14 +31,14 @@ export default function configureAppStore(initialData: InitialData) {
           caseId: 'test',
           finishedAt: null,
           exportedAt: null,
-          ...(initialData.network && { network: initialData.network }),
+          ...(session.network && { network: session.network }),
           protocolUID: '1',
-          stageIndex: initialData.currentStageIndex,
+          stageIndex: session.currentStep,
           promptIndex: 0,
         },
       },
       installedProtocols: {
-        '1': initialData.protocol,
+        '1': protocol,
       },
     },
   });

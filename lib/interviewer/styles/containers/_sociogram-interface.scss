@@ -29,11 +29,11 @@
     flex-direction: column;
     position: absolute;
     z-index: var(--z-panel);
-    background: var(--light-background);
+    background: var(--nc-light-background);
     width: units.unit(40);
     bottom: spacing(large);
     right: spacing(large);
-    border-bottom: 5px solid var(--primary);
+    border-bottom: 5px solid var(--nc-primary);
     border-radius: var(--border-radius);
     box-shadow: 0 0 4rem 0 var(--modal-window-box-shadow);
     cursor: move;

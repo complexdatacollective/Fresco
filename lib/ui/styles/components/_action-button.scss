@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: center;
 
-  background: var(--primary);
+  background: var(--nc-primary);
   color:white;
 
   .icon-container {
@@ -52,7 +52,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--primary);
+    color: var(--nc-primary);
     background: var(--color-platinum);
     border-radius: 50%;
     height: var(--size);

@@ -47,67 +47,68 @@ $export-ui-classes: true !default;
 @include color-set('tomato', '232, 45, 63');
 @include color-set('tomato--dark', '211, 43, 58');
 
+$PREFIX: 'nc-';
 
 // Palettes
-@include palette-set('primary', color('sea-green'));
-@include palette-set('menu-panel--active', color('white'));
-@include palette-set('menu-panel', color('cyber-grape'));
-@include palette-set('selected', color('white'));
-@include palette-set('settings', color('mustard'));
-@include palette-set('background', color('navy-taupe'));
-@include palette-set('text', color('white'));
-@include palette-set('text-dark', color('charcoal'));
-@include palette-set('tex-muted', color('cyber-grape'));
-@include palette-set('link', color('neon-coral'));
-@include palette-set('light-background', color('cyber-grape'));
-@include palette-set('dark-background', color('rich-black'));
-@include palette-set('modal-main-panel', color('navy-taupe'));
-@include palette-set('modal-background', color('cyber-grape'));
-@include palette-set('info', color('sea-serpent'));
-@include palette-set('notice', color('sea-green'));
-@include palette-set('warning', color('mustard'));
-@include palette-set('error', color('neon-coral'));
-@include palette-set('headings', color('white'));
-@include palette-set('menu-headings', color('charcoal'));
-@include palette-set('divider', color('platinum--dark'));
-@include palette-set('ring--background', var(--background));
-@include palette-set('ring--accent', color('cyber-grape'));
-@include palette-set('graph-tooltip', color('charcoal'));
-@include palette-set('graph-data-1', color('sea-green'));
-@include palette-set('graph-data-2', color('slate-blue'));
-@include palette-set('graph-data-3', color('neon-carrot'));
-@include palette-set('graph-data-4', color('sea-serpent'));
-@include palette-set('graph-data-5', color('barbie-pink--dark'));
-@include palette-set('graph-data-6', color('cyber-grape'));
-@include palette-set('graph-data-7', color('kiwi'));
-@include palette-set('graph-data-8', color('tomato--dark'));
-@include palette-set('graph-data-9', color('mustard'));
-@include palette-set('graph-data-10', color('purple-pizazz'));
-@include palette-set('graph-data-11', color('paradise-pink'));
-@include palette-set('graph-data-12', color('cerulean-blue'));
-@include palette-set('graph-data-13', color('platinum--dark'));
-@include palette-set('graph-data-14', color('charcoal'));
-@include palette-set('graph-data-15', color('navy-taupe'));
+@include palette-set($PREFIX + 'primary', color('sea-green'));
+@include palette-set($PREFIX + 'menu-panel--active', color('white'));
+@include palette-set($PREFIX + 'menu-panel', color('cyber-grape'));
+@include palette-set($PREFIX + 'selected', color('white'));
+@include palette-set($PREFIX + 'settings', color('mustard'));
+@include palette-set($PREFIX + 'background', color('navy-taupe'));
+@include palette-set($PREFIX + 'text', color('white'));
+@include palette-set($PREFIX + 'text-dark', color('charcoal'));
+@include palette-set($PREFIX + 'tex-muted', color('cyber-grape'));
+@include palette-set($PREFIX + 'link', color('neon-coral'));
+@include palette-set($PREFIX + 'light-background', color('cyber-grape'));
+@include palette-set($PREFIX + 'dark-background', color('rich-black'));
+@include palette-set($PREFIX + 'modal-main-panel', color('navy-taupe'));
+@include palette-set($PREFIX + 'modal-background', color('cyber-grape'));
+@include palette-set($PREFIX + 'info', color('sea-serpent'));
+@include palette-set($PREFIX + 'notice', color('sea-green'));
+@include palette-set($PREFIX + 'warning', color('mustard'));
+@include palette-set($PREFIX + 'error', color('neon-coral'));
+@include palette-set($PREFIX + 'headings', color('white'));
+@include palette-set($PREFIX + 'menu-headings', color('charcoal'));
+@include palette-set($PREFIX + 'divider', color('platinum--dark'));
+@include palette-set($PREFIX + 'ring--background', var(--nc-background));
+@include palette-set($PREFIX + 'ring--accent', color('cyber-grape'));
+@include palette-set($PREFIX + 'graph-tooltip', color('charcoal'));
+@include palette-set($PREFIX + 'graph-data-1', color('sea-green'));
+@include palette-set($PREFIX + 'graph-data-2', color('slate-blue'));
+@include palette-set($PREFIX + 'graph-data-3', color('neon-carrot'));
+@include palette-set($PREFIX + 'graph-data-4', color('sea-serpent'));
+@include palette-set($PREFIX + 'graph-data-5', color('barbie-pink--dark'));
+@include palette-set($PREFIX + 'graph-data-6', color('cyber-grape'));
+@include palette-set($PREFIX + 'graph-data-7', color('kiwi'));
+@include palette-set($PREFIX + 'graph-data-8', color('tomato--dark'));
+@include palette-set($PREFIX + 'graph-data-9', color('mustard'));
+@include palette-set($PREFIX + 'graph-data-10', color('purple-pizazz'));
+@include palette-set($PREFIX + 'graph-data-11', color('paradise-pink'));
+@include palette-set($PREFIX + 'graph-data-12', color('cerulean-blue'));
+@include palette-set($PREFIX + 'graph-data-13', color('platinum--dark'));
+@include palette-set($PREFIX + 'graph-data-14', color('charcoal'));
+@include palette-set($PREFIX + 'graph-data-15', color('navy-taupe'));
 
 // Form elements and inputs
-@include palette-set('input-border', palette('text'));
-@include palette-set('input-text', palette('text'));
-@include palette-set('input-accent', palette('primary'));
-@include palette-set('input-disabled', color('charcoal'));
-@include palette-set('form-error-text', color('white'));
+@include palette-set($PREFIX + 'input-border', palette('text'));
+@include palette-set($PREFIX + 'input-text', palette('text'));
+@include palette-set($PREFIX + 'input-accent', palette('primary'));
+@include palette-set($PREFIX + 'input-disabled', color('charcoal'));
+@include palette-set($PREFIX + 'form-error-text', color('white'));
 
 // Text inputs
 
 // Checknox/radio
-@include palette-set('input-radio--fill', palette('input-accent'));
+@include palette-set($PREFIX + 'input-radio--fill', palette('input-accent'));
 
 // Color sequences
 @mixin color-sequence($name, $color-list, $with-dark: true) {
   @each $current-color in $color-list {
     $i: index($color-list, $current-color);
-    @include palette-set('#{$name}-#{$i}', color($current-color));
+    @include palette-set($PREFIX + '#{$name}-#{$i}', color($current-color));
     @if $with-dark {
-      @include palette-set('#{$name}-#{$i}--dark', color('#{$current-color}--dark'));
+      @include palette-set($PREFIX + '#{$name}-#{$i}--dark', color('#{$current-color}--dark'));
     }
   }
 }
@@ -149,7 +150,7 @@ $edge-colors: (
 @include color-sequence('edge-color-seq', $edge-colors, false);
 
 // Node Sequence
-@include palette-set('node-label', color('white'));
+@include palette-set($PREFIX + 'node-label', color('white'));
 
 $node-colors: (
   'neon-coral',

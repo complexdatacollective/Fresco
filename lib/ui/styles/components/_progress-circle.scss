@@ -1,8 +1,8 @@
 .progress-circle {
-  --circle-text-color: var(--text);
+  --circle-text-color: var(--nc-text);
   --circle-background-color: var(--transparent-md);
   --circle-color: var(--color-slate-blue);
-  --circle-complete-color: var(--primary);
+  --circle-complete-color: var(--nc-primary);
   --circle-line-width: 10;
 
   .animated-circle {

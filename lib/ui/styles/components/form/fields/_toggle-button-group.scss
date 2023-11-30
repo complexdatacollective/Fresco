@@ -12,7 +12,7 @@ $component-name: form-field-togglebutton-group;
   &__error {
     opacity: 0;
     background: var(--error);
-    color: var(--text);
+    color: var(--nc-text);
     transition: opacity var(--animation-easing) var(--animation-duration-standard),
     max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;

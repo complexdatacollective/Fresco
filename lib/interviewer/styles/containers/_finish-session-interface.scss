@@ -9,7 +9,7 @@
   &__frame {
     max-width: 50rem;
     padding: units.unit(2) units.unit(4);
-    background: var(--light-background);
+    background: var(--nc-light-background);
     border-radius: var(--border-radius);
     max-height: calc(100% - 2rem);
     display: flex;
@@ -35,7 +35,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--background);
+      background: var(--nc-background);
       padding: units.unit(2) units.unit(4);
       border-radius: var(--border-radius);
       margin: units.unit(2) 0;

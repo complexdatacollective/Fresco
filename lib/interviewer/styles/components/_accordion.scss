@@ -71,7 +71,7 @@
     }
 
     &--selected {
-      border-color: var(--input-accent);
+      border-color: var(--nc-input-accent);
 
       &::before {
         opacity: 1;

@@ -8,7 +8,7 @@
   max-height: 85%;
 
   &__content {
-    background-color: var(--light-background);
+    background-color: var(--nc-light-background);
     width: 100%;
     transition: opacity var(--animation-duration-fast) var(--animation-easing);
     opacity: 1;
