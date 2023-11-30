@@ -36,12 +36,6 @@ export const deleteProtocols = async (hashes: string[]) => {
       select: { key: true },
     });
 
-    if (assets.length === 0) {
-      // eslint-disable-next-line no-console
-      console.log('No assets to delete');
-      // return;
-    }
-
     await deleteFilesFromUploadThing(assets.map((a) => a.key));
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -66,13 +60,19 @@ export const deleteProtocols = async (hashes: string[]) => {
 export const deleteFilesFromUploadThing = async (
   fileKey: string | string[],
 ) => {
+  if (fileKey.length === 0) {
+    // eslint-disable-next-line no-console
+    console.log('No assets to delete');
+    return;
+  }
+
   const response = await utapi.deleteFiles(fileKey);
 
   if (!response.success) {
     throw new Error('Failed to delete files from uploadthing');
   }
 
-  return response;
+  return;
 };
 
 export const protocolRouter = router({
