@@ -2,12 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
-import { sendEvent } from '~/utils/sendEvent';
+import { analytics } from '~/lib/analytics';
 
 function Documentation() {
   const handleAppConfigured = async () => {
     await setAppConfigured();
-    await sendEvent('AppSetup');
+    analytics.trackEvent({
+      type: 'event',
+      label: 'AppConfigured',
+      payload: {
+        success: true,
+      },
+    });
   };
 
   return (

@@ -20,7 +20,7 @@ import type { UploadFileResponse } from 'uploadthing/client';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
 import { api } from '~/trpc/client';
-import { sendEvent } from '~/utils/sendEvent';
+import { analytics } from '~/lib/analytics';
 
 export default function ProtocolUploader({
   onUploaded,
@@ -67,7 +67,13 @@ export default function ProtocolUploader({
 
     await utils.protocol.get.lastUploaded.refetch();
 
-    await sendEvent('ProtocolInstalled');
+    analytics.trackEvent({
+      type: 'event',
+      label: 'ProtocolInstalled',
+      payload: {
+        success: true,
+      },
+    });
 
     setDialogContent({
       title: 'Protocol import',
