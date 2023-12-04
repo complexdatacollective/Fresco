@@ -17,14 +17,37 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Fragment, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: Home, current: true },
-  { name: 'Participants', href: '#', icon: UsersIcon, current: false },
-  { name: 'Interviews', href: '#', icon: Workflow, current: false },
-  { name: 'Protocols', href: '#', icon: FileBarChart, current: false },
+  {
+    name: 'Dashboard',
+    href: '/dashboard-wireframe',
+    icon: Home,
+    current: true,
+  },
+  {
+    name: 'Participants',
+    href: '/dashboard-wireframe/participants',
+    icon: UsersIcon,
+    current: false,
+  },
+  {
+    name: 'Interviews',
+    href: '/dashboard-wireframe/interviews',
+    icon: Workflow,
+    current: false,
+  },
+  {
+    name: 'Protocols',
+    href: '/dashboard-wireframe/protocols',
+    icon: FileBarChart,
+    current: false,
+  },
   {
     name: 'Data Management',
-    href: '#',
+    href: '/dashboard-wireframe/data-management',
     icon: HardDrive,
     current: false,
   },
@@ -52,6 +75,7 @@ function classNames(...classes: string[]) {
 }
 
 const Sidebar = () => {
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -128,10 +152,10 @@ const Sidebar = () => {
                         <ul role="list" className="-mx-2 space-y-1">
                           {navigation.map((item) => (
                             <li key={item.name}>
-                              <a
+                              <Link
                                 href={item.href}
                                 className={classNames(
-                                  item.current
+                                  item.href === pathname
                                     ? 'bg-gray-800 text-white'
                                     : 'text-gray-400 hover:bg-gray-800 hover:text-white',
                                   'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
@@ -142,7 +166,7 @@ const Sidebar = () => {
                                   aria-hidden="true"
                                 />
                                 {item.name}
-                              </a>
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -154,7 +178,7 @@ const Sidebar = () => {
                         <ul role="list" className="-mx-2 mt-2 space-y-1">
                           {teams.map((team) => (
                             <li key={team.name}>
-                              <a
+                              <Link
                                 href={team.href}
                                 className={classNames(
                                   team.current
@@ -168,13 +192,13 @@ const Sidebar = () => {
                                   className="h-5 w-5 shrink-0"
                                   aria-hidden="true"
                                 />
-                              </a>
+                              </Link>
                             </li>
                           ))}
                         </ul>
                       </li>
                       <li className="mt-auto">
-                        <a
+                        <Link
                           href="#"
                           className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
                         >
@@ -183,7 +207,7 @@ const Sidebar = () => {
                             aria-hidden="true"
                           />
                           Settings
-                        </a>
+                        </Link>
                       </li>
                     </ul>
                   </nav>
@@ -216,10 +240,10 @@ const Sidebar = () => {
                 <ul role="list" className="-mx-2 space-y-1">
                   {navigation.map((item) => (
                     <li key={item.name}>
-                      <a
+                      <Link
                         href={item.href}
                         className={classNames(
-                          item.current
+                          item.href === pathname
                             ? 'bg-gray-800 text-white'
                             : 'text-gray-400 hover:bg-gray-800 hover:text-white',
                           'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
@@ -230,7 +254,7 @@ const Sidebar = () => {
                           aria-hidden="true"
                         />
                         {item.name}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -242,7 +266,7 @@ const Sidebar = () => {
                 <ul role="list" className="-mx-2 mt-2 space-y-1">
                   {teams.map((team) => (
                     <li key={team.name}>
-                      <a
+                      <Link
                         href={team.href}
                         className={classNames(
                           team.current
@@ -256,13 +280,13 @@ const Sidebar = () => {
                           aria-hidden="true"
                         />
                         <span className="truncate">{team.name}</span>
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
               </li>
               <li className="mt-auto">
-                <a
+                <Link
                   href="#"
                   className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
                 >
@@ -271,7 +295,7 @@ const Sidebar = () => {
                     aria-hidden="true"
                   />
                   Settings
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
