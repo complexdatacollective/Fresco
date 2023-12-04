@@ -4,7 +4,13 @@ import { api } from '~/trpc/server';
 export const dynamic = 'force-dynamic';
 
 const ParticipantPage = async () => {
-  const participants = await api.participant.get.all.query();
+  let participants;
+  try {
+    participants = await api.participant.get.all.query();
+  } catch (error) {
+    throw new Error(error as string);
+  }
+
   return (
     <div className="rounded-lg bg-white p-6">
       <h2 className="mb-6 text-2xl font-bold">Participant management view</h2>

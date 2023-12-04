@@ -64,6 +64,9 @@ export const SessionProvider = ({
         window.location.replace('/');
         // router.replace('/');
       },
+      onError: (error) => {
+        throw new Error(error.message);
+      },
     });
 
   // If we have an initial session, we don't need to fetch it again.
