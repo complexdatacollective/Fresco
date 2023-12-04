@@ -16,11 +16,16 @@ export const dynamic = 'force-dynamic';
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
+
   const appSettings = await api.appSettings.get.query();
 
   // If this is the first run, app settings must be created
   if (!appSettings) {
-    await api.appSettings.create.mutate();
+    try {
+      await api.appSettings.create.mutate();
+    } catch (error) {
+      throw new Error(error as string);
+    }
     revalidateTag('appSettings.get');
     revalidatePath('/');
   }

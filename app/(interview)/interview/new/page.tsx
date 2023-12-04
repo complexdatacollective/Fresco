@@ -29,7 +29,12 @@ export default async function Page({
     );
   }
   // check if anonymous recruitment is enabled
-  const appSettings = await api.appSettings.get.query();
+  let appSettings;
+  try {
+    appSettings = await api.appSettings.get.query();
+  } catch (error) {
+    throw new Error(error as string);
+  }
 
   if (!appSettings || !appSettings.allowAnonymousRecruitment) {
     return (

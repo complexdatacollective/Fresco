@@ -3,8 +3,12 @@ import Switch from './Switch';
 import 'server-only';
 
 const AnonymousRecruitmentSwitch = async () => {
-  const appSettings = await api.appSettings.get.query();
-
+  let appSettings;
+  try {
+    appSettings = await api.appSettings.get.query();
+  } catch (error) {
+    throw new Error(error as string);
+  }
   return (
     <Switch
       allowAnonymousRecruitment={!!appSettings?.allowAnonymousRecruitment}

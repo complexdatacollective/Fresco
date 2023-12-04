@@ -18,12 +18,9 @@ export default function Error({
     analytics.trackError({
       type: 'error',
       label: heading || 'Error',
-      payload: {
-        message: error.message,
-        stack: error.stack,
-      },
+      payload: error,
     });
-  }, [heading, error.message, error.stack]);
+  }, [heading, error]);
 
   return (
     <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">

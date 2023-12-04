@@ -3,5 +3,9 @@
 import { api } from '~/trpc/server';
 
 export async function setAnalytics(state: boolean) {
-  await api.appSettings.updateAnalytics.mutate(state);
+  try {
+    await api.appSettings.updateAnalytics.mutate(state);
+  } catch (error) {
+    throw new Error(error as string);
+  }
 }

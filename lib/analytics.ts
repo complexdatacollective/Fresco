@@ -5,7 +5,14 @@ import { api } from '~/trpc/server';
 const globalForAnalytics = globalThis as unknown as {
   analytics: AnalyticsClient | undefined;
 };
-const appSettings = await api.appSettings.get.query();
+
+let appSettings;
+try {
+  appSettings = await api.appSettings.get.query();
+} catch (error) {
+  throw new Error(error as string);
+}
+
 if (!appSettings || !appSettings.installationId) {
   throw new Error('Could not get app settings');
 }

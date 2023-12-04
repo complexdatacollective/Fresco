@@ -33,14 +33,18 @@ export const getAppSettings = async () => {
 export const appSettingsRouter = router({
   get: publicProcedure.query(getAppSettings),
   create: publicProcedure.mutation(async () => {
-    const appSettings = await prisma.appSettings.create({
-      data: {
-        initializedAt: new Date(),
-      },
-    });
+    try {
+      const appSettings = await prisma.appSettings.create({
+        data: {
+          initializedAt: new Date(),
+        },
+      });
 
-    revalidateTag('appSettings.get');
-    return appSettings;
+      revalidateTag('appSettings.get');
+      return { error: null, appSettings };
+    } catch (error) {
+      return { error: 'Failed to create appSettings', appSettings: null };
+    }
   }),
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())
@@ -85,26 +89,33 @@ export const appSettingsRouter = router({
       console.info('Active user session found during reset. Invalidating...');
       await signOutProc({ ctx });
     }
+    try {
+      // Delete the setup record:
+      await prisma.appSettings.deleteMany();
 
-    // Delete the setup record:
-    await prisma.appSettings.deleteMany();
+      // Delete all data:
+      await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
+      await prisma.participant.deleteMany();
+      await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
+      await prisma.appSettings.deleteMany();
 
-    // Delete all data:
-    await prisma.user.deleteMany(); // Deleting a user will cascade to Session and Key
-    await prisma.participant.deleteMany();
-    await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
-    await prisma.appSettings.deleteMany();
+      revalidateTag('appSettings.get');
 
-    revalidateTag('appSettings.get');
-
-    // Todo: we need to remove assets from uploadthing before deleting the reference record.
+      // Todo: we need to remove assets from uploadthing before deleting the reference record.
+    } catch (error) {
+      return { error: 'Failed to reset appSettings', appSettings: null };
+    }
   }),
   setConfigured: publicProcedure.mutation(async () => {
-    await prisma.appSettings.updateMany({
-      data: {
-        configured: true,
-      },
-    });
+    try {
+      await prisma.appSettings.updateMany({
+        data: {
+          configured: true,
+        },
+      });
+    } catch (error) {
+      return { error: 'Failed to update appSettings', appSettings: null };
+    }
 
     revalidateTag('appSettings.get');
   }),
