@@ -25,7 +25,6 @@
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.3.2",
     "@lucia-auth/adapter-prisma": "^3.0.2",
-    "@maxmind/geoip2-node": "^4.2.0",
     "@prisma/client": "^5.4.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-checkbox": "^1.0.4",
