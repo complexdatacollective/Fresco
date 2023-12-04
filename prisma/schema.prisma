@@ -28,7 +28,7 @@ model Protocol {
 }
 
 model Asset {
-  key        String   @id @unique
+  key        String   @id
   assetId    String   @unique
   name       String
   type       String
