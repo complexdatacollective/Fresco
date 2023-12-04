@@ -2,8 +2,8 @@
 
 import { Button } from '~/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
-import { api } from '~/trpc/client';
 import { useEffect } from 'react';
+import { analytics } from '~/lib/analytics';
 
 export default function Error({
   error,
@@ -14,15 +14,16 @@ export default function Error({
   reset: () => void;
   heading?: string;
 }) {
-  const { mutateAsync: sendError } = api.errors.send.useMutation();
-
   useEffect(() => {
-    void sendError({
-      message: error.message,
-      stack: error.stack,
-      heading: heading,
+    analytics.trackError({
+      type: 'error',
+      label: heading || 'Error',
+      payload: {
+        message: error.message,
+        stack: error.stack,
+      },
     });
-  }, [heading, sendError, error.message, error.stack]);
+  }, [heading, error.message, error.stack]);
 
   return (
     <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">
