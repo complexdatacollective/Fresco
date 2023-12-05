@@ -1,10 +1,78 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { ChevronDown, ChevronUp, SettingsIcon } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
-import { useSelector } from 'react-redux';
-import { getNavigationInfo, getSessionProgress } from '../selectors/session';
+import { useDispatch, useSelector } from 'react-redux';
+import { type State, getNavigationInfo } from '../selectors/session';
+import { getSkipMap } from '../selectors/skip-logic';
+import { parseAsInteger, useQueryState } from 'next-usequerystate';
+
+type SkipMap = Record<string, boolean>;
+
+const useNavigation = () => {
+  const dispatch = useDispatch();
+
+  const [isReadyForNextStage] = useReadyForNextStage();
+  const skipMap: SkipMap = useSelector(getSkipMap);
+  const {
+    progress,
+    isFirstPrompt,
+    isLastPrompt,
+    isLastStage,
+    currentStageIndex,
+    currentPromptIndex,
+  } = useSelector((state: State) => getNavigationInfo(state));
+
+  const [currentStage, setCurrentStage] = useQueryState(
+    'stage',
+    parseAsInteger.withDefault(1),
+  );
+
+  // Ddetermine if we can navigate to a given stage based on the skip logic
+  const canNavigateToStage = (stage: number) => {
+    return skipMap[stage];
+  };
+
+  // Move to the next available stage in the interview based on the current stage and skip logic
+  const moveForward = () => {
+    const nextAvailableStage = Object.keys(skipMap).find(
+      (stage) => parseInt(stage) > currentStage && skipMap[stage] === false,
+    );
+
+    dispatch(sessionActions.updateStage({ stageIndex: nextAvailableStage }));
+  };
+
+  // Move to the previous available stage in the interview based on the current stage and skip logic
+  const moveBackward = () => {
+    const previousAvailableStage = Object.keys(skipMap)
+      .reverse()
+      .find(
+        (stage) => parseInt(stage) < currentStage && skipMap[stage] === false,
+      );
+
+    dispatch(
+      sessionActions.updateStage({ stageIndex: previousAvailableStage }),
+    );
+  };
+
+  // When the current stage changes, try to set the session currentStage to the new value using the
+  // `canNavigateToStage` method.
+  useEffect(() => {
+    if (canNavigateToStage(currentStage)) {
+      dispatch(sessionActions.updateStage({ stageIndex: currentStage }));
+    }
+  }, [currentStage, canNavigateToStage, dispatch]);
+
+  return {
+    progress,
+    isReadyForNextStage,
+    canMoveForward,
+    canMoveBackward,
+    moveForward,
+    moveBackward,
+  };
+};
 
 const NavigationButton = ({
   disabled,
@@ -35,25 +103,24 @@ const NavigationButton = ({
 };
 
 const Navigation = () => {
-  const [isReadyForNextStage] = useReadyForNextStage();
-  const { progress } = useSelector(getNavigationInfo);
-
-  const previousPage = () => {};
-  const nextPage = () => {};
-
-  const hasNextPage = true;
-  const hasPreviousPage = true;
+  const {
+    progress,
+    isReadyForNextStage,
+    canMoveForward,
+    canMoveBackward,
+    moveForward,
+    moveBackward,
+  } = useNavigation();
 
   return (
     <div
       role="navigation"
-      className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f]"
-      style={{ '--nc-light-background': '#4a4677' }} // Progress bar uses this variable to set background
+      className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
       <NavigationButton>
         <SettingsIcon className="h-[2.4rem] w-[2.4rem]" />
       </NavigationButton>
-      <NavigationButton onClick={previousPage} disabled={!hasPreviousPage}>
+      <NavigationButton onClick={moveBackward} disabled={!canMoveBackward}>
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
       <div className="m-6 flex flex-grow">
@@ -65,8 +132,8 @@ const Navigation = () => {
           'hover:bg-[var(--nc-primary)]',
           isReadyForNextStage && 'animate-pulse',
         )}
-        onClick={nextPage}
-        disabled={!hasNextPage}
+        onClick={moveForward}
+        disabled={!canMoveForward}
       >
         <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
