@@ -1,4 +1,5 @@
 import SectionHeading from '../_components/SectionHeading';
+import ProtocolUploaderExample from './_components/ProtocolUploaderExample';
 
 const Page = () => {
   return (
@@ -6,7 +7,8 @@ const Page = () => {
       <div className="py-4">
         <div className="px-4 sm:px-6 lg:px-8">
           <SectionHeading title="Protocols Management View" />
-          <p className="text-yellow-600">under construction</p>
+
+          <ProtocolUploaderExample />
         </div>
       </div>
     </div>
