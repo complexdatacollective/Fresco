@@ -8,9 +8,8 @@ function Documentation() {
   const handleAppConfigured = async () => {
     await setAppConfigured();
     analytics.trackEvent({
-      type: 'event',
-      label: 'AppConfigured',
-      payload: {
+      type: 'AppSetup',
+      metadata: {
         success: true,
       },
     });

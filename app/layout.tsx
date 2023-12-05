@@ -6,6 +6,7 @@ import { getServerSession } from '~/utils/auth';
 import { api } from '~/trpc/server';
 import { Toaster } from '~/components/ui/toaster';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { analytics } from '~/lib/analytics';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -26,6 +27,19 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     } catch (error) {
       throw new Error(error as string);
     }
+
+    // setInstallationId in analytics provider on first run
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    (async () => {
+      const appSettings = await api.appSettings.get.query();
+      if (!appSettings?.installationId) {
+        throw new Error('Installation ID is not defined');
+      }
+      analytics.setInstallationId(appSettings.installationId);
+    })().then(() => {
+      analytics.enable();
+    });
     revalidateTag('appSettings.get');
     revalidatePath('/');
   }

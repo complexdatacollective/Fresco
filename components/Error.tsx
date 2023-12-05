@@ -15,10 +15,15 @@ export default function Error({
   heading?: string;
 }) {
   useEffect(() => {
-    analytics.trackError({
-      type: 'error',
-      label: heading || 'Error',
-      payload: error,
+    analytics.trackEvent({
+      type: 'Error',
+      error: {
+        code: 1,
+        message: error.message,
+        details: error.message,
+        stacktrace: error.stack || '',
+        path: window.location.pathname,
+      },
     });
   }, [heading, error]);
 

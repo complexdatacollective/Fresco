@@ -6,17 +6,6 @@ const globalForAnalytics = globalThis as unknown as {
   analytics: AnalyticsClient | undefined;
 };
 
-let appSettings;
-try {
-  appSettings = await api.appSettings.get.query();
-} catch (error) {
-  throw new Error(error as string);
-}
-
-if (!appSettings || !appSettings.installationId) {
-  throw new Error('Could not get app settings');
-}
-
 const maxmindAccountId = env.MAXMIND_ACCOUNT_ID;
 const maxmindLicenseKey = env.MAXMIND_LICENSE_KEY;
 if (!maxmindAccountId || !maxmindLicenseKey) {
@@ -26,7 +15,6 @@ if (!maxmindAccountId || !maxmindLicenseKey) {
 export const analytics =
   globalForAnalytics.analytics ??
   new AnalyticsClient({
-    installationId: appSettings.installationId,
     maxmindAccountId: maxmindAccountId,
     maxmindLicenseKey: maxmindLicenseKey,
   });

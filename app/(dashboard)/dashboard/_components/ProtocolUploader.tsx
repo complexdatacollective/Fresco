@@ -68,9 +68,8 @@ export default function ProtocolUploader({
     await utils.protocol.get.lastUploaded.refetch();
 
     analytics.trackEvent({
-      type: 'event',
-      label: 'ProtocolInstalled',
-      payload: {
+      type: 'ProtocolInstalled',
+      metadata: {
         success: true,
       },
     });

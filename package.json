@@ -118,5 +118,9 @@
     "tailwindcss": "^3.3.3",
     "tsx": "^3.14.0",
     "typescript": "^5.2.2"
+  },
+  "browser": {
+    "fs": false,
+    "net": false
   }
 }
