@@ -2,7 +2,6 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import {
-  ChartPieIcon,
   Cog6ToothIcon,
   UsersIcon,
   XMarkIcon,
@@ -16,9 +15,9 @@ import {
   Workflow,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Fragment, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Fragment, useState } from 'react';
 
 const navigation = [
   {
@@ -51,9 +50,8 @@ const navigation = [
     icon: HardDrive,
     current: false,
   },
-  { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
 ];
-const teams = [
+const other = [
   {
     id: 1,
     name: 'Documentation',
@@ -179,7 +177,7 @@ const Sidebar = () => {
                           Other services
                         </div>
                         <ul role="list" className="-mx-2 mt-2 space-y-1">
-                          {teams.map((team) => (
+                          {other.map((team) => (
                             <li key={team.name}>
                               <Link
                                 href={team.href}
@@ -270,7 +268,7 @@ const Sidebar = () => {
                   Other services
                 </div>
                 <ul role="list" className="-mx-2 mt-2 space-y-1">
-                  {teams.map((team) => (
+                  {other.map((team) => (
                     <li key={team.name}>
                       <Link
                         href={team.href}
