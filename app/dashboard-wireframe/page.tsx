@@ -1,3 +1,4 @@
+import ActionPanel from './_components/ActionPanel';
 import SectionHeading from './_components/SectionHeading';
 import Stats from './_components/Stats';
 
@@ -7,8 +8,10 @@ export default function Page() {
       <div className="lg:pl-72">
         <div className="py-4">
           <div className="px-4 sm:px-6 lg:px-8">
-            <SectionHeading title="Dashboard page" />
+            <SectionHeading title="Dashboard" />
             <Stats />
+
+            <ActionPanel />
           </div>
         </div>
       </div>
