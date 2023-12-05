@@ -7,7 +7,7 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function ActionPanel() {
+export default function ActionPanelSwitch() {
   const [enabled, setEnabled] = useState(false);
 
   return (
