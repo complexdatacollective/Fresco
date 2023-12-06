@@ -1,9 +1,10 @@
 'use client';
 import { Button } from '~/components/ui/Button';
-import { Switch } from '~/components/ui/switch';
 import { analytics } from '~/lib/analytics';
+import { api } from '~/trpc/client';
 
 const AnalyticsButton = () => {
+  const appSettings = api.appSettings.get.useQuery();
   const sendEvent = () =>
     analytics.trackEvent({
       type: 'ProtocolInstalled',
@@ -16,7 +17,11 @@ const AnalyticsButton = () => {
   const isAnalyticsEnabled = () => analytics.isEnabled;
 
   const enableAnalytics = () => {
-    analytics.setInstallationId('123');
+    if (!appSettings.data?.installationId) {
+      throw new Error('No installationId found');
+    }
+
+    analytics.setInstallationId(appSettings?.data?.installationId);
     analytics.enable();
   };
 
