@@ -23,6 +23,9 @@ dependencies:
   '@lucia-auth/adapter-prisma':
     specifier: ^3.0.2
     version: 3.0.2(@prisma/client@5.4.2)(lucia@2.7.2)
+  '@maxmind/geoip2-node':
+    specifier: ^5.0.0
+    version: 5.0.0
   '@prisma/client':
     specifier: ^5.4.2
     version: 5.4.2(prisma@5.4.2)
@@ -2364,8 +2367,8 @@ packages:
       - supports-color
     dev: false
 
-  /@maxmind/geoip2-node@4.2.0:
-    resolution: {integrity: sha512-TIyKmvdIjDtRRRZTM2tgm8vHoKH1Sxr7+r7g2bB+5+Uvho7M9/+gXMZalQMpqMtm2hKFq27qoHpMpqq82ycxQA==}
+  /@maxmind/geoip2-node@5.0.0:
+    resolution: {integrity: sha512-ki+q5//oU4tZ3BAhegZJcB5czoZyic5JSTEKbrUAQB/BzAoAiGyLW0immEmQvVVyy2SMlvBTJ3zqyRj8K9BbwQ==}
     dependencies:
       ip6addr: 0.2.5
       maxmind: 4.3.17
@@ -13572,7 +13575,7 @@ packages:
     peerDependencies:
       next: 14.0.1
     dependencies:
-      '@maxmind/geoip2-node': 4.2.0
+      '@maxmind/geoip2-node': 5.0.0
       async: 3.2.5
       next: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
       zod-fetch: 0.1.1
