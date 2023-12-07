@@ -2,7 +2,7 @@ import ResetButton from './_components/ResetButton';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import Link from 'next/link';
 import { Button } from '~/components/ui/Button';
-import AnalyticsSwitch from '~/components/AnalyticsSwitch/AnalyticsSwitch';
+import AnalyticsSwitch from '~/components/AnalyticsSwitch';
 import AnalyticsButton from './_components/AnalyticsButton';
 
 function Home() {

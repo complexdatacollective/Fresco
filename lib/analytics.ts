@@ -6,10 +6,6 @@ const globalForAnalytics = globalThis as unknown as {
 };
 
 export const analytics =
-  globalForAnalytics.analytics ??
-  new AnalyticsClient({
-    maxmindAccountId: env.MAXMIND_ACCOUNT_ID,
-    maxmindLicenseKey: env.MAXMIND_LICENSE_KEY,
-  });
+  globalForAnalytics.analytics ?? new AnalyticsClient({});
 
 if (env.NODE_ENV !== 'production') globalForAnalytics.analytics = analytics;

@@ -1,20 +1,36 @@
 'use client';
 
-import { Switch as SwitchUI } from '~/components/ui/switch';
-import { setAnalytics } from './action';
+import { Switch } from '~/components/ui/switch';
 import { useOptimistic, useTransition } from 'react';
 import { api } from '~/trpc/client';
+import { analytics } from '~/lib/analytics';
 
-const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
+const AnalyticsSwitch = () => {
+  const enabled = analytics.isEnabled;
   const [, startTransition] = useTransition();
   const [optimisticAllowAnalytics, setOptimisticAllowAnalytics] = useOptimistic(
-    allowAnalytics,
+    enabled,
     (state: boolean, newState: boolean) => newState,
   );
-  const utils = api.useUtils();
+  const appSettings = api.appSettings.get.useQuery();
+  const enableAnalytics = () => {
+    if (!appSettings.data?.installationId) {
+      throw new Error('No installationId found');
+    }
+
+    analytics.setInstallationId(appSettings?.data?.installationId);
+    analytics.enable();
+  };
+
+  // eslint-disable-next-line no-process-env
+  const globalAnalyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED;
 
   return (
-    <div className="mb-4">
+    <div
+      className={`mb-4 ${
+        globalAnalyticsEnabled === 'false' ? 'opacity-50' : ''
+      }`}
+    >
       <div className="flex items-center justify-between">
         <div className="mr-20">
           <h3 className="font-bold">Allow Analytics</h3>
@@ -25,16 +41,16 @@ const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
             interview data, or protocol data is collected.
           </p>
         </div>
-        <SwitchUI
+
+        <Switch
           name="allowAnalytics"
           checked={optimisticAllowAnalytics}
           onCheckedChange={(value) => {
-            startTransition(async () => {
+            startTransition(() => {
               setOptimisticAllowAnalytics(value);
 
               try {
-                await setAnalytics(value);
-                await utils.appSettings.get.refetch();
+                value ? enableAnalytics() : analytics.disable();
               } catch (error) {
                 if (error instanceof Error) {
                   throw new Error(error.message);
@@ -43,10 +59,11 @@ const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
               }
             });
           }}
+          disabled={globalAnalyticsEnabled === 'false'}
         />
       </div>
     </div>
   );
 };
 
-export default Switch;
+export default AnalyticsSwitch;
