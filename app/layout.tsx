@@ -1,5 +1,5 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import FeedbackButton from '~/components/FeedbackButton/FeedbackButton';
+import FeedbackBanner from '~/components/FeedbackBanner/FeedbackBanner';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
@@ -28,6 +28,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
+        <FeedbackBanner />
         <RedirectWrapper
           configured={!!appSettings?.configured}
           expired={!!appSettings?.expired}
@@ -35,7 +36,6 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
         >
           <Providers initialSession={session}>{children}</Providers>
           <Toaster />
-          <FeedbackButton />
         </RedirectWrapper>
       </body>
     </html>
