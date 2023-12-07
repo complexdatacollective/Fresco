@@ -28,7 +28,10 @@ export const getSessions = (state: RootState) => state.sessions;
 export const getActiveSession = createSelector(
   getActiveSessionId,
   getSessions,
-  (activeSessionId, sessions) => sessions.activeSessionId,
+  (activeSessionId, sessions) => {
+    if (!activeSessionId) return null;
+    return sessions[activeSessionId];
+  },
 );
 
 export const getLastActiveSession = createSelector(getSessions, (sessions) => {
@@ -50,10 +53,9 @@ export const getLastActiveSession = createSelector(getSessions, (sessions) => {
   return lastActiveSession;
 });
 
-export const getStageIndex = createSelector(
-  getActiveSession,
-  (session) => session?.stageIndex ?? 0,
-);
+export const getStageIndex = createSelector(getActiveSession, (session) => {
+  return session?.stageIndex ?? 0;
+});
 
 export const getCurrentStage = createSelector(
   getProtocolStages,
@@ -84,7 +86,7 @@ export const getPrompts = createSelector(
 
 export const getPromptCount = createSelector(
   getPrompts,
-  (prompts) => prompts?.length ?? 0,
+  (prompts) => prompts?.length ?? 1, // If there are no prompts we have "1" prompt
 );
 
 export const getIsFirstPrompt = createSelector(
@@ -121,9 +123,13 @@ export const getSessionProgress = createSelector(
   getPromptCount,
   (stageIndex, stageCount, promptIndex, promptCount) => {
     const stageProgress = stageIndex / (stageCount - 1);
-    const promptProgress = promptCount ? promptIndex / promptCount : 0;
-    const percentProgress =
-      stageProgress + (promptProgress / (stageCount - 1)) * 100;
+    const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
+
+    const promptProgress = promptCount === 1 ? 1 : promptIndex / promptCount; // 1 when finished
+
+    const promptWorth = promptProgress * stageWorth;
+
+    const percentProgress = (stageProgress + promptWorth) * 100;
 
     return percentProgress;
   },
@@ -153,6 +159,8 @@ export const getNavigationInfo = createSelector(
     isLastPrompt,
     isFirstStage,
     isLastStage,
+    canMoveForward: !(isLastPrompt && isLastStage),
+    canMoveBackward: !(isFirstPrompt && isFirstStage),
   }),
 );
 

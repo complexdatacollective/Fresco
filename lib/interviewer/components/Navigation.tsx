@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp, SettingsIcon } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
@@ -18,76 +18,93 @@ const useNavigationHelpers = (
 
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
-  const { progress } = useSelector(getNavigationInfo);
+  const {
+    progress,
+    isLastPrompt,
+    isFirstPrompt,
+    isLastStage,
+    promptIndex,
+    canMoveBackward,
+    canMoveForward,
+  } = useSelector(getNavigationInfo);
 
-  const isCurrentStageValid = useMemo(() => {
-    return skipMap[currentStage] === false;
+  const calculateNextStage = useCallback(() => {
+    const nextStage = Object.keys(skipMap).find(
+      (stage) =>
+        parseInt(stage) > currentStage && skipMap[parseInt(stage)] === false,
+    );
+
+    if (!nextStage) {
+      return currentStage;
+    }
+
+    return parseInt(nextStage);
   }, [currentStage, skipMap]);
 
-  const getPreviousValidStage = useCallback(() => {
-    return Object.keys(skipMap)
+  const calculatePreviousStage = useCallback(() => {
+    const previousStage = Object.keys(skipMap)
       .reverse()
-      .find(
-        (stage) => parseInt(stage) < currentStage && skipMap[stage] === false,
-      );
+      .find((stage) => parseInt(stage) < currentStage);
+
+    if (!previousStage) {
+      return currentStage;
+    }
+
+    return parseInt(previousStage);
   }, [currentStage, skipMap]);
 
   const validateCurrentStage = useCallback(() => {
-    if (!isCurrentStageValid) {
-      const previousValidStage = getPreviousValidStage();
+    if (!skipMap[currentStage] === false) {
+      const previousValidStage = calculatePreviousStage();
 
       if (previousValidStage) {
-        setCurrentStage(parseInt(previousValidStage));
+        setCurrentStage(previousValidStage);
       }
     }
-  }, [isCurrentStageValid, getPreviousValidStage, setCurrentStage]);
+  }, [calculatePreviousStage, setCurrentStage, currentStage, skipMap]);
 
-  // Ddetermine if we can navigate to a given stage based on the skip logic
-  const canNavigateToStage = useCallback(
-    (stage: number) => {
-      return skipMap[stage];
-    },
-    [skipMap],
-  );
+  const moveForward = useCallback(() => {
+    if (isLastPrompt) {
+      const nextStage = calculateNextStage();
+      setCurrentStage(nextStage);
+      return;
+    }
 
-  // Move to the next available stage in the interview based on the current stage and skip logic
-  const moveForward = () => {
-    const nextAvailableStage = Object.keys(skipMap).find(
-      (stage) => parseInt(stage) > currentStage && skipMap[stage] === false,
-    );
-
-    dispatch(sessionActions.updateStage({ stageIndex: nextAvailableStage }));
-  };
+    dispatch(sessionActions.updatePrompt(promptIndex + 1));
+  }, [
+    dispatch,
+    isLastPrompt,
+    promptIndex,
+    calculateNextStage,
+    setCurrentStage,
+  ]);
 
   // Move to the previous available stage in the interview based on the current stage and skip logic
   const moveBackward = () => {
-    const previousAvailableStage = Object.keys(skipMap)
-      .reverse()
-      .find(
-        (stage) => parseInt(stage) < currentStage && skipMap[stage] === false,
-      );
+    if (isFirstPrompt) {
+      const previousStage = calculatePreviousStage();
+      setCurrentStage(previousStage);
+      return;
+    }
 
-    dispatch(
-      sessionActions.updateStage({ stageIndex: previousAvailableStage }),
-    );
+    dispatch(sessionActions.updatePrompt(promptIndex - 1));
   };
 
-  // When the current stage changes, try to set the session currentStage to the new value using the
-  // `canNavigateToStage` method.
   useEffect(() => {
-    if (canNavigateToStage(currentStage)) {
-      dispatch(sessionActions.updateStage({ stageIndex: currentStage }));
-    }
-  }, [currentStage, canNavigateToStage, dispatch]);
+    dispatch(sessionActions.updateStage(currentStage));
+  }, [currentStage, dispatch]);
 
   return {
     progress,
     isReadyForNextStage,
-    canMoveForward: true,
-    canMoveBackward: true,
+    canMoveForward,
+    canMoveBackward,
     moveForward,
     moveBackward,
     validateCurrentStage,
+    isFirstPrompt,
+    isLastPrompt,
+    isLastStage,
   };
 };
 

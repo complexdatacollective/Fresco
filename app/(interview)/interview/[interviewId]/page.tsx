@@ -1,8 +1,11 @@
 import { api } from '~/trpc/server';
 import InterviewShell from '../_components/InterviewShell';
 import NoSSRWrapper from '~/utils/NoSSRWrapper';
+import type { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
+
+export type ServerSession = Prisma.InterviewGetPayload<null>;
 
 export default async function Page({
   params,
@@ -22,14 +25,14 @@ export default async function Page({
     return 'No interview found';
   }
 
-  const { protocol, ...serverInterview } = interview;
+  const { protocol, ...serverSession } = interview;
 
   return (
     <div className="flex h-[100vh] flex-col bg-[var(--nc-background)] text-[var(--nc-text)]">
       <NoSSRWrapper>
         <InterviewShell
           serverProtocol={protocol}
-          serverInterview={serverInterview}
+          serverSession={serverSession}
         />
       </NoSSRWrapper>
     </div>

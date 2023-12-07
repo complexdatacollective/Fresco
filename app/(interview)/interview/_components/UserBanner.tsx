@@ -4,7 +4,12 @@ import { Button } from '~/components/ui/Button';
 import { useSession } from '~/providers/SessionProvider';
 
 export default function UserBanner() {
-  const { signOut } = useSession();
+  const { session, signOut } = useSession();
+
+  if (!session) {
+    return null;
+  }
+
   return (
     <div className="relative isolate flex items-center overflow-hidden bg-gray-200 px-6 text-primary">
       <div

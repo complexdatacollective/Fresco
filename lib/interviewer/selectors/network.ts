@@ -1,0 +1,215 @@
+import { findKey, find } from 'lodash';
+import { getActiveSession } from './session';
+import { createDeepEqualSelector } from './utils';
+import { getProtocolCodebook } from './protocol';
+import { getEntityAttributes } from '../ducks/modules/network';
+import customFilter from '~/lib/network-query/filter';
+import { createSelector } from '@reduxjs/toolkit';
+import { getStageSubject, getSubjectType } from './prop';
+import type {
+  Codebook,
+  FilterDefinition,
+  NcNetwork,
+  NcNode,
+  NodeTypeDefinition,
+  Stage,
+  StageSubject,
+} from '@codaco/shared-consts';
+import type { RootState } from '../store';
+
+export const getNetwork = createSelector(
+  getActiveSession,
+  (session) => session?.network,
+);
+
+export const getPropStageFilter = (_: unknown, props: { stage: Stage }) =>
+  props?.stage?.filter ?? null;
+
+type FilterFunction = (network: NcNetwork) => NcNetwork;
+
+// Filtered network
+export const getFilteredNetwork = createSelector(
+  getNetwork,
+  getPropStageFilter,
+  (network, nodeFilter: FilterDefinition | null) => {
+    if (!network) {
+      return null;
+    }
+
+    if (nodeFilter && typeof nodeFilter !== 'function') {
+      const filterFunction: FilterFunction = customFilter(nodeFilter);
+      return filterFunction(network);
+    }
+
+    return network;
+  },
+);
+
+export const getNetworkNodes = createSelector(
+  getFilteredNetwork,
+  (network) => network?.nodes ?? [],
+);
+
+export const getNetworkEgo = createSelector(
+  getFilteredNetwork,
+  (network) => network?.ego ?? null,
+);
+
+export const getNetworkEdges = createSelector(
+  getFilteredNetwork,
+  (network) => network?.edges ?? [],
+);
+
+export const getNodeTypeDefinition = createSelector(
+  getProtocolCodebook,
+  getStageSubject,
+  (codebook: Codebook, { type }: StageSubject) => {
+    return codebook.node?.[type] ?? null;
+  },
+);
+
+// The user-defined name of a node type; e.g. `codebook.node[uuid].name == 'person'`
+export const makeGetNodeTypeDefinition = () => getNodeTypeDefinition;
+
+// See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
+export const labelLogic = (
+  codebookForNodeType: NodeTypeDefinition,
+  nodeAttributes: Record<string, unknown>,
+): string => {
+  // 1. In the codebook for the stage's subject, look for a variable with a name
+  // property of "name", and try to retrieve this value by key in the node's
+  // attributes
+  const variableCalledName =
+    codebookForNodeType &&
+    codebookForNodeType.variables &&
+    // Ignore case when looking for 'name'
+    findKey(
+      codebookForNodeType.variables,
+      (variable) => variable.name.toLowerCase() === 'name',
+    );
+
+  if (variableCalledName && nodeAttributes[variableCalledName]) {
+    return nodeAttributes[variableCalledName] as string;
+  }
+
+  // 2. Look for a property on the node with a key of ‘name’, and try to retrieve this
+  // value as a key in the node's attributes.
+  // const nodeVariableCalledName = get(nodeAttributes, 'name');
+
+  const nodeVariableCalledName = find(
+    nodeAttributes,
+    (_, key) => key.toLowerCase() === 'name',
+  );
+
+  if (nodeVariableCalledName) {
+    return nodeVariableCalledName as string;
+  }
+
+  // 3. Last resort!
+  return "No 'name' variable!";
+};
+
+const getNodeLabel = createSelector(
+  getNodeTypeDefinition,
+  (nodeTypeDefinition: NodeTypeDefinition | null) => (node: NcNode) => {
+    if (!nodeTypeDefinition) {
+      return 'Node';
+    }
+
+    const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
+
+    return labelLogic(nodeTypeDefinition, nodeAttributes);
+  },
+);
+
+// Gets the node label variable and returns its value, or "No label".
+// See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
+export const makeGetNodeLabel = () => getNodeLabel;
+
+const getType = (_: unknown, props: Record<string, string>) =>
+  props.type ?? null;
+
+export const getNodeColorSelector = createSelector(
+  getProtocolCodebook,
+  getType,
+  (codebook: Codebook, nodeType: string | null) => {
+    if (!nodeType) {
+      return 'node-color-seq-1';
+    }
+
+    return codebook.node?.[nodeType]?.color ?? 'node-color-seq-1';
+  },
+);
+
+export const makeGetNodeColor = () => getNodeColorSelector;
+
+// Pure state selector variant of makeGetNodeColor
+export const getNodeColor = (nodeType: string) => (state: RootState) =>
+  getNodeColorSelector(state, { type: nodeType });
+
+export const getNodeTypeLabel = (nodeType: string) => (state: RootState) => {
+  const codebook = getProtocolCodebook(state) as unknown as Codebook;
+  return codebook.node?.[nodeType]?.name ?? '';
+};
+
+export const makeGetEdgeLabel = () =>
+  createSelector(
+    getProtocolCodebook,
+    (_, props: Record<string, string>) => props.type ?? null,
+    (codebook, edgeType: string | null) => {
+      if (!edgeType) {
+        return '';
+      }
+
+      return (codebook as Codebook)?.edge?.[edgeType]?.name ?? '';
+    },
+  );
+
+export const makeGetEdgeColor = () =>
+  createSelector(
+    getProtocolCodebook,
+    (_, props: Record<string, string>) => props.type ?? null,
+    (codebook, edgeType: string | null) => {
+      if (!edgeType) {
+        return 'edge-color-seq-1';
+      }
+
+      return (
+        (codebook as Codebook)?.edge?.[edgeType]?.color ?? 'edge-color-seq-1'
+      );
+    },
+  );
+
+export const makeGetNodeAttributeLabel = () =>
+  createDeepEqualSelector(
+    getProtocolCodebook,
+    getSubjectType,
+    (_, props: Record<string, string>) => props.variableId ?? null,
+    (codebook, subjectType: string | null, variableId: string | null) => {
+      if (!subjectType || !variableId) {
+        return '';
+      }
+
+      return (
+        (codebook as Codebook).node?.[subjectType]?.variables?.[variableId]
+          ?.name ?? undefined
+      );
+    },
+  );
+
+export const makeGetCategoricalOptions = () =>
+  createDeepEqualSelector(
+    getProtocolCodebook,
+    getSubjectType,
+    (_, props: Record<string, string>) => props.variableId ?? null,
+    (codebook, subjectType: string | null, variableId: string | null) => {
+      if (!subjectType || !variableId) {
+        return [];
+      }
+
+      return (
+        (codebook as Codebook).node?.[subjectType]?.variables?.[variableId]
+          ?.options ?? []
+      );
+    },
+  );
