@@ -28,7 +28,7 @@ export default async function Page({
   const { protocol, ...serverSession } = interview;
 
   return (
-    <div className="flex h-[100vh] flex-col bg-[var(--nc-background)] text-[var(--nc-text)]">
+    <div className="flex h-[100vh] max-h-[100vh] flex-col bg-[var(--nc-background)] text-[var(--nc-text)]">
       <NoSSRWrapper>
         <InterviewShell
           serverProtocol={protocol}

@@ -11,7 +11,7 @@ export default function UserBanner() {
   }
 
   return (
-    <div className="relative isolate flex items-center overflow-hidden bg-gray-200 px-6 text-primary">
+    <div className="relative isolate flex min-h-[70px] items-center overflow-hidden bg-gray-200 px-6 text-primary">
       <div
         className="absolute left-[max(-7rem,calc(50%-52rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
         aria-hidden="true"
