@@ -1,9 +1,9 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import ButtonTooltip from './ButtonTooltip';
 import { useEffect, useState } from 'react';
-import ClickUpFormModal from './FeedbackModal';
+import ButtonTooltip from './ButtonTooltip';
+import FeedbackModal from './FeedbackModal';
 
 const FeedbackButton = () => {
   const [showTooltip, setShowTooltip] = useState(true);
@@ -19,10 +19,10 @@ const FeedbackButton = () => {
 
   return (
     <>
-      <ClickUpFormModal open={open} setOpen={setOpen} />
+      <FeedbackModal open={open} setOpen={setOpen} />
       <motion.div
         initial={{ opacity: 1 }}
-        animate={{ x: '25px', rotate: -60 }}
+        animate={{ x: '30px', y: '50px' }}
         transition={{ delay: 12 }}
         className="fixed bottom-16 right-10 z-50 h-[115px]"
       >
