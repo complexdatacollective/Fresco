@@ -1,4 +1,3 @@
-import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 import { api } from '~/trpc/server';
 import InterviewShell from '../_components/InterviewShell';
 import NoSSRWrapper from '~/utils/NoSSRWrapper';
@@ -23,14 +22,15 @@ export default async function Page({
     return 'No interview found';
   }
 
-  const { protocol, participant, ...session } = interview;
-
-  console.log('interview', protocol, session);
+  const { protocol, ...serverInterview } = interview;
 
   return (
     <div className="flex h-[100vh] flex-col bg-[var(--nc-background)] text-[var(--nc-text)]">
       <NoSSRWrapper>
-        <InterviewShell serverProtocol={protocol} serverSession={session} />
+        <InterviewShell
+          serverProtocol={protocol}
+          serverInterview={serverInterview}
+        />
       </NoSSRWrapper>
     </div>
   );

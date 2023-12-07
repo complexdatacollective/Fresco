@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { api } from '~/trpc/server';
 import { faker } from '@faker-js/faker';
-import { participantIdentifierSchema } from '~/shared/schemas';
+import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';
 
 export const dynamic = 'force-dynamic';

@@ -66,9 +66,9 @@ const useNavigation = () => {
 
   return {
     progress,
-    isReadyForNextStage,
-    canMoveForward,
-    canMoveBackward,
+    isReadyForNextStage: true,
+    canMoveForward: true,
+    canMoveBackward: true,
     moveForward,
     moveBackward,
   };

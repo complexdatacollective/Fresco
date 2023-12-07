@@ -5,7 +5,7 @@ import {
   participantIdentifierSchema,
   participantListInputSchema,
   updateSchema,
-} from '~/shared/schemas';
+} from '~/shared/schemas/schemas';
 import { z } from 'zod';
 
 export const participantRouter = router({

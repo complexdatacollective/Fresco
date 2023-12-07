@@ -1,38 +1,10 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { participantIdentifierSchema } from '~/shared/schemas';
+import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import { z } from 'zod';
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-} from '@codaco/shared-consts';
 import { Prisma } from '@prisma/client';
-
-const NcEntityZod = z.object({
-  [entityPrimaryKeyProperty]: z.string().readonly(),
-  type: z.string().optional(),
-  [entityAttributesProperty]: z.record(z.string(), z.any()),
-});
-
-const NcNodeZod = NcEntityZod.extend({
-  type: z.string(),
-  stageId: z.string().optional(),
-  promptIDs: z.array(z.string()).optional(),
-  displayVariable: z.string().optional(),
-});
-
-const NcEdgeZod = NcEntityZod.extend({
-  type: z.string(),
-  from: z.string(),
-  to: z.string(),
-});
-
-const NcNetworkZod = z.object({
-  nodes: z.array(NcNodeZod),
-  edges: z.array(NcEdgeZod),
-  ego: NcEntityZod.optional(),
-});
+import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 
 export const interviewRouter = router({
   create: publicProcedure
@@ -127,11 +99,9 @@ export const interviewRouter = router({
                 assets: true,
               },
             },
-            participant: true,
           },
         });
 
-        console.log('interview', interview);
         return interview;
       }),
   }),
@@ -147,7 +117,6 @@ export const interviewRouter = router({
       const idsToDelete = data.map((p) => p.id);
 
       try {
-        // eslint-disable-next-line local-rules/require-data-mapper
         const deletedInterviews = await prisma.interview.deleteMany({
           where: {
             id: {
