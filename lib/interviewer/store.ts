@@ -7,9 +7,9 @@ import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
 import sessions from '~/lib/interviewer/ducks/modules/session';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
-import search from '~/lib/interviewer/ducks/modules/search';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
+import type { NcNetwork, Protocol } from '@codaco/shared-consts';
 
 export const store = configureStore({
   reducer: {
@@ -19,11 +19,47 @@ export const store = configureStore({
     installedProtocols,
     deviceSettings,
     dialogs,
-    search,
     ui,
   },
   middleware: [thunk, logger, sound],
 });
 
-export type RootState = ReturnType<typeof store.getState>;
+export type Session = {
+  protocolUid: string;
+  promptIndex: number;
+  stageIndex: number;
+  caseId: string;
+  network: NcNetwork;
+  startedAt: Date;
+  updatedAt: Date;
+  finishedAt: Date;
+  exportedAt: Date;
+};
+
+export type SessionsState = Record<string, Session>;
+
+export type InstalledProtocols = Record<string, Protocol>;
+
+export type Dialog = {
+  id: string;
+  title: string;
+  type: string;
+  confirmLabel?: string;
+  message: string;
+};
+
+export type Dialogs = {
+  dialogs: Dialog[];
+};
+
+export type RootState = {
+  form: Record<string, unknown>;
+  activeSessionId: string | null;
+  sessions: SessionsState;
+  installedProtocols: InstalledProtocols;
+  deviceSettings: Record<string, unknown>;
+  dialogs: Dialogs;
+  ui: Record<string, unknown>;
+};
+
 export type AppDispatch = typeof store.dispatch;

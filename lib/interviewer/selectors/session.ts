@@ -2,6 +2,7 @@ import type { Stage, NcNetwork } from '@codaco/shared-consts';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolStages } from './protocol';
 import { createSelector } from '@reduxjs/toolkit';
+import type { RootState } from '../store';
 
 export type SessionState = Record<string, unknown>;
 
@@ -20,19 +21,14 @@ export type Session = {
 
 export type SessionsState = Record<string, Session>;
 
-export type State = {
-  activeSessionId: string;
-  sessions: SessionsState;
-};
+export const getActiveSessionId = (state: RootState) => state.activeSessionId;
 
-export const getActiveSessionId = (state: State) => state.activeSessionId;
-
-export const getSessions = (state: State) => state.sessions;
+export const getSessions = (state: RootState) => state.sessions;
 
 export const getActiveSession = createSelector(
   getActiveSessionId,
   getSessions,
-  (activeSessionId, sessions) => sessions[activeSessionId],
+  (activeSessionId, sessions) => sessions.activeSessionId,
 );
 
 export const getLastActiveSession = createSelector(getSessions, (sessions) => {

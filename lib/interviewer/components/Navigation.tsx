@@ -1,38 +1,54 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
-import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { ChevronDown, ChevronUp, SettingsIcon } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
 import { useDispatch, useSelector } from 'react-redux';
-import { type State, getNavigationInfo } from '../selectors/session';
+import { getNavigationInfo } from '../selectors/session';
 import { getSkipMap } from '../selectors/skip-logic';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
+import { actionCreators as sessionActions } from '../ducks/modules/session';
+import useReadyForNextStage from '../hooks/useReadyForNextStage';
 
-type SkipMap = Record<string, boolean>;
-
-const useNavigation = () => {
+const useNavigationHelpers = (
+  currentStage: number,
+  setCurrentStage: (stage: number) => void,
+) => {
   const dispatch = useDispatch();
+  const skipMap = useSelector(getSkipMap);
 
-  const [isReadyForNextStage] = useReadyForNextStage();
-  const skipMap: SkipMap = useSelector(getSkipMap);
-  const {
-    progress,
-    isFirstPrompt,
-    isLastPrompt,
-    isLastStage,
-    currentStageIndex,
-    currentPromptIndex,
-  } = useSelector((state: State) => getNavigationInfo(state));
+  const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
-  const [currentStage, setCurrentStage] = useQueryState(
-    'stage',
-    parseAsInteger.withDefault(1),
-  );
+  const { progress } = useSelector(getNavigationInfo);
+
+  const isCurrentStageValid = useMemo(() => {
+    return skipMap[currentStage] === false;
+  }, [currentStage, skipMap]);
+
+  const getPreviousValidStage = useCallback(() => {
+    return Object.keys(skipMap)
+      .reverse()
+      .find(
+        (stage) => parseInt(stage) < currentStage && skipMap[stage] === false,
+      );
+  }, [currentStage, skipMap]);
+
+  const validateCurrentStage = useCallback(() => {
+    if (!isCurrentStageValid) {
+      const previousValidStage = getPreviousValidStage();
+
+      if (previousValidStage) {
+        setCurrentStage(parseInt(previousValidStage));
+      }
+    }
+  }, [isCurrentStageValid, getPreviousValidStage, setCurrentStage]);
 
   // Ddetermine if we can navigate to a given stage based on the skip logic
-  const canNavigateToStage = (stage: number) => {
-    return skipMap[stage];
-  };
+  const canNavigateToStage = useCallback(
+    (stage: number) => {
+      return skipMap[stage];
+    },
+    [skipMap],
+  );
 
   // Move to the next available stage in the interview based on the current stage and skip logic
   const moveForward = () => {
@@ -66,11 +82,12 @@ const useNavigation = () => {
 
   return {
     progress,
-    isReadyForNextStage: true,
+    isReadyForNextStage,
     canMoveForward: true,
     canMoveBackward: true,
     moveForward,
     moveBackward,
+    validateCurrentStage,
   };
 };
 
@@ -103,14 +120,25 @@ const NavigationButton = ({
 };
 
 const Navigation = () => {
+  const [currentStage, setCurrentStage] = useQueryState(
+    'stage',
+    parseAsInteger.withDefault(1),
+  );
+
   const {
+    validateCurrentStage,
+    moveBackward,
+    moveForward,
+    canMoveBackward,
+    canMoveForward,
     progress,
     isReadyForNextStage,
-    canMoveForward,
-    canMoveBackward,
-    moveForward,
-    moveBackward,
-  } = useNavigation();
+  } = useNavigationHelpers(currentStage, setCurrentStage);
+
+  // Check if the current stage is valid for us to be on.
+  useEffect(() => {
+    validateCurrentStage();
+  }, [validateCurrentStage]);
 
   return (
     <div

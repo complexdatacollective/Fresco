@@ -6,12 +6,26 @@ import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
 import UserBanner from './UserBanner';
 import { useSession } from '~/providers/SessionProvider';
+import { useEffect } from 'react';
+import { parseAsInteger, useQueryState } from 'next-usequerystate';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
 // Eventually it will handle syncing this data back.
 const InterviewShell = ({ serverProtocol, serverSession }) => {
   const { session } = useSession();
+
+  useEffect(() => {
+    store.dispatch({
+      type: 'SET_SERVER_SESSION',
+      payload: serverSession,
+    });
+  }, [serverSession]);
+
+  const [stage, setStage] = useQueryState(
+    'stage',
+    parseAsInteger.withDefault(1),
+  );
 
   return (
     <Provider store={store}>
