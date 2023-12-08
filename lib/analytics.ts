@@ -6,6 +6,10 @@ const globalForAnalytics = globalThis as unknown as {
 };
 
 export const analytics =
-  globalForAnalytics.analytics ?? new AnalyticsClient({});
+  globalForAnalytics.analytics ??
+  new AnalyticsClient({
+    platformUrl:
+      'https://error-analytics-microservice-git-06aae6-network-canvas-f4790d84.vercel.app',
+  });
 
 if (env.NODE_ENV !== 'production') globalForAnalytics.analytics = analytics;
