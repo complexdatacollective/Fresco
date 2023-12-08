@@ -27,7 +27,7 @@ export const store = configureStore({
 export type Session = {
   protocolUid: string;
   promptIndex: number;
-  stageIndex: number;
+  currentStep: number;
   caseId: string;
   network: NcNetwork;
   startedAt: Date;

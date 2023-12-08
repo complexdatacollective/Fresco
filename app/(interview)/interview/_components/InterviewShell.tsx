@@ -22,7 +22,7 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
   // Current stage
   const currentStage = useSelector(getStageIndex);
   const prevCurrentStage = usePrevious(currentStage);
-  const { mutate: updateStage } = api.interview.sync.stageIndex.useMutation();
+  const { mutate: updateStage } = api.interview.sync.currentStep.useMutation();
 
   useEffect(() => {
     if (!init) {
@@ -36,7 +36,7 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
       currentStage !== prevCurrentStage
     ) {
       console.log(`⬆️ Syncing stage index (${currentStage}) to server...`);
-      updateStage({ interviewId, stageIndex: currentStage });
+      updateStage({ interviewId, currentStep: currentStage });
     }
   }, [currentStage, prevCurrentStage, updateStage, interviewId, init]);
 

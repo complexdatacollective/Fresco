@@ -9,21 +9,21 @@ import { ensureError } from '~/utils/ensureError';
 
 export const interviewRouter = router({
   sync: router({
-    stageIndex: publicProcedure
+    currentStep: publicProcedure
       .input(
         z.object({
           interviewId: z.string().cuid(),
-          stageIndex: z.number(),
+          currentStep: z.number(),
         }),
       )
-      .mutation(async ({ input: { interviewId, stageIndex } }) => {
+      .mutation(async ({ input: { interviewId, currentStep } }) => {
         try {
           const result = await prisma.interview.update({
             where: {
               id: interviewId,
             },
             data: {
-              currentStep: stageIndex,
+              currentStep: currentStep,
               lastUpdated: new Date(),
             },
           });

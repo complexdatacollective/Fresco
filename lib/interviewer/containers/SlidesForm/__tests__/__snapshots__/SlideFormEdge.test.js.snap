@@ -28,7 +28,7 @@ exports[`<SlideFormEdge /> should render 1`] = `
     }
   }
   onScroll={[Function]}
-  stageIndex={1}
+  currentStep={1}
   submitButton={
     <button
       aria-label="Submit"

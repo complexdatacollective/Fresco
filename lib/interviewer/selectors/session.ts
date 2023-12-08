@@ -9,7 +9,7 @@ export type SessionState = Record<string, unknown>;
 export type Session = {
   protocolUid: string;
   promptIndex: number;
-  stageIndex: number;
+  currentStep: number;
   caseId: string;
   network: NcNetwork;
   startedAt: Date;
@@ -54,13 +54,16 @@ export const getLastActiveSession = createSelector(getSessions, (sessions) => {
 });
 
 export const getStageIndex = createSelector(getActiveSession, (session) => {
-  return session?.stageIndex ?? null;
+  return session?.currentStep ?? null;
 });
 
 export const getCurrentStage = createSelector(
   getProtocolStages,
   getStageIndex,
-  (stages: Stage[], stageIndex) => stages[stageIndex],
+  (stages: Stage[], currentStep) => {
+    if (currentStep === null) return null;
+    return stages[currentStep];
+  },
 );
 
 export const getPromptIndex = createSelector(
@@ -102,13 +105,13 @@ export const getIsLastPrompt = createSelector(
 
 export const getIsFirstStage = createSelector(
   getStageIndex,
-  (stageIndex) => stageIndex === 0,
+  (currentStep) => currentStep === 0,
 );
 
 export const getIsLastStage = createSelector(
   getStageIndex,
   getProtocolStages,
-  (stageIndex, stages) => stageIndex === stages.length - 1,
+  (currentStep, stages) => currentStep === stages.length - 1,
 );
 
 export const getStageCount = createSelector(
@@ -121,8 +124,8 @@ export const getSessionProgress = createSelector(
   getStageCount,
   getPromptIndex,
   getPromptCount,
-  (stageIndex, stageCount, promptIndex, promptCount) => {
-    const stageProgress = stageIndex / (stageCount - 1);
+  (currentStep, stageCount, promptIndex, promptCount) => {
+    const stageProgress = currentStep / (stageCount - 1);
     const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
 
     const promptProgress = promptCount === 1 ? 1 : promptIndex / promptCount; // 1 when finished
@@ -145,7 +148,7 @@ export const getNavigationInfo = createSelector(
   getIsLastStage,
   (
     progress,
-    stageIndex,
+    currentStep,
     promptIndex,
     isFirstPrompt,
     isLastPrompt,
@@ -153,7 +156,7 @@ export const getNavigationInfo = createSelector(
     isLastStage,
   ) => ({
     progress,
-    stageIndex,
+    currentStep,
     promptIndex,
     isFirstPrompt,
     isLastPrompt,
@@ -167,10 +170,4 @@ export const getNavigationInfo = createSelector(
 export const anySessionIsActive = createSelector(
   getActiveSession,
   (session) => !!session,
-);
-
-export const getStageForCurrentSession = createSelector(
-  getProtocolStages,
-  getStageIndex,
-  (stages: Stage[], stageIndex) => stages[stageIndex],
 );
