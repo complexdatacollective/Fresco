@@ -94,9 +94,27 @@ const useNavigationHelpers = (
     dispatch(sessionActions.updatePrompt(promptIndex - 1));
   };
 
+  const prevCurrentStage = usePrevious(currentStage);
+
+  const needToDispatch = useCallback(() => {
+    if (currentStage === prevCurrentStage) {
+      return false;
+    }
+
+    if (currentStage === currentStep) {
+      return false;
+    }
+
+    return true;
+  }, [currentStage, prevCurrentStage, currentStep]);
+
   useEffect(() => {
+    if (!needToDispatch()) {
+      return;
+    }
+
     dispatch(sessionActions.updateStage(currentStage));
-  }, [currentStage, dispatch]);
+  }, [currentStage, dispatch, needToDispatch]);
 
   return {
     progress,
