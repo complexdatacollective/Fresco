@@ -54,7 +54,7 @@ export const getLastActiveSession = createSelector(getSessions, (sessions) => {
 });
 
 export const getStageIndex = createSelector(getActiveSession, (session) => {
-  return session?.stageIndex ?? 0;
+  return session?.stageIndex ?? null;
 });
 
 export const getCurrentStage = createSelector(

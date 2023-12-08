@@ -13,6 +13,7 @@ import {
 import { getStageIndex } from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
 import { useQueryState } from 'next-usequerystate';
+import usePrevious from '~/hooks/usePrevious';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
@@ -20,6 +21,7 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
   const [init, setInit] = useState(false);
   // Current stage
   const currentStage = useSelector(getStageIndex);
+  const prevCurrentStage = usePrevious(currentStage);
   const { mutate: updateStage } = api.interview.sync.stageIndex.useMutation();
 
   useEffect(() => {
@@ -28,9 +30,15 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
       return;
     }
 
-    console.log(`⬆️ Syncing stage index (${currentStage}) to server...`);
-    updateStage({ interviewId, stageIndex: currentStage });
-  }, [currentStage, updateStage, interviewId, init]);
+    if (
+      prevCurrentStage !== null &&
+      currentStage !== null &&
+      currentStage !== prevCurrentStage
+    ) {
+      console.log(`⬆️ Syncing stage index (${currentStage}) to server...`);
+      updateStage({ interviewId, stageIndex: currentStage });
+    }
+  }, [currentStage, prevCurrentStage, updateStage, interviewId, init]);
 
   return null;
 };
@@ -53,6 +61,10 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
         }
 
         const { protocol, ...serverSession } = data;
+
+        console.log(
+          '✅ Received server session. Setting current stage, and initializing redux store...',
+        );
 
         if (!currentStage) {
           await setCurrentStage(serverSession.currentStep.toString());

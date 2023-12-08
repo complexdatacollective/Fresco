@@ -8,6 +8,7 @@ import { getSkipMap } from '../selectors/skip-logic';
 import { parseAsInteger, useQueryState } from 'next-usequerystate';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
+import usePrevious from '~/hooks/usePrevious';
 
 const useNavigationHelpers = (
   currentStage: number,
@@ -28,6 +29,11 @@ const useNavigationHelpers = (
     canMoveBackward,
     canMoveForward,
   } = useSelector(getNavigationInfo);
+
+  const prevStageIndex = usePrevious(stageIndex);
+  console.log('prevStageIndex', prevStageIndex);
+  const prevCurrentStage = usePrevious(currentStage);
+  console.log('prevCurrentStage', prevCurrentStage);
 
   const calculateNextStage = useCallback(() => {
     const nextStage = Object.keys(skipMap).find(
@@ -92,8 +98,16 @@ const useNavigationHelpers = (
   };
 
   useEffect(() => {
+    if (prevStageIndex === null) {
+      return;
+    }
+
+    if (currentStage === null) {
+      return;
+    }
+
     dispatch(sessionActions.updateStage(currentStage));
-  }, [currentStage, dispatch]);
+  }, [currentStage, dispatch, prevStageIndex, stageIndex]);
 
   // If currentStage is null, this is the first run. We need to set it based on
   // the sessions current stage index.
