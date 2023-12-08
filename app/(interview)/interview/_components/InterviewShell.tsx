@@ -10,19 +10,23 @@ import {
   SET_SERVER_SESSION,
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
-import { getStageIndex } from '~/lib/interviewer/selectors/session';
+import {
+  getActiveSession,
+  getStageIndex,
+} from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
 import { useQueryState } from 'next-usequerystate';
 import usePrevious from '~/hooks/usePrevious';
+import { isEqual } from 'lodash';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
 const ServerSync = ({ interviewId }: { interviewId: string }) => {
   const [init, setInit] = useState(false);
   // Current stage
-  const currentStage = useSelector(getStageIndex);
-  const prevCurrentStage = usePrevious(currentStage);
-  const { mutate: updateStage } = api.interview.sync.currentStep.useMutation();
+  const currentSession = useSelector(getActiveSession);
+  const prevCurrentSession = usePrevious(currentSession);
+  const { mutate: syncSessionWithServer } = api.interview.sync.useMutation();
 
   useEffect(() => {
     if (!init) {
@@ -31,14 +35,26 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
     }
 
     if (
-      prevCurrentStage !== null &&
-      currentStage !== null &&
-      currentStage !== prevCurrentStage
+      isEqual(currentSession, prevCurrentSession) ||
+      !currentSession ||
+      !prevCurrentSession
     ) {
-      console.log(`⬆️ Syncing stage index (${currentStage}) to server...`);
-      updateStage({ interviewId, currentStep: currentStage });
+      return;
     }
-  }, [currentStage, prevCurrentStage, updateStage, interviewId, init]);
+
+    console.log(`⬆️ Syncing session with server...`);
+    syncSessionWithServer({
+      id: interviewId,
+      network: currentSession.network,
+      currentStep: currentSession.currentStep,
+    });
+  }, [
+    currentSession,
+    prevCurrentSession,
+    interviewId,
+    syncSessionWithServer,
+    init,
+  ]);
 
   return null;
 };

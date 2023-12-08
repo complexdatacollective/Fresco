@@ -1,23 +1,10 @@
-import type { Stage, NcNetwork } from '@codaco/shared-consts';
+import type { Stage } from '@codaco/shared-consts';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolStages } from './protocol';
 import { createSelector } from '@reduxjs/toolkit';
-import type { RootState } from '../store';
+import type { RootState, Session } from '../store';
 
 export type SessionState = Record<string, unknown>;
-
-export type Session = {
-  protocolUid: string;
-  promptIndex: number;
-  currentStep: number;
-  caseId: string;
-  network: NcNetwork;
-  startedAt: Date;
-  updatedAt: Date;
-  finishedAt: Date;
-  exportedAt: Date;
-  stages?: SessionState;
-};
 
 export type SessionsState = Record<string, Session>;
 
@@ -40,8 +27,8 @@ export const getLastActiveSession = createSelector(getSessions, (sessions) => {
       const session = sessions[sessionId]!;
       if (
         !lastSessionId ||
-        (session.updatedAt &&
-          session.updatedAt > sessions[lastSessionId]!.updatedAt)
+        (session.lastUpdated &&
+          session.lastUpdated > sessions[lastSessionId]!.lastUpdated)
       ) {
         return sessionId;
       }
@@ -125,6 +112,8 @@ export const getSessionProgress = createSelector(
   getPromptIndex,
   getPromptCount,
   (currentStep, stageCount, promptIndex, promptCount) => {
+    if (currentStep === null) return 0;
+
     const stageProgress = currentStep / (stageCount - 1);
     const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
 

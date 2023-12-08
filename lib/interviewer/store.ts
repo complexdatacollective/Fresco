@@ -25,13 +25,14 @@ export const store = configureStore({
 });
 
 export type Session = {
+  id: string;
   protocolUid: string;
   promptIndex: number;
   currentStep: number;
   caseId: string;
   network: NcNetwork;
   startedAt: Date;
-  updatedAt: Date;
+  lastUpdated: Date;
   finishedAt: Date;
   exportedAt: Date;
 };

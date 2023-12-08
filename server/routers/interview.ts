@@ -8,61 +8,32 @@ import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { ensureError } from '~/utils/ensureError';
 
 export const interviewRouter = router({
-  sync: router({
-    currentStep: publicProcedure
-      .input(
-        z.object({
-          interviewId: z.string().cuid(),
-          currentStep: z.number(),
-        }),
-      )
-      .mutation(async ({ input: { interviewId, currentStep } }) => {
-        try {
-          const result = await prisma.interview.update({
-            where: {
-              id: interviewId,
-            },
-            data: {
-              currentStep: currentStep,
-              lastUpdated: new Date(),
-            },
-          });
-
-          console.log(result);
-
-          return { success: true, error: null };
-        } catch (error) {
-          return { success: false, error: 'Failed to update interview' };
-        }
+  sync: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        network: NcNetworkZod,
+        currentStep: z.number(),
       }),
-    network: publicProcedure
-      .input(
-        z.object({
-          interviewId: z.string().cuid(),
-          network: NcNetworkZod.or(z.null()),
-        }),
-      )
-      .mutation(async ({ input: { interviewId, network } }) => {
-        try {
-          const updatedInterview = await prisma.interview.update({
-            where: {
-              id: interviewId,
-            },
-            data: {
-              network,
-              lastUpdated: new Date(),
-            },
-          });
-
-          return { error: null, updatedInterview };
-        } catch (error) {
-          return {
-            error: 'Failed to update interview',
-            updatedInterview: null,
-          };
-        }
-      }),
-  }),
+    )
+    .mutation(async ({ input: { id, network, currentStep } }) => {
+      try {
+        await prisma.interview.update({
+          where: {
+            id,
+          },
+          data: {
+            network,
+            currentStep,
+            lastUpdated: new Date(),
+          },
+        });
+        return { success: true };
+      } catch (error) {
+        const message = ensureError(error).message;
+        return { success: false, error: message };
+      }
+    }),
   create: publicProcedure
     .input(participantIdentifierSchema)
     .mutation(async ({ input: identifier }) => {
