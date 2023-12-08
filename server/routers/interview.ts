@@ -9,7 +9,7 @@ import { ensureError } from '~/utils/ensureError';
 
 export const interviewRouter = router({
   sync: router({
-    updateStageIndex: publicProcedure
+    stageIndex: publicProcedure
       .input(
         z.object({
           interviewId: z.string().cuid(),
@@ -18,18 +18,48 @@ export const interviewRouter = router({
       )
       .mutation(async ({ input: { interviewId, stageIndex } }) => {
         try {
-          await prisma.interview.update({
+          const result = await prisma.interview.update({
             where: {
               id: interviewId,
             },
             data: {
               currentStep: stageIndex,
+              lastUpdated: new Date(),
             },
           });
+
+          console.log(result);
 
           return { success: true, error: null };
         } catch (error) {
           return { success: false, error: 'Failed to update interview' };
+        }
+      }),
+    network: publicProcedure
+      .input(
+        z.object({
+          interviewId: z.string().cuid(),
+          network: NcNetworkZod.or(z.null()),
+        }),
+      )
+      .mutation(async ({ input: { interviewId, network } }) => {
+        try {
+          const updatedInterview = await prisma.interview.update({
+            where: {
+              id: interviewId,
+            },
+            data: {
+              network,
+              lastUpdated: new Date(),
+            },
+          });
+
+          return { error: null, updatedInterview };
+        } catch (error) {
+          return {
+            error: 'Failed to update interview',
+            updatedInterview: null,
+          };
         }
       }),
   }),
@@ -80,29 +110,6 @@ export const interviewRouter = router({
           error: 'Failed to create interview',
           createdInterviewId: null,
         };
-      }
-    }),
-  updateNetwork: publicProcedure
-    .input(
-      z.object({
-        interviewId: z.string().cuid(),
-        network: NcNetworkZod.or(z.null()),
-      }),
-    )
-    .mutation(async ({ input: { interviewId, network } }) => {
-      try {
-        const updatedInterview = await prisma.interview.update({
-          where: {
-            id: interviewId,
-          },
-          data: {
-            network,
-          },
-        });
-
-        return { error: null, updatedInterview };
-      } catch (error) {
-        return { error: 'Failed to update interview', updatedInterview: null };
       }
     }),
   get: router({

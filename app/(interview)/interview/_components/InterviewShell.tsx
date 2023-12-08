@@ -6,14 +6,13 @@ import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
 import UserBanner from './UserBanner';
 import { useEffect, useState } from 'react';
-import type { Protocol } from '@codaco/shared-consts';
-import type { ServerSession } from '../[interviewId]/page';
 import {
   SET_SERVER_SESSION,
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { getStageIndex } from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
+import { useQueryState } from 'next-usequerystate';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
@@ -21,8 +20,7 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
   const [init, setInit] = useState(false);
   // Current stage
   const currentStage = useSelector(getStageIndex);
-  const { mutate: updateStage } =
-    api.interview.sync.updateStageIndex.useMutation();
+  const { mutate: updateStage } = api.interview.sync.stageIndex.useMutation();
 
   useEffect(() => {
     if (!init) {
@@ -40,35 +38,38 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
 // Eventually it will handle syncing this data back.
-const InterviewShell = ({
-  interviewID,
-  serverProtocol,
-  serverSession,
-}: {
-  interviewID: string;
-  serverProtocol: Protocol;
-  serverSession: ServerSession;
-}) => {
-  const [loading, setLoading] = useState(true);
-  const [init, setInit] = useState(false);
+const InterviewShell = ({ interviewID }: { interviewID: string }) => {
+  const [currentStage, setCurrentStage] = useQueryState('stage');
 
-  useEffect(() => {
-    if (init) {
-      return;
-    }
+  const { isLoading } = api.interview.get.byId.useQuery(
+    { id: interviewID },
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      onSuccess: async (data) => {
+        if (!data) {
+          return;
+        }
 
-    store.dispatch<SetServerSessionAction>({
-      type: SET_SERVER_SESSION,
-      payload: {
-        protocol: serverProtocol,
-        session: serverSession,
+        const { protocol, ...serverSession } = data;
+
+        if (!currentStage) {
+          await setCurrentStage(serverSession.currentStep.toString());
+        }
+
+        store.dispatch<SetServerSessionAction>({
+          type: SET_SERVER_SESSION,
+          payload: {
+            protocol,
+            session: serverSession,
+          },
+        });
       },
-    });
-    setLoading(false);
-    setInit(true);
-  }, [serverSession, serverProtocol, init]);
+    },
+  );
 
-  if (loading) {
+  if (isLoading) {
     return 'Second loading stage...';
   }
 

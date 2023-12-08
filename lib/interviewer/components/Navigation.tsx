@@ -97,11 +97,12 @@ const useNavigationHelpers = (
 
   // If currentStage is null, this is the first run. We need to set it based on
   // the sessions current stage index.
-  useEffect(() => {
-    if (currentStage === null) {
-      setCurrentStage(stageIndex);
-    }
-  }, [currentStage, setCurrentStage, stageIndex]);
+  // useEffect(() => {
+  //   if (currentStage === null) {
+  //     console.log('current stage is null, setting to', stageIndex);
+  //     setCurrentStage(stageIndex);
+  //   }
+  // }, [currentStage, setCurrentStage, stageIndex]);
 
   return {
     progress,
