@@ -10,7 +10,7 @@ $-palette-map: () !default;
   @if $use-mapped-value == true {
     @return map-get($-palette-map, $palette-name);
   } @else {
-    @return var(--#{$palette-name});
+    @return var(--nc-#{$palette-name});
   }
 }
 

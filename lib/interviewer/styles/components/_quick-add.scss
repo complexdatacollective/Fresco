@@ -37,7 +37,7 @@
     .tool-tip {
       height: units.unit(2);
       margin-bottom: units.unit(1);
-      text-shadow: 0 0 0.5rem var(--text-dark);
+      text-shadow: 0 0 0.5rem var(--nc-text-dark);
     }
 
     .label-input {
@@ -46,7 +46,7 @@
       border-radius: 5rem;
       border: 0;
       background: var(--nc-text);
-      color: var(--text-dark);
+      color: var(--nc-text-dark);
       font-size: 1.2rem;
       font-weight: bold;
       font-family: var(--body-font-family);

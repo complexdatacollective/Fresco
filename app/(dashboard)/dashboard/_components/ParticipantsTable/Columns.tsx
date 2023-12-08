@@ -43,9 +43,9 @@ export const ParticipantColumns =
       cell: ({ row }) => (
         <Link
           className="text-blue-500 underline hover:text-blue-300"
-          href={`/participant/${row.original.id}`}
+          href={`/interview/new?identifier=${row.original.id}`}
         >
-          Participant page
+          Participant link
         </Link>
       ),
       enableSorting: false,

@@ -5,8 +5,34 @@ import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
+import { ensureError } from '~/utils/ensureError';
 
 export const interviewRouter = router({
+  sync: router({
+    updateStageIndex: publicProcedure
+      .input(
+        z.object({
+          interviewId: z.string().cuid(),
+          stageIndex: z.number(),
+        }),
+      )
+      .mutation(async ({ input: { interviewId, stageIndex } }) => {
+        try {
+          await prisma.interview.update({
+            where: {
+              id: interviewId,
+            },
+            data: {
+              currentStep: stageIndex,
+            },
+          });
+
+          return { success: true, error: null };
+        } catch (error) {
+          return { success: false, error: 'Failed to update interview' };
+        }
+      }),
+  }),
   create: publicProcedure
     .input(participantIdentifierSchema)
     .mutation(async ({ input: identifier }) => {
@@ -20,7 +46,7 @@ export const interviewRouter = router({
           return {
             errorType: 'NO_ACTIVE_PROTOCOL',
             error: 'Failed to create interview: no active protocol',
-            createdInterview: null,
+            createdInterviewId: null,
           };
         }
 
@@ -42,12 +68,17 @@ export const interviewRouter = router({
           },
         });
 
-        return { error: null, createdInterview, errorType: null };
-      } catch (error) {
         return {
-          errorType: 'UNKNOWN',
+          error: null,
+          createdInterviewId: createdInterview.id,
+          errorType: null,
+        };
+      } catch (error) {
+        const e = ensureError(error);
+        return {
+          errorType: e.message,
           error: 'Failed to create interview',
-          createdInterview: null,
+          createdInterviewId: null,
         };
       }
     }),

@@ -20,6 +20,7 @@ const useNavigationHelpers = (
 
   const {
     progress,
+    stageIndex,
     isLastPrompt,
     isFirstPrompt,
     isLastStage,
@@ -94,6 +95,14 @@ const useNavigationHelpers = (
     dispatch(sessionActions.updateStage(currentStage));
   }, [currentStage, dispatch]);
 
+  // If currentStage is null, this is the first run. We need to set it based on
+  // the sessions current stage index.
+  useEffect(() => {
+    if (currentStage === null) {
+      setCurrentStage(stageIndex);
+    }
+  }, [currentStage, setCurrentStage, stageIndex]);
+
   return {
     progress,
     isReadyForNextStage,
@@ -139,7 +148,7 @@ const NavigationButton = ({
 const Navigation = () => {
   const [currentStage, setCurrentStage] = useQueryState(
     'stage',
-    parseAsInteger.withDefault(1),
+    parseAsInteger,
   );
 
   const {

@@ -40,7 +40,7 @@ export default async function Page({
   // Anonymous recruitment is enabled
 
   // Use the identifier from the URL, or generate a new one
-  const identifier = searchParams.identifier || faker.string.uuid();
+  const identifier = searchParams.identifier ?? faker.string.uuid();
 
   // Validate the identifier
   const isValid = participantIdentifierSchema.parse(identifier);
@@ -55,15 +55,13 @@ export default async function Page({
   }
 
   // Create the interview
-  const { error, createdInterview } =
+  const { createdInterviewId, error } =
     await api.interview.create.mutate(identifier);
 
-  if (error || !createdInterview) {
-    throw new Error(error || 'An error occurred while creating the interview');
+  if (error) {
+    throw new Error('An error occurred while creating the interview');
   }
 
-  // TODO: check if the identifier already exists.
-
   // Redirect to the interview/[id] route
-  redirect(`/interview/${createdInterview.id}`);
+  redirect(`/interview/${createdInterviewId}`);
 }

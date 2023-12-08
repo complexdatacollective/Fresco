@@ -31,6 +31,7 @@ export default async function Page({
     <div className="flex h-[100vh] max-h-[100vh] flex-col bg-[var(--nc-background)] text-[var(--nc-text)]">
       <NoSSRWrapper>
         <InterviewShell
+          interviewID={interviewId}
           serverProtocol={protocol}
           serverSession={serverSession}
         />
