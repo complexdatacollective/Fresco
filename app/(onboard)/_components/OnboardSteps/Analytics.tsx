@@ -1,7 +1,8 @@
 'use client';
 import { Button } from '~/components/ui/Button';
 import { useOnboardingContext } from '../OnboardingProvider';
-import AnalyticsSwitch from '~/components/AnalyticsSwitch';
+import AnalyticsSwitch from '~/components/AnalyticsSwitch/Switch';
+import { api } from '~/trpc/client';
 
 function Analytics() {
   // eslint-disable-next-line no-process-env
@@ -11,6 +12,12 @@ function Analytics() {
   const handleNextStep = () => {
     setCurrentStep(currentStep + 1).catch(() => {});
   };
+
+  const appSettings = api.appSettings.get.useQuery(undefined, {
+    onError(error) {
+      throw new Error(error.message);
+    },
+  });
 
   return (
     <div className="max-w-[30rem]">
@@ -30,7 +37,7 @@ function Analytics() {
         )}
       </div>
       <div>
-        <AnalyticsSwitch />
+        <AnalyticsSwitch allowAnalytics={!!appSettings?.data?.allowAnalytics} />
         <div className="flex justify-start">
           <Button onClick={handleNextStep}>Next</Button>
         </div>
