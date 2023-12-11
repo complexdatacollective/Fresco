@@ -6,7 +6,7 @@ export default function GlobalError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
+  error: Error & { digest?: string } & { cause?: { code?: number } };
   reset: () => void;
 }) {
   return <Error error={error} reset={reset} heading="Global Error" />;
