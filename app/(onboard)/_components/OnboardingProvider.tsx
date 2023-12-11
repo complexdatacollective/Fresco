@@ -15,6 +15,7 @@ export const useOnboardingContext = () => {
   if (!context) {
     throw new Error(
       'useOnboardingContext must be used within a OnboardingProvider',
+      { cause: { code: 400 } },
     );
   }
 

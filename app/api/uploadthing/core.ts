@@ -12,7 +12,11 @@ export const ourFileRouter = {
     .middleware(async () => {
       const session = await getServerSession();
       if (!session) {
-        throw new Error('You must be logged in to upload assets.');
+        throw new Error('You must be logged in to upload assets.', {
+          cause: {
+            code: 401,
+          },
+        });
       }
       return {};
     })

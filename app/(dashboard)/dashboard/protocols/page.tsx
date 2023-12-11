@@ -9,7 +9,7 @@ const ProtocolsPage = async () => {
   try {
     protocols = await api.protocol.get.all.query();
   } catch (error) {
-    throw new Error(error as string);
+    throw new Error(error as string, { cause: error });
   }
 
   return (

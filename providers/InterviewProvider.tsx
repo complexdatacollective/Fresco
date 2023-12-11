@@ -52,7 +52,7 @@ function InterviewProvider({
   const { network, networkHandlers } = useNetwork(initialNetwork);
   const { mutate: updateNetwork } = api.interview.updateNetwork.useMutation({
     onError: (error) => {
-      throw new Error(error.message);
+      throw new Error(error.message, { cause: error });
     },
   });
 

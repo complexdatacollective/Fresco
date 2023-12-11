@@ -29,7 +29,7 @@ export const DeleteInterviewsDialog = ({
   const { mutateAsync: deleteInterviews, isLoading: isDeleting } =
     api.interview.delete.useMutation({
       onError(error) {
-        throw new Error(error.message);
+        throw new Error(error.message, { cause: error });
       },
     });
   const utils = api.useUtils();

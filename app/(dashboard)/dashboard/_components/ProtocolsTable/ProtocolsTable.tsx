@@ -19,7 +19,7 @@ export const ProtocolsTable = ({
       initialData,
       refetchOnMount: false,
       onError(error) {
-        throw new Error(error.message);
+        throw new Error(error.message, { cause: error });
       },
     },
   );

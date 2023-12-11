@@ -8,7 +8,7 @@ export const resetAppSettings = async () => {
     await api.appSettings.reset.mutate();
     redirect('/');
   } catch (error) {
-    throw new Error(error as string);
+    throw new Error(error as string, { cause: error });
   }
 };
 
@@ -17,6 +17,6 @@ export const setAppConfigured = async () => {
     await api.appSettings.setConfigured.mutate();
     redirect('/dashboard');
   } catch (error) {
-    throw new Error(error as string);
+    throw new Error(error as string, { cause: error });
   }
 };

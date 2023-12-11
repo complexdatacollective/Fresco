@@ -18,7 +18,9 @@ export const useSession = () => {
   const session = useContext(SessionContext);
 
   if (!session) {
-    throw new Error('useSession must be used within a SessionProvider');
+    throw new Error('useSession must be used within a SessionProvider', {
+      cause: { code: 500 },
+    });
   }
   return session;
 };
@@ -50,7 +52,7 @@ export const SessionProvider = ({
         }
       },
       onError: (error) => {
-        throw new Error(error.message);
+        throw new Error(error.message, { cause: error });
       },
     });
 
@@ -65,7 +67,7 @@ export const SessionProvider = ({
         // router.replace('/');
       },
       onError: (error) => {
-        throw new Error(error.message);
+        throw new Error(error.message, { cause: error });
       },
     });
 
@@ -77,7 +79,7 @@ export const SessionProvider = ({
 
     getSession().catch((err: { message: string | undefined }) => {
       setSession(null);
-      throw new Error(err.message);
+      throw new Error(err.message, { cause: err });
     });
   }, [initialSession, getSession]);
 

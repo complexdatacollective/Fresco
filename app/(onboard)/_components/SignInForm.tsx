@@ -57,7 +57,7 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
     },
     onError: (error) => {
       setLoading(false);
-      throw new Error(error.message);
+      throw new Error(error.message, { cause: error });
     },
   });
 

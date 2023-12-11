@@ -25,7 +25,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     try {
       await api.appSettings.create.mutate();
     } catch (error) {
-      throw new Error(error as string);
+      throw new Error(error as string, { cause: error });
     }
 
     // setInstallationId in analytics provider on first run
@@ -34,7 +34,9 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     (async () => {
       const appSettings = await api.appSettings.get.query();
       if (!appSettings?.installationId) {
-        throw new Error('Installation ID is not defined');
+        throw new Error('Installation ID is not defined', {
+          cause: { code: 400 },
+        });
       }
       analytics.setInstallationId(appSettings.installationId);
     })();

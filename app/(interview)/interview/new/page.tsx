@@ -33,7 +33,7 @@ export default async function Page({
   try {
     appSettings = await api.appSettings.get.query();
   } catch (error) {
-    throw new Error(error as string);
+    throw new Error(error as string, { cause: error });
   }
 
   if (!appSettings || !appSettings.allowAnonymousRecruitment) {
@@ -68,7 +68,9 @@ export default async function Page({
     await api.interview.create.mutate(identifier);
 
   if (error || !createdInterview) {
-    throw new Error(error || 'An error occurred while creating the interview');
+    throw new Error(error || 'An error occurred while creating the interview', {
+      cause: error,
+    });
   }
 
   // Redirect to the interview/[id] route

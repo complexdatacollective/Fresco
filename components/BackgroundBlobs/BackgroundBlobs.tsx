@@ -184,7 +184,7 @@ class NCBlob {
 
     // Initialize the interpolation function
     if (typeof this.shape !== 'string' || typeof this.shape2 !== 'string') {
-      throw new Error('Shape is not a string');
+      throw new Error('Shape is not a string', { cause: { code: 400 } });
     }
 
     this.interpolator = interpolate(this.shape, this.shape2);

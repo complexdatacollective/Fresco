@@ -36,7 +36,7 @@ const ImportCSVModal = ({
   const { mutateAsync: importParticipants } =
     api.participant.create.useMutation({
       onError(error) {
-        throw new Error(error.message);
+        throw new Error(error.message, { cause: error });
       },
     });
   const isSubmitting = methods.formState.isSubmitting;
