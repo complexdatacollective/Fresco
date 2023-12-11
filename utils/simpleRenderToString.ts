@@ -1,16 +1,17 @@
 import type { ReactElement } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
 export function simpleRenderToString(element: ReactElement) {
   const container = document.createElement('div');
   const root = createRoot(container);
-  root.render(element);
 
-  return container.innerHTML;
+  flushSync(() => root.render(element));
+  const inner = container.innerHTML;
 
-  // return new Promise<string>((resolve) => {
-  //   setTimeout(() => {
-  //     resolve(container.innerHTML);
-  //   }, 0);
-  // });
+  // Cleanup
+  root.unmount();
+  container.remove();
+
+  return inner;
 }

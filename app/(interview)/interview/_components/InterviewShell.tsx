@@ -42,6 +42,12 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
       return;
     }
 
+    // check if current stage index is null (happens when hot reloading)
+    if (currentSession.currentStep === null) {
+      console.log('⚠️ Current stage index is null. Skipping sync.');
+      return;
+    }
+
     console.log(`⬆️ Syncing session with server...`);
     syncSessionWithServer({
       id: interviewId,
