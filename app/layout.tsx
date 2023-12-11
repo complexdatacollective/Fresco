@@ -37,9 +37,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
         throw new Error('Installation ID is not defined');
       }
       analytics.setInstallationId(appSettings.installationId);
-    })().then(() => {
-      analytics.enable();
-    });
+    })();
     revalidateTag('appSettings.get');
     revalidatePath('/');
   }
