@@ -2,7 +2,7 @@ $module-name: form-field-rich-text;
 
 .rich-text {
   --blockquote-border-color: var(--transparent-light);
-  background: var(--input-background);
+  background: var(--nc-input-background);
   border-radius: 1rem 1rem 0 0;
   overflow: hidden;
 
@@ -23,18 +23,18 @@ $module-name: form-field-rich-text;
   }
 
   &__editable {
-
     &:not(.rich-text__editable--inline) {
-      resize:vertical;
+      resize: vertical;
       overflow: auto;
     }
     cursor: text;
-    color: var(--input-text);
+    color: var(--nc-input-text);
     padding: 0 unit(2);
-    border-bottom-width: unit(.25);
+    border-bottom-width: unit(0.25);
     border-bottom-style: solid;
     border-bottom-color: transparent;
-    transition: border-bottom-color var(--animation-easing) var(--animation-duration-standard);
+    transition: border-bottom-color var(--animation-easing)
+      var(--animation-duration-standard);
 
     li {
       p {
@@ -51,7 +51,9 @@ $module-name: form-field-rich-text;
     border: 0;
     outline: none;
     background-color: transparent;
-    transition: filter var(--animation-easing) var(--animation-duration-fast), background-color var(--animation-easing) var(--animation-duration-fast);
+    transition:
+      filter var(--animation-easing) var(--animation-duration-fast),
+      background-color var(--animation-easing) var(--animation-duration-fast);
     cursor: pointer;
     height: unit(4);
     width: unit(4);
@@ -79,7 +81,7 @@ $module-name: form-field-rich-text;
 
   &:hover {
     .rich-text__editable {
-      border-bottom: 2px solid var(--input-accent);
+      border-bottom: 2px solid var(--nc-input-accent);
     }
   }
 }
@@ -99,8 +101,9 @@ $module-name: form-field-rich-text;
     opacity: 0;
     background: var(--error);
     color: var(--form-error-text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;

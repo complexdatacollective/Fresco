@@ -5,8 +5,9 @@
     opacity: 0;
     background: var(--error);
     color: var(--nc-text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;
@@ -25,7 +26,6 @@
       margin-bottom: 0;
       border: 0.125rem solid var(--error);
     }
-
   }
 }
 
@@ -38,9 +38,9 @@
   &__reset {
     cursor: pointer;
     display: block;
-    font-size: .9rem;
+    font-size: 0.9rem;
     margin-top: 1rem;
-    color: var(--input-text);
+    color: var(--nc-input-text);
     text-decoration: underline;
   }
 }
@@ -59,8 +59,8 @@
   align-items: center;
   margin-right: unit(0.5);
   margin-left: 0;
-  background: var(--input-background);
-  color: var(--input-label);
+  background: var(--nc-input-background);
+  color: var(--nc-input-label);
 
   &--collapsed {
     border-width: $global-input-border-size * 2;
@@ -81,7 +81,7 @@
   }
 
   &--selected {
-    border-color: var(--input-accent);
+    border-color: var(--nc-input-accent);
 
     &.boolean-option--negative {
       border-color: var(--error);
@@ -98,7 +98,7 @@
   width: $global-input-element-size;
   height: $global-input-element-size;
   border-radius: 100%;
-  border-color: var(--input-border);
+  border-color: var(--nc-input-border);
   border-width: $global-input-border-size;
   border-style: solid;
   transition-property: border-color, background-color;
@@ -116,7 +116,7 @@
   }
 
   &--checked {
-    background-color: var(--input-accent);
+    background-color: var(--nc-input-accent);
     border-color: transparent;
 
     &.round-checkbox--negative {

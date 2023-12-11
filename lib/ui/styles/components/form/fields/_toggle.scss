@@ -20,8 +20,9 @@ $component-name: form-field-toggle;
 
   &__button {
     position: absolute;
-    background-color: var(--input-background);
-    transition: background var(--animation-duration-fast) var(--animation-easing);
+    background-color: var(--nc-input-background);
+    transition: background var(--animation-duration-fast)
+      var(--animation-easing);
     border-radius: $global-input-element-size;
     top: 0;
     left: 0;
@@ -34,14 +35,16 @@ $component-name: form-field-toggle;
       border-radius: 50%;
       height: $global-input-element-size;
       width: $global-input-element-size;
-      background-color: var(--input-border);
-      transition: transform var(--animation-duration-fast) var(--animation-easing);
+      background-color: var(--nc-input-border);
+      transition: transform var(--animation-duration-fast)
+        var(--animation-easing);
     }
   }
 
-  &__input:checked + &__toggle { // sass-lint:disable-line force-pseudo-nesting
+  &__input:checked + &__toggle {
+    // sass-lint:disable-line force-pseudo-nesting
     .form-field-toggle__button {
-      background-color: var(--input-radio--fill);
+      background-color: var(--nc-input-radio--fill);
 
       &::before {
         transform: translateX($global-input-element-size);
@@ -53,8 +56,9 @@ $component-name: form-field-toggle;
     opacity: 0;
     background: var(--error);
     color: var(--nc-text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;
@@ -73,7 +77,6 @@ $component-name: form-field-toggle;
       border: 0.125rem solid var(--error);
       margin-bottom: 0;
     }
-
   }
 
   &--disabled {

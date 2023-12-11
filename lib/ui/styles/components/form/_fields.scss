@@ -8,7 +8,7 @@ $global-input-border-space: 0.25rem;
     font-weight: 200;
     display: block;
     margin: 0;
-    color: var(--input-label);
+    color: var(--nc-input-label);
   }
 }
 
@@ -47,8 +47,8 @@ $global-input-border-space: 0.25rem;
 }
 
 .form-field {
-  background: var(--input-background);
-  color: var(--input-text);
+  background: var(--nc-input-background);
+  color: var(--nc-input-text);
   border-radius: 1rem 1rem 0 0;
   margin-bottom: 2rem;
   padding: 1rem unit(2);

@@ -387,11 +387,11 @@ $-icon-color-modifiers: (
 
   &[name='highlighted'] {
     .cls-4 {
-      fill: var(--node-color-seq-1);
+      fill: var(--nc-node-color-seq-1);
     }
 
     .cls-5 {
-      fill: var(--node-color-seq-1--dark);
+      fill: var(--nc-node-color-seq-1--dark);
     }
 
     .cls-7 {
@@ -401,7 +401,7 @@ $-icon-color-modifiers: (
     @each $ordinal-color in $ordinal-colors {
       $i: index($ordinal-colors, $ordinal-color);
 
-      &.icon--node-highlight-seq-#{$i} {
+      &.icon--nc-node-highlight-seq-#{$i} {
         @include color-icon($ordinal-color);
       }
     }
@@ -421,7 +421,7 @@ $-icon-color-modifiers: (
     @each $categorical-color in $categorical-colors {
       $i: index($categorical-colors, $categorical-color);
 
-      &.icon--cat-color-seq-#{$i} {
+      &.icon--nc-cat-color-seq-#{$i} {
         @include color-icon($categorical-color);
       }
     }

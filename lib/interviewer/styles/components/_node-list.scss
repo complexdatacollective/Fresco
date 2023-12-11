@@ -13,7 +13,7 @@ $node-inset: 1rem;  // approximate scaled margin + 'outer-trim' of a node
 
   &--hover,
   &--drag {
-    background-color: var(--node-list-action-bg);
+    background-color: var(--nc-node-list-action-bg);
   }
 
   &--transition {

@@ -5,8 +5,8 @@ $lighten: rgba(255, 255, 255, 0.05);
 $darken: rgba(0, 0, 0, 0.2);
 
 .form-field-date-picker {
-  --datepicker-panel-bg: var(--input-panel-bg);
-  color: var(--input-text);
+  --datepicker-panel-bg: var(--nc-input-panel-bg);
+  color: var(--nc-input-text);
   &__error {
     opacity: 0;
     transition: opacity var(--animation-easing) var(--animation-duration-fast);
@@ -37,14 +37,14 @@ $darken: rgba(0, 0, 0, 0.2);
 
 .#{$module-name} {
   --active-color: var(--color-sea-green);
-  --background: var(--input-background);
+  --background: var(--nc-input-background);
   --lighten: $lighten;
   --darken: $darken;
   max-width: 100%;
   position: relative;
 
   &__placeholder {
-    color: var(--input-placeholder);
+    color: var(--nc-input-placeholder);
     font-style: italic;
   }
 
@@ -57,7 +57,8 @@ $darken: rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     border-bottom: 2px solid transparent;
-    transition: border-bottom-color var(--animation-easing) var(--animation-duration-fast);
+    transition: border-bottom-color var(--animation-easing)
+      var(--animation-duration-fast);
 
     &-divider {
       color: var(--active-color);
@@ -72,11 +73,11 @@ $darken: rgba(0, 0, 0, 0.2);
     }
 
     &-part {
-      color: var(--input-placeholder);
+      color: var(--nc-input-placeholder);
       font-style: italic;
 
       &--is-set {
-        color: var(--input-text);
+        color: var(--nc-input-text);
         font-style: normal;
       }
     }
@@ -95,7 +96,7 @@ $darken: rgba(0, 0, 0, 0.2);
     }
 
     &--is-empty {
-      color: var(--input-placeholder);
+      color: var(--nc-input-placeholder);
       cursor: pointer;
       font-style: italic;
     }

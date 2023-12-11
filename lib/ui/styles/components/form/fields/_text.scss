@@ -10,17 +10,18 @@ $module-name: form-field-text;
     font-family: var(--body-font-family);
     font-size: inherit;
     font-weight: inherit;
-    background-color: var(--input-background);
+    background-color: var(--nc-input-background);
     width: 100%;
-    color: var(--input-text);
+    color: var(--nc-input-text);
     border: 0;
     border-bottom-width: unit(0.25);
     border-bottom-style: solid;
     border-bottom-color: transparent;
-    transition: border-bottom-color var(--animation-easing) var(--animation-duration-standard);
+    transition: border-bottom-color var(--animation-easing)
+      var(--animation-duration-standard);
 
     &::placeholder {
-      color: var(--input-placeholder);
+      color: var(--nc-input-placeholder);
       font-style: italic;
     }
   }
@@ -49,7 +50,7 @@ $module-name: form-field-text;
   &--has-focus,
   &:hover {
     .#{$module-name}__input {
-      border-bottom-color: var(--input-accent);
+      border-bottom-color: var(--nc-input-accent);
     }
 
     .#{$module-name}__icon--edit {
@@ -61,8 +62,9 @@ $module-name: form-field-text;
     opacity: 0;
     background: var(--error);
     color: var(--form-error-text);
-    transition: opacity var(--animation-easing) var(--animation-duration-standard),
-    max-height var(--animation-easing) var(--animation-duration-standard);
+    transition:
+      opacity var(--animation-easing) var(--animation-duration-standard),
+      max-height var(--animation-easing) var(--animation-duration-standard);
     padding: 0.5rem 0.25rem;
     display: flex;
     align-items: center;

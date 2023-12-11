@@ -18,8 +18,8 @@
 @for $i from 1 through 10 {
   .convex-hull__cat-color-seq-#{$i} {
     polygon {
-      stroke: var(--cat-color-seq-#{$i});
-      fill: var(--cat-color-seq-#{$i});
+      stroke: var(--nc-cat-color-seq-#{$i});
+      fill: var(--nc-cat-color-seq-#{$i});
     }
   }
 }

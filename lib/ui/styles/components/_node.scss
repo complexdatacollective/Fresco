@@ -61,7 +61,7 @@
     width: 100%;
     height: 100%;
     padding: 15%;
-    color: var(--node-label);
+    color: var(--nc-node-label);
 
     &-text {
       left: 0;
@@ -115,7 +115,7 @@
     }
 
     .node__node-outer-trim {
-      fill: var(--node-outer-trim-stroke);
+      fill: var(--nc-node-outer-trim-stroke);
       transform-origin: 250px 250px;
       animation: bounce var(--animation-duration-standard) ease-in-out;
     }
@@ -124,7 +124,7 @@
   @each $ordinal-color in $ordinal-colors {
     $i: index($ordinal-colors, $ordinal-color);
 
-    &--node-highlight-seq-#{$i} {
+    &--nc-node-highlight-seq-#{$i} {
       .node__node-trim {
         stroke: color($ordinal-color);
       }
@@ -137,7 +137,7 @@
     }
 
     .node__node-outer-trim {
-      fill: var(--node-outer-trim-stroke);
+      fill: var(--nc-node-outer-trim-stroke);
       transform-origin: 250px 250px;
       animation: linking var(--animation-duration-slow) ease-in-out infinite;
     }

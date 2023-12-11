@@ -29,10 +29,11 @@
       width: 100%;
       height: 100%;
       border-radius: 100%;
-      border-color: var(--input-border);
+      border-color: var(--nc-input-border);
       border-width: $global-input-border-size;
       border-style: solid;
-      transition: border-color var(--animation-easing) var(--animation-duration-standard);
+      transition: border-color var(--animation-easing)
+        var(--animation-duration-standard);
     }
 
     &::after {
@@ -40,26 +41,32 @@
       top: $global-input-border-size + $global-input-border-space;
       left: $global-input-border-size + $global-input-border-space;
       content: '';
-      width: calc(100% - #{($global-input-border-size + $global-input-border-space) * 2});
-      height: calc(100% - #{($global-input-border-size + $global-input-border-space) * 2});
+      width: calc(
+        100% - #{($global-input-border-size + $global-input-border-space) * 2}
+      );
+      height: calc(
+        100% - #{($global-input-border-size + $global-input-border-space) * 2}
+      );
       border-radius: 100%;
-      background-color: var(--input-accent);
+      background-color: var(--nc-input-accent);
       opacity: 0;
-      transition: opacity var(--animation-easing) var(--animation-duration-standard);
+      transition: opacity var(--animation-easing)
+        var(--animation-duration-standard);
     }
   }
 
   &:hover {
     .form-field-radio__radio {
       &::before {
-        border-color: var(--input-border);
+        border-color: var(--nc-input-border);
       }
     }
   }
 
-  &__input:checked + &__radio { // sass-lint:disable-line force-pseudo-nesting
+  &__input:checked + &__radio {
+    // sass-lint:disable-line force-pseudo-nesting
     &::before {
-      border-color: var(--input-accent);
+      border-color: var(--nc-input-accent);
     }
 
     &::after {
@@ -73,7 +80,7 @@
 
     .form-field-radio__radio {
       &::before {
-        border-color: var(--input-disabled);
+        border-color: var(--nc-input-disabled);
       }
 
       &::after {
@@ -84,7 +91,7 @@
     &:hover {
       .form-field-radio__radio {
         &::before {
-          border-color: var(--input-disabled);
+          border-color: var(--nc-input-disabled);
         }
 
         &::after {

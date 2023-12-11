@@ -443,7 +443,7 @@
       background-color: transparent;
       border-radius: 50%;
       padding: 2px;
-      border: 3px solid var(--cat-color-seq-1);
+      border: 3px solid var(--nc-cat-color-seq-1);
 
       display: flex;
       justify-content: center;
@@ -451,8 +451,8 @@
       transition: all var(--animation-duration-standard) var(--animation-easing); //sass-lint:disable-line no-transition-all
 
       @for $i from 1 through 5 {
-        &--cat-color-seq-#{$i} {
-          border: 3px solid var(--cat-color-seq-#{$i});
+        &--nc-cat-color-seq-#{$i} {
+          border: 3px solid var(--nc-cat-color-seq-#{$i});
         }
       }
 
@@ -481,13 +481,13 @@
       &::after {
         transition: all var(--animation-duration-standard) var(--animation-easing); //sass-lint:disable-line no-transition-all
         opacity: 1;
-        background-color: var(--cat-color-seq-1);
+        background-color: var(--nc-cat-color-seq-1);
       }
 
       @for $i from 1 through 5 {
-        &--cat-color-seq-#{$i} {
+        &--nc-cat-color-seq-#{$i} {
           &::after {
-            background-color: var(--cat-color-seq-#{$i});
+            background-color: var(--nc-cat-color-seq-#{$i});
           }
         }
       }

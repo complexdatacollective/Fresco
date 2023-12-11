@@ -24,9 +24,10 @@
       content: '';
       border-radius: $size;
       background-color: var(--color-rich-black);
-      transition: background var(--animation-duration-fast) var(--animation-easing);
+      transition: background var(--animation-duration-fast)
+        var(--animation-easing);
       width: $size * 2;
-      height: $size * .67;
+      height: $size * 0.67;
     }
 
     &::after {
@@ -37,7 +38,8 @@
       width: $size;
       background-color: var(--color-white);
       transform: translateX(-1px);
-      transition: transform var(--animation-duration-fast) var(--animation-easing);
+      transition: transform var(--animation-duration-fast)
+        var(--animation-easing);
     }
   }
 
@@ -47,7 +49,7 @@
 
     &:checked + .switch__button {
       &::before {
-        background-color: var(--input-radio--fill);
+        background-color: var(--nc-input-radio--fill);
       }
 
       &::after {
