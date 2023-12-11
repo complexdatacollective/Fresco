@@ -1,233 +1,91 @@
 'use client';
+
 import { useDropzone } from 'react-dropzone';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import type { FileWithPath } from 'react-dropzone';
-import { generateReactHelpers } from '@uploadthing/react/hooks';
-import { useState, useCallback } from 'react';
-import { importProtocol } from '../_actions/importProtocol';
 import { Button } from '~/components/ui/Button';
+import { useProtocolImport } from '~/hooks/useProtocolImport';
+import { FileUp } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import JobCard from '~/components/ProtocolImport/JobCard';
+import { useCallback } from 'react';
 
-const { useUploadThing } = generateReactHelpers();
+export default function ProtocolUploader() {
+  const { importProtocols, jobs, cancelJob, cancelAllJobs } =
+    useProtocolImport();
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
-import type { UploadFileResponse } from 'uploadthing/client';
-import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
-import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
-import { api } from '~/trpc/client';
-import { analytics } from '~/lib/analytics';
-
-export default function ProtocolUploader({
-  onUploaded,
-}: {
-  onUploaded?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [showErrorDetails, setShowErrorDetails] = useState(false);
-  const [dialogContent, setDialogContent] = useState({
-    title: 'Protocol import',
-    description: 'dfdsfds',
-    progress: true,
-    error: 'dsfsdf',
-  });
-
-  const utils = api.useUtils();
-
-  const handleUploadComplete = async (
-    res: UploadFileResponse[] | undefined,
-  ) => {
-    if (!res) return;
-
-    setOpen(true);
-    const firstFile = res[0];
-    if (!firstFile) return;
-
-    setDialogContent({
-      title: 'Protocol import',
-      description: 'Importing protocol...',
-      progress: true,
-      error: '',
-    });
-    const { error, success } = await importProtocol(firstFile);
-
-    if (error || !success) {
-      setDialogContent({
-        title: 'Protocol import',
-        description: 'Error importing protocol',
-        progress: false,
-        error: error ?? 'Unkown error occured',
-      });
-      return;
-    }
-
-    await utils.protocol.get.lastUploaded.refetch();
-
-    analytics.trackEvent({
-      type: 'ProtocolInstalled',
-      metadata: {
-        success: true,
-      },
-    });
-
-    setDialogContent({
-      title: 'Protocol import',
-      description: 'Protocol successfully imported!',
-      progress: false,
-      error: '',
-    });
-  };
-
-  const { startUpload } = useUploadThing('protocolUploader', {
-    onClientUploadComplete: (res) => void handleUploadComplete(res),
-    onUploadError: (error) => {
-      setOpen(true);
-      setDialogContent({
-        title: 'Protocol import',
-        description: 'Error uploading protocol',
-        progress: false,
-        error: error.message,
-      });
-    },
-    onUploadBegin: () => {
-      setOpen(true);
-      setDialogContent({
-        title: 'Protocol import',
-        description: 'Uploading protocol...',
-        progress: true,
-        error: '',
-      });
+  const { getRootProps, getInputProps, open } = useDropzone({
+    // Disable automatic opening of file dialog - we do it manually to allow for
+    // job cards to be clicked
+    noClick: true,
+    onDropAccepted: importProtocols,
+    accept: {
+      'application/octect-stream': ['.netcanvas'],
+      'application/zip': ['.netcanvas'],
     },
   });
 
-  const onDrop = useCallback(
-    (files: FileWithPath[]) => {
-      if (files && files[0]) {
-        // This a temporary workaround for upload thing. Upload thing will not generate S3 signed urls for
-        //Unknown files so we append the .zip extension to .netcanvas files so they can be uploaded to S3
-        const file = new File([files[0]], `${files[0].name}.zip`, {
-          type: 'application/zip',
-        });
-
-        startUpload([file]).catch((e: Error) => {
-          // eslint-disable-next-line no-console
-          console.log(e);
-          setOpen(true);
-          setDialogContent({
-            title: 'Protocol import',
-            description: 'Error uploading protocol',
-            progress: false,
-            error: e.message,
-          });
-        });
-      }
-    },
-    [startUpload],
-  );
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: { 'application/octect-stream': ['.netcanvas'] },
-  });
-
-  function handleFinishImport() {
-    onUploaded?.();
-    setOpen(false);
-  }
-
-  const { data: lastUploadedProtocol } = api.protocol.get.lastUploaded.useQuery(
-    undefined,
-    {
-      onError(error) {
-        throw new Error(error.message);
-      },
-    },
+  const handleCancelJob = useCallback(
+    (jobId: string) => () => cancelJob(jobId),
+    [cancelJob],
   );
 
   return (
     <>
-      <div
-        {...getRootProps()}
-        className="mt-2 rounded-xl border-2 border-dashed border-gray-500 bg-gray-200 p-12 text-center"
+      <motion.div
+        layout
+        className="text-md inline-block max-w-sm overflow-hidden rounded-xl border-2 border-dashed border-gray-500 p-6 leading-tight"
       >
-        <Button variant="default" size="sm">
-          <input {...getInputProps()} />
-          Import protocol
-        </Button>
-        <div>Click to select .netcanvas file or drag and drop here</div>
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{dialogContent.title}</DialogTitle>
-            <DialogDescription>{dialogContent.description}</DialogDescription>
-          </DialogHeader>
-          {dialogContent.progress && (
-            <div className="w-full">
-              <div className="h-1.5 w-full overflow-hidden bg-pink-100">
-                <div className="h-full w-full origin-left-right animate-indeterminate-progress-bar bg-violet-800"></div>
-              </div>
-            </div>
-          )}
-          {dialogContent.error && (
-            <Collapsible open={showErrorDetails}>
-              <Button
-                variant={'outline'}
-                onClick={() => setShowErrorDetails(!showErrorDetails)}
-              >
-                {showErrorDetails ? (
-                  <>
-                    Hide details <ChevronUp />
-                  </>
-                ) : (
-                  <>
-                    Show details <ChevronDown />
-                  </>
+        <div {...getRootProps()}>
+          <motion.div
+            className="text flex flex-col items-center gap-2 text-center"
+            layout
+          >
+            <Button variant="default" onClick={open}>
+              <FileUp className="mr-2 inline-block h-4 w-4" />
+              <input {...getInputProps()} />
+              Import protocol
+            </Button>
+            <p className="text-sm leading-tight">
+              Click to select <code>.netcanvas</code> files or drag and drop
+              here.
+            </p>
+          </motion.div>
+          {jobs && jobs.length > 0 && (
+            <motion.ul className="relative mt-4 flex flex-col gap-2" layout>
+              <AnimatePresence mode="popLayout">
+                {jobs.map((job, index) => (
+                  <motion.li
+                    className="flex"
+                    layout
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{
+                      scale: 1,
+                      opacity: 1,
+                      transition: { delay: index * 0.075 },
+                    }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: 'spring', damping: 15 }}
+                    key={job.id}
+                  >
+                    <JobCard job={job} onCancel={handleCancelJob(job.id)} />
+                  </motion.li>
+                ))}
+                {jobs.length > 1 && (
+                  <motion.div className="flex justify-end" layout>
+                    <Button
+                      variant="link"
+                      size="xs"
+                      className="text-red-500"
+                      onClick={cancelAllJobs}
+                    >
+                      Cancel all
+                    </Button>
+                  </motion.div>
                 )}
-              </Button>
-              <CollapsibleContent className="flex flex-grow">
-                <code className="mt-4 flex-grow rounded-md bg-black p-4 text-white">
-                  {dialogContent.error}
-                </code>
-              </CollapsibleContent>
-            </Collapsible>
+              </AnimatePresence>
+            </motion.ul>
           )}
-          {!dialogContent.progress &&
-            !dialogContent.error &&
-            lastUploadedProtocol && (
-              <div className="w-full space-y-6">
-                <div>
-                  <div className="space-y-4">
-                    <div className="flex flex-row items-center rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <label>Mark protocol as active?</label>
-                        <p className="text-xs">
-                          Only one protocol may be active at a time. If you
-                          already have an active protocol, activating this one
-                          will make it inactive.
-                        </p>
-                      </div>
-                      <div>
-                        <ActiveProtocolSwitch
-                          initialData={lastUploadedProtocol.active}
-                          hash={lastUploadedProtocol.hash}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <Button type="submit" onClick={handleFinishImport}>
-                  Finish Import
-                </Button>
-              </div>
-            )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      </motion.div>
     </>
   );
 }

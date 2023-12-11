@@ -1,16 +1,15 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client';
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
-
 import { Checkbox } from '~/components/ui/checkbox';
-
+import ActiveButton from './ActiveButton';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-
-import ActiveProtocolSwitch from '~/app/(dashboard)/dashboard/_components/ActiveProtocolSwitch';
-
 import type { ProtocolWithInterviews } from '~/shared/types';
+import { dateOptions } from '~/components/DataTable/helpers';
 
-export const ProtocolColumns = (): ColumnDef<ProtocolWithInterviews>[] => [
+export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -31,34 +30,30 @@ export const ProtocolColumns = (): ColumnDef<ProtocolWithInterviews>[] => [
     enableHiding: false,
   },
   {
+    id: 'active',
+    enableSorting: true,
+    accessorFn: (row) => row.active,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Active" />
+    ),
+    cell: ({ row }) => (
+      <ActiveButton active={row.original.active} protocolId={row.original.id} />
+    ),
+  },
+  {
     accessorKey: 'name',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Name" />;
     },
     cell: ({ row }) => {
-      return (
-        <div className={row.original.active ? '' : 'text-muted-foreground'}>
-          {flexRender(row.original.name, row)}
-        </div>
-      );
+      return flexRender(row.original.name, row);
     },
   },
   {
     accessorKey: 'description',
     header: 'Description',
     cell: ({ row }) => {
-      return (
-        <div
-          className={
-            row.original.active
-              ? 'min-w-[200px]'
-              : 'min-w-[200px] text-muted-foreground'
-          }
-          key={row.original.description}
-        >
-          {flexRender(row.original.description, row)}
-        </div>
-      );
+      return flexRender(row.original.description, row);
     },
   },
   {
@@ -66,9 +61,19 @@ export const ProtocolColumns = (): ColumnDef<ProtocolWithInterviews>[] => [
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Imported" />;
     },
-    cell: ({ row }) => (
-      <div className={row.original.active ? '' : 'text-muted-foreground'}>
-        {new Date(row.original.importedAt).toLocaleString()}
+    cell: ({
+      row,
+      table: {
+        options: { meta },
+      },
+    }) => (
+      <div className="text-xs">
+        {
+          // @ts-ignore
+          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
+            new Date(row.original.importedAt),
+          )
+        }
       </div>
     ),
   },
@@ -77,31 +82,20 @@ export const ProtocolColumns = (): ColumnDef<ProtocolWithInterviews>[] => [
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Modified" />;
     },
-    cell: ({ row }) => (
-      <div className={row.original.active ? '' : 'text-muted-foreground'}>
-        {new Date(row.original.lastModified).toLocaleString()}
+    cell: ({
+      row,
+      table: {
+        options: { meta },
+      },
+    }) => (
+      <div className="text-xs">
+        {
+          // @ts-ignore
+          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
+            new Date(row.original.lastModified),
+          )
+        }
       </div>
     ),
-  },
-  {
-    accessorKey: 'schemaVersion',
-    header: 'Schema Version',
-    cell: ({ row }) => (
-      <div className={row.original.active ? '' : 'text-muted-foreground'}>
-        {row.original.schemaVersion}
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'active',
-    header: 'Active',
-    cell: ({ row }) => {
-      return (
-        <ActiveProtocolSwitch
-          initialData={row.original.active}
-          hash={row.original.hash}
-        />
-      );
-    },
   },
 ];

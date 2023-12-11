@@ -7,14 +7,13 @@ import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import ImportProtocolModal from '~/app/(dashboard)/dashboard/protocols/_components/ImportProtocolModal';
 
 export const ProtocolsTable = ({
   initialData,
 }: {
   initialData: ProtocolWithInterviews[];
 }) => {
-  const { isLoading, data: protocols } = api.protocol.get.all.useQuery(
+  const { data: protocols, isLoading } = api.protocol.get.all.useQuery(
     undefined,
     {
       initialData,
@@ -29,27 +28,25 @@ export const ProtocolsTable = ({
   const [protocolsToDelete, setProtocolsToDelete] =
     useState<ProtocolWithInterviews[]>();
 
-  const utils = api.useUtils();
-
   const handleDelete = (data: ProtocolWithInterviews[]) => {
     setProtocolsToDelete(data);
     setShowAlertDialog(true);
   };
 
-  const handleUploaded = () => {
-    void utils.protocol.get.all.refetch();
-  };
-
   return (
     <>
       {isLoading && <div>Loading...</div>}
-      <ImportProtocolModal onProtocolUploaded={handleUploaded} />
-      <DataTable
-        columns={ProtocolColumns()}
+      <DataTable<ProtocolWithInterviews, string>
+        columns={ProtocolColumns}
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
+        calculateRowClasses={(row) =>
+          row.original.active
+            ? 'bg-purple-500/30 hover:bg-purple-500/40'
+            : undefined
+        }
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}

@@ -17,13 +17,7 @@ export default async function Page({
     identifier?: string;
   };
 }) {
-  // check if active protocol exists
-  let activeProtocol;
-  try {
-    activeProtocol = await api.protocol.getCurrentlyActive.query();
-  } catch (error) {
-    throw new Error(error as string);
-  }
+  const activeProtocol = await api.protocol.active.get.query();
 
   if (!activeProtocol) {
     return (
