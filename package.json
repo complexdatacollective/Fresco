@@ -19,7 +19,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@codaco/analytics": "0.1.0-alpha",
+    "@codaco/analytics": "0.2.0-alpha",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@headlessui/react": "^1.7.17",

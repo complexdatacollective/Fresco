@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/analytics':
-    specifier: 0.1.0-alpha
-    version: 0.1.0-alpha(next@14.0.0)
+    specifier: 0.2.0-alpha
+    version: 0.2.0-alpha(next@14.0.0)
   '@codaco/protocol-validation':
     specifier: 3.0.0-alpha.4
     version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
@@ -1695,8 +1695,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codaco/analytics@0.1.0-alpha(next@14.0.0):
-    resolution: {integrity: sha512-4PTbvdsnfF5mrL75PQSY24lMUF+n9HKQne1xGFZN8atbwDqo3VMzzmLoI2xz/praV30aR5OSzkH4mxpAjYHq9Q==}
+  /@codaco/analytics@0.2.0-alpha(next@14.0.0):
+    resolution: {integrity: sha512-xv3w95SjYmc+Ypc0y3MhB5r4l7EzWfIXQf/n+kVnfywLrMK13NYHOAdlm5jCW6qIcT/IHvUZNQaQ3ACrF3/Syg==}
     peerDependencies:
       next: 14.0.1
     dependencies:
@@ -1705,6 +1705,7 @@ packages:
       next: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
       zod-fetch: 0.1.1
     dev: false
+
   /@codaco/protocol-validation@3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
     resolution: {integrity: sha512-2vV5Tga/zco/vrdDwkmirkiEqvwq+pduV4U4bHJhIgivxFSxswy6Ae7VLsbgOsFRaypx/SMrh7kF9wmU30liLQ==}
     dependencies:
