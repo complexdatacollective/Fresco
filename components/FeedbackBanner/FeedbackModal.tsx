@@ -9,9 +9,9 @@ type FeedbackModalProps = {
 const FeedbackModal = ({ open, setOpen }: FeedbackModalProps) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent side={'top'}>
+      <SheetContent>
         <iframe
-          className="mt-1 h-[100dvh] w-full py-2"
+          className="mt-2 h-[100dvh] w-full py-1"
           title="Feedback form"
           src="https://forms.clickup.com/3464225/f/39q11-6131/OIJSIULQV2EUZFLUOA"
         ></iframe>
