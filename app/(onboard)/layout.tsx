@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
-      <div className="relative z-10 flex h-[100dvh] w-[100dvw] flex-col">
+      <div className="relative z-10 flex h-[90dvh] w-[100dvw] flex-col">
         <div className="p-6">
           <Link href="/">
             <Image
