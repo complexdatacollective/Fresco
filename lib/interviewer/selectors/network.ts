@@ -2,7 +2,6 @@ import { findKey, find } from 'lodash';
 import { getActiveSession } from './session';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolCodebook } from './protocol';
-import { getEntityAttributes } from '../ducks/modules/network';
 import customFilter from '~/lib/network-query/filter';
 import { createSelector } from '@reduxjs/toolkit';
 import { getStageSubject, getSubjectType } from './prop';
@@ -16,6 +15,7 @@ import type {
   StageSubject,
 } from '@codaco/shared-consts';
 import type { RootState } from '../store';
+import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
 
 export const getNetwork = createSelector(
   getActiveSession,
@@ -109,7 +109,7 @@ export const labelLogic = (
   return "No 'name' variable!";
 };
 
-const getNodeLabel = createSelector(
+export const getNodeLabel = createSelector(
   getNodeTypeDefinition,
   (nodeTypeDefinition: NodeTypeDefinition | null) => (node: NcNode) => {
     if (!nodeTypeDefinition) {
