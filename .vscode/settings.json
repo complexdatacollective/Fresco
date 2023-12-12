@@ -1,7 +1,10 @@
 {
-  "css.customData": ["./.vscode/css-data.json"],
+  "css.customData": [
+    "./.vscode/css-data.json"
+  ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "WillLuke.nextjs.addTypesOnSave": true,
-  "WillLuke.nextjs.hasPrompted": true
+  "WillLuke.nextjs.hasPrompted": true,
+  "jest.jestCommandLine": "pnpm run test"
 }

@@ -1,0 +1,54 @@
+@use '~~/lib/ui/styles/global/core/units';
+
+.card-list {
+  padding-bottom: 2rem;
+  padding-top: units.unit(2);
+  width: 100%;
+  height: 100%;
+
+  &__row {
+    display: flex;
+    width: 100%;
+    padding-top: units.unit(2);
+
+    &:first-of-type {
+      padding-top: units.unit(2);
+    }
+
+    &:last-of-type {
+      padding-bottom: units.unit(5);
+    }
+  }
+
+  &__content {
+    position: relative;
+    flex: 1;
+    padding: 0 units.unit(2) 0 0;
+  }
+
+  &--single {
+    .card {
+      background: var(--nc-background);
+    }
+  }
+
+  &__delete-button {
+    --button-size: 1rem;
+    --button-padding: #{units.unit(2)};
+
+    cursor: pointer;
+    position: absolute;
+    right: var(--button-padding);
+    top: var(--button-padding);
+    padding: var(--button-padding);
+
+    &[name='close'] {
+      height: calc(var(--button-size) + 2 * var(--button-padding));
+      width: calc(var(--button-size) + 2 * var(--button-padding));
+
+      .cls-1 {
+        fill: var(--nc-transparent-light);
+      }
+    }
+  }
+}

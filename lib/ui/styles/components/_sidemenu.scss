@@ -1,0 +1,58 @@
+// Sidemenu
+// =============================================================================
+@mixin sidemenu(
+  $sidemenu-class: 'sidemenu'
+) {
+  .#{$sidemenu-class} {
+    max-height: 100vh;
+    overflow-y: scroll;
+    padding: $spacer-3;
+    background-color: color('white');
+    position: absolute;
+    visibility: hidden;
+    transform: translate3d(-100%, 0, 0);
+    transition: translate var(--animation-duration-standard);
+
+    &__heading {
+      @include typography('title-1');
+      color: color('white');
+      text-align: left;
+    }
+
+    &__items {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    &__list-item {
+      @include typography('title-4');
+
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    &--visible {
+      visibility: visible;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}
+
+
+// include this mixin to the container that's next to the sidemenu
+// when it's visible
+// provide whatever class is added when the sidenav is visible as an arg
+@mixin sidemenu-visible(
+  $added-class: 'pushed'
+) {
+  transition: transform var(--animation-duration-standard);
+
+  &--#{$added-class} {
+    transform: translate3d(25%, 0, 0);
+  }
+}
+
+@if $export-ui-classes {
+  @include sidemenu;
+}

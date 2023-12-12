@@ -1,0 +1,28 @@
+@use '~~/lib/ui/styles/global/core/units';
+
+.overlay {
+  &.case-id-form-overlay {
+    max-width: 65rem;
+  }
+}
+
+.case-id-form {
+  flex: 1;
+
+  .form-field-container {
+    background: var(--nc-background);
+    padding: units.unit(4);
+    border-radius: var(--nc-border-radius);
+    margin-bottom: units.unit(2);
+
+    .form-field-text__input {
+      margin-bottom: 0;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}

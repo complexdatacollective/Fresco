@@ -16,16 +16,17 @@ import {
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
 import { api } from '~/trpc/client';
-import { participantIdentifierSchema } from '~/shared/schemas';
+import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import type { Participant } from '@prisma/client';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
-interface ParticipantModalProps {
+type ParticipantModalProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   editingParticipant?: string | null;
   setEditingParticipant?: Dispatch<SetStateAction<string | null>>;
   existingParticipants: Participant[];
-}
+};
 
 function ParticipantModal({
   open,
@@ -59,6 +60,7 @@ function ParticipantModal({
         setIsLoading(true);
       },
       async onSuccess() {
+        void clientRevalidateTag('participant.get.all');
         await utils.participant.get.invalidate();
       },
       onError(error) {
@@ -79,6 +81,7 @@ function ParticipantModal({
         setError(error.message);
       },
       onSettled() {
+        void clientRevalidateTag('participant.get.all');
         setIsLoading(false);
       },
     },

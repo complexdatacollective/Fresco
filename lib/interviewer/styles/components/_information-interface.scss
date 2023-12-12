@@ -1,0 +1,73 @@
+$asset-size-large: 64vh;
+$asset-size-medium: 32vh;
+$asset-size-small: 17vh;
+$asset-size-default: 17vh;
+
+.information-interface {
+  @include interface-centering;
+
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__frame {
+    width: 100%;
+    max-width: 55rem;
+  }
+
+  &__title {
+    text-align: center;
+  }
+
+  &__items {
+    margin-top: spacing('large');
+    max-height: calc(#{$asset-size-large} + #{spacing('medium') * 4});
+    overflow: hidden;
+  }
+
+  &__item {
+    margin-top: spacing('medium');
+    overflow: hidden;
+
+    video {
+      width: 100%;
+      height: 100%;
+    }
+
+    &--size {
+      &-SMALL {
+        height: $asset-size-small;
+      }
+
+      &-MEDIUM {
+        height: $asset-size-medium;
+      }
+
+      &-LARGE {
+        height: $asset-size-large;
+      }
+    }
+
+    &--type {
+      &-audio {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      &-text {
+        height: auto;
+        margin-top: 0; // Text paragraphs have their own margin
+      }
+    }
+  }
+
+  &__background-image {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+}

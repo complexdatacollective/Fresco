@@ -170,7 +170,7 @@ export const protocolRouter = router({
     .input((value) => {
       return z
         .object({
-          protocol: z.unknown(),
+          protocol: z.unknown(), // TODO: replace this with zod schema version of Protocol type
           protocolName: z.string(),
           assets: assetInsertSchema,
         })
@@ -181,6 +181,7 @@ export const protocolRouter = router({
       const { protocol: inputProtocol, protocolName, assets } = input;
 
       const protocol = inputProtocol as Protocol;
+
       try {
         const protocolHash = hash(protocol);
 
@@ -191,7 +192,7 @@ export const protocolRouter = router({
             lastModified: protocol.lastModified,
             name: protocolName,
             schemaVersion: protocol.schemaVersion,
-            stages: JSON.stringify(protocol.stages),
+            stages: protocol.stages as unknown as Prisma.JsonArray, // The Stage interface needs to be changed to be a type: https://www.totaltypescript.com/type-vs-interface-which-should-you-use#index-signatures-in-types-vs-interfaces
             codebook: protocol.codebook,
             description: protocol.description,
             assets: {

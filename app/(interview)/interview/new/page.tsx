@@ -1,13 +1,9 @@
-/**
- * The interview/new route should create a new interview item in the database,
- * and then redirect to the interview/[id]/1 route.
- */
-
 import { redirect } from 'next/navigation';
 import { api } from '~/trpc/server';
 import { faker } from '@faker-js/faker';
-import { participantIdentifierSchema } from '~/shared/schemas';
+import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import { ErrorMessage } from '~/app/(interview)/interview/_components/ErrorMessage';
+
 export const dynamic = 'force-dynamic';
 
 export default async function Page({
@@ -44,7 +40,7 @@ export default async function Page({
   // Anonymous recruitment is enabled
 
   // Use the identifier from the URL, or generate a new one
-  const identifier = searchParams.identifier || faker.string.uuid();
+  const identifier = searchParams.identifier ?? faker.string.uuid();
 
   // Validate the identifier
   const isValid = participantIdentifierSchema.parse(identifier);
@@ -59,13 +55,13 @@ export default async function Page({
   }
 
   // Create the interview
-  const { createdInterview, error } =
+  const { createdInterviewId, error } =
     await api.interview.create.mutate(identifier);
 
-  if (error || !createdInterview) {
-    throw new Error(error || 'An error occurred while creating the interview');
+  if (error) {
+    throw new Error('An error occurred while creating the interview');
   }
 
   // Redirect to the interview/[id] route
-  redirect(`/interview/${createdInterview.id}`);
+  redirect(`/interview/${createdInterviewId}`);
 }

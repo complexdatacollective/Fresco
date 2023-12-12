@@ -1,0 +1,124 @@
+// Button
+// =============================================================================
+
+@mixin reset-button {
+  -webkit-appearance: none; //sass-lint:disable-line no-vendor-prefixes
+  border: 0;
+  padding: 0 1rem;
+  background: none;
+}
+
+@mixin button (
+  $button-class: 'button'
+) {
+  .#{$button-class} {
+    @include reset-button;
+    @include vcjc; // vertical center, justify center
+    @include clickable;
+
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: palette('text');
+    display: inline-flex;
+    font-family: var(--nc-heading-font-family);
+    text-align: center;
+    text-decoration: none; // in the case that this is used on a link
+    width: auto;
+    height: auto;
+    min-width: 3rem;
+    min-height: 3.5rem;
+    border-radius: 2rem;
+    background-color: color('sea-green');
+    margin-bottom: 0.15rem;
+
+    &:disabled,
+    &[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @include color-modifiers($include-hover: true);
+
+    &--small {
+      min-width: inherit;
+      min-height: 2.5rem;
+      font-size: 0.5rem;
+    }
+
+    &--has-icon {
+
+      .#{$button-class}__content {
+        margin-left: 0;
+      }
+
+      &:not(.button--icon-pos-right) {
+        .#{$button-class}__content {
+          margin-left: -2rem;
+        }
+      }
+
+      &.button--icon-pos-right {
+        .#{$button-class}__content {
+          margin-right: -2rem;
+        }
+      }
+
+    }
+
+    &__content {
+      padding: 0 2rem;
+      flex: 1 1 auto;
+    }
+
+    // light color variations
+    &--white,
+    &--platinum,
+    &--platinum--dark {
+      color: palette('text-dark');
+
+      // icons
+      .icon {
+        .cls-2 {
+          fill: palette('text-dark');
+        }
+      }
+    }
+
+    &__icon {
+      // sass-lint:disable-block no-important
+      margin: 0 1rem;
+
+      // use flexbox to change order of icon and content
+      &--right {
+        order: 2;
+      }
+    }
+
+    .icon.button__icon {
+      height: unit(2) !important;
+      width: unit(2) !important;
+    }
+  }
+}
+
+@mixin svg-button($svg-path) {
+  background: transparent;
+  background-image: url($svg-path);
+  background-repeat: no-repeat;
+  background-size: contain;
+  text-indent: -1000px;
+  overflow: hidden;
+  border: 0;
+  cursor: pointer;
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+@if $export-ui-classes {
+  @include button;
+}

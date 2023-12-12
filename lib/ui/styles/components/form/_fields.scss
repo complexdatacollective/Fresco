@@ -1,0 +1,82 @@
+$global-input-element-size: unit(4);
+$global-input-border-size: 0.125rem;
+$global-input-border-space: 0.25rem;
+
+@mixin form-field {
+  &__label {
+    @include typography(copy-standard, font-size);
+    font-weight: 200;
+    display: block;
+    margin: 0;
+    color: var(--nc-input-label);
+  }
+}
+
+.form-field-label {
+  font-family: var(--nc-heading-font-family);
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--nc-text);
+
+  > * {
+    font-weight: inherit;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+}
+
+.form-field-inline-label {
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-field-container {
+  display: block;
+  margin-bottom: 2rem;
+
+  &--inline {
+    margin-bottom: 0;
+  }
+}
+
+.form-field {
+  background: var(--nc-input-background);
+  color: var(--nc-input-text);
+  border-radius: 1rem 1rem 0 0;
+  margin-bottom: 2rem;
+  padding: 1rem unit(2);
+  width: 100%;
+  min-height: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  justify-items: center;
+
+  &__inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@import './fields/boolean';
+@import './fields/radio';
+@import './fields/radio-group';
+@import './fields/checkbox';
+@import './fields/checkbox-group';
+@import './fields/toggle';
+@import './fields/toggle-button';
+@import './fields/toggle-button-group';
+@import './fields/text';
+@import './fields/range';
+@import './fields/slider';
+@import './fields/date-picker';
+@import './fields/rich-text';
