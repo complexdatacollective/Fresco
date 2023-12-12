@@ -9,7 +9,7 @@ type FeedbackModalProps = {
 const FeedbackModal = ({ open, setOpen }: FeedbackModalProps) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent>
+      <SheetContent className="bg-[#f7f8f9]">
         <iframe
           className="mt-2 h-[100dvh] w-full py-1"
           title="Feedback form"
