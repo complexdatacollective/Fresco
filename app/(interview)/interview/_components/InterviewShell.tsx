@@ -10,10 +10,7 @@ import {
   SET_SERVER_SESSION,
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
-import {
-  getActiveSession,
-  getStageIndex,
-} from '~/lib/interviewer/selectors/session';
+import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
 import { useQueryState } from 'next-usequerystate';
 import usePrevious from '~/hooks/usePrevious';

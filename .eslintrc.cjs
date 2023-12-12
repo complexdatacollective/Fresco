@@ -30,6 +30,7 @@ const config = {
   ],
   ignorePatterns: ['node_modules', '*.stories.*', '*.test.*'],
   rules: {
+    "import/no-anonymous-default-export": "off",
     "@typescript-eslint/consistent-type-definitions": ['error', 'type'],
     'no-process-env': 'error',
     'no-console': 'error',
