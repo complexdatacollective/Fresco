@@ -3,7 +3,7 @@ $component: 'protocol-card';
 .#{$component} {
   background: var(--color-platinum);
   color: var(--color-navy-taupe);
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   display: flex;
   overflow: hidden;
   flex-direction: column-reverse;
@@ -23,7 +23,7 @@ $component: 'protocol-card';
       left:0;
       right: 0;
       border: 0.4rem solid var(--color-mustard);
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
     }
   }
 

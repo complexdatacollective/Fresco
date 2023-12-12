@@ -63,7 +63,7 @@
   &__introduction {
     max-height: 100%;
     background: var(--nc-light-background);
-    border-radius: var(--border-radius);
+    border-radius: var(--nc-border-radius);
     padding: units.unit(2) units.unit(4);
     max-width: 55rem;
 
@@ -98,7 +98,7 @@
     flex-grow: 0;
     display: flex;
     flex-direction: column;
-    border-radius: var(--border-radius);
+    border-radius: var(--nc-border-radius);
     text-align: center;
     width: 70vmin;
     z-index: var(--z-panel);

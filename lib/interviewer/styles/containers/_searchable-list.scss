@@ -11,7 +11,7 @@ $sort-height: 3.2rem;
     left: 0;
     width: 100%;
     height: calc(100% - #{$search-height} + 1rem);
-    background: var(--panel-bg-muted);
+    background: var(--nc-panel-bg-muted);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -67,7 +67,7 @@ $sort-height: 3.2rem;
 
   &__search {
     flex: 0 0 auto;
-    background: var(--panel-bg-muted);
+    background: var(--nc-panel-bg-muted);
     border-top: 0.1rem solid var(--nc-background);
     padding: 1rem;
     width: 100%;

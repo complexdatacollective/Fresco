@@ -219,15 +219,15 @@ $system-font-stack: 'system-ui', sans-serif;
 
 :root {
   // Typographic base styles
-  --base-font-size: 16px;
-  --heading-font-family: #{$netcanvas-font-stack};
-  --body-font-family: #{$system-font-stack};
+  --nc-base-font-size: 16px;
+  --nc-heading-font-family: #{$netcanvas-font-stack};
+  --nc-body-font-family: #{$system-font-stack};
 
   // Default border radius
-  --border-radius: 0.75rem;
+  --nc-border-radius: 0.75rem;
 
   // Link color
-  --link-color: var(--color-neon-coral);
+  --nc-link-color: var(--color-neon-coral);
 
   // each item in color map
   @each $name, $color in $-color-map {
@@ -241,14 +241,12 @@ $system-font-stack: 'system-ui', sans-serif;
   }
 
   // Top level transparentised values
-  --transparent-light: #{transparentize(rgb(255, 255, 255), 0.7)};
-  --transparent-md: #{transparentize(rgb(128, 128, 128), 0.7)};
-  --transparent-dark: #{transparentize(rgb(0, 0, 0), 0.3)};
+  --nc-transparent-light: #{transparentize(rgb(255, 255, 255), 0.7)};
+  --nc-transparent-md: #{transparentize(rgb(128, 128, 128), 0.7)};
 
-  // additional one-off palette values
-  --narrative-heading-color: #{transparentize(rgb(255, 255, 255), 0.3)};
-  --narrative-heading-bg-hover: #{transparentize(rgb(22, 21, 43), 0.85)};
-  --narrative-border-bottom-color: #{transparentize(rgb(22, 21, 43), 0.85)};
+
+  --nc-narrative-heading-bg-hover: #{transparentize(rgb(22, 21, 43), 0.85)};
+  --nc-narrative-border-bottom-color: #{transparentize(rgb(22, 21, 43), 0.85)};
 
   --nc-node-outer-trim-stroke: #{transparentize(rgb(255, 255, 255), 0.75)};
   --nc-node-bucket-bg: #{radial-gradient(
@@ -258,9 +256,7 @@ $system-font-stack: 'system-ui', sans-serif;
     )};
   --nc-node-list-action-bg: #{transparentize(rgb(58, 58, 117), 0.5)};
 
-  --drop-shadow-color: #{transparentize(rgb(22, 21, 43), 0.25)};
-
-  --session-management-screen-bg: #{transparentize(rgb(58, 58, 117), 0.5)};
+  --nc-drop-shadow-color: #{transparentize(rgb(22, 21, 43), 0.25)};
 
   // Inputs
   --nc-input-background: #{transparentize(rgb(0, 0, 0), 0.67)};
@@ -268,15 +264,15 @@ $system-font-stack: 'system-ui', sans-serif;
   --nc-input-placeholder: #{transparentize(rgb(255, 255, 255), 0.75)};
   --nc-input-panel-bg: var(--color-rich-black);
 
-  --modal-overlay: #{transparentize(rgb(39, 32, 76), 0.1)};
-  --modal-window-box-shadow: #{transparentize(rgb(22, 21, 43), 0.25)};
+  --nc-modal-overlay: #{transparentize(rgb(39, 32, 76), 0.1)};
+  --nc-modal-window-box-shadow: #{transparentize(rgb(22, 21, 43), 0.25)};
 
-  --panel-selected-node-bg-color: #{transparentize(rgb(255, 255, 255), 0.95)};
+  --nc-panel-selected-node-bg-color: #{transparentize(rgb(255, 255, 255), 0.95)};
 
-  --panel-bg-muted: #36315f; //sass-lint:disable-line no-color-literals
+  --nc-panel-bg-muted: #36315f; //sass-lint:disable-line no-color-literals
 
-  --menu-item-hover: #{darken(rgb(0, 201, 162), 5%)};
-  --menu-item-hover-settings: #{darken(rgb(107, 114, 236), 5%)};
+  --nc-menu-item-hover: #{darken(rgb(0, 201, 162), 5%)};
+  --nc-menu-item-hover-settings: #{darken(rgb(107, 114, 236), 5%)};
 }
 
 // to export out into css modules for js
@@ -303,12 +299,12 @@ $system-font-stack: 'system-ui', sans-serif;
 }
 
 html {
-  font-family: var(--body-font-family);
-  font-size: var(--base-font-size);
+  font-family: var(--nc-body-font-family);
+  font-size: var(--nc-base-font-size);
 }
 
 a {
-  color: var(--link-color);
+  color: var(--nc-link-color);
 }
 
 // Headings
@@ -320,23 +316,23 @@ $headings-line-height: 1.1 !default;
 $headings: (
   h1: (
     1.75rem,
-    var(--heading-font-family),
+    var(--nc-heading-font-family),
   ),
   h2: (
     1.25rem,
-    var(--heading-font-family),
+    var(--nc-heading-font-family),
   ),
   h3: (
     1.1625rem,
-    var(--heading-font-family),
+    var(--nc-heading-font-family),
   ),
   h4: (
     1rem,
-    var(--heading-font-family),
+    var(--nc-heading-font-family),
   ),
   h5: (
     0.75rem,
-    var(--heading-font-family),
+    var(--nc-heading-font-family),
   ),
 );
 
@@ -361,7 +357,7 @@ $headings: (
   'quicksand',
   base,
   (
-    font-family: var(--heading-font-family),
+    font-family: var(--nc-heading-font-family),
     font-size: 1rem,
     line-height: $base-line-height,
     font-weight: $headings-font-weight,
@@ -400,7 +396,7 @@ $headings: (
   'main-title',
   base,
   (
-    font-family: var(--heading-font-family),
+    font-family: var(--nc-heading-font-family),
     font-size: 3rem,
     line-height: 1.429,
     font-weight: 700,
@@ -412,7 +408,7 @@ $headings: (
   'title-1',
   base,
   (
-    font-family: var(--heading-font-family),
+    font-family: var(--nc-heading-font-family),
     font-size: 2.3rem,
     line-height: 1.429,
     font-weight: 700,

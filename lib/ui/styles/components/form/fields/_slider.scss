@@ -92,7 +92,7 @@ $module-name: form-field-slider;
       transform: translate(-50%, -0.2 * $touch-height);
       font-size: 0.8rem;
       background: var(--tooltip-color);
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
       padding: 0.5rem #{$touch-height * 0.5};
       display: flex;
       justify-content: center;

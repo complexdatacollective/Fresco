@@ -1,7 +1,7 @@
 
 .session-card {
   background-color: var(--color-platinum);
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   display: flex;
   flex-direction: column;
   height: 9rem;
@@ -24,7 +24,7 @@
       left:0;
       right: 0;
       border: 0.4rem solid var(--color-mustard);
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
     }
   }
 

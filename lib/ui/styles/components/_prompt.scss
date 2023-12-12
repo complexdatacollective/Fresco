@@ -9,7 +9,7 @@ $module-name: prompt;
   color: var(--local-text);
   font-size: var(--local-prompt-text-size);
   text-align: center;
-  font-family: var(--heading-font-family);
+  font-family: var(--nc-heading-font-family);
   display: -webkit-box;
   -webkit-line-clamp: var(--local-number-of-lines);
   -webkit-box-orient: vertical;

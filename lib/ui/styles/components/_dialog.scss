@@ -4,7 +4,7 @@
   flex-direction: column;
   background: var(--modal-background);
   color: var(--nc-text);
-  box-shadow: 0 0 4rem 0 var(--modal-window-box-shadow);
+  box-shadow: 0 0 4rem 0 var(--nc-modal-window-box-shadow);
   border-color: var(--nc-primary);
   border-style: solid;
   border-width: 0;
@@ -61,7 +61,7 @@
       user-select: initial;
       overflow-y: auto;
       overflow-x: hidden;
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
     }
   }
 

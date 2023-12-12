@@ -9,8 +9,8 @@
 }
 
 .progress-bar {
-  --progress-indeterminate-background-color: var(--transparent-md);
-  --progress-indeterminate-highlight-color: var(--transparent-light);
+  --progress-indeterminate-background-color: var(--nc-transparent-md);
+  --progress-indeterminate-highlight-color: var(--nc-transparent-light);
   --progress-indeterminate-gradient-width: 100rem;
   --progress-indeterminate-animation-duration: 2s;
 
@@ -55,7 +55,7 @@
   }
 
   &__filler {
-    background-color: var(--transparent-light);
+    background-color: var(--nc-transparent-light);
     position: absolute;
     border-radius: inherit;
   }

@@ -18,7 +18,7 @@
     height: auto;
     max-height: 75%;
     max-width: 55rem; // Same as ego form container with - for readability
-    border-radius: var(--border-radius);
+    border-radius: var(--nc-border-radius);
     background: var(--form-intro-panel-background);
     width: 100%;
     padding: units.unit(2) units.unit(4);
@@ -75,7 +75,7 @@
       width: 100%;
       max-width: 65rem;
       padding: units.unit(1) units.unit(2) units.unit(2);
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
       background: var(--nc-light-background);
       position: relative;
 
@@ -129,7 +129,7 @@
     &--status-only {
       background: var(--modal-background);
       border-radius: 5rem;
-      box-shadow: 1px 1px 0.5rem var(--drop-shadow-color);
+      box-shadow: 1px 1px 0.5rem var(--nc-drop-shadow-color);
       width: auto;
       padding: 1rem 1.5rem;
     }

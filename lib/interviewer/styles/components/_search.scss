@@ -10,7 +10,7 @@ $results-height: calc(100vh - 23rem);
   --content-padding: 1rem;
 
   background-color: color('cyber-grape');
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   max-height: 100%;
   position: absolute;
   transform-origin: right bottom;
@@ -129,7 +129,7 @@ $results-height: calc(100vh - 23rem);
   }
 
   .add-count-button {
-    filter: drop-shadow(0 3px 0 var(--drop-shadow-color));
+    filter: drop-shadow(0 3px 0 var(--nc-drop-shadow-color));
     position: absolute;
     right: -4rem;
     top: 30%;

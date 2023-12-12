@@ -10,7 +10,7 @@
     max-width: 50rem;
     padding: units.unit(2) units.unit(4);
     background: var(--nc-light-background);
-    border-radius: var(--border-radius);
+    border-radius: var(--nc-border-radius);
     max-height: calc(100% - 2rem);
     display: flex;
     flex-direction: column;
@@ -37,7 +37,7 @@
       align-items: center;
       background: var(--nc-background);
       padding: units.unit(2) units.unit(4);
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
       margin: units.unit(2) 0;
     }
 

@@ -4,7 +4,7 @@ $module-name: 'narrative-panel';
   display: flex;
   flex-direction: column;
   background-color: palette('light-background');
-  border-bottom: var(--narrative-border-bottom-color) 2px solid;
+  border-bottom: var(--nc-narrative-border-bottom-color) 2px solid;
 
   &__heading {
     @include typography('title-4');
@@ -25,7 +25,7 @@ $module-name: 'narrative-panel';
     }
 
     &:hover {
-      background-color: var(--narrative-heading-bg-hover);
+      background-color: var(--nc-narrative-heading-bg-hover);
       color: palette('selected');
     }
   }

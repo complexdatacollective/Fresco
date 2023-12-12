@@ -1,7 +1,7 @@
 .card {
   align-items: center;
   border: .2rem solid transparent;
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   background: var(--nc-light-background);
   transition: border-color var(--animation-duration-fast) var(--animation-easing);
   cursor: pointer;

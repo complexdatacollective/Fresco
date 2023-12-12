@@ -3,7 +3,7 @@ $component: 'server-card';
 .#{$component} {
   background: var(--color-platinum);
   color: var(--color-navy-taupe);
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   display: flex;
   overflow: hidden;
 

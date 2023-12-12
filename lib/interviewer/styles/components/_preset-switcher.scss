@@ -54,7 +54,7 @@
     }
 
     &--disabled {
-      background: var(--panel-bg-muted);
+      background: var(--nc-panel-bg-muted);
       pointer-events: none;
 
       .icon {

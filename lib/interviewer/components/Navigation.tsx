@@ -10,7 +10,7 @@ import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
 
-const useNavigationHelpers = (
+export const useNavigationHelpers = (
   currentStage: number,
   setCurrentStage: (stage: number) => void,
 ) => {

@@ -12,7 +12,7 @@
   .form-field-container {
     background: var(--nc-background);
     padding: units.unit(4);
-    border-radius: var(--border-radius);
+    border-radius: var(--nc-border-radius);
     margin-bottom: units.unit(2);
 
     .form-field-text__input {

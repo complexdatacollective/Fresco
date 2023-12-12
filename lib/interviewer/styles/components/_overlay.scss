@@ -5,9 +5,9 @@ $close-button-size: 1rem;
 .overlay {
   background: var(--color-cyber-grape);
   color: var(--nc-text);
-  box-shadow: 0 0 units.unit(8) 0 var(--modal-window-box-shadow);
+  box-shadow: 0 0 units.unit(8) 0 var(--nc-modal-window-box-shadow);
   position: relative;
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   max-height: calc(100vh - #{units.unit(8)});
   width: calc(100vw - #{units.unit(8)});
   max-width: 80rem;

@@ -117,7 +117,7 @@
 
     .categorical-item__disk {
       border: solid .3rem var(--categorical-item-color);
-      border-radius: var(--border-radius);
+      border-radius: var(--nc-border-radius);
     }
 
     &.categorical-item--hover {

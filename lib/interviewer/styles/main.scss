@@ -19,11 +19,11 @@ $image-path: '~~/lib/ui/assets/images';
 }
 
 :root {
-  --body-font-family: #{$netcanvas-font-stack}; // override Network Canvas UI
+  --nc-body-font-family: #{$netcanvas-font-stack}; // override Network Canvas UI
   --code-font: courier;
   --interface-prompt-flex-basis: 8rem;
-  --base-font-size: 18px;
-  --border-radius: .75rem;
+  --nc-base-font-size: 18px;
+  --nc-border-radius: .75rem;
   --padding-unit: 1rem;
   --form-intro-panel-background: var(--color-cyber-grape);
 }
@@ -56,7 +56,7 @@ $image-path: '~~/lib/ui/assets/images';
     overflow-y: scroll;
     background: var(--nc-background);
     padding: 0 1.2rem;
-    border-radius: var(--border-radius);
+    border-radius: var(--nc-border-radius);
   }
 }
 

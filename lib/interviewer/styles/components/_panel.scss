@@ -1,17 +1,17 @@
 .panel {
-  --base-node-size: calc(var(--base-font-size) * 6.6);
+  --base-node-size: calc(var(--nc-base-font-size) * 6.6);
 
   @include transition-properties((opacity flex-basis flex-grow margin-bottom border-bottom-width), var(--animation-easing), var(--animation-duration-standard));
 
   flex: 1 0 5rem;
   display: flex;
   flex-direction: column;
-  background-color: var(--panel-bg-muted); // Replaced light background palette because it was too strong. This seems to be a one-off color, but migrate to UI if used elsewhere
+  background-color: var(--nc-panel-bg-muted); // Replaced light background palette because it was too strong. This seems to be a one-off color, but migrate to UI if used elsewhere
   border-color: palette('primary');
   border-style: solid;
   border-width: 0;
   border-bottom-width: .5rem;
-  border-radius: var(--border-radius);
+  border-radius: var(--nc-border-radius);
   margin: 0 0 1rem;
   overflow: hidden;
   opacity: 1;
@@ -65,6 +65,6 @@
 
   & .node-list--hover,
   & .node-list--drag {
-    background-color: var(--panel-selected-node-bg-color);
+    background-color: var(--nc-panel-selected-node-bg-color);
   }
 }

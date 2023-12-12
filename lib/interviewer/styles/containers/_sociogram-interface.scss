@@ -34,8 +34,8 @@
     bottom: spacing(large);
     right: spacing(large);
     border-bottom: 5px solid var(--nc-primary);
-    border-radius: var(--border-radius);
-    box-shadow: 0 0 4rem 0 var(--modal-window-box-shadow);
+    border-radius: var(--nc-border-radius);
+    box-shadow: 0 0 4rem 0 var(--nc-modal-window-box-shadow);
     cursor: move;
 
     &__header {
