@@ -30,6 +30,7 @@ const config = {
   ],
   ignorePatterns: ['node_modules', '*.stories.*', '*.test.*'],
   rules: {
+    "@next/next/no-img-element": "off",
     "import/no-anonymous-default-export": "off",
     "@typescript-eslint/consistent-type-definitions": ['error', 'type'],
     'no-process-env': 'error',
