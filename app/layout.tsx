@@ -43,9 +43,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
   }
 
   // enable analytics if appSettings.allowAnalytics is true
-  if (appSettings?.allowAnalytics) {
-    analytics.enable();
-  }
+  analytics.enable();
 
   return (
     <html lang="en">

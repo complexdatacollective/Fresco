@@ -34,12 +34,6 @@ const ManageParticipants = dynamic(
     loading: () => <StepLoadingState key="loading" />,
   },
 );
-const Analytics = dynamic(
-  () => import('../_components/OnboardSteps/Analytics'),
-  {
-    loading: () => <StepLoadingState key="loading" />,
-  },
-);
 const Documentation = dynamic(
   () => import('../_components/OnboardSteps/Documentation'),
   {
@@ -110,11 +104,6 @@ function Page() {
               </StepMotionWrapper>
             )}
             {currentStep === 4 && (
-              <StepMotionWrapper key="docs">
-                <Analytics />
-              </StepMotionWrapper>
-            )}
-            {currentStep === 5 && (
               <StepMotionWrapper key="docs">
                 <Documentation />
               </StepMotionWrapper>

@@ -46,23 +46,6 @@ export const appSettingsRouter = router({
       return { error: 'Failed to create appSettings', appSettings: null };
     }
   }),
-  updateAnalytics: protectedProcedure
-    .input(z.boolean())
-    .mutation(async ({ input }) => {
-      try {
-        const updatedappSettings = await prisma.appSettings.updateMany({
-          data: {
-            allowAnalytics: input,
-          },
-        });
-
-        revalidateTag('appSettings.get');
-
-        return { error: null, appSettings: updatedappSettings };
-      } catch (error) {
-        return { error: 'Failed to update appSettings', appSettings: null };
-      }
-    }),
 
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())

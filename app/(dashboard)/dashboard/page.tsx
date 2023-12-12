@@ -2,13 +2,9 @@ import ResetButton from './_components/ResetButton';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import Link from 'next/link';
 import { Button } from '~/components/ui/Button';
-import AnalyticsSwitch from '~/components/AnalyticsSwitch/Switch';
 import AnalyticsButton from './_components/AnalyticsButton';
-import { api } from '~/trpc/server';
 
-async function Home() {
-  const appSettings = await api.appSettings.get.query();
-
+function Home() {
   return (
     <>
       <main className="mx-auto flex w-[80%] max-w-[1200px] flex-col gap-10 p-10">
@@ -19,7 +15,6 @@ async function Home() {
         </Link>
         <ResetButton />
         <AnonymousRecruitmentSwitch />
-        <AnalyticsSwitch allowAnalytics={!!appSettings?.allowAnalytics} />
         <AnalyticsButton />
       </main>
     </>

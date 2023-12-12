@@ -8,7 +8,6 @@ const stepLabels = [
   'Create Account',
   'Upload Protocol',
   'Configure Participation',
-  'Analytics',
   'Documentation',
 ];
 
