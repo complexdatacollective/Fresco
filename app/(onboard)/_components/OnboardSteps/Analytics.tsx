@@ -15,7 +15,7 @@ function Analytics() {
 
   const appSettings = api.appSettings.get.useQuery(undefined, {
     onError(error) {
-      throw new Error(error.message, { cause: error });
+      throw new Error(error.message);
     },
   });
 

@@ -5,7 +5,7 @@ export default function DashboardError({
   error,
   reset,
 }: {
-  error: Error & { cause?: { code?: number } };
+  error: Error;
   reset: () => void;
 }) {
   return <Error error={error} reset={reset} heading="Dashboard Error" />;

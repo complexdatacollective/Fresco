@@ -8,7 +8,7 @@ const ParticipantPage = async () => {
   try {
     participants = await api.participant.get.all.query();
   } catch (error) {
-    throw new Error(error as string, { cause: error });
+    throw new Error(error as string);
   }
 
   return (

@@ -8,7 +8,7 @@ export const getProtocolJson = async (protocolZip: Zip) => {
     ?.async('string');
 
   if (!protocolString) {
-    throw new Error('protocol.json not found in zip', { cause: { code: 400 } });
+    throw new Error('protocol.json not found in zip');
   }
 
   const protocolJson = (await JSON.parse(protocolString)) as Protocol;
@@ -59,7 +59,6 @@ export const getProtocolAssets = async (
       if (!file) {
         throw new Error(
           `Asset "${asset.source}" was not found in asset folder!`,
-          { cause: { code: 400 } },
         );
       }
 
@@ -84,14 +83,12 @@ export function fileAsArrayBuffer(file: Blob | File): Promise<ArrayBuffer> {
       reader.abort();
       // eslint-disable-next-line no-console
       console.log('readFileHelper Error: ', err);
-      throw new Error('The file could not be read.', { cause: err });
+      throw new Error('The file could not be read.');
     });
 
     reader.addEventListener('load', () => {
       if (!reader.result || typeof reader.result === 'string') {
-        throw new Error('The file could not be read.', {
-          cause: { code: 400 },
-        });
+        throw new Error('The file could not be read.');
       }
 
       resolve(reader.result);

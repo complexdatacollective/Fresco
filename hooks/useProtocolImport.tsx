@@ -226,7 +226,7 @@ export const useProtocolImport = () => {
           );
 
           if (!uploadedAsset) {
-            throw new Error('Asset upload failed', { cause: { code: 500 } });
+            throw new Error('Asset upload failed');
           }
 
           // Ensure this matches the input schema in the protocol router

@@ -10,7 +10,7 @@ export default function Error({
   reset,
   heading,
 }: {
-  error: Error & { cause?: { code?: number } };
+  error: Error;
   reset: () => void;
   heading?: string;
 }) {
@@ -18,9 +18,8 @@ export default function Error({
     analytics.trackEvent({
       type: 'Error',
       error: {
-        code: error.cause?.code || 500,
         message: error.message,
-        details: JSON.stringify(error.cause) || '',
+        details: heading || '',
         stacktrace: error.stack || '',
         path: window.location.pathname,
       },

@@ -46,7 +46,7 @@ export const DeleteProtocolsDialog = ({
   const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
     api.protocol.delete.byHash.useMutation({
       onError(error) {
-        throw new Error(error.message, { cause: error });
+        throw new Error(error.message);
       },
     });
 

@@ -69,9 +69,7 @@ export const deleteFilesFromUploadThing = async (
   const response = await utapi.deleteFiles(fileKey);
 
   if (!response.success) {
-    throw new Error('Failed to delete files from uploadthing', {
-      cause: { code: 500 },
-    });
+    throw new Error('Failed to delete files from uploadthing');
   }
 
   return;

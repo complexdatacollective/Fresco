@@ -39,9 +39,7 @@ export const calculateRedirect = ({
 }): undefined | Route => {
   // If for some reason we weren't given a path, bail out.
   if (!path) {
-    throw new Error('No path provided to calculateRedirect!', {
-      cause: { code: 400 },
-    });
+    throw new Error('No path provided to calculateRedirect!');
   }
 
   const isLoginPage = routeIsLoginPage(path);

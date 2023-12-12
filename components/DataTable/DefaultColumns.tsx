@@ -2,7 +2,7 @@ export const makeDefaultColumns = <TData,>(data: TData[]) => {
   const firstRow = data[0];
 
   if (!firstRow || typeof firstRow !== 'object') {
-    throw new Error('Data must be an array of objects.', { cause: 400 });
+    throw new Error('Data must be an array of objects.');
   }
 
   const columnKeys = Object.keys(firstRow);

@@ -22,7 +22,7 @@ export const ParticipantsTable = ({
       initialData,
       refetchOnMount: false,
       onError(error) {
-        throw new Error(error.message, { cause: error });
+        throw new Error(error.message);
       },
     },
   );

@@ -6,6 +6,6 @@ export async function setAnalytics(state: boolean) {
   try {
     await api.appSettings.updateAnalytics.mutate(state);
   } catch (error) {
-    throw new Error(error as string, { cause: error });
+    throw new Error(error as string);
   }
 }

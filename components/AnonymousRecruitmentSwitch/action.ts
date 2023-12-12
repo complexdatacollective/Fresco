@@ -6,6 +6,6 @@ export async function setAnonymousRecruitment(state: boolean) {
   try {
     await api.appSettings.updateAnonymousRecruitment.mutate(state);
   } catch (error) {
-    throw new Error(error as string, { cause: error });
+    throw new Error(error as string);
   }
 }

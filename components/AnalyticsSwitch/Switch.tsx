@@ -50,9 +50,9 @@ const Switch = ({ allowAnalytics }: { allowAnalytics: boolean }) => {
                 }
               } catch (error) {
                 if (error instanceof Error) {
-                  throw new Error(error.message, { cause: error });
+                  throw new Error(error.message);
                 }
-                throw new Error('Something went wrong', { cause: 400 });
+                throw new Error('Something went wrong');
               }
             });
           }}
