@@ -1,10 +1,5 @@
 import { type Dispatch, type SetStateAction } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { Sheet, SheetContent } from '~/components/ui/sheet';
 
 type FeedbackModalProps = {
   open: boolean;
@@ -13,18 +8,15 @@ type FeedbackModalProps = {
 
 const FeedbackModal = ({ open, setOpen }: FeedbackModalProps) => {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-[700px]">
-        <DialogHeader>
-          <DialogTitle>Your feedback below</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetContent side={'top'}>
         <iframe
-          className="h-[450px] w-full border"
+          className="mt-1 h-[100dvh] w-full py-2"
           title="Feedback form"
           src="https://forms.clickup.com/3464225/f/39q11-6131/OIJSIULQV2EUZFLUOA"
         ></iframe>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 
