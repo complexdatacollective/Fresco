@@ -111,8 +111,8 @@ dependencies:
     specifier: ^5.7.0
     version: 5.7.0(next@14.0.0)(react@18.2.0)(uploadthing@5.7.4)(zod@3.22.4)
   animejs:
-    specifier: ^3.2.1
-    version: 3.2.1
+    specifier: ^2.2.0
+    version: 2.2.0
   async:
     specifier: ^3.2.5
     version: 3.2.5
@@ -6017,8 +6017,8 @@ packages:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  /animejs@3.2.1:
-    resolution: {integrity: sha512-sWno3ugFryK5nhiDm/2BKeFCpZv7vzerWUcUPyAZLDhMek3+S/p418ldZJbJXo5ZUOpfm2kP2XRO4NJcULMy9A==}
+  /animejs@2.2.0:
+    resolution: {integrity: sha512-suPqfRapTDhrfwxg1El8LlGz6qVGwoandR2uRQLQBxXavxkpIr9Uv2kNGrJIF7oa001jSxS5rRIXPHryKIshJg==}
     dev: false
 
   /ansi-escapes@4.3.2:

@@ -1,4 +1,4 @@
-import { findKey, find } from 'lodash';
+import { findKey, find, get } from 'lodash';
 import { getActiveSession } from './session';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolCodebook } from './protocol';
@@ -197,19 +197,20 @@ export const makeGetNodeAttributeLabel = () =>
     },
   );
 
-export const makeGetCategoricalOptions = () =>
-  createDeepEqualSelector(
-    getProtocolCodebook,
-    getSubjectType,
-    (_, props: Record<string, string>) => props.variableId ?? null,
-    (codebook, subjectType: string | null, variableId: string | null) => {
-      if (!subjectType || !variableId) {
-        return [];
-      }
+export const getCategoricalOptions = createSelector(
+  getProtocolCodebook,
+  getSubjectType,
+  (_, props: Record<string, string>) => props.variableId ?? null,
+  (codebook, subjectType: string | null, variableId: string | null) => {
+    if (!subjectType || !variableId) {
+      return [];
+    }
 
-      return (
-        (codebook as Codebook).node?.[subjectType]?.variables?.[variableId]
-          ?.options ?? []
-      );
-    },
-  );
+    return (
+      (codebook as Codebook).node?.[subjectType]?.variables?.[variableId]
+        ?.options ?? []
+    );
+  },
+);
+
+export const makeGetCategoricalOptions = () => getCategoricalOptions;

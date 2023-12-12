@@ -54,7 +54,7 @@
     "@trpc/server": "^10.41.0",
     "@types/async": "^3.2.23",
     "@uploadthing/react": "^5.7.0",
-    "animejs": "^3.2.1",
+    "animejs": "^2.2.0",
     "async": "^3.2.5",
     "bcrypt": "^5.1.1",
     "blobs": "2.3.0-beta.2",
