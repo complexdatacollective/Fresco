@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/analytics':
-    specifier: file:../error-analytics-microservice/packages/analytics
-    version: file:../error-analytics-microservice/packages/analytics(next@14.0.0)
+    specifier: 0.4.0-alpha
+    version: 0.4.0-alpha(next@14.0.0)
   '@codaco/protocol-validation':
     specifier: 3.0.0-alpha.4
     version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
@@ -1694,6 +1694,17 @@ packages:
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@codaco/analytics@0.4.0-alpha(next@14.0.0):
+    resolution: {integrity: sha512-nzygvXP4C4nx9rkLYfw8y3gCZRr8ZwKofJSQIdjm8sfe3OmTCqnWRxTPYm1HAU4F3kZNvCsmWEXp8JtwdgsrVQ==}
+    peerDependencies:
+      next: 14.0.1
+    dependencies:
+      '@maxmind/geoip2-node': 5.0.0
+      async: 3.2.5
+      next: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
+      zod-fetch: 0.1.1
+    dev: false
 
   /@codaco/protocol-validation@3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
     resolution: {integrity: sha512-2vV5Tga/zco/vrdDwkmirkiEqvwq+pduV4U4bHJhIgivxFSxswy6Ae7VLsbgOsFRaypx/SMrh7kF9wmU30liLQ==}
@@ -13618,17 +13629,4 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-    dev: false
-
-  file:../error-analytics-microservice/packages/analytics(next@14.0.0):
-    resolution: {directory: ../error-analytics-microservice/packages/analytics, type: directory}
-    id: file:../error-analytics-microservice/packages/analytics
-    name: '@codaco/analytics'
-    peerDependencies:
-      next: 14.0.1
-    dependencies:
-      '@maxmind/geoip2-node': 5.0.0
-      async: 3.2.5
-      next: 14.0.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
-      zod-fetch: 0.1.1
     dev: false

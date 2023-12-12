@@ -27,23 +27,18 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     } catch (error) {
       throw new Error(error as string);
     }
-
-    // setInstallationId in analytics provider on first run
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
-      const appSettings = await api.appSettings.get.query();
-      if (!appSettings?.installationId) {
-        throw new Error('Installation ID is not defined');
-      }
-      analytics.setInstallationId(appSettings.installationId);
-    })();
-    revalidateTag('appSettings.get');
-    revalidatePath('/');
   }
 
-  // enable analytics if appSettings.allowAnalytics is true
-  analytics.enable();
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  (async () => {
+    const appSettings = await api.appSettings.get.query();
+    if (!appSettings?.installationId) {
+      throw new Error('Installation ID is not defined');
+    }
+    analytics.setInstallationId(appSettings.installationId);
+  })();
+  revalidateTag('appSettings.get');
+  revalidatePath('/');
 
   return (
     <html lang="en">
