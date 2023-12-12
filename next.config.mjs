@@ -11,7 +11,7 @@ const config = {
   experimental: {
     typedRoutes: true,
   },
-  webpack: (config, options) => {
+  webpack: (config) => {
     config.module.rules.push({
       test: /\.(jpe?g|png|svg|gif|ico|eot|ttf|woff|woff2|mp4|pdf|webm|txt|wav)$/,
       type: 'asset/resource',
