@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({
   filterColumnAccessorKey = '',
   actions,
   actionsHeader,
-  calculateRowClasses = () => undefined,
+  calculateRowClasses,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -115,7 +115,7 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
-      getRowClasses: (row: Row<TData>) => calculateRowClasses(row),
+      getRowClasses: (row: Row<TData>) => calculateRowClasses?.(row),
       navigatorLanguages,
     },
     state: {
