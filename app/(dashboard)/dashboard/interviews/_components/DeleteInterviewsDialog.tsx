@@ -14,11 +14,11 @@ import { api } from '~/trpc/client';
 import type { Interview } from '@prisma/client';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
-interface DeleteInterviewsDialog {
+type DeleteInterviewsDialog = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   interviewsToDelete: Interview[];
-}
+};
 
 export const DeleteInterviewsDialog = ({
   open,

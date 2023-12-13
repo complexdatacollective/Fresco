@@ -1,6 +1,5 @@
-import { api } from '~/trpc/server';
-import InterviewShell from '../_components/InterviewShell';
 import NoSSRWrapper from '~/utils/NoSSRWrapper';
+import InterviewShell from '../_components/InterviewShell';
 
 export default function Page({ params }: { params: { interviewId: string } }) {
   const { interviewId } = params;

@@ -17,11 +17,11 @@ import { api } from '~/trpc/client';
 import { clientRevalidateTag } from '~/utils/clientRevalidate';
 import { useRouter } from 'next/navigation';
 
-interface DeleteProtocolsDialogProps {
+type DeleteProtocolsDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   protocolsToDelete: ProtocolWithInterviews[];
-}
+};
 
 export const DeleteProtocolsDialog = ({
   open,

@@ -7,7 +7,7 @@ function CreateAccount() {
   const { setCurrentStep } = useOnboardingContext();
 
   const completeCallback = () => {
-    setCurrentStep(2).catch(() => {});
+    void setCurrentStep(2);
   };
 
   return (

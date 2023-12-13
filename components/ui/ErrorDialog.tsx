@@ -22,7 +22,7 @@ type ErrorDialogProps = AlertDialogProps & {
 const ErrorDialog = ({
   open,
   onOpenChange,
-  onConfirm = () => {},
+  onConfirm,
   title = 'Error',
   description,
   confirmLabel = 'OK',

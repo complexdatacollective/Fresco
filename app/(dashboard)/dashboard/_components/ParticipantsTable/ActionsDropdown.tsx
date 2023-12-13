@@ -53,7 +53,7 @@ export const ActionsDropdown = ({
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        participantsToDelete={participantToDelete || []}
+        participantsToDelete={participantToDelete ?? []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

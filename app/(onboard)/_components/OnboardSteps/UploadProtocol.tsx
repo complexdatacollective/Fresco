@@ -10,7 +10,7 @@ function ConfigureStudy() {
   const { currentStep, setCurrentStep } = useOnboardingContext();
 
   const handleNextStep = () => {
-    setCurrentStep(currentStep + 1).catch(() => {});
+    void setCurrentStep(currentStep + 1);
   };
 
   return (

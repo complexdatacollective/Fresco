@@ -40,10 +40,12 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
 
     // check if current stage index is null (happens when hot reloading)
     if (currentSession.currentStep === null) {
+      // eslint-disable-next-line no-console
       console.log('⚠️ Current stage index is null. Skipping sync.');
       return;
     }
 
+    // eslint-disable-next-line no-console
     console.log(`⬆️ Syncing session with server...`);
     syncSessionWithServer({
       id: interviewId,
@@ -80,6 +82,7 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
 
         const { protocol, ...serverSession } = data;
 
+        // eslint-disable-next-line no-console
         console.log(
           '✅ Received server session. Setting current stage, and initializing redux store...',
         );

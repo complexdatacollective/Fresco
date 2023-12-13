@@ -39,7 +39,7 @@ function ExportCSVParticipants({
       // Clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {
-      throw new Error('An error occured while exporting participants');
+      throw new Error('An error occurred while exporting participants');
     }
 
     setIsExporting(false);

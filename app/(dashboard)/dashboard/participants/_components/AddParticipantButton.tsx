@@ -4,9 +4,9 @@ import { type Participant } from '@prisma/client';
 import { useState } from 'react';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 
-interface AddParticipantButtonProps {
+type AddParticipantButtonProps = {
   existingParticipants: Participant[];
-}
+};
 
 function AddParticipantButton({
   existingParticipants,

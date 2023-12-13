@@ -1,10 +1,10 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect } from 'react';
 
 const resizeCanvas = (
   context: CanvasRenderingContext2D,
   canvasRef: React.RefObject<HTMLCanvasElement>,
 ) => {
-  if (!canvasRef || !canvasRef.current) {
+  if (!canvasRef?.current) {
     return false;
   }
 
@@ -56,7 +56,7 @@ const useCanvas = (
       return;
     }
 
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
 
     if (!context) {
       return;

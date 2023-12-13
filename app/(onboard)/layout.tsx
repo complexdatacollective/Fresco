@@ -15,7 +15,7 @@ export default function Layout({ children }: PropsWithChildren) {
               height={84.05}
               priority
               alt="Network Canvas"
-              style={{ width: 'auto', height: 'auto' }} // Needed to supress console warning: https://github.com/vercel/next.js/issues/40762#issuecomment-1443868704
+              style={{ width: 'auto', height: 'auto' }} // Needed to suppress console warning: https://github.com/vercel/next.js/issues/40762#issuecomment-1443868704
             />
           </Link>
         </div>

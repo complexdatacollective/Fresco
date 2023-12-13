@@ -2,10 +2,10 @@ import type { FC } from 'react';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { useToast } from '~/components/ui/use-toast';
 
-interface CopyButtonProps {
+type CopyButtonProps = {
   text: string;
   children: React.ReactNode;
-}
+};
 
 const CopyButton: FC<CopyButtonProps> = ({ text, children }) => {
   const { toast } = useToast();

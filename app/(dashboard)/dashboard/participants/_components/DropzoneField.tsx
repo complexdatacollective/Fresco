@@ -14,7 +14,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from '../../../../../components/ui/form';
+} from '~/components/ui/form';
 import type { Control } from 'react-hook-form';
 
 export const DropzoneField = ({
@@ -98,7 +98,7 @@ export const Dropzone = ({
       void onDrop(acceptedFiles, fileRejections),
   });
 
-  const componentId = id || name;
+  const componentId = id ?? name;
 
   const variants = {
     show: { opacity: 1, y: 0 },

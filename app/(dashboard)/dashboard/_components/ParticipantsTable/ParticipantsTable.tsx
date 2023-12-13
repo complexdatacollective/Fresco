@@ -47,7 +47,7 @@ export const ParticipantsTable = ({
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        participantsToDelete={participantsToDelete || []}
+        participantsToDelete={participantsToDelete ?? []}
       />
       <DataTable
         columns={ParticipantColumns()}

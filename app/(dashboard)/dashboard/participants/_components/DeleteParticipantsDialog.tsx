@@ -14,18 +14,18 @@ import { api } from '~/trpc/client';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
-interface DeleteParticipantsDialog {
+type DeleteParticipantsDialog = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   participantsToDelete: ParticipantWithInterviews[];
-}
+};
 
 export const DeleteParticipantsDialog = ({
   open,
   setOpen,
   participantsToDelete,
 }: DeleteParticipantsDialog) => {
-  const [particpantsInfo, setParticipantsInfo] = useState<{
+  const [participantsInfo, setParticipantsInfo] = useState<{
     hasInterviews: boolean;
     hasUnexportedInterviews: boolean;
   }>({
@@ -86,8 +86,8 @@ export const DeleteParticipantsDialog = ({
               )}
             </strong>
           </AlertDialogDescription>
-          {particpantsInfo.hasInterviews &&
-            !particpantsInfo.hasUnexportedInterviews && (
+          {participantsInfo.hasInterviews &&
+            !participantsInfo.hasUnexportedInterviews && (
               <Alert className="p-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Warning</AlertTitle>
@@ -106,7 +106,7 @@ export const DeleteParticipantsDialog = ({
                 </AlertDescription>
               </Alert>
             )}
-          {particpantsInfo.hasUnexportedInterviews && (
+          {participantsInfo.hasUnexportedInterviews && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Warning</AlertTitle>

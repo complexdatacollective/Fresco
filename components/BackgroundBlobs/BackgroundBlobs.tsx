@@ -202,7 +202,7 @@ class NCBlob {
 
     if (!this.interpolator) return;
 
-    if (!this.gradient || !this.gradient[0] || !this.gradient[1]) {
+    if (!this.gradient?.[0] || !this.gradient[1]) {
       return;
     }
 

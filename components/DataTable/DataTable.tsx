@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   flexRender,
   getCoreRowModel,
@@ -35,7 +34,7 @@ type CustomTable<TData> = TTable<TData> & {
   };
 };
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
@@ -43,7 +42,7 @@ interface DataTableProps<TData, TValue> {
   actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
   actionsHeader?: React.ReactNode;
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
-}
+};
 
 export function DataTable<TData, TValue>({
   columns = [],
