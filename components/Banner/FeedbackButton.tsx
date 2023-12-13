@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import FeedbackModal from './FeedbackModal';
+import { Button } from '../ui/Button';
 
 const FeedbackButton = () => {
   const [open, setOpen] = useState(false);
@@ -9,12 +10,15 @@ const FeedbackButton = () => {
   return (
     <>
       <FeedbackModal open={open} setOpen={setOpen} />
-      <button
-        className="flex-none rounded-full bg-gray-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+      <Button
+        variant="default"
+        color="primary"
+        size="sm"
+        className="space-x-1 rounded-full"
         onClick={() => setOpen(true)}
       >
-        Provide Feedback <span aria-hidden="true">&rarr;</span>
-      </button>
+        <span>Provide Feedback</span> <span aria-hidden="true">&rarr;</span>
+      </Button>
     </>
   );
 };

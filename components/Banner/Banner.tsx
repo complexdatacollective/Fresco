@@ -2,7 +2,7 @@ import BannerContent from './BannerContent';
 
 export default function Banner() {
   return (
-    <div className="sticky top-0 isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden bg-gray-50 px-6 py-2 sm:px-3.5 ">
+    <div className="relative isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden bg-gray-50 px-6 py-2 sm:px-3.5 ">
       <div
         className="absolute left-[max(-7rem,calc(50%-52rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
         aria-hidden="true"

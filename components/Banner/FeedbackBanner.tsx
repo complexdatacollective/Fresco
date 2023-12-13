@@ -2,7 +2,7 @@ import FeedbackButton from './FeedbackButton';
 
 const FeedbackBanner = () => {
   return (
-    <div className="mx-auto flex items-center gap-x-3">
+    <div className="flex items-center gap-x-3">
       <p className="text-sm leading-6 text-gray-900">
         <strong className="font-semibold">🤖 Fresco is Alpha software</strong>
         <svg
