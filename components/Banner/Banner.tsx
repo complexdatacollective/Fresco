@@ -1,17 +1,8 @@
-import { LogOut } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '~/components/ui/Button';
-import { useSession } from '~/providers/SessionProvider';
+import BannerContent from './BannerContent';
 
-export default function UserBanner() {
-  const { session, signOut } = useSession();
-
-  if (!session) {
-    return null;
-  }
-
+export default function Banner() {
   return (
-    <div className="relative isolate flex min-h-[70px] items-center overflow-hidden bg-gray-200 px-6 text-primary">
+    <div className="relative isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden bg-gray-50 px-6 py-2 sm:px-3.5 ">
       <div
         className="absolute left-[max(-7rem,calc(50%-52rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
         aria-hidden="true"
@@ -36,22 +27,7 @@ export default function UserBanner() {
           }}
         />
       </div>
-      <div className="flex w-full items-center justify-between">
-        <p className="text-sm font-bold leading-6">
-          You are currently logged in.
-        </p>
-        <div className="flex gap-x-4">
-          <Link href="/dashboard">
-            <Button variant="default" color="primary" size="sm">
-              Return to Dashboard{' '}
-              <LogOut className="ml-2" size={16} strokeWidth={3} />
-            </Button>
-          </Link>
-          <Button variant="link" color="primary" size="sm" onClick={signOut}>
-            Sign out
-          </Button>
-        </div>
-      </div>
+      <BannerContent />
     </div>
   );
 }

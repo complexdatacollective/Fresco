@@ -1,20 +1,19 @@
 'use client';
 
+import { isEqual } from 'lodash';
+import { useQueryState } from 'next-usequerystate';
+import { useEffect, useState } from 'react';
 import { Provider, useSelector } from 'react-redux';
+import usePrevious from '~/hooks/usePrevious';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
-import { store } from '~/lib/interviewer/store';
-import UserBanner from './UserBanner';
-import { useEffect, useState } from 'react';
 import {
   SET_SERVER_SESSION,
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
+import { store } from '~/lib/interviewer/store';
 import { api } from '~/trpc/client';
-import { useQueryState } from 'next-usequerystate';
-import usePrevious from '~/hooks/usePrevious';
-import { isEqual } from 'lodash';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
@@ -107,7 +106,6 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
   return (
     <Provider store={store}>
       <ServerSync interviewId={interviewID} />
-      <UserBanner />
       <ProtocolScreen />
       <DialogManager />
     </Provider>
