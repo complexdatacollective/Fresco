@@ -3,8 +3,8 @@ import { trackEvent } from '~/analytics/utils';
 import { Button } from '~/components/ui/Button';
 
 const AnalyticsButton = () => {
-  const sendEvent = async () =>
-    await trackEvent({
+  const sendEvent = () =>
+    trackEvent({
       type: 'ProtocolInstalled',
       metadata: {
         protocol: 'ethereum',

@@ -7,7 +7,7 @@ import { trackEvent } from '~/analytics/utils';
 function Documentation() {
   const handleAppConfigured = async () => {
     await setAppConfigured();
-    await trackEvent({
+    trackEvent({
       type: 'AppSetup',
       metadata: {
         success: true,

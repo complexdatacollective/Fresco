@@ -7,7 +7,8 @@ const routeHandler = createRouteHandler({
   maxMindAccountId: env.MAXMIND_ACCOUNT_ID,
   maxMindLicenseKey: env.MAXMIND_LICENSE_KEY,
   getInstallationId,
-  platformUrl: 'http://localhost:3001',
+  platformUrl:
+    'https://error-analytics-microservice-jacbfmvtm-network-canvas-f4790d84.vercel.app',
   WebServiceClient,
 });
 
