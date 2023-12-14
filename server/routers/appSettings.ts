@@ -32,6 +32,15 @@ export const getAppSettings = async () => {
 
 export const appSettingsRouter = router({
   get: publicProcedure.query(getAppSettings),
+  getInstallationId: publicProcedure.query(async () => {
+    const appSettings = await getAppSettings();
+
+    if (!appSettings) {
+      return null;
+    }
+
+    return appSettings.installationId;
+  }),
   create: publicProcedure.mutation(async () => {
     try {
       const appSettings = await prisma.appSettings.create({

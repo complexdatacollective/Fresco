@@ -3,7 +3,7 @@
 import { Button } from '~/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
 import { useEffect } from 'react';
-import { analytics } from '~/lib/analytics';
+import { trackEvent } from '~/analytics/utils';
 
 export default function Error({
   error,
@@ -15,7 +15,7 @@ export default function Error({
   heading?: string;
 }) {
   useEffect(() => {
-    analytics.trackEvent({
+    trackEvent({
       type: 'Error',
       error: {
         message: error.message,
