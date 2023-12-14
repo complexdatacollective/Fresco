@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { Session } from 'lucia';
 import type { Route } from 'next';
-import { ReadonlyURLSearchParams } from 'next/navigation';
+import { type ReadonlyURLSearchParams } from 'next/navigation';
 import { cache } from 'react';
 
 const routeIsLoginPage = (pathname: Route) => {

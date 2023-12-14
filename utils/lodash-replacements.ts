@@ -27,7 +27,7 @@
 //   return parts.reduce(pathReducer, object) ?? defaultValue;
 // };
 
-type Path = string | Array<string>;
+type Path = string | string[];
 
 // WARNING: This is not a drop in replacement solution and
 // it might not work for some edge cases. Test your code!
@@ -43,7 +43,7 @@ export const get = (obj: object, path: Path, defValue: unknown = undefined) => {
     obj,
   );
   // If found value is undefined return default value; otherwise return the value
-  return result === undefined ? defValue : result;
+  return result ?? defValue;
 };
 
 export const has = (obj: object, key: string): boolean => {
@@ -96,10 +96,10 @@ export const clamp = (num: number, clamp: number, higher: number) =>
 export const times = (n: number, func = (i: unknown) => i) =>
   Array.from({ length: n }).map((_, i) => func(i));
 
-export const difference = (arr1: Array<unknown>, arr2: Array<unknown>) =>
+export const difference = (arr1: unknown[], arr2: unknown[]) =>
   arr1.filter((x) => !arr2.includes(x));
 
-export const intersection = (...arrays: Array<unknown[]>) =>
+export const intersection = (...arrays: unknown[][]) =>
   arrays.reduce((a, b) => a.filter((c) => b.includes(c)));
 
 export const round = (num: number, precision: number) => {
@@ -122,7 +122,7 @@ export const uniqueId = (
  * @param {...object} objects - Objects to merge
  * @returns {object} New object with merged key/values
  */
-export const merge = (...objects: Array<Record<string, unknown>>) => {
+export const merge = (...objects: Record<string, unknown>[]) => {
   const isObject = (obj: unknown): boolean => typeof obj === 'object';
 
   return objects.reduce((prev, obj) => {
@@ -152,6 +152,7 @@ export const debounce = (
   { leading, trailing } = { leading: false, trailing: undefined },
 ) => {
   if (trailing !== undefined) {
+    // eslint-disable-next-line no-console
     console.warn(
       'Trailing option not implemented in lodash replacements debounce',
     );
@@ -170,14 +171,14 @@ export const debounce = (
 };
 
 export const flowRight =
-  (funcs: Array<(...args: unknown[]) => void>) =>
+  (funcs: ((...args: unknown[]) => void)[]) =>
   (...args: unknown[]) =>
     funcs.reverse().reduce((prev, fnc) => [fnc(...prev)], args)[0];
 
 // Function that accepts an array of unknown items, and a function that returns a promise.
 // It will run the function on each item in the array, and wait for the promise to resolve before moving on to the next item.
 export const inSequence = async (
-  items: Array<unknown>,
+  items: unknown[],
   apply: (item: unknown) => Promise<unknown>,
 ) => {
   for (const item of items) {
@@ -212,7 +213,7 @@ export const toPairs = (obj: Record<string, unknown>) => {
 
 // Creates an object composed of keys generated from the results of running each element of collection thru iteratee. The corresponding value of each key is the number of times the key was returned by iteratee. The iteratee is invoked with one argument: (value).
 export const countBy = (
-  collection: Array<unknown>,
+  collection: unknown[],
   iteratee: (value: unknown) => unknown,
 ) => {
   const result: Record<string, number> = {};
@@ -282,9 +283,9 @@ export const mapKeys = (
 };
 
 export const orderBy = (
-  collection: Array<Record<string, unknown>> | Array<string>,
-  iteratees: Array<unknown>,
-  orders: Array<unknown>,
+  collection: Record<string, unknown>[] | string[],
+  iteratees: unknown[],
+  orders: unknown[],
 ) => {
   const result = [...collection];
 
@@ -314,8 +315,8 @@ export const orderBy = (
 };
 
 export const sortBy = (
-  collection: Array<Record<string, unknown>> | Array<string>,
-  iteratees: Array<unknown>,
+  collection: Record<string, unknown>[] | string[],
+  iteratees: unknown[],
 ) => {
   return orderBy(
     collection,
