@@ -1,10 +1,10 @@
 'use client';
+import { trackEvent } from '~/analytics/utils';
 import { Button } from '~/components/ui/Button';
-import { analytics } from '~/lib/analytics';
 
 const AnalyticsButton = () => {
   const sendEvent = () =>
-    analytics.trackEvent({
+    trackEvent({
       type: 'ProtocolInstalled',
       metadata: {
         protocol: 'ethereum',

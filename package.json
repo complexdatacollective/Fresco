@@ -19,13 +19,12 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@codaco/analytics": "0.4.0-alpha",
+    "@codaco/analytics": "1.0.0-alpha-1",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.3.2",
     "@lucia-auth/adapter-prisma": "^3.0.2",
-    "@maxmind/geoip2-node": "^5.0.0",
     "@prisma/client": "^5.4.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-checkbox": "^1.0.4",
@@ -87,6 +86,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.2.0",
+    "@maxmind/geoip2-node": "^5.0.0",
     "@storybook/addon-essentials": "^7.5.1",
     "@storybook/addon-interactions": "^7.5.1",
     "@storybook/addon-links": "^7.5.1",
