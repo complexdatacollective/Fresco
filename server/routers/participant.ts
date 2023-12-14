@@ -25,7 +25,6 @@ export const participantRouter = router({
         return participant;
       }),
     byId: publicProcedure.input(z.string()).query(async ({ input: id }) => {
-      console.log('id', id);
       const participant = await prisma.participant.findFirst({
         where: { id },
       });
