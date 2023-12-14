@@ -30,7 +30,7 @@ export const useNavigationHelpers = (
     canMoveForward,
   } = useSelector(getNavigationInfo);
 
-  const prevStageIndex = usePrevious(currentStep);
+  // const prevStageIndex = usePrevious(currentStep);
 
   const calculateNextStage = useCallback(() => {
     const nextStage = Object.keys(skipMap).find(
@@ -74,6 +74,8 @@ export const useNavigationHelpers = (
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     dispatch(sessionActions.updatePrompt(promptIndex + 1));
   }, [
     dispatch,
@@ -91,6 +93,8 @@ export const useNavigationHelpers = (
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     dispatch(sessionActions.updatePrompt(promptIndex - 1));
   };
 
@@ -113,6 +117,8 @@ export const useNavigationHelpers = (
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     dispatch(sessionActions.updateStage(currentStage));
   }, [currentStage, dispatch, needToDispatch]);
 
@@ -172,7 +178,7 @@ const Navigation = () => {
     canMoveForward,
     progress,
     isReadyForNextStage,
-  } = useNavigationHelpers(currentStage, setCurrentStage);
+  } = useNavigationHelpers(currentStage!, setCurrentStage);
 
   // Check if the current stage is valid for us to be on.
   useEffect(() => {
