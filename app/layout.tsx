@@ -26,8 +26,8 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="">
+      <body className="bg-slate-100">
         <RedirectWrapper
           configured={!!appSettings?.configured}
           expired={!!appSettings?.expired}
