@@ -13,6 +13,12 @@ export const getInstallationId = cache(async () => {
   return 'Unknown';
 });
 
-export const trackEvent = makeEventTracker({
-  endpoint: getBaseUrl() + '/api/analytics',
-});
+// eslint-disable-next-line no-process-env
+const globalAnalyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED;
+
+export const trackEvent =
+  globalAnalyticsEnabled !== 'false'
+    ? makeEventTracker({
+        endpoint: getBaseUrl() + '/api/analytics',
+      })
+    : () => {};
