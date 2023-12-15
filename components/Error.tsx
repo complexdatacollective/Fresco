@@ -21,8 +21,8 @@ export default function Error({
           type: 'Error',
           error: {
             message: error.message,
-            details: heading || '',
-            stacktrace: error.stack || '',
+            details: heading ?? '',
+            stacktrace: error.stack ?? '',
             path: window.location.pathname,
           },
         });
