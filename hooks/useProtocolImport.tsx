@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import type { assetInsertSchema } from '~/server/routers/protocol';
 import type { z } from 'zod';
 import { hash } from 'ohash';
+import { trackEvent } from '~/analytics/utils';
 
 // Utility helper for adding artificial delay to async functions
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -268,6 +269,13 @@ export const useProtocolImport = () => {
         payload: {
           id: fileName,
           status: 'Complete',
+        },
+      });
+
+      await trackEvent({
+        type: 'ProtocolInstalled',
+        metadata: {
+          protocol: fileName,
         },
       });
 

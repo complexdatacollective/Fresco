@@ -1,8 +1,9 @@
-'use client'; // Error components must be Client components
+'use client';
 
-import { useEffect } from 'react';
 import { Button } from '~/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
+import { useEffect } from 'react';
+import { trackEvent } from '~/analytics/utils';
 
 export default function Error({
   error,
@@ -14,10 +15,25 @@ export default function Error({
   heading?: string;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    // eslint-disable-next-line no-console
-    console.error(error);
-  }, [error]);
+    const sendEvent = async () => {
+      try {
+        await trackEvent({
+          type: 'Error',
+          error: {
+            message: error.message,
+            details: heading ?? '',
+            stacktrace: error.stack ?? '',
+            path: window.location.pathname,
+          },
+        });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    };
+
+    void sendEvent();
+  }, [heading, error]);
 
   return (
     <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">

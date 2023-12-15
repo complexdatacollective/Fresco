@@ -2,12 +2,12 @@
 
 import Error from '~/components/Error';
 
-export default function GlobalError({
+export default function DashboardError({
   error,
   reset,
 }: {
   error: Error;
   reset: () => void;
 }) {
-  return <Error error={error} reset={reset} heading="Global Error" />;
+  return <Error error={error} reset={reset} heading="Interview Error" />;
 }

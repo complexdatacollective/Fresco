@@ -55,6 +55,10 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
         }
       }
     },
+    onError: (error) => {
+      setLoading(false);
+      throw new Error(error.message);
+    },
   });
 
   const onSubmit = async (data: unknown) => {

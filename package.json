@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@8.9.0",
+  "engines": {
+    "node": ">=18.16.0",
+    "pnpm": ">=8.6.3"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -19,6 +23,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@codaco/analytics": "1.0.1-alpha-1",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@headlessui/react": "^1.7.17",
@@ -113,6 +118,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.2.0",
+    "@maxmind/geoip2-node": "^5.0.0",
     "@redux-devtools/extension": "^3.2.6",
     "@storybook/addon-essentials": "^7.5.1",
     "@storybook/addon-interactions": "^7.5.1",

@@ -2,8 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
+import { trackEvent } from '~/analytics/utils';
 
 function Documentation() {
+  const handleAppConfigured = async () => {
+    await setAppConfigured();
+    await trackEvent({
+      type: 'AppSetup',
+      metadata: {
+        success: true,
+      },
+    });
+  };
+
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
@@ -44,7 +55,7 @@ function Documentation() {
       </Card>
 
       <div className="flex justify-start pt-12">
-        <form action={setAppConfigured}>
+        <form action={handleAppConfigured}>
           <SubmitButton variant="default" size={'lg'}>
             Go to the dashboard!
           </SubmitButton>
