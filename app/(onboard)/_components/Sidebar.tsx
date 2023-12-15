@@ -28,7 +28,7 @@ function OnboardSteps() {
         >
           <div
             className={cn(
-              'text-md border-primmary/[.06] flex h-10 w-10 items-center justify-center rounded-full border font-bold',
+              'text-md flex h-10 w-10 items-center justify-center rounded-full border border-primary/[.06] font-bold',
               index < currentStep - 1 &&
                 'border-teal-400 bg-teal-400 text-white',
               index === currentStep - 1 &&

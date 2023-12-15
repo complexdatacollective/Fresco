@@ -1,6 +1,14 @@
-# fresco-setup-test
+# Fresco
 
-## Deploy your own instance of Fresco
+The Fresco project aims to bring Network Canvas interviews to the web browser. It is a pilot project that does not
+add new features to Network Canvas, but rather provides a new way to conduct interviews.
+
+## Known Limitations
+
+- Custom node label workers are not implemented.
+- Videos and audio cannot autoplay on load due to browser limitations. Participants must click the play button to start media.
+
+# Deployment instructions
 
 **1. Set up required servies**
 - Create a database with [PlanetScale](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide)

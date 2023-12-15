@@ -28,7 +28,7 @@ export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
       <DeleteInterviewsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        interviewsToDelete={interviewToDelete || []}
+        interviewsToDelete={interviewToDelete ?? []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

@@ -1,40 +1,39 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { participantIdentifierSchema } from '~/shared/schemas';
+import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import { z } from 'zod';
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-} from '@codaco/shared-consts';
 import { Prisma } from '@prisma/client';
-
-const NcEntityZod = z.object({
-  [entityPrimaryKeyProperty]: z.string().readonly(),
-  type: z.string().optional(),
-  [entityAttributesProperty]: z.record(z.string(), z.any()),
-});
-
-const NcNodeZod = NcEntityZod.extend({
-  type: z.string(),
-  stageId: z.string().optional(),
-  promptIDs: z.array(z.string()).optional(),
-  displayVariable: z.string().optional(),
-});
-
-const NcEdgeZod = NcEntityZod.extend({
-  type: z.string(),
-  from: z.string(),
-  to: z.string(),
-});
-
-const NcNetworkZod = z.object({
-  nodes: z.array(NcNodeZod),
-  edges: z.array(NcEdgeZod),
-  ego: NcEntityZod.optional(),
-});
+import { NcNetworkZod } from '~/shared/schemas/network-canvas';
+import { ensureError } from '~/utils/ensureError';
 
 export const interviewRouter = router({
+  sync: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        network: NcNetworkZod,
+        currentStep: z.number(),
+      }),
+    )
+    .mutation(async ({ input: { id, network, currentStep } }) => {
+      try {
+        await prisma.interview.update({
+          where: {
+            id,
+          },
+          data: {
+            network,
+            currentStep,
+            lastUpdated: new Date(),
+          },
+        });
+        return { success: true };
+      } catch (error) {
+        const message = ensureError(error).message;
+        return { success: false, error: message };
+      }
+    }),
   create: publicProcedure
     .input(participantIdentifierSchema)
     .mutation(async ({ input: identifier }) => {
@@ -48,23 +47,7 @@ export const interviewRouter = router({
           return {
             errorType: 'NO_ACTIVE_PROTOCOL',
             error: 'Failed to create interview: no active protocol',
-            createdInterview: null,
-          };
-        }
-
-        const existingInterview = await prisma.interview.findFirst({
-          where: {
-            participant: {
-              identifier,
-            },
-          },
-        });
-
-        if (existingInterview) {
-          return {
-            errorType: 'IDENTIFIER_IN_USE',
-            error: 'Identifier is already in use',
-            createdInterview: null,
+            createdInterviewId: null,
           };
         }
 
@@ -72,7 +55,6 @@ export const interviewRouter = router({
           data: {
             startTime: new Date(),
             lastUpdated: new Date(),
-            currentStep: 0,
             network: Prisma.JsonNull,
             participant: {
               create: {
@@ -87,36 +69,18 @@ export const interviewRouter = router({
           },
         });
 
-        return { error: null, createdInterview, errorType: null };
-      } catch (error) {
         return {
-          errorType: 'UNKNOWN',
-          error: 'Failed to create interview',
-          createdInterview: null,
+          error: null,
+          createdInterviewId: createdInterview.id,
+          errorType: null,
         };
-      }
-    }),
-  updateNetwork: publicProcedure
-    .input(
-      z.object({
-        interviewId: z.string().cuid(),
-        network: NcNetworkZod,
-      }),
-    )
-    .mutation(async ({ input: { interviewId, network } }) => {
-      try {
-        const updatedInterview = await prisma.interview.update({
-          where: {
-            id: interviewId,
-          },
-          data: {
-            network,
-          },
-        });
-
-        return { error: null, updatedInterview };
       } catch (error) {
-        return { error: 'Failed to update interview', updatedInterview: null };
+        const e = ensureError(error);
+        return {
+          errorType: e.message,
+          error: 'Failed to create interview',
+          createdInterviewId: null,
+        };
       }
     }),
   get: router({
@@ -139,10 +103,14 @@ export const interviewRouter = router({
         const interview = await prisma.interview.findFirst({
           where: id,
           include: {
-            protocol: true,
-            participant: true,
+            protocol: {
+              include: {
+                assets: true,
+              },
+            },
           },
         });
+
         return interview;
       }),
   }),
@@ -158,7 +126,6 @@ export const interviewRouter = router({
       const idsToDelete = data.map((p) => p.id);
 
       try {
-        // eslint-disable-next-line local-rules/require-data-mapper
         const deletedInterviews = await prisma.interview.deleteMany({
           where: {
             id: {

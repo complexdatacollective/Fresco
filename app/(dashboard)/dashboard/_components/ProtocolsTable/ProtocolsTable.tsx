@@ -51,7 +51,7 @@ export const ProtocolsTable = ({
       <DeleteProtocolsDialog
         open={showAlertDialog}
         setOpen={setShowAlertDialog}
-        protocolsToDelete={protocolsToDelete || []}
+        protocolsToDelete={protocolsToDelete ?? []}
       />
     </>
   );

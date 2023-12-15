@@ -8,7 +8,7 @@ import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
 /**
  *
  * This wrapper component determines if we need to redirect based on if the
- * user is logged in, if the app is configured, and if the confiiuration window
+ * user is logged in, if the app is configured, and if the configuration window
  * is expired.
  *
  * Initially implemented within the root layout, but this caused maximum update

@@ -10,11 +10,10 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { cn } from '~/utils/shadcn';
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
   title: string;
-}
+} & React.HTMLAttributes<HTMLDivElement>;
 
 export function DataTableColumnHeader<TData, TValue>({
   column,

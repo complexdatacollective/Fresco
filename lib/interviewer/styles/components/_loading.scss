@@ -1,0 +1,11 @@
+@use '~~/lib/ui/styles/global/core/units';
+
+.loading {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: units.unit(2) 0 units.unit(4);
+  flex-direction: column;
+}

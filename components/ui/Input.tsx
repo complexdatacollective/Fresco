@@ -2,15 +2,14 @@ import * as React from 'react';
 import { cn } from '~/utils/shadcn';
 import { Label } from '~/components/ui/Label';
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export type InputProps = {
   label?: string;
   hint?: string;
   id?: string;
   error?: string;
   leftAdornment?: React.ReactNode;
   rightAdornment?: React.ReactNode;
-}
+} & React.InputHTMLAttributes<HTMLInputElement>;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
@@ -26,7 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
-    const id = props.id || props.name;
+    const id = props.id ?? props.name;
     return (
       <div className="relative grid w-full items-center gap-1.5">
         {label && <Label htmlFor={id}>{label}</Label>}

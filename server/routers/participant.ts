@@ -5,7 +5,8 @@ import {
   participantIdentifierSchema,
   participantListInputSchema,
   updateSchema,
-} from '~/shared/schemas';
+} from '~/shared/schemas/schemas';
+import { z } from 'zod';
 
 export const participantRouter = router({
   get: router({
@@ -23,6 +24,12 @@ export const participantRouter = router({
         });
         return participant;
       }),
+    byId: publicProcedure.input(z.string()).query(async ({ input: id }) => {
+      const participant = await prisma.participant.findFirst({
+        where: { id },
+      });
+      return participant;
+    }),
   }),
   create: protectedProcedure
     .input(participantListInputSchema)
@@ -37,7 +44,11 @@ export const participantRouter = router({
           skipDuplicates: true,
         });
 
-        return { error: null, createdParticipants, existingParticipants };
+        return {
+          error: null,
+          createdParticipants: createdParticipants.count,
+          existingParticipants: existingParticipants,
+        };
       } catch (error) {
         return {
           error: 'Failed to create participant',
@@ -65,7 +76,7 @@ export const participantRouter = router({
     all: protectedProcedure.mutation(async () => {
       try {
         const deletedParticipants = await prisma.participant.deleteMany();
-        return { error: null, deletedParticipants };
+        return { error: null, deletedParticipants: deletedParticipants.count };
       } catch (error) {
         return {
           error: 'Failed to delete participants',
@@ -80,7 +91,10 @@ export const participantRouter = router({
           const deletedParticipants = await prisma.participant.deleteMany({
             where: { identifier: { in: identifiers } },
           });
-          return { error: null, deletedParticipants: deletedParticipants };
+          return {
+            error: null,
+            deletedParticipants: deletedParticipants.count,
+          };
         } catch (error) {
           return {
             error: 'Failed to delete participants',

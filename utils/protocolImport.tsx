@@ -1,4 +1,4 @@
-import type { AssetManifest, Protocol } from '@codaco/shared-consts';
+import type { Protocol } from '@codaco/shared-consts';
 import type Zip from 'jszip';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
@@ -25,7 +25,7 @@ export const getProtocolAssets = async (
   protocolJson: Protocol,
   protocolZip: Zip,
 ) => {
-  const assetManifest = protocolJson?.assetManifest as AssetManifest;
+  const assetManifest = protocolJson?.assetManifest;
 
   if (!assetManifest) {
     return [];

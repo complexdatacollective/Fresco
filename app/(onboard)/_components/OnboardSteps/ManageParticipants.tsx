@@ -16,7 +16,7 @@ function ManageParticipants() {
   };
 
   const handleNextStep = () => {
-    setCurrentStep(currentStep + 1).catch(() => {});
+    void setCurrentStep(currentStep + 1);
   };
 
   return (

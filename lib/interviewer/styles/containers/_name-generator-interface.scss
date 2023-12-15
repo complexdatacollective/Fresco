@@ -1,0 +1,41 @@
+@use '~~/lib/ui/styles/global/core/units';
+
+.name-generator-interface {
+  @include interface-centering;
+
+  flex-direction: column;
+
+  &__prompt {
+    @include interface-prompt;
+  }
+
+  &__main {
+    flex: 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+    position: relative;
+    min-height: 0;
+  }
+
+  &__nodes {
+    flex: 3 1 auto;
+    height: 100%;
+    display: flex;
+    padding-left: 1.5rem;
+  }
+
+  &__panels {
+    flex: 0 0 auto;
+    height: 100%;
+    display: flex;
+  }
+
+  &__add-button {
+    position: absolute;
+    bottom: units.unit(2);
+    right: units.unit(6);
+    z-index: var(--z-global-ui);
+  }
+}

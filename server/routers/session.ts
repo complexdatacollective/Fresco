@@ -1,12 +1,11 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import type { inferAsyncReturnType } from '@trpc/server';
 import { LuciaError } from 'lucia';
+import * as context from 'next/headers';
 import { userFormSchema } from '~/app/(onboard)/_shared';
 import { auth } from '~/utils/auth';
-import { protectedProcedure, publicProcedure, router } from '../trpc';
-import * as context from 'next/headers';
-import type { inferAsyncReturnType } from '@trpc/server';
 import type { createTRPCContext } from '../context';
-import { revalidateTag } from 'next/cache';
+import { protectedProcedure, publicProcedure, router } from '../trpc';
 
 type Context = inferAsyncReturnType<typeof createTRPCContext>;
 

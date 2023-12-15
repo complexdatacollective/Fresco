@@ -22,11 +22,10 @@ const fancyButtonVariants = cva(
   },
 );
 
-export interface FancyButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof fancyButtonVariants> {
+export type FancyButtonProps = {
   asChild?: boolean;
-}
+} & React.ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof fancyButtonVariants>;
 
 const FancyButton = React.forwardRef<HTMLButtonElement, FancyButtonProps>(
   ({ children, className, variant, size, ...props }, ref) => {

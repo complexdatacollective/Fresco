@@ -50,7 +50,7 @@ const ImportCSVModal = ({
   const showColumnSelect = useMemo(() => {
     if (!selectedCSV) return false;
 
-    const ObjKeys = Object.keys(selectedCSV[0] || {});
+    const ObjKeys = Object.keys(selectedCSV[0] ?? {});
     if (ObjKeys.includes('identifier') || ObjKeys.length === 1) {
       return false;
     }
@@ -61,7 +61,7 @@ const ImportCSVModal = ({
   const csvColumns = useMemo(() => {
     if (!selectedCSV) return [];
 
-    return Object.keys(selectedCSV[0] || {});
+    return Object.keys(selectedCSV[0] ?? {});
   }, [selectedCSV]);
 
   const onSubmit = async (data: unknown) => {
@@ -88,13 +88,13 @@ const ImportCSVModal = ({
       return;
     }
 
-    const ObjectKeys = Object.keys(validData.csvFile[0] || {});
+    const ObjectKeys = Object.keys(validData.csvFile[0] ?? {});
 
     const identifierColumn = showColumnSelect
       ? validData.csvColumn!
       : ObjectKeys.includes('identifier')
       ? 'identifier'
-      : (ObjectKeys[0] as keyof (typeof validData.csvFile)[0]);
+      : ObjectKeys[0]!;
 
     const identifiers = validData.csvFile
       .map((item) => item[identifierColumn])

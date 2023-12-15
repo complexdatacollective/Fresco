@@ -14,18 +14,22 @@ import type { ProtocolWithInterviews } from '~/shared/types';
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { api } from '~/trpc/client';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
+import { useRouter } from 'next/navigation';
 
-interface DeleteProtocolsDialogProps {
+type DeleteProtocolsDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   protocolsToDelete: ProtocolWithInterviews[];
-}
+};
 
 export const DeleteProtocolsDialog = ({
   open,
   setOpen,
   protocolsToDelete,
 }: DeleteProtocolsDialogProps) => {
+  const router = useRouter();
+
   const [protocolsInfo, setProtocolsInfo] = useState<{
     hasInterviews: boolean;
     hasUnexportedInterviews: boolean;
@@ -50,10 +54,10 @@ export const DeleteProtocolsDialog = ({
       },
     });
 
-  const utils = api.useUtils();
   const handleConfirm = async () => {
     await deleteProtocols(protocolsToDelete.map((d) => d.hash));
-    await utils.protocol.get.all.refetch();
+    await clientRevalidateTag('protocols.get.all');
+    router.refresh();
     setOpen(false);
   };
 

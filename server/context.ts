@@ -3,10 +3,10 @@ import type { NextRequest } from 'next/server';
 import { auth } from '~/utils/auth';
 import * as context from 'next/headers';
 
-interface CreateContextOptions {
+type CreateContextOptions = {
   headers: Headers;
   session: Session | null;
-}
+};
 
 export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {

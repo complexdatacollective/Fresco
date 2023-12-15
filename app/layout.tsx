@@ -1,11 +1,11 @@
-/* eslint-disable no-console */
-import '~/styles/globals.scss';
-import Providers from '../providers/Providers';
-import RedirectWrapper from '~/components/RedirectWrapper';
-import { getServerSession } from '~/utils/auth';
-import { api } from '~/trpc/server';
-import { Toaster } from '~/components/ui/toaster';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import Banner from '~/components/Banner/Banner';
+import RedirectWrapper from '~/components/RedirectWrapper';
+import { Toaster } from '~/components/ui/toaster';
+import '~/styles/globals.scss';
+import { api } from '~/trpc/server';
+import { getServerSession } from '~/utils/auth';
+import Providers from '../providers/Providers';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -33,7 +33,10 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           expired={!!appSettings?.expired}
           session={session}
         >
-          <Providers initialSession={session}>{children}</Providers>
+          <Providers initialSession={session}>
+            <Banner />
+            {children}
+          </Providers>
           <Toaster />
         </RedirectWrapper>
       </body>

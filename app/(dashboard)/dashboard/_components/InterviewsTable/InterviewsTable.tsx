@@ -39,7 +39,7 @@ export const InterviewsTable = () => {
       <DeleteInterviewsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        interviewsToDelete={interviewsToDelete || []}
+        interviewsToDelete={interviewsToDelete ?? []}
       />
       <DataTable
         columns={InterviewColumns()}

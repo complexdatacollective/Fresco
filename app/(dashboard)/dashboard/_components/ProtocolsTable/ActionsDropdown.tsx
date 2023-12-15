@@ -33,7 +33,7 @@ export const ActionsDropdown = ({
       <DeleteProtocolsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        protocolsToDelete={protocolToDelete || []}
+        protocolsToDelete={protocolToDelete ?? []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

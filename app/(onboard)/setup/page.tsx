@@ -69,12 +69,12 @@ function Page() {
     }
 
     if (!session && currentStep !== 1) {
-      setCurrentStep(1).catch(() => {});
+      void setCurrentStep(1);
       return;
     }
 
     if (session && currentStep === 1) {
-      setCurrentStep(2).catch(() => {});
+      void setCurrentStep(2);
       return;
     }
   }, [isLoading, session, currentStep, setCurrentStep]);
