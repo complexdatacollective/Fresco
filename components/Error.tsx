@@ -15,15 +15,24 @@ export default function Error({
   heading?: string;
 }) {
   useEffect(() => {
-    trackEvent({
-      type: 'Error',
-      error: {
-        message: error.message,
-        details: heading || '',
-        stacktrace: error.stack || '',
-        path: window.location.pathname,
-      },
-    });
+    const sendEvent = async () => {
+      try {
+        await trackEvent({
+          type: 'Error',
+          error: {
+            message: error.message,
+            details: heading || '',
+            stacktrace: error.stack || '',
+            path: window.location.pathname,
+          },
+        });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    };
+
+    void sendEvent();
   }, [heading, error]);
 
   return (
