@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
+import { useRouter } from 'next/navigation';
 
 type FinishInterviewModalProps = {
   open: boolean;
@@ -16,8 +17,10 @@ type FinishInterviewModalProps = {
 };
 
 const FinishInterviewModal = ({ open, setOpen }: FinishInterviewModalProps) => {
+  const router = useRouter();
   const handleFinishInterview = () => {
     // redirect to thank you for participating page
+    router.push('/interview/finished');
     // mark session as finished by updating finishedAt
   };
   return (
