@@ -22,7 +22,6 @@ type FinishInterviewModalProps = {
 const FinishInterviewModal = ({ open, setOpen }: FinishInterviewModalProps) => {
   const router = useRouter();
   const pathname = usePathname();
-  const utils = api.useUtils();
 
   const interviewId = pathname.split('/').pop();
   const { mutateAsync: finishInterview } = api.interview.finish.useMutation({
@@ -31,8 +30,7 @@ const FinishInterviewModal = ({ open, setOpen }: FinishInterviewModalProps) => {
     },
     async onSuccess() {
       await clientRevalidateTag('interview.get.byId');
-      await utils.interview.get.invalidate();
-      await utils.interview.get.byId.refetch();
+
       router.push('/interview/finished');
     },
   });
