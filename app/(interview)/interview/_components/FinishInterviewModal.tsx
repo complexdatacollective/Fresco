@@ -10,6 +10,9 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { useRouter } from 'next/navigation';
+import { api } from '~/trpc/client';
+import { usePathname } from 'next/navigation';
+import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
 type FinishInterviewModalProps = {
   open: boolean;
@@ -18,10 +21,26 @@ type FinishInterviewModalProps = {
 
 const FinishInterviewModal = ({ open, setOpen }: FinishInterviewModalProps) => {
   const router = useRouter();
-  const handleFinishInterview = () => {
-    // redirect to thank you for participating page
-    router.push('/interview/finished');
-    // mark session as finished by updating finishedAt
+  const pathname = usePathname();
+  const utils = api.useUtils();
+
+  const interviewId = pathname.split('/').pop();
+  const { mutateAsync: finishInterview } = api.interview.finish.useMutation({
+    onError(error) {
+      throw new Error(error.message);
+    },
+    async onSuccess() {
+      await clientRevalidateTag('interview.get.byId');
+      await utils.interview.get.invalidate();
+      await utils.interview.get.byId.refetch();
+      router.push('/interview/finished');
+    },
+  });
+  const handleFinishInterview = async () => {
+    if (!interviewId) {
+      throw new Error('No interview id found');
+    }
+    await finishInterview({ id: interviewId });
   };
   return (
     <AlertDialog open={open}>
@@ -43,8 +62,8 @@ const FinishInterviewModal = ({ open, setOpen }: FinishInterviewModalProps) => {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => {
-              handleFinishInterview();
+            onClick={async () => {
+              await handleFinishInterview();
             }}
           >
             Finish Interview
