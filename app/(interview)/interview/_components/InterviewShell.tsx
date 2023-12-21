@@ -14,6 +14,7 @@ import {
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { store } from '~/lib/interviewer/store';
 import { api } from '~/trpc/client';
+import { useRouter } from 'next/navigation';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
@@ -68,6 +69,7 @@ const ServerSync = ({ interviewId }: { interviewId: string }) => {
 // Eventually it will handle syncing this data back.
 const InterviewShell = ({ interviewID }: { interviewID: string }) => {
   const [currentStage, setCurrentStage] = useQueryState('stage');
+  const router = useRouter();
 
   const { isLoading } = api.interview.get.byId.useQuery(
     { id: interviewID },
@@ -78,6 +80,9 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
       onSuccess: async (data) => {
         if (!data) {
           return;
+        }
+        if (data.finishTime) {
+          router.push('/interview/finished');
         }
 
         const { protocol, ...serverSession } = data;
