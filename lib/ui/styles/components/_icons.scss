@@ -22,12 +22,10 @@ $-icon-color-modifiers: (
   'cerulean-blue',
   'paradise-pink',
   'slate-blue',
-  'white',
+  'white'
 ) !default;
 
-@mixin special-icon-colors(
-  $main-color: 'sea-green'
-) {
+@mixin special-icon-colors($main-color: 'sea-green') {
   // action / notification icons are a bit more detailed
   // and need to be styled individually
   &[name='add-a-context-button'] {
@@ -66,13 +64,12 @@ $-icon-color-modifiers: (
 
   &[name='add-a-context'] {
     .cls-9 {
-      fill: rgba(0,0,0, 0.1);
+      fill: rgba(0, 0, 0, 0.1);
     }
     .cls-10 {
-      fill: rgba(0,0,0, 0.2);
+      fill: rgba(0, 0, 0, 0.2);
     }
   }
-
 
   &[name='add-a-person-button'],
   &[name='add-a-relationship-button'] {
@@ -146,7 +143,10 @@ $-icon-color-modifiers: (
     }
 
     .cls-5 {
-      fill: rgba(var(--color-navy-taupe---rgb), 0.5); //sass-lint:disable-line no-color-literals
+      fill: rgba(
+        var(--color-navy-taupe---rgb),
+        0.5
+      ); //sass-lint:disable-line no-color-literals
     }
 
     .cls-6 {
@@ -189,29 +189,6 @@ $-icon-color-modifiers: (
 
     .cls-6 {
       fill: color('platinum');
-    }
-  }
-
-  &[name='pair-a-server'] {
-    .cls-8 {
-      fill: color('#{$main-color}');
-    }
-
-    .cls-2 {
-      fill: color('mustard');
-    }
-
-    .cls-3 {
-      fill: color('neon-coral');
-      clip-path: url('#clip-path');
-    }
-
-    .cls-4 {
-      fill: color('platinum');
-    }
-
-    .cls-5 {
-      fill: color('platinum--dark');
     }
   }
 
@@ -275,7 +252,6 @@ $-icon-color-modifiers: (
   }
 
   &[name='protocol-card'] {
-
     .cls-1 {
       fill: color('platinum--dark');
     }
@@ -293,7 +269,10 @@ $-icon-color-modifiers: (
     }
 
     .cls-4 {
-      fill: rgba(var(--color-navy-taupe---rgb), 0.5); //sass-lint:disable-line no-color-literals
+      fill: rgba(
+        var(--color-navy-taupe---rgb),
+        0.5
+      ); //sass-lint:disable-line no-color-literals
     }
 
     .cls-5 {
@@ -303,7 +282,6 @@ $-icon-color-modifiers: (
     .cls-6 {
       fill: var(--color-slate-blue);
     }
-
   }
 
   &[name='warning'] {
@@ -370,7 +348,6 @@ $-icon-color-modifiers: (
     .cls-3 {
       fill: color('#{$main-color}--dark');
     }
-
   }
 
   &[name='settings'] {
@@ -395,7 +372,7 @@ $-icon-color-modifiers: (
     }
 
     .cls-7 {
-      fill: rgba(255, 255, 255, 0.2);  //sass-lint:disable-line no-color-literals
+      fill: rgba(255, 255, 255, 0.2); //sass-lint:disable-line no-color-literals
     }
 
     @each $ordinal-color in $ordinal-colors {
@@ -405,17 +382,15 @@ $-icon-color-modifiers: (
         @include color-icon($ordinal-color);
       }
     }
-
   }
 
   &[name='contexts'] {
-
     .cls-6 {
       fill: var(--color-cyber-grape);
     }
 
     .cls-7 {
-      fill: rgba(255, 255, 255, 0.2);  //sass-lint:disable-line no-color-literals
+      fill: rgba(255, 255, 255, 0.2); //sass-lint:disable-line no-color-literals
     }
 
     @each $categorical-color in $categorical-colors {
@@ -449,10 +424,7 @@ $-icon-color-modifiers: (
   }
 }
 
-@mixin icon (
-  $icon-class: 'icon'
-) {
-
+@mixin icon($icon-class: 'icon') {
   .#{$icon-class} {
     height: 50px;
 
@@ -476,7 +448,6 @@ $-icon-color-modifiers: (
     @include special-icon-colors;
     // simpler icons can be targeted with color modifiers
     @each $color-name in $-icon-color-modifiers {
-
       @include modifier('primary') {
         @include color-icon;
       }
