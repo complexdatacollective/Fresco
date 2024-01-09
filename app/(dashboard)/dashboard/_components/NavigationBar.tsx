@@ -8,6 +8,8 @@ import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
 import type { UrlObject } from 'url';
 import type { Route } from 'next';
+import { motion } from 'framer-motion';
+import { Button } from '~/components/ui/Button';
 
 export const NavButton = ({
   children,
@@ -21,12 +23,9 @@ export const NavButton = ({
   return (
     <Link
       href={href}
-      className={cn(
-        'font-medium underline-offset-4 transition-colors hover:text-primary hover:underline',
-        isActive ? 'text-foreground' : 'text-foreground/60',
-      )}
+      className={cn(isActive ? 'text-accent' : 'text-primary-foreground')}
     >
-      {children}
+      <Button variant="ghost">{children}</Button>
     </Link>
   );
 };
@@ -35,19 +34,22 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex justify-between bg-[#e5e7eb] px-4 py-2">
-      <Link href="/" className="mr-6 flex items-center space-x-2">
-        <Image
-          src="/images/NC-Mark@4x.png"
-          alt="Fresco"
-          width={60}
-          height={60}
-        />
-        <span className="hidden font-bold sm:inline-block">
-          Network Canvas Fresco
-        </span>
-      </Link>
-      <div className="flex items-center space-x-6">
+    <div className="flex justify-center pt-6">
+      <motion.nav
+        className="bg-cyber-grape sticky top-6 z-10 flex items-center justify-between gap-4 rounded-full px-4 py-2 text-primary-foreground"
+        initial={{ y: '-100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '-100%', opacity: 0 }}
+        transition={{ type: 'spring', mass: 1, damping: 10 }}
+      >
+        <Link href="/" className="flex items-center space-x-2">
+          <Image
+            src="/images/NC-Mark@4x.png"
+            alt="Fresco"
+            width={60}
+            height={60}
+          />
+        </Link>
         <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
           Home
         </NavButton>
@@ -69,8 +71,8 @@ export function NavigationBar() {
         >
           Participants
         </NavButton>
-      </div>
-      <UserMenu />
-    </nav>
+        <UserMenu />
+      </motion.nav>
+    </div>
   );
 }

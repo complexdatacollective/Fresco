@@ -34,7 +34,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           session={session}
         >
           <Providers initialSession={session}>
-            <Banner />
+            {/* <Banner /> */}
             {children}
           </Providers>
           <Toaster />

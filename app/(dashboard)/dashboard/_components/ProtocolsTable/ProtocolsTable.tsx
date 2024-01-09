@@ -44,7 +44,7 @@ export const ProtocolsTable = ({
         actions={ActionsDropdown}
         calculateRowClasses={(row) =>
           row.original.active
-            ? 'bg-purple-500/30 hover:bg-purple-500/40'
+            ? 'text-primary-foreground bg-primary hover:bg-primary/40'
             : undefined
         }
       />

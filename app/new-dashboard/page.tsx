@@ -69,10 +69,10 @@ export default function Example() {
         ```
       */}
       <div className="min-h-full">
-        <div className="bg-indigo-600 pb-32">
+        <div className="bg-neon-coral pb-32">
           <Disclosure
             as="nav"
-            className="border-b border-indigo-300 border-opacity-25 bg-indigo-600 lg:border-none"
+            className="border-primary-300 bg-neon-coral border-b border-opacity-25 lg:border-none"
           >
             {({ open }) => (
               <>
@@ -128,7 +128,7 @@ export default function Example() {
                     </div>
                     <div className="flex lg:hidden">
                       {/* Mobile menu button */}
-                      <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-indigo-600 p-2 text-indigo-200 hover:bg-indigo-500 hover:bg-opacity-75 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600">
+                      <Disclosure.Button className="bg-neon-coral relative inline-flex items-center justify-center rounded-md p-2 text-indigo-200 hover:bg-indigo-500 hover:bg-opacity-75 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600">
                         <span className="absolute -inset-0.5" />
                         <span className="sr-only">Open main menu</span>
                         {open ? (
@@ -145,7 +145,7 @@ export default function Example() {
                       <div className="flex items-center">
                         <button
                           type="button"
-                          className="relative flex-shrink-0 rounded-full bg-indigo-600 p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
+                          className="bg-neon-coral relative flex-shrink-0 rounded-full p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
                         >
                           <span className="absolute -inset-1.5" />
                           <span className="sr-only">View notifications</span>
@@ -155,7 +155,7 @@ export default function Example() {
                         {/* Profile dropdown */}
                         <Menu as="div" className="relative ml-3 flex-shrink-0">
                           <div>
-                            <Menu.Button className="relative flex rounded-full bg-indigo-600 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600">
+                            <Menu.Button className="bg-neon-coral relative flex rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600">
                               <span className="absolute -inset-1.5" />
                               <span className="sr-only">Open user menu</span>
                               <img
@@ -236,7 +236,7 @@ export default function Example() {
                       </div>
                       <button
                         type="button"
-                        className="relative ml-auto flex-shrink-0 rounded-full bg-indigo-600 p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
+                        className="bg-neon-coral relative ml-auto flex-shrink-0 rounded-full p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
                       >
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">View notifications</span>
