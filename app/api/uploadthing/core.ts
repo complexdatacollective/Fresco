@@ -16,7 +16,7 @@ export const ourFileRouter = {
       }
       return {};
     })
-    .onUploadComplete(() => {}),
+    .onUploadComplete(() => undefined),
 };
 
 export const utapi = new UTApi();

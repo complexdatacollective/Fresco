@@ -123,6 +123,6 @@ export function jobReducer(state: ImportJob[], action: Action) {
       });
     }
     default:
-      throw new Error();
+      throw new Error('Unknown error occured');
   }
 }

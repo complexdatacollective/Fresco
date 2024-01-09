@@ -47,7 +47,7 @@ export const participantRouter = router({
         return {
           error: null,
           createdParticipants: createdParticipants.count,
-          existingParticipants: existingParticipants.length,
+          existingParticipants: existingParticipants,
         };
       } catch (error) {
         return {

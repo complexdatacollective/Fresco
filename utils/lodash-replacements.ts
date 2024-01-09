@@ -241,87 +241,12 @@ export const assert = (condition: boolean, errorMessage: string) => {
   }
 };
 
-export const isEqual = function (a: unknown, b: unknown): boolean {
-  if (Array.isArray(a)) {
-    if (!Array.isArray(b) || a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (!exports.deepEqual(a[i], b[i])) return false;
-    }
-    return true;
-  }
-  if (typeof a === 'object' && a !== null && b !== null) {
-    if (!(typeof b === 'object')) return false;
-    const keys = Object.keys(a);
-    if (keys.length !== Object.keys(b).length) return false;
-    for (const key in a) {
-      if (
-        !exports.deepEqual(a[key as keyof typeof a], b[key as keyof typeof b])
-      )
-        return false;
-    }
-    return true;
-  }
-  return a === b;
-};
-
 export const mapValues = (
   obj: Record<string, unknown>,
   iteratee: (value: unknown) => unknown,
 ) => {
   return Object.fromEntries(
     Object.entries(obj).map(([key, value]) => [key, iteratee(value)]),
-  );
-};
-
-export const mapKeys = (
-  obj: Record<string, unknown>,
-  iteratee: (value: unknown) => unknown,
-) => {
-  return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [iteratee(key), value]),
-  );
-};
-
-export const orderBy = (
-  collection: Record<string, unknown>[] | string[],
-  iteratees: unknown[],
-  orders: unknown[],
-) => {
-  const result = [...collection];
-
-  result.sort((a, b) => {
-    for (let i = 0; i < iteratees.length; i++) {
-      const iteratee = iteratees[i];
-      const order = orders[i];
-
-      const aValue =
-        typeof iteratee === 'function'
-          ? iteratee(a)
-          : a[iteratee as keyof typeof a];
-      const bValue =
-        typeof iteratee === 'function'
-          ? iteratee(b)
-          : b[iteratee as keyof typeof b];
-      if (aValue > bValue) {
-        return order === 'desc' ? -1 : 1;
-      }
-      if (aValue < bValue) {
-        return order === 'desc' ? 1 : -1;
-      }
-    }
-    return 0;
-  });
-  return result;
-};
-
-export const sortBy = (
-  collection: Record<string, unknown>[] | string[],
-  iteratees: unknown[],
-) => {
-  return orderBy(
-    collection,
-    iteratees,
-    iteratees.map(() => 'asc'),
   );
 };
 

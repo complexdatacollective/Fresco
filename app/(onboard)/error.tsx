@@ -1,12 +1,12 @@
-'use client';
+'use client'; // Error components must be Client components
 import Error from '~/components/Error';
 
 export default function DashboardError({
   error,
   reset,
 }: {
-  error: Error;
+  error: Error & { cause?: { code?: number } };
   reset: () => void;
 }) {
-  return <Error error={error} reset={reset} heading="Onboard Error" />;
+  return <Error error={error} reset={reset} heading="Onboard error" />;
 }

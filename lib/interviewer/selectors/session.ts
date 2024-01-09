@@ -55,13 +55,13 @@ export const getCurrentStage = createSelector(
 
 export const getPromptIndex = createSelector(
   getActiveSession,
-  (session: Session) => session?.promptIndex ?? 0,
+  (session) => session?.promptIndex ?? 0,
 );
 
 export const getCurrentPrompt = createSelector(
   getCurrentStage,
   getPromptIndex,
-  (stage: Stage, promptIndex: number) => stage?.prompts?.[promptIndex],
+  (stage, promptIndex) => stage?.prompts?.[promptIndex],
 );
 
 export const getCaseId = createDeepEqualSelector(

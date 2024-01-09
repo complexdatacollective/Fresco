@@ -2,6 +2,7 @@ import ResetButton from './_components/ResetButton';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import Link from 'next/link';
 import { Button } from '~/components/ui/Button';
+import AnalyticsButton from './_components/AnalyticsButton';
 
 function Home() {
   return (
@@ -14,6 +15,7 @@ function Home() {
         </Link>
         <ResetButton />
         <AnonymousRecruitmentSwitch />
+        <AnalyticsButton />
       </main>
     </>
   );

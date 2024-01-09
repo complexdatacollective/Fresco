@@ -1,7 +1,6 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
-import Link from 'next/link';
 import { Button } from '~/components/ui/Button';
 import { useSession } from '~/providers/SessionProvider';
 import FeedbackBanner from './FeedbackBanner';
@@ -15,6 +14,11 @@ const BannerContent = () => {
   const [openSignOutModal, setOpenSignOutModal] = useState(false);
   const pathname = usePathname();
 
+  const returnToDashboard = () => {
+    // hard redirect to dashboard to avoid issues with stale styling from interviewer
+    window.location.href = '/dashboard';
+  };
+
   if (session && pathname.startsWith('/interview/')) {
     return (
       <>
@@ -23,17 +27,16 @@ const BannerContent = () => {
           setOpenSignOutModal={setOpenSignOutModal}
         />
         <div className="flex w-full items-center justify-between px-4">
-          <Link href="/dashboard">
-            <Button
-              className="rounded-full"
-              variant="default"
-              color="primary"
-              size="sm"
-            >
-              Return to Dashboard{' '}
-              <LogOut className="ml-2" size={16} strokeWidth={3} />
-            </Button>
-          </Link>
+          <Button
+            className="rounded-full"
+            variant="default"
+            color="primary"
+            size="sm"
+            onClick={returnToDashboard}
+          >
+            Return to Dashboard{' '}
+            <LogOut className="ml-2" size={16} strokeWidth={3} />
+          </Button>
           <FeedbackBanner />
           <CloseButton onClick={() => setOpenSignOutModal(true)} />
         </div>
