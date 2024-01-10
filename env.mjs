@@ -9,6 +9,10 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    MAXMIND_ACCOUNT_ID: z.string(),
+    MAXMIND_LICENSE_KEY: z.string(),
+
+    INSTALLATION_ID: z.string().optional(),
   },
 
   /**
@@ -23,8 +27,6 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    MAXMIND_ACCOUNT_ID: z.string(),
-    MAXMIND_LICENSE_KEY: z.string(),
     DISABLE_ANALYTICS: z.boolean().optional(),
   },
   /**
@@ -39,6 +41,7 @@ export const env = createEnv({
     MAXMIND_ACCOUNT_ID: process.env.MAXMIND_ACCOUNT_ID,
     MAXMIND_LICENSE_KEY: process.env.MAXMIND_LICENSE_KEY,
     DISABLE_ANALYTICS: !!process.env.DISABLE_ANALYTICS,
+    INSTALLATION_ID: process.env.INSTALLATION_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

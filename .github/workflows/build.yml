@@ -15,7 +15,7 @@ jobs:
     env:
       SKIP_ENV_VALIDATION: true
       DISABLE_ANALYTICS: true
-      DATABASE_URL: mysql://connection-string
+      INSTALLATION_ID: gh-action
 
     steps:
       - name: Checkout code
