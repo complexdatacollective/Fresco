@@ -38,7 +38,7 @@ export const env = createEnv({
     VERCEL_URL: process.env.VERCEL_URL,
     MAXMIND_ACCOUNT_ID: process.env.MAXMIND_ACCOUNT_ID,
     MAXMIND_LICENSE_KEY: process.env.MAXMIND_LICENSE_KEY,
-    DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
+    DISABLE_ANALYTICS: !!process.env.DISABLE_ANALYTICS,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
