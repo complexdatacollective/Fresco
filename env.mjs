@@ -25,7 +25,7 @@ export const env = createEnv({
       .default('development'),
     MAXMIND_ACCOUNT_ID: z.string(),
     MAXMIND_LICENSE_KEY: z.string(),
-    DISABLE_ANALYTICS: z.string().optional(),
+    DISABLE_ANALYTICS: z.boolean().optional(),
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
