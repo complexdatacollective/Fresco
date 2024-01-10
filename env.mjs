@@ -9,6 +9,10 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    MAXMIND_ACCOUNT_ID: z.string(),
+    MAXMIND_LICENSE_KEY: z.string(),
+
+    INSTALLATION_ID: z.string().optional(),
   },
 
   /**
@@ -23,9 +27,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    MAXMIND_ACCOUNT_ID: z.string(),
-    MAXMIND_LICENSE_KEY: z.string(),
-    NEXT_PUBLIC_DISABLE_ANALYTICS: z.string().optional(),
+    DISABLE_ANALYTICS: z.boolean().optional(),
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -38,12 +40,12 @@ export const env = createEnv({
     VERCEL_URL: process.env.VERCEL_URL,
     MAXMIND_ACCOUNT_ID: process.env.MAXMIND_ACCOUNT_ID,
     MAXMIND_LICENSE_KEY: process.env.MAXMIND_LICENSE_KEY,
-    NEXT_PUBLIC_DISABLE_ANALYTICS: process.env.NEXT_PUBLIC_DISABLE_ANALYTICS,
+    DISABLE_ANALYTICS: !!process.env.DISABLE_ANALYTICS,
+    INSTALLATION_ID: process.env.INSTALLATION_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
    * useful for Docker builds.
    */
-  // skipValidation: !!process.env.SKIP_ENV_VALIDATION,
-  skipValidation: true,
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });
