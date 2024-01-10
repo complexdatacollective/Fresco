@@ -1,24 +1,16 @@
+'use server';
+
 import { makeEventTracker } from '@codaco/analytics';
 import { cache } from 'react';
-import { api } from '~/trpc/server';
-import { getBaseUrl } from '~/trpc/shared';
+import { env } from '~/env.mjs';
+import { getAppSettings } from '~/server/routers/appSettings';
 
 export const getInstallationId = cache(async () => {
-  const installationId = await api.appSettings.getInstallationId.query();
+  const appSettings = await getAppSettings();
 
-  if (installationId) {
-    return installationId;
-  }
-
-  return 'Unknown';
+  return appSettings?.installationId ?? 'Unknown';
 });
 
-// eslint-disable-next-line no-process-env
-const globalAnalyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED;
-
-export const trackEvent =
-  globalAnalyticsEnabled !== 'false'
-    ? makeEventTracker({
-        endpoint: getBaseUrl() + '/api/analytics',
-      })
-    : () => {};
+export const trackEvent = !env.DISABLE_ANALYTICS
+  ? makeEventTracker()
+  : () => null;
