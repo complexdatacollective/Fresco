@@ -12,6 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SKIP_ENV_VALIDATION: true
+      DISABLE_ANALYTICS: true
+      INSTALLATION_ID: gh-action
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
