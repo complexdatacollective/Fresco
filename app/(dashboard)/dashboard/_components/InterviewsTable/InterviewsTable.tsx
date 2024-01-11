@@ -7,6 +7,7 @@ import { type Interview } from '@prisma/client';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { useState } from 'react';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
+import ExportInterviewsButton from '../../interviews/_components/ExportInterviewsButton';
 
 export const InterviewsTable = () => {
   const interviews = api.interview.get.all.useQuery(undefined, {
@@ -36,6 +37,9 @@ export const InterviewsTable = () => {
 
   return (
     <>
+      {/* Temporary interview export trigger */}
+      <ExportInterviewsButton />
+      {/* Temporary interview export trigger */}
       <DeleteInterviewsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
