@@ -84,7 +84,7 @@
     border-color: var(--nc-input-accent);
 
     &.boolean-option--negative {
-      border-color: var(--error);
+      border-color: var(--nc-error);
     }
   }
 }
@@ -120,7 +120,7 @@
     border-color: transparent;
 
     &.round-checkbox--negative {
-      background-color: var(--error);
+      background-color: var(--nc-error);
     }
 
     svg {
