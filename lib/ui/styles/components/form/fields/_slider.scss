@@ -217,7 +217,7 @@ $module-name: form-field-slider;
 
   &__error {
     opacity: 0;
-    background: var(--error);
+    background: var(--nc-error);
     color: var(--form-error-text);
     transition:
       opacity var(--animation-easing) var(--animation-duration-standard),
@@ -235,7 +235,7 @@ $module-name: form-field-slider;
     .form-field {
       border-width: 0.1rem;
       border-style: solid;
-      border-color: var(--error);
+      border-color: var(--nc-error);
       margin-bottom: 0;
     }
 
