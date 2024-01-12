@@ -7,6 +7,8 @@ import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
 
+type directions = 'forwards' | 'backwards';
+
 export const useNavigationHelpers = (
   currentStage: number | null,
   setCurrentStage: (stage: number) => void,
@@ -28,16 +30,16 @@ export const useNavigationHelpers = (
   } = useSelector(getNavigationInfo);
 
   const beforeNextFunction = useRef<
-    ((direction: 'forwards' | 'backwards') => Promise<boolean>) | null
+    ((direction: directions) => Promise<boolean>) | null
   >(null);
 
   // Stages call this to register a function to be called before
   // moving to the next stage. This disables navigation until onComplete is
   // called.
   const registerBeforeNext = (
-    beforeNext: (direction: 'forwards' | 'backwards') => Promise<boolean>,
+    beforeNext: (direction: directions) => Promise<boolean>,
   ) => {
-    const wrappedFunction = async (direction: 'forwards' | 'backwards') => {
+    const wrappedFunction = async (direction: directions) => {
       const result = await beforeNext(direction);
 
       console.log('result', result);
@@ -87,7 +89,7 @@ export const useNavigationHelpers = (
   }, [calculatePreviousStage, setCurrentStage, currentStage, skipMap]);
 
   const checkCanNavigate = useCallback(
-    async (direction: 'forwards' | 'backwards') => {
+    async (direction: directions) => {
       if (beforeNextFunction.current) {
         const canNavigate = await beforeNextFunction.current(direction);
         if (!canNavigate) {
@@ -95,13 +97,16 @@ export const useNavigationHelpers = (
         }
       }
 
+      // Make sure to reset the function before we return true, because the
+      // stage will have changed!
+      beforeNextFunction.current = null;
       return true;
     },
     [beforeNextFunction],
   );
 
   const moveForward = async () => {
-    if (!(await checkCanNavigate('forward'))) {
+    if (!(await checkCanNavigate('forwards'))) {
       return;
     }
 
