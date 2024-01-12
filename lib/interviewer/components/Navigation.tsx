@@ -1,9 +1,6 @@
-import { useEffect } from 'react';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp, SettingsIcon } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
-import { parseAsInteger, useQueryState } from 'next-usequerystate';
-import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
 const NavigationButton = ({
   disabled,
@@ -33,27 +30,23 @@ const NavigationButton = ({
   );
 };
 
-const Navigation = () => {
-  const [currentStage, setCurrentStage] = useQueryState(
-    'stage',
-    parseAsInteger,
-  );
+type NavigationProps = {
+  moveBackward: () => void;
+  canMoveBackward: boolean;
+  moveForward: () => void;
+  canMoveForward: boolean;
+  progress: number;
+  isReadyForNextStage: boolean;
+};
 
-  const {
-    validateCurrentStage,
-    moveBackward,
-    moveForward,
-    canMoveBackward,
-    canMoveForward,
-    progress,
-    isReadyForNextStage,
-  } = useNavigationHelpers(currentStage!, setCurrentStage);
-
-  // Check if the current stage is valid for us to be on.
-  useEffect(() => {
-    validateCurrentStage();
-  }, [validateCurrentStage]);
-
+const Navigation = ({
+  moveBackward,
+  canMoveBackward,
+  moveForward,
+  canMoveForward,
+  progress,
+  isReadyForNextStage,
+}: NavigationProps) => {
   return (
     <div
       role="navigation"

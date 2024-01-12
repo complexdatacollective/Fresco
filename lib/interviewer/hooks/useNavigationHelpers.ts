@@ -1,13 +1,14 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNavigationInfo } from '../selectors/session';
 import { getSkipMap } from '../selectors/skip-logic';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
+import type { AnyAction } from '@reduxjs/toolkit';
 
 export const useNavigationHelpers = (
-  currentStage: number,
+  currentStage: number | null,
   setCurrentStage: (stage: number) => void,
 ) => {
   const dispatch = useDispatch();
@@ -26,9 +27,31 @@ export const useNavigationHelpers = (
     canMoveForward,
   } = useSelector(getNavigationInfo);
 
-  // const prevStageIndex = usePrevious(currentStep);
+  const beforeNextFunction = useRef<
+    ((direction: 'forwards' | 'backwards') => Promise<boolean>) | null
+  >(null);
+
+  // Stages call this to register a function to be called before
+  // moving to the next stage. This disables navigation until onComplete is
+  // called.
+  const registerBeforeNext = (
+    beforeNext: (direction: 'forwards' | 'backwards') => Promise<boolean>,
+  ) => {
+    const wrappedFunction = async (direction: 'forwards' | 'backwards') => {
+      const result = await beforeNext(direction);
+
+      console.log('result', result);
+      return result;
+    };
+
+    beforeNextFunction.current = wrappedFunction;
+  };
 
   const calculateNextStage = useCallback(() => {
+    if (!currentStage) {
+      return 0;
+    }
+
     const nextStage = Object.keys(skipMap).find(
       (stage) =>
         parseInt(stage) > currentStage && skipMap[parseInt(stage)] === false,
@@ -63,26 +86,42 @@ export const useNavigationHelpers = (
     }
   }, [calculatePreviousStage, setCurrentStage, currentStage, skipMap]);
 
-  const moveForward = useCallback(() => {
+  const checkCanNavigate = useCallback(
+    async (direction: 'forwards' | 'backwards') => {
+      if (beforeNextFunction.current) {
+        const canNavigate = await beforeNextFunction.current(direction);
+        if (!canNavigate) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+    [beforeNextFunction],
+  );
+
+  const moveForward = async () => {
+    if (!(await checkCanNavigate('forward'))) {
+      return;
+    }
+
     if (isLastPrompt) {
       const nextStage = calculateNextStage();
       setCurrentStage(nextStage);
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    dispatch(sessionActions.updatePrompt(promptIndex + 1));
-  }, [
-    dispatch,
-    isLastPrompt,
-    promptIndex,
-    calculateNextStage,
-    setCurrentStage,
-  ]);
+    dispatch(
+      sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
+    );
+  };
 
   // Move to the previous available stage in the interview based on the current stage and skip logic
-  const moveBackward = () => {
+  const moveBackward = async () => {
+    if (!(await checkCanNavigate('backwards'))) {
+      return;
+    }
+
     if (isFirstPrompt) {
       const previousStage = calculatePreviousStage();
       setCurrentStage(previousStage);
@@ -113,10 +152,18 @@ export const useNavigationHelpers = (
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    dispatch(sessionActions.updateStage(currentStage));
+    dispatch(sessionActions.updateStage(currentStage) as unknown as AnyAction);
   }, [currentStage, dispatch, needToDispatch]);
+
+  // Check the stage changes, reset the beforeNextFunction
+  useEffect(() => {
+    beforeNextFunction.current = null;
+  }, [currentStage]);
+
+  // Check if the current stage is valid for us to be on.
+  useEffect(() => {
+    validateCurrentStage();
+  }, [validateCurrentStage]);
 
   return {
     progress,
@@ -129,5 +176,6 @@ export const useNavigationHelpers = (
     isFirstPrompt,
     isLastPrompt,
     isLastStage,
+    registerBeforeNext,
   };
 };

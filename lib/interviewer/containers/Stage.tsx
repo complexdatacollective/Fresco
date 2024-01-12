@@ -1,12 +1,19 @@
-import React, { useCallback, useLayoutEffect } from 'react';
 import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
 
+type StageProps = {
+  stage: {
+    id: string;
+    type: string;
+  };
+  registerBeforeNext: () => void;
+  onComplete: () => void;
+};
 
-const Stage = (props) => {
-  const { stage, registerBeforeNext } = props;
-  const CurrentInterface = getInterface(stage.type);
+const Stage = (props: StageProps) => {
+  const { stage, registerBeforeNext, onComplete } = props;
+  const CurrentInterface = getInterface(stage.type) as unknown as JSX.Element;
 
   return (
     <motion.div
@@ -24,18 +31,19 @@ const Stage = (props) => {
       transition={{
         type: 'spring',
         damping: 20,
-      }}>
+      }}
+    >
       <StageErrorBoundary>
-        {CurrentInterface
-          && (
-            <CurrentInterface
-              registerBeforeNext={registerBeforeNext}
-              stage={stage}
-            />
-          )}
+        {CurrentInterface && (
+          <CurrentInterface
+            registerBeforeNext={registerBeforeNext}
+            onComplete={onComplete}
+            stage={stage}
+          />
+        )}
       </StageErrorBoundary>
     </motion.div>
   );
-}
+};
 
 export default Stage;
