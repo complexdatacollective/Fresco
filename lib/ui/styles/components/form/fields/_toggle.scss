@@ -54,7 +54,7 @@ $component-name: form-field-toggle;
 
   &__error {
     opacity: 0;
-    background: var(--error);
+    background: var(--nc-error);
     color: var(--nc-text);
     transition:
       opacity var(--animation-easing) var(--animation-duration-standard),
@@ -74,7 +74,7 @@ $component-name: form-field-toggle;
     }
 
     .#{$component-name} {
-      border: 0.125rem solid var(--error);
+      border: 0.125rem solid var(--nc-error);
       margin-bottom: 0;
     }
   }

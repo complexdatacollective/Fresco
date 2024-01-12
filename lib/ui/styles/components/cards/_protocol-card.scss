@@ -17,10 +17,10 @@ $component: 'protocol-card';
   &--selected {
     &:before {
       content: '';
-      position:absolute;
-      top:0;
-      bottom:0;
-      left:0;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
       right: 0;
       border: 0.4rem solid var(--color-mustard);
       border-radius: var(--nc-border-radius);
@@ -158,10 +158,11 @@ $component: 'protocol-card';
   &--obsolete {
     .#{$component}__icon-section {
       color: #ff9dbb;
-      background: var(--error);
+      background: var(--nc-error);
     }
 
-    .protocol-name, .protocol-description {
+    .protocol-name,
+    .protocol-description {
       opacity: 0.35;
     }
   }

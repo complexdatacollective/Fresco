@@ -90,7 +90,7 @@
   }
 
   &--error {
-    border-color: var(--error);
+    border-color: var(--nc-error);
 
     .error__stack-trace {
       padding: unit(2);
@@ -99,5 +99,4 @@
       word-break: break-word;
     }
   }
-
 }
