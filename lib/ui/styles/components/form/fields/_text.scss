@@ -60,7 +60,7 @@ $module-name: form-field-text;
 
   &__error {
     opacity: 0;
-    background: var(--error);
+    background: var(--nc-error);
     color: var(--form-error-text);
     transition:
       opacity var(--animation-easing) var(--animation-duration-standard),
@@ -102,7 +102,7 @@ $module-name: form-field-text;
 
     .#{$module-name}__input {
       margin-bottom: 0;
-      border: 0.125rem solid var(--error);
+      border: 0.125rem solid var(--nc-error);
     }
   }
 }
