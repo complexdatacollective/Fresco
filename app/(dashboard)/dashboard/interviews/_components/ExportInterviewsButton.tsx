@@ -3,23 +3,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable no-console */
+import { type Interview } from '@prisma/client';
 import { Button } from '~/components/ui/Button';
-import { exportToFile } from '~/lib/interviewer/utils/exportProcess';
+import { exportSessions } from '../_actions/export';
 
-const ExportInterviewsButton = () => {
-  function triggerExport() {
-    console.log('Export happens');
+type ExportInterviewsButtonProps = {
+  interviews: Interview[];
+};
 
-    exportToFile(['interview 1', 'interview 2', 'interview 3'], 'filename')
-      .then(({ run, abort, setConsideringAbort }) => {
-        console.log({ abort, setConsideringAbort });
-
-        return run();
-      })
-      .then(() => console.log('Some action happens here'))
-      .catch((error: unknown) => {
-        console.log('error:', error);
-      });
+const ExportInterviewsButton = ({
+  interviews,
+}: ExportInterviewsButtonProps) => {
+  // export logic
+  async function triggerExport() {
+    await exportSessions();
   }
 
   return <Button onClick={triggerExport}>Export all interviews</Button>;

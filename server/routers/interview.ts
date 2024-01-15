@@ -1,11 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable no-console */
 /* eslint-disable local-rules/require-data-mapper */
-import { prisma } from '~/utils/db';
-import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { participantIdentifierSchema } from '~/shared/schemas/schemas';
-import { z } from 'zod';
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
+import { participantIdentifierSchema } from '~/shared/schemas/schemas';
+import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
+import archiver from 'archiver';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -159,5 +164,24 @@ export const interviewRouter = router({
       } catch (error) {
         return { error: 'Failed to delete interviews', interview: null };
       }
+    }),
+  export: protectedProcedure
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+        }),
+      ),
+    )
+    .mutation(async ({ input: data }) => {
+      const interviewIds = data.map((p) => p.id);
+
+      const interviews = await prisma.interview.findMany({
+        where: {
+          id: {
+            in: interviewIds,
+          },
+        },
+      });
     }),
 });
