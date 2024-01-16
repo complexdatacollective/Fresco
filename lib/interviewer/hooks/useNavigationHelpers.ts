@@ -6,15 +6,20 @@ import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 type directions = 'forwards' | 'backwards';
 
-export const useNavigationHelpers = (
-  currentStage: number | null,
-  setCurrentStage: (stage: number) => void,
-) => {
+export const useNavigationHelpers = () => {
   const dispatch = useDispatch();
   const skipMap = useSelector(getSkipMap);
+
+  const [currentStage, setCurrentStage] = useQueryState(
+    'stage',
+    parseAsInteger.withDefault(0),
+  );
+
+  const prevCurrentStage = usePrevious(currentStage);
 
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
@@ -29,6 +34,17 @@ export const useNavigationHelpers = (
     canMoveForward,
   } = useSelector(getNavigationInfo);
 
+  useEffect(() => {
+    if (currentStep && currentStage === null) {
+      console.log('current step was defined and current stage was null', {
+        currentStep,
+        currentStage,
+      });
+      void setCurrentStage(currentStep);
+      return;
+    }
+  }, [currentStage, currentStep, setCurrentStage]);
+
   const beforeNextFunction = useRef<
     ((direction: directions) => Promise<boolean>) | null
   >(null);
@@ -42,7 +58,7 @@ export const useNavigationHelpers = (
     const wrappedFunction = async (direction: directions) => {
       const result = await beforeNext(direction);
 
-      console.log('result', result);
+      console.log('beforeNext result:', result);
       return result;
     };
 
@@ -50,10 +66,6 @@ export const useNavigationHelpers = (
   };
 
   const calculateNextStage = useCallback(() => {
-    if (!currentStage) {
-      return 0;
-    }
-
     const nextStage = Object.keys(skipMap).find(
       (stage) =>
         parseInt(stage) > currentStage && skipMap[parseInt(stage)] === false,
@@ -77,16 +89,6 @@ export const useNavigationHelpers = (
 
     return parseInt(previousStage);
   }, [currentStage, skipMap]);
-
-  const validateCurrentStage = useCallback(() => {
-    if (!skipMap[currentStage] === false) {
-      const previousValidStage = calculatePreviousStage();
-
-      if (previousValidStage) {
-        setCurrentStage(previousValidStage);
-      }
-    }
-  }, [calculatePreviousStage, setCurrentStage, currentStage, skipMap]);
 
   const checkCanNavigate = useCallback(
     async (direction: directions) => {
@@ -112,7 +114,7 @@ export const useNavigationHelpers = (
 
     if (isLastPrompt) {
       const nextStage = calculateNextStage();
-      setCurrentStage(nextStage);
+      void setCurrentStage(nextStage);
       return;
     }
 
@@ -129,46 +131,59 @@ export const useNavigationHelpers = (
 
     if (isFirstPrompt) {
       const previousStage = calculatePreviousStage();
-      setCurrentStage(previousStage);
+      void setCurrentStage(previousStage);
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    dispatch(sessionActions.updatePrompt(promptIndex - 1));
+    dispatch(
+      sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
+    );
   };
-
-  const prevCurrentStage = usePrevious(currentStage);
-
-  const needToDispatch = useCallback(() => {
-    if (currentStage === prevCurrentStage) {
-      return false;
-    }
-
-    if (currentStage === currentStep) {
-      return false;
-    }
-
-    return true;
-  }, [currentStage, prevCurrentStage, currentStep]);
-
-  useEffect(() => {
-    if (!needToDispatch()) {
-      return;
-    }
-
-    dispatch(sessionActions.updateStage(currentStage) as unknown as AnyAction);
-  }, [currentStage, dispatch, needToDispatch]);
 
   // Check the stage changes, reset the beforeNextFunction
   useEffect(() => {
+    if (beforeNextFunction.current === null) {
+      return;
+    }
+
+    console.log('Resetting before next function because currentStage changed');
     beforeNextFunction.current = null;
   }, [currentStage]);
 
   // Check if the current stage is valid for us to be on.
   useEffect(() => {
-    validateCurrentStage();
-  }, [validateCurrentStage]);
+    if (!currentStage) {
+      return;
+    }
+
+    // If the current stage should be skipped, move to the previous available
+    // stage that isn't.
+    if (!skipMap[currentStage] === false) {
+      // This should always return a valid stage, because we know that the
+      // first stage is always valid.
+      const previousValidStage = calculatePreviousStage();
+
+      if (previousValidStage) {
+        void setCurrentStage(previousValidStage);
+      }
+    }
+  }, [currentStage, skipMap, setCurrentStage, calculatePreviousStage]);
+
+  const setReduxStage = (stage: number) =>
+    dispatch(sessionActions.updateStage(stage) as unknown as AnyAction);
+
+  // When currentStage changes, dispatch an action to update currentStep
+  useEffect(() => {
+    if (currentStage === null) {
+      return;
+    }
+
+    if (currentStage === prevCurrentStage) {
+      return;
+    }
+
+    setReduxStage(currentStage);
+  }, [currentStage, prevCurrentStage, setReduxStage]);
 
   return {
     progress,
@@ -177,7 +192,6 @@ export const useNavigationHelpers = (
     canMoveBackward,
     moveForward,
     moveBackward,
-    validateCurrentStage,
     isFirstPrompt,
     isLastPrompt,
     isLastStage,

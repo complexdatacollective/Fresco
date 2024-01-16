@@ -1,17 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { parseAsInteger, useQueryState } from 'next-usequerystate';
 import { useSelector } from 'react-redux';
 import Navigation from '../components/Navigation';
 import { getCurrentStage } from '../selectors/session';
 import Stage from './Stage';
 import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
+const onComplete = () => console.log('Mock onComplete');
+
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
-  const [currentStageNumber, setCurrentStageNumber] = useQueryState(
-    'stage',
-    parseAsInteger,
-  );
 
   const {
     moveBackward,
@@ -20,9 +17,12 @@ const ProtocolScreen = () => {
     canMoveForward,
     progress,
     registerBeforeNext,
-    onComplete,
     isReadyForNextStage,
-  } = useNavigationHelpers(currentStageNumber, setCurrentStageNumber);
+  } = useNavigationHelpers();
+
+  if (!currentStage) {
+    return <div>Waiting for stage to be set...</div>;
+  }
 
   return (
     <motion.div
