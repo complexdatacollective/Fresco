@@ -9,16 +9,20 @@ import {
   SheetTrigger,
 } from '~/components/ui/sheet';
 
-import InterfaceScale from './InterfaceScale';
 import { actionCreators as deviceSettingsActions } from '~/lib/interviewer/ducks/modules/deviceSettings';
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { useDispatch, useSelector } from 'react-redux';
 
+type SettingsMenuState = {
+  deviceSettings: {
+    enableExperimentalSounds: boolean;
+  };
+};
+
 export const SettingsMenu = () => {
   const dispatch = useDispatch();
-
   const enableExperimentalSounds: boolean = useSelector(
-    (state) => state.deviceSettings.enableExperimentalSounds,
+    (state: SettingsMenuState) => state.deviceSettings.enableExperimentalSounds,
   );
 
   const toggleExperimentalSounds = () => {
@@ -54,7 +58,6 @@ export const SettingsMenu = () => {
                 were developed by our summer intern, Anika Wilsnack.
               </p>
             </div>
-            <InterfaceScale />
           </SheetDescription>
         </SheetHeader>
       </SheetContent>
