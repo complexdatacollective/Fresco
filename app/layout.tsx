@@ -27,7 +27,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
-      <body>
+      <body className="grid h-screen grid-rows-[auto,1fr,auto]">
         <RedirectWrapper
           configured={!!appSettings?.configured}
           expired={!!appSettings?.expired}
@@ -35,7 +35,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
         >
           <Providers initialSession={session}>
             <Banner />
-            {children}
+            <main className="overflow-hidden">{children}</main>
           </Providers>
           <Toaster />
         </RedirectWrapper>
