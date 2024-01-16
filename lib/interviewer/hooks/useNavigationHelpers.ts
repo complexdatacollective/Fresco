@@ -52,18 +52,19 @@ export const useNavigationHelpers = () => {
   // Stages call this to register a function to be called before
   // moving to the next stage. This disables navigation until onComplete is
   // called.
-  const registerBeforeNext = (
-    beforeNext: (direction: directions) => Promise<boolean>,
-  ) => {
-    const wrappedFunction = async (direction: directions) => {
-      const result = await beforeNext(direction);
+  const registerBeforeNext = useCallback(
+    (beforeNext: (direction: directions) => Promise<boolean>) => {
+      const wrappedFunction = async (direction: directions) => {
+        const result = await beforeNext(direction);
 
-      console.log('beforeNext result:', result);
-      return result;
-    };
+        console.log('beforeNext result:', result);
+        return result;
+      };
 
-    beforeNextFunction.current = wrappedFunction;
-  };
+      beforeNextFunction.current = wrappedFunction;
+    },
+    [],
+  );
 
   const calculateNextStage = useCallback(() => {
     const nextStage = Object.keys(skipMap).find(
@@ -99,9 +100,6 @@ export const useNavigationHelpers = () => {
         }
       }
 
-      // Make sure to reset the function before we return true, because the
-      // stage will have changed!
-      beforeNextFunction.current = null;
       return true;
     },
     [beforeNextFunction],
@@ -123,7 +121,6 @@ export const useNavigationHelpers = () => {
     );
   };
 
-  // Move to the previous available stage in the interview based on the current stage and skip logic
   const moveBackward = async () => {
     if (!(await checkCanNavigate('backwards'))) {
       return;
@@ -169,8 +166,11 @@ export const useNavigationHelpers = () => {
     }
   }, [currentStage, skipMap, setCurrentStage, calculatePreviousStage]);
 
-  const setReduxStage = (stage: number) =>
-    dispatch(sessionActions.updateStage(stage) as unknown as AnyAction);
+  const setReduxStage = useCallback(
+    (stage: number) =>
+      dispatch(sessionActions.updateStage(stage) as unknown as AnyAction),
+    [dispatch],
+  );
 
   // When currentStage changes, dispatch an action to update currentStep
   useEffect(() => {

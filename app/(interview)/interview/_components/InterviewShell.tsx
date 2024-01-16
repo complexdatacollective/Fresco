@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import ServerSync from './ServerSync';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect, useState } from 'react';
+import { Spinner } from '~/lib/ui/components';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
@@ -32,12 +33,6 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      onSuccess: () => {
-        // eslint-disable-next-line no-console
-        console.log(
-          '✅ Received server session. Setting current stage, and initializing redux store...',
-        );
-      },
     },
   );
 
@@ -53,11 +48,6 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
     }
 
     const { protocol, ...serverSession } = serverData;
-
-    console.log('effect', {
-      currentStage,
-      serverSession: serverSession.currentStep,
-    });
 
     // If we have a current stage in the URL bar, and it is different from the
     // server session, set the server session to the current stage.
@@ -98,7 +88,7 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
   ]);
 
   if (isLoading) {
-    return 'Second loading stage...';
+    return <Spinner />;
   }
 
   return (
