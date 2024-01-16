@@ -9,10 +9,22 @@ import {
   SheetTrigger,
 } from '~/components/ui/sheet';
 
-import ToggleSetting from './ToggleSetting';
 import InterfaceScale from './InterfaceScale';
+import { actionCreators as deviceSettingsActions } from '~/lib/interviewer/ducks/modules/deviceSettings';
+import { Switch as SwitchUI } from '~/components/ui/switch';
+import { useDispatch, useSelector } from 'react-redux';
 
 export const SettingsMenu = () => {
+  const dispatch = useDispatch();
+
+  const enableExperimentalSounds: boolean = useSelector(
+    (state) => state.deviceSettings.enableExperimentalSounds,
+  );
+
+  const toggleExperimentalSounds = () => {
+    dispatch(deviceSettingsActions.toggleSetting('enableExperimentalSounds'));
+  };
+
   return (
     <Sheet key={'left'}>
       <SheetTrigger>
@@ -27,13 +39,21 @@ export const SettingsMenu = () => {
         <SheetHeader>
           <SheetTitle>Interview Settings</SheetTitle>
           <SheetDescription>
-            <ToggleSetting
-              initialSetting={false}
-              toggleSettingFunction={() => Promise.resolve()}
-              title="Use experimental interaction sounds?"
-              description="This feature adds interaction sounds to common actions in the app, which
-              may improve the interview experience."
+            <SwitchUI
+              name="allowAnonymousRecruitment"
+              checked={enableExperimentalSounds}
+              onCheckedChange={toggleExperimentalSounds}
             />
+            <div>
+              <p className="text-md font-bold">
+                Use experimental interaction sounds?
+              </p>
+              <p className="text-sm">
+                This feature adds interaction sounds to common actions in the
+                app, which may improve the interview experience. These sounds
+                were developed by our summer intern, Anika Wilsnack.
+              </p>
+            </div>
             <InterfaceScale />
           </SheetDescription>
         </SheetHeader>
