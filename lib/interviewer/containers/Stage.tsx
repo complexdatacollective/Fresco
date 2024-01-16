@@ -8,11 +8,10 @@ type StageProps = {
     type: string;
   };
   registerBeforeNext: () => void;
-  onComplete: () => void;
 };
 
 const Stage = (props: StageProps) => {
-  const { stage, registerBeforeNext, onComplete } = props;
+  const { stage, registerBeforeNext } = props;
   const CurrentInterface = getInterface(stage.type) as unknown as JSX.Element;
 
   return (
@@ -37,7 +36,6 @@ const Stage = (props: StageProps) => {
         {CurrentInterface && (
           <CurrentInterface
             registerBeforeNext={registerBeforeNext}
-            onComplete={onComplete}
             stage={stage}
           />
         )}

@@ -33,7 +33,6 @@ export const getFilteredNetwork = createSelector(
   getNetwork,
   getPropStageFilter,
   (network, nodeFilter: FilterDefinition | null) => {
-    console.log('getFilterednetwork', network);
     if (!network) {
       return null;
     }

@@ -5,8 +5,6 @@ import { getCurrentStage } from '../selectors/session';
 import Stage from './Stage';
 import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
-const onComplete = () => console.log('Mock onComplete');
-
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
 
@@ -44,7 +42,6 @@ const ProtocolScreen = () => {
             key={currentStage.id}
             stage={currentStage}
             registerBeforeNext={registerBeforeNext}
-            onComplete={onComplete}
           />
         )}
         {!currentStage && (

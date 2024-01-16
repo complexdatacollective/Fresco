@@ -50,8 +50,8 @@ export const useNavigationHelpers = () => {
   >(null);
 
   // Stages call this to register a function to be called before
-  // moving to the next stage. This disables navigation until onComplete is
-  // called.
+  // moving to the next stage. Return true to allow the move, false to
+  // prevent it.
   const registerBeforeNext = useCallback(
     (beforeNext: (direction: directions) => Promise<boolean>) => {
       const wrappedFunction = async (direction: directions) => {
