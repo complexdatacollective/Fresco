@@ -38,7 +38,7 @@ export const InterviewsTable = () => {
   return (
     <>
       {/* Temporary interview export trigger */}
-      <ExportInterviewsButton interviews={interviews.data} />
+      <ExportInterviewsButton />
       {/* Temporary interview export trigger */}
       <DeleteInterviewsDialog
         open={showDeleteModal}

@@ -5,9 +5,17 @@ import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
 import { formatExportableSessions, getRemoteProtocolID } from './utils';
 
+type UpdateItems = {
+  statusText: string;
+  progress: number;
+};
+
 export const exportSessions = async () => {
   const interviewsSessions = await api.interview.get.all.query();
   const installedProtocols = await api.protocol.get.all.query();
+
+  let resultData;
+  let error;
 
   const fileExportManager = new FileExportManager();
 
@@ -18,7 +26,7 @@ export const exportSessions = async () => {
     });
   });
 
-  fileExportManager.on('update', ({ statusText, progress }) => {
+  fileExportManager.on('update', ({ statusText, progress }: UpdateItems) => {
     console.log({
       statusText,
       percentProgress: progress,
@@ -29,20 +37,23 @@ export const exportSessions = async () => {
     console.log('showCancellationToast');
   });
 
-  fileExportManager.on('session-exported', (sessionId) => {
+  fileExportManager.on('session-exported', (sessionId: string) => {
     if (!sessionId || typeof sessionId !== 'string') {
       console.warn('session-exported event did not contain a sessionID');
-      return;
+      error = 'session-exported event did not contain a sessionID';
     }
     console.log('session-exported success');
   });
 
-  fileExportManager.on('error', (error) => {
-    console.log('session-export failed, error:', error);
+  fileExportManager.on('error', (err: unknown) => {
+    console.log('session-export failed, error:', err);
+    error = err;
   });
 
-  fileExportManager.on('finished', () => {
-    console.log('Exporting job finished');
+  fileExportManager.on('finished', (result: unknown) => {
+    console.log('Exporting job finished', result);
+
+    resultData = result;
   });
 
   const formattedSessions = formatExportableSessions(
@@ -65,7 +76,11 @@ export const exportSessions = async () => {
     reformatedProtocols,
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unused-vars
   const { run, abort, setConsideringAbort } = await exportJob;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   await run();
+
+  return { data: resultData, error };
 };

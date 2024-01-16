@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <graphml
+    xmlns="http://graphml.graphdrawing.org/xmlns"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+    http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"
+    xmlns:nc="http://schema.networkcanvas.com/xmlns">
+<key id="label" attr.name="label" attr.type="string" for="all"/>
+<key id="networkCanvasType" attr.name="networkCanvasType" attr.type="string" for="all"/>
+<key id="networkCanvasUUID" attr.name="networkCanvasUUID" attr.type="string" for="all"/>
+<key id="networkCanvasTargetUUID" attr.name="networkCanvasTargetUUID" attr.type="string" for="edge"/>
+<key id="networkCanvasSourceUUID" attr.name="networkCanvasSourceUUID" attr.type="string" for="edge"/>
+<graph
+  edgedefault="undirected"
+  nc:caseId="clr8yixjg0000vt7svtc8wwd6"
+  nc:sessionUUID="clr8yixjg0000vt7svtc8wwd6"
+  nc:protocolName="Sample Protocol.netcanvas"
+  nc:protocolUID="9c6a86328b0fc1e69b318752c2ada11b029bf094eb647d449a466f691daac533"
+  nc:codebookHash="25ef2a245503894d9a33c52e78661f89b53c2a60"
+  nc:sessionExportTime="2024-01-16T11:12:25.748Z"
+    nc:sessionStartTime="2024-01-11T08:38:08.714Z"
+>
+<data key="networkCanvasUUID">undefined</data>
+</graph>
+</graphml>

@@ -1,22 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable no-console */
-import { type Interview } from '@prisma/client';
 import { Button } from '~/components/ui/Button';
 import { exportSessions } from '../_actions/export';
 
-type ExportInterviewsButtonProps = {
-  interviews: Interview[];
-};
-
-const ExportInterviewsButton = ({
-  interviews,
-}: ExportInterviewsButtonProps) => {
+const ExportInterviewsButton = () => {
   // export logic
   async function triggerExport() {
-    await exportSessions();
+    const result = await exportSessions();
+
+    if (result.data) {
+      const link = document.createElement('a');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      link.href = result.data.data.url;
+      link.download = 'exported_interviews.zip'; // Suggest a filename
+      link.click();
+    }
   }
 
   return <Button onClick={triggerExport}>Export all interviews</Button>;
