@@ -1,4 +1,3 @@
-// import NavigationButton from '../Navigation';
 import { SettingsIcon } from 'lucide-react';
 import {
   Sheet,
@@ -32,23 +31,23 @@ export const SettingsMenu = () => {
   return (
     <Sheet>
       <SheetTrigger>
-        {/* <NavigationButton> */}
-        <SettingsIcon className="h-[2.4rem] w-[2.4rem]" />
-        {/* </NavigationButton> */}
+        <SettingsIcon className="m-4 h-[2.4rem] w-[2.4rem]" />
       </SheetTrigger>
       <SheetContent
         side={'left'}
-        className="w-[600px] sm:w-[600px] sm:max-w-none"
+        className="w-[600px] border-none	bg-[#2D2955] text-white sm:w-[600px] sm:max-w-none"
       >
         <SheetHeader>
-          <SheetTitle>Interview Settings</SheetTitle>
+          <SheetTitle className="text-xl text-white">
+            Interview Settings
+          </SheetTitle>
           <SheetDescription>
-            <div className="mt-4 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+            <div className="mt-4 flex flex-row items-center justify-between rounded-lg  bg-[#3A3A75] p-3 pl-6 pr-6 shadow-sm">
               <div className="mr-4">
-                <p className="font-bold">
+                <p className="text-lg font-bold text-white">
                   Use experimental interaction sounds?
                 </p>
-                <p className="text-sm">
+                <p className="text-sm font-light text-white">
                   This feature adds interaction sounds to common actions in the
                   app, which may improve the interview experience. These sounds
                   were developed by our summer intern, Anika Wilsnack.
@@ -58,6 +57,7 @@ export const SettingsMenu = () => {
                 name="allowAnonymousRecruitment"
                 checked={enableExperimentalSounds}
                 onCheckedChange={toggleExperimentalSounds}
+                className="data-[state=checked]:bg-[#00C9A2] data-[state=unchecked]:bg-[#2D2955]"
               />
             </div>
           </SheetDescription>
