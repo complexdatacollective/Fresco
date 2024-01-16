@@ -30,7 +30,7 @@ export const SettingsMenu = () => {
   };
 
   return (
-    <Sheet key={'left'}>
+    <Sheet>
       <SheetTrigger>
         {/* <NavigationButton> */}
         <SettingsIcon className="h-[2.4rem] w-[2.4rem]" />
@@ -43,20 +43,22 @@ export const SettingsMenu = () => {
         <SheetHeader>
           <SheetTitle>Interview Settings</SheetTitle>
           <SheetDescription>
-            <SwitchUI
-              name="allowAnonymousRecruitment"
-              checked={enableExperimentalSounds}
-              onCheckedChange={toggleExperimentalSounds}
-            />
-            <div>
-              <p className="text-md font-bold">
-                Use experimental interaction sounds?
-              </p>
-              <p className="text-sm">
-                This feature adds interaction sounds to common actions in the
-                app, which may improve the interview experience. These sounds
-                were developed by our summer intern, Anika Wilsnack.
-              </p>
+            <div className="mt-4 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="mr-4">
+                <p className="font-bold">
+                  Use experimental interaction sounds?
+                </p>
+                <p className="text-sm">
+                  This feature adds interaction sounds to common actions in the
+                  app, which may improve the interview experience. These sounds
+                  were developed by our summer intern, Anika Wilsnack.
+                </p>
+              </div>
+              <SwitchUI
+                name="allowAnonymousRecruitment"
+                checked={enableExperimentalSounds}
+                onCheckedChange={toggleExperimentalSounds}
+              />
             </div>
           </SheetDescription>
         </SheetHeader>
