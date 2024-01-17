@@ -5,6 +5,7 @@ import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
 import { formatExportableSessions, getRemoteProtocolID } from './utils';
 import { getServerSession } from '~/utils/auth';
+import { trackEvent } from '~/analytics/utils';
 
 type UploadData = {
   key: string;
@@ -100,9 +101,27 @@ export const exportSessions = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const output: SuccessResult = await run();
 
+    await trackEvent({
+      type: 'InterviewCompleted',
+      metadata: {
+        success: true,
+      },
+    });
+
     return { ...output };
   } catch (error) {
     console.error(error);
+
+    await trackEvent({
+      type: 'Error',
+      error: {
+        message: 'Failed to export interview sessions!',
+        details: 'Error details should go here!',
+        stacktrace: '',
+        path: '/dashboard/interviews',
+      },
+    });
+
     return {
       data: null,
       message: 'Failed to export interview sessions!',
