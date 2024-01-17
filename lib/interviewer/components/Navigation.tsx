@@ -9,7 +9,7 @@ import { parseAsInteger, useQueryState } from 'next-usequerystate';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
-import { SettingsMenu } from './SettingsMenu/SettingsMenu';
+import { SettingsMenu } from './SettingsMenu';
 
 export const useNavigationHelpers = (
   currentStage: number,
