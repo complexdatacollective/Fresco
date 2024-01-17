@@ -4,18 +4,41 @@
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
 import { formatExportableSessions, getRemoteProtocolID } from './utils';
+import { getServerSession } from '~/utils/auth';
+
+type UploadData = {
+  key: string;
+  url: string;
+  name: string;
+  size: number;
+};
 
 type UpdateItems = {
   statusText: string;
   progress: number;
 };
 
+type FailResult = {
+  data: null;
+  error: unknown;
+  message: string;
+};
+
+type SuccessResult = {
+  data: UploadData;
+  error: null;
+  message: string;
+};
+
 export const exportSessions = async () => {
+  const session = await getServerSession();
+
+  if (!session) {
+    throw new Error('You must be logged in to export interview sessions!.');
+  }
+
   const interviewsSessions = await api.interview.get.all.query();
   const installedProtocols = await api.protocol.get.all.query();
-
-  let resultData;
-  let error;
 
   const fileExportManager = new FileExportManager();
 
@@ -33,27 +56,23 @@ export const exportSessions = async () => {
     });
   });
 
-  fileExportManager.on('cancelled', () => {
-    console.log('showCancellationToast');
-  });
-
-  fileExportManager.on('session-exported', (sessionId: string) => {
+  fileExportManager.on('session-exported', (sessionId: unknown) => {
     if (!sessionId || typeof sessionId !== 'string') {
       console.warn('session-exported event did not contain a sessionID');
-      error = 'session-exported event did not contain a sessionID';
+      return;
     }
-    console.log('session-exported success');
+    console.log('session-exported success sessionId:', sessionId);
   });
 
-  fileExportManager.on('error', (err: unknown) => {
-    console.log('session-export failed, error:', err);
-    error = err;
+  fileExportManager.on('error', (errResult: FailResult) => {
+    console.log('Session export failed, Error:', errResult.message);
   });
 
-  fileExportManager.on('finished', (result: unknown) => {
-    console.log('Exporting job finished', result);
-
-    resultData = result;
+  fileExportManager.on('finished', ({ statusText, progress }: UpdateItems) => {
+    console.log({
+      statusText,
+      percentProgress: progress,
+    });
   });
 
   const formattedSessions = formatExportableSessions(
@@ -76,11 +95,18 @@ export const exportSessions = async () => {
     reformatedProtocols,
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unused-vars
-  const { run, abort, setConsideringAbort } = await exportJob;
+  try {
+    const { run } = await exportJob;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const output: SuccessResult = await run();
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  await run();
-
-  return { data: resultData, error };
+    return { ...output };
+  } catch (error) {
+    console.error(error);
+    return {
+      data: null,
+      message: 'Failed to export interview sessions!',
+      error,
+    };
+  }
 };

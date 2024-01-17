@@ -12,9 +12,14 @@ export const uploadZipToUploadThing = async (
       type: 'application/zip',
     });
 
-    const { data } = await utapi.uploadFiles(zipFile);
-    return { data, message: 'Zip file uploaded successfully!', error: null };
+    const { data, error } = await utapi.uploadFiles(zipFile);
+
+    if (data) {
+      return { data, error, message: 'Zip file uploaded successfully!' };
+    }
+
+    return { data, error, message: 'Failed to upload zip file!' };
   } catch (error) {
-    return { data: null, message: 'Failed to upload zip file! ', error };
+    return { data: null, error, message: 'Failed to upload zip file!' };
   }
 };

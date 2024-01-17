@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Button } from '~/components/ui/Button';
 import { exportSessions } from '../_actions/export';
 
@@ -9,11 +8,14 @@ const ExportInterviewsButton = () => {
 
     if (result.data) {
       const link = document.createElement('a');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      link.href = result.data.data.url;
-      link.download = 'exported_interviews.zip'; // Suggest a filename
+      link.href = result.data.url;
+      link.download = result.data.name; // Zip file name
       link.click();
+      return;
     }
+
+    // eslint-disable-next-line no-console
+    console.log(result.error); // Todo: add proper error handling here
   }
 
   return <Button onClick={triggerExport}>Export all interviews</Button>;
