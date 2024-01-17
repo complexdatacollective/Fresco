@@ -1,5 +1,4 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import Banner from '~/components/Banner/Banner';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
@@ -27,16 +26,13 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
-      <body className="grid h-screen grid-rows-[auto,1fr,auto]">
+      <body>
         <RedirectWrapper
           configured={!!appSettings?.configured}
           expired={!!appSettings?.expired}
           session={session}
         >
-          <Providers initialSession={session}>
-            <Banner />
-            <main className="overflow-hidden">{children}</main>
-          </Providers>
+          <Providers initialSession={session}>{children}</Providers>
           <Toaster />
         </RedirectWrapper>
       </body>

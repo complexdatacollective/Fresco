@@ -15,6 +15,7 @@ import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { store } from '~/lib/interviewer/store';
 import { api } from '~/trpc/client';
 import { useRouter } from 'next/navigation';
+import Banner from '~/components/Banner/Banner';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
@@ -114,6 +115,7 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
   return (
     <Provider store={store}>
       <ServerSync interviewId={interviewID} />
+      <Banner />
       <ProtocolScreen />
       <DialogManager />
     </Provider>
