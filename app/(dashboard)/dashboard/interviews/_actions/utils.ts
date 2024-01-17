@@ -56,3 +56,5 @@ export const formatExportableSessions = (
 
 export const getRemoteProtocolID = (name: string) =>
   name && crypto.createHash('sha256').update(name).digest('hex');
+
+export type FormattedSessions = ReturnType<typeof formatExportableSessions>;

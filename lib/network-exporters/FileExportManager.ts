@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable global-require */
-import { protocolProperty } from '@codaco/shared-consts';
+import { type Protocol, protocolProperty } from '@codaco/shared-consts';
 import { queue } from 'async';
 import { EventEmitter } from 'eventemitter3';
 import { groupBy, isEmpty, merge } from 'lodash';
@@ -24,8 +24,16 @@ import {
   verifySessionVariables,
 } from './utils/general';
 import { uploadZipToUploadThing } from './utils/uploadZipToUploadThing';
+import {
+  type ExportOptions,
+  type CSVOptions,
+  type ExportFunction,
+  type UnifiedSessions,
+} from './utils/mainTypes';
 
-const defaultCSVOptions = {
+import { type FormattedSessions } from '~/app/(dashboard)/dashboard/interviews/_actions/utils';
+
+const defaultCSVOptions: CSVOptions = {
   adjacencyMatrix: false,
   attributeList: true,
   edgeList: true,
@@ -36,7 +44,7 @@ const defaultCSVOptions = {
   egoAttributeList: true,
 };
 
-const defaultExportOptions = {
+const defaultExportOptions: ExportOptions = {
   exportGraphML: true,
   exportCSV: defaultCSVOptions,
   globalOptions: {
@@ -50,7 +58,7 @@ const defaultExportOptions = {
 };
 
 // Merge default and user-supplied options
-const getOptions = (exportOptions) => ({
+const getOptions = (exportOptions: Partial<ExportOptions>): ExportOptions => ({
   ...merge(defaultExportOptions, exportOptions),
   ...(exportOptions.exportCSV === true ? { exportCSV: defaultCSVOptions } : {}),
 });
@@ -59,16 +67,19 @@ const getOptions = (exportOptions) => ({
  * Interface for all data exports
  */
 class FileExportManager {
-  constructor(exportOptions = {}) {
+  private exportOptions: ExportOptions;
+  public events: EventEmitter;
+
+  constructor(exportOptions: Partial<ExportOptions> = {}) {
     this.exportOptions = getOptions(exportOptions);
     this.events = new EventEmitter();
   }
 
-  on = (...args) => {
+  on = (...args: Parameters<EventEmitter['on']>) => {
     this.events.on(...args);
   };
 
-  emit(event, payload) {
+  emit(event: string, payload: unknown) {
     if (!event) {
       // eslint-disable-next-line no-console
       console.warn('Malformed emit.');
@@ -95,7 +106,10 @@ class FileExportManager {
    *                        including codebook. Must contain a key for every session
    *                        protocol in the sessions collection.
    */
-  exportSessions(sessions, protocols) {
+  exportSessions(
+    sessions: FormattedSessions,
+    protocols: Record<string, Protocol>,
+  ) {
     const tmpDir = os.tmpdir(); // https://vercel.com/guides/how-can-i-use-files-in-serverless-functions#using-temporary-storage
 
     // This queue instance accepts one or more promises and limits their
@@ -105,20 +119,30 @@ class FileExportManager {
     // Set concurrency to conservative values for now, based on platform
     const QUEUE_CONCURRENCY = 1;
 
-    const q = queue((task, callback) => {
-      task()
-        .then((result) => callback(null, result))
-        .catch((error) => callback(error));
-    }, QUEUE_CONCURRENCY);
+    const q = queue(
+      (
+        task: () => Promise<unknown>,
+        callback: (error: unknown, result: unknown) => void,
+      ) => {
+        task()
+          .then((result) => callback(null, result))
+          .catch((error) => callback(error, null));
+      },
+      QUEUE_CONCURRENCY,
+    );
 
     const exportFormats = [
       ...(this.exportOptions.exportGraphML ? ['graphml'] : []),
       ...(this.exportOptions.exportCSV ? ['ego'] : []),
-      ...(this.exportOptions.exportCSV.adjacencyMatrix
+      ...((this.exportOptions.exportCSV as CSVOptions).adjacencyMatrix
         ? ['adjacencyMatrix']
         : []),
-      ...(this.exportOptions.exportCSV.attributeList ? ['attributeList'] : []),
-      ...(this.exportOptions.exportCSV.edgeList ? ['edgeList'] : []),
+      ...((this.exportOptions.exportCSV as CSVOptions).attributeList
+        ? ['attributeList']
+        : []),
+      ...((this.exportOptions.exportCSV as CSVOptions).edgeList
+        ? ['edgeList']
+        : []),
     ];
 
     // Cleanup function called by abort method, after fatal errors, and after
@@ -141,8 +165,8 @@ class FileExportManager {
     return new Promise((resolveExportPromise) => {
       // State variables for this export
       let cancelled = false;
-      const succeeded = [];
-      const failed = [];
+      const succeeded: string[] = [];
+      const failed: unknown[] = [];
 
       const consideringCancel = new ObservableValue(false);
 
@@ -155,6 +179,8 @@ class FileExportManager {
           sleep(1000)(shouldContinue)
             .then(() => {
               this.emit('update', ProgressMessages.Formatting);
+
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-return
               return insertEgoIntoSessionNetworks(sessions);
             })
             // Group sessions by protocol UUID
@@ -179,15 +205,15 @@ class FileExportManager {
             })
             // Resequence IDs for this export
             .then((sessionsWithEgo) => resequenceIds(sessionsWithEgo))
-            .then((unifiedSessions) => {
+            .then((unifiedSessions: UnifiedSessions) => {
               if (!shouldContinue()) {
                 throw new UserCancelledExport();
               }
 
-              const promisedExports = [];
+              const promisedExports: ExportFunction[] = [];
 
               // Create an array of promises representing each session in each export format
-              const finishedSessions = [];
+              const finishedSessions: string[] = [];
               const sessionExportTotal = this.exportOptions.globalOptions
                 .unifyNetworks
                 ? Object.keys(unifiedSessions).length
@@ -202,7 +228,7 @@ class FileExportManager {
                   return;
                 }
 
-                unifiedSessions[protocolUID].forEach((session) => {
+                unifiedSessions[protocolUID]?.forEach((session) => {
                   // Skip if sessions don't have required sessionVariables
                   try {
                     if (this.exportOptions.globalOptions.unifyNetworks) {
@@ -231,13 +257,15 @@ class FileExportManager {
                     // Partitioning the network based on node and edge type so we can create
                     // an individual export file for each type
                     const partitionedNetworks = partitionNetworkByType(
-                      protocol.codebook,
+                      protocol?.codebook as object,
                       session,
                       format,
                     );
 
                     partitionedNetworks.forEach((partitionedNetwork) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                       const partitionedEntity =
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                         partitionedNetwork.partitionEntity;
                       promisedExports.push(
                         () =>
@@ -248,8 +276,8 @@ class FileExportManager {
                                 partitionedEntity,
                                 format,
                                 tmpDir,
-                                partitionedNetwork,
-                                protocol.codebook,
+                                partitionedNetwork as object,
+                                protocol?.codebook as object,
                                 this.exportOptions,
                               )
                                 .then((result) => {
@@ -290,7 +318,9 @@ class FileExportManager {
                             } catch (error) {
                               this.emit(
                                 'error',
-                                `Encoding ${prefix} failed: ${error.message}`,
+                                `Encoding ${prefix} failed: ${JSON.stringify(
+                                  error,
+                                )}`,
                               );
                               this.emit(
                                 'update',
@@ -313,7 +343,7 @@ class FileExportManager {
                   failed.push(err);
                   return;
                 }
-                succeeded.push(result);
+                succeeded.push(result as string);
               });
 
               return new Promise((resolve, reject) =>
@@ -329,42 +359,50 @@ class FileExportManager {
               );
             })
             // Then, Zip the result.
-            .then(({ exportedPaths, failedExports }) => {
-              if (!shouldContinue()) {
-                throw new UserCancelledExport();
-              }
-
-              // FatalError if there are no sessions to encode and no errors
-              if (exportedPaths.length === 0 && failedExports.length === 0) {
-                throw new ExportError(ErrorMessages.NothingToExport);
-              }
-
-              // If we have no files to encode (but we do have errors), finish
-              // the task here so the user can see the errors
-              if (exportedPaths.length === 0) {
-                this.emit('finished', ProgressMessages.Finished);
-                cleanUp();
-                resolveRun();
-                cancelled = true;
-                return Promise.resolve();
-              }
-
-              const emitZipProgress = (percent) =>
-                this.emit('update', ProgressMessages.ZipProgress(percent));
-
-              // Start the zip process, and attach a callback to the update
-              // progress event.
-              this.emit('update', ProgressMessages.ZipStart);
-              return archive(
+            .then(
+              ({
                 exportedPaths,
-                tmpDir,
-                sanitizeFilename(
-                  this.exportOptions.globalOptions.exportFilename,
-                ),
-                emitZipProgress,
-                shouldContinue,
-              );
-            })
+                failedExports,
+              }: {
+                exportedPaths: string[];
+                failedExports: unknown[];
+              }) => {
+                if (!shouldContinue()) {
+                  throw new UserCancelledExport();
+                }
+
+                // FatalError if there are no sessions to encode and no errors
+                if (exportedPaths.length === 0 && failedExports.length === 0) {
+                  throw new ExportError(ErrorMessages.NothingToExport);
+                }
+
+                // If we have no files to encode (but we do have errors), finish
+                // the task here so the user can see the errors
+                if (exportedPaths.length === 0) {
+                  this.emit('finished', ProgressMessages.Finished);
+                  cleanUp();
+                  resolveRun();
+                  cancelled = true;
+                  return Promise.resolve();
+                }
+
+                const emitZipProgress = (percent) =>
+                  this.emit('update', ProgressMessages.ZipProgress(percent));
+
+                // Start the zip process, and attach a callback to the update
+                // progress event.
+                this.emit('update', ProgressMessages.ZipStart);
+                return archive(
+                  exportedPaths,
+                  tmpDir,
+                  sanitizeFilename(
+                    this.exportOptions.globalOptions.exportFilename,
+                  ),
+                  emitZipProgress,
+                  shouldContinue,
+                );
+              },
+            )
             .then((zipLocation) => {
               if (!shouldContinue()) {
                 throw new UserCancelledExport();
@@ -441,22 +479,7 @@ class FileExportManager {
             });
         }); // End run()
 
-      const abort = () => {
-        // eslint-disable-next-line no-console
-        console.info('Aborting file export.');
-        if (!shouldContinue()) {
-          // eslint-disable-next-line no-console
-          console.warn('This export already aborted. Cancelling abort!');
-          return;
-        }
-        cancelled = true;
-      };
-
-      const setConsideringAbort = (value) => {
-        consideringCancel.value = value;
-      };
-
-      resolveExportPromise({ run, abort, setConsideringAbort });
+      resolveExportPromise({ run });
     });
   }
 }
