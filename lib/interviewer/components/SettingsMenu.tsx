@@ -8,14 +8,15 @@ import {
   SheetTrigger,
 } from '~/components/ui/sheet';
 
-import { actionCreators as deviceSettingsActions } from '~/lib/interviewer/ducks/modules/deviceSettings';
+import {
+  actionCreators as deviceSettingsActions,
+  type DeviceSettings,
+} from '~/lib/interviewer/ducks/modules/deviceSettings';
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { useDispatch, useSelector } from 'react-redux';
 
 type SettingsMenuState = {
-  deviceSettings: {
-    enableExperimentalSounds: boolean;
-  };
+  deviceSettings: Pick<DeviceSettings, 'enableExperimentalSounds'>;
 };
 
 export const SettingsMenu = () => {
