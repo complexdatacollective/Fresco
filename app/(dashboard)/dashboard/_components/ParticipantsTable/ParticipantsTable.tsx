@@ -11,21 +11,12 @@ import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/partici
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-export const ParticipantsTable = ({
-  initialData,
-}: {
-  initialData: ParticipantWithInterviews[];
-}) => {
-  const { isLoading, data: participants } = api.participant.get.all.useQuery(
-    undefined,
-    {
-      initialData,
-      refetchOnMount: false,
-      onError(error) {
-        throw new Error(error.message);
-      },
+export const ParticipantsTable = () => {
+  const [participants] = api.participant.get.all.useSuspenseQuery(undefined, {
+    onError(error) {
+      throw new Error(error.message);
     },
-  );
+  });
   const [participantsToDelete, setParticipantsToDelete] =
     useState<ParticipantWithInterviews[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -43,7 +34,6 @@ export const ParticipantsTable = ({
         <ExportCSVParticipants participants={participants} />
         <DeleteAllParticipantsButton />
       </div>
-      {isLoading && <div>Loading...</div>}
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}

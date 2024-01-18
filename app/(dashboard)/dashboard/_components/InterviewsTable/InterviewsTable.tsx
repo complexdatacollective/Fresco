@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
 
 export const InterviewsTable = () => {
-  const interviews = api.interview.get.all.useQuery(undefined, {
+  const [interviews] = api.interview.get.all.useSuspenseQuery(undefined, {
     onError(error) {
       throw new Error(error.message);
     },
@@ -22,11 +22,8 @@ export const InterviewsTable = () => {
     setInterviewsToDelete(data);
     setShowDeleteModal(true);
   };
-  if (!interviews.data) {
-    return <div>Loading...</div>;
-  }
 
-  const convertedData = interviews.data.map((interview) => ({
+  const convertedData = interviews.map((interview) => ({
     ...interview,
     startTime: new Date(interview.startTime),
     finishTime: interview.finishTime ? new Date(interview.finishTime) : null,

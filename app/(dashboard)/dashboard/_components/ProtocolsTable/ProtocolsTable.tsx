@@ -8,21 +8,12 @@ import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_co
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 
-export const ProtocolsTable = ({
-  initialData,
-}: {
-  initialData: ProtocolWithInterviews[];
-}) => {
-  const { data: protocols, isLoading } = api.protocol.get.all.useQuery(
-    undefined,
-    {
-      initialData,
-      refetchOnMount: false,
-      onError(error) {
-        throw new Error(error.message);
-      },
+export const ProtocolsTable = () => {
+  const [protocols] = api.protocol.get.all.useSuspenseQuery(undefined, {
+    onError(error) {
+      throw new Error(error.message);
     },
-  );
+  });
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =
@@ -35,7 +26,6 @@ export const ProtocolsTable = ({
 
   return (
     <>
-      {isLoading && <div>Loading...</div>}
       <DataTable<ProtocolWithInterviews, string>
         columns={ProtocolColumns}
         data={protocols}

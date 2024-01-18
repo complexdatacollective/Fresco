@@ -22,7 +22,6 @@ import { useRouter } from 'next/navigation';
 import type { assetInsertSchema } from '~/server/routers/protocol';
 import type { z } from 'zod';
 import { hash } from 'ohash';
-import { trackEvent } from '~/analytics/utils';
 
 // Utility helper for adding artificial delay to async functions
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -80,13 +79,16 @@ export const useProtocolImport = () => {
       const { validateProtocol } = await import('@codaco/protocol-validation');
 
       const validationResult = await validateProtocol(protocolJson);
-      await sleep(1000);
+      await sleep(1000); // Actually helps UX to slow this down a bit.
 
       if (!validationResult.isValid) {
         dispatch({
           type: 'UPDATE_ERROR',
           payload: {
             id: fileName,
+            rawError: new Error('Protocol validation failed', {
+              cause: validationResult,
+            }),
             error: {
               title: 'The protocol is invalid!',
               description: (
@@ -173,6 +175,12 @@ export const useProtocolImport = () => {
           },
         });
 
+        /**
+         * To track overall upload progress we need to create two variables in
+         * the upper scope, one to track the total bytes to upload, and one to
+         * track the current bytes uploaded per file (uploads are done in
+         * parallel).
+         */
         const totalBytesToUpload = assets.reduce((acc, asset) => {
           return acc + asset.file.size;
         }, 0);
@@ -219,7 +227,7 @@ export const useProtocolImport = () => {
          * asset metadata from the protocol json, so that we can insert the
          * assets into the database.
          *
-         * The 'name' prop matches across both, we can use that to merge them.
+         * The 'name' prop matches across both - we can use that to merge them.
          */
         assetsWithCombinedMetadata = assets.map((asset) => {
           const uploadedAsset = uploadedFiles.find(
@@ -230,7 +238,8 @@ export const useProtocolImport = () => {
             throw new Error('Asset upload failed');
           }
 
-          // Ensure this matches the input schema in the protocol router
+          // Ensure this matches the input schema in the protocol router by
+          // manually constructing the object.
           return {
             key: uploadedAsset.key,
             assetId: asset.assetId,
@@ -240,9 +249,6 @@ export const useProtocolImport = () => {
             size: uploadedAsset.size,
           };
         });
-      } else {
-        // No assets to upload
-        assetsWithCombinedMetadata = [];
       }
 
       dispatch({
@@ -272,13 +278,6 @@ export const useProtocolImport = () => {
         },
       });
 
-      await trackEvent({
-        type: 'ProtocolInstalled',
-        metadata: {
-          protocol: fileName,
-        },
-      });
-
       return;
     } catch (e) {
       const error = ensureError(e);
@@ -288,6 +287,7 @@ export const useProtocolImport = () => {
           type: 'UPDATE_ERROR',
           payload: {
             id: file.name,
+            rawError: error,
             error: {
               title: 'Database error during protocol import',
               description: <AlertDescription>{error.message}</AlertDescription>,
@@ -304,6 +304,7 @@ export const useProtocolImport = () => {
           type: 'UPDATE_ERROR',
           payload: {
             id: file.name,
+            rawError: error,
             error: {
               title: 'Error importing protocol',
               description: (
