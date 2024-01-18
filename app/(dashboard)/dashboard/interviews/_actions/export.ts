@@ -101,26 +101,26 @@ export const exportSessions = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const output: SuccessResult = await run();
 
-    await trackEvent({
-      type: 'InterviewCompleted',
-      metadata: {
-        success: true,
-      },
-    });
+    // await trackEvent({
+    //   type: 'InterviewCompleted',
+    //   metadata: {
+    //     success: true,
+    //   },
+    // });
 
     return { ...output };
   } catch (error) {
     console.error(error);
 
-    await trackEvent({
-      type: 'Error',
-      error: {
-        message: 'Failed to export interview sessions!',
-        details: 'Error details should go here!',
-        stacktrace: '',
-        path: '/dashboard/interviews',
-      },
-    });
+    // await trackEvent({
+    //   type: 'Error',
+    //   error: {
+    //     message: 'Failed to export interview sessions!',
+    //     details: 'Error details should go here!',
+    //     stacktrace: '',
+    //     path: '/dashboard/interviews',
+    //   },
+    // });
 
     return {
       data: null,
