@@ -5,7 +5,9 @@ import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
 import { formatExportableSessions, getRemoteProtocolID } from './utils';
 import { getServerSession } from '~/utils/auth';
-import { trackEvent } from '~/analytics/utils';
+// import { trackEvent } from '~/analytics/utils';
+import { type ExportOptions } from '../_components/ExportInterviewsDialog';
+import { prisma } from '~/utils/db';
 
 type UploadData = {
   key: string;
@@ -31,17 +33,27 @@ type SuccessResult = {
   message: string;
 };
 
-export const exportSessions = async () => {
+export const exportSessions = async (
+  interviewIds: string[],
+  exportOptions: ExportOptions,
+) => {
   const session = await getServerSession();
 
   if (!session) {
     throw new Error('You must be logged in to export interview sessions!.');
   }
 
-  const interviewsSessions = await api.interview.get.all.query();
+  // eslint-disable-next-line local-rules/require-data-mapper
+  const interviewsSessions = await prisma.interview.findMany({
+    where: {
+      id: {
+        in: interviewIds,
+      },
+    },
+  });
   const installedProtocols = await api.protocol.get.all.query();
 
-  const fileExportManager = new FileExportManager();
+  const fileExportManager = new FileExportManager(exportOptions);
 
   fileExportManager.on('begin', () => {
     console.log({
@@ -97,6 +109,7 @@ export const exportSessions = async () => {
   );
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { run } = await exportJob;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const output: SuccessResult = await run();

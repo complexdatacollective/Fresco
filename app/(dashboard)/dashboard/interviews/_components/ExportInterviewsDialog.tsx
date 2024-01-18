@@ -65,31 +65,26 @@ export const ExportInterviewsDialog = ({
       exportOptions.globalOptions.screenLayoutWidth >= 1
     ) {
       // start export process
-      console.log('interviewsToExport:', interviewsToExport);
-      console.log('exportOptions:', exportOptions);
+      const interviewIds = interviewsToExport.map((interview) => interview.id);
 
-      const result = await exportSessions();
+      const result = await exportSessions(interviewIds, exportOptions);
+      handleCloseDialog();
 
       if (result.data) {
         const link = document.createElement('a');
         link.href = result.data.url;
         link.download = result.data.name; // Zip file name
         link.click();
+        setIsExporting(false);
         return;
       }
 
       // eslint-disable-next-line no-console
       console.log(result.error); // Todo: add proper error handling here
-
-      setOpen(false);
-
-      setTimeout(() => {
-        setIsExporting(false);
-      }, 4000);
     }
   };
 
-  const handleCancelDialog = () => {
+  const handleCloseDialog = () => {
     setInterviewsToExport([]);
     setExportOptions(defaultExportOptions);
     setOpen(false);
@@ -107,7 +102,7 @@ export const ExportInterviewsDialog = ({
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={handleCancelDialog}>
+      <Dialog open={open} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-h-[95%] max-w-[60%]">
           <DialogHeader>
             <DialogTitle className="text-center text-xl">
@@ -124,7 +119,7 @@ export const ExportInterviewsDialog = ({
             <Button
               variant={'outline'}
               size={'sm'}
-              onClick={handleCancelDialog}
+              onClick={handleCloseDialog}
               className="my-1 text-xs uppercase lg:text-[14px]"
             >
               Cancel
@@ -134,7 +129,7 @@ export const ExportInterviewsDialog = ({
               onClick={() => void handleConfirm()}
               className="my-1 text-xs uppercase lg:text-[14px]"
             >
-              Start export process
+              {isExporting ? 'Exporting...' : 'Start export process'}
             </Button>
           </DialogFooter>
         </DialogContent>
