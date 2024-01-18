@@ -1,13 +1,13 @@
 'use client';
 
-import { DataTable } from '~/components/DataTable/DataTable';
-import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
-import { api } from '~/trpc/client';
 import { type Interview } from '@prisma/client';
-import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { useState } from 'react';
+import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/ActionsDropdown';
+import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
+import { DataTable } from '~/components/DataTable/DataTable';
+import { api } from '~/trpc/client';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
-import ExportInterviewsButton from '../../interviews/_components/ExportInterviewsButton';
+import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
 
 export const InterviewsTable = () => {
   const interviews = api.interview.get.all.useQuery(undefined, {
@@ -16,13 +16,20 @@ export const InterviewsTable = () => {
     },
   });
 
-  const [interviewsToDelete, setInterviewsToDelete] = useState<Interview[]>();
+  const [selectedInterviews, setSelectedInterviews] = useState<Interview[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const handleDelete = (data: Interview[]) => {
-    setInterviewsToDelete(data);
+    setSelectedInterviews(data);
     setShowDeleteModal(true);
   };
+
+  const handleExport = (data: Interview[]) => {
+    setSelectedInterviews(data);
+    setShowExportModal(true);
+  };
+
   if (!interviews.data) {
     return <div>Loading...</div>;
   }
@@ -37,19 +44,23 @@ export const InterviewsTable = () => {
 
   return (
     <>
-      {/* Temporary interview export trigger */}
-      <ExportInterviewsButton />
-      {/* Temporary interview export trigger */}
+      <ExportInterviewsDialog
+        open={showExportModal}
+        setOpen={setShowExportModal}
+        setInterviewsToExport={setSelectedInterviews}
+        interviewsToExport={selectedInterviews ?? []}
+      />
       <DeleteInterviewsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        interviewsToDelete={interviewsToDelete ?? []}
+        interviewsToDelete={selectedInterviews ?? []}
       />
       <DataTable
         columns={InterviewColumns()}
         data={convertedData}
         filterColumnAccessorKey="id"
         handleDeleteSelected={handleDelete}
+        handleExportSelected={handleExport}
         actions={ActionsDropdown}
       />
     </>
