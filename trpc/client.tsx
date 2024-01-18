@@ -26,7 +26,16 @@ export function TRPCReactProvider(props: {
             env.NODE_ENV === 'development' ||
             (op.direction === 'down' && op.result instanceof Error),
         }),
-        httpBatchLink({ url: getUrl() }),
+        httpBatchLink({
+          url: getUrl(),
+          // I needed to add the headers here, otherwise the session wasn't
+          // available during SSR. This caused an issue with useSuspenseQuery
+          headers() {
+            const heads = new Map(props.headers);
+            heads.set('x-trpc-source', 'react');
+            return Object.fromEntries(heads);
+          },
+        }),
         // This is the link used in create-t3-app, but it doesn't set the session cookie for some reason.
         // unstable_httpBatchStreamLink({
         //   url: getUrl(),

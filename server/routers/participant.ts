@@ -2,7 +2,6 @@
 import { prisma } from '~/utils/db';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 import {
-  participantIdentifierSchema,
   participantListInputSchema,
   updateSchema,
 } from '~/shared/schemas/schemas';
@@ -10,20 +9,12 @@ import { z } from 'zod';
 
 export const participantRouter = router({
   get: router({
-    all: publicProcedure.query(async () => {
+    all: protectedProcedure.query(async () => {
       const participants = await prisma.participant.findMany({
         include: { interviews: true },
       });
       return participants;
     }),
-    byIdentifier: publicProcedure
-      .input(participantIdentifierSchema)
-      .query(async ({ input: identifier }) => {
-        const participant = await prisma.participant.findFirst({
-          where: { identifier },
-        });
-        return participant;
-      }),
     byId: publicProcedure.input(z.string()).query(async ({ input: id }) => {
       const participant = await prisma.participant.findFirst({
         where: { id },

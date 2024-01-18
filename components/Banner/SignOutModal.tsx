@@ -1,5 +1,4 @@
 import { type Dispatch, type SetStateAction } from 'react';
-import { useSession } from '~/providers/SessionProvider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/AlertDialog';
+import { useAuth } from '@clerk/nextjs';
 
 type SignOutModalProps = {
   openSignOutModal: boolean;
@@ -20,7 +20,7 @@ const SignOutModal = ({
   openSignOutModal,
   setOpenSignOutModal,
 }: SignOutModalProps) => {
-  const { signOut } = useSession();
+  const auth = useAuth();
 
   return (
     <AlertDialog open={openSignOutModal} onOpenChange={setOpenSignOutModal}>
@@ -39,7 +39,7 @@ const SignOutModal = ({
           <AlertDialogCancel onClick={() => setOpenSignOutModal(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={() => void signOut()}>
+          <AlertDialogAction onClick={() => auth.signOut()}>
             Sign Out
           </AlertDialogAction>
         </AlertDialogFooter>

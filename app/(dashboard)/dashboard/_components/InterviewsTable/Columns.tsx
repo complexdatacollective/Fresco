@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Progress } from '~/components/ui/progress';
 import type { AppRouter } from '~/server/router';
 import type { Stage } from '@codaco/shared-consts';
+import { conditionallyFormatDate } from '~/components/DataTable/helpers';
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Interviews = RouterOutput['interview']['get']['all'][0];
@@ -77,9 +78,20 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Updated" />;
     },
-    cell: ({ row }) => {
-      const date = new Date(row.original.lastUpdated);
-      return date.toLocaleString();
+    cell: ({
+      row,
+      table: {
+        options: { meta },
+      },
+    }) => {
+      // @ts-expect-error Tanstack table won't let us set meta properly.
+      const languages = meta.navigatorLanguages as string[] | undefined;
+
+      return (
+        <div className="text-xs">
+          {conditionallyFormatDate(row.original.lastUpdated, languages)}
+        </div>
+      );
     },
   },
   {

@@ -84,7 +84,7 @@ export const interviewRouter = router({
       }
     }),
   get: router({
-    all: publicProcedure.query(async () => {
+    all: protectedProcedure.query(async () => {
       const interviews = await prisma.interview.findMany({
         include: {
           protocol: true,
@@ -114,7 +114,7 @@ export const interviewRouter = router({
         return interview;
       }),
   }),
-  finish: protectedProcedure
+  finish: publicProcedure
     .input(
       z.object({
         id: z.string(),

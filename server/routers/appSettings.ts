@@ -8,8 +8,8 @@ import {
 } from '../trpc';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
-import { signOutProc } from './session';
 import { revalidateTag } from 'next/cache';
+import { clerkClient } from '@clerk/nextjs';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
@@ -75,12 +75,13 @@ export const appSettingsRouter = router({
     }),
 
   reset: devProcedure.mutation(async ({ ctx }) => {
-    const userID = ctx.session?.user.userId;
+    const userID = ctx.auth.userId;
 
     if (userID) {
+      const session = ctx.auth.sessionId;
       // eslint-disable-next-line no-console
       console.info('Active user session found during reset. Invalidating...');
-      await signOutProc({ ctx });
+      await clerkClient.sessions.revokeSession(session);
     }
     try {
       // Delete the setup record:

@@ -6,3 +6,11 @@ export const dateOptions: Intl.DateTimeFormatOptions = {
   hour: 'numeric',
   minute: 'numeric',
 };
+
+// Utility to help with hydration errors caused by SSR and date formatting
+export const conditionallyFormatDate = (date: Date, locales?: string[]) => {
+  if (locales) {
+    return new Intl.DateTimeFormat(locales, dateOptions).format(new Date(date));
+  }
+  return null;
+};

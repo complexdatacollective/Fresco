@@ -1,6 +1,6 @@
+import { getAuth } from '@clerk/nextjs/server';
 import { createUploadthing } from 'uploadthing/next';
 import { UTApi } from 'uploadthing/server';
-import { getServerSession } from '~/utils/auth';
 
 const f = createUploadthing();
 
@@ -9,8 +9,8 @@ export const ourFileRouter = {
   assetRouter: f({
     blob: { maxFileSize: '256MB', maxFileCount: 50 },
   })
-    .middleware(async () => {
-      const session = await getServerSession();
+    .middleware(async ({ req, res }) => {
+      const session = getAuth(req);
       if (!session) {
         throw new Error('You must be logged in to upload assets.');
       }

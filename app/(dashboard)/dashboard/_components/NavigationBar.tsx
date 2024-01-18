@@ -8,6 +8,7 @@ import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
 import type { UrlObject } from 'url';
 import type { Route } from 'next';
+import { UserButton } from '@clerk/nextjs';
 
 export const NavButton = ({
   children,
@@ -70,7 +71,7 @@ export function NavigationBar() {
           Participants
         </NavButton>
       </div>
-      <UserMenu />
+      <UserButton />
     </nav>
   );
 }

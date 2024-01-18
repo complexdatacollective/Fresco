@@ -2,15 +2,15 @@
 
 import { LogOut } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import { useSession } from '~/providers/SessionProvider';
 import FeedbackBanner from './FeedbackBanner';
 import { usePathname } from 'next/navigation';
 import { CloseButton } from '../ui/CloseButton';
 import { useState } from 'react';
 import SignOutModal from './SignOutModal';
+import { useUser } from '@clerk/nextjs';
 
 const BannerContent = () => {
-  const { session } = useSession();
+  const { user } = useUser();
   const [openSignOutModal, setOpenSignOutModal] = useState(false);
   const pathname = usePathname();
 
@@ -19,7 +19,7 @@ const BannerContent = () => {
     window.location.href = '/dashboard';
   };
 
-  if (session && pathname.startsWith('/interview/')) {
+  if (user && pathname.startsWith('/interview/')) {
     return (
       <>
         <SignOutModal

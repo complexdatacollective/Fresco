@@ -7,8 +7,9 @@ import { headers } from 'next/headers';
 import SuperJSON from 'superjson';
 import { env } from '~/env.mjs';
 import { appRouter, type AppRouter } from '~/server/router';
-import { getServerSession } from '~/utils/auth';
+
 import 'server-only';
+import { auth } from '@clerk/nextjs';
 
 /**
  * This client invokes procedures directly on the server without fetching over HTTP.
@@ -40,7 +41,7 @@ export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
             };
 
             return {
-              session: await getServerSession(),
+              auth: auth(),
               headers: getHeaders(),
             };
           },

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client';
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
@@ -7,7 +5,7 @@ import { Checkbox } from '~/components/ui/checkbox';
 import ActiveButton from './ActiveButton';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { dateOptions } from '~/components/DataTable/helpers';
+import { conditionallyFormatDate } from '~/components/DataTable/helpers';
 
 export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
   {
@@ -66,16 +64,16 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
       table: {
         options: { meta },
       },
-    }) => (
-      <div className="text-xs">
-        {
-          // @ts-ignore
-          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
-            new Date(row.original.importedAt),
-          )
-        }
-      </div>
-    ),
+    }) => {
+      // @ts-expect-error Tanstack table won't let us set meta properly.
+      const languages = meta.navigatorLanguages as string[] | undefined;
+
+      return (
+        <div className="text-xs">
+          {conditionallyFormatDate(row.original.importedAt, languages)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'lastModified',
@@ -87,15 +85,15 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
       table: {
         options: { meta },
       },
-    }) => (
-      <div className="text-xs">
-        {
-          // @ts-ignore
-          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
-            new Date(row.original.lastModified),
-          )
-        }
-      </div>
-    ),
+    }) => {
+      // @ts-expect-error Tanstack table won't let us set meta properly.
+      const languages = meta.navigatorLanguages as string[] | undefined;
+
+      return (
+        <div className="text-xs">
+          {conditionallyFormatDate(row.original.lastModified, languages)}
+        </div>
+      );
+    },
   },
 ];

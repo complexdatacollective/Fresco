@@ -1,28 +1,23 @@
-import type { Session } from 'lucia';
-import type { NextRequest } from 'next/server';
-import { auth } from '~/utils/auth';
-import * as context from 'next/headers';
+import type * as trpc from '@trpc/server';
+import type * as trpcNext from '@trpc/server/adapters/next';
+import {
+  getAuth,
+  type SignedInAuthObject,
+  type SignedOutAuthObject,
+} from '@clerk/nextjs/server';
 
-type CreateContextOptions = {
-  headers: Headers;
-  session: Session | null;
+type AuthContext = {
+  auth: SignedInAuthObject | SignedOutAuthObject;
 };
 
-export const createInnerTRPCContext = (opts: CreateContextOptions) => {
+export const createInnerTRPCContext = ({ auth }: AuthContext) => {
   return {
-    session: opts.session,
-    headers: opts.headers,
+    auth,
   };
 };
 
-export const createTRPCContext = async (opts: { req: NextRequest }) => {
-  // Fetch stuff that depends on the request
-
-  const authRequest = auth.handleRequest(opts.req.method, context);
-  const session = await authRequest.validate();
-
-  return createInnerTRPCContext({
-    session,
-    headers: opts.req.headers,
-  });
+export const createTRPCContext = (opts: trpcNext.CreateNextContextOptions) => {
+  return createInnerTRPCContext({ auth: getAuth(opts.req) });
 };
+
+export type Context = trpc.inferAsyncReturnType<typeof createTRPCContext>;

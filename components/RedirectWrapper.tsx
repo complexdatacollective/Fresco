@@ -3,6 +3,7 @@
 import type { Session } from 'lucia';
 import type { Route } from 'next';
 import { usePathname, redirect, useSearchParams } from 'next/navigation';
+import { useSession } from '~/providers/SessionProvider';
 import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
 
 /**
@@ -18,18 +19,21 @@ import { calculateRedirect } from '~/utils/calculateRedirectedRoutes';
  */
 
 export default function RedirectWrapper({
-  session,
   children,
   configured,
   expired,
 }: {
-  session: Session | null;
   children: React.ReactNode;
   configured: boolean;
   expired: boolean;
 }) {
   const path = usePathname() as Route;
   const searchParams = useSearchParams();
+  const { session, isLoading } = useSession();
+
+  if (isLoading) {
+    return children;
+  }
 
   const shouldRedirect = calculateRedirect({
     session,

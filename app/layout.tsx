@@ -4,7 +4,6 @@ import RedirectWrapper from '~/components/RedirectWrapper';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
 import { api } from '~/trpc/server';
-import { getServerSession } from '~/utils/auth';
 import Providers from '../providers/Providers';
 
 export const metadata = {
@@ -12,33 +11,27 @@ export const metadata = {
   description: 'Fresco.',
 };
 
-export const dynamic = 'force-dynamic';
-
-async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession();
-  const appSettings = await api.appSettings.get.query();
+function RootLayout({ children }: { children: React.ReactNode }) {
+  // const session = await getServerSession();
+  // const appSettings = await api.appSettings.get.query();
 
   // If this is the first run, app settings must be created
-  if (!appSettings) {
-    await api.appSettings.create.mutate();
-    revalidateTag('appSettings.get');
-    revalidatePath('/');
-  }
+  // if (!appSettings) {
+  //   await api.appSettings.create.mutate();
+  //   revalidateTag('appSettings.get');
+  //   revalidatePath('/');
+  // }
 
   return (
-    <html lang="en">
-      <body>
-        <RedirectWrapper
-          configured={!!appSettings?.configured}
-          expired={!!appSettings?.expired}
-          session={session}
-        >
-          <Providers initialSession={session}>
-            <Banner />
-            {children}
-          </Providers>
-          <Toaster />
-        </RedirectWrapper>
+    <html lang="en" className="">
+      <body className="bg-slate-100">
+        <Providers initialSession={null}>
+          {/* <RedirectWrapper configured expired={false}> */}
+          <Banner />
+          {children}
+          {/* </RedirectWrapper> */}
+        </Providers>
+        <Toaster />
       </body>
     </html>
   );

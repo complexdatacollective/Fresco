@@ -9,11 +9,7 @@ import { useState } from 'react';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
 
 export const InterviewsTable = () => {
-  const [interviews] = api.interview.get.all.useSuspenseQuery(undefined, {
-    onError(error) {
-      throw new Error(error.message);
-    },
-  });
+  const [interviews] = api.interview.get.all.useSuspenseQuery();
 
   const [interviewsToDelete, setInterviewsToDelete] = useState<Interview[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
