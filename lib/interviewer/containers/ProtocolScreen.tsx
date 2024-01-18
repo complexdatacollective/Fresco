@@ -25,7 +25,10 @@ const ProtocolScreen = () => {
 
   return (
     <>
-      <Banner />
+      <div className="text-black">
+        <Banner />
+      </div>
+
       <motion.div
         className="flex h-4/5 w-full flex-1 flex-row"
         initial={{ opacity: 0 }}
