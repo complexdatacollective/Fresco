@@ -4,6 +4,7 @@ import Navigation from '../components/Navigation';
 import { getCurrentStage } from '../selectors/session';
 import Stage from './Stage';
 import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
+import Banner from '~/components/Banner/Banner';
 
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
@@ -23,39 +24,42 @@ const ProtocolScreen = () => {
   }
 
   return (
-    <motion.div
-      className="flex h-full w-full flex-1 flex-row"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <Navigation
-        moveBackward={moveBackward}
-        canMoveBackward={canMoveBackward}
-        moveForward={moveForward}
-        canMoveForward={canMoveForward}
-        progress={progress}
-        isReadyForNextStage={isReadyForNextStage}
-      />
-      <AnimatePresence mode="wait" initial={false}>
-        {currentStage && (
-          <Stage
-            key={currentStage.id}
-            stage={currentStage}
-            registerBeforeNext={registerBeforeNext}
-          />
-        )}
-        {!currentStage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-1 items-center justify-center"
-            exit={{ opacity: 0 }}
-          >
-            Other loading?
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+    <>
+      <Banner />
+      <motion.div
+        className="flex h-4/5 w-full flex-1 flex-row"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <Navigation
+          moveBackward={moveBackward}
+          canMoveBackward={canMoveBackward}
+          moveForward={moveForward}
+          canMoveForward={canMoveForward}
+          progress={progress}
+          isReadyForNextStage={isReadyForNextStage}
+        />
+        <AnimatePresence mode="wait" initial={false}>
+          {currentStage && (
+            <Stage
+              key={currentStage.id}
+              stage={currentStage}
+              registerBeforeNext={registerBeforeNext}
+            />
+          )}
+          {!currentStage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-1 items-center justify-center"
+              exit={{ opacity: 0 }}
+            >
+              Other loading?
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </>
   );
 };
 
