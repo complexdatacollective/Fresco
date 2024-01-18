@@ -70,4 +70,17 @@ $asset-size-default: 17vh;
     background-size: contain;
     background-repeat: no-repeat;
   }
+
+  &__information-container-scroller {
+    padding: units.unit(4) 0;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    & > * {
+      max-width: 55rem;
+      align-self: center;
+      width: 100%;
+    }
+  }
 }
