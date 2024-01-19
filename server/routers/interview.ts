@@ -1,11 +1,11 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
 import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { ensureError } from '~/utils/ensureError';
+import { participantIdSchema } from '~/shared/schemas/schemas';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -35,8 +35,8 @@ export const interviewRouter = router({
       }
     }),
   create: publicProcedure
-    .input(participantIdentifierSchema)
-    .mutation(async ({ input: identifier }) => {
+    .input(participantIdSchema)
+    .mutation(async ({ input: id }) => {
       try {
         // get the active protocol id to connect to the interview
         const activeProtocol = await prisma.protocol.findFirst({
@@ -59,10 +59,10 @@ export const interviewRouter = router({
             participant: {
               connectOrCreate: {
                 where: {
-                  identifier,
+                  id,
                 },
                 create: {
-                  identifier,
+                  identifier: id,
                 },
               },
             },
