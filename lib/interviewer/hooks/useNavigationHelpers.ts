@@ -8,7 +8,7 @@ import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
 import { parseAsInteger, useQueryState } from 'nuqs';
 
-type directions = 'forwards' | 'backwards';
+export type directions = 'forwards' | 'backwards';
 
 export const useNavigationHelpers = () => {
   const dispatch = useDispatch();
