@@ -3,7 +3,7 @@
 
   &__error {
     opacity: 0;
-    background: var(--error);
+    background: var(--nc-error);
     color: var(--nc-text);
     transition:
       opacity var(--animation-easing) var(--animation-duration-standard),
@@ -24,7 +24,7 @@
 
     .form-field {
       margin-bottom: 0;
-      border: 0.125rem solid var(--error);
+      border: 0.125rem solid var(--nc-error);
     }
   }
 }
@@ -84,7 +84,7 @@
     border-color: var(--nc-input-accent);
 
     &.boolean-option--negative {
-      border-color: var(--error);
+      border-color: var(--nc-error);
     }
   }
 }
@@ -120,7 +120,7 @@
     border-color: transparent;
 
     &.round-checkbox--negative {
-      background-color: var(--error);
+      background-color: var(--nc-error);
     }
 
     svg {
