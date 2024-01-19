@@ -2,10 +2,10 @@ import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { env } from '~/env.mjs';
 import { appRouter } from '~/server/router';
 import { createTRPCContext } from '~/server/context';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next';
 import { trackEvent } from '~/analytics/utils';
 
-const handler = (req: NextApiRequest, res: NextApiResponse) =>
+const handler = (req: Request, res: NextApiResponse) =>
   fetchRequestHandler({
     endpoint: '/api/trpc',
     req,
