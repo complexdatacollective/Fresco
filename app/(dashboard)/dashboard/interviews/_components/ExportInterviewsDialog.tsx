@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { Interview } from '@prisma/client';
 import { ArrowDownToLine } from 'lucide-react';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
@@ -10,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import ExportOptionsView from './ExportOptionsView';
+import { useToast } from '~/components/ui/use-toast';
 import { exportSessions } from '../_actions/export';
+import ExportOptionsView from './ExportOptionsView';
 
 const defaultExportOptions = {
   exportGraphML: true,
@@ -40,6 +40,7 @@ export const ExportInterviewsDialog = ({
   interviewsToExport,
   setInterviewsToExport,
 }: ExportInterviewsDialogProps) => {
+  const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [exportOptions, setExportOptions] = useState(defaultExportOptions);
 
@@ -65,24 +66,33 @@ export const ExportInterviewsDialog = ({
     ) {
       // start export process
       setIsExporting(true);
-      const interviewIds = interviewsToExport.map((interview) => ({
-        id: interview.id,
-      }));
+      try {
+        const interviewIds = interviewsToExport.map((interview) => ({
+          id: interview.id,
+        }));
 
-      const result = await exportSessions(interviewIds, exportOptions);
-      handleCloseDialog();
+        const result = await exportSessions(interviewIds, exportOptions);
+        handleCloseDialog();
 
-      if (result.data) {
-        const link = document.createElement('a');
-        link.href = result.data.url;
-        link.download = result.data.name; // Zip filename
-        link.click();
-        setIsExporting(false);
-        return;
+        if (result.data) {
+          const link = document.createElement('a');
+          link.href = result.data.url;
+          link.download = result.data.name; // Zip filename
+          link.click();
+          return;
+        }
+
+        throw new Error(result.message);
+      } catch (error) {
+        handleCloseDialog();
+        // eslint-disable-next-line no-console
+        console.error('Export failed error:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to export, please try again!',
+          variant: 'destructive',
+        });
       }
-
-      // eslint-disable-next-line no-console
-      console.log(result.error); // Todo: add proper error handling here
     }
   };
 
@@ -90,6 +100,7 @@ export const ExportInterviewsDialog = ({
     setInterviewsToExport([]);
     setExportOptions(defaultExportOptions);
     setOpen(false);
+    setIsExporting(false);
   };
 
   return (
