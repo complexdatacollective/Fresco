@@ -58,14 +58,13 @@ export const ExportInterviewsDialog = ({
   }, []);
 
   const handleConfirm = async () => {
-    setIsExporting(true);
-
     // check if screenLayoutHeight and screenLayoutWidth greater than 1
     if (
       exportOptions.globalOptions.screenLayoutHeight >= 1 &&
       exportOptions.globalOptions.screenLayoutWidth >= 1
     ) {
       // start export process
+      setIsExporting(true);
       const interviewIds = interviewsToExport.map((interview) => ({
         id: interview.id,
       }));

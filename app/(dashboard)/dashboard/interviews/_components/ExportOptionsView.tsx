@@ -123,15 +123,29 @@ const ExportOptionsView = ({
         <div>
           <Switch
             checked={exportOptions.globalOptions.useScreenLayoutCoordinates}
-            onCheckedChange={(value) =>
+            onCheckedChange={(value) => {
+              // if useScreenLayoutCoordinates disabled set screenLayoutHeight
+              // and screenLayoutWidth to window height and width
+              if (!value) {
+                setExportOptions((prevState) => ({
+                  ...prevState,
+                  globalOptions: {
+                    ...prevState.globalOptions,
+                    useScreenLayoutCoordinates: value,
+                    screenLayoutHeight: window.screen.height,
+                    screenLayoutWidth: window.screen.width,
+                  },
+                }));
+                return;
+              }
               setExportOptions((prevState) => ({
                 ...prevState,
                 globalOptions: {
                   ...prevState.globalOptions,
                   useScreenLayoutCoordinates: value,
                 },
-              }))
-            }
+              }));
+            }}
           />
         </div>
       </div>
@@ -151,7 +165,7 @@ const ExportOptionsView = ({
             <Input
               type="number"
               min={1}
-              value={exportOptions.globalOptions.screenLayoutWidth}
+              value={exportOptions.globalOptions.screenLayoutWidth + ''}
               onChange={(e) =>
                 setExportOptions((prevState) => ({
                   ...prevState,
@@ -173,7 +187,7 @@ const ExportOptionsView = ({
             <Input
               type="number"
               min={1}
-              value={exportOptions.globalOptions.screenLayoutHeight}
+              value={exportOptions.globalOptions.screenLayoutHeight + ''}
               onChange={(e) =>
                 setExportOptions((prevState) => ({
                   ...prevState,
