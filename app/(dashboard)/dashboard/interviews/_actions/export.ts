@@ -3,11 +3,10 @@
 
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
-import { formatExportableSessions, getRemoteProtocolID } from './utils';
 import { getServerSession } from '~/utils/auth';
+import { formatExportableSessions, getRemoteProtocolID } from './utils';
 // import { trackEvent } from '~/analytics/utils';
 import { type ExportOptions } from '../_components/ExportInterviewsDialog';
-import { prisma } from '~/utils/db';
 
 type UploadData = {
   key: string;
@@ -34,7 +33,7 @@ type SuccessResult = {
 };
 
 export const exportSessions = async (
-  interviewIds: string[],
+  interviewIds: { id: string }[],
   exportOptions: ExportOptions,
 ) => {
   const session = await getServerSession();
@@ -43,15 +42,9 @@ export const exportSessions = async (
     throw new Error('You must be logged in to export interview sessions!.');
   }
 
-  // eslint-disable-next-line local-rules/require-data-mapper
-  const interviewsSessions = await prisma.interview.findMany({
-    where: {
-      id: {
-        in: interviewIds,
-      },
-    },
-  });
   const installedProtocols = await api.protocol.get.all.query();
+  const interviewsSessions =
+    await api.interview.get.manyByIds.query(interviewIds);
 
   const fileExportManager = new FileExportManager(exportOptions);
 

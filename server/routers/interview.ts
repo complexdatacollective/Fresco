@@ -113,6 +113,26 @@ export const interviewRouter = router({
 
         return interview;
       }),
+    manyByIds: protectedProcedure
+      .input(
+        z.array(
+          z.object({
+            id: z.string(),
+          }),
+        ),
+      )
+      .query(async ({ input: data }) => {
+        const interviewIds = data.map((p) => p.id);
+        const interviews = await prisma.interview.findMany({
+          where: {
+            id: {
+              in: interviewIds,
+            },
+          },
+        });
+
+        return interviews;
+      }),
   }),
   finish: protectedProcedure
     .input(

@@ -17,6 +17,7 @@ const defaultExportOptions = {
   exportGraphML: true,
   exportCSV: true,
   globalOptions: {
+    exportFilename: `networkCanvasExport-${Date.now()}`,
     unifyNetworks: false,
     useScreenLayoutCoordinates: false,
     screenLayoutHeight: 1, // temporarily setting 1 because window isn't provided in the first render
@@ -65,7 +66,9 @@ export const ExportInterviewsDialog = ({
       exportOptions.globalOptions.screenLayoutWidth >= 1
     ) {
       // start export process
-      const interviewIds = interviewsToExport.map((interview) => interview.id);
+      const interviewIds = interviewsToExport.map((interview) => ({
+        id: interview.id,
+      }));
 
       const result = await exportSessions(interviewIds, exportOptions);
       handleCloseDialog();
@@ -73,7 +76,7 @@ export const ExportInterviewsDialog = ({
       if (result.data) {
         const link = document.createElement('a');
         link.href = result.data.url;
-        link.download = result.data.name; // Zip file name
+        link.download = result.data.name; // Zip filename
         link.click();
         setIsExporting(false);
         return;
