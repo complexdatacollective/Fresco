@@ -8,7 +8,7 @@ type StageProps = {
     id: string;
     type: string;
   };
-  registerBeforeNext: (direction: directions) => boolean;
+  registerBeforeNext: (fn: (direction: directions) => Promise<boolean>) => void;
 };
 
 const Stage = (props: StageProps) => {

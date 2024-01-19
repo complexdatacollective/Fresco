@@ -50,13 +50,7 @@ export const useNavigationHelpers = () => {
   // prevent it.
   const registerBeforeNext = useCallback(
     (beforeNext: (direction: directions) => Promise<boolean>) => {
-      const wrappedFunction = async (direction: directions) => {
-        const result = await beforeNext(direction);
-
-        return result;
-      };
-
-      beforeNextFunction.current = wrappedFunction;
+      beforeNextFunction.current = beforeNext;
     },
     [],
   );
