@@ -26,7 +26,7 @@ import { hash } from 'ohash';
 // Utility helper for adding artificial delay to async functions
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const useProtocolImport = () => {
+export const useProtocolImport = (onImportComplete?: () => void) => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
   const utils = api.useUtils();
   const router = useRouter();
@@ -147,6 +147,7 @@ export const useProtocolImport = () => {
           type: 'UPDATE_ERROR',
           payload: {
             id: file.name,
+            rawError: new Error('Protocol already exists'),
             error: {
               title: 'Protocol already exists',
               description: (
@@ -277,6 +278,9 @@ export const useProtocolImport = () => {
           status: 'Complete',
         },
       });
+
+      // Call the callback to update the UI
+      onImportComplete?.();
 
       return;
     } catch (e) {

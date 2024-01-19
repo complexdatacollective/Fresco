@@ -29,19 +29,15 @@ export default function RedirectWrapper({
 }) {
   const path = usePathname() as Route;
   const searchParams = useSearchParams();
-  const { session, isLoading } = useSession();
-
-  if (isLoading) {
-    return children;
-  }
 
   const shouldRedirect = calculateRedirect({
-    session,
     path,
     searchParams,
     expired,
     configured,
   });
+
+  console.log('shouldRedirect', shouldRedirect, configured, expired);
 
   if (shouldRedirect) {
     redirect(shouldRedirect);

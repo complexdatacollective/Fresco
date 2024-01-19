@@ -8,7 +8,7 @@ import {
 } from '../trpc';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { clerkClient } from '@clerk/nextjs';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>

@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import type { Session } from 'lucia';
 import type { Route } from 'next';
 import { type ReadonlyURLSearchParams } from 'next/navigation';
 import { cache } from 'react';
@@ -25,13 +24,10 @@ const routeIsExpiredPage = (pathname: Route) => {
 };
 
 export const calculateRedirect = ({
-  session,
   path,
-  searchParams,
   expired,
   configured,
 }: {
-  session: Session | null;
   path: Route;
   searchParams: ReadonlyURLSearchParams;
   expired: boolean;
@@ -71,31 +67,7 @@ export const calculateRedirect = ({
     return;
   }
 
-  // APP IS CONFIGURED
-  if (!session) {
-    if (isLoginPage) {
-      return;
-    }
-
-    if (isInterviewing) {
-      return;
-    }
-
-    return ('/signin?callbackUrl=' + encodeURI(path)) as Route;
-  }
-
-  // APP IS CONFIGURED AND SESSION EXISTS
-
-  // Redirect authed users away from these pages and to the dashboard
-  if (isLoginPage || isOnboarding || isLandingPage || isExpiredPage) {
-    if (isLoginPage) {
-      const callbackUrl = searchParams.get('callbackUrl') as Route;
-
-      if (callbackUrl) {
-        return callbackUrl;
-      }
-    }
-
+  if (configured && isOnboarding) {
     return '/dashboard';
   }
 

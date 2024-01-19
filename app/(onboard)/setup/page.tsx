@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import OnboardSteps from '../_components/Sidebar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { userFormClasses } from '../_shared';
-import { useSession } from '~/providers/SessionProvider';
 import React, { useEffect } from 'react';
 import { api } from '~/trpc/client';
 import dynamic from 'next/dynamic';
@@ -13,6 +12,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { OnboardingProvider } from '../_components/OnboardingProvider';
 import { StepLoadingState, StepMotionWrapper } from '../_components/Helpers';
 import { clientRevalidateTag } from '~/utils/clientRevalidate';
+import { useUser } from '@clerk/nextjs';
 
 // Stages are dynamically imported, and then conditionally rendered, so that
 // we don't load all the code for all the stages at once.
@@ -42,42 +42,30 @@ const Documentation = dynamic(
 );
 
 function Page() {
-  const { session, isLoading } = useSession();
   const router = useRouter();
+  const { user, isLoaded } = useUser();
 
   const [currentStep, setCurrentStep] = useQueryState(
     'step',
     parseAsInteger.withDefault(1),
   );
 
-  const { data } = api.appSettings.get.useQuery(undefined, {
-    refetchInterval: 1000 * 10,
-  });
+  // const { data } = api.appSettings.get.useQuery(undefined, {
+  //   refetchInterval: 1000 * 10,
+  // });
 
-  useEffect(() => {
-    if (data?.expired) {
-      clientRevalidateTag('appSettings.get')
-        .then(() => router.refresh())
-        // eslint-disable-next-line no-console
-        .catch((e) => console.error(e));
-    }
-  }, [data, router]);
+  // useEffect(() => {
+  //   if (data?.expired) {
+  //     clientRevalidateTag('appSettings.get')
+  //       .then(() => router.refresh())
+  //       // eslint-disable-next-line no-console
+  //       .catch((e) => console.error(e));
+  //   }
+  // }, [data, router]);
 
-  useEffect(() => {
-    if (isLoading) {
-      return;
-    }
-
-    if (!session && currentStep !== 1) {
-      void setCurrentStep(1);
-      return;
-    }
-
-    if (session && currentStep === 1) {
-      void setCurrentStep(2);
-      return;
-    }
-  }, [isLoading, session, currentStep, setCurrentStep]);
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
@@ -88,7 +76,7 @@ function Page() {
         <OnboardSteps />
         <div className={mainClasses}>
           <AnimatePresence mode="wait">
-            {currentStep === 1 && (
+            {!user && currentStep === 1 && (
               <StepMotionWrapper key="create">
                 <CreateAccount />
               </StepMotionWrapper>

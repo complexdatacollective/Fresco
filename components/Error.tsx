@@ -36,7 +36,7 @@ export default function Error({
   }, [heading, error]);
 
   return (
-    <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive p-4 text-center">
+    <div className="mx-auto my-4 flex max-w-md flex-col items-center rounded-lg border border-destructive bg-white p-4 text-center">
       <AlertTriangle className="mb-2 h-12 w-12 text-destructive" />
       <h2 className="mb-2 text-2xl font-semibold text-destructive">
         {heading ?? 'Something went wrong'}

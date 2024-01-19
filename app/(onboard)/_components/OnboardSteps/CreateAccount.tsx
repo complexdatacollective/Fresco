@@ -1,15 +1,8 @@
 'use client';
 
-import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
-import { useOnboardingContext } from '../OnboardingProvider';
+import { SignUp } from '@clerk/nextjs';
 
 function CreateAccount() {
-  const { setCurrentStep } = useOnboardingContext();
-
-  const completeCallback = () => {
-    void setCurrentStep(2);
-  };
-
   return (
     <div className="w-[30rem]">
       <div className="mb-4 flex flex-col">
@@ -20,7 +13,7 @@ function CreateAccount() {
         enable to you access the protect parts of the app. Only one
         administrator account can be created.
       </p>
-      <SignUpForm completeCallback={completeCallback} />
+      <SignUp afterSignUpUrl={'/setup/?step=2'} />
     </div>
   );
 }

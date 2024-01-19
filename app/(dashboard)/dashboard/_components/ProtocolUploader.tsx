@@ -8,9 +8,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import JobCard from '~/components/ProtocolImport/JobCard';
 import { useCallback } from 'react';
 
-export default function ProtocolUploader() {
-  const { importProtocols, jobs, cancelJob, cancelAllJobs } =
-    useProtocolImport();
+export default function ProtocolUploader({
+  handleProtocolUploaded,
+}: {
+  handleProtocolUploaded?: () => void;
+}) {
+  const { importProtocols, jobs, cancelJob, cancelAllJobs } = useProtocolImport(
+    handleProtocolUploaded,
+  );
 
   const { getRootProps, getInputProps, open } = useDropzone({
     // Disable automatic opening of file dialog - we do it manually to allow for
