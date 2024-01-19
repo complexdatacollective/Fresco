@@ -68,13 +68,16 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
       // exportTime is optional
       if (!row.original.exportTime) {
         return (
-          <Badge variant={'destructive'} className="text-xs uppercase">
+          <Badge
+            variant={'destructive'}
+            className="text-center text-xs uppercase"
+          >
             Not yet exported
           </Badge>
         );
       }
 
-      return <Badge className="text-xs uppercase">Exported</Badge>;
+      return <Badge className="text-center text-xs uppercase">Exported</Badge>;
     },
   },
   {

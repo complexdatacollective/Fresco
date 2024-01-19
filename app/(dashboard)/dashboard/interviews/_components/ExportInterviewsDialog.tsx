@@ -1,5 +1,4 @@
 import type { Interview } from '@prisma/client';
-import { ArrowDownToLine } from 'lucide-react';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
@@ -12,6 +11,7 @@ import {
 import { useToast } from '~/components/ui/use-toast';
 import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
+import ExportingStateAnimation from './ExportingStateAnimation';
 
 const defaultExportOptions = {
   exportGraphML: true,
@@ -106,14 +106,7 @@ export const ExportInterviewsDialog = ({
   return (
     <>
       {/* Loading state animation */}
-      {isExporting && (
-        <div className="fixed inset-0 z-[99] flex flex-col items-center justify-center gap-3 bg-black text-white opacity-90">
-          <div className="animate-bounce rounded-full border-2 border-white bg-green-600 p-4 text-white">
-            <ArrowDownToLine className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="text-lg font-semibold">Saving file please wait...</h2>
-        </div>
-      )}
+      {isExporting && <ExportingStateAnimation />}
 
       <Dialog open={open} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-h-[95%] max-w-[60%]">
