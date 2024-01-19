@@ -57,8 +57,13 @@ export const interviewRouter = router({
             lastUpdated: new Date(),
             network: Prisma.JsonNull,
             participant: {
-              create: {
-                identifier: identifier,
+              connectOrCreate: {
+                where: {
+                  identifier,
+                },
+                create: {
+                  identifier,
+                },
               },
             },
             protocol: {
