@@ -1,5 +1,4 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import Banner from '~/components/Banner/Banner';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
@@ -33,10 +32,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
           expired={!!appSettings?.expired}
           session={session}
         >
-          <Providers initialSession={session}>
-            <Banner />
-            {children}
-          </Providers>
+          <Providers initialSession={session}>{children}</Providers>
           <Toaster />
         </RedirectWrapper>
       </body>
