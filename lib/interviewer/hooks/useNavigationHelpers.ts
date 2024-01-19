@@ -143,7 +143,6 @@ export const useNavigationHelpers = () => {
       return;
     }
 
-    console.log('Resetting before next function because currentStage changed');
     beforeNextFunction.current = null;
   }, [currentStage]);
 
