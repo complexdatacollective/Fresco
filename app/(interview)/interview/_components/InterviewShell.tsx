@@ -55,16 +55,8 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
     // If we don't have a current stage in the URL bar, set it to the server
     // session, and set the URL bar to the server session.
     if (currentStage === null) {
-      console.log(
-        'current stage NOT defined. Using server session and setting currentStage',
-        serverSession.currentStep,
-      );
       void setCurrentStage(serverSession.currentStep);
     } else if (currentStage !== serverSession.currentStep) {
-      console.log('current stage defined, overriding server session', {
-        currentStage,
-        serverSession: serverSession.currentStep,
-      });
       serverSession.currentStep = currentStage;
     }
 

@@ -36,10 +36,6 @@ export const useNavigationHelpers = () => {
 
   useEffect(() => {
     if (currentStep && currentStage === null) {
-      console.log('current step was defined and current stage was null', {
-        currentStep,
-        currentStage,
-      });
       void setCurrentStage(currentStep);
       return;
     }
@@ -57,7 +53,6 @@ export const useNavigationHelpers = () => {
       const wrappedFunction = async (direction: directions) => {
         const result = await beforeNext(direction);
 
-        console.log('beforeNext result:', result);
         return result;
       };
 
