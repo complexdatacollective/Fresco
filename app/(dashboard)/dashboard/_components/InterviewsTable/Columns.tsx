@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Progress } from '~/components/ui/progress';
 import type { AppRouter } from '~/server/router';
 import type { Stage } from '@codaco/shared-consts';
+import { Badge } from '~/components/ui/badge';
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Interviews = RouterOutput['interview']['get']['all'][0];
@@ -60,18 +61,22 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
   //     return date.toLocaleString();
   //   },
   // },
-  // {
-  //   accessorKey: 'exportTime',
-  //   header: 'Export Time',
-  //   cell: ({ row }) => {
-  //     // exportTime is optional
-  //     if (!row.original.exportTime) {
-  //       return 'Not yet exported';
-  //     }
-  //     const date = new Date(row.original.exportTime);
-  //     return date.toLocaleString();
-  //   },
-  // },
+  {
+    accessorKey: 'exportTime',
+    header: 'Export Status',
+    cell: ({ row }) => {
+      // exportTime is optional
+      if (!row.original.exportTime) {
+        return (
+          <Badge variant={'destructive'} className="text-xs uppercase">
+            Not yet exported
+          </Badge>
+        );
+      }
+
+      return <Badge className="text-xs uppercase">Exported</Badge>;
+    },
+  },
   {
     accessorKey: 'lastUpdated',
     header: ({ column }) => {
