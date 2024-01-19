@@ -1,13 +1,14 @@
 import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
+import type { directions } from '../hooks/useNavigationHelpers';
 
 type StageProps = {
   stage: {
     id: string;
     type: string;
   };
-  registerBeforeNext: () => void;
+  registerBeforeNext: (fn: (direction: directions) => Promise<boolean>) => void;
 };
 
 const Stage = (props: StageProps) => {
@@ -34,6 +35,7 @@ const Stage = (props: StageProps) => {
     >
       <StageErrorBoundary>
         {CurrentInterface && (
+          // @ts-expect-error I can't work out how to correctly type this...
           <CurrentInterface
             registerBeforeNext={registerBeforeNext}
             stage={stage}

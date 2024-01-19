@@ -8,7 +8,7 @@ import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
 import { parseAsInteger, useQueryState } from 'nuqs';
 
-type directions = 'forwards' | 'backwards';
+export type directions = 'forwards' | 'backwards';
 
 export const useNavigationHelpers = () => {
   const dispatch = useDispatch();
@@ -36,10 +36,6 @@ export const useNavigationHelpers = () => {
 
   useEffect(() => {
     if (currentStep && currentStage === null) {
-      console.log('current step was defined and current stage was null', {
-        currentStep,
-        currentStage,
-      });
       void setCurrentStage(currentStep);
       return;
     }
@@ -54,14 +50,7 @@ export const useNavigationHelpers = () => {
   // prevent it.
   const registerBeforeNext = useCallback(
     (beforeNext: (direction: directions) => Promise<boolean>) => {
-      const wrappedFunction = async (direction: directions) => {
-        const result = await beforeNext(direction);
-
-        console.log('beforeNext result:', result);
-        return result;
-      };
-
-      beforeNextFunction.current = wrappedFunction;
+      beforeNextFunction.current = beforeNext;
     },
     [],
   );
@@ -143,7 +132,6 @@ export const useNavigationHelpers = () => {
       return;
     }
 
-    console.log('Resetting before next function because currentStage changed');
     beforeNextFunction.current = null;
   }, [currentStage]);
 

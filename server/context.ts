@@ -1,5 +1,4 @@
 import type { Session } from 'lucia';
-import type { NextRequest } from 'next/server';
 import { auth } from '~/utils/auth';
 import * as context from 'next/headers';
 
@@ -15,7 +14,7 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   };
 };
 
-export const createTRPCContext = async (opts: { req: NextRequest }) => {
+export const createTRPCContext = async (opts: { req: Request }) => {
   // Fetch stuff that depends on the request
 
   const authRequest = auth.handleRequest(opts.req.method, context);

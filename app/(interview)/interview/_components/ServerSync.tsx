@@ -41,7 +41,7 @@ const ServerSync = ({
     syncSessionWithServer({
       id: interviewId,
       network: currentSession.network,
-      currentStep: currentSession.currentStep,
+      currentStep: currentSession.currentStep ?? 0,
     });
   }, [
     currentSession,

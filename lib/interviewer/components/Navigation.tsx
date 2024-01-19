@@ -1,8 +1,9 @@
 import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { ChevronDown, ChevronUp, SettingsIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
+import { SettingsMenu } from './SettingsMenu';
 
-const NavigationButton = ({
+export const NavigationButton = ({
   disabled,
   onClick,
   className,
@@ -52,9 +53,7 @@ const Navigation = ({
       role="navigation"
       className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
-      <NavigationButton>
-        <SettingsIcon className="h-[2.4rem] w-[2.4rem]" />
-      </NavigationButton>
+      <SettingsMenu />
       <NavigationButton onClick={moveBackward} disabled={!canMoveBackward}>
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
