@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 'use server';
 
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
@@ -49,6 +48,7 @@ export const exportSessions = async (
   const fileExportManager = new FileExportManager(exportOptions);
 
   fileExportManager.on('begin', () => {
+    // eslint-disable-next-line no-console
     console.log({
       statusText: 'Starting export...',
       percentProgress: 0,
@@ -56,6 +56,7 @@ export const exportSessions = async (
   });
 
   fileExportManager.on('update', ({ statusText, progress }: UpdateItems) => {
+    // eslint-disable-next-line no-console
     console.log({
       statusText,
       percentProgress: progress,
@@ -64,17 +65,21 @@ export const exportSessions = async (
 
   fileExportManager.on('session-exported', (sessionId: unknown) => {
     if (!sessionId || typeof sessionId !== 'string') {
+      // eslint-disable-next-line no-console
       console.warn('session-exported event did not contain a sessionID');
       return;
     }
+    // eslint-disable-next-line no-console
     console.log('session-exported success sessionId:', sessionId);
   });
 
   fileExportManager.on('error', (errResult: FailResult) => {
+    // eslint-disable-next-line no-console
     console.log('Session export failed, Error:', errResult.message);
   });
 
   fileExportManager.on('finished', ({ statusText, progress }: UpdateItems) => {
+    // eslint-disable-next-line no-console
     console.log({
       statusText,
       percentProgress: progress,
@@ -105,28 +110,20 @@ export const exportSessions = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { run } = await exportJob;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const output: SuccessResult = await run();
+    const output: SuccessResult = await run(); // main export method
 
-    // await trackEvent({
-    //   type: 'InterviewCompleted',
-    //   metadata: {
-    //     success: true,
-    //   },
-    // });
+    // update export time of interviews
+    const updatedInterviews =
+      await api.interview.updateExportTime.mutate(interviewIds);
 
+    if (updatedInterviews.error) throw new Error(updatedInterviews.error);
+
+    // Todo: add trackEvent from analytics here
     return { ...output };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
-
-    // await trackEvent({
-    //   type: 'Error',
-    //   error: {
-    //     message: 'Failed to export interview sessions!',
-    //     details: 'Error details should go here!',
-    //     stacktrace: '',
-    //     path: '/dashboard/interviews',
-    //   },
-    // });
+    // Todo: add trackEvent from analytics here
 
     return {
       data: null,

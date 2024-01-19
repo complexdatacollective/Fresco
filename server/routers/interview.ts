@@ -156,6 +156,34 @@ export const interviewRouter = router({
         return { error: 'Failed to update interview', interview: null };
       }
     }),
+  updateExportTime: protectedProcedure
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+        }),
+      ),
+    )
+    .mutation(async ({ input: data }) => {
+      const interviewIds = data.map((p) => p.id);
+
+      try {
+        const updatedInterviews = await prisma.interview.updateMany({
+          where: {
+            id: {
+              in: interviewIds,
+            },
+          },
+          data: {
+            exportTime: new Date(),
+          },
+        });
+
+        return { error: null, interviews: updatedInterviews };
+      } catch (error) {
+        return { error: 'Failed to update interviews', interviews: null };
+      }
+    }),
   delete: protectedProcedure
     .input(
       z.array(
