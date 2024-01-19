@@ -28,7 +28,7 @@ export type Session = {
   id: string;
   protocolUid: string;
   promptIndex: number;
-  currentStep: number;
+  currentStep: number | null;
   caseId: string;
   network: NcNetwork;
   startedAt: Date;

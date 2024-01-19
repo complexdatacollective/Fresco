@@ -13,10 +13,6 @@ export const resetAppSettings = async () => {
 };
 
 export const setAppConfigured = async () => {
-  try {
-    await api.appSettings.setConfigured.mutate();
-    redirect('/dashboard');
-  } catch (error) {
-    throw new Error(error as string);
-  }
+  await api.appSettings.setConfigured.mutate();
+  redirect('/dashboard');
 };
