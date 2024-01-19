@@ -7,10 +7,12 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 - Custom node label workers are not implemented.
 - Videos and audio cannot autoplay on load due to browser limitations. Participants must click the play button to start media.
+- The 'Use fullscreen forms' visual preference is not supported.
 
 # Deployment instructions
 
 **1. Set up required servies**
+
 - Create a database with [PlanetScale](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide)
 - Create a new app on [uploadthing](https://uploadthing.com/)
 
