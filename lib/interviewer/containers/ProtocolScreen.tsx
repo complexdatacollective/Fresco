@@ -4,10 +4,12 @@ import Navigation from '../components/Navigation';
 import { getCurrentStage } from '../selectors/session';
 import Stage from './Stage';
 import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
-import Banner from '~/components/Banner/Banner';
+import { useSession } from '~/providers/SessionProvider';
+import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
+  const { session } = useSession();
 
   const {
     moveBackward,
@@ -25,10 +27,7 @@ const ProtocolScreen = () => {
 
   return (
     <>
-      <div className="text-black">
-        <Banner />
-      </div>
-
+      {session && <FeedbackBanner />}
       <motion.div
         className="flex h-4/5 w-full flex-1 flex-row"
         initial={{ opacity: 0 }}
