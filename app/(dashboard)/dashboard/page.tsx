@@ -1,6 +1,6 @@
 import ResetButton from './_components/ResetButton';
 import AnalyticsButton from './_components/AnalyticsButton';
-import AnonymousRecruitmentTest from './_components/AnonymousRecruitmentTest';
+import RecruitmentTestSection from './_components/RecruitmentTestSection';
 
 function Home() {
   return (
@@ -9,7 +9,7 @@ function Home() {
         <h1 className="mb-2 text-3xl font-bold">Welcome</h1>
         <p>This is the main dashboard.</p>
         <ResetButton />
-        <AnonymousRecruitmentTest />
+        <RecruitmentTestSection />
         <AnalyticsButton />
       </main>
     </>
