@@ -5,12 +5,84 @@ import { type ExportOptions } from './ExportInterviewsDialog';
 type ExportOptionsViewProps = {
   exportOptions: ExportOptions;
   setExportOptions: Dispatch<SetStateAction<ExportOptions>>;
+  setOptionsToLocalStorage: (options: ExportOptions) => void;
 };
 
 const ExportOptionsView = ({
   exportOptions,
   setExportOptions,
+  setOptionsToLocalStorage,
 }: ExportOptionsViewProps) => {
+  const handleGraphMLSwitch = (value: boolean) => {
+    // When turning off, if the other format is off, enable it
+    if (exportOptions.exportGraphML && !exportOptions.exportCSV) {
+      setExportOptions((prevState) => {
+        const updatedOptions = {
+          ...prevState,
+          exportCSV: !exportOptions.exportCSV,
+        };
+        setOptionsToLocalStorage(updatedOptions);
+        return updatedOptions;
+      });
+    }
+    setExportOptions((prevState) => {
+      const updatedOptions = {
+        ...prevState,
+        exportGraphML: value,
+      };
+      setOptionsToLocalStorage(updatedOptions);
+      return updatedOptions;
+    });
+  };
+
+  const handleCSVSwitch = (value: boolean) => {
+    // When turning off, if the other format is off, enable it
+    if (exportOptions.exportCSV && !exportOptions.exportGraphML) {
+      setExportOptions((prevState) => {
+        const updatedOptions = {
+          ...prevState,
+          exportGraphML: !exportOptions.exportGraphML,
+        };
+        setOptionsToLocalStorage(updatedOptions);
+        return updatedOptions;
+      });
+    }
+    setExportOptions((prevState) => {
+      const updatedOptions = {
+        ...prevState,
+        exportCSV: value,
+      };
+      setOptionsToLocalStorage(updatedOptions);
+      return updatedOptions;
+    });
+  };
+
+  const handleUnifyNetworksSwitch = (value: boolean) =>
+    setExportOptions((prevState) => {
+      const updatedOptions = {
+        ...prevState,
+        globalOptions: {
+          ...prevState.globalOptions,
+          unifyNetworks: value,
+        },
+      };
+      setOptionsToLocalStorage(updatedOptions);
+      return updatedOptions;
+    });
+
+  const handleScreenLayoutCoordinatesSwitch = (value: boolean) =>
+    setExportOptions((prevState) => {
+      const updatedOptions = {
+        ...prevState,
+        globalOptions: {
+          ...prevState.globalOptions,
+          useScreenLayoutCoordinates: value,
+        },
+      };
+      setOptionsToLocalStorage(updatedOptions);
+      return updatedOptions;
+    });
+
   return (
     <div className="max-h-[600px] space-y-2.5 overflow-y-auto pl-1 pr-3 lg:space-y-4">
       <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
@@ -27,19 +99,7 @@ const ExportOptionsView = ({
         <div>
           <Switch
             checked={exportOptions.exportGraphML}
-            onCheckedChange={(value) => {
-              // When turning off, if the other format is off, enable it
-              if (exportOptions.exportGraphML && !exportOptions.exportCSV) {
-                setExportOptions((prevState) => ({
-                  ...prevState,
-                  exportCSV: !exportOptions.exportCSV,
-                }));
-              }
-              setExportOptions((prevState) => ({
-                ...prevState,
-                exportGraphML: value,
-              }));
-            }}
+            onCheckedChange={handleGraphMLSwitch}
           />
         </div>
       </div>
@@ -60,19 +120,7 @@ const ExportOptionsView = ({
         <div>
           <Switch
             checked={exportOptions.exportCSV}
-            onCheckedChange={(value) => {
-              // When turning off, if the other format is off, enable it
-              if (exportOptions.exportCSV && !exportOptions.exportGraphML) {
-                setExportOptions((prevState) => ({
-                  ...prevState,
-                  exportGraphML: !exportOptions.exportGraphML,
-                }));
-              }
-              setExportOptions((prevState) => ({
-                ...prevState,
-                exportCSV: value,
-              }));
-            }}
+            onCheckedChange={handleCSVSwitch}
           />
         </div>
       </div>
@@ -93,15 +141,7 @@ const ExportOptionsView = ({
         <div>
           <Switch
             checked={exportOptions.globalOptions.unifyNetworks}
-            onCheckedChange={(value) =>
-              setExportOptions((prevState) => ({
-                ...prevState,
-                globalOptions: {
-                  ...prevState.globalOptions,
-                  unifyNetworks: value,
-                },
-              }))
-            }
+            onCheckedChange={handleUnifyNetworksSwitch}
           />
         </div>
       </div>
@@ -120,15 +160,7 @@ const ExportOptionsView = ({
         <div>
           <Switch
             checked={exportOptions.globalOptions.useScreenLayoutCoordinates}
-            onCheckedChange={(value) =>
-              setExportOptions((prevState) => ({
-                ...prevState,
-                globalOptions: {
-                  ...prevState.globalOptions,
-                  useScreenLayoutCoordinates: value,
-                },
-              }))
-            }
+            onCheckedChange={handleScreenLayoutCoordinatesSwitch}
           />
         </div>
       </div>

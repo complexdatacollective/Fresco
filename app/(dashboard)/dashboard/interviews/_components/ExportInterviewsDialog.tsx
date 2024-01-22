@@ -13,6 +13,15 @@ import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import ExportingStateAnimation from './ExportingStateAnimation';
 
+export type ExportOptions = typeof defaultExportOptions;
+
+type ExportInterviewsDialogProps = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  interviewsToExport: Interview[];
+  setInterviewsToExport: Dispatch<SetStateAction<Interview[] | undefined>>;
+};
+
 const defaultExportOptions = {
   exportGraphML: true,
   exportCSV: true,
@@ -23,13 +32,15 @@ const defaultExportOptions = {
   },
 };
 
-export type ExportOptions = typeof defaultExportOptions;
+const setOptionsToLocalStorage = (options: ExportOptions) => {
+  localStorage.setItem('exportOptions', JSON.stringify(options));
+};
 
-type ExportInterviewsDialogProps = {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  interviewsToExport: Interview[];
-  setInterviewsToExport: Dispatch<SetStateAction<Interview[] | undefined>>;
+const getLocalExportOptions = () => {
+  const localExportOptions = localStorage.getItem('exportOptions');
+  return localExportOptions
+    ? (JSON.parse(localExportOptions) as ExportOptions)
+    : null;
 };
 
 export const ExportInterviewsDialog = ({
@@ -40,7 +51,9 @@ export const ExportInterviewsDialog = ({
 }: ExportInterviewsDialogProps) => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
-  const [exportOptions, setExportOptions] = useState(defaultExportOptions);
+  const [exportOptions, setExportOptions] = useState(
+    getLocalExportOptions() ?? defaultExportOptions,
+  );
 
   const handleConfirm = async () => {
     // start export process
@@ -76,7 +89,7 @@ export const ExportInterviewsDialog = ({
 
   const handleCloseDialog = () => {
     setInterviewsToExport([]);
-    setExportOptions(defaultExportOptions);
+    setExportOptions(getLocalExportOptions() ?? defaultExportOptions);
     setOpen(false);
     setIsExporting(false);
   };
@@ -97,6 +110,7 @@ export const ExportInterviewsDialog = ({
           <ExportOptionsView
             exportOptions={exportOptions}
             setExportOptions={setExportOptions}
+            setOptionsToLocalStorage={setOptionsToLocalStorage}
           />
 
           <DialogFooter>
