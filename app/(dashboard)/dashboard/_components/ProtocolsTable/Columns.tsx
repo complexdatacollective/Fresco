@@ -4,7 +4,6 @@
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
 import { Checkbox } from '~/components/ui/checkbox';
-import ActiveButton from './ActiveButton';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import { dateOptions } from '~/components/DataTable/helpers';
@@ -28,17 +27,6 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    id: 'active',
-    enableSorting: true,
-    accessorFn: (row) => row.active,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Active" />
-    ),
-    cell: ({ row }) => (
-      <ActiveButton active={row.original.active} protocolId={row.original.id} />
-    ),
   },
   {
     accessorKey: 'name',

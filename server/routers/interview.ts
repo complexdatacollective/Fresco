@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { ensureError } from '~/utils/ensureError';
-import { participantIdSchema } from '~/shared/schemas/schemas';
+import { revalidateTag } from 'next/cache';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -35,44 +35,45 @@ export const interviewRouter = router({
       }
     }),
   create: publicProcedure
-    .input(participantIdSchema)
-    .mutation(async ({ input: id }) => {
+    .input(
+      z.object({
+        participantId: z.string(),
+        protocolId: z.string(),
+      }),
+    )
+    .mutation(async ({ input: { participantId, protocolId } }) => {
       try {
-        // get the active protocol id to connect to the interview
-        const activeProtocol = await prisma.protocol.findFirst({
-          where: { active: true },
-        });
-
-        if (!activeProtocol) {
-          return {
-            errorType: 'NO_ACTIVE_PROTOCOL',
-            error: 'Failed to create interview: no active protocol',
-            createdInterviewId: null,
-          };
-        }
-
         const createdInterview = await prisma.interview.create({
           data: {
             startTime: new Date(),
             lastUpdated: new Date(),
             network: Prisma.JsonNull,
             participant: {
+              // If a participant with the given ID already exists, connect to it.
+              // Otherwise, create a new participant and use the ID as an
+              // identifier.
               connectOrCreate: {
                 where: {
-                  id,
+                  id: participantId,
                 },
                 create: {
-                  identifier: id,
+                  identifier: participantId,
                 },
               },
             },
             protocol: {
               connect: {
-                id: activeProtocol.id,
+                id: protocolId,
               },
             },
           },
         });
+
+        revalidateTag('interview.get.all');
+
+        // Because a new participant may have been created as part of creating the interview,
+        // we need to also revalidate the participant cache.
+        revalidateTag('participant.get.all');
 
         return {
           error: null,
