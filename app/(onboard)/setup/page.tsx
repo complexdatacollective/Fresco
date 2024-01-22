@@ -3,7 +3,7 @@
 import { cn } from '~/utils/shadcn';
 import { useRouter } from 'next/navigation';
 import OnboardSteps from '../_components/Sidebar';
-import { parseAsInteger, useQueryState } from 'next-usequerystate';
+import { parseAsInteger, useQueryState } from 'nuqs';
 import { userFormClasses } from '../_shared';
 import { useSession } from '~/providers/SessionProvider';
 import React, { useEffect } from 'react';

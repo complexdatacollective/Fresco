@@ -5,14 +5,15 @@ import { getProtocolCodebook } from './protocol';
 import customFilter from '~/lib/network-query/filter';
 import { createSelector } from '@reduxjs/toolkit';
 import { getStageSubject, getSubjectType } from './prop';
-import type {
-  Codebook,
-  FilterDefinition,
-  NcNetwork,
-  NcNode,
-  NodeTypeDefinition,
-  Stage,
-  StageSubject,
+import {
+  entityAttributesProperty,
+  type Codebook,
+  type FilterDefinition,
+  type NcNetwork,
+  type NcNode,
+  type NodeTypeDefinition,
+  type Stage,
+  type StageSubject,
 } from '@codaco/shared-consts';
 import type { RootState } from '../store';
 import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
@@ -53,6 +54,11 @@ export const getNetworkNodes = createSelector(
 export const getNetworkEgo = createSelector(
   getFilteredNetwork,
   (network) => network?.ego ?? null,
+);
+
+export const getEgoAttributes = createSelector(
+  getNetworkEgo,
+  (ego) => ego?.[entityAttributesProperty] ?? {},
 );
 
 export const getNetworkEdges = createSelector(

@@ -1,4 +1,4 @@
-import { useQueryState, parseAsInteger } from 'next-usequerystate';
+import { useQueryState, parseAsInteger } from 'nuqs';
 import { createContext, useContext, type ReactNode } from 'react';
 import type { URLSearchParams } from 'url';
 

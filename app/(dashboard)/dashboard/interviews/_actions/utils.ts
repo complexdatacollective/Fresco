@@ -9,9 +9,9 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 
-import objectHash from 'object-hash';
 import { type Interview, type Protocol } from '@prisma/client';
 import crypto from 'crypto';
+import { hash } from 'ohash';
 
 /**
  * Creates an object containing all required session metadata for export
@@ -34,7 +34,7 @@ export const formatExportableSessions = (
       [sessionProperty]: session.id,
       [protocolProperty]: getRemoteProtocolID(sessionProtocol.name),
       [protocolName]: sessionProtocol.name,
-      [codebookHashProperty]: objectHash(sessionProtocol.codebook),
+      [codebookHashProperty]: hash(sessionProtocol.codebook),
       ...(session.startTime && {
         [sessionStartTimeProperty]: new Date(session.startTime).toISOString(),
       }),
