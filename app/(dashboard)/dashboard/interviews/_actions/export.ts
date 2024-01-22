@@ -4,7 +4,7 @@ import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
 import { formatExportableSessions, getRemoteProtocolID } from './utils';
-// import { trackEvent } from '~/analytics/utils';
+import { trackEvent } from '~/analytics/utils';
 import { type ExportOptions } from '../_components/ExportInterviewsDialog';
 
 type UploadData = {
@@ -118,12 +118,25 @@ export const exportSessions = async (
 
     if (updatedInterviews.error) throw new Error(updatedInterviews.error);
 
-    // Todo: add trackEvent from analytics here
+    await trackEvent({
+      type: 'DataExported',
+      metadata: {
+        sessions: interviewIds.length,
+      },
+    });
     return { ...output };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    // Todo: add trackEvent from analytics here
+    await trackEvent({
+      type: 'Error',
+      error: {
+        message: 'Failed to export interview sessions!',
+        details: '',
+        stacktrace: '',
+        path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
+      },
+    });
 
     return {
       data: null,
