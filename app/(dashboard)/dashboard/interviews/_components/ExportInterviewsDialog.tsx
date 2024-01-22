@@ -1,5 +1,5 @@
 import type { Interview } from '@prisma/client';
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -20,8 +20,6 @@ const defaultExportOptions = {
     exportFilename: `networkCanvasExport-${Date.now()}`,
     unifyNetworks: false,
     useScreenLayoutCoordinates: false,
-    screenLayoutHeight: 1, // temporarily setting 1 because window isn't provided in the first render
-    screenLayoutWidth: 1, // temporarily setting 1 because window isn't provided in the first render
   },
 };
 
@@ -44,55 +42,35 @@ export const ExportInterviewsDialog = ({
   const [isExporting, setIsExporting] = useState(false);
   const [exportOptions, setExportOptions] = useState(defaultExportOptions);
 
-  useEffect(() => {
-    // set window height and width after hydration
-    if (typeof window !== 'undefined') {
-      setExportOptions((prevState) => ({
-        ...prevState,
-        globalOptions: {
-          ...prevState.globalOptions,
-          screenLayoutHeight: window.screen.height,
-          screenLayoutWidth: window.screen.width,
-        },
-      }));
-    }
-  }, []);
-
   const handleConfirm = async () => {
-    // check if screenLayoutHeight and screenLayoutWidth greater than 1
-    if (
-      exportOptions.globalOptions.screenLayoutHeight >= 1 &&
-      exportOptions.globalOptions.screenLayoutWidth >= 1
-    ) {
-      // start export process
-      setIsExporting(true);
-      try {
-        const interviewIds = interviewsToExport.map((interview) => ({
-          id: interview.id,
-        }));
+    // start export process
+    setIsExporting(true);
+    try {
+      const interviewIds = interviewsToExport.map((interview) => ({
+        id: interview.id,
+      }));
 
-        const result = await exportSessions(interviewIds, exportOptions);
-        handleCloseDialog();
+      const result = await exportSessions(interviewIds, exportOptions);
+      handleCloseDialog();
 
-        if (result.data) {
-          const link = document.createElement('a');
-          link.href = result.data.url;
-          link.download = result.data.name; // Zip filename
-          link.click();
-          return;
-        }
-
-        throw new Error(result.message);
-      } catch (error) {
-        handleCloseDialog();
-        // eslint-disable-next-line no-console
-        console.error('Export failed error:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to export, please try again!',
-          variant: 'destructive',
-        });
+      if (result.data) {
+        const link = document.createElement('a');
+        link.href = result.data.url;
+        link.download = result.data.name; // Zip filename
+        link.click();
+        return;
       }
+
+      throw new Error(result.message);
+    } catch (error) {
+      handleCloseDialog();
+      // eslint-disable-next-line no-console
+      console.error('Export failed error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to export, please try again!',
+        variant: 'destructive',
+      });
     }
   };
 

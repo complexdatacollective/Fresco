@@ -1,7 +1,4 @@
 import { type Dispatch, type SetStateAction } from 'react';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import { Label } from '~/components/ui/Label';
 import { Switch } from '~/components/ui/switch';
 import { type ExportOptions } from './ExportInterviewsDialog';
 
@@ -123,112 +120,18 @@ const ExportOptionsView = ({
         <div>
           <Switch
             checked={exportOptions.globalOptions.useScreenLayoutCoordinates}
-            onCheckedChange={(value) => {
-              // if useScreenLayoutCoordinates disabled set screenLayoutHeight
-              // and screenLayoutWidth to window height and width
-              if (!value) {
-                setExportOptions((prevState) => ({
-                  ...prevState,
-                  globalOptions: {
-                    ...prevState.globalOptions,
-                    useScreenLayoutCoordinates: value,
-                    screenLayoutHeight: window.screen.height,
-                    screenLayoutWidth: window.screen.width,
-                  },
-                }));
-                return;
-              }
+            onCheckedChange={(value) =>
               setExportOptions((prevState) => ({
                 ...prevState,
                 globalOptions: {
                   ...prevState.globalOptions,
                   useScreenLayoutCoordinates: value,
                 },
-              }));
-            }}
+              }))
+            }
           />
         </div>
       </div>
-
-      {/* Show additional screen settings if useScreenLayoutCoordinates enabled  */}
-      {exportOptions.globalOptions.useScreenLayoutCoordinates && (
-        <div className="space-y-3 py-3">
-          <div>
-            <h3 className="font-semibold">Screen Size</h3>
-            <p className="text-sm text-muted-foreground">
-              When computing screen layout coordinates, the following screen
-              size (in pixels) will be used.
-            </p>
-          </div>
-          <div className="my-1 space-y-1">
-            <Label>Width (pixels, 1 pixel minimum)</Label>
-            <Input
-              type="number"
-              min={1}
-              value={exportOptions.globalOptions.screenLayoutWidth + ''}
-              onChange={(e) =>
-                setExportOptions((prevState) => ({
-                  ...prevState,
-                  globalOptions: {
-                    ...prevState.globalOptions,
-                    screenLayoutWidth: +e.target.value,
-                  },
-                }))
-              }
-            />
-            {exportOptions.globalOptions.screenLayoutWidth < 1 && (
-              <span className="text-xs font-semibold text-red-500">
-                Minium with must be 1!
-              </span>
-            )}
-          </div>
-          <div className="my-1 space-y-1">
-            <Label>Height (pixels, 1 pixel minimum)</Label>
-            <Input
-              type="number"
-              min={1}
-              value={exportOptions.globalOptions.screenLayoutHeight + ''}
-              onChange={(e) =>
-                setExportOptions((prevState) => ({
-                  ...prevState,
-                  globalOptions: {
-                    ...prevState.globalOptions,
-                    screenLayoutHeight: +e.target.value,
-                  },
-                }))
-              }
-            />
-            {exportOptions.globalOptions.screenLayoutHeight < 1 && (
-              <span className="text-xs font-semibold text-red-500">
-                Minium height must be 1!
-              </span>
-            )}
-          </div>
-
-          <Button
-            size={'sm'}
-            className="text-xs font-semibold"
-            disabled={
-              exportOptions.globalOptions.screenLayoutHeight ===
-                window.screen.height &&
-              exportOptions.globalOptions.screenLayoutWidth ===
-                window.screen.width
-            }
-            onClick={() => {
-              setExportOptions((prevState) => ({
-                ...prevState,
-                globalOptions: {
-                  ...prevState.globalOptions,
-                  screenLayoutHeight: window.screen.height,
-                  screenLayoutWidth: window.screen.width,
-                },
-              }));
-            }}
-          >
-            Reset to device fullscreen resolution
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
