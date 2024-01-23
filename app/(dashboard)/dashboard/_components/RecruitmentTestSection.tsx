@@ -1,7 +1,7 @@
 'use client';
 
 import type { Participant, Protocol } from '@prisma/client';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import { Button } from '~/components/ui/Button';
@@ -15,6 +15,8 @@ import {
 import { api } from '~/trpc/client';
 
 const RecruitmentTestSection = () => {
+  const router = useRouter();
+
   const { data: appSettings, isLoading: isLoadingAppSettings } =
     api.appSettings.get.useQuery();
   const { data: protocolData, isLoading: isLoadingProtocols } =
@@ -36,6 +38,29 @@ const RecruitmentTestSection = () => {
     return <div>Loading...</div>;
   }
 
+  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
+
+  const buttonDisabled =
+    !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
+
+  const getButtonText = () => {
+    if (buttonDisabled) {
+      if (allowAnonymousRecruitment) {
+        return 'Select a protocol';
+      }
+
+      return 'Select a protocol and participant';
+    }
+
+    if (appSettings?.allowAnonymousRecruitment) {
+      if (selectedProtocol && !selectedParticipant) {
+        return `Start anonymous interview using ${selectedProtocol.name}`;
+      }
+    }
+
+    return `Start interview using ${selectedProtocol.name} with ${selectedParticipant?.identifier}`;
+  };
+
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-muted p-6">
       <h1 className="text-xl">Recruitment Test Section</h1>
@@ -43,7 +68,7 @@ const RecruitmentTestSection = () => {
         <p>Allow anonymous recruitment?</p>
         <RecruitmentSwitch />
       </div>
-      <div className="flex">
+      <div className="flex gap-4">
         <Select
           onValueChange={(value) => {
             const protocol = protocols.find(
@@ -66,8 +91,6 @@ const RecruitmentTestSection = () => {
             ))}
           </SelectContent>
         </Select>
-      </div>
-      <div className="flex">
         <Select
           onValueChange={(value) => {
             const participant = participants?.find(
@@ -91,14 +114,16 @@ const RecruitmentTestSection = () => {
           </SelectContent>
         </Select>
       </div>
-      <Link
-        href={`/onboard/${selectedProtocol?.id}/?participantId=${selectedParticipant?.id}`}
+      <Button
+        disabled={buttonDisabled}
+        onClick={() =>
+          router.push(
+            `/onboard/${selectedProtocol?.id}/?participantId=${selectedParticipant?.id}`,
+          )
+        }
       >
-        <Button>
-          Start interview using {selectedParticipant?.identifier} and{' '}
-          {selectedProtocol?.name}
-        </Button>
-      </Link>
+        {getButtonText()}
+      </Button>
     </div>
   );
 };

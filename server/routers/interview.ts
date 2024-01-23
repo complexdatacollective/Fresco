@@ -37,58 +37,94 @@ export const interviewRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        participantId: z.string(),
+        participantId: z.string().optional(),
+        participantIdentifier: z.string().optional(),
         protocolId: z.string(),
       }),
     )
-    .mutation(async ({ input: { participantId, protocolId } }) => {
-      try {
-        const createdInterview = await prisma.interview.create({
-          data: {
-            startTime: new Date(),
-            lastUpdated: new Date(),
-            network: Prisma.JsonNull,
-            participant: {
-              // If a participant with the given ID already exists, connect to it.
-              // Otherwise, create a new participant and use the ID as an
-              // identifier.
-              connectOrCreate: {
-                where: {
-                  id: participantId,
+    .mutation(
+      async ({
+        input: { participantId, participantIdentifier, protocolId },
+      }) => {
+        if (!participantId && !participantIdentifier) {
+          return {
+            error:
+              'One of participant ID or participant identifier must be provided!',
+            createdInterviewId: null,
+            errorType: null,
+          };
+        }
+
+        try {
+          let createdInterview;
+          // If we are given a participant Id, link to it.
+          if (participantId) {
+            createdInterview = await prisma.interview.create({
+              data: {
+                startTime: new Date(),
+                lastUpdated: new Date(),
+                network: Prisma.JsonNull,
+                participant: {
+                  connect: {
+                    id: participantId,
+                  },
                 },
-                create: {
-                  identifier: participantId,
+                protocol: {
+                  connect: {
+                    id: protocolId,
+                  },
                 },
               },
-            },
-            protocol: {
-              connect: {
-                id: protocolId,
+            });
+          }
+
+          if (participantIdentifier) {
+            // If we are given a participant identifier, create a new participant and link to it.
+            createdInterview = await prisma.interview.create({
+              data: {
+                startTime: new Date(),
+                lastUpdated: new Date(),
+                network: Prisma.JsonNull,
+                participant: {
+                  connectOrCreate: {
+                    where: {
+                      identifier: participantIdentifier,
+                    },
+                    create: {
+                      identifier: participantIdentifier,
+                    },
+                  },
+                },
+                protocol: {
+                  connect: {
+                    id: protocolId,
+                  },
+                },
               },
-            },
-          },
-        });
+            });
+          }
 
-        revalidateTag('interview.get.all');
+          revalidateTag('interview.get.all');
 
-        // Because a new participant may have been created as part of creating the interview,
-        // we need to also revalidate the participant cache.
-        revalidateTag('participant.get.all');
+          // Because a new participant may have been created as part of creating the interview,
+          // we need to also revalidate the participant cache.
+          revalidateTag('participant.get.all');
 
-        return {
-          error: null,
-          createdInterviewId: createdInterview.id,
-          errorType: null,
-        };
-      } catch (error) {
-        const e = ensureError(error);
-        return {
-          errorType: e.message,
-          error: 'Failed to create interview',
-          createdInterviewId: null,
-        };
-      }
-    }),
+          return {
+            error: null,
+            createdInterviewId: createdInterview.id,
+            errorType: null,
+          };
+        } catch (error) {
+          const e = ensureError(error);
+          return {
+            errorType: e.message,
+            error: 'Failed to create interview',
+            createdInterviewId: null,
+          };
+        }
+      },
+    ),
   get: router({
     all: publicProcedure.query(async () => {
       const interviews = await prisma.interview.findMany({

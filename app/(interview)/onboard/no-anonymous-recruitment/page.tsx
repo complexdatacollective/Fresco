@@ -1,4 +1,4 @@
-import { ErrorMessage } from '../_components/ErrorMessage';
+import { ErrorMessage } from '../../interview/_components/ErrorMessage';
 
 export default function Page() {
   return (

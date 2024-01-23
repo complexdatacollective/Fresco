@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { NextResponse, type NextRequest } from 'next/server';
+import { trackEvent } from '~/analytics/utils';
 import { api } from '~/trpc/server';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
@@ -9,22 +10,41 @@ const handler = async (
   { params }: { params: { protocolId: string } },
 ) => {
   const protocolId = params.protocolId; // From route segment
-  let postData = undefined;
 
-  // We need to check the request method to see if we should parse the body - it
-  // fails on GET requests.
-  if (req.method === 'POST') {
-    postData = (await req.json()) as { participantId?: string } | undefined;
+  // If no protocol ID is provided, redirect to the error page.
+  if (!protocolId || protocolId === 'undefined') {
+    void trackEvent({
+      type: 'Error',
+      error: {
+        details: 'No protocol ID provided',
+        message: 'No protocol ID provided',
+        path: '/onboard/[protocolId]/route.ts',
+        stacktrace: '',
+      },
+    });
+
+    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
   }
 
-  const searchParams = req.nextUrl.searchParams;
+  let participantId: string | undefined;
+  let participantIdentifier: string | undefined;
 
-  let participantId =
-    searchParams.get('participantId') ?? postData?.participantId;
+  // If the request is a POST, check the request body for a participant ID.
+  // Otherwise, check the searchParams for a participant ID.
+  if (req.method === 'POST') {
+    const postData = (await req.json()) as
+      | { participantId?: string }
+      | undefined;
+    participantId = postData?.participantId;
+  } else {
+    const searchParams = req.nextUrl.searchParams;
+    participantId = searchParams.get('participantId') ?? undefined;
+  }
 
   // If no participant ID is provided in searchParams or request body, check
-  // if anonymous recruitment is enabled to see if we should generate one.
-  if (!participantId) {
+  // if anonymous recruitment is enabled. If it is, generate a new participant
+  // identifier.
+  if (!participantId || participantId === 'undefined') {
     const appSettings = await api.appSettings.get.query();
 
     if (!appSettings || !appSettings.allowAnonymousRecruitment) {
@@ -35,11 +55,11 @@ const handler = async (
 
     // Generate a participantID - this will be used as a **identifier** rather
     // than an ID.
-    participantId = faker.string.uuid();
+    participantIdentifier = faker.string.uuid();
 
     // eslint-disable-next-line no-console
     console.log(
-      `🕵️🚫 No participantID provided. Generated a new identifier: ${participantId}.`,
+      `🕵️🚫 No participantID provided, but anonymous recruitment enabled. Generated an identifier: ${participantIdentifier}.`,
     );
   } else {
     // eslint-disable-next-line no-console
@@ -49,14 +69,22 @@ const handler = async (
   // Create a new interview given the protocolId and participantId
   const { createdInterviewId, error } = await api.interview.create.mutate({
     participantId,
+    participantIdentifier,
     protocolId,
   });
 
   if (error) {
-    return NextResponse.json(
-      { error: 'Failed to create interview', errorType: error },
-      { status: 500 },
-    );
+    void trackEvent({
+      type: 'Error',
+      error: {
+        details: error,
+        message: 'Failed to create interview',
+        path: '/onboard/[protocolId]/route.ts',
+        stacktrace: '',
+      },
+    });
+
+    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
   }
 
   // eslint-disable-next-line no-console
