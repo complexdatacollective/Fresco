@@ -59,9 +59,7 @@ export const ExportInterviewsDialog = ({
     // start export process
     setIsExporting(true);
     try {
-      const interviewIds = interviewsToExport.map((interview) => ({
-        id: interview.id,
-      }));
+      const interviewIds = interviewsToExport.map((interview) => interview.id);
 
       const result = await exportSessions(interviewIds, exportOptions);
       handleCloseDialog();

@@ -6,6 +6,7 @@ import { getServerSession } from '~/utils/auth';
 import { formatExportableSessions, getRemoteProtocolID } from './utils';
 import { trackEvent } from '~/analytics/utils';
 import { type ExportOptions } from '../_components/ExportInterviewsDialog';
+import { type Interview } from '@prisma/client';
 
 type UploadData = {
   key: string;
@@ -32,7 +33,7 @@ type SuccessResult = {
 };
 
 export const exportSessions = async (
-  interviewIds: { id: string }[],
+  interviewIds: Interview['id'][],
   exportOptions?: ExportOptions,
 ) => {
   const session = await getServerSession();
