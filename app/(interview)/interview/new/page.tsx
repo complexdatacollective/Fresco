@@ -10,7 +10,7 @@ export default async function Page({
   searchParams,
 }: {
   searchParams: {
-    participantIdentifier?: string;
+    participantId?: string;
   };
 }) {
   const activeProtocol = await api.protocol.active.get.query();
@@ -45,11 +45,10 @@ export default async function Page({
   // Anonymous recruitment is enabled
 
   // Use the identifier from the URL, or generate a new one
-  const participantIdentifier =
-    searchParams.participantIdentifier ?? faker.string.uuid();
+  const participantId = searchParams.participantId ?? faker.string.uuid();
 
   // Validate the identifier
-  const isValid = participantIdentifierSchema.parse(participantIdentifier);
+  const isValid = participantIdentifierSchema.parse(participantId);
 
   if (!isValid) {
     return (
@@ -61,9 +60,8 @@ export default async function Page({
   }
 
   // Create the interview
-  const { createdInterviewId, error } = await api.interview.create.mutate(
-    participantIdentifier,
-  );
+  const { createdInterviewId, error } =
+    await api.interview.create.mutate(participantId);
 
   if (error) {
     throw new Error('An error occurred while creating the interview');
