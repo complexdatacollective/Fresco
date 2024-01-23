@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { ensureError } from '~/utils/ensureError';
 import { participantIdSchema } from '~/shared/schemas/schemas';
+import { formatExportableSessions } from '~/app/(dashboard)/dashboard/interviews/_actions/utils';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -118,23 +119,22 @@ export const interviewRouter = router({
 
         return interview;
       }),
-    manyByIds: protectedProcedure
-      .input(
-        z.array(
-          z.object({
-            id: z.string(),
-          }),
-        ),
-      )
-      .query(async ({ input: data }) => {
-        const interviewIds = data.map((p) => p.id);
+    forExport: protectedProcedure
+      .input(z.array(z.string()))
+      .query(async ({ input: interviewIds }) => {
         const interviews = await prisma.interview.findMany({
           where: {
             id: {
               in: interviewIds,
             },
           },
+          include: { protocol: true },
         });
+
+        const formattedSessions = formatExportableSessions(interviews);
+
+        // eslint-disable-next-line no-console
+        console.log('formattedSessions', formattedSessions);
 
         return interviews;
       }),
@@ -162,16 +162,8 @@ export const interviewRouter = router({
       }
     }),
   updateExportTime: protectedProcedure
-    .input(
-      z.array(
-        z.object({
-          id: z.string(),
-        }),
-      ),
-    )
-    .mutation(async ({ input: data }) => {
-      const interviewIds = data.map((p) => p.id);
-
+    .input(z.array(z.string()))
+    .mutation(async ({ input: interviewIds }) => {
       try {
         const updatedInterviews = await prisma.interview.updateMany({
           where: {

@@ -10,29 +10,25 @@ import {
 } from '@codaco/shared-consts';
 
 import { type Interview, type Protocol } from '@prisma/client';
-import crypto from 'crypto';
 import { hash } from 'ohash';
+
+type InterviewsWithProtocol = (Interview & { protocol: Protocol })[];
 
 /**
  * Creates an object containing all required session metadata for export
  * and appends it to the session
  */
 
-export const formatExportableSessions = (
-  sessions: Interview[],
-  protocols: Protocol[],
-) =>
+export const formatExportableSessions = (sessions: InterviewsWithProtocol) =>
   sessions.map((session) => {
-    const sessionProtocol = protocols.find(
-      (protocol) => protocol.id === session.protocolId,
-    );
+    const sessionProtocol = session.protocol;
 
     if (!sessionProtocol) return;
 
     const sessionVariables = {
       [caseProperty]: session.id,
       [sessionProperty]: session.id,
-      [protocolProperty]: getRemoteProtocolID(sessionProtocol.name),
+      [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),
       ...(session.startTime && {
@@ -53,8 +49,5 @@ export const formatExportableSessions = (
       sessionVariables,
     };
   });
-
-export const getRemoteProtocolID = (name: string) =>
-  name && crypto.createHash('sha256').update(name).digest('hex');
 
 export type FormattedSessions = ReturnType<typeof formatExportableSessions>;
