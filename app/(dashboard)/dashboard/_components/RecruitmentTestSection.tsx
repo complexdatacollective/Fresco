@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { api } from '~/trpc/client';
+import { getBaseUrl } from '~/trpc/shared';
 
 const RecruitmentTestSection = () => {
   const router = useRouter();
@@ -49,24 +50,6 @@ const RecruitmentTestSection = () => {
 
   const buttonDisabled =
     !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
-
-  const getButtonText = () => {
-    if (buttonDisabled) {
-      if (allowAnonymousRecruitment) {
-        return 'Select a protocol';
-      }
-
-      return 'Select a protocol and participant';
-    }
-
-    if (appSettings?.allowAnonymousRecruitment) {
-      if (selectedProtocol && !selectedParticipant) {
-        return `Start anonymous interview using ${selectedProtocol.name}`;
-      }
-    }
-
-    return `Start interview using ${selectedProtocol.name} with ${selectedParticipant?.identifier}`;
-  };
 
   const getInterviewURL = (): Route => {
     if (!selectedParticipant) {
@@ -133,7 +116,27 @@ const RecruitmentTestSection = () => {
         disabled={buttonDisabled}
         onClick={() => router.push(getInterviewURL())}
       >
-        {getButtonText()}
+        Start Interview with GET
+      </Button>
+      <Button
+        disabled={buttonDisabled}
+        onClick={async () =>
+          await fetch(getBaseUrl() + getInterviewURL(), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              participantId: selectedParticipant?.id,
+            }),
+          }).then((response) => {
+            if (response.redirected) {
+              window.location.href = response.url;
+            }
+          })
+        }
+      >
+        Start Interview with POST
       </Button>
     </div>
   );
