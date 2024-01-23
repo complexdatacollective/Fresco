@@ -1,6 +1,7 @@
 'use client';
 
 import type { Participant, Protocol } from '@prisma/client';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
@@ -34,11 +35,17 @@ const RecruitmentTestSection = () => {
     }
   }, [protocolData]);
 
+  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
+
+  useEffect(() => {
+    if (allowAnonymousRecruitment) {
+      setSelectedParticipant(undefined);
+    }
+  }, [allowAnonymousRecruitment]);
+
   if (isLoadingAppSettings) {
     return <div>Loading...</div>;
   }
-
-  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
 
   const buttonDisabled =
     !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
@@ -59,6 +66,14 @@ const RecruitmentTestSection = () => {
     }
 
     return `Start interview using ${selectedProtocol.name} with ${selectedParticipant?.identifier}`;
+  };
+
+  const getInterviewURL = (): Route => {
+    if (!selectedParticipant) {
+      return `/onboard/${selectedProtocol?.id}` as Route;
+    }
+
+    return `/onboard/${selectedProtocol?.id}/?participantId=${selectedParticipant?.id}` as Route;
   };
 
   return (
@@ -116,11 +131,7 @@ const RecruitmentTestSection = () => {
       </div>
       <Button
         disabled={buttonDisabled}
-        onClick={() =>
-          router.push(
-            `/onboard/${selectedProtocol?.id}/?participantId=${selectedParticipant?.id}`,
-          )
-        }
+        onClick={() => router.push(getInterviewURL())}
       >
         {getButtonText()}
       </Button>

@@ -10,7 +10,7 @@ export type ProtocolWithInterviews = Prisma.ProtocolGetPayload<
 
 const participantWithInterviews =
   Prisma.validator<Prisma.ParticipantDefaultArgs>()({
-    include: { interviews: true },
+    include: { _count: { select: { interviews: true } } },
   });
 
 export type ParticipantWithInterviews = Prisma.ParticipantGetPayload<

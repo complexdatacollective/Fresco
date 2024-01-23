@@ -6,6 +6,8 @@ import { Prisma } from '@prisma/client';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { ensureError } from '~/utils/ensureError';
 import { revalidateTag } from 'next/cache';
+import { faker } from '@faker-js/faker';
+import { trackEvent } from '~/analytics/utils';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -38,93 +40,83 @@ export const interviewRouter = router({
     .input(
       z.object({
         participantId: z.string().optional(),
-        participantIdentifier: z.string().optional(),
         protocolId: z.string(),
       }),
     )
-    .mutation(
-      async ({
-        input: { participantId, participantIdentifier, protocolId },
-      }) => {
-        if (!participantId && !participantIdentifier) {
+    .mutation(async ({ input: { participantId, protocolId } }) => {
+      if (!participantId) {
+        // Check if anonymous recruitment is enabled, and if it is use it to
+        // generate a participant identifier.
+        const appSettings = await prisma.appSettings.findFirst();
+        if (!appSettings || !appSettings.allowAnonymousRecruitment) {
           return {
-            error:
-              'One of participant ID or participant identifier must be provided!',
-            createdInterviewId: null,
-            errorType: null,
-          };
-        }
-
-        try {
-          let createdInterview;
-          // If we are given a participant Id, link to it.
-          if (participantId) {
-            createdInterview = await prisma.interview.create({
-              data: {
-                startTime: new Date(),
-                lastUpdated: new Date(),
-                network: Prisma.JsonNull,
-                participant: {
-                  connect: {
-                    id: participantId,
-                  },
-                },
-                protocol: {
-                  connect: {
-                    id: protocolId,
-                  },
-                },
-              },
-            });
-          }
-
-          if (participantIdentifier) {
-            // If we are given a participant identifier, create a new participant and link to it.
-            createdInterview = await prisma.interview.create({
-              data: {
-                startTime: new Date(),
-                lastUpdated: new Date(),
-                network: Prisma.JsonNull,
-                participant: {
-                  connectOrCreate: {
-                    where: {
-                      identifier: participantIdentifier,
-                    },
-                    create: {
-                      identifier: participantIdentifier,
-                    },
-                  },
-                },
-                protocol: {
-                  connect: {
-                    id: protocolId,
-                  },
-                },
-              },
-            });
-          }
-
-          revalidateTag('interview.get.all');
-
-          // Because a new participant may have been created as part of creating the interview,
-          // we need to also revalidate the participant cache.
-          revalidateTag('participant.get.all');
-
-          return {
-            error: null,
-            createdInterviewId: createdInterview.id,
-            errorType: null,
-          };
-        } catch (error) {
-          const e = ensureError(error);
-          return {
-            errorType: e.message,
-            error: 'Failed to create interview',
+            errorType: 'no-anonymous-recruitment',
+            error: 'Anonymous recruitment is not enabled',
             createdInterviewId: null,
           };
         }
-      },
-    ),
+
+        // anonymous recruitment is enabled, so generate a participant
+        const participantIdentifier = faker.string.uuid();
+        const { id } = await prisma.participant.create({
+          data: {
+            identifier: participantIdentifier,
+          },
+        });
+
+        participantId = id;
+      }
+
+      try {
+        const createdInterview = await prisma.interview.create({
+          data: {
+            startTime: new Date(),
+            lastUpdated: new Date(),
+            network: Prisma.JsonNull,
+            participant: {
+              connect: {
+                id: participantId,
+              },
+            },
+            protocol: {
+              connect: {
+                id: protocolId,
+              },
+            },
+          },
+        });
+
+        revalidateTag('interview.get.all');
+
+        // Because a new participant may have been created as part of creating the interview,
+        // we need to also revalidate the participant cache.
+        revalidateTag('participant.get.all');
+
+        return {
+          error: null,
+          createdInterviewId: createdInterview.id,
+          errorType: null,
+        };
+      } catch (error) {
+        const e = ensureError(error);
+
+        void trackEvent({
+          type: 'Error',
+          error: {
+            message: e.name,
+            details: e.message,
+            path: '/routers/interview.ts',
+            stacktrace: e.stack ?? '',
+          },
+        });
+
+        return {
+          errorType: e.message,
+          error: 'Failed to create interview',
+          createdInterviewId: null,
+        };
+      }
+    }),
   get: router({
     all: publicProcedure.query(async () => {
       const interviews = await prisma.interview.findMany({

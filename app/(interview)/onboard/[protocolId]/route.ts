@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { NextResponse, type NextRequest } from 'next/server';
 import { trackEvent } from '~/analytics/utils';
 import { api } from '~/trpc/server';
@@ -27,7 +26,6 @@ const handler = async (
   }
 
   let participantId: string | undefined;
-  let participantIdentifier: string | undefined;
 
   // If the request is a POST, check the request body for a participant ID.
   // Otherwise, check the searchParams for a participant ID.
@@ -41,35 +39,9 @@ const handler = async (
     participantId = searchParams.get('participantId') ?? undefined;
   }
 
-  // If no participant ID is provided in searchParams or request body, check
-  // if anonymous recruitment is enabled. If it is, generate a new participant
-  // identifier.
-  if (!participantId || participantId === 'undefined') {
-    const appSettings = await api.appSettings.get.query();
-
-    if (!appSettings || !appSettings.allowAnonymousRecruitment) {
-      return NextResponse.redirect(
-        new URL('/interview/no-anonymous-recruitment', req.nextUrl),
-      );
-    }
-
-    // Generate a participantID - this will be used as a **identifier** rather
-    // than an ID.
-    participantIdentifier = faker.string.uuid();
-
-    // eslint-disable-next-line no-console
-    console.log(
-      `🕵️🚫 No participantID provided, but anonymous recruitment enabled. Generated an identifier: ${participantIdentifier}.`,
-    );
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(`🕵️✅ Using provided participantID: ${participantId}.`);
-  }
-
   // Create a new interview given the protocolId and participantId
   const { createdInterviewId, error } = await api.interview.create.mutate({
     participantId,
-    participantIdentifier,
     protocolId,
   });
 
@@ -89,8 +61,18 @@ const handler = async (
 
   // eslint-disable-next-line no-console
   console.log(
-    `🚀 Starting interview with ID ${createdInterviewId} and protocol ${protocolId}...`,
+    `🚀 Created interview with ID ${createdInterviewId} using protocol ${protocolId} for participant ${
+      participantId ?? 'Anonymous'
+    }...`,
   );
+
+  void trackEvent({
+    type: 'InterviewStarted',
+    metadata: {
+      timestamp: new Date().toISOString(),
+      usingAnonymousParticipant: !participantId,
+    },
+  });
 
   // Redirect to the interview
   return NextResponse.redirect(
