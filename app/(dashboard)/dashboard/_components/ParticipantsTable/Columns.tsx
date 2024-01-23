@@ -34,6 +34,17 @@ export const ParticipantColumns =
       },
     },
     {
+      accessorKey: 'Interview Count',
+      header: ({ column }) => {
+        return (
+          <DataTableColumnHeader column={column} title="Interview count" />
+        );
+      },
+      cell: ({ row }) => {
+        return <span>{row.original._count.interviews}</span>;
+      },
+    },
+    {
       accessorKey: 'Unique_interview_URL',
       header: ({ column }) => {
         return (

@@ -36,13 +36,14 @@ export const DeleteParticipantsDialog = ({
   useEffect(() => {
     setParticipantsInfo({
       hasInterviews: participantsToDelete?.some(
-        (participant) => participant.interviews.length > 0,
+        (participant) => participant._count.interviews > 0,
       ),
       hasUnexportedInterviews: participantsToDelete?.some((participant) =>
         participant.interviews.some((interview) => !interview.exportTime),
       ),
     });
   }, [participantsToDelete]);
+
   const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
     api.participant.delete.byId.useMutation({
       onError(error) {
