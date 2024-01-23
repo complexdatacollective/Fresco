@@ -2,11 +2,7 @@
   "name": "fresco",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@8.9.0",
-  "engines": {
-    "node": ">=18.16.0",
-    "pnpm": ">=8.6.3"
-  },
+  "packageManager": "^pnpm@8.9.0",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
