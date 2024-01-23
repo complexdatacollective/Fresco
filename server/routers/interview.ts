@@ -1,12 +1,11 @@
 /* eslint-disable local-rules/require-data-mapper */
-import { prisma } from '~/utils/db';
-import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { z } from 'zod';
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
-import { ensureError } from '~/utils/ensureError';
 import { participantIdSchema } from '~/shared/schemas/schemas';
-import { formatExportableSessions } from '~/app/(dashboard)/dashboard/interviews/_actions/utils';
+import { prisma } from '~/utils/db';
+import { ensureError } from '~/utils/ensureError';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -119,7 +118,7 @@ export const interviewRouter = router({
 
         return interview;
       }),
-    forExport: protectedProcedure
+    forExport: publicProcedure
       .input(z.array(z.string()))
       .query(async ({ input: interviewIds }) => {
         const interviews = await prisma.interview.findMany({
@@ -128,14 +127,10 @@ export const interviewRouter = router({
               in: interviewIds,
             },
           },
-          include: { protocol: true },
+          include: {
+            protocol: true,
+          },
         });
-
-        const formattedSessions = formatExportableSessions(interviews);
-
-        // eslint-disable-next-line no-console
-        console.log('formattedSessions', formattedSessions);
-
         return interviews;
       }),
   }),

@@ -1,12 +1,13 @@
+/* eslint-disable no-console */
 'use server';
 
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
-import { formatExportableSessions, getRemoteProtocolID } from './utils';
+import { formatExportableSessions } from './utils';
 import { trackEvent } from '~/analytics/utils';
 import { type ExportOptions } from '../_components/ExportInterviewsDialog';
-import { type Interview } from '@prisma/client';
+import { type Protocol, type Interview } from '@prisma/client';
 
 type UploadData = {
   key: string;
@@ -43,9 +44,38 @@ export const exportSessions = async (
       throw new Error('You must be logged in to export interview sessions!.');
     }
 
-    const installedProtocols = await api.protocol.get.all.query();
+    // Get interviews From DB, by ids
     const interviewsSessions =
       await api.interview.get.forExport.query(interviewIds);
+
+    // Store unique protocol ids in a Set
+    const installedProtocolIds = new Set<Protocol['id']>();
+    interviewsSessions.forEach((session) => {
+      installedProtocolIds.add(session.protocol.id);
+    });
+
+    const installedProtocols: Protocol[] = [];
+
+    // find installed protocols based on the stored unique set of protocol ids
+    installedProtocolIds.forEach((id) => {
+      const foundSession = interviewsSessions.find(
+        (session) => session.protocol.id === id,
+      );
+      if (!foundSession) return;
+      installedProtocols.push(foundSession.protocol);
+    });
+
+    // The protocol object needs to be reformatted so that it is keyed by
+    // protocol.hash, since this is what network-exporters use.
+    const formattedProtocols = Object.values(installedProtocols).reduce(
+      (acc, protocol) => ({
+        ...acc,
+        [protocol.hash]: protocol,
+      }),
+      {},
+    );
+
+    const formattedSessions = formatExportableSessions(interviewsSessions);
 
     const fileExportManager = new FileExportManager(exportOptions);
 
@@ -91,21 +121,9 @@ export const exportSessions = async (
       },
     );
 
-    // const formattedSessions = formatExportableSessions(interviewsSessions);
-
-    // The protocol object needs to be reformatted so that it is keyed by
-    // the sha of protocol.name, since this is what network-exporters use.
-    const reformatedProtocols = Object.values(installedProtocols).reduce(
-      (acc, protocol) => ({
-        ...acc,
-        [getRemoteProtocolID(protocol.name)]: protocol,
-      }),
-      {},
-    );
-
     const exportJob = fileExportManager.exportSessions(
       formattedSessions,
-      reformatedProtocols,
+      formattedProtocols,
     );
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

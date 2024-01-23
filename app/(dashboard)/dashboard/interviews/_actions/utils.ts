@@ -49,5 +49,3 @@ export const formatExportableSessions = (sessions: InterviewsWithProtocol) =>
       sessionVariables,
     };
   });
-
-export type FormattedSessions = ReturnType<typeof formatExportableSessions>;
