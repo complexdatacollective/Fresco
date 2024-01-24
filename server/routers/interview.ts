@@ -3,13 +3,11 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
-import { participantIdSchema } from '~/shared/schemas/schemas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { revalidateTag } from 'next/cache';
 import { faker } from '@faker-js/faker';
 import { trackEvent } from '~/analytics/utils';
-
 
 export const interviewRouter = router({
   sync: publicProcedure

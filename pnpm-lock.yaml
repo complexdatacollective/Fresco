@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/analytics':
-    specifier: ^2.0.0
-    version: 2.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0)
+    specifier: ^2.1.1
+    version: 2.1.1(@maxmind/geoip2-node@5.0.0)(next@14.1.0)
   '@codaco/protocol-validation':
     specifier: 3.0.0-alpha.4
     version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
@@ -110,6 +110,9 @@ dependencies:
   '@uploadthing/react':
     specifier: ^5.7.0
     version: 5.7.0(next@14.1.0)(react@18.2.0)(uploadthing@5.7.4)(zod@3.22.4)
+  '@xmldom/xmldom':
+    specifier: ^0.8.10
+    version: 0.8.10
   animejs:
     specifier: ^2.2.0
     version: 2.2.0
@@ -1812,10 +1815,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-
-  /@codaco/analytics@2.1.1(@maxmind/geoip2-node@5.0.0)(next@14.0.0):
+  /@codaco/analytics@2.1.1(@maxmind/geoip2-node@5.0.0)(next@14.1.0):
     resolution: {integrity: sha512-x7gQt+IL2BiEALNX+28HUIhl4z0eQ60zjJQD++pnCrTixYSK2+TXLjTr9QcLG9K4WSBA7UgDkHVLXnPoC3nZOA==}
-
     peerDependencies:
       '@maxmind/geoip2-node': ^5.0.0
       next: 13 || 14
@@ -14157,9 +14158,13 @@ packages:
     resolution: {integrity: sha512-AqTiAOLcj85xS7vQ8QkAV41hPDIJ71XJB4RCUrzo/1GM2CQwhkJGaf9Hgr7BOugMRpgGUrqRg/DrBDl4H40+8g==}
     dev: false
 
+  /truncate-utf8-bytes@1.0.2:
+    resolution: {integrity: sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==}
+    dependencies:
+      utf8-byte-length: 1.0.4
+    dev: false
 
   /ts-api-utils@1.0.3(typescript@5.3.3):
-
     resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}
     engines: {node: '>=16.13.0'}
     peerDependencies:
