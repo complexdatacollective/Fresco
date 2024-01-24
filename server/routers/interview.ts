@@ -147,7 +147,7 @@ export const interviewRouter = router({
 
         return interview;
       }),
-    forExport: publicProcedure
+    forExport: protectedProcedure
       .input(z.array(z.string()))
       .query(async ({ input: interviewIds }) => {
         const interviews = await prisma.interview.findMany({
