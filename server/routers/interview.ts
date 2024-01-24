@@ -1,9 +1,9 @@
 /* eslint-disable local-rules/require-data-mapper */
-import { prisma } from '~/utils/db';
-import { publicProcedure, protectedProcedure, router } from '~/server/trpc';
-import { z } from 'zod';
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
+import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { revalidateTag } from 'next/cache';
 import { faker } from '@faker-js/faker';
@@ -147,6 +147,21 @@ export const interviewRouter = router({
 
         return interview;
       }),
+    forExport: protectedProcedure
+      .input(z.array(z.string()))
+      .query(async ({ input: interviewIds }) => {
+        const interviews = await prisma.interview.findMany({
+          where: {
+            id: {
+              in: interviewIds,
+            },
+          },
+          include: {
+            protocol: true,
+          },
+        });
+        return interviews;
+      }),
   }),
   finish: protectedProcedure
     .input(
@@ -168,6 +183,26 @@ export const interviewRouter = router({
         return { error: null, interview: updatedInterview };
       } catch (error) {
         return { error: 'Failed to update interview', interview: null };
+      }
+    }),
+  updateExportTime: protectedProcedure
+    .input(z.array(z.string()))
+    .mutation(async ({ input: interviewIds }) => {
+      try {
+        const updatedInterviews = await prisma.interview.updateMany({
+          where: {
+            id: {
+              in: interviewIds,
+            },
+          },
+          data: {
+            exportTime: new Date(),
+          },
+        });
+
+        return { error: null, interviews: updatedInterviews };
+      } catch (error) {
+        return { error: 'Failed to update interviews', interviews: null };
       }
     }),
   delete: protectedProcedure
