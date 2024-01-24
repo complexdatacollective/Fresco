@@ -4,22 +4,10 @@ import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
+import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
-import { z } from 'zod';
-
-export const ExportOptionsSchema = z.object({
-  exportGraphML: z.boolean(),
-  exportCSV: z.boolean(),
-  globalOptions: z.object({
-    exportFilename: z.string(),
-    unifyNetworks: z.boolean(),
-    useScreenLayoutCoordinates: z.boolean(),
-  }),
-});
-
-export type ExportOptions = z.infer<typeof ExportOptionsSchema>;
 
 type UploadData = {
   key: string;

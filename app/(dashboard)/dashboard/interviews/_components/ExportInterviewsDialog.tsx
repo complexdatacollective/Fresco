@@ -9,14 +9,14 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
-import {
-  type ExportOptions,
-  ExportOptionsSchema,
-  exportSessions,
-} from '../_actions/export';
+import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import ExportingStateAnimation from './ExportingStateAnimation';
 import { useDownload } from '~/hooks/useDownload';
+import {
+  ExportOptionsSchema,
+  type ExportOptions,
+} from '~/lib/network-exporters/utils/exportOptionsSchema';
 
 type ExportInterviewsDialogProps = {
   open: boolean;
