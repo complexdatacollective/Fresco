@@ -48,33 +48,13 @@ export const exportSessions = async (
     const interviewsSessions =
       await api.interview.get.forExport.query(interviewIds);
 
-    // Store unique protocol ids in a Set
-    const installedProtocolIds = new Set<Protocol['id']>();
+    // store unique protocols in a Map, keyed by protocol hash
+    const protocolsMap = new Map<string, Protocol>();
     interviewsSessions.forEach((session) => {
-      installedProtocolIds.add(session.protocol.id);
+      protocolsMap.set(session.protocol.hash, session.protocol);
     });
 
-    const installedProtocols: Protocol[] = [];
-
-    // find installed protocols based on the stored unique set of protocol ids
-    installedProtocolIds.forEach((id) => {
-      const foundSession = interviewsSessions.find(
-        (session) => session.protocol.id === id,
-      );
-      if (!foundSession) return;
-      installedProtocols.push(foundSession.protocol);
-    });
-
-    // The protocol object needs to be reformatted so that it is keyed by
-    // protocol.hash, since this is what network-exporters use.
-    const formattedProtocols = Object.values(installedProtocols).reduce(
-      (acc, protocol) => ({
-        ...acc,
-        [protocol.hash]: protocol,
-      }),
-      {},
-    );
-
+    const formattedProtocols = Object.fromEntries(protocolsMap);
     const formattedSessions = formatExportableSessions(interviewsSessions);
 
     const fileExportManager = new FileExportManager(exportOptions);
