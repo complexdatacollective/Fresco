@@ -8,6 +8,7 @@ import { formatExportableSessions } from './utils';
 import { trackEvent } from '~/analytics/utils';
 import { type ExportOptions } from '../_components/ExportInterviewsDialog';
 import { type Protocol, type Interview } from '@prisma/client';
+import { ensureError } from '~/utils/ensureError';
 
 type UploadData = {
   key: string;
@@ -147,19 +148,20 @@ export const exportSessions = async (
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
+    const e = ensureError(error);
     await trackEvent({
       type: 'Error',
       error: {
-        message: 'Failed to export interview sessions!',
-        details: '',
-        stacktrace: '',
+        message: e.name,
+        details: e.message,
         path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
+        stacktrace: e.stack ?? '',
       },
     });
 
     return {
       data: null,
-      message: 'Failed to export interview sessions!',
+      message: 'Error during data export!',
       error,
     };
   }
