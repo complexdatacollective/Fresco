@@ -1,6 +1,6 @@
 'use client';
 
-import { SignUpForm } from '~/app/(onboard)/_components/SignUpForm';
+import { SignUpForm } from '~/app/(setup)/_components/SignUpForm';
 import { useOnboardingContext } from '../OnboardingProvider';
 
 function CreateAccount() {

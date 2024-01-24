@@ -102,55 +102,6 @@ export const protocolRouter = router({
       return protocol;
     }),
   }),
-  active: router({
-    get: protectedProcedure.query(async () => {
-      const protocol = await prisma.protocol.findFirst({
-        where: {
-          active: true,
-        },
-      });
-      return protocol?.id ?? null;
-    }),
-    is: protectedProcedure
-      .input(z.string())
-      .mutation(async ({ input: protocolId }) => {
-        const protocol = await prisma.protocol.findFirst({
-          where: {
-            id: protocolId,
-          },
-        });
-
-        return protocol?.active ?? false;
-      }),
-    set: protectedProcedure
-      .input(z.string())
-      .mutation(async ({ input: protocolId }) => {
-        try {
-          await prisma.$transaction([
-            prisma.protocol.updateMany({
-              where: {
-                active: true,
-              },
-              data: {
-                active: false,
-              },
-            }),
-            prisma.protocol.update({
-              where: {
-                id: protocolId,
-              },
-              data: {
-                active: true,
-              },
-            }),
-          ]);
-
-          return { error: null, success: true };
-        } catch (error) {
-          return { error: 'Failed to set active protocol', success: false };
-        }
-      }),
-  }),
   delete: router({
     all: protectedProcedure.mutation(async () => {
       const hashes = await prisma.protocol.findMany({

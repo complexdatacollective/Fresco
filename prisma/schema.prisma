@@ -14,7 +14,6 @@ datasource db {
 
 model Protocol {
   id            String      @id @default(cuid())
-  active        Boolean     @default(false)
   hash          String      @unique
   name          String
   schemaVersion Int
@@ -48,12 +47,13 @@ model Interview {
   lastUpdated   DateTime    @updatedAt
   network       Json
   participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  participantId String      @unique
+  participantId String
   protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
 
   @@index(fields: [protocolId])
+  @@index([participantId])
 }
 
 model Participant {

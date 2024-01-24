@@ -6,6 +6,10 @@ import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { participantIdSchema } from '~/shared/schemas/schemas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
+import { revalidateTag } from 'next/cache';
+import { faker } from '@faker-js/faker';
+import { trackEvent } from '~/analytics/utils';
+
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -35,44 +39,60 @@ export const interviewRouter = router({
       }
     }),
   create: publicProcedure
-    .input(participantIdSchema)
-    .mutation(async ({ input: id }) => {
-      try {
-        // get the active protocol id to connect to the interview
-        const activeProtocol = await prisma.protocol.findFirst({
-          where: { active: true },
-        });
-
-        if (!activeProtocol) {
+    .input(
+      z.object({
+        participantId: z.string().optional(),
+        protocolId: z.string(),
+      }),
+    )
+    .mutation(async ({ input: { participantId, protocolId } }) => {
+      if (!participantId) {
+        // Check if anonymous recruitment is enabled, and if it is use it to
+        // generate a participant identifier.
+        const appSettings = await prisma.appSettings.findFirst();
+        if (!appSettings || !appSettings.allowAnonymousRecruitment) {
           return {
-            errorType: 'NO_ACTIVE_PROTOCOL',
-            error: 'Failed to create interview: no active protocol',
+            errorType: 'no-anonymous-recruitment',
+            error: 'Anonymous recruitment is not enabled',
             createdInterviewId: null,
           };
         }
 
+        // anonymous recruitment is enabled, so generate a participant
+        const participantIdentifier = faker.string.uuid();
+        const { id } = await prisma.participant.create({
+          data: {
+            identifier: participantIdentifier,
+          },
+        });
+
+        participantId = id;
+      }
+
+      try {
         const createdInterview = await prisma.interview.create({
           data: {
             startTime: new Date(),
             lastUpdated: new Date(),
             network: Prisma.JsonNull,
             participant: {
-              connectOrCreate: {
-                where: {
-                  id,
-                },
-                create: {
-                  identifier: id,
-                },
+              connect: {
+                id: participantId,
               },
             },
             protocol: {
               connect: {
-                id: activeProtocol.id,
+                id: protocolId,
               },
             },
           },
         });
+
+        revalidateTag('interview.get.all');
+
+        // Because a new participant may have been created as part of creating the interview,
+        // we need to also revalidate the participant cache.
+        revalidateTag('participant.get.all');
 
         return {
           error: null,
@@ -81,6 +101,17 @@ export const interviewRouter = router({
         };
       } catch (error) {
         const e = ensureError(error);
+
+        void trackEvent({
+          type: 'Error',
+          error: {
+            message: e.name,
+            details: e.message,
+            path: '/routers/interview.ts',
+            stacktrace: e.stack ?? '',
+          },
+        });
+
         return {
           errorType: e.message,
           error: 'Failed to create interview',

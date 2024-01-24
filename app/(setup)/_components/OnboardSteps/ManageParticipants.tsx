@@ -4,10 +4,8 @@ import { Check } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import { useOnboardingContext } from '../OnboardingProvider';
-import { useOptimistic, useState, useTransition } from 'react';
-import { Switch } from '~/components/ui/switch';
-import { api } from '~/trpc/client';
-import { setAnonymousRecruitment } from '~/components/AnonymousRecruitmentSwitch/action';
+import { useState } from 'react';
+import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 
 const SettingsSection = ({
   title,
@@ -26,38 +24,6 @@ const SettingsSection = ({
     {children}
   </div>
 );
-
-const RecruitmentSwitch = () => {
-  const { data: appSettings, isLoading } = api.appSettings.get.useQuery(
-    undefined,
-    {},
-  );
-
-  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
-
-  const [, startTransition] = useTransition();
-  const [
-    optimisticAllowAnonymousRecruitment,
-    setOptimisticAllowAnonymousRecruitment,
-  ] = useOptimistic(
-    allowAnonymousRecruitment,
-    (state: boolean, newState: boolean) => newState,
-  );
-
-  return (
-    <Switch
-      name="allowAnonymousRecruitment"
-      disabled={isLoading}
-      checked={optimisticAllowAnonymousRecruitment}
-      onCheckedChange={(value) => {
-        startTransition(async () => {
-          setOptimisticAllowAnonymousRecruitment(value);
-          await setAnonymousRecruitment(value);
-        });
-      }}
-    />
-  );
-};
 
 function ManageParticipants() {
   const [participantsUploaded, setParticipantsUploaded] = useState(false);

@@ -27,14 +27,16 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <RedirectWrapper
-          configured={!!appSettings?.configured}
-          expired={!!appSettings?.expired}
-          session={session}
-        >
-          <Providers initialSession={session}>{children}</Providers>
-          <Toaster />
-        </RedirectWrapper>
+        <Providers initialSession={session}>
+          <RedirectWrapper
+            configured={!!appSettings?.configured}
+            expired={!!appSettings?.expired}
+            session={session}
+          >
+            {children}
+            <Toaster />
+          </RedirectWrapper>
+        </Providers>
       </body>
     </html>
   );
