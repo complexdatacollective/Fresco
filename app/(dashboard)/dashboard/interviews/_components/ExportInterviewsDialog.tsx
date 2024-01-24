@@ -10,10 +10,10 @@ import {
 } from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
 import {
-  validateExportOptions,
   type ExportOptions,
-} from '~/utils/validateExportOptions';
-import { exportSessions } from '../_actions/export';
+  ExportOptionsSchema,
+  exportSessions,
+} from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import ExportingStateAnimation from './ExportingStateAnimation';
 import { useDownload } from '~/hooks/useDownload';
@@ -41,10 +41,12 @@ const setOptionsToLocalStorage = (options: ExportOptions) => {
 
 const getLocalExportOptions = () => {
   const localExportOptions = localStorage.getItem('exportOptions');
-  const validatedOptions = validateExportOptions(
+  const result = ExportOptionsSchema.safeParse(
     localExportOptions ? JSON.parse(localExportOptions) : null,
   );
-  return validatedOptions;
+
+  if (!result.success) return null;
+  return result.data;
 };
 
 export const ExportInterviewsDialog = ({
