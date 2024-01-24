@@ -1,14 +1,13 @@
-/* eslint-disable no-console */
 'use server';
 
+import { type Interview, type Protocol } from '@prisma/client';
+import { trackEvent } from '~/analytics/utils';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
+import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
-import { formatExportableSessions } from './utils';
-import { trackEvent } from '~/analytics/utils';
-import { type ExportOptions } from '../_components/ExportInterviewsDialog';
-import { type Protocol, type Interview } from '@prisma/client';
 import { ensureError } from '~/utils/ensureError';
+import { type ExportOptions } from '../_components/ExportInterviewsDialog';
 
 type UploadData = {
   key: string;
