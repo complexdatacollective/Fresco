@@ -11,7 +11,7 @@ import {
   type Row,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -105,18 +105,6 @@ export function DataTable<TData, TValue>({
     setRowSelection({});
   };
 
-  const exportHandler = handleExportSelected
-    ? () => {
-        const selectedData = table
-          .getSelectedRowModel()
-          .rows.map((r) => r.original);
-
-        handleExportSelected(selectedData);
-
-        setRowSelection({});
-      }
-    : null;
-
   const table = useReactTable({
     data,
     columns,
@@ -139,6 +127,16 @@ export function DataTable<TData, TValue>({
   }) as CustomTable<TData>;
 
   const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
+
+  const exportHandler = useCallback(() => {
+    const selectedData = table
+      .getSelectedRowModel()
+      .rows.map((r) => r.original);
+
+    handleExportSelected?.(selectedData);
+
+    setRowSelection({});
+  }, [handleExportSelected, table, setRowSelection]);
 
   return (
     <div>
@@ -254,7 +252,7 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
 
-        {hasSelectedRows && exportHandler && (
+        {hasSelectedRows && handleExportSelected && (
           <Button
             onClick={exportHandler}
             variant="default"
