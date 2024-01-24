@@ -7,7 +7,7 @@ import { formatExportableSessions } from '~/lib/network-exporters/formatters/for
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
-import { type ExportOptions } from '../_components/ExportInterviewsDialog';
+import { type ExportOptions } from '~/utils/validateExportOptions';
 
 type UploadData = {
   key: string;

@@ -9,11 +9,13 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
+import {
+  validateExportOptions,
+  type ExportOptions,
+} from '~/utils/validateExportOptions';
 import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import ExportingStateAnimation from './ExportingStateAnimation';
-
-export type ExportOptions = typeof defaultExportOptions;
 
 type ExportInterviewsDialogProps = {
   open: boolean;
@@ -38,9 +40,10 @@ const setOptionsToLocalStorage = (options: ExportOptions) => {
 
 const getLocalExportOptions = () => {
   const localExportOptions = localStorage.getItem('exportOptions');
-  return localExportOptions
-    ? (JSON.parse(localExportOptions) as ExportOptions)
-    : null;
+  const validatedOptions = validateExportOptions(
+    localExportOptions ? JSON.parse(localExportOptions) : null,
+  );
+  return validatedOptions;
 };
 
 export const ExportInterviewsDialog = ({
@@ -51,7 +54,7 @@ export const ExportInterviewsDialog = ({
 }: ExportInterviewsDialogProps) => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
-  const [exportOptions, setExportOptions] = useState(
+  const [exportOptions, setExportOptions] = useState<ExportOptions>(
     getLocalExportOptions() ?? defaultExportOptions,
   );
 

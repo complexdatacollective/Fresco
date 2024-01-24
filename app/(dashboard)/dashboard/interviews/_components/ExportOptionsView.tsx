@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import { Switch } from '~/components/ui/switch';
-import { type ExportOptions } from './ExportInterviewsDialog';
+import { type ExportOptions } from '~/utils/validateExportOptions';
 
 type ExportOptionsViewProps = {
   exportOptions: ExportOptions;
