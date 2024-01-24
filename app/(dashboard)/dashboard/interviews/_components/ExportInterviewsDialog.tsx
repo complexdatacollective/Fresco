@@ -16,6 +16,7 @@ import {
 import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import ExportingStateAnimation from './ExportingStateAnimation';
+import { useDownload } from '~/hooks/useDownload';
 
 type ExportInterviewsDialogProps = {
   open: boolean;
@@ -52,6 +53,7 @@ export const ExportInterviewsDialog = ({
   interviewsToExport,
   setInterviewsToExport,
 }: ExportInterviewsDialogProps) => {
+  const download = useDownload();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [exportOptions, setExportOptions] = useState<ExportOptions>(
@@ -68,10 +70,8 @@ export const ExportInterviewsDialog = ({
       handleCloseDialog();
 
       if (result.data) {
-        const link = document.createElement('a');
-        link.href = result.data.url;
-        link.download = result.data.name; // Zip filename
-        link.click();
+        // Download the zip file
+        download(result.data.url, result.data.name);
         return;
       }
 
