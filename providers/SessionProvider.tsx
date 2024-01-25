@@ -47,8 +47,9 @@ export const SessionProvider = ({
   const previousSession = usePrevious(session);
   const router = useRouter();
 
-  const { refetch: getSession, isFetching: isFetchingSession } =
-    api.session.get.useQuery(undefined, {
+  const { isFetching: isFetchingSession } = api.session.get.useQuery(
+    undefined,
+    {
       refetchOnMount: false,
       refetchOnWindowFocus: true,
       initialData: initialSession,
@@ -66,7 +67,8 @@ export const SessionProvider = ({
       onError: (error) => {
         throw new Error(error.message);
       },
-    });
+    },
+  );
 
   const { mutateAsync: signOut, isLoading: isSigningOut } =
     api.session.signOut.useMutation({

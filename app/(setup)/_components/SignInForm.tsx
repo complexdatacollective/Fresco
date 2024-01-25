@@ -7,7 +7,6 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { api } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
-import type { Route } from 'next';
 import useZodForm from '~/hooks/useZodForm';
 import { useRouter } from 'next/navigation';
 
@@ -16,7 +15,7 @@ type ResponseError = {
   description: string;
 };
 
-export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
+export default function SignInForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +34,7 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
   const { mutateAsync: signIn } = api.session.signIn.useMutation({
     onMutate: () => setLoading(true),
     onSuccess: (result) => {
-      if (result.error) {
+      if (result.error ?? !result.session) {
         setLoading(false); // Only reset loading state on error, otherwise we are signing in...
         setResponseError({
           title: 'Sign in failed',
@@ -43,19 +42,7 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
         });
       }
 
-      if (result.session) {
-        if (callbackUrl) {
-          // For some reason, using the router causes the component to re-render
-          // which in turn causes a flash. Using window.location.replace() does
-          // not cause this issue.
-
-          router.replace(callbackUrl);
-          // window.location.replace(callbackUrl);
-        } else {
-          router.replace('/dashboard');
-          // window.location.replace('/dashboard');
-        }
-      }
+      router.refresh();
     },
     onError: (error) => {
       setLoading(false);
