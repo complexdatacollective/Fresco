@@ -4,6 +4,7 @@ import { type Participant } from '@prisma/client';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
+import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import { getBaseUrl } from '~/trpc/shared';
 
@@ -18,6 +19,7 @@ function ExportCSVParticipants({
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
 
   const handleExport = () => {
     try {
@@ -43,7 +45,17 @@ function ExportCSVParticipants({
       download(url, 'participants.csv');
       // Clean up the URL object
       URL.revokeObjectURL(url);
+      toast({
+        description: 'Participant CSV exported successfully',
+        variant: 'success',
+        duration: 3000,
+      });
     } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An error occurred while exporting participants',
+        variant: 'destructive',
+      });
       throw new Error('An error occurred while exporting participants');
     }
 
