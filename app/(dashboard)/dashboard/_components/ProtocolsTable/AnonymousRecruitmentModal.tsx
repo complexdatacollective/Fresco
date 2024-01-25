@@ -41,8 +41,8 @@ export const AnonymousRecruitmentModal = () => {
   const url = `${getBaseUrl()}/onboard/${selectedProtocol?.id}`;
 
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog onOpenChange={() => setSelectedProtocol(undefined)}>
+      <DialogTrigger asChild>
         <Button>Anonymous Recruitment</Button>
       </DialogTrigger>
       <DialogContent>
