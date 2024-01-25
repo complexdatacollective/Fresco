@@ -4,26 +4,6 @@ import type { Route } from 'next';
 import { type ReadonlyURLSearchParams } from 'next/navigation';
 import { cache } from 'react';
 
-const routeIsLoginPage = (pathname: Route) => {
-  return pathname === '/signin';
-};
-
-const routeIsLandingPage = (pathname: Route) => {
-  return pathname === '/';
-};
-
-const routeIsOnboarding = (pathname: Route) => {
-  return pathname.startsWith('/setup');
-};
-
-const routeIsInterviewing = (pathname: Route) => {
-  return pathname.startsWith('/interview');
-};
-
-const routeIsExpiredPage = (pathname: Route) => {
-  return pathname === '/expired';
-};
-
 export const calculateRedirect = ({
   session,
   path,
@@ -42,11 +22,11 @@ export const calculateRedirect = ({
     throw new Error('No path provided to calculateRedirect!');
   }
 
-  const isLoginPage = routeIsLoginPage(path);
-  const isLandingPage = routeIsLandingPage(path);
-  const isOnboarding = routeIsOnboarding(path);
-  const isInterviewing = routeIsInterviewing(path);
-  const isExpiredPage = routeIsExpiredPage(path);
+  const isLoginPage = path === '/signin';
+  const isLandingPage = path === '/';
+  const isOnboarding = path.startsWith('/setup');
+  const isInterviewing = path.startsWith('/interview');
+  const isExpiredPage = path === '/expired';
 
   /**
    * `configured` - setup has been completed

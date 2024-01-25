@@ -9,6 +9,7 @@ import { api } from '~/trpc/client';
 import ActionError from '../../../components/ActionError';
 import type { Route } from 'next';
 import useZodForm from '~/hooks/useZodForm';
+import { useRouter } from 'next/navigation';
 
 type ResponseError = {
   title: string;
@@ -16,6 +17,7 @@ type ResponseError = {
 };
 
 export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const [responseError, setResponseError] = useState<ResponseError | null>(
@@ -47,11 +49,11 @@ export default function SignInForm({ callbackUrl }: { callbackUrl?: Route }) {
           // which in turn causes a flash. Using window.location.replace() does
           // not cause this issue.
 
-          // router.replace(callbackUrl);
-          window.location.replace(callbackUrl);
+          router.replace(callbackUrl);
+          // window.location.replace(callbackUrl);
         } else {
-          // router.replace('/dashboard');
-          window.location.replace('/dashboard');
+          router.replace('/dashboard');
+          // window.location.replace('/dashboard');
         }
       }
     },
