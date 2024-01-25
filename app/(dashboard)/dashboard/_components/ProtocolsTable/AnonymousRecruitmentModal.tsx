@@ -84,8 +84,8 @@ export const AnonymousRecruitmentModal = () => {
               </Select>
             </div>
             {selectedProtocol && (
-              <div className="flex flex-row justify-between rounded-md bg-secondary p-4">
-                {url}
+              <div className="flex flex-row items-center justify-between gap-2 rounded-md bg-secondary p-4">
+                <div className="break-all">{url}</div>
                 <Button variant="ghost" size="icon">
                   <CopyButton text={url} />
                 </Button>
