@@ -7,6 +7,7 @@ import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
+import { AnonymousRecruitmentModal } from './AnonymousRecruitmentModal';
 
 export const ProtocolsTable = ({
   initialData,
@@ -35,6 +36,7 @@ export const ProtocolsTable = ({
 
   return (
     <>
+      <AnonymousRecruitmentModal />
       {isLoading && <div>Loading...</div>}
       <DataTable<ProtocolWithInterviews, string>
         columns={ProtocolColumns}
