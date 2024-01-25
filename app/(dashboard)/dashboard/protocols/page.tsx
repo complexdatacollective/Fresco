@@ -3,8 +3,6 @@ import ProtocolUploader from '../_components/ProtocolUploader';
 import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
 import { api } from '~/trpc/server';
 
-export const dynamic = 'force-dynamic';
-
 const ProtocolsPage = async () => {
   let protocols;
   try {

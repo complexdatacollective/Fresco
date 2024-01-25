@@ -1,3 +1,5 @@
+import { trackEvent } from '~/analytics/utils';
+
 export const importStatuses = [
   'Extracting protocol',
   'Validating protocol',
@@ -20,6 +22,7 @@ export type ImportJob = {
   status: ImportStatus;
   progress: number | null;
   error?: ErrorState;
+  rawError?: Error;
 };
 
 export const jobInitialState = [];
@@ -56,6 +59,7 @@ type UpdateErrorAction = {
   payload: {
     id: string;
     error: ErrorState;
+    rawError: Error;
   };
 };
 
@@ -91,6 +95,17 @@ export function jobReducer(state: ImportJob[], action: Action) {
         return state;
       }
 
+      // Send event to analytics when complete.
+      if (status === 'Complete') {
+        const { name: fileName } = job.file;
+        void trackEvent({
+          type: 'ProtocolInstalled',
+          metadata: {
+            protocol: fileName,
+          },
+        });
+      }
+
       return state.map((job) => {
         if (job.id === id) {
           return {
@@ -104,8 +119,18 @@ export function jobReducer(state: ImportJob[], action: Action) {
       });
     }
     case 'UPDATE_ERROR': {
-      const { id, error } = action.payload;
+      const { id, error, rawError } = action.payload;
       const job = state.find((job) => job.id === id);
+
+      void trackEvent({
+        type: 'Error',
+        error: {
+          details: 'Protocol import error',
+          message: rawError.message,
+          stacktrace: rawError.stack ?? '',
+          path: '',
+        },
+      });
 
       if (!job) {
         return state;

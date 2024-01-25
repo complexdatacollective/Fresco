@@ -11,7 +11,7 @@ import {
   type Row,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -23,7 +23,7 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
-import { Loader } from 'lucide-react';
+import { FileUp, Loader } from 'lucide-react';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -39,6 +39,7 @@ type DataTableProps<TData, TValue> = {
   data: TData[];
   filterColumnAccessorKey?: string;
   handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
+  handleExportSelected?: (data: TData[]) => void;
   actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
   actionsHeader?: React.ReactNode;
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
@@ -48,6 +49,7 @@ export function DataTable<TData, TValue>({
   columns = [],
   data,
   handleDeleteSelected,
+  handleExportSelected,
   filterColumnAccessorKey = '',
   actions,
   actionsHeader,
@@ -125,6 +127,16 @@ export function DataTable<TData, TValue>({
   }) as CustomTable<TData>;
 
   const hasSelectedRows = table.getSelectedRowModel().rows.length > 0;
+
+  const exportHandler = useCallback(() => {
+    const selectedData = table
+      .getSelectedRowModel()
+      .rows.map((r) => r.original);
+
+    handleExportSelected?.(selectedData);
+
+    setRowSelection({});
+  }, [handleExportSelected, table, setRowSelection]);
 
   return (
     <div>
@@ -237,6 +249,18 @@ export function DataTable<TData, TValue>({
             ) : (
               'Delete Selected'
             )}
+          </Button>
+        )}
+
+        {hasSelectedRows && handleExportSelected && (
+          <Button
+            onClick={exportHandler}
+            variant="default"
+            size="sm"
+            className="mx-2 gap-x-2.5"
+          >
+            Export Selected
+            <FileUp className="h-5 w-5" />
           </Button>
         )}
       </div>

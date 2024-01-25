@@ -42,11 +42,6 @@ export const ProtocolsTable = ({
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
-        calculateRowClasses={(row) =>
-          row.original.active
-            ? 'text-primary-foreground bg-primary hover:bg-primary/40'
-            : undefined
-        }
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}

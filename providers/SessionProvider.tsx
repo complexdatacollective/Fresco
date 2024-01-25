@@ -23,7 +23,17 @@ export const useSession = () => {
   return session;
 };
 
-type GetQueryReturn = Session | null;
+const compareSessions = (a: Session | null, b: Session | null) => {
+  if (a === null && b === null) {
+    return true;
+  }
+
+  if (a === null || b === null) {
+    return false;
+  }
+
+  return a.sessionId === b.sessionId;
+};
 
 export const SessionProvider = ({
   children,
@@ -42,9 +52,13 @@ export const SessionProvider = ({
       refetchOnMount: false,
       refetchOnWindowFocus: true,
       initialData: initialSession,
-      onSuccess: (data: GetQueryReturn) => {
-        if (data) {
-          setSession(data);
+      onSuccess: (data) => {
+        if (compareSessions(session, data)) {
+          // Check if the session has changed before updating state, as this
+          // will cause a re-render.
+          if (session) {
+            setSession(data);
+          }
         } else {
           setSession(null);
         }
@@ -68,18 +82,6 @@ export const SessionProvider = ({
         throw new Error(error.message);
       },
     });
-
-  // If we have an initial session, we don't need to fetch it again.
-  useEffect(() => {
-    if (initialSession) {
-      return;
-    }
-
-    getSession().catch((err: { message: string | undefined }) => {
-      setSession(null);
-      throw new Error(err.message);
-    });
-  }, [initialSession, getSession]);
 
   // If session changes from Session to null, refresh the router to trigger
   // the redirect to the login page.

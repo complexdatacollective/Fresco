@@ -7,10 +7,13 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 - Custom node label workers are not implemented.
 - Videos and audio cannot autoplay on load due to browser limitations. Participants must click the play button to start media.
+- The 'Use fullscreen forms' visual preference is not supported.
+- When exporting data, the "use screen layout coordinates" feature uses a hardcoded screen size of 1920 x 1080. Please note that this does not correspond to the screen size used by your participants.
 
 # Deployment instructions
 
 **1. Set up required servies**
+
 - Create a database with [PlanetScale](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide)
 - Create a new app on [uploadthing](https://uploadthing.com/)
 
@@ -28,11 +31,11 @@ Follow instructions to create a git repository to deploy from. This will contain
 
 Provide required environment variables from the services you set up in Step 1.
 
-| Variable           | Description                                                                                  |
-| ------------------ | -------------------------------------------------------------------------------------------- |
-| DATABASE_URL       |  [Database connection string](https://planetscale.com/docs/concepts/connection-strings)                                             |
-| UPLOADTHING_SECRET | API key for your [uploadthing app](https://uploadthing.com/dashboard) |
-| UPLOADTHING_APP_ID |  App ID for your  [uploadthing app](https://uploadthing.com/dashboard)                                                                                            |
+| Variable           | Description                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| DATABASE_URL       | [Database connection string](https://planetscale.com/docs/concepts/connection-strings) |
+| UPLOADTHING_SECRET | API key for your [uploadthing app](https://uploadthing.com/dashboard)                  |
+| UPLOADTHING_APP_ID | App ID for your [uploadthing app](https://uploadthing.com/dashboard)                   |
 
 **5. Deploy**
 

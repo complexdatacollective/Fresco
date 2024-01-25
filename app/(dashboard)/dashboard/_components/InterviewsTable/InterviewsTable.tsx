@@ -1,12 +1,14 @@
 'use client';
 
-import { DataTable } from '~/components/DataTable/DataTable';
-import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
-import { api } from '~/trpc/client';
 import { type Interview } from '@prisma/client';
+import { useEffect, useState } from 'react';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/ActionsDropdown';
-import { useState } from 'react';
+import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
+import { DataTable } from '~/components/DataTable/DataTable';
+import { Button } from '~/components/ui/Button';
+import { api } from '~/trpc/client';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
+import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
 
 export const InterviewsTable = () => {
   const interviews = api.interview.get.all.useQuery(undefined, {
@@ -15,13 +17,29 @@ export const InterviewsTable = () => {
     },
   });
 
-  const [interviewsToDelete, setInterviewsToDelete] = useState<Interview[]>();
+  const [selectedInterviews, setSelectedInterviews] = useState<Interview[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [unexportedInterviews, setUnexportedInterviews] = useState<Interview[]>(
+    [],
+  );
+
+  useEffect(() => {
+    if (interviews.data) {
+      setUnexportedInterviews(interviews.data.filter((i) => !i.exportTime));
+    }
+  }, [interviews.data]);
 
   const handleDelete = (data: Interview[]) => {
-    setInterviewsToDelete(data);
+    setSelectedInterviews(data);
     setShowDeleteModal(true);
   };
+
+  const handleExport = (data: Interview[]) => {
+    setSelectedInterviews(data);
+    setShowExportModal(true);
+  };
+
   if (!interviews.data) {
     return <div>Loading...</div>;
   }
@@ -36,16 +54,35 @@ export const InterviewsTable = () => {
 
   return (
     <>
+      <ExportInterviewsDialog
+        open={showExportModal}
+        setOpen={setShowExportModal}
+        setInterviewsToExport={setSelectedInterviews}
+        interviewsToExport={selectedInterviews ?? []}
+      />
       <DeleteInterviewsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        interviewsToDelete={interviewsToDelete ?? []}
+        interviewsToDelete={selectedInterviews ?? []}
       />
+      <div className="flex gap-2">
+        <Button onClick={() => handleExport(interviews.data)}>
+          Export all interviews
+        </Button>
+        <Button
+          variant={'outline'}
+          disabled={unexportedInterviews.length === 0}
+          onClick={() => handleExport(unexportedInterviews)}
+        >
+          Export all unexported interviews
+        </Button>
+      </div>
       <DataTable
         columns={InterviewColumns()}
         data={convertedData}
         filterColumnAccessorKey="id"
         handleDeleteSelected={handleDelete}
+        handleExportSelected={handleExport}
         actions={ActionsDropdown}
       />
     </>

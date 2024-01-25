@@ -1,24 +1,19 @@
 import { makeEventTracker } from '@codaco/analytics';
 import { cache } from 'react';
-import { api } from '~/trpc/server';
-import { getBaseUrl } from '~/trpc/shared';
+import { env } from '~/env.mjs';
+import { prisma } from '~/utils/db';
 
 export const getInstallationId = cache(async () => {
-  const installationId = await api.appSettings.getInstallationId.query();
-
-  if (installationId) {
-    return installationId;
+  if (env.INSTALLATION_ID) {
+    return env.INSTALLATION_ID;
   }
 
-  return 'Unknown';
+  // eslint-disable-next-line local-rules/require-data-mapper
+  const appSettings = await prisma.appSettings.findFirst();
+
+  return appSettings?.installationId ?? 'Unknown';
 });
 
-// eslint-disable-next-line no-process-env
-const globalAnalyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED;
-
-export const trackEvent =
-  globalAnalyticsEnabled !== 'false'
-    ? makeEventTracker({
-        endpoint: getBaseUrl() + '/api/analytics',
-      })
-    : () => {};
+export const trackEvent = !env.DISABLE_ANALYTICS
+  ? makeEventTracker()
+  : () => null;

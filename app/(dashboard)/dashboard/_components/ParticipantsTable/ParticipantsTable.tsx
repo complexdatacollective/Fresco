@@ -11,6 +11,7 @@ import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/partici
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
+
 export const ParticipantsTable = ({
   initialData,
 }: {
@@ -26,6 +27,7 @@ export const ParticipantsTable = ({
       },
     },
   );
+
   const [participantsToDelete, setParticipantsToDelete] =
     useState<ParticipantWithInterviews[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);

@@ -1,4 +1,5 @@
 import { NavigationBar } from './dashboard/_components/NavigationBar';
+import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Dashboard',
@@ -8,6 +9,7 @@ export const metadata = {
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
+      <FeedbackBanner />
       <NavigationBar />
       <div className="h-full">{children}</div>
     </>

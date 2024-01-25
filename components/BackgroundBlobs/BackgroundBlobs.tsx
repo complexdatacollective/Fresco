@@ -267,4 +267,4 @@ const BackgroundBlobs = memo(
 
 BackgroundBlobs.displayName = 'BackgroundBlobs';
 
-export default BackgroundBlobs;
+export default memo(BackgroundBlobs);

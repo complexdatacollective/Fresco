@@ -4,12 +4,14 @@ import { type Participant } from '@prisma/client';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
+import { useDownload } from '~/hooks/useDownload';
 
 function ExportCSVParticipants({
   participants,
 }: {
   participants: Participant[];
 }) {
+  const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = () => {
@@ -29,13 +31,8 @@ function ExportCSVParticipants({
       // Create a download link
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'participants.csv';
-
-      // Simulate a click on the link to trigger the download
-      link.click();
-
+      // trigger the download
+      download(url, 'participants.csv');
       // Clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {

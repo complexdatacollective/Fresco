@@ -1,5 +1,4 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import Banner from '~/components/Banner/Banner';
 import RedirectWrapper from '~/components/RedirectWrapper';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
@@ -11,8 +10,6 @@ export const metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
-
-export const dynamic = 'force-dynamic';
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
@@ -26,19 +23,18 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <html lang="en" className="">
-      <body className="bg-slate-100">
-        <RedirectWrapper
-          configured={!!appSettings?.configured}
-          expired={!!appSettings?.expired}
-          session={session}
-        >
-          <Providers initialSession={session}>
-            {/* <Banner /> */}
+    <html lang="en">
+      <body>
+        <Providers initialSession={session}>
+          <RedirectWrapper
+            configured={!!appSettings?.configured}
+            expired={!!appSettings?.expired}
+            session={session}
+          >
             {children}
-          </Providers>
-          <Toaster />
-        </RedirectWrapper>
+            <Toaster />
+          </RedirectWrapper>
+        </Providers>
       </body>
     </html>
   );
