@@ -1,7 +1,6 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import Link from 'next/link';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
 import type { ParticipantWithInterviews } from '~/shared/types';
@@ -43,23 +42,5 @@ export const ParticipantColumns =
       cell: ({ row }) => {
         return <span>{row.original._count.interviews}</span>;
       },
-    },
-    {
-      accessorKey: 'Unique_interview_URL',
-      header: ({ column }) => {
-        return (
-          <DataTableColumnHeader column={column} title="Unique interview URL" />
-        );
-      },
-      cell: ({ row }) => (
-        <Link
-          className="text-blue-500 underline hover:text-blue-300"
-          href={`/interview/new?identifier=${row.original.id}`}
-        >
-          Participant link
-        </Link>
-      ),
-      enableSorting: false,
-      enableHiding: false,
     },
   ];
