@@ -1,5 +1,5 @@
 'use client';
-import type { Protocol } from '@prisma/client';
+import type { Participant, Protocol } from '@prisma/client';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -19,15 +19,23 @@ import {
 
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
-import ExportCSVParticipants from '../../participants/_components/ExportCSVParticipants';
+import ExportCSVParticipants from '../participants/_components/ExportCSVParticipants';
+import { ParticipantSelectionDropdown } from './ParticipantSelectionDropdown';
 
-export const RecruitmentModal = () => {
+export const RecruitmentModal = ({
+  allowSelectParticipants,
+  description,
+}: {
+  allowSelectParticipants?: boolean;
+  description: string;
+}) => {
   const { data: protocolData, isLoading: isLoadingProtocols } =
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
 
-  const { data: participants, isLoading: isLoadingParticipants } =
+  const { data: participantData, isLoading: isLoadingParticipants } =
     api.participant.get.all.useQuery();
 
   useEffect(() => {
@@ -35,6 +43,12 @@ export const RecruitmentModal = () => {
       setProtocols(protocolData);
     }
   }, [protocolData]);
+
+  useEffect(() => {
+    if (participantData) {
+      setParticipants(participantData);
+    }
+  }, [participantData]);
 
   return (
     <Dialog onOpenChange={() => setSelectedProtocol(undefined)}>
@@ -44,12 +58,10 @@ export const RecruitmentModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Participation URLs</DialogTitle>
-          <DialogDescription>
-            Generate a CSV of participation URLs for all participants by
-            protocol.
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4">
+          {/* Protocol selection */}
           <Select
             onValueChange={(value) => {
               const protocol = protocols.find(
@@ -72,6 +84,15 @@ export const RecruitmentModal = () => {
               ))}
             </SelectContent>
           </Select>
+          {/* Participant selection if enabled */}
+          {allowSelectParticipants && (
+            <ParticipantSelectionDropdown
+              participants={participants}
+              disabled={!selectedProtocol}
+              setParticipantsToExport={setParticipants}
+            />
+          )}
+
           <ExportCSVParticipants
             protocolId={selectedProtocol?.id}
             participants={participants}

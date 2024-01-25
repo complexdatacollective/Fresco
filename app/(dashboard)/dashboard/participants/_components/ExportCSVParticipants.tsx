@@ -1,6 +1,7 @@
 'use client';
 
 import { type Participant } from '@prisma/client';
+import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
@@ -64,7 +65,8 @@ function ExportCSVParticipants({
 
   return (
     <Button disabled={disabled || isExporting} onClick={handleExport}>
-      {isExporting ? 'Exporting...' : 'Export'}
+      <Download className="mr-2 h-4 w-4" />
+      {isExporting ? 'Exporting...' : 'Export Participation URLs'}
     </Button>
   );
 }
