@@ -7,7 +7,7 @@ import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { AnonymousRecruitmentModal } from './AnonymousRecruitmentModal';
+import { AnonymousRecruitmentSection } from './AnonymousRecruitmentSection';
 import { RecruitmentModal } from '../RecruitmentModal';
 
 export const ProtocolsTable = ({
@@ -38,7 +38,7 @@ export const ProtocolsTable = ({
   return (
     <>
       <div className="flex gap-2">
-        <AnonymousRecruitmentModal />
+        <AnonymousRecruitmentSection />
         <RecruitmentModal
           allowSelectParticipants
           description="Generate a CSV of participation URLs for selected participants by protocol."
