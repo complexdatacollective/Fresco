@@ -10,7 +10,6 @@ import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/partici
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-import { RecruitmentModal } from '~/app/(dashboard)/dashboard/_components/RecruitmentModal';
 
 export const ParticipantsTable = ({
   initialData,
@@ -43,10 +42,6 @@ export const ParticipantsTable = ({
         <AddParticipantButton existingParticipants={participants} />
         <ImportCSVModal />
         <DeleteAllParticipantsButton />
-        <RecruitmentModal
-          description="Generate a CSV of participation URLs for all participants by
-            protocol."
-        />
       </div>
       {isLoading && <div>Loading...</div>}
       <DeleteParticipantsDialog

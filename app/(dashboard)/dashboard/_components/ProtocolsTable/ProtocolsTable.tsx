@@ -8,7 +8,7 @@ import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_co
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import { AnonymousRecruitmentSection } from './AnonymousRecruitmentSection';
-import { RecruitmentModal } from '../RecruitmentModal';
+import { ParticipationUrlModal } from '~/app/(dashboard)/dashboard/protocols/_components/ParticipationUrlModal';
 
 export const ProtocolsTable = ({
   initialData,
@@ -39,10 +39,7 @@ export const ProtocolsTable = ({
     <>
       <div className="flex gap-2">
         <AnonymousRecruitmentSection />
-        <RecruitmentModal
-          allowSelectParticipants
-          description="Generate a CSV of participation URLs for selected participants by protocol."
-        />
+        <ParticipationUrlModal />
       </div>
       {isLoading && <div>Loading...</div>}
       <DataTable<ProtocolWithInterviews, string>

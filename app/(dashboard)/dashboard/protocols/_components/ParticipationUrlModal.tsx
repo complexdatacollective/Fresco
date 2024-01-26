@@ -19,16 +19,10 @@ import {
 
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
-import ExportCSVParticipants from '../participants/_components/ExportCSVParticipants';
-import { ParticipantSelectionDropdown } from './ParticipantSelectionDropdown';
+import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
+import { ParticipantSelectionDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantSelectionDropdown';
 
-export const RecruitmentModal = ({
-  allowSelectParticipants,
-  description,
-}: {
-  allowSelectParticipants?: boolean;
-  description: string;
-}) => {
+export const ParticipationUrlModal = () => {
   const { data: protocolData, isLoading: isLoadingProtocols } =
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
@@ -53,21 +47,18 @@ export const RecruitmentModal = ({
     }
   }, [participantData]);
 
-  useEffect(() => {
-    if (!allowSelectParticipants) {
-      setParticipantsToExport(participants);
-    }
-  }, [allowSelectParticipants, participants]);
-
   return (
     <Dialog onOpenChange={() => setSelectedProtocol(undefined)}>
       <DialogTrigger asChild>
-        <Button>Participation URLs</Button>
+        <Button>Export Participation URLs</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Participation URLs</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>Export Participation URLs</DialogTitle>
+          <DialogDescription>
+            Generate a CSV of participation URLs for selected participants by
+            protocol.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           {/* Protocol selection */}
@@ -93,14 +84,12 @@ export const RecruitmentModal = ({
               ))}
             </SelectContent>
           </Select>
-          {/* Participant selection if enabled */}
-          {allowSelectParticipants && (
-            <ParticipantSelectionDropdown
-              participants={participants}
-              disabled={!selectedProtocol}
-              setParticipantsToExport={setParticipantsToExport}
-            />
-          )}
+
+          <ParticipantSelectionDropdown
+            participants={participants}
+            disabled={!selectedProtocol}
+            setParticipantsToExport={setParticipantsToExport}
+          />
 
           <ExportCSVParticipants
             protocolId={selectedProtocol?.id}
