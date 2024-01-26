@@ -10,7 +10,7 @@ import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/partici
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-
+import { ExportParticipantUrlSection } from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipantUrlSection';
 export const ParticipantsTable = ({
   initialData,
 }: {
@@ -43,6 +43,7 @@ export const ParticipantsTable = ({
         <ImportCSVModal />
         <DeleteAllParticipantsButton />
       </div>
+      <ExportParticipantUrlSection />
       {isLoading && <div>Loading...</div>}
       <DeleteParticipantsDialog
         open={showDeleteModal}
