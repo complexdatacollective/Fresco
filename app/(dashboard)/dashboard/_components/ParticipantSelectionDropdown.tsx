@@ -36,7 +36,9 @@ export function ParticipantSelectionDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button disabled={disabled} variant="outline">
-          Select Participants
+          {selectedParticipants.length === participants.length
+            ? 'All Participants Selected'
+            : `${selectedParticipants.length} Participants Selected`}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-auto">
