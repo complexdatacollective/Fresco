@@ -10,10 +10,9 @@ const CopyButton: FC<CopyButtonProps> = ({ text }) => {
   const { toast } = useToast();
 
   const handleCopyClick = () => {
-    const copyText = text;
-    if (copyText) {
+    if (text) {
       navigator.clipboard
-        .writeText(copyText)
+        .writeText(text)
         .then(() => {
           toast({
             description: 'Copied to clipboard',

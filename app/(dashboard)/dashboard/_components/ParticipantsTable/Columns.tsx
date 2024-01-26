@@ -4,6 +4,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
 import type { ParticipantWithInterviews } from '~/shared/types';
+import { GetParticipantURLButton } from './GetParticipantURLButton';
 
 export const ParticipantColumns =
   (): ColumnDef<ParticipantWithInterviews>[] => [
@@ -41,6 +42,12 @@ export const ParticipantColumns =
       },
       cell: ({ row }) => {
         return <span>{row.original._count.interviews}</span>;
+      },
+    },
+    {
+      id: 'participant-url',
+      cell: ({ row }) => {
+        return <GetParticipantURLButton participant={row.original} />;
       },
     },
   ];
