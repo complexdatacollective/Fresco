@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 
 import { Button } from '~/components/ui/Button';
@@ -23,6 +21,7 @@ type ParticipantSelectionDropdownProps = {
 export function ParticipantSelectionDropdown({
   participants,
   disabled,
+  setParticipantsToExport,
 }: ParticipantSelectionDropdownProps) {
   const [selectedParticipants, setSelectedParticipants] = useState<
     Participant[]
@@ -30,7 +29,11 @@ export function ParticipantSelectionDropdown({
 
   useEffect(() => {
     setSelectedParticipants(participants);
-  }, [participants]);
+  }, [participants, setParticipantsToExport]);
+
+  useEffect(() => {
+    setParticipantsToExport(selectedParticipants);
+  }, [selectedParticipants, setParticipantsToExport]);
 
   return (
     <DropdownMenu>

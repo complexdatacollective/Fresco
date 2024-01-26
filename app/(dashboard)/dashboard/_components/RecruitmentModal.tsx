@@ -33,6 +33,9 @@ export const RecruitmentModal = ({
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [participantsToExport, setParticipantsToExport] = useState<
+    Participant[] | undefined
+  >([]);
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
 
   const { data: participantData, isLoading: isLoadingParticipants } =
@@ -49,6 +52,12 @@ export const RecruitmentModal = ({
       setParticipants(participantData);
     }
   }, [participantData]);
+
+  useEffect(() => {
+    if (!allowSelectParticipants) {
+      setParticipantsToExport(participants);
+    }
+  }, [allowSelectParticipants, participants]);
 
   return (
     <Dialog onOpenChange={() => setSelectedProtocol(undefined)}>
@@ -89,13 +98,13 @@ export const RecruitmentModal = ({
             <ParticipantSelectionDropdown
               participants={participants}
               disabled={!selectedProtocol}
-              setParticipantsToExport={setParticipants}
+              setParticipantsToExport={setParticipantsToExport}
             />
           )}
 
           <ExportCSVParticipants
             protocolId={selectedProtocol?.id}
-            participants={participants}
+            participants={participantsToExport}
             disabled={isLoadingParticipants || !selectedProtocol}
           />
         </div>
