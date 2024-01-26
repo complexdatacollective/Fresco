@@ -89,7 +89,7 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
   },
   {
     id: 'participant-url',
-    header: 'Participant URL',
+    header: 'Anonymous Participation URL',
     cell: ({ row }) => {
       return <AnonymousRecruitmentURLButton protocolId={row.original.id} />;
     },

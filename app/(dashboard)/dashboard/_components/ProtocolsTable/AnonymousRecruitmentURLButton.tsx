@@ -4,12 +4,16 @@ import { Badge } from '~/components/ui/badge';
 import { getBaseUrl } from '~/trpc/shared';
 import { useToast } from '~/components/ui/use-toast';
 import { Copy } from 'lucide-react';
+import { api } from '~/trpc/client';
 
 export const AnonymousRecruitmentURLButton = ({
   protocolId,
 }: {
   protocolId: string;
 }) => {
+  const { data: appSettings } = api.appSettings.get.useQuery();
+  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
+
   const { toast } = useToast();
   const url = `${getBaseUrl()}/onboard/${protocolId}`;
   const handleCopyClick = () => {
@@ -35,10 +39,14 @@ export const AnonymousRecruitmentURLButton = ({
 
   return (
     <>
-      <Badge onClick={handleCopyClick} variant="secondary">
-        {url}
-        <Copy className="ml-2 h-4 w-4" />
-      </Badge>
+      {allowAnonymousRecruitment ? (
+        <Badge onClick={handleCopyClick}>
+          {url}
+          <Copy className="ml-2 h-4 w-4" />
+        </Badge>
+      ) : (
+        <Badge variant="destructive">Disabled</Badge>
+      )}
     </>
   );
 };
