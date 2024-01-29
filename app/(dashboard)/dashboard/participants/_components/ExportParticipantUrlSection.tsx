@@ -11,7 +11,7 @@ import {
 } from '~/components/ui/select';
 
 import { api } from '~/trpc/client';
-import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
+import ExportCSVParticipantURLs from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipantURLs';
 
 export const ExportParticipantUrlSection = () => {
   const { data: protocolData, isLoading: isLoadingProtocols } =
@@ -69,8 +69,8 @@ export const ExportParticipantUrlSection = () => {
           </SelectContent>
         </Select>
 
-        <ExportCSVParticipants
-          protocolId={selectedProtocol?.id}
+        <ExportCSVParticipantURLs
+          protocol={selectedProtocol}
           participants={participants}
           disabled={isLoadingParticipants || !selectedProtocol}
         />

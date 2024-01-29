@@ -11,6 +11,7 @@ import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_comp
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 import { ExportParticipantUrlSection } from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipantUrlSection';
+import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
 export const ParticipantsTable = ({
   initialData,
 }: {
@@ -41,6 +42,7 @@ export const ParticipantsTable = ({
       <div className="flex gap-2">
         <AddParticipantButton existingParticipants={participants} />
         <ImportCSVModal />
+        <ExportParticipants participants={participants} />
         <DeleteAllParticipantsButton />
       </div>
       <ExportParticipantUrlSection />

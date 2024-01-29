@@ -19,7 +19,7 @@ import {
 
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
-import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
+import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipantURLs';
 import { ParticipantSelectionDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantSelectionDropdown';
 
 export const ParticipationUrlModal = () => {
