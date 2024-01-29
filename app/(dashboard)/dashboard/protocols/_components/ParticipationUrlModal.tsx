@@ -92,7 +92,7 @@ export const ParticipationUrlModal = () => {
           />
 
           <ExportCSVParticipants
-            protocolId={selectedProtocol?.id}
+            protocol={selectedProtocol}
             participants={participantsToExport}
             disabled={isLoadingParticipants || !selectedProtocol}
           />

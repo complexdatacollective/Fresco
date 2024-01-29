@@ -1,6 +1,6 @@
 'use client';
 
-import { Protocol, type Participant } from '@prisma/client';
+import type { Protocol, Participant } from '@prisma/client';
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
