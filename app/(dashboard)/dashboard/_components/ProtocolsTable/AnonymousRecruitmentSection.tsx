@@ -1,10 +1,7 @@
 'use client';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 
-import { api } from '~/trpc/client';
-
-import { AnonymousRecruitmentModal } from '../../protocols/_components/AnonymousRecruitmentModal';
-
+import { AnonymousRecruitmentModal } from '~/app/(dashboard)/dashboard/protocols/_components/AnonymousRecruitmentModal';
 export const AnonymousRecruitmentSection = () => {
   return (
     <div className="flex w-1/3 flex-col gap-4 rounded-lg border border-solid p-6">

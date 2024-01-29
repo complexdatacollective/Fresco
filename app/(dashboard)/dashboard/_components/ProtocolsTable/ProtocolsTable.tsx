@@ -37,7 +37,7 @@ export const ProtocolsTable = ({
 
   return (
     <>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 pt-2">
         <AnonymousRecruitmentSection />
         <ParticipationUrlModal />
       </div>
