@@ -3,13 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Spacing */
-    --spacing: 0.6rem;
-
-    /* Border */
-    --radius: 0.75rem;
-    
+  :root {    
     /* UI Colors */
     // To generate dark color variants, subtract 5% from the lightness.
     --dark-mod: 5%;
@@ -114,17 +108,17 @@
     --tomato--dark: var(--tomato-hue) var(--tomato-saturation) calc(var(--tomato-lightness) - var(--dark-mod));
 
     // Semantic slots
-    --background: 0 0% 100%;
-    --foreground: var(--rich-black);
+    --background: var(--platinum);
+    --foreground: var(--cyber-grape);
  
-    --primary: var(--slate-blue);
+    --primary: var(--slate-blue--dark);
     --primary-foreground: var(--platinum);
  
-    --secondary: var(var(--neon-coral))
+    --secondary: var(--neon-coral)
     --secondary-foreground: 222.2 47.4% 11.2%;
  
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: yellow;
+    --muted-foreground: var(--charcoal);
  
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -143,15 +137,19 @@
 
     --border: var(--charcoal);
 
+    // Card BG white
+    --card: 0 0% 100%;
+
     --panel: var(--platinum);
   }
 }
  
 @layer base {
   * {
-    @apply border-platinum;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Open Sans', sans-serif;
   }
 }

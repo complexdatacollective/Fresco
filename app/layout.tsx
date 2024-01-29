@@ -5,11 +5,18 @@ import '~/styles/globals.scss';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
 import Providers from '../providers/Providers';
+import { Quicksand } from 'next/font/google';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
   description: 'Fresco.',
 };
+
+const poppins = Quicksand({
+  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+});
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
@@ -24,7 +31,7 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
-      <body>
+      <body className={`${poppins.className} antialiased`}>
         <Providers initialSession={session}>
           <RedirectWrapper
             configured={!!appSettings?.configured}

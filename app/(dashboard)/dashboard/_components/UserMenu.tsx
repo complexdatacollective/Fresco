@@ -6,7 +6,11 @@ import { useSession } from '~/providers/SessionProvider';
 const UserMenu = () => {
   const { signOut } = useSession();
 
-  return <Button onClick={() => void signOut()}>Sign out</Button>;
+  return (
+    <Button variant="outline" onClick={signOut}>
+      Sign out
+    </Button>
+  );
 };
 
 export default UserMenu;

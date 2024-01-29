@@ -14,9 +14,7 @@ const AnalyticsButton = () => {
 
   return (
     <>
-      <Button onClick={() => sendEvent()}>
-        Send protocol installed event to analytics
-      </Button>
+      <Button onClick={() => sendEvent()}>Send test event</Button>
     </>
   );
 };

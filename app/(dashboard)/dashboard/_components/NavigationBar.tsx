@@ -34,45 +34,37 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-center pt-6">
-      <motion.nav
-        className="bg-cyber-grape sticky top-6 z-10 flex items-center justify-between gap-4 rounded-full px-4 py-2 text-primary-foreground"
-        initial={{ y: '-100%', opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: '-100%', opacity: 0 }}
-        transition={{ type: 'spring', mass: 1, damping: 10 }}
+    <motion.nav className="bg-violet-700 flex items-center justify-between gap-4 px-4 py-2">
+      <Link href="/" className="flex items-center space-x-2">
+        <Image
+          src="/images/NC-Mark@4x.png"
+          alt="Fresco"
+          width={40}
+          height={40}
+        />
+      </Link>
+      <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
+        Home
+      </NavButton>
+      <NavButton
+        href="/dashboard/protocols"
+        isActive={pathname === '/dashboard/protocols'}
       >
-        <Link href="/" className="flex items-center space-x-2">
-          <Image
-            src="/images/NC-Mark@4x.png"
-            alt="Fresco"
-            width={60}
-            height={60}
-          />
-        </Link>
-        <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
-          Home
-        </NavButton>
-        <NavButton
-          href="/dashboard/protocols"
-          isActive={pathname === '/dashboard/protocols'}
-        >
-          Protocols
-        </NavButton>
-        <NavButton
-          href="/dashboard/interviews"
-          isActive={pathname === '/dashboard/interviews'}
-        >
-          Interviews
-        </NavButton>
-        <NavButton
-          href="/dashboard/participants"
-          isActive={pathname === '/dashboard/participants'}
-        >
-          Participants
-        </NavButton>
-        <UserMenu />
-      </motion.nav>
-    </div>
+        Protocols
+      </NavButton>
+      <NavButton
+        href="/dashboard/interviews"
+        isActive={pathname === '/dashboard/interviews'}
+      >
+        Interviews
+      </NavButton>
+      <NavButton
+        href="/dashboard/participants"
+        isActive={pathname === '/dashboard/participants'}
+      >
+        Participants
+      </NavButton>
+      <UserMenu />
+    </motion.nav>
   );
 }

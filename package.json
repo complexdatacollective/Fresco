@@ -117,6 +117,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@domchristie/tailwind-utopia": "^1.1.1",
     "@faker-js/faker": "^8.2.0",
     "@maxmind/geoip2-node": "^5.0.0",
     "@prisma/client": "^5.8.1",

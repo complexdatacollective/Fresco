@@ -8,6 +8,7 @@ import FeedbackButton from './FeedbackButton';
 import { useState } from 'react';
 import SignOutModal from './SignOutModal';
 import { usePathname } from 'next/navigation';
+import Paragraph from '../ui/typography/Paragraph';
 
 const FeedbackBanner = () => {
   const [openSignOutModal, setOpenSignOutModal] = useState(false);
@@ -65,19 +66,21 @@ const FeedbackBanner = () => {
           </>
         )}
         <div className="flex flex-grow items-center justify-center gap-x-4">
-          <p className="m-0 text-sm leading-6 text-gray-900">
+          <Paragraph className="hidden lg:inline" variant="noMargin">
             <strong className="font-semibold">
               🤖 Fresco is Alpha software
             </strong>
             <svg
               viewBox="0 0 2 2"
-              className="mx-2 inline h-0.5 w-0.5 fill-current"
+              className="fill-current mx-2 inline h-0.5 w-0.5"
               aria-hidden="true"
             >
               <circle cx={1} cy={1} r={1} />
             </svg>
+          </Paragraph>
+          <Paragraph variant="noMargin">
             We depend on your feedback and issue reports to improve!
-          </p>
+          </Paragraph>
           <FeedbackButton />
         </div>
         {!isDashboard && (

@@ -4,7 +4,7 @@ import { cn } from '~/utils/shadcn';
 import { useRouter } from 'next/navigation';
 import OnboardSteps from '../_components/Sidebar';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { userFormClasses } from '../_shared';
+import { containerClasses } from '../_shared';
 import { useSession } from '~/providers/SessionProvider';
 import React, { useEffect } from 'react';
 import { api } from '~/trpc/client';
@@ -79,7 +79,7 @@ function Page() {
     }
   }, [isLoading, session, currentStep, setCurrentStep]);
 
-  const cardClasses = cn(userFormClasses, 'flex-row bg-transparent p-0 gap-6');
+  const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
 
   return (

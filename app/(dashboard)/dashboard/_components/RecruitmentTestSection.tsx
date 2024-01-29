@@ -5,6 +5,7 @@ import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
+import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import {
   Select,
@@ -13,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
 
@@ -60,85 +63,92 @@ const RecruitmentTestSection = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-muted p-6">
-      <h1 className="text-xl">Recruitment Test Section</h1>
-      <div className="flex justify-between">
-        <p>Allow anonymous recruitment?</p>
-        <RecruitmentSwitch />
+    <Section>
+      <div>
+        <Heading variant="h4">Recruitment Test Section</Heading>
+        <Paragraph variant="noMargin" className="leading-normal">
+          This section allows you to test recruitment.
+        </Paragraph>
       </div>
-      <div className="flex gap-4">
-        <Select
-          onValueChange={(value) => {
-            const protocol = protocols.find(
-              (protocol) => protocol.id === value,
-            );
+      <div>
+        <div className="flex justify-between">
+          <p>Allow anonymous recruitment?</p>
+          <RecruitmentSwitch />
+        </div>
+        <div className="flex gap-4">
+          <Select
+            onValueChange={(value) => {
+              const protocol = protocols.find(
+                (protocol) => protocol.id === value,
+              );
 
-            setSelectedProtocol(protocol);
-          }}
-          value={selectedProtocol?.id}
-          disabled={isLoadingProtocols}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a Protocol..." />
-          </SelectTrigger>
-          <SelectContent>
-            {protocols?.map((protocol) => (
-              <SelectItem key={protocol.id} value={protocol.id}>
-                {protocol.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          onValueChange={(value) => {
-            const participant = participants?.find(
-              (participant) => participant.id === value,
-            );
+              setSelectedProtocol(protocol);
+            }}
+            value={selectedProtocol?.id}
+            disabled={isLoadingProtocols}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a Protocol..." />
+            </SelectTrigger>
+            <SelectContent>
+              {protocols?.map((protocol) => (
+                <SelectItem key={protocol.id} value={protocol.id}>
+                  {protocol.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={(value) => {
+              const participant = participants?.find(
+                (participant) => participant.id === value,
+              );
 
-            setSelectedParticipant(participant);
-          }}
-          value={selectedParticipant?.id}
-          disabled={isLoadingParticipants}
+              setSelectedParticipant(participant);
+            }}
+            value={selectedParticipant?.id}
+            disabled={isLoadingParticipants}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a Participant..." />
+            </SelectTrigger>
+            <SelectContent>
+              {participants?.map((participant) => (
+                <SelectItem key={participant.id} value={participant.id}>
+                  {participant.identifier}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button
+          disabled={buttonDisabled}
+          onClick={() => router.push(getInterviewURL())}
         >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a Participant..." />
-          </SelectTrigger>
-          <SelectContent>
-            {participants?.map((participant) => (
-              <SelectItem key={participant.id} value={participant.id}>
-                {participant.identifier}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          Start Interview with GET
+        </Button>
+        <Button
+          disabled={buttonDisabled}
+          onClick={async () =>
+            await fetch(getBaseUrl() + getInterviewURL(), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                participantId: selectedParticipant?.id,
+              }),
+            }).then((response) => {
+              if (response.redirected) {
+                window.location.href = response.url;
+              }
+            })
+          }
+        >
+          Start Interview with POST
+        </Button>
       </div>
-      <Button
-        disabled={buttonDisabled}
-        onClick={() => router.push(getInterviewURL())}
-      >
-        Start Interview with GET
-      </Button>
-      <Button
-        disabled={buttonDisabled}
-        onClick={async () =>
-          await fetch(getBaseUrl() + getInterviewURL(), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              participantId: selectedParticipant?.id,
-            }),
-          }).then((response) => {
-            if (response.redirected) {
-              window.location.href = response.url;
-            }
-          })
-        }
-      >
-        Start Interview with POST
-      </Button>
-    </div>
+    </Section>
   );
 };
 

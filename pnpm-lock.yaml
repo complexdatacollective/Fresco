@@ -295,6 +295,9 @@ dependencies:
     version: 3.22.4
 
 devDependencies:
+  '@domchristie/tailwind-utopia':
+    specifier: ^1.1.1
+    version: 1.1.1(tailwindcss@3.3.3)
   '@faker-js/faker':
     specifier: ^8.2.0
     version: 8.2.0
@@ -1852,6 +1855,14 @@ packages:
   /@discoveryjs/json-ext@0.5.7:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
     engines: {node: '>=10.0.0'}
+    dev: true
+
+  /@domchristie/tailwind-utopia@1.1.1(tailwindcss@3.3.3):
+    resolution: {integrity: sha512-xlCDyC8rTjfYdLyWGCrRhwiTRskyGlxuowxtIK3+khGAT9TGqvFLP7H5+lbSY1Vwg1QlxZsMyi5IV/BK+/igVA==}
+    peerDependencies:
+      tailwindcss: ^3
+    dependencies:
+      tailwindcss: 3.3.3(ts-node@10.9.1)
     dev: true
 
   /@emotion/is-prop-valid@0.8.8:
