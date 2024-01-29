@@ -40,8 +40,8 @@ export const AnonymousRecruitmentURLButton = ({
   return (
     <>
       {allowAnonymousRecruitment ? (
-        <Badge onClick={handleCopyClick}>
-          {url}
+        <Badge onClick={handleCopyClick} className="cursor-pointer">
+          <p className="w-36 truncate">{url}</p>
           <Copy className="ml-2 h-4 w-4" />
         </Badge>
       ) : (
