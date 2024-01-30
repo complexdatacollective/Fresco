@@ -9,6 +9,7 @@ import { BookOpen, Calendar, Users } from 'lucide-react';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { Suspense } from 'react';
+import { Divider } from '~/components/ui/Divider';
 
 const StatCard = ({
   title,
@@ -19,7 +20,7 @@ const StatCard = ({
   value?: string;
   icon?: React.ReactNode;
 }) => (
-  <Card className="shadow-lg">
+  <Card>
     <CardHeader>
       <div className="flex items-center">
         {icon}
@@ -43,7 +44,7 @@ function Home() {
       </ResponsiveContainer>
       <ResponsiveContainer
         className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-        size="large"
+        maxWidth="5xl"
       >
         <StatCard
           title="Protocols"
@@ -64,7 +65,9 @@ function Home() {
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>
         <Paragraph>Here you can see your recent activity.</Paragraph>
+        <ActivityFeed />
       </ResponsiveContainer>
+      <Divider />
       <>
         <ResponsiveContainer>
           <PageHeader
@@ -72,10 +75,10 @@ function Home() {
             subHeaderText="Here you can configure your installation of Fresco."
           />
         </ResponsiveContainer>
-        <ResponsiveContainer size="large" className="gap-4">
+        <ResponsiveContainer maxWidth="5xl" className="gap-4">
           <Section>
             <div>
-              <Heading variant="h4" className="mb-2">
+              <Heading variant="h4-all-caps" className="mb-2">
                 Reset Settings
               </Heading>
               <Paragraph variant="noMargin" className="leading-normal">

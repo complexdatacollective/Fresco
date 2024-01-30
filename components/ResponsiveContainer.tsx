@@ -4,23 +4,36 @@ import { cn } from '~/utils/shadcn';
 
 const containerVariants = cva('mx-auto flex flex-col my-10', {
   variants: {
-    size: {
-      small: 'w-[60%] max-w-xl',
-      medium: 'w-[80%] max-w-3xl',
-      large: 'w-[90%] max-w-5xl',
+    maxWidth: {
+      'xl': 'max-w-xl',
+      '3xl': 'max-w-3xl',
+      '5xl': 'max-w-5xl',
+    },
+    baseSize: {
+      '60%': 'w-[60%]',
+      '80%': 'w-[80%]',
+      '90%': 'w-[90%]',
+      '100%': 'w-[100%]',
     },
   },
   defaultVariants: {
-    size: 'medium',
+    maxWidth: '3xl',
+    baseSize: '90%',
   },
 });
 
 export type ContainerProps = {
-  size?: VariantProps<typeof containerVariants>['size'];
+  maxWidth?: VariantProps<typeof containerVariants>['maxWidth'];
 } & HTMLAttributes<HTMLDivElement>;
 
-const ResponsiveContainer = ({ children, size, className }: ContainerProps) => (
-  <div className={cn(containerVariants({ size }), className)}>{children}</div>
+const ResponsiveContainer = ({
+  children,
+  maxWidth,
+  className,
+}: ContainerProps) => (
+  <div className={cn(containerVariants({ maxWidth }), className)}>
+    {children}
+  </div>
 );
 
 export default ResponsiveContainer;

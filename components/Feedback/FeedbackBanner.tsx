@@ -66,20 +66,11 @@ const FeedbackBanner = () => {
           </>
         )}
         <div className="flex flex-grow items-center justify-center gap-x-4">
-          <Paragraph className="hidden lg:inline" variant="noMargin">
-            <strong className="font-semibold">
-              🤖 Fresco is Alpha software
-            </strong>
-            <svg
-              viewBox="0 0 2 2"
-              className="fill-current mx-2 inline h-0.5 w-0.5"
-              aria-hidden="true"
-            >
-              <circle cx={1} cy={1} r={1} />
-            </svg>
-          </Paragraph>
           <Paragraph variant="noMargin">
-            We depend on your feedback and issue reports to improve!
+            <strong className="hidden font-semibold lg:inline">
+              🤖 Fresco is Alpha software –{' '}
+            </strong>
+            We depend on your feedback and issue reports to improve
           </Paragraph>
           <FeedbackButton />
         </div>

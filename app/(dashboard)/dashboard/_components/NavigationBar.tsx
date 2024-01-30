@@ -44,7 +44,7 @@ export function NavigationBar() {
         />
       </Link>
       <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
-        Home
+        Dashboard
       </NavButton>
       <NavButton
         href="/dashboard/protocols"
@@ -63,6 +63,12 @@ export function NavigationBar() {
         isActive={pathname === '/dashboard/participants'}
       >
         Participants
+      </NavButton>
+      <NavButton
+        href="/dashboard/settings"
+        isActive={pathname === '/dashboard/settings'}
+      >
+        Settings
       </NavButton>
       <UserMenu />
     </motion.nav>

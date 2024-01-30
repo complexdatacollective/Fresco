@@ -1,7 +1,14 @@
-const Section = ({ children }: { children: React.ReactNode }) => (
-  <section className="flex space-y-4 rounded-xl bg-card p-6">
-    {children}
-  </section>
+import { cn } from '~/utils/shadcn';
+import { cardClasses } from '../ui/card';
+
+const Section = ({
+  children,
+  classNames,
+}: {
+  children: React.ReactNode;
+  classNames?: string;
+}) => (
+  <section className={cn(cardClasses, 'p-6', classNames)}>{children}</section>
 );
 
 export default Section;
