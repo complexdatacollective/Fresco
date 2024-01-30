@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import type { Row } from '@tanstack/react-table';
-import CopyButton from './CopyButton';
 import { useState } from 'react';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
@@ -72,10 +71,6 @@ export const ActionsDropdown = ({
           <DropdownMenuItem onClick={() => handleDelete(row.original)}>
             Delete
           </DropdownMenuItem>
-
-          <CopyButton text={`/interview/${row.original.id}`}>
-            Copy URL
-          </CopyButton>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

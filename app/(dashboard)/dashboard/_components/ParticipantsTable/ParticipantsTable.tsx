@@ -4,14 +4,14 @@ import { api } from '~/trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
-import ExportCSVParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipants';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-
+import { ExportParticipantUrlSection } from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipantUrlSection';
+import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
 export const ParticipantsTable = ({
   initialData,
 }: {
@@ -42,9 +42,10 @@ export const ParticipantsTable = ({
       <div className="flex gap-2">
         <AddParticipantButton existingParticipants={participants} />
         <ImportCSVModal />
-        <ExportCSVParticipants participants={participants} />
+        <ExportParticipants participants={participants} />
         <DeleteAllParticipantsButton />
       </div>
+      <ExportParticipantUrlSection />
       {isLoading && <div>Loading...</div>}
       <DeleteParticipantsDialog
         open={showDeleteModal}
