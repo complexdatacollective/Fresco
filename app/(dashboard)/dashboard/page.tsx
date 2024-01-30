@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle } from '~/components/ui/card';
 import { BookOpen, Calendar, Users } from 'lucide-react';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
+import { Suspense } from 'react';
 
 const StatCard = ({
   title,
@@ -60,6 +61,10 @@ function Home() {
           icon={<Calendar size={30} className="mr-2" />}
         />
       </ResponsiveContainer>
+      <ResponsiveContainer>
+        <Heading variant="h2">Recent Activity</Heading>
+        <Paragraph>Here you can see your recent activity.</Paragraph>
+      </ResponsiveContainer>
       <>
         <ResponsiveContainer>
           <PageHeader
@@ -92,7 +97,9 @@ function Home() {
             </div>
             <AnalyticsButton />
           </Section>
-          <RecruitmentTestSection />
+          <Suspense fallback={<div>Thinking about it...</div>}>
+            <RecruitmentTestSection />
+          </Suspense>
         </ResponsiveContainer>
       </>
     </>

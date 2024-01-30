@@ -5,7 +5,7 @@ import React from 'react';
 import { cn } from '~/utils/shadcn';
 import { Slot } from '@radix-ui/react-slot';
 
-const headingVariants = cva('', {
+const headingVariants = cva('text-balance', {
   variants: {
     variant: {
       h1: 'scroll-m-20 text-4xl font-extrabold tracking-tight',

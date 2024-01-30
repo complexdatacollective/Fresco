@@ -64,90 +64,86 @@ const RecruitmentTestSection = () => {
 
   return (
     <Section>
-      <div>
-        <Heading variant="h4">Recruitment Test Section</Heading>
-        <Paragraph variant="noMargin" className="leading-normal">
-          This section allows you to test recruitment.
-        </Paragraph>
+      <Heading variant="h4">Recruitment Test Section</Heading>
+      <Paragraph variant="noMargin" className="leading-normal">
+        This section allows you to test recruitment.
+      </Paragraph>
+      <div className="flex justify-between">
+        <p>Allow anonymous recruitment?</p>
+        <RecruitmentSwitch />
       </div>
-      <div>
-        <div className="flex justify-between">
-          <p>Allow anonymous recruitment?</p>
-          <RecruitmentSwitch />
-        </div>
-        <div className="flex gap-4">
-          <Select
-            onValueChange={(value) => {
-              const protocol = protocols.find(
-                (protocol) => protocol.id === value,
-              );
+      <div className="flex gap-4">
+        <Select
+          onValueChange={(value) => {
+            const protocol = protocols.find(
+              (protocol) => protocol.id === value,
+            );
 
-              setSelectedProtocol(protocol);
-            }}
-            value={selectedProtocol?.id}
-            disabled={isLoadingProtocols}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a Protocol..." />
-            </SelectTrigger>
-            <SelectContent>
-              {protocols?.map((protocol) => (
-                <SelectItem key={protocol.id} value={protocol.id}>
-                  {protocol.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            onValueChange={(value) => {
-              const participant = participants?.find(
-                (participant) => participant.id === value,
-              );
+            setSelectedProtocol(protocol);
+          }}
+          value={selectedProtocol?.id}
+          disabled={isLoadingProtocols}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a Protocol..." />
+          </SelectTrigger>
+          <SelectContent>
+            {protocols?.map((protocol) => (
+              <SelectItem key={protocol.id} value={protocol.id}>
+                {protocol.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          onValueChange={(value) => {
+            const participant = participants?.find(
+              (participant) => participant.id === value,
+            );
 
-              setSelectedParticipant(participant);
-            }}
-            value={selectedParticipant?.id}
-            disabled={isLoadingParticipants}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a Participant..." />
-            </SelectTrigger>
-            <SelectContent>
-              {participants?.map((participant) => (
-                <SelectItem key={participant.id} value={participant.id}>
-                  {participant.identifier}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button
-          disabled={buttonDisabled}
-          onClick={() => router.push(getInterviewURL())}
+            setSelectedParticipant(participant);
+          }}
+          value={selectedParticipant?.id}
+          disabled={isLoadingParticipants}
         >
-          Start Interview with GET
-        </Button>
-        <Button
-          disabled={buttonDisabled}
-          onClick={async () =>
-            await fetch(getBaseUrl() + getInterviewURL(), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                participantId: selectedParticipant?.id,
-              }),
-            }).then((response) => {
-              if (response.redirected) {
-                window.location.href = response.url;
-              }
-            })
-          }
-        >
-          Start Interview with POST
-        </Button>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a Participant..." />
+          </SelectTrigger>
+          <SelectContent>
+            {participants?.map((participant) => (
+              <SelectItem key={participant.id} value={participant.id}>
+                {participant.identifier}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+      <Button
+        disabled={buttonDisabled}
+        onClick={() => router.push(getInterviewURL())}
+      >
+        Start Interview with GET
+      </Button>
+      <Button
+        disabled={buttonDisabled}
+        onClick={async () =>
+          await fetch(getBaseUrl() + getInterviewURL(), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              participantId: selectedParticipant?.id,
+            }),
+          }).then((response) => {
+            if (response.redirected) {
+              window.location.href = response.url;
+            }
+          })
+        }
+      >
+        Start Interview with POST
+      </Button>
     </Section>
   );
 };

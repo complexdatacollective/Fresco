@@ -2,7 +2,7 @@ import { type VariantProps, cva } from 'class-variance-authority';
 import type { HTMLAttributes } from 'react';
 import { cn } from '~/utils/shadcn';
 
-const containerVariants = cva('mx-auto flex flex-col', {
+const containerVariants = cva('mx-auto flex flex-col my-10', {
   variants: {
     size: {
       small: 'w-[60%] max-w-xl',
