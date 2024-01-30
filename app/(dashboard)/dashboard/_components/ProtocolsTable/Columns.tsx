@@ -7,6 +7,7 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import { dateOptions } from '~/components/DataTable/helpers';
+import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 
 export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
   {
@@ -85,5 +86,12 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
         }
       </div>
     ),
+  },
+  {
+    id: 'participant-url',
+    header: 'Anonymous Participation URL',
+    cell: ({ row }) => {
+      return <AnonymousRecruitmentURLButton protocolId={row.original.id} />;
+    },
   },
 ];
