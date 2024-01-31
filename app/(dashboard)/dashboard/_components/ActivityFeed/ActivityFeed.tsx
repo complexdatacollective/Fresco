@@ -1,9 +1,8 @@
-'use server';
-
+"use server";
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import type { SearchParams } from '~/lib/data-table/types';
-import { ActivityFeedTable } from './ActivityFeedTable';
+import ActivityFeedTable from './ActivityFeedTable';
 import { getActivities } from './utils';
 
 export type IndexPageProps = {

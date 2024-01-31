@@ -42,7 +42,7 @@ const generateMockActivity = () => {
   const type = faker.helpers.arrayElement(activityTypes);
   return {
     id: faker.string.uuid(),
-    timestamp: faker.date.recent(),
+    timestamp: faker.date.recent().toISOString(),
     invalid: faker.datatype.boolean(),
     type,
     message: generateMessageForActivityType(type),
@@ -51,15 +51,15 @@ const generateMockActivity = () => {
 
 export type Activity = ReturnType<typeof generateMockActivity>;
 
-const activities = Array.from({ length: 100 }, generateMockActivity);
+const activities = Array.from({ length: 10 }, generateMockActivity);
 
 export type Result = {
   data: Activity[];
   pageCount: number;
 };
 
-export const getActivities = (searchParams: SearchParams) =>
-  new Promise((resolve: (value: Result) => void) => {
+export const getActivities = async (searchParams: SearchParams) => {
+  return new Promise((resolve: (value: Result) => void) => {
     // eslint-disable-next-line no-console
     console.log('searchParams', searchParams);
     setTimeout(() => {
@@ -69,3 +69,4 @@ export const getActivities = (searchParams: SearchParams) =>
       });
     }, 5000);
   });
+};

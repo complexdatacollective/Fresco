@@ -168,8 +168,6 @@ ${error.stack}`;
     });
   };
 
-  console.log('render');
-
   return (
     <div className="flex h-[100vh] items-center justify-center">
       <div className="absolute right-10 top-10">
@@ -196,12 +194,12 @@ ${error.stack}`;
           </Heading>
         </div>
         <Paragraph variant="lead" className="mb-0">
-          We apologise for the inconvinience, but Fresco encountered an error
-          while trying to load the page, and could not continue.
+          Fresco encountered an error while trying to load the page, and could
+          not continue.
         </Paragraph>
         <Paragraph>
           This error has been automatically reported to us, but if you would
-          like to provide further information that you think might help us,
+          like to provide further information that you think might be useful
           please use the feedback button. You can also use the rety button to
           attempt to load the page again.
         </Paragraph>

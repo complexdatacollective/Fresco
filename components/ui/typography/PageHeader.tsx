@@ -1,3 +1,4 @@
+import { Divider } from '../Divider';
 import Heading from './Heading';
 import Paragraph from './Paragraph';
 
@@ -13,6 +14,7 @@ const PageHeader = ({
       {headerText}
     </Heading>
     <Paragraph variant="lead">{subHeaderText}</Paragraph>
+    <Divider />
   </div>
 );
 

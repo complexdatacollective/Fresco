@@ -1,7 +1,6 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { activityTypes, type Activity } from './ActivityFeed';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/data-table/data-table-column-header';
 import { Badge } from '~/components/ui/badge';
@@ -9,10 +8,12 @@ import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from '~/lib/data-table/types';
+import { TransitionStartFunction } from 'react';
+import { Activity, activityTypes } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(
   isPending: boolean,
-  startTransition: React.TransitionStartFunction,
+  startTransition: TransitionStartFunction,
 ): ColumnDef<Activity, unknown>[] {
   return [
     {
@@ -49,7 +50,7 @@ export function fetchActivityFeedTableColumnDefs(
         <div className="flex space-x-2">
           {<Badge variant="outline">{row.getValue('type')}</Badge>}
           <span className="max-w-[500px] truncate font-medium">
-            {row.getValue('message')}
+            {row.original.message}
           </span>
         </div>
       ),
@@ -87,7 +88,7 @@ export const filterableColumns: DataTableFilterableColumn<Activity>[] = [
 
 export const searchableColumns: DataTableSearchableColumn<Activity>[] = [
   {
-    id: 'message',
+    id: 'type',
     title: 'messages',
   },
 ];

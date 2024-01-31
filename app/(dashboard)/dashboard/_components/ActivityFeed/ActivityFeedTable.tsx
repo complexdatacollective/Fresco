@@ -1,7 +1,5 @@
 'use client';
-
-import { use, useMemo, useTransition } from 'React';
-import type { Activity, Result } from './ActivityFeed';
+import { use, useMemo, useTransition } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useDataTable } from '~/hooks/use-data-table';
 import { DataTable } from '~/components/data-table/data-table';
@@ -11,14 +9,17 @@ import {
   filterableColumns,
 } from './ColumnDefinition';
 import { TasksTableFloatingBarContent } from './TasksTableFloatingBarContent';
+import type { Activity, Result } from './utils';
 
-export const ActivityFeedTable = ({
+export default function ActivityFeedTable({
   activitiesPromise,
 }: {
   activitiesPromise: Promise<Result>;
-}) => {
+}) {
   const { data, pageCount } = use(activitiesPromise);
   const [isPending, startTransition] = useTransition();
+
+  console.log({ data, pageCount });
 
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<Activity, unknown>[]>(
@@ -46,4 +47,4 @@ export const ActivityFeedTable = ({
       }}
     />
   );
-};
+}

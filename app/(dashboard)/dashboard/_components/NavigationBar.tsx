@@ -34,7 +34,7 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <motion.nav className="bg-violet-700 flex items-center justify-between gap-4 px-4 py-2">
+    <motion.nav className="flex items-center justify-between gap-4 bg-cyber-grape px-4 py-2">
       <Link href="/" className="flex items-center space-x-2">
         <Image
           src="/images/NC-Mark@4x.png"
