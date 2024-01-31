@@ -10,6 +10,7 @@ import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { Suspense } from 'react';
 import { Divider } from '~/components/ui/Divider';
+import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
 
 const StatCard = ({
   title,

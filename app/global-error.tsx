@@ -1,13 +1,18 @@
 'use client';
 
-import Error from '~/components/Error';
-
 export default function GlobalError({
   error,
   reset,
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <Error error={error} reset={reset} heading="Global Error" />;
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+        <button onClick={() => reset()}>Try again</button>
+      </body>
+    </html>
+  );
 }

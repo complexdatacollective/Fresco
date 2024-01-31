@@ -24,14 +24,16 @@ const containerVariants = cva('mx-auto flex flex-col my-10', {
 
 export type ContainerProps = {
   maxWidth?: VariantProps<typeof containerVariants>['maxWidth'];
+  baseSize?: VariantProps<typeof containerVariants>['baseSize'];
 } & HTMLAttributes<HTMLDivElement>;
 
 const ResponsiveContainer = ({
   children,
   maxWidth,
+  baseSize,
   className,
 }: ContainerProps) => (
-  <div className={cn(containerVariants({ maxWidth }), className)}>
+  <div className={cn(containerVariants({ maxWidth, baseSize }), className)}>
     {children}
   </div>
 );

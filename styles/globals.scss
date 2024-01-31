@@ -107,15 +107,17 @@
     --tomato: var(--tomato-hue) var(--tomato-saturation) var(--tomato-lightness);
     --tomato--dark: var(--tomato-hue) var(--tomato-saturation) calc(var(--tomato-lightness) - var(--dark-mod));
 
+    --white: 0 0% 100%;
+
     // Semantic slots
     --background: var(--platinum);
     --foreground: var(--cyber-grape);
  
     --primary: var(--slate-blue--dark);
-    --primary-foreground: var(--platinum);
+    --primary-foreground: var(--white);
  
-    --secondary: var(--neon-coral)
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: var(--neon-coral);
+    --secondary-foreground: var(--white);
  
     --muted: yellow;
     --muted-foreground: var(--charcoal);
@@ -132,7 +134,7 @@
     --info: var(--cerulean-blue);
     --info-foreground: 210 40% 98%;
 
-    --success: var(--kiwi)
+    --success: var(--sea-green);
     --success-foreground: 210 40% 98%;
 
     --border: var(--charcoal);
