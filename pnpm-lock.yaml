@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/analytics':
-    specifier: ^3.0.0
-    version: 3.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0)
+    specifier: ^3.1.0
+    version: 3.1.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0)
   '@codaco/protocol-validation':
     specifier: 3.0.0-alpha.4
     version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
@@ -1806,14 +1806,15 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codaco/analytics@3.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0):
-    resolution: {integrity: sha512-KfXvABSwGz/0d7GbOwoHUXMrsJB9OxQXJwN96Uc2N8DNc25NcFZ5fOpfW+M2C5lN3CJ150YTNXKGlDm/b7Y6UQ==}
+  /@codaco/analytics@3.1.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0):
+    resolution: {integrity: sha512-wDGm7nMrDHlJ8inY66+lkK/fzc1kC/LL/drI5d8BXyc9sF7+FzB2iL8w093hNL5sKTOubJWWccKwIaX95EUJYQ==}
     peerDependencies:
       '@maxmind/geoip2-node': ^5.0.0
       next: 13 || 14
     dependencies:
       '@maxmind/geoip2-node': 5.0.0
       next: 14.1.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
+      zod: 3.22.4
     dev: false
 
   /@codaco/protocol-validation@3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0):
