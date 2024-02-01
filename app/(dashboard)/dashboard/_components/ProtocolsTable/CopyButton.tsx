@@ -1,20 +1,18 @@
+import { Copy } from 'lucide-react';
 import type { FC } from 'react';
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { useToast } from '~/components/ui/use-toast';
 
 type CopyButtonProps = {
   text: string;
-  children: React.ReactNode;
 };
 
-const CopyButton: FC<CopyButtonProps> = ({ text, children }) => {
+const CopyButton: FC<CopyButtonProps> = ({ text }) => {
   const { toast } = useToast();
 
   const handleCopyClick = () => {
-    const copyText = text;
-    if (copyText) {
+    if (text) {
       navigator.clipboard
-        .writeText(copyText)
+        .writeText(text)
         .then(() => {
           toast({
             description: 'Copied to clipboard',
@@ -34,9 +32,7 @@ const CopyButton: FC<CopyButtonProps> = ({ text, children }) => {
     }
   };
 
-  return (
-    <DropdownMenuItem onClick={handleCopyClick}>{children}</DropdownMenuItem>
-  );
+  return <Copy onClick={handleCopyClick} />;
 };
 
 export default CopyButton;
