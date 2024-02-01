@@ -15,11 +15,10 @@ const handler = (req: Request) =>
 
       void trackEvent({
         type: 'Error',
-        error: {
-          message: error.message,
+        error: new Error(error.message),
+        metadata: {
           details: type,
           path: path ?? 'unknown',
-          stacktrace: 'unknown',
         },
       });
 
