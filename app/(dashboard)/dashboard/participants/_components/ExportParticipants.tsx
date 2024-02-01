@@ -1,18 +1,21 @@
 'use client';
 
 import { type Participant } from '@prisma/client';
+import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
+import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 
-function ExportCSVParticipants({
+function ExportParticipants({
   participants,
 }: {
-  participants: Participant[];
+  participants: Participant[] | undefined;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
 
   const handleExport = () => {
     try {
@@ -23,7 +26,6 @@ function ExportCSVParticipants({
       const csvData = participants.map((participant) => ({
         id: participant.id,
         identifier: participant.identifier,
-        interview_url: `interview/${participant.id}`,
       }));
 
       const csv = unparse(csvData, { header: true });
@@ -35,7 +37,17 @@ function ExportCSVParticipants({
       download(url, 'participants.csv');
       // Clean up the URL object
       URL.revokeObjectURL(url);
+      toast({
+        description: 'Participant CSV exported successfully',
+        variant: 'success',
+        duration: 3000,
+      });
     } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An error occurred while exporting participants',
+        variant: 'destructive',
+      });
       throw new Error('An error occurred while exporting participants');
     }
 
@@ -44,9 +56,10 @@ function ExportCSVParticipants({
 
   return (
     <Button disabled={isExporting} onClick={handleExport} variant="outline">
+      <Download className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Participant List'}
     </Button>
   );
 }
 
-export default ExportCSVParticipants;
+export default ExportParticipants;

@@ -19,10 +19,9 @@ export default function Error({
       try {
         await trackEvent({
           type: 'Error',
-          error: {
-            message: error.message,
+          error,
+          metadata: {
             details: heading ?? '',
-            stacktrace: error.stack ?? '',
             path: window.location.pathname,
           },
         });
