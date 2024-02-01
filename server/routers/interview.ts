@@ -102,11 +102,10 @@ export const interviewRouter = router({
 
         void trackEvent({
           type: 'Error',
-          error: {
-            message: e.name,
+          error: e,
+          metadata: {
             details: e.message,
             path: '/routers/interview.ts',
-            stacktrace: e.stack ?? '',
           },
         });
 

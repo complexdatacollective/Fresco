@@ -14,11 +14,10 @@ const handler = async (
   if (!protocolId || protocolId === 'undefined') {
     void trackEvent({
       type: 'Error',
-      error: {
+      error: new Error('No protocol ID provided.'),
+      metadata: {
         details: 'No protocol ID provided',
-        message: 'No protocol ID provided',
         path: '/onboard/[protocolId]/route.ts',
-        stacktrace: '',
       },
     });
 
@@ -48,11 +47,10 @@ const handler = async (
   if (error) {
     void trackEvent({
       type: 'Error',
-      error: {
-        details: error,
-        message: 'Failed to create interview',
+      error: new Error(error),
+      metadata: {
+        details: 'Failed to create interview',
         path: '/onboard/[protocolId]/route.ts',
-        stacktrace: '',
       },
     });
 
