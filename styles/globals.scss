@@ -137,12 +137,15 @@
     --success: var(--sea-green);
     --success-foreground: 210 40% 98%;
 
-    --border: var(--charcoal);
+    --border: var(--platinum--dark);
 
     // Card BG white
     --card: 0 0% 100%;
 
     --panel: var(--platinum);
+    
+    --popover: var(--white);
+    --popover-foreground: var(--foreground);
   }
 }
  

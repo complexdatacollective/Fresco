@@ -1,156 +1,127 @@
 'use client';
 
 import { Button } from '~/components/ui/Button';
-import { memo, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { trackEvent } from '~/analytics/utils';
 import { cn } from '~/utils/shadcn';
 import Image from 'next/image';
-import { env } from '~/env.mjs';
 import { AnimatePresence, motion } from 'framer-motion';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { cardClasses } from '~/components/ui/card';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import FeedbackButton from '~/components/Feedback/FeedbackButton';
-import { CheckIcon, ClipboardCopy, Cross, Loader2 } from 'lucide-react';
+import { CheckIcon, ClipboardCopy, Loader2, XCircle } from 'lucide-react';
 import { useToast } from '~/components/ui/use-toast';
-import { Divider } from '~/components/ui/Divider';
+import { ensureError } from '~/utils/ensureError';
 
-const AnimatedTaskButton = memo(
-  ({
-    startOnMount = false,
-    task,
-    idleLabel = 'Start',
-    loadingLabel = 'Loading...',
-    successLabel = 'Done!',
-    errorLabel = 'Error!',
-  }: {
-    startOnMount?: boolean;
-    task: () => Promise<void>;
-    idleLabel?: string;
-    loadingLabel?: string;
-    successLabel?: string;
-    errorLabel?: string;
-  }) => {
-    const [state, setState] = useState<
-      'idle' | 'loading' | 'success' | 'error'
-    >(startOnMount ? 'loading' : 'idle');
+const labelAnimationVariants = {
+  hidden: { opacity: 0, y: '-100%' },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: '100%' },
+};
 
-    const start = async () => {
-      setState('loading');
-      try {
-        await task();
-        setState('success');
-      } catch (error) {
-        setState('error');
-      }
-    };
-
-    useEffect(() => {
-      if (startOnMount) {
-        void start();
-      }
-    });
-
-    const labelAnimationVariants = {
-      hidden: { opacity: 0, y: '-100%' },
-      visible: { opacity: 1, y: 0 },
-      exit: { opacity: 0, y: '100%' },
-    };
-
-    const getButtonContent = () => {
-      switch (state) {
-        case 'idle':
-          return (
-            <motion.div
-              key="idle"
-              variants={labelAnimationVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              {idleLabel}
-            </motion.div>
-          );
-        case 'loading':
-          return (
-            <motion.div
-              key="loading"
-              variants={labelAnimationVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <Loader2 className="animate-spin" />
-              {loadingLabel}
-            </motion.div>
-          );
-        case 'success':
-          return (
-            <motion.div
-              key="success"
-              variants={labelAnimationVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <CheckIcon className="text-success" />
-              {successLabel}
-            </motion.div>
-          );
-        case 'error':
-          return (
-            <motion.div
-              key="error"
-              variants={labelAnimationVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <Cross className="text-destructive" />
-              {errorLabel}
-            </motion.div>
-          );
-      }
-    };
-
-    return (
-      <Button
-        onClick={start}
-        disabled={state === 'loading' || state === 'success'}
-        variant="ghost"
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          {getButtonContent()}
-        </AnimatePresence>
-      </Button>
-    );
-  },
-);
-
-AnimatedTaskButton.displayName = 'AnimatedTaskButton';
+function ReportNotifier({
+  state = 'idle',
+}: {
+  state?: 'idle' | 'loading' | 'success' | 'error';
+}) {
+  return (
+    <div className="absolute right-10 top-10">
+      <AnimatePresence mode="wait" initial={false}>
+        {state === 'loading' && (
+          <motion.div
+            key="loading"
+            className="flex items-center text-sm text-muted-foreground"
+            variants={labelAnimationVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <Loader2 className="mr-2 animate-spin" />
+            Sending analytics data...
+          </motion.div>
+        )}
+        {state === 'success' && (
+          <motion.div
+            key="success"
+            className="flex items-center text-sm"
+            variants={labelAnimationVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <CheckIcon className="mr-2 text-success" />
+            Sent analytics data!
+          </motion.div>
+        )}
+        {state === 'error' && (
+          <motion.div
+            key="error"
+            className="flex items-center text-sm"
+            variants={labelAnimationVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <XCircle className="mr-2 text-destructive" />
+            Error sending analytics data.
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function Error({
   error,
   reset,
-  heading,
 }: {
   error: Error;
   reset: () => void;
   heading?: string;
 }) {
   const { toast } = useToast();
+  const initialized = useRef(false);
+  const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>(
+    'idle',
+  );
 
-  const sendEvent = () =>
+  useEffect(() => {
+    if (initialized.current) return;
+    setState('loading');
+
     trackEvent({
       type: 'Error',
       error: {
+        name: error.name,
         message: error.message,
-        details: heading ?? '',
-        stacktrace: error.stack ?? '',
-        path: window.location.pathname,
+        stack: error.stack,
       },
-    });
+      metadata: {
+        path: window.location.pathname,
+        userAgent: navigator.userAgent,
+      },
+    })
+      .then((result) => {
+        if (!result.success) {
+          setState('error');
+          return;
+        }
+
+        setState('success');
+      })
+      .catch(() => {
+        setState('error');
+      });
+    initialized.current = true;
+  }, [error]);
+
+  const handleReset = () => {
+    initialized.current = false;
+    setState('idle');
+    reset();
+  };
 
   const copyDebugInfoToClipboard = async () => {
     const debugInfo = `
@@ -162,6 +133,7 @@ ${error.stack}`;
 
     await navigator.clipboard.writeText(debugInfo);
     toast({
+      title: 'Success',
       description: 'Debug information copied to clipboard',
       variant: 'success',
       duration: 3000,
@@ -170,14 +142,7 @@ ${error.stack}`;
 
   return (
     <div className="flex h-[100vh] items-center justify-center">
-      <div className="absolute right-10 top-10">
-        <AnimatedTaskButton
-          task={() => sendEvent()}
-          startOnMount={true}
-          successLabel="Error anonymously reported!"
-          loadingLabel="Sending error information..."
-        />
-      </div>
+      <ReportNotifier state={state} />
       <ResponsiveContainer
         baseSize="60%"
         className={cn(cardClasses, 'm-10 w-[30rem] p-10 shadow-2xl')}
@@ -210,7 +175,7 @@ ${error.stack}`;
             <ClipboardCopy className="ml-2" />
           </Button>
           <FeedbackButton variant="outline" />
-          <Button onClick={reset} variant="default" className="flex">
+          <Button onClick={handleReset} variant="default" className="flex">
             Try Again
           </Button>
         </div>

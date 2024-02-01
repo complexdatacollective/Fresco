@@ -10,16 +10,6 @@ const handler = async (
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    void trackEvent({
-      type: 'Error',
-      error: {
-        details: 'No protocol ID provided',
-        message: 'No protocol ID provided',
-        path: '/onboard/[protocolId]/route.ts',
-        stacktrace: '',
-      },
-    });
-
     return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
   }
 
@@ -47,10 +37,11 @@ const handler = async (
     void trackEvent({
       type: 'Error',
       error: {
-        details: error,
+        name: error,
         message: 'Failed to create interview',
+      },
+      metadata: {
         path: '/onboard/[protocolId]/route.ts',
-        stacktrace: '',
       },
     });
 
@@ -67,7 +58,6 @@ const handler = async (
   void trackEvent({
     type: 'InterviewStarted',
     metadata: {
-      timestamp: new Date().toISOString(),
       usingAnonymousParticipant: !participantId,
     },
   });

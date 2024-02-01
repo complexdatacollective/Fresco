@@ -117,24 +117,26 @@ export const exportSessions = async (
 
     if (updatedInterviews.error) throw new Error(updatedInterviews.error);
 
-    await trackEvent({
+    void (await trackEvent({
       type: 'DataExported',
       metadata: {
         sessions: interviewIds.length,
       },
-    });
+    }));
     return { ...output };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
     const e = ensureError(error);
-    await trackEvent({
+    void trackEvent({
       type: 'Error',
       error: {
-        message: e.name,
-        details: e.message,
+        name: e.name,
+        message: e.message,
+        stack: e.stack,
+      },
+      metadata: {
         path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
-        stacktrace: e.stack ?? '',
       },
     });
 

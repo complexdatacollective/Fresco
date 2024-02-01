@@ -19,7 +19,7 @@ export default function ActivityFeedTable({
   const { data, pageCount } = use(activitiesPromise);
   const [isPending, startTransition] = useTransition();
 
-  console.log({ data, pageCount });
+  throw new Error('test');
 
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<Activity, unknown>[]>(

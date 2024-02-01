@@ -1,4 +1,4 @@
-"use server";
+'use server';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import type { SearchParams } from '~/lib/data-table/types';
@@ -16,7 +16,7 @@ export const ActivityFeed = ({ searchParams }: IndexPageProps) => {
     <>
       <Suspense
         fallback={
-          <DataTableSkeleton columnCount={3} filterableColumnCount={1} />
+          <DataTableSkeleton columnCount={2} filterableColumnCount={1} />
         }
       >
         <ActivityFeedTable activitiesPromise={activitiesPromise} />

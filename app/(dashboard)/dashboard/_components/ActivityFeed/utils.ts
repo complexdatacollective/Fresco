@@ -58,15 +58,13 @@ export type Result = {
   pageCount: number;
 };
 
-export const getActivities = async (searchParams: SearchParams) => {
+export const getActivities = async (_searchParams: SearchParams) => {
   return new Promise((resolve: (value: Result) => void) => {
-    // eslint-disable-next-line no-console
-    console.log('searchParams', searchParams);
     setTimeout(() => {
       resolve({
         data: activities,
         pageCount: 3,
       });
-    }, 5000);
+    }, 3000);
   });
 };

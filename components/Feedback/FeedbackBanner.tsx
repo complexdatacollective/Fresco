@@ -72,7 +72,7 @@ const FeedbackBanner = () => {
             </strong>
             We depend on your feedback and issue reports to improve
           </Paragraph>
-          <FeedbackButton />
+          <FeedbackButton size="sm" />
         </div>
         {!isDashboard && (
           <CloseButton onClick={() => setOpenSignOutModal(true)} />

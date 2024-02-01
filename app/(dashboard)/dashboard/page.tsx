@@ -20,7 +20,7 @@ const StatCard = ({
   value?: string;
   icon?: React.ReactNode;
 }) => (
-  <Card>
+  <Card className="transition-all hover:scale-105">
     <CardHeader>
       <div className="flex items-center">
         {icon}
@@ -66,9 +66,9 @@ function Home({ searchParams }: IndexPageProps) {
         <Heading variant="h2">Recent Activity</Heading>
         <Paragraph>Here you can see your recent activity.</Paragraph>
       </ResponsiveContainer>
-        <ResponsiveContainer maxWidth="5xl">
-          <Section>
-        <ActivityFeed searchParams={searchParams} />
+      <ResponsiveContainer maxWidth="5xl">
+        <Section>
+          <ActivityFeed searchParams={searchParams} />
         </Section>
       </ResponsiveContainer>
       <Divider />

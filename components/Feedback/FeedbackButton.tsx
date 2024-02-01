@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import FeedbackModal from './FeedbackModal';
-import { Button, type buttonVariants } from '../ui/Button';
+import { Button, type ButtonProps } from '../ui/Button';
 import { MessageCircleMore } from 'lucide-react';
 
-const FeedbackButton = (props: typeof buttonVariants) => {
+const FeedbackButton = (props: ButtonProps) => {
   const [open, setOpen] = useState(false);
 
   return (

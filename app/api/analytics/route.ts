@@ -13,18 +13,9 @@ const maxMindClient = new WebServiceClient(
 
 const installationId = await getInstallationId();
 
-let routeHandler;
-
-if (env.DISABLE_ANALYTICS && env.DISABLE_ANALYTICS === true) {
-  routeHandler = async () => {
-    return new Response(null, { status: 204 });
-  };
-} else {
-  routeHandler = createRouteHandler({
-    installationId,
-    platformUrl: 'https://frescoanalytics.networkcanvas.dev',
-    maxMindClient,
-  });
-}
+const routeHandler = createRouteHandler({
+  installationId,
+  maxMindClient,
+});
 
 export { routeHandler as POST };
