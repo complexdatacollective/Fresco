@@ -35,19 +35,15 @@ const variantElementMap: Record<
   p: 'p',
   blockquote: 'blockquote',
   inlineCode: 'code',
-  largeText: 'div',
-  smallText: 'small',
   lead: 'p',
-  mutedText: 'p',
   ul: 'ul',
 };
 
-export interface TypographyProps
-  extends React.HTMLAttributes<HTMLElement>,
-    VariantProps<typeof typographyVariants> {
+export type TypographyProps = {
   asChild?: boolean;
   as?: string;
-}
+} & React.HTMLAttributes<HTMLElement> &
+  VariantProps<typeof typographyVariants>;
 
 const Typography = React.forwardRef<HTMLElement, TypographyProps>(
   ({ className, variant, as, asChild, ...props }, ref) => {

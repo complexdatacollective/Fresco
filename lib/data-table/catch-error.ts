@@ -1,15 +1,28 @@
-import { toast } from "sonner"
-import { z } from "zod"
+import { z } from 'zod';
+import { useToast } from '~/components/ui/use-toast';
 
 export function catchError(err: unknown) {
+  const { toast } = useToast();
   if (err instanceof z.ZodError) {
     const errors = err.issues.map((issue) => {
-      return issue.message
-    })
-    return toast(errors.join("\n"))
+      return issue.message;
+    });
+    return toast({
+      title: 'Error',
+      description: errors.join(', '),
+      duration: 5000,
+    });
   } else if (err instanceof Error) {
-    return toast(err.message)
+    return toast({
+      title: 'Error',
+      description: err.message,
+      duration: 5000,
+    });
   } else {
-    return toast("Something went wrong, please try again later.")
+    return toast({
+      title: 'Error',
+      description: 'An unknown error occurred',
+      duration: 5000,
+    });
   }
 }

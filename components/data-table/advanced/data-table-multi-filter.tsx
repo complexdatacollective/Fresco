@@ -27,7 +27,7 @@ import {
 import { Separator } from '~/components/ui/separator';
 
 import { DataTableFacetedFilter } from '../data-table-faceted-filter';
-import { DataTableFilterOption } from '~/lib/data-table/types';
+import { type DataTableFilterOption } from '~/lib/data-table/types';
 import { AlignCenter, Copy, MoreHorizontal, Trash } from 'lucide-react';
 
 const operators = [
@@ -41,7 +41,7 @@ const operators = [
   },
 ];
 
-interface DataTableMultiFilterProps<TData> {
+type DataTableMultiFilterProps<TData> = {
   table: Table<TData>;
   allOptions: DataTableFilterOption<TData>[];
   options: DataTableFilterOption<TData>[];
@@ -108,14 +108,14 @@ export function DataTableMultiFilter<TData>({
   );
 }
 
-interface MultiFilterRowProps<TData> extends DataTableMultiFilterProps<TData> {
+type MultiFilterRowProps<TData> = {
   i: number;
   option: DataTableFilterOption<TData>;
   operator?: (typeof operators)[number];
   setOperator: React.Dispatch<
     React.SetStateAction<(typeof operators)[number] | undefined>
   >;
-}
+} & DataTableMultiFilterProps<TData>
 
 export function MultiFilterRow<TData>({
   i,

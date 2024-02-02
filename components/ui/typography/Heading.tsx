@@ -31,12 +31,11 @@ const variantElementMap: Record<
   'h4-all-caps': 'h4',
 };
 
-export interface HeadingProps
-  extends React.HTMLAttributes<HTMLHeadingElement>,
-    VariantProps<typeof headingVariants> {
+export type HeadingProps = {
   asChild?: boolean;
   as?: string;
-}
+} & React.HTMLAttributes<HTMLHeadingElement> &
+  VariantProps<typeof headingVariants>;
 
 const Heading = React.forwardRef<HTMLElement, HeadingProps>(
   ({ className, variant, as, asChild, ...props }, ref) => {

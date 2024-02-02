@@ -8,13 +8,13 @@ import { Input } from '~/components/ui/Input';
 import { DataTableFacetedFilter } from '~/components/data-table/data-table-faceted-filter';
 import { DataTableViewOptions } from '~/components/data-table/data-table-view-options';
 import {
-  DataTableFilterableColumn,
-  DataTableSearchableColumn,
+  type DataTableFilterableColumn,
+  type DataTableSearchableColumn,
 } from '~/lib/data-table/types';
 import { Cross, PlusCircle, Trash } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
 
-interface DataTableToolbarProps<TData> {
+type DataTableToolbarProps<TData> = {
   table: Table<TData>;
   filterableColumns?: DataTableFilterableColumn<TData>[];
   searchableColumns?: DataTableSearchableColumn<TData>[];

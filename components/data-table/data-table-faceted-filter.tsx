@@ -17,10 +17,10 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { Separator } from '~/components/ui/separator';
-import { Option } from '~/lib/data-table/types';
+import { type Option } from '~/lib/data-table/types';
 import { cn } from '~/utils/shadcn';
 
-interface DataTableFacetedFilter<TData, TValue> {
+type DataTableFacetedFilter<TData, TValue> = {
   column?: Column<TData, TValue>;
   title?: string;
   options: Option[];

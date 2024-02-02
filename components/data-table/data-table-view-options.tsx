@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
 } from '~/components/ui/dropdown-menu';
 
-interface DataTableViewOptionsProps<TData> {
+type DataTableViewOptionsProps<TData> = {
   table: Table<TData>;
 }
 

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { SearchParams } from '~/lib/data-table/types';
+import type { SearchParams } from '~/lib/data-table/types';
 
 export const activityTypes = [
   'Protocol Installed',

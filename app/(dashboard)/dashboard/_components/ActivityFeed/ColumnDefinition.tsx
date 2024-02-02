@@ -8,12 +8,12 @@ import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from '~/lib/data-table/types';
-import { TransitionStartFunction } from 'react';
-import { Activity, activityTypes } from './utils';
+import type { TransitionStartFunction } from 'react';
+import { type Activity, activityTypes } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(
-  isPending: boolean,
-  startTransition: TransitionStartFunction,
+  _isPending: boolean,
+  _startTransition: TransitionStartFunction,
 ): ColumnDef<Activity, unknown>[] {
   return [
     {

@@ -23,7 +23,7 @@ import type {
   DataTableSearchableColumn,
 } from '~/lib/data-table/types';
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   /**
    * The table instance returned from useDataTable hook with pagination, sorting, filtering, etc.
    * @type TanstackTable<TData>

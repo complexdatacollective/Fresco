@@ -24,13 +24,13 @@ import { TrashIcon } from 'lucide-react';
 import type { DataTableFilterOption } from '~/lib/data-table/types';
 import { cn } from '~/utils/shadcn';
 
-interface DataTableAdvancedFilterItemProps<TData> {
+type DataTableAdvancedFilterItemProps<TData> = {
   table: Table<TData>;
   selectedOption: DataTableFilterOption<TData>;
   setSelectedOptions: React.Dispatch<
     React.SetStateAction<DataTableFilterOption<TData>[]>
   >;
-}
+};
 
 export function DataTableAdvancedFilterItem<TData>({
   table,

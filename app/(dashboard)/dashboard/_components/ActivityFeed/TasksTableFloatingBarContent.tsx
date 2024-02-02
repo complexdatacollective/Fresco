@@ -1,7 +1,5 @@
-import { Activity } from './ActivityFeed';
-import { Table } from '@tanstack/react-table';
-
-export function TasksTableFloatingBarContent(table: Table<Activity>) {
+export function TasksTableFloatingBarContent(_table: unknown) {
+  // table: Table<Activity>
   return (
     <div className="justify-between gap-2 align-middle">
       Nothing to see here!

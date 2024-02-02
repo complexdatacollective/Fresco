@@ -6,10 +6,9 @@ import { Button } from '~/components/ui/Button';
 import { cn } from '~/utils/shadcn';
 import { CrossIcon } from 'lucide-react';
 
-interface DataTableFloatingBarProps<TData>
-  extends React.HTMLAttributes<HTMLElement> {
+type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
-}
+} & React.HTMLAttributes<HTMLElement>
 
 export function DataTableFloatingBar<TData>({
   table,

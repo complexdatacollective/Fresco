@@ -17,7 +17,7 @@ import type {
 } from '~/lib/data-table/types';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 
-interface DataTableAdvancedToolbarProps<TData> {
+type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;
   searchableColumns?: DataTableSearchableColumn<TData>[];
   filterableColumns?: DataTableFilterableColumn<TData>[];

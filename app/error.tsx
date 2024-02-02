@@ -13,7 +13,6 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import { CheckIcon, ClipboardCopy, Loader2, XCircle } from 'lucide-react';
 import { useToast } from '~/components/ui/use-toast';
-import { ensureError } from '~/utils/ensureError';
 
 const labelAnimationVariants = {
   hidden: { opacity: 0, y: '-100%' },
