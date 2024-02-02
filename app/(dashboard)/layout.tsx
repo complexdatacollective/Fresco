@@ -9,9 +9,9 @@ export const metadata = {
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <FeedbackBanner />
       <NavigationBar />
-      <div className="h-full">{children}</div>
+      <FeedbackBanner />
+      {children}
     </>
   );
 };

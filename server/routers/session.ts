@@ -6,6 +6,7 @@ import { userFormSchema } from '~/app/(setup)/_shared';
 import { auth } from '~/utils/auth';
 import type { createTRPCContext } from '../context';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
+import { prisma } from '~/utils/db';
 
 type Context = inferAsyncReturnType<typeof createTRPCContext>;
 
@@ -31,6 +32,21 @@ export const signOutProc = async ({ ctx }: { ctx: Context }) => {
 export const sessionRouter = router({
   signUp: publicProcedure.input(userFormSchema).mutation(async ({ input }) => {
     const { username, password } = input;
+
+    // Prevent signup if a user already exists
+    // eslint-disable-next-line local-rules/require-data-mapper
+    const usersExist = await prisma.user.findMany({
+      where: {
+        username,
+      },
+    });
+
+    if (usersExist.length > 0) {
+      return {
+        error: 'User already configured.',
+        user: null,
+      };
+    }
 
     try {
       const user = await auth.createUser({

@@ -23,7 +23,17 @@ export const useSession = () => {
   return session;
 };
 
-type GetQueryReturn = Session | null;
+const compareSessions = (a: Session | null, b: Session | null) => {
+  if (a === null && b === null) {
+    return true;
+  }
+
+  if (a === null || b === null) {
+    return false;
+  }
+
+  return a.sessionId === b.sessionId;
+};
 
 export const SessionProvider = ({
   children,
@@ -37,14 +47,19 @@ export const SessionProvider = ({
   const previousSession = usePrevious(session);
   const router = useRouter();
 
-  const { refetch: getSession, isFetching: isFetchingSession } =
-    api.session.get.useQuery(undefined, {
+  const { isFetching: isFetchingSession } = api.session.get.useQuery(
+    undefined,
+    {
       refetchOnMount: false,
       refetchOnWindowFocus: true,
       initialData: initialSession,
-      onSuccess: (data: GetQueryReturn) => {
-        if (data) {
-          setSession(data);
+      onSuccess: (data) => {
+        if (compareSessions(session, data)) {
+          // Check if the session has changed before updating state, as this
+          // will cause a re-render.
+          if (session) {
+            setSession(data);
+          }
         } else {
           setSession(null);
         }
@@ -52,34 +67,18 @@ export const SessionProvider = ({
       onError: (error) => {
         throw new Error(error.message);
       },
-    });
+    },
+  );
 
   const { mutateAsync: signOut, isLoading: isSigningOut } =
     api.session.signOut.useMutation({
       onSuccess: () => {
         setSession(null);
-        // As with elsewhere, using the router causes a flash, so we use
-        // window.location.replace() instead.
-
-        window.location.replace('/');
-        // router.replace('/');
       },
       onError: (error) => {
         throw new Error(error.message);
       },
     });
-
-  // If we have an initial session, we don't need to fetch it again.
-  useEffect(() => {
-    if (initialSession) {
-      return;
-    }
-
-    getSession().catch((err: { message: string | undefined }) => {
-      setSession(null);
-      throw new Error(err.message);
-    });
-  }, [initialSession, getSession]);
 
   // If session changes from Session to null, refresh the router to trigger
   // the redirect to the login page.

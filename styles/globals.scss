@@ -3,105 +3,149 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root {    
     /* UI Colors */
-    --neon-coral: 226 33 91;
-    --neon-coral--dark: 206 28 84;
-    --mustard: 242 183 0;
-    --mustard--dark: 219 165 0;
-    --sea-green: 0 201 162;
-    --sea-green--dark: 0 160 129;
-    --slate-blue: 107 114 236;
-    --slate-blue--dark: 85 91 188;
-    --navy-taupe: 45 41 85;
-    --cyber-grape: 58 58 117;
-    --rich-black: 22 21 43;
-    --charcoal: 109 111 118;
-    --platinum: 242 246 247;
-    --platinum--dark: 218 227 229;
-    --sea-serpent: 15 178 226;
-    --sea-serpent--dark: 15 163 206;
-    --purple-pizazz: 211 15 239;
-    --purple-pizazz--dark: 191 12 216;
-    --paradise-pink: 255 58 140;
-    --paradise-pink--dark: 232 53 124;
-    --cerulean-blue: 15 112 255;
-    --cerulean-blue--dark: 15 102 232;
-    --kiwi: 112 191 84;
-    --kiwi--dark: 102 173 76;
-    --neon-carrot: 247 137 30;
-    --neon-carrot--dark: 224 124 28;
-    --barbie-pink: 237 0 140;
-    --barbie-pink--dark: 214 0 127;
-    --tomato: 232 45 63;
-    --tomato--dark: 211 43 58;
+    // To generate dark color variants, subtract 5% from the lightness.
+    --dark-mod: 5%;
+    --neon-coral-hue: 342;
+    --neon-coral-saturation: 76.9%;
+    --neon-coral-lightness: 50.8%;
+    --neon-coral: var(--neon-coral-hue) var(--neon-coral-saturation) var(--neon-coral-lightness);
+    --neon-coral--dark: var(--neon-coral-hue) var(--neon-coral-saturation) calc(var(--neon-coral-lightness) - var(--dark-mod));
 
+    --mustard-hue: 46;
+    --mustard-saturation: 100%;
+    --mustard-lightness: 47%;
+    --mustard: var(--mustard-hue) var(--mustard-saturation) var(--mustard-lightness);
+    --mustard--dark: var(--mustard-hue) var(--mustard-saturation) calc(var(--mustard-lightness) - var(--dark-mod));
 
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --sea-green-hue: 168;
+    --sea-green-saturation: 100%;
+    --sea-green-lightness: 40%;
+    --sea-green: var(--sea-green-hue) var(--sea-green-saturation) var(--sea-green-lightness);
+    --sea-green--dark: var(--sea-green-hue) var(--sea-green-saturation) calc(var(--sea-green-lightness) - var(--dark-mod));
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --slate-blue-hue: 237;
+    --slate-blue-saturation: 79%;
+    --slate-blue-lightness: 65%;
+    --slate-blue: var(--slate-blue-hue) var(--slate-blue-saturation) var(--slate-blue-lightness);
+    --slate-blue--dark: var(--slate-blue-hue) var(--slate-blue-saturation) calc(var(--slate-blue-lightness) - var(--dark-mod));
+
+    --navy-taupe-hue: 248;
+    --navy-taupe-saturation: 34%;
+    --navy-taupe-lightness: 25%;
+    --navy-taupe: var(--navy-taupe-hue) var(--navy-taupe-saturation) var(--navy-taupe-lightness);
+    --navy-taupe--dark: var(--navy-taupe-hue) var(--navy-taupe-saturation) calc(var(--navy-taupe-lightness) - var(--dark-mod));
+
+    --cyber-grape-hue: 240;
+    --cyber-grape-saturation: 33%;
+    --cyber-grape-lightness: 29%;
+    --cyber-grape: var(--cyber-grape-hue) var(--cyber-grape-saturation) var(--cyber-grape-lightness);
+    --cyber-grape--dark: var(--cyber-grape-hue) var(--cyber-grape-saturation) calc(var(--cyber-grape-lightness) - var(--dark-mod));
+
+    --rich-black-hue: 240;
+    --rich-black-saturation: 35%;
+    --rich-black-lightness: 10%;
+    --rich-black: var(--rich-black-hue) var(--rich-black-saturation) var(--rich-black-lightness);
+
+    --charcoal-hue: 231;
+    --charcoal-saturation: 4%;
+    --charcoal-lightness: 43%;
+    --charcoal: var(--charcoal-hue) var(--charcoal-saturation) var(--charcoal-lightness);
+
+    --platinum-hue: 210;
+    --platinum-saturation: 43%;
+    --platinum-lightness: 95%;
+    --platinum: var(--platinum-hue) var(--platinum-saturation) var(--platinum-lightness);
+    --platinum--dark: var(--platinum-hue) var(--platinum-saturation) calc(var(--platinum-lightness) - var(--dark-mod));
+
+    --sea-serpent-hue: 190;
+    --sea-serpent-saturation: 87%;
+    --sea-serpent-lightness: 47%;
+    --sea-serpent: var(--sea-serpent-hue) var(--sea-serpent-saturation) var(--sea-serpent-lightness);
+    --sea-serpent--dark: var(--sea-serpent-hue) var(--sea-serpent-saturation) calc(var(--sea-serpent-lightness) - var(--dark-mod));
+
+    --purple-pizazz-hue: 291;
+    --purple-pizazz-saturation: 86%;
+    --purple-pizazz-lightness: 52%;
+    --purple-pizazz: var(--purple-pizazz-hue) var(--purple-pizazz-saturation) var(--purple-pizazz-lightness);
+    --purple-pizazz--dark: var(--purple-pizazz-hue) var(--purple-pizazz-saturation) calc(var(--purple-pizazz-lightness) - var(--dark-mod));
+
+    --paradise-pink-hue: 331;
+    --paradise-pink-saturation: 100%;
+    --paradise-pink-lightness: 57%;
+    --paradise-pink: var(--paradise-pink-hue) var(--paradise-pink-saturation) var(--paradise-pink-lightness);
+    --paradise-pink--dark: var(--paradise-pink-hue) var(--paradise-pink-saturation) calc(var(--paradise-pink-lightness) - var(--dark-mod));
+
+    --cerulean-blue-hue: 216;
+    --cerulean-blue-saturation: 100%;
+    --cerulean-blue-lightness: 53%;
+    --cerulean-blue: var(--cerulean-blue-hue) var(--cerulean-blue-saturation) var(--cerulean-blue-lightness);
+    --cerulean-blue--dark: var(--cerulean-blue-hue) var(--cerulean-blue-saturation) calc(var(--cerulean-blue-lightness) - var(--dark-mod));
+
+    --kiwi-hue: 103;
+    --kiwi-saturation: 46%;
+    --kiwi-lightness: 56%;
+    --kiwi: var(--kiwi-hue) var(--kiwi-saturation) var(--kiwi-lightness);
+    --kiwi--dark: var(--kiwi-hue) var(--kiwi-saturation) calc(var(--kiwi-lightness) - var(--dark-mod));
+
+    --neon-carrot-hue: 32;
+    --neon-carrot-saturation: 90%;
+    --neon-carrot-lightness: 55%;
+    --neon-carrot: var(--neon-carrot-hue) var(--neon-carrot-saturation) var(--neon-carrot-lightness);
+    --neon-carrot--dark: var(--neon-carrot-hue) var(--neon-carrot-saturation) calc(var(--neon-carrot-lightness) - var(--dark-mod));
+
+    --barbie-pink-hue: 328;
+    --barbie-pink-saturation: 100%;
+    --barbie-pink-lightness: 47%;
+    --barbie-pink: var(--barbie-pink-hue) var(--barbie-pink-saturation) var(--barbie-pink-lightness);
+    --barbie-pink--dark: var(--barbie-pink-hue) var(--barbie-pink-saturation) calc(var(--barbie-pink-lightness) - var(--dark-mod));
+
+    --tomato-hue: 356;
+    --tomato-saturation: 77%;
+    --tomato-lightness: 54%;
+    --tomato: var(--tomato-hue) var(--tomato-saturation) var(--tomato-lightness);
+    --tomato--dark: var(--tomato-hue) var(--tomato-saturation) calc(var(--tomato-lightness) - var(--dark-mod));
+
+    --white: 0 0% 100%;
+
+    // Semantic slots
+    --background: var(--platinum);
+    --foreground: var(--cyber-grape);
  
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --primary: var(--cyber-grape);
+    --primary-foreground: var(--white);
  
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --secondary: var(--neon-coral);
+    --secondary-foreground: var(--white);
  
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: yellow;
+    --muted-foreground: var(--charcoal);
  
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
  
-    --destructive: 0 84.2% 60.2%;
+    --destructive: var(--tomato);
     --destructive-foreground: 210 40% 98%;
 
-    --success: 111 72.2% 40.2%;
+    --warning: var(--neon-carrot);
+    --warning-foreground: 210 40% 98%;
+
+    --info: var(--cerulean-blue);
+    --info-foreground: 210 40% 98%;
+
+    --success: var(--sea-green);
     --success-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
-    --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --border: var(--platinum--dark);
 
-    --success: 115 62.8% 30.6%;
-    --success-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: hsl(212.7,26.8%,83.9);
+    // Card BG white
+    --card: 0 0% 100%;
+
+    --panel: var(--platinum);
+    
+    --popover: var(--white);
+    --popover-foreground: var(--foreground);
   }
 }
  
@@ -111,5 +155,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Open Sans', sans-serif;
   }
 }

@@ -5,6 +5,7 @@ import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
+import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import {
   Select,
@@ -13,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
 
@@ -60,8 +63,11 @@ const RecruitmentTestSection = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-muted p-6">
-      <h1 className="text-xl">Recruitment Test Section</h1>
+    <Section>
+      <Heading variant="h4">Recruitment Test Section</Heading>
+      <Paragraph variant="noMargin" className="leading-normal">
+        This section allows you to test recruitment.
+      </Paragraph>
       <div className="flex justify-between">
         <p>Allow anonymous recruitment?</p>
         <RecruitmentSwitch />
@@ -138,7 +144,7 @@ const RecruitmentTestSection = () => {
       >
         Start Interview with POST
       </Button>
-    </div>
+    </Section>
   );
 };
 
