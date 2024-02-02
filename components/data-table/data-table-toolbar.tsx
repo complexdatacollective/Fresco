@@ -13,14 +13,15 @@ import {
 } from '~/lib/data-table/types';
 import { Cross, PlusCircle, Trash } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
+import { type UrlObject } from 'url';
 
 type DataTableToolbarProps<TData> = {
   table: Table<TData>;
   filterableColumns?: DataTableFilterableColumn<TData>[];
   searchableColumns?: DataTableSearchableColumn<TData>[];
-  newRowLink?: string;
+  newRowLink?: UrlObject;
   deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>;
-}
+};
 
 export function DataTableToolbar<TData>({
   table,
