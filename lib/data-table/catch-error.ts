@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
 
-export function catchError(err: unknown) {
+export function useCatchError(err: unknown) {
   const { toast } = useToast();
   if (err instanceof z.ZodError) {
     const errors = err.issues.map((issue) => {

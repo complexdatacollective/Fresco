@@ -6,6 +6,7 @@ import {
   type Column,
   type ColumnBaseConfig,
   type ColumnDataType,
+  type SQL,
 } from 'drizzle-orm';
 
 export function filterColumn({
@@ -14,7 +15,7 @@ export function filterColumn({
 }: {
   column: Column<ColumnBaseConfig<ColumnDataType, string>, object, object>;
   value: string;
-}) {
+}): SQL<unknown> {
   const [filterValue, filterVariety] = value?.split('.') ?? [];
 
   switch (filterVariety) {
