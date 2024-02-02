@@ -10,6 +10,10 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 
 export type directions = 'forwards' | 'backwards';
 
+type NavigationOptions = {
+  forceChangeStage?: boolean;
+};
+
 export const useNavigationHelpers = () => {
   const dispatch = useDispatch();
   const skipMap = useSelector(getSkipMap);
@@ -94,12 +98,13 @@ export const useNavigationHelpers = () => {
     [beforeNextFunction],
   );
 
-  const moveForward = async () => {
+  const moveForward = async (options?: NavigationOptions) => {
     if (!(await checkCanNavigate('forwards'))) {
       return;
     }
 
-    if (isLastPrompt) {
+    // forceChangeStage used in Dyad Census and Tie Strength Census when there are no steps
+    if (isLastPrompt || options?.forceChangeStage) {
       const nextStage = calculateNextStage();
       void setCurrentStage(nextStage);
       return;
@@ -110,12 +115,13 @@ export const useNavigationHelpers = () => {
     );
   };
 
-  const moveBackward = async () => {
+  const moveBackward = async (options?: NavigationOptions) => {
     if (!(await checkCanNavigate('backwards'))) {
       return;
     }
 
-    if (isFirstPrompt) {
+    // forceChangeStage used in Dyad Census and Tie Strength Census when there are no steps
+    if (isFirstPrompt || options?.forceChangeStage) {
       const previousStage = calculatePreviousStage();
       void setCurrentStage(previousStage);
       return;
