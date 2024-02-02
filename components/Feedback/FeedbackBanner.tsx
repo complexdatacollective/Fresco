@@ -47,7 +47,7 @@ const FeedbackBanner = () => {
           }}
         />
       </div>
-      <div className="flex flex-grow items-center justify-between text-foreground">
+      <div className="flex flex-grow items-center justify-between text-sm">
         {!isDashboard && (
           <>
             <SignOutModal
@@ -66,9 +66,9 @@ const FeedbackBanner = () => {
           </>
         )}
         <div className="flex flex-grow items-center justify-center gap-x-4">
-          <Paragraph variant="noMargin">
+          <Paragraph variant="noMargin" className="hidden sm:inline">
             <strong className="hidden font-semibold lg:inline">
-              🤖 Fresco is Alpha software –{' '}
+              <span className="text-xl">🤖</span> Fresco is Alpha software –{' '}
             </strong>
             We depend on your feedback and issue reports to improve
           </Paragraph>

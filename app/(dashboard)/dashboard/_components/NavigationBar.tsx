@@ -20,11 +20,14 @@ export const NavButton = ({
   isActive?: boolean;
 }) => {
   return (
-    <motion.li
-      layout
-      className="text-md text-md relative flex flex-col justify-start font-semibold"
-    >
-      <Link href={href} className={cn('text-primary-foreground')}>
+    <motion.li layout className=" relative flex flex-col justify-start">
+      <Link
+        href={href}
+        className={cn(
+          'text-md font-semibold text-primary-foreground',
+          !isActive && 'hover:text-sea-green',
+        )}
+      >
         {label}
       </Link>
       {isActive && (
@@ -41,7 +44,7 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <motion.nav className="flex items-center justify-between gap-4 bg-cyber-grape px-4 py-2">
+    <motion.nav className="flex items-center justify-between gap-4 bg-cyber-grape px-4 py-3">
       <Link href="/" className="flex items-center space-x-2">
         <Image
           src="/images/NC-Mark@4x.png"
@@ -50,7 +53,7 @@ export function NavigationBar() {
           height={40}
         />
       </Link>
-      <ul className="flex items-center gap-8">
+      <ul className="flex items-center gap-10">
         <NavButton
           href="/dashboard"
           isActive={pathname === '/dashboard'}

@@ -13,7 +13,7 @@ const FeedbackButton = (props: ButtonProps) => {
       <FeedbackModal open={open} setOpen={setOpen} />
       <Button onClick={() => setOpen(true)} {...props}>
         <span>Provide Feedback</span>
-        <MessageCircleMore size={16} className="ml-2" strokeWidth={3} />
+        <MessageCircleMore size={16} className="ml-2" strokeWidth={2} />
       </Button>
     </>
   );
