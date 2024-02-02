@@ -14,7 +14,6 @@ const PageHeader = ({
       {headerText}
     </Heading>
     <Paragraph variant="lead">{subHeaderText}</Paragraph>
-    <Divider />
   </div>
 );
 

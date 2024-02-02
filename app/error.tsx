@@ -143,7 +143,10 @@ ${error.stack}`;
       <ReportNotifier state={state} />
       <ResponsiveContainer
         baseSize="60%"
-        className={cn(cardClasses, 'm-10 w-[30rem] p-10 shadow-2xl')}
+        className={cn(
+          cardClasses,
+          'm-10 w-[30rem] p-10 shadow-xl shadow-platinum-dark',
+        )}
       >
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
           <Image

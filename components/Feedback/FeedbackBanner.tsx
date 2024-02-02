@@ -66,13 +66,17 @@ const FeedbackBanner = () => {
           </>
         )}
         <div className="flex flex-grow items-center justify-center gap-x-4">
-          <Paragraph variant="noMargin" className="hidden sm:inline">
-            <strong className="hidden font-semibold lg:inline">
-              <span className="text-xl">🤖</span> Fresco is Alpha software –{' '}
+          <Paragraph variant="noMargin" className="hidden sm:inline-flex">
+            <strong className="hidden font-semibold lg:inline-flex">
+              🤖 Fresco is Alpha software – &nbsp;
             </strong>
             We depend on your feedback and issue reports to improve
           </Paragraph>
-          <FeedbackButton size="sm" />
+          <FeedbackButton
+            size="sm"
+            // variant="outline"
+            className="border-foreground bg-background/50 text-foreground hover:text-background"
+          />
         </div>
         {!isDashboard && (
           <CloseButton onClick={() => setOpenSignOutModal(true)} />

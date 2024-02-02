@@ -24,7 +24,7 @@ export const NavButton = ({
       <Link
         href={href}
         className={cn(
-          'text-md font-semibold text-primary-foreground',
+          'text-sm font-semibold text-primary-foreground',
           !isActive && 'hover:text-sea-green',
         )}
       >

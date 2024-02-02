@@ -13,7 +13,7 @@ const headingVariants = cva('text-balance', {
       'h3': 'scroll-m-20 text-2xl font-semibold tracking-tight',
       'h4': 'scroll-m-20 text-xl font-semibold tracking-tight',
       'h4-all-caps':
-        'scroll-m-20 text-md font-extrabold tracking-widest uppercase',
+        'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
     },
   },
 });
