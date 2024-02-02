@@ -9,24 +9,31 @@ import UserMenu from './UserMenu';
 import type { UrlObject } from 'url';
 import type { Route } from 'next';
 import { motion } from 'framer-motion';
-import { Button } from '~/components/ui/Button';
 
 export const NavButton = ({
-  children,
+  label,
   href,
   isActive = false,
 }: {
-  children: React.ReactNode;
+  label: string;
   href: UrlObject | Route;
   isActive?: boolean;
 }) => {
   return (
-    <Link
-      href={href}
-      className={cn(isActive ? 'text-accent' : 'text-primary-foreground')}
+    <motion.li
+      layout
+      className="text-md text-md relative flex flex-col justify-start font-semibold"
     >
-      <Button variant="ghost">{children}</Button>
-    </Link>
+      <Link href={href} className={cn('text-primary-foreground')}>
+        {label}
+      </Link>
+      {isActive && (
+        <motion.div
+          layoutId="underline"
+          className="absolute left-0 right-0 top-[105%] h-[2px] rounded-full bg-accent"
+        />
+      )}
+    </motion.li>
   );
 };
 
@@ -43,33 +50,33 @@ export function NavigationBar() {
           height={40}
         />
       </Link>
-      <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
-        Dashboard
-      </NavButton>
-      <NavButton
-        href="/dashboard/protocols"
-        isActive={pathname === '/dashboard/protocols'}
-      >
-        Protocols
-      </NavButton>
-      <NavButton
-        href="/dashboard/interviews"
-        isActive={pathname === '/dashboard/interviews'}
-      >
-        Interviews
-      </NavButton>
-      <NavButton
-        href="/dashboard/participants"
-        isActive={pathname === '/dashboard/participants'}
-      >
-        Participants
-      </NavButton>
-      <NavButton
-        href="/dashboard/settings"
-        isActive={pathname === '/dashboard/settings'}
-      >
-        Settings
-      </NavButton>
+      <ul className="flex items-center gap-8">
+        <NavButton
+          href="/dashboard"
+          isActive={pathname === '/dashboard'}
+          label="Dashboard"
+        />
+        <NavButton
+          label="Protocols"
+          href="/dashboard/protocols"
+          isActive={pathname === '/dashboard/protocols'}
+        />
+        <NavButton
+          label="Interviews"
+          href="/dashboard/interviews"
+          isActive={pathname === '/dashboard/interviews'}
+        />
+        <NavButton
+          label="Participants"
+          href="/dashboard/participants"
+          isActive={pathname === '/dashboard/participants'}
+        />
+        <NavButton
+          label="Settings"
+          href="/dashboard/settings"
+          isActive={pathname === '/dashboard/settings'}
+        />
+      </ul>
       <UserMenu />
     </motion.nav>
   );

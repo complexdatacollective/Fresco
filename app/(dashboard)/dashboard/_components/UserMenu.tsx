@@ -7,7 +7,7 @@ const UserMenu = () => {
   const { signOut } = useSession();
 
   return (
-    <Button variant="outline" onClick={signOut}>
+    <Button variant="secondary" size="sm" onClick={signOut}>
       Sign out
     </Button>
   );

@@ -73,7 +73,7 @@
     "eslint-plugin-local-rules": "^2.0.0",
     "eventemitter3": "^5.0.1",
     "file-loader": "^6.2.0",
-    "framer-motion": "^10.16.4",
+    "framer-motion": "^11.0.3",
     "fuse.js": "^7.0.0",
     "jssha": "^3.3.1",
     "jszip": "^3.10.1",
