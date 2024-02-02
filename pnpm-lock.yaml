@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@codaco/analytics':
-    specifier: ^4.0.0
-    version: 4.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0)
+    specifier: ^5.0.0
+    version: 5.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0)
   '@codaco/protocol-validation':
     specifier: 3.0.0-alpha.4
     version: 3.0.0-alpha.4(@types/eslint@8.44.6)(eslint-config-prettier@9.0.0)(eslint@8.52.0)
@@ -1822,8 +1822,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@codaco/analytics@4.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0):
-    resolution: {integrity: sha512-/QJwnlaO3iZDHw206cB6gxXhQE/stwMYqW6tqotuJMCnMXmOa3CqMtcOac546jMs3U1ISU5qxTrECb/iulyDyg==}
+  /@codaco/analytics@5.0.0(@maxmind/geoip2-node@5.0.0)(next@14.1.0):
+    resolution: {integrity: sha512-texj19Lhf4PUvt5Htr4JgKGQBOvpgTIA7ygi/Y30uF79mjANPS/JshHgOnW4UQrK8nQarpd2wdhthMMthImRdw==}
     peerDependencies:
       '@maxmind/geoip2-node': ^5.0.0
       next: 13 || 14

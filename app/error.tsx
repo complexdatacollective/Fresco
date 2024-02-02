@@ -93,11 +93,9 @@ export default function Error({
 
     trackEvent({
       type: 'Error',
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      },
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
       metadata: {
         path: window.location.pathname,
         userAgent: navigator.userAgent,

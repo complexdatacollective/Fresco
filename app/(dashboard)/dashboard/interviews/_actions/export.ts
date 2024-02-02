@@ -130,11 +130,9 @@ export const exportSessions = async (
     const e = ensureError(error);
     void trackEvent({
       type: 'Error',
-      error: {
-        name: e.name,
-        message: e.message,
-        stack: e.stack,
-      },
+      name: e.name,
+      message: e.message,
+      stack: e.stack,
       metadata: {
         path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
       },

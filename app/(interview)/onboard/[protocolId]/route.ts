@@ -36,10 +36,8 @@ const handler = async (
   if (error) {
     void trackEvent({
       type: 'Error',
-      error: {
-        name: error,
-        message: 'Failed to create interview',
-      },
+      name: error,
+      message: 'Failed to create interview',
       metadata: {
         path: '/onboard/[protocolId]/route.ts',
       },

@@ -124,11 +124,9 @@ export function jobReducer(state: ImportJob[], action: Action) {
 
       void trackEvent({
         type: 'Error',
-        error: {
-          name: rawError.name,
-          message: rawError.message,
-          stack: rawError.stack,
-        },
+        name: rawError.name,
+        message: rawError.message,
+        stack: rawError.stack,
         metadata: {
           error,
           path: '/components/ProtocolImport/JobReducer.ts',

@@ -71,7 +71,6 @@ function Home({ searchParams }: IndexPageProps) {
           <ActivityFeed searchParams={searchParams} />
         </Section>
       </ResponsiveContainer>
-      <Divider />
     </>
   );
 }
