@@ -75,7 +75,7 @@ export const useNavigationHelpers = () => {
   const calculatePreviousStage = useCallback(() => {
     const previousStage = Object.keys(skipMap)
       .reverse()
-      .find((stage) => parseInt(stage) < currentStage);
+      .find((stage) => parseInt(stage) < currentStage && skipMap[parseInt(stage)] === false);
 
     if (!previousStage) {
       return currentStage;
