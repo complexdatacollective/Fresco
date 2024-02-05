@@ -139,7 +139,7 @@ export const useNavigationHelpers = () => {
     }
 
     beforeNextFunction.current = null;
-  }, [currentStage]);
+  }, [currentStage, () => beforeNextFunction.current]);
 
   // Check if the current stage is valid for us to be on.
   useEffect(() => {
