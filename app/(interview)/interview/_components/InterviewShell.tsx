@@ -80,7 +80,11 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
   ]);
 
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
