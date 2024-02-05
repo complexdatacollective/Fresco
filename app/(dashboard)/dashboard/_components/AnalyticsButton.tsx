@@ -18,7 +18,7 @@ const AnalyticsButton = () => {
         toast({
           title: 'Success',
           description: 'Test event sent',
-          variant: 'destructive',
+          variant: 'success',
         });
       })
       .catch((e) => {
