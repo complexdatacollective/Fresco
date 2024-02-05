@@ -23,6 +23,7 @@ import { DataTableFacetedFilter } from '../data-table-faceted-filter';
 import { TrashIcon } from 'lucide-react';
 import type { DataTableFilterOption } from '~/lib/data-table/types';
 import { cn } from '~/utils/shadcn';
+import { type Route } from 'next';
 
 type DataTableAdvancedFilterItemProps<TData> = {
   table: Table<TData>;
@@ -87,7 +88,7 @@ export function DataTableAdvancedFilterItem<TData>({
           [selectedOption.value]: `${debounceValue}${
             debounceValue.length > 0 ? `.${filterVariety}` : ''
           }`,
-        })}`,
+        })}` as Route,
         {
           scroll: false,
         },
@@ -98,7 +99,7 @@ export function DataTableAdvancedFilterItem<TData>({
       router.push(
         `${pathname}?${createQueryString({
           [selectedOption.value]: null,
-        })}`,
+        })}` as Route,
         {
           scroll: false,
         },
@@ -166,7 +167,7 @@ export function DataTableAdvancedFilterItem<TData>({
               router.push(
                 `${pathname}?${createQueryString({
                   [selectedOption.value]: null,
-                })}`,
+                })}` as Route,
                 {
                   scroll: false,
                 },

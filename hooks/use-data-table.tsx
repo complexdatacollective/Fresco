@@ -17,12 +17,13 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import { useDebounce } from '~/hooks/use-debounce';
-import {
+import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from '~/lib/data-table/types';
+import type { Route } from 'next';
 
-interface UseDataTableProps<TData, TValue> {
+type UseDataTableProps<TData, TValue> = {
   /**
    * The data for the table
    * @default []
@@ -58,7 +59,7 @@ interface UseDataTableProps<TData, TValue> {
    * @example filterableColumns={[{ id: "status", title: "Status", options: ["todo", "in-progress", "done", "canceled"]}]}
    */
   filterableColumns?: DataTableFilterableColumn<TData>[];
-}
+};
 
 export function useDataTable<TData, TValue>({
   data,
@@ -162,7 +163,7 @@ export function useDataTable<TData, TValue>({
       `${pathname}?${createQueryString({
         page: pageIndex + 1,
         per_page: pageSize,
-      })}`,
+      })}` as Route,
       {
         scroll: false,
       },
@@ -186,7 +187,7 @@ export function useDataTable<TData, TValue>({
         sort: sorting[0]?.id
           ? `${sorting[0]?.id}.${sorting[0]?.desc ? 'desc' : 'asc'}`
           : null,
-      })}`,
+      })}` as Route,
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -245,7 +246,7 @@ export function useDataTable<TData, TValue>({
     }
 
     // After cumulating all the changes, push new params
-    router.push(`${pathname}?${createQueryString(newParamsObject)}`);
+    router.push(`${pathname}?${createQueryString(newParamsObject)}` as Route);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

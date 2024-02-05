@@ -29,6 +29,7 @@ import { Separator } from '~/components/ui/separator';
 import { DataTableFacetedFilter } from '../data-table-faceted-filter';
 import { type DataTableFilterOption } from '~/lib/data-table/types';
 import { AlignCenter, Copy, MoreHorizontal, Trash } from 'lucide-react';
+import { type Route } from 'next';
 
 const operators = [
   {
@@ -48,7 +49,7 @@ type DataTableMultiFilterProps<TData> = {
   setSelectedOptions: React.Dispatch<
     React.SetStateAction<DataTableFilterOption<TData>[]>
   >;
-}
+};
 
 export function DataTableMultiFilter<TData>({
   table,
@@ -115,7 +116,7 @@ type MultiFilterRowProps<TData> = {
   setOperator: React.Dispatch<
     React.SetStateAction<(typeof operators)[number] | undefined>
   >;
-} & DataTableMultiFilterProps<TData>
+} & DataTableMultiFilterProps<TData>;
 
 export function MultiFilterRow<TData>({
   i,
@@ -176,7 +177,7 @@ export function MultiFilterRow<TData>({
           [selectedOption?.value ?? '']: `${debounceValue}${
             debounceValue.length > 0 ? `.${filterVariety}` : ''
           }`,
-        })}`,
+        })}` as Route,
         {
           scroll: false,
         },
@@ -187,7 +188,7 @@ export function MultiFilterRow<TData>({
       router.push(
         `${pathname}?${createQueryString({
           [selectedOption?.value ?? '']: null,
-        })}`,
+        })}` as Route,
         {
           scroll: false,
         },
@@ -202,7 +203,7 @@ export function MultiFilterRow<TData>({
       router.push(
         `${pathname}?${createQueryString({
           operator: operator.value,
-        })}`,
+        })}` as Route,
         {
           scroll: false,
         },
