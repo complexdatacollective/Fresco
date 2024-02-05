@@ -6,7 +6,6 @@ export const activityTypes = [
   'Protocol Uninstalled',
   'Participant(s) Added',
   'Participant(s) Removed',
-  'Participant(s) Updated',
   'Interview started',
   'Interview completed',
   'Data Exported',
@@ -24,8 +23,6 @@ const generateMessageForActivityType = (type: ActivityType) => {
       return `Added ${faker.number.int({ min: 1, max: 10 })} participant(s)`;
     case 'Participant(s) Removed':
       return `Removed ${faker.number.int({ min: 1, max: 10 })} participant(s)`;
-    case 'Participant(s) Updated':
-      return `Updated ${faker.number.int({ min: 1, max: 10 })} participant(s)`;
     case 'Interview started':
       return `Participant "${faker.person.fullName()}" started an interview`;
     case 'Interview completed':
@@ -35,6 +32,25 @@ const generateMessageForActivityType = (type: ActivityType) => {
         min: 1,
         max: 10,
       })} participant(s)`;
+  }
+};
+
+export const getBadgeColorsForActivityType = (type: ActivityType) => {
+  switch (type) {
+    case 'Protocol Installed':
+      return 'bg-slate-blue hover:bg-slate-blue-dark';
+    case 'Protocol Uninstalled':
+      return 'bg-neon-carrot hover:neon-carrot-dark';
+    case 'Participant(s) Added':
+      return 'bg-sea-green hover:bg-sea-green';
+    case 'Participant(s) Removed':
+      return 'bg-tomato hover:bg-tomato-dark';
+    case 'Interview started':
+      return 'bg-sea-serpent hover:bg-sea-serpent-dark';
+    case 'Interview completed':
+      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    case 'Data Exported':
+      return 'bg-kiwi hover:kiwi-dark';
   }
 };
 

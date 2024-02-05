@@ -45,9 +45,9 @@ export default {
         DEFAULT: 'hsl(var(--sea-serpent) / <alpha-value>)',
         dark: 'hsl(var(--sea-serpent--dark) / <alpha-value>)',
       },
-      'purple-pizzazz': {
-        DEFAULT: 'hsl(var(--purple-pizzazz) / <alpha-value>)',
-        dark: 'hsl(var(--purple-pizzazz--dark) / <alpha-value>)',
+      'purple-pizazz': {
+        DEFAULT: 'hsl(var(--purple-pizazz) / <alpha-value>)',
+        dark: 'hsl(var(--purple-pizazz--dark) / <alpha-value>)',
       },
       'paradise-pink': {
         DEFAULT: 'hsl(var(--paradise-pink) / <alpha-value>)',
@@ -112,6 +112,7 @@ export default {
         DEFAULT: 'hsl(var(--panel) / <alpha-value>)',
         foreground: 'hsl(var(--foreground) / <alpha-value>)',
       },
+      'transparent': 'transparent',
 
       'border': 'hsl(var(--border) / <alpha-value>)',
       'borderRadius': {

@@ -1,7 +1,6 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/data-table/data-table-column-header';
 import { Badge } from '~/components/ui/badge';
 import type {
@@ -9,7 +8,12 @@ import type {
   DataTableSearchableColumn,
 } from '~/lib/data-table/types';
 import type { TransitionStartFunction } from 'react';
-import { type Activity, activityTypes } from './utils';
+import {
+  type Activity,
+  activityTypes,
+  getBadgeColorsForActivityType,
+  type ActivityType,
+} from './utils';
 
 export function fetchActivityFeedTableColumnDefs(
   _isPending: boolean,
@@ -17,38 +21,47 @@ export function fetchActivityFeedTableColumnDefs(
 ): ColumnDef<Activity, unknown>[] {
   return [
     {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value);
-          }}
-          aria-label="Select all"
-          className="translate-y-[2px]"
-        />
+      accessorKey: 'timestamp',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Time" />
       ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value);
-          }}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
+      cell: ({ row }) => {
+        const timestamp: string = row.getValue('timestamp');
+        const formattedDate = new Date(timestamp).toLocaleString();
+        return (
+          <div className="flex space-x-2">
+            <span className="max-w-[500px] truncate font-medium">
+              {formattedDate}
+            </span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'type',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Type" />
       ),
+      cell: ({ row }) => {
+        const activityType: ActivityType = row.getValue('type');
+        return (
+          <div className="flex space-x-2">
+            <Badge className={getBadgeColorsForActivityType(activityType)}>
+              {activityType}
+            </Badge>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'message',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Details" />
+      ),
       cell: ({ row }) => (
         <div className="flex space-x-2">
-          {<Badge variant="outline">{row.getValue('type')}</Badge>}
           <span className="max-w-[500px] truncate font-medium">
             {row.original.message}
           </span>
@@ -56,21 +69,6 @@ export function fetchActivityFeedTableColumnDefs(
       ),
       enableSorting: false,
       enableHiding: false,
-    },
-    {
-      accessorKey: 'timestamp',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Time" />
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {row.getValue('timestamp')}
-            </span>
-          </div>
-        );
-      },
     },
   ];
 }
@@ -88,7 +86,7 @@ export const filterableColumns: DataTableFilterableColumn<Activity>[] = [
 
 export const searchableColumns: DataTableSearchableColumn<Activity>[] = [
   {
-    id: 'type',
-    title: 'messages',
+    id: 'message',
+    title: 'activity details',
   },
 ];
