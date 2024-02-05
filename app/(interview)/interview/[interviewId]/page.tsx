@@ -9,7 +9,7 @@ export default function Page({ params }: { params: { interviewId: string } }) {
   }
 
   return (
-    <div className="flex h-[100vh] max-h-[100vh] flex-col bg-background text-[var(--nc-text)]">
+    <div className="flex h-[100vh] max-h-[100vh] flex-col bg-[--nc-background] text-[--nc-text]">
       <NoSSRWrapper>
         <InterviewShell interviewID={interviewId} />
       </NoSSRWrapper>

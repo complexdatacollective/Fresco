@@ -10,7 +10,7 @@ export default function Banner({
   return (
     <div
       className={cn(
-        'relative isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden bg-tomato/10 px-6 py-1.5 text-foreground sm:px-3.5',
+        'relative isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden bg-background px-6 py-1.5 text-foreground sm:px-3.5',
         className,
       )}
     >

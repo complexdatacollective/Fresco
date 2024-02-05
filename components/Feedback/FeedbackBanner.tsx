@@ -47,7 +47,7 @@ const FeedbackBanner = () => {
           }}
         />
       </div>
-      <div className="flex flex-grow items-center justify-between text-sm">
+      <div className="flex flex-grow items-center justify-center gap-4 text-sm">
         {!isDashboard && (
           <>
             <SignOutModal
