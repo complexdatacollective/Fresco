@@ -10,6 +10,7 @@ import {
 } from './ColumnDefinition';
 import { TasksTableFloatingBarContent } from './TasksTableFloatingBarContent';
 import type { Activity, Result } from './utils';
+import { Events } from '@prisma/client';
 
 export default function ActivityFeedTable({
   activitiesPromise,
@@ -20,7 +21,7 @@ export default function ActivityFeedTable({
   const [isPending, startTransition] = useTransition();
 
   // Memoize the columns so they don't re-render on every render
-  const columns = useMemo<ColumnDef<Activity, unknown>[]>(
+  const columns = useMemo<ColumnDef<Events, unknown>[]>(
     () => fetchActivityFeedTableColumnDefs(isPending, startTransition),
     [isPending],
   );

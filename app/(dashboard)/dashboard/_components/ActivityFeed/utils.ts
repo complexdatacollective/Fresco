@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import type { SearchParams } from '~/lib/data-table/types';
+import type { Events } from '@prisma/client';
 
 export const activityTypes = [
   'Protocol Installed',
@@ -59,7 +59,6 @@ const generateMockActivity = () => {
   return {
     id: faker.string.uuid(),
     timestamp: faker.date.recent().toISOString(),
-    invalid: faker.datatype.boolean(),
     type,
     message: generateMessageForActivityType(type),
   };
@@ -70,17 +69,17 @@ export type Activity = ReturnType<typeof generateMockActivity>;
 const activities = Array.from({ length: 10 }, generateMockActivity);
 
 export type Result = {
-  data: Activity[];
+  data: Events[];
   pageCount: number;
 };
 
-export const getActivities = async (_searchParams: SearchParams) => {
-  return new Promise((resolve: (value: Result) => void) => {
-    setTimeout(() => {
-      resolve({
-        data: activities,
-        pageCount: 3,
-      });
-    }, 3000);
-  });
-};
+// export const getActivities = async (_searchParams: SearchParams) => {
+//   return new Promise((resolve: (value: Result) => void) => {
+//     setTimeout(() => {
+//       resolve({
+//         data: activities,
+//         pageCount: 3,
+//       });
+//     }, 3000);
+//   });
+// };

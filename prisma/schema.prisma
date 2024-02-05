@@ -96,12 +96,8 @@ model AppSettings {
 }
 
 model Events {
-  id            String   @id @default(cuid())
-  timestamp     DateTime @default(now())
-  invalid       Boolean  @default(false) // True if the related entity has since been deleted
-  type          String
-  message       String
-  participantId String
-  protocolId    String
-  interviewId   String
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  type      String
+  message   String
 }

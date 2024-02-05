@@ -14,11 +14,12 @@ import {
   getBadgeColorsForActivityType,
   type ActivityType,
 } from './utils';
+import type { Events } from '@prisma/client';
 
 export function fetchActivityFeedTableColumnDefs(
   _isPending: boolean,
   _startTransition: TransitionStartFunction,
-): ColumnDef<Activity, unknown>[] {
+): ColumnDef<Events, unknown>[] {
   return [
     {
       accessorKey: 'timestamp',
