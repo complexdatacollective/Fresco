@@ -8,26 +8,35 @@ import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
 import type { UrlObject } from 'url';
 import type { Route } from 'next';
+import { motion } from 'framer-motion';
 
 export const NavButton = ({
-  children,
+  label,
   href,
   isActive = false,
 }: {
-  children: React.ReactNode;
+  label: string;
   href: UrlObject | Route;
   isActive?: boolean;
 }) => {
   return (
-    <Link
-      href={href}
-      className={cn(
-        'font-medium underline-offset-4 transition-colors hover:text-primary hover:underline',
-        isActive ? 'text-foreground' : 'text-foreground/60',
+    <motion.li layout className=" relative flex flex-col justify-start">
+      <Link
+        href={href}
+        className={cn(
+          'text-sm font-semibold text-primary-foreground',
+          !isActive && 'hover:text-sea-green',
+        )}
+      >
+        {label}
+      </Link>
+      {isActive && (
+        <motion.div
+          layoutId="underline"
+          className="absolute left-0 right-0 top-[105%] h-[2px] rounded-full bg-accent"
+        />
       )}
-    >
-      {children}
-    </Link>
+    </motion.li>
   );
 };
 
@@ -35,42 +44,43 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex justify-between bg-[#e5e7eb] px-4 py-2">
-      <Link href="/" className="mr-6 flex items-center space-x-2">
+    <motion.nav className="flex items-center justify-between gap-4 bg-cyber-grape px-4 py-3">
+      <Link href="/" className="flex items-center space-x-2">
         <Image
           src="/images/NC-Mark@4x.png"
           alt="Fresco"
-          width={60}
-          height={60}
+          width={40}
+          height={40}
         />
-        <span className="hidden font-bold sm:inline-block">
-          Network Canvas Fresco
-        </span>
       </Link>
-      <div className="flex items-center space-x-6">
-        <NavButton href="/dashboard" isActive={pathname === '/dashboard'}>
-          Home
-        </NavButton>
+      <ul className="flex items-center gap-10">
         <NavButton
+          href="/dashboard"
+          isActive={pathname === '/dashboard'}
+          label="Dashboard"
+        />
+        <NavButton
+          label="Protocols"
           href="/dashboard/protocols"
           isActive={pathname === '/dashboard/protocols'}
-        >
-          Protocols
-        </NavButton>
+        />
         <NavButton
+          label="Interviews"
           href="/dashboard/interviews"
           isActive={pathname === '/dashboard/interviews'}
-        >
-          Interviews
-        </NavButton>
+        />
         <NavButton
+          label="Participants"
           href="/dashboard/participants"
           isActive={pathname === '/dashboard/participants'}
-        >
-          Participants
-        </NavButton>
-      </div>
+        />
+        <NavButton
+          label="Settings"
+          href="/dashboard/settings"
+          isActive={pathname === '/dashboard/settings'}
+        />
+      </ul>
       <UserMenu />
-    </nav>
+    </motion.nav>
   );
 }

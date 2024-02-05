@@ -4,24 +4,17 @@ import type { Route } from 'next';
 import { type ReadonlyURLSearchParams } from 'next/navigation';
 import { cache } from 'react';
 
-const routeIsLoginPage = (pathname: Route) => {
-  return pathname === '/signin';
-};
-
-const routeIsLandingPage = (pathname: Route) => {
-  return pathname === '/';
-};
-
-const routeIsOnboarding = (pathname: Route) => {
-  return pathname.startsWith('/setup');
-};
-
-const routeIsInterviewing = (pathname: Route) => {
-  return pathname.startsWith('/interview');
-};
-
-const routeIsExpiredPage = (pathname: Route) => {
-  return pathname === '/expired';
+/**
+ * "For non-literal strings, you currently need to manually cast the href with
+ * as Route": https://nextjs.org/docs/app/building-your-application/configuring/typescript#statically-typed-links
+ *
+ * This helper at least makes sure that the first part of the route is valid!
+ */
+const createRouteWithSearchParams = (
+  route: Route,
+  searchParams: string,
+): Route => {
+  return `${route}?${searchParams}` as Route;
 };
 
 export const calculateRedirect = ({
@@ -42,11 +35,11 @@ export const calculateRedirect = ({
     throw new Error('No path provided to calculateRedirect!');
   }
 
-  const isLoginPage = routeIsLoginPage(path);
-  const isLandingPage = routeIsLandingPage(path);
-  const isOnboarding = routeIsOnboarding(path);
-  const isInterviewing = routeIsInterviewing(path);
-  const isExpiredPage = routeIsExpiredPage(path);
+  const isLoginPage = path === '/signin';
+  const isLandingPage = path === '/';
+  const isOnboarding = path.startsWith('/setup');
+  const isInterviewing = path.startsWith('/interview');
+  const isExpiredPage = path === '/expired';
 
   /**
    * `configured` - setup has been completed
@@ -73,21 +66,21 @@ export const calculateRedirect = ({
 
   // APP IS CONFIGURED
   if (!session) {
-    if (isLoginPage) {
+    // If there's no session, these are the only routes that we pass through:
+    if (isLoginPage || isLandingPage || isInterviewing) {
       return;
     }
 
-    if (isInterviewing) {
-      return;
-    }
-
-    return ('/signin?callbackUrl=' + encodeURI(path)) as Route;
+    return createRouteWithSearchParams(
+      '/signin',
+      'callbackUrl=' + encodeURI(path),
+    );
   }
 
   // APP IS CONFIGURED AND SESSION EXISTS
 
   // Redirect authed users away from these pages and to the dashboard
-  if (isLoginPage || isOnboarding || isLandingPage || isExpiredPage) {
+  if (isLoginPage || isOnboarding || isExpiredPage) {
     if (isLoginPage) {
       const callbackUrl = searchParams.get('callbackUrl') as Route;
 

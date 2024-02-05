@@ -10,11 +10,12 @@ import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 import { signOutProc } from './session';
 import { revalidateTag } from 'next/cache';
+import { cache } from 'react';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-export const getAppSettings = async () => {
+export const getAppSettings = cache(async () => {
   const appSettings = await prisma.appSettings.findFirst();
 
   if (!appSettings) {
@@ -28,7 +29,7 @@ export const getAppSettings = async () => {
       appSettings.initializedAt,
     ),
   };
-};
+});
 
 export const appSettingsRouter = router({
   get: publicProcedure.query(getAppSettings),

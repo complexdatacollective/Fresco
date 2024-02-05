@@ -14,6 +14,6 @@ export const getInstallationId = cache(async () => {
   return appSettings?.installationId ?? 'Unknown';
 });
 
-export const trackEvent = !env.DISABLE_ANALYTICS
-  ? makeEventTracker()
-  : () => null;
+export const trackEvent = makeEventTracker({
+  enabled: !!env.DISABLE_ANALYTICS,
+});
