@@ -2,8 +2,10 @@ import { InterviewsTable } from '~/app/(dashboard)/dashboard/_components/Intervi
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
+import { api } from '~/trpc/server';
 
-const InterviewPage = () => {
+const InterviewPage = async () => {
+  const initialInterviews = await api.interview.get.all.query();
   return (
     <>
       <ResponsiveContainer>
@@ -14,7 +16,7 @@ const InterviewPage = () => {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="5xl">
         <Section>
-          <InterviewsTable />
+          <InterviewsTable initialInterviews={initialInterviews} />
         </Section>
       </ResponsiveContainer>
     </>

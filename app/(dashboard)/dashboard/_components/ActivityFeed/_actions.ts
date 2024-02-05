@@ -59,6 +59,6 @@ export async function getActivities(searchParams: SearchParams) {
       (),
   ]);
 
-  const pageCount = Math.ceil(count + 1 / limit);
+  const pageCount = Math.ceil(count / limit);
   return { data, pageCount };
 }

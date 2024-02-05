@@ -9,9 +9,18 @@ import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
+import type { RouterOutputs } from '~/trpc/shared';
 
-export const InterviewsTable = () => {
+type Interviews = RouterOutputs['interview']['get']['all'][0];
+
+export const InterviewsTable = ({
+  initialInterviews,
+}: {
+  initialInterviews: Interviews;
+}) => {
   const interviews = api.interview.get.all.useQuery(undefined, {
+    initialData: initialInterviews,
+    refetchOnMount: false,
     onError(error) {
       throw new Error(error.message);
     },
