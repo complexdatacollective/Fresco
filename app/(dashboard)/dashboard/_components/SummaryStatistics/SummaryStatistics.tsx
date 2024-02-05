@@ -26,8 +26,8 @@ export default async function SummaryStatistics() {
           icon={
             <Image
               src="/images/participant.svg"
-              width={40}
-              height={40}
+              width={53.33}
+              height={53.33}
               alt="Participant icon"
             />
           }
