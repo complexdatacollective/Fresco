@@ -9,6 +9,7 @@ import { useState } from 'react';
 import SignOutModal from './SignOutModal';
 import { usePathname } from 'next/navigation';
 import Paragraph from '../ui/typography/Paragraph';
+import { cn } from '~/utils/shadcn';
 
 const FeedbackBanner = () => {
   const [openSignOutModal, setOpenSignOutModal] = useState(false);
@@ -47,30 +48,38 @@ const FeedbackBanner = () => {
           }}
         />
       </div>
-      <div className="flex flex-grow items-center justify-center gap-4 text-sm">
-        {!isDashboard && (
-          <>
-            <SignOutModal
-              openSignOutModal={openSignOutModal}
-              setOpenSignOutModal={setOpenSignOutModal}
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="font-bold"
-              onClick={returnToDashboard}
-            >
-              <ArrowLeftFromLine className="mr-2" size={16} strokeWidth={3} />
-              Return to Dashboard
-            </Button>
-          </>
+      {!isDashboard && (
+        <>
+          <SignOutModal
+            openSignOutModal={openSignOutModal}
+            setOpenSignOutModal={setOpenSignOutModal}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="font-bold"
+            onClick={returnToDashboard}
+          >
+            <ArrowLeftFromLine className="mr-2" size={16} strokeWidth={3} />
+            Back to Dashboard
+          </Button>
+        </>
+      )}
+      <div
+        className={cn(
+          'flex flex-grow items-center gap-4 text-sm',
+          isDashboard ? 'justify-center' : 'justify-end',
         )}
-        <Paragraph variant="noMargin" className="m-0 hidden sm:inline-flex">
-          <strong className="hidden font-semibold lg:inline-flex">
-            🤖 Fresco is Alpha software – &nbsp;
-          </strong>
-          We depend on your feedback and issue reports to improve
-        </Paragraph>
+      >
+        {isDashboard && (
+          <Paragraph variant="noMargin" className="m-0 hidden sm:inline-flex">
+            <strong className="hidden font-semibold lg:inline-flex">
+              🤖 Fresco is Alpha software – &nbsp;
+            </strong>
+            We depend on your feedback and issue reports to improve
+          </Paragraph>
+        )}
+
         <FeedbackButton
           size="sm"
           // variant="outline"
