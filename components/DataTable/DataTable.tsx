@@ -58,16 +58,6 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
-  const [navigatorLanguages, setNavigatorLanguages] = useState<
-    string[] | undefined
-  >();
-
-  useEffect(() => {
-    if (window.navigator.languages) {
-      setNavigatorLanguages(window.navigator.languages as string[]);
-    }
-  }, []);
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   if (columns.length === 0) {
@@ -117,7 +107,6 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
       getRowClasses: (row: Row<TData>) => calculateRowClasses?.(row),
-      navigatorLanguages,
     },
     state: {
       sorting,
@@ -244,7 +233,7 @@ export function DataTable<TData, TValue>({
             {isDeleting ? (
               <span className="flex items-center gap-2">
                 Deleting...
-                <Loader className="h-4 w-4 animate-spin text-white" />
+                <Loader className="text-white h-4 w-4 animate-spin" />
               </span>
             ) : (
               'Delete Selected'

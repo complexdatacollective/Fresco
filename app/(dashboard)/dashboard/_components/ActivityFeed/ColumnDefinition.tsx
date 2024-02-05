@@ -15,6 +15,7 @@ import {
   type ActivityType,
 } from './utils';
 import type { Events } from '@prisma/client';
+import FormattedDate from '~/components/ui/FormattedDate';
 
 export function fetchActivityFeedTableColumnDefs(
   _isPending: boolean,
@@ -28,12 +29,9 @@ export function fetchActivityFeedTableColumnDefs(
       ),
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
-        const formattedDate = new Date(timestamp).toLocaleString();
         return (
-          <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {formattedDate}
-            </span>
+          <div className="flex max-w-[500px] space-x-2 truncate font-medium">
+            <FormattedDate date={timestamp} />
           </div>
         );
       },

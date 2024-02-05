@@ -7,8 +7,8 @@ import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { AnonymousRecruitmentSection } from './AnonymousRecruitmentSection';
 import { ParticipationUrlModal } from '~/app/(dashboard)/dashboard/protocols/_components/ParticipationUrlModal';
+import { AnonymousRecruitmentModal } from '../../protocols/_components/AnonymousRecruitmentModal';
 
 export const ProtocolsTable = ({
   initialData,
@@ -34,9 +34,9 @@ export const ProtocolsTable = ({
 
   return (
     <>
-      <div className="flex flex-col gap-2 pt-2">
-        <AnonymousRecruitmentSection />
+      <div className="flex gap-2">
         <ParticipationUrlModal />
+        <AnonymousRecruitmentModal />
       </div>
       <DataTable<ProtocolWithInterviews, string>
         columns={ProtocolColumns}

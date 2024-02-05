@@ -3,6 +3,7 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { api } from '~/trpc/server';
+import { ExportParticipantUrlSection } from './_components/ExportParticipantUrlSection';
 
 const ParticipantPage = async () => {
   let participants;
@@ -19,6 +20,9 @@ const ParticipantPage = async () => {
           headerText="Participants"
           subHeaderText="View and manage your participants."
         />
+      </ResponsiveContainer>
+      <ResponsiveContainer>
+        <ExportParticipantUrlSection />
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="5xl">
         <Section>

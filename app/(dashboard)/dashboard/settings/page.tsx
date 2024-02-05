@@ -7,6 +7,7 @@ import AnalyticsButton from '../_components/AnalyticsButton';
 import { Suspense } from 'react';
 import RecruitmentTestSection from '../_components/RecruitmentTestSection';
 import Heading from '~/components/ui/typography/Heading';
+import { AnonymousRecruitmentSection } from '../_components/ProtocolsTable/AnonymousRecruitmentSection';
 
 export default function Settings() {
   return (
@@ -17,7 +18,8 @@ export default function Settings() {
           subHeaderText="Here you can configure your installation of Fresco."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="5xl" className="gap-4">
+      <ResponsiveContainer className="gap-4">
+        <AnonymousRecruitmentSection />
         <Section>
           <div>
             <Heading variant="h4-all-caps" className="mb-2">

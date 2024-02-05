@@ -6,8 +6,8 @@ import { type ColumnDef, flexRender } from '@tanstack/react-table';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { dateOptions } from '~/components/DataTable/helpers';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
+import FormattedDate from '~/components/ui/FormattedDate';
 
 export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
   {
@@ -39,53 +39,18 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
     },
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
-    cell: ({ row }) => {
-      return flexRender(row.original.description, row);
-    },
-  },
-  {
     accessorKey: 'importedAt',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Imported" />;
     },
-    cell: ({
-      row,
-      table: {
-        options: { meta },
-      },
-    }) => (
-      <div className="text-xs">
-        {
-          // @ts-ignore
-          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
-            new Date(row.original.importedAt),
-          )
-        }
-      </div>
-    ),
+    cell: ({ row }) => <FormattedDate date={row.original.importedAt} />,
   },
   {
     accessorKey: 'lastModified',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Modified" />;
     },
-    cell: ({
-      row,
-      table: {
-        options: { meta },
-      },
-    }) => (
-      <div className="text-xs">
-        {
-          // @ts-ignore
-          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
-            new Date(row.original.lastModified),
-          )
-        }
-      </div>
-    ),
+    cell: ({ row }) => <FormattedDate date={row.original.lastModified} />,
   },
   {
     id: 'participant-url',

@@ -4,7 +4,6 @@ import type { Participant, Protocol } from '@prisma/client';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import {
@@ -68,10 +67,6 @@ const RecruitmentTestSection = () => {
       <Paragraph variant="noMargin" className="leading-normal">
         This section allows you to test recruitment.
       </Paragraph>
-      <div className="flex justify-between">
-        <p>Allow anonymous recruitment?</p>
-        <RecruitmentSwitch />
-      </div>
       <div className="flex gap-4">
         <Select
           onValueChange={(value) => {

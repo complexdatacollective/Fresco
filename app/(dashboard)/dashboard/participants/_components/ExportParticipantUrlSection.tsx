@@ -12,6 +12,9 @@ import {
 
 import { api } from '~/trpc/client';
 import ExportCSVParticipantURLs from '~/app/(dashboard)/dashboard/participants/_components/ExportCSVParticipantURLs';
+import Section from '~/components/layout/Section';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 export const ExportParticipantUrlSection = () => {
   const { data: protocolData, isLoading: isLoadingProtocols } =
@@ -37,14 +40,16 @@ export const ExportParticipantUrlSection = () => {
   }, [participantData]);
 
   return (
-    <div className="mt-6 flex w-1/3 flex-col gap-4 rounded-lg border border-solid p-6">
-      <h1 className="text-xl">Generate Participation URLs</h1>
-      <p className="text-sm text-muted-foreground">
-        Generate a CSV of participation URLs for all participants by protocol.
-        These URLs can be shared with participants to allow them to participate
-        in your study.
-      </p>
-      <div className="flex flex-col gap-4">
+    <Section classNames="flex">
+      <div className="flex-shrink-1">
+        <Heading variant="h4">Generate Participation URLs</Heading>
+        <Paragraph>
+          Generate a CSV of participation URLs for all participants by protocol.
+          These URLs can be shared with participants to allow them to
+          participate in your study.
+        </Paragraph>
+      </div>
+      <div className="flex flex-grow flex-col gap-4">
         {/* Protocol selection */}
         <Select
           onValueChange={(value) => {
@@ -75,6 +80,6 @@ export const ExportParticipantUrlSection = () => {
           disabled={isLoadingParticipants || !selectedProtocol}
         />
       </div>
-    </div>
+    </Section>
   );
 };

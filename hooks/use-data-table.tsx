@@ -188,6 +188,9 @@ export function useDataTable<TData, TValue>({
           ? `${sorting[0]?.id}.${sorting[0]?.desc ? 'desc' : 'asc'}`
           : null,
       })}` as Route,
+      {
+        scroll: false,
+      },
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -246,7 +249,9 @@ export function useDataTable<TData, TValue>({
     }
 
     // After cumulating all the changes, push new params
-    router.push(`${pathname}?${createQueryString(newParamsObject)}` as Route);
+    router.push(`${pathname}?${createQueryString(newParamsObject)}` as Route, {
+      scroll: false,
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

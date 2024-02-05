@@ -45,8 +45,6 @@ export const ParticipantsTable = ({
         <ExportParticipants participants={participants} />
         <DeleteAllParticipantsButton />
       </div>
-      <ExportParticipantUrlSection />
-      {isLoading && <div>Loading...</div>}
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
