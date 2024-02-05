@@ -2,8 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { trackEvent } from '~/analytics/utils';
 import { api } from '~/trpc/server';
 
-export const dynamic = 'force-dynamic'; // defaults to auto
-
 const handler = async (
   req: NextRequest,
   { params }: { params: { protocolId: string } },
@@ -12,15 +10,6 @@ const handler = async (
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    void trackEvent({
-      type: 'Error',
-      error: new Error('No protocol ID provided.'),
-      metadata: {
-        details: 'No protocol ID provided',
-        path: '/onboard/[protocolId]/route.ts',
-      },
-    });
-
     return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
   }
 
@@ -47,9 +36,9 @@ const handler = async (
   if (error) {
     void trackEvent({
       type: 'Error',
-      error: new Error(error),
+      name: error,
+      message: 'Failed to create interview',
       metadata: {
-        details: 'Failed to create interview',
         path: '/onboard/[protocolId]/route.ts',
       },
     });
@@ -67,7 +56,6 @@ const handler = async (
   void trackEvent({
     type: 'InterviewStarted',
     metadata: {
-      timestamp: new Date().toISOString(),
       usingAnonymousParticipant: !participantId,
     },
   });

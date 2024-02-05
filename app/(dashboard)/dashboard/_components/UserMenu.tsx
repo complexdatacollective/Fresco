@@ -7,9 +7,9 @@ const UserMenu = () => {
   const { signOut } = useSession();
 
   return (
-    <div className="flex flex-row items-center gap-6">
-      <Button onClick={() => void signOut()}>Sign out</Button>
-    </div>
+    <Button variant="secondary" size="sm" onClick={() => signOut()}>
+      Sign out
+    </Button>
   );
 };
 

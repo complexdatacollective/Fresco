@@ -15,7 +15,6 @@ const installationId = await getInstallationId();
 
 const routeHandler = createRouteHandler({
   installationId,
-  platformUrl: 'https://frescoanalytics.networkcanvas.dev',
   maxMindClient,
 });
 

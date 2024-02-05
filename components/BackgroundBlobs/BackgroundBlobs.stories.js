@@ -9,7 +9,7 @@ export const normal = () => (
       width: '800px',
       height: '600px',
       border: '1px solid white',
-      borderRadius: 'var(--border-radius)',
+      borderRadius: 'var(--nc-border-radius)',
       overflow: 'hidden',
       background: 'white',
     }}
@@ -39,7 +39,7 @@ export const small = () => (
       width: '300px',
       height: '300px',
       border: '1px solid white',
-      borderRadius: 'var(--border-radius)',
+      borderRadius: 'var(--nc-border-radius)',
       overflow: 'hidden',
       background: 'white',
     }}
@@ -64,7 +64,7 @@ export const customNumbers = () => (
           width: '300px',
           height: '300px',
           border: '1px solid white',
-          borderRadius: 'var(--border-radius)',
+          borderRadius: 'var(--nc-border-radius)',
           overflow: 'hidden',
           background: 'white',
         }}
@@ -86,7 +86,7 @@ export const customNumbers = () => (
           width: '300px',
           height: '300px',
           border: '1px solid white',
-          borderRadius: 'var(--border-radius)',
+          borderRadius: 'var(--nc-border-radius)',
           overflow: 'hidden',
           background: 'white',
         }}
@@ -108,7 +108,7 @@ export const customNumbers = () => (
           width: '300px',
           height: '300px',
           border: '1px solid white',
-          borderRadius: 'var(--border-radius)',
+          borderRadius: 'var(--nc-border-radius)',
           overflow: 'hidden',
           background: 'white',
         }}

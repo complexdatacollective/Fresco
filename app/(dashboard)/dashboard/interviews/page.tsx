@@ -1,11 +1,12 @@
 import { InterviewsTable } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/InterviewsTable';
+import ResponsiveContainer from '~/components/ResponsiveContainer';
 
 const InterviewPage = () => {
   return (
-    <div className="rounded-lg bg-white p-6">
+    <ResponsiveContainer>
       <h2 className="mb-6 text-2xl font-bold">Interview management view</h2>
       <InterviewsTable />
-    </div>
+    </ResponsiveContainer>
   );
 };
 

@@ -1,11 +1,11 @@
 import { env } from '~/env.mjs';
-import { userFormClasses } from '../_shared';
+import { containerClasses } from '../_shared';
 import { resetAppSettings } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
 
 export default function Page() {
   return (
-    <div className={userFormClasses}>
+    <div className={containerClasses}>
       <h1 className="mb-4 text-2xl font-bold">Installation expired</h1>
       <p className="mb-6">
         You did not configure this deployment of Fresco in time, and it has now

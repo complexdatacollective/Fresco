@@ -1,13 +1,31 @@
 'use client';
 
-import Error from '~/components/Error';
+import { trackEvent } from '~/analytics/utils';
 
 export default function GlobalError({
   error,
-  reset,
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <Error error={error} reset={reset} heading="Global Error" />;
+  if (error) {
+    void trackEvent({
+      type: 'Error',
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      metadata: {
+        digest: error.digest,
+        origin: 'global-error.tsx',
+      },
+    });
+  }
+
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+      </body>
+    </html>
+  );
 }
