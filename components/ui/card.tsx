@@ -4,7 +4,7 @@ import { cn } from '~/utils/shadcn';
 import Heading from './typography/Heading';
 
 export const cardClasses =
-  'rounded-lg border border-[hsl(var(--platinum--dark))] bg-card text-card-foreground';
+  'rounded-xl border border-[hsl(var(--platinum--dark))] bg-card text-card-foreground';
 
 const Card = React.forwardRef<
   HTMLDivElement,
