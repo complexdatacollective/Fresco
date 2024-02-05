@@ -44,6 +44,13 @@ export const participantRouter = router({
           skipDuplicates: true,
         });
 
+        await prisma.events.create({
+          data: {
+            type: 'Participant(s) Added',
+            message: `Added ${createdParticipants.count} participant(s)`,
+          },
+        });
+
         return {
           error: null,
           createdParticipants: createdParticipants.count,
@@ -76,6 +83,14 @@ export const participantRouter = router({
     all: protectedProcedure.mutation(async () => {
       try {
         const deletedParticipants = await prisma.participant.deleteMany();
+
+        await prisma.events.create({
+          data: {
+            type: 'Participant(s) Removed',
+            message: `Removed ${deletedParticipants.count} participant(s)`,
+          },
+        });
+
         return { error: null, deletedParticipants: deletedParticipants.count };
       } catch (error) {
         return {

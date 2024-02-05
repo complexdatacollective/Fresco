@@ -10,7 +10,7 @@ export default function StatCard({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-6 rounded-xl border border-[hsl(var(--platinum--dark))] bg-card p-4 text-card-foreground shadow-xl shadow-platinum-dark transition-all hover:scale-[102%] sm:flex-row sm:items-center sm:p-6 md:p-10">
+    <div className="flex flex-col gap-4 rounded-xl border border-[hsl(var(--platinum--dark))] bg-card p-4 text-card-foreground shadow-xl shadow-platinum-dark transition-all hover:scale-[102%] sm:flex-row sm:items-center md:p-6 lg:gap-6 lg:p-10">
       <div className="hidden md:block">{icon}</div>
       <div>
         <Heading variant="h4-all-caps">{title}</Heading>

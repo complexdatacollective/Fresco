@@ -2,11 +2,10 @@
 'use server';
 
 import { unstable_noStore } from 'next/cache';
-import type { SearchParams } from '~/lib/data-table/types';
-import { searchParamsSchema } from '~/lib/data-table/validations/params';
+import { searchParamsSchema, type SearchParams } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
-import type { Activity, ActivityType } from './utils';
-import { Events } from '@prisma/client';
+import type { Activity } from './utils';
+import type { Events } from '@prisma/client';
 
 export async function getActivities(searchParams: SearchParams) {
   unstable_noStore();
@@ -35,23 +34,29 @@ export async function getActivities(searchParams: SearchParams) {
 
   // Transaction is used to ensure both queries are executed in a single transaction
   const [count, data] = await prisma.$transaction([
-    prisma.events.count({
-      where: {
-        timestamp: { [operator]: timestamp },
-        type: { in: types },
-        message: { contains: message },
-      },
-    }),
-    prisma.events.findMany({
-      where: {
-        timestamp: { [operator]: timestamp },
-        type: { in: types },
-        message: { contains: message },
-      },
-      orderBy: { [column ?? 'id']: order },
-      skip: offset,
-      take: limit,
-    }),
+    prisma.events
+      .count
+      //   {
+      //   where: {
+      //     timestamp: { [operator]: timestamp },
+      //     type: { in: types },
+      //     message: { contains: message },
+      //   },
+      // }
+      (),
+    prisma.events
+      .findMany
+      //   {
+      //   where: {
+      //     timestamp: { [operator]: timestamp },
+      //     type: { in: types },
+      //     message: { contains: message },
+      //   },
+      //   orderBy: { [column ?? 'id']: order },
+      //   skip: offset,
+      //   take: limit,
+      // }
+      (),
   ]);
 
   const pageCount = Math.ceil(count + 1 / limit);

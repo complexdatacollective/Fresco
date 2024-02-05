@@ -69,6 +69,10 @@ export const interviewRouter = router({
 
       try {
         const createdInterview = await prisma.interview.create({
+          select: {
+            participant: true,
+            id: true,
+          },
           data: {
             startTime: new Date(),
             lastUpdated: new Date(),
@@ -83,6 +87,13 @@ export const interviewRouter = router({
                 id: protocolId,
               },
             },
+          },
+        });
+
+        await prisma.events.create({
+          data: {
+            type: 'Interview started',
+            message: `Participant "${createdInterview.participant.identifier}" started an interview`,
           },
         });
 
@@ -163,7 +174,7 @@ export const interviewRouter = router({
         return interviews;
       }),
   }),
-  finish: protectedProcedure
+  finish: publicProcedure
     .input(
       z.object({
         id: z.string(),
@@ -175,8 +186,18 @@ export const interviewRouter = router({
           where: {
             id,
           },
+          select: {
+            participant: true,
+          },
           data: {
             finishTime: new Date(),
+          },
+        });
+
+        await prisma.events.create({
+          data: {
+            type: 'Interview completed',
+            message: `Participant "${updatedInterview.participant.identifier}" completed an interview`,
           },
         });
 
@@ -197,6 +218,13 @@ export const interviewRouter = router({
           },
           data: {
             exportTime: new Date(),
+          },
+        });
+
+        await prisma.events.create({
+          data: {
+            type: 'Data Exported',
+            message: `Exported data for ${updatedInterviews.count} participant(s)`,
           },
         });
 

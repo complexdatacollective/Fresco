@@ -9,7 +9,7 @@ export default async function SummaryStatistics() {
   const summaryStatistics = await api.dashboard.getSummaryStatistics.query();
   return (
     <ResponsiveContainer
-      className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
       maxWidth="5xl"
     >
       <Link href="/dashboard/protocols">
@@ -26,9 +26,10 @@ export default async function SummaryStatistics() {
           icon={
             <Image
               src="/images/participant.svg"
-              width={53.33}
-              height={53.33}
+              width={50}
+              height={50}
               alt="Participant icon"
+              className="max-w-none"
             />
           }
         />

@@ -9,8 +9,8 @@ import {
   filterableColumns,
 } from './ColumnDefinition';
 import { TasksTableFloatingBarContent } from './TasksTableFloatingBarContent';
-import type { Activity, Result } from './utils';
-import { Events } from '@prisma/client';
+import type { Result } from './utils';
+import type { Events } from '@prisma/client';
 
 export default function ActivityFeedTable({
   activitiesPromise,

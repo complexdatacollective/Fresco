@@ -7,12 +7,15 @@ import { FileUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import JobCard from '~/components/ProtocolImport/JobCard';
 import { useCallback } from 'react';
+import usePortal from 'react-useportal';
 
 export default function ProtocolUploader({
   handleProtocolUploaded,
 }: {
   handleProtocolUploaded?: () => void;
 }) {
+  const { Portal } = usePortal();
+
   const { importProtocols, jobs, cancelJob, cancelAllJobs } = useProtocolImport(
     handleProtocolUploaded,
   );
@@ -34,20 +37,20 @@ export default function ProtocolUploader({
   );
 
   return (
-    <>
+    <Portal>
       <motion.div
         layout
-        className="text-md inline-block max-w-sm overflow-hidden rounded-xl border-2 border-dashed border-gray-500 p-6 leading-tight"
+        className="text-md fixed bottom-10 right-10 inline-block max-w-sm overflow-hidden rounded-xl border-2 border-dashed border-sea-green bg-background p-6 leading-tight shadow-xl"
       >
         <div {...getRootProps()}>
           <motion.div
             className="text flex flex-col items-center gap-2 text-center"
             layout
           >
-            <Button variant="default" onClick={open}>
+            <Button variant="default" onClick={open} className="bg-sea-green">
               <FileUp className="mr-2 inline-block h-4 w-4" />
               <input {...getInputProps()} />
-              Import protocol
+              Import protocols
             </Button>
             <p className="text-sm leading-tight">
               Click to select <code>.netcanvas</code> files or drag and drop
@@ -91,6 +94,6 @@ export default function ProtocolUploader({
           )}
         </div>
       </motion.div>
-    </>
+    </Portal>
   );
 }

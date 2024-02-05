@@ -35,11 +35,18 @@ export const calculateRedirect = ({
     throw new Error('No path provided to calculateRedirect!');
   }
 
+  const isNotFound = path === '/not-found' || path === '/404';
   const isLoginPage = path === '/signin';
   const isLandingPage = path === '/';
   const isOnboarding = path.startsWith('/setup');
-  const isInterviewing = path.startsWith('/interview');
+  const isInterviewing =
+    path.startsWith('/interview') || path.startsWith('/onboard');
   const isExpiredPage = path === '/expired';
+
+  // 404 page always allowed
+  if (isNotFound) {
+    return;
+  }
 
   /**
    * `configured` - setup has been completed

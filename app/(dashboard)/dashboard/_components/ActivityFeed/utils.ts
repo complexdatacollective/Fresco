@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import type { Events } from '@prisma/client';
+import { z } from 'zod';
 
 export const activityTypes = [
   'Protocol Installed',
@@ -12,6 +12,13 @@ export const activityTypes = [
 ] as const;
 
 export type ActivityType = (typeof activityTypes)[number];
+
+export const ActivitySchema = z.object({
+  id: z.string(),
+  timestamp: z.date(),
+  type: z.enum(activityTypes),
+  message: z.string(),
+});
 
 const generateMessageForActivityType = (type: ActivityType) => {
   switch (type) {
@@ -54,32 +61,19 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
   }
 };
 
-const generateMockActivity = () => {
+export const generateMockActivity = (): Activity => {
   const type = faker.helpers.arrayElement(activityTypes);
   return {
     id: faker.string.uuid(),
-    timestamp: faker.date.recent().toISOString(),
+    timestamp: faker.date.recent(),
     type,
     message: generateMessageForActivityType(type),
   };
 };
 
-export type Activity = ReturnType<typeof generateMockActivity>;
-
-const activities = Array.from({ length: 10 }, generateMockActivity);
+export type Activity = z.infer<typeof ActivitySchema>;
 
 export type Result = {
-  data: Events[];
+  data: Activity[];
   pageCount: number;
 };
-
-// export const getActivities = async (_searchParams: SearchParams) => {
-//   return new Promise((resolve: (value: Result) => void) => {
-//     setTimeout(() => {
-//       resolve({
-//         data: activities,
-//         pageCount: 3,
-//       });
-//     }, 3000);
-//   });
-// };
