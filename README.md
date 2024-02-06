@@ -95,19 +95,16 @@ For more info checkout [UploadThing Docs](https://docs.uploadthing.com/)
 
 ## 3. Deploy Fresco on Vercel.
 
-1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel (Note: The button prompts you to sign in to your account if you don't have an account. Create an account on Vercel with a "Hobby" or paid tier and click the **"Deploy"** button again)
+1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
+   Note: The button prompts you to sign in to your Vercel account if you don't have an account. Create an account on Vercel with a "Hobby" or paid tier and click the **"Deploy"** button again
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco%2Ftree%2Ffeature%2Finitial-setup-flow&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID)
 
-**Note: For security, you have _five minutes_ from when the app is deployed to create a user account. If this time elapses without a user account created, your configuration will expire. You may redeploy using the same steps.**
+2. Create Git Repository. Follow instructions to create a git repository to deploy from. This will contain a cloned version of this repo.
 
-**3. Create Git Repository**
+3. Configure Project
 
-Follow instructions to create a git repository to deploy from. This will contain a cloned version of this repo.
-
-**4. Configure Project**
-
-Provide required environment variables from the services you set up in Step 1.
+Provide required environment variables from the services you set up in Step 1 and Step 2.
 
 | Variable           | Description                                                                            |
 | ------------------ | -------------------------------------------------------------------------------------- |
@@ -115,10 +112,12 @@ Provide required environment variables from the services you set up in Step 1.
 | UPLOADTHING_SECRET | API key for your [uploadthing app](https://uploadthing.com/dashboard)                  |
 | UPLOADTHING_APP_ID | App ID for your [uploadthing app](https://uploadthing.com/dashboard)                   |
 
-**5. Deploy**
+4. Deploy
 
 Click "Deploy" and wait for the deployment to finish
 
-**6. Create User Account**
+5. Create User Account
 
 Visit your deployed app to create your administrator account. Only one user account may be created.
+
+**Note: For security, you have _five minutes_ from when the app is deployed to create a user account. If this time elapses without a user account created, your configuration will expire. You may redeploy using the same steps.**
