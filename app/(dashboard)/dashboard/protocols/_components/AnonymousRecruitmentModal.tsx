@@ -44,7 +44,7 @@ export const AnonymousRecruitmentModal = () => {
   return (
     <Dialog onOpenChange={() => setSelectedProtocol(undefined)}>
       <DialogTrigger asChild>
-        <Button disabled={!allowAnonymousRecruitment}>
+        <Button disabled={!allowAnonymousRecruitment} size="sm">
           Generate Anonymous Participation URL
         </Button>
       </DialogTrigger>

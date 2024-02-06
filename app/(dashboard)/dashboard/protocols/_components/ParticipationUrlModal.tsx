@@ -50,7 +50,7 @@ export const ParticipationUrlModal = () => {
   return (
     <Dialog onOpenChange={() => setSelectedProtocol(undefined)}>
       <DialogTrigger asChild>
-        <Button>Export Participation URLs</Button>
+        <Button size="sm">Export Participation URLs</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

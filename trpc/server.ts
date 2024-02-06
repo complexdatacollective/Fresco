@@ -25,7 +25,7 @@ export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
         }),
         // This link uses the unstable next cache directly: https://nextjs.org/docs/app/building-your-application/caching#unstable_cache
         experimental_nextCacheLink({
-          revalidate: false,
+          revalidate: 1,
           router: appRouter,
           createContext: async () => {
             const getHeaders = () => {

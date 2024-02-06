@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 export const activityTypes = [
@@ -42,7 +43,7 @@ const generateMessageForActivityType = (type: ActivityType) => {
   }
 };
 
-export const getBadgeColorsForActivityType = (type: ActivityType) => {
+export const getBadgeColorsForActivityType = (type: string) => {
   switch (type) {
     case 'Protocol Installed':
       return 'bg-slate-blue hover:bg-slate-blue-dark';
@@ -71,7 +72,16 @@ export const generateMockActivity = (): Activity => {
   };
 };
 
-export type Activity = z.infer<typeof ActivitySchema>;
+export type Activity = Prisma.EventsGetPayload<{
+  select: {
+    id: true;
+    timestamp: true;
+    type: true;
+    message: true;
+  };
+}>;
+
+type test = z.infer<typeof ActivitySchema>;
 
 export type Result = {
   data: Activity[];

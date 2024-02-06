@@ -13,7 +13,6 @@ import {
   jobInitialState,
   jobReducer,
 } from '~/components/ProtocolImport/JobReducer';
-import { AlertDescription } from '~/components/ui/Alert';
 import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
@@ -22,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import type { assetInsertSchema } from '~/server/routers/protocol';
 import type { z } from 'zod';
 import { hash } from 'ohash';
+import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 
 // Utility helper for adding artificial delay to async functions
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -82,6 +82,8 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
       await sleep(1000); // Actually helps UX to slow this down a bit.
 
       if (!validationResult.isValid) {
+        const resultAsString = JSON.stringify(validationResult, null, 2);
+
         dispatch({
           type: 'UPDATE_ERROR',
           payload: {
@@ -93,11 +95,11 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
               title: 'The protocol is invalid!',
               description: (
                 <>
-                  <AlertDescription>
+                  <AlertDialogDescription>
                     The protocol you uploaded is invalid. See the details below
                     for specific validation errors that were found.
-                  </AlertDescription>
-                  <AlertDescription>
+                  </AlertDialogDescription>
+                  <AlertDialogDescription>
                     If you believe that your protocol should be valid please ask
                     for help via our{' '}
                     <Link
@@ -107,21 +109,21 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
                       community forum
                     </Link>
                     .
-                  </AlertDescription>
+                  </AlertDialogDescription>
                 </>
               ),
               additionalContent: (
-                <ErrorDetails>
-                  <ul className="max-w-md list-inside space-y-2 text-white">
+                <ErrorDetails errorText={resultAsString}>
+                  <ul className="text-white max-w-md list-inside space-y-2">
                     {[
                       ...validationResult.schemaErrors,
                       ...validationResult.logicErrors,
                     ].map((validationError, i) => (
                       <li className="flex capitalize" key={i}>
-                        <XCircle className="mr-2 h-4 w-4 fill-red-500 stroke-white" />
+                        <XCircle className="mr-2 h-4 w-4 text-destructive" />
                         <span>
                           {validationError.message}{' '}
-                          <span className="text-xs italic text-gray-500">
+                          <span className="text-xs italic">
                             ({validationError.path})
                           </span>
                         </span>
@@ -151,11 +153,11 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
             error: {
               title: 'Protocol already exists',
               description: (
-                <AlertDescription>
+                <AlertDialogDescription>
                   The protocol you attempted to import already exists in the
                   database. Delete the existing protocol first before attempting
                   to import it again.
-                </AlertDescription>
+                </AlertDialogDescription>
               ),
             },
           },
@@ -256,7 +258,7 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
         type: 'UPDATE_STATUS',
         payload: {
           id: fileName,
-          status: 'Finishing up',
+          status: 'Writing to database',
         },
       });
 
@@ -294,9 +296,11 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
             rawError: error,
             error: {
               title: 'Database error during protocol import',
-              description: <AlertDescription>{error.message}</AlertDescription>,
+              description: (
+                <AlertDialogDescription>{error.message}</AlertDialogDescription>
+              ),
               additionalContent: (
-                <ErrorDetails>
+                <ErrorDetails errorText={error.originalError.toString()}>
                   <pre>{error.originalError.toString()}</pre>
                 </ErrorDetails>
               ),
@@ -312,14 +316,14 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
             error: {
               title: 'Error importing protocol',
               description: (
-                <AlertDescription>
+                <AlertDialogDescription>
                   There was an unknown error while importing your protocol. The
                   information below might help us to debug the issue.
-                </AlertDescription>
+                </AlertDialogDescription>
               ),
               additionalContent: (
-                <ErrorDetails>
-                  <pre className="whitespace-pre-wrap">{error.message}</pre>
+                <ErrorDetails errorText={JSON.stringify(error, null, 2)}>
+                  <pre>{error.message}</pre>
                 </ErrorDetails>
               ),
             },

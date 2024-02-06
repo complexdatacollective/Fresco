@@ -11,7 +11,7 @@ import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
 } from '~/lib/data-table/types';
-import { Cross, PlusCircle, Trash } from 'lucide-react';
+import { PlusCircle, Trash, X } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
 import { type UrlObject } from 'url';
 
@@ -53,7 +53,7 @@ export function DataTableToolbar<TData>({
                       .getColumn(String(column.id))
                       ?.setFilterValue(event.target.value)
                   }
-                  className="h-8 w-[150px] lg:w-[250px]"
+                  className="flex-shrink-0 flex-grow-0 basis-52"
                 />
               ),
           )}
@@ -73,11 +73,11 @@ export function DataTableToolbar<TData>({
           <Button
             aria-label="Reset filters"
             variant="ghost"
-            className="h-8 px-2 lg:px-3"
+            className="h-10 px-2 lg:px-3"
             onClick={() => table.resetColumnFilters()}
           >
             Reset
-            <Cross className="size-4 ml-2" aria-hidden="true" />
+            <X className="ml-2 size-4" aria-hidden="true" />
           </Button>
         )}
       </div>
@@ -87,7 +87,7 @@ export function DataTableToolbar<TData>({
             aria-label="Delete selected rows"
             variant="outline"
             size="sm"
-            className="h-8"
+            className="h-10"
             onClick={(event) => {
               startTransition(() => {
                 table.toggleAllPageRowsSelected(false);
@@ -96,7 +96,7 @@ export function DataTableToolbar<TData>({
             }}
             disabled={isPending}
           >
-            <Trash className="size-4 mr-2" aria-hidden="true" />
+            <Trash className="mr-2 size-4" aria-hidden="true" />
             Delete
           </Button>
         ) : newRowLink ? (
@@ -106,11 +106,11 @@ export function DataTableToolbar<TData>({
                 buttonVariants({
                   variant: 'outline',
                   size: 'sm',
-                  className: 'h-8',
+                  className: 'h-10',
                 }),
               )}
             >
-              <PlusCircle className="size-4 mr-2" aria-hidden="true" />
+              <PlusCircle className="mr-2 size-4" aria-hidden="true" />
               New
             </div>
           </Link>

@@ -7,7 +7,7 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
-import FormattedDate from '~/components/ui/FormattedDate';
+import TimeAgo from '~/components/ui/TimeAgo';
 
 export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
   {
@@ -43,14 +43,14 @@ export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Imported" />;
     },
-    cell: ({ row }) => <FormattedDate date={row.original.importedAt} />,
+    cell: ({ row }) => <TimeAgo date={row.original.importedAt} />,
   },
   {
     accessorKey: 'lastModified',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Modified" />;
     },
-    cell: ({ row }) => <FormattedDate date={row.original.lastModified} />,
+    cell: ({ row }) => <TimeAgo date={row.original.lastModified} />,
   },
   {
     id: 'participant-url',

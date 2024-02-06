@@ -14,7 +14,7 @@ import {
 
 type DataTableViewOptionsProps<TData> = {
   table: Table<TData>;
-}
+};
 
 export function DataTableViewOptions<TData>({
   table,
@@ -26,9 +26,9 @@ export function DataTableViewOptions<TData>({
           aria-label="Toggle columns"
           variant="outline"
           size="sm"
-          className="ml-auto hidden h-8 lg:flex"
+          className="ml-auto hidden h-10 lg:flex"
         >
-          <SlidersHorizontal className="size-4 mr-2" />
+          <SlidersHorizontal className="mr-2 size-4" />
           View
         </Button>
       </DropdownMenuTrigger>

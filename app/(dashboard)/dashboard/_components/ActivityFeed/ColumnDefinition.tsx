@@ -31,7 +31,7 @@ export function fetchActivityFeedTableColumnDefs(
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
         return (
-          <div className="flex max-w-[500px] space-x-2 truncate font-medium">
+          <div className="flex space-x-2 truncate font-medium">
             <TimeAgo date={timestamp} />
           </div>
         );
@@ -62,7 +62,7 @@ export function fetchActivityFeedTableColumnDefs(
       ),
       cell: ({ row }) => (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
+          <span className="max-w-full truncate font-medium">
             {row.original.message}
           </span>
         </div>
@@ -87,6 +87,6 @@ export const filterableColumns: DataTableFilterableColumn<Activity>[] = [
 export const searchableColumns: DataTableSearchableColumn<Activity>[] = [
   {
     id: 'message',
-    title: 'activity details',
+    title: 'by activity details',
   },
 ];

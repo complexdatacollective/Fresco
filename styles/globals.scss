@@ -120,7 +120,7 @@
     --secondary-foreground: var(--white);
  
     --muted: var(--platinum);
-    --muted-foreground: var(--charcoal);
+    --muted-foreground: var(--cyber-grape-hue) calc(var(--cyber-grape-saturation) - 10%) calc(var(--cyber-grape-lightness) - 10%);
  
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -143,6 +143,9 @@
     --card: 0 0% 100%;
 
     --panel: var(--platinum);
+
+    --input: 0 0% 100%;
+    --input-foreground: var(--cyber-grape);
     
     --popover: var(--white);
     --popover-foreground: var(--foreground);

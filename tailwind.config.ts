@@ -1,4 +1,5 @@
 import { type Config } from 'tailwindcss';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
   content: [
@@ -73,6 +74,7 @@ export default {
         DEFAULT: 'hsl(var(--tomato) / <alpha-value>)',
         dark: 'hsl(var(--tomato--dark) / <alpha-value>)',
       },
+      'transparent': 'transparent',
       'background': 'hsl(var(--background) / <alpha-value>)',
       'foreground': 'hsl(var(--foreground) / <alpha-value>)',
 
@@ -116,18 +118,23 @@ export default {
         DEFAULT: 'hsl(var(--panel) / <alpha-value>)',
         foreground: 'hsl(var(--foreground) / <alpha-value>)',
       },
-      'transparent': 'transparent',
-
-      'border': 'hsl(var(--border) / <alpha-value>)',
-      'borderRadius': {
-        lg: 'calc(var(--radius) * 1.5)',
-        md: 'var(--radius)',
-        sm: 'calc(var(--radius) * 0.75)',
+      'input': {
+        DEFAULT: 'hsl(var(--input) / <alpha-value>)',
+        foreground: 'hsl(var(--input-foreground) / <alpha-value>)',
       },
+      'border': 'hsl(var(--border) / <alpha-value>)',
+    },
+    borderRadius: {
+      ...defaultTheme.borderRadius,
+      input: defaultTheme.borderRadius.xl,
     },
   },
   extend: {
     keyframes: {
+      'wiggle': {
+        '0%, 100%': { transform: 'rotate(-3deg)' },
+        '50%': { transform: 'rotate(3deg)' },
+      },
       'accordion-down': {
         from: { height: '0' },
         to: { height: 'var(--radix-accordion-content-height)' },
@@ -141,12 +148,18 @@ export default {
         '40%': { transform: 'translateX(0) scaleX(0.4)' },
         '100%': { transform: 'translateX(100%) scaleX(0.5)' },
       },
+      'background-gradient': {
+        '0%, 100%': { backgroundPosition: '0% 50%' },
+        '50%': { backgroundPosition: '100% 50%' },
+      },
     },
     animation: {
+      'wiggle': 'wiggle 1s ease-in-out infinite',
       'accordion-down': 'accordion-down 0.2s ease-out',
       'accordion-up': 'accordion-up 0.2s ease-out',
       'indeterminate-progress-bar':
         'indeterminate-progress-bar 1s infinite linear',
+      'background-gradient': 'background-gradient 5s infinite',
     },
     transformOrigin: {
       'left-right': '0% 50%',

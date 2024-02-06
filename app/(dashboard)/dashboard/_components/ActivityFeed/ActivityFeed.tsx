@@ -1,22 +1,26 @@
 'use server';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
-import type { SearchParams } from '~/lib/data-table/types';
+import { searchParamsSchema, type SearchParams } from '~/lib/data-table/types';
 import ActivityFeedTable from './ActivityFeedTable';
-import { getActivities } from './_actions';
+import { unstable_noStore } from 'next/cache';
+import { api } from '~/trpc/server';
 
 export type IndexPageProps = {
   searchParams: SearchParams;
 };
 
 export const ActivityFeed = ({ searchParams }: IndexPageProps) => {
-  const activitiesPromise = getActivities(searchParams);
+  unstable_noStore();
+  const { sort, message } = searchParamsSchema.parse(searchParams);
+  const activitiesPromise = api.dashboard.getActivities.query(searchParams);
 
   return (
     <>
       <Suspense
+        key={`${sort}-${message}`}
         fallback={
-          <DataTableSkeleton columnCount={2} filterableColumnCount={1} />
+          <DataTableSkeleton columnCount={3} filterableColumnCount={1} />
         }
       >
         <ActivityFeedTable activitiesPromise={activitiesPromise} />

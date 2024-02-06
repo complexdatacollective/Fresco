@@ -6,6 +6,8 @@ import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { cn } from '~/utils/shadcn';
 import { buttonVariants } from '~/components/ui/Button';
 import { type VariantProps } from 'class-variance-authority';
+import Heading from './typography/Heading';
+import Paragraph from './typography/Paragraph';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -84,11 +86,7 @@ const AlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Title
-    ref={ref}
-    className={cn('text-lg font-semibold', className)}
-    {...props}
-  />
+  <Heading variant="h3" {...props} className={cn(className)} ref={ref} />
 ));
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
 
@@ -96,9 +94,10 @@ const AlertDialogDescription = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Description
+  <Paragraph
+    variant="smallText"
     ref={ref}
-    className={cn('text-muted-foreground', className)}
+    className={cn(className)}
     {...props}
   />
 ));
