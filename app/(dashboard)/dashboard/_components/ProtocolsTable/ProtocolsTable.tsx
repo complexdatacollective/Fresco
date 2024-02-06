@@ -9,6 +9,7 @@ import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import { ParticipationUrlModal } from '~/app/(dashboard)/dashboard/protocols/_components/ParticipationUrlModal';
 import { AnonymousRecruitmentModal } from '../../protocols/_components/AnonymousRecruitmentModal';
+import ProtocolUploader from '../ProtocolUploader';
 
 export const ProtocolsTable = ({
   initialData,
@@ -37,6 +38,7 @@ export const ProtocolsTable = ({
       <div className="flex gap-2">
         <ParticipationUrlModal />
         <AnonymousRecruitmentModal />
+        <ProtocolUploader />
       </div>
       <DataTable<ProtocolWithInterviews, string>
         columns={ProtocolColumns}

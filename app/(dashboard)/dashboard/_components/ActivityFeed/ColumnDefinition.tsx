@@ -16,6 +16,7 @@ import {
 } from './utils';
 import type { Events } from '@prisma/client';
 import FormattedDate from '~/components/ui/FormattedDate';
+import TimeAgo from '~/components/ui/TimeAgo';
 
 export function fetchActivityFeedTableColumnDefs(
   _isPending: boolean,
@@ -31,7 +32,7 @@ export function fetchActivityFeedTableColumnDefs(
         const timestamp: string = row.getValue('timestamp');
         return (
           <div className="flex max-w-[500px] space-x-2 truncate font-medium">
-            <FormattedDate date={timestamp} />
+            <TimeAgo date={timestamp} />
           </div>
         );
       },
@@ -44,7 +45,7 @@ export function fetchActivityFeedTableColumnDefs(
       cell: ({ row }) => {
         const activityType: ActivityType = row.getValue('type');
         return (
-          <div className="flex space-x-2">
+          <div className="flex min-w-[140px] space-x-2">
             <Badge className={getBadgeColorsForActivityType(activityType)}>
               {activityType}
             </Badge>

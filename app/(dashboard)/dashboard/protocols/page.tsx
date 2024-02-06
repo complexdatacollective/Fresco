@@ -1,19 +1,28 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import ProtocolUploader from '../_components/ProtocolUploader';
 import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
-import { api } from '~/trpc/server';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Section from '~/components/layout/Section';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { AlertCircle } from 'lucide-react';
+import { prisma } from '~/utils/db';
+import { unstable_noStore } from 'next/cache';
 // import Link from 'next/link';
 
+async function getProtocols() {
+  unstable_noStore();
+  // eslint-disable-next-line local-rules/require-data-mapper
+  return await prisma.protocol.findMany({
+    include: {
+      interviews: true,
+    },
+  });
+}
+
 const ProtocolsPage = async () => {
-  const protocols = await api.protocol.get.all.query();
+  const protocols = await getProtocols();
 
   return (
     <>
-      <ProtocolUploader />
       <ResponsiveContainer>
         <PageHeader
           headerText="Protocols"
@@ -21,7 +30,7 @@ const ProtocolsPage = async () => {
         />
       </ResponsiveContainer>
       <ResponsiveContainer>
-        <Alert>
+        <Alert variant="info">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Warning</AlertTitle>
           <AlertDescription>

@@ -92,6 +92,10 @@ export default {
         DEFAULT: 'hsl(var(--success) / <alpha-value>)',
         foreground: 'hsl(var(--success-foreground) / <alpha-value>)',
       },
+      'info': {
+        DEFAULT: 'hsl(var(--info) / <alpha-value>)',
+        foreground: 'hsl(var(--info-foreground) / <alpha-value>)',
+      },
       'muted': {
         DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
         foreground: 'hsl(var(--muted-foreground) / <alpha-value>)',

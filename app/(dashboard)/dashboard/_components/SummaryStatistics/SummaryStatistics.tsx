@@ -4,26 +4,19 @@ import StatCard, { StatCardSkeleton } from './StatCard';
 import Image from 'next/image';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import { Suspense } from 'react';
-import { unstable_noStore } from 'next/cache';
 import { prisma } from '~/utils/db';
 
 async function getInterviewCount() {
-  unstable_noStore();
-
   // eslint-disable-next-line local-rules/require-data-mapper
   return await prisma.interview.count();
 }
 
 async function getParticipantCount() {
-  unstable_noStore();
-
   // eslint-disable-next-line local-rules/require-data-mapper
   return await prisma.participant.count();
 }
 
 async function getProtocolCount() {
-  unstable_noStore();
-
   // eslint-disable-next-line local-rules/require-data-mapper
   return await prisma.protocol.count();
 }

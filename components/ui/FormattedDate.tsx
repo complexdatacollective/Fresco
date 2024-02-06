@@ -1,5 +1,8 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import NoSSRWrapper, { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+
 // Display options for dates: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat#using_options
 export const dateOptions: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -9,7 +12,7 @@ export const dateOptions: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
-export default function FormattedDate({
+function FormattedDate({
   date,
   options = dateOptions,
 }: {
@@ -27,3 +30,5 @@ export default function FormattedDate({
     </time>
   );
 }
+
+export default withNoSSRWrapper(FormattedDate);
