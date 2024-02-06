@@ -4,8 +4,8 @@ import { createRouteHandler } from '@codaco/analytics';
 import { WebServiceClient } from '@maxmind/geoip2-node';
 
 const maxMindClient = new WebServiceClient(
-  env.MAXMIND_ACCOUNT_ID,
-  env.MAXMIND_LICENSE_KEY,
+  env.MAXMIND_ACCOUNT_ID!,
+  env.MAXMIND_LICENSE_KEY!,
   {
     host: 'geolite.info',
   },
