@@ -1,25 +1,12 @@
 import { AlertCircle } from 'lucide-react';
-import { unstable_noStore } from 'next/cache';
 import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { Alert, AlertTitle, AlertDescription } from '~/components/ui/Alert';
-import { prisma } from '~/utils/db';
-
-const getAnonymoutRecruitmentStatus = async () => {
-  unstable_noStore();
-
-  // eslint-disable-next-line local-rules/require-data-mapper
-  const result = await prisma.appSettings.findFirst({
-    select: {
-      allowAnonymousRecruitment: true,
-    },
-  });
-
-  return result?.allowAnonymousRecruitment;
-};
+import { api } from '~/trpc/server';
 
 export default async function AnonymousRecruitmentWarning() {
-  const allowAnonymousRecruitment = await getAnonymoutRecruitmentStatus();
+  const allowAnonymousRecruitment =
+    await api.appSettings.getAnonymousRecruitmentStatus.query();
 
   if (!allowAnonymousRecruitment) {
     return null;

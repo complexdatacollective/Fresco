@@ -2,7 +2,7 @@
 import { prisma } from '~/utils/db';
 import { protectedProcedure, router } from '../trpc';
 import { searchParamsSchema } from '~/lib/data-table/types';
-import { Events } from '@prisma/client';
+import { type Events } from '@prisma/client';
 
 export const dashboardRouter = router({
   getSummaryStatistics: router({

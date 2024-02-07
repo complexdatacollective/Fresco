@@ -1,6 +1,5 @@
 'use client';
 
-import { api } from '~/trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
@@ -11,21 +10,20 @@ import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_comp
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
+import { api } from '~/trpc/client';
+
 export const ParticipantsTable = ({
   initialData,
 }: {
   initialData: ParticipantWithInterviews[];
 }) => {
-  const { isLoading, data: participants } = api.participant.get.all.useQuery(
-    undefined,
-    {
-      initialData,
-      refetchOnMount: false,
-      onError(error) {
-        throw new Error(error.message);
-      },
+  const { data: participants } = api.participant.get.all.useQuery(undefined, {
+    initialData,
+    refetchOnMount: false,
+    onError(error) {
+      throw new Error(error.message);
     },
-  );
+  });
 
   const [participantsToDelete, setParticipantsToDelete] =
     useState<ParticipantWithInterviews[]>();
@@ -35,10 +33,6 @@ export const ParticipantsTable = ({
     setParticipantsToDelete(data);
     setShowDeleteModal(true);
   };
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <>

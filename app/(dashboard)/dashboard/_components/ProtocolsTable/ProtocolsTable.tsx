@@ -2,7 +2,7 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ActionsDropdown } from './ActionsDropdown';
-import { ProtocolColumns } from './Columns';
+import { getProtocolColumns } from './Columns';
 import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
@@ -11,8 +11,10 @@ import ProtocolUploader from '../ProtocolUploader';
 
 export const ProtocolsTable = ({
   initialData,
+  allowAnonymousRecruitment = false,
 }: {
   initialData: ProtocolWithInterviews[];
+  allowAnonymousRecruitment: boolean;
 }) => {
   const { data: protocols } = api.protocol.get.all.useQuery(undefined, {
     initialData,
@@ -34,7 +36,7 @@ export const ProtocolsTable = ({
   return (
     <>
       <DataTable
-        columns={ProtocolColumns}
+        columns={getProtocolColumns(allowAnonymousRecruitment)}
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}

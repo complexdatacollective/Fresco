@@ -102,6 +102,11 @@ export const interviewRouter = router({
         // Because a new participant may have been created as part of creating the interview,
         // we need to also revalidate the participant cache.
         revalidateTag('participant.get.all');
+        revalidateTag('participant.get.byId');
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+        revalidateTag('dashboard.getSummaryStatistics.participantCount');
 
         return {
           error: null,
@@ -201,6 +206,9 @@ export const interviewRouter = router({
           },
         });
 
+        revalidateTag('interview.get.all');
+        revalidateTag('dashboard.getActivities');
+
         return { error: null, interview: updatedInterview };
       } catch (error) {
         return { error: 'Failed to update interview', interview: null };
@@ -228,6 +236,8 @@ export const interviewRouter = router({
           },
         });
 
+        revalidateTag('dashboard.getActivities');
+
         return { error: null, interviews: updatedInterviews };
       } catch (error) {
         return { error: 'Failed to update interviews', interviews: null };
@@ -252,6 +262,18 @@ export const interviewRouter = router({
             },
           },
         });
+
+        await prisma.events.create({
+          data: {
+            type: 'Interview Deleted',
+            message: `Deleted ${deletedInterviews.count} interview(s)`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+        revalidateTag('interview.get.all');
+
         return { error: null, interview: deletedInterviews };
       } catch (error) {
         return { error: 'Failed to delete interviews', interview: null };

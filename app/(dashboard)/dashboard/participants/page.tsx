@@ -6,12 +6,7 @@ import { api } from '~/trpc/server';
 import { ExportParticipantUrlSection } from './_components/ExportParticipantUrlSection';
 
 const ParticipantPage = async () => {
-  let participants;
-  try {
-    participants = await api.participant.get.all.query();
-  } catch (error) {
-    throw new Error(error as string);
-  }
+  const participants = await api.participant.get.all.query();
 
   return (
     <>

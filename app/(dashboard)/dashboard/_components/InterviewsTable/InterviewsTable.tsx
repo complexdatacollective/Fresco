@@ -11,7 +11,7 @@ import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInter
 import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
 import type { RouterOutputs } from '~/trpc/shared';
 
-type Interviews = RouterOutputs['interview']['get']['all'][0];
+type Interviews = RouterOutputs['interview']['get']['all'];
 
 export const InterviewsTable = ({
   initialInterviews,

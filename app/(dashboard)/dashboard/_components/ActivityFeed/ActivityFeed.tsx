@@ -3,8 +3,8 @@ import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import { searchParamsSchema, type SearchParams } from '~/lib/data-table/types';
 import ActivityFeedTable from './ActivityFeedTable';
-import { unstable_noStore } from 'next/cache';
 import { api } from '~/trpc/server';
+import { unstable_noStore } from 'next/cache';
 
 export type IndexPageProps = {
   searchParams: SearchParams;

@@ -6,6 +6,7 @@ import { hash } from 'ohash';
 import { Prisma } from '@prisma/client';
 import { utapi } from '~/app/api/uploadthing/core';
 import type { Protocol } from '@codaco/shared-consts';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const assetInsertSchema = z.array(
   z.object({
@@ -47,15 +48,6 @@ export const deleteProtocols = async (hashes: string[]) => {
       where: { hash: { in: hashes } },
     });
 
-    return { error: null, deletedProtocols: deletedProtocols };
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log('delete protocols error: ', error);
-    return {
-      error: 'Failed to delete protocols',
-      deletedProtocols: null,
-    };
-  } finally {
     // insert an event for each protocol deleted
     // eslint-disable-next-line no-console
     console.log('inserting events for deleted protocols...');
@@ -69,6 +61,19 @@ export const deleteProtocols = async (hashes: string[]) => {
     await prisma.events.createMany({
       data: events,
     });
+
+    revalidateTag('dashboard.getActivities');
+    revalidateTag('protocol.get.all');
+    revalidatePath('/dashboard/protocols');
+
+    return { error: null, deletedProtocols: deletedProtocols };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('delete protocols error: ', error);
+    return {
+      error: 'Failed to delete protocols',
+      deletedProtocols: null,
+    };
   }
 };
 
@@ -167,6 +172,18 @@ export const protocolRouter = router({
           },
         });
 
+        await prisma.events.create({
+          data: {
+            type: 'Protocol Installed',
+            message: `Protocol "${protocolName}" installed`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('protocol.get.all');
+        revalidateTag('dashboard.getSummaryStatistics.protocolCount');
+        revalidatePath('/dashboard/protocols');
+
         return { error: null, success: true };
       } catch (e) {
         // Attempt to delete any assets we uploaded to storage
@@ -193,13 +210,6 @@ export const protocolRouter = router({
         }
 
         throw e;
-      } finally {
-        await prisma.events.create({
-          data: {
-            type: 'Protocol Installed',
-            message: `Protocol "${protocolName}" installed`,
-          },
-        });
       }
     }),
 });

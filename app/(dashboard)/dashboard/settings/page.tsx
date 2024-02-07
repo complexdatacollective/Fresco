@@ -1,13 +1,12 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import ResetButton from '../_components/ResetButton';
 import AnalyticsButton from '../_components/AnalyticsButton';
-import { Suspense } from 'react';
 import RecruitmentTestSection from '../_components/RecruitmentTestSection';
 import SettingsSection from '~/components/layout/SettingsSection';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
+import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 
 export default function Settings() {
   return (
@@ -21,7 +20,7 @@ export default function Settings() {
       <ResponsiveContainer className="gap-4">
         <SettingsSection
           heading="Anonymous Recruitment"
-          controlArea={<RecruitmentSwitch />}
+          controlArea={<AnonymousRecruitmentSwitch />}
         >
           <Paragraph variant="noMargin">
             If anonymous recruitment is enabled, you may generate an anonymous

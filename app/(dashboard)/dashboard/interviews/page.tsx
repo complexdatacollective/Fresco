@@ -11,7 +11,7 @@ const InterviewPage = async () => {
       <ResponsiveContainer>
         <PageHeader
           headerText="Interviews"
-          subHeaderText="View and manage your interviews."
+          subHeaderText="View and manage your interview data."
         />
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="5xl">

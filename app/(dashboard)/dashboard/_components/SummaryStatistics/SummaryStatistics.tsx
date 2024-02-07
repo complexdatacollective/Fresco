@@ -4,27 +4,15 @@ import StatCard, { StatCardSkeleton } from './StatCard';
 import Image from 'next/image';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import { Suspense } from 'react';
-import { prisma } from '~/utils/db';
-
-async function getInterviewCount() {
-  // eslint-disable-next-line local-rules/require-data-mapper
-  return await prisma.interview.count();
-}
-
-async function getParticipantCount() {
-  // eslint-disable-next-line local-rules/require-data-mapper
-  return await prisma.participant.count();
-}
-
-async function getProtocolCount() {
-  // eslint-disable-next-line local-rules/require-data-mapper
-  return await prisma.protocol.count();
-}
+import { api } from '~/trpc/server';
 
 export default function SummaryStatistics() {
-  const interviewCount = getInterviewCount();
-  const participantCount = getParticipantCount();
-  const protocolCount = getProtocolCount();
+  const interviewCount =
+    api.dashboard.getSummaryStatistics.interviewCount.query();
+  const participantCount =
+    api.dashboard.getSummaryStatistics.participantCount.query();
+  const protocolCount =
+    api.dashboard.getSummaryStatistics.protocolCount.query();
 
   return (
     <ResponsiveContainer

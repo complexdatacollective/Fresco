@@ -9,8 +9,9 @@ import { useCallback } from 'react';
 import usePortal from 'react-useportal';
 import { cn } from '~/utils/shadcn';
 import JobCard from '~/components/ProtocolImport/JobCard';
+import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 
-export default function ProtocolUploader({
+function ProtocolUploader({
   handleProtocolUploaded,
 }: {
   handleProtocolUploaded?: () => void;
@@ -91,3 +92,5 @@ export default function ProtocolUploader({
     </>
   );
 }
+
+export default withNoSSRWrapper(ProtocolUploader);

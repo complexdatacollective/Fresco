@@ -56,7 +56,7 @@ export const DeleteProtocolsDialog = ({
 
   const handleConfirm = async () => {
     await deleteProtocols(protocolsToDelete.map((d) => d.hash));
-    await clientRevalidateTag('protocols.get.all');
+    await clientRevalidateTag('protocol.get.all');
     router.refresh();
     setOpen(false);
   };

@@ -7,6 +7,7 @@ import {
   updateSchema,
 } from '~/shared/schemas/schemas';
 import { z } from 'zod';
+import { revalidateTag } from 'next/cache';
 
 export const participantRouter = router({
   get: router({
@@ -51,6 +52,11 @@ export const participantRouter = router({
           },
         });
 
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.participantCount');
+
+        revalidateTag('participant.get.all');
+
         return {
           error: null,
           createdParticipants: createdParticipants.count,
@@ -90,6 +96,11 @@ export const participantRouter = router({
             message: `Removed ${deletedParticipants.count} participant(s)`,
           },
         });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.participantCount');
+
+        revalidateTag('participant.get.all');
 
         return { error: null, deletedParticipants: deletedParticipants.count };
       } catch (error) {
