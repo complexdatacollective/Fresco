@@ -43,6 +43,9 @@ jobs:
 
       - name: Generate prisma client
         run: pnpm prisma generate
+        
+      - name: Push database schema to PlanetScale
+        run: pnpm prisma db push --accept-data-loss
 
       - uses: actions/cache@v3
         name: Setup next cache
