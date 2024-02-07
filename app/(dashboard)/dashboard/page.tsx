@@ -15,7 +15,7 @@ function Home({ searchParams }: IndexPageProps) {
     <>
       <ResponsiveContainer>
         <PageHeader
-          headerText="Dashboard"
+          headerText="Dashboard testing the changes in Deployment."
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
       </ResponsiveContainer>
