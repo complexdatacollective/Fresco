@@ -109,7 +109,9 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
 1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
 
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco%2Ftree%2Fdeployment-docs&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS)
+
+<!-- [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS) -->
 
 2. Create Git Repository. Give your repository a name and hit **"Create"** (This will be your Fresco instance name)
 
