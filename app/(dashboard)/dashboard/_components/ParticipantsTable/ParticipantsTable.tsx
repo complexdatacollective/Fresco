@@ -10,7 +10,6 @@ import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/partici
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-import { ExportParticipantUrlSection } from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipantUrlSection';
 import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
 export const ParticipantsTable = ({
   initialData,
@@ -37,14 +36,12 @@ export const ParticipantsTable = ({
     setShowDeleteModal(true);
   };
 
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <>
-      <div className="flex gap-2">
-        <AddParticipantButton existingParticipants={participants} />
-        <ImportCSVModal />
-        <ExportParticipants participants={participants} />
-        <DeleteAllParticipantsButton />
-      </div>
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
@@ -56,6 +53,14 @@ export const ParticipantsTable = ({
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
+        headerItems={
+          <>
+            <AddParticipantButton existingParticipants={participants} />
+            <ImportCSVModal />
+            <ExportParticipants participants={participants} />
+            <DeleteAllParticipantsButton />
+          </>
+        }
       />
     </>
   );

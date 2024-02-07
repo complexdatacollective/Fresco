@@ -11,7 +11,7 @@ import {
   type Row,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -43,6 +43,7 @@ type DataTableProps<TData, TValue> = {
   actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
   actionsHeader?: React.ReactNode;
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
+  headerItems?: React.ReactNode;
 };
 
 export function DataTable<TData, TValue>({
@@ -54,6 +55,7 @@ export function DataTable<TData, TValue>({
   actions,
   actionsHeader,
   calculateRowClasses,
+  headerItems,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -129,22 +131,25 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      {filterColumnAccessorKey && (
-        <div className="flex items-center pb-4 pt-1">
-          <Input
-            placeholder={`Filter by ${filterColumnAccessorKey}...`}
-            value={
-              (table
-                .getColumn(filterColumnAccessorKey)
-                ?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table
-                .getColumn(filterColumnAccessorKey)
-                ?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
+      {(filterColumnAccessorKey || headerItems) && (
+        <div className="flex items-center gap-2 pb-4 pt-1">
+          {filterColumnAccessorKey && (
+            <Input
+              placeholder={`Filter by ${filterColumnAccessorKey}...`}
+              value={
+                (table
+                  .getColumn(filterColumnAccessorKey)
+                  ?.getFilterValue() as string) ?? ''
+              }
+              onChange={(event) =>
+                table
+                  .getColumn(filterColumnAccessorKey)
+                  ?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          )}
+          {headerItems}
         </div>
       )}
       <div className="rounded-md border">

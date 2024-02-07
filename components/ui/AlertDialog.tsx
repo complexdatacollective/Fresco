@@ -6,8 +6,7 @@ import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { cn } from '~/utils/shadcn';
 import { buttonVariants } from '~/components/ui/Button';
 import { type VariantProps } from 'class-variance-authority';
-import Heading from './typography/Heading';
-import Paragraph from './typography/Paragraph';
+import { DialogTitle, DialogDescription } from '~/components/ui/dialog';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -82,28 +81,6 @@ const AlertDialogFooter = ({
 );
 AlertDialogFooter.displayName = 'AlertDialogFooter';
 
-const AlertDialogTitle = React.forwardRef<
-  React.ElementRef<typeof AlertDialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <Heading variant="h3" {...props} className={cn(className)} ref={ref} />
-));
-AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
-
-const AlertDialogDescription = React.forwardRef<
-  React.ElementRef<typeof AlertDialogPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <Paragraph
-    variant="smallText"
-    ref={ref}
-    className={cn(className)}
-    {...props}
-  />
-));
-AlertDialogDescription.displayName =
-  AlertDialogPrimitive.Description.displayName;
-
 const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> & {
@@ -145,8 +122,8 @@ export {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
+  DialogTitle as AlertDialogTitle,
+  DialogDescription as AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
 };

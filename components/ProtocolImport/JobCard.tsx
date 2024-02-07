@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import ErrorDialog from '../ui/ErrorDialog';
 import { CloseButton } from '../ui/CloseButton';
 import { type ImportJob } from './JobReducer';
@@ -8,21 +7,6 @@ import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import Heading from '../ui/typography/Heading';
 import Paragraph from '../ui/typography/Paragraph';
-
-const statusVariants = {
-  initial: {
-    opacity: 0,
-    y: 10,
-  },
-  animate: {
-    opacity: 1,
-    y: 0,
-  },
-  exit: {
-    opacity: 0,
-    y: -10,
-  },
-};
 
 const JobCard = ({
   job,
@@ -60,43 +44,37 @@ const JobCard = ({
           additionalContent={error.additionalContent}
         />
       )}
-      <motion.div
+      <div
         className={cn(
           'background-card relative flex gap-4 rounded-xl border bg-card p-4 shadow-xl shadow-primary/30',
           error && 'animate-wiggle border-destructive',
           isComplete && 'border-success',
         )}
         title={id}
-        layout
       >
-        <motion.div
-          className="flex basis-10 items-center justify-center"
-          layout
-        >
+        <div className="flex basis-10 items-center justify-center">
           {!(isComplete || error) && (
             <Loader2 className="h-6 w-6 animate-spin" />
           )}
           {isComplete && <CheckCircle className="h-6 w-6 text-success" />}
           {error && <XCircle className="h-6 w-6 text-destructive" />}
-        </motion.div>
+        </div>
 
-        <motion.div layout className="w-72">
+        <div className="w-72">
           <Heading
             className="text-md text-balance-['unset'] flex-1 truncate"
             variant="h4"
           >
             {id}
           </Heading>
-          <AnimatePresence mode="popLayout">
-            <Paragraph variant="smallText" key={status} title={status}>
-              {!error
-                ? `${status}...`
-                : 'There was an error importing this protocol.'}
-              {progress && `(${progress}%)`}
-            </Paragraph>
+          <Paragraph variant="smallText" key={status} title={status}>
+            {!error
+              ? `${status}...`
+              : 'There was an error importing this protocol.'}
+            {progress && `(${progress}%)`}
             {error && (
               <Button
-                size="sm"
+                size="xs"
                 className="hover:bg-destructive-dark hover:text-destructive-foreground-dark bg-destructive text-destructive-foreground"
                 variant="outline"
                 onClick={(e) => {
@@ -108,12 +86,12 @@ const JobCard = ({
                 Error details
               </Button>
             )}
-          </AnimatePresence>
-        </motion.div>
+          </Paragraph>
+        </div>
         <div className="flex items-center justify-center">
           <CloseButton onClick={onCancel} />
         </div>
-      </motion.div>
+      </div>
     </>
   );
 };

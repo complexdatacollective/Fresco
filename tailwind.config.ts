@@ -123,6 +123,7 @@ export default {
         foreground: 'hsl(var(--input-foreground) / <alpha-value>)',
       },
       'border': 'hsl(var(--border) / <alpha-value>)',
+      'link': 'hsl(var(--link) / <alpha-value>)',
     },
     borderRadius: {
       ...defaultTheme.borderRadius,

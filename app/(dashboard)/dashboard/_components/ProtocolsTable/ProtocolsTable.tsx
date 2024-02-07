@@ -7,8 +7,6 @@ import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { ParticipationUrlModal } from '~/app/(dashboard)/dashboard/protocols/_components/ParticipationUrlModal';
-import { AnonymousRecruitmentModal } from '../../protocols/_components/AnonymousRecruitmentModal';
 import ProtocolUploader from '../ProtocolUploader';
 
 export const ProtocolsTable = ({
@@ -35,17 +33,17 @@ export const ProtocolsTable = ({
 
   return (
     <>
-      <div className="flex gap-2">
-        <ParticipationUrlModal />
-        <AnonymousRecruitmentModal />
-        <ProtocolUploader />
-      </div>
-      <DataTable<ProtocolWithInterviews, string>
+      <DataTable
         columns={ProtocolColumns}
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
+        headerItems={
+          <div className="flex gap-2">
+            <ProtocolUploader />
+          </div>
+        }
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}

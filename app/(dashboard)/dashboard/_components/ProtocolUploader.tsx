@@ -44,7 +44,6 @@ export default function ProtocolUploader({
       <Button
         variant="default"
         onClick={open}
-        size="sm"
         className={cn(
           'bg-sea-green hover:bg-sea-green-dark',
           isActive &&

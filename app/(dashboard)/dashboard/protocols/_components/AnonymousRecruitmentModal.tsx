@@ -57,40 +57,38 @@ export const AnonymousRecruitmentModal = () => {
             study.
           </DialogDescription>
         </DialogHeader>
-        <>
-          <div>
-            <Select
-              onValueChange={(value) => {
-                const protocol = protocols.find(
-                  (protocol) => protocol.id === value,
-                );
+        <div className="flex w-full flex-1 flex-col gap-4">
+          <Select
+            onValueChange={(value) => {
+              const protocol = protocols.find(
+                (protocol) => protocol.id === value,
+              );
 
-                setSelectedProtocol(protocol);
-              }}
-              value={selectedProtocol?.id}
-              disabled={isLoadingProtocols}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a Protocol..." />
-              </SelectTrigger>
-              <SelectContent>
-                {protocols?.map((protocol) => (
-                  <SelectItem key={protocol.id} value={protocol.id}>
-                    {protocol.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              setSelectedProtocol(protocol);
+            }}
+            value={selectedProtocol?.id}
+            disabled={isLoadingProtocols}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a Protocol..." />
+            </SelectTrigger>
+            <SelectContent>
+              {protocols?.map((protocol) => (
+                <SelectItem key={protocol.id} value={protocol.id}>
+                  {protocol.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {selectedProtocol && (
             <div className="flex flex-row items-center justify-between gap-2 rounded-md bg-secondary p-4">
-              <div className="break-al text-base">{url}</div>
+              <div className="truncate text-base">{url}</div>
               <Button variant="ghost" size="icon">
                 <CopyButton text={url} />
               </Button>
             </div>
           )}
-        </>
+        </div>
       </DialogContent>
     </Dialog>
   );

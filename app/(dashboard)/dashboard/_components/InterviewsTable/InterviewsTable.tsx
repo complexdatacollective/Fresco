@@ -74,18 +74,6 @@ export const InterviewsTable = ({
         setOpen={setShowDeleteModal}
         interviewsToDelete={selectedInterviews ?? []}
       />
-      <div className="flex gap-2">
-        <Button onClick={() => handleExport(interviews.data)}>
-          Export all interviews
-        </Button>
-        <Button
-          variant={'outline'}
-          disabled={unexportedInterviews.length === 0}
-          onClick={() => handleExport(unexportedInterviews)}
-        >
-          Export all unexported interviews
-        </Button>
-      </div>
       <DataTable
         columns={InterviewColumns()}
         data={convertedData}
@@ -93,6 +81,20 @@ export const InterviewsTable = ({
         handleDeleteSelected={handleDelete}
         handleExportSelected={handleExport}
         actions={ActionsDropdown}
+        headerItems={
+          <>
+            <Button onClick={() => handleExport(interviews.data)}>
+              Export all interviews
+            </Button>
+            <Button
+              variant={'outline'}
+              disabled={unexportedInterviews.length === 0}
+              onClick={() => handleExport(unexportedInterviews)}
+            >
+              Export all unexported interviews
+            </Button>
+          </>
+        }
       />
     </>
   );
