@@ -169,4 +169,4 @@ Visit your deployed app to create your administrator account. Only one user acco
 
 4. Click **"Go to the dashboard"** button and begin your exciting exploration of Fresco.
 
-For more info checkout our [User Community](https://community.networkcanvas.com/).
+For more information checkout our [User Community](https://community.networkcanvas.com/).
