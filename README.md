@@ -10,9 +10,13 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 - The 'Use fullscreen forms' visual preference is not supported.
 - When exporting data, the "use screen layout coordinates" feature uses a hardcoded screen size of 1920 x 1080. Please note that this does not correspond to the screen size used by your participants.
 
-# Deployment instructions
+# Deployment Guide
 
-## 1. Set up a database for Fresco with [PlanetScale](https://planetscale.com)
+## Step 1
+
+### Set up a database for Fresco with [PlanetScale](https://planetscale.com)
+
+Fresco uses PlanetScale MySQL database platform. It provides scale, performance, and reliability for your data
 
 1. Go to [planetscale.com](planetscale.com).
 
@@ -39,7 +43,7 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
      ![Planet Scale Credit card](public/images/readme-screenshots/planetscale5.png)
 
-6. Next:
+6. Next, get the connection URL of your database:
 
    - Connect to your database by selecting Prisma as the framework (because Fresco uses Prisma as an ORM)
 
@@ -53,7 +57,7 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
      ![Planet Scale Create password2](public/images/readme-screenshots/planetscale8.png)
 
-   - Do not change any default settings, scroll down and copy the whole connection URL including "DATABASE_URL" and save it in a safe place (this URL is required for connecting to your app on Vercel)
+   - Do not change any default settings, scroll down and copy the whole connection URL including "DATABASE_URL" and save it in a safe place (**this URL is required for connecting to your app on Vercel**)
 
      ![Planet Scale copy connection URL](public/images/readme-screenshots/planetscale9.png)
 
@@ -63,7 +67,11 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 For more info checkout PlanetScale's [Quick Start Guide](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide)
 
-## 2. Create a new app on [UploadThing](https://uploadthing.com/) to store media files
+## Step 2
+
+### Create a new app on [UploadThing](https://uploadthing.com/) to store media files
+
+Fresco uses your UploadThing account to store protocol assets, exported files, etc.
 
 1. Go to [uploadthing.com](https://uploadthing.com).
 
@@ -87,36 +95,48 @@ For more info checkout PlanetScale's [Quick Start Guide](https://planetscale.com
 
    ![UploadThing Create the app](public/images/readme-screenshots/uploadthing5.png)
 
-7. On your dashboard, go to **"API Keys"** section from the sidebar navigation and copy your API keys (make sure to save them in a safe place as they are required to deploy Fresco on Vercel)
+7. On your dashboard, go to **"API Keys"** section from the sidebar navigation and copy your API keys (**make sure to save them in a safe place as they are required to deploy Fresco on Vercel**)
 
    ![UploadThing copy your API keys](public/images/readme-screenshots/uploadthing6.png)
 
 For more info checkout [UploadThing Docs](https://docs.uploadthing.com/)
 
-## 3. Deploy Fresco on Vercel.
+## Step 3
+
+### Deploy Fresco on Vercel.
+
+_Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://vercel.com/) and sing up for an account (It's recommended to sign in to Vercel via your Github account. You can use their "Hobby" tier or paid plan.)
 
 1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
-   Note: The button prompts you to sign in to your Vercel account if you don't have an account. Create an account on Vercel with a "Hobby" or paid tier and click the **"Deploy"** button again
 
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco%2Ftree%2Ffeature%2Finitial-setup-flow&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID)
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS)
 
-2. Create Git Repository. Follow instructions to create a git repository to deploy from. This will contain a cloned version of this repo.
+2. Create Git Repository. Give your repository a name and hit **"Create"** (This will be your Fresco instance name)
+
+   ![Deploy on Vercel1](public/images/readme-screenshots/vercel1.png)
 
 3. Configure Project
 
-Provide required environment variables from the services you set up in Step 1 and Step 2.
+   Provide the required environment variables from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
 
-| Variable           | Description                                                                            |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| DATABASE_URL       | [Database connection string](https://planetscale.com/docs/concepts/connection-strings) |
-| UPLOADTHING_SECRET | API key for your [uploadthing app](https://uploadthing.com/dashboard)                  |
-| UPLOADTHING_APP_ID | App ID for your [uploadthing app](https://uploadthing.com/dashboard)                   |
+   | Variable            | Description                                                                                     |
+   | ------------------- | ----------------------------------------------------------------------------------------------- |
+   | DATABASE_URL        | [Database connection string](https://planetscale.com/docs/concepts/connection-strings)          |
+   | UPLOADTHING_SECRET  | API key for your [UploadThing app](https://uploadthing.com/dashboard)                           |
+   | UPLOADTHING_APP_ID  | App ID for your [UploadThing app](https://uploadthing.com/dashboard)                            |
+   | MAXMIND_ACCOUNT_ID  | Account ID for your [Maxmind account](https://www.maxmind.com/en/accounts/970348/license-key/)  |
+   | MAXMIND_LICENSE_KEY | License key for your [Maxmind account](https://www.maxmind.com/en/accounts/970348/license-key/) |
+   | DISABLE_ANALYTICS   | To disable analytics microservice for Fresco                                                    |
+
+   **Note: We use Analytics microservice to gather error messages from instances of Fresco to troubleshoot issues, so by setting `DISABLE_ANALYTICS` to `false` you would help us improve the app**
+
+   ![Deploy on Vercel2](public/images/readme-screenshots/vercel2.png)
 
 4. Deploy
 
-Click "Deploy" and wait for the deployment to finish
+   Click **"Deploy"** and wait for the deployment to finish
 
-5. Create User Account
+# Create User Account on your Fresco app
 
 Visit your deployed app to create your administrator account. Only one user account may be created.
 
