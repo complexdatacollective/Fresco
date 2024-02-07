@@ -122,20 +122,20 @@
     --muted: var(--platinum);
     --muted-foreground: var(--cyber-grape-hue) calc(var(--cyber-grape-saturation) - 10%) calc(var(--cyber-grape-lightness) - 10%);
  
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: var(--slate-blue);
+    --accent-foreground: var(--white);
  
     --destructive: var(--tomato);
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: var(--white);
 
     --warning: var(--neon-carrot);
-    --warning-foreground: 210 40% 98%;
+    --warning-foreground: var(--white);
 
     --info: var(--cerulean-blue);
-    --info-foreground: 210 40% 98%;
+    --info-foreground: var(--white);
 
     --success: var(--sea-green);
-    --success-foreground: 210 40% 98%;
+    --success-foreground: var(--white);
 
     --border: var(--platinum--dark);
 

@@ -33,14 +33,14 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
         <Providers initialSession={session}>
-          {/* <RedirectWrapper
+          <RedirectWrapper
             configured={!!appSettings?.configured}
             expired={!!appSettings?.expired}
             session={session}
-          > */}
-          {children}
-          <Toaster />
-          {/* </RedirectWrapper> */}
+          >
+            {children}
+            <Toaster />
+          </RedirectWrapper>
         </Providers>
       </body>
     </html>

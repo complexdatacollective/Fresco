@@ -35,18 +35,12 @@ export const calculateRedirect = ({
     throw new Error('No path provided to calculateRedirect!');
   }
 
-  const isNotFound = path === '/not-found' || path === '/404';
   const isLoginPage = path === '/signin';
   const isLandingPage = path === '/';
   const isOnboarding = path.startsWith('/setup');
   const isInterviewing =
     path.startsWith('/interview') || path.startsWith('/onboard');
   const isExpiredPage = path === '/expired';
-
-  // 404 page always allowed
-  if (isNotFound) {
-    return;
-  }
 
   /**
    * `configured` - setup has been completed
@@ -74,7 +68,7 @@ export const calculateRedirect = ({
   // APP IS CONFIGURED
   if (!session) {
     // If there's no session, these are the only routes that we pass through:
-    if (isLoginPage || isLandingPage || isInterviewing) {
+    if (isLoginPage || isInterviewing) {
       return;
     }
 
@@ -87,7 +81,7 @@ export const calculateRedirect = ({
   // APP IS CONFIGURED AND SESSION EXISTS
 
   // Redirect authed users away from these pages and to the dashboard
-  if (isLoginPage || isOnboarding || isExpiredPage) {
+  if (isLoginPage || isOnboarding || isLandingPage || isExpiredPage) {
     if (isLoginPage) {
       const callbackUrl = searchParams.get('callbackUrl') as Route;
 

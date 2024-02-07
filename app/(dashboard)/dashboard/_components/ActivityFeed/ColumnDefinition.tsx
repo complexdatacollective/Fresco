@@ -1,7 +1,6 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from '~/components/data-table/data-table-column-header';
 import { Badge } from '~/components/ui/badge';
 import type {
   DataTableFilterableColumn,
@@ -15,8 +14,8 @@ import {
   type ActivityType,
 } from './utils';
 import type { Events } from '@prisma/client';
-import FormattedDate from '~/components/ui/FormattedDate';
 import TimeAgo from '~/components/ui/TimeAgo';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
 export function fetchActivityFeedTableColumnDefs(
   _isPending: boolean,

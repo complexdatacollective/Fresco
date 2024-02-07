@@ -33,7 +33,7 @@ export const NavButton = ({
       {isActive && (
         <motion.div
           layoutId="underline"
-          className="absolute left-0 right-0 top-[105%] h-[2px] rounded-full bg-accent"
+          className="absolute left-0 right-0 top-[105%] h-[2px] rounded-full bg-primary-foreground"
         />
       )}
     </motion.li>

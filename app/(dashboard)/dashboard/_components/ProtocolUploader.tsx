@@ -5,10 +5,10 @@ import { Button } from '~/components/ui/Button';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 import { FileUp, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import JobCard from '~/components/ProtocolImport/JobCard';
 import { useCallback } from 'react';
 import usePortal from 'react-useportal';
 import { cn } from '~/utils/shadcn';
+import JobCard from '~/components/ProtocolImport/JobCard';
 
 export default function ProtocolUploader({
   handleProtocolUploaded,
@@ -42,12 +42,13 @@ export default function ProtocolUploader({
   return (
     <>
       <Button
-        variant="default"
         onClick={open}
         className={cn(
-          'bg-sea-green hover:bg-sea-green-dark',
           isActive &&
-            'to-mustard animate-background-gradient pointer-events-none cursor-wait bg-gradient-to-r from-paradise-pink via-tomato',
+            cn(
+              'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape',
+              'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
+            ),
         )}
       >
         {isActive ? (
@@ -58,47 +59,34 @@ export default function ProtocolUploader({
         <input {...getInputProps()} />
         Import protocols
       </Button>
-      {jobs.length > 1 && (
-        <motion.div className="flex justify-end" layout>
-          <Button
-            variant="link"
-            size="xs"
-            className="text-red-500"
-            onClick={cancelAllJobs}
-          >
-            Cancel all
-          </Button>
-        </motion.div>
+      {jobs.length > 0 && (
+        <Button variant="outline" onClick={cancelAllJobs}>
+          Cancel all
+        </Button>
       )}
       <Portal>
-        {jobs && jobs.length > 0 && (
-          <motion.div
-            layout
-            className="text-md fixed bottom-10 right-10 inline-block"
-          >
-            <motion.ul className="relative mt-4 flex flex-col gap-2" layout>
-              <AnimatePresence mode="popLayout">
-                {jobs.map((job, index) => (
-                  <motion.li
-                    className="flex"
-                    layout
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{
-                      scale: 1,
-                      opacity: 1,
-                      transition: { delay: index * 0.075 },
-                    }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ type: 'spring', damping: 15 }}
-                    key={job.id}
-                  >
-                    <JobCard job={job} onCancel={handleCancelJob(job.id)} />
-                  </motion.li>
-                ))}
-              </AnimatePresence>
-            </motion.ul>
-          </motion.div>
-        )}
+        <motion.div layout className="text-md fixed bottom-4 right-6 w-[400px]">
+          <motion.ul className="relative flex flex-col-reverse gap-2" layout>
+            <AnimatePresence mode="popLayout">
+              {jobs.map((job, index) => (
+                <JobCard
+                  layout
+                  key={job.id}
+                  job={job}
+                  onCancel={handleCancelJob(job.id)}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{
+                    scale: 1,
+                    opacity: 1,
+                    transition: { delay: index * 0.5 },
+                  }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ type: 'spring', damping: 15 }}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.ul>
+        </motion.div>
       </Portal>
     </>
   );

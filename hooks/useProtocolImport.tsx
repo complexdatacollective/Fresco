@@ -65,7 +65,6 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
       const JSZip = (await import('jszip')).default; // Dynamic import to reduce bundle size
       const zip = await JSZip.loadAsync(fileArrayBuffer);
       const protocolJson = await getProtocolJson(zip);
-      await sleep(1000);
 
       // Validating protocol...
       dispatch({
@@ -79,7 +78,6 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
       const { validateProtocol } = await import('@codaco/protocol-validation');
 
       const validationResult = await validateProtocol(protocolJson);
-      await sleep(1000); // Actually helps UX to slow this down a bit.
 
       if (!validationResult.isValid) {
         const resultAsString = JSON.stringify(validationResult, null, 2);

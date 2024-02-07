@@ -4,18 +4,21 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '~/utils/shadcn';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-full text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate',
+  'inline-flex items-center justify-center rounded-full text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate text-foreground',
   {
     variants: {
       variant: {
         default: 'bg-primary hover:bg-primary/90 text-primary-foreground',
+        success: 'bg-success text-success-foreground hover:bg-success/90',
+        accent: 'bg-accent text-accent-foreground hover:bg-accent/90',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline:
           'bg-transparent hover:bg-accent hover:text-accent-foreground border',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        ghost: 'hover:text-accent',
+        tableHeader: 'hover:text-accent -ml-6 data-[state=open]:text-accent',
         link: 'underline-offset-4 hover:underline',
       },
       size: {
@@ -25,17 +28,18 @@ const buttonVariants = cva(
         lg: 'h-12 px-8',
         icon: 'h-10 w-10',
       },
-      color: {
-        primary: 'bg-primary text-primary-foreground',
-        destructive: 'bg-destructive text-destructive-foreground',
-        accent: 'bg-accent text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground',
-      },
     },
     defaultVariants: {
       variant: 'default',
       size: 'default',
     },
+    compoundVariants: [
+      {
+        variant: 'tableHeader',
+        size: 'sm',
+        className: '-ml-4',
+      },
+    ],
   },
 );
 

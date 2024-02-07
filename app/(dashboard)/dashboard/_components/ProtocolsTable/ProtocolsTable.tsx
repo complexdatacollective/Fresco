@@ -39,11 +39,7 @@ export const ProtocolsTable = ({
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
-        headerItems={
-          <div className="flex gap-2">
-            <ProtocolUploader />
-          </div>
-        }
+        headerItems={<ProtocolUploader />}
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}
