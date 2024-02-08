@@ -2,15 +2,12 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Heading from '~/components/ui/typography/Heading';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import {
-  ActivityFeed,
-  type IndexPageProps,
-} from './_components/ActivityFeed/ActivityFeed';
+import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { Divider } from '~/components/ui/Divider';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
+import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
-function Home({ searchParams }: IndexPageProps) {
+function Home() {
   return (
     <>
       <ResponsiveContainer>
@@ -19,9 +16,8 @@ function Home({ searchParams }: IndexPageProps) {
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
       </ResponsiveContainer>
-      <Divider />
+      <AnonymousRecruitmentWarning />
       <SummaryStatistics />
-      <Divider />
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>
         <Paragraph>
@@ -31,7 +27,7 @@ function Home({ searchParams }: IndexPageProps) {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="5xl">
         <Section>
-          <ActivityFeed searchParams={searchParams} />
+          <ActivityFeed />
         </Section>
       </ResponsiveContainer>
     </>

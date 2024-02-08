@@ -1,19 +1,17 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import type { inferRouterOutputs } from '@trpc/server';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 
 import { Button } from '~/components/ui/Button';
 import Link from 'next/link';
 import { Progress } from '~/components/ui/progress';
-import type { AppRouter } from '~/server/router';
 import type { Stage } from '@codaco/shared-consts';
 import { Badge } from '~/components/ui/badge';
+import type { RouterOutputs } from '~/trpc/shared';
 
-type RouterOutput = inferRouterOutputs<AppRouter>;
-type Interviews = RouterOutput['interview']['get']['all'][0];
+type Interviews = RouterOutputs['interview']['get']['all'][0];
 
 export const InterviewColumns = (): ColumnDef<Interviews>[] => [
   {

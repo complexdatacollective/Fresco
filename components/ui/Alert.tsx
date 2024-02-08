@@ -1,15 +1,18 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '~/utils/shadcn';
+import Heading from './typography/Heading';
+import Paragraph from './typography/Paragraph';
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
+  'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
   {
     variants: {
       variant: {
-        default: 'bg-background text-foreground',
+        default: '',
+        info: 'border-info bg-info/10 [--link:var(--info)]',
         destructive:
-          'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
+          'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive [--link:var(--destructive)]',
       },
     },
     defaultVariants: {
@@ -35,9 +38,10 @@ const AlertTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
-  <h5
+  <Heading
+    variant="h4-all-caps"
     ref={ref}
-    className={cn('bold mb-2 font-semibold leading-none', className)}
+    className={cn(className)}
     {...props}
   />
 ));
@@ -47,9 +51,10 @@ const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <div
+  <Paragraph
     ref={ref}
-    className={cn('text-sm font-normal [&_p]:leading-relaxed', className)}
+    variant="smallText"
+    className={cn('mt-1', className)}
     {...props}
   />
 ));

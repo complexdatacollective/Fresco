@@ -1,13 +1,14 @@
-'use client';
-
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
-import type { ParticipantWithInterviews } from '~/shared/types';
 import { GetParticipantURLButton } from './GetParticipantURLButton';
+import { type ParticipantWithInterviews } from '~/shared/types';
 
-export const ParticipantColumns =
-  (): ColumnDef<ParticipantWithInterviews>[] => [
+export function getParticipantColumns(): ColumnDef<
+  ParticipantWithInterviews,
+  unknown
+>[] {
+  return [
     {
       id: 'select',
       header: ({ table }) => (
@@ -51,3 +52,4 @@ export const ParticipantColumns =
       },
     },
   ];
+}

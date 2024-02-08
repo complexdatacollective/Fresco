@@ -7,9 +7,6 @@ import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { DataTableAdvancedFilter } from '~/components/data-table/advanced/data-table-advanced-filter';
 import { DataTableViewOptions } from '~/components/data-table/data-table-view-options';
-
-import { DataTableAdvancedFilterItem } from './data-table-advanced-filter-item';
-import { DataTableMultiFilter } from './data-table-multi-filter';
 import type {
   DataTableFilterOption,
   DataTableFilterableColumn,
@@ -21,7 +18,7 @@ type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;
   searchableColumns?: DataTableSearchableColumn<TData>[];
   filterableColumns?: DataTableFilterableColumn<TData>[];
-}
+};
 
 export function DataTableAdvancedToolbar<TData>({
   dataTable,
@@ -91,7 +88,7 @@ export function DataTableAdvancedToolbar<TData>({
             >
               Filter
               <ChevronsUpDown
-                className="size-4 ml-2 opacity-50"
+                className="ml-2 size-4 opacity-50"
                 aria-hidden="true"
               />
             </Button>
@@ -112,24 +109,6 @@ export function DataTableAdvancedToolbar<TData>({
       </div>
       {open ? (
         <div className="flex items-center space-x-2">
-          {selectedOptions.some((option) => option.isMulti) ? (
-            <DataTableMultiFilter
-              table={dataTable}
-              allOptions={options}
-              options={selectedOptions.filter((option) => option.isMulti)}
-              setSelectedOptions={setSelectedOptions}
-            />
-          ) : null}
-          {selectedOptions
-            .filter((option) => !option.isMulti)
-            .map((selectedOption) => (
-              <DataTableAdvancedFilterItem
-                key={String(selectedOption.value)}
-                table={dataTable}
-                selectedOption={selectedOption}
-                setSelectedOptions={setSelectedOptions}
-              />
-            ))}
           <DataTableAdvancedFilter
             options={options}
             selectedOptions={selectedOptions}
@@ -141,7 +120,7 @@ export function DataTableAdvancedToolbar<TData>({
               role="combobox"
               className="rounded-full"
             >
-              <Plus className="size-4 mr-2 opacity-50" aria-hidden="true" />
+              <Plus className="mr-2 size-4 opacity-50" aria-hidden="true" />
               Add filter
             </Button>
           </DataTableAdvancedFilter>

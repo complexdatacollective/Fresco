@@ -1,12 +1,11 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import ResetButton from '../_components/ResetButton';
 import AnalyticsButton from '../_components/AnalyticsButton';
-import { Suspense } from 'react';
 import RecruitmentTestSection from '../_components/RecruitmentTestSection';
-import Heading from '~/components/ui/typography/Heading';
+import SettingsSection from '~/components/layout/SettingsSection';
+import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 
 export default function Settings() {
   return (
@@ -17,34 +16,32 @@ export default function Settings() {
           subHeaderText="Here you can configure your installation of Fresco."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="5xl" className="gap-4">
-        <Section>
-          <div>
-            <Heading variant="h4-all-caps" className="mb-2">
-              Reset Settings
-            </Heading>
-            <Paragraph variant="noMargin" className="leading-normal">
-              Project settings allow you to configure the project name, and
-              other metadata.
-            </Paragraph>
-          </div>
-          <ResetButton />
-        </Section>
-        <Section>
-          <div>
-            <Heading variant="h4" className="mb-2">
-              Send Test Analytics Event
-            </Heading>
-            <Paragraph variant="noMargin" className="leading-normal">
-              This will send a test analytics event to the Fresco analytics
-              server.
-            </Paragraph>
-          </div>
-          <AnalyticsButton />
-        </Section>
-        <Suspense fallback={<div>Thinking about it...</div>}>
-          <RecruitmentTestSection />
-        </Suspense>
+      <ResponsiveContainer className="gap-4">
+        <SettingsSection
+          heading="Anonymous Recruitment"
+          controlArea={<AnonymousRecruitmentSwitch />}
+        >
+          <Paragraph variant="noMargin">
+            If anonymous recruitment is enabled, you may generate an anonymous
+            participation URL. This URL can be shared with participants to allow
+            them to self-enroll in your study.
+          </Paragraph>
+        </SettingsSection>
+        <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>
+          <Paragraph variant="noMargin">
+            Delete all data and reset Fresco to its default state.
+          </Paragraph>
+        </SettingsSection>
+        <SettingsSection
+          heading="Send Test Analytics Event"
+          controlArea={<AnalyticsButton />}
+        >
+          <Paragraph variant="noMargin">
+            This will send a test analytics event to the Fresco analytics
+            server.
+          </Paragraph>
+        </SettingsSection>
+        <RecruitmentTestSection />
       </ResponsiveContainer>
     </>
   );

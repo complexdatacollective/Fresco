@@ -1,7 +1,6 @@
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
-import { SettingsMenu } from './SettingsMenu';
 
 export const NavigationButton = ({
   disabled,
@@ -19,7 +18,7 @@ export const NavigationButton = ({
       className={cn(
         `session-navigation__button m-4 flex h-[4.8rem] w-[4.8rem] basis-[4.8rem] cursor-pointer items-center justify-center rounded-full transition-all`,
         'hover:bg-[#4a4677]',
-        disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
+        disabled && 'hover:bg-transparent cursor-not-allowed opacity-50',
         className,
       )}
       role="button"
@@ -53,7 +52,7 @@ const Navigation = ({
       role="navigation"
       className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
-      <SettingsMenu />
+      {/* <SettingsMenu /> */}
       <NavigationButton onClick={moveBackward} disabled={!canMoveBackward}>
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>

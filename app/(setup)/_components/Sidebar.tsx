@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
 import { useOnboardingContext } from './OnboardingProvider';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 const stepLabels = [
   'Create Account',
@@ -15,7 +16,7 @@ function OnboardSteps() {
   const { currentStep, setCurrentStep } = useOnboardingContext();
 
   return (
-    <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">
+    <div className="bg-white flex flex-shrink-0 flex-grow-0 flex-col gap-6 rounded-xl px-8 py-12">
       {stepLabels.map((step, index) => (
         <div
           key={index}
@@ -30,9 +31,9 @@ function OnboardSteps() {
             className={cn(
               'text-md flex h-10 w-10 items-center justify-center rounded-full border border-primary/[.06] font-bold',
               index < currentStep - 1 &&
-                'border-teal-400 bg-teal-400 text-white',
+                'border-teal-400 text-white bg-success',
               index === currentStep - 1 &&
-                'border-primary bg-primary text-white',
+                'text-white border-primary bg-primary',
             )}
           >
             {index < currentStep - 1 ? (
@@ -42,7 +43,7 @@ function OnboardSteps() {
             )}
           </div>
           <div className="flex flex-col">
-            <p className="text-md">{step}</p>
+            <Paragraph variant="noMargin">{step}</Paragraph>
           </div>
         </div>
       ))}

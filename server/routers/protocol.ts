@@ -6,6 +6,7 @@ import { hash } from 'ohash';
 import { Prisma } from '@prisma/client';
 import { utapi } from '~/app/api/uploadthing/core';
 import type { Protocol } from '@codaco/shared-consts';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const assetInsertSchema = z.array(
   z.object({
@@ -21,20 +22,20 @@ export const assetInsertSchema = z.array(
 // When deleting protocols we must first delete the assets associated with them
 // from the cloud storage.
 export const deleteProtocols = async (hashes: string[]) => {
+  const protocolsToBeDeleted = await prisma.protocol.findMany({
+    where: { hash: { in: hashes } },
+    select: { id: true, name: true },
+  });
+
+  const assets = await prisma.asset.findMany({
+    where: { protocolId: { in: protocolsToBeDeleted.map((p) => p.id) } },
+    select: { key: true },
+  });
   // We put asset deletion in a separate try/catch because if it fails, we still
   // want to delete the protocol.
   try {
     // eslint-disable-next-line no-console
     console.log('deleting protocol assets...');
-    const protocolIds = await prisma.protocol.findMany({
-      where: { hash: { in: hashes } },
-      select: { id: true },
-    });
-
-    const assets = await prisma.asset.findMany({
-      where: { protocolId: { in: protocolIds.map((p) => p.id) } },
-      select: { key: true },
-    });
 
     await deleteFilesFromUploadThing(assets.map((a) => a.key));
   } catch (error) {
@@ -46,6 +47,25 @@ export const deleteProtocols = async (hashes: string[]) => {
     const deletedProtocols = await prisma.protocol.deleteMany({
       where: { hash: { in: hashes } },
     });
+
+    // insert an event for each protocol deleted
+    // eslint-disable-next-line no-console
+    console.log('inserting events for deleted protocols...');
+    const events = protocolsToBeDeleted.map((p) => {
+      return {
+        type: 'Protocol Uninstalled',
+        message: `Protocol "${p.name}" uninstalled`,
+      };
+    });
+
+    await prisma.events.createMany({
+      data: events,
+    });
+
+    revalidateTag('dashboard.getActivities');
+    revalidateTag('protocol.get.all');
+    revalidatePath('/dashboard/protocols');
+
     return { error: null, deletedProtocols: deletedProtocols };
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -151,6 +171,18 @@ export const protocolRouter = router({
             },
           },
         });
+
+        await prisma.events.create({
+          data: {
+            type: 'Protocol Installed',
+            message: `Protocol "${protocolName}" installed`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('protocol.get.all');
+        revalidateTag('dashboard.getSummaryStatistics.protocolCount');
+        revalidatePath('/dashboard/protocols');
 
         return { error: null, success: true };
       } catch (e) {

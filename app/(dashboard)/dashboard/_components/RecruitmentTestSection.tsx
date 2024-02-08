@@ -4,7 +4,6 @@ import type { Participant, Protocol } from '@prisma/client';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import {
@@ -22,8 +21,7 @@ import { getBaseUrl } from '~/trpc/shared';
 const RecruitmentTestSection = () => {
   const router = useRouter();
 
-  const { data: appSettings, isLoading: isLoadingAppSettings } =
-    api.appSettings.get.useQuery();
+  const { data: appSettings } = api.appSettings.get.useQuery();
   const { data: protocolData, isLoading: isLoadingProtocols } =
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
@@ -47,10 +45,6 @@ const RecruitmentTestSection = () => {
     }
   }, [allowAnonymousRecruitment]);
 
-  if (isLoadingAppSettings) {
-    return <div>Loading...</div>;
-  }
-
   const buttonDisabled =
     !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
 
@@ -65,14 +59,8 @@ const RecruitmentTestSection = () => {
   return (
     <Section>
       <Heading variant="h4">Recruitment Test Section</Heading>
-      <Paragraph variant="noMargin" className="leading-normal">
-        This section allows you to test recruitment.
-      </Paragraph>
-      <div className="flex justify-between">
-        <p>Allow anonymous recruitment?</p>
-        <RecruitmentSwitch />
-      </div>
-      <div className="flex gap-4">
+      <Paragraph>This section allows you to test recruitment.</Paragraph>
+      <div className="mt-6 flex gap-4">
         <Select
           onValueChange={(value) => {
             const protocol = protocols.find(
@@ -118,32 +106,34 @@ const RecruitmentTestSection = () => {
           </SelectContent>
         </Select>
       </div>
-      <Button
-        disabled={buttonDisabled}
-        onClick={() => router.push(getInterviewURL())}
-      >
-        Start Interview with GET
-      </Button>
-      <Button
-        disabled={buttonDisabled}
-        onClick={async () =>
-          await fetch(getBaseUrl() + getInterviewURL(), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              participantId: selectedParticipant?.id,
-            }),
-          }).then((response) => {
-            if (response.redirected) {
-              window.location.href = response.url;
-            }
-          })
-        }
-      >
-        Start Interview with POST
-      </Button>
+      <div className="mt-6">
+        <Button
+          disabled={buttonDisabled}
+          onClick={() => router.push(getInterviewURL())}
+        >
+          Start Interview with GET
+        </Button>
+        <Button
+          disabled={buttonDisabled}
+          onClick={async () =>
+            await fetch(getBaseUrl() + getInterviewURL(), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                participantId: selectedParticipant?.id,
+              }),
+            }).then((response) => {
+              if (response.redirected) {
+                window.location.href = response.url;
+              }
+            })
+          }
+        >
+          Start Interview with POST
+        </Button>
+      </div>
     </Section>
   );
 };

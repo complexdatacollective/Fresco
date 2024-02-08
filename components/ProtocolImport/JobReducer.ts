@@ -1,14 +1,15 @@
 import { trackEvent } from '~/analytics/utils';
 
 export const importStatuses = [
+  'Queued',
   'Extracting protocol',
   'Validating protocol',
   'Uploading assets',
-  'Finishing up',
+  'Writing to database',
   'Complete',
 ] as const;
 
-type ImportStatus = (typeof importStatuses)[number] | null;
+type ImportStatus = (typeof importStatuses)[number];
 
 export type ErrorState = {
   title: string;
@@ -79,7 +80,7 @@ export function jobReducer(state: ImportJob[], action: Action) {
       const newJob: ImportJob = {
         id: action.payload.file.name,
         file: action.payload.file,
-        status: null,
+        status: 'Queued',
         progress: null,
       };
 

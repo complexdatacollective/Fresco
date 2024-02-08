@@ -1,76 +1,69 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
-import { DataTableColumnHeader } from '~/components/data-table/data-table-column-header';
 import { Badge } from '~/components/ui/badge';
-import type {
-  DataTableFilterableColumn,
-  DataTableSearchableColumn,
+import {
+  type ActivityType,
+  type DataTableFilterableColumn,
+  type DataTableSearchableColumn,
+  type Activity,
+  activityTypes,
 } from '~/lib/data-table/types';
-import type { TransitionStartFunction } from 'react';
-import { type Activity, activityTypes } from './utils';
+import type { Events } from '@prisma/client';
+import TimeAgo from '~/components/ui/TimeAgo';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { getBadgeColorsForActivityType } from './utils';
 
-export function fetchActivityFeedTableColumnDefs(
-  _isPending: boolean,
-  _startTransition: TransitionStartFunction,
-): ColumnDef<Activity, unknown>[] {
+export function fetchActivityFeedTableColumnDefs(): ColumnDef<
+  Events,
+  unknown
+>[] {
   return [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value);
-          }}
-          aria-label="Select all"
-          className="translate-y-[2px]"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value);
-          }}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: 'type',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Type" />
-      ),
-      cell: ({ row }) => (
-        <div className="flex space-x-2">
-          {<Badge variant="outline">{row.getValue('type')}</Badge>}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.original.message}
-          </span>
-        </div>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'timestamp',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Time" />
       ),
       cell: ({ row }) => {
+        const timestamp: string = row.getValue('timestamp');
         return (
-          <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {row.getValue('timestamp')}
-            </span>
+          <div className="flex space-x-2 truncate font-medium">
+            <TimeAgo date={timestamp} />
           </div>
         );
       },
+    },
+    {
+      accessorKey: 'type',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Type" />
+      ),
+      cell: ({ row }) => {
+        const activityType: ActivityType = row.getValue('type');
+        const color = getBadgeColorsForActivityType(activityType);
+        return (
+          <div className="flex min-w-[140px] space-x-2">
+            <Badge className={color}>{activityType}</Badge>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'message',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Details" />
+      ),
+      cell: ({ row }) => (
+        <div className="flex space-x-2">
+          <span className="max-w-full truncate font-medium">
+            {row.original.message}
+          </span>
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
   ];
 }
@@ -84,11 +77,11 @@ export const filterableColumns: DataTableFilterableColumn<Activity>[] = [
       value: status,
     })),
   },
-];
+] as const;
 
 export const searchableColumns: DataTableSearchableColumn<Activity>[] = [
   {
-    id: 'type',
-    title: 'messages',
+    id: 'message',
+    title: 'by activity details',
   },
-];
+] as const;

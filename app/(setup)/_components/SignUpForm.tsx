@@ -15,7 +15,7 @@ export const SignUpForm = ({
   completeCallback?: () => void;
 }) => {
   const [signupError, setSignupError] = useState<string | null>(null);
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const {
     register,

@@ -7,6 +7,7 @@ import {
   updateSchema,
 } from '~/shared/schemas/schemas';
 import { z } from 'zod';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const participantRouter = router({
   get: router({
@@ -44,6 +45,20 @@ export const participantRouter = router({
           skipDuplicates: true,
         });
 
+        await prisma.events.create({
+          data: {
+            type: 'Participant(s) Added',
+            message: `Added ${createdParticipants.count} participant(s)`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.participantCount');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+
+        revalidateTag('participant.get.all');
+        revalidatePath('/dashboard/participants');
+
         return {
           error: null,
           createdParticipants: createdParticipants.count,
@@ -76,6 +91,21 @@ export const participantRouter = router({
     all: protectedProcedure.mutation(async () => {
       try {
         const deletedParticipants = await prisma.participant.deleteMany();
+
+        await prisma.events.create({
+          data: {
+            type: 'Participant(s) Removed',
+            message: `Removed ${deletedParticipants.count} participant(s)`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.participantCount');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+
+        revalidateTag('participant.get.all');
+        revalidatePath('/dashboard/participants');
+
         return { error: null, deletedParticipants: deletedParticipants.count };
       } catch (error) {
         return {
@@ -91,6 +121,20 @@ export const participantRouter = router({
           const deletedParticipants = await prisma.participant.deleteMany({
             where: { identifier: { in: identifiers } },
           });
+
+          await prisma.events.create({
+            data: {
+              type: 'Participant(s) Removed',
+              message: `Removed ${deletedParticipants.count} participant(s)`,
+            },
+          });
+
+          revalidateTag('dashboard.getActivities');
+          revalidateTag('dashboard.getSummaryStatistics.participantCount');
+
+          revalidateTag('participant.get.all');
+          revalidatePath('/dashboard/participants');
+
           return {
             error: null,
             deletedParticipants: deletedParticipants.count,

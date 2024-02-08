@@ -2,6 +2,8 @@
 
 import { SignUpForm } from '~/app/(setup)/_components/SignUpForm';
 import { useOnboardingContext } from '../OnboardingProvider';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 function CreateAccount() {
   const { setCurrentStep } = useOnboardingContext();
@@ -12,14 +14,14 @@ function CreateAccount() {
 
   return (
     <div className="w-[30rem]">
-      <div className="mb-4 flex flex-col">
-        <h1 className="text-3xl font-bold">Create an Account</h1>
+      <div className="mb-4">
+        <Heading variant="h1">Create an Account</Heading>
+        <Paragraph>
+          To use Fresco, you need to set up an administrator account which will
+          enable to you access the protect parts of the app. Only one
+          administrator account can be created.
+        </Paragraph>
       </div>
-      <p className="mb-4 mt-4">
-        To use Fresco, you need to set up an administrator account which will
-        enable to you access the protect parts of the app. Only one
-        administrator account can be created.
-      </p>
       <SignUpForm completeCallback={completeCallback} />
     </div>
   );

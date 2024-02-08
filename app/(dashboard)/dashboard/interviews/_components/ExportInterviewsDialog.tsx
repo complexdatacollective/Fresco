@@ -36,11 +36,12 @@ const defaultExportOptions = {
 };
 
 const setOptionsToLocalStorage = (options: ExportOptions) => {
-  localStorage.setItem('exportOptions', JSON.stringify(options));
+  window.localStorage?.setItem('exportOptions', JSON.stringify(options));
 };
 
 const getLocalExportOptions = () => {
-  const localExportOptions = localStorage.getItem('exportOptions');
+  const localExportOptions =
+    window.localStorage?.getItem('exportOptions') ?? null;
   const result = ExportOptionsSchema.safeParse(
     localExportOptions ? JSON.parse(localExportOptions) : null,
   );

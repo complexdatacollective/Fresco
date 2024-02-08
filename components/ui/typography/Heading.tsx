@@ -4,11 +4,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import React from 'react';
 import { cn } from '~/utils/shadcn';
 import { Slot } from '@radix-ui/react-slot';
+import { motion } from 'framer-motion';
 
 const headingVariants = cva('text-balance', {
   variants: {
     variant: {
-      'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight',
+      'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
       'h2': 'scroll-m-20 text-3xl font-semibold tracking-tight',
       'h3': 'scroll-m-20 text-2xl font-semibold tracking-tight',
       'h4': 'scroll-m-20 text-xl font-semibold tracking-tight',
@@ -53,5 +54,7 @@ const Heading = React.forwardRef<HTMLElement, HeadingProps>(
 );
 
 Heading.displayName = 'Heading';
+
+export const MotionHeading = motion(Heading);
 
 export default Heading;

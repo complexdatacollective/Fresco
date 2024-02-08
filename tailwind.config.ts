@@ -1,4 +1,5 @@
 import { type Config } from 'tailwindcss';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
   content: [
@@ -29,6 +30,10 @@ export default {
         DEFAULT: 'hsl(var(--cyber-grape) / <alpha-value>)',
         dark: 'hsl(var(--cyber-grape--dark) / <alpha-value>)',
       },
+      'mustard': {
+        DEFAULT: 'hsl(var(--mustard) / <alpha-value>)',
+        dark: 'hsl(var(--mustard--dark) / <alpha-value>)',
+      },
       'rich-black': {
         DEFAULT: 'hsl(var(--rich-black) / <alpha-value>)',
         dark: 'hsl(var(--rich-black--dark) / <alpha-value>)',
@@ -45,9 +50,9 @@ export default {
         DEFAULT: 'hsl(var(--sea-serpent) / <alpha-value>)',
         dark: 'hsl(var(--sea-serpent--dark) / <alpha-value>)',
       },
-      'purple-pizzazz': {
-        DEFAULT: 'hsl(var(--purple-pizzazz) / <alpha-value>)',
-        dark: 'hsl(var(--purple-pizzazz--dark) / <alpha-value>)',
+      'purple-pizazz': {
+        DEFAULT: 'hsl(var(--purple-pizazz) / <alpha-value>)',
+        dark: 'hsl(var(--purple-pizazz--dark) / <alpha-value>)',
       },
       'paradise-pink': {
         DEFAULT: 'hsl(var(--paradise-pink) / <alpha-value>)',
@@ -73,6 +78,9 @@ export default {
         DEFAULT: 'hsl(var(--tomato) / <alpha-value>)',
         dark: 'hsl(var(--tomato--dark) / <alpha-value>)',
       },
+      'transparent': 'transparent',
+      'white': 'hsl(var(--white) / <alpha-value>)',
+
       'background': 'hsl(var(--background) / <alpha-value>)',
       'foreground': 'hsl(var(--foreground) / <alpha-value>)',
 
@@ -91,6 +99,10 @@ export default {
       'success': {
         DEFAULT: 'hsl(var(--success) / <alpha-value>)',
         foreground: 'hsl(var(--success-foreground) / <alpha-value>)',
+      },
+      'info': {
+        DEFAULT: 'hsl(var(--info) / <alpha-value>)',
+        foreground: 'hsl(var(--info-foreground) / <alpha-value>)',
       },
       'muted': {
         DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
@@ -112,41 +124,62 @@ export default {
         DEFAULT: 'hsl(var(--panel) / <alpha-value>)',
         foreground: 'hsl(var(--foreground) / <alpha-value>)',
       },
-
+      'input': {
+        DEFAULT: 'hsl(var(--input) / <alpha-value>)',
+        foreground: 'hsl(var(--input-foreground) / <alpha-value>)',
+      },
       'border': 'hsl(var(--border) / <alpha-value>)',
-      'borderRadius': {
-        lg: 'calc(var(--radius) * 1.5)',
-        md: 'var(--radius)',
-        sm: 'calc(var(--radius) * 0.75)',
+      'link': 'hsl(var(--link) / <alpha-value>)',
+    },
+    borderRadius: {
+      ...defaultTheme.borderRadius,
+      input: defaultTheme.borderRadius.xl,
+    },
+    extend: {
+      keyframes: {
+        'wiggle': {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        },
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+        'indeterminate-progress-bar': {
+          '0%': { transform: ' translateX(0) scaleX(0)' },
+          '40%': { transform: 'translateX(0) scaleX(0.4)' },
+          '100%': { transform: 'translateX(100%) scaleX(0.5)' },
+        },
+        'background-gradient': {
+          '0%, 50%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'shake': {
+          '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+          '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+          '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+          '40%, 60%': { transform: 'translate3d(4px, 0, 0)' },
+        },
+      },
+      animation: {
+        'wiggle': 'wiggle 1s ease-in-out infinite',
+        'shake': 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both',
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        'indeterminate-progress-bar':
+          'indeterminate-progress-bar 1s infinite linear',
+        'background-gradient': 'background-gradient 5s infinite ease-in-out',
+      },
+      transformOrigin: {
+        'left-right': '0% 50%',
       },
     },
   },
-  extend: {
-    keyframes: {
-      'accordion-down': {
-        from: { height: '0' },
-        to: { height: 'var(--radix-accordion-content-height)' },
-      },
-      'accordion-up': {
-        from: { height: 'var(--radix-accordion-content-height)' },
-        to: { height: '0' },
-      },
-      'indeterminate-progress-bar': {
-        '0%': { transform: ' translateX(0) scaleX(0)' },
-        '40%': { transform: 'translateX(0) scaleX(0.4)' },
-        '100%': { transform: 'translateX(100%) scaleX(0.5)' },
-      },
-    },
-    animation: {
-      'accordion-down': 'accordion-down 0.2s ease-out',
-      'accordion-up': 'accordion-up 0.2s ease-out',
-      'indeterminate-progress-bar':
-        'indeterminate-progress-bar 1s infinite linear',
-    },
-    transformOrigin: {
-      'left-right': '0% 50%',
-    },
-  },
+
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/aspect-ratio'),
