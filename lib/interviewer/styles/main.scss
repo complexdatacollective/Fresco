@@ -15,7 +15,7 @@ $image-path: '~~/lib/ui/assets/images';
 
   &:focus {
     outline: none;
-   }
+  }
 }
 
 :root {
@@ -23,7 +23,7 @@ $image-path: '~~/lib/ui/assets/images';
   --code-font: courier;
   --interface-prompt-flex-basis: 8rem;
   --nc-base-font-size: 18px;
-  --nc-border-radius: .75rem;
+  --nc-border-radius: 0.75rem;
   --padding-unit: 1rem;
   --form-intro-panel-background: var(--color-cyber-grape);
 }
@@ -52,7 +52,7 @@ $image-path: '~~/lib/ui/assets/images';
 
 .dialog-release-notes {
   &__notes {
-    max-height: 50vh; 
+    max-height: 50vh;
     overflow-y: scroll;
     background: var(--nc-background);
     padding: 0 1.2rem;
@@ -60,3 +60,6 @@ $image-path: '~~/lib/ui/assets/images';
   }
 }
 
+.markdown > * {
+  all: revert;
+}
