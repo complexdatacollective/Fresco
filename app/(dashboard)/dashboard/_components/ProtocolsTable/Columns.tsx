@@ -9,8 +9,8 @@ import TimeAgo from '~/components/ui/TimeAgo';
 
 export const getProtocolColumns = (
   allowAnonRecruitment = false,
-): ColumnDef<ProtocolWithInterviews>[] => {
-  const columns = [
+): ColumnDef<ProtocolWithInterviews, unknown>[] => {
+  const columns: ColumnDef<ProtocolWithInterviews, unknown>[] = [
     {
       id: 'select',
       header: ({ table }) => (

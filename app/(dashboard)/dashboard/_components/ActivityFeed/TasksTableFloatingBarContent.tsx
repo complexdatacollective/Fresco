@@ -1,7 +1,7 @@
-import { type Table } from 'drizzle-orm';
+import { type Table } from '@tanstack/react-table';
 import usePortal from 'react-useportal';
 
-export function TasksTableFloatingBarContent(_table: Table) {
+export function TasksTableFloatingBarContent<TData>(_table: Table<TData>) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { Portal } = usePortal();
 

@@ -2,7 +2,6 @@
 import {
   FilterParam,
   pageSizes,
-  searchableFields,
   sortOrder,
   sortableFields,
 } from '~/lib/data-table/types';

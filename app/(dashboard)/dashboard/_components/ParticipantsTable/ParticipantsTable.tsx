@@ -11,13 +11,24 @@ import { useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
 import { api } from '~/trpc/client';
+import { type RouterOutputs } from '~/trpc/shared';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 
-export const ParticipantsTable = () => {
-  const { data: participants } = api.participant.get.all.useQuery(undefined, {
-    onError(error) {
-      throw new Error(error.message);
+export const ParticipantsTable = ({
+  initialData,
+}: {
+  initialData: RouterOutputs['participant']['get']['all'];
+}) => {
+  const { data: participants, isLoading } = api.participant.get.all.useQuery(
+    undefined,
+    {
+      initialData,
+      refetchOnMount: false,
+      onError(error) {
+        throw new Error(error.message);
+      },
     },
-  });
+  );
 
   const [participantsToDelete, setParticipantsToDelete] =
     useState<ParticipantWithInterviews[]>();
@@ -28,8 +39,13 @@ export const ParticipantsTable = () => {
     setShowDeleteModal(true);
   };
 
-  if (!participants) {
-    return <div>Loading...</div>;
+  if (!isLoading) {
+    return (
+      <DataTableSkeleton
+        columnCount={ParticipantColumns().length}
+        filterableColumnCount={1}
+      />
+    );
   }
 
   return (

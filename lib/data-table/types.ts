@@ -1,6 +1,5 @@
 import { type Prisma } from '@prisma/client';
 import * as z from 'zod';
-import { filterableColumns } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/ColumnDefinition';
 import { numberEnum } from '~/shared/schemas/schemas';
 
 export type Option = {
@@ -85,6 +84,7 @@ export const FilterParam = z.object({
   id: z.string(),
   value: z.union([z.string(), z.array(z.string())]),
 });
+export type FilterParam = z.infer<typeof FilterParam>;
 
 export const SearchParamsSchema = z.object({
   page: z.number(),

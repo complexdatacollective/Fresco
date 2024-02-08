@@ -56,6 +56,6 @@ export const generateMockActivity = (): Activity => {
     id: faker.string.uuid(),
     timestamp: faker.date.recent(),
     type,
-    message: generateMessageForActivityType(type)!,
+    message: generateMessageForActivityType(type),
   };
 };

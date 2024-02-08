@@ -18,6 +18,7 @@ import {
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
+  FilterParam,
   PageSize,
   SortableField,
 } from '~/lib/data-table/types';
@@ -67,9 +68,10 @@ export function useDataTable<TData, TValue>({
   data,
   columns,
   pageCount,
-  searchableColumns = [],
-  filterableColumns = [],
-}: UseDataTableProps<TData, TValue>) {
+} // Todo: the below should be used to filter filter/search terms before setting search params
+// searchableColumns = [],
+// filterableColumns = [],
+: UseDataTableProps<TData, TValue>) {
   const { searchParams, setSearchParams } = useTableStateFromSearchParams();
 
   // Table states
@@ -95,7 +97,7 @@ export function useDataTable<TData, TValue>({
   );
 
   const debouncedUpdateFilterParams = debounce(
-    (columnFilters: ColumnFiltersState) => {
+    (columnFilters: FilterParam[]) => {
       if (!columnFilters || columnFilters.length === 0) {
         void setSearchParams.setFilterParams(null);
         return;
@@ -120,7 +122,7 @@ export function useDataTable<TData, TValue>({
       return;
     }
 
-    debouncedUpdateFilterParams(columnFilters);
+    debouncedUpdateFilterParams(columnFilters as FilterParam[]);
 
     // Changing the filter params should reset the page to 1
     void setSearchParams.setPage(1);

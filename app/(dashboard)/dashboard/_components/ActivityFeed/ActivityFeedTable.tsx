@@ -12,15 +12,11 @@ import {
 import type { Events } from '@prisma/client';
 import { type RouterOutputs } from '~/trpc/shared';
 
-type ActivityFeedTableProps = {
-  data: RouterOutputs['dashboard']['getActivities']['tableData'];
-  pageCount: RouterOutputs['dashboard']['getActivities']['pageCount'];
-};
-
 export default function ActivityFeedTable({
-  data,
-  pageCount,
-}: ActivityFeedTableProps) {
+  tableData,
+}: {
+  tableData: RouterOutputs['dashboard']['getActivities'];
+}) {
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<Events, unknown>[]>(
     () => fetchActivityFeedTableColumnDefs(),
@@ -28,9 +24,9 @@ export default function ActivityFeedTable({
   );
 
   const { dataTable } = useDataTable({
-    data,
+    data: tableData.events,
     columns,
-    pageCount,
+    pageCount: tableData.pageCount,
     searchableColumns,
     filterableColumns,
   });

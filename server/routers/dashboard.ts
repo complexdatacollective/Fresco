@@ -26,6 +26,8 @@ export const dashboardRouter = router({
       // Number of items to skip
       const offset = page > 0 ? (page - 1) * perPage : 0;
 
+      // Generate the dynamic filter parameters for the database call from the
+      // input filter params.
       const queryFilterParams = filterParams
         ? {
             OR: [
@@ -40,7 +42,7 @@ export const dashboardRouter = router({
         : {};
 
       // Transaction is used to ensure both queries are executed in a single transaction
-      const [count, tableData] = await prisma.$transaction([
+      const [count, events] = await prisma.$transaction([
         prisma.events.count({
           where: {
             ...queryFilterParams,
@@ -57,6 +59,6 @@ export const dashboardRouter = router({
       ]);
 
       const pageCount = Math.ceil(count / perPage);
-      return { tableData, pageCount };
+      return { events, pageCount };
     }),
 });

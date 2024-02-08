@@ -16,6 +16,7 @@ function ProtocolUploader({
 }: {
   handleProtocolUploaded?: () => void;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { Portal } = usePortal();
 
   const { importProtocols, jobs, cancelJob, cancelAllJobs } = useProtocolImport(

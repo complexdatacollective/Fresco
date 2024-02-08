@@ -5,7 +5,6 @@ import ResetButton from '../_components/ResetButton';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSection from '../_components/RecruitmentTestSection';
 import SettingsSection from '~/components/layout/SettingsSection';
-import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 
 export default function Settings() {

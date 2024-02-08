@@ -17,7 +17,6 @@ export default function CopyDebugInfoButton({
   const { toast } = useToast();
 
   const copyDebugInfoToClipboard = async () => {
-    console.log('writing', debugInfo);
     await navigator.clipboard.writeText(debugInfo);
 
     if (showToast) {
