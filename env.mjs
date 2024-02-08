@@ -9,8 +9,8 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    MAXMIND_ACCOUNT_ID: z.string(),
-    MAXMIND_LICENSE_KEY: z.string(),
+    MAXMIND_ACCOUNT_ID: z.string().optional(),
+    MAXMIND_LICENSE_KEY: z.string().optional(),
 
     INSTALLATION_ID: z.string().optional(),
   },
