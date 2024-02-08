@@ -6,7 +6,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "postinstall": "prisma generate && prisma db push",
+    "postinstall": "node postinstall.mjs",
     "lint": "SKIP_ENV_VALIDATION=true next lint",
     "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
@@ -70,6 +70,7 @@
     "csvtojson": "^2.0.10",
     "d3-force": "^3.0.0",
     "d3-interpolate-path": "^2.3.0",
+    "dotenv": "^16.4.1",
     "drizzle-orm": "^0.29.3",
     "eslint-plugin-local-rules": "^2.0.0",
     "eventemitter3": "^5.0.1",
