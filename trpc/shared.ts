@@ -3,6 +3,10 @@ import { env } from '~/env.mjs';
 import type { AppRouter } from '~/server/router';
 
 export function getBaseUrl() {
+  if (typeof window !== 'undefined')
+    // browser should use relative path
+    return `${window.location.protocol}//${window.location.host}`;
+
   if (env.VERCEL_URL)
     // reference for vercel.com
     return `https://${env.VERCEL_URL}`;
