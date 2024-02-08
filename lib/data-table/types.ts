@@ -1,5 +1,6 @@
 import { type Prisma } from '@prisma/client';
 import * as z from 'zod';
+import { filterableColumns } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/ColumnDefinition';
 import { numberEnum } from '~/shared/schemas/schemas';
 
 export type Option = {
@@ -24,6 +25,8 @@ export type DataTableSearchableColumn<TData> = {
 export type DataTableFilterableColumn<TData> = {
   options: Option[];
 } & DataTableSearchableColumn<TData>;
+
+// TODO: move activity table specific types to a separate file
 
 export const activityTypes = [
   'Protocol Installed',
@@ -64,6 +67,7 @@ export type SortOrder = (typeof sortOrder)[number]; // 'asc' | 'desc'
 
 export const sortableFields = [
   // Todo: couldn't work out a way to derive this from the Db schema
+  // Also, shouldn't this be derivable from the column definition?
   'timestamp',
   'type',
   'message',
@@ -74,11 +78,15 @@ export type SortableField = (typeof sortableFields)[number];
 export const pageSizes = [10, 20, 50, 100] as const;
 export type PageSize = (typeof pageSizes)[number];
 
+export const FilterParam = z.object({
+  id: z.string(),
+  value: z.array(z.string()),
+});
+
 export const SearchParamsSchema = z.object({
   page: z.number(),
   perPage: numberEnum(pageSizes),
   sort: z.enum(sortOrder),
   sortField: z.enum(sortableFields),
-  type: z.enum(activityTypes).nullable(),
-  message: z.string().nullable(),
+  filterParams: z.array(FilterParam).nullable(),
 });

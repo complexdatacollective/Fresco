@@ -77,11 +77,11 @@ export const filterableColumns: DataTableFilterableColumn<Activity>[] = [
       value: status,
     })),
   },
-];
+] as const;
 
 export const searchableColumns: DataTableSearchableColumn<Activity>[] = [
   {
     id: 'message',
     title: 'by activity details',
   },
-];
+] as const;

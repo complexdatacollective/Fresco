@@ -21,7 +21,7 @@ export const dashboardRouter = router({
   getActivities: protectedProcedure
     .input(SearchParamsSchema)
     .query(async ({ input }) => {
-      const { page, perPage, sort, sortField, type, message } = input;
+      const { page, perPage, sort, sortField, filterParams } = input;
 
       console.log(input);
 
@@ -33,14 +33,21 @@ export const dashboardRouter = router({
       // Number of items to skip
       const offset = fallbackPage > 0 ? (fallbackPage - 1) * perPage : 0;
 
-      const types = type?.split('.') ?? [];
+      const queryFilterParams = filterParams
+        ? {
+            AND: [
+              ...filterParams.map(({ id, value }) => ({
+                [id]: { in: value },
+              })),
+            ],
+          }
+        : {};
 
       // Transaction is used to ensure both queries are executed in a single transaction
       const [count, tableData] = await prisma.$transaction([
         prisma.events.count({
           where: {
-            ...(type ? { type: { in: types } } : {}),
-            ...(message ? { message: { contains: message } } : {}),
+            ...queryFilterParams,
           },
         }),
         prisma.events.findMany({
@@ -48,8 +55,7 @@ export const dashboardRouter = router({
           skip: offset,
           orderBy: { [sortField]: sort },
           where: {
-            ...(type ? { type: { in: types } } : {}),
-            ...(message ? { message: { contains: message } } : {}),
+            ...queryFilterParams,
           },
         }),
       ]);

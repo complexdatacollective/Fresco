@@ -21,7 +21,7 @@ import type {
   PageSize,
   SortableField,
 } from '~/lib/data-table/types';
-import { useTableSearchParams } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/useTableSearchParams';
+import { useSearchParamsTableState } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/useTableSearchParams';
 
 type UseDataTableProps<TData, TValue> = {
   /**
@@ -68,43 +68,17 @@ export function useDataTable<TData, TValue>({
   searchableColumns = [],
   filterableColumns = [],
 }: UseDataTableProps<TData, TValue>) {
-  const { searchParams, setSearchParams } = useTableSearchParams();
+  const { searchParams, setSearchParams } = useSearchParamsTableState();
 
-  // Initial column filters
-  const initialColumnFilters: ColumnFiltersState = React.useMemo(() => {
-    return Array.from(searchParams).reduce<ColumnFiltersState>(
-      (filters, [key, value]) => {
-        const filterableColumn = filterableColumns.find(
-          (column) => column.id === key,
-        );
-        const searchableColumn = searchableColumns.find(
-          (column) => column.id === key,
-        );
-
-        if (filterableColumn) {
-          filters.push({
-            id: key,
-            value: value.split('.'),
-          });
-        } else if (searchableColumn) {
-          filters.push({
-            id: key,
-            value: [value],
-          });
-        }
-
-        return filters;
-      },
-      [],
-    );
-  }, [filterableColumns, searchableColumns, searchParams]);
+  const filterableColumnIds = filterableColumns.map((column) => column.id);
 
   // Table states
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>(initialColumnFilters);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    searchParams.filterParams ?? [],
+  );
 
   const [{ pageIndex, pageSize }, setPagination] =
     React.useState<PaginationState>({
@@ -119,6 +93,16 @@ export function useDataTable<TData, TValue>({
     }),
     [pageIndex, pageSize],
   );
+
+  // Sync any changes to columnFilters back to searchParams
+  React.useEffect(() => {
+    if (!columnFilters || columnFilters.length === 0) {
+      void setSearchParams.setFilterParams(null);
+      return;
+    }
+
+    void setSearchParams.setFilterParams(columnFilters);
+  }, [columnFilters]);
 
   React.useEffect(() => {
     setPagination({
@@ -147,7 +131,7 @@ export function useDataTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sorting]);
 
-  console.log('columnFilters', columnFilters);
+  console.log({ columnFilters, filterableColumns, searchableColumns });
 
   const dataTable = useReactTable({
     data,

@@ -1,22 +1,33 @@
 'use client';
 import {
-  activityTypes,
+  FilterParam,
   pageSizes,
   sortOrder,
   sortableFields,
 } from '~/lib/data-table/types';
 import {
+  parseAsArrayOf,
   parseAsInteger,
+  parseAsJson,
   parseAsNumberLiteral,
   parseAsStringLiteral,
   useQueryState,
 } from 'nuqs';
 
-export const useTableSearchParams = () => {
+/**
+ * This hook implements the table state items required by the DataTable.
+ *
+ * Ultimately, we could abstract this further, and implement a generic
+ * useSearchParamsTableState hook so that the way the state is stored is an
+ * implementation detail. This would allow us to store table state in novel
+ * ways, such as in localStorage, in the URL, or even in a database.
+ *
+ */
+export const useSearchParamsTableState = () => {
   const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
   const [perPage, setPerPage] = useQueryState(
     'per_page',
-    parseAsNumberLiteral(pageSizes).withDefault(20),
+    parseAsNumberLiteral(pageSizes).withDefault(10),
   );
   const [sort, setSort] = useQueryState(
     'sort',
@@ -26,11 +37,11 @@ export const useTableSearchParams = () => {
     'sort_field',
     parseAsStringLiteral(sortableFields).withDefault('timestamp'),
   );
-  const [type, setType] = useQueryState(
-    'type',
-    parseAsStringLiteral(activityTypes),
+
+  const [filterParams, setFilterParams] = useQueryState(
+    'filter_params',
+    parseAsArrayOf(parseAsJson((value) => FilterParam.parse(value))),
   );
-  const [message, setMessage] = useQueryState('message');
 
   return {
     searchParams: {
@@ -38,16 +49,14 @@ export const useTableSearchParams = () => {
       perPage,
       sort,
       sortField,
-      type,
-      message,
+      filterParams,
     },
     setSearchParams: {
       setPage,
       setPerPage,
       setSort,
       setSortField,
-      setType,
-      setMessage,
+      setFilterParams,
     },
   };
 };
