@@ -116,6 +116,7 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.1",
     "uploadthing": "^5.7.4",
+    "usehooks-ts": "^2.13.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
     "zod": "^3.22.4"

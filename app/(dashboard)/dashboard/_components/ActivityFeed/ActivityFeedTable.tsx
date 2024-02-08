@@ -42,10 +42,7 @@ export default function ActivityFeedTable({
       searchableColumns={searchableColumns}
       filterableColumns={filterableColumns}
       // floatingBarContent={TasksTableFloatingBarContent(dataTable)}
-      deleteRowsAction={(_event) => {
-        // eslint-disable-next-line no-console
-        console.log('deleteSelectedrows, dataTable, event');
-      }}
+      // deleteRowsAction={(_event) => {}}
     />
   );
 }

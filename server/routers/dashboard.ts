@@ -23,22 +23,18 @@ export const dashboardRouter = router({
     .query(async ({ input }) => {
       const { page, perPage, sort, sortField, filterParams } = input;
 
-      console.log(input);
-
-      // Fallback page for invalid page numbers
-      const pageAsNumber = Number(page);
-      const fallbackPage =
-        isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
-
       // Number of items to skip
-      const offset = fallbackPage > 0 ? (fallbackPage - 1) * perPage : 0;
+      const offset = page > 0 ? (page - 1) * perPage : 0;
 
       const queryFilterParams = filterParams
         ? {
-            AND: [
-              ...filterParams.map(({ id, value }) => ({
-                [id]: { in: value },
-              })),
+            OR: [
+              ...filterParams.map(({ id, value }) => {
+                const operator = Array.isArray(value) ? 'in' : 'contains';
+                return {
+                  [id]: { [operator]: value },
+                };
+              }),
             ],
           }
         : {};

@@ -72,15 +72,18 @@ export const sortableFields = [
   'type',
   'message',
 ] as const;
-
 export type SortableField = (typeof sortableFields)[number];
+
+// As above, this should be derivable from the column definition...
+export const searchableFields = ['message'] as const;
+export type SearchableField = (typeof searchableFields)[number];
 
 export const pageSizes = [10, 20, 50, 100] as const;
 export type PageSize = (typeof pageSizes)[number];
 
 export const FilterParam = z.object({
   id: z.string(),
-  value: z.array(z.string()),
+  value: z.union([z.string(), z.array(z.string())]),
 });
 
 export const SearchParamsSchema = z.object({

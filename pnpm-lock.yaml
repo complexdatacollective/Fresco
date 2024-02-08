@@ -296,6 +296,9 @@ dependencies:
   uploadthing:
     specifier: ^5.7.4
     version: 5.7.4
+  usehooks-ts:
+    specifier: ^2.13.0
+    version: 2.13.0(react@18.2.0)
   uuid:
     specifier: ^9.0.1
     version: 9.0.1
@@ -11118,7 +11121,6 @@ packages:
 
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
-    dev: true
 
   /lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
@@ -15058,6 +15060,16 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
+      react: 18.2.0
+    dev: false
+
+  /usehooks-ts@2.13.0(react@18.2.0):
+    resolution: {integrity: sha512-3yZ2dwbc5BTaejBvamckAqv/q29sKFeqNCdi1z9Im4GzsTT5XbdIdbB94KEoh9xSvZy/qRoztjR14pF5voEU5Q==}
+    engines: {node: '>=16.15.0'}
+    peerDependencies:
+      react: ^16.8.0  || ^17 || ^18
+    dependencies:
+      lodash.debounce: 4.0.8
       react: 18.2.0
     dev: false
 

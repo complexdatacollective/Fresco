@@ -30,22 +30,22 @@ const generateMessageForActivityType = (type: ActivityType) => {
 };
 
 export const getBadgeColorsForActivityType = (type: ActivityType) => {
-  switch (type) {
-    case 'Protocol Installed':
+  switch (type.toLowerCase()) {
+    case 'protocol installed':
       return 'bg-slate-blue hover:bg-slate-blue-dark';
-    case 'Protocol Uninstalled':
+    case 'protocol uninstalled':
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
-    case 'Participant(s) Added':
+    case 'participant(s) added':
       return 'bg-sea-green hover:bg-sea-green';
-    case 'Participant(s) Removed':
+    case 'participant(s) removed':
       return 'bg-tomato hover:bg-tomato-dark';
-    case 'Interview Started':
+    case 'interview started':
       return 'bg-sea-serpent hover:bg-sea-serpent-dark';
-    case 'Interview Completed':
+    case 'interview completed':
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
-    case 'Interview(s) Deleted':
+    case 'interview(s) deleted':
       return 'bg-paradise-pink hover:bg-paradise-pink-dark';
-    case 'Data Exported':
+    case 'data exported':
       return 'bg-kiwi hover:bg-kiwi-dark';
   }
 };

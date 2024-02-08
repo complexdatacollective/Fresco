@@ -2,6 +2,7 @@
 import {
   FilterParam,
   pageSizes,
+  searchableFields,
   sortOrder,
   sortableFields,
 } from '~/lib/data-table/types';
@@ -23,7 +24,7 @@ import {
  * ways, such as in localStorage, in the URL, or even in a database.
  *
  */
-export const useSearchParamsTableState = () => {
+export const useTableStateFromSearchParams = () => {
   const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
   const [perPage, setPerPage] = useQueryState(
     'per_page',
