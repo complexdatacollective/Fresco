@@ -1,18 +1,19 @@
 'use client';
 
 import { DataTable } from '~/components/DataTable/DataTable';
-import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
+import { getParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
 import { api } from '~/trpc/client';
 import { type RouterOutputs } from '~/trpc/shared';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { type ColumnDef } from '@tanstack/react-table';
 
 export const ParticipantsTable = ({
   initialData,
@@ -30,19 +31,25 @@ export const ParticipantsTable = ({
     },
   );
 
+  // Memoize the columns so they don't re-render on every render
+  const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(
+    () => getParticipantColumns(),
+    [],
+  );
+
   const [participantsToDelete, setParticipantsToDelete] =
     useState<ParticipantWithInterviews[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleDelete = (data: ParticipantWithInterviews[]) => {
+  const handleDelete = useCallback((data: ParticipantWithInterviews[]) => {
     setParticipantsToDelete(data);
     setShowDeleteModal(true);
-  };
+  }, []);
 
-  if (!isLoading) {
+  if (isLoading) {
     return (
       <DataTableSkeleton
-        columnCount={ParticipantColumns().length}
+        columnCount={columns.length}
         filterableColumnCount={1}
       />
     );
@@ -56,7 +63,7 @@ export const ParticipantsTable = ({
         participantsToDelete={participantsToDelete ?? []}
       />
       <DataTable
-        columns={ParticipantColumns()}
+        columns={columns}
         data={participants}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
