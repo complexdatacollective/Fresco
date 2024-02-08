@@ -65,7 +65,7 @@ Fresco uses PlanetScale MySQL database platform. It provides scale, performance,
 
      ![Planet Scale go to dashboard](public/images/readme-screenshots/planetscale10.png)
 
-For more info checkout PlanetScale's [Quick Start Guide](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide).
+For more info, checkout PlanetScale's [Quick Start Guide](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide).
 
 ## Step 2
 
@@ -99,7 +99,7 @@ Fresco uses your UploadThing account to store protocol assets, exported files, e
 
    ![UploadThing copy your API keys](public/images/readme-screenshots/uploadthing6.png)
 
-For more info checkout [UploadThing Docs](https://docs.uploadthing.com/).
+For more info, checkout [UploadThing Docs](https://docs.uploadthing.com/).
 
 ## Step 3
 
@@ -123,16 +123,16 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
    We use Maxmind for getting geo location data for the Fresco analytics microservice. (you can set Maxmind variables as `null`, if you don't want to enable analytics for your app).
 
-   | Variable            | Description                                                                                     |
-   | ------------------- | ----------------------------------------------------------------------------------------------- |
-   | DATABASE_URL        | [Database connection string](https://planetscale.com/docs/concepts/connection-strings)          |
-   | UPLOADTHING_SECRET  | API key for your [UploadThing app](https://uploadthing.com/dashboard)                           |
-   | UPLOADTHING_APP_ID  | App ID for your [UploadThing app](https://uploadthing.com/dashboard)                            |
-   | MAXMIND_ACCOUNT_ID  | Account ID for your [Maxmind account](https://www.maxmind.com/en/accounts/970348/license-key/)  |
-   | MAXMIND_LICENSE_KEY | License key for your [Maxmind account](https://www.maxmind.com/en/accounts/970348/license-key/) |
-   | DISABLE_ANALYTICS   | To disable analytics microservice for Fresco                                                    |
+   | Variable            | Description                                                                                                                                                                                                                                |
+   | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+   | DATABASE_URL        | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. [More info](https://planetscale.com/docs/concepts/connection-strings)                                                   |
+   | UPLOADTHING_SECRET  | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. [More info](https://uploadthing.com/dashboard)                                                                             |
+   | UPLOADTHING_APP_ID  | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. [More info](https://uploadthing.com/dashboard)                        |
+   | MAXMIND_ACCOUNT_ID  | The account ID for your Maxmind account. This is used to authenticate requests to the Maxmind API, which provides IP geolocation and online fraud detection services. [More info](https://www.maxmind.com/en/accounts/970348/license-key/) |
+   | MAXMIND_LICENSE_KEY | The license key for your Maxmind account. This is used along with the account ID to authenticate requests to the Maxmind API. [More info](https://www.maxmind.com/en/accounts/970348/license-key/)                                         |
+   | DISABLE_ANALYTICS   | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                            |
 
-   **Note: We use Analytics microservice to gather error data from instances of Fresco to troubleshoot issues, so by setting `DISABLE_ANALYTICS` to `false` you would help us improve the app.**
+   **Note: We use Analytics microservice to gather error data from instances of Fresco to troubleshoot issues, so by setting `DISABLE_ANALYTICS` to `false` you would help us identify bugs and improve the app.**
 
    ![Deploy on Vercel2](public/images/readme-screenshots/vercel2.png)
 
@@ -169,4 +169,4 @@ Visit your deployed app to create your administrator account. Only one user acco
 
 4. Click **"Go to the dashboard"** button and begin your exciting exploration of Fresco.
 
-For more information checkout our [User Community](https://community.networkcanvas.com/).
+For more info, checkout our [User Community](https://community.networkcanvas.com/).
