@@ -1,5 +1,6 @@
 import { type Column } from '@tanstack/react-table';
 import { Check, PlusCircle } from 'lucide-react';
+import { getBadgeColorsForActivityType } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/utils';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
 import {
@@ -40,26 +41,21 @@ export function DataTableFacetedFilter<TData, TValue>({
       {variant === 'popover' ? (
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 border-dashed">
-              <PlusCircle className="size-4 mr-2" />
+            <Button variant="outline" size="sm" className="h-10 border-dashed">
+              <PlusCircle className="mr-2" size={16} />
               {title}
               {selectedValues?.size > 0 && (
                 <>
                   <Separator orientation="vertical" className="mx-2 h-4" />
                   <Badge
                     variant="secondary"
-                    className="rounded-sm px-1 font-normal lg:hidden"
+                    className="rounded-sm px-1 lg:hidden"
                   >
                     {selectedValues.size}
                   </Badge>
                   <div className="hidden space-x-1 lg:flex">
                     {selectedValues.size > 2 ? (
-                      <Badge
-                        variant="secondary"
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {selectedValues.size} selected
-                      </Badge>
+                      <Badge>{selectedValues.size} selected</Badge>
                     ) : (
                       options
                         .filter((option) => selectedValues.has(option.value))
@@ -67,7 +63,9 @@ export function DataTableFacetedFilter<TData, TValue>({
                           <Badge
                             variant="secondary"
                             key={option.value}
-                            className="rounded-sm px-1 font-normal"
+                            className={getBadgeColorsForActivityType(
+                              option.value,
+                            )}
                           >
                             {option.label}
                           </Badge>
@@ -80,7 +78,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-0" align="start">
             <Command>
-              <CommandInput placeholder={title} />
+              <CommandInput placeholder={title} className="my-2 h-8" />
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup>
@@ -103,7 +101,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       >
                         <div
                           className={cn(
-                            'size-4 mr-2 flex items-center justify-center rounded-sm border border-primary',
+                            'mr-2 flex size-4 items-center justify-center rounded-sm border border-primary',
                             isSelected
                               ? 'bg-primary text-primary-foreground'
                               : 'opacity-50 [&_svg]:invisible',
@@ -113,7 +111,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                         </div>
                         {option.icon && (
                           <option.icon
-                            className="size-4 mr-2 text-muted-foreground"
+                            className="mr-2 size-4 text-muted-foreground"
                             aria-hidden="true"
                           />
                         )}
@@ -144,7 +142,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           <CommandInput
             placeholder={title}
             autoFocus
-            className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-input file:bg-transparent focus-visible:ring-ring flex w-full rounded-md border bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
           />
           <CommandList className="mt-1">
             <CommandEmpty>No results found.</CommandEmpty>
@@ -168,7 +166,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                   >
                     <div
                       className={cn(
-                        'size-4 mr-2 flex items-center justify-center rounded-sm border border-primary',
+                        'mr-2 flex size-4 items-center justify-center rounded-sm border border-primary',
                         isSelected
                           ? 'bg-primary text-primary-foreground'
                           : 'opacity-50 [&_svg]:invisible',
@@ -178,7 +176,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     </div>
                     {option.icon && (
                       <option.icon
-                        className="size-4 mr-2 text-muted-foreground"
+                        className="mr-2 size-4 text-muted-foreground"
                         aria-hidden="true"
                       />
                     )}

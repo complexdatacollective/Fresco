@@ -9,7 +9,7 @@ import {
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 import { signOutProc } from './session';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { cache } from 'react';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
@@ -42,6 +42,15 @@ export const appSettingsRouter = router({
 
     return appSettings.installationId;
   }),
+  getAnonymousRecruitmentStatus: protectedProcedure.query(async () => {
+    const appSettings = await prisma.appSettings.findFirst({
+      select: {
+        allowAnonymousRecruitment: true,
+      },
+    });
+
+    return !!appSettings?.allowAnonymousRecruitment;
+  }),
   create: publicProcedure.mutation(async () => {
     try {
       const appSettings = await prisma.appSettings.create({
@@ -60,19 +69,16 @@ export const appSettingsRouter = router({
   updateAnonymousRecruitment: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
-      try {
-        const updatedappSettings = await prisma.appSettings.updateMany({
-          data: {
-            allowAnonymousRecruitment: input,
-          },
-        });
+      await prisma.appSettings.updateMany({
+        data: {
+          allowAnonymousRecruitment: input,
+        },
+      });
 
-        revalidateTag('appSettings.get');
+      revalidateTag('appSettings.get');
+      revalidateTag('appSettings.getAnonymousRecruitmentStatus');
 
-        return { error: null, appSettings: updatedappSettings };
-      } catch (error) {
-        return { error: 'Failed to update appSettings', appSettings: null };
-      }
+      return input;
     }),
 
   reset: devProcedure.mutation(async ({ ctx }) => {

@@ -69,6 +69,10 @@ export const interviewRouter = router({
 
       try {
         const createdInterview = await prisma.interview.create({
+          select: {
+            participant: true,
+            id: true,
+          },
           data: {
             startTime: new Date(),
             lastUpdated: new Date(),
@@ -86,11 +90,23 @@ export const interviewRouter = router({
           },
         });
 
+        await prisma.events.create({
+          data: {
+            type: 'Interview started',
+            message: `Participant "${createdInterview.participant.identifier}" started an interview`,
+          },
+        });
+
         revalidateTag('interview.get.all');
 
         // Because a new participant may have been created as part of creating the interview,
         // we need to also revalidate the participant cache.
         revalidateTag('participant.get.all');
+        revalidateTag('participant.get.byId');
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+        revalidateTag('dashboard.getSummaryStatistics.participantCount');
 
         return {
           error: null,
@@ -163,7 +179,7 @@ export const interviewRouter = router({
         return interviews;
       }),
   }),
-  finish: protectedProcedure
+  finish: publicProcedure
     .input(
       z.object({
         id: z.string(),
@@ -175,10 +191,23 @@ export const interviewRouter = router({
           where: {
             id,
           },
+          select: {
+            participant: true,
+          },
           data: {
             finishTime: new Date(),
           },
         });
+
+        await prisma.events.create({
+          data: {
+            type: 'Interview completed',
+            message: `Participant "${updatedInterview.participant.identifier}" completed an interview`,
+          },
+        });
+
+        revalidateTag('interview.get.all');
+        revalidateTag('dashboard.getActivities');
 
         return { error: null, interview: updatedInterview };
       } catch (error) {
@@ -199,6 +228,15 @@ export const interviewRouter = router({
             exportTime: new Date(),
           },
         });
+
+        await prisma.events.create({
+          data: {
+            type: 'Data Exported',
+            message: `Exported data for ${updatedInterviews.count} participant(s)`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
 
         return { error: null, interviews: updatedInterviews };
       } catch (error) {
@@ -224,6 +262,18 @@ export const interviewRouter = router({
             },
           },
         });
+
+        await prisma.events.create({
+          data: {
+            type: 'Interview Deleted',
+            message: `Deleted ${deletedInterviews.count} interview(s)`,
+          },
+        });
+
+        revalidateTag('dashboard.getActivities');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+        revalidateTag('interview.get.all');
+
         return { error: null, interview: deletedInterviews };
       } catch (error) {
         return { error: 'Failed to delete interviews', interview: null };

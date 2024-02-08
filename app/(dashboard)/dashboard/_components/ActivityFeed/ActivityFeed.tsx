@@ -1,26 +1,18 @@
-'use server';
-import { Suspense } from 'react';
+'use client';
+
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
-import type { SearchParams } from '~/lib/data-table/types';
 import ActivityFeedTable from './ActivityFeedTable';
-import { getActivities } from './utils';
+import { api } from '~/trpc/client';
+import { useTableStateFromSearchParams } from './useTableStateFromSearchParams';
 
-export type IndexPageProps = {
-  searchParams: SearchParams;
-};
+export const ActivityFeed = () => {
+  const { searchParams } = useTableStateFromSearchParams();
+  const { data, isLoading } =
+    api.dashboard.getActivities.useQuery(searchParams);
 
-export const ActivityFeed = ({ searchParams }: IndexPageProps) => {
-  const activitiesPromise = getActivities(searchParams);
+  if (isLoading) {
+    return <DataTableSkeleton columnCount={3} filterableColumnCount={1} />;
+  }
 
-  return (
-    <>
-      <Suspense
-        fallback={
-          <DataTableSkeleton columnCount={2} filterableColumnCount={1} />
-        }
-      >
-        <ActivityFeedTable activitiesPromise={activitiesPromise} />
-      </Suspense>
-    </>
-  );
+  return <ActivityFeedTable tableData={data ?? { events: [], pageCount: 0 }} />;
 };

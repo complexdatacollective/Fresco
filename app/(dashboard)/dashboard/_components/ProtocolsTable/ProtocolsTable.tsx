@@ -2,29 +2,27 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { ActionsDropdown } from './ActionsDropdown';
-import { ProtocolColumns } from './Columns';
+import { getProtocolColumns } from './Columns';
 import { api } from '~/trpc/client';
 import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { AnonymousRecruitmentSection } from './AnonymousRecruitmentSection';
-import { ParticipationUrlModal } from '~/app/(dashboard)/dashboard/protocols/_components/ParticipationUrlModal';
+import ProtocolUploader from '../ProtocolUploader';
 
 export const ProtocolsTable = ({
   initialData,
+  allowAnonymousRecruitment = false,
 }: {
   initialData: ProtocolWithInterviews[];
+  allowAnonymousRecruitment: boolean;
 }) => {
-  const { data: protocols, isLoading } = api.protocol.get.all.useQuery(
-    undefined,
-    {
-      initialData,
-      refetchOnMount: false,
-      onError(error) {
-        throw new Error(error.message);
-      },
+  const { data: protocols } = api.protocol.get.all.useQuery(undefined, {
+    initialData,
+    refetchOnMount: false,
+    onError(error) {
+      throw new Error(error.message);
     },
-  );
+  });
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =
@@ -37,17 +35,13 @@ export const ProtocolsTable = ({
 
   return (
     <>
-      <div className="flex flex-col gap-2 pt-2">
-        <AnonymousRecruitmentSection />
-        <ParticipationUrlModal />
-      </div>
-      {isLoading && <div>Loading...</div>}
-      <DataTable<ProtocolWithInterviews, string>
-        columns={ProtocolColumns}
+      <DataTable
+        columns={getProtocolColumns(allowAnonymousRecruitment)}
         data={protocols}
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
+        headerItems={<ProtocolUploader />}
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}

@@ -3,21 +3,27 @@
 import { useDropzone } from 'react-dropzone';
 import { Button } from '~/components/ui/Button';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
-import { FileUp } from 'lucide-react';
+import { FileUp, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import JobCard from '~/components/ProtocolImport/JobCard';
 import { useCallback } from 'react';
+import usePortal from 'react-useportal';
+import { cn } from '~/utils/shadcn';
+import JobCard from '~/components/ProtocolImport/JobCard';
+import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 
-export default function ProtocolUploader({
+function ProtocolUploader({
   handleProtocolUploaded,
 }: {
   handleProtocolUploaded?: () => void;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { Portal } = usePortal();
+
   const { importProtocols, jobs, cancelJob, cancelAllJobs } = useProtocolImport(
     handleProtocolUploaded,
   );
 
-  const { getRootProps, getInputProps, open } = useDropzone({
+  const { getInputProps, open } = useDropzone({
     // Disable automatic opening of file dialog - we do it manually to allow for
     // job cards to be clicked
     noClick: true,
@@ -33,64 +39,59 @@ export default function ProtocolUploader({
     [cancelJob],
   );
 
+  const isActive = jobs && jobs.length > 0 && jobs.some((job) => !job.error);
+
   return (
     <>
-      <motion.div
-        layout
-        className="text-md inline-block max-w-sm overflow-hidden rounded-xl border-2 border-dashed border-gray-500 p-6 leading-tight"
+      <Button
+        onClick={open}
+        className={cn(
+          isActive &&
+            cn(
+              'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape',
+              'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
+            ),
+        )}
       >
-        <div {...getRootProps()}>
-          <motion.div
-            className="text flex flex-col items-center gap-2 text-center"
-            layout
-          >
-            <Button variant="default" onClick={open}>
-              <FileUp className="mr-2 inline-block h-4 w-4" />
-              <input {...getInputProps()} />
-              Import protocol
-            </Button>
-            <p className="text-sm leading-tight">
-              Click to select <code>.netcanvas</code> files or drag and drop
-              here.
-            </p>
-          </motion.div>
-          {jobs && jobs.length > 0 && (
-            <motion.ul className="relative mt-4 flex flex-col gap-2" layout>
-              <AnimatePresence mode="popLayout">
-                {jobs.map((job, index) => (
-                  <motion.li
-                    className="flex"
-                    layout
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{
-                      scale: 1,
-                      opacity: 1,
-                      transition: { delay: index * 0.075 },
-                    }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ type: 'spring', damping: 15 }}
-                    key={job.id}
-                  >
-                    <JobCard job={job} onCancel={handleCancelJob(job.id)} />
-                  </motion.li>
-                ))}
-                {jobs.length > 1 && (
-                  <motion.div className="flex justify-end" layout>
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className="text-red-500"
-                      onClick={cancelAllJobs}
-                    >
-                      Cancel all
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.ul>
-          )}
-        </div>
-      </motion.div>
+        {isActive ? (
+          <Loader2 className="mr-2 inline-block h-4 w-4 animate-spin" />
+        ) : (
+          <FileUp className="mr-2 inline-block h-4 w-4" />
+        )}
+        <input {...getInputProps()} />
+        Import protocols
+      </Button>
+      {jobs.length > 0 && (
+        <Button variant="outline" onClick={cancelAllJobs}>
+          Cancel all
+        </Button>
+      )}
+      <Portal>
+        <motion.div layout className="text-md fixed bottom-4 right-6 w-[400px]">
+          <motion.ul className="relative flex flex-col-reverse gap-2" layout>
+            <AnimatePresence mode="popLayout">
+              {jobs.map((job, index) => (
+                <JobCard
+                  layout
+                  key={job.id}
+                  job={job}
+                  onCancel={handleCancelJob(job.id)}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{
+                    scale: 1,
+                    opacity: 1,
+                    transition: { delay: index * 0.5 },
+                  }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ type: 'spring', damping: 15 }}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.ul>
+        </motion.div>
+      </Portal>
     </>
   );
 }
+
+export default withNoSSRWrapper(ProtocolUploader);

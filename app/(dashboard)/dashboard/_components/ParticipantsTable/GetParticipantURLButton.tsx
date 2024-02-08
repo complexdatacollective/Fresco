@@ -86,7 +86,7 @@ export const GetParticipantURLButton = ({
 
                 setSelectedProtocol(protocol);
                 handleCopy(
-                  `${getBaseUrl()}/onboard/${protocol?.id}/participantId=${
+                  `${getBaseUrl()}/onboard/${protocol?.id}/?participantId=${
                     participant.id
                   }`,
                 );

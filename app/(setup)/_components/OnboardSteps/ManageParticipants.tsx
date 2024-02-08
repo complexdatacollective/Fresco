@@ -6,6 +6,8 @@ import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components
 import { useOnboardingContext } from '../OnboardingProvider';
 import { useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 const SettingsSection = ({
   title,
@@ -18,8 +20,8 @@ const SettingsSection = ({
 }) => (
   <div className="flex items-center justify-between rounded-md border border-muted p-4">
     <div>
-      <h3 className="font-bold">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
+      <Heading variant="h3">{title}</Heading>
+      <Paragraph>{description}</Paragraph>
     </div>
     {children}
   </div>
@@ -40,13 +42,13 @@ function ManageParticipants() {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Configure Participation</h1>
-        <p className="mt-4">
+        <Heading variant="h1">Configure Participation</Heading>
+        <Paragraph>
           You can now optionally upload a CSV file containing the details of
           participants you wish to recruit for your study. You can also choose
           to allow anonymous recruitment of participants. Both options can be
           configured later from the dashboard.
-        </p>
+        </Paragraph>
       </div>
       <div className="mb-6 flex flex-col gap-2">
         <SettingsSection

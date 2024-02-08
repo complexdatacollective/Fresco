@@ -1,23 +1,26 @@
 'use client';
 
-import { api } from '~/trpc/client';
 import { DataTable } from '~/components/DataTable/DataTable';
-import { ParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
+import { getParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
 import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/participants/_components/DeleteAllParticipantsButton';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-import { ExportParticipantUrlSection } from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipantUrlSection';
 import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
+import { api } from '~/trpc/client';
+import { type RouterOutputs } from '~/trpc/shared';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { type ColumnDef } from '@tanstack/react-table';
+
 export const ParticipantsTable = ({
   initialData,
 }: {
-  initialData: ParticipantWithInterviews[];
+  initialData: RouterOutputs['participant']['get']['all'];
 }) => {
-  const { isLoading, data: participants } = api.participant.get.all.useQuery(
+  const { data: participants, isLoading } = api.participant.get.all.useQuery(
     undefined,
     {
       initialData,
@@ -28,36 +31,51 @@ export const ParticipantsTable = ({
     },
   );
 
+  // Memoize the columns so they don't re-render on every render
+  const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(
+    () => getParticipantColumns(),
+    [],
+  );
+
   const [participantsToDelete, setParticipantsToDelete] =
     useState<ParticipantWithInterviews[]>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleDelete = (data: ParticipantWithInterviews[]) => {
+  const handleDelete = useCallback((data: ParticipantWithInterviews[]) => {
     setParticipantsToDelete(data);
     setShowDeleteModal(true);
-  };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <DataTableSkeleton
+        columnCount={columns.length}
+        filterableColumnCount={1}
+      />
+    );
+  }
 
   return (
     <>
-      <div className="flex gap-2">
-        <AddParticipantButton existingParticipants={participants} />
-        <ImportCSVModal />
-        <ExportParticipants participants={participants} />
-        <DeleteAllParticipantsButton />
-      </div>
-      <ExportParticipantUrlSection />
-      {isLoading && <div>Loading...</div>}
       <DeleteParticipantsDialog
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
         participantsToDelete={participantsToDelete ?? []}
       />
       <DataTable
-        columns={ParticipantColumns()}
+        columns={columns}
         data={participants}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
+        headerItems={
+          <>
+            <AddParticipantButton existingParticipants={participants} />
+            <ImportCSVModal />
+            <ExportParticipants participants={participants} />
+            <DeleteAllParticipantsButton />
+          </>
+        }
       />
     </>
   );

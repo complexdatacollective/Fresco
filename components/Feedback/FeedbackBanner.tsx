@@ -80,11 +80,7 @@ const FeedbackBanner = () => {
           </Paragraph>
         )}
 
-        <FeedbackButton
-          size="sm"
-          // variant="outline"
-          className="border-foreground bg-background/50 text-foreground hover:text-background"
-        />
+        <FeedbackButton size="sm" variant="accent" />
         {!isDashboard && (
           <CloseButton onClick={() => setOpenSignOutModal(true)} />
         )}

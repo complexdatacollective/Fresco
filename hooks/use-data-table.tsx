@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   getCoreRowModel,
   getFacetedRowModel,
@@ -16,12 +15,16 @@ import {
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table';
-import { useDebounce } from '~/hooks/use-debounce';
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
+  FilterParam,
+  PageSize,
+  SortableField,
 } from '~/lib/data-table/types';
-import type { Route } from 'next';
+
+import { useTableStateFromSearchParams } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
+import { debounce } from 'lodash';
 
 type UseDataTableProps<TData, TValue> = {
   /**
@@ -65,82 +68,24 @@ export function useDataTable<TData, TValue>({
   data,
   columns,
   pageCount,
-  searchableColumns = [],
-  filterableColumns = [],
-}: UseDataTableProps<TData, TValue>) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Search params
-  const page = searchParams?.get('page') ?? '1';
-  const pageAsNumber = Number(page);
-  const fallbackPage =
-    isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
-  const per_page = searchParams?.get('per_page') ?? '10';
-  const perPageAsNumber = Number(per_page);
-  const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber;
-  const sort = searchParams?.get('sort');
-  const [column, order] = sort?.split('.') ?? [];
-
-  // Create query string
-  const createQueryString = React.useCallback(
-    (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams?.toString());
-
-      for (const [key, value] of Object.entries(params)) {
-        if (value === null) {
-          newSearchParams.delete(key);
-        } else {
-          newSearchParams.set(key, String(value));
-        }
-      }
-
-      return newSearchParams.toString();
-    },
-    [searchParams],
-  );
-  // Initial column filters
-  const initialColumnFilters: ColumnFiltersState = React.useMemo(() => {
-    return Array.from(searchParams.entries()).reduce<ColumnFiltersState>(
-      (filters, [key, value]) => {
-        const filterableColumn = filterableColumns.find(
-          (column) => column.id === key,
-        );
-        const searchableColumn = searchableColumns.find(
-          (column) => column.id === key,
-        );
-
-        if (filterableColumn) {
-          filters.push({
-            id: key,
-            value: value.split('.'),
-          });
-        } else if (searchableColumn) {
-          filters.push({
-            id: key,
-            value: [value],
-          });
-        }
-
-        return filters;
-      },
-      [],
-    );
-  }, [filterableColumns, searchableColumns, searchParams]);
+} // Todo: the below should be used to filter filter/search terms before setting search params
+// searchableColumns = [],
+// filterableColumns = [],
+: UseDataTableProps<TData, TValue>) {
+  const { searchParams, setSearchParams } = useTableStateFromSearchParams();
 
   // Table states
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>(initialColumnFilters);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    (searchParams.filterParams as ColumnFiltersState) ?? [],
+  );
 
-  // Handle server-side pagination
   const [{ pageIndex, pageSize }, setPagination] =
     React.useState<PaginationState>({
-      pageIndex: fallbackPage - 1,
-      pageSize: fallbackPerPage,
+      pageIndex: searchParams.page - 1,
+      pageSize: searchParams.perPage,
     });
 
   const pagination = React.useMemo(
@@ -151,110 +96,66 @@ export function useDataTable<TData, TValue>({
     [pageIndex, pageSize],
   );
 
+  const debouncedUpdateFilterParams = debounce(
+    (columnFilters: FilterParam[]) => {
+      if (!columnFilters || columnFilters.length === 0) {
+        void setSearchParams.setFilterParams(null);
+        return;
+      }
+
+      void setSearchParams.setFilterParams(columnFilters);
+      // Changing the filter params should reset the page to 1
+      // void setSearchParams.setPage(1);
+    },
+    2000,
+    {
+      trailing: true,
+      leading: false,
+    },
+  );
+
+  // Sync any changes to columnFilters back to searchParams
   React.useEffect(() => {
-    setPagination({
-      pageIndex: fallbackPage - 1,
-      pageSize: fallbackPerPage,
-    });
-  }, [fallbackPage, fallbackPerPage]);
+    // If we are resetting, skip the debounce
+    if (!columnFilters || columnFilters.length === 0) {
+      void setSearchParams.setFilterParams(null);
+      return;
+    }
+
+    debouncedUpdateFilterParams(columnFilters as FilterParam[]);
+
+    // Changing the filter params should reset the page to 1
+    void setSearchParams.setPage(1);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnFilters]);
 
   React.useEffect(() => {
-    router.push(
-      `${pathname}?${createQueryString({
-        page: pageIndex + 1,
-        per_page: pageSize,
-      })}` as Route,
-      {
-        scroll: false,
-      },
-    );
+    setPagination({
+      pageIndex: searchParams.page - 1,
+      pageSize: searchParams.perPage,
+    });
+  }, [searchParams.page, searchParams.perPage]);
+
+  React.useEffect(() => {
+    void setSearchParams.setPage(pageIndex + 1);
+    void setSearchParams.setPerPage(pageSize as PageSize);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
 
-  // Handle server-side sorting
   const [sorting, setSorting] = React.useState<SortingState>([
     {
-      id: column ?? '',
-      desc: order === 'desc',
+      id: searchParams.sortField,
+      desc: searchParams.sort === 'desc',
     },
   ]);
 
   React.useEffect(() => {
-    router.push(
-      `${pathname}?${createQueryString({
-        page,
-        sort: sorting[0]?.id
-          ? `${sorting[0]?.id}.${sorting[0]?.desc ? 'desc' : 'asc'}`
-          : null,
-      })}` as Route,
-    );
-
+    void setSearchParams.setSort(sorting[0]?.desc ? 'desc' : 'asc');
+    void setSearchParams.setSortField(sorting[0]?.id as SortableField);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sorting]);
-
-  // Handle server-side filtering
-  const debouncedSearchableColumnFilters = JSON.parse(
-    useDebounce(
-      JSON.stringify(
-        columnFilters.filter((filter) => {
-          return searchableColumns.find((column) => column.id === filter.id);
-        }),
-      ),
-      500,
-    ),
-  ) as ColumnFiltersState;
-
-  const filterableColumnFilters = columnFilters.filter((filter) => {
-    return filterableColumns.find((column) => column.id === filter.id);
-  });
-
-  React.useEffect(() => {
-    // Initialize new params
-    const newParamsObject = {
-      page: 1,
-    };
-
-    // Handle debounced searchable column filters
-    for (const column of debouncedSearchableColumnFilters) {
-      if (typeof column.value === 'string') {
-        Object.assign(newParamsObject, {
-          [column.id]: typeof column.value === 'string' ? column.value : null,
-        });
-      }
-    }
-
-    // Handle filterable column filters
-    for (const column of filterableColumnFilters) {
-      if (typeof column.value === 'object' && Array.isArray(column.value)) {
-        Object.assign(newParamsObject, { [column.id]: column.value.join('.') });
-      }
-    }
-
-    // Remove deleted values
-    for (const key of searchParams.keys()) {
-      if (
-        (searchableColumns.find((column) => column.id === key) &&
-          !debouncedSearchableColumnFilters.find(
-            (column) => column.id === key,
-          )) ||
-        (filterableColumns.find((column) => column.id === key) &&
-          !filterableColumnFilters.find((column) => column.id === key))
-      ) {
-        Object.assign(newParamsObject, { [key]: null });
-      }
-    }
-
-    // After cumulating all the changes, push new params
-    router.push(`${pathname}?${createQueryString(newParamsObject)}` as Route);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    JSON.stringify(debouncedSearchableColumnFilters),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    JSON.stringify(filterableColumnFilters),
-  ]);
 
   const dataTable = useReactTable({
     data,

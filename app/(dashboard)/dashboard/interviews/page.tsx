@@ -1,12 +1,25 @@
 import { InterviewsTable } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/InterviewsTable';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import Section from '~/components/layout/Section';
+import PageHeader from '~/components/ui/typography/PageHeader';
+import { api } from '~/trpc/server';
 
-const InterviewPage = () => {
+const InterviewPage = async () => {
+  const initialInterviews = await api.interview.get.all.query();
   return (
-    <ResponsiveContainer>
-      <h2 className="mb-6 text-2xl font-bold">Interview management view</h2>
-      <InterviewsTable />
-    </ResponsiveContainer>
+    <>
+      <ResponsiveContainer>
+        <PageHeader
+          headerText="Interviews"
+          subHeaderText="View and manage your interview data."
+        />
+      </ResponsiveContainer>
+      <ResponsiveContainer maxWidth="5xl">
+        <Section>
+          <InterviewsTable initialInterviews={initialInterviews} />
+        </Section>
+      </ResponsiveContainer>
+    </>
   );
 };
 

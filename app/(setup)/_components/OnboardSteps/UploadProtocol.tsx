@@ -2,6 +2,8 @@
 import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { useOnboardingContext } from '../OnboardingProvider';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 function ConfigureStudy() {
   const { currentStep, setCurrentStep } = useOnboardingContext();
@@ -13,12 +15,12 @@ function ConfigureStudy() {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4 flex flex-col">
-        <h1 className="text-3xl font-bold">Upload a Protocol</h1>
-        <p className="mb-4 mt-4">
+        <Heading>Upload a Protocol</Heading>
+        <Paragraph>
           Upload a Network Canvas protocol file (<code>.netcanvas</code>). You
           can upload more protocol files later from the dashboard. You can also
           skip this step to upload a protocol later.
-        </p>
+        </Paragraph>
       </div>
       <div>
         <div className="mb-4">

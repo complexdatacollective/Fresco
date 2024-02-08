@@ -1,5 +1,10 @@
 import dynamic from 'next/dynamic';
-import type { ReactNode } from 'react';
+import {
+  Component,
+  ComponentProps,
+  ComponentType,
+  type ReactNode,
+} from 'react';
 
 /**
  * This component is a hack to get around the fact that Next.js doesn't support
@@ -20,6 +25,22 @@ import type { ReactNode } from 'react';
  */
 const NoSSRWrapper = ({ children }: { children: ReactNode }) => <>{children}</>;
 
-export default dynamic(() => Promise.resolve(NoSSRWrapper), {
+const NoSSRWrapperDynamic = dynamic(() => Promise.resolve(NoSSRWrapper), {
   ssr: false,
 });
+
+// Define the withNoSSRWrapper HOC
+export const withNoSSRWrapper = <P extends object>(
+  WrappedComponent: ComponentType<P>,
+): React.FC<ComponentProps<ComponentType<P>>> => {
+  const WithNoSSRWrapper: React.FC<ComponentProps<ComponentType<P>>> = (
+    props,
+  ) => (
+    <NoSSRWrapperDynamic>
+      <WrappedComponent {...props} />
+    </NoSSRWrapperDynamic>
+  );
+  return WithNoSSRWrapper;
+};
+
+export default NoSSRWrapperDynamic;

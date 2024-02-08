@@ -1,22 +1,31 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import ProtocolUploader from '../_components/ProtocolUploader';
 import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
+import PageHeader from '~/components/ui/typography/PageHeader';
+import Section from '~/components/layout/Section';
 import { api } from '~/trpc/server';
 
 const ProtocolsPage = async () => {
-  let protocols;
-  try {
-    protocols = await api.protocol.get.all.query();
-  } catch (error) {
-    throw new Error(error as string);
-  }
+  const protocols = await api.protocol.get.all.query();
+  const allowAnonymousRecruitment =
+    await api.appSettings.getAnonymousRecruitmentStatus.query();
 
   return (
-    <ResponsiveContainer>
-      <h2 className="mb-6 text-2xl font-bold">Protocols management view</h2>
-      <ProtocolUploader />
-      <ProtocolsTable initialData={protocols} />
-    </ResponsiveContainer>
+    <>
+      <ResponsiveContainer>
+        <PageHeader
+          headerText="Protocols"
+          subHeaderText="Upload and manage your interview protocols."
+        />
+      </ResponsiveContainer>
+      <ResponsiveContainer maxWidth="5xl">
+        <Section>
+          <ProtocolsTable
+            initialData={protocols}
+            allowAnonymousRecruitment={!!allowAnonymousRecruitment}
+          />
+        </Section>
+      </ResponsiveContainer>
+    </>
   );
 };
 

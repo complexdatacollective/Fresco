@@ -1,97 +1,73 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client';
 
 import { type ColumnDef, flexRender } from '@tanstack/react-table';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { dateOptions } from '~/components/DataTable/helpers';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
+import TimeAgo from '~/components/ui/TimeAgo';
 
-export const ProtocolColumns: ColumnDef<ProtocolWithInterviews>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'name',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Name" />;
+export const getProtocolColumns = (
+  allowAnonRecruitment = false,
+): ColumnDef<ProtocolWithInterviews, unknown>[] => {
+  const columns: ColumnDef<ProtocolWithInterviews, unknown>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-    cell: ({ row }) => {
-      return flexRender(row.original.name, row);
-    },
-  },
-  {
-    accessorKey: 'description',
-    header: 'Description',
-    cell: ({ row }) => {
-      return flexRender(row.original.description, row);
-    },
-  },
-  {
-    accessorKey: 'importedAt',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Imported" />;
-    },
-    cell: ({
-      row,
-      table: {
-        options: { meta },
+    {
+      accessorKey: 'name',
+      header: ({ column }) => {
+        return <DataTableColumnHeader column={column} title="Name" />;
       },
-    }) => (
-      <div className="text-xs">
-        {
-          // @ts-ignore
-          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
-            new Date(row.original.importedAt),
-          )
-        }
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'lastModified',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Modified" />;
-    },
-    cell: ({
-      row,
-      table: {
-        options: { meta },
+      cell: ({ row }) => {
+        return flexRender(row.original.name, row);
       },
-    }) => (
-      <div className="text-xs">
-        {
-          // @ts-ignore
-          new Intl.DateTimeFormat(meta?.navigatorLanguages, dateOptions).format(
-            new Date(row.original.lastModified),
-          )
-        }
-      </div>
-    ),
-  },
-  {
-    id: 'participant-url',
-    header: 'Anonymous Participation URL',
-    cell: ({ row }) => {
-      return <AnonymousRecruitmentURLButton protocolId={row.original.id} />;
     },
-  },
-];
+    {
+      accessorKey: 'importedAt',
+      header: ({ column }) => {
+        return <DataTableColumnHeader column={column} title="Imported" />;
+      },
+      cell: ({ row }) => <TimeAgo date={row.original.importedAt} />,
+    },
+    {
+      accessorKey: 'lastModified',
+      header: ({ column }) => {
+        return <DataTableColumnHeader column={column} title="Modified" />;
+      },
+      cell: ({ row }) => <TimeAgo date={row.original.lastModified} />,
+    },
+  ];
+
+  if (allowAnonRecruitment) {
+    columns.push({
+      id: 'participant-url',
+      header: ({ column }) => {
+        return (
+          <DataTableColumnHeader column={column} title="Participant URL" />
+        );
+      },
+      cell: ({ row }) => {
+        return <AnonymousRecruitmentURLButton protocolId={row.original.id} />;
+      },
+    });
+  }
+
+  return columns;
+};

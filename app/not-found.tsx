@@ -1,25 +1,13 @@
-'use client';
-
 import { FileWarning } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { Button } from '~/components/ui/Button';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 export default function NotFound() {
-  const router = useRouter();
-  const redirectToDashboard = () => {
-    router.push('/');
-  };
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-gray-100">
-      <FileWarning className="mb-4 h-12 w-12 text-violet-700" />
-      <h1 className="text-3xl font-extrabold text-violet-700">404</h1>
-      <p className="text-lg text-gray-700">Page not found</p>
-      <Button
-        className="mt-4 bg-violet-600 hover:bg-violet-800"
-        onClick={redirectToDashboard}
-      >
-        Back to Dashboard
-      </Button>
+    <div className="bg-gray-100 flex h-screen flex-col items-center justify-center">
+      <FileWarning className="text-violet-700 mb-4 h-12 w-12" />
+      <Heading variant="h1">404</Heading>
+      <Paragraph variant="lead">Page not found.</Paragraph>
     </div>
   );
 }

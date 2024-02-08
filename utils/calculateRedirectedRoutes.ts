@@ -38,7 +38,8 @@ export const calculateRedirect = ({
   const isLoginPage = path === '/signin';
   const isLandingPage = path === '/';
   const isOnboarding = path.startsWith('/setup');
-  const isInterviewing = path.startsWith('/interview');
+  const isInterviewing =
+    path.startsWith('/interview') || path.startsWith('/onboard');
   const isExpiredPage = path === '/expired';
 
   /**
@@ -67,7 +68,7 @@ export const calculateRedirect = ({
   // APP IS CONFIGURED
   if (!session) {
     // If there's no session, these are the only routes that we pass through:
-    if (isLoginPage || isLandingPage || isInterviewing) {
+    if (isLoginPage || isInterviewing) {
       return;
     }
 
@@ -80,7 +81,7 @@ export const calculateRedirect = ({
   // APP IS CONFIGURED AND SESSION EXISTS
 
   // Redirect authed users away from these pages and to the dashboard
-  if (isLoginPage || isOnboarding || isExpiredPage) {
+  if (isLoginPage || isOnboarding || isLandingPage || isExpiredPage) {
     if (isLoginPage) {
       const callbackUrl = searchParams.get('callbackUrl') as Route;
 

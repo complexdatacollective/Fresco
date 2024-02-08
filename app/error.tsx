@@ -96,8 +96,8 @@ export default function Error({
       message: error.message,
       stack: error.stack,
       metadata: {
-        path: window.location.pathname,
-        userAgent: navigator.userAgent,
+        path: window?.location?.pathname ?? 'unknown',
+        userAgent: window?.navigator?.userAgent ?? 'unknown',
       },
     })
       .then((result) => {

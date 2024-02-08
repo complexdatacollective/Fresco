@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
   AlertDialogAction,
 } from '~/components/ui/AlertDialog';
+import { Divider } from './Divider';
 
 type ErrorDialogProps = AlertDialogProps & {
   title?: string;
@@ -32,12 +33,17 @@ const ErrorDialog = ({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-red-500">{title}</AlertDialogTitle>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
           {description}
         </AlertDialogHeader>
-        {additionalContent}
+        {additionalContent && (
+          <>
+            <Divider className="w-full" />
+            {additionalContent}
+          </>
+        )}
         <AlertDialogFooter>
-          <AlertDialogAction className="bg-red-500" onClick={onConfirm}>
+          <AlertDialogAction onClick={onConfirm}>
             {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>

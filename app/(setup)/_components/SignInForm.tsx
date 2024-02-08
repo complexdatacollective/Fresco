@@ -73,6 +73,7 @@ export default function SignInForm() {
           label="Username"
           autoComplete="username"
           error={errors.username?.message}
+          className="w-full"
           {...register('username')}
         />
       </div>
@@ -81,6 +82,7 @@ export default function SignInForm() {
           type="password"
           label="Password"
           autoComplete="current-password"
+          className="w-full"
           error={errors.password?.message}
           {...register('password')}
         />
