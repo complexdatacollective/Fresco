@@ -1,25 +1,9 @@
 import { faker } from '@faker-js/faker';
-import type { Prisma } from '@prisma/client';
-import { z } from 'zod';
-
-export const activityTypes = [
-  'Protocol Installed',
-  'Protocol Uninstalled',
-  'Participant(s) Added',
-  'Participant(s) Removed',
-  'Interview started',
-  'Interview completed',
-  'Data Exported',
-] as const;
-
-export type ActivityType = (typeof activityTypes)[number];
-
-export const ActivitySchema = z.object({
-  id: z.string(),
-  timestamp: z.date(),
-  type: z.enum(activityTypes),
-  message: z.string(),
-});
+import {
+  type Activity,
+  type ActivityType,
+  activityTypes,
+} from '~/lib/data-table/types';
 
 const generateMessageForActivityType = (type: ActivityType) => {
   switch (type) {
@@ -31,10 +15,12 @@ const generateMessageForActivityType = (type: ActivityType) => {
       return `Added ${faker.number.int({ min: 1, max: 10 })} participant(s)`;
     case 'Participant(s) Removed':
       return `Removed ${faker.number.int({ min: 1, max: 10 })} participant(s)`;
-    case 'Interview started':
+    case 'Interview Started':
       return `Participant "${faker.person.fullName()}" started an interview`;
-    case 'Interview completed':
+    case 'Interview Completed':
       return `Participant "${faker.person.fullName()}" completed an interview`;
+    case 'Interview(s) Deleted':
+      return `Deleted ${faker.number.int({ min: 1, max: 10 })} interview(s)`;
     case 'Data Exported':
       return `Exported data for ${faker.number.int({
         min: 1,
@@ -43,22 +29,24 @@ const generateMessageForActivityType = (type: ActivityType) => {
   }
 };
 
-export const getBadgeColorsForActivityType = (type: string) => {
+export const getBadgeColorsForActivityType = (type: ActivityType) => {
   switch (type) {
     case 'Protocol Installed':
       return 'bg-slate-blue hover:bg-slate-blue-dark';
     case 'Protocol Uninstalled':
-      return 'bg-neon-carrot hover:neon-carrot-dark';
+      return 'bg-neon-carrot hover:bg-neon-carrot-dark';
     case 'Participant(s) Added':
       return 'bg-sea-green hover:bg-sea-green';
     case 'Participant(s) Removed':
       return 'bg-tomato hover:bg-tomato-dark';
-    case 'Interview started':
+    case 'Interview Started':
       return 'bg-sea-serpent hover:bg-sea-serpent-dark';
-    case 'Interview completed':
+    case 'Interview Completed':
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    case 'Interview(s) Deleted':
+      return 'bg-paradise-pink hover:bg-paradise-pink-dark';
     case 'Data Exported':
-      return 'bg-kiwi hover:kiwi-dark';
+      return 'bg-kiwi hover:bg-kiwi-dark';
   }
 };
 
@@ -68,22 +56,6 @@ export const generateMockActivity = (): Activity => {
     id: faker.string.uuid(),
     timestamp: faker.date.recent(),
     type,
-    message: generateMessageForActivityType(type),
+    message: generateMessageForActivityType(type)!,
   };
-};
-
-export type Activity = Prisma.EventsGetPayload<{
-  select: {
-    id: true;
-    timestamp: true;
-    type: true;
-    message: true;
-  };
-}>;
-
-type test = z.infer<typeof ActivitySchema>;
-
-export type Result = {
-  data: Activity[];
-  pageCount: number;
 };

@@ -13,15 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
+import { pageSizes } from '~/lib/data-table/types';
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
-  pageSizeOptions?: number[];
 };
 
 export function DataTablePagination<TData>({
   table,
-  pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex w-full flex-col items-center justify-end gap-4 overflow-auto px-2 py-1 sm:flex-row sm:gap-8">
@@ -42,7 +41,7 @@ export function DataTablePagination<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {pageSizeOptions.map((pageSize) => (
+              {pageSizes.map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>

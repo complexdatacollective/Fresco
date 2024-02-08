@@ -3,6 +3,8 @@ import { FileText, MonitorPlay } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { trackEvent } from '~/analytics/utils';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 function Documentation() {
   const handleAppConfigured = async () => {
@@ -14,13 +16,13 @@ function Documentation() {
 
   return (
     <div className="max-w-[30rem]">
-      <div className="mb-4 flex flex-col">
-        <h1 className="text-3xl font-bold">Documentation</h1>
-        <p className="mb-4 mt-4">
+      <div className="mb-4">
+        <Heading variant="h1">Documentation</Heading>
+        <Paragraph>
           This is the end of the onboarding process. You are now ready to use
           Fresco! For further help and information, consider using the resources
           below.
-        </p>
+        </Paragraph>
       </div>
       <Card className="mb-2">
         <CardHeader className="pb-2">
@@ -28,9 +30,9 @@ function Documentation() {
             <MonitorPlay size={30} className="mr-2" />
             <div>
               <CardTitle className="text-sm">Introduction Video</CardTitle>
-              <p className="text-xs text-muted-foreground">
+              <Paragraph variant="smallText">
                 Videos to help you get started with Fresco
-              </p>
+              </Paragraph>
             </div>
           </div>
         </CardHeader>
@@ -42,9 +44,9 @@ function Documentation() {
             <FileText size={30} className="mr-2" />
             <div>
               <CardTitle className="text-sm">Documentation Articles</CardTitle>
-              <p className="text-xs text-muted-foreground">
+              <Paragraph variant="smallText">
                 Articles to help you get started with Fresco
-              </p>
+              </Paragraph>
             </div>
           </div>
         </CardHeader>

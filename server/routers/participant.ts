@@ -7,7 +7,7 @@ import {
   updateSchema,
 } from '~/shared/schemas/schemas';
 import { z } from 'zod';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const participantRouter = router({
   get: router({
@@ -54,8 +54,10 @@ export const participantRouter = router({
 
         revalidateTag('dashboard.getActivities');
         revalidateTag('dashboard.getSummaryStatistics.participantCount');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
 
         revalidateTag('participant.get.all');
+        revalidatePath('/dashboard/participants');
 
         return {
           error: null,
@@ -99,8 +101,10 @@ export const participantRouter = router({
 
         revalidateTag('dashboard.getActivities');
         revalidateTag('dashboard.getSummaryStatistics.participantCount');
+        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
 
         revalidateTag('participant.get.all');
+        revalidatePath('/dashboard/participants');
 
         return { error: null, deletedParticipants: deletedParticipants.count };
       } catch (error) {
@@ -117,6 +121,20 @@ export const participantRouter = router({
           const deletedParticipants = await prisma.participant.deleteMany({
             where: { identifier: { in: identifiers } },
           });
+
+          await prisma.events.create({
+            data: {
+              type: 'Participant(s) Removed',
+              message: `Removed ${deletedParticipants.count} participant(s)`,
+            },
+          });
+
+          revalidateTag('dashboard.getActivities');
+          revalidateTag('dashboard.getSummaryStatistics.participantCount');
+
+          revalidateTag('participant.get.all');
+          revalidatePath('/dashboard/participants');
+
           return {
             error: null,
             deletedParticipants: deletedParticipants.count,

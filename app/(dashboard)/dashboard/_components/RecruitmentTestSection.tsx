@@ -21,8 +21,7 @@ import { getBaseUrl } from '~/trpc/shared';
 const RecruitmentTestSection = () => {
   const router = useRouter();
 
-  const { data: appSettings, isLoading: isLoadingAppSettings } =
-    api.appSettings.get.useQuery();
+  const { data: appSettings } = api.appSettings.get.useQuery();
   const { data: protocolData, isLoading: isLoadingProtocols } =
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);

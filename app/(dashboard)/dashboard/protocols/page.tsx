@@ -2,7 +2,6 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Section from '~/components/layout/Section';
-import AnonymousRecruitmentWarning from './_components/AnonymousRecruitmentWarning';
 import { api } from '~/trpc/server';
 
 const ProtocolsPage = async () => {
@@ -18,7 +17,6 @@ const ProtocolsPage = async () => {
           subHeaderText="Upload and manage your interview protocols."
         />
       </ResponsiveContainer>
-      <AnonymousRecruitmentWarning />
       <ResponsiveContainer maxWidth="5xl">
         <Section>
           <ProtocolsTable

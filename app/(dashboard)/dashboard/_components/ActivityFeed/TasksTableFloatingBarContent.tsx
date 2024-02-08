@@ -1,9 +1,15 @@
-export function TasksTableFloatingBarContent(_table: unknown) {
-  // table: Table<Activity>
+import { type Table } from 'drizzle-orm';
+import usePortal from 'react-useportal';
+
+export function TasksTableFloatingBarContent(_table: Table) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { Portal } = usePortal();
+
   return (
-    <div className="justify-between gap-2 align-middle">
-      Nothing to see here!
-      {/* <Select onValueChange={(value) => updateTasksStatus(table, value)}>
+    <Portal>
+      <div className="justify-between gap-2 align-middle">
+        Nothing to see here!
+        {/* <Select onValueChange={(value) => updateTasksStatus(table, value)}>
         <SelectTrigger asChild>
           <Button
             aria-label="Delete selected rows"
@@ -63,6 +69,7 @@ export function TasksTableFloatingBarContent(_table: unknown) {
         <TrashIcon className="size-4" aria-hidden="true" />
         <span className="sr-only">Delete</span>
       </Button> */}
-    </div>
+      </div>
+    </Portal>
   );
 }

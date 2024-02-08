@@ -12,14 +12,8 @@ import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participan
 import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
 import { api } from '~/trpc/client';
 
-export const ParticipantsTable = ({
-  initialData,
-}: {
-  initialData: ParticipantWithInterviews[];
-}) => {
+export const ParticipantsTable = () => {
   const { data: participants } = api.participant.get.all.useQuery(undefined, {
-    initialData,
-    refetchOnMount: false,
     onError(error) {
       throw new Error(error.message);
     },
@@ -33,6 +27,10 @@ export const ParticipantsTable = ({
     setParticipantsToDelete(data);
     setShowDeleteModal(true);
   };
+
+  if (!participants) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>

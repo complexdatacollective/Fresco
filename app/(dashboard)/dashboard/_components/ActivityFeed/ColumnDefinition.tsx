@@ -2,25 +2,22 @@
 
 import { type ColumnDef } from '@tanstack/react-table';
 import { Badge } from '~/components/ui/badge';
-import type {
-  DataTableFilterableColumn,
-  DataTableSearchableColumn,
-} from '~/lib/data-table/types';
-import type { TransitionStartFunction } from 'react';
 import {
+  type ActivityType,
+  type DataTableFilterableColumn,
+  type DataTableSearchableColumn,
   type Activity,
   activityTypes,
-  getBadgeColorsForActivityType,
-  type ActivityType,
-} from './utils';
+} from '~/lib/data-table/types';
 import type { Events } from '@prisma/client';
 import TimeAgo from '~/components/ui/TimeAgo';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { getBadgeColorsForActivityType } from './utils';
 
-export function fetchActivityFeedTableColumnDefs(
-  _isPending: boolean,
-  _startTransition: TransitionStartFunction,
-): ColumnDef<Events, unknown>[] {
+export function fetchActivityFeedTableColumnDefs(): ColumnDef<
+  Events,
+  unknown
+>[] {
   return [
     {
       accessorKey: 'timestamp',
@@ -43,11 +40,10 @@ export function fetchActivityFeedTableColumnDefs(
       ),
       cell: ({ row }) => {
         const activityType: ActivityType = row.getValue('type');
+        const color = getBadgeColorsForActivityType(activityType);
         return (
           <div className="flex min-w-[140px] space-x-2">
-            <Badge className={getBadgeColorsForActivityType(activityType)}>
-              {activityType}
-            </Badge>
+            <Badge className={color}>{activityType}</Badge>
           </div>
         );
       },

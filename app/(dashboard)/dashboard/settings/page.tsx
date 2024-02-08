@@ -30,8 +30,7 @@ export default function Settings() {
         </SettingsSection>
         <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>
           <Paragraph variant="noMargin">
-            Project settings allow you to configure the project name, and other
-            metadata.
+            Delete all data and reset Fresco to its default state.
           </Paragraph>
         </SettingsSection>
         <SettingsSection

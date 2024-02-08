@@ -16,7 +16,7 @@ export default async function AnonymousRecruitmentWarning() {
     <ResponsiveContainer>
       <Alert variant="info">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Info</AlertTitle>
+        <AlertTitle>Please Note</AlertTitle>
         <AlertDescription>
           Anonymous recruitment is enabled. This means that participants can
           self-enroll in your study without needing to be invited, by visiting
