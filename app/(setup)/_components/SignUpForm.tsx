@@ -3,11 +3,12 @@
 import { Button } from '~/components/ui/Button';
 import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
-import { type UserSignupData, userFormSchema } from '../_shared';
+import { userCreateFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { api } from '~/trpc/client';
 import { useState } from 'react';
 import ActionError from '../../../components/ActionError';
+import { type z } from 'zod';
 
 export const SignUpForm = ({
   completeCallback,
@@ -22,7 +23,7 @@ export const SignUpForm = ({
     handleSubmit,
     formState: { errors, isValid },
   } = useZodForm({
-    schema: userFormSchema,
+    schema: userCreateFormSchema,
     mode: 'all',
   });
 
@@ -45,7 +46,7 @@ export const SignUpForm = ({
     },
   });
 
-  const onSubmit = async (data: UserSignupData) => {
+  const onSubmit = async (data: z.infer<typeof userCreateFormSchema>) => {
     setSignupError(null);
     await signUp(data);
   };

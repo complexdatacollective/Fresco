@@ -93,7 +93,7 @@ function ParticipantModal({
         }));
 
         const newValue = previousValue
-          ? [...previousValue, ...newParticipants]
+          ? [...newParticipants, ...previousValue]
           : newParticipants;
 
         // Optimistically update to the new value
@@ -151,12 +151,12 @@ function ParticipantModal({
   }, [editingParticipant, setValue]);
 
   const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
     if (!isOpen) {
       setEditingParticipant?.(null);
       setError(null);
       reset();
     }
-    setOpen(isOpen);
   };
 
   return (
@@ -167,8 +167,9 @@ function ParticipantModal({
             {editingParticipant ? 'Edit Participant' : 'Add Participant'}
           </DialogTitle>
           <DialogDescription>
-            Fresco requires a participant identifier to create a participant.
-            Enter one below.
+            {editingParticipant
+              ? 'Update the identifier of the participant.'
+              : 'To add a new participant, enter an identifier below. This could be a name, a number, or an ID.'}
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -176,21 +177,17 @@ function ParticipantModal({
             <ActionError errorTitle="Error" errorDescription={error} />
           </div>
         )}
-        <div className="grid gap-4 py-4">
-          <form
-            id="participant-form"
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onSubmit={handleSubmit(async (data) => await onSubmit(data))}
-          >
-            <Input
-              {...register('identifier')}
-              label="Identifier"
-              hint="This could be a participant ID, a name, or a number."
-              placeholder="Enter a participant identifier..."
-              error={errors.identifier?.message}
-            />
-          </form>
-        </div>
+        <form
+          id="participant-form"
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+        >
+          <Input
+            {...register('identifier')}
+            placeholder="Enter a participant identifier..."
+            error={errors.identifier?.message}
+          />
+        </form>
         <DialogFooter>
           <Button form="participant-form" type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

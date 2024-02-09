@@ -2,7 +2,7 @@
 
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { userFormSchema } from '../_shared';
+import { userSignInFormSchema } from '../_shared';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { api } from '~/trpc/client';
@@ -28,7 +28,7 @@ export default function SignInForm() {
     handleSubmit,
     formState: { errors },
   } = useZodForm({
-    schema: userFormSchema,
+    schema: userSignInFormSchema,
   });
 
   const { mutateAsync: signIn } = api.session.signIn.useMutation({
@@ -51,7 +51,7 @@ export default function SignInForm() {
   });
 
   const onSubmit = async (data: unknown) => {
-    const payload = userFormSchema.parse(data);
+    const payload = userSignInFormSchema.parse(data);
     await signIn(payload);
   };
 
