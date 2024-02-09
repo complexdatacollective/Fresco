@@ -1,6 +1,5 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '~/components/ui/Button';
@@ -36,7 +35,6 @@ function ParticipantModal({
   existingParticipants,
 }: ParticipantModalProps) {
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const utils = api.useUtils();
 
   const formSchema = z
@@ -200,8 +198,7 @@ function ParticipantModal({
           />
         </form>
         <DialogFooter>
-          <Button form="participant-form" type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button form="participant-form" type="submit">
             {editingParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>

@@ -14,7 +14,6 @@ import type { ProtocolWithInterviews } from '~/shared/types';
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { api } from '~/trpc/client';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
 import { useRouter } from 'next/navigation';
 
 type DeleteProtocolsDialogProps = {
