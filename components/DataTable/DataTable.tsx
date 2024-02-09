@@ -40,7 +40,11 @@ type DataTableProps<TData, TValue> = {
   filterColumnAccessorKey?: string;
   handleDeleteSelected?: (data: TData[]) => Promise<void> | void;
   handleExportSelected?: (data: TData[]) => void;
-  actions?: React.ComponentType<{ row: Row<TData>; data: TData[] }>;
+  actions?: React.ComponentType<{
+    row: Row<TData>;
+    data: TData[];
+    deleteHandler: (item: TData) => void;
+  }>;
   actionsHeader?: React.ReactNode;
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
@@ -66,18 +70,6 @@ export function DataTable<TData, TValue>({
     columns = makeDefaultColumns(data);
   }
 
-  if (actions) {
-    const actionsColumn = {
-      id: 'actions',
-      header: () => (actionsHeader ? actionsHeader : null),
-      cell: ({ row }: { row: Row<TData> }) => {
-        return flexRender(actions, { row, data });
-      },
-    };
-
-    columns = [...columns, actionsColumn];
-  }
-
   const deleteHandler = async () => {
     setIsDeleting(true);
     const selectedData = table
@@ -96,6 +88,26 @@ export function DataTable<TData, TValue>({
     setIsDeleting(false);
     setRowSelection({});
   };
+
+  if (actions) {
+    const actionsColumn = {
+      id: 'actions',
+      header: () => (actionsHeader ? actionsHeader : null),
+      cell: ({ row }: { row: Row<TData> }) => {
+        const cellDeleteHandler = async (item: TData) => {
+          await handleDeleteSelected?.([item]);
+        };
+
+        return flexRender(actions, {
+          row,
+          data,
+          deleteHandler: cellDeleteHandler,
+        });
+      },
+    };
+
+    columns = [...columns, actionsColumn];
+  }
 
   const table = useReactTable({
     data,
@@ -228,6 +240,13 @@ export function DataTable<TData, TValue>({
             </Button>
           </div>
         </div>
+        {/**
+         * TODO: This is garbage.
+         *
+         * This shouldn't be part of the data table - it should be a component
+         * that is passed in to the table that gets given access to the table
+         * state. See the other data-table for an example.
+         */}
         {hasSelectedRows && (
           <Button
             onClick={() => void deleteHandler()}

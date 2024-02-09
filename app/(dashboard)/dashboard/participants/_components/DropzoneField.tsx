@@ -16,6 +16,7 @@ import {
   FormLabel,
 } from '~/components/ui/form';
 import type { Control } from 'react-hook-form';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 export const DropzoneField = ({
   label,
@@ -117,7 +118,7 @@ export const Dropzone = ({
       <div
         {...getRootProps({
           className: cn(
-            'relative mx-auto flex w-full cursor-pointer flex-col items-center justify-center border border-dashed border-neutral-300 h-[6rem] transition-colors hover:border-violet-800 border-2 rounded-xl',
+            'relative mx-auto flex w-full cursor-pointer flex-col items-center justify-center border border-dashed transition-colors hover:border-violet-800 border-2 rounded-xl',
           ),
         })}
       >
@@ -125,7 +126,7 @@ export const Dropzone = ({
         <AnimatePresence mode="wait" initial={false}>
           {processing && (
             <motion.div
-              className="flex flex-col items-center justify-center gap-2"
+              className="flex flex-col items-center justify-center gap-2 p-10 text-center"
               key="processing"
               variants={variants}
               initial="hide"
@@ -143,15 +144,15 @@ export const Dropzone = ({
               initial="hide"
               animate="show"
               exit="hide"
-              className="flex flex-col items-center justify-center gap-2"
+              className="flex flex-col items-center justify-center gap-2 p-10 text-center"
             >
-              <FileText className="text-violet-800" size={28} />
+              <FileText className="text-primary" size={28} />
               {isDragActive ? (
-                <p className="text-sm">Drop file here...</p>
+                <Paragraph variant="smallText">Drop file here...</Paragraph>
               ) : (
-                <p className="text-sm">
+                <Paragraph variant="smallText">
                   Drag & drop file here, or click to select.
-                </p>
+                </Paragraph>
               )}
             </motion.div>
           )}
@@ -162,13 +163,14 @@ export const Dropzone = ({
               initial="hide"
               animate="show"
               exit="hide"
-              className="flex flex-col items-center justify-center gap-2"
+              className="flex flex-col items-center justify-center gap-2 p-10 text-center"
             >
-              <FileCheck className="text-green-600" size={28} />
-              <p className="text-sm">
-                Valid file uploaded. Click the button to continue, or drop a new
-                file here to replace.
-              </p>
+              <FileCheck className="text-success" size={50} />
+              <Paragraph variant="noMargin">Valid file uploaded!</Paragraph>
+              <Paragraph variant="smallText">
+                Click the button to continue, or drop a new file here to
+                replace.
+              </Paragraph>
             </motion.div>
           )}
         </AnimatePresence>

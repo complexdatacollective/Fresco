@@ -1,4 +1,4 @@
-import { Loader2, AlertCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
   AlertDialog,
@@ -10,138 +10,96 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { api } from '~/trpc/client';
-import type { ParticipantWithInterviews } from '~/shared/types';
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 
 type DeleteParticipantsDialog = {
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  participantsToDelete: ParticipantWithInterviews[];
+  participantCount: number;
+  haveInterviews: boolean;
+  haveUnexportedInterviews: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
 };
 
 export const DeleteParticipantsDialog = ({
   open,
-  setOpen,
-  participantsToDelete,
+  participantCount,
+  haveInterviews,
+  haveUnexportedInterviews,
+  onConfirm,
+  onCancel,
 }: DeleteParticipantsDialog) => {
-  const [participantsInfo, setParticipantsInfo] = useState<{
-    hasInterviews: boolean;
-    hasUnexportedInterviews: boolean;
-  }>({
-    hasInterviews: false,
-    hasUnexportedInterviews: false,
-  });
+  const dialogContent = useMemo(() => {
+    if (!haveInterviews) {
+      return null;
+    }
 
-  useEffect(() => {
-    setParticipantsInfo({
-      hasInterviews: participantsToDelete?.some(
-        (participant) => participant._count.interviews > 0,
-      ),
-      hasUnexportedInterviews: participantsToDelete?.some((participant) =>
-        participant.interviews.some((interview) => !interview.exportTime),
-      ),
-    });
-  }, [participantsToDelete]);
+    if (haveUnexportedInterviews) {
+      return (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Warning</AlertTitle>
+          <AlertDescription>
+            {participantCount > 1 ? (
+              <>
+                One or more of the selected participants have interview data
+                that <strong> has not yet been exported.</strong> Deleting these
+                participants will also delete their interview data.
+              </>
+            ) : (
+              <>
+                The selected participant has interview data that
+                <strong> has not yet been exported.</strong> Deleting this
+                participant will also delete their interview data.
+              </>
+            )}
+          </AlertDescription>
+        </Alert>
+      );
+    }
 
-  const router = useRouter();
-
-  const utils = api.useUtils();
-
-  const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
-    api.participant.delete.byId.useMutation({
-      onError(error) {
-        throw new Error(error.message);
-      },
-      onSuccess: async () => {
-        //await utils.participant.get.all.refetch();
-        await utils.participant.get.invalidate();
-        console.log('refreshing router...');
-        router.refresh();
-      },
-    });
-
-  const handleConfirm = async () => {
-    // Delete selected participants
-    await deleteParticipants(participantsToDelete.map((d) => d.identifier));
-    handleCancelDialog();
-  };
-
-  const handleCancelDialog = () => {
-    setParticipantsInfo({
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
-    setOpen(false);
-  };
+    return (
+      <Alert className="p-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Warning</AlertTitle>
+        <AlertDescription>
+          {participantCount > 1 ? (
+            <>
+              One or more of the selected participants have interview data that
+              will also be deleted.
+            </>
+          ) : (
+            <>
+              The selected participant has interview data that will also be
+              deleted.
+            </>
+          )}
+        </AlertDescription>
+      </Alert>
+    );
+  }, [haveInterviews, haveUnexportedInterviews, participantCount]);
 
   return (
-    <AlertDialog open={open} onOpenChange={handleCancelDialog}>
+    <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{' '}
             <strong>
-              {participantsToDelete.length}{' '}
-              {participantsToDelete.length > 1 ? (
-                <>participants.</>
-              ) : (
-                <>participant.</>
-              )}
+              {`${participantCount} participant${
+                participantCount > 1 ? 's' : ''
+              }`}
             </strong>
+            .
           </AlertDialogDescription>
-          {participantsInfo.hasInterviews &&
-            !participantsInfo.hasUnexportedInterviews && (
-              <Alert className="p-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Warning</AlertTitle>
-                <AlertDescription>
-                  {participantsToDelete.length > 1 ? (
-                    <>
-                      One or more of the selected participants have interview
-                      data that will also be deleted.
-                    </>
-                  ) : (
-                    <>
-                      The selected participant has interview data that will also
-                      be deleted.
-                    </>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
-          {participantsInfo.hasUnexportedInterviews && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Warning</AlertTitle>
-              <AlertDescription>
-                {participantsToDelete.length > 1 ? (
-                  <>
-                    One or more of the selected participants have interview data
-                    that <strong> has not yet been exported.</strong> Deleting
-                    these participants will also delete their interview data.
-                  </>
-                ) : (
-                  <>
-                    The selected participant has interview data that
-                    <strong> has not yet been exported.</strong> Deleting this
-                    participant will also delete their interview data.
-                  </>
-                )}
-              </AlertDescription>
-            </Alert>
-          )}
+          {dialogContent}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
-            Cancel
-          </AlertDialogCancel>
-          <Button onClick={() => void handleConfirm()} variant="destructive">
+          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+          <Button onClick={onConfirm} variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
-            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+            Permanently Delete
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

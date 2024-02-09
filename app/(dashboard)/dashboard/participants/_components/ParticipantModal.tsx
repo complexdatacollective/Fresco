@@ -18,7 +18,6 @@ import ActionError from '~/components/ActionError';
 import { api } from '~/trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import type { Participant } from '@prisma/client';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
 import { useRouter } from 'next/navigation';
 
 type ParticipantModalProps = {

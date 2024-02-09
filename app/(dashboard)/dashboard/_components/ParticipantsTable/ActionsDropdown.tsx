@@ -1,5 +1,3 @@
-'use client';
-
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
@@ -13,31 +11,24 @@ import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
-import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
 
 export const ActionsDropdown = ({
   row,
   data,
+  deleteHandler,
 }: {
   row: Row<ParticipantWithInterviews>;
   data: ParticipantWithInterviews[];
+  deleteHandler: (participant: ParticipantWithInterviews) => void;
 }) => {
   const [selectedParticipant, setSelectedParticipant] = useState<string | null>(
     null,
   );
   const [showParticipantModal, setShowParticipantModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [participantToDelete, setParticipantToDelete] =
-    useState<ParticipantWithInterviews[]>();
 
   const editParticipant = (identifier: string) => {
     setSelectedParticipant(identifier);
     setShowParticipantModal(true);
-  };
-
-  const handleDelete = (data: ParticipantWithInterviews) => {
-    setParticipantToDelete([data]);
-    setShowDeleteModal(true);
   };
 
   return (
@@ -48,11 +39,6 @@ export const ActionsDropdown = ({
         existingParticipants={data}
         editingParticipant={selectedParticipant}
         setEditingParticipant={setSelectedParticipant}
-      />
-      <DeleteParticipantsDialog
-        open={showDeleteModal}
-        setOpen={setShowDeleteModal}
-        participantsToDelete={participantToDelete ?? []}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -68,7 +54,7 @@ export const ActionsDropdown = ({
           >
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+          <DropdownMenuItem onClick={() => deleteHandler(row.original)}>
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

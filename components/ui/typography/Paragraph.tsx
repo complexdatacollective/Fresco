@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { forwardRef } from 'react';
 import { cn } from '~/utils/shadcn';
 
-const paragraphVariants = cva('text-foreground text-pretty, font-', {
+const paragraphVariants = cva('text-foreground text-pretty font-medium', {
   variants: {
     variant: {
       default: '[&:not(:first-child)]:mt-6',
@@ -13,7 +13,7 @@ const paragraphVariants = cva('text-foreground text-pretty, font-', {
         'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
       lead: 'mb-3 text-lg text-opacity-70 font-semibold md:text-xl leading-6',
       mutedText: 'text-muted',
-      smallText: 'text-sm font-medium',
+      smallText: 'text-sm',
       noMargin: 'mt-0',
     },
   },
