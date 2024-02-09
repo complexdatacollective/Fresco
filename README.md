@@ -109,9 +109,7 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
 1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
 
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco%2Ftree%2Fdeployment-docs&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS)
-
-<!-- [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS) -->
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS)
 
 2. Create Git Repository. Give your repository a name and hit **"Create"** (This will be your Fresco instance name).
 
@@ -150,7 +148,7 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
 Visit your deployed app to create your administrator account. Only one user account may be created.
 
-**Note: For security, you have _five minutes_ from when the app is deployed to create a user account. If this time elapses without a user account created, your configuration will expire. You may redeploy using the same steps.**
+**Note: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account created, your configuration will expire. You may redeploy using the same steps.**
 
 1. Create an account by providing username and password.
 
