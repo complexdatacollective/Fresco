@@ -3,7 +3,7 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { api } from '~/trpc/server';
-import { ExportParticipantUrlSection } from './_components/ExportParticipantUrlSection';
+import { ExportParticipantUrlSection } from './_components/ExportParticipants/ExportParticipantUrlSection';
 
 const ParticipantPage = async () => {
   const participants = await api.participant.get.all.query();

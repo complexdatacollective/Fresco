@@ -47,17 +47,19 @@ export const DeleteProtocolsDialog = ({
       ),
     });
   }, [protocolsToDelete]);
+
   const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
     api.protocol.delete.byHash.useMutation({
       onError(error) {
         throw new Error(error.message);
       },
+      onSuccess() {
+        router.refresh();
+      },
     });
 
   const handleConfirm = async () => {
     await deleteProtocols(protocolsToDelete.map((d) => d.hash));
-    await clientRevalidateTag('protocol.get.all');
-    router.refresh();
     setOpen(false);
   };
 

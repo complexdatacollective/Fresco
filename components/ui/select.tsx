@@ -23,18 +23,18 @@ const SelectValue = React.forwardRef<
 
 SelectValue.displayName = SelectPrimitive.Value.displayName;
 
+export const selectTriggerStyles = cn(
+  'text-input-foreground bg-input rounded-input flex h-10 w-full items-center justify-between border border-border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+  'focus:ring-ring focus:outline-none focus:ring-2 focus:ring-offset-2',
+);
+
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn(
-      'text-input-foreground bg-input rounded-input flex h-10 w-full items-center justify-between border border-border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
-      'focus:ring-ring focus:outline-none focus:ring-2 focus:ring-offset-2',
-      // 'truncate',
-      className,
-    )}
+    className={cn(selectTriggerStyles, className)}
     {...props}
   >
     {children}

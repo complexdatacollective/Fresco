@@ -66,7 +66,11 @@ function ExportCSVParticipantURLs({
   };
 
   return (
-    <Button disabled={disabled || isExporting} onClick={handleExport}>
+    <Button
+      disabled={disabled || isExporting}
+      onClick={handleExport}
+      className="w-full"
+    >
       <Download className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Participation URLs'}
     </Button>

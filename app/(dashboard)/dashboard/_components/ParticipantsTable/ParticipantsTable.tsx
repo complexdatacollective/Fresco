@@ -9,7 +9,7 @@ import { DeleteAllParticipantsButton } from '~/app/(dashboard)/dashboard/partici
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useCallback, useMemo, useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants';
+import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants/ExportParticipants';
 import { api } from '~/trpc/client';
 import { type RouterOutputs } from '~/trpc/shared';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';

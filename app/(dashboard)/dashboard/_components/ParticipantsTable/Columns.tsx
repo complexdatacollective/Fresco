@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
-import { GetParticipantURLButton } from './GetParticipantURLButton';
+import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import { type ParticipantWithInterviews } from '~/shared/types';
 
 export function getParticipantColumns(): ColumnDef<
@@ -48,7 +48,7 @@ export function getParticipantColumns(): ColumnDef<
     {
       id: 'participant-url',
       cell: ({ row }) => {
-        return <GetParticipantURLButton participant={row.original} />;
+        return <GenerateParticipationURLButton participant={row.original} />;
       },
     },
   ];

@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { api } from '~/trpc/client';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type DeleteParticipantsDialog = {
   open: boolean;
@@ -44,23 +45,27 @@ export const DeleteParticipantsDialog = ({
     });
   }, [participantsToDelete]);
 
+  const router = useRouter();
+
+  const utils = api.useUtils();
+
   const { mutateAsync: deleteParticipants, isLoading: isDeleting } =
     api.participant.delete.byId.useMutation({
       onError(error) {
         throw new Error(error.message);
       },
+      onSuccess: async () => {
+        //await utils.participant.get.all.refetch();
+        await utils.participant.get.invalidate();
+        console.log('refreshing router...');
+        router.refresh();
+      },
     });
-  const utils = api.useUtils();
 
   const handleConfirm = async () => {
     // Delete selected participants
     await deleteParticipants(participantsToDelete.map((d) => d.identifier));
-    await utils.participant.get.all.refetch();
-    setParticipantsInfo({
-      hasInterviews: false,
-      hasUnexportedInterviews: false,
-    });
-    setOpen(false);
+    handleCancelDialog();
   };
 
   const handleCancelDialog = () => {

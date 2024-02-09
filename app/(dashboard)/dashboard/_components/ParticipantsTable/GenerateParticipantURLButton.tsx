@@ -22,7 +22,7 @@ import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
 import { useToast } from '~/components/ui/use-toast';
 
-export const GetParticipantURLButton = ({
+export const GenerateParticipationURLButton = ({
   participant,
 }: {
   participant: Participant;
@@ -30,6 +30,7 @@ export const GetParticipantURLButton = ({
   const { data: protocolData, isLoading: isLoadingProtocols } =
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
+
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -66,11 +67,11 @@ export const GetParticipantURLButton = ({
   return (
     <Dialog open={dialogOpen}>
       <DialogTrigger asChild onClick={() => setDialogOpen(true)}>
-        <Button size="sm">Get Participation URL</Button>
+        <Button size="xs">Generate Participation URL</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Get Participation URL</DialogTitle>
+          <DialogTitle>Generate Participation URL</DialogTitle>
           <DialogDescription>
             Generate a URL that can be shared with a participant to allow them
             to participate for a selected protocol.

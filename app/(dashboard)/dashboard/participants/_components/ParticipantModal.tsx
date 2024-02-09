@@ -19,6 +19,7 @@ import { api } from '~/trpc/client';
 import { participantIdentifierSchema } from '~/shared/schemas/schemas';
 import type { Participant } from '@prisma/client';
 import { clientRevalidateTag } from '~/utils/clientRevalidate';
+import { useRouter } from 'next/navigation';
 
 type ParticipantModalProps = {
   open: boolean;
@@ -72,16 +73,46 @@ function ParticipantModal({
     },
   );
 
+  const router = useRouter();
+
   const { mutateAsync: createParticipant } = api.participant.create.useMutation(
     {
-      onMutate() {
-        setIsLoading(true);
+      async onMutate(identifiers) {
+        await utils.participant.get.all.cancel();
+
+        // snapshot current participants
+        const previousValue = utils.participant.get.all.getData();
+
+        const newParticipants = identifiers.map((identifier, index) => ({
+          id: `optimistic-${index}`,
+          identifier,
+          interviews: [],
+          _count: {
+            interviews: 0,
+          },
+        }));
+
+        const newValue = previousValue
+          ? [...previousValue, ...newParticipants]
+          : newParticipants;
+
+        // Optimistically update to the new value
+        utils.participant.get.all.setData(undefined, newValue);
+
+        setOpen(false);
+        reset();
+        return { previousValue };
       },
-      onError(error) {
+      onError(error, identifiers, context) {
+        utils.participant.get.all.setData(undefined, context?.previousValue);
         setError(error.message);
       },
-      onSettled() {
-        void clientRevalidateTag('participant.get.all');
+      async onSettled() {
+        await utils.participant.get.all.invalidate();
+      },
+      onSuccess() {
+        console.log('refreshing router...');
+        router.refresh();
         setIsLoading(false);
       },
     },
@@ -110,12 +141,6 @@ function ParticipantModal({
 
     if (!editingParticipant) {
       await createParticipant([data.identifier]);
-    }
-
-    if (!error) {
-      await utils.participant.get.invalidate();
-      setOpen(false);
-      reset();
     }
   };
 

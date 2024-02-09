@@ -8,6 +8,8 @@ import {
 } from '~/shared/schemas/schemas';
 import { z } from 'zod';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { getQueryKey } from '@trpc/react-query';
+import { api } from '~/trpc/server';
 
 export const participantRouter = router({
   get: router({
@@ -131,7 +133,6 @@ export const participantRouter = router({
 
           revalidateTag('dashboard.getActivities');
           revalidateTag('dashboard.getSummaryStatistics.participantCount');
-
           revalidateTag('participant.get.all');
           revalidatePath('/dashboard/participants');
 

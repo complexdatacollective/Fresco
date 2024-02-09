@@ -1,18 +1,20 @@
 import Link from 'next/link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import StatCard, { StatCardSkeleton } from './StatCard';
+import StatCard from './StatCard';
 import Image from 'next/image';
 import { InterviewIcon, ProtocolIcon } from './Icons';
-import { Suspense } from 'react';
 import { api } from '~/trpc/server';
+import { unstable_noStore } from 'next/cache';
 
-export default function SummaryStatistics() {
+export default async function SummaryStatistics() {
+  unstable_noStore();
+
   const interviewCount =
-    api.dashboard.getSummaryStatistics.interviewCount.query();
+    await api.dashboard.getSummaryStatistics.interviewCount.query();
   const participantCount =
-    api.dashboard.getSummaryStatistics.participantCount.query();
+    await api.dashboard.getSummaryStatistics.participantCount.query();
   const protocolCount =
-    api.dashboard.getSummaryStatistics.protocolCount.query();
+    await api.dashboard.getSummaryStatistics.protocolCount.query();
 
   return (
     <ResponsiveContainer
@@ -20,62 +22,33 @@ export default function SummaryStatistics() {
       maxWidth="5xl"
     >
       <Link href="/dashboard/protocols">
-        <Suspense
-          fallback={
-            <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
-          }
-        >
-          <StatCard
-            title="Protocols"
-            valuePromise={protocolCount}
-            icon={<ProtocolIcon />}
-          />
-        </Suspense>
+        <StatCard
+          title="Protocols"
+          initialData={protocolCount}
+          icon={<ProtocolIcon />}
+        />
       </Link>
       <Link href="/dashboard/participants">
-        <Suspense
-          fallback={
-            <StatCardSkeleton
-              title="Participants"
-              icon={
-                <Image
-                  src="/images/participant.svg"
-                  width={50}
-                  height={50}
-                  alt="Participant icon"
-                  className="max-w-none"
-                />
-              }
+        <StatCard
+          title="Participants"
+          initialData={participantCount}
+          icon={
+            <Image
+              src="/images/participant.svg"
+              width={50}
+              height={50}
+              alt="Participant icon"
+              className="max-w-none"
             />
           }
-        >
-          <StatCard
-            title="Participants"
-            valuePromise={participantCount}
-            icon={
-              <Image
-                src="/images/participant.svg"
-                width={50}
-                height={50}
-                alt="Participant icon"
-                className="max-w-none"
-              />
-            }
-          />
-        </Suspense>
+        />
       </Link>
       <Link href="/dashboard/interviews">
-        <Suspense
-          fallback={
-            <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
-          }
-        >
-          <StatCard
-            title="Interviews"
-            valuePromise={interviewCount}
-            icon={<InterviewIcon />}
-          />
-        </Suspense>
+        <StatCard
+          title="Interviews"
+          initialData={interviewCount}
+          icon={<InterviewIcon />}
+        />
       </Link>
     </ResponsiveContainer>
   );

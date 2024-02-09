@@ -166,7 +166,8 @@ export const Dropzone = ({
             >
               <FileCheck className="text-green-600" size={28} />
               <p className="text-sm">
-                File selected. Drop file here to replace.
+                Valid file uploaded. Click the button to continue, or drop a new
+                file here to replace.
               </p>
             </motion.div>
           )}
