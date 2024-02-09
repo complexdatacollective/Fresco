@@ -1,21 +1,20 @@
 'use client';
 
-import type { Protocol, Participant } from '@prisma/client';
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import { getBaseUrl } from '~/trpc/shared';
+import { type RouterOutputs, getBaseUrl } from '~/trpc/shared';
 
 function ExportCSVParticipantURLs({
   participants,
   protocol,
   disabled,
 }: {
-  participants: Participant[] | undefined;
-  protocol: Protocol | undefined;
+  participants: RouterOutputs['participant']['get']['all'];
+  protocol: RouterOutputs['protocol']['get']['all'][0];
   disabled: boolean;
 }) {
   const download = useDownload();

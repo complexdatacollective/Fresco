@@ -1,5 +1,4 @@
 'use client';
-import type { Participant, Protocol } from '@prisma/client';
 import { useState, useEffect } from 'react';
 
 import {
@@ -16,6 +15,7 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import SettingsSection from '~/components/layout/SettingsSection';
 import { Skeleton } from '~/components/ui/skeleton';
 import FancyBox from '~/components/ui/FancyBox';
+import { type RouterOutputs } from '~/trpc/shared';
 
 export const ExportParticipantUrlSection = () => {
   const { data: protocols, isLoading: isLoadingProtocols } =
@@ -25,10 +25,11 @@ export const ExportParticipantUrlSection = () => {
     api.participant.get.all.useQuery();
 
   const [selectedParticipants, setSelectedParticipants] = useState<
-    Participant['id'][]
+    RouterOutputs['participant']['get']['all'][0]['id'][]
   >([]);
 
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
+  const [selectedProtocol, setSelectedProtocol] =
+    useState<RouterOutputs['protocol']['get']['all'][0]>();
 
   // Default to all participants selected
   useEffect(() => {
@@ -85,8 +86,12 @@ export const ExportParticipantUrlSection = () => {
             />
           )}
           <ExportCSVParticipantURLs
-            protocol={selectedProtocol}
-            participants={selectedParticipants}
+            protocol={selectedProtocol!}
+            participants={
+              selectedParticipants.map(
+                (id) => participants?.find((p) => p.id === id),
+              ) as RouterOutputs['participant']['get']['all'][0][]
+            }
             disabled={!selectedParticipants || !selectedProtocol}
           />
         </div>
