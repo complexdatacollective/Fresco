@@ -1,14 +1,7 @@
 'use client';
+
 import type { Participant, Protocol } from '@prisma/client';
-import { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog';
+import { useState, useEffect, useRef } from 'react';
 import {
   Select,
   SelectContent,
@@ -21,6 +14,9 @@ import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
 import { useToast } from '~/components/ui/use-toast';
+import { Popover, PopoverContent } from '~/components/ui/popover';
+import { PopoverTrigger } from '@radix-ui/react-popover';
+import Paragraph from '~/components/ui/typography/Paragraph';
 
 export const GenerateParticipationURLButton = ({
   participant,
@@ -32,7 +28,6 @@ export const GenerateParticipationURLButton = ({
   const [protocols, setProtocols] = useState<Protocol[]>([]);
 
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (protocolData) {
@@ -61,54 +56,52 @@ export const GenerateParticipationURLButton = ({
           });
         });
     }
-    setDialogOpen(false);
   };
 
-  return (
-    <Dialog open={dialogOpen}>
-      <DialogTrigger asChild onClick={() => setDialogOpen(true)}>
-        <Button size="xs">Generate Participation URL</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Generate Participation URL</DialogTitle>
-          <DialogDescription>
-            Generate a URL that can be shared with a participant to allow them
-            to participate for a selected protocol.
-          </DialogDescription>
-        </DialogHeader>
-        <>
-          <div>
-            <Select
-              onValueChange={(value) => {
-                const protocol = protocols.find(
-                  (protocol) => protocol.id === value,
-                );
+  const ref = useRef<HTMLButtonElement>(null);
 
-                setSelectedProtocol(protocol);
-                handleCopy(
-                  `${getBaseUrl()}/onboard/${protocol?.id}/?participantId=${
-                    participant.id
-                  }`,
-                );
-              }}
-              value={selectedProtocol?.id}
-              disabled={isLoadingProtocols}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a Protocol..." />
-              </SelectTrigger>
-              <SelectContent>
-                {protocols?.map((protocol) => (
-                  <SelectItem key={protocol.id} value={protocol.id}>
-                    {protocol.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      </DialogContent>
-    </Dialog>
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button size="xs" ref={ref}>
+          Generate Participation URL
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="flex flex-col gap-2">
+        <Paragraph variant="smallText">
+          Generate a unique participation URL for this participant. Select a
+          protocol, and the URL will be copied to your clipboard.
+        </Paragraph>
+        <Select
+          onValueChange={(value) => {
+            const protocol = protocols.find(
+              (protocol) => protocol.id === value,
+            );
+
+            setSelectedProtocol(protocol);
+            handleCopy(
+              `${getBaseUrl()}/onboard/${protocol?.id}/?participantId=${
+                participant.id
+              }`,
+            );
+
+            ref.current?.click();
+          }}
+          value={selectedProtocol?.id}
+          disabled={isLoadingProtocols}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a Protocol..." />
+          </SelectTrigger>
+          <SelectContent>
+            {protocols?.map((protocol) => (
+              <SelectItem key={protocol.id} value={protocol.id}>
+                {protocol.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </PopoverContent>
+    </Popover>
   );
 };

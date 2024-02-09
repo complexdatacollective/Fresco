@@ -10,6 +10,8 @@ import usePortal from 'react-useportal';
 import { cn } from '~/utils/shadcn';
 import JobCard from '~/components/ProtocolImport/JobCard';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+import { ProtocolIcon } from './SummaryStatistics/Icons';
+import Image from 'next/image';
 
 function ProtocolUploader({
   handleProtocolUploaded,
@@ -56,7 +58,14 @@ function ProtocolUploader({
         {isActive ? (
           <Loader2 className="mr-2 inline-block h-4 w-4 animate-spin" />
         ) : (
-          <FileUp className="mr-2 inline-block h-4 w-4" />
+          // <FileUp className="mr-2 inline-block h-4 w-4" />
+          <Image
+            src="/images/protocol-icon.png"
+            alt="file-up"
+            width={30}
+            height={20}
+            className="mr-2 inline-block"
+          />
         )}
         <input {...getInputProps()} />
         Import protocols
