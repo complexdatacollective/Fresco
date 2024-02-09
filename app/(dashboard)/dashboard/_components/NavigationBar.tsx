@@ -65,14 +65,14 @@ export function NavigationBar() {
           isActive={pathname === '/dashboard/protocols'}
         />
         <NavButton
-          label="Interviews"
-          href="/dashboard/interviews"
-          isActive={pathname === '/dashboard/interviews'}
-        />
-        <NavButton
           label="Participants"
           href="/dashboard/participants"
           isActive={pathname === '/dashboard/participants'}
+        />
+        <NavButton
+          label="Interviews"
+          href="/dashboard/interviews"
+          isActive={pathname === '/dashboard/interviews'}
         />
         <NavButton
           label="Settings"
