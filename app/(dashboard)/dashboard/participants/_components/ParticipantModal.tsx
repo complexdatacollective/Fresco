@@ -57,18 +57,32 @@ function ParticipantModal({
 
   const { mutateAsync: updateParticipant } = api.participant.update.useMutation(
     {
-      onMutate() {
-        setIsLoading(true);
+      async onMutate({ identifier, newIdentifier }) {
+        await utils.participant.get.all.cancel();
+
+        // snapshot current participants
+        const previousValue = utils.participant.get.all.getData();
+
+        // Optimistically update to the new value
+        const newValue = previousValue?.map((p) =>
+          p.identifier === identifier ? { ...p, identifier: newIdentifier } : p,
+        );
+
+        utils.participant.get.all.setData(undefined, newValue);
+
+        setOpen(false);
+
+        return { previousValue };
       },
-      async onSuccess() {
-        void clientRevalidateTag('participant.get.all');
-        await utils.participant.get.invalidate();
+      onSuccess() {
+        router.refresh();
       },
-      onError(error) {
+      onError(error, identifiers, context) {
+        utils.participant.get.all.setData(undefined, context?.previousValue);
         setError(error.message);
       },
-      onSettled() {
-        setIsLoading(false);
+      async onSettled() {
+        await utils.participant.get.all.invalidate();
       },
     },
   );
@@ -111,9 +125,7 @@ function ParticipantModal({
         await utils.participant.get.all.invalidate();
       },
       onSuccess() {
-        console.log('refreshing router...');
         router.refresh();
-        setIsLoading(false);
       },
     },
   );
