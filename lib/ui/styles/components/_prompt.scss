@@ -22,21 +22,31 @@ $module-name: prompt;
   }
 
   &--isSpeaking {
-
     .#{$module-name}__text {
       transition: background-size var(--local-underline-duration) linear;
-      background-size: 0 0.1em, 100% 0.1em;
+      background-size:
+        0 0.1em,
+        100% 0.1em;
     }
   }
 
   &__text {
-    display:inline;
-    background:
-      linear-gradient(to right, transparent, transparent),
+    display: inline;
+    background: linear-gradient(to right, transparent, transparent),
       linear-gradient(to right, var(--local-text), var(--local-text));
-    background-size: 100% 0.1em, 0 0.1em;
-    background-position: 100% 100%, 0 100%;
+    background-size:
+      100% 0.1em,
+      0 0.1em;
+    background-position:
+      100% 100%,
+      0 100%;
     background-repeat: no-repeat;
     transition: background-size 0 linear;
+  }
+}
+
+@media screen and (max-width: 1275px) {
+  .#{$module-name} {
+    font-size: 1.4rem;
   }
 }
