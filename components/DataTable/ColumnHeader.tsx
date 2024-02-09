@@ -56,7 +56,7 @@ export function DataTableColumnHeader<TData, TValue>({
             <ArrowDown className="mr-2 h-3.5 w-3.5 text-foreground/70" />
             Desc
           </DropdownMenuItem>
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             aria-label="Hide column"
             onClick={() => column.toggleVisibility(false)}
           >
@@ -65,7 +65,7 @@ export function DataTableColumnHeader<TData, TValue>({
               aria-hidden="true"
             />
             Hide
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

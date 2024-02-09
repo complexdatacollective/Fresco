@@ -115,7 +115,7 @@ export function DataTableToolbar<TData>({
             </div>
           </Link>
         ) : null}
-        <DataTableViewOptions table={table} />
+        {/* <DataTableViewOptions table={table} /> */}
       </div>
     </div>
   );

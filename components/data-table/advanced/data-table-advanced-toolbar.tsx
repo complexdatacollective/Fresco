@@ -104,7 +104,7 @@ export function DataTableAdvancedToolbar<TData>({
               setSelectedOptions={setSelectedOptions}
             />
           )}
-          <DataTableViewOptions table={dataTable} />
+          {/* <DataTableViewOptions table={dataTable} /> */}
         </div>
       </div>
       {open ? (

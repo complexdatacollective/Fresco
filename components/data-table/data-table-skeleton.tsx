@@ -13,7 +13,7 @@ type DataTableSkeletonProps = {
   rowCount?: number;
   searchableColumnCount?: number;
   filterableColumnCount?: number;
-}
+};
 
 export function DataTableSkeleton({
   columnCount,
@@ -36,7 +36,7 @@ export function DataTableSkeleton({
               ))
             : null}
         </div>
-        <Skeleton className="ml-auto hidden h-7 w-[70px] lg:flex" />
+        {/* <Skeleton className="ml-auto hidden h-7 w-[70px] lg:flex" /> */}
       </div>
       <div className="rounded-md border">
         <Table>
@@ -77,10 +77,10 @@ export function DataTableSkeleton({
             <Skeleton className="h-8 w-20" />
           </div>
           <div className="flex items-center space-x-2">
-            <Skeleton className="size-8 hidden lg:block" />
+            <Skeleton className="hidden size-8 lg:block" />
             <Skeleton className="size-8" />
             <Skeleton className="size-8" />
-            <Skeleton className="size-8 hidden lg:block" />
+            <Skeleton className="hidden size-8 lg:block" />
           </div>
         </div>
       </div>
