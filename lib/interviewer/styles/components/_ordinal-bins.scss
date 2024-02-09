@@ -7,7 +7,6 @@
 
   .scrollable {
     @include scrollable;
-
   }
 
   &--title {
@@ -21,7 +20,6 @@
 
     h3 {
       margin: 0;
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
@@ -29,6 +27,11 @@
       min-width: 0;
     }
 
+    @media screen and (max-width: 1275px) {
+      h3 {
+        font-size: 0.7rem;
+      }
+    }
   }
 
   &--content {
@@ -51,8 +54,13 @@
     }
 
     .node {
-      font-size: calc(var(--base-node-size) * .66);
+      font-size: calc(var(--base-node-size) * 0.66);
     }
 
+    @media screen and (max-width: 1275px) {
+      .node {
+        font-size: calc(var(--base-node-size) * 0.56);
+      }
+    }
   }
 }
