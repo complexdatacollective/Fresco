@@ -24,7 +24,7 @@ import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 
 // Utility helper for adding artificial delay to async functions
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useProtocolImport = (onImportComplete?: () => void) => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
@@ -112,7 +112,7 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
               ),
               additionalContent: (
                 <ErrorDetails errorText={resultAsString}>
-                  <ul className="text-white max-w-md list-inside space-y-2">
+                  <ul className="max-w-md list-inside space-y-2 text-rich-black">
                     {[
                       ...validationResult.schemaErrors,
                       ...validationResult.logicErrors,
