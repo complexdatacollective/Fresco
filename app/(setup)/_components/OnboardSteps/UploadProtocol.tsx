@@ -13,22 +13,18 @@ function ConfigureStudy() {
   };
 
   return (
-    <div className="max-w-[30rem]">
-      <div className="mb-4 flex flex-col">
-        <Heading>Upload a Protocol</Heading>
+    <div className="flex max-w-[30rem] flex-col items-stretch justify-between">
+      <div className="flex flex-col">
+        <Heading variant="h2">Upload a Protocol</Heading>
         <Paragraph>
           Upload a Network Canvas protocol file (<code>.netcanvas</code>). You
           can upload more protocol files later from the dashboard. You can also
           skip this step to upload a protocol later.
         </Paragraph>
       </div>
-      <div>
-        <div className="mb-4">
-          <ProtocolUploader handleProtocolUploaded={() => handleNextStep()} />
-        </div>
-        <div className="flex justify-start">
-          <Button onClick={handleNextStep}>Skip</Button>
-        </div>
+      <div className="flex justify-between gap-4">
+        <ProtocolUploader handleProtocolUploaded={() => handleNextStep()} />
+        <Button onClick={handleNextStep}>Skip</Button>
       </div>
     </div>
   );

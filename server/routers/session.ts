@@ -9,7 +9,7 @@ import { prisma } from '~/utils/db';
 import {
   userCreateFormSchema,
   userSignInFormSchema,
-} from '~/app/(setup)/_shared';
+} from '~/app/(setup)/_components/schemas';
 
 type Context = inferAsyncReturnType<typeof createTRPCContext>;
 

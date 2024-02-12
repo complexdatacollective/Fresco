@@ -8,24 +8,25 @@ import { useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import SettingsSection from '~/components/layout/SettingsSection';
 
-const SettingsSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) => (
-  <div className="flex items-center justify-between rounded-md border border-muted p-4">
-    <div>
-      <Heading variant="h3">{title}</Heading>
-      <Paragraph>{description}</Paragraph>
-    </div>
-    {children}
-  </div>
-);
+// const SettingsSection = ({
+//   title,
+//   description,
+//   children,
+// }: {
+//   title: string;
+//   description: string;
+//   children: React.ReactNode;
+// }) => (
+//   <div className="flex items-center justify-between rounded-md border border-muted p-4">
+//     <div>
+//       <Heading variant="h4-all-caps">{title}</Heading>
+//       <Paragraph>{description}</Paragraph>
+//     </div>
+//     {children}
+//   </div>
+// );
 
 function ManageParticipants() {
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
@@ -42,7 +43,7 @@ function ManageParticipants() {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-6">
-        <Heading variant="h1">Configure Participation</Heading>
+        <Heading variant="h2">Configure Participation</Heading>
         <Paragraph>
           You can now optionally upload a CSV file containing the details of
           participants you wish to recruit for your study. You can also choose
@@ -52,19 +53,25 @@ function ManageParticipants() {
       </div>
       <div className="mb-6 flex flex-col gap-2">
         <SettingsSection
-          title="Import Participants"
-          description="Upload a CSV file of participants."
+          heading="Import Participants"
+          controlArea={
+            <>
+              {participantsUploaded && <Check />}
+              {!participantsUploaded && (
+                <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
+              )}
+            </>
+          }
         >
-          {participantsUploaded && <Check />}
-          {!participantsUploaded && (
-            <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
-          )}
+          <Paragraph>Upload a CSV file of participants.</Paragraph>
         </SettingsSection>
         <SettingsSection
-          title="Anonymous Recruitment"
-          description="Allow participants to join your study by visiting a URL."
+          heading="Anonymous Recruitment"
+          controlArea={<RecruitmentSwitch />}
         >
-          <RecruitmentSwitch />
+          <Paragraph>
+            Allow participants to join your study by visiting a URL.
+          </Paragraph>
         </SettingsSection>
       </div>
       <div className="flex justify-start">

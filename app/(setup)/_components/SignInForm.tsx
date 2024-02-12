@@ -2,7 +2,7 @@
 
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { userSignInFormSchema } from '../_shared';
+import { userSignInFormSchema } from './schemas';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { api } from '~/trpc/client';

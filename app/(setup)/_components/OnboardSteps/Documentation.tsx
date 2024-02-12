@@ -17,7 +17,7 @@ function Documentation() {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4">
-        <Heading variant="h1">Documentation</Heading>
+        <Heading variant="h2">Documentation</Heading>
         <Paragraph>
           This is the end of the onboarding process. You are now ready to use
           Fresco! For further help and information, consider using the resources
