@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import type { ReactNode } from 'react';
 
 export const StepLoadingState = () => (
   <motion.div
@@ -12,15 +11,3 @@ export const StepLoadingState = () => (
     <Loader2 className="h-8 w-8 animate-spin" />
   </motion.div>
 );
-
-export const StepMotionWrapper = ({ children }: { children: ReactNode }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      {children}
-    </motion.div>
-  );
-};

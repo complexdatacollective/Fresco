@@ -3,21 +3,16 @@
 import { Button } from '~/components/ui/Button';
 import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
-import { userCreateFormSchema } from '../_shared';
-import { Loader2 } from 'lucide-react';
+import { userCreateFormSchema } from './schemas';
+import { Loader2, XCircle } from 'lucide-react';
 import { api } from '~/trpc/client';
-import { useState } from 'react';
-import ActionError from '../../../components/ActionError';
 import { type z } from 'zod';
+import { useToast } from '~/components/ui/use-toast';
+import { useSession } from '~/providers/SessionProvider';
+import { useOnboardingContext } from './OnboardingProvider';
+import { useEffect } from 'react';
 
-export const SignUpForm = ({
-  completeCallback,
-}: {
-  completeCallback?: () => void;
-}) => {
-  const [signupError, setSignupError] = useState<string | null>(null);
-  const utils = api.useUtils();
-
+export const SignUpForm = () => {
   const {
     register,
     handleSubmit,
@@ -27,27 +22,34 @@ export const SignUpForm = ({
     mode: 'all',
   });
 
+  const { toast } = useToast();
+  const { session } = useSession();
+
   const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
-    onSuccess: async (result) => {
+    onSuccess: (result) => {
       if (result.error) {
         const error = result.error;
-        setSignupError(error);
+        toast({
+          title: 'Error',
+          description: error,
+          icon: <XCircle />,
+          variant: 'destructive',
+        });
         return;
       }
 
-      if (result.user) {
-        // We got a user, so the auth cookie was set. Trigger a refresh of the
-        // session provider. This is so that the OnboardWizard can redirect to
-        // the next step.
-        await utils.session.get.refetch();
-
-        completeCallback?.();
-      }
+      void setCurrentStep(2);
     },
   });
+  const { currentStep, setCurrentStep } = useOnboardingContext();
+  // If we are logged in, skip this step.
+  useEffect(() => {
+    if (session) {
+      void setCurrentStep(2);
+    }
+  }, [session, setCurrentStep, currentStep]);
 
   const onSubmit = async (data: z.infer<typeof userCreateFormSchema>) => {
-    setSignupError(null);
     await signUp(data);
   };
 
@@ -57,14 +59,6 @@ export const SignUpForm = ({
       onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       autoComplete="do-not-autofill"
     >
-      {signupError && (
-        <div className="mb-6 flex flex-wrap">
-          <ActionError
-            errorTitle="There was a problem creating your account"
-            errorDescription={signupError}
-          />
-        </div>
-      )}
       <div className="mb-6 flex flex-wrap">
         <Input
           label="Username"

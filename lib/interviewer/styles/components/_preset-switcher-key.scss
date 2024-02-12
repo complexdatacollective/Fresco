@@ -6,7 +6,7 @@
   right: 0;
   margin-right: 6.1rem; // distance of preset-switcher from right side
   max-height: 85%;
-  color: #fff;
+  color: var(--nc-text);
 
   &__content {
     background-color: var(--nc-light-background);

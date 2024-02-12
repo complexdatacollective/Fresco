@@ -1,5 +1,5 @@
 import { env } from '~/env.mjs';
-import { containerClasses } from '../_shared';
+import { containerClasses } from '../_components/schemas';
 import { resetAppSettings } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
 

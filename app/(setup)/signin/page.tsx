@@ -1,4 +1,4 @@
-import { containerClasses } from '../_shared';
+import { containerClasses } from '../_components/schemas';
 import SignInForm from '../_components/SignInForm';
 import { cn } from '~/utils/shadcn';
 
