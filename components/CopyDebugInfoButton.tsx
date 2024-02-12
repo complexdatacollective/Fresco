@@ -2,7 +2,7 @@
 
 import { cn } from '~/utils/shadcn';
 import { useToast } from './ui/use-toast';
-import { ClipboardCopy } from 'lucide-react';
+import { Check, ClipboardCopy } from 'lucide-react';
 import { Button } from './ui/Button';
 
 export default function CopyDebugInfoButton({
@@ -21,10 +21,10 @@ export default function CopyDebugInfoButton({
 
     if (showToast) {
       toast({
+        icon: <Check />,
         title: 'Success',
         description: 'Debug information copied to clipboard',
         variant: 'success',
-        duration: 3000,
       });
     }
   };
@@ -32,15 +32,16 @@ export default function CopyDebugInfoButton({
   return (
     <Button
       onClick={copyDebugInfoToClipboard}
-      // variant="ghost"
       className={cn(
-        'bg-transparent h-auto w-auto rounded-md border border-platinum-dark p-1 text-primary/70 transition-all',
-        'hover:bg-transparent hover:text-primary/100',
+        // 'h-auto w-auto rounded-md border border-platinum-dark bg-transparent p-1 text-primary/70 transition-all',
+        // 'hover:bg-transparent hover:text-primary/100',
         className,
       )}
       title="Copy to clipboard"
+      variant="ghost"
     >
-      <ClipboardCopy className="h-4 w-4" />
+      <ClipboardCopy className="mr-2 h-4 w-4" />
+      Copy Debug Info
     </Button>
   );
 }

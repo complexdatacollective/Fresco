@@ -21,7 +21,7 @@ export const ErrorDetails = ({
     <Collapsible
       open={showStackTrace}
       onOpenChange={setShowStackTrace}
-      className="mx-auto w-[450px] space-y-2"
+      className="flex flex-1 flex-col space-y-2"
     >
       <CollapsibleTrigger className="flex items-center">
         <Heading variant="h4-all-caps">
@@ -33,12 +33,9 @@ export const ErrorDetails = ({
           <ChevronDown className="h-4 w-4" />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="relative max-h-52 overflow-y-auto rounded-lg bg-background px-6 py-3 text-sm">
-        <CopyDebugInfoButton
-          debugInfo={errorText}
-          className="sticky left-full top-2"
-        />
+      <CollapsibleContent className="relative max-h-52 flex-1 overflow-y-auto rounded-lg bg-background px-6 py-3 text-sm [&_pre]:inline-block [&_pre]:whitespace-pre-wrap">
         {children}
+        <CopyDebugInfoButton debugInfo={errorText} className="mt-4 p-0" />
       </CollapsibleContent>
     </Collapsible>
   );

@@ -4,7 +4,6 @@ import { getServerSession } from '~/utils/auth';
 
 const f = createUploadthing();
 
-// FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   assetRouter: f({
     blob: { maxFileSize: '256MB', maxFileCount: 50 },

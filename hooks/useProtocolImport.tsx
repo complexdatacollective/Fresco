@@ -112,7 +112,7 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
               ),
               additionalContent: (
                 <ErrorDetails errorText={resultAsString}>
-                  <ul className="max-w-md list-inside space-y-2 text-rich-black">
+                  <ul className="max-w-md list-inside space-y-2">
                     {[
                       ...validationResult.schemaErrors,
                       ...validationResult.logicErrors,
@@ -188,9 +188,10 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
 
         const currentBytesUploaded: Record<string, number> = {};
 
-        const uploadedFiles = await uploadFiles({
-          files: assets.map((asset) => asset.file),
-          endpoint: 'assetRouter',
+        const files = assets.map((asset) => asset.file);
+
+        const uploadedFiles = await uploadFiles('assetRouter', {
+          files,
           onUploadProgress({ progress, file }) {
             const thisFileSize = assets.find((asset) => asset.name === file)!
               .file.size; // eg. 1000
