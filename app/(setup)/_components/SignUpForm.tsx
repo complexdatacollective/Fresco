@@ -26,7 +26,7 @@ export const SignUpForm = () => {
   const { session } = useSession();
 
   const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
-    onSuccess: async (result) => {
+    onSuccess: (result) => {
       if (result.error) {
         const error = result.error;
         toast({

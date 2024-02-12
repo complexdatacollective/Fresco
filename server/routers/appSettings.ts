@@ -98,8 +98,10 @@ export const appSettingsRouter = router({
       await prisma.participant.deleteMany();
       await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
       await prisma.appSettings.deleteMany();
+      await prisma.events.deleteMany();
 
       revalidateTag('appSettings.get');
+      revalidatePath('/');
 
       // Todo: we need to remove assets from uploadthing before deleting the reference record.
     } catch (error) {

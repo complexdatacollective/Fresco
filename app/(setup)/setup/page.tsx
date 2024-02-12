@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import OnboardSteps from '../_components/Sidebar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { containerClasses } from '../_components/schemas';
-import { useSession } from '~/providers/SessionProvider';
 import React, { useEffect } from 'react';
 import { api } from '~/trpc/client';
 import dynamic from 'next/dynamic';
@@ -42,13 +41,9 @@ const Documentation = dynamic(
 );
 
 function Page() {
-  const { session, isLoading } = useSession();
   const router = useRouter();
 
-  const [currentStep, setCurrentStep] = useQueryState(
-    'step',
-    parseAsInteger.withDefault(1),
-  );
+  const [currentStep] = useQueryState('step', parseAsInteger.withDefault(1));
 
   const { data } = api.appSettings.get.useQuery(undefined, {
     refetchInterval: 1000 * 10,
