@@ -8,14 +8,15 @@ import {
 } from '~/shared/schemas/schemas';
 import { z } from 'zod';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { getQueryKey } from '@trpc/react-query';
-import { api } from '~/trpc/server';
 
 export const participantRouter = router({
   get: router({
     all: publicProcedure.query(async () => {
       const participants = await prisma.participant.findMany({
-        include: { interviews: true, _count: { select: { interviews: true } } },
+        include: {
+          interviews: true,
+          _count: { select: { interviews: true } },
+        },
       });
       return participants;
     }),

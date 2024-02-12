@@ -3,13 +3,12 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-
-import { Button } from '~/components/ui/Button';
-import Link from 'next/link';
 import { Progress } from '~/components/ui/progress';
 import type { Stage } from '@codaco/shared-consts';
 import { Badge } from '~/components/ui/badge';
 import type { RouterOutputs } from '~/trpc/shared';
+import TimeAgo from '~/components/ui/TimeAgo';
+import Image from 'next/image';
 
 type Interviews = RouterOutputs['interview']['get']['all'][0];
 
@@ -33,12 +32,12 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
     enableSorting: false,
     enableHiding: false,
   },
-  {
-    accessorKey: 'id',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Interview ID" />;
-    },
-  },
+  // {
+  //   accessorKey: 'id',
+  //   header: ({ column }) => {
+  //     return <DataTableColumnHeader column={column} title="Interview ID" />;
+  //   },
+  // },
   // {
   //   accessorKey: 'startTime',
   //   header: 'Start Time',
@@ -60,22 +59,52 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
   //   },
   // },
   {
-    accessorKey: 'exportTime',
-    header: 'Export Status',
+    id: 'identifier',
+    accessorKey: 'participant.identifier',
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader column={column} title="Participant Identifier" />
+      );
+    },
     cell: ({ row }) => {
-      // exportTime is optional
-      if (!row.original.exportTime) {
-        return (
-          <Badge
-            variant={'destructive'}
-            className="text-center text-xs uppercase"
-          >
-            Not yet exported
-          </Badge>
-        );
-      }
-
-      return <Badge className="text-center text-xs uppercase">Exported</Badge>;
+      return (
+        <div
+          className="flex items-center gap-2"
+          title={row.original.participant.identifier}
+        >
+          <Image
+            src="/images/participant.svg"
+            alt="Protocol icon"
+            width={32}
+            height={24}
+          />
+          <span className="truncate">
+            {row.original.participant.identifier}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'protocol.name',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Protocol Name" />;
+    },
+    cell: ({ row }) => {
+      return (
+        <div
+          className="flex items-center gap-2"
+          title={row.original.protocol.name}
+        >
+          <Image
+            src="/images/protocol-icon.png"
+            alt="Protocol icon"
+            width={32}
+            height={24}
+          />
+          <span className="truncate">{row.original.protocol.name}</span>
+        </div>
+      );
     },
   },
   {
@@ -85,53 +114,41 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return date.toLocaleString();
+      return <TimeAgo date={date} />;
     },
   },
   {
-    accessorKey: 'participant.identifier',
-    header: ({ column }) => {
-      return (
-        <DataTableColumnHeader column={column} title="Participant Identifier" />
-      );
-    },
-  },
-  {
-    accessorKey: 'protocol.name',
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Protocol Name" />;
-    },
-  },
-  {
-    id: 'step',
+    id: 'progress',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Progress" />;
     },
     cell: ({ row }) => {
       const stages = row.original.protocol.stages! as unknown as Stage[];
       const progress = (row.original.currentStep / stages.length) * 100;
-      return <Progress value={progress} />;
+      return (
+        <div className="flex whitespace-nowrap">
+          <Progress value={progress} className="w-24" />
+          <div className="ml-2 text-center text-xs">{progress.toFixed(0)}%</div>
+        </div>
+      );
     },
   },
   {
-    id: 'resume',
-    enableSorting: false,
-    enableHiding: false,
-    header: () => {
-      return (
-        <Button variant="ghost" size="sm" className="h-8">
-          <span>Resume</span>
-        </Button>
-      );
-    },
+    accessorKey: 'exportTime',
+    header: 'Export Status',
     cell: ({ row }) => {
-      return (
-        <Link href={`/interview/${row.original.id}`}>
-          <Button variant="secondary" className="h-8">
-            <span>Resume</span>
-          </Button>
-        </Link>
-      );
+      if (!row.original.exportTime) {
+        return (
+          <Badge
+            variant={'destructive'}
+            className="text-center text-xs uppercase"
+          >
+            Not exported
+          </Badge>
+        );
+      }
+
+      return <TimeAgo date={row.original.exportTime} />;
     },
   },
 ];

@@ -3,7 +3,7 @@
 import { useDropzone } from 'react-dropzone';
 import { Button } from '~/components/ui/Button';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
-import { FileUp, Loader2 } from 'lucide-react';
+import { FileDown, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback } from 'react';
 import usePortal from 'react-useportal';
@@ -56,7 +56,7 @@ function ProtocolUploader({
         {isActive ? (
           <Loader2 className="mr-2 inline-block h-4 w-4 animate-spin" />
         ) : (
-          <FileUp className="mr-2 inline-block h-4 w-4" />
+          <FileDown className="mr-2 inline-block h-4 w-4" />
         )}
         <input {...getInputProps()} />
         Import protocols

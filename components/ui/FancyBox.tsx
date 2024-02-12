@@ -66,9 +66,10 @@ export default function FancyBox<
 
   const triggerLabelText = useMemo(() => {
     if (value.length === 0) return placeholder;
-    if (value.length === 1) return `1 ${singular} Selected`;
     if (value.length === items.length)
       return `All ${plural} Selected (${items.length})`;
+
+    if (value.length === 1) return `1 ${singular} Selected`;
 
     return `${value.length} ${plural} Selected`;
   }, [value, items, placeholder, plural, singular]);

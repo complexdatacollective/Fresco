@@ -1,10 +1,9 @@
 'use client';
 
-import { Badge } from '~/components/ui/badge';
 import { getBaseUrl } from '~/trpc/shared';
 import { useToast } from '~/components/ui/use-toast';
-import { Copy } from 'lucide-react';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import { Check, Copy } from 'lucide-react';
+import { Button } from '~/components/ui/Button';
 
 export const AnonymousRecruitmentURLButton = ({
   protocolId,
@@ -18,9 +17,10 @@ export const AnonymousRecruitmentURLButton = ({
       .writeText(url)
       .then(() => {
         toast({
-          description: 'Copied to clipboard',
+          title: 'Success!',
+          description: 'URL copied to clipboard',
           variant: 'success',
-          duration: 3000,
+          icon: <Check />,
         });
       })
       .catch((error) => {
@@ -35,11 +35,9 @@ export const AnonymousRecruitmentURLButton = ({
   };
 
   return (
-    <Badge onClick={handleCopyClick} className="cursor-pointer">
-      <Paragraph variant="smallText" className="w-36 truncate">
-        {url}
-      </Paragraph>
-      <Copy className="ml-2 h-4 w-4" />
-    </Badge>
+    <Button size="xs" onClick={handleCopyClick} variant="accent">
+      <Copy className="mr-2 h-4 w-4" />
+      <span className="w-36 truncate">{url}</span>
+    </Button>
   );
 };

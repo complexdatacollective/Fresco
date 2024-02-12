@@ -58,7 +58,7 @@ const RecruitmentTestSection = () => {
 
   return (
     <Section>
-      <Heading variant="h4">Recruitment Test Section</Heading>
+      <Heading variant="h4-all-caps">Recruitment Test Section</Heading>
       <Paragraph>This section allows you to test recruitment.</Paragraph>
       <div className="mt-6 flex gap-4">
         <Select
@@ -106,7 +106,7 @@ const RecruitmentTestSection = () => {
           </SelectContent>
         </Select>
       </div>
-      <div className="mt-6">
+      <div className="mt-6 flex gap-2">
         <Button
           disabled={buttonDisabled}
           onClick={() => router.push(getInterviewURL())}

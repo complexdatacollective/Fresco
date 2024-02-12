@@ -16,7 +16,7 @@ export default function SettingsSection({
   return (
     <Section classNames={cn(classNames, 'flex gap-10')}>
       <div className="flex-1">
-        <Heading variant="h4" className="mb-2">
+        <Heading variant="h4-all-caps" className="mb-2">
           {heading}
         </Heading>
         {children}

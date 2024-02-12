@@ -1,5 +1,4 @@
-import type { Interview } from '@prisma/client';
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -11,56 +10,55 @@ import {
 import { useToast } from '~/components/ui/use-toast';
 import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
-import ExportingStateAnimation from './ExportingStateAnimation';
 import { useDownload } from '~/hooks/useDownload';
 import {
   ExportOptionsSchema,
-  type ExportOptions,
+  defaultExportOptions,
 } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import { type RouterOutputs } from '~/trpc/shared';
+import { DialogDescription } from '@radix-ui/react-dialog';
+import { Loader2, XCircle } from 'lucide-react';
+import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
+import Heading from '~/components/ui/typography/Heading';
+import { ensureError } from '~/utils/ensureError';
+import { cn } from '~/utils/shadcn';
+import { cardClasses } from '~/components/ui/card';
 
-type ExportInterviewsDialogProps = {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  interviewsToExport: Interview[];
-  setInterviewsToExport: Dispatch<SetStateAction<Interview[] | undefined>>;
-};
-
-const defaultExportOptions = {
-  exportGraphML: true,
-  exportCSV: true,
-  globalOptions: {
-    exportFilename: `networkCanvasExport-${Date.now()}`,
-    unifyNetworks: false,
-    useScreenLayoutCoordinates: false,
-  },
-};
-
-const setOptionsToLocalStorage = (options: ExportOptions) => {
-  window.localStorage?.setItem('exportOptions', JSON.stringify(options));
-};
-
-const getLocalExportOptions = () => {
-  const localExportOptions =
-    window.localStorage?.getItem('exportOptions') ?? null;
-  const result = ExportOptionsSchema.safeParse(
-    localExportOptions ? JSON.parse(localExportOptions) : null,
+const ExportingStateAnimation = () => {
+  return (
+    <div className="fixed inset-0 z-[99] flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
+      <div
+        className={cn(
+          cardClasses,
+          'flex flex-col items-center justify-center gap-4 p-10',
+        )}
+      >
+        <Loader2 className="h-20 w-20 animate-spin" />
+        <Heading variant="h4">
+          Exporting and zipping files. Please wait...
+        </Heading>
+      </div>
+    </div>
   );
-
-  if (!result.success) return null;
-  return result.data;
 };
 
 export const ExportInterviewsDialog = ({
   open,
-  setOpen,
+  handleCancel,
   interviewsToExport,
-  setInterviewsToExport,
-}: ExportInterviewsDialogProps) => {
+}: {
+  open: boolean;
+  handleCancel: () => void;
+  interviewsToExport: RouterOutputs['interview']['get']['all'];
+}) => {
   const download = useDownload();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
-  const [exportOptions, setExportOptions] = useState<ExportOptions>(
-    getLocalExportOptions() ?? defaultExportOptions,
+
+  const [exportOptions, setExportOptions] = useSafeLocalStorage(
+    'exportOptions',
+    ExportOptionsSchema,
+    defaultExportOptions,
   );
 
   const handleConfirm = async () => {
@@ -70,67 +68,48 @@ export const ExportInterviewsDialog = ({
       const interviewIds = interviewsToExport.map((interview) => interview.id);
 
       const result = await exportSessions(interviewIds, exportOptions);
-      handleCloseDialog();
 
-      if (result.data) {
-        // Download the zip file
-        download(result.data.url, result.data.name);
-        return;
+      if (result.error || !result.data) {
+        const e = ensureError(result.error);
+        throw new Error(e.message);
       }
 
-      throw new Error(result.message);
+      // Download the zip file
+      download(result.data.url, result.data.name);
     } catch (error) {
-      handleCloseDialog();
-      // eslint-disable-next-line no-console
-      console.error('Export failed error:', error);
       toast({
+        icon: <XCircle />,
         title: 'Error',
-        description: 'Failed to export, please try again!',
+        description: 'Failed to export, please try again.',
         variant: 'destructive',
       });
+    } finally {
+      setIsExporting(false);
+      handleCancel(); // Close the dialog
     }
-  };
-
-  const handleCloseDialog = () => {
-    setInterviewsToExport([]);
-    setExportOptions(getLocalExportOptions() ?? defaultExportOptions);
-    setOpen(false);
-    setIsExporting(false);
   };
 
   return (
     <>
-      {/* Loading state animation */}
       {isExporting && <ExportingStateAnimation />}
-
-      <Dialog open={open} onOpenChange={handleCloseDialog}>
-        <DialogContent className="max-h-[95%] max-w-[60%]">
+      <Dialog open={open} onOpenChange={handleCancel}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-center text-xl">
-              Confirm File Export Options
-            </DialogTitle>
+            <DialogTitle>Confirm File Export Options</DialogTitle>
+            <DialogDescription>
+              Before exporting, please confirm the export options that you wish
+              to use. These options are identical to those found in Interviewer.
+            </DialogDescription>
           </DialogHeader>
-
           <ExportOptionsView
             exportOptions={exportOptions}
             setExportOptions={setExportOptions}
-            setOptionsToLocalStorage={setOptionsToLocalStorage}
           />
-
           <DialogFooter>
-            <Button
-              variant={'outline'}
-              size={'sm'}
-              onClick={handleCloseDialog}
-              className="my-1 text-xs uppercase lg:text-[14px]"
-            >
+            <Button onClick={handleCancel} variant="outline">
               Cancel
             </Button>
-            <Button
-              size={'sm'}
-              onClick={() => void handleConfirm()}
-              className="my-1 text-xs uppercase lg:text-[14px]"
-            >
+            <Button onClick={handleConfirm}>
               {isExporting ? 'Exporting...' : 'Start export process'}
             </Button>
           </DialogFooter>

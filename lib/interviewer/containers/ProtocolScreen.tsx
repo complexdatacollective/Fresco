@@ -21,9 +21,12 @@ const ProtocolScreen = () => {
     isReadyForNextStage,
   } = useNavigationHelpers();
 
+  // If current stage is null, we are waiting for the stage to be set
   if (!currentStage) {
     return <div>Waiting for stage to be set...</div>;
   }
+
+  // TODO: If it is undefined, we have landed on an invalid stage. This should have been caught higher up the tree.
 
   return (
     <>

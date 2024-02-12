@@ -1,18 +1,15 @@
 'use client';
 
-import { type Participant } from '@prisma/client';
-import { Download } from 'lucide-react';
+import { Check, FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
+import { api } from '~/trpc/client';
 
-function ExportParticipants({
-  participants,
-}: {
-  participants: Participant[] | undefined;
-}) {
+function ExportParticipants() {
+  const { data: participants, isLoading } = api.participant.get.all.useQuery();
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
@@ -38,9 +35,10 @@ function ExportParticipants({
       // Clean up the URL object
       URL.revokeObjectURL(url);
       toast({
+        title: 'Success',
+        icon: <Check />,
         description: 'Participant CSV exported successfully',
         variant: 'success',
-        duration: 3000,
       });
     } catch (error) {
       toast({
@@ -55,8 +53,12 @@ function ExportParticipants({
   };
 
   return (
-    <Button disabled={isExporting} onClick={handleExport} variant="outline">
-      <Download className="mr-2 h-4 w-4" />
+    <Button
+      disabled={isExporting || isLoading}
+      onClick={handleExport}
+      className="w-full"
+    >
+      <FileUp className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Participant List'}
     </Button>
   );

@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeOff } from 'lucide-react';
 import { type Column } from '@tanstack/react-table';
 
-import { Button } from '~/components/ui/Button';
+import { Button, buttonVariants } from '~/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,15 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return (
-      <div className={cn('text-small font-semibold', className)}>{title}</div>
+      <div
+        className={cn(
+          buttonVariants({ size: 'sm', variant: 'tableHeader' }),
+          'pointer-events-none',
+          className,
+        )}
+      >
+        {title}
+      </div>
     );
   }
 

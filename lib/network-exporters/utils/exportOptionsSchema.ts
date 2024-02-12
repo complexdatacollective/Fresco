@@ -11,3 +11,13 @@ export const ExportOptionsSchema = z.object({
 });
 
 export type ExportOptions = z.infer<typeof ExportOptionsSchema>;
+
+export const defaultExportOptions: ExportOptions = {
+  exportGraphML: true,
+  exportCSV: true,
+  globalOptions: {
+    exportFilename: `networkCanvasExport-${Date.now()}`,
+    unifyNetworks: false,
+    useScreenLayoutCoordinates: false,
+  },
+};

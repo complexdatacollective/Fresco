@@ -1,18 +1,25 @@
 import { type Dispatch, type SetStateAction } from 'react';
+import { cardClasses } from '~/components/ui/card';
 import { Switch } from '~/components/ui/switch';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import { cn } from '~/utils/shadcn';
 
-type ExportOptionsViewProps = {
-  exportOptions: ExportOptions;
-  setExportOptions: Dispatch<SetStateAction<ExportOptions>>;
-  setOptionsToLocalStorage: (options: ExportOptions) => void;
-};
+const sectionClasses = cn(
+  cardClasses,
+  'p-4 flex gap-4',
+  '[&_div]:[flex-basis:fit-content]',
+  '[&_div:nth-child(2)]:flex [&_div:nth-child(2)]:items-center [&_div:nth-child(2)]:justify-center [&_div:nth-child(2)]:p-4',
+);
 
 const ExportOptionsView = ({
   exportOptions,
   setExportOptions,
-  setOptionsToLocalStorage,
-}: ExportOptionsViewProps) => {
+}: {
+  exportOptions: ExportOptions;
+  setExportOptions: Dispatch<SetStateAction<ExportOptions>>;
+}) => {
   const handleGraphMLSwitch = (value: boolean) => {
     // When turning off, if the other format is off, enable it
     if (exportOptions.exportGraphML && !exportOptions.exportCSV) {
@@ -21,7 +28,6 @@ const ExportOptionsView = ({
           ...prevState,
           exportCSV: !exportOptions.exportCSV,
         };
-        setOptionsToLocalStorage(updatedOptions);
         return updatedOptions;
       });
     }
@@ -30,7 +36,6 @@ const ExportOptionsView = ({
         ...prevState,
         exportGraphML: value,
       };
-      setOptionsToLocalStorage(updatedOptions);
       return updatedOptions;
     });
   };
@@ -43,7 +48,6 @@ const ExportOptionsView = ({
           ...prevState,
           exportGraphML: !exportOptions.exportGraphML,
         };
-        setOptionsToLocalStorage(updatedOptions);
         return updatedOptions;
       });
     }
@@ -52,7 +56,6 @@ const ExportOptionsView = ({
         ...prevState,
         exportCSV: value,
       };
-      setOptionsToLocalStorage(updatedOptions);
       return updatedOptions;
     });
   };
@@ -66,7 +69,6 @@ const ExportOptionsView = ({
           unifyNetworks: value,
         },
       };
-      setOptionsToLocalStorage(updatedOptions);
       return updatedOptions;
     });
 
@@ -79,22 +81,19 @@ const ExportOptionsView = ({
           useScreenLayoutCoordinates: value,
         },
       };
-      setOptionsToLocalStorage(updatedOptions);
       return updatedOptions;
     });
 
   return (
-    <div className="max-h-[600px] space-y-2.5 overflow-y-auto pl-1 pr-3 lg:space-y-4">
-      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-        <div className="space-y-0.5">
-          <h2 className="text-base font-semibold lg:text-lg">
-            Export GraphML Files
-          </h2>
-          <p className="w-[90%] text-sm  text-muted-foreground">
+    <div className="flex flex-col gap-4 overflow-y-auto">
+      <div className={sectionClasses}>
+        <div>
+          <Heading variant="h4-all-caps">Export GraphML Files</Heading>
+          <Paragraph variant="smallText">
             GraphML is the main file format used by the Network Canvas software.
             GraphML files can be used to manually import your data into Server,
             and can be opened by many other pieces of network analysis software.
-          </p>
+          </Paragraph>
         </div>
         <div>
           <Switch
@@ -103,19 +102,17 @@ const ExportOptionsView = ({
           />
         </div>
       </div>
-      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-        <div className="space-y-0.5">
-          <h2 className="text-base font-semibold lg:text-lg">
-            Export CSV Files
-          </h2>
-          <p className="w-[90%] text-sm  text-muted-foreground">
+      <div className={sectionClasses}>
+        <div>
+          <Heading variant="h4-all-caps">Export CSV Files</Heading>
+          <Paragraph variant="smallText">
             CSV is a widely used format for storing network data, but this wider
             compatibility comes at the expense of robustness. If you enable this
             format, your networks will be exported as an{' '}
             <strong>attribute list file</strong> for each node type, an{' '}
             <strong>edge list file</strong> for each edge type, and an{' '}
             <strong>ego attribute file</strong> that also contains session data.
-          </p>
+          </Paragraph>
         </div>
         <div>
           <Switch
@@ -124,10 +121,10 @@ const ExportOptionsView = ({
           />
         </div>
       </div>
-      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-        <div className="space-y-0.5">
-          <h2 className="text-base font-semibold lg:text-lg">Merge Sessions</h2>
-          <p className="w-[90%] text-sm  text-muted-foreground">
+      <div className={sectionClasses}>
+        <div>
+          <Heading variant="h4-all-caps">Merge Sessions</Heading>
+          <Paragraph variant="smallText">
             If you enable this option, exporting multiple sessions at the same
             time will cause them to be merged into a single file, on a
             per-protocol basis. In the case of CSV export, you will receive one
@@ -136,7 +133,7 @@ const ExportOptionsView = ({
             <code>&lt;graph&gt;</code> elements. Please note that with the
             exception of Network Canvas Server, most software does not yet
             support multiple graphs in a single GraphML file.
-          </p>
+          </Paragraph>
         </div>
         <div>
           <Switch
@@ -145,17 +142,15 @@ const ExportOptionsView = ({
           />
         </div>
       </div>
-      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-        <div className="space-y-0.5">
-          <h2 className="text-base font-semibold lg:text-lg">
-            Use Screen Layout Coordinates
-          </h2>
-          <p className="w-[90%] text-sm  text-muted-foreground">
+      <div className={sectionClasses}>
+        <div>
+          <Heading variant="h4-all-caps">Use Screen Layout Coordinates</Heading>
+          <Paragraph variant="smallText">
             By default Interviewer exports sociogram node coordinates as
             normalized X/Y values (a number between 0 and 1 for each axis, with
             the origin in the top left). Enabling this option will store
             coordinates as screen space pixel values, with the same origin.
-          </p>
+          </Paragraph>
         </div>
         <div>
           <Switch

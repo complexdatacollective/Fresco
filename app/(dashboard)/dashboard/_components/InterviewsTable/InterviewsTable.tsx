@@ -1,7 +1,6 @@
 'use client';
 
-import { type Interview } from '@prisma/client';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
 import { DataTable } from '~/components/DataTable/DataTable';
@@ -10,6 +9,7 @@ import { api } from '~/trpc/client';
 import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
 import type { RouterOutputs } from '~/trpc/shared';
+import { HardDriveUpload } from 'lucide-react';
 
 type Interviews = RouterOutputs['interview']['get']['all'];
 
@@ -18,7 +18,7 @@ export const InterviewsTable = ({
 }: {
   initialInterviews: Interviews;
 }) => {
-  const interviews = api.interview.get.all.useQuery(undefined, {
+  const { data: interviews } = api.interview.get.all.useQuery(undefined, {
     initialData: initialInterviews,
     refetchOnMount: false,
     onError(error) {
@@ -26,48 +26,42 @@ export const InterviewsTable = ({
     },
   });
 
-  const [selectedInterviews, setSelectedInterviews] = useState<Interview[]>();
+  const [selectedInterviews, setSelectedInterviews] = useState<Interviews>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [unexportedInterviews, setUnexportedInterviews] = useState<Interview[]>(
-    [],
+
+  const unexportedInterviews = useMemo(
+    () => interviews.filter((interview) => !interview.exportTime),
+    [interviews],
   );
 
-  useEffect(() => {
-    if (interviews.data) {
-      setUnexportedInterviews(interviews.data.filter((i) => !i.exportTime));
-    }
-  }, [interviews.data]);
-
-  const handleDelete = (data: Interview[]) => {
+  const handleDelete = (data: Interviews) => {
     setSelectedInterviews(data);
     setShowDeleteModal(true);
   };
 
-  const handleExport = (data: Interview[]) => {
-    setSelectedInterviews(data);
+  const handleExportUnexported = () => {
+    setSelectedInterviews(unexportedInterviews);
     setShowExportModal(true);
   };
 
-  if (!interviews.data) {
-    return <div>Loading...</div>;
-  }
+  const handleExportAll = () => {
+    setSelectedInterviews(interviews);
+    setShowExportModal(true);
+  };
 
-  const convertedData = interviews.data.map((interview) => ({
-    ...interview,
-    startTime: new Date(interview.startTime),
-    finishTime: interview.finishTime ? new Date(interview.finishTime) : null,
-    exportTime: interview.exportTime ? new Date(interview.exportTime) : null,
-    lastUpdated: new Date(interview.lastUpdated),
-  }));
+  const handleResetExport = () => {
+    setSelectedInterviews([]);
+    setShowExportModal(false);
+  };
 
   return (
     <>
       <ExportInterviewsDialog
+        key={selectedInterviews?.toString()}
         open={showExportModal}
-        setOpen={setShowExportModal}
-        setInterviewsToExport={setSelectedInterviews}
-        interviewsToExport={selectedInterviews ?? []}
+        handleCancel={handleResetExport}
+        interviewsToExport={selectedInterviews!}
       />
       <DeleteInterviewsDialog
         open={showDeleteModal}
@@ -76,21 +70,25 @@ export const InterviewsTable = ({
       />
       <DataTable
         columns={InterviewColumns()}
-        data={convertedData}
-        filterColumnAccessorKey="id"
+        data={interviews}
+        filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDelete}
-        handleExportSelected={handleExport}
+        handleExportSelected={(selected) => {
+          setSelectedInterviews(selected);
+          setShowExportModal(true);
+        }}
         actions={ActionsDropdown}
         headerItems={
           <>
-            <Button onClick={() => handleExport(interviews.data)}>
+            <Button onClick={handleExportAll}>
+              <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
               Export all interviews
             </Button>
             <Button
-              variant={'outline'}
               disabled={unexportedInterviews.length === 0}
-              onClick={() => handleExport(unexportedInterviews)}
+              onClick={handleExportUnexported}
             >
+              <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
               Export all unexported interviews
             </Button>
           </>

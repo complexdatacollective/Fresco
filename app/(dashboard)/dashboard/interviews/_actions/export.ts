@@ -35,7 +35,7 @@ type SuccessResult = {
 
 export const exportSessions = async (
   interviewIds: Interview['id'][],
-  exportOptions?: ExportOptions,
+  exportOptions: ExportOptions,
 ) => {
   try {
     const session = await getServerSession();

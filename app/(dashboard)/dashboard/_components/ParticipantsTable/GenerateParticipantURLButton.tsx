@@ -17,6 +17,7 @@ import { useToast } from '~/components/ui/use-toast';
 import { Popover, PopoverContent } from '~/components/ui/popover';
 import { PopoverTrigger } from '@radix-ui/react-popover';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { Check, Copy } from 'lucide-react';
 
 export const GenerateParticipationURLButton = ({
   participant,
@@ -43,9 +44,10 @@ export const GenerateParticipationURLButton = ({
         .writeText(url)
         .then(() => {
           toast({
-            description: 'Copied to clipboard',
+            title: 'Success!',
+            icon: <Check />,
+            description: 'Participation URL copied to clipboard',
             variant: 'success',
-            duration: 3000,
           });
         })
         .catch(() => {
@@ -63,14 +65,14 @@ export const GenerateParticipationURLButton = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="xs" ref={ref}>
-          Generate Participation URL
+        <Button size="xs" ref={ref} variant="accent">
+          <Copy className="mr-2 h-4 w-4" />
+          Copy participation URL
         </Button>
       </PopoverTrigger>
       <PopoverContent className="flex flex-col gap-2">
         <Paragraph variant="smallText">
-          Generate a unique participation URL for this participant. Select a
-          protocol, and the URL will be copied to your clipboard.
+          Select a protocol, and the URL will be copied to your clipboard.
         </Paragraph>
         <Select
           onValueChange={(value) => {

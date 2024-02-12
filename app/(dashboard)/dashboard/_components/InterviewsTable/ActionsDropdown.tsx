@@ -13,6 +13,7 @@ import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
 import { DeleteInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_components/DeleteInterviewsDialog';
 import type { Interview } from '@prisma/client';
+import Link from 'next/link';
 
 export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -42,6 +43,9 @@ export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
           <DropdownMenuItem onClick={() => handleDelete(row.original)}>
             Delete
           </DropdownMenuItem>
+          <Link href={`/interview/${row.original.id}`}>
+            <DropdownMenuItem>Enter Interview</DropdownMenuItem>
+          </Link>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

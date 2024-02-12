@@ -7,7 +7,7 @@ import { cn } from '~/utils/shadcn';
 const paragraphVariants = cva('text-foreground text-pretty font-medium', {
   variants: {
     variant: {
-      default: '[&:not(:first-child)]:mt-6',
+      default: '[&:not(:first-child)]:mt-4',
       blockquote: 'mt-6 border-l-2 pl-6 italic',
       inlineCode:
         'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',

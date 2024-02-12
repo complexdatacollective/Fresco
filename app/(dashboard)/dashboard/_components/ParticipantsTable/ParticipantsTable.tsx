@@ -15,6 +15,9 @@ import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/components/ui/Button';
+import { Trash } from 'lucide-react';
+import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
+import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/ExportParticipantUrlSection';
 
 export const ParticipantsTable = ({
   initialData,
@@ -173,10 +176,12 @@ export const ParticipantsTable = ({
         actions={ActionsDropdown}
         headerItems={
           <>
-            <AddParticipantButton existingParticipants={participants} />
-            <ImportCSVModal />
-            <ExportParticipants participants={participants} />
+            <div className="flex flex-1 justify-start gap-2">
+              <AddParticipantButton existingParticipants={participants} />
+              <GenerateParticipantURLs />
+            </div>
             <Button variant="destructive" onClick={handleDeleteAll}>
+              <Trash className="mr-2 inline-block h-4 w-4" />
               Delete All
             </Button>
           </>

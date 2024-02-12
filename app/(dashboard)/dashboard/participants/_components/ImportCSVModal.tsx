@@ -17,7 +17,7 @@ import { Form } from '~/components/ui/form';
 import useZodForm from '~/hooks/useZodForm';
 import { z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
-import { Loader2 } from 'lucide-react';
+import { FileDown, Loader2 } from 'lucide-react';
 import { ColumnSelectField } from './ColumnSelectField';
 
 const formSchema = z.object({
@@ -147,7 +147,10 @@ const ImportCSVModal = ({
     <>
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
         <DialogTrigger asChild>
-          <Button variant="outline">Import participants</Button>
+          <Button className="w-full">
+            <FileDown className="mr-2 h-4 w-4" />
+            Import participants
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
