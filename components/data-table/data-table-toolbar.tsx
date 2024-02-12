@@ -6,7 +6,6 @@ import type { Table } from '@tanstack/react-table';
 import { Button, buttonVariants } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { DataTableFacetedFilter } from '~/components/data-table/data-table-faceted-filter';
-import { DataTableViewOptions } from '~/components/data-table/data-table-view-options';
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,

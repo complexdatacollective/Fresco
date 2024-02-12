@@ -2,13 +2,11 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { getParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
-import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
 import { useCallback, useMemo, useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
-import ExportParticipants from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants/ExportParticipants';
 import { api } from '~/trpc/client';
 import { type RouterOutputs } from '~/trpc/shared';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
@@ -16,7 +14,6 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/components/ui/Button';
 import { Trash } from 'lucide-react';
-import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/ExportParticipantUrlSection';
 
 export const ParticipantsTable = ({

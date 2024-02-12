@@ -75,7 +75,10 @@ export const useNavigationHelpers = () => {
   const calculatePreviousStage = useCallback(() => {
     const previousStage = Object.keys(skipMap)
       .reverse()
-      .find((stage) => parseInt(stage) < currentStage && skipMap[parseInt(stage)] === false);
+      .find(
+        (stage) =>
+          parseInt(stage) < currentStage && skipMap[parseInt(stage)] === false,
+      );
 
     if (!previousStage) {
       return currentStage;
@@ -132,14 +135,14 @@ export const useNavigationHelpers = () => {
     );
   };
 
+  const resetBeforeNext = () => {
+    beforeNextFunction.current = null;
+  };
+
   // Check the stage changes, reset the beforeNextFunction
   useEffect(() => {
-    if (beforeNextFunction.current === null) {
-      return;
-    }
-
-    beforeNextFunction.current = null;
-  }, [currentStage, () => beforeNextFunction.current]);
+    resetBeforeNext();
+  }, [currentStage]);
 
   // Check if the current stage is valid for us to be on.
   useEffect(() => {

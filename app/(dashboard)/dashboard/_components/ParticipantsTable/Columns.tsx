@@ -5,7 +5,6 @@ import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import { type ParticipantWithInterviews } from '~/shared/types';
 import Image from 'next/image';
 import InfoTooltip from '~/components/InfoTooltip';
-import { Button } from '~/lib/ui/components';
 import { InfoIcon } from 'lucide-react';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';

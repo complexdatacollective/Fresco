@@ -7,7 +7,7 @@ import type { ProtocolWithInterviews } from '~/shared/types';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import TimeAgo from '~/components/ui/TimeAgo';
 import Image from 'next/image';
-import { Button, buttonVariants } from '~/components/ui/Button';
+import { buttonVariants } from '~/components/ui/Button';
 import InfoTooltip from '~/components/InfoTooltip';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import Heading from '~/components/ui/typography/Heading';

@@ -11,8 +11,6 @@ import {
 
 import { api } from '~/trpc/client';
 import ExportCSVParticipantURLs from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants/ExportCSVParticipantURLs';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import SettingsSection from '~/components/layout/SettingsSection';
 import { Skeleton } from '~/components/ui/skeleton';
 import FancyBox from '~/components/ui/FancyBox';
 import { type RouterOutputs } from '~/trpc/shared';
@@ -73,7 +71,7 @@ export const GenerateParticipantURLs = () => {
           </DialogHeader>
           <div className="flex w-72 flex-col items-center justify-end gap-4">
             {isLoadingProtocols || !protocols ? (
-              <Skeleton className="rounded-input h-10 w-full" />
+              <Skeleton className="h-10 w-full rounded-input" />
             ) : (
               <Select
                 onValueChange={(value) => {
@@ -99,7 +97,7 @@ export const GenerateParticipantURLs = () => {
               </Select>
             )}
             {isLoadingParticipants || !participants ? (
-              <Skeleton className="rounded-input h-10 w-full " />
+              <Skeleton className="h-10 w-full rounded-input " />
             ) : (
               <FancyBox
                 items={participants.map((participant) => ({

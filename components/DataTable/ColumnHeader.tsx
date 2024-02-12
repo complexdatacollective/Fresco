@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ArrowUpDown, EyeOff } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { type Column } from '@tanstack/react-table';
 
 import { Button, buttonVariants } from '~/components/ui/Button';
