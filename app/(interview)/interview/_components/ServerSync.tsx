@@ -3,6 +3,7 @@
 import { isEqual } from 'lodash';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useDebounceCallback } from 'usehooks-ts';
 import usePrevious from '~/hooks/usePrevious';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
@@ -20,7 +21,22 @@ const ServerSync = ({
   // Current stage
   const currentSession = useSelector(getActiveSession);
   const prevCurrentSession = usePrevious(currentSession);
-  const { mutate: syncSessionWithServer } = api.interview.sync.useMutation();
+  const { mutate: syncSessionWithServer } = api.interview.sync.useMutation({
+    onMutate: () => {
+      // eslint-disable-next-line no-console
+      console.log(`⬆️ Syncing session with server...`);
+    },
+  });
+
+  const debouncedSyncSessionWithServer = useDebounceCallback(
+    syncSessionWithServer,
+    2000,
+    {
+      leading: false,
+      trailing: true,
+      maxWait: 10000,
+    },
+  );
 
   useEffect(() => {
     if (!init) {
@@ -37,8 +53,7 @@ const ServerSync = ({
     }
 
     // eslint-disable-next-line no-console
-    console.log(`⬆️ Syncing session with server...`);
-    syncSessionWithServer({
+    debouncedSyncSessionWithServer({
       id: interviewId,
       network: currentSession.network,
       currentStep: currentSession.currentStep ?? 0,
@@ -47,7 +62,7 @@ const ServerSync = ({
     currentSession,
     prevCurrentSession,
     interviewId,
-    syncSessionWithServer,
+    debouncedSyncSessionWithServer,
     init,
   ]);
 
