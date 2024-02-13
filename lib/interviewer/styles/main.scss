@@ -18,16 +18,6 @@ $image-path: '~~/lib/ui/assets/images';
   }
 }
 
-:root {
-  --nc-body-font-family: #{$netcanvas-font-stack}; // override Network Canvas UI
-  --code-font: courier;
-  --interface-prompt-flex-basis: 8rem;
-  --nc-base-font-size: 18px;
-  --nc-border-radius: 0.75rem;
-  --padding-unit: 1rem;
-  --form-intro-panel-background: var(--color-cyber-grape);
-}
-
 // Override UI toast style for now (make wider)
 .toast-container-list {
   align-items: flex-end;

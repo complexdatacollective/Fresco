@@ -219,12 +219,16 @@ $system-font-stack: 'system-ui', sans-serif;
 
 :root {
   // Typographic base styles
-  --nc-base-font-size: 16px;
   --nc-heading-font-family: #{$netcanvas-font-stack};
   --nc-body-font-family: #{$system-font-stack};
-
-  // Default border radius
+  --code-font: courier;
+  --interface-prompt-flex-basis: 8rem;
+  --nc-base-font-size: min(max(16px, calc(1rem + ((1vw - 6.4px) * 0.3125))), 20px);
   --nc-border-radius: 0.75rem;
+  --padding-unit: 1rem;
+  --form-intro-panel-background: var(--color-cyber-grape);
+
+  font-size: var(--nc-base-font-size);
 
   // Link color
   --nc-link-color: var(--color-neon-coral);

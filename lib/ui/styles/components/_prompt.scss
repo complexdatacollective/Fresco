@@ -1,6 +1,4 @@
-$module-name: prompt;
-
-.#{$module-name} {
+.prompt {
   --local-prompt-text-size: var(--prompt-text-size, 1.75rem);
   --local-number-of-lines: var(--number-of-lines, 3);
   --local-text: var(--text, inherit);
@@ -22,7 +20,7 @@ $module-name: prompt;
   }
 
   &--isSpeaking {
-    .#{$module-name}__text {
+    .prompt__text {
       transition: background-size var(--local-underline-duration) linear;
       background-size:
         0 0.1em,
@@ -42,11 +40,5 @@ $module-name: prompt;
       0 100%;
     background-repeat: no-repeat;
     transition: background-size 0 linear;
-  }
-}
-
-@media screen and (max-width: 1275px) {
-  .#{$module-name} {
-    font-size: 1.4rem;
   }
 }
