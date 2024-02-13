@@ -5,7 +5,7 @@ import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
 import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { faker } from '@faker-js/faker';
 import { trackEvent } from '~/analytics/utils';
 
@@ -30,6 +30,10 @@ export const interviewRouter = router({
             lastUpdated: new Date(),
           },
         });
+
+        revalidateTag('interview.get.all');
+        revalidatePath('/dashboard/interviews');
+
         return { success: true };
       } catch (error) {
         const message = ensureError(error).message;
@@ -98,6 +102,7 @@ export const interviewRouter = router({
         });
 
         revalidateTag('interview.get.all');
+        revalidatePath('/dashboard/interviews');
 
         // Because a new participant may have been created as part of creating the interview,
         // we need to also revalidate the participant cache.
@@ -208,6 +213,7 @@ export const interviewRouter = router({
 
         revalidateTag('interview.get.all');
         revalidateTag('dashboard.getActivities');
+        revalidatePath('/dashboard/interviews');
 
         return { error: null, interview: updatedInterview };
       } catch (error) {
