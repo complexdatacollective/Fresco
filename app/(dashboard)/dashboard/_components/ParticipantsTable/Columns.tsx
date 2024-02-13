@@ -59,9 +59,7 @@ export function getParticipantColumns(): ColumnDef<
     {
       accessorKey: 'Interview Count',
       header: ({ column }) => {
-        return (
-          <DataTableColumnHeader column={column} title="Interview count" />
-        );
+        return <DataTableColumnHeader column={column} title="Interviews" />;
       },
       cell: ({ row }) => {
         return <span>{row.original._count.interviews}</span>;
@@ -70,9 +68,7 @@ export function getParticipantColumns(): ColumnDef<
     {
       accessorKey: 'Completed Interviews',
       header: ({ column }) => {
-        return (
-          <DataTableColumnHeader column={column} title="Completed interviews" />
-        );
+        return <DataTableColumnHeader column={column} title="Completed" />;
       },
       cell: ({ row }) => {
         const completedInterviews = row.original.interviews.filter(
