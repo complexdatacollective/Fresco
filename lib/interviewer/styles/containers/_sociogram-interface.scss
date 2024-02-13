@@ -37,6 +37,7 @@
     border-radius: var(--nc-border-radius);
     box-shadow: 0 0 4rem 0 var(--nc-modal-window-box-shadow);
     cursor: move;
+    overflow: hidden;
 
     &__header {
       display: flex;
@@ -44,6 +45,7 @@
       text-align: center;
       padding: 0 units.unit(2);
       flex: 0 0 units.unit(4);
+      align-items: center;
     }
 
     .prompts {
