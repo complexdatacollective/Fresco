@@ -4,7 +4,7 @@ import { createDeepEqualSelector } from './utils';
 import { getProtocolCodebook } from './protocol';
 import customFilter from '~/lib/network-query/filter';
 import { createSelector } from '@reduxjs/toolkit';
-import { getStageSubject, getSubjectType } from './prop';
+import { getStageSubject } from './prop';
 import {
   entityAttributesProperty,
   type Codebook,
@@ -17,6 +17,7 @@ import {
 } from '@codaco/shared-consts';
 import type { RootState } from '../store';
 import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
+import { getStageSubjectType } from './session';
 
 export const getNetwork = createSelector(
   getActiveSession,
@@ -189,7 +190,7 @@ export const makeGetEdgeColor = () =>
 export const makeGetNodeAttributeLabel = () =>
   createDeepEqualSelector(
     getProtocolCodebook,
-    getSubjectType,
+    getStageSubjectType(),
     (_, props: Record<string, string>) => props.variableId ?? null,
     (codebook, subjectType: string | null, variableId: string | null) => {
       if (!subjectType || !variableId) {
@@ -205,7 +206,7 @@ export const makeGetNodeAttributeLabel = () =>
 
 export const getCategoricalOptions = createSelector(
   getProtocolCodebook,
-  getSubjectType,
+  getStageSubjectType(),
   (_, props: Record<string, string>) => props.variableId ?? null,
   (codebook, subjectType: string | null, variableId: string | null) => {
     if (!subjectType || !variableId) {
