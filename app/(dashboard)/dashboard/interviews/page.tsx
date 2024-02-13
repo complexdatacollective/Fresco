@@ -14,7 +14,7 @@ const InterviewPage = async () => {
           subHeaderText="View and manage your interview data."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="5xl">
+      <ResponsiveContainer maxWidth="6xl">
         <Section>
           <InterviewsTable initialInterviews={initialInterviews} />
         </Section>

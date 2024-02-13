@@ -69,7 +69,7 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
     cell: ({ row }) => {
       return (
         <div
-          className="flex items-center gap-2"
+          className="flex w-full max-w-52 items-center gap-2"
           title={row.original.participant.identifier}
         >
           <Image
@@ -93,7 +93,7 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
     cell: ({ row }) => {
       return (
         <div
-          className="flex items-center gap-2"
+          className="flex w-full max-w-72 items-center gap-2"
           title={row.original.protocol.name}
         >
           <Image
@@ -127,7 +127,7 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
       const progress = (row.original.currentStep / stages.length) * 100;
       return (
         <div className="flex whitespace-nowrap">
-          <Progress value={progress} className="w-24" />
+          <Progress value={progress} className="w-12" />
           <div className="ml-2 text-center text-xs">{progress.toFixed(0)}%</div>
         </div>
       );
@@ -135,17 +135,12 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
   },
   {
     accessorKey: 'exportTime',
-    header: 'Export Status',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Export Status" />;
+    },
     cell: ({ row }) => {
       if (!row.original.exportTime) {
-        return (
-          <Badge
-            variant={'destructive'}
-            className="text-center text-xs uppercase"
-          >
-            Not exported
-          </Badge>
-        );
+        return <Badge variant="secondary">Not exported</Badge>;
       }
 
       return <TimeAgo date={row.original.exportTime} />;
