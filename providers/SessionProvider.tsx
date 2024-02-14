@@ -1,103 +1,64 @@
 'use client';
 
 import type { Session } from 'lucia';
-import { useRouter } from 'next/navigation';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useHydrateAtoms } from 'jotai/utils';
+import { Provider, atom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 import { api } from '~/trpc/client';
-import usePrevious from '~/hooks/usePrevious';
+import { isEqual } from 'lodash';
+import { useRouter } from 'next/navigation';
 
-type SessionWithLoading = {
-  session: Session | null;
-  isLoading: boolean;
-  signOut: () => Promise<{ success: boolean }>;
-};
+export const sessionAtom = atom<Session | null>(null);
+export const isLoadingAtom = atom(false);
 
-const SessionContext = createContext<SessionWithLoading | null>(null);
+const sessionsAreEqual = (a: Session | null, b: Session | null) =>
+  isEqual(a, b);
 
-export const useSession = () => {
-  const session = useContext(SessionContext);
-
-  if (!session) {
-    throw new Error('useSession must be used within a SessionProvider');
-  }
-  return session;
-};
-
-const compareSessions = (a: Session | null, b: Session | null) => {
-  if (a === null && b === null) {
-    return true;
-  }
-
-  if (a === null || b === null) {
-    return false;
-  }
-
-  return a.sessionId === b.sessionId;
-};
-
-export const SessionProvider = ({
-  children,
-  session: initialSession,
+const HydrationWrapper = ({
+  initialSession,
 }: {
-  children: React.ReactNode;
-  session: Session | null;
+  initialSession: Session | null;
 }) => {
-  const [session, setSession] = useState<Session | null>(initialSession);
-
-  const previousSession = usePrevious(session);
+  useHydrateAtoms([[sessionAtom, initialSession]]);
   const router = useRouter();
 
-  const { isFetching: isFetchingSession } = api.session.get.useQuery(
-    undefined,
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: true,
-      initialData: initialSession,
-      onSuccess: (data) => {
-        if (compareSessions(session, data)) {
-          // Check if the session has changed before updating state, as this
-          // will cause a re-render.
-          if (session) {
-            setSession(data);
-          }
-        } else {
-          setSession(null);
-        }
-      },
-      onError: (error) => {
-        throw new Error(error.message);
-      },
+  const currentSession = useAtomValue(sessionAtom);
+  const setSession = useSetAtom(sessionAtom);
+  const setIsLoading = useSetAtom(isLoadingAtom);
+
+  const { isFetching: isLoading } = api.session.get.useQuery(undefined, {
+    initialData: initialSession,
+    refetchOnMount: false,
+    onSuccess(data) {
+      if (!sessionsAreEqual(data, currentSession)) {
+        setSession(data);
+      }
+
+      // We aren't logged in. Call router refresh to trigger redirect.
+      if (!data) {
+        router.refresh();
+      }
     },
-  );
+  });
 
-  const { mutateAsync: signOut, isLoading: isSigningOut } =
-    api.session.signOut.useMutation({
-      onSuccess: () => {
-        setSession(null);
-      },
-      onError: (error) => {
-        throw new Error(error.message);
-      },
-    });
-
-  // If session changes from Session to null, refresh the router to trigger
-  // the redirect to the login page.
   useEffect(() => {
-    if (session === null && previousSession !== null) {
-      router.refresh();
-    }
-  }, [session, router, previousSession]);
+    setIsLoading(isLoading);
+  }, [isLoading, setIsLoading]);
 
-  const value = useMemo(
-    () => ({
-      session,
-      isLoading: isFetchingSession || isSigningOut,
-      signOut,
-    }),
-    [session, isFetchingSession, isSigningOut, signOut],
-  );
-
-  return (
-    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
-  );
+  return null;
 };
+
+export default function SessionProvider({
+  initialSession,
+  children,
+}: {
+  initialSession: Session | null;
+  children: React.ReactNode;
+}) {
+  return (
+    <Provider>
+      <HydrationWrapper initialSession={initialSession} />
+      {children}
+    </Provider>
+  );
+}

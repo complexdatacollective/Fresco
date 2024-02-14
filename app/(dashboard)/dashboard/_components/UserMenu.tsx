@@ -1,13 +1,19 @@
 'use client';
 
+import { useAtomValue } from 'jotai';
 import { Button } from '~/components/ui/Button';
-import { useSession } from '~/providers/SessionProvider';
+import { isLoadingAtom } from '~/providers/SessionProvider';
 
 const UserMenu = () => {
-  const { signOut } = useSession();
+  const isLoading = useAtomValue(isLoadingAtom);
 
   return (
-    <Button variant="secondary" size="sm" onClick={() => signOut()}>
+    <Button
+      disabled={isLoading}
+      variant="secondary"
+      size="sm"
+      onClick={() => {}}
+    >
       Sign out
     </Button>
   );

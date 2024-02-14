@@ -2,6 +2,7 @@ import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
 import type { directions } from '../hooks/useNavigationHelpers';
+import { type ElementType } from 'react';
 
 type StageProps = {
   stage: {
@@ -13,7 +14,9 @@ type StageProps = {
 
 const Stage = (props: StageProps) => {
   const { stage, registerBeforeNext } = props;
-  const CurrentInterface = getInterface(stage.type) as unknown as JSX.Element;
+  const CurrentInterface = getInterface(
+    stage.type,
+  ) as unknown as ElementType<StageProps>;
 
   return (
     <motion.div
@@ -35,7 +38,6 @@ const Stage = (props: StageProps) => {
     >
       <StageErrorBoundary>
         {CurrentInterface && (
-          // @ts-expect-error I can't work out how to correctly type this...
           <CurrentInterface
             registerBeforeNext={registerBeforeNext}
             stage={stage}

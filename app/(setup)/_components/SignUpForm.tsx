@@ -8,9 +8,10 @@ import { Loader2, XCircle } from 'lucide-react';
 import { api } from '~/trpc/client';
 import { type z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
-import { useSession } from '~/providers/SessionProvider';
 import { useOnboardingContext } from './OnboardingProvider';
 import { useEffect } from 'react';
+import { useAtomValue } from 'jotai';
+import { sessionAtom } from '~/providers/SessionProvider';
 
 export const SignUpForm = () => {
   const {
@@ -23,7 +24,7 @@ export const SignUpForm = () => {
   });
 
   const { toast } = useToast();
-  const { session } = useSession();
+  const session = useAtomValue(sessionAtom);
 
   const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
     onSuccess: (result) => {
