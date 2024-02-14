@@ -18,7 +18,7 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 Fresco uses PlanetScale MySQL database platform. It provides scale, performance, and reliability for your data.
 
-1. Go to [planetscale.com](planetscale.com).
+1. Go to [planetscale.com](https://planetscale.com).
 
 2. Click on the **"Get started"** button on the right corner.
 
