@@ -53,18 +53,6 @@ export const getCurrentStage = createSelector(
   },
 );
 
-export const getStageForCurrentSession = createSelector(
-  (state: RootState, props) => getProtocolStages(state, props),
-  getStageIndex,
-  (stages, stageIndex) => stages[stageIndex],
-);
-
-export const getStageSubject = () =>
-  createDeepEqualSelector(getStageForCurrentSession, (stage) => stage.subject);
-
-export const getStageSubjectType = () =>
-  createDeepEqualSelector(getStageSubject(), (subject) => subject?.type);
-
 export const getCaseId = createDeepEqualSelector(
   getActiveSession,
   (session) => session?.caseId,
