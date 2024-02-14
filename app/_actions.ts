@@ -2,13 +2,14 @@
 
 import { redirect } from 'next/navigation';
 import { api } from '~/trpc/server';
+import { ensureError } from '~/utils/ensureError';
 
 export const resetAppSettings = async () => {
   try {
     await api.appSettings.reset.mutate();
-    redirect('/');
   } catch (error) {
-    throw new Error(error as string);
+    const e = ensureError(error);
+    throw new Error(e.message);
   }
 };
 
