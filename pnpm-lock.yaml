@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  d3-force>d3-timer: 3.0.0
+
 dependencies:
   '@codaco/analytics':
     specifier: ^5.0.0
@@ -7835,7 +7838,7 @@ packages:
     dependencies:
       d3-dispatch: 3.0.1
       d3-quadtree: 3.0.1
-      d3-timer: 3.0.1
+      d3-timer: 3.0.0
     dev: false
 
   /d3-interpolate-path@2.3.0:
@@ -7847,8 +7850,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /d3-timer@3.0.1:
-    resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
+  /d3-timer@3.0.0:
+    resolution: {integrity: sha512-uSqhfvY2J1qYuht1TbO977mJESyBg+bwJa9jB4msbuduqXRj21JDh9TUxoZ7L5522GM7lkChw2gKMXJa3UhHPw==}
     engines: {node: '>=12'}
     dev: false
 

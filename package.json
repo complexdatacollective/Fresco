@@ -18,6 +18,11 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "pnpm": {
+    "overrides": {
+      "d3-force>d3-timer": "3.0.0"
+    }
+  },
   "dependencies": {
     "@codaco/analytics": "^5.0.0",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
