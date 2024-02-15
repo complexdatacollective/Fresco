@@ -37,6 +37,7 @@ type NavigationProps = {
   canMoveForward: boolean;
   progress: number;
   isReadyForNextStage: boolean;
+  isAnimating: boolean;
 };
 
 const Navigation = ({
@@ -46,6 +47,7 @@ const Navigation = ({
   canMoveForward,
   progress,
   isReadyForNextStage,
+  isAnimating,
 }: NavigationProps) => {
   return (
     <div
@@ -53,7 +55,10 @@ const Navigation = ({
       className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
       {/* <SettingsMenu /> */}
-      <NavigationButton onClick={moveBackward} disabled={!canMoveBackward}>
+      <NavigationButton
+        onClick={moveBackward}
+        disabled={!canMoveBackward || isAnimating}
+      >
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
       <div className="m-6 flex flex-grow">
@@ -66,7 +71,7 @@ const Navigation = ({
           isReadyForNextStage && 'animate-pulse',
         )}
         onClick={moveForward}
-        disabled={!canMoveForward}
+        disabled={!canMoveForward || isAnimating}
       >
         <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
