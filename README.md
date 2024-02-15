@@ -14,11 +14,11 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 ## Step 1
 
-### Set up a database for Fresco with [PlanetScale](https://planetscale.com)
+### Set up a database for Fresco with PlanetScale
 
 Fresco uses PlanetScale MySQL database platform. It provides scale, performance, and reliability for your data.
 
-1. Go to [planetscale.com](https://planetscale.com).
+1. Go to <a href="https://planetscale.com" target="_blank">planetscale.com</a>.
 
 2. Click on the **"Get started"** button on the right corner.
 
@@ -65,15 +65,17 @@ Fresco uses PlanetScale MySQL database platform. It provides scale, performance,
 
      ![Planet Scale go to dashboard](public/images/readme-screenshots/planetscale10.png)
 
-For more info, checkout PlanetScale's [Quick Start Guide](https://planetscale.com/docs/tutorials/planetscale-quick-start-guide).
+**Note: If you couldn't find and copy the connection URL using the above instructions, see the bellow guide on how to [Get database connection URL from PlanetScale dashboard](#get-database-connection-url-from-planetscale-dashboard)**
+
+For more info, checkout PlanetScale's <a href="https://planetscale.com/docs/tutorials/planetscale-quick-start-guide" target="_blank">Quick Start Guide</a>.
 
 ## Step 2
 
-### Create a new app on [UploadThing](https://uploadthing.com/) to store media files
+### Create a new app on UploadThing to store media files
 
 Fresco uses your UploadThing account to store protocol assets, exported files, etc.
 
-1. Go to [uploadthing.com](https://uploadthing.com).
+1. Go to <a href="https://uploadthing.com" target="_blank">uploadthing.com</a>.
 
 2. Click on the **"Get started"** button.
 
@@ -99,13 +101,13 @@ Fresco uses your UploadThing account to store protocol assets, exported files, e
 
    ![UploadThing copy your API keys](public/images/readme-screenshots/uploadthing6.png)
 
-For more info, checkout [UploadThing Docs](https://docs.uploadthing.com/).
+For more info, check out <a href="https://docs.uploadthing.com" target="_blank">UploadThing Docs</a>.
 
 ## Step 3
 
 ### Deploy Fresco on Vercel
 
-_Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://vercel.com/) and sing up for an account (It's recommended to sign in to Vercel via your Github account. You can use their "Hobby" tier or paid plan.)
+_Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel.com/" target="_blank">vercel.com</a> and sign up for an account (It's recommended to sign in to Vercel via your Github account. You can use their "Hobby" tier or paid plan.)
 
 1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
 
@@ -121,14 +123,14 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
    We use Maxmind for getting geo location data for the Fresco analytics microservice. (you can set Maxmind variables as `null`, if you don't want to enable analytics for your app).
 
-   | Variable            | Description                                                                                                                                                                                                                                |
-   | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-   | DATABASE_URL        | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. [More info](https://planetscale.com/docs/concepts/connection-strings)                                                   |
-   | UPLOADTHING_SECRET  | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. [More info](https://uploadthing.com/dashboard)                                                                             |
-   | UPLOADTHING_APP_ID  | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. [More info](https://uploadthing.com/dashboard)                        |
-   | MAXMIND_ACCOUNT_ID  | The account ID for your Maxmind account. This is used to authenticate requests to the Maxmind API, which provides IP geolocation and online fraud detection services. [More info](https://www.maxmind.com/en/accounts/970348/license-key/) |
-   | MAXMIND_LICENSE_KEY | The license key for your Maxmind account. This is used along with the account ID to authenticate requests to the Maxmind API. [More info](https://www.maxmind.com/en/accounts/970348/license-key/)                                         |
-   | DISABLE_ANALYTICS   | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                            |
+   | Variable            | Description                                                                                                                                                                                                                                           |
+   | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | DATABASE_URL        | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. <a href="https://planetscale.com/docs/concepts/connection-strings" target="_blank">More info</a>                                   |
+   | UPLOADTHING_SECRET  | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>                                                             |
+   | UPLOADTHING_APP_ID  | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>        |
+   | MAXMIND_ACCOUNT_ID  | The account ID for your Maxmind account. This is used to authenticate requests to the Maxmind API, which provides IP geolocation and online fraud detection services. <a href="https://www.maxmind.com/en/accounts/970348/license-key/">More info</a> |
+   | MAXMIND_LICENSE_KEY | The license key for your Maxmind account. This is used along with the account ID to authenticate requests to the Maxmind API. <a href="https://www.maxmind.com/en/accounts/970348/license-key/">More info</a>                                         |
+   | DISABLE_ANALYTICS   | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                       |
 
    **Note: We use Analytics microservice to gather error data from instances of Fresco to troubleshoot issues, so by setting `DISABLE_ANALYTICS` to `false` you would help us identify bugs and improve the app.**
 
@@ -138,7 +140,7 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
    Click **"Deploy"** and wait for the deployment to finish.
 
-   Note: If you encounter any issues during deployment, checkout our [User Community](https://community.networkcanvas.com/) for a possible solution.
+   **Note: If you encounter any issues during deployment, check out the [Troubleshooting](#troubleshooting) section or our <a href="https://community.networkcanvas.com/">User Community</a> for a possible solution.**
 
 5. Visit your deployed app.
 
@@ -146,11 +148,11 @@ _Prerequisite:_ You need to have a Vercel account, go to [vercel.com](https://ve
 
 # Create User Account on your Fresco app
 
-Visit your deployed app to create your administrator account. Only one user account may be created.
+Visit your deployed app to create your administrator account. Only one user account can be created.
 
-**Note: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account created, your configuration will expire. You may redeploy using the same steps.**
+**Note: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You may redeploy using the same steps.**
 
-1. Create an account by providing username and password.
+1. Create an account by providing a username and password.
 
    ![Fresco set up 1](public/images/readme-screenshots/fresco1.png)
 
@@ -165,6 +167,38 @@ Visit your deployed app to create your administrator account. Only one user acco
 
    ![Fresco set up 3](public/images/readme-screenshots/fresco3.png)
 
-4. Click **"Go to the dashboard"** button and begin your exciting exploration of Fresco.
+4. Click the **"Go to the dashboard"** button and begin your exciting exploration of Fresco.
 
-For more info, checkout our [User Community](https://community.networkcanvas.com/).
+For more info, check out our <a href="https://community.networkcanvas.com/">User Community</a>.
+
+# Troubleshooting
+
+If you encountered the error below while deploying Fresco on Vercel...
+
+![Deploy error1](public/images/readme-screenshots/deploy-error1.png)
+
+It means that you have not entered the correct database connection string and you need to copy it again from your PlanetScale dashboard, see the below instructions for that.
+
+### Get database connection URL from PlanetScale dashboard
+
+1. Go to your dashboard and click on your database.
+
+   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard1.png)
+
+2. This is the main view to manage your database. Click on the **"Connect"** button on the right corner.
+
+   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard2.png)
+
+3. Since PlanetScale doesn't reveal your database password for security purposes, you need to create a new username and password for your database to generate a new database connection string. Click on the **"New password"** button for that.
+
+   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard3.png)
+
+4. Leave everything as default and hit the **"Create password"** button.
+
+   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard4.png)
+
+5. You will be prompted back to the first view. Choose **"Prisma"** as the framework if you haven't already and hit the copy button on the right corner (save your database string in a safe place and use it to deploy Fresco on Vercel)
+
+   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard5.png)
+
+**Note: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`**
