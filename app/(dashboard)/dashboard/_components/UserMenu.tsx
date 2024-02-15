@@ -1,18 +1,22 @@
 'use client';
 
-import { useAtomValue } from 'jotai';
 import { Button } from '~/components/ui/Button';
-import { isLoadingAtom } from '~/providers/SessionProvider';
+import { api } from '~/trpc/client';
 
 const UserMenu = () => {
-  const isLoading = useAtomValue(isLoadingAtom);
+  const utils = api.useUtils();
+  const { mutate: signOut, isLoading } = api.session.signOut.useMutation({
+    onSuccess: async () => {
+      await utils.session.get.invalidate();
+    },
+  });
 
   return (
     <Button
       disabled={isLoading}
       variant="secondary"
       size="sm"
-      onClick={() => {}}
+      onClick={() => signOut()}
     >
       Sign out
     </Button>

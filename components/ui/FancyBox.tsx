@@ -92,6 +92,7 @@ export default function FancyBox<
           <Command loop>
             {showSearch && (
               <CommandInput
+                name="Filter"
                 ref={inputRef}
                 placeholder={`Search ${plural}...`}
                 value={inputValue}

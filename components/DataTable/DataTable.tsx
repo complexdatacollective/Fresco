@@ -147,6 +147,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2 pb-4 pt-1">
           {filterColumnAccessorKey && (
             <Input
+              name="filter"
               placeholder={`Filter by ${filterColumnAccessorKey}...`}
               value={
                 (table
@@ -257,7 +258,7 @@ export function DataTable<TData, TValue>({
             {isDeleting ? (
               <span className="flex items-center gap-2">
                 Deleting...
-                <Loader className="text-white h-4 w-4 animate-spin" />
+                <Loader className="h-4 w-4 animate-spin text-white" />
               </span>
             ) : (
               'Delete Selected'

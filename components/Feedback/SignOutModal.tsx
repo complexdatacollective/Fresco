@@ -20,7 +20,12 @@ const SignOutModal = ({
   openSignOutModal,
   setOpenSignOutModal,
 }: SignOutModalProps) => {
-  const { mutateAsync: signOut } = api.session.signOut.useMutation();
+  const utils = api.useUtils();
+  const { mutateAsync: signOut } = api.session.signOut.useMutation({
+    onSuccess: async () => {
+      await utils.session.get.invalidate();
+    },
+  });
 
   return (
     <AlertDialog open={openSignOutModal} onOpenChange={setOpenSignOutModal}>
