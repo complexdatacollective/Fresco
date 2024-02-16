@@ -14,9 +14,9 @@ const ProtocolScreen = () => {
 
   const {
     moveBackward,
-    canMoveBackward,
-    moveForward,
     canMoveForward,
+    moveForward,
+    canMoveBackward,
     progress,
     registerBeforeNext,
     isReadyForNextStage,
@@ -39,9 +39,9 @@ const ProtocolScreen = () => {
       >
         <Navigation
           moveBackward={moveBackward}
-          canMoveBackward={canMoveBackward}
           moveForward={moveForward}
           canMoveForward={canMoveForward}
+          canMoveBackward={canMoveBackward}
           progress={progress}
           isReadyForNextStage={isReadyForNextStage}
         />

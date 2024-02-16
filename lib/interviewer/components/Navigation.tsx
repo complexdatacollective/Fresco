@@ -18,7 +18,7 @@ export const NavigationButton = ({
       className={cn(
         `session-navigation__button m-4 flex h-[4.8rem] w-[4.8rem] basis-[4.8rem] cursor-pointer items-center justify-center rounded-full transition-all`,
         'hover:bg-[#4a4677]',
-        disabled && 'hover:bg-transparent cursor-not-allowed opacity-50',
+        disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
         className,
       )}
       role="button"
@@ -32,18 +32,18 @@ export const NavigationButton = ({
 
 type NavigationProps = {
   moveBackward: () => void;
-  canMoveBackward: boolean;
   moveForward: () => void;
   canMoveForward: boolean;
+  canMoveBackward: boolean;
   progress: number;
   isReadyForNextStage: boolean;
 };
 
 const Navigation = ({
   moveBackward,
-  canMoveBackward,
   moveForward,
   canMoveForward,
+  canMoveBackward,
   progress,
   isReadyForNextStage,
 }: NavigationProps) => {

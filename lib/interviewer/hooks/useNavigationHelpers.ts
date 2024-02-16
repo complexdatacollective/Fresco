@@ -7,6 +7,8 @@ import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { useAtom } from 'jotai';
+import { forceNavigationDisabledAtom } from '~/providers/SessionProvider';
 
 export type directions = 'forwards' | 'backwards';
 
@@ -27,6 +29,10 @@ export const useNavigationHelpers = () => {
 
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
+  const [forceNavigationDisabled, setForceNavigationDisabled] = useAtom(
+    forceNavigationDisabledAtom,
+  );
+
   const {
     progress,
     currentStep,
@@ -34,8 +40,8 @@ export const useNavigationHelpers = () => {
     isFirstPrompt,
     isLastStage,
     promptIndex,
-    canMoveBackward,
     canMoveForward,
+    canMoveBackward,
   } = useSelector(getNavigationInfo);
 
   useEffect(() => {
@@ -185,8 +191,8 @@ export const useNavigationHelpers = () => {
   return {
     progress,
     isReadyForNextStage,
-    canMoveForward,
-    canMoveBackward,
+    canMoveForward: !forceNavigationDisabled && canMoveForward,
+    canMoveBackward: !forceNavigationDisabled && canMoveBackward,
     moveForward,
     moveBackward,
     isFirstPrompt,
@@ -194,5 +200,6 @@ export const useNavigationHelpers = () => {
     isLastStage,
     registerBeforeNext,
     currentStep,
+    setForceNavigationDisabled,
   };
 };
