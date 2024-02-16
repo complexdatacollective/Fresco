@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNavigationInfo } from '../selectors/session';
 import { getSkipMap } from '../selectors/skip-logic';
@@ -7,6 +7,8 @@ import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { useAtom } from 'jotai';
+import { forceNavigationDisabledAtom } from '~/providers/SessionProvider';
 
 export type directions = 'forwards' | 'backwards';
 
@@ -27,7 +29,9 @@ export const useNavigationHelpers = () => {
 
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [forceNavigationDisabled, setForceNavigationDisabled] = useAtom(
+    forceNavigationDisabledAtom,
+  );
 
   const {
     progress,
@@ -187,15 +191,15 @@ export const useNavigationHelpers = () => {
   return {
     progress,
     isReadyForNextStage,
-    canMoveForward,
-    canMoveBackward,
-    isAnimating,
+    canMoveForward: forceNavigationDisabled ? false : canMoveForward,
+    canMoveBackward: forceNavigationDisabled ? false : canMoveBackward,
     moveForward,
     moveBackward,
     isFirstPrompt,
     isLastPrompt,
     isLastStage,
     registerBeforeNext,
-    setIsAnimating,
+    currentStep,
+    setForceNavigationDisabled,
   };
 };

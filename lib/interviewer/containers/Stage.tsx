@@ -3,6 +3,7 @@ import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
 import type { directions } from '../hooks/useNavigationHelpers';
 import { type ElementType } from 'react';
+import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
 type StageProps = {
   stage: {
@@ -18,13 +19,13 @@ const Stage = (props: StageProps) => {
     stage.type,
   ) as unknown as ElementType<StageProps>;
 
-  const { setIsAnimating } = useNavigationHelpers();
+  const { setForceNavigationDisabled } = useNavigationHelpers();
 
   const handleAnimationStart = () => {
-    setIsAnimating(true);
+    setForceNavigationDisabled(true);
   };
   const handleAnimationComplete = () => {
-    setIsAnimating(false);
+    setForceNavigationDisabled(false);
   };
 
   return (

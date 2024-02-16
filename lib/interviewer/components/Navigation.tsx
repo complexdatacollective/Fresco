@@ -1,7 +1,6 @@
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
-import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
 export const NavigationButton = ({
   disabled,
@@ -48,20 +47,13 @@ const Navigation = ({
   progress,
   isReadyForNextStage,
 }: NavigationProps) => {
-  const { isAnimating } = useNavigationHelpers();
-
-  console.log('isAnimating', isAnimating);
-
   return (
     <div
       role="navigation"
       className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
       {/* <SettingsMenu /> */}
-      <NavigationButton
-        onClick={moveBackward}
-        disabled={!canMoveBackward || isAnimating}
-      >
+      <NavigationButton onClick={moveBackward} disabled={!canMoveBackward}>
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
       <div className="m-6 flex flex-grow">
@@ -74,7 +66,7 @@ const Navigation = ({
           isReadyForNextStage && 'animate-pulse',
         )}
         onClick={moveForward}
-        disabled={!canMoveForward || isAnimating}
+        disabled={!canMoveForward}
       >
         <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
