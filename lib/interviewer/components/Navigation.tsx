@@ -1,6 +1,7 @@
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
+import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
 export const NavigationButton = ({
   disabled,
@@ -18,7 +19,7 @@ export const NavigationButton = ({
       className={cn(
         `session-navigation__button m-4 flex h-[4.8rem] w-[4.8rem] basis-[4.8rem] cursor-pointer items-center justify-center rounded-full transition-all`,
         'hover:bg-[#4a4677]',
-        disabled && 'hover:bg-transparent cursor-not-allowed opacity-50',
+        disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
         className,
       )}
       role="button"
@@ -32,23 +33,25 @@ export const NavigationButton = ({
 
 type NavigationProps = {
   moveBackward: () => void;
-  canMoveBackward: boolean;
   moveForward: () => void;
   canMoveForward: boolean;
+  canMoveBackward: boolean;
   progress: number;
   isReadyForNextStage: boolean;
-  isAnimating: boolean;
 };
 
 const Navigation = ({
   moveBackward,
-  canMoveBackward,
   moveForward,
   canMoveForward,
+  canMoveBackward,
   progress,
   isReadyForNextStage,
-  isAnimating,
 }: NavigationProps) => {
+  const { isAnimating } = useNavigationHelpers();
+
+  console.log('isAnimating', isAnimating);
+
   return (
     <div
       role="navigation"

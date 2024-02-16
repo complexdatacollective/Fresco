@@ -2,7 +2,7 @@ import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
 import type { directions } from '../hooks/useNavigationHelpers';
-import { useEffect, useState } from 'react';
+import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
 type StageProps = {
   stage: {
@@ -10,14 +10,13 @@ type StageProps = {
     type: string;
   };
   registerBeforeNext: (fn: (direction: directions) => Promise<boolean>) => void;
-  onIsAnimatingChange: (animating: boolean) => void;
 };
 
 const Stage = (props: StageProps) => {
-  const { stage, registerBeforeNext, onIsAnimatingChange } = props;
+  const { stage, registerBeforeNext } = props;
   const CurrentInterface = getInterface(stage.type) as unknown as JSX.Element;
 
-  const [isAnimating, setIsAnimating] = useState(false);
+  const { setIsAnimating } = useNavigationHelpers();
 
   const handleAnimationStart = () => {
     setIsAnimating(true);
@@ -25,10 +24,6 @@ const Stage = (props: StageProps) => {
   const handleAnimationComplete = () => {
     setIsAnimating(false);
   };
-
-  useEffect(() => {
-    onIsAnimatingChange(isAnimating);
-  }, [isAnimating, onIsAnimatingChange]);
 
   return (
     <motion.div

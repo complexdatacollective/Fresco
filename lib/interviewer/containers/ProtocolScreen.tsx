@@ -6,23 +6,16 @@ import Stage from './Stage';
 import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 import { useSession } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
-import { useState } from 'react';
 
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
   const { session } = useSession();
 
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const handleIsAnimatingChange = (animating: boolean) => {
-    setIsAnimating(animating);
-  };
-
   const {
     moveBackward,
-    canMoveBackward,
-    moveForward,
     canMoveForward,
+    moveForward,
+    canMoveBackward,
     progress,
     registerBeforeNext,
     isReadyForNextStage,
@@ -45,12 +38,11 @@ const ProtocolScreen = () => {
       >
         <Navigation
           moveBackward={moveBackward}
-          canMoveBackward={canMoveBackward}
           moveForward={moveForward}
           canMoveForward={canMoveForward}
+          canMoveBackward={canMoveBackward}
           progress={progress}
           isReadyForNextStage={isReadyForNextStage}
-          isAnimating={isAnimating}
         />
         <AnimatePresence mode="wait" initial={false}>
           {currentStage && (
@@ -58,7 +50,6 @@ const ProtocolScreen = () => {
               key={currentStage.id}
               stage={currentStage}
               registerBeforeNext={registerBeforeNext}
-              onIsAnimatingChange={handleIsAnimatingChange}
             />
           )}
           {!currentStage && (

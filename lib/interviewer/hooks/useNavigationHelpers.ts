@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNavigationInfo } from '../selectors/session';
 import { getSkipMap } from '../selectors/skip-logic';
@@ -27,6 +27,8 @@ export const useNavigationHelpers = () => {
 
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
+  const [isAnimating, setIsAnimating] = useState(false);
+
   const {
     progress,
     currentStep,
@@ -34,8 +36,8 @@ export const useNavigationHelpers = () => {
     isFirstPrompt,
     isLastStage,
     promptIndex,
-    canMoveBackward,
     canMoveForward,
+    canMoveBackward,
   } = useSelector(getNavigationInfo);
 
   useEffect(() => {
@@ -187,11 +189,13 @@ export const useNavigationHelpers = () => {
     isReadyForNextStage,
     canMoveForward,
     canMoveBackward,
+    isAnimating,
     moveForward,
     moveBackward,
     isFirstPrompt,
     isLastPrompt,
     isLastStage,
     registerBeforeNext,
+    setIsAnimating,
   };
 };
