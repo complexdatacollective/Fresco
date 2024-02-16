@@ -1,5 +1,4 @@
 import { type Dispatch, type SetStateAction } from 'react';
-import { useSession } from '~/providers/SessionProvider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/AlertDialog';
+import { api } from '~/trpc/client';
 
 type SignOutModalProps = {
   openSignOutModal: boolean;
@@ -20,7 +20,12 @@ const SignOutModal = ({
   openSignOutModal,
   setOpenSignOutModal,
 }: SignOutModalProps) => {
-  const { signOut } = useSession();
+  const utils = api.useUtils();
+  const { mutateAsync: signOut } = api.session.signOut.useMutation({
+    onSuccess: async () => {
+      await utils.session.get.invalidate();
+    },
+  });
 
   return (
     <AlertDialog open={openSignOutModal} onOpenChange={setOpenSignOutModal}>

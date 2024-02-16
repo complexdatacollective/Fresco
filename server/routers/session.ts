@@ -10,6 +10,7 @@ import {
   userCreateFormSchema,
   userSignInFormSchema,
 } from '~/app/(setup)/_components/schemas';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 type Context = inferAsyncReturnType<typeof createTRPCContext>;
 
@@ -24,8 +25,10 @@ export const signOutProc = async ({ ctx }: { ctx: Context }) => {
 
   const authRequest = auth.handleRequest('POST', context);
   await auth.invalidateSession(session.sessionId);
-
   authRequest.setSession(null);
+
+  revalidateTag('session.get');
+  revalidatePath('/');
 
   return {
     success: true,

@@ -26,7 +26,7 @@ type DataTableAdvancedFilterProps<TData> = {
     React.SetStateAction<DataTableFilterOption<TData>[]>
   >;
   children?: React.ReactNode;
-}
+};
 
 export function DataTableAdvancedFilter<TData>({
   options,
@@ -52,7 +52,7 @@ export function DataTableAdvancedFilter<TData>({
           >
             Filter
             <ChevronsUpDown
-              className="size-4 ml-2 shrink-0 opacity-50"
+              className="ml-2 size-4 shrink-0 opacity-50"
               aria-hidden="true"
             />
           </Button>
@@ -60,7 +60,7 @@ export function DataTableAdvancedFilter<TData>({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="end">
         <Command>
-          <CommandInput placeholder="Filter by..." />
+          <CommandInput name="filter" placeholder="Filter by..." />
           <CommandEmpty>No item found.</CommandEmpty>
           <CommandGroup>
             {options.map((option) => (
@@ -82,9 +82,9 @@ export function DataTableAdvancedFilter<TData>({
                 }}
               >
                 {option.items.length > 0 ? (
-                  <ChevronDown className="size-4 mr-2" aria-hidden="true" />
+                  <ChevronDown className="mr-2 size-4" aria-hidden="true" />
                 ) : (
-                  <TextIcon className="size-4 mr-2" aria-hidden="true" />
+                  <TextIcon className="mr-2 size-4" aria-hidden="true" />
                 )}
                 {option.label}
               </CommandItem>
@@ -107,7 +107,7 @@ export function DataTableAdvancedFilter<TData>({
                 ]);
               }}
             >
-              <Plus className="size-4 mr-2" aria-hidden="true" />
+              <Plus className="mr-2 size-4" aria-hidden="true" />
               Advanced filter
             </CommandItem>
           </CommandGroup>

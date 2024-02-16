@@ -1,9 +1,8 @@
 'use client';
 
-import { isEqual } from 'lodash';
-import { type ReactNode, useEffect, useState } from 'react';
+import { debounce, isEqual } from 'lodash';
+import { type ReactNode, useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { useDebounceCallback } from 'usehooks-ts';
 import usePrevious from '~/hooks/usePrevious';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
@@ -28,14 +27,14 @@ const ServerSync = ({
     },
   });
 
-  const debouncedSyncSessionWithServer = useDebounceCallback(
-    syncSessionWithServer,
-    2000,
-    {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSessionSync = useCallback(
+    debounce(syncSessionWithServer, 2000, {
       leading: false,
       trailing: true,
       maxWait: 10000,
-    },
+    }),
+    [syncSessionWithServer],
   );
 
   useEffect(() => {
@@ -52,8 +51,7 @@ const ServerSync = ({
       return;
     }
 
-    // eslint-disable-next-line no-console
-    debouncedSyncSessionWithServer({
+    debouncedSessionSync({
       id: interviewId,
       network: currentSession.network,
       currentStep: currentSession.currentStep ?? 0,
@@ -62,8 +60,8 @@ const ServerSync = ({
     currentSession,
     prevCurrentSession,
     interviewId,
-    debouncedSyncSessionWithServer,
     init,
+    debouncedSessionSync,
   ]);
 
   if (!init) {

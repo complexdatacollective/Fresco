@@ -18,6 +18,11 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "pnpm": {
+    "overrides": {
+      "d3-force>d3-timer": "3.0.0"
+    }
+  },
   "dependencies": {
     "@codaco/analytics": "^5.0.0",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
@@ -78,6 +83,7 @@
     "file-loader": "^6.2.0",
     "framer-motion": "^11.0.3",
     "fuse.js": "^7.0.0",
+    "jotai": "^2.6.4",
     "jssha": "^3.3.1",
     "jszip": "^3.10.1",
     "lucia": "^2.7.6",

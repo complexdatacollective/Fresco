@@ -40,6 +40,7 @@ export function DataTableToolbar<TData>({
             (column) =>
               table.getColumn(column.id ? String(column.id) : '') && (
                 <Input
+                  name="Filter"
                   key={String(column.id)}
                   placeholder={`Filter ${column.title}...`}
                   value={

@@ -4,12 +4,13 @@ import Navigation from '../components/Navigation';
 import { getCurrentStage } from '../selectors/session';
 import Stage from './Stage';
 import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
-import { useSession } from '~/providers/SessionProvider';
+import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
+import { useAtomValue } from 'jotai';
 
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
-  const { session } = useSession();
+  const session = useAtomValue(sessionAtom);
 
   const {
     moveBackward,
