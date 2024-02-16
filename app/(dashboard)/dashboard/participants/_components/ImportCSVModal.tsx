@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
 import { FileDown, Loader2 } from 'lucide-react';
 import { ColumnSelectField } from './ColumnSelectField';
+import { type ParticipantsWithLabel } from '~/shared/schemas/schemas';
 
 const formSchema = z.object({
   csvFile: z.array(z.record(z.string())).nullable(),
@@ -96,10 +97,19 @@ const ImportCSVModal = ({
       ? 'identifier'
       : ObjectKeys[0]!;
 
-    const identifiers = validData.csvFile
-      .map((item) => item[identifierColumn])
-      .filter(Boolean);
-    const result = await importParticipants(identifiers);
+    const labelColumn = ObjectKeys.includes('label') ? 'label' : undefined;
+
+    const participantsData = validData.csvFile
+      .map((item) => ({
+        identifier: item[identifierColumn],
+        label: labelColumn && item[labelColumn],
+      }))
+      .filter(
+        (item) =>
+          typeof item.identifier === 'string' && item.identifier !== undefined,
+      ) as ParticipantsWithLabel;
+
+    const result = await importParticipants(participantsData);
 
     if (result.error) {
       // eslint-disable-next-line no-console

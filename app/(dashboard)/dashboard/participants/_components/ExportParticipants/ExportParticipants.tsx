@@ -23,6 +23,7 @@ function ExportParticipants() {
       const csvData = participants.map((participant) => ({
         id: participant.id,
         identifier: participant.identifier,
+        label: String(participant.label),
       }));
 
       const csv = unparse(csvData, { header: true });

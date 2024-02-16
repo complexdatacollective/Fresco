@@ -15,15 +15,18 @@ import {
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
 import { api } from '~/trpc/client';
-import { participantIdentifierSchema } from '~/shared/schemas/schemas';
+import {
+  participantIdentifierSchema,
+  participantLabelSchema,
+} from '~/shared/schemas/schemas';
 import type { Participant } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 
 type ParticipantModalProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  editingParticipant?: string | null;
-  setEditingParticipant?: Dispatch<SetStateAction<string | null>>;
+  editingParticipant?: Participant | null;
+  setEditingParticipant?: Dispatch<SetStateAction<Participant | null>>;
   existingParticipants: Participant[];
 };
 
@@ -40,6 +43,7 @@ function ParticipantModal({
   const formSchema = z
     .object({
       identifier: participantIdentifierSchema,
+      label: participantLabelSchema,
     })
     .refine(
       (data) =>
@@ -54,7 +58,7 @@ function ParticipantModal({
 
   const { mutateAsync: updateParticipant } = api.participant.update.useMutation(
     {
-      async onMutate({ identifier, newIdentifier }) {
+      async onMutate({ identifier, data }) {
         await utils.participant.get.all.cancel();
 
         // snapshot current participants
@@ -62,7 +66,7 @@ function ParticipantModal({
 
         // Optimistically update to the new value
         const newValue = previousValue?.map((p) =>
-          p.identifier === identifier ? { ...p, identifier: newIdentifier } : p,
+          p.identifier === identifier ? { ...p, ...data } : p,
         );
 
         utils.participant.get.all.setData(undefined, newValue);
@@ -74,7 +78,7 @@ function ParticipantModal({
       onSuccess() {
         router.refresh();
       },
-      onError(error, identifiers, context) {
+      onError(error, _, context) {
         utils.participant.get.all.setData(undefined, context?.previousValue);
         setError(error.message);
       },
@@ -88,15 +92,20 @@ function ParticipantModal({
 
   const { mutateAsync: createParticipant } = api.participant.create.useMutation(
     {
-      async onMutate(identifiers) {
+      async onMutate(participantsData) {
+        const participants = participantsData.map((p) => ({
+          ...p,
+          label: p.label ?? null,
+        }));
         await utils.participant.get.all.cancel();
 
         // snapshot current participants
         const previousValue = utils.participant.get.all.getData();
 
-        const newParticipants = identifiers.map((identifier, index) => ({
+        const newParticipants = participants.map((p, index) => ({
           id: `optimistic-${index}`,
-          identifier,
+          identifier: p.identifier,
+          label: p.label,
           interviews: [],
           _count: {
             interviews: 0,
@@ -114,7 +123,7 @@ function ParticipantModal({
         reset();
         return { previousValue };
       },
-      onError(error, identifiers, context) {
+      onError(error, _, context) {
         utils.participant.get.all.setData(undefined, context?.previousValue);
         setError(error.message);
       },
@@ -143,19 +152,25 @@ function ParticipantModal({
 
     if (editingParticipant) {
       await updateParticipant({
-        identifier: editingParticipant,
-        newIdentifier: data.identifier,
+        identifier: editingParticipant.identifier,
+        data,
       });
     }
 
     if (!editingParticipant) {
-      await createParticipant([data.identifier]);
+      await createParticipant([data]);
     }
   };
 
   useEffect(() => {
     if (editingParticipant) {
-      setValue('identifier', editingParticipant);
+      setValue('identifier', editingParticipant.identifier);
+      setValue(
+        'label',
+        editingParticipant.label
+          ? (editingParticipant.label as string)
+          : undefined,
+      );
     }
   }, [editingParticipant, setValue]);
 
@@ -190,11 +205,17 @@ function ParticipantModal({
           id="participant-form"
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+          className="space-y-3"
         >
           <Input
             {...register('identifier')}
             placeholder="Enter a participant identifier..."
             error={errors.identifier?.message}
+          />
+          <Input
+            {...register('label')}
+            placeholder="Enter optional label for a participant..."
+            error={errors.label?.message}
           />
         </form>
         <DialogFooter>

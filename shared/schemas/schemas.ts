@@ -24,9 +24,21 @@ export const participantIdSchema = z
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
-export const participantListInputSchema = z.array(participantIdentifierSchema);
+export const participantLabelSchema = z.string().optional();
+
+export const participantListInputSchema = z.array(
+  z.object({
+    identifier: participantIdentifierSchema,
+    label: participantLabelSchema,
+  }),
+);
 
 export const updateSchema = z.object({
   identifier: participantIdentifierSchema,
-  newIdentifier: participantIdentifierSchema,
+  data: z.object({
+    identifier: participantIdentifierSchema,
+    label: participantLabelSchema,
+  }),
 });
+
+export type ParticipantsWithLabel = z.infer<typeof participantListInputSchema>;
