@@ -5,9 +5,6 @@ on:
     branches:
       - '*'
 
-env:
-  SKIP_ENV_VALIDATION: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,6 +12,11 @@ jobs:
     env:
       SKIP_ENV_VALIDATION: true
       DISABLE_ANALYTICS: true
+      DATABASE_URL: mysql://connection-string
+      UPLOADTHING_SECRET: secret
+      UPLOADTHING_APP_ID: app-id
+      MAXMIND_ACCOUNT_ID: account-id
+      MAXMIND_LICENSE_KEY: license-key
       INSTALLATION_ID: gh-action
 
     steps:
