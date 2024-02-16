@@ -165,12 +165,7 @@ function ParticipantModal({
   useEffect(() => {
     if (editingParticipant) {
       setValue('identifier', editingParticipant.identifier);
-      setValue(
-        'label',
-        editingParticipant.label
-          ? (editingParticipant.label as string)
-          : undefined,
-      );
+      setValue('label', editingParticipant.label ?? '');
     }
   }, [editingParticipant, setValue]);
 
