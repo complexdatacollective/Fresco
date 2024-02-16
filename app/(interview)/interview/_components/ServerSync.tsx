@@ -3,7 +3,6 @@
 import { debounce, isEqual } from 'lodash';
 import { type ReactNode, useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { useDebounceCallback } from 'usehooks-ts';
 import usePrevious from '~/hooks/usePrevious';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { api } from '~/trpc/client';
@@ -28,6 +27,7 @@ const ServerSync = ({
     },
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSessionSync = useCallback(
     debounce(syncSessionWithServer, 2000, {
       leading: false,
