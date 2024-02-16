@@ -191,8 +191,8 @@ export const useNavigationHelpers = () => {
   return {
     progress,
     isReadyForNextStage,
-    canMoveForward: forceNavigationDisabled ? false : canMoveForward,
-    canMoveBackward: forceNavigationDisabled ? false : canMoveBackward,
+    canMoveForward: !forceNavigationDisabled && canMoveForward,
+    canMoveBackward: !forceNavigationDisabled && canMoveBackward,
     moveForward,
     moveBackward,
     isFirstPrompt,
