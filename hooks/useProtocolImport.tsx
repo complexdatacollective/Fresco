@@ -17,7 +17,6 @@ import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
 import { clientRevalidateTag } from '~/utils/clientRevalidate';
-import { useRouter } from 'next/navigation';
 import type { assetInsertSchema } from '~/server/routers/protocol';
 import type { z } from 'zod';
 import { hash } from 'ohash';
@@ -29,13 +28,11 @@ import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 export const useProtocolImport = (onImportComplete?: () => void) => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
   const utils = api.useUtils();
-  const router = useRouter();
 
   const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation({
     async onSuccess() {
       await clientRevalidateTag('protocol.get.all');
       await utils.protocol.invalidate();
-      router.refresh();
     },
   });
 
