@@ -2,11 +2,7 @@ import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
 import type { directions } from '../hooks/useNavigationHelpers';
-<<<<<<< HEAD
-import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
-=======
 import { type ElementType } from 'react';
->>>>>>> 862f622f0098fe3ded3a97916259972e6b30b905
 
 type StageProps = {
   stage: {
