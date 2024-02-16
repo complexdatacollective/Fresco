@@ -13,7 +13,7 @@ jobs:
       SKIP_ENV_VALIDATION: true
       DISABLE_ANALYTICS: true
       DATABASE_URL: mysql://connection-string
-      UPLOADTHING_SECRET: secret
+      UPLOADTHING_SECRET: sk_live_secret
       UPLOADTHING_APP_ID: app-id
       MAXMIND_ACCOUNT_ID: account-id
       MAXMIND_LICENSE_KEY: license-key
@@ -42,9 +42,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Generate prisma client
-        run: pnpm prisma generate
 
       - uses: actions/cache@v3
         name: Setup next cache
