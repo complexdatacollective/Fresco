@@ -59,7 +59,7 @@ export const GenerateParticipantURLs = () => {
         Export Participation URLs
       </Button>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Generate Participation URLs</DialogTitle>
             <DialogDescription>
@@ -69,7 +69,7 @@ export const GenerateParticipantURLs = () => {
               to take your interview.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex w-72 flex-col items-center justify-end gap-4">
+          <div className="flex flex-col items-center justify-end gap-4">
             {isLoadingProtocols || !protocols ? (
               <Skeleton className="h-10 w-full rounded-input" />
             ) : (
@@ -114,7 +114,9 @@ export const GenerateParticipantURLs = () => {
             )}
           </div>
           <DialogFooter>
-            <Button onClick={handleOpenChange}>Cancel</Button>
+            <Button onClick={handleOpenChange} variant="outline">
+              Cancel
+            </Button>
             <ExportCSVParticipantURLs
               protocol={selectedProtocol!}
               participants={
