@@ -171,20 +171,21 @@ export const makeGetEdgeLabel = () =>
     },
   );
 
-export const makeGetEdgeColor = () =>
-  createSelector(
-    getProtocolCodebook,
-    (_, props: Record<string, string>) => props.type ?? null,
-    (codebook, edgeType: string | null) => {
-      if (!edgeType) {
-        return 'edge-color-seq-1';
-      }
+export const getEdgeColor = createSelector(
+  getProtocolCodebook,
+  (_, props: Record<string, string>) => props.type ?? null,
+  (codebook, edgeType: string | null) => {
+    if (!edgeType) {
+      return 'edge-color-seq-1';
+    }
 
-      return (
-        (codebook as Codebook)?.edge?.[edgeType]?.color ?? 'edge-color-seq-1'
-      );
-    },
-  );
+    return (
+      (codebook as Codebook)?.edge?.[edgeType]?.color ?? 'edge-color-seq-1'
+    );
+  },
+);
+
+export const makeGetEdgeColor = () => getEdgeColor;
 
 export const makeGetNodeAttributeLabel = () =>
   createDeepEqualSelector(

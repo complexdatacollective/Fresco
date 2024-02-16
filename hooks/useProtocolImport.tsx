@@ -16,7 +16,6 @@ import {
 import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
 import type { assetInsertSchema } from '~/server/routers/protocol';
 import type { z } from 'zod';
 import { hash } from 'ohash';
@@ -31,8 +30,7 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
 
   const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation({
     async onSuccess() {
-      await clientRevalidateTag('protocol.get.all');
-      await utils.protocol.invalidate();
+      await utils.protocol.get.all.invalidate();
     },
   });
 

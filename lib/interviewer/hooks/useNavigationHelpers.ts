@@ -193,5 +193,6 @@ export const useNavigationHelpers = () => {
     isLastPrompt,
     isLastStage,
     registerBeforeNext,
+    currentStep,
   };
 };
