@@ -10,6 +10,7 @@ import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInter
 import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
 import type { RouterOutputs } from '~/trpc/shared';
 import { HardDriveUpload } from 'lucide-react';
+import { GenerateInterviewURLs } from '../../interviews/_components/ExportInterviewUrlSection';
 
 type Interviews = RouterOutputs['interview']['get']['all'];
 
@@ -91,6 +92,7 @@ export const InterviewsTable = ({
               <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
               Export all unexported interviews
             </Button>
+            <GenerateInterviewURLs />
           </>
         }
       />
