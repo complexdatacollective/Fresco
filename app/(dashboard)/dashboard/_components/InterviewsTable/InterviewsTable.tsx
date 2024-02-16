@@ -6,11 +6,11 @@ import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/Interv
 import { DataTable } from '~/components/DataTable/DataTable';
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
-import { DeleteInterviewsDialog } from '../../interviews/_components/DeleteInterviewsDialog';
-import { ExportInterviewsDialog } from '../../interviews/_components/ExportInterviewsDialog';
+import { DeleteInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_components/DeleteInterviewsDialog';
+import { ExportInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_components/ExportInterviewsDialog';
 import type { RouterOutputs } from '~/trpc/shared';
 import { HardDriveUpload } from 'lucide-react';
-import { GenerateInterviewURLs } from '../../interviews/_components/ExportInterviewUrlSection';
+import { GenerateInterviewURLs } from '~/app/(dashboard)/dashboard/interviews/_components/ExportInterviewUrlSection';
 
 type Interviews = RouterOutputs['interview']['get']['all'];
 
