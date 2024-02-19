@@ -136,6 +136,8 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
    ![Deploy on Vercel2](public/images/readme-screenshots/vercel2.png)
 
+   **Note: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)**
+
 4. Deploy
 
    Click **"Deploy"** and wait for the deployment to finish.
@@ -173,11 +175,20 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
 # Troubleshooting
 
-If you encountered the error below while deploying Fresco on Vercel...
+## Deployment build errors and fixes
 
-![Deploy error1](public/images/readme-screenshots/deploy-error1.png)
+- If you encountered the **"Invalid API key"** error...
 
-It means that you have not entered the correct database connection string and you need to copy it again from your PlanetScale dashboard, see the below instructions for that.
+  ![Deploy error1](public/images/readme-screenshots/deploy-error2.png)
+
+  It means that you provided an incorrect environment variable. Make sure to enter the environment variable value correctly. You must enter the value that starts after `=` symbol
+  (e.g: `UPLOADTHING_APP_ID=5q5ybg9dwg`, here `UPLOADTHING_APP_ID` is the key of variable and `5q5ybg9dwg` is the value. You should always enter the value)
+
+- If you encountered the error below...
+
+  ![Deploy error1](public/images/readme-screenshots/deploy-error1.png)
+
+  It means that you have not entered the correct database connection string and you need to copy it again from your PlanetScale dashboard, see the below instructions for that.
 
 ### Get database connection URL from PlanetScale dashboard
 
