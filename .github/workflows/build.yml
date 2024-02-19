@@ -15,8 +15,6 @@ jobs:
       DATABASE_URL: mysql://connection-string
       UPLOADTHING_SECRET: sk_live_secret
       UPLOADTHING_APP_ID: app-id
-      MAXMIND_ACCOUNT_ID: account-id
-      MAXMIND_LICENSE_KEY: license-key
       INSTALLATION_ID: gh-action
 
     steps:
