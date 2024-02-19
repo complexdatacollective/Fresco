@@ -21,14 +21,14 @@ export default function Settings() {
           heading="Anonymous Recruitment"
           controlArea={<AnonymousRecruitmentSwitch />}
         >
-          <Paragraph variant="noMargin">
+          <Paragraph margin="none">
             If anonymous recruitment is enabled, you may generate an anonymous
             participation URL. This URL can be shared with participants to allow
             them to self-enroll in your study.
           </Paragraph>
         </SettingsSection>
         <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>
-          <Paragraph variant="noMargin">
+          <Paragraph margin="none">
             Delete all data and reset Fresco to its default state.
           </Paragraph>
         </SettingsSection>
@@ -36,7 +36,7 @@ export default function Settings() {
           heading="Send Test Analytics Event"
           controlArea={<AnalyticsButton />}
         >
-          <Paragraph variant="noMargin">
+          <Paragraph margin="none">
             This will send a test analytics event to the Fresco analytics
             server.
           </Paragraph>

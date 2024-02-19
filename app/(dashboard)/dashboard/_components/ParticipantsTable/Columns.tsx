@@ -36,7 +36,7 @@ export function getParticipantColumns(): ColumnDef<
       enableHiding: false,
     },
     {
-      accessorKey: 'identifier',
+      id: 'participant',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Identifier" />;
       },
@@ -49,10 +49,15 @@ export function getParticipantColumns(): ColumnDef<
             <Image
               src="/images/participant.svg"
               alt="Protocol icon"
-              width={32}
+              className="max-w-none"
+              width={24}
               height={24}
             />
-            <span className="truncate">{row.original.identifier}</span>
+            <Badge variant={'outline'}>
+              <span className="max-w-56 truncate">
+                {row.original.identifier}
+              </span>
+            </Badge>
           </div>
         );
       },
@@ -63,32 +68,23 @@ export function getParticipantColumns(): ColumnDef<
         return <DataTableColumnHeader column={column} title="Label" />;
       },
       cell: ({ row }) => {
-        return row.original.label ? (
-          <Badge variant={'outline'}>{row.original.label}</Badge>
-        ) : (
-          ''
-        );
+        return <span className="truncate">{row.original.label}</span>;
       },
     },
     {
-      accessorKey: 'Interview Count',
+      id: 'interviews',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Interviews" />;
-      },
-      cell: ({ row }) => {
-        return <span>{row.original._count.interviews}</span>;
-      },
-    },
-    {
-      accessorKey: 'Completed Interviews',
-      header: ({ column }) => {
-        return <DataTableColumnHeader column={column} title="Completed" />;
       },
       cell: ({ row }) => {
         const completedInterviews = row.original.interviews.filter(
           (interview) => interview.finishTime,
         ).length;
-        return <span>{completedInterviews}</span>;
+        return (
+          <span>
+            {row.original._count.interviews} ({completedInterviews} completed)
+          </span>
+        );
       },
     },
     {

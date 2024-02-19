@@ -16,7 +16,7 @@ function OnboardSteps() {
   const { currentStep, setCurrentStep } = useOnboardingContext();
 
   return (
-    <div className="bg-white flex flex-shrink-0 flex-grow-0 flex-col gap-6 rounded-xl px-8 py-12">
+    <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">
       {stepLabels.map((step, index) => (
         <div
           key={index}
@@ -31,9 +31,9 @@ function OnboardSteps() {
             className={cn(
               'text-md flex h-10 w-10 items-center justify-center rounded-full border border-primary/[.06] font-bold',
               index < currentStep - 1 &&
-                'border-teal-400 text-white bg-success',
+                'border-teal-400 bg-success text-white',
               index === currentStep - 1 &&
-                'text-white border-primary bg-primary',
+                'border-primary bg-primary text-white',
             )}
           >
             {index < currentStep - 1 ? (
@@ -43,7 +43,7 @@ function OnboardSteps() {
             )}
           </div>
           <div className="flex flex-col">
-            <Paragraph variant="noMargin">{step}</Paragraph>
+            <Paragraph margin="none">{step}</Paragraph>
           </div>
         </div>
       ))}

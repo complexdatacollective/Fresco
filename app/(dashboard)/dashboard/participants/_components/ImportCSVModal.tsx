@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 import {
@@ -12,19 +12,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { DropzoneField } from './DropzoneField';
-import { Form } from '~/components/ui/form';
-import useZodForm from '~/hooks/useZodForm';
 import { z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
-import { FileDown, Loader2 } from 'lucide-react';
-import { ColumnSelectField } from './ColumnSelectField';
-import { type ParticipantsWithLabel } from '~/shared/schemas/schemas';
+import { AlertCircle, FileDown, Loader2 } from 'lucide-react';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import UnorderedList from '~/components/ui/typography/UnorderedList';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { useForm } from 'react-hook-form';
+import DropzoneField from './DropzoneField';
 
-const formSchema = z.object({
-  csvFile: z.array(z.record(z.string())).nullable(),
-  csvColumn: z.string().optional(),
+export const ParticipantRowSchema = z.union([
+  z.object({
+    identifier: z.string(),
+    label: z.string().optional(),
+  }),
+  z.object({
+    label: z.string(),
+    identifier: z.string().optional(),
+  }),
+]);
+
+export type ParticipantRow = z.infer<typeof ParticipantRowSchema>;
+
+export const FormSchema = z.object({
+  csvFile: z.array(ParticipantRowSchema, {
+    invalid_type_error: 'Invalid CSV',
+  }),
 });
+
+export type FormSchema = z.infer<typeof FormSchema>;
 
 const ImportCSVModal = ({
   onImportComplete,
@@ -32,125 +48,78 @@ const ImportCSVModal = ({
   onImportComplete?: () => void;
 }) => {
   const { toast } = useToast();
-  const methods = useZodForm({ schema: formSchema, shouldUnregister: true });
+  const { control, handleSubmit, reset, formState } = useForm<FormSchema>({
+    shouldUnregister: true,
+    mode: 'onChange',
+  });
+
+  const { isSubmitting, isValid } = formState;
   const utils = api.useUtils();
-  const { mutateAsync: importParticipants } =
+
+  const {
+    mutateAsync: importParticipants,
+  } = // TODO: think about optimistic updates
     api.participant.create.useMutation({
       onError(error) {
         throw new Error(error.message);
       },
+      async onSuccess() {
+        await utils.participant.get.all.invalidate();
+      },
     });
-  const isSubmitting = methods.formState.isSubmitting;
+
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const selectedCSV = methods.watch('csvFile');
-
-  // To determine if we need to prompt the user for which column to use as the
-  // identifier, we check if the CSV file has a column named "identifier" or if
-  // it only has one column. If it has one column, we assume that it is the
-  // identifier column. Otherwise we show our followup question.
-  const showColumnSelect = useMemo(() => {
-    if (!selectedCSV) return false;
-
-    const ObjKeys = Object.keys(selectedCSV[0] ?? {});
-    if (ObjKeys.includes('identifier') || ObjKeys.length === 1) {
-      return false;
-    }
-
-    return true;
-  }, [selectedCSV]);
-
-  const csvColumns = useMemo(() => {
-    if (!selectedCSV) return [];
-
-    return Object.keys(selectedCSV[0] ?? {});
-  }, [selectedCSV]);
 
   const onSubmit = async (data: unknown) => {
-    const validData = formSchema.parse(data);
+    try {
+      const safeData = FormSchema.parse(data);
+      const result = await importParticipants(safeData.csvFile);
 
-    if (!validData.csvFile) {
-      methods.setError('csvFile', {
-        message: 'You must upload a CSV file!',
-      });
-      return;
-    }
+      if (
+        result.existingParticipants &&
+        result.existingParticipants.length > 0
+      ) {
+        toast({
+          title: 'Import completed with collisions',
+          description: (
+            <>
+              <p>
+                Your participants were imported successfully, but some
+                identifiers collided with existing participants and were not
+                imported.
+              </p>
+              {result.existingParticipants.length < 5 && (
+                <ul>
+                  {result.existingParticipants.map((item) => (
+                    <li key={item.identifier}>{item.identifier}</li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ),
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Participants imported',
+          description: 'Participants have been imported successfully',
+          variant: 'success',
+        });
+      }
 
-    if (validData.csvFile.length === 0) {
-      methods.setError('csvFile', {
-        message: 'Your CSV file is empty! Please upload a valid CSV file.',
-      });
-      return;
-    }
+      onImportComplete?.();
 
-    if (showColumnSelect && !validData.csvColumn) {
-      methods.setError('csvColumn', {
-        message: 'You must select a column representing the identifier!',
-      });
-      return;
-    }
-
-    const ObjectKeys = Object.keys(validData.csvFile[0] ?? {});
-
-    const identifierColumn = showColumnSelect
-      ? validData.csvColumn!
-      : ObjectKeys.includes('identifier')
-      ? 'identifier'
-      : ObjectKeys[0]!;
-
-    const labelColumn = ObjectKeys.includes('label') ? 'label' : undefined;
-
-    const participantsData = validData.csvFile
-      .map((item) => ({
-        identifier: item[identifierColumn],
-        label: labelColumn && item[labelColumn],
-      }))
-      .filter(
-        (item) =>
-          typeof item.identifier === 'string' && item.identifier !== undefined,
-      ) as ParticipantsWithLabel;
-
-    const result = await importParticipants(participantsData);
-
-    if (result.error) {
+      reset();
+      setShowImportDialog(false);
+    } catch (e) {
       // eslint-disable-next-line no-console
-      console.log(result.error);
-      return;
-    }
-
-    await utils.participant.get.all.refetch();
-
-    if (result.existingParticipants && result.existingParticipants.length > 0) {
+      console.log(e);
       toast({
-        title: 'Import completed with collisions',
-        description: (
-          <>
-            <p>
-              Your participants were imported successfully, but some identifiers
-              collided with existing participants and were not imported.
-            </p>
-            {result.existingParticipants.length < 5 && (
-              <ul>
-                {result.existingParticipants.map((item) => (
-                  <li key={item.identifier}>{item.identifier}</li>
-                ))}
-              </ul>
-            )}
-          </>
-        ),
+        title: 'Error',
+        description: 'An error occurred while importing participants',
         variant: 'destructive',
       });
-    } else {
-      toast({
-        title: 'Participants imported',
-        description: 'Participants have been imported successfully',
-        variant: 'success',
-      });
     }
-
-    onImportComplete?.();
-
-    methods.reset();
-    setShowImportDialog(false);
   };
 
   return (
@@ -162,39 +131,53 @@ const ImportCSVModal = ({
             Import participants
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Import participants</DialogTitle>
-            <DialogDescription>Drag and drop CSV file below</DialogDescription>
+            <DialogDescription>
+              <Alert variant="info" className="my-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>CSV file requirements</AlertTitle>
+                <AlertDescription>
+                  <Paragraph>
+                    Your CSV file can contain the following columns:
+                  </Paragraph>
+                  <UnorderedList>
+                    <li>
+                      Identifier - must be a unique string, and{' '}
+                      <strong>should not</strong> be easy to guess. Used to
+                      generate the onboarding URL to allow integration with
+                      other survey tools.
+                    </li>
+                    <li>
+                      Label - can be any text or number. Used to provide a human
+                      readable label for the participant.
+                    </li>
+                  </UnorderedList>
+                  <Paragraph>
+                    Either an identifier column or a label column{' '}
+                    <strong>must be provided</strong> for each participant.
+                  </Paragraph>
+                </AlertDescription>
+              </Alert>
+            </DialogDescription>
           </DialogHeader>
-          <Form {...methods}>
-            <form
-              id="uploadFile"
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises
-              onSubmit={methods.handleSubmit(
-                async (data) => await onSubmit(data),
-              )}
-              className="flex flex-col gap-6"
-            >
-              <DropzoneField
-                label="Select a CSV file"
-                description="Your CSV file must contain a column named 'identifier' with the participant identifier. For information about the format of this file, see our documentation."
-                control={methods.control}
-                error={methods.formState.errors.csvFile?.message}
-              />
-              {showColumnSelect && (
-                <ColumnSelectField
-                  control={methods.control}
-                  csvColumns={csvColumns}
-                  label="Select identifier column"
-                  description='Your CSV file did not contain a column named "identifiers". Please select the column that you wish to use to uniquely identify the participants you are importing.'
-                />
-              )}
-            </form>
-          </Form>
+          <form
+            id="uploadFile"
+            onSubmit={handleSubmit(async (data) => await onSubmit(data))}
+            className="flex flex-col"
+          >
+            <DropzoneField control={control} name="csvFile" />
+          </form>
           <DialogFooter>
             <Button
-              disabled={isSubmitting || !methods.formState.isValid}
+              onClick={() => setShowImportDialog(false)}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={isSubmitting || !isValid}
               form="uploadFile"
               type="submit"
             >

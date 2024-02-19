@@ -67,7 +67,7 @@ export const GenerateParticipationURLButton = ({
       <PopoverTrigger asChild>
         <Button size="xs" ref={ref} variant="accent">
           <Copy className="mr-2 h-4 w-4" />
-          Copy participation URL
+          Copy Unique URL
         </Button>
       </PopoverTrigger>
       <PopoverContent className="flex flex-col gap-2">
@@ -82,8 +82,8 @@ export const GenerateParticipationURLButton = ({
 
             setSelectedProtocol(protocol);
             handleCopy(
-              `${getBaseUrl()}/onboard/${protocol?.id}/?participantId=${
-                participant.id
+              `${getBaseUrl()}/onboard/${protocol?.id}/?participantIdentifier=${
+                participant.identifier
               }`,
             );
 

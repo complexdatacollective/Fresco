@@ -39,14 +39,6 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
   //   },
   // },
   // {
-  //   accessorKey: 'startTime',
-  //   header: 'Start Time',
-  //   cell: ({ row }) => {
-  //     const date = new Date(row.original.startTime);
-  //     return date.toLocaleString();
-  //   },
-  // },
-  // {
   //   accessorKey: 'finishTime',
   //   header: 'Finish Time',
   //   cell: ({ row }) => {
@@ -69,18 +61,21 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
     cell: ({ row }) => {
       return (
         <div
-          className="flex w-full max-w-52 items-center gap-2"
+          className="flex items-center gap-2"
           title={row.original.participant.identifier}
         >
           <Image
             src="/images/participant.svg"
             alt="Protocol icon"
-            width={32}
+            className="max-w-none"
+            width={24}
             height={24}
           />
-          <span className="truncate">
-            {row.original.participant.identifier}
-          </span>
+          <Badge variant={'outline'}>
+            <span className="max-w-56 truncate">
+              {row.original.participant.identifier}
+            </span>
+          </Badge>
         </div>
       );
     },
@@ -105,6 +100,14 @@ export const InterviewColumns = (): ColumnDef<Interviews>[] => [
           <span className="truncate">{row.original.protocol.name}</span>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: 'startTime',
+    header: 'Started',
+    cell: ({ row }) => {
+      const date = new Date(row.original.startTime);
+      return <TimeAgo date={date} />;
     },
   },
   {

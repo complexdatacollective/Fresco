@@ -13,23 +13,23 @@ const handler = async (
     return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
   }
 
-  let participantId: string | undefined;
+  let participantIdentifier: string | undefined;
 
-  // If the request is a POST, check the request body for a participant ID.
-  // Otherwise, check the searchParams for a participant ID.
+  // If the request is a POST, check the request body for a participant identifier.
+  // Otherwise, check the searchParams for a participant identifier.
   if (req.method === 'POST') {
     const postData = (await req.json()) as
       | { participantId?: string }
       | undefined;
-    participantId = postData?.participantId;
+    participantIdentifier = postData?.participantId;
   } else {
     const searchParams = req.nextUrl.searchParams;
-    participantId = searchParams.get('participantId') ?? undefined;
+    participantIdentifier = searchParams.get('participantId') ?? undefined;
   }
 
   // Create a new interview given the protocolId and participantId
   const { createdInterviewId, error } = await api.interview.create.mutate({
-    participantId,
+    participantIdentifier,
     protocolId,
   });
 
@@ -49,14 +49,14 @@ const handler = async (
   // eslint-disable-next-line no-console
   console.log(
     `🚀 Created interview with ID ${createdInterviewId} using protocol ${protocolId} for participant ${
-      participantId ?? 'Anonymous'
+      participantIdentifier ?? 'Anonymous'
     }...`,
   );
 
   void trackEvent({
     type: 'InterviewStarted',
     metadata: {
-      usingAnonymousParticipant: !participantId,
+      usingAnonymousParticipant: !participantIdentifier,
     },
   });
 

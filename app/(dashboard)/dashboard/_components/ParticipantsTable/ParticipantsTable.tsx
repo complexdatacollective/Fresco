@@ -168,7 +168,7 @@ export const ParticipantsTable = ({
       <DataTable
         columns={columns}
         data={participants}
-        filterColumnAccessorKey="identifier"
+        filterColumnAccessorKey="participant"
         handleDeleteSelected={handleDeleteItems}
         actions={ActionsDropdown}
         headerItems={

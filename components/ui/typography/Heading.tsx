@@ -6,7 +6,7 @@ import { cn } from '~/utils/shadcn';
 import { Slot } from '@radix-ui/react-slot';
 import { motion } from 'framer-motion';
 
-const headingVariants = cva('text-balance', {
+export const headingVariants = cva('text-balance', {
   variants: {
     variant: {
       'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
@@ -15,6 +15,8 @@ const headingVariants = cva('text-balance', {
       'h4': 'scroll-m-20 text-xl font-semibold tracking-tight',
       'h4-all-caps':
         'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
+      'label':
+        'scroll-m-20 text-sm font-extrabold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
     },
   },
 });
@@ -30,6 +32,7 @@ const variantElementMap: Record<
   'h3': 'h3',
   'h4': 'h4',
   'h4-all-caps': 'h4',
+  'label': 'label',
 };
 
 export type HeadingProps = {

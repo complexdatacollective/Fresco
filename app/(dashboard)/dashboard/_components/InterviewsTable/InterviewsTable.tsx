@@ -11,6 +11,12 @@ import { ExportInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_
 import type { RouterOutputs } from '~/trpc/shared';
 import { HardDriveUpload } from 'lucide-react';
 import { GenerateInterviewURLs } from '~/app/(dashboard)/dashboard/interviews/_components/ExportInterviewUrlSection';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
 
 type Interviews = RouterOutputs['interview']['get']['all'];
 
@@ -81,17 +87,25 @@ export const InterviewsTable = ({
         actions={ActionsDropdown}
         headerItems={
           <>
-            <Button onClick={handleExportAll}>
-              <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
-              Export all interviews
-            </Button>
-            <Button
-              disabled={unexportedInterviews.length === 0}
-              onClick={handleExportUnexported}
-            >
-              <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
-              Export all unexported interviews
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button>
+                  <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
+                  Export Interview Data
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleExportAll}>
+                  Export all interviews
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={unexportedInterviews.length === 0}
+                  onClick={handleExportUnexported}
+                >
+                  Export all unexported interviews
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <GenerateInterviewURLs />
           </>
         }

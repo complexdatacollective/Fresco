@@ -19,7 +19,7 @@ export default async function SummaryStatistics() {
   return (
     <ResponsiveContainer
       className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
-      maxWidth="5xl"
+      maxWidth="6xl"
     >
       <Link href="/dashboard/protocols">
         <StatCard

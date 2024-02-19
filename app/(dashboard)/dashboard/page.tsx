@@ -25,7 +25,7 @@ function Home() {
           to keep track of new protocols, interviews, and participants.
         </Paragraph>
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="5xl">
+      <ResponsiveContainer maxWidth="6xl">
         <Section>
           <ActivityFeed />
         </Section>

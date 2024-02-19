@@ -7,7 +7,6 @@ import { Input } from '~/components/ui/Input';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -21,6 +20,11 @@ import {
 } from '~/shared/schemas/schemas';
 import type { Participant } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import InfoTooltip from '~/components/InfoTooltip';
+import { HelpCircle } from 'lucide-react';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { createId } from '@paralleldrive/cuid2';
 
 type ParticipantModalProps = {
   open: boolean;
@@ -104,7 +108,7 @@ function ParticipantModal({
 
         const newParticipants = participants.map((p, index) => ({
           id: `optimistic-${index}`,
-          identifier: p.identifier,
+          identifier: p.identifier ?? createId(),
           label: p.label,
           interviews: [],
           _count: {
@@ -185,11 +189,6 @@ function ParticipantModal({
           <DialogTitle>
             {editingParticipant ? 'Edit Participant' : 'Add Participant'}
           </DialogTitle>
-          <DialogDescription>
-            {editingParticipant
-              ? 'Update the identifier of the participant.'
-              : 'To add a new participant, enter an identifier below. This could be a name, a number, or an ID.'}
-          </DialogDescription>
         </DialogHeader>
         {error && (
           <div className="mb-6 flex flex-wrap">
@@ -200,20 +199,69 @@ function ParticipantModal({
           id="participant-form"
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onSubmit={handleSubmit(async (data) => await onSubmit(data))}
-          className="space-y-3"
+          className="flex flex-col gap-2"
         >
           <Input
             {...register('identifier')}
-            placeholder="Enter a participant identifier..."
+            label="Participant Identifier"
+            required
+            autoFocus
+            hint={
+              <>
+                This could be a study ID, a number, or any other unique
+                identifier. It should be unique for each participant, and should
+                not be easy to guess{' '}
+                <InfoTooltip
+                  trigger={<HelpCircle className="h-4 w-4" />}
+                  content={
+                    <>
+                      <Heading variant="h4-all-caps">
+                        Participant Identifiers
+                      </Heading>
+                      <Paragraph>
+                        Participant identifiers are used by Fresco to onboard
+                        participants. They might be exposed to the participant
+                        during this process via the participation URL, and so
+                        must <strong>not</strong> contain any sensitive
+                        information, and must not be easy for other participants
+                        to guess (e.g. sequential numbers, or easily guessable
+                        strings).
+                      </Paragraph>
+                    </>
+                  }
+                />
+                .
+              </>
+            }
+            placeholder="Enter an identifier..."
             error={errors.identifier?.message}
+            // Add an adornment to the right to allow automatically generating an ID
+            inputClassName="pr-28"
+            rightAdornment={
+              <Button
+                type="button"
+                variant="secondary"
+                size="xs"
+                onClick={() => {
+                  setValue('identifier', `p-${createId()}`);
+                }}
+              >
+                Generate
+              </Button>
+            }
           />
           <Input
             {...register('label')}
-            placeholder="Enter optional label for a participant..."
+            label="Label"
+            hint="This optional field allows you to provide a human readable label. This could be a name, or an internal project label for this participant. It does not need to be unique, and will not be exposed to participants."
+            placeholder="Enter optional label..."
             error={errors.label?.message}
           />
         </form>
         <DialogFooter>
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
+            Cancel
+          </Button>
           <Button form="participant-form" type="submit">
             {editingParticipant ? 'Update' : 'Submit'}
           </Button>

@@ -1,16 +1,14 @@
-import Papa, { type ParseResult } from 'papaparse';
+import Papa from 'papaparse';
 
-export default async function parseCSV(
-  csvFile: File,
-): Promise<Record<string, string>[]> {
+export default async function parseCSV<T>(csvFile: File): Promise<T[]> {
   return new Promise((resolve, reject) => {
-    Papa.parse(csvFile, {
+    Papa.parse<T>(csvFile, {
       skipEmptyLines: true,
       header: true,
       error: (error) => {
         reject(error);
       },
-      complete: (results: ParseResult<Record<string, string>>) => {
+      complete: (results) => {
         resolve(results.data);
       },
     });

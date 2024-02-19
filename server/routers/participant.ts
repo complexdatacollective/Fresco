@@ -8,6 +8,7 @@ import {
 } from '~/shared/schemas/schemas';
 import { z } from 'zod';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { createId } from '@paralleldrive/cuid2';
 
 export const participantRouter = router({
   get: router({
@@ -38,18 +39,30 @@ export const participantRouter = router({
   create: protectedProcedure
     .input(participantListInputSchema)
     .mutation(async ({ input: participants }) => {
-      const identifiers = participants.map((p) => p.identifier);
+      // Ensure all participants have an identifier by generating one for any
+      // that don't have one.
+      const participantsWithIdentifiers = participants.map((participant) => {
+        return {
+          identifier: participant.identifier ?? createId(),
+          ...participant,
+        };
+      });
 
       try {
-        const existingParticipants = await prisma.participant.findMany({
-          where: { identifier: { in: identifiers } },
-        });
-
-        const createdParticipants = await prisma.participant.createMany({
-          data: participants,
-          skipDuplicates: true,
-        });
-
+        const [existingParticipants, createdParticipants] =
+          await prisma.$transaction([
+            prisma.participant.findMany({
+              where: {
+                identifier: {
+                  in: participantsWithIdentifiers.map((p) => p.identifier),
+                },
+              },
+            }),
+            prisma.participant.createMany({
+              data: participantsWithIdentifiers,
+              skipDuplicates: true,
+            }),
+          ]);
         await prisma.events.create({
           data: {
             type: 'Participant(s) Added',

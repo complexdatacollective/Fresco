@@ -6,8 +6,8 @@ import { NcNetworkZod } from '~/shared/schemas/network-canvas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { faker } from '@faker-js/faker';
 import { trackEvent } from '~/analytics/utils';
+import { createId } from '@paralleldrive/cuid2';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -43,49 +43,48 @@ export const interviewRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        participantId: z.string().optional(),
+        participantIdentifier: z.string().optional(),
         protocolId: z.string(),
       }),
     )
-    .mutation(async ({ input: { participantId, protocolId } }) => {
-      if (!participantId) {
-        // Check if anonymous recruitment is enabled, and if it is use it to
-        // generate a participant identifier.
-        const appSettings = await prisma.appSettings.findFirst();
-        if (!appSettings || !appSettings.allowAnonymousRecruitment) {
-          return {
-            errorType: 'no-anonymous-recruitment',
-            error: 'Anonymous recruitment is not enabled',
-            createdInterviewId: null,
+    .mutation(async ({ input: { participantIdentifier, protocolId } }) => {
+      /**
+       * If no participant identifier is provided, we check if anonymous recruitment is enabled.
+       * If it is, we create a new participant and use that identifier.
+       */
+      const participantStatement = participantIdentifier
+        ? {
+            connect: {
+              identifier: participantIdentifier,
+            },
+          }
+        : {
+            create: {
+              identifier: `p-${createId()}`,
+              label: 'Anonymous Participant',
+            },
           };
-        }
-
-        // anonymous recruitment is enabled, so generate a participant
-        const participantIdentifier = faker.string.uuid();
-        const { id } = await prisma.participant.create({
-          data: {
-            identifier: participantIdentifier,
-          },
-        });
-
-        participantId = id;
-      }
 
       try {
+        if (!participantIdentifier) {
+          const appSettings = await prisma.appSettings.findFirst();
+          if (!appSettings || !appSettings.allowAnonymousRecruitment) {
+            return {
+              errorType: 'no-anonymous-recruitment',
+              error: 'Anonymous recruitment is not enabled',
+              createdInterviewId: null,
+            };
+          }
+        }
+
         const createdInterview = await prisma.interview.create({
           select: {
             participant: true,
             id: true,
           },
           data: {
-            startTime: new Date(),
-            lastUpdated: new Date(),
             network: Prisma.JsonNull,
-            participant: {
-              connect: {
-                id: participantId,
-              },
-            },
+            participant: participantStatement,
             protocol: {
               connect: {
                 id: protocolId,
@@ -97,7 +96,10 @@ export const interviewRouter = router({
         await prisma.events.create({
           data: {
             type: 'Interview started',
-            message: `Participant "${createdInterview.participant.identifier}" started an interview`,
+            message: `Participant "${
+              createdInterview.participant.label ??
+              createdInterview.participant.identifier
+            }" started an interview`,
           },
         });
 

@@ -1,181 +1,116 @@
-import { useState } from 'react';
-import { FileCheck, FileText, Loader2 } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  useDropzone,
-  type FileRejection,
-  type DropzoneOptions,
-} from 'react-dropzone';
-import { Label } from '~/components/ui/Label';
-import { cn } from '~/utils/shadcn';
+import { useController, type Control } from 'react-hook-form';
 import parseCSV from '~/utils/parseCSV';
-import {
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '~/components/ui/form';
-import type { Control } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
+import { cn } from '~/utils/shadcn';
+import { useId } from 'react';
+import { Label } from '~/components/ui/Label';
+import { type FormSchema } from './ImportCSVModal';
+import { isArray } from 'lodash';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { FileCheck, FileText } from 'lucide-react';
 
-export const DropzoneField = ({
-  label,
-  description,
+const accept = {
+  'text/csv': [],
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [],
+  'application/vnd.ms-excel': [],
+};
+const maxFiles = 1;
+const maxSize = 1024 * 5000; // 5MB
+
+export default function DropzoneField<T>({
   control,
-  error,
-}: {
-  label: string;
-  description: string;
-  control: Control<{
-    csvFile: Record<string, string>[] | null;
-    csvColumn?: string | undefined;
-  }>;
-  error?: string;
-}) => (
-  <FormField
-    control={control}
-    name="csvFile"
-    defaultValue={null}
-    rules={{ required: false }}
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>{label}</FormLabel>
-        <FormDescription>{description}</FormDescription>
-        <Dropzone value={field.value} onChange={field.onChange} error={error} />
-      </FormItem>
-    )}
-  />
-);
-
-export const Dropzone = ({
-  id,
   name,
   label,
   hint,
-  onChange,
-  value,
-  accept = {
-    'text/csv': [],
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [],
-    'application/vnd.ms-excel': [],
-  },
-  maxFiles = 1,
-  maxSize = 1024 * 5000, // 5MB
-  error,
 }: {
-  id?: string;
-  name?: string;
+  control: Control<FormSchema>;
+  name: 'csvFile';
   label?: string;
   hint?: string;
-  onChange: (csvData: Record<string, string>[]) => void;
-  value: Record<string, string>[] | null;
-  accept?: DropzoneOptions['accept'];
-  maxFiles?: DropzoneOptions['maxFiles'];
-  maxSize?: DropzoneOptions['maxSize'];
-  error?: string;
-}) => {
-  const [processing, setProcessing] = useState(false);
+}) {
+  const id = useId();
 
-  const onDrop = async (
-    acceptedFiles: File[],
-    _fileRejections: FileRejection[],
-  ) => {
-    if (acceptedFiles?.length && acceptedFiles[0]) {
-      setProcessing(true);
-      const csvData = await parseCSV(acceptedFiles[0]);
-      // Add small artificial delay for animation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setProcessing(false);
-      onChange(csvData);
-    }
-  };
+  const controller = useController<FormSchema>({
+    name,
+    control,
+    rules: {
+      required: 'No CSV file selected. Please select a file.',
+      validate: {
+        hasCorrectFields: (value) => {
+          if (!value) {
+            return 'No CSV file selected. Please select a file.';
+          }
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+          if (!isArray(value)) {
+            return 'Invalid CSV. Please select a valid CSV file.';
+          }
+
+          // Check that every row has either a label or an identifier
+          const valid = value.every((row) => row.label ?? row.identifier);
+
+          if (!valid) {
+            return 'Invalid CSV. Every row must have either a label or an identifier';
+          }
+        },
+      },
+    },
+  });
+
+  const { getRootProps, getInputProps } = useDropzone({
     accept,
     multiple: false,
     maxFiles,
     maxSize,
-    onDrop: (acceptedFiles, fileRejections) =>
-      void onDrop(acceptedFiles, fileRejections),
+    onDrop: async (acceptedFiles, _fileRejections) => {
+      if (acceptedFiles?.length && acceptedFiles[0]) {
+        const csvData = await parseCSV<T>(acceptedFiles[0]);
+        controller.field.onChange(csvData);
+      }
+    },
   });
-
-  const componentId = id ?? name;
-
-  const variants = {
-    show: { opacity: 1, y: 0 },
-    hide: { opacity: 0, y: 10 },
-  };
 
   return (
     <div className="relative grid w-full items-center gap-1.5 overflow-hidden">
-      {label && <Label htmlFor={componentId}>{label}</Label>}
-      {hint && (
-        <span className="mb-4 text-sm leading-5 text-muted-foreground">
-          {hint}
-        </span>
+      {label && (
+        <Label htmlFor={id} required>
+          {label}
+        </Label>
       )}
-
+      {hint && (
+        <span className="text-sm leading-5 text-muted-foreground">{hint}</span>
+      )}
       <div
+        ref={controller.field.ref}
         {...getRootProps({
           className: cn(
-            'relative mx-auto flex w-full cursor-pointer flex-col items-center justify-center border border-dashed transition-colors hover:border-violet-800 border-2 rounded-xl',
+            'w-full relative mx-auto flex cursor-pointer flex-col items-center justify-center border border-dashed transition-colors hover:border-primary border-2 rounded-xl p-4',
           ),
         })}
       >
-        <input {...getInputProps({ id: componentId })} />
-        <AnimatePresence mode="wait" initial={false}>
-          {processing && (
-            <motion.div
-              className="flex flex-col items-center justify-center gap-2 p-10 text-center"
-              key="processing"
-              variants={variants}
-              initial="hide"
-              animate="show"
-              exit="hide"
-            >
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <span>Processing...</span>
-            </motion.div>
-          )}
-          {!value && !processing && (
-            <motion.div
-              key="no-value"
-              variants={variants}
-              initial="hide"
-              animate="show"
-              exit="hide"
-              className="flex flex-col items-center justify-center gap-2 p-10 text-center"
-            >
-              <FileText className="text-primary" size={28} />
-              {isDragActive ? (
-                <Paragraph variant="smallText">Drop file here...</Paragraph>
-              ) : (
-                <Paragraph variant="smallText">
-                  Drag & drop file here, or click to select.
-                </Paragraph>
-              )}
-            </motion.div>
-          )}
-          {value && !processing && (
-            <motion.div
-              key="value"
-              variants={variants}
-              initial="hide"
-              animate="show"
-              exit="hide"
-              className="flex flex-col items-center justify-center gap-2 p-10 text-center"
-            >
-              <FileCheck className="text-success" size={50} />
-              <Paragraph variant="noMargin">Valid file uploaded!</Paragraph>
-              <Paragraph variant="smallText">
-                Click the button to continue, or drop a new file here to
-                replace.
-              </Paragraph>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <input {...getInputProps({ id })} />
+        {!controller.field.value && (
+          <>
+            <FileText className="text-primary" size={28} />
+            <Paragraph variant="smallText">
+              Drag & drop file here, or click to select.
+            </Paragraph>
+          </>
+        )}
+        {controller.field.value && (
+          <>
+            <FileCheck size={28} />
+            <Paragraph variant="smallText">
+              File selected. Click import to continue, or drop a new file here
+              to replace.
+            </Paragraph>
+          </>
+        )}
       </div>
-      {error && <span className="text-sm text-destructive">{error}</span>}
+      {controller.fieldState.error && (
+        <span className="text-sm text-destructive">
+          {controller.fieldState.error.message}
+        </span>
+      )}
     </div>
   );
-};
+}

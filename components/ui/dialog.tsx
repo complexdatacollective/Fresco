@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 
 import { cn } from '~/utils/shadcn';
 import Heading from './typography/Heading';
-import Paragraph from './typography/Paragraph';
+import { paragraphVariants } from './typography/Paragraph';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -97,10 +97,9 @@ const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <Paragraph
-    variant="smallText"
+  <div
     ref={ref}
-    className={cn(className)}
+    className={cn(paragraphVariants({ variant: 'smallText' }), className)}
     {...props}
   />
 ));

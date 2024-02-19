@@ -53,7 +53,7 @@ export function DataTableToolbar<TData>({
                       .getColumn(String(column.id))
                       ?.setFilterValue(event.target.value)
                   }
-                  className="flex-shrink-0 flex-grow-0 basis-52"
+                  className="mt-0"
                 />
               ),
           )}

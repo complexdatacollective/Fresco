@@ -17,7 +17,7 @@ const ProtocolsPage = async () => {
           subHeaderText="Upload and manage your interview protocols."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="5xl">
+      <ResponsiveContainer maxWidth="6xl">
         <Section>
           <ProtocolsTable
             initialData={protocols}

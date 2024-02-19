@@ -51,7 +51,7 @@ export const getProtocolColumns = (
               width={32}
               height={24}
             />
-            <span className="truncate">{row.original.name}</span>
+            <span className="max-w-96 truncate">{row.original.name}</span>
           </div>
         );
       },

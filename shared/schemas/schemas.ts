@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ParticipantRowSchema } from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 
 export const numberEnum = <Num extends number, T extends Readonly<Num[]>>(
   args: T,
@@ -26,12 +27,8 @@ export const participantIdSchema = z
 
 export const participantLabelSchema = z.string().optional();
 
-export const participantListInputSchema = z.array(
-  z.object({
-    identifier: participantIdentifierSchema,
-    label: participantLabelSchema,
-  }),
-);
+// Used for import
+export const participantListInputSchema = z.array(ParticipantRowSchema);
 
 export const updateSchema = z.object({
   identifier: participantIdentifierSchema,

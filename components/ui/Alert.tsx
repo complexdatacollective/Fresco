@@ -2,7 +2,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '~/utils/shadcn';
 import Heading from './typography/Heading';
-import Paragraph from './typography/Paragraph';
+import { paragraphVariants } from './typography/Paragraph';
 
 const alertVariants = cva(
   'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
@@ -51,10 +51,13 @@ const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <Paragraph
+  <div
     ref={ref}
-    variant="smallText"
-    className={cn('mt-1', className)}
+    className={cn(
+      'mt-1',
+      paragraphVariants({ variant: 'smallText' }),
+      className,
+    )}
     {...props}
   />
 ));

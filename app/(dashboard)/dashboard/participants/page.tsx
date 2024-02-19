@@ -17,7 +17,7 @@ const ParticipantPage = async () => {
         />
       </ResponsiveContainer>
       <ImportExportSection />
-      <ResponsiveContainer maxWidth="5xl">
+      <ResponsiveContainer maxWidth="6xl">
         <Section>
           <ParticipantsTable initialData={participants} />
         </Section>

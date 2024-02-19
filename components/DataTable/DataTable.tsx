@@ -142,7 +142,7 @@ export function DataTable<TData, TValue>({
   }, [handleExportSelected, table, setRowSelection]);
 
   return (
-    <div>
+    <>
       {(filterColumnAccessorKey || headerItems) && (
         <div className="flex items-center gap-2 pb-4 pt-1">
           {filterColumnAccessorKey && (
@@ -159,7 +159,7 @@ export function DataTable<TData, TValue>({
                   .getColumn(filterColumnAccessorKey)
                   ?.setFilterValue(event.target.value)
               }
-              className="max-w-sm"
+              className="mt-0"
             />
           )}
           {headerItems}
@@ -278,6 +278,6 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
-    </div>
+    </>
   );
 }

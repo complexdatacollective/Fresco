@@ -21,9 +21,8 @@ function ExportParticipants() {
 
       // CSV file format
       const csvData = participants.map((participant) => ({
-        id: participant.id,
         identifier: participant.identifier,
-        label: String(participant.label),
+        label: participant.label,
       }));
 
       const csv = unparse(csvData, { header: true });
