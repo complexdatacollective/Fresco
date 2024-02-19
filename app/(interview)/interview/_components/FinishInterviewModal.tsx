@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '~/trpc/client';
 import { usePathname } from 'next/navigation';
 import { clientRevalidateTag } from '~/utils/clientRevalidate';
+import { trackEvent } from '~/analytics/utils';
 
 type FinishInterviewModalProps = {
   open: boolean;
@@ -30,6 +31,10 @@ const FinishInterviewModal = ({ open, setOpen }: FinishInterviewModalProps) => {
     },
     async onSuccess() {
       await clientRevalidateTag('interview.get.byId');
+
+      void trackEvent({
+        type: 'InterviewCompleted',
+      });
 
       router.push('/interview/finished');
     },
