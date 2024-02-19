@@ -37,14 +37,16 @@ export const participantRouter = router({
   }),
   create: protectedProcedure
     .input(participantListInputSchema)
-    .mutation(async ({ input: identifiers }) => {
+    .mutation(async ({ input: participants }) => {
+      const identifiers = participants.map((p) => p.identifier);
+
       try {
         const existingParticipants = await prisma.participant.findMany({
           where: { identifier: { in: identifiers } },
         });
 
         const createdParticipants = await prisma.participant.createMany({
-          data: identifiers.map((identifier) => ({ identifier })),
+          data: participants,
           skipDuplicates: true,
         });
 
@@ -77,13 +79,11 @@ export const participantRouter = router({
     }),
   update: protectedProcedure
     .input(updateSchema)
-    .mutation(async ({ input: { identifier, newIdentifier } }) => {
+    .mutation(async ({ input: { identifier, data } }) => {
       try {
         const updatedParticipant = await prisma.participant.update({
           where: { identifier },
-          data: {
-            identifier: newIdentifier,
-          },
+          data,
         });
         return { error: null, participant: updatedParticipant };
       } catch (error) {
@@ -118,7 +118,7 @@ export const participantRouter = router({
       }
     }),
     byId: protectedProcedure
-      .input(participantListInputSchema)
+      .input(z.array(participantIdentifierSchema))
       .mutation(async ({ input: identifiers }) => {
         try {
           const deletedParticipants = await prisma.participant.deleteMany({

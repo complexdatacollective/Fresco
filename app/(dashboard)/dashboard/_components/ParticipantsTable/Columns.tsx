@@ -9,6 +9,7 @@ import { InfoIcon } from 'lucide-react';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { buttonVariants } from '~/components/ui/Button';
+import { Badge } from '~/components/ui/badge';
 
 export function getParticipantColumns(): ColumnDef<
   ParticipantWithInterviews,
@@ -53,6 +54,19 @@ export function getParticipantColumns(): ColumnDef<
             />
             <span className="truncate">{row.original.identifier}</span>
           </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'label',
+      header: ({ column }) => {
+        return <DataTableColumnHeader column={column} title="Label" />;
+      },
+      cell: ({ row }) => {
+        return row.original.label ? (
+          <Badge variant={'outline'}>{row.original.label}</Badge>
+        ) : (
+          ''
         );
       },
     },

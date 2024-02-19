@@ -11,6 +11,7 @@ import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
 import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
+import type { Participant } from '@prisma/client';
 
 export const ActionsDropdown = ({
   row,
@@ -21,13 +22,12 @@ export const ActionsDropdown = ({
   data: ParticipantWithInterviews[];
   deleteHandler: (participant: ParticipantWithInterviews) => void;
 }) => {
-  const [selectedParticipant, setSelectedParticipant] = useState<string | null>(
-    null,
-  );
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
   const [showParticipantModal, setShowParticipantModal] = useState(false);
 
-  const editParticipant = (identifier: string) => {
-    setSelectedParticipant(identifier);
+  const editParticipant = (data: Participant) => {
+    setSelectedParticipant(data);
     setShowParticipantModal(true);
   };
 
@@ -49,9 +49,7 @@ export const ActionsDropdown = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => editParticipant(row.original.identifier)}
-          >
+          <DropdownMenuItem onClick={() => editParticipant(row.original)}>
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => deleteHandler(row.original)}>
