@@ -111,7 +111,7 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
 1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
 
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,MAXMIND_ACCOUNT_ID,MAXMIND_LICENSE_KEY,DISABLE_ANALYTICS)
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,DISABLE_ANALYTICS)
 
 2. Create Git Repository. Give your repository a name and hit **"Create"** (This will be your Fresco instance name).
 
@@ -121,16 +121,12 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
    Provide the required environment variables from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
 
-   We use Maxmind for getting geo location data for the Fresco analytics microservice. (you can set Maxmind variables as `null`, if you don't want to enable analytics for your app).
-
-   | Variable            | Description                                                                                                                                                                                                                                           |
-   | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | DATABASE_URL        | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. <a href="https://planetscale.com/docs/concepts/connection-strings" target="_blank">More info</a>                                   |
-   | UPLOADTHING_SECRET  | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>                                                             |
-   | UPLOADTHING_APP_ID  | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>        |
-   | MAXMIND_ACCOUNT_ID  | The account ID for your Maxmind account. This is used to authenticate requests to the Maxmind API, which provides IP geolocation and online fraud detection services. <a href="https://www.maxmind.com/en/accounts/970348/license-key/">More info</a> |
-   | MAXMIND_LICENSE_KEY | The license key for your Maxmind account. This is used along with the account ID to authenticate requests to the Maxmind API. <a href="https://www.maxmind.com/en/accounts/970348/license-key/">More info</a>                                         |
-   | DISABLE_ANALYTICS   | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                       |
+   | Variable           | Description                                                                                                                                                                                                                                    |
+   | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+   | DATABASE_URL       | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. <a href="https://planetscale.com/docs/concepts/connection-strings" target="_blank">More info</a>                            |
+   | UPLOADTHING_SECRET | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>                                                      |
+   | UPLOADTHING_APP_ID | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |     |
+   | DISABLE_ANALYTICS  | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                |
 
    **Note: We use Analytics microservice to gather error data from instances of Fresco to troubleshoot issues, so by setting `DISABLE_ANALYTICS` to `false` you would help us identify bugs and improve the app.**
 

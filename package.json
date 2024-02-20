@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "@codaco/analytics": "^5.0.0",
+    "@codaco/analytics": "^5.1.0",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@headlessui/react": "^1.7.17",
@@ -132,7 +132,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.2.0",
-    "@maxmind/geoip2-node": "^5.0.0",
     "@prisma/client": "^5.9.1",
     "@redux-devtools/extension": "^3.2.6",
     "@storybook/addon-essentials": "^7.5.1",
