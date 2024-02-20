@@ -30,7 +30,8 @@ const Stage = (props: StageProps) => {
 
   return (
     <motion.div
-      className="flex-grow-1 basis-full"
+      id="stage"
+      className="flex-grow-1 relative basis-full overflow-hidden"
       key={stage.id}
       initial={{
         opacity: 0,
