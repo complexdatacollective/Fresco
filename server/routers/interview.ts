@@ -200,6 +200,7 @@ export const interviewRouter = router({
           },
           select: {
             participant: true,
+            network: true,
           },
           data: {
             finishTime: new Date(),
@@ -210,6 +211,14 @@ export const interviewRouter = router({
           data: {
             type: 'Interview completed',
             message: `Participant "${updatedInterview.participant.identifier}" completed an interview`,
+          },
+        });
+
+        void trackEvent({
+          type: 'InterviewCompleted',
+          metadata: {
+            nodeCount: updatedInterview.network?.nodes.length ?? 0,
+            edgeCount: updatedInterview.network?.edges.length ?? 0,
           },
         });
 
