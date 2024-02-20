@@ -38,13 +38,15 @@ const Stage = (props: StageProps) => {
       }}
       animate={{
         opacity: 1,
+        transition: {
+          duration: 1,
+        },
       }}
       exit={{
         opacity: 0,
-      }}
-      transition={{
-        type: 'spring',
-        damping: 20,
+        transition: {
+          duration: 0.1,
+        },
       }}
       onAnimationStart={handleAnimationStart}
       onAnimationComplete={handleAnimationComplete}
