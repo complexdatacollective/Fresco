@@ -140,9 +140,13 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
    **Note: If you encounter any issues during deployment, check out the [Troubleshooting](#troubleshooting) section or our <a href="https://community.networkcanvas.com/">User Community</a> for a possible solution.**
 
-5. Visit your deployed app.
+5. Visit your deployed Fresco app by clicking on the preview or go to your dashboard by clicking **"Continue to Dashboard"** button...
 
    ![Deploy on Vercel3](public/images/readme-screenshots/vercel3.png)
+
+   ...and click on one of the domains names or the **"Visit"** button on the right corner.
+
+   ![Deploy on Vercel3](public/images/readme-screenshots/vercel4.png)
 
 # Create User Account on your Fresco app
 
