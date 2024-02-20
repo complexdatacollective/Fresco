@@ -7,8 +7,9 @@ import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import usePrevious from '~/hooks/usePrevious';
 import type { AnyAction } from '@reduxjs/toolkit';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { useAtom } from 'jotai';
-import { forceNavigationDisabledAtom } from '~/providers/SessionProvider';
+import { atom, useAtom } from 'jotai';
+
+export const forceNavigationDisabledAtom = atom(false);
 
 export type directions = 'forwards' | 'backwards';
 
@@ -93,19 +94,16 @@ export const useNavigationHelpers = () => {
     return parseInt(previousStage);
   }, [currentStage, skipMap]);
 
-  const checkCanNavigate = useCallback(
-    async (direction: directions) => {
-      if (beforeNextFunction.current) {
-        const canNavigate = await beforeNextFunction.current(direction);
-        if (!canNavigate) {
-          return false;
-        }
+  const checkCanNavigate = async (direction: directions) => {
+    if (beforeNextFunction.current) {
+      const canNavigate = await beforeNextFunction.current(direction);
+      if (!canNavigate) {
+        return false;
       }
+    }
 
-      return true;
-    },
-    [beforeNextFunction],
-  );
+    return true;
+  };
 
   const moveForward = async (options?: NavigationOptions) => {
     if (!(await checkCanNavigate('forwards'))) {
@@ -142,6 +140,7 @@ export const useNavigationHelpers = () => {
   };
 
   const resetBeforeNext = () => {
+    console.log('resetBeforeNext');
     beforeNextFunction.current = null;
   };
 

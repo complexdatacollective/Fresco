@@ -13,7 +13,7 @@ $dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('ne
   width: var(--container-size);
   height: var(--container-size);
   margin: var(--circle-size);
-  animation: spin var(--animation-duration) ease-in-out infinite;
+  animation: nc-spin var(--animation-duration) ease-in-out infinite;
   transform: rotate(45deg);
 
   &--small {
@@ -96,7 +96,7 @@ $dark-color-list: (color('sea-serpent--dark'), color('mustard--dark'), color('ne
 
 }
 
-@keyframes spin {
+@keyframes nc-spin {
   0% {
     transform: rotate(45deg) scale(0.8);
   }

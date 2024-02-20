@@ -19,12 +19,13 @@ const handler = async (
   // Otherwise, check the searchParams for a participant identifier.
   if (req.method === 'POST') {
     const postData = (await req.json()) as
-      | { participantId?: string }
+      | { participantIdentifier?: string }
       | undefined;
-    participantIdentifier = postData?.participantId;
+    participantIdentifier = postData?.participantIdentifier;
   } else {
     const searchParams = req.nextUrl.searchParams;
-    participantIdentifier = searchParams.get('participantId') ?? undefined;
+    participantIdentifier =
+      searchParams.get('participantIdentifier') ?? undefined;
   }
 
   // Create a new interview given the protocolId and participantId

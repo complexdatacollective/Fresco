@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation';
 
 export const sessionAtom = atom<Session | null>(null);
 export const isLoadingAtom = atom(false);
-export const forceNavigationDisabledAtom = atom(false);
 
 const sessionsAreEqual = (a: Session | null, b: Session | null) =>
   isEqual(a, b);
