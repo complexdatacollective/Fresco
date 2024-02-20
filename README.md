@@ -111,7 +111,7 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
 1. Click the Vercel **"Deploy"** button below to begin the deployment to Vercel.
 
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,DISABLE_ANALYTICS)
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID)
 
 2. Create Git Repository. Give your repository a name and hit **"Create"** (This will be your Fresco instance name).
 
@@ -128,7 +128,7 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
    | UPLOADTHING_APP_ID | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |
    | DISABLE_ANALYTICS  | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                |
 
-   **Note: We use Analytics microservice to gather error data from instances of Fresco to troubleshoot issues, so by setting `DISABLE_ANALYTICS` to `false` you would help us identify bugs and improve the app.**
+   **Note: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leading `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.**
 
    ![Deploy on Vercel2](public/images/readme-screenshots/vercel2.png)
 
