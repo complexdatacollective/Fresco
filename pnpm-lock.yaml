@@ -207,7 +207,7 @@ dependencies:
     specifier: ^3.4.4
     version: 3.4.4
   next:
-    specifier: ^14.1.0
+    specifier: 14.1.0
     version: 14.1.0(@babel/core@7.23.2)(react-dom@18.2.0)(react@18.2.0)(sass@1.69.4)
   nuqs:
     specifier: ^1.15.2
