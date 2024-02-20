@@ -140,7 +140,6 @@ export const useNavigationHelpers = () => {
   };
 
   const resetBeforeNext = () => {
-    console.log('resetBeforeNext');
     beforeNextFunction.current = null;
   };
 
