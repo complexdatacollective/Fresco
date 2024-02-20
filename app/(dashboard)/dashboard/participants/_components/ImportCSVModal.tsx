@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { z } from 'zod';
 import { useToast } from '~/components/ui/use-toast';
 import { AlertCircle, FileDown, Loader2 } from 'lucide-react';
 import Paragraph from '~/components/ui/typography/Paragraph';
