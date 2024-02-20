@@ -109,7 +109,7 @@ For more info, check out <a href="https://docs.uploadthing.com" target="_blank">
 
 _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel.com/" target="_blank">vercel.com</a> and sign up for an account (It's recommended to sign in to Vercel via your Github account. You can use their "Hobby" tier or paid plan.)
 
-1. Use the Vercel **"Deploy"** button to configure your project's deployment on Vercel
+1. Click the Vercel **"Deploy"** button below to begin the deployment to Vercel.
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID,DISABLE_ANALYTICS)
 
