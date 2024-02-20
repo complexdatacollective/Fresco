@@ -4,10 +4,10 @@ import { useDropzone } from 'react-dropzone';
 import { cn } from '~/utils/shadcn';
 import { useId } from 'react';
 import { Label } from '~/components/ui/Label';
-import { type FormSchema } from './ImportCSVModal';
 import { isArray } from 'lodash';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { FileCheck, FileText } from 'lucide-react';
+import { type FormSchema } from '~/shared/schemas/schemas';
 
 const accept = {
   'text/csv': [],
