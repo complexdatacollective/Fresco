@@ -36,7 +36,8 @@ export function getParticipantColumns(): ColumnDef<
       enableHiding: false,
     },
     {
-      id: 'participant',
+      id: 'identifier',
+      accessorKey: 'identifier',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Identifier" />;
       },

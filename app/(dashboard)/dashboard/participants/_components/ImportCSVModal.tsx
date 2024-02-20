@@ -20,27 +20,7 @@ import UnorderedList from '~/components/ui/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { useForm } from 'react-hook-form';
 import DropzoneField from './DropzoneField';
-
-export const ParticipantRowSchema = z.union([
-  z.object({
-    identifier: z.string(),
-    label: z.string().optional(),
-  }),
-  z.object({
-    label: z.string(),
-    identifier: z.string().optional(),
-  }),
-]);
-
-export type ParticipantRow = z.infer<typeof ParticipantRowSchema>;
-
-export const FormSchema = z.object({
-  csvFile: z.array(ParticipantRowSchema, {
-    invalid_type_error: 'Invalid CSV',
-  }),
-});
-
-export type FormSchema = z.infer<typeof FormSchema>;
+import { FormSchema } from '~/shared/schemas/schemas';
 
 const ImportCSVModal = ({
   onImportComplete,

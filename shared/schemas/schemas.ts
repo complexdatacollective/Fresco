@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ParticipantRowSchema } from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
 
 export const numberEnum = <Num extends number, T extends Readonly<Num[]>>(
   args: T,
@@ -26,6 +25,27 @@ export const participantIdSchema = z
   .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
 export const participantLabelSchema = z.string().optional();
+
+export const ParticipantRowSchema = z.union([
+  z.object({
+    identifier: z.string(),
+    label: z.string().optional(),
+  }),
+  z.object({
+    label: z.string(),
+    identifier: z.string().optional(),
+  }),
+]);
+
+export type ParticipantRow = z.infer<typeof ParticipantRowSchema>;
+
+export const FormSchema = z.object({
+  csvFile: z.array(ParticipantRowSchema, {
+    invalid_type_error: 'Invalid CSV',
+  }),
+});
+
+export type FormSchema = z.infer<typeof FormSchema>;
 
 // Used for import
 export const participantListInputSchema = z.array(ParticipantRowSchema);
