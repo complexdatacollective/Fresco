@@ -14,6 +14,7 @@ import ServerSync from './ServerSync';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect, useState } from 'react';
 import { Spinner } from '~/lib/ui/components';
+import { getCookie } from 'cookies-next';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
@@ -36,9 +37,17 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
     },
   );
 
+  const { data: appSettingsData } = api.appSettings.get.useQuery();
+
   useEffect(() => {
     if (initialized || !serverData) {
       return;
+    }
+    // if limitInterviews is enabled
+    // Check cookies for interview already completed for this user for this protocol
+    // and redirect to finished page
+    if (appSettingsData?.limitInterviews && getCookie(serverData.protocol.id)) {
+      router.push('/interview/finished');
     }
 
     // If the interview is finished, redirect to the finish page

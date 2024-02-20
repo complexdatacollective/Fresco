@@ -201,6 +201,7 @@ export const interviewRouter = router({
           select: {
             participant: true,
             network: true,
+            protocolId: true,
           },
           data: {
             finishTime: new Date(),
