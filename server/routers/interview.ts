@@ -10,6 +10,8 @@ import { trackEvent } from '~/analytics/utils';
 import { createId } from '@paralleldrive/cuid2';
 import { cookies } from 'next/headers';
 
+type NcNetworkType = z.infer<typeof NcNetworkZod>;
+
 export const interviewRouter = router({
   sync: publicProcedure
     .input(
@@ -216,11 +218,15 @@ export const interviewRouter = router({
           },
         });
 
+        const network = JSON.parse(
+          JSON.stringify(updatedInterview.network),
+        ) as NcNetworkType;
+
         void trackEvent({
           type: 'InterviewCompleted',
           metadata: {
-            nodeCount: updatedInterview.network?.nodes.length ?? 0,
-            edgeCount: updatedInterview.network?.edges.length ?? 0,
+            nodeCount: network.nodes?.length ?? 0,
+            edgeCount: network.edges?.length ?? 0,
           },
         });
 
