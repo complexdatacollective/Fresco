@@ -2,15 +2,16 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
-import { NcNetworkZod } from '~/shared/schemas/network-canvas';
+import {
+  NcNetworkZod,
+  type NcNetworkType,
+} from '~/shared/schemas/network-canvas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { trackEvent } from '~/analytics/utils';
 import { createId } from '@paralleldrive/cuid2';
 import { cookies } from 'next/headers';
-
-type NcNetworkType = z.infer<typeof NcNetworkZod>;
 
 export const interviewRouter = router({
   sync: publicProcedure
