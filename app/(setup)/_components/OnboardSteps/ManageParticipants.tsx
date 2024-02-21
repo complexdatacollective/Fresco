@@ -9,6 +9,7 @@ import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SettingsSection from '~/components/layout/SettingsSection';
+import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 
 // const SettingsSection = ({
 //   title,
@@ -71,6 +72,14 @@ function ManageParticipants() {
         >
           <Paragraph>
             Allow participants to join your study by visiting a URL.
+          </Paragraph>
+        </SettingsSection>
+        <SettingsSection
+          heading="Limit Interviews"
+          controlArea={<LimitInterviewsSwitch />}
+        >
+          <Paragraph>
+            Limit each participant to complete one interview per protocol.
           </Paragraph>
         </SettingsSection>
       </div>
