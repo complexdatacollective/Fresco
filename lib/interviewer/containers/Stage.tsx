@@ -1,71 +1,37 @@
 import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
-import { motion } from 'framer-motion';
-import type { directions } from '../hooks/useNavigationHelpers';
-import { type ElementType } from 'react';
+import { type ElementType, memo } from 'react';
+import { type BeforeNextFunction } from './ProtocolScreen';
 
 type StageProps = {
   stage: {
     id: string;
     type: string;
   };
-  registerBeforeNext: (fn: (direction: directions) => Promise<boolean>) => void;
-  setForceNavigationDisabled: (value: boolean) => void;
+  registerBeforeNext: (fn: BeforeNextFunction | null) => void;
 };
 
-const Stage = (props: StageProps) => {
-  const {
-    stage,
-    registerBeforeNext,
-    setForceNavigationDisabled,
-    navigationHelpers,
-  } = props;
+function Stage(props: StageProps) {
   const CurrentInterface = getInterface(
-    stage.type,
+    props.stage.type,
   ) as unknown as ElementType<StageProps>;
 
-  const handleAnimationStart = () => {
-    setForceNavigationDisabled(true);
-  };
-  const handleAnimationComplete = () => {
-    setForceNavigationDisabled(false);
-  };
-
   return (
-    <motion.div
+    <div
+      className="flex-grow-1 relative h-full w-full basis-full overflow-hidden"
       id="stage"
-      className="flex-grow-1 relative basis-full overflow-hidden"
-      key={stage.id}
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-        transition: {
-          duration: 1,
-        },
-      }}
-      exit={{
-        opacity: 0,
-        transition: {
-          duration: 0.1,
-        },
-      }}
-      onAnimationStart={handleAnimationStart}
-      onAnimationComplete={handleAnimationComplete}
     >
       <StageErrorBoundary>
         {CurrentInterface && (
           <CurrentInterface
-            setForceNavigationDisabled={setForceNavigationDisabled}
-            registerBeforeNext={registerBeforeNext}
-            stage={stage}
-            navigationHelpers={navigationHelpers}
+            key={props.stage.id}
+            registerBeforeNext={props.registerBeforeNext}
+            stage={props.stage}
           />
         )}
       </StageErrorBoundary>
-    </motion.div>
+    </div>
   );
-};
+}
 
-export default Stage;
+export default memo(Stage);

@@ -1,82 +1,212 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { useSelector } from 'react-redux';
+import { motion, useAnimate } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
 import Navigation from '../components/Navigation';
 import { getCurrentStage } from '../selectors/session';
 import Stage from './Stage';
-import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { useAtomValue } from 'jotai';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { getNavigationInfo } from '../selectors/session';
+import { getSkipMap } from '../selectors/skip-logic';
+import { actionCreators as sessionActions } from '../ducks/modules/session';
+import useReadyForNextStage from '../hooks/useReadyForNextStage';
+import type { AnyAction } from '@reduxjs/toolkit';
+import { atom, useAtom } from 'jotai';
+import usePrevious from '~/hooks/usePrevious';
 
-const ProtocolScreen = () => {
-  const currentStage = useSelector(getCurrentStage);
+const forceNavigationDisabledAtom = atom(false);
+
+type directions = 'forwards' | 'backwards';
+
+type NavigationOptions = {
+  forceChangeStage?: boolean;
+};
+
+export type BeforeNextFunction = (direction: directions) => Promise<boolean>;
+
+const animationOptions = {
+  type: 'spring',
+  damping: 20,
+  stiffness: 150,
+  mass: 1,
+};
+
+export default function ProtocolScreen() {
   const session = useAtomValue(sessionAtom);
+  const [scope, animate] = useAnimate();
 
   // Maybe something like this?
-  const beforeNextFunction = useRef(null);
+  const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
 
-  const registerBeforeNext = useCallback((fn) => {
-    console.log('registerbeforeNext');
+  const registerBeforeNext = useCallback((fn: BeforeNextFunction) => {
+    // eslint-disable-next-line no-console
+    // console.log('registerbeforeNext');
     beforeNextFunction.current = fn;
   }, []);
 
-  useEffect(() => {
-    console.log('resetting beforeNextFunction');
-    beforeNextFunction.current = null;
-  }, [currentStage]);
+  const dispatch = useDispatch();
+  const skipMap = useSelector(getSkipMap);
 
-  const navigationHelpers = useNavigationHelpers(beforeNextFunction);
+  const { isReady: isReadyForNextStage } = useReadyForNextStage();
 
-  // If current stage is null, we are waiting for the stage to be set
-  if (!currentStage) {
-    return <div>Waiting for stage to be set...</div>;
-  }
+  const [forceNavigationDisabled, setForceNavigationDisabled] = useAtom(
+    forceNavigationDisabledAtom,
+  );
 
-  // TODO: If it is undefined, we have landed on an invalid stage. This should have been caught higher up the tree.
+  const {
+    progress,
+    currentStep,
+    isLastPrompt,
+    isFirstPrompt,
+    isLastStage,
+    promptIndex,
+    canMoveForward,
+    canMoveBackward,
+  } = useSelector(getNavigationInfo);
+
+  const calculateNextStage = useCallback(() => {
+    const nextStage = Object.keys(skipMap).find(
+      (stage) =>
+        parseInt(stage) > currentStep && skipMap[parseInt(stage)] === false,
+    );
+
+    if (!nextStage) {
+      return currentStep;
+    }
+
+    return parseInt(nextStage);
+  }, [currentStep, skipMap]);
+
+  const setCurrentStage = (index) =>
+    dispatch(sessionActions.updateStage(index));
+
+  const calculatePreviousStage = useCallback(() => {
+    const previousStage = Object.keys(skipMap)
+      .reverse()
+      .find(
+        (stage) =>
+          parseInt(stage) < currentStep && skipMap[parseInt(stage)] === false,
+      );
+
+    if (!previousStage) {
+      return currentStep;
+    }
+
+    return parseInt(previousStage);
+  }, [currentStep, skipMap]);
+
+  const checkCanNavigate = useCallback(
+    async (direction: directions) => {
+      if (beforeNextFunction.current) {
+        const canNavigate = await beforeNextFunction.current(direction);
+        if (!canNavigate) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+    [beforeNextFunction],
+  );
+
+  const moveForward = async (options?: NavigationOptions) => {
+    if (!(await checkCanNavigate('forwards'))) {
+      return;
+    }
+
+    // Advance the prompt if we're not at the last one.
+    // forceChangeStage used in Dyad Census and Tie Strength Census when there are no steps
+    if (!isLastPrompt && !options?.forceChangeStage) {
+      dispatch(
+        sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
+      );
+      return;
+    }
+
+    // from this point on we are definitely navigating, so set up the animation
+    setForceNavigationDisabled(true);
+    await animate(
+      scope.current,
+      {
+        y: '-100vh',
+      },
+      animationOptions,
+    );
+
+    const nextStage = calculateNextStage();
+    setCurrentStage(nextStage);
+    setForceNavigationDisabled(false);
+  };
+
+  const moveBackward = async (options?: NavigationOptions) => {
+    if (!(await checkCanNavigate('backwards'))) {
+      return;
+    }
+
+    // forceChangeStage used in Dyad Census and Tie Strength Census when there are no steps
+    if (!isFirstPrompt && !options?.forceChangeStage) {
+      dispatch(
+        sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
+      );
+      return;
+    }
+
+    setForceNavigationDisabled(true);
+    await animate(
+      scope.current,
+      {
+        y: '100vh',
+      },
+      animationOptions,
+    );
+
+    const previousStage = calculatePreviousStage();
+    void setCurrentStage(previousStage);
+    setForceNavigationDisabled(false);
+  };
+
+  const stage = useSelector(getCurrentStage);
+
+  const prevCurrentStep = usePrevious(currentStep);
 
   return (
     <>
       {session && <FeedbackBanner />}
       <motion.div
-        className="flex h-4/5 w-full flex-1 flex-row"
+        className="relative flex h-4/5 w-full flex-1 flex-row overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
         <Navigation
-          moveBackward={navigationHelpers.moveBackward}
-          moveForward={navigationHelpers.moveForward}
-          canMoveForward={navigationHelpers.canMoveForward}
-          canMoveBackward={navigationHelpers.canMoveBackward}
-          progress={navigationHelpers.progress}
-          isReadyForNextStage={navigationHelpers.isReadyForNextStage}
+          moveBackward={moveBackward}
+          moveForward={moveForward}
+          canMoveForward={!forceNavigationDisabled && canMoveForward}
+          canMoveBackward={!forceNavigationDisabled && canMoveBackward}
+          progress={progress}
+          isReadyForNextStage={isReadyForNextStage}
         />
-        {currentStage && (
+        <motion.div
+          key={currentStep}
+          ref={scope}
+          className="stage-animation-wrapper flex h-full w-full"
+          initial={
+            prevCurrentStep
+              ? { y: currentStep > prevCurrentStep ? '100vh' : '-100vh' }
+              : {}
+          }
+          animate={{ y: 0 }}
+          transition={animationOptions}
+        >
           <Stage
-            key={currentStage.id}
-            stage={currentStage}
+            stage={stage}
             registerBeforeNext={registerBeforeNext}
-            setForceNavigationDisabled={
-              navigationHelpers.setForceNavigationDisabled
-            }
-            navigationHelpers={navigationHelpers}
+            setForceNavigationDisabled={setForceNavigationDisabled}
           />
-        )}
-        {!currentStage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-1 items-center justify-center"
-            exit={{ opacity: 0 }}
-          >
-            Other loading?
-          </motion.div>
-        )}
+        </motion.div>
       </motion.div>
     </>
   );
-};
-
-export default ProtocolScreen;
+}
