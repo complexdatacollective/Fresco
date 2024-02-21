@@ -8,6 +8,7 @@ import { ensureError } from '~/utils/ensureError';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { trackEvent } from '~/analytics/utils';
 import { createId } from '@paralleldrive/cuid2';
+import { cookies } from 'next/headers';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -222,6 +223,8 @@ export const interviewRouter = router({
             edgeCount: updatedInterview.network?.edges.length ?? 0,
           },
         });
+
+        cookies().set(updatedInterview.protocolId, 'completed');
 
         revalidateTag('interview.get.all');
         revalidateTag('dashboard.getActivities');
