@@ -9,10 +9,12 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 
-import { type Interview, type Protocol } from '@prisma/client';
+import type { Interview, Protocol, Participant } from '@prisma/client';
 import { hash } from 'ohash';
 
-type InterviewsWithProtocol = (Interview & { protocol: Protocol })[];
+type InterviewsWithProtocol = (Interview & { protocol: Protocol } & {
+  participant: Participant;
+})[];
 
 /**
  * Creates an object containing all required session metadata for export
@@ -22,12 +24,13 @@ type InterviewsWithProtocol = (Interview & { protocol: Protocol })[];
 export const formatExportableSessions = (sessions: InterviewsWithProtocol) =>
   sessions.map((session) => {
     const sessionProtocol = session.protocol;
+    const sessionParticipant = session.participant;
 
     if (!sessionProtocol) return;
 
     const sessionVariables = {
-      [caseProperty]: session.id,
-      [sessionProperty]: session.id,
+      [caseProperty]: sessionParticipant.label,
+      [sessionProperty]: sessionParticipant.identifier,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),

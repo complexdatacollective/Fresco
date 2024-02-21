@@ -181,6 +181,7 @@ export const interviewRouter = router({
           },
           include: {
             protocol: true,
+            participant: true,
           },
         });
         return interviews;
