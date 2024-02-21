@@ -1,76 +1,16 @@
 'use client';
 
 import { Button } from '~/components/ui/Button';
-import { useEffect, useRef, useState } from 'react';
-import { trackEvent } from '~/analytics/utils';
 import { cn } from '~/utils/shadcn';
 import Image from 'next/image';
-import { AnimatePresence, motion } from 'framer-motion';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { cardClasses } from '~/components/ui/card';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import FeedbackButton from '~/components/Feedback/FeedbackButton';
-import { CheckIcon, ClipboardCopy, Loader2, XCircle } from 'lucide-react';
+import { ClipboardCopy } from 'lucide-react';
 import { useToast } from '~/components/ui/use-toast';
-
-const labelAnimationVariants = {
-  hidden: { opacity: 0, y: '-100%' },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: '100%' },
-};
-
-function ReportNotifier({
-  state = 'idle',
-}: {
-  state?: 'idle' | 'loading' | 'success' | 'error';
-}) {
-  return (
-    <div className="absolute right-10 top-10">
-      <AnimatePresence mode="wait" initial={false}>
-        {state === 'loading' && (
-          <motion.div
-            key="loading"
-            className="flex items-center text-sm text-muted-foreground"
-            variants={labelAnimationVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <Loader2 className="mr-2 animate-spin" />
-            Sending analytics data...
-          </motion.div>
-        )}
-        {state === 'success' && (
-          <motion.div
-            key="success"
-            className="flex items-center text-sm"
-            variants={labelAnimationVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <CheckIcon className="mr-2 text-success" />
-            Sent analytics data!
-          </motion.div>
-        )}
-        {state === 'error' && (
-          <motion.div
-            key="error"
-            className="flex items-center text-sm"
-            variants={labelAnimationVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <XCircle className="mr-2 text-destructive" />
-            Error sending analytics data.
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+import ErrorReportNotifier from '~/components/ErrorReportNotifier';
 
 export default function Error({
   error,
@@ -81,42 +21,8 @@ export default function Error({
   heading?: string;
 }) {
   const { toast } = useToast();
-  const initialized = useRef(false);
-  const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>(
-    'idle',
-  );
-
-  useEffect(() => {
-    if (initialized.current) return;
-    setState('loading');
-
-    trackEvent({
-      type: 'Error',
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-      metadata: {
-        path: window?.location?.pathname ?? 'unknown',
-        userAgent: window?.navigator?.userAgent ?? 'unknown',
-      },
-    })
-      .then((result) => {
-        if (!result.success) {
-          setState('error');
-          return;
-        }
-
-        setState('success');
-      })
-      .catch(() => {
-        setState('error');
-      });
-    initialized.current = true;
-  }, [error]);
 
   const handleReset = () => {
-    initialized.current = false;
-    setState('idle');
     reset();
   };
 
@@ -139,7 +45,7 @@ ${error.stack}`;
 
   return (
     <div className="flex h-[100vh] items-center justify-center">
-      <ReportNotifier state={state} />
+      <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"
         className={cn(
@@ -168,7 +74,6 @@ ${error.stack}`;
           please use the feedback button. You can also use the rety button to
           attempt to load the page again.
         </Paragraph>
-
         <div className="mt-4 flex flex-col gap-2">
           <Button onClick={copyDebugInfoToClipboard} variant="ghost">
             Copy Debug Information
