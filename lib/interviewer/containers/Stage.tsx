@@ -3,7 +3,6 @@ import StageErrorBoundary from '../components/StageErrorBoundary';
 import { motion } from 'framer-motion';
 import type { directions } from '../hooks/useNavigationHelpers';
 import { type ElementType } from 'react';
-import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 
 type StageProps = {
   stage: {
@@ -11,15 +10,19 @@ type StageProps = {
     type: string;
   };
   registerBeforeNext: (fn: (direction: directions) => Promise<boolean>) => void;
+  setForceNavigationDisabled: (value: boolean) => void;
 };
 
 const Stage = (props: StageProps) => {
-  const { stage, registerBeforeNext } = props;
+  const {
+    stage,
+    registerBeforeNext,
+    setForceNavigationDisabled,
+    navigationHelpers,
+  } = props;
   const CurrentInterface = getInterface(
     stage.type,
   ) as unknown as ElementType<StageProps>;
-
-  const { setForceNavigationDisabled } = useNavigationHelpers();
 
   const handleAnimationStart = () => {
     setForceNavigationDisabled(true);
@@ -54,8 +57,10 @@ const Stage = (props: StageProps) => {
       <StageErrorBoundary>
         {CurrentInterface && (
           <CurrentInterface
+            setForceNavigationDisabled={setForceNavigationDisabled}
             registerBeforeNext={registerBeforeNext}
             stage={stage}
+            navigationHelpers={navigationHelpers}
           />
         )}
       </StageErrorBoundary>

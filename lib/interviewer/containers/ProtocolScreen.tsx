@@ -1,3 +1,5 @@
+'use client';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import Navigation from '../components/Navigation';
@@ -7,20 +9,26 @@ import { useNavigationHelpers } from '../hooks/useNavigationHelpers';
 import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { useAtomValue } from 'jotai';
+import { useCallback, useEffect, useRef } from 'react';
 
 const ProtocolScreen = () => {
   const currentStage = useSelector(getCurrentStage);
   const session = useAtomValue(sessionAtom);
 
-  const {
-    moveBackward,
-    canMoveForward,
-    moveForward,
-    canMoveBackward,
-    progress,
-    registerBeforeNext,
-    isReadyForNextStage,
-  } = useNavigationHelpers();
+  // Maybe something like this?
+  const beforeNextFunction = useRef(null);
+
+  const registerBeforeNext = useCallback((fn) => {
+    console.log('registerbeforeNext');
+    beforeNextFunction.current = fn;
+  }, []);
+
+  useEffect(() => {
+    console.log('resetting beforeNextFunction');
+    beforeNextFunction.current = null;
+  }, [currentStage]);
+
+  const navigationHelpers = useNavigationHelpers(beforeNextFunction);
 
   // If current stage is null, we are waiting for the stage to be set
   if (!currentStage) {
@@ -38,32 +46,34 @@ const ProtocolScreen = () => {
         animate={{ opacity: 1 }}
       >
         <Navigation
-          moveBackward={moveBackward}
-          moveForward={moveForward}
-          canMoveForward={canMoveForward}
-          canMoveBackward={canMoveBackward}
-          progress={progress}
-          isReadyForNextStage={isReadyForNextStage}
+          moveBackward={navigationHelpers.moveBackward}
+          moveForward={navigationHelpers.moveForward}
+          canMoveForward={navigationHelpers.canMoveForward}
+          canMoveBackward={navigationHelpers.canMoveBackward}
+          progress={navigationHelpers.progress}
+          isReadyForNextStage={navigationHelpers.isReadyForNextStage}
         />
-        <AnimatePresence mode="wait" initial={false}>
-          {currentStage && (
-            <Stage
-              key={currentStage.id}
-              stage={currentStage}
-              registerBeforeNext={registerBeforeNext}
-            />
-          )}
-          {!currentStage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-1 items-center justify-center"
-              exit={{ opacity: 0 }}
-            >
-              Other loading?
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {currentStage && (
+          <Stage
+            key={currentStage.id}
+            stage={currentStage}
+            registerBeforeNext={registerBeforeNext}
+            setForceNavigationDisabled={
+              navigationHelpers.setForceNavigationDisabled
+            }
+            navigationHelpers={navigationHelpers}
+          />
+        )}
+        {!currentStage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-1 items-center justify-center"
+            exit={{ opacity: 0 }}
+          >
+            Other loading?
+          </motion.div>
+        )}
       </motion.div>
     </>
   );

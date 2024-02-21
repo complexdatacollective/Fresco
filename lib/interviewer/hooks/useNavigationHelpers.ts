@@ -17,7 +17,7 @@ type NavigationOptions = {
   forceChangeStage?: boolean;
 };
 
-export const useNavigationHelpers = () => {
+export const useNavigationHelpers = (beforeNextFunction) => {
   const dispatch = useDispatch();
   const skipMap = useSelector(getSkipMap);
 
@@ -52,20 +52,6 @@ export const useNavigationHelpers = () => {
     }
   }, [currentStage, currentStep, setCurrentStage]);
 
-  const beforeNextFunction = useRef<
-    ((direction: directions) => Promise<boolean>) | null
-  >(null);
-
-  // Stages call this to register a function to be called before
-  // moving to the next stage. Return true to allow the move, false to
-  // prevent it.
-  const registerBeforeNext = useCallback(
-    (beforeNext: (direction: directions) => Promise<boolean>) => {
-      beforeNextFunction.current = beforeNext;
-    },
-    [],
-  );
-
   const calculateNextStage = useCallback(() => {
     const nextStage = Object.keys(skipMap).find(
       (stage) =>
@@ -94,16 +80,19 @@ export const useNavigationHelpers = () => {
     return parseInt(previousStage);
   }, [currentStage, skipMap]);
 
-  const checkCanNavigate = async (direction: directions) => {
-    if (beforeNextFunction.current) {
-      const canNavigate = await beforeNextFunction.current(direction);
-      if (!canNavigate) {
-        return false;
+  const checkCanNavigate = useCallback(
+    async (direction: directions) => {
+      if (beforeNextFunction.current) {
+        const canNavigate = await beforeNextFunction.current(direction);
+        if (!canNavigate) {
+          return false;
+        }
       }
-    }
 
-    return true;
-  };
+      return true;
+    },
+    [beforeNextFunction],
+  );
 
   const moveForward = async (options?: NavigationOptions) => {
     if (!(await checkCanNavigate('forwards'))) {
@@ -196,7 +185,6 @@ export const useNavigationHelpers = () => {
     isFirstPrompt,
     isLastPrompt,
     isLastStage,
-    registerBeforeNext,
     currentStep,
     setForceNavigationDisabled,
   };
