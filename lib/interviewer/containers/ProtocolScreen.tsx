@@ -22,7 +22,9 @@ import usePrevious from '~/hooks/usePrevious';
 
 type directions = 'forwards' | 'backwards';
 
-export type BeforeNextFunction = (direction: directions) => Promise<boolean>;
+export type BeforeNextFunction = (
+  direction: directions,
+) => Promise<boolean | 'FORCE'>;
 
 const animationOptions: ValueAnimationTransition = {
   type: 'spring',
@@ -82,29 +84,25 @@ export default function ProtocolScreen() {
    * navigation continues. This allows stages to 'hijack' the navigation
    * process and prevent navigation if necessary.
    */
-  const isStageBlockingNavigation = async (direction: directions) => {
+  const canNavigate = async (direction: directions) => {
     if (!beforeNextFunction.current) {
       return false;
     }
 
-    const canNavigate = await beforeNextFunction.current(direction);
-    if (!canNavigate) {
-      return true;
-    } else {
-      return false;
-    }
+    return beforeNextFunction.current(direction);
   };
 
   const moveForward = useCallback(async () => {
-    if (await isStageBlockingNavigation('forwards')) {
+    const stageAllowsNavigation = await canNavigate('forwards');
+
+    if (!stageAllowsNavigation) {
       return;
-    } else {
-      // Reset the beforenext function now that it has allowed navigation
-      beforeNextFunction.current = null;
     }
 
+    beforeNextFunction.current = null;
+
     // Advance the prompt if we're not at the last one.
-    if (!isLastPrompt) {
+    if (stageAllowsNavigation !== 'FORCE' && !isLastPrompt) {
       dispatch(
         sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
       );
@@ -129,7 +127,7 @@ export default function ProtocolScreen() {
   ]);
 
   const moveBackward = useCallback(async () => {
-    if (await isStageBlockingNavigation('backwards')) {
+    if (await canNavigate('backwards')) {
       return;
     } else {
       // Reset the beforenext function now that it has allowed navigation
