@@ -222,10 +222,10 @@ Fresco is Alpha software and will be continuously improved. As these improvement
 
 ### Configure remote repository
 
-You must configure a remote that points to the Fresco repository as the upstream repository to sync changes made in Fresco with your copy.
+You must configure a remote that points to this Fresco repository as the upstream repository to sync upgrades with your copy.
 
-1. Open Terminal
-2. Specify Fresco as the remote upstream repository that will be synced with your copy
+1. Open Terminal (Mac, Linux) or Git Bash (Windows)
+2. Specify this repository as the remote upstream repository that will be synced with your copy
 
 `git remote add upstream https://github.com/complexdatacollective/Fresco`
 
@@ -233,20 +233,26 @@ Note: You will only need to do this step once. After you have completed this ste
 
 ## Step 2
 
+## Fetch updates and merge
+
 Pull down updates from the main Fresco instance and merge them with your copy.
 
 `git fetch upstream`
+
 `git merge upstream/main`
 
 Note: The first time you complete this step, you may encounter the error:
+
 `fatal: refusing to merge unrelated histories`
 
 To fix this, run the following instead:
+
 `git merge upstream/main --allow-unrelated-histories`
 
 ## Step 3
 
 Push your local changes to GitHub.
+
 `git push`
 
 Once this step is completed, Vercel will automatically redeploy your app.
