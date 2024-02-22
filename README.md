@@ -213,3 +213,25 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
    ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard5.png)
 
 **Note: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`**
+
+# Upgrade Guide
+
+Fresco is Alpha software and will be continuously improved. As these improvements happen, you can upgrade your deployed instance using this guide.
+
+### Sync forked branch with the upstream repository
+
+1. On GitHub, navigate to the main page of your forked repository Fresco instance that you want to sync with the upstream repository.
+
+2. Above the list of files, select the **Sync fork** dropdown menu.
+
+3. Review the details about the commits from the upstream repository, then click **Update branch**.
+
+For more information and alternative methods, view GitHub docs on [Syncing a Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork?platform=mac#syncing-a-fork-branch-from-the-web-ui)
+
+### Vercel Deployement
+
+1. Once your main branch of your repository is updated, your Vercel deployment should automatically redeploy with the upgraded software.
+
+## FAQ
+
+1. When should I upgrade? How will I know when to upgrade?
