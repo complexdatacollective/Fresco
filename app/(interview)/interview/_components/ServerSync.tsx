@@ -30,7 +30,7 @@ const ServerSync = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSessionSync = useCallback(
     debounce(syncSessionWithServer, 2000, {
-      leading: false,
+      leading: true,
       trailing: true,
       maxWait: 10000,
     }),

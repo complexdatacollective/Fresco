@@ -28,7 +28,7 @@ export type Session = {
   id: string;
   protocolUid: string;
   promptIndex: number;
-  currentStep: number | null;
+  currentStep: number;
   caseId: string;
   network: NcNetwork;
   startedAt: Date;
@@ -55,7 +55,7 @@ export type Dialogs = {
 
 export type RootState = {
   form: Record<string, unknown>;
-  activeSessionId: string | null;
+  activeSessionId: keyof SessionsState;
   sessions: SessionsState;
   installedProtocols: InstalledProtocols;
   deviceSettings: Record<string, unknown>;

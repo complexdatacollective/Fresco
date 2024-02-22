@@ -5,6 +5,7 @@ import { SkipLogicAction } from '../protocol-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { NcNetwork, SkipDefinition, Stage } from '@codaco/shared-consts';
+import { getStageIndex } from './session';
 
 const rotateIndex = (max: number, nextIndex: number) => (nextIndex + max) % max;
 
@@ -99,3 +100,30 @@ export const isStageSkipped = (index: number) =>
       return isSkipped;
     },
   );
+
+// Selector that uses the skipMap to determine the idex of the next and previous
+// valid stages.
+export const getNavigableStages = createSelector(
+  getSkipMap,
+  getStageIndex,
+  (skipMap, currentStep) => {
+    const nextStage = Object.keys(skipMap).find(
+      (stage) =>
+        parseInt(stage) > currentStep && skipMap[parseInt(stage)] === false,
+    );
+
+    const previousStage = Object.keys(skipMap)
+      .reverse()
+      .find(
+        (stage) =>
+          parseInt(stage) < currentStep && skipMap[parseInt(stage)] === false,
+      );
+
+    return {
+      nextValidStageIndex: nextStage ? parseInt(nextStage) : currentStep,
+      previousValidStageIndex: previousStage
+        ? parseInt(previousStage)
+        : currentStep,
+    };
+  },
+);
