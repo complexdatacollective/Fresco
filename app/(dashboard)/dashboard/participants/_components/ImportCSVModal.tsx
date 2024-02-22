@@ -123,19 +123,23 @@ const ImportCSVModal = ({
                   </Paragraph>
                   <UnorderedList>
                     <li>
-                      Identifier - must be a unique string, and{' '}
+                      identifier - must be a unique string, and{' '}
                       <strong>should not</strong> be easy to guess. Used to
                       generate the onboarding URL to allow integration with
                       other survey tools.
                     </li>
                     <li>
-                      Label - can be any text or number. Used to provide a human
+                      label - can be any text or number. Used to provide a human
                       readable label for the participant.
                     </li>
                   </UnorderedList>
                   <Paragraph>
                     Either an identifier column or a label column{' '}
                     <strong>must be provided</strong> for each participant.
+                  </Paragraph>
+                  <Paragraph>
+                    Note: The identifier and label column headers must be
+                    lowercase.
                   </Paragraph>
                 </AlertDescription>
               </Alert>
