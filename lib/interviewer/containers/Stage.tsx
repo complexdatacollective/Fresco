@@ -8,12 +8,20 @@ type StageProps = {
     id: string;
     type: string;
   };
-  registerBeforeNext: (fn: BeforeNextFunction | null) => void;
+  registerBeforeNext: (fn: BeforeNextFunction) => void;
+  getNavigationHelpers: () => {
+    moveForward: () => void;
+    moveBackward: () => void;
+  };
 };
 
-function Stage(props: StageProps) {
+function Stage({
+  stage,
+  registerBeforeNext,
+  getNavigationHelpers,
+}: StageProps) {
   const CurrentInterface = getInterface(
-    props.stage.type,
+    stage.type,
   ) as unknown as ElementType<StageProps>;
 
   return (
@@ -24,9 +32,10 @@ function Stage(props: StageProps) {
       <StageErrorBoundary>
         {CurrentInterface && (
           <CurrentInterface
-            key={props.stage.id}
-            registerBeforeNext={props.registerBeforeNext}
-            stage={props.stage}
+            key={stage.id}
+            registerBeforeNext={registerBeforeNext}
+            stage={stage}
+            getNavigationHelpers={getNavigationHelpers}
           />
         )}
       </StageErrorBoundary>
