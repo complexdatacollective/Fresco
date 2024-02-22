@@ -89,7 +89,7 @@
     border-color: var(--warning);
   }
 
-  &--error {
+  &--nc-error {
     border-color: var(--nc-error);
 
     .error__stack-trace {

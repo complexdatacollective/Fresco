@@ -13,6 +13,7 @@ $darken: rgba(0, 0, 0, 0.2);
   }
 
   &__error-message {
+    display: flex;
     color: var(--form-error-text);
     background: var(--nc-error);
     padding: 0.5rem 0.25rem;

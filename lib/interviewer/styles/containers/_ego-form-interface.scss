@@ -31,7 +31,7 @@
   }
 
   &__form-container-scroller {
-    padding: units.unit(4) 0;
+    padding: units.unit(4) units.unit(2);
     max-height: 100%;
     display: flex;
     flex-direction: column;
