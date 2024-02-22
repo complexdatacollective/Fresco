@@ -9,6 +9,8 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { trackEvent } from '~/analytics/utils';
 import { createId } from '@paralleldrive/cuid2';
 
+const NumberStringBoolean = z.union([z.number(), z.string(), z.boolean()]);
+
 export const interviewRouter = router({
   sync: publicProcedure
     .input(
@@ -16,30 +18,36 @@ export const interviewRouter = router({
         id: z.string(),
         network: NcNetworkZod,
         currentStep: z.number(),
+        stageMetadata: z
+          .record(z.string(), z.array(z.array(NumberStringBoolean)))
+          .optional(), // Sorry about this. :/
       }),
     )
-    .mutation(async ({ input: { id, network, currentStep } }) => {
-      try {
-        await prisma.interview.update({
-          where: {
-            id,
-          },
-          data: {
-            network,
-            currentStep,
-            lastUpdated: new Date(),
-          },
-        });
+    .mutation(
+      async ({ input: { id, network, currentStep, stageMetadata } }) => {
+        try {
+          await prisma.interview.update({
+            where: {
+              id,
+            },
+            data: {
+              network,
+              currentStep,
+              stageMetadata,
+              lastUpdated: new Date(),
+            },
+          });
 
-        revalidateTag('interview.get.all');
-        revalidatePath('/dashboard/interviews');
+          revalidateTag('interview.get.all');
+          revalidatePath('/dashboard/interviews');
 
-        return { success: true };
-      } catch (error) {
-        const message = ensureError(error).message;
-        return { success: false, error: message };
-      }
-    }),
+          return { success: true };
+        } catch (error) {
+          const message = ensureError(error).message;
+          return { success: false, error: message };
+        }
+      },
+    ),
   create: publicProcedure
     .input(
       z.object({

@@ -14,6 +14,7 @@ type ServerSession = {
   participantId: string;
   protocolId: string;
   currentStep: number;
+  sessionMetadata?: Prisma.JsonValue;
 };
 
 export const SET_SERVER_SESSION = 'INIT/SET_SERVER_SESSION';

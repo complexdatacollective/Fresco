@@ -55,6 +55,7 @@ const ServerSync = ({
       id: interviewId,
       network: currentSession.network,
       currentStep: currentSession.currentStep ?? 0,
+      stageMetadata: currentSession.stageMetadata, // Temporary storage used by tiestrengthcensus/dyadcensus to store negative responses
     });
   }, [
     currentSession,

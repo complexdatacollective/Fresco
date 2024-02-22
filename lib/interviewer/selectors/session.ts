@@ -44,11 +44,11 @@ export const getStageIndex = createSelector(getActiveSession, (session) => {
 });
 
 // Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
-export const getStageState = createSelector(
+export const getStageMetadata = createSelector(
   getActiveSession,
   getStageIndex,
   (session, stageIndex) => {
-    return session.stages?.[stageIndex] ?? undefined;
+    return session.stageMetadata?.[stageIndex] ?? undefined;
   },
 );
 
