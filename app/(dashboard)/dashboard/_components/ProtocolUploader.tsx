@@ -67,7 +67,10 @@ function ProtocolUploader({
         </Button>
       )}
       <Portal>
-        <motion.div layout className="text-md fixed bottom-4 right-6 w-[400px]">
+        <motion.div
+          layout
+          className="text-md fixed bottom-4 right-6 z-10 w-[400px]"
+        >
           <motion.ul className="relative flex flex-col-reverse gap-2" layout>
             <AnimatePresence mode="popLayout">
               {jobs.map((job, index) => (
