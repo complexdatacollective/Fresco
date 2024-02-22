@@ -233,7 +233,7 @@ Note: You will only need to do this step once. After you have completed this ste
 
 ## Step 2
 
-## Fetch updates and merge
+### Fetch updates and merge
 
 Pull down updates from the main Fresco instance and merge them with your copy.
 
@@ -251,7 +251,7 @@ To fix this, run the following instead:
 
 ## Step 3
 
-Push your local changes to GitHub.
+### Push your local changes to GitHub
 
 `git push`
 
