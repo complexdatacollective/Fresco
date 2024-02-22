@@ -43,6 +43,15 @@ export const getStageIndex = createSelector(getActiveSession, (session) => {
   return session.currentStep;
 });
 
+// Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
+export const getStageState = createSelector(
+  getActiveSession,
+  getStageIndex,
+  (session, stageIndex) => {
+    return session.stages?.[stageIndex] ?? undefined;
+  },
+);
+
 export const getCurrentStage = createSelector(
   getProtocolStages,
   getStageIndex,

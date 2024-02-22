@@ -26,7 +26,7 @@ function Stage({
 
   return (
     <div
-      className="flex-grow-1 relative h-full w-full basis-full overflow-hidden"
+      className="flex-grow-1 relative flex h-full w-full basis-full overflow-hidden px-4 py-2"
       id="stage"
     >
       <StageErrorBoundary>

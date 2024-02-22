@@ -12,7 +12,7 @@ import Stage from './Stage';
 import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { useAtomValue } from 'jotai';
-import { use, useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { getNavigationInfo } from '../selectors/session';
 import { getNavigableStages } from '../selectors/skip-logic';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
@@ -21,10 +21,6 @@ import type { AnyAction } from '@reduxjs/toolkit';
 import usePrevious from '~/hooks/usePrevious';
 
 type directions = 'forwards' | 'backwards';
-
-type NavigationOptions = {
-  forceChangeStage?: boolean;
-};
 
 export type BeforeNextFunction = (direction: directions) => Promise<boolean>;
 
@@ -77,8 +73,6 @@ export default function ProtocolScreen() {
   const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
 
   const registerBeforeNext = useCallback((fn: BeforeNextFunction) => {
-    // eslint-disable-next-line no-console
-    console.log('registerbeforeNext', fn);
     beforeNextFunction.current = fn;
   }, []);
 
@@ -101,72 +95,71 @@ export default function ProtocolScreen() {
     }
   };
 
-  const moveForward = useCallback(
-    async (options?: NavigationOptions) => {
-      if (await isStageBlockingNavigation('forwards')) {
-        return;
-      } else {
-        // Reset the beforenext function now that it has allowed navigation
-        beforeNextFunction.current = null;
-      }
+  const moveForward = useCallback(async () => {
+    if (await isStageBlockingNavigation('forwards')) {
+      return;
+    } else {
+      // Reset the beforenext function now that it has allowed navigation
+      beforeNextFunction.current = null;
+    }
 
-      // Advance the prompt if we're not at the last one.
-      // forceChangeStage used in Dyad Census and Tie Strength Census when there are no steps
-      if (!isLastPrompt && !options?.forceChangeStage) {
-        dispatch(
-          sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
-        );
-        return;
-      }
-
-      // from this point on we are definitely navigating, so set up the animation
-      setForceNavigationDisabled(true);
-      await animate(scope.current, { y: '-100vh' }, animationOptions);
-
+    // Advance the prompt if we're not at the last one.
+    if (!isLastPrompt) {
       dispatch(
-        sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
+        sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
       );
-      setForceNavigationDisabled(false);
-    },
-    [animate, dispatch, isLastPrompt, nextValidStageIndex, promptIndex, scope],
-  );
+      return;
+    }
 
-  const moveBackward = useCallback(
-    async (options?: NavigationOptions) => {
-      if (await isStageBlockingNavigation('backwards')) {
-        return;
-      } else {
-        // Reset the beforenext function now that it has allowed navigation
-        beforeNextFunction.current = null;
-      }
+    // from this point on we are definitely navigating, so set up the animation
+    setForceNavigationDisabled(true);
+    await animate(scope.current, { y: '-100vh' }, animationOptions);
 
-      // forceChangeStage used in Dyad Census and Tie Strength Census when there are no steps
-      if (!isFirstPrompt && !options?.forceChangeStage) {
-        dispatch(
-          sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
-        );
-        return;
-      }
+    dispatch(
+      sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
+    );
+    setForceNavigationDisabled(false);
+  }, [
+    animate,
+    dispatch,
+    isLastPrompt,
+    nextValidStageIndex,
+    promptIndex,
+    scope,
+  ]);
 
-      setForceNavigationDisabled(true);
-      await animate(scope.current, { y: '100vh' }, animationOptions);
+  const moveBackward = useCallback(async () => {
+    if (await isStageBlockingNavigation('backwards')) {
+      return;
+    } else {
+      // Reset the beforenext function now that it has allowed navigation
+      beforeNextFunction.current = null;
+    }
 
+    if (!isFirstPrompt) {
       dispatch(
-        sessionActions.updateStage(
-          previousValidStageIndex,
-        ) as unknown as AnyAction,
+        sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
       );
-      setForceNavigationDisabled(false);
-    },
-    [
-      animate,
-      dispatch,
-      isFirstPrompt,
-      previousValidStageIndex,
-      promptIndex,
-      scope,
-    ],
-  );
+      return;
+    }
+
+    setForceNavigationDisabled(true);
+    await animate(scope.current, { y: '100vh' }, animationOptions);
+
+    dispatch(
+      sessionActions.updateStage(
+        previousValidStageIndex,
+      ) as unknown as AnyAction,
+    );
+    setForceNavigationDisabled(false);
+  }, [
+    animate,
+    dispatch,
+    isFirstPrompt,
+    previousValidStageIndex,
+    promptIndex,
+    scope,
+  ]);
 
   const getNavigationHelpers = useCallback(
     () => ({
@@ -180,7 +173,7 @@ export default function ProtocolScreen() {
     <>
       {session && <FeedbackBanner />}
       <motion.div
-        className="relative flex h-4/5 w-full flex-1 flex-row overflow-hidden"
+        className="relative flex flex-1 flex-row overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >

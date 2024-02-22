@@ -66,7 +66,7 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'animate-pulse',
+          pulseNext && 'animate-pulse bg-success',
         )}
         onClick={moveForward}
         disabled={disabled || !canMoveForward}

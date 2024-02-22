@@ -10,9 +10,8 @@
 // Trying this with padding instead of margins, so that absolutely
 // positioned child elements aren't clipped by overflow hidden.
 @mixin interface-centering {
+  flex: 1 0 auto;
   display: flex;
-  height: 100%;
   overflow: hidden;
-  padding: units.unit(2) units.unit(4);
   position: relative;
 }

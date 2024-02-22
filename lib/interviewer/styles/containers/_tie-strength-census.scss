@@ -54,7 +54,7 @@
     background: var(--nc-light-background);
     border-radius: var(--nc-border-radius);
     padding: units.unit(2) units.unit(4);
-    max-width: 55rem; // Same as ego form for readability
+    max-width: 80ch; // Same as ego form for readability
 
     h1 {
       text-align: center;

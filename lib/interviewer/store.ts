@@ -35,6 +35,7 @@ export type Session = {
   lastUpdated: Date;
   finishedAt: Date;
   exportedAt: Date;
+  stages?: Record<string, unknown>; // Used as temporary storage by DyadCensus/TieStrengthCensus
 };
 
 export type SessionsState = Record<string, Session>;
