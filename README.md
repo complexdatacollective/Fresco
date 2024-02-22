@@ -216,21 +216,40 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
 # Upgrade Guide
 
-Fresco is Alpha software and will be continuously improved. As these improvements happen, you can upgrade your deployed instance using this guide.
+Fresco is Alpha software and will be continuously improved. As these improvements happen, you can upgrade your deployed copy using this guide.
 
-### Sync forked branch with the upstream repository
+## Step 1
 
-1. On GitHub, navigate to the main page of your forked repository Fresco instance that you want to sync with the upstream repository.
+### Configure remote repository
 
-2. Above the list of files, select the **Sync fork** dropdown menu.
+You must configure a remote that points to the Fresco repository as the upstream repository to sync changes made in Fresco with your copy.
 
-3. Review the details about the commits from the upstream repository, then click **Update branch**.
+1. Open Terminal
+2. Specify Fresco as the remote upstream repository that will be synced with your copy
 
-For more information and alternative methods, view GitHub docs on [Syncing a Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork?platform=mac#syncing-a-fork-branch-from-the-web-ui)
+`git remote add upstream https://github.com/complexdatacollective/Fresco`
 
-### Vercel Deployement
+Note: You will only need to do this step once. After you have completed this step for an upgrade, you may skip it for future upgrades.
 
-1. Once your main branch of your repository is updated, your Vercel deployment should automatically redeploy with the upgraded software.
+## Step 2
+
+Pull down updates from the main Fresco instance and merge them with your copy.
+
+`git fetch upstream`
+`git merge upstream/main`
+
+Note: The first time you complete this step, you may encounter the error:
+`fatal: refusing to merge unrelated histories`
+
+To fix this, run the following instead:
+`git merge upstream/main --allow-unrelated-histories`
+
+## Step 3
+
+Push your local changes to GitHub.
+`git push`
+
+Once this step is completed, Vercel will automatically redeploy your app.
 
 ## FAQ
 
