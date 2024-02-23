@@ -75,6 +75,7 @@ export default function ProtocolScreen() {
   const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
 
   const registerBeforeNext = useCallback((fn: BeforeNextFunction | null) => {
+    console.log('register', fn);
     beforeNextFunction.current = fn;
   }, []);
 
@@ -99,8 +100,6 @@ export default function ProtocolScreen() {
       return;
     }
 
-    beforeNextFunction.current = null;
-
     // Advance the prompt if we're not at the last one.
     if (stageAllowsNavigation !== 'FORCE' && !isLastPrompt) {
       dispatch(
@@ -111,6 +110,7 @@ export default function ProtocolScreen() {
 
     // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
+    registerBeforeNext(null);
     await animate(scope.current, { y: '-100vh' }, animationOptions);
 
     dispatch(
@@ -124,6 +124,7 @@ export default function ProtocolScreen() {
     nextValidStageIndex,
     promptIndex,
     scope,
+    registerBeforeNext,
   ]);
 
   const moveBackward = useCallback(async () => {
@@ -132,8 +133,6 @@ export default function ProtocolScreen() {
     if (!stageAllowsNavigation) {
       return;
     }
-
-    beforeNextFunction.current = null;
 
     // Advance the prompt if we're not at the last one.
     if (stageAllowsNavigation !== 'FORCE' && !isFirstPrompt) {
@@ -145,6 +144,7 @@ export default function ProtocolScreen() {
 
     // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
+    registerBeforeNext(null);
     await animate(scope.current, { y: '100vh' }, animationOptions);
 
     dispatch(
@@ -160,6 +160,7 @@ export default function ProtocolScreen() {
     previousValidStageIndex,
     promptIndex,
     scope,
+    registerBeforeNext,
   ]);
 
   const getNavigationHelpers = useCallback(

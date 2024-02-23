@@ -24,8 +24,6 @@ function Stage({
     stage.type,
   ) as unknown as ElementType<StageProps>;
 
-  useEffect(() => () => registerBeforeNext(null), [registerBeforeNext]);
-
   return (
     <div
       className="flex-grow-1 relative flex h-full w-full basis-full overflow-hidden"
