@@ -35,8 +35,10 @@ export default function Settings() {
           <Paragraph margin="none">
             If this option is enabled, each participant will only be able to
             submit a single <strong>completed</strong> interview for each
-            protocol. Attempting to start a new interview, or resume any other
-            in-progress interviews, will be prevented.
+            protocol (although they may have multiple incomplete interviews). 
+            Once an interview has been completed, attempting to start a new 
+            interview or to resume any other in-progress interview, will be
+            prevented.
           </Paragraph>
         </SettingsSection>
         <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>
