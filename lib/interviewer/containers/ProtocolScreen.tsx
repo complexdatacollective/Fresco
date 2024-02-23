@@ -127,20 +127,23 @@ export default function ProtocolScreen() {
   ]);
 
   const moveBackward = useCallback(async () => {
-    if (await canNavigate('backwards')) {
+    const stageAllowsNavigation = await canNavigate('backwards');
+
+    if (!stageAllowsNavigation) {
       return;
-    } else {
-      // Reset the beforenext function now that it has allowed navigation
-      beforeNextFunction.current = null;
     }
 
-    if (!isFirstPrompt) {
+    beforeNextFunction.current = null;
+
+    // Advance the prompt if we're not at the last one.
+    if (stageAllowsNavigation !== 'FORCE' && !isFirstPrompt) {
       dispatch(
         sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
       );
       return;
     }
 
+    // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
     await animate(scope.current, { y: '100vh' }, animationOptions);
 

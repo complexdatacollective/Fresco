@@ -24,6 +24,9 @@ export const store = configureStore({
   middleware: [thunk, logger, sound],
 });
 
+export type StageMetadataEntry = [number, string, string, boolean];
+export type StageMetadata = StageMetadataEntry[];
+
 export type Session = {
   id: string;
   protocolUid: string;
@@ -35,7 +38,7 @@ export type Session = {
   lastUpdated: Date;
   finishedAt: Date;
   exportedAt: Date;
-  stageMetadata?: Record<number, (string | number)[][]>; // Used as temporary storage by DyadCensus/TieStrengthCensus
+  stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
 };
 
 export type SessionsState = Record<string, Session>;
