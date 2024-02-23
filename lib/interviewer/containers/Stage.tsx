@@ -15,11 +15,9 @@ type StageProps = {
   };
 };
 
-function Stage({
-  stage,
-  registerBeforeNext,
-  getNavigationHelpers,
-}: StageProps) {
+function Stage(props: StageProps) {
+  const { stage, registerBeforeNext, getNavigationHelpers } = props;
+
   const CurrentInterface = getInterface(
     stage.type,
   ) as unknown as ElementType<StageProps>;

@@ -88,10 +88,21 @@ export default function ProtocolScreen() {
     if (!beforeNextFunction.current) {
       return true;
     }
-    console.log('canNavigate', beforeNextFunction.current);
-    const value = await beforeNextFunction.current(direction);
-    console.log('canNavigate', value);
-    return value;
+
+    const beforeNextResult = await beforeNextFunction.current(direction);
+
+    // Throw an error if beforeNextFunction returns an invalid value
+    if (
+      beforeNextResult !== true &&
+      beforeNextResult !== false &&
+      beforeNextResult !== 'FORCE'
+    ) {
+      throw new Error(
+        `beforeNextFunction must return a boolean or the string 'FORCE'`,
+      );
+    }
+
+    return beforeNextResult;
   };
 
   const moveForward = useCallback(async () => {
@@ -111,9 +122,9 @@ export default function ProtocolScreen() {
 
     // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
-    registerBeforeNext(null);
     await animate(scope.current, { y: '-100vh' }, animationOptions);
-
+    // If the result is true or 'FORCE' we can reset the function here:
+    registerBeforeNext(null);
     dispatch(
       sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
     );
@@ -124,8 +135,8 @@ export default function ProtocolScreen() {
     isLastPrompt,
     nextValidStageIndex,
     promptIndex,
-    scope,
     registerBeforeNext,
+    scope,
   ]);
 
   const moveBackward = useCallback(async () => {
@@ -145,9 +156,8 @@ export default function ProtocolScreen() {
 
     // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
-    registerBeforeNext(null);
     await animate(scope.current, { y: '100vh' }, animationOptions);
-
+    registerBeforeNext(null);
     dispatch(
       sessionActions.updateStage(
         previousValidStageIndex,
@@ -160,8 +170,8 @@ export default function ProtocolScreen() {
     isFirstPrompt,
     previousValidStageIndex,
     promptIndex,
-    scope,
     registerBeforeNext,
+    scope,
   ]);
 
   const getNavigationHelpers = useCallback(
