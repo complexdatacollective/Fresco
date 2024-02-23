@@ -51,6 +51,7 @@ model Interview {
   protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
+  stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
 
   @@index(fields: [protocolId])
   @@index([participantId])

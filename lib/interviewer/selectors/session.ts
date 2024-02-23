@@ -16,8 +16,7 @@ export const getActiveSession = createSelector(
   getActiveSessionId,
   getSessions,
   (activeSessionId, sessions) => {
-    if (!activeSessionId) return null;
-    return sessions[activeSessionId];
+    return sessions[activeSessionId]!;
   },
 );
 
@@ -41,15 +40,23 @@ export const getLastActiveSession = createSelector(getSessions, (sessions) => {
 });
 
 export const getStageIndex = createSelector(getActiveSession, (session) => {
-  return session?.currentStep ?? null;
+  return session.currentStep;
 });
+
+// Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
+export const getStageMetadata = createSelector(
+  getActiveSession,
+  getStageIndex,
+  (session, stageIndex) => {
+    return session.stageMetadata?.[stageIndex] ?? undefined;
+  },
+);
 
 export const getCurrentStage = createSelector(
   getProtocolStages,
   getStageIndex,
   (stages: Stage[], currentStep) => {
-    if (currentStep === null) return null;
-    return stages[currentStep];
+    return stages[currentStep]!;
   },
 );
 

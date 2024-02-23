@@ -1,6 +1,8 @@
 import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
+import { useSelector } from 'react-redux';
+import { getNavigationInfo } from '../selectors/session';
 
 export const NavigationButton = ({
   disabled,
@@ -33,27 +35,28 @@ export const NavigationButton = ({
 type NavigationProps = {
   moveBackward: () => void;
   moveForward: () => void;
-  canMoveForward: boolean;
-  canMoveBackward: boolean;
-  progress: number;
-  isReadyForNextStage: boolean;
+  pulseNext: boolean;
+  disabled: boolean;
 };
 
 const Navigation = ({
   moveBackward,
   moveForward,
-  canMoveForward,
-  canMoveBackward,
-  progress,
-  isReadyForNextStage,
+  pulseNext,
+  disabled,
 }: NavigationProps) => {
+  const { progress, canMoveForward, canMoveBackward } =
+    useSelector(getNavigationInfo);
+
   return (
     <div
       role="navigation"
       className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
-      {/* <SettingsMenu /> */}
-      <NavigationButton onClick={moveBackward} disabled={!canMoveBackward}>
+      <NavigationButton
+        onClick={moveBackward}
+        disabled={disabled || !canMoveBackward}
+      >
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
       <div className="m-6 flex flex-grow">
@@ -63,10 +66,10 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          isReadyForNextStage && 'animate-pulse',
+          pulseNext && 'animate-pulse bg-success',
         )}
         onClick={moveForward}
-        disabled={!canMoveForward}
+        disabled={disabled || !canMoveForward}
       >
         <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>

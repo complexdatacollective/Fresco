@@ -15,7 +15,7 @@
     padding: units.unit(2) units.unit(4);
     flex-direction: column;
     margin-bottom: units.unit(4);
-    max-width: 55rem; // same as ego form max width
+    max-width: 80ch; // same as ego form max width
 
     h1 {
       text-align: center;
@@ -31,13 +31,13 @@
   }
 
   &__form-container-scroller {
-    padding: units.unit(4) 0;
+    padding: units.unit(4) units.unit(2);
     max-height: 100%;
     display: flex;
     flex-direction: column;
 
     & > * {
-      max-width: 55rem;
+      max-width: 80ch;
       align-self: center;
       width: 100%;
     }

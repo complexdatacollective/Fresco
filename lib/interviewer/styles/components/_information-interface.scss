@@ -14,7 +14,7 @@ $asset-size-default: 17vh;
 
   &__frame {
     width: 100%;
-    max-width: 55rem;
+    max-width: 80ch;
   }
 
   &__title {
@@ -78,7 +78,7 @@ $asset-size-default: 17vh;
     flex-direction: column;
 
     & > * {
-      max-width: 55rem;
+      max-width: 80ch;
       align-self: center;
       width: 100%;
     }

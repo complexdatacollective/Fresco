@@ -11,7 +11,6 @@ import { store } from '~/lib/interviewer/store';
 import { api } from '~/trpc/client';
 import { useRouter } from 'next/navigation';
 import ServerSync from './ServerSync';
-import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect, useState } from 'react';
 import { Spinner } from '~/lib/ui/components';
 
@@ -21,11 +20,6 @@ import { Spinner } from '~/lib/ui/components';
 const InterviewShell = ({ interviewID }: { interviewID: string }) => {
   const router = useRouter();
   const [initialized, setInitialized] = useState(false);
-
-  const [currentStage, setCurrentStage] = useQueryState(
-    'stage',
-    parseAsInteger,
-  );
 
   const { isLoading, data: serverData } = api.interview.get.byId.useQuery(
     { id: interviewID },
@@ -43,17 +37,6 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
 
     const { protocol, ...serverSession } = serverData;
 
-    // If we have a current stage in the URL bar, and it is different from the
-    // server session, set the server session to the current stage.
-    //
-    // If we don't have a current stage in the URL bar, set it to the server
-    // session, and set the URL bar to the server session.
-    if (currentStage === null) {
-      void setCurrentStage(serverSession.currentStep);
-    } else if (currentStage !== serverSession.currentStep) {
-      serverSession.currentStep = currentStage;
-    }
-
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({
       type: SET_SERVER_SESSION,
@@ -64,14 +47,7 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
     });
 
     setInitialized(true);
-  }, [
-    serverData,
-    currentStage,
-    setCurrentStage,
-    router,
-    initialized,
-    setInitialized,
-  ]);
+  }, [serverData, router, initialized, setInitialized]);
 
   if (isLoading) {
     return (

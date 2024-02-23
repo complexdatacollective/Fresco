@@ -24,17 +24,21 @@ export const store = configureStore({
   middleware: [thunk, logger, sound],
 });
 
+export type StageMetadataEntry = [number, string, string, boolean];
+export type StageMetadata = StageMetadataEntry[];
+
 export type Session = {
   id: string;
   protocolUid: string;
   promptIndex: number;
-  currentStep: number | null;
+  currentStep: number;
   caseId: string;
   network: NcNetwork;
   startedAt: Date;
   lastUpdated: Date;
   finishedAt: Date;
   exportedAt: Date;
+  stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
 };
 
 export type SessionsState = Record<string, Session>;
@@ -55,7 +59,7 @@ export type Dialogs = {
 
 export type RootState = {
   form: Record<string, unknown>;
-  activeSessionId: string | null;
+  activeSessionId: keyof SessionsState;
   sessions: SessionsState;
   installedProtocols: InstalledProtocols;
   deviceSettings: Record<string, unknown>;

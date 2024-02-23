@@ -30,7 +30,7 @@ const ServerSync = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSessionSync = useCallback(
     debounce(syncSessionWithServer, 2000, {
-      leading: false,
+      leading: true,
       trailing: true,
       maxWait: 10000,
     }),
@@ -55,6 +55,7 @@ const ServerSync = ({
       id: interviewId,
       network: currentSession.network,
       currentStep: currentSession.currentStep ?? 0,
+      stageMetadata: currentSession.stageMetadata, // Temporary storage used by tiestrengthcensus/dyadcensus to store negative responses
     });
   }, [
     currentSession,
