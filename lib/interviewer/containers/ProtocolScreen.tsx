@@ -86,7 +86,7 @@ export default function ProtocolScreen() {
    */
   const canNavigate = async (direction: directions) => {
     if (!beforeNextFunction.current) {
-      return false;
+      return true;
     }
 
     return beforeNextFunction.current(direction);
