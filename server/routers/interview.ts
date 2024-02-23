@@ -2,12 +2,16 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
-import { NcNetworkZod } from '~/shared/schemas/network-canvas';
+import {
+  NcNetworkZod,
+  type NcNetworkType,
+} from '~/shared/schemas/network-canvas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { trackEvent } from '~/analytics/utils';
 import { createId } from '@paralleldrive/cuid2';
+import { cookies } from 'next/headers';
 
 export const interviewRouter = router({
   sync: publicProcedure
@@ -200,6 +204,8 @@ export const interviewRouter = router({
           },
           select: {
             participant: true,
+            network: true,
+            protocolId: true,
           },
           data: {
             finishTime: new Date(),
@@ -212,6 +218,20 @@ export const interviewRouter = router({
             message: `Participant "${updatedInterview.participant.identifier}" completed an interview`,
           },
         });
+
+        const network = JSON.parse(
+          JSON.stringify(updatedInterview.network),
+        ) as NcNetworkType;
+
+        void trackEvent({
+          type: 'InterviewCompleted',
+          metadata: {
+            nodeCount: network.nodes?.length ?? 0,
+            edgeCount: network.edges?.length ?? 0,
+          },
+        });
+
+        cookies().set(updatedInterview.protocolId, 'completed');
 
         revalidateTag('interview.get.all');
         revalidateTag('dashboard.getActivities');

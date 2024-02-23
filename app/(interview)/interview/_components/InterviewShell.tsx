@@ -41,12 +41,6 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
       return;
     }
 
-    // If the interview is finished, redirect to the finish page
-    if (serverData.finishTime) {
-      router.push('/interview/finished');
-      return;
-    }
-
     const { protocol, ...serverSession } = serverData;
 
     // If we have a current stage in the URL bar, and it is different from the

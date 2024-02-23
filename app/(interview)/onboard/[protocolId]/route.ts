@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { trackEvent } from '~/analytics/utils';
 import { api } from '~/trpc/server';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 const handler = async (
   req: NextRequest,
@@ -11,6 +13,15 @@ const handler = async (
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
     return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+  }
+
+  const appSettings = await api.appSettings.get.query();
+
+  // if limitInterviews is enabled
+  // Check cookies for interview already completed for this user for this protocol
+  // and redirect to finished page
+  if (appSettings?.limitInterviews && cookies().get(protocolId)) {
+    redirect('/interview/finished');
   }
 
   let participantIdentifier: string | undefined;

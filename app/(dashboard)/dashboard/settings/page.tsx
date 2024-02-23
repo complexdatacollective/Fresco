@@ -6,6 +6,7 @@ import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSection from '../_components/RecruitmentTestSection';
 import SettingsSection from '~/components/layout/SettingsSection';
 import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
+import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch/LimitInterviewsSwitch';
 
 export default function Settings() {
   return (
@@ -25,6 +26,15 @@ export default function Settings() {
             If anonymous recruitment is enabled, you may generate an anonymous
             participation URL. This URL can be shared with participants to allow
             them to self-enroll in your study.
+          </Paragraph>
+        </SettingsSection>
+        <SettingsSection
+          heading="Limit Interviews"
+          controlArea={<LimitInterviewsSwitch />}
+        >
+          <Paragraph margin="none">
+            If limit interviews is enabled, each participant will be limited to
+            complete one interview per protocol.
           </Paragraph>
         </SettingsSection>
         <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>

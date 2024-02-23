@@ -93,6 +93,7 @@ model AppSettings {
   configured                Boolean  @default(false)
   initializedAt             DateTime @default(now())
   allowAnonymousRecruitment Boolean  @default(false)
+  limitInterviews            Boolean  @default(true)
   installationId            String   @unique @default(cuid())
 }
 

@@ -46,6 +46,17 @@ export const appSettingsRouter = router({
 
     return !!appSettings?.allowAnonymousRecruitment;
   }),
+
+  getLimitInterviewsStatus: protectedProcedure.query(async () => {
+    const appSettings = await prisma.appSettings.findFirst({
+      select: {
+        limitInterviews: true,
+      },
+    });
+
+    return !!appSettings?.limitInterviews;
+  }),
+
   create: publicProcedure.mutation(async () => {
     try {
       const appSettings = await prisma.appSettings.create({
@@ -75,8 +86,24 @@ export const appSettingsRouter = router({
 
       return input;
     }),
+  
+  updateLimitInterviews: protectedProcedure
+    .input(z.boolean())
+    .mutation(async ({ input }) => {
+      await prisma.appSettings.updateMany({
+        data: {
+          limitInterviews: input,
+        },
+      });
 
+      revalidateTag('appSettings.get');
+      revalidateTag('appSettings.getLimitInterviewsStatus');
+
+      return input;
+    }),
+  
   reset: protectedProcedure.mutation(async ({ ctx }) => {
+
     const userID = ctx.session?.user.userId;
 
     if (userID) {
