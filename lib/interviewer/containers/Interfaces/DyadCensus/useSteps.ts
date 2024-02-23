@@ -3,7 +3,6 @@ import { useState } from 'react';
 type Steps = number[];
 
 export default function useSteps(steps: Steps) {
-  console.log('useSteps');
   const [currentStep, setCurrentStep] = useState(0);
   const [currentSubStep, setCurrentSubStep] = useState(0);
 
@@ -46,16 +45,6 @@ export default function useSteps(steps: Steps) {
     next, // move to the next step or substep
     back, // move to the previous step or substep
   ];
-
-  console.table({
-    totalSteps,
-    currentStep,
-    currentSubStep,
-    isStepEnd,
-    isEnd,
-    isStepStart,
-    isStart,
-  });
 
   return value;
 }

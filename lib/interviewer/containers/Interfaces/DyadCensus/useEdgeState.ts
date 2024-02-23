@@ -1,4 +1,8 @@
-import type { entityPrimaryKeyProperty, NcEdge } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcEdge,
+} from '@codaco/shared-consts';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { edgeExists } from '~/lib/interviewer/ducks/modules/network';
@@ -47,9 +51,19 @@ export default function useEdgeState(
   const [isChanged, setIsChanged] = useState(false);
   const { prompt, promptIndex } = usePrompts();
   const edgeType = prompt.createEdge!;
-  // const edgeVariable = prompt.edgeVariable!;
+  const edgeVariable = prompt.edgeVariable;
 
   const existingEdgeId = edgeExists(edges, pair[0], pair[1], edgeType);
+  const getEdgeVariableValue = () => {
+    if (!edgeVariable) {
+      return undefined;
+    }
+
+    const edge = edges.find(
+      (e) => e[entityPrimaryKeyProperty] === existingEdgeId,
+    );
+    return edge?.[entityAttributesProperty]?.[edgeVariable] ?? undefined;
+  };
 
   // TODO: update this to handle edge variables for TieStrengthCensus
   const hasEdge = () => {
@@ -74,7 +88,7 @@ export default function useEdgeState(
   // If value is boolean we are creating or deleting the edge.
   // If value is string, we are creating an edge with a variable value,
   // or updating the edge variable value.
-  const setEdge = (value: boolean | string) => {
+  const setEdge = (value: boolean | string | number) => {
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
     // We must dispatch the action to create or delete the edge
@@ -112,6 +126,33 @@ export default function useEdgeState(
       ];
     }
 
+    if (typeof value === 'string' || typeof value === 'number') {
+      if (existingEdgeId) {
+        dispatch(
+          sessionActions.updateEdge(
+            existingEdgeId,
+            {},
+            {
+              [edgeVariable!]: value,
+            },
+          ) as unknown as AnyAction,
+        );
+      } else {
+        dispatch(
+          sessionActions.addEdge(
+            {
+              from: pair[0],
+              to: pair[1],
+              type: edgeType,
+            },
+            {
+              [edgeVariable!]: value,
+            },
+          ) as unknown as AnyAction,
+        );
+      }
+    }
+
     dispatch(
       sessionActions.updateStageMetadata(
         newStageMetadata,
@@ -126,6 +167,7 @@ export default function useEdgeState(
 
   return {
     hasEdge: hasEdge(), // If an edge exists. null if not yet determined.
+    edgeVariableValue: getEdgeVariableValue(), // The value of the edge variable
     setEdge, // Set the edge to true or false. Triggers redux actions to create or delete edges.
     isTouched,
     isChanged,
