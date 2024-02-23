@@ -41,7 +41,7 @@ type Pair = [string, string];
 type NcEdgeWithId = NcEdge & { [entityPrimaryKeyProperty]: string };
 
 export default function useEdgeState(
-  pair: Pair,
+  pair: Pair | null,
   edges: NcEdgeWithId[],
   deps: string,
 ) {
@@ -53,7 +53,8 @@ export default function useEdgeState(
   const edgeType = prompt.createEdge!;
   const edgeVariable = prompt.edgeVariable;
 
-  const existingEdgeId = edgeExists(edges, pair[0], pair[1], edgeType);
+  const existingEdgeId =
+    (pair && edgeExists(edges, pair[0], pair[1], edgeType)) ?? false;
   const getEdgeVariableValue = () => {
     if (!edgeVariable) {
       return undefined;
@@ -67,6 +68,10 @@ export default function useEdgeState(
 
   // TODO: update this to handle edge variables for TieStrengthCensus
   const hasEdge = () => {
+    if (!pair) {
+      return false;
+    }
+
     const edgeExistsInMetadata = getStageMetadataResponse(
       stageMetadata,
       promptIndex,
@@ -91,6 +96,10 @@ export default function useEdgeState(
   const setEdge = (value: boolean | string | number) => {
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
+
+    if (!pair) {
+      return;
+    }
 
     if (value === true) {
       dispatch(
