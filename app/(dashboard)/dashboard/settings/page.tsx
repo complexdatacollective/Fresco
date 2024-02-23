@@ -33,8 +33,10 @@ export default function Settings() {
           controlArea={<LimitInterviewsSwitch />}
         >
           <Paragraph margin="none">
-            If limit interviews is enabled, each participant will be limited to
-            complete one interview per protocol.
+            If this option is enabled, each participant will only be able to
+            submit a single <strong>completed</strong> interview for each
+            protocol. Attempting to start a new interview, or resume any other
+            in-progress interviews, will be prevented.
           </Paragraph>
         </SettingsSection>
         <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>
