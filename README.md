@@ -3,10 +3,10 @@
 The Fresco project aims to bring Network Canvas interviews to the web browser. It is a pilot project that does not
 add new features to Network Canvas, but rather provides a new way to conduct interviews.
 
-## Known Limitations
+## Known Issues
 
 - Custom node label workers are not implemented.
-- Videos and audio cannot autoplay on load due to browser limitations. Participants must click the play button to start media.
+- Videos and audio cannot autoplay on first load due to browser limitations. Participants must have interacted with the interview before media can autoplay.
 - The 'Use fullscreen forms' visual preference is not supported.
 - When exporting data, the "use screen layout coordinates" feature uses a hardcoded screen size of 1920 x 1080. Please note that this does not correspond to the screen size used by your participants.
 

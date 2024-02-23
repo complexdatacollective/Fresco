@@ -6,7 +6,6 @@
   border-radius: 99999px;
   box-shadow: 0 units.unit(.5) units.unit(2) units.unit(1) rgb(0 0 0 / 25%);
   z-index: var(--z-tooltip);
-  font-size: 1.25rem;
   cursor: pointer;
 
   &__wrapper {
@@ -36,7 +35,7 @@
   &__content {
     position: absolute;
     left: 6rem;
-    width: calc(30rem - #{units.unit(2)}); // ~2.4rem for padding
+    width: calc(20rem - #{units.unit(2)}); // ~2.4rem for padding
 
   }
 }

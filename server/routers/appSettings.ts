@@ -1,11 +1,6 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
-import {
-  devProcedure,
-  protectedProcedure,
-  publicProcedure,
-  router,
-} from '../trpc';
+import { protectedProcedure, publicProcedure, router } from '../trpc';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { z } from 'zod';
 import { signOutProc } from './session';
@@ -91,7 +86,7 @@ export const appSettingsRouter = router({
 
       return input;
     }),
-
+  
   updateLimitInterviews: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
@@ -106,8 +101,9 @@ export const appSettingsRouter = router({
 
       return input;
     }),
+  
+  reset: protectedProcedure.mutation(async ({ ctx }) => {
 
-  reset: devProcedure.mutation(async ({ ctx }) => {
     const userID = ctx.session?.user.userId;
 
     if (userID) {
@@ -128,6 +124,10 @@ export const appSettingsRouter = router({
 
       revalidateTag('appSettings.get');
       revalidatePath('/');
+      revalidateTag('appSettings.getAnonymousRecruitmentStatus');
+      revalidateTag('interview.get.all');
+      revalidateTag('participant.get.all');
+      revalidateTag('dashboard.getActivities');
 
       // Todo: we need to remove assets from uploadthing before deleting the reference record.
     } catch (error) {

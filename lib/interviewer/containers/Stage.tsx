@@ -30,20 +30,23 @@ const Stage = (props: StageProps) => {
 
   return (
     <motion.div
-      className="flex-grow-1 basis-full"
+      id="stage"
+      className="flex-grow-1 relative basis-full overflow-hidden"
       key={stage.id}
       initial={{
         opacity: 0,
       }}
       animate={{
         opacity: 1,
+        transition: {
+          duration: 1,
+        },
       }}
       exit={{
         opacity: 0,
-      }}
-      transition={{
-        type: 'spring',
-        damping: 20,
+        transition: {
+          duration: 0.1,
+        },
       }}
       onAnimationStart={handleAnimationStart}
       onAnimationComplete={handleAnimationComplete}
