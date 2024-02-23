@@ -1,6 +1,6 @@
 import getInterface from './Interfaces';
 import StageErrorBoundary from '../components/StageErrorBoundary';
-import { type ElementType, memo, useEffect } from 'react';
+import { type ElementType, memo } from 'react';
 import { type BeforeNextFunction } from './ProtocolScreen';
 
 type StageProps = {
