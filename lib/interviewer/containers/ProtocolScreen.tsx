@@ -88,8 +88,10 @@ export default function ProtocolScreen() {
     if (!beforeNextFunction.current) {
       return true;
     }
-
-    return beforeNextFunction.current(direction);
+    console.log('canNavigate', beforeNextFunction.current);
+    const value = await beforeNextFunction.current(direction);
+    console.log('canNavigate', value);
+    return value;
   };
 
   const moveForward = useCallback(async () => {
