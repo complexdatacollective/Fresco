@@ -91,9 +91,6 @@ export default function useEdgeState(
   const setEdge = (value: boolean | string | number) => {
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
-    // We must dispatch the action to create or delete the edge
-    // We must also dispatch the action to update the stage metadata
-    let newStageMetadata: StageMetadata | undefined;
 
     if (value === true) {
       dispatch(
@@ -104,11 +101,17 @@ export default function useEdgeState(
         }) as unknown as AnyAction,
       );
 
-      newStageMetadata = [
+      const newStageMetadata = [
         ...(stageMetadata?.filter(
           (item) => !matchEntry(promptIndex, pair)(item),
         ) ?? []),
       ];
+
+      dispatch(
+        sessionActions.updateStageMetadata(
+          newStageMetadata,
+        ) as unknown as AnyAction,
+      );
     }
 
     if (value === false) {
@@ -118,12 +121,21 @@ export default function useEdgeState(
         );
       }
 
-      newStageMetadata = [
+      // Construct new stage metadata from scratch
+      // if (!stageMetadata) {}
+
+      const newStageMetadata = [
         ...(stageMetadata?.filter(
           (item) => !matchEntry(promptIndex, pair)(item),
         ) ?? []),
         [promptIndex, ...pair, value],
       ];
+
+      dispatch(
+        sessionActions.updateStageMetadata(
+          newStageMetadata,
+        ) as unknown as AnyAction,
+      );
     }
 
     if (typeof value === 'string' || typeof value === 'number') {
@@ -152,12 +164,6 @@ export default function useEdgeState(
         );
       }
     }
-
-    dispatch(
-      sessionActions.updateStageMetadata(
-        newStageMetadata,
-      ) as unknown as AnyAction,
-    );
   };
 
   useEffect(() => {
