@@ -74,7 +74,7 @@ export default function ProtocolScreen() {
   // Refs
   const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
 
-  const registerBeforeNext = useCallback((fn: BeforeNextFunction) => {
+  const registerBeforeNext = useCallback((fn: BeforeNextFunction | null) => {
     beforeNextFunction.current = fn;
   }, []);
 
