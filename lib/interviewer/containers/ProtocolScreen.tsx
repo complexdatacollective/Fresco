@@ -106,28 +106,33 @@ export default function ProtocolScreen() {
   };
 
   const moveForward = useCallback(async () => {
-    const stageAllowsNavigation = await canNavigate('forwards');
-
-    if (!stageAllowsNavigation) {
-      return;
-    }
-
-    // Advance the prompt if we're not at the last one.
-    if (stageAllowsNavigation !== 'FORCE' && !isLastPrompt) {
-      dispatch(
-        sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
-      );
-      return;
-    }
-
-    // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
-    await animate(scope.current, { y: '-100vh' }, animationOptions);
-    // If the result is true or 'FORCE' we can reset the function here:
-    registerBeforeNext(null);
-    dispatch(
-      sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
-    );
+
+    await (async () => {
+      const stageAllowsNavigation = await canNavigate('forwards');
+
+      if (!stageAllowsNavigation) {
+        return;
+      }
+
+      // Advance the prompt if we're not at the last one.
+      if (stageAllowsNavigation !== 'FORCE' && !isLastPrompt) {
+        dispatch(
+          sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
+        );
+        return;
+      }
+
+      // from this point on we are definitely navigating, so set up the animation
+
+      await animate(scope.current, { y: '-100vh' }, animationOptions);
+      // If the result is true or 'FORCE' we can reset the function here:
+      registerBeforeNext(null);
+      dispatch(
+        sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
+      );
+    })();
+
     setForceNavigationDisabled(false);
   }, [
     animate,
@@ -140,29 +145,33 @@ export default function ProtocolScreen() {
   ]);
 
   const moveBackward = useCallback(async () => {
-    const stageAllowsNavigation = await canNavigate('backwards');
-
-    if (!stageAllowsNavigation) {
-      return;
-    }
-
-    // Advance the prompt if we're not at the last one.
-    if (stageAllowsNavigation !== 'FORCE' && !isFirstPrompt) {
-      dispatch(
-        sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
-      );
-      return;
-    }
-
-    // from this point on we are definitely navigating, so set up the animation
     setForceNavigationDisabled(true);
-    await animate(scope.current, { y: '100vh' }, animationOptions);
-    registerBeforeNext(null);
-    dispatch(
-      sessionActions.updateStage(
-        previousValidStageIndex,
-      ) as unknown as AnyAction,
-    );
+
+    await (async () => {
+      const stageAllowsNavigation = await canNavigate('backwards');
+
+      if (!stageAllowsNavigation) {
+        return;
+      }
+
+      // Advance the prompt if we're not at the last one.
+      if (stageAllowsNavigation !== 'FORCE' && !isFirstPrompt) {
+        dispatch(
+          sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
+        );
+        return;
+      }
+
+      // from this point on we are definitely navigating, so set up the animation
+      await animate(scope.current, { y: '100vh' }, animationOptions);
+      registerBeforeNext(null);
+      dispatch(
+        sessionActions.updateStage(
+          previousValidStageIndex,
+        ) as unknown as AnyAction,
+      );
+    })();
+
     setForceNavigationDisabled(false);
   }, [
     animate,
