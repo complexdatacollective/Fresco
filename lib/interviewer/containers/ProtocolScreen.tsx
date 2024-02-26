@@ -12,13 +12,14 @@ import Stage from './Stage';
 import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { useAtomValue } from 'jotai';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getNavigationInfo } from '../selectors/session';
 import { getNavigableStages } from '../selectors/skip-logic';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import type { AnyAction } from '@reduxjs/toolkit';
 import usePrevious from '~/hooks/usePrevious';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 type directions = 'forwards' | 'backwards';
 
@@ -59,6 +60,7 @@ export default function ProtocolScreen() {
   const dispatch = useDispatch();
 
   // State
+  const [, setQueryStep] = useQueryState('step', parseAsInteger.withDefault(0));
   const session = useAtomValue(sessionAtom);
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
 
@@ -190,6 +192,12 @@ export default function ProtocolScreen() {
     }),
     [moveForward, moveBackward],
   );
+
+  useEffect(() => {
+    if (currentStep !== prevCurrentStep) {
+      void setQueryStep(currentStep);
+    }
+  }, [currentStep, prevCurrentStep, setQueryStep]);
 
   return (
     <>

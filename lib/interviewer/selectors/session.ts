@@ -121,7 +121,9 @@ export const getSessionProgress = createSelector(
   (currentStep, stageCount, promptIndex, promptCount) => {
     if (currentStep === null) return 0;
 
-    const stageProgress = currentStep / (stageCount - 1);
+    // Don't subtract 1 because we have a finish stage automatically added that isn't accounted for.
+    const stageProgress = currentStep / stageCount;
+
     const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
 
     const promptProgress = promptCount === 1 ? 1 : promptIndex / promptCount; // 1 when finished
