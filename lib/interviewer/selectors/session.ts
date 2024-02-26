@@ -136,6 +136,31 @@ export const getSessionProgress = createSelector(
   },
 );
 
+// Used to calculate what the progress _will be_ once the next stage is loaded. Can update the
+// progress bar with this.
+export const makeGetFakeSessionProgress = createSelector(
+  getStageCount,
+  getPromptCount,
+  (stageCount, promptCount) => {
+    return (currentStep: number, promptIndex: number) => {
+      if (currentStep === null) return 0;
+
+      // Don't subtract 1 because we have a finish stage automatically added that isn't accounted for.
+      const stageProgress = currentStep / stageCount;
+
+      const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
+
+      const promptProgress = promptCount === 1 ? 1 : promptIndex / promptCount; // 1 when finished
+
+      const promptWorth = promptProgress * stageWorth;
+
+      const percentProgress = (stageProgress + promptWorth) * 100;
+
+      return percentProgress;
+    };
+  },
+);
+
 export const getNavigationInfo = createSelector(
   getSessionProgress,
   getStageIndex,

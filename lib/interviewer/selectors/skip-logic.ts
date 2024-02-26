@@ -107,6 +107,8 @@ export const getNavigableStages = createSelector(
   getSkipMap,
   getStageIndex,
   (skipMap, currentStep) => {
+    const isCurrentStepValid = !skipMap[currentStep];
+
     const nextStage = Object.keys(skipMap).find(
       (stage) =>
         parseInt(stage) > currentStep && skipMap[parseInt(stage)] === false,
@@ -120,6 +122,7 @@ export const getNavigableStages = createSelector(
       );
 
     return {
+      isCurrentStepValid,
       nextValidStageIndex: nextStage ? parseInt(nextStage) : currentStep,
       previousValidStageIndex: previousStage
         ? parseInt(previousStage)

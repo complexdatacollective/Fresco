@@ -37,6 +37,7 @@ type NavigationProps = {
   moveForward: () => void;
   pulseNext: boolean;
   disabled: boolean;
+  progress: number;
 };
 
 const Navigation = ({
@@ -44,9 +45,9 @@ const Navigation = ({
   moveForward,
   pulseNext,
   disabled,
+  progress,
 }: NavigationProps) => {
-  const { progress, canMoveForward, canMoveBackward } =
-    useSelector(getNavigationInfo);
+  const { canMoveForward, canMoveBackward } = useSelector(getNavigationInfo);
 
   return (
     <div

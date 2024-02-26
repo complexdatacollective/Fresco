@@ -7,7 +7,10 @@ import {
 } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import Navigation from '../components/Navigation';
-import { getCurrentStage } from '../selectors/session';
+import {
+  getCurrentStage,
+  makeGetFakeSessionProgress,
+} from '../selectors/session';
 import Stage from './Stage';
 import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
@@ -63,6 +66,7 @@ export default function ProtocolScreen() {
   const [, setQueryStep] = useQueryState('step', parseAsInteger.withDefault(0));
   const session = useAtomValue(sessionAtom);
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
+  const makeFakeSessionProgress = useSelector(makeGetFakeSessionProgress);
 
   // Selectors
   const stage = useSelector(getCurrentStage);
@@ -70,8 +74,12 @@ export default function ProtocolScreen() {
   const { currentStep, isLastPrompt, isFirstPrompt, promptIndex } =
     useSelector(getNavigationInfo);
   const prevCurrentStep = usePrevious(currentStep);
-  const { nextValidStageIndex, previousValidStageIndex } =
+  const { nextValidStageIndex, previousValidStageIndex, isCurrentStepValid } =
     useSelector(getNavigableStages);
+
+  const [progress, setProgress] = useState(
+    makeFakeSessionProgress(currentStep, promptIndex),
+  );
 
   // Refs
   const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
@@ -126,7 +134,7 @@ export default function ProtocolScreen() {
       }
 
       // from this point on we are definitely navigating, so set up the animation
-
+      setProgress(makeFakeSessionProgress(nextValidStageIndex, 0));
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
@@ -144,6 +152,7 @@ export default function ProtocolScreen() {
     promptIndex,
     registerBeforeNext,
     scope,
+    makeFakeSessionProgress,
   ]);
 
   const moveBackward = useCallback(async () => {
@@ -164,6 +173,8 @@ export default function ProtocolScreen() {
         return;
       }
 
+      setProgress(makeFakeSessionProgress(previousValidStageIndex, 0));
+
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
@@ -183,6 +194,7 @@ export default function ProtocolScreen() {
     promptIndex,
     registerBeforeNext,
     scope,
+    makeFakeSessionProgress,
   ]);
 
   const getNavigationHelpers = useCallback(
@@ -199,6 +211,25 @@ export default function ProtocolScreen() {
     }
   }, [currentStep, prevCurrentStep, setQueryStep]);
 
+  // Check if the current stage is valid for us to be on.
+  useEffect(() => {
+    // If the current stage should be skipped, move to the previous available
+    // stage that isn't.
+    if (!isCurrentStepValid) {
+      // eslint-disable-next-line no-console
+      console.log(
+        '⚠️ Invalid stage! Moving you to the previous valid stage...',
+      );
+      // This should always return a valid stage, because we know that the
+      // first stage is always valid.
+      dispatch(
+        sessionActions.updateStage(
+          previousValidStageIndex,
+        ) as unknown as AnyAction,
+      );
+    }
+  }, [dispatch, isCurrentStepValid, previousValidStageIndex]);
+
   return (
     <>
       {session && <FeedbackBanner />}
@@ -212,6 +243,7 @@ export default function ProtocolScreen() {
           moveForward={moveForward}
           disabled={forceNavigationDisabled}
           pulseNext={isReadyForNextStage}
+          progress={progress}
         />
         <motion.div
           key={currentStep}
