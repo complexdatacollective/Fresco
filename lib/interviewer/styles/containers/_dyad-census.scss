@@ -129,7 +129,7 @@
     margin: 0 -1.5rem;
     background: linear-gradient(
       to right,
-      transparent 50%,
+      var(--edge-color) 50%,
       var(--nc-background) 50%
     );
     background-size: 200% 100%;

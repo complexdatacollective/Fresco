@@ -10,8 +10,7 @@ import {
 import { store } from '~/lib/interviewer/store';
 import ServerSync from './ServerSync';
 import { useEffect, useState } from 'react';
-import { Spinner } from '~/lib/ui/components';
-import { type RouterOutputs } from '~/trpc/shared';
+import type { Prisma } from '@prisma/client';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
@@ -19,12 +18,19 @@ import { type RouterOutputs } from '~/trpc/shared';
 const InterviewShell = ({
   interview,
 }: {
-  interview: RouterOutputs['interview']['get']['byId'];
+  interview: Prisma.InterviewGetPayload<{
+    include: {
+      protocol: {
+        include: {
+          assets: true;
+        };
+      };
+    };
+  }>;
 }) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    console.log('effect');
     if (initialized || !interview) {
       return;
     }
@@ -43,8 +49,8 @@ const InterviewShell = ({
     setInitialized(true);
   }, [interview, initialized, setInitialized]);
 
-  if (!initialized || !interview) {
-    return <Spinner />;
+  if (!initialized) {
+    return null;
   }
 
   return (

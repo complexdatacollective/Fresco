@@ -43,6 +43,7 @@ export const interviewRouter = router({
           });
 
           revalidateTag('interview.get.all');
+          revalidateTag('interview.get.byId');
           revalidatePath('/dashboard/interviews');
 
           return { success: true };
