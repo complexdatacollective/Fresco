@@ -203,7 +203,7 @@ export default function ProtocolScreen() {
     <>
       {session && <FeedbackBanner />}
       <motion.div
-        className="relative flex flex-1 flex-row overflow-hidden"
+        className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
