@@ -6,7 +6,11 @@ export const metadata = {
 };
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  return <main>{children}</main>;
+  return (
+    <main className="flex h-[100vh] max-h-[100vh] flex-col bg-[--nc-background] text-[--nc-text]">
+      {children}
+    </main>
+  );
 }
 
 export default RootLayout;

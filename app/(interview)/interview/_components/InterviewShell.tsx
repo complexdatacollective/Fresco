@@ -8,34 +8,28 @@ import {
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { store } from '~/lib/interviewer/store';
-import { api } from '~/trpc/client';
-import { useRouter } from 'next/navigation';
 import ServerSync from './ServerSync';
 import { useEffect, useState } from 'react';
 import { Spinner } from '~/lib/ui/components';
+import { type RouterOutputs } from '~/trpc/shared';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
 // Eventually it will handle syncing this data back.
-const InterviewShell = ({ interviewID }: { interviewID: string }) => {
-  const router = useRouter();
+const InterviewShell = ({
+  interview,
+}: {
+  interview: RouterOutputs['interview']['get']['byId'];
+}) => {
   const [initialized, setInitialized] = useState(false);
 
-  const { isLoading, data: serverData } = api.interview.get.byId.useQuery(
-    { id: interviewID },
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
-
   useEffect(() => {
-    if (initialized || !serverData) {
+    console.log('effect');
+    if (initialized || !interview) {
       return;
     }
 
-    const { protocol, ...serverSession } = serverData;
+    const { protocol, ...serverSession } = interview;
 
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({
@@ -47,19 +41,15 @@ const InterviewShell = ({ interviewID }: { interviewID: string }) => {
     });
 
     setInitialized(true);
-  }, [serverData, router, initialized, setInitialized]);
+  }, [interview, initialized, setInitialized]);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Spinner />
-      </div>
-    );
+  if (!initialized || !interview) {
+    return <Spinner />;
   }
 
   return (
     <Provider store={store}>
-      <ServerSync interviewId={interviewID}>
+      <ServerSync interviewId={interview.id}>
         <ProtocolScreen />
       </ServerSync>
       <DialogManager />

@@ -34,10 +34,8 @@ export default async function Page({
   }
 
   return (
-    <div className="flex h-[100vh] max-h-[100vh] flex-col bg-[--nc-background] text-[--nc-text]">
-      <NoSSRWrapper>
-        <InterviewShell interviewID={interviewId} />
-      </NoSSRWrapper>
-    </div>
+    <NoSSRWrapper>
+      <InterviewShell interview={interview} />
+    </NoSSRWrapper>
   );
 }
