@@ -216,47 +216,39 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
 # Upgrade Guide
 
-Fresco is Alpha software and will be continuously improved. As these improvements happen, you can upgrade your deployed copy using this guide.
+Fresco is Alpha software and will be continuously improved. As we release updated versions of Fresco, you can delete your instance and redeploy it to use the upgraded versions.
 
-## Step 1
+## Step
 
-### Configure remote repository
+### Delete existing instance
 
-You must configure a remote that points to this Fresco repository as the upstream repository to sync upgrades with your copy.
+1. Delete Vercel Deployment
 
-1. Open Terminal (Mac, Linux) or Git Bash (Windows)
-2. Specify this repository as the remote upstream repository that will be synced with your copy
+Delete your existing instance of Fresco in Vercel by navigating to Settings -> General -> Delete. You will be prompted to verify the deletion.
 
-`git remote add upstream https://github.com/complexdatacollective/Fresco`
+![delete-vercel](public/images/readme-screenshots/delete-vercel.png)
 
-Note: You will only need to do this step once. After you have completed this step for an upgrade, you may skip it for future upgrades.
+**Warning: This action is not reversible. Please be certain that you would like to delete and redeploy your app before verifiying.**
+
+2. Delete GitHub Repository
+
+Delete your existing GitHub repository by navigating to the repository, selecting Settings, and scrolling down to Delete this repository. You will be prompted to verify the deletion.
+
+![delete-github1](public/images/readme-screenshots/delete-github1.png)
+![delete-github2](public/images/readme-screenshots/delete-github2.png)
 
 ## Step 2
 
-### Fetch updates and merge
+### Redeploy to Vercel
 
-Pull down updates from the main Fresco instance and merge them with your copy.
+Follow the [Deployment Guide](#deploy-fresco-on-vercel) steps to deploy a new updated app.
 
-`git fetch upstream`
-
-`git merge upstream/main`
-
-Note: The first time you complete this step, you may encounter the error:
-
-`fatal: refusing to merge unrelated histories`
-
-To fix this, run the following instead:
-
-`git merge upstream/main --allow-unrelated-histories`
-
-## Step 3
-
-### Push your local changes to GitHub
-
-`git push`
+**Note: Do not create new environment variables. You should use your existing variables in the redeployment.**
 
 Once this step is completed, Vercel will automatically redeploy your app.
 
 ## FAQ
 
-1. When should I upgrade? How will I know when to upgrade?
+1. Where will anouncements about releases be posted?
+
+New versions of Fresco will be announced on our <a href="https://community.networkcanvas.com/" target="_blank">User Community</a>.
