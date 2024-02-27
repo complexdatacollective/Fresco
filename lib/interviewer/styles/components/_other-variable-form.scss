@@ -15,7 +15,12 @@
     &-right {
       flex: 1 1 auto;
       margin-left: 2rem;
-      padding-top: 0.75rem;
+      padding-top: 1.25rem;
+
+      h4 {
+      margin-bottom: 1.25rem;
+    }
+
     }
   }
 
