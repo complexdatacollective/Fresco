@@ -134,6 +134,14 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
    **Note: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)**
 
+   **Also, when providing the environment variables, do not enclose the variable values in quotes. For example:**
+
+   ✅ Correct:
+   `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
+
+   ❌ Incorrect:
+   `'mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict'`
+
 4. Deploy
 
    Click **"Deploy"** and wait for the deployment to finish.
