@@ -243,7 +243,7 @@ Delete your existing GitHub repository by navigating to your repository, selecti
 
 Follow the [Deployment Guide](#deploy-fresco-on-vercel) steps to deploy a new updated app.
 
-**Note: Do not create new environment variables. You should use your existing variables in the redeployment.**
+**Note: Do not create new environment variables. You should use your existing variables and accounts in the redeployment.**
 
 Once this step is completed, Vercel will automatically redeploy your app.
 
