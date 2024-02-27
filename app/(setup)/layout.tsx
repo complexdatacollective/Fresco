@@ -23,7 +23,7 @@ export default function Layout({ children }: PropsWithChildren) {
           {children}
         </main>
       </div>
-      <div className="bg-navy-taupe text-background-primary absolute left-0 top-0 h-[100dvh] w-[100dvw]">
+      <div className="text-background-primary fixed left-0 top-0 h-[100dvh] w-[100dvw] bg-navy-taupe">
         <BackgroundBlobs large={0} medium={3} small={4} />
       </div>
     </>
