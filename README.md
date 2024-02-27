@@ -218,7 +218,7 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
 Fresco is Alpha software and will be continuously improved. As we release updated versions of Fresco, you can delete your instance and redeploy it to use the upgraded versions.
 
-## Step
+## Step 1
 
 ### Delete existing instance
 
@@ -232,7 +232,7 @@ Delete your existing instance of Fresco in Vercel by navigating to Settings -> G
 
 2. Delete GitHub Repository
 
-Delete your existing GitHub repository by navigating to the repository, selecting Settings, and scrolling down to Delete this repository. You will be prompted to verify the deletion.
+Delete your existing GitHub repository by navigating to your repository, selecting Settings, and scrolling down to 'Delete this repository'. You will be prompted to verify the deletion.
 
 ![delete-github1](public/images/readme-screenshots/delete-github1.png)
 ![delete-github2](public/images/readme-screenshots/delete-github2.png)
