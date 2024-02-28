@@ -89,7 +89,7 @@ export const InterviewsTable = ({
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>
+                <Button disabled={interviews.length === 0}>
                   <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
                   Export Interview Data
                 </Button>

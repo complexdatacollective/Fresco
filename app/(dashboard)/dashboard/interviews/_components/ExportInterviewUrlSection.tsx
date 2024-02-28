@@ -58,7 +58,11 @@ export const GenerateInterviewURLs = () => {
 
   return (
     <>
-      <Button onClick={handleOpenChange} variant="outline">
+      <Button
+        disabled={interviews?.length === 0}
+        onClick={handleOpenChange}
+        variant="outline"
+      >
         <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Incomplete Interview URLs
       </Button>
