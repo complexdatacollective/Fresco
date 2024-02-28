@@ -221,5 +221,3 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
    ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard5.png)
 
 **Note: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`**
-
-Testing Sync Fork Vercel
