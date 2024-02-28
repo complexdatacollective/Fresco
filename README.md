@@ -65,7 +65,7 @@ Fresco uses PlanetScale MySQL database platform. It provides scale, performance,
 
      ![Planet Scale go to dashboard](public/images/readme-screenshots/planetscale10.png)
 
-**Note: If you couldn't find and copy the connection URL using the above instructions, see the bellow guide on how to [Get database connection URL from PlanetScale dashboard](#get-database-connection-url-from-planetscale-dashboard)**
+> **_NOTE_**: If you couldn't find and copy the connection URL using the above instructions, see the bellow guide on how to [Get database connection URL from PlanetScale dashboard](#get-database-connection-url-from-planetscale-dashboard)
 
 For more info, checkout PlanetScale's <a href="https://planetscale.com/docs/tutorials/planetscale-quick-start-guide" target="_blank">Quick Start Guide</a>.
 
@@ -105,48 +105,75 @@ For more info, check out <a href="https://docs.uploadthing.com" target="_blank">
 
 ## Step 3
 
-### Deploy Fresco on Vercel
+### Fork Fresco Repository
 
-_Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel.com/" target="_blank">vercel.com</a> and sign up for an account (It's recommended to sign in to Vercel via your Github account. You can use their "Hobby" tier or paid plan.)
+_Prerequisite:_ You need to have a GitHub account. Go to <a href="https://github.com/signup?user_email=&source=form-home-signup" target="_blank"> GitHub</a> and sign up for an account if you do not already have one.
 
-1. Click the Vercel **"Deploy"** button below to begin the deployment to Vercel.
+1. On this repository, click the **Fork** button
 
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcomplexdatacollective%2FFresco&env=DATABASE_URL,UPLOADTHING_SECRET,UPLOADTHING_APP_ID)
+   ![GitHub - Fork this repository](public/images/readme-screenshots/github-fork1.png)
 
-2. Create Git Repository. Give your repository a name and hit **"Create"** (This will be your Fresco instance name).
+2. Create your Fork
 
-   ![Deploy on Vercel1](public/images/readme-screenshots/vercel1.png)
+Enter a repository name (this will be your Fresco instance name), description (optional), and click **Create Fork**.
+
+![Github - Create your fork](public/images/readme-screenshots/github-fork2.png)
+
+This will create a separate instance of the Fresco repository that you can deploy.
+
+## Step 4
+
+### Deploy Forked Repository on Vercel
+
+_Prerequisite:_ You need to have a Vercel account. Go to <a href="https://vercel.com/" target="_blank">vercel.com</a> and sign up for an account.
+
+Sign in to Vercel via your Github account so that you can easily connect your repositories. You can use their "Hobby" tier or paid plan.
+
+1. <a href="https://vercel.com/new" target="_blank">Create a new Project</a>
+
+2. Import Git Repository
+
+Find your Fresco instance from the list of your git repositories and click **Import**.
+
+![Import Git Repository](/public/images/readme-screenshots/vercel2.png)
 
 3. Configure Project.
 
-   Provide the required environment variables from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
+   Copy the template below and paste it into the Environment Variables section in Vercel to prepopulate the form with the required environment variables.
 
-   | Variable           | Description                                                                                                                                                                                                                                    |
-   | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | DATABASE_URL       | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. <a href="https://planetscale.com/docs/concepts/connection-strings" target="_blank">More info</a>                            |
-   | UPLOADTHING_SECRET | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>                                                      |
-   | UPLOADTHING_APP_ID | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |
-   | DISABLE_ANALYTICS  | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                |
+   Replace the values with your environment variable values from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
 
-   **Note: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leading `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.**
+> DATABASE_URL=your_database_connection_string\
+> UPLOADTHING_SECRET=your_uploadthing_api_key\
+> UPLOADTHING_APP_ID=your_uploadthing_app_id\
+> DISABLE_ANALYTICS=false
 
-   ![Deploy on Vercel2](public/images/readme-screenshots/vercel2.png)
+| Variable Key       | Description                                                                                                                                                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DATABASE_URL       | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. <a href="https://planetscale.com/docs/concepts/connection-strings" target="_blank">More info</a>                            |
+| UPLOADTHING_SECRET | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>                                                      |
+| UPLOADTHING_APP_ID | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |
+| DISABLE_ANALYTICS  | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                |
 
-   **Note: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)**
+> **_NOTE_**: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leaving `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.
 
-   **Also, when providing the environment variables, do not enclose the variable values in quotes. For example:**
+![Configure Environment Variables](public/images/readme-screenshots/vercel-configure.png)
 
-   ✅ Correct:
-   `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
+> **_NOTE_**: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)
 
-   ❌ Incorrect:
-   `'mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict'`
+**Also, when providing the environment variables, do not enclose the variable values in quotes. For example:**
+
+✅ Correct:
+`mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
+
+❌ Incorrect:
+`'mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict'`
 
 4. Deploy
 
    Click **"Deploy"** and wait for the deployment to finish.
 
-   **Note: If you encounter any issues during deployment, check out the [Troubleshooting](#troubleshooting) section or our <a href="https://community.networkcanvas.com/">User Community</a> for a possible solution.**
+   > **NOTE**: If you encounter any issues during deployment, check out the [Troubleshooting](#troubleshooting) section or our <a href="https://community.networkcanvas.com/">User Community</a> for a possible solution.
 
 5. Visit your deployed Fresco app by clicking on the preview or go to your dashboard by clicking **"Continue to Dashboard"** button...
 
@@ -154,13 +181,13 @@ _Prerequisite:_ You need to have a Vercel account, go to <a href="https://vercel
 
    ...and click on one of the domains names or the **"Visit"** button on the right corner.
 
-   ![Deploy on Vercel3](public/images/readme-screenshots/vercel4.png)
+   ![Deploy on Vercel4](public/images/readme-screenshots/vercel4.png)
 
 # Create User Account on your Fresco app
 
 Visit your deployed app to create your administrator account. Only one user account can be created.
 
-**Note: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You may redeploy using the same steps.**
+> **_NOTE_**: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You may redeploy using the same steps.
 
 1. Create an account by providing a username and password.
 
@@ -206,18 +233,38 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
 2. This is the main view to manage your database. Click on the **"Connect"** button on the right corner.
 
-   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard2.png)
+   ![planetscalse-dashboard2](public/images/readme-screenshots/planetscalse-dashboard2.png)
 
 3. Since PlanetScale doesn't reveal your database password for security purposes, you need to create a new username and password for your database to generate a new database connection string. Click on the **"New password"** button for that.
 
-   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard3.png)
+   ![planetscalse-dashboard3](public/images/readme-screenshots/planetscalse-dashboard3.png)
 
 4. Leave everything as default and hit the **"Create password"** button.
 
-   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard4.png)
+   ![planetscalse-dashboard4](public/images/readme-screenshots/planetscalse-dashboard4.png)
 
 5. You will be prompted back to the first view. Choose **"Prisma"** as the framework if you haven't already and hit the copy button on the right corner (save your database string in a safe place and use it to deploy Fresco on Vercel)
 
-   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard5.png)
+   ![planetscalse-dashboard5](public/images/readme-screenshots/planetscalse-dashboard5.png)
 
-**Note: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`**
+> **_NOTE_**: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
+
+# Upgrade Guide
+
+Fresco is Alpha software and will be continuously improved. As we release updated versions of Fresco, you can upgrade your deployed instance using this guide.
+
+## Step 1
+
+### Sync Fork
+
+From your GitHub repository, click **Sync Fork** and select **Update Branch**.
+
+![sync-fork](public/images/readme-screenshots/sync-fork.png)
+
+Vercel will automatically begin redeploying your Fresco instance. This process will take a few minutes to complete.
+
+## FAQ
+
+### Where will announcements about releases be posted?
+
+New versions of Fresco will be announced on our <a href="https://community.networkcanvas.com/" target="_blank">User Community</a>.
