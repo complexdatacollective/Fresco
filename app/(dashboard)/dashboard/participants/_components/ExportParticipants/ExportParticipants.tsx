@@ -54,7 +54,7 @@ function ExportParticipants() {
 
   return (
     <Button
-      disabled={isExporting || isLoading}
+      disabled={isExporting || isLoading || participants?.length === 0}
       onClick={handleExport}
       className="w-full"
     >
