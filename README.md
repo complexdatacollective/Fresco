@@ -129,9 +129,7 @@ _Prerequisite:_ You need to have a Vercel account. Go to <a href="https://vercel
 
 Sign in to Vercel via your Github account so that you can easily connect your repositories. You can use their "Hobby" tier or paid plan.
 
-1. From the <a href="https://vercel.com/dashboard" target="_blank">Vercel Dashboard</a>, click **Add new...** and select **Project** from the dropdown.
-
-   ![Add new project on Vercel](/public/images/readme-screenshots/vercel1.png)
+1. <a href="https://vercel.com/new" target="_blank">Create a new Project</a>
 
 2. Import Git Repository
 
@@ -141,7 +139,14 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
 3. Configure Project.
 
-   Provide the required environment variable values from the services you set up in [Step 1](#step-1) and [Step 2](#step-2). Use the Variable Keys from the table below.
+   Copy the template below and paste it into the Environment Variables section in Vercel to prepopulate the form with the required environment variables.
+
+   Replace the values with your environment variable values from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
+
+> DATABASE_URL=xxx\
+> UPLOADTHING_SECRET=xxx\
+> UPLOADTHING_APP_ID=xxx\
+> DISABLE_ANALYTICS=false
 
 | Variable Key       | Description                                                                                                                                                                                                                                    |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -152,7 +157,7 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
 > **_NOTE_**: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leaving `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.
 
-![Deploy on Vercel2](public/images/readme-screenshots/vercel-configure.png)
+![Configure Environment Variables](public/images/readme-screenshots/vercel-configure.png)
 
 > **_NOTE_**: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)
 
