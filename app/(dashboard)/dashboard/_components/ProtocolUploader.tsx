@@ -11,17 +11,12 @@ import { cn } from '~/utils/shadcn';
 import JobCard from '~/components/ProtocolImport/JobCard';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 
-function ProtocolUploader({
-  handleProtocolUploaded,
-}: {
-  handleProtocolUploaded?: () => void;
-}) {
+function ProtocolUploader() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { Portal } = usePortal();
 
-  const { importProtocols, jobs, cancelJob, cancelAllJobs } = useProtocolImport(
-    handleProtocolUploaded,
-  );
+  const { importProtocols, jobs, cancelJob, cancelAllJobs } =
+    useProtocolImport();
 
   const { getInputProps, open } = useDropzone({
     // Disable automatic opening of file dialog - we do it manually to allow for
@@ -49,7 +44,7 @@ function ProtocolUploader({
           isActive &&
             cn(
               'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape',
-              'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
+              'pointer-events-none animate-background-gradient cursor-wait bg-[length:400%]',
             ),
         )}
       >

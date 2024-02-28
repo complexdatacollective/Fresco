@@ -19,12 +19,13 @@ function ConfigureStudy() {
         <Paragraph>
           Upload a Network Canvas protocol file (<code>.netcanvas</code>). You
           can upload more protocol files later from the dashboard. You can also
-          skip this step to upload a protocol later.
+          skip this step by clicking &quot;Proceed&quot; button to upload a
+          protocol later.
         </Paragraph>
       </div>
       <div className="flex justify-between gap-4">
-        <ProtocolUploader handleProtocolUploaded={() => handleNextStep()} />
-        <Button onClick={handleNextStep}>Skip</Button>
+        <ProtocolUploader />
+        <Button onClick={handleNextStep}>Proceed</Button>
       </div>
     </div>
   );

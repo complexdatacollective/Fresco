@@ -24,7 +24,7 @@ import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 // Utility helper for adding artificial delay to async functions
 // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const useProtocolImport = (onImportComplete?: () => void) => {
+export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
   const utils = api.useUtils();
 
@@ -274,9 +274,6 @@ export const useProtocolImport = (onImportComplete?: () => void) => {
           status: 'Complete',
         },
       });
-
-      // Call the callback to update the UI
-      onImportComplete?.();
 
       return;
     } catch (e) {
