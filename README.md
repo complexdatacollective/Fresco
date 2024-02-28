@@ -143,9 +143,9 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
    Replace the values with your environment variable values from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
 
-> DATABASE_URL=xxx\
-> UPLOADTHING_SECRET=xxx\
-> UPLOADTHING_APP_ID=xxx\
+> DATABASE_URL=your_database_connection_string\
+> UPLOADTHING_SECRET=your_uploadthing_api_key\
+> UPLOADTHING_APP_ID=your_uploadthing_app_id\
 > DISABLE_ANALYTICS=false
 
 | Variable Key       | Description                                                                                                                                                                                                                                    |
