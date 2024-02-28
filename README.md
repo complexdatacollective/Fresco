@@ -107,7 +107,7 @@ For more info, check out <a href="https://docs.uploadthing.com" target="_blank">
 
 ### Fork Fresco Repository
 
-_Prerequisite:_ You need to have a GitHub account. Go to <a href="https://github.com/signup?user_email=&source=form-home-signup" target="_blank"> GitHub and sign up for an account if you do not already have one.
+_Prerequisite:_ You need to have a GitHub account. Go to <a href="https://github.com/signup?user_email=&source=form-home-signup" target="_blank"> GitHub</a> and sign up for an account if you do not already have one.
 
 1. On this repository, click the **Fork** button
 
@@ -121,9 +121,13 @@ Enter a repository name (this will be your Fresco instance name), description (o
 
 This will create a separate instance of the Fresco repository that you can deploy. 
 
+## Step 4
+
 ### Deploy Forked Repository on Vercel
 
-_Prerequisite:_ You need to have a Vercel account. Go to <a href="https://vercel.com/" target="_blank">vercel.com</a> and sign up for an account (It's recommended to sign in to Vercel via your Github account so that you can easily connect your repositories. You can use their "Hobby" tier or paid plan.)
+_Prerequisite:_ You need to have a Vercel account. Go to <a href="https://vercel.com/" target="_blank">vercel.com</a> and sign up for an account.
+
+Sign in to Vercel via your Github account so that you can easily connect your repositories. You can use their "Hobby" tier or paid plan.
 
 1. From the <a href="https://vercel.com/dashboard" target="_blank">Vercel Dashboard</a>, click **Add new...** and select **Project** from the dropdown.
 
