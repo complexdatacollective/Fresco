@@ -47,13 +47,29 @@ export const DeleteProtocolsDialog = ({
     });
   }, [protocolsToDelete]);
 
+  const utils = api.useUtils();
+
   const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
     api.protocol.delete.byHash.useMutation({
-      onError(error) {
-        throw new Error(error.message);
+      async onMutate(hashes) {
+        await utils.protocol.get.all.cancel();
+
+        // snapshot current protocols
+        const previousValue = utils.protocol.get.all.getData();
+
+        // Optimistically update to the new value
+        const newValue = previousValue?.filter((p) => !hashes.includes(p.hash));
+
+        utils.protocol.get.all.setData(undefined, newValue);
+
+        return { previousValue };
       },
       onSuccess() {
         router.refresh();
+      },
+      onError(error, hashes, context) {
+        utils.protocol.get.all.setData(undefined, context?.previousValue);
+        throw new Error(error.message);
       },
     });
 
