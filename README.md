@@ -65,7 +65,7 @@ Fresco uses PlanetScale MySQL database platform. It provides scale, performance,
 
      ![Planet Scale go to dashboard](public/images/readme-screenshots/planetscale10.png)
 
-**Note: If you couldn't find and copy the connection URL using the above instructions, see the bellow guide on how to [Get database connection URL from PlanetScale dashboard](#get-database-connection-url-from-planetscale-dashboard)**
+> **_NOTE_**: If you couldn't find and copy the connection URL using the above instructions, see the bellow guide on how to [Get database connection URL from PlanetScale dashboard](#get-database-connection-url-from-planetscale-dashboard)**
 
 For more info, checkout PlanetScale's <a href="https://planetscale.com/docs/tutorials/planetscale-quick-start-guide" target="_blank">Quick Start Guide</a>.
 
@@ -150,11 +150,11 @@ Find your Fresco instance from the list of your git repositories and click **Imp
    | UPLOADTHING_APP_ID | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |
    | DISABLE_ANALYTICS  | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                |
 
-   **Note: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leaving `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.**
+   > **_NOTE_**: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leaving `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.**
 
    ![Deploy on Vercel2](public/images/readme-screenshots/vercel-configure.png)
 
-   **Note: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)**
+  >  **_NOTE_**: When entering the environment variables, do not include the variable keys in the inputs(e.g: `UPLOADTHING_SECRET=`). You should enter the value of the variable which starts after `=` symbol (e.g: `sk_live_xxxx`)**
 
    **Also, when providing the environment variables, do not enclose the variable values in quotes. For example:**
 
@@ -168,7 +168,7 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
    Click **"Deploy"** and wait for the deployment to finish.
 
-   **Note: If you encounter any issues during deployment, check out the [Troubleshooting](#troubleshooting) section or our <a href="https://community.networkcanvas.com/">User Community</a> for a possible solution.**
+   > **NOTE**: If you encounter any issues during deployment, check out the [Troubleshooting](#troubleshooting) section or our <a href="https://community.networkcanvas.com/">User Community</a> for a possible solution.**
 
 5. Visit your deployed Fresco app by clicking on the preview or go to your dashboard by clicking **"Continue to Dashboard"** button...
 
@@ -182,7 +182,7 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
 Visit your deployed app to create your administrator account. Only one user account can be created.
 
-**Note: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You may redeploy using the same steps.**
+> **_NOTE_**: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You may redeploy using the same steps.**
 
 1. Create an account by providing a username and password.
 
@@ -242,7 +242,7 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
    ![planetscalse-dashboard5](public/images/readme-screenshots/planetscalse-dashboard5.png)
 
-**Note: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`**
+> **_NOTE_**: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`**
 
 # Upgrade Guide
 
