@@ -62,8 +62,6 @@ export const DeleteProtocolsDialog = ({
 
         utils.protocol.get.all.setData(undefined, newValue);
 
-        setOpen(false);
-
         return { previousValue };
       },
       onSuccess() {
