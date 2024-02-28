@@ -86,7 +86,7 @@ export const appSettingsRouter = router({
 
       return input;
     }),
-  
+
   updateLimitInterviews: protectedProcedure
     .input(z.boolean())
     .mutation(async ({ input }) => {
@@ -101,9 +101,8 @@ export const appSettingsRouter = router({
 
       return input;
     }),
-  
-  reset: protectedProcedure.mutation(async ({ ctx }) => {
 
+  reset: protectedProcedure.mutation(async ({ ctx }) => {
     const userID = ctx.session?.user.userId;
 
     if (userID) {
@@ -127,7 +126,11 @@ export const appSettingsRouter = router({
       revalidateTag('appSettings.getAnonymousRecruitmentStatus');
       revalidateTag('interview.get.all');
       revalidateTag('participant.get.all');
+      revalidateTag('protocol.get.all');
       revalidateTag('dashboard.getActivities');
+      revalidateTag('dashboard.getSummaryStatistics.participantCount');
+      revalidateTag('dashboard.getSummaryStatistics.interviewCount');
+      revalidateTag('dashboard.getSummaryStatistics.protocolCount');
 
       // Todo: we need to remove assets from uploadthing before deleting the reference record.
     } catch (error) {
