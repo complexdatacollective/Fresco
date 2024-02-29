@@ -147,6 +147,7 @@ export const participantRouter = router({
 
           revalidateTag('dashboard.getActivities');
           revalidateTag('dashboard.getSummaryStatistics.participantCount');
+          revalidateTag('dashboard.getSummaryStatistics.interviewCount');
           revalidateTag('participant.get.all');
           revalidatePath('/dashboard/participants');
 
