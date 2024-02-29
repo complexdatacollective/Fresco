@@ -75,7 +75,7 @@ export const ExportInterviewsDialog = ({
       }
 
       // Download the zip file
-      await download(result.data.url, result.data.name);
+      download(result.data.url, result.data.name);
     } catch (error) {
       toast({
         icon: <XCircle />,
