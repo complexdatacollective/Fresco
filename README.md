@@ -183,11 +183,11 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
    ![Deploy on Vercel4](public/images/readme-screenshots/vercel4.png)
 
-# Create User Account on your Fresco app
+# Create User Account on Your Fresco App
 
 Visit your deployed app to create your administrator account. Only one user account can be created.
 
-> **_NOTE_**: For security, you have _5 minutes_ from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You may redeploy using the same steps.
+**_NOTE_**: For security, you have **_30 minutes_** from when the app is deployed to create a user account. If this time elapses without a user account being created, your configuration will expire. You would have to [Trigger Redeployment on Your App by Resetting Your Database](#trigger-redeployment-on-your-app-by-resetting-your-database).
 
 1. Create an account by providing a username and password.
 
@@ -210,7 +210,7 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
 
 # Troubleshooting
 
-## Deployment build errors and fixes
+## Deployment Build Errors and Fixes
 
 - If you encountered the **"Invalid API key"** error...
 
@@ -248,6 +248,34 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
    ![planetscalse-dashboard5](public/images/readme-screenshots/planetscalse-dashboard5.png)
 
 > **_NOTE_**: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
+
+## Trigger Redeployment on Your App by Resetting Your Database
+
+Since the expiration state is stored in your PlanetScale database, you need to delete that database and create a new one to be able to trigger redeployment of your Fresco app on Vercel.
+
+1. Navigate to your PlanetScale dashboard, select your database to view its details, and then click on the **"Settings"** tab (refer to the screenshot below).
+   
+   ![planetscalse-dashboard5](public/images/readme-screenshots/delete-db1.png)
+
+2. On the Settings tab, scroll down to locate the **"Delete database"** button. Follow the provided instructions to delete your database.
+   
+   ![planetscalse-dashboard5](public/images/readme-screenshots/delete-db2.png)
+
+3. Once your database is deleted, create a new one and get the connection URL of the database following the instructions on [Step 1](#step-1). (*Start from stage 4 in Step 1.*).
+
+4. When you have the connection URL saved, navigate to the dashboard of your deployed Fresco app on Vercel. You can do this by visiting <a href="https://vercel.com/dashboard" target="_blank">vercel.com/dashboard</a> and selecting your project.
+
+5. In your dashboard, navigate to the **"Settings"** tab. Here, update your database connection URL by pasting the new one and save the changes.
+   
+   ![planetscalse-dashboard5](public/images/readme-screenshots/redeploy1.png)
+
+6. Now, navigate to the **"Deployments"** tab and redeploy the app from the main branch.
+   
+   ![planetscalse-dashboard5](public/images/readme-screenshots/redeploy2.png)
+
+   ![planetscalse-dashboard5](public/images/readme-screenshots/redeploy3.png)
+
+7. After the build process completes, visit your app and proceed to [Create User Account on Your Fresco App](#create-user-account-on-your-fresco-app) once again.
 
 # Upgrade Guide
 
