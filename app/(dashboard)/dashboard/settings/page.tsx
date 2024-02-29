@@ -7,8 +7,12 @@ import RecruitmentTestSection from '../_components/RecruitmentTestSection';
 import SettingsSection from '~/components/layout/SettingsSection';
 import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch/LimitInterviewsSwitch';
+import { api } from '~/trpc/server';
 
-export default function Settings() {
+export default async function Settings() {
+  const allowAnonymousRecruitment =
+    await api.appSettings.getAnonymousRecruitmentStatus.query();
+
   return (
     <>
       <ResponsiveContainer>
@@ -20,7 +24,11 @@ export default function Settings() {
       <ResponsiveContainer className="gap-4">
         <SettingsSection
           heading="Anonymous Recruitment"
-          controlArea={<AnonymousRecruitmentSwitch />}
+          controlArea={
+            <AnonymousRecruitmentSwitch
+              allowAnonymousRecruitment={allowAnonymousRecruitment}
+            />
+          }
         >
           <Paragraph margin="none">
             If anonymous recruitment is enabled, you may generate an anonymous
@@ -35,8 +43,8 @@ export default function Settings() {
           <Paragraph margin="none">
             If this option is enabled, each participant will only be able to
             submit a single <strong>completed</strong> interview for each
-            protocol (although they may have multiple incomplete interviews). 
-            Once an interview has been completed, attempting to start a new 
+            protocol (although they may have multiple incomplete interviews).
+            Once an interview has been completed, attempting to start a new
             interview or to resume any other in-progress interview, will be
             prevented.
           </Paragraph>
@@ -55,7 +63,9 @@ export default function Settings() {
             server.
           </Paragraph>
         </SettingsSection>
-        <RecruitmentTestSection />
+        <RecruitmentTestSection
+          allowAnonymousRecruitment={allowAnonymousRecruitment}
+        />
       </ResponsiveContainer>
     </>
   );

@@ -1,11 +1,11 @@
 import 'server-only';
-import { api } from '~/trpc/server';
 import Switch from './Switch';
 
-const AnonymousRecruitmentSwitch = async () => {
-  const allowAnonymousRecruitment =
-    await api.appSettings.getAnonymousRecruitmentStatus.query();
-
+const AnonymousRecruitmentSwitch = ({
+  allowAnonymousRecruitment,
+}: {
+  allowAnonymousRecruitment: boolean;
+}) => {
   return <Switch allowAnonymousRecruitment={allowAnonymousRecruitment} />;
 };
 

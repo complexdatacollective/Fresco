@@ -18,10 +18,13 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
 
-const RecruitmentTestSection = () => {
+const RecruitmentTestSection = ({
+  allowAnonymousRecruitment,
+}: {
+  allowAnonymousRecruitment: boolean;
+}) => {
   const router = useRouter();
 
-  const { data: appSettings } = api.appSettings.get.useQuery();
   const { data: protocolData, isLoading: isLoadingProtocols } =
     api.protocol.get.all.useQuery();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
@@ -37,8 +40,6 @@ const RecruitmentTestSection = () => {
     }
   }, [protocolData]);
 
-  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
-
   useEffect(() => {
     if (allowAnonymousRecruitment) {
       setSelectedParticipant(undefined);
@@ -53,7 +54,7 @@ const RecruitmentTestSection = () => {
       return `/onboard/${selectedProtocol?.id}` as Route;
     }
 
-    return `/onboard/${selectedProtocol?.id}/?participantId=${selectedParticipant?.id}` as Route;
+    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
   };
 
   return (
@@ -122,7 +123,7 @@ const RecruitmentTestSection = () => {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                participantId: selectedParticipant?.id,
+                participantIdentifier: selectedParticipant?.identifier,
               }),
             }).then((response) => {
               if (response.redirected) {
