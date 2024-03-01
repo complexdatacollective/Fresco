@@ -67,11 +67,6 @@ export default function ErrorReportNotifier({ error }: { error: Error }) {
     if (initialized.current) return;
     setState('loading');
 
-    // limit size of error.stack
-    if (error.stack && error.stack.length > 500) {
-      error.stack = error.stack.substring(0, 500);
-    }
-
     trackEvent({
       type: 'Error',
       name: error.name,
