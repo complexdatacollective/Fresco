@@ -296,3 +296,7 @@ Vercel will automatically begin redeploying your Fresco instance. This process w
 ### Where will announcements about releases be posted?
 
 New versions of Fresco will be announced on our <a href="https://community.networkcanvas.com/" target="_blank">User Community</a>.
+
+### Which browsers are supported?
+
+Fresco is supported on latest version of Chrome, Safari, and Firefox. This applies to the backend user dashboard and the participant interview experience.
