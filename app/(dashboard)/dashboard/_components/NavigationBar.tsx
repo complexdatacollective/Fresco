@@ -9,6 +9,7 @@ import UserMenu from './UserMenu';
 import type { UrlObject } from 'url';
 import type { Route } from 'next';
 import { motion } from 'framer-motion';
+import Heading from '~/components/ui/typography/Heading';
 
 export const NavButton = ({
   label,
@@ -46,12 +47,10 @@ export function NavigationBar() {
   return (
     <motion.nav className="flex items-center justify-between gap-4 bg-cyber-grape px-4 py-3">
       <Link href="/" className="flex items-center space-x-2">
-        <Image
-          src="/images/NC-Mark@4x.png"
-          alt="Fresco"
-          width={40}
-          height={40}
-        />
+        <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
+        <Heading variant="h3" className="hidden text-white lg:block">
+          Fresco
+        </Heading>
       </Link>
       <ul className="flex items-center gap-10">
         <NavButton
