@@ -67,7 +67,8 @@ export default function VersionSection() {
                 margin="none"
               >
                 A new version of Fresco is available! You are{' '}
-                {data?.aheadBy ?? 0} commits behind.
+                {data?.aheadBy ?? 0}{' '}
+                {data?.aheadBy === 1 ? 'commit' : 'commits'} behind.
               </Paragraph>
             </div>
           )}
