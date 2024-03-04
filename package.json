@@ -1,6 +1,6 @@
 {
   "name": "fresco",
-  "version": "0.1.0",
+  "version": "1.0.0-alpha.0",
   "private": true,
   "packageManager": "pnpm@8.9.0",
   "scripts": {

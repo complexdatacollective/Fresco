@@ -26,6 +26,8 @@ export const env = createEnv({
       .enum(['development', 'test', 'production'])
       .default('development'),
     DISABLE_ANALYTICS: z.boolean().optional(),
+    APP_VERSION: z.string().optional(),
+    COMMIT_HASH: z.string().optional(),
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -38,6 +40,8 @@ export const env = createEnv({
     VERCEL_URL: process.env.VERCEL_URL,
     DISABLE_ANALYTICS: !!process.env.DISABLE_ANALYTICS,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
+    APP_VERSION: process.env.APP_VERSION,
+    COMMIT_HASH: process.env.COMMIT_HASH,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

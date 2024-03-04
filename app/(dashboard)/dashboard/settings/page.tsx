@@ -8,6 +8,7 @@ import SettingsSection from '~/components/layout/SettingsSection';
 import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch/LimitInterviewsSwitch';
 import { api } from '~/trpc/server';
+import VersionSection from '~/components/VersionSection';
 
 export default async function Settings() {
   const allowAnonymousRecruitment =
@@ -22,6 +23,7 @@ export default async function Settings() {
         />
       </ResponsiveContainer>
       <ResponsiveContainer className="gap-4">
+        <VersionSection />
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={

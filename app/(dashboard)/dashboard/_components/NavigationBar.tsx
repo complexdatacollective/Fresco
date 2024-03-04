@@ -10,6 +10,7 @@ import type { UrlObject } from 'url';
 import type { Route } from 'next';
 import { motion } from 'framer-motion';
 import Heading from '~/components/ui/typography/Heading';
+import { env } from '~/env.mjs';
 
 export const NavButton = ({
   label,
@@ -50,6 +51,7 @@ export function NavigationBar() {
         <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
         <Heading variant="h3" className="hidden text-white lg:block">
           Fresco
+          <sup className="align-super text-xs">v.{env.APP_VERSION}</sup>
         </Heading>
       </Link>
       <ul className="flex items-center gap-10">
