@@ -74,8 +74,16 @@ export const ExportInterviewsDialog = ({
         throw new Error(e.message);
       }
 
+      const response = await fetch(result.data.url);
+      const blob = await response.blob();
+
+      // create a download link
+      const url = URL.createObjectURL(blob);
+
       // Download the zip file
-      download(result.data.url, result.data.name);
+      download(url, result.data.name);
+      // clean up the URL object
+      URL.revokeObjectURL(url);
     } catch (error) {
       toast({
         icon: <XCircle />,
