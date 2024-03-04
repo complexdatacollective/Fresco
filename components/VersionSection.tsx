@@ -24,7 +24,7 @@ const checkIfUpdateAvailable = async () => {
     const data = GithubApiResponseSchema.parse(raw);
 
     return {
-      upToDate: data.status === 'identical',
+      upToDate: data.status === 'identical' || data.status === 'behind',
       aheadBy: data.ahead_by,
       behindBy: data.behind_by,
       error: null,
@@ -49,7 +49,7 @@ export default function VersionSection() {
     <SettingsSection
       heading="App Version"
       controlArea={
-        <div className="flex w-52 flex-col items-center justify-center text-center">
+        <div className="flex max-w-52 flex-1 flex-col items-center justify-center text-center">
           {isLoading && (
             <div className="flex flex-col items-center space-x-2">
               <Loader2 className="h-8 w-8 animate-spin" />
