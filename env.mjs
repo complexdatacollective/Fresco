@@ -8,7 +8,15 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    // Vercel Postgres env vars
+    POSTGRES_URL: z.string().url().optional(),
+    POSTGRES_PRISMA_URL: z.string().url().optional(),
+    POSTGRES_URL_NO_SSL: z.string().url().optional(),
+    POSTGRES_URL_NON_POOLING: z.string().url().optional(),
+    POSTGRES_USER: z.string().optional(),
+    POSTGRES_HOST: z.string().optional(),
+    POSTGRES_PASSWORD: z.string().optional(),
+    POSTGRES_DATABASE: z.string().optional(),
 
     INSTALLATION_ID: z.string().optional(),
   },
