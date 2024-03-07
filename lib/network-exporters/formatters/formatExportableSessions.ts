@@ -11,6 +11,7 @@ import {
 
 import type { Interview, Protocol, Participant } from '@prisma/client';
 import { hash } from 'ohash';
+import { env } from '~/env.mjs';
 
 type InterviewsWithProtocol = (Interview & { protocol: Protocol } & {
   participant: Participant;
@@ -41,6 +42,8 @@ export const formatExportableSessions = (sessions: InterviewsWithProtocol) =>
         [sessionFinishTimeProperty]: new Date(session.finishTime).toISOString(),
       }),
       [sessionExportTimeProperty]: new Date().toISOString(),
+      COMMIT_HASH: env.COMMIT_HASH,
+      APP_VERSION: env.APP_VERSION,
     };
 
     const sessionNetwork = JSON.parse(
