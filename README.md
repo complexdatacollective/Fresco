@@ -14,63 +14,6 @@ add new features to Network Canvas, but rather provides a new way to conduct int
 
 ## Step 1
 
-### Set up a database for Fresco with PlanetScale
-
-Fresco uses PlanetScale MySQL database platform. It provides scale, performance, and reliability for your data.
-
-1. Go to <a href="https://planetscale.com" target="_blank">planetscale.com</a>.
-
-2. Click on the **"Get started"** button on the right corner.
-
-   ![Planet Scale Get started](public/images/readme-screenshots/planetscale1.png)
-
-3. Sign up for an account using your preferred method and then sign in.
-
-   ![Planet Scale Sign Up](public/images/readme-screenshots/planetscale2.png)
-
-4. Once you entered into your account, click on **"Create a new database"**.
-
-   ![Planet Scale Create Database](public/images/readme-screenshots/planetscale3.png)
-
-5. Create a new database:
-
-   - Enter a name for your database.
-   - Choose the plan type that meets your needs (PlanetScale offers free "Hobby" tier that supports 5 GB of storage).
-
-     ![Planet Scale Create Database2](public/images/readme-screenshots/planetscale4.png)
-
-   - Add your card and click **"Create Database"**. PlanetScale requires a credit/debit card information (payments will not be processed unless you change your plan type to Scaler or Scaler Pro later).
-
-     ![Planet Scale Credit card](public/images/readme-screenshots/planetscale5.png)
-
-6. Next, get the connection URL of your database:
-
-   - Connect to your database by selecting Prisma as the framework (as Fresco uses Prisma as an ORM).
-
-     ![Planet Scale Connect to your database](public/images/readme-screenshots/planetscale6.png)
-
-   - Create password for your database (enter password name and click **"Create Password"**).
-
-     ![Planet Scale Create password](public/images/readme-screenshots/planetscale7.png)
-
-   - Enter username and password for your database (using defaults recommended, be sure to save your password in a safe place).
-
-     ![Planet Scale Create password2](public/images/readme-screenshots/planetscale8.png)
-
-   - Do not change any default settings, scroll down and copy the connection URL and save it in a safe place (**this URL is required for connecting to your app on Vercel**).
-
-     ![Planet Scale copy connection URL](public/images/readme-screenshots/planetscale9.png)
-
-   - Finish the process and go to your PlanetScale dashboard by clicking **"Go to your database overview"**.
-
-     ![Planet Scale go to dashboard](public/images/readme-screenshots/planetscale10.png)
-
-> **_NOTE_**: If you couldn't find and copy the connection URL using the above instructions, see the bellow guide on how to [Get database connection URL from PlanetScale dashboard](#get-database-connection-url-from-planetscale-dashboard)
-
-For more info, checkout PlanetScale's <a href="https://planetscale.com/docs/tutorials/planetscale-quick-start-guide" target="_blank">Quick Start Guide</a>.
-
-## Step 2
-
 ### Create a new app on UploadThing to store media files
 
 Fresco uses your UploadThing account to store protocol assets, exported files, etc.
@@ -103,7 +46,7 @@ Fresco uses your UploadThing account to store protocol assets, exported files, e
 
 For more info, check out <a href="https://docs.uploadthing.com" target="_blank">UploadThing Docs</a>.
 
-## Step 3
+## Step 2
 
 ### Fork Fresco Repository
 
@@ -121,7 +64,7 @@ Enter a repository name (this will be your Fresco instance name), description (o
 
 This will create a separate instance of the Fresco repository that you can deploy.
 
-## Step 4
+## Step 3
 
 ### Deploy Forked Repository on Vercel
 
@@ -143,17 +86,15 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 
    Replace the values with your environment variable values from the services you set up in [Step 1](#step-1) and [Step 2](#step-2).
 
-> DATABASE_URL=your_database_connection_string\
 > UPLOADTHING_SECRET=your_uploadthing_api_key\
 > UPLOADTHING_APP_ID=your_uploadthing_app_id\
 > DISABLE_ANALYTICS=false
 
-| Variable Key       | Description                                                                                                                                                                                                                                    |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DATABASE_URL       | The connection string for your database. This is used to enable Fresco communicate with your PlanetScale database. <a href="https://planetscale.com/docs/concepts/connection-strings" target="_blank">More info</a>                            |
-| UPLOADTHING_SECRET | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a>                                                      |
+| Variable Key | Description |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | |
+| UPLOADTHING_SECRET | The API key for your UploadThing app. This is used to authenticate requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |
 | UPLOADTHING_APP_ID | The unique identifier for your UploadThing app. This is used along with the secret key to identify your app when making requests from Fresco to the UploadThing API. <a href="https://uploadthing.com/dashboard" target="_blank">More info</a> |
-| DISABLE_ANALYTICS  | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled.                                                                                                                |
+| DISABLE_ANALYTICS | A flag to disable the analytics microservice for Fresco. If this is set to `false`, the analytics microservice will be enabled. |
 
 > **_NOTE_**: We use analytics to gather error data from instances of Fresco to troubleshoot issues. By leaving `DISABLE_ANALYTICS` set to `false` (the default) you will help us identify bugs and improve the app.
 
@@ -182,6 +123,30 @@ Find your Fresco instance from the list of your git repositories and click **Imp
    ...and click on one of the domains names or the **"Visit"** button on the right corner.
 
    ![Deploy on Vercel4](public/images/readme-screenshots/vercel4.png)
+
+## Step 4
+
+### Create your database
+
+1. From your project dashboard, select _Storage_. Then, select _Create_ within the Postgres row.
+
+![Vercel Database Setup 1](public/images/readme-screenshots/vercel-db-1.png)
+
+2. Review and accept the terms in the modal.
+
+![Vercel Database Setup 2](public/images/readme-screenshots/vercel-db-2.png)
+
+3. Give your database a name and select the region that is closest to where you and your participants will be located. Then, click _Create_. Your database will be generated and you will be redirected to the Getting Started page.
+
+![Vercel Database Setup 3](public/images/readme-screenshots/vercel-db-3.png)
+
+4. You will be prompted to connect your project. Select _Connect_.
+
+![Vercel Database Setup 4](public/images/readme-screenshots/vercel-db-4.png)
+
+5. Select the _Deployments_ tab. Click on the menu beside the most recent deployment and select _Redeploy_. This will redeploy your project with your new connected database.
+
+![Vercel Database Setup 5](public/images/readme-screenshots/vercel-db-5.png)
 
 # Create User Account on Your Fresco App
 
@@ -219,58 +184,28 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
   It means that you provided an incorrect environment variable. Make sure to enter the environment variable value correctly. You must enter the value that starts after `=` symbol
   (e.g: `UPLOADTHING_APP_ID=5q5ybg9dwg`, here `UPLOADTHING_APP_ID` is the key of variable and `5q5ybg9dwg` is the value. You should always enter the value)
 
-- If you encountered the error below...
-
-  ![Deploy error1](public/images/readme-screenshots/deploy-error1.png)
-
-  It means that you have not entered the correct database connection string and you need to copy it again from your PlanetScale dashboard, see the below instructions for that.
-
-### Get database connection URL from PlanetScale dashboard
-
-1. Go to your dashboard and click on your database.
-
-   ![planetscalse-dashboard1](public/images/readme-screenshots/planetscalse-dashboard1.png)
-
-2. This is the main view to manage your database. Click on the **"Connect"** button on the right corner.
-
-   ![planetscalse-dashboard2](public/images/readme-screenshots/planetscalse-dashboard2.png)
-
-3. Since PlanetScale doesn't reveal your database password for security purposes, you need to create a new username and password for your database to generate a new database connection string. Click on the **"New password"** button for that.
-
-   ![planetscalse-dashboard3](public/images/readme-screenshots/planetscalse-dashboard3.png)
-
-4. Leave everything as default and hit the **"Create password"** button.
-
-   ![planetscalse-dashboard4](public/images/readme-screenshots/planetscalse-dashboard4.png)
-
-5. You will be prompted back to the first view. Choose **"Prisma"** as the framework if you haven't already and hit the copy button on the right corner (save your database string in a safe place and use it to deploy Fresco on Vercel)
-
-   ![planetscalse-dashboard5](public/images/readme-screenshots/planetscalse-dashboard5.png)
-
-> **_NOTE_**: The database connection variable should begin with `mysql://` and look like this: `mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
-
 ## Trigger Redeployment on Your App by Resetting Your Database
 
 Since the expiration state is stored in your PlanetScale database, you need to delete that database and create a new one to be able to trigger redeployment of your Fresco app on Vercel.
 
 1. Navigate to your PlanetScale dashboard, select your database to view its details, and then click on the **"Settings"** tab (refer to the screenshot below).
-   
+
    ![planetscalse-dashboard5](public/images/readme-screenshots/delete-db1.png)
 
 2. On the Settings tab, scroll down to locate the **"Delete database"** button. Follow the provided instructions to delete your database.
-   
+
    ![planetscalse-dashboard5](public/images/readme-screenshots/delete-db2.png)
 
-3. Once your database is deleted, create a new one and get the connection URL of the database following the instructions on [Step 1](#step-1). (*Start from stage 4 in Step 1.*).
+3. Once your database is deleted, create a new one and get the connection URL of the database following the instructions on [Step 1](#step-1). (_Start from stage 4 in Step 1._).
 
 4. When you have the connection URL saved, navigate to the dashboard of your deployed Fresco app on Vercel. You can do this by visiting <a href="https://vercel.com/dashboard" target="_blank">vercel.com/dashboard</a> and selecting your project.
 
 5. In your dashboard, navigate to the **"Settings"** tab. Here, update your database connection URL by pasting the new one and save the changes.
-   
+
    ![planetscalse-dashboard5](public/images/readme-screenshots/redeploy1.png)
 
 6. Now, navigate to the **"Deployments"** tab and redeploy the app from the main branch.
-   
+
    ![planetscalse-dashboard5](public/images/readme-screenshots/redeploy2.png)
 
    ![planetscalse-dashboard5](public/images/readme-screenshots/redeploy3.png)
