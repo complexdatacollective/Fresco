@@ -184,7 +184,7 @@ For more info, check out our <a href="https://community.networkcanvas.com/">User
   It means that you provided an incorrect environment variable. Make sure to enter the environment variable value correctly. You must enter the value that starts after `=` symbol
   (e.g: `UPLOADTHING_APP_ID=5q5ybg9dwg`, here `UPLOADTHING_APP_ID` is the key of variable and `5q5ybg9dwg` is the value. You should always enter the value)
 
-## Reset your database
+## Instance Expired - Reset your Database
 
 If your instance expires, you must delete your database and create a new one.
 
