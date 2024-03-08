@@ -300,3 +300,7 @@ New versions of Fresco will be announced on our <a href="https://community.netwo
 ### Which browsers are supported?
 
 Fresco is supported on latest version of Chrome, Safari, and Firefox. This applies to the backend user dashboard and the participant interview experience.
+
+### Which devices and platforms are supported for participants?
+
+Participants can use any computer or tablet with a supported browser for interviews. Smartphones or small-screen devices are not compatible. Tablets should be used in landscape mode for optimal viewing during interviews.
