@@ -105,10 +105,10 @@ Find your Fresco instance from the list of your git repositories and click **Imp
 **Also, when providing the environment variables, do not enclose the variable values in quotes. For example:**
 
 ✅ Correct:
-`mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict`
+`sk_live_xxxxxxxxxxxxxxxxxxx`
 
 ❌ Incorrect:
-`'mysql://username:password@aws.connect.psdb.cloud/database_name?sslaccept=strict'`
+`'sk_live_xxxxxxxxxxxxxxxxxxx'`
 
 4. Deploy
 
