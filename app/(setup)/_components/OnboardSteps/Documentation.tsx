@@ -1,10 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { FileText, MonitorPlay } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { setAppConfigured } from '~/app/_actions';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { trackEvent } from '~/analytics/utils';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import Section from '~/components/layout/Section';
+import { Button } from '~/components/ui/Button';
 
 function Documentation() {
   const handleAppConfigured = async () => {
@@ -24,34 +25,45 @@ function Documentation() {
           below.
         </Paragraph>
       </div>
-      <Card className="mb-2">
-        <CardHeader className="pb-2">
-          <div className="flex items-center">
-            <MonitorPlay size={30} className="mr-2" />
-            <div>
-              <CardTitle className="text-sm">Introduction Video</CardTitle>
-              <Paragraph variant="smallText">
-                Videos to help you get started with Fresco
-              </Paragraph>
-            </div>
+      <div className="flex flex-col gap-2">
+        <Section classNames="flex gap-10">
+          <div className="flex-1">
+            <Heading variant="h4-all-caps" className="mb-2">
+              About Fresco
+            </Heading>
+            Visit our documentation site to learn more about Fresco.
           </div>
-        </CardHeader>
-        <CardContent></CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center">
-            <FileText size={30} className="mr-2" />
-            <div>
-              <CardTitle className="text-sm">Documentation Articles</CardTitle>
-              <Paragraph variant="smallText">
-                Articles to help you get started with Fresco
-              </Paragraph>
-            </div>
+          <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+            <a
+              href="https://documentation.networkcanvas.dev/en/fresco"
+              target="_blank"
+            >
+              <Button variant="outline" size="icon">
+                <FileText />
+              </Button>
+            </a>
           </div>
-        </CardHeader>
-        <CardContent></CardContent>
-      </Card>
+        </Section>
+        <Section classNames="flex gap-10">
+          <div className="flex-1">
+            <Heading variant="h4-all-caps" className="mb-2">
+              Features and Functionality
+            </Heading>
+            Read our documentation about the features and functionality for
+            study management in Fresco.
+          </div>
+          <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+            <a
+              href="https://documentation.networkcanvas.dev/en/fresco/features"
+              target="_blank"
+            >
+              <Button variant="outline" size="icon">
+                <FileText />
+              </Button>
+            </a>
+          </div>
+        </Section>
+      </div>
 
       <div className="flex justify-start pt-12">
         <form action={handleAppConfigured}>
