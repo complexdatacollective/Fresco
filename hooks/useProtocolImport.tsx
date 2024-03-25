@@ -169,9 +169,9 @@ export const useProtocolImport = () => {
 
       let newAssetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
 
-      // If there are assets, first CHECK if they are already in the database
-      // and if they are, push them to the assetsWithCombinedMetadata.
-      // if they are not, push them to newAssets to be uploaded.
+      // Check if the assets are already in the database.
+      // If yes, add them to assetsWithCombinedMetadata to be connected to the protocol.
+      // If not, add them to newAssets to be uploaded.
 
       if (assets.length > 0) {
         const assetPromises = assets.map(async (asset) => {

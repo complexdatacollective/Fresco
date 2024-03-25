@@ -27,31 +27,16 @@ export const deleteProtocols = async (hashes: string[]) => {
     select: { id: true, name: true },
   });
 
-  // get all assets associated with the protocols to be deleted
-  // that are not associated with any other protocols
+  // Select assets that are ONLY associated with the protocols to be deleted
   const assets = await prisma.asset.findMany({
     where: {
-      AND: [
-        {
-          protocols: {
-            some: {
-              id: {
-                in: protocolsToBeDeleted.map((p) => p.id),
-              },
-            },
+      protocols: {
+        every: {
+          id: {
+            in: protocolsToBeDeleted.map((p) => p.id),
           },
         },
-        // check if the asset is only associated with the protocols to be deleted
-        {
-          protocols: {
-            every: {
-              id: {
-                in: protocolsToBeDeleted.map((p) => p.id),
-              },
-            },
-          },
-        },
-      ],
+      },
     },
     select: { key: true },
   });
