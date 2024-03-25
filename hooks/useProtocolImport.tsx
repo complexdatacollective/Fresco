@@ -17,7 +17,6 @@ import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
 import type { assetInsertSchema } from '~/server/routers/protocol';
-import type { Asset } from '@prisma/client';
 import type { z } from 'zod';
 import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
@@ -37,6 +36,8 @@ export const useProtocolImport = () => {
 
   const { mutateAsync: getProtocolExists } =
     api.protocol.get.byHash.useMutation();
+
+  const { mutateAsync: getAsset } = api.asset.get.useMutation();
 
   /**
    * This is the main job processing function. Takes a file, and handles all
@@ -173,21 +174,28 @@ export const useProtocolImport = () => {
       // if they are not, push them to newAssets to be uploaded.
 
       if (assets.length > 0) {
-        assets.forEach((asset) => {
-          const { data: existingAsset }: { data: Asset | undefined } =
-            api.asset.get.useQuery(asset.assetId);
+        const assetPromises = assets.map(async (asset) => {
+          const existingAsset = await getAsset(asset.assetId);
+          return existingAsset
+            ? {
+                key: existingAsset.key,
+                assetId: asset.assetId,
+                name: asset.name,
+                type: asset.type,
+                url: existingAsset.url,
+                size: existingAsset.size,
+              }
+            : asset;
+        });
 
-          if (existingAsset) {
-            assetsWithCombinedMetadata.push({
-              key: existingAsset.key,
-              assetId: asset.assetId,
-              name: asset.name,
-              type: asset.type,
-              url: existingAsset.url,
-              size: existingAsset.size,
-            });
+        const resolvedAssets = await Promise.all(assetPromises);
+
+        // If the asset has a key, it's an existing asset
+        resolvedAssets.forEach((resolvedAsset) => {
+          if ('key' in resolvedAsset) {
+            assetsWithCombinedMetadata.push(resolvedAsset);
           } else {
-            newAssets.push(asset);
+            newAssets.push(resolvedAsset);
           }
         });
       }

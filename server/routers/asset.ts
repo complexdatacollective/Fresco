@@ -6,7 +6,7 @@ import { z } from 'zod';
 export const assetRouter = router({
   get: protectedProcedure
     .input(z.string())
-    .query(async ({ input: assetId }) => {
+    .mutation(async ({ input: assetId }) => {
       const asset = await prisma.asset.findFirst({
         where: {
           assetId,
