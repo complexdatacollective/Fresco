@@ -1,6 +1,5 @@
 import type { Protocol } from '@codaco/shared-consts';
 import type Zip from 'jszip';
-import { createId } from '@paralleldrive/cuid2';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
@@ -64,7 +63,7 @@ export const getProtocolAssets = async (
       }
 
       files.push({
-        assetId: `${key}_${createId()}`, // We cannot assume key is unique across protocols. Add a unique suffix.
+        assetId: key,
         name: asset.source,
         type: asset.type,
         file: new File([file], asset.source), // Convert Blob to File with filename

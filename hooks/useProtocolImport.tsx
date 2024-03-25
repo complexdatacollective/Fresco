@@ -17,6 +17,7 @@ import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
 import type { assetInsertSchema } from '~/server/routers/protocol';
+import type { Asset } from '@prisma/client';
 import type { z } from 'zod';
 import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
@@ -160,9 +161,40 @@ export const useProtocolImport = () => {
       }
 
       const assets = await getProtocolAssets(protocolJson, zip);
-      let assetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+
+      const newAssets: typeof assets = [];
+
+      const assetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+
+      let newAssetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+
+      // If there are assets, first CHECK if they are already in the database
+      // and if they are, push them to the assetsWithCombinedMetadata.
+      // if they are not, push them to newAssets to be uploaded.
 
       if (assets.length > 0) {
+        assets.forEach((asset) => {
+          const { data: existingAsset }: { data: Asset | undefined } =
+            api.asset.get.useQuery(asset.assetId);
+
+          if (existingAsset) {
+            assetsWithCombinedMetadata.push({
+              key: existingAsset.key,
+              assetId: asset.assetId,
+              name: asset.name,
+              type: asset.type,
+              url: existingAsset.url,
+              size: existingAsset.size,
+            });
+          } else {
+            newAssets.push(asset);
+          }
+        });
+      }
+
+      // we're going to upload the new assets
+
+      if (newAssets.length > 0) {
         dispatch({
           type: 'UPDATE_STATUS',
           payload: {
@@ -177,18 +209,18 @@ export const useProtocolImport = () => {
          * track the current bytes uploaded per file (uploads are done in
          * parallel).
          */
-        const totalBytesToUpload = assets.reduce((acc, asset) => {
+        const totalBytesToUpload = newAssets.reduce((acc, asset) => {
           return acc + asset.file.size;
         }, 0);
 
         const currentBytesUploaded: Record<string, number> = {};
 
-        const files = assets.map((asset) => asset.file);
+        const files = newAssets.map((asset) => asset.file);
 
         const uploadedFiles = await uploadFiles('assetRouter', {
           files,
           onUploadProgress({ progress, file }) {
-            const thisFileSize = assets.find((asset) => asset.name === file)!
+            const thisFileSize = newAssets.find((asset) => asset.name === file)!
               .file.size; // eg. 1000
 
             const thisCompletedBytes = thisFileSize * (progress / 100);
@@ -222,11 +254,11 @@ export const useProtocolImport = () => {
         /**
          * We now need to merge the metadata from the uploaded files with the
          * asset metadata from the protocol json, so that we can insert the
-         * assets into the database.
+         * newassets into the database.
          *
          * The 'name' prop matches across both - we can use that to merge them.
          */
-        assetsWithCombinedMetadata = assets.map((asset) => {
+        newAssetsWithCombinedMetadata = newAssets.map((asset) => {
           const uploadedAsset = uploadedFiles.find(
             (uploadedFile) => uploadedFile.name === asset.name,
           );
@@ -259,7 +291,8 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        assets: assetsWithCombinedMetadata,
+        newAssets: newAssetsWithCombinedMetadata,
+        existingAssets: assetsWithCombinedMetadata,
       });
 
       if (result.error) {
