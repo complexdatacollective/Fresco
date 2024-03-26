@@ -23,6 +23,7 @@ RUN pnpm prisma generate
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /usr/bin/git /usr/bin/git
 COPY . .
 
 
