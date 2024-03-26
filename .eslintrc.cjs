@@ -25,7 +25,6 @@ const config = {
     'plugin:@typescript-eslint/stylistic',
     'plugin:@typescript-eslint/recommended',
     'next/core-web-vitals',
-    'plugin:storybook/recommended',
     'prettier',
   ],
   ignorePatterns: ['node_modules', '*.stories.*', '*.test.*'],
