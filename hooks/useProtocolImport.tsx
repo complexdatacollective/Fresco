@@ -37,7 +37,7 @@ export const useProtocolImport = () => {
   const { mutateAsync: getProtocolExists } =
     api.protocol.get.byHash.useMutation();
 
-  const { mutateAsync: getAsset } = api.asset.get.useMutation();
+  const { mutateAsync: getNewAssetIds } = api.asset.get.useMutation();
 
   /**
    * This is the main job processing function. Takes a file, and handles all
@@ -165,42 +165,31 @@ export const useProtocolImport = () => {
 
       const newAssets: typeof assets = [];
 
-      const assetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+      const existingAssetIds: string[] = [];
 
       let newAssetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
 
       // Check if the assets are already in the database.
-      // If yes, add them to assetsWithCombinedMetadata to be connected to the protocol.
+      // If yes, add them to existingAssetIds to be connected to the protocol.
       // If not, add them to newAssets to be uploaded.
 
-      if (assets.length > 0) {
-        const assetPromises = assets.map(async (asset) => {
-          const existingAsset = await getAsset(asset.assetId);
-          return existingAsset
-            ? {
-                key: existingAsset.key,
-                assetId: asset.assetId,
-                name: asset.name,
-                type: asset.type,
-                url: existingAsset.url,
-                size: existingAsset.size,
-              }
-            : asset;
-        });
+      try {
+        const newAssetIds = await getNewAssetIds(
+          assets.map((asset) => asset.assetId),
+        );
 
-        const resolvedAssets = await Promise.all(assetPromises);
-
-        // If the asset has a key, it's an existing asset
-        resolvedAssets.forEach((resolvedAsset) => {
-          if ('key' in resolvedAsset) {
-            assetsWithCombinedMetadata.push(resolvedAsset);
+        assets.forEach((asset) => {
+          if (newAssetIds.includes(asset.assetId)) {
+            newAssets.push(asset);
           } else {
-            newAssets.push(resolvedAsset);
+            existingAssetIds.push(asset.assetId);
           }
         });
+      } catch (e) {
+        throw new Error('Error checking for existing assets');
       }
 
-      // we're going to upload the new assets
+      // Upload the new assets
 
       if (newAssets.length > 0) {
         dispatch({
@@ -300,7 +289,7 @@ export const useProtocolImport = () => {
         protocol: protocolJson,
         protocolName: fileName,
         newAssets: newAssetsWithCombinedMetadata,
-        existingAssets: assetsWithCombinedMetadata,
+        existingAssetIds: existingAssetIds,
       });
 
       if (result.error) {

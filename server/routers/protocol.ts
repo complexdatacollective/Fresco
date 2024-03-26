@@ -155,7 +155,7 @@ export const protocolRouter = router({
           protocol: z.unknown(), // TODO: replace this with zod schema version of Protocol type
           protocolName: z.string(),
           newAssets: assetInsertSchema,
-          existingAssets: assetInsertSchema,
+          existingAssetIds: z.array(z.string()),
         })
         .passthrough()
         .parse(value);
@@ -165,7 +165,7 @@ export const protocolRouter = router({
         protocol: inputProtocol,
         protocolName,
         newAssets,
-        existingAssets,
+        existingAssetIds,
       } = input;
 
       const protocol = inputProtocol as Protocol;
@@ -185,7 +185,7 @@ export const protocolRouter = router({
             description: protocol.description,
             assets: {
               create: newAssets,
-              connect: existingAssets.map((a) => ({ key: a.key })),
+              connect: existingAssetIds.map((assetId) => ({ assetId })),
             },
           },
         });

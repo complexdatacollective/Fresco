@@ -5,13 +5,17 @@ import { z } from 'zod';
 
 export const assetRouter = router({
   get: protectedProcedure
-    .input(z.string())
-    .mutation(async ({ input: assetId }) => {
-      const asset = await prisma.asset.findFirst({
+    .input(z.array(z.string()))
+    .mutation(async ({ input: assetIds }) => {
+      const assets = await prisma.asset.findMany({
         where: {
-          assetId,
+          assetId: {
+            in: assetIds,
+          },
         },
       });
-      return asset;
+      const existingAssets = assets.map((asset) => asset.assetId);
+      // Return the assetIds that are not in the database
+      return assetIds.filter((assetId) => !existingAssets.includes(assetId));
     }),
 });
