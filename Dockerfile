@@ -11,6 +11,7 @@ WORKDIR /app
 COPY prisma ./prisma
 # Install dependencies
 COPY package.json pnpm-lock.yaml* ./
+COPY postinstall.mjs ./postinstall.mjs
 RUN pnpm install
 RUN pnpm prisma generate
 
