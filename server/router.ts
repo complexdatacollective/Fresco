@@ -5,9 +5,11 @@ import { protocolRouter } from '~/server/routers/protocol';
 import { participantRouter } from './routers/participant';
 import { router } from './trpc';
 import { dashboardRouter } from './routers/dashboard';
+import { assetRouter } from './routers/asset';
 
 export const appRouter = router({
   appSettings: appSettingsRouter,
+  asset: assetRouter,
   dashboard: dashboardRouter,
   session: sessionRouter,
   interview: interviewRouter,
