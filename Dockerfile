@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install git
-RUN apt-get update && apt-get install -y git
+RUN apk update && apk add --no-cache git
 # Prisma stuff
 COPY prisma ./prisma
 # Install dependencies
