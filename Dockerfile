@@ -8,8 +8,6 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install git
-RUN apk update && apk add --no-cache git
 # Prisma stuff
 COPY prisma ./prisma
 # Install dependencies
@@ -23,11 +21,13 @@ RUN pnpm prisma generate
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /usr/bin/git /usr/bin/git
 COPY . .
 
 
 ENV NEXT_TELEMETRY_DISABLED 1
+
+# Install git
+RUN apk update && apk add --no-cache git
 
 RUN pnpm run build
 
