@@ -1,8 +1,8 @@
 {
   "name": "fresco",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-beta.1",
   "private": true,
-  "packageManager": "pnpm@8.9.0",
+  "packageManager": "pnpm@8.15.5+sha256.4b4efa12490e5055d59b9b9fc9438b7d581a6b7af3b5675eb5c5f447cee1a589",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -130,7 +130,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.2.0",
-    "@prisma/client": "^5.10.2",
+    "@prisma/client": "^5.11.0",
     "@redux-devtools/extension": "^3.2.6",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/archiver": "^6.0.2",
@@ -157,7 +157,7 @@
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.11",
-    "prisma": "^5.10.2",
+    "prisma": "^5.11.0",
     "sass": "^1.69.4",
     "tailwindcss": "^3.4.1",
     "tsx": "^3.14.0",
