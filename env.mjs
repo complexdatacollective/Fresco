@@ -34,6 +34,7 @@ export const env = createEnv({
       .enum(['development', 'test', 'production'])
       .default('development'),
     DISABLE_ANALYTICS: z.boolean().optional(),
+    SANDBOX_MODE: z.enum(['enabled', 'disabled']).default('disabled'),
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
   },
@@ -47,6 +48,7 @@ export const env = createEnv({
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     VERCEL_URL: process.env.VERCEL_URL,
     DISABLE_ANALYTICS: !!process.env.DISABLE_ANALYTICS,
+    SANDBOX_MODE: process.env.SANDBOX_MODE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,

@@ -52,12 +52,18 @@ export default async function Settings() {
             prevented.
           </Paragraph>
         </SettingsSection>
-        <SettingsSection heading="Reset Settings" controlArea={<ResetButton />}>
-          <Paragraph margin="none">
-            Delete all data and reset Fresco to its default state.
-          </Paragraph>
-        </SettingsSection>
+        {env.SANDBOX_MODE !== 'enabled' && (
+          <SettingsSection
+            heading="Reset Settings"
+            controlArea={<ResetButton />}
+          >
+            <Paragraph margin="none">
+              Delete all data and reset Fresco to its default state.
+            </Paragraph>
+          </SettingsSection>
+        )}
         {env.NODE_ENV === 'development' && (
+          // Only show the Analytics and Recruitment test sections in development
           <>
             <SettingsSection
               heading="Send Test Analytics Event"
