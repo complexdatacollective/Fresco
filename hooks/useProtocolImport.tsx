@@ -37,7 +37,7 @@ export const useProtocolImport = () => {
   const { mutateAsync: getProtocolExists } =
     api.protocol.get.byHash.useMutation();
 
-  const { mutateAsync: getNewAssetIds } = api.asset.get.useMutation();
+  const { mutateAsync: getNewAssetIds } = api.asset.checkExisting.useMutation();
 
   /**
    * This is the main job processing function. Takes a file, and handles all

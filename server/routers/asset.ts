@@ -4,7 +4,7 @@ import { protectedProcedure, router } from '~/server/trpc';
 import { z } from 'zod';
 
 export const assetRouter = router({
-  get: protectedProcedure
+  checkExisting: protectedProcedure
     .input(z.array(z.string()))
     .mutation(async ({ input: assetIds }) => {
       const assets = await prisma.asset.findMany({
