@@ -9,6 +9,7 @@ import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentS
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch/LimitInterviewsSwitch';
 import { api } from '~/trpc/server';
 import VersionSection from '~/components/VersionSection';
+import { env } from '~/env.mjs';
 
 export default async function Settings() {
   const allowAnonymousRecruitment =
@@ -56,18 +57,22 @@ export default async function Settings() {
             Delete all data and reset Fresco to its default state.
           </Paragraph>
         </SettingsSection>
-        <SettingsSection
-          heading="Send Test Analytics Event"
-          controlArea={<AnalyticsButton />}
-        >
-          <Paragraph margin="none">
-            This will send a test analytics event to the Fresco analytics
-            server.
-          </Paragraph>
-        </SettingsSection>
-        <RecruitmentTestSection
-          allowAnonymousRecruitment={allowAnonymousRecruitment}
-        />
+        {env.NODE_ENV === 'development' && (
+          <>
+            <SettingsSection
+              heading="Send Test Analytics Event"
+              controlArea={<AnalyticsButton />}
+            >
+              <Paragraph margin="none">
+                This will send a test analytics event to the Fresco analytics
+                server.
+              </Paragraph>
+            </SettingsSection>
+            <RecruitmentTestSection
+              allowAnonymousRecruitment={allowAnonymousRecruitment}
+            />
+          </>
+        )}
       </ResponsiveContainer>
     </>
   );
