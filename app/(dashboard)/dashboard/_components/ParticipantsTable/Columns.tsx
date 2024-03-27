@@ -107,13 +107,12 @@ export function getParticipantColumns(): ColumnDef<
             }
             content={
               <>
-                <Heading variant="h4-all-caps">
-                  Unique Participation URL
-                </Heading>
+                <Heading variant="h4-all-caps">Unique Participant URL</Heading>
                 <Paragraph>
-                  A participation URL allows a participant to take an interview
-                  simply by visiting a URL. A participation URL is unique to the
-                  participant, and should only be shared with them.
+                  A unique participant URL allows a participant to take an
+                  interview simply by visiting a URL. A participation URL is
+                  specific to each participant, and should only be shared with
+                  them.
                 </Paragraph>
               </>
             }
