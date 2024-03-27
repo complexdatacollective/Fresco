@@ -74,7 +74,7 @@ const FeedbackBanner = () => {
         {isDashboard && (
           <Paragraph margin="none" className="m-0 hidden sm:inline-flex">
             <strong className="hidden font-semibold lg:inline-flex">
-              🤖 Fresco is Alpha software – &nbsp;
+              🤖 Fresco is Beta software – &nbsp;
             </strong>
             We depend on your feedback and issue reports to improve
           </Paragraph>

@@ -27,8 +27,17 @@ export const deleteProtocols = async (hashes: string[]) => {
     select: { id: true, name: true },
   });
 
+  // Select assets that are ONLY associated with the protocols to be deleted
   const assets = await prisma.asset.findMany({
-    where: { protocolId: { in: protocolsToBeDeleted.map((p) => p.id) } },
+    where: {
+      protocols: {
+        every: {
+          id: {
+            in: protocolsToBeDeleted.map((p) => p.id),
+          },
+        },
+      },
+    },
     select: { key: true },
   });
   // We put asset deletion in a separate try/catch because if it fails, we still
@@ -145,13 +154,19 @@ export const protocolRouter = router({
         .object({
           protocol: z.unknown(), // TODO: replace this with zod schema version of Protocol type
           protocolName: z.string(),
-          assets: assetInsertSchema,
+          newAssets: assetInsertSchema,
+          existingAssetIds: z.array(z.string()),
         })
         .passthrough()
         .parse(value);
     })
     .mutation(async ({ input }) => {
-      const { protocol: inputProtocol, protocolName, assets } = input;
+      const {
+        protocol: inputProtocol,
+        protocolName,
+        newAssets,
+        existingAssetIds,
+      } = input;
 
       const protocol = inputProtocol as Protocol;
 
@@ -169,7 +184,8 @@ export const protocolRouter = router({
             codebook: protocol.codebook,
             description: protocol.description,
             assets: {
-              create: assets,
+              create: newAssets,
+              connect: existingAssetIds.map((assetId) => ({ assetId })),
             },
           },
         });
@@ -189,8 +205,8 @@ export const protocolRouter = router({
         return { error: null, success: true };
       } catch (e) {
         // Attempt to delete any assets we uploaded to storage
-        if (assets.length > 0) {
-          await deleteFilesFromUploadThing(assets.map((a) => a.key));
+        if (newAssets.length > 0) {
+          await deleteFilesFromUploadThing(newAssets.map((a) => a.key));
         }
         // Check for protocol already existing
         if (e instanceof Prisma.PrismaClientKnownRequestError) {

@@ -37,6 +37,8 @@ export const useProtocolImport = () => {
   const { mutateAsync: getProtocolExists } =
     api.protocol.get.byHash.useMutation();
 
+  const { mutateAsync: getNewAssetIds } = api.asset.checkExisting.useMutation();
+
   /**
    * This is the main job processing function. Takes a file, and handles all
    * the steps required to import it into the database, updating the job
@@ -160,9 +162,36 @@ export const useProtocolImport = () => {
       }
 
       const assets = await getProtocolAssets(protocolJson, zip);
-      let assetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
 
-      if (assets.length > 0) {
+      const newAssets: typeof assets = [];
+
+      const existingAssetIds: string[] = [];
+
+      let newAssetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+
+      // Check if the assets are already in the database.
+      // If yes, add them to existingAssetIds to be connected to the protocol.
+      // If not, add them to newAssets to be uploaded.
+
+      try {
+        const newAssetIds = await getNewAssetIds(
+          assets.map((asset) => asset.assetId),
+        );
+
+        assets.forEach((asset) => {
+          if (newAssetIds.includes(asset.assetId)) {
+            newAssets.push(asset);
+          } else {
+            existingAssetIds.push(asset.assetId);
+          }
+        });
+      } catch (e) {
+        throw new Error('Error checking for existing assets');
+      }
+
+      // Upload the new assets
+
+      if (newAssets.length > 0) {
         dispatch({
           type: 'UPDATE_STATUS',
           payload: {
@@ -177,18 +206,18 @@ export const useProtocolImport = () => {
          * track the current bytes uploaded per file (uploads are done in
          * parallel).
          */
-        const totalBytesToUpload = assets.reduce((acc, asset) => {
+        const totalBytesToUpload = newAssets.reduce((acc, asset) => {
           return acc + asset.file.size;
         }, 0);
 
         const currentBytesUploaded: Record<string, number> = {};
 
-        const files = assets.map((asset) => asset.file);
+        const files = newAssets.map((asset) => asset.file);
 
         const uploadedFiles = await uploadFiles('assetRouter', {
           files,
           onUploadProgress({ progress, file }) {
-            const thisFileSize = assets.find((asset) => asset.name === file)!
+            const thisFileSize = newAssets.find((asset) => asset.name === file)!
               .file.size; // eg. 1000
 
             const thisCompletedBytes = thisFileSize * (progress / 100);
@@ -222,11 +251,11 @@ export const useProtocolImport = () => {
         /**
          * We now need to merge the metadata from the uploaded files with the
          * asset metadata from the protocol json, so that we can insert the
-         * assets into the database.
+         * newassets into the database.
          *
          * The 'name' prop matches across both - we can use that to merge them.
          */
-        assetsWithCombinedMetadata = assets.map((asset) => {
+        newAssetsWithCombinedMetadata = newAssets.map((asset) => {
           const uploadedAsset = uploadedFiles.find(
             (uploadedFile) => uploadedFile.name === asset.name,
           );
@@ -259,7 +288,8 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        assets: assetsWithCombinedMetadata,
+        newAssets: newAssetsWithCombinedMetadata,
+        existingAssetIds: existingAssetIds,
       });
 
       if (result.error) {
