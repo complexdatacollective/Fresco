@@ -2,6 +2,13 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
+const strictBooleanSchema = z
+  .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
+  .default('false')
+  .transform(
+    (value) => value === 'true' || value === 'True' || value === 'TRUE',
+  );
+
 export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
@@ -35,18 +42,8 @@ export const env = createEnv({
       .default('development'),
     // this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
     // z.coerce.boolean() doesn't work as expected
-    DISABLE_ANALYTICS: z
-      .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
-      .default('false')
-      .transform(
-        (value) => value === 'true' || value === 'True' || value === 'TRUE',
-      ),
-    SANDBOX_MODE: z
-      .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
-      .default('false')
-      .transform(
-        (value) => value === 'true' || value === 'True' || value === 'TRUE',
-      ),
+    DISABLE_ANALYTICS: strictBooleanSchema,
+    SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
   },
