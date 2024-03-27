@@ -35,7 +35,7 @@ function Documentation() {
           </div>
           <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
             <a
-              href="https://documentation.networkcanvas.dev/en/fresco"
+              href="https://documentation.networkcanvas.com/en/fresco"
               target="_blank"
             >
               <Button variant="outline" size="icon">
@@ -47,14 +47,14 @@ function Documentation() {
         <Section classNames="flex gap-10">
           <div className="flex-1">
             <Heading variant="h4-all-caps" className="mb-2">
-              Features and Functionality
+              Using Fresco
             </Heading>
-            Read our documentation about the features and functionality for
-            study management in Fresco.
+            Read our guide on the basic workflow for using Fresco to conduct
+            your study.
           </div>
           <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
             <a
-              href="https://documentation.networkcanvas.dev/en/fresco/features"
+              href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
               target="_blank"
             >
               <Button variant="outline" size="icon">
