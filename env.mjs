@@ -33,8 +33,20 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    DISABLE_ANALYTICS: z.boolean().optional(),
-    SANDBOX_MODE: z.enum(['enabled', 'disabled']).default('disabled'),
+    // this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
+    // z.coerce.boolean() doesn't work as expected
+    DISABLE_ANALYTICS: z
+      .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
+      .default('false')
+      .transform(
+        (value) => value === 'true' || value === 'True' || value === 'TRUE',
+      ),
+    SANDBOX_MODE: z
+      .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
+      .default('false')
+      .transform(
+        (value) => value === 'true' || value === 'True' || value === 'TRUE',
+      ),
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
   },
@@ -47,7 +59,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     VERCEL_URL: process.env.VERCEL_URL,
-    DISABLE_ANALYTICS: !!process.env.DISABLE_ANALYTICS,
+    DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     APP_VERSION: process.env.APP_VERSION,
