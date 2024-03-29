@@ -11,15 +11,8 @@ const handler = async (
   // Detect if the request is coming from a mobile device
   const isMobile = (userAgent: string): boolean => {
     // Common keywords for mobile user agents
-    const mobileKeywords = [
-      'Android',
-      'webOS',
-      'iPhone',
-      'iPad',
-      'iPod',
-      'BlackBerry',
-      'Windows Phone',
-    ];
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+    const mobileKeywords = ['Android', 'iPhone'];
     return mobileKeywords.some((keyword) => userAgent.includes(keyword));
   };
 
