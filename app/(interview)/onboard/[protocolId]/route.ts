@@ -8,6 +8,31 @@ const handler = async (
   req: NextRequest,
   { params }: { params: { protocolId: string } },
 ) => {
+  // Detect if the request is coming from a mobile device
+  const isMobile = (userAgent: string): boolean => {
+    // Common keywords for mobile user agents
+    const mobileKeywords = [
+      'Android',
+      'webOS',
+      'iPhone',
+      'iPad',
+      'iPod',
+      'BlackBerry',
+      'Windows Phone',
+    ];
+    return mobileKeywords.some((keyword) => userAgent.includes(keyword));
+  };
+
+  const userAgent = req.headers.get('user-agent') ?? '';
+  const isRequestFromMobile = isMobile(userAgent);
+
+  // If request is from mobile platform, redirect to mobile platform detected page
+  if (isRequestFromMobile) {
+    return NextResponse.redirect(
+      new URL('/onboard/mobile-platform-detected', req.nextUrl),
+    );
+  }
+
   const protocolId = params.protocolId; // From route segment
 
   // If no protocol ID is provided, redirect to the error page.
