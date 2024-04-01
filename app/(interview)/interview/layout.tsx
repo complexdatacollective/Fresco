@@ -7,8 +7,8 @@ export const metadata = {
 
 function SmallScreenOverlay() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-8 backdrop-blur-sm sm:hidden">
-      <div className=" text-2xl font-semibold text-primary-foreground">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-8 backdrop-blur-sm md:hidden">
+      <div className=" text-2xl font-semibold">
         <p>
           To view this content, please maximize the window or try again on a
           device with a larger screen.
