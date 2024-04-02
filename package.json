@@ -12,7 +12,7 @@
     "start": "next start",
     "db-seed": "cross-env NODE_ENV=development prisma db seed",
     "test": "jest --watch",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "vercel-build": "prisma migrate resolve --applied 0_init && prisma generate && prisma migrate deploy && next build"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
