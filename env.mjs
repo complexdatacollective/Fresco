@@ -2,6 +2,8 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
+// this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
+// z.coerce.boolean() doesn't work as expected
 const strictBooleanSchema = z
   .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
   .default('false')
@@ -40,9 +42,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    // this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
-    // z.coerce.boolean() doesn't work as expected
-    DISABLE_ANALYTICS: strictBooleanSchema,
+    NEXT_PUBLIC_DISABLE_ANALYTICS: strictBooleanSchema,
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
@@ -56,7 +56,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     VERCEL_URL: process.env.VERCEL_URL,
-    DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
+    NEXT_PUBLIC_DISABLE_ANALYTICS: process.env.NEXT_PUBLIC_DISABLE_ANALYTICS,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     APP_VERSION: process.env.APP_VERSION,

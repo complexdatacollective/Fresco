@@ -15,5 +15,5 @@ export const getInstallationId = cache(async () => {
 });
 
 export const trackEvent = makeEventTracker({
-  enabled: !env.DISABLE_ANALYTICS,
+  enabled: !env.NEXT_PUBLIC_DISABLE_ANALYTICS,
 });
