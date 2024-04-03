@@ -1,22 +1,10 @@
 import '~/styles/interview.scss';
+import SmallScreenOverlay from './_components/SmallScreenOverlay';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Interview',
   description: 'Interview',
 };
-
-function SmallScreenOverlay() {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-8 backdrop-blur-sm md:hidden">
-      <div className=" text-2xl font-semibold">
-        <p>
-          To view this content, please maximize the window or try again on a
-          device with a larger screen.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
