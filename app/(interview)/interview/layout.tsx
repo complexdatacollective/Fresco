@@ -1,5 +1,5 @@
 import '~/styles/interview.scss';
-import SmallScreenOverlay from './_components/SmallScreenOverlay';
+import SmallScreenOverlay from '~/app/(interview)/interview/_components/SmallScreenOverlay';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Interview',
