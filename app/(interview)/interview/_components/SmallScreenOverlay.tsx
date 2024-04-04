@@ -1,16 +1,28 @@
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
 
 export const SmallScreenOverlay = () => {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[--nc-background] p-8 sm:hidden">
-      <AlertTriangle className="mb-4 h-12 w-12" />
-      <Heading variant="h1">Screen Size Too Small</Heading>
-      <Paragraph variant="lead">
-        To view this content, please maximize the window or try again on a
-        device with a larger screen.
-      </Paragraph>
+    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-[--nc-background]  lg:hidden">
+      <div className="flex max-w-[72ch] flex-col items-center justify-center p-6 text-center">
+        <Image
+          src="/images/too-small.svg"
+          width={300}
+          height={300}
+          alt="Screen too small"
+        />
+        <Heading variant="h1">Screen Size Too Small</Heading>
+        <Heading variant="h4"></Heading>
+        <Paragraph variant="lead">
+          To complete this interview, please use a device with a larger screen,
+          or maximize your browser window.
+        </Paragraph>
+        <Paragraph className="!mt-16">
+          <strong>Note:</strong> it is not possible to complete this interview
+          using a mobile phone.
+        </Paragraph>
+      </div>
     </div>
   );
 };
