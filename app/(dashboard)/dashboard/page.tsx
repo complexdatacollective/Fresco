@@ -6,8 +6,18 @@ import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
+import { api } from '~/trpc/server';
 
-function Home() {
+async function Home() {
+  // Fetch initial activity data for the first page
+  const initialData = await api.dashboard.getActivities.query({
+    page: 1,
+    perPage: 10,
+    sort: 'desc',
+    sortField: 'timestamp',
+    filterParams: null,
+  });
+
   return (
     <>
       <ResponsiveContainer>
@@ -27,7 +37,7 @@ function Home() {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ActivityFeed />
+          <ActivityFeed initialData={initialData} />
         </Section>
       </ResponsiveContainer>
     </>

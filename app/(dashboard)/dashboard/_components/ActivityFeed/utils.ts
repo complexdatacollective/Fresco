@@ -1,11 +1,12 @@
-import { faker } from '@faker-js/faker';
 import {
   type Activity,
   type ActivityType,
   activityTypes,
 } from '~/lib/data-table/types';
 
-const generateMessageForActivityType = (type: ActivityType) => {
+const generateMessageForActivityType = async (type: ActivityType) => {
+  const { faker } = await import('@faker-js/faker');
+
   switch (type) {
     case 'Protocol Installed':
       return `Protocol "${faker.word.words({ count: 4 })}" installed`;
@@ -50,12 +51,14 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
   }
 };
 
-export const generateMockActivity = (): Activity => {
+export const generateMockActivity = async (): Promise<Activity> => {
+  const { faker } = await import('@faker-js/faker');
+
   const type = faker.helpers.arrayElement(activityTypes);
   return {
     id: faker.string.uuid(),
     timestamp: faker.date.recent(),
     type,
-    message: generateMessageForActivityType(type),
+    message: await generateMessageForActivityType(type),
   };
 };
