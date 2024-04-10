@@ -1,27 +1,14 @@
 'use client';
 
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
-import ActivityFeedTable from './ActivityFeedTable';
 import { api } from '~/trpc/client';
+import ActivityFeedTable from './ActivityFeedTable';
 import { useTableStateFromSearchParams } from './useTableStateFromSearchParams';
-import { type RouterOutputs } from '~/trpc/shared';
 
-export const ActivityFeed = ({
-  initialData,
-}: {
-  initialData: RouterOutputs['dashboard']['getActivities'];
-}) => {
+export const ActivityFeed = () => {
   const { searchParams } = useTableStateFromSearchParams();
-  const { data, isLoading } = api.dashboard.getActivities.useQuery(
-    searchParams,
-    {
-      initialData,
-      refetchOnMount: false,
-      onError(error) {
-        throw new Error(error.message);
-      },
-    },
-  );
+  const { data, isLoading } =
+    api.dashboard.getActivities.useQuery(searchParams);
 
   if (isLoading) {
     return <DataTableSkeleton columnCount={3} filterableColumnCount={1} />;

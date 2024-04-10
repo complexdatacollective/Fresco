@@ -1,23 +1,13 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import Heading from '~/components/ui/typography/Heading';
 import Section from '~/components/layout/Section';
+import Heading from '~/components/ui/typography/Heading';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
-import { api } from '~/trpc/server';
 
-async function Home() {
-  // Fetch initial activity data for the first page
-  const initialData = await api.dashboard.getActivities.query({
-    page: 1,
-    perPage: 10,
-    sort: 'desc',
-    sortField: 'timestamp',
-    filterParams: null,
-  });
-
+function Home() {
   return (
     <>
       <ResponsiveContainer>
@@ -37,7 +27,7 @@ async function Home() {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ActivityFeed initialData={initialData} />
+          <ActivityFeed />
         </Section>
       </ResponsiveContainer>
     </>
