@@ -4,6 +4,8 @@ import { api } from '~/trpc/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 const handler = async (
   req: NextRequest,
   { params }: { params: { protocolId: string } },

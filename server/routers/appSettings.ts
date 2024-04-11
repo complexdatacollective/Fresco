@@ -58,6 +58,16 @@ export const appSettingsRouter = router({
   }),
 
   create: publicProcedure.mutation(async () => {
+    // Check if app settings already exist
+    const existingAppSettings = await prisma.appSettings.findFirst();
+
+    if (existingAppSettings) {
+      return {
+        error: 'App settings already exist',
+        appSettings: existingAppSettings,
+      };
+    }
+
     try {
       const appSettings = await prisma.appSettings.create({
         data: {

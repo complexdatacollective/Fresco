@@ -6,6 +6,8 @@ import { InterviewIcon, ProtocolIcon } from './Icons';
 import { api } from '~/trpc/server';
 import { unstable_noStore } from 'next/cache';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SummaryStatistics() {
   unstable_noStore();
 
