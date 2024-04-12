@@ -7,6 +7,8 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
+export const dynamic = 'force-dynamic';
+
 function Home() {
   return (
     <>

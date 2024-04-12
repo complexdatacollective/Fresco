@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { type Prisma } from '@prisma/client';
-import stages from './stages.json' assert { type: 'json' };
+import stages from './stages.json' with { type: 'json' };
 
 const mockProtocol = (): Prisma.ProtocolUncheckedCreateInput => {
   return {

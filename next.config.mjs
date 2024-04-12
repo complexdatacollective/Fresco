@@ -3,7 +3,7 @@
  * for Docker builds.
  */
 import('./env.mjs');
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 import ChildProcess from 'child_process';
 
 // starts a command line process to get the git hash

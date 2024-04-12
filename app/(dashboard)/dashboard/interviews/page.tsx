@@ -4,6 +4,8 @@ import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { api } from '~/trpc/server';
 
+export const dynamic = 'force-dynamic';
+
 const InterviewPage = async () => {
   const initialInterviews = await api.interview.get.all.query();
   return (

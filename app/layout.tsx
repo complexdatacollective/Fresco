@@ -18,6 +18,8 @@ const poppins = Quicksand({
   display: 'swap',
 });
 
+export const dynamic = 'force-dynamic';
+
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
   const appSettings = await api.appSettings.get.query();

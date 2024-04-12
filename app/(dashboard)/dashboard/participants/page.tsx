@@ -5,6 +5,8 @@ import PageHeader from '~/components/ui/typography/PageHeader';
 import { api } from '~/trpc/server';
 import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 
+export const dynamic = 'force-dynamic';
+
 const ParticipantPage = async () => {
   const participants = await api.participant.get.all.query();
 
