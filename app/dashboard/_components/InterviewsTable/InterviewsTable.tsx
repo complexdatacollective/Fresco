@@ -1,16 +1,16 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/ActionsDropdown';
-import { InterviewColumns } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/Columns';
+import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
+import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
-import { DeleteInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_components/DeleteInterviewsDialog';
-import { ExportInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_components/ExportInterviewsDialog';
+import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
+import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
 import type { RouterOutputs } from '~/trpc/shared';
 import { HardDriveUpload } from 'lucide-react';
-import { GenerateInterviewURLs } from '~/app/(dashboard)/dashboard/interviews/_components/ExportInterviewUrlSection';
+import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/ExportInterviewUrlSection';
 import {
   DropdownMenu,
   DropdownMenuContent,

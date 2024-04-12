@@ -1,4 +1,4 @@
-import { ParticipantsTable } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ParticipantsTable';
+import { ParticipantsTable } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';

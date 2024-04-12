@@ -1,4 +1,4 @@
-import { InterviewsTable } from '~/app/(dashboard)/dashboard/_components/InterviewsTable/InterviewsTable';
+import { InterviewsTable } from '~/app/dashboard/_components/InterviewsTable/InterviewsTable';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';

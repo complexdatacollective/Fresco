@@ -9,7 +9,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
-import ParticipantModal from '~/app/(dashboard)/dashboard/participants/_components/ParticipantModal';
+import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/shared/types';
 import type { Participant } from '@prisma/client';
 

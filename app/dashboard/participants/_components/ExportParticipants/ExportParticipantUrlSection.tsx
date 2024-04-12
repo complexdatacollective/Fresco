@@ -10,7 +10,7 @@ import {
 } from '~/components/ui/select';
 
 import { api } from '~/trpc/client';
-import ExportCSVParticipantURLs from '~/app/(dashboard)/dashboard/participants/_components/ExportParticipants/ExportCSVParticipantURLs';
+import ExportCSVParticipantURLs from '~/app/dashboard/participants/_components/ExportParticipants/ExportCSVParticipantURLs';
 import { Skeleton } from '~/components/ui/skeleton';
 import FancyBox from '~/components/ui/FancyBox';
 import { type RouterOutputs } from '~/trpc/shared';

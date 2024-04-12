@@ -1,5 +1,5 @@
 'use client';
-import ProtocolUploader from '~/app/(dashboard)/dashboard/_components/ProtocolUploader';
+import ProtocolUploader from '~/app/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
 import { useOnboardingContext } from '../OnboardingProvider';
 import Heading from '~/components/ui/typography/Heading';

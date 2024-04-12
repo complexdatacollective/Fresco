@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import OnboardSteps from '../_components/Sidebar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { containerClasses } from '../_components/schemas';
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { api } from '~/trpc/client';
 import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -40,7 +40,19 @@ const Documentation = dynamic(
   },
 );
 
-function Page() {
+export default function Page() {
+  return (
+    <Suspense>
+      <Client />
+    </Suspense>
+  );
+}
+
+/**
+ *
+ * Restructured this way because of this: https://github.com/47ng/nuqs/issues/496#issuecomment-1938178091
+ */
+function Client() {
   const router = useRouter();
 
   const [currentStep] = useQueryState('step', parseAsInteger.withDefault(1));
@@ -77,5 +89,3 @@ function Page() {
     </motion.div>
   );
 }
-
-export default Page;

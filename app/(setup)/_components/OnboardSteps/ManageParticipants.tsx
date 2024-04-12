@@ -2,7 +2,7 @@
 
 import { Check } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import ImportCSVModal from '~/app/(dashboard)/dashboard/participants/_components/ImportCSVModal';
+import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
 import { useOnboardingContext } from '../OnboardingProvider';
 import { useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';

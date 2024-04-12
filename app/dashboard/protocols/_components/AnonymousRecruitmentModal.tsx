@@ -20,7 +20,7 @@ import {
 import { Button } from '~/components/ui/Button';
 import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
-import CopyButton from '~/app/(dashboard)/dashboard/_components/ProtocolsTable/CopyButton';
+import CopyButton from '~/app/dashboard/_components/ProtocolsTable/CopyButton';
 
 export const AnonymousRecruitmentModal = () => {
   const { data: protocolData, isLoading: isLoadingProtocols } =

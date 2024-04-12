@@ -1,12 +1,12 @@
 'use client';
 
 import { DataTable } from '~/components/DataTable/DataTable';
-import { getParticipantColumns } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/Columns';
+import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
 import type { ParticipantWithInterviews } from '~/shared/types';
-import { ActionsDropdown } from '~/app/(dashboard)/dashboard/_components/ParticipantsTable/ActionsDropdown';
-import AddParticipantButton from '~/app/(dashboard)/dashboard/participants/_components/AddParticipantButton';
+import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
+import AddParticipantButton from '~/app/dashboard/participants/_components/AddParticipantButton';
 import { useCallback, useMemo, useState } from 'react';
-import { DeleteParticipantsDialog } from '~/app/(dashboard)/dashboard/participants/_components/DeleteParticipantsDialog';
+import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
 import { api } from '~/trpc/client';
 import { type RouterOutputs } from '~/trpc/shared';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';

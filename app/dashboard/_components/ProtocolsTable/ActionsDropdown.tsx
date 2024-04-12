@@ -12,7 +12,7 @@ import {
 import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
-import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
+import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 
 export const ActionsDropdown = ({
   row,

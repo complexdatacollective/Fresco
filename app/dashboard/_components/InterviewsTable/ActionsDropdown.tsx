@@ -11,7 +11,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
-import { DeleteInterviewsDialog } from '~/app/(dashboard)/dashboard/interviews/_components/DeleteInterviewsDialog';
+import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import type { Interview } from '@prisma/client';
 import Link from 'next/link';
 

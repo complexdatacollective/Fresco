@@ -4,7 +4,7 @@ import { DataTable } from '~/components/DataTable/DataTable';
 import { ActionsDropdown } from './ActionsDropdown';
 import { getProtocolColumns } from './Columns';
 import { api } from '~/trpc/client';
-import { DeleteProtocolsDialog } from '~/app/(dashboard)/dashboard/protocols/_components/DeleteProtocolsDialog';
+import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ProtocolUploader from '../ProtocolUploader';
