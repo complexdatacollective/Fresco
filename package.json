@@ -122,7 +122,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.1",
-    "uploadthing": "^6.3.3",
+    "uploadthing": "^6.9.0",
     "usehooks-ts": "^2.14.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",

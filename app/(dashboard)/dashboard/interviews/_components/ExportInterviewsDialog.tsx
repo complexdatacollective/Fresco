@@ -84,6 +84,8 @@ export const ExportInterviewsDialog = ({
       download(url, result.data.name);
       // clean up the URL object
       URL.revokeObjectURL(url);
+
+      // Delete the zip file from UploadThing
     } catch (error) {
       toast({
         icon: <XCircle />,
