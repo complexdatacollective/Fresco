@@ -28,7 +28,7 @@ export const deleteProtocols = async (hashes: string[]) => {
   });
 
   // Select assets that are ONLY associated with the protocols to be deleted
-  const assets = await prisma.asset.findMany({
+  const assetKeysToDelete = await prisma.asset.findMany({
     where: {
       protocols: {
         every: {
@@ -40,16 +40,34 @@ export const deleteProtocols = async (hashes: string[]) => {
     },
     select: { key: true },
   });
+
   // We put asset deletion in a separate try/catch because if it fails, we still
   // want to delete the protocol.
   try {
     // eslint-disable-next-line no-console
     console.log('deleting protocol assets...');
 
-    await deleteFilesFromUploadThing(assets.map((a) => a.key));
+    await deleteFilesFromUploadThing(assetKeysToDelete.map((a) => a.key));
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('Error deleting protocol assets!', error);
+  }
+
+  // Delete assets in assetKeysToDelete from the database
+
+  try {
+    // eslint-disable-next-line no-console
+    console.log('deleting assets from database...');
+    await prisma.asset.deleteMany({
+      where: {
+        key: {
+          in: assetKeysToDelete.map((a) => a.key),
+        },
+      },
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error deleting assets from database!', error);
   }
 
   try {
