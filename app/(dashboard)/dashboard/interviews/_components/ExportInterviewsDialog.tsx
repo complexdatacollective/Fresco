@@ -23,6 +23,7 @@ import Heading from '~/components/ui/typography/Heading';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
+import { deleteZipFromUploadThing } from '../_actions/deleteZipFromUploadThing';
 
 const ExportingStateAnimation = () => {
   return (
@@ -85,7 +86,10 @@ export const ExportInterviewsDialog = ({
       // clean up the URL object
       URL.revokeObjectURL(url);
 
-      // Delete the zip file from UploadThing
+      // Delete the zip file from UploadThing after 3 seconds
+      setTimeout(async () => {
+        await deleteZipFromUploadThing(result.data.key);
+      }, 3000);
     } catch (error) {
       toast({
         icon: <XCircle />,
