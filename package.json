@@ -61,7 +61,7 @@
     "@trpc/server": "^10.45.1",
     "@types/async": "^3.2.23",
     "@uidotdev/usehooks": "^2.4.1",
-    "@uploadthing/react": "^6.2.2",
+    "@uploadthing/react": "^6.4.4",
     "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^6.0.1",
