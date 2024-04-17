@@ -4,9 +4,17 @@
 // This is to ensure that we are not storing any sensitive data on UploadThing for longer than necessary.
 
 import { utapi } from '~/app/api/uploadthing/core';
+import { getServerSession } from '~/utils/auth';
 
 export const deleteZipFromUploadThing = async (key: string) => {
   const deleteResponse = await utapi.deleteFiles(key);
+  const session = await getServerSession();
+
+  if (!session) {
+    throw new Error(
+      'You must be logged in to delete interview data from UploadThing!.',
+    );
+  }
 
   if (!deleteResponse.success) {
     throw new Error('Failed to delete the zip file from UploadThing');
