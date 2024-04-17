@@ -7,7 +7,6 @@ import { utapi } from '~/app/api/uploadthing/core';
 import { getServerSession } from '~/utils/auth';
 
 export const deleteZipFromUploadThing = async (key: string) => {
-  const deleteResponse = await utapi.deleteFiles(key);
   const session = await getServerSession();
 
   if (!session) {
@@ -15,6 +14,8 @@ export const deleteZipFromUploadThing = async (key: string) => {
       'You must be logged in to delete interview data from UploadThing!.',
     );
   }
+
+  const deleteResponse = await utapi.deleteFiles(key);
 
   if (!deleteResponse.success) {
     throw new Error('Failed to delete the zip file from UploadThing');
