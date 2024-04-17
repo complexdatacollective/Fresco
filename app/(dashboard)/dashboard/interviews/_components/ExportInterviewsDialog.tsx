@@ -76,8 +76,12 @@ export const ExportInterviewsDialog = ({
       }
 
       const response = await fetch(result.data.url);
-      const blob = await response.blob();
 
+      if (!response.ok) {
+        throw new Error('HTTP error ' + response.status);
+      }
+
+      const blob = await response.blob();
       // create a download link
       const url = URL.createObjectURL(blob);
 
@@ -86,10 +90,8 @@ export const ExportInterviewsDialog = ({
       // clean up the URL object
       URL.revokeObjectURL(url);
 
-      // Delete the zip file from UploadThing after 3 seconds
-      setTimeout(async () => {
-        await deleteZipFromUploadThing(result.data.key);
-      }, 3000);
+      // Delete the zip file from UploadThing
+      await deleteZipFromUploadThing(result.data.key);
     } catch (error) {
       toast({
         icon: <XCircle />,
