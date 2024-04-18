@@ -11,11 +11,11 @@ const statCardClasses = cn(
 );
 function StatCard({
   title,
-  initialData,
+  value,
   icon,
 }: {
   title: string;
-  initialData: number;
+  value: number;
   icon: React.ReactNode;
 }) {
   return (
@@ -23,7 +23,7 @@ function StatCard({
       <div className="hidden md:block">{icon}</div>
       <div>
         <Heading variant="h4-all-caps">{title}</Heading>
-        <Heading variant="h1">{initialData}</Heading>
+        <Heading variant="h1">{value}</Heading>
       </div>
     </div>
   );

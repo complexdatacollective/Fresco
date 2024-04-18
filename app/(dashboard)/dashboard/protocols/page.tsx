@@ -4,6 +4,8 @@ import PageHeader from '~/components/ui/typography/PageHeader';
 import Section from '~/components/layout/Section';
 import { api } from '~/trpc/server';
 
+export const dynamic = 'force-dynamic';
+
 const ProtocolsPage = async () => {
   const protocols = await api.protocol.get.all.query();
   const allowAnonymousRecruitment =

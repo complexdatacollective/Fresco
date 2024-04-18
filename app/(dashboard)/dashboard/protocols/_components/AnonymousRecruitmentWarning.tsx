@@ -4,6 +4,8 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { Alert, AlertTitle, AlertDescription } from '~/components/ui/Alert';
 import { api } from '~/trpc/server';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AnonymousRecruitmentWarning() {
   const allowAnonymousRecruitment =
     await api.appSettings.getAnonymousRecruitmentStatus.query();

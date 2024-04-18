@@ -223,7 +223,10 @@ $system-font-stack: 'system-ui', sans-serif;
   --nc-body-font-family: #{$system-font-stack};
   --code-font: courier;
   --interface-prompt-flex-basis: 8rem;
-  --nc-base-font-size: min(max(14px, calc(0.875rem + ((1vw - 6.4px) * 0.3125))), 18px);
+  --nc-base-font-size: min(
+    max(14px, calc(0.875rem + ((1vw - 6.4px) * 0.3125))),
+    18px
+  );
   --nc-border-radius: 0.75rem;
   --padding-unit: 1rem;
   --form-intro-panel-background: var(--color-cyber-grape);
@@ -247,7 +250,6 @@ $system-font-stack: 'system-ui', sans-serif;
   // Top level transparentised values
   --nc-transparent-light: #{transparentize(rgb(255, 255, 255), 0.7)};
   --nc-transparent-md: #{transparentize(rgb(128, 128, 128), 0.7)};
-
 
   --nc-narrative-heading-bg-hover: #{transparentize(rgb(22, 21, 43), 0.85)};
   --nc-narrative-border-bottom-color: #{transparentize(rgb(22, 21, 43), 0.85)};
@@ -402,7 +404,6 @@ $headings: (
   (
     font-family: var(--nc-heading-font-family),
     font-size: 3rem,
-    line-height: 1.429,
     font-weight: 700,
     text-align: center,
   )
@@ -414,7 +415,6 @@ $headings: (
   (
     font-family: var(--nc-heading-font-family),
     font-size: 2.3rem,
-    line-height: 1.429,
     font-weight: 700,
     text-align: center,
     width: 100%,
@@ -427,7 +427,6 @@ $headings: (
   base,
   (
     font-size: 1.2rem,
-    line-height: $base-line-height,
     font-weight: 500,
   )
 );
@@ -438,7 +437,6 @@ $headings: (
   base,
   (
     font-size: 1.05rem,
-    line-height: $base-line-height,
     font-weight: $headings-font-weight,
     text-align: center,
   )

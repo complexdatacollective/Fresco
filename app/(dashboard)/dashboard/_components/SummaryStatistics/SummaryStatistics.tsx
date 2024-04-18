@@ -1,20 +1,21 @@
+'use client';
+
+import Image from 'next/image';
 import Link from 'next/link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import StatCard from './StatCard';
-import Image from 'next/image';
+import { api } from '~/trpc/client';
 import { InterviewIcon, ProtocolIcon } from './Icons';
-import { api } from '~/trpc/server';
-import { unstable_noStore } from 'next/cache';
+import StatCard, { StatCardSkeleton } from './StatCard';
 
-export default async function SummaryStatistics() {
-  unstable_noStore();
+export default function SummaryStatistics() {
+  const { data: protocolCount, isLoading: isProtocolStatsLoading } =
+    api.dashboard.getSummaryStatistics.protocolCount.useQuery();
 
-  const interviewCount =
-    await api.dashboard.getSummaryStatistics.interviewCount.query();
-  const participantCount =
-    await api.dashboard.getSummaryStatistics.participantCount.query();
-  const protocolCount =
-    await api.dashboard.getSummaryStatistics.protocolCount.query();
+  const { data: participantCount, isLoading: isParticipantStatsLoading } =
+    api.dashboard.getSummaryStatistics.participantCount.useQuery();
+
+  const { data: interviewCount, isLoading: isInterviewStatsLoading } =
+    api.dashboard.getSummaryStatistics.interviewCount.useQuery();
 
   return (
     <ResponsiveContainer
@@ -22,33 +23,56 @@ export default async function SummaryStatistics() {
       maxWidth="6xl"
     >
       <Link href="/dashboard/protocols">
-        <StatCard
-          title="Protocols"
-          initialData={protocolCount}
-          icon={<ProtocolIcon />}
-        />
+        {isProtocolStatsLoading ? (
+          <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
+        ) : (
+          <StatCard
+            title="Protocols"
+            value={protocolCount!}
+            icon={<ProtocolIcon />}
+          />
+        )}
       </Link>
       <Link href="/dashboard/participants">
-        <StatCard
-          title="Participants"
-          initialData={participantCount}
-          icon={
-            <Image
-              src="/images/participant.svg"
-              width={50}
-              height={50}
-              alt="Participant icon"
-              className="max-w-none"
-            />
-          }
-        />
+        {isParticipantStatsLoading ? (
+          <StatCardSkeleton
+            title="Participants"
+            icon={
+              <Image
+                src="/images/participant.svg"
+                width={50}
+                height={50}
+                alt="Participant icon"
+                className="max-w-none"
+              />
+            }
+          />
+        ) : (
+          <StatCard
+            title="Participants"
+            value={participantCount!}
+            icon={
+              <Image
+                src="/images/participant.svg"
+                width={50}
+                height={50}
+                alt="Participant icon"
+                className="max-w-none"
+              />
+            }
+          />
+        )}
       </Link>
       <Link href="/dashboard/interviews">
-        <StatCard
-          title="Interviews"
-          initialData={interviewCount}
-          icon={<InterviewIcon />}
-        />
+        {isInterviewStatsLoading ? (
+          <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
+        ) : (
+          <StatCard
+            title="Interviews"
+            value={interviewCount!}
+            icon={<InterviewIcon />}
+          />
+        )}
       </Link>
     </ResponsiveContainer>
   );

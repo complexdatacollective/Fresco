@@ -59,6 +59,16 @@ export const appSettingsRouter = router({
   }),
 
   create: publicProcedure.mutation(async () => {
+    // Check if app settings already exist
+    const existingAppSettings = await prisma.appSettings.findFirst();
+
+    if (existingAppSettings) {
+      return {
+        error: 'App settings already exist',
+        appSettings: existingAppSettings,
+      };
+    }
+
     try {
       const appSettings = await prisma.appSettings.create({
         data: {
@@ -130,9 +140,6 @@ export const appSettingsRouter = router({
       revalidateTag('participant.get.all');
       revalidateTag('protocol.get.all');
       revalidateTag('dashboard.getActivities');
-      revalidateTag('dashboard.getSummaryStatistics.participantCount');
-      revalidateTag('dashboard.getSummaryStatistics.interviewCount');
-      revalidateTag('dashboard.getSummaryStatistics.protocolCount');
 
       // Remove all files from UploadThing:
       await utapi.listFiles({}).then((assets) => {

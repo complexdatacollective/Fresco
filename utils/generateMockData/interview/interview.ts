@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { type Prisma } from '@prisma/client';
-import network from './network.json' assert { type: 'json' };
+import network from './network.json' with { type: 'json' };
 
 type InterviewUncheckedCreateWithoutProtocolAndUserInput = Omit<
   Prisma.InterviewUncheckedCreateWithoutProtocolInput,
