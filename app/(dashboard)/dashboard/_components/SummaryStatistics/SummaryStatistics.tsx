@@ -28,7 +28,7 @@ export default function SummaryStatistics() {
         ) : (
           <StatCard
             title="Protocols"
-            initialData={protocolCount!}
+            value={protocolCount!}
             icon={<ProtocolIcon />}
           />
         )}
@@ -50,7 +50,7 @@ export default function SummaryStatistics() {
         ) : (
           <StatCard
             title="Participants"
-            initialData={participantCount!}
+            value={participantCount!}
             icon={
               <Image
                 src="/images/participant.svg"
@@ -69,7 +69,7 @@ export default function SummaryStatistics() {
         ) : (
           <StatCard
             title="Interviews"
-            initialData={interviewCount!}
+            value={interviewCount!}
             icon={<InterviewIcon />}
           />
         )}
