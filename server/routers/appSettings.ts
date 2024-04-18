@@ -140,9 +140,6 @@ export const appSettingsRouter = router({
       revalidateTag('participant.get.all');
       revalidateTag('protocol.get.all');
       revalidateTag('dashboard.getActivities');
-      revalidateTag('dashboard.getSummaryStatistics.participantCount');
-      revalidateTag('dashboard.getSummaryStatistics.interviewCount');
-      revalidateTag('dashboard.getSummaryStatistics.protocolCount');
 
       // Remove all files from UploadThing:
       await utapi.listFiles({}).then((assets) => {

@@ -92,8 +92,6 @@ export const deleteProtocols = async (hashes: string[]) => {
     revalidateTag('dashboard.getActivities');
     revalidateTag('protocol.get.all');
     revalidatePath('/dashboard/protocols');
-    revalidateTag('dashboard.getSummaryStatistics.protocolCount');
-    revalidateTag('dashboard.getSummaryStatistics.interviewCount');
 
     return { error: null, deletedProtocols: deletedProtocols };
   } catch (error) {
@@ -217,7 +215,6 @@ export const protocolRouter = router({
 
         revalidateTag('dashboard.getActivities');
         revalidateTag('protocol.get.all');
-        revalidateTag('dashboard.getSummaryStatistics.protocolCount');
         revalidatePath('/dashboard/protocols');
 
         return { error: null, success: true };

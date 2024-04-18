@@ -125,8 +125,6 @@ export const interviewRouter = router({
         revalidateTag('participant.get.byId');
 
         revalidateTag('dashboard.getActivities');
-        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
-        revalidateTag('dashboard.getSummaryStatistics.participantCount');
 
         return {
           error: null,
@@ -309,7 +307,6 @@ export const interviewRouter = router({
         });
 
         revalidateTag('dashboard.getActivities');
-        revalidateTag('dashboard.getSummaryStatistics.interviewCount');
         revalidateTag('interview.get.all');
 
         return { error: null, interview: deletedInterviews };
