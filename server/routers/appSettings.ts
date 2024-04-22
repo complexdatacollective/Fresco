@@ -123,14 +123,14 @@ export const appSettingsRouter = router({
     }
     try {
       // Delete all data:
-      await Promise.all(
+      await Promise.all([
        prisma.user.deleteMany(), // Deleting a user will cascade to Session and Key
        prisma.participant.deleteMany(),
        prisma.protocol.deleteMany(), // Deleting protocol will cascade to Interviews
        prisma.appSettings.deleteMany(),
        prisma.events.deleteMany(),
        prisma.asset.deleteMany()
-      );
+      ]);
 
       revalidateTag('appSettings.get');
       revalidatePath('/');
