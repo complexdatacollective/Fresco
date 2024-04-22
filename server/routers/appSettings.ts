@@ -122,9 +122,6 @@ export const appSettingsRouter = router({
       await signOutProc({ ctx });
     }
     try {
-      // Delete the setup record:
-      await prisma.appSettings.deleteMany();
-
       // Delete all data:
       await Promise.all(
        prisma.user.deleteMany(), // Deleting a user will cascade to Session and Key
