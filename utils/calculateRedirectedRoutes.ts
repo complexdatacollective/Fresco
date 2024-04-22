@@ -10,7 +10,7 @@ import { cache } from 'react';
  *
  * This helper at least makes sure that the first part of the route is valid!
  */
-const createRouteWithSearchParams = (
+export const createRouteWithSearchParams = (
   route: Route,
   searchParams: string,
 ): Route => {

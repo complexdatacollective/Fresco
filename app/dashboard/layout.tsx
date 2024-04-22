@@ -1,8 +1,7 @@
 import Providers from '~/providers/Providers';
 import { NavigationBar } from './_components/NavigationBar';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
-import { getServerSession } from '~/utils/auth';
-import { redirect } from 'next/navigation';
+import { getServerSession, requireAuth } from '~/utils/auth';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Dashboard',
@@ -10,11 +9,9 @@ export const metadata = {
 };
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const initialSession = await getServerSession();
+  await requireAuth({ redirectPath: '/dashboard' });
 
-  if (!initialSession) {
-    redirect('/signin');
-  }
+  const initialSession = await getServerSession();
 
   return (
     <Providers initialSession={initialSession}>

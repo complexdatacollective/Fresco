@@ -15,8 +15,6 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
 };
 
 export const createTRPCContext = async (opts: { req: Request }) => {
-  // Fetch stuff that depends on the request
-
   const authRequest = auth.handleRequest(opts.req.method, context);
   const session = await authRequest.validate();
 

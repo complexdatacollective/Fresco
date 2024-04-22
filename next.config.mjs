@@ -18,7 +18,7 @@ const config = {
   reactStrictMode: true,
   experimental: {
     typedRoutes: true,
-    webpackBuildWorker: true
+    webpackBuildWorker: true,
   },
   webpack: (config) => {
     config.module.rules.push({

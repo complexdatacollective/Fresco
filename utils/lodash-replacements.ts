@@ -158,7 +158,7 @@ export const debounce = (
     );
   }
 
-  let timerId: NodeJS.Timeout;
+  let timerId: Timer;
 
   return (...args: unknown[]) => {
     if (!timerId && leading) {

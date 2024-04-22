@@ -6,8 +6,6 @@ import { redirect } from 'next/navigation';
 import { prisma } from '~/utils/db';
 import { unstable_noStore } from 'next/cache';
 
-export const dynamic = 'force-dynamic';
-
 export default async function Page({
   params,
 }: {

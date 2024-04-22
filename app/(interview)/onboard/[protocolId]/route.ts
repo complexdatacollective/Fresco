@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { trackEvent } from '~/analytics/utils';
 import { api } from '~/trpc/server';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +13,7 @@ const handler = async (
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+    return NextResponse.redirect('/onboard/error');
   }
 
   const appSettings = await api.appSettings.get.query();
@@ -23,7 +22,7 @@ const handler = async (
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
   if (appSettings?.limitInterviews && cookies().get(protocolId)) {
-    redirect('/interview/finished');
+    return NextResponse.redirect('/interview/finished');
   }
 
   let participantIdentifier: string | undefined;
@@ -57,7 +56,7 @@ const handler = async (
       },
     });
 
-    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+    return NextResponse.redirect('/onboard/error');
   }
 
   // eslint-disable-next-line no-console
@@ -75,9 +74,7 @@ const handler = async (
   });
 
   // Redirect to the interview
-  return NextResponse.redirect(
-    new URL(`/interview/${createdInterviewId}`, req.nextUrl),
-  );
+  return NextResponse.redirect(`/interview/${createdInterviewId}`);
 };
 
 export { handler as GET, handler as POST };
