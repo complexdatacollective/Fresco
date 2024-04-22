@@ -23,6 +23,7 @@ import Heading from '~/components/ui/typography/Heading';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
+import { deleteZipFromUploadThing } from '~/app/dashboard/interviews/_actions/deleteZipFromUploadThing';
 
 const ExportingStateAnimation = () => {
   return (
@@ -75,8 +76,12 @@ export const ExportInterviewsDialog = ({
       }
 
       const response = await fetch(result.data.url);
-      const blob = await response.blob();
 
+      if (!response.ok) {
+        throw new Error('HTTP error ' + response.status);
+      }
+
+      const blob = await response.blob();
       // create a download link
       const url = URL.createObjectURL(blob);
 
@@ -84,6 +89,9 @@ export const ExportInterviewsDialog = ({
       download(url, result.data.name);
       // clean up the URL object
       URL.revokeObjectURL(url);
+
+      // Delete the zip file from UploadThing
+      await deleteZipFromUploadThing(result.data.key);
     } catch (error) {
       toast({
         icon: <XCircle />,

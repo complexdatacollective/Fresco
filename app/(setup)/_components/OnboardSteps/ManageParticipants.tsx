@@ -79,7 +79,7 @@ function ManageParticipants() {
           controlArea={<LimitInterviewsSwitch />}
         >
           <Paragraph>
-            Limit each participant to complete one interview per protocol.
+            Limit each participant to being allowed to complete one interview per protocol.
           </Paragraph>
         </SettingsSection>
       </div>
