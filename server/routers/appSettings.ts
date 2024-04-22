@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { signOutProc } from './session';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { cache } from 'react';
+import { utapi } from '~/app/api/uploadthing/core';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
@@ -130,6 +131,7 @@ export const appSettingsRouter = router({
       await prisma.protocol.deleteMany(); // Deleting protocol will cascade to Interviews
       await prisma.appSettings.deleteMany();
       await prisma.events.deleteMany();
+      await prisma.asset.deleteMany();
 
       revalidateTag('appSettings.get');
       revalidatePath('/');
@@ -142,7 +144,11 @@ export const appSettingsRouter = router({
       revalidateTag('dashboard.getSummaryStatistics.interviewCount');
       revalidateTag('dashboard.getSummaryStatistics.protocolCount');
 
-      // Todo: we need to remove assets from uploadthing before deleting the reference record.
+      // Remove all files from UploadThing:
+      await utapi.listFiles({}).then((assets) => {
+        const keys = assets.map((asset) => asset.key);
+        return utapi.deleteFiles(keys);
+      });
     } catch (error) {
       return { error: 'Failed to reset appSettings', appSettings: null };
     }
