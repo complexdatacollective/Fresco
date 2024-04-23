@@ -18,11 +18,7 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import { api } from '~/trpc/client';
 import { getBaseUrl } from '~/trpc/shared';
 
-const RecruitmentTestSection = ({
-  allowAnonymousRecruitment,
-}: {
-  allowAnonymousRecruitment: boolean;
-}) => {
+const RecruitmentTestSection = () => {
   const router = useRouter();
 
   const { data: protocolData, isLoading: isLoadingProtocols } =
@@ -33,6 +29,9 @@ const RecruitmentTestSection = ({
 
   const { data: participants, isLoading: isLoadingParticipants } =
     api.participant.get.all.useQuery();
+
+  const { data: allowAnonymousRecruitment } =
+    api.appSettings.getAnonymousRecruitmentStatus.useQuery();
 
   useEffect(() => {
     if (protocolData) {

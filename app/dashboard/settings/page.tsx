@@ -7,16 +7,11 @@ import RecruitmentTestSection from '../_components/RecruitmentTestSection';
 import SettingsSection from '~/components/layout/SettingsSection';
 import AnonymousRecruitmentSwitch from '~/components/ServerAnonymousRecruitmentSwitch/AnonymousRecruitmentSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch/LimitInterviewsSwitch';
-import { api } from '~/trpc/server';
 import VersionSection from '~/components/VersionSection';
 import { env } from '~/env.mjs';
+import { Suspense } from 'react';
 
-export const dynamic = 'force-dynamic';
-
-export default async function Settings() {
-  const allowAnonymousRecruitment =
-    await api.appSettings.getAnonymousRecruitmentStatus.query();
-
+export default function Settings() {
   return (
     <>
       <ResponsiveContainer>
@@ -30,9 +25,9 @@ export default async function Settings() {
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={
-            <AnonymousRecruitmentSwitch
-              allowAnonymousRecruitment={allowAnonymousRecruitment}
-            />
+            <Suspense fallback="Loading">
+              <AnonymousRecruitmentSwitch />
+            </Suspense>
           }
         >
           <Paragraph margin="none">
@@ -76,9 +71,7 @@ export default async function Settings() {
                 server.
               </Paragraph>
             </SettingsSection>
-            <RecruitmentTestSection
-              allowAnonymousRecruitment={allowAnonymousRecruitment}
-            />
+            <RecruitmentTestSection />
           </>
         )}
       </ResponsiveContainer>

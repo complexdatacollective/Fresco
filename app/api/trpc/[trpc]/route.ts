@@ -3,13 +3,22 @@ import { env } from '~/env.mjs';
 import { appRouter } from '~/server/router';
 import { createTRPCContext } from '~/server/context';
 import { trackEvent } from '~/analytics/utils';
+import { type NextRequest } from 'next/server';
 
-const handler = (req: Request) =>
+/**
+ * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
+ * handling a HTTP request (e.g. when you make requests from Client Components).
+ */
+const createContext = async (req: NextRequest) => {
+  return createTRPCContext({ headers: req.headers });
+};
+
+const handler = (req: NextRequest) =>
   fetchRequestHandler({
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext: () => createTRPCContext({ req }),
+    createContext: () => createContext(req),
     onError(opts) {
       const { error, type, path } = opts;
 

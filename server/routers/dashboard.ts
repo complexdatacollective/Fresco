@@ -4,19 +4,18 @@ import { protectedProcedure, router } from '../trpc';
 import { SearchParamsSchema } from '~/lib/data-table/types';
 
 export const dashboardRouter = router({
-  getSummaryStatistics: router({
-    interviewCount: protectedProcedure.query(async () => {
-      const count = await prisma.interview.count();
-      return count;
-    }),
-    participantCount: protectedProcedure.query(async () => {
-      const count = await prisma.participant.count();
-      return count;
-    }),
-    protocolCount: protectedProcedure.query(async () => {
-      const count = await prisma.protocol.count();
-      return count;
-    }),
+  getSummaryStatistics: protectedProcedure.query(async () => {
+    const counts = await prisma.$transaction([
+      prisma.interview.count(),
+      prisma.protocol.count(),
+      prisma.participant.count(),
+    ]);
+
+    return {
+      interviewCount: counts[0],
+      protocolCount: counts[1],
+      participantCount: counts[2],
+    };
   }),
   getActivities: protectedProcedure
     .input(SearchParamsSchema)

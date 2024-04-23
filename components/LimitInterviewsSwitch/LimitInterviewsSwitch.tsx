@@ -1,12 +1,22 @@
 import 'server-only';
-import { api } from '~/trpc/server';
 import Switch from './Switch';
+import { unstable_noStore } from 'next/cache';
+import { prisma } from '~/utils/db';
 
-export const dynamic = 'force-dynamic';
+async function getLimitInterviewsStatus() {
+  unstable_noStore();
+
+  const appSettings = await prisma.appSettings.findFirst({
+    select: {
+      limitInterviews: true,
+    },
+  });
+
+  return !!appSettings?.limitInterviews;
+}
 
 const LimitInterviewsSwitch = async () => {
-  const limitInterviews =
-    await api.appSettings.getLimitInterviewsStatus.query();
+  const limitInterviews = await getLimitInterviewsStatus();
 
   return <Switch limitInterviews={limitInterviews} />;
 };

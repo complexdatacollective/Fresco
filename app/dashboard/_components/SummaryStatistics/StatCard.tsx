@@ -1,5 +1,4 @@
-'use client';
-
+import { use } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
 import Heading from '~/components/ui/typography/Heading';
 import { cn } from '~/utils/shadcn';
@@ -11,19 +10,23 @@ const statCardClasses = cn(
 );
 function StatCard({
   title,
-  value,
+  dataPromise,
+  render,
   icon,
 }: {
   title: string;
-  value: number;
+  dataPromise: Promise<Record<string, number>>;
+  render: string;
   icon: React.ReactNode;
 }) {
+  const data = use(dataPromise);
+
   return (
     <div className={statCardClasses}>
       <div className="hidden md:block">{icon}</div>
       <div>
         <Heading variant="h4-all-caps">{title}</Heading>
-        <Heading variant="h1">{value}</Heading>
+        <Heading variant="h1">{data[render]}</Heading>
       </div>
     </div>
   );

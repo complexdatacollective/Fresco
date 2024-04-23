@@ -1,100 +1,65 @@
-'use server';
-
-import { loggerLink } from '@trpc/client';
-import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
-import { experimental_nextCacheLink } from '@trpc/next/app-dir/links/nextCache';
-import { headers } from 'next/headers';
-import SuperJSON from 'superjson';
-import { env } from '~/env.mjs';
-import { appRouter, type AppRouter } from '~/server/router';
-import { getServerSession } from '~/utils/auth';
 import 'server-only';
 
+import { headers } from 'next/headers';
+import { cache } from 'react';
+import { createTRPCContext } from '~/server/context';
+import {
+  TRPCClientError,
+  createTRPCProxyClient,
+  loggerLink,
+} from '@trpc/client';
+import { AppRouter, appRouter, createCaller } from '~/server/router';
+import { observable } from '@trpc/server/observable';
+import { callProcedure } from '@trpc/server';
+import { TRPCErrorResponse } from '@trpc/server/rpc';
+import SuperJSON from 'superjson';
+
 /**
- * This client invokes procedures directly on the server without fetching over HTTP.
+ * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
+ * handling a tRPC call from a React Server Component.
  */
-export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
-  config() {
-    return {
-      transformer: SuperJSON,
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            (env.NODE_ENV === 'development' && typeof window !== 'undefined') ||
-            (opts.direction === 'down' && opts.result instanceof Error),
-        }),
-        // This link uses the unstable next cache directly: https://nextjs.org/docs/app/building-your-application/caching#unstable_cache
-        experimental_nextCacheLink({
-          revalidate: false,
-          router: appRouter,
-          createContext: async () => {
-            const getHeaders = () => {
-              const heads = new Map(headers());
-              heads.set('x-trpc-source', 'rsc-invoke');
-
-              // Bug with next fetch and tRPC: https://discord.com/channels/867764511159091230/1156105147315933235/1156767718956072992
-              heads.delete('content-length');
-              heads.delete('content-type');
-
-              return Object.fromEntries(heads) as unknown as Headers;
-            };
-
-            return {
-              session: await getServerSession(),
-              headers: getHeaders(),
-            };
-          },
-        }),
-        // experimental_nextHttpLink({
-        //   revalidate: false,
-        //   batch: true,
-        //   headers() {
-        //     const heads = new Map(headers());
-        //     heads.set('x-trpc-source', 'rsc-invoke');
-
-        //     // Bug with next fetch and tRPC: https://discord.com/channels/867764511159091230/1156105147315933235/1156767718956072992
-        //     heads.delete('content-length');
-        //     heads.delete('content-type');
-
-        //     return Object.fromEntries(heads);
-        //   },
-        //   url: getUrl(),
-        // }),
-      ],
-    };
-  },
+const createContext = cache(() => {
+  const heads = new Headers(headers());
+  heads.set('x-trpc-source', 'rsc');
+  return createTRPCContext({
+    headers: heads,
+  });
 });
 
-// This is the server client used in create-t3-app
-// export const api = createTRPCProxyClient<AppRouter>({
-//   transformer: SuperJSON,
-//   links: [
-//     loggerLink({
-//       enabled: (op) =>
-//         env.NODE_ENV === 'development' ||
-//         (op.direction === 'down' && op.result instanceof Error),
-//     }),
-//     // unstable_httpBatchStreamLink({
-//     //   url: getUrl(),
-//     //   headers() {
-//     //     const heads = new Map(headers());
-//     //     heads.set('x-trpc-source', 'rsc');
-//     //     return Object.fromEntries(heads);
-//     //   },
-//     // }),
-//     experimental_nextHttpLink({
-//       batch: true,
-//       headers() {
-//         const heads = new Map(headers());
-//         heads.set('x-trpc-source', 'rsc-invoke');
+// export const api = createCaller(createContext);
 
-//         // Bug with next fetch and tRPC: https://discord.com/channels/867764511159091230/1156105147315933235/1156767718956072992
-//         heads.delete('content-length');
-//         heads.delete('content-type');
-
-//         return Object.fromEntries(heads);
-//       },
-//       url: getUrl(),
-//     }),
-//   ],
-// });
+export const api = createTRPCProxyClient<AppRouter>({
+  transformer: SuperJSON,
+  links: [
+    loggerLink({
+      enabled: (op) =>
+        // process.env.NODE_ENV === "development" ||
+        op.direction === 'down' && op.result instanceof Error,
+    }),
+    /**
+     * Custom RSC link that lets us invoke procedures without using http requests. Since Server
+     * Components always run on the server, we can just call the procedure as a function.
+     */
+    () =>
+      ({ op }) =>
+        observable((observer) => {
+          createContext()
+            .then((ctx) => {
+              return callProcedure({
+                procedures: appRouter._def.procedures,
+                path: op.path,
+                rawInput: op.input,
+                ctx,
+                type: op.type,
+              });
+            })
+            .then((data) => {
+              observer.next({ result: { data } });
+              observer.complete();
+            })
+            .catch((cause: TRPCErrorResponse) => {
+              observer.error(TRPCClientError.from(cause));
+            });
+        }),
+  ],
+});

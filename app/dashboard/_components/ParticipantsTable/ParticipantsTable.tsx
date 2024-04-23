@@ -8,7 +8,6 @@ import AddParticipantButton from '~/app/dashboard/participants/_components/AddPa
 import { useCallback, useMemo, useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
 import { api } from '~/trpc/client';
-import { type RouterOutputs } from '~/trpc/shared';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
@@ -16,16 +15,10 @@ import { Button } from '~/components/ui/Button';
 import { Trash } from 'lucide-react';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/ExportParticipantUrlSection';
 
-export const ParticipantsTable = ({
-  initialData,
-}: {
-  initialData: RouterOutputs['participant']['get']['all'];
-}) => {
+export const ParticipantsTable = () => {
   const { data: participants, isLoading } = api.participant.get.all.useQuery(
     undefined,
     {
-      initialData,
-      refetchOnMount: false,
       onError(error) {
         throw new Error(error.message);
       },
@@ -105,7 +98,7 @@ export const ParticipantsTable = ({
     }
 
     // Check if we are deleting all and call the appropriate function
-    if (participantsToDelete.length === participants.length) {
+    if (participantsToDelete.length === participants!.length) {
       await apiDeleteAllParticipants();
       return;
     }
@@ -132,7 +125,7 @@ export const ParticipantsTable = ({
 
   const handleDeleteAll = useCallback(() => {
     // Set state to all items
-    setParticipantsToDelete(participants);
+    setParticipantsToDelete(participants!);
 
     // Show the dialog
     setShowDeleteModal(true);
@@ -167,14 +160,14 @@ export const ParticipantsTable = ({
       />
       <DataTable
         columns={columns}
-        data={participants}
+        data={participants!}
         filterColumnAccessorKey="identifier"
         handleDeleteSelected={handleDeleteItems}
         actions={ActionsDropdown}
         headerItems={
           <>
             <div className="flex flex-1 justify-start gap-2">
-              <AddParticipantButton existingParticipants={participants} />
+              <AddParticipantButton existingParticipants={participants!} />
               <GenerateParticipantURLs />
             </div>
             <Button variant="destructive" onClick={handleDeleteAll}>

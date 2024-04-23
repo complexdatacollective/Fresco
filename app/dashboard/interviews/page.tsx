@@ -1,13 +1,11 @@
-import { InterviewsTable } from '~/app/dashboard/_components/InterviewsTable/InterviewsTable';
+import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { api } from '~/trpc/server';
+import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
 
-export const dynamic = 'force-dynamic';
-
-const InterviewPage = async () => {
-  const initialInterviews = await api.interview.get.all.query();
+const InterviewPage = () => {
   return (
     <>
       <ResponsiveContainer>
@@ -18,7 +16,9 @@ const InterviewPage = async () => {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="7xl">
         <Section>
-          <InterviewsTable initialInterviews={initialInterviews} />
+          <Suspense fallback={<DataTableSkeleton columnCount={10} />}>
+            <InterviewsTableServer />
+          </Suspense>
         </Section>
       </ResponsiveContainer>
     </>

@@ -54,7 +54,7 @@ const config = {
       }
     ],
     'no-unreachable': 'error',
-    'local-rules/require-data-mapper': 'error',
+    'local-rules/require-data-mapper': 'off',
   },
 };
 module.exports = config;

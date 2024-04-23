@@ -1,21 +1,30 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import { api } from '~/trpc/client';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import StatCard, { StatCardSkeleton } from './StatCard';
+import { Suspense } from 'react';
+import { unstable_noStore } from 'next/cache';
+import { prisma } from '~/utils/db';
+
+const getSummaryStatistics = async () => {
+  unstable_noStore();
+
+  const counts = await prisma.$transaction([
+    prisma.interview.count(),
+    prisma.protocol.count(),
+    prisma.participant.count(),
+  ]);
+
+  return {
+    interviewCount: counts[0],
+    protocolCount: counts[1],
+    participantCount: counts[2],
+  };
+};
 
 export default function SummaryStatistics() {
-  const { data: protocolCount, isLoading: isProtocolStatsLoading } =
-    api.dashboard.getSummaryStatistics.protocolCount.useQuery();
-
-  const { data: participantCount, isLoading: isParticipantStatsLoading } =
-    api.dashboard.getSummaryStatistics.participantCount.useQuery();
-
-  const { data: interviewCount, isLoading: isInterviewStatsLoading } =
-    api.dashboard.getSummaryStatistics.interviewCount.useQuery();
+  const data = getSummaryStatistics();
 
   return (
     <ResponsiveContainer
@@ -23,34 +32,40 @@ export default function SummaryStatistics() {
       maxWidth="6xl"
     >
       <Link href="/dashboard/protocols">
-        {isProtocolStatsLoading ? (
-          <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
-        ) : (
+        <Suspense
+          fallback={
+            <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
+          }
+        >
           <StatCard
             title="Protocols"
-            value={protocolCount!}
+            dataPromise={data}
+            render="protocolCount"
             icon={<ProtocolIcon />}
           />
-        )}
+        </Suspense>
       </Link>
       <Link href="/dashboard/participants">
-        {isParticipantStatsLoading ? (
-          <StatCardSkeleton
-            title="Participants"
-            icon={
-              <Image
-                src="/images/participant.svg"
-                width={50}
-                height={50}
-                alt="Participant icon"
-                className="max-w-none"
-              />
-            }
-          />
-        ) : (
+        <Suspense
+          fallback={
+            <StatCardSkeleton
+              title="Participants"
+              icon={
+                <Image
+                  src="/images/participant.svg"
+                  width={50}
+                  height={50}
+                  alt="Participant icon"
+                  className="max-w-none"
+                />
+              }
+            />
+          }
+        >
           <StatCard
             title="Participants"
-            value={participantCount!}
+            dataPromise={data}
+            render="participantCount"
             icon={
               <Image
                 src="/images/participant.svg"
@@ -61,18 +76,21 @@ export default function SummaryStatistics() {
               />
             }
           />
-        )}
+        </Suspense>
       </Link>
       <Link href="/dashboard/interviews">
-        {isInterviewStatsLoading ? (
-          <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
-        ) : (
+        <Suspense
+          fallback={
+            <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
+          }
+        >
           <StatCard
             title="Interviews"
-            value={interviewCount!}
+            dataPromise={data}
+            render="interviewCount"
             icon={<InterviewIcon />}
           />
-        )}
+        </Suspense>
       </Link>
     </ResponsiveContainer>
   );

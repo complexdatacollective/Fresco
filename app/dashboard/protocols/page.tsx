@@ -2,15 +2,8 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Section from '~/components/layout/Section';
-import { api } from '~/trpc/server';
 
-export const dynamic = 'force-dynamic';
-
-const ProtocolsPage = async () => {
-  const protocols = await api.protocol.get.all.query();
-  const allowAnonymousRecruitment =
-    await api.appSettings.getAnonymousRecruitmentStatus.query();
-
+const ProtocolsPage = () => {
   return (
     <>
       <ResponsiveContainer>
@@ -21,10 +14,7 @@ const ProtocolsPage = async () => {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ProtocolsTable
-            initialData={protocols}
-            allowAnonymousRecruitment={!!allowAnonymousRecruitment}
-          />
+          <ProtocolsTable />
         </Section>
       </ResponsiveContainer>
     </>

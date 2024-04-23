@@ -3,7 +3,7 @@ import { sessionRouter } from './routers/session';
 import { interviewRouter } from './routers/interview';
 import { protocolRouter } from '~/server/routers/protocol';
 import { participantRouter } from './routers/participant';
-import { router } from './trpc';
+import { createCallerFactory, router } from './trpc';
 import { dashboardRouter } from './routers/dashboard';
 import { assetRouter } from './routers/asset';
 
@@ -18,3 +18,5 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+
+export const createCaller = createCallerFactory(appRouter);

@@ -6,8 +6,7 @@ import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
-
-export const dynamic = 'force-dynamic';
+import { Suspense } from 'react';
 
 function Home() {
   return (
@@ -18,7 +17,9 @@ function Home() {
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
       </ResponsiveContainer>
-      <AnonymousRecruitmentWarning />
+      <Suspense>
+        <AnonymousRecruitmentWarning />
+      </Suspense>
       <SummaryStatistics />
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>
@@ -29,7 +30,9 @@ function Home() {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ActivityFeed />
+          <Suspense>
+            <ActivityFeed />
+          </Suspense>
         </Section>
       </ResponsiveContainer>
     </>

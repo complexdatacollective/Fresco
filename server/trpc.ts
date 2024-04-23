@@ -1,5 +1,5 @@
 import { TRPCError, initTRPC } from '@trpc/server';
-import { createInnerTRPCContext, type createTRPCContext } from './context';
+import { type createTRPCContext } from './context';
 import superjson from 'superjson';
 import { env } from '~/env.mjs';
 import { ZodError } from 'zod';
@@ -52,11 +52,10 @@ const enforceDevEnvironment = t.middleware(({ ctx, next }) => {
  */
 export const createAction = experimental_createServerActionHandler(t, {
   async createContext() {
-    const ctx = createInnerTRPCContext({
+    return {
       session: await getServerSession(),
       headers: headers(),
-    });
-    return ctx;
+    };
   },
 });
 
@@ -66,3 +65,5 @@ export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
 export const devProcedure = t.procedure.use(enforceDevEnvironment);
+
+export const createCallerFactory = t.createCallerFactory;

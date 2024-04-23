@@ -2,14 +2,9 @@ import { ParticipantsTable } from '~/app/dashboard/_components/ParticipantsTable
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { api } from '~/trpc/server';
 import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 
-export const dynamic = 'force-dynamic';
-
-const ParticipantPage = async () => {
-  const participants = await api.participant.get.all.query();
-
+const ParticipantPage = () => {
   return (
     <>
       <ResponsiveContainer>
@@ -21,7 +16,7 @@ const ParticipantPage = async () => {
       <ImportExportSection />
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ParticipantsTable initialData={participants} />
+          <ParticipantsTable />
         </Section>
       </ResponsiveContainer>
     </>

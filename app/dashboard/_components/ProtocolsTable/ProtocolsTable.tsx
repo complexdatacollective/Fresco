@@ -8,21 +8,22 @@ import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/Del
 import { useState } from 'react';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import ProtocolUploader from '../ProtocolUploader';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 
-export const ProtocolsTable = ({
-  initialData,
-  allowAnonymousRecruitment = false,
-}: {
-  initialData: ProtocolWithInterviews[];
-  allowAnonymousRecruitment: boolean;
-}) => {
+export const ProtocolsTable = () => {
   const { data: protocols } = api.protocol.get.all.useQuery(undefined, {
-    initialData,
-    refetchOnMount: false,
     onError(error) {
       throw new Error(error.message);
     },
   });
+
+  const { data: appSettings } = api.appSettings.get.useQuery(undefined, {
+    onError(error) {
+      throw new Error(error.message);
+    },
+  });
+
+  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =
@@ -32,6 +33,10 @@ export const ProtocolsTable = ({
     setProtocolsToDelete(data);
     setShowAlertDialog(true);
   };
+
+  if (!protocols) {
+    return <DataTableSkeleton columnCount={getProtocolColumns().length} />;
+  }
 
   return (
     <>
