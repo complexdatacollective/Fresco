@@ -1,6 +1,5 @@
 import { useCallback, useReducer, useRef } from 'react';
 import { uploadFiles } from '~/lib/uploadthing-helpers';
-import { api } from '~/trpc/client';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
 import { queue } from 'async';
@@ -26,18 +25,18 @@ import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
-  const utils = api.useUtils();
 
-  const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation({
-    async onSuccess() {
-      await utils.protocol.get.all.invalidate();
-    },
-  });
+  const insertProtocol = async (data) => {
+    console.log('insertProtocol', data);
+  };
 
-  const { mutateAsync: getProtocolExists } =
-    api.protocol.get.byHash.useMutation();
+  const getProtocolExists = async (hash) => {
+    console.log('getProtocolsExist', hash);
+  };
 
-  const { mutateAsync: getNewAssetIds } = api.asset.checkExisting.useMutation();
+  const getNewAssetIds = async (assetIds) => {
+    console.log('getNewAssetIds', assetIds);
+  };
 
   /**
    * This is the main job processing function. Takes a file, and handles all

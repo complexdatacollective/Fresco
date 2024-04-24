@@ -1,12 +1,13 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { api } from '~/trpc/server';
+import { prisma } from '~/utils/db';
 
-export async function setAnonymousRecruitment(state: boolean) {
-  const result = await api.appSettings.updateAnonymousRecruitment.mutate(state);
+export async function setAnonymousRecruitment(input: boolean) {
+  await prisma.appSettings.updateMany({
+    data: {
+      allowAnonymousRecruitment: input,
+    },
+  });
 
-  revalidatePath('/dashboard');
-
-  return result;
+  return input;
 }

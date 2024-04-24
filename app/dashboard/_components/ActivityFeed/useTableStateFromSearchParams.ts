@@ -1,18 +1,7 @@
 'use client';
-import {
-  FilterParam,
-  pageSizes,
-  sortOrder,
-  sortableFields,
-} from '~/lib/data-table/types';
-import {
-  parseAsArrayOf,
-  parseAsInteger,
-  parseAsJson,
-  parseAsNumberLiteral,
-  parseAsStringLiteral,
-  useQueryState,
-} from 'nuqs';
+
+import { useQueryState } from 'nuqs';
+import { parsers } from './searchParamsCache';
 
 /**
  * This hook implements the table state items required by the DataTable.
@@ -24,23 +13,17 @@ import {
  *
  */
 export const useTableStateFromSearchParams = () => {
-  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
-  const [perPage, setPerPage] = useQueryState(
-    'per_page',
-    parseAsNumberLiteral(pageSizes).withDefault(10),
-  );
-  const [sort, setSort] = useQueryState(
-    'sort',
-    parseAsStringLiteral(sortOrder).withDefault('desc'),
-  );
+  const [page, setPage] = useQueryState('page', parsers.page);
+  const [perPage, setPerPage] = useQueryState('perPage', parsers.perPage);
+  const [sort, setSort] = useQueryState('sort', parsers.sort);
   const [sortField, setSortField] = useQueryState(
-    'sort_field',
-    parseAsStringLiteral(sortableFields).withDefault('timestamp'),
+    'sortField',
+    parsers.sortField,
   );
 
   const [filterParams, setFilterParams] = useQueryState(
-    'filter_params',
-    parseAsArrayOf(parseAsJson((value) => FilterParam.parse(value))),
+    'filterParams',
+    parsers.filterParams,
   );
 
   return {

@@ -1,25 +1,13 @@
-'use client';
-
+import { logoutAction } from '~/app/_actions';
 import { Button } from '~/components/ui/Button';
-import { api } from '~/trpc/client';
 
 const UserMenu = () => {
-  const utils = api.useUtils();
-  const { mutate: signOut, isLoading } = api.session.signOut.useMutation({
-    onSuccess: async () => {
-      await utils.session.get.invalidate();
-    },
-  });
-
   return (
-    <Button
-      disabled={isLoading}
-      variant="secondary"
-      size="sm"
-      onClick={() => signOut()}
-    >
-      Sign out
-    </Button>
+    <form action={logoutAction}>
+      <Button variant="secondary" size="sm" type="submit">
+        Sign out
+      </Button>
+    </form>
   );
 };
 

@@ -1,9 +1,6 @@
 import { type ReactElement } from 'react';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { TRPCReactProvider } from '~/trpc/client';
 import SessionProvider from '~/providers/SessionProvider';
 import type { Session } from 'lucia';
-import { headers } from 'next/headers';
 
 export default function Providers({
   children,
@@ -13,11 +10,8 @@ export default function Providers({
   initialSession: Session | null;
 }): ReactElement {
   return (
-    <TRPCReactProvider headers={headers()}>
-      <ReactQueryDevtools initialIsOpen={true} />
-      <SessionProvider initialSession={initialSession}>
-        {children}
-      </SessionProvider>
-    </TRPCReactProvider>
+    <SessionProvider initialSession={initialSession}>
+      {children}
+    </SessionProvider>
   );
 }

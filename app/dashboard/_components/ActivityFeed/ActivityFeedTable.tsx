@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useDataTable } from '~/hooks/use-data-table';
 import { DataTable } from '~/components/data-table/data-table';
@@ -10,13 +10,15 @@ import {
   filterableColumns,
 } from './ColumnDefinition';
 import type { Events } from '@prisma/client';
-import { type RouterOutputs } from '~/trpc/shared';
+import { type ActivitiesFeed } from './ActivityFeed';
 
 export default function ActivityFeedTable({
-  tableData,
+  activitiesPromise,
 }: {
-  tableData: RouterOutputs['dashboard']['getActivities'];
+  activitiesPromise: ActivitiesFeed;
 }) {
+  const tableData = use(activitiesPromise);
+
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<Events, unknown>[]>(
     () => fetchActivityFeedTableColumnDefs(),

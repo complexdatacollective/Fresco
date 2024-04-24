@@ -93,3 +93,5 @@ export const SearchParamsSchema = z.object({
   sortField: z.enum(sortableFields),
   filterParams: z.array(FilterParam).nullable(),
 });
+
+export type SearchParams = z.infer<typeof SearchParamsSchema>;

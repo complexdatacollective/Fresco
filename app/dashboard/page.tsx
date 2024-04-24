@@ -2,13 +2,20 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Heading from '~/components/ui/typography/Heading';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
+import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 import { Suspense } from 'react';
+import { searchParamsCache } from './_components/ActivityFeed/searchParamsCache';
 
-function Home() {
+function Home({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  searchParamsCache.parse(searchParams);
+
   return (
     <>
       <ResponsiveContainer>
@@ -30,9 +37,7 @@ function Home() {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <Suspense>
-            <ActivityFeed />
-          </Suspense>
+          <ActivityFeed />
         </Section>
       </ResponsiveContainer>
     </>

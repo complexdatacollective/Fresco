@@ -1,3 +1,5 @@
+'use client';
+
 import { Loader2, AlertCircle, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
@@ -13,7 +15,6 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import type { ProtocolWithInterviews } from '~/shared/types';
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { api } from '~/trpc/client';
 import { useRouter } from 'next/navigation';
 
 type DeleteProtocolsDialogProps = {
@@ -28,6 +29,8 @@ export const DeleteProtocolsDialog = ({
   protocolsToDelete,
 }: DeleteProtocolsDialogProps) => {
   const router = useRouter();
+
+  const isDeleting = false;
 
   const [protocolsInfo, setProtocolsInfo] = useState<{
     hasInterviews: boolean;
@@ -47,31 +50,9 @@ export const DeleteProtocolsDialog = ({
     });
   }, [protocolsToDelete]);
 
-  const utils = api.useUtils();
-
-  const { mutateAsync: deleteProtocols, isLoading: isDeleting } =
-    api.protocol.delete.byHash.useMutation({
-      async onMutate(hashes) {
-        await utils.protocol.get.all.cancel();
-
-        // snapshot current protocols
-        const previousValue = utils.protocol.get.all.getData();
-
-        // Optimistically update to the new value
-        const newValue = previousValue?.filter((p) => !hashes.includes(p.hash));
-
-        utils.protocol.get.all.setData(undefined, newValue);
-
-        return { previousValue };
-      },
-      onSuccess() {
-        router.refresh();
-      },
-      onError(error, hashes, context) {
-        utils.protocol.get.all.setData(undefined, context?.previousValue);
-        throw new Error(error.message);
-      },
-    });
+  const deleteProtocols = async (hashes: string[]) => {
+    console.log('Deleting protocols with hashes:', hashes);
+  };
 
   const handleConfirm = async () => {
     await deleteProtocols(protocolsToDelete.map((d) => d.hash));

@@ -1,5 +1,5 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import { ProtocolsTable } from '../_components/ProtocolsTable/ProtocolsTable';
+import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Section from '~/components/layout/Section';
 

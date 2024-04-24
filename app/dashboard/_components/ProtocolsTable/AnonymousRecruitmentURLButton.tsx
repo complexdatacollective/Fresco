@@ -1,6 +1,5 @@
 'use client';
 
-import { getBaseUrl } from '~/trpc/shared';
 import { useToast } from '~/components/ui/use-toast';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
@@ -11,7 +10,7 @@ export const AnonymousRecruitmentURLButton = ({
   protocolId: string;
 }) => {
   const { toast } = useToast();
-  const url = `${getBaseUrl()}/onboard/${protocolId}`;
+  const url = `http://localhost:3000/onboard/${protocolId}`;
   const handleCopyClick = () => {
     navigator.clipboard
       .writeText(url)

@@ -4,7 +4,6 @@ import type { Session } from 'lucia';
 import { useHydrateAtoms } from 'jotai/utils';
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { api } from '~/trpc/client';
 import { isEqual } from 'lodash';
 import { useRouter } from 'next/navigation';
 
@@ -20,30 +19,11 @@ const HydrationWrapper = ({
   initialSession: Session | null;
 }) => {
   useHydrateAtoms([[sessionAtom, initialSession]]);
-  const router = useRouter();
+  // const router = useRouter();
 
-  const currentSession = useAtomValue(sessionAtom);
-  const setSession = useSetAtom(sessionAtom);
-  const setIsLoading = useSetAtom(isLoadingAtom);
-
-  const { isFetching: isLoading } = api.session.get.useQuery(undefined, {
-    initialData: initialSession,
-    refetchOnMount: false,
-    onSuccess(data) {
-      if (!sessionsAreEqual(data, currentSession)) {
-        setSession(data);
-      }
-
-      // We aren't logged in. Call router refresh to trigger redirect.
-      if (!data) {
-        router.refresh();
-      }
-    },
-  });
-
-  useEffect(() => {
-    setIsLoading(isLoading);
-  }, [isLoading, setIsLoading]);
+  // const currentSession = useAtomValue(sessionAtom);
+  // const setSession = useSetAtom(sessionAtom);
+  // const setIsLoading = useSetAtom(isLoadingAtom);
 
   return null;
 };

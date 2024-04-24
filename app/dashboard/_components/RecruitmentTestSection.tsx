@@ -1,7 +1,6 @@
-'use client';
-
 import type { Participant, Protocol } from '@prisma/client';
 import type { Route } from 'next';
+import { unstable_noStore } from 'next/cache';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Section from '~/components/layout/Section';
@@ -15,46 +14,52 @@ import {
 } from '~/components/ui/select';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { api } from '~/trpc/client';
-import { getBaseUrl } from '~/trpc/shared';
+import { prisma } from '~/utils/db';
 
-const RecruitmentTestSection = () => {
-  const router = useRouter();
+async function getProtocols() {
+  unstable_noStore();
 
-  const { data: protocolData, isLoading: isLoadingProtocols } =
-    api.protocol.get.all.useQuery();
-  const [protocols, setProtocols] = useState<Protocol[]>([]);
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant>();
+  const protocols = await prisma.protocol.findMany();
 
-  const { data: participants, isLoading: isLoadingParticipants } =
-    api.participant.get.all.useQuery();
+  return protocols;
+}
 
-  const { data: allowAnonymousRecruitment } =
-    api.appSettings.getAnonymousRecruitmentStatus.useQuery();
+export default async function RecruitmentTestSection() {
+  const protocols = await getProtocols();
 
-  useEffect(() => {
-    if (protocolData) {
-      setProtocols(protocolData);
-    }
-  }, [protocolData]);
+  // const { data: protocolData, isLoading: isLoadingProtocols } =
+  //   api.protocol.get.all.useQuery();
+  // const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
+  // const [selectedParticipant, setSelectedParticipant] = useState<Participant>();
 
-  useEffect(() => {
-    if (allowAnonymousRecruitment) {
-      setSelectedParticipant(undefined);
-    }
-  }, [allowAnonymousRecruitment]);
+  // const { data: participants, isLoading: isLoadingParticipants } =
+  //   api.participant.get.all.useQuery();
 
-  const buttonDisabled =
-    !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
+  // const { data: allowAnonymousRecruitment } =
+  //   api.appSettings.getAnonymousRecruitmentStatus.useQuery();
 
-  const getInterviewURL = (): Route => {
-    if (!selectedParticipant) {
-      return `/onboard/${selectedProtocol?.id}` as Route;
-    }
+  // useEffect(() => {
+  //   if (protocolData) {
+  //     setProtocols(protocolData);
+  //   }
+  // }, [protocolData]);
 
-    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
-  };
+  // useEffect(() => {
+  //   if (allowAnonymousRecruitment) {
+  //     setSelectedParticipant(undefined);
+  //   }
+  // }, [allowAnonymousRecruitment]);
+
+  // const buttonDisabled =
+  //   !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
+
+  // const getInterviewURL = (): Route => {
+  //   if (!selectedParticipant) {
+  //     return `/onboard/${selectedProtocol?.id}` as Route;
+  //   }
+
+  //   return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
+  // };
 
   return (
     <Section>
@@ -62,15 +67,15 @@ const RecruitmentTestSection = () => {
       <Paragraph>This section allows you to test recruitment.</Paragraph>
       <div className="mt-6 flex gap-4">
         <Select
-          onValueChange={(value) => {
-            const protocol = protocols.find(
-              (protocol) => protocol.id === value,
-            );
+        // onValueChange={(value) => {
+        //   const protocol = protocols.find(
+        //     (protocol) => protocol.id === value,
+        //   );
 
-            setSelectedProtocol(protocol);
-          }}
-          value={selectedProtocol?.id}
-          disabled={isLoadingProtocols}
+        //   setSelectedProtocol(protocol);
+        // }}
+        // value={selectedProtocol?.id}
+        // disabled={isLoadingProtocols}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a Protocol..." />
@@ -84,58 +89,56 @@ const RecruitmentTestSection = () => {
           </SelectContent>
         </Select>
         <Select
-          onValueChange={(value) => {
-            const participant = participants?.find(
-              (participant) => participant.id === value,
-            );
+        // onValueChange={(value) => {
+        //   const participant = participants?.find(
+        //     (participant) => participant.id === value,
+        //   );
 
-            setSelectedParticipant(participant);
-          }}
-          value={selectedParticipant?.id}
-          disabled={isLoadingParticipants}
+        //   setSelectedParticipant(participant);
+        // }}
+        // value={selectedParticipant?.id}
+        // disabled={isLoadingParticipants}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a Participant..." />
           </SelectTrigger>
           <SelectContent>
-            {participants?.map((participant) => (
+            {/* {participants?.map((participant) => (
               <SelectItem key={participant.id} value={participant.id}>
                 {participant.identifier}
               </SelectItem>
-            ))}
+            ))} */}
           </SelectContent>
         </Select>
       </div>
       <div className="mt-6 flex gap-2">
         <Button
-          disabled={buttonDisabled}
-          onClick={() => router.push(getInterviewURL())}
+        // disabled={buttonDisabled}
+        // onClick={() => router.push(getInterviewURL())}
         >
           Start Interview with GET
         </Button>
         <Button
-          disabled={buttonDisabled}
-          onClick={async () =>
-            await fetch(getBaseUrl() + getInterviewURL(), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                participantIdentifier: selectedParticipant?.identifier,
-              }),
-            }).then((response) => {
-              if (response.redirected) {
-                window.location.href = response.url;
-              }
-            })
-          }
+        // disabled={buttonDisabled}
+        // onClick={async () =>
+        //   await fetch(getBaseUrl() + getInterviewURL(), {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //       participantIdentifier: selectedParticipant?.identifier,
+        //     }),
+        //   }).then((response) => {
+        //     if (response.redirected) {
+        //       window.location.href = response.url;
+        //     }
+        //   })
+        // }
         >
           Start Interview with POST
         </Button>
       </div>
     </Section>
   );
-};
-
-export default RecruitmentTestSection;
+}

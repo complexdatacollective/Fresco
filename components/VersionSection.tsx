@@ -1,11 +1,9 @@
-'use client';
-
 import { env } from '~/env.mjs';
 import SettingsSection from './layout/SettingsSection';
 import Paragraph from './ui/typography/Paragraph';
-import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
+import { unstable_noStore } from 'next/cache';
 
 const GithubApiResponseSchema = z.object({
   status: z.string(),
@@ -15,6 +13,8 @@ const GithubApiResponseSchema = z.object({
 
 // Use the github API to compare the current COMMIT_HASH against the head of the repo
 const checkIfUpdateAvailable = async () => {
+  unstable_noStore();
+
   try {
     const res = await fetch(
       `https://api.github.com/repos/complexdatacollective/fresco/compare/${env.COMMIT_HASH}...main`,
@@ -39,25 +39,22 @@ const checkIfUpdateAvailable = async () => {
   }
 };
 
-export default function VersionSection() {
-  const { isLoading, data, isError } = useQuery({
-    queryKey: ['repoData'],
-    queryFn: checkIfUpdateAvailable,
-  });
+export default async function VersionSection() {
+  const data = await checkIfUpdateAvailable();
 
   return (
     <SettingsSection
       heading="App Version"
       controlArea={
         <div className="flex max-w-52 flex-1 flex-col items-center justify-center text-center">
-          {isLoading && (
+          {/* {isLoading && (
             <div className="flex flex-col items-center space-x-2">
               <Loader2 className="h-8 w-8 animate-spin" />
               <Paragraph variant="smallText" margin="none">
                 Checking for updates...
               </Paragraph>
             </div>
-          )}
+          )} */}
           {data?.upToDate === false && (
             <div className="flex flex-col items-center space-x-2">
               <Info className="h-8 w-8 fill-info text-info-foreground" />
@@ -80,7 +77,7 @@ export default function VersionSection() {
               </Paragraph>
             </div>
           )}
-          {isError && (
+          {/* {isError && (
             <div className="flex flex-col items-center space-x-2">
               <XCircle className="h-8 w-8 fill-destructive text-destructive-foreground" />
               <Paragraph
@@ -91,7 +88,7 @@ export default function VersionSection() {
                 There was an error checking for updates.
               </Paragraph>
             </div>
-          )}
+          )} */}
         </div>
       }
     >

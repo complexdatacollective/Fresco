@@ -38,7 +38,11 @@ export default function Settings() {
         </SettingsSection>
         <SettingsSection
           heading="Limit Interviews"
-          controlArea={<LimitInterviewsSwitch />}
+          controlArea={
+            <Suspense fallback="Loading">
+              <LimitInterviewsSwitch />
+            </Suspense>
+          }
         >
           <Paragraph margin="none">
             If this option is enabled, each participant will only be able to
@@ -71,7 +75,9 @@ export default function Settings() {
                 server.
               </Paragraph>
             </SettingsSection>
-            <RecruitmentTestSection />
+            <Suspense fallback="Loading">
+              <RecruitmentTestSection />
+            </Suspense>
           </>
         )}
       </ResponsiveContainer>

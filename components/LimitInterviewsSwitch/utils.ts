@@ -1,9 +1,13 @@
 'use server';
 
-import { api } from '~/trpc/server';
+import { prisma } from '~/utils/db';
 
-export async function setLimitInterviews(state: boolean) {
-  const result = await api.appSettings.updateLimitInterviews.mutate(state);
+export async function setLimitInterviews(input: boolean) {
+  const result = await prisma.appSettings.updateMany({
+    data: {
+      limitInterviews: input,
+    },
+  });
 
   return result;
 }
