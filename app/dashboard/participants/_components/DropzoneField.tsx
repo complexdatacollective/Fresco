@@ -7,7 +7,7 @@ import { Label } from '~/components/ui/Label';
 import { isArray } from 'lodash';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { FileCheck, FileText } from 'lucide-react';
-import { type FormSchema } from '~/shared/schemas/schemas';
+import { type FormSchema } from '~/schemas/participant';
 
 const accept = {
   'text/csv': [],

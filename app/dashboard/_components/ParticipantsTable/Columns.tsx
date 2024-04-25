@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
 // import GenerateParticipationURLButton from './GenerateParticipantURLButton';
-import { type ParticipantWithInterviews } from '~/shared/types';
+import { type ParticipantWithInterviews } from '~/types/types';
 import Image from 'next/image';
 import InfoTooltip from '~/components/InfoTooltip';
 import { InfoIcon } from 'lucide-react';

@@ -16,7 +16,7 @@ import ActionError from '~/components/ActionError';
 import {
   participantIdentifierSchema,
   participantLabelSchema,
-} from '~/shared/schemas/schemas';
+} from '~/schemas/participant';
 import type { Participant } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import InfoTooltip from '~/components/InfoTooltip';

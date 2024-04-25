@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import type { ProtocolWithInterviews } from '~/shared/types';
+import type { ProtocolWithInterviews } from '~/types/types';
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';

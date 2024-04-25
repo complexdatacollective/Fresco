@@ -2,7 +2,7 @@
 
 import { DataTable } from '~/components/DataTable/DataTable';
 import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
-import type { ParticipantWithInterviews } from '~/shared/types';
+import type { ParticipantWithInterviews } from '~/types/types';
 import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { use, useCallback, useMemo, useState } from 'react';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';

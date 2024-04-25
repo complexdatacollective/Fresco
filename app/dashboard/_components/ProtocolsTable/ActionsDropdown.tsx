@@ -11,7 +11,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import type { Row } from '@tanstack/react-table';
 import { useState } from 'react';
-import type { ProtocolWithInterviews } from '~/shared/types';
+import type { ProtocolWithInterviews } from '~/types/types';
 import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 
 export const ActionsDropdown = ({

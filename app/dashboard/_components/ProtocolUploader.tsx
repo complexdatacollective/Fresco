@@ -10,13 +10,18 @@ import usePortal from 'react-useportal';
 import { cn } from '~/utils/shadcn';
 import JobCard from '~/components/ProtocolImport/JobCard';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { insertProtocol } from '~/actions/protocols';
 
 function ProtocolUploader() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { Portal } = usePortal();
 
-  const { importProtocols, jobs, cancelJob, cancelAllJobs } =
-    useProtocolImport();
+  const { importProtocols, jobs, cancelJob, cancelAllJobs } = useProtocolImport(
+    getProtocolByHash,
+    getExistingAssetIds,
+    insertProtocol,
+  );
 
   const { getInputProps, open } = useDropzone({
     // Disable automatic opening of file dialog - we do it manually to allow for

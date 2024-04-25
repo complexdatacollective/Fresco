@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import {
   participantListInputSchema,
   updateSchema,
-} from '~/shared/schemas/schemas';
+} from '~/schemas/participant';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { addEvent } from '~/actions/activityFeed';

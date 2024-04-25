@@ -1,6 +1,5 @@
 import { unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { cache } from 'react';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { prisma } from '~/utils/db';
 

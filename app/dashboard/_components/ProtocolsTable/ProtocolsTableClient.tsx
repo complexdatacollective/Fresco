@@ -5,7 +5,7 @@ import { ActionsDropdown } from './ActionsDropdown';
 import { getProtocolColumns } from './Columns';
 import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { use, useState } from 'react';
-import type { ProtocolWithInterviews } from '~/shared/types';
+import type { ProtocolWithInterviews } from '~/types/types';
 import ProtocolUploader from '../ProtocolUploader';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import { type GetData } from './ProtocolsTable';

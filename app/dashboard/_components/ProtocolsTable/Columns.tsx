@@ -3,7 +3,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '~/components/ui/checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import type { ProtocolWithInterviews } from '~/shared/types';
+import type { ProtocolWithInterviews } from '~/types/types';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import TimeAgo from '~/components/ui/TimeAgo';
 import Image from 'next/image';

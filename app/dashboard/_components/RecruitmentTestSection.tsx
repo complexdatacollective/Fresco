@@ -14,15 +14,7 @@ import {
 } from '~/components/ui/select';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { prisma } from '~/utils/db';
-
-async function getProtocols() {
-  unstable_noStore();
-
-  const protocols = await prisma.protocol.findMany();
-
-  return protocols;
-}
+import { getProtocols } from '~/queries/protocols';
 
 export default async function RecruitmentTestSection() {
   const protocols = await getProtocols();

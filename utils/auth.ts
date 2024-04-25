@@ -7,6 +7,7 @@ import { cache } from 'react';
 import { createRouteWithSearchParams } from './calculateRedirectedRoutes';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import 'server-only';
 
 const adapter = new PrismaAdapter(client.session, client.user);
 

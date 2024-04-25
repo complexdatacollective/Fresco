@@ -1,6 +1,6 @@
 'use sever';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import type { Activity, ActivityType } from '~/lib/data-table/types';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';

@@ -1,6 +1,6 @@
 import { type Prisma } from '@prisma/client';
 import * as z from 'zod';
-import { numberEnum } from '~/shared/schemas/schemas';
+import { numberEnum } from '~/schemas/participant';
 
 export type Option = {
   label: string;

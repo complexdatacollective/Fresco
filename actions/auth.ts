@@ -7,7 +7,7 @@ import { Argon2id } from 'oslo/password';
 import { getServerSession, lucia } from '~/utils/auth';
 import { redirect } from 'next/navigation';
 import { generateIdFromEntropySize } from 'lucia';
-import { loginSchema } from '../app/(blobs)/(setup)/signin/schemas';
+import { loginSchema } from '~/schemas/auth';
 
 export async function signup(formData: FormData) {
   const username = formData.get('username') as string;
