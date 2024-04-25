@@ -1,6 +1,6 @@
 /* eslint-disable local-rules/require-data-mapper */
 import { prisma } from '~/utils/db';
-import protocol from '~/lib/development-protocol/protocol.json' with { type: 'json' };
+import protocol from '~/lib/development-protocol/protocol.json';
 import mockParticipant from '~/utils/generateMockData/participant';
 import mockInterview from '~/utils/generateMockData/interview/interview';
 import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18

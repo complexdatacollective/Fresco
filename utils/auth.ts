@@ -1,40 +1,76 @@
-import { lucia } from 'lucia';
-import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
+import { Lucia } from 'lucia';
 import { prisma as client } from '~/utils/db';
-import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
-import * as context from 'next/headers';
-import { nextjs_future } from 'lucia/middleware';
+import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
 import { env } from '~/env.mjs';
-import type { User } from '@prisma/client';
 import { cache } from 'react';
 import { createRouteWithSearchParams } from './calculateRedirectedRoutes';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 
-export const auth = lucia({
-  env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
-  middleware: nextjs_future(),
+const adapter = new PrismaAdapter(client.session, client.user);
+
+export const lucia = new Lucia(adapter, {
   sessionCookie: {
+    name: 'fresco-session',
+    // this sets cookies with super long expiration
+    // since Next.js doesn't allow Lucia to extend cookie expiration when rendering pages
     expires: false,
+    attributes: {
+      // set to `true` when using HTTPS
+      secure: env.NODE_ENV === 'production',
+    },
   },
-  getUserAttributes: (data: User) => {
-    return {
-      username: data.username,
-    };
-  },
-  adapter: prismaAdapter(client),
-  // experimental: {
-  //   debugMode: env.NODE_ENV !== 'production',
-  // },
 });
 
-export type Auth = typeof auth;
+declare module 'lucia' {
+  interface Register {
+    Lucia: typeof lucia;
+    // DatabaseSessionAttributes: DatabaseSessionAttributes;
+    DatabaseUserAttributes: DatabaseUserAttributes;
+  }
+}
 
-export const getServerSession = cache(() => {
-  const authRequest = auth.handleRequest('GET', context);
-  return authRequest.validate();
+// interface DatabaseSessionAttributes {}
+interface DatabaseUserAttributes {
+  username: string;
+  hashedPassword: string;
+}
+
+export const getServerSession = cache(async () => {
+  const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+  if (!sessionId) return null;
+  const { user, session } = await lucia.validateSession(sessionId);
+  try {
+    if (session && session.fresh) {
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      cookies().set(
+        sessionCookie.name,
+        sessionCookie.value,
+        sessionCookie.attributes,
+      );
+    }
+    if (!session) {
+      const sessionCookie = lucia.createBlankSessionCookie();
+      cookies().set(
+        sessionCookie.name,
+        sessionCookie.value,
+        sessionCookie.attributes,
+      );
+    }
+  } catch {
+    // Next.js throws error when attempting to set cookies when rendering page
+  }
+  return user;
 });
 
-export async function requireAuth({ redirectPath }: { redirectPath?: string }) {
+export type RequireAuthOptions = {
+  redirectPath?: string;
+};
+
+export async function requirePageAuth(
+  { redirectPath = null } = {} as RequireAuthOptions,
+) {
   const session = await getServerSession();
 
   if (!session) {
@@ -49,5 +85,15 @@ export async function requireAuth({ redirectPath }: { redirectPath?: string }) {
 
     redirect(redirectRoute);
   }
+  return session;
+}
+
+export async function requireApiAuth() {
+  const session = await getServerSession();
+
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+
   return session;
 }

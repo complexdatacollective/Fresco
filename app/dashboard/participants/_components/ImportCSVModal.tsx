@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { api } from '~/trpc/client';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -20,6 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { useForm } from 'react-hook-form';
 import DropzoneField from './DropzoneField';
 import { FormSchema } from '~/shared/schemas/schemas';
+import { importParticipants } from '../_actions';
 
 const ImportCSVModal = ({
   onImportComplete,
@@ -33,19 +33,6 @@ const ImportCSVModal = ({
   });
 
   const { isSubmitting, isValid } = formState;
-  const utils = api.useUtils();
-
-  const {
-    mutateAsync: importParticipants,
-  } = // TODO: think about optimistic updates
-    api.participant.create.useMutation({
-      onError(error) {
-        throw new Error(error.message);
-      },
-      async onSuccess() {
-        await utils.participant.get.all.invalidate();
-      },
-    });
 
   const [showImportDialog, setShowImportDialog] = useState(false);
 

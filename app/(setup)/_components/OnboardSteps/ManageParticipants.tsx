@@ -3,13 +3,13 @@
 import { Check } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
-import { useOnboardingContext } from '../OnboardingProvider';
 import { useState } from 'react';
 import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 // const SettingsSection = ({
 //   title,
@@ -31,7 +31,10 @@ import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 
 function ManageParticipants() {
   const [participantsUploaded, setParticipantsUploaded] = useState(false);
-  const { currentStep, setCurrentStep } = useOnboardingContext();
+  const [currentStep, setCurrentStep] = useQueryState(
+    'step',
+    parseAsInteger.withDefault(1),
+  );
 
   const handleParticipantsUploaded = () => {
     setParticipantsUploaded(true);
@@ -79,7 +82,8 @@ function ManageParticipants() {
           controlArea={<LimitInterviewsSwitch />}
         >
           <Paragraph>
-            Limit each participant to being allowed to complete one interview per protocol.
+            Limit each participant to being allowed to complete one interview
+            per protocol.
           </Paragraph>
         </SettingsSection>
       </div>

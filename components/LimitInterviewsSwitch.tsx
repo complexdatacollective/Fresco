@@ -1,8 +1,6 @@
 'use client';
 
-import { api } from '~/trpc/client';
 import { Switch } from './ui/switch';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
 const LimitInterviewsSwitch = () => {
   const { data: appSettings, isLoading } = api.appSettings.get.useQuery(
@@ -32,7 +30,6 @@ const LimitInterviewsSwitch = () => {
       },
       onSettled: () => {
         void utils.appSettings.get.invalidate();
-        void clientRevalidateTag('appSettings.get');
       },
       onError: (_error, _limitInterviews, context) => {
         utils.appSettings.get.setData(undefined, context?.appSettingsGetAll);

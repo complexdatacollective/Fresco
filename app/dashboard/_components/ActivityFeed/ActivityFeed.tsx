@@ -1,7 +1,7 @@
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import ActivityFeedTable from './ActivityFeedTable';
 import { unstable_noStore } from 'next/cache';
-import { SearchParams, SearchParamsSchema } from '~/lib/data-table/types';
+import { type SearchParams } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
 import { Suspense } from 'react';
 import { searchParamsCache } from './searchParamsCache';
@@ -11,8 +11,6 @@ async function getActivities(rawSearchParams: unknown) {
 
   // const searchParams = SearchParamsSchema.parse(rawSearchParams);
   const searchParams = rawSearchParams as SearchParams;
-
-  console.log(searchParams);
 
   const { page, perPage, sort, sortField, filterParams } = searchParams;
 

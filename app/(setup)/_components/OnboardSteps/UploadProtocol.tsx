@@ -1,12 +1,15 @@
 'use client';
+import { parseAsInteger, useQueryState } from 'nuqs';
 import ProtocolUploader from '~/app/dashboard/_components/ProtocolUploader';
 import { Button } from '~/components/ui/Button';
-import { useOnboardingContext } from '../OnboardingProvider';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 
 function ConfigureStudy() {
-  const { currentStep, setCurrentStep } = useOnboardingContext();
+  const [currentStep, setCurrentStep] = useQueryState(
+    'step',
+    parseAsInteger.withDefault(1),
+  );
 
   const handleNextStep = () => {
     void setCurrentStep(currentStep + 1);

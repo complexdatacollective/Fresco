@@ -1,101 +1,70 @@
-'use client';
-
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { userSignInFormSchema } from './schemas';
-import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { api } from '~/trpc/client';
-import ActionError from '../../../components/ActionError';
-import useZodForm from '~/hooks/useZodForm';
-import { useRouter } from 'next/navigation';
+import { getServerSession } from '~/utils/auth';
+import { redirect } from 'next/navigation';
+import { z } from 'zod';
+import { login } from './actions';
 
-type ResponseError = {
-  title: string;
-  description: string;
-};
+export const loginSchema = z.object({
+  // The preprocess step is required for zod to perform the required check properly
+  // as the value of an empty input is usually an empty string
+  username: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string({ required_error: 'Username is required' }),
+  ),
+  password: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string({ required_error: 'Password is required' }),
+  ),
+});
 
-export default function SignInForm() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+export default async function SignInForm() {
+  const session = await getServerSession();
 
-  const [responseError, setResponseError] = useState<ResponseError | null>(
-    null,
-  );
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useZodForm({
-    schema: userSignInFormSchema,
-  });
-
-  const { mutateAsync: signIn } = api.session.signIn.useMutation({
-    onMutate: () => setLoading(true),
-    onSuccess: (result) => {
-      if (result.error ?? !result.session) {
-        setLoading(false); // Only reset loading state on error, otherwise we are signing in...
-        setResponseError({
-          title: 'Sign in failed',
-          description: result.error,
-        });
-      }
-
-      router.refresh();
-    },
-    onError: (error) => {
-      setLoading(false);
-      throw new Error(error.message);
-    },
-  });
-
-  const onSubmit = async (data: unknown) => {
-    const payload = userSignInFormSchema.parse(data);
-    await signIn(payload);
-  };
+  if (session) {
+    redirect('/dashboard');
+  }
 
   return (
-    <form
-      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
-      className="flex w-full flex-col"
-    >
-      {responseError && (
+    <form action={login} className="flex w-full flex-col">
+      {/* {responseError && (
         <div className="mb-6 flex flex-wrap">
           <ActionError
             errorTitle={responseError.title}
             errorDescription={responseError.description}
           />
         </div>
-      )}
+      )} */}
       <div className="mb-6 flex flex-wrap">
         <Input
           label="Username"
+          name="username"
           autoComplete="username"
-          error={errors.username?.message}
+          // error={errors.username?.message}
           className="w-full"
-          {...register('username')}
+          // {...register('username')}
         />
       </div>
       <div className="mb-6 flex flex-wrap">
         <Input
           type="password"
           label="Password"
+          name="password"
           autoComplete="current-password"
           className="w-full"
-          error={errors.password?.message}
-          {...register('password')}
+          // error={errors.password?.message}
+          // {...register('password')}
         />
       </div>
       <div className="flex flex-wrap">
-        {loading ? (
-          <Button disabled>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Signing in...
-          </Button>
-        ) : (
-          <Button type="submit">Sign in</Button>
-        )}
+        {/* {loading ? ( */}
+        {/* <Button disabled>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Signing in...
+        </Button> */}
+        {/* ) : ( */}
+        <Button type="submit">Sign in</Button>
+        {/* )} */}
       </div>
     </form>
   );

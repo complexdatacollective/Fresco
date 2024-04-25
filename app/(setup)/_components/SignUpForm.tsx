@@ -4,45 +4,28 @@ import { Button } from '~/components/ui/Button';
 import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
 import { userCreateFormSchema } from './schemas';
-import { Loader2, XCircle } from 'lucide-react';
-import { api } from '~/trpc/client';
-import { type z } from 'zod';
-import { useToast } from '~/components/ui/use-toast';
-import { useOnboardingContext } from './OnboardingProvider';
+import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { sessionAtom } from '~/providers/SessionProvider';
+import { signup } from './actions';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 export const SignUpForm = () => {
   const {
     register,
-    handleSubmit,
     formState: { errors, isValid },
   } = useZodForm({
     schema: userCreateFormSchema,
     mode: 'all',
   });
 
-  const { toast } = useToast();
   const session = useAtomValue(sessionAtom);
 
-  const { mutateAsync: signUp, isLoading } = api.session.signUp.useMutation({
-    onSuccess: (result) => {
-      if (result.error) {
-        const error = result.error;
-        toast({
-          title: 'Error',
-          description: error,
-          icon: <XCircle />,
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      void setCurrentStep(2);
-    },
-  });
-  const { currentStep, setCurrentStep } = useOnboardingContext();
+  const [currentStep, setCurrentStep] = useQueryState(
+    'step',
+    parseAsInteger.withDefault(1),
+  );
   // If we are logged in, skip this step.
   useEffect(() => {
     if (session) {
@@ -50,14 +33,10 @@ export const SignUpForm = () => {
     }
   }, [session, setCurrentStep, currentStep]);
 
-  const onSubmit = async (data: z.infer<typeof userCreateFormSchema>) => {
-    await signUp(data);
-  };
-
   return (
     <form
       className="flex flex-col"
-      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+      action={signup}
       autoComplete="do-not-autofill"
     >
       <div className="mb-6 flex flex-wrap">
@@ -83,16 +62,16 @@ export const SignUpForm = () => {
         />
       </div>
       <div className="flex flex-wrap">
-        {isLoading ? (
+        {/* {isLoading ? (
           <Button disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Creating account...
           </Button>
-        ) : (
-          <Button type="submit" disabled={!isValid}>
-            Create account
-          </Button>
-        )}
+        ) : ( */}
+        <Button type="submit" disabled={!isValid}>
+          Create account
+        </Button>
+        {/* )} */}
       </div>
     </form>
   );

@@ -1,15 +1,14 @@
 'use client';
 
+import { type Participant } from '@prisma/client';
 import { Check, FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import { api } from '~/trpc/client';
 
-function ExportParticipants() {
-  const { data: participants, isLoading } = api.participant.get.all.useQuery();
+function ExportParticipants({ participants }: { participants: Participant[] }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
@@ -54,7 +53,7 @@ function ExportParticipants() {
 
   return (
     <Button
-      disabled={isExporting || isLoading || participants?.length === 0}
+      disabled={participants?.length === 0}
       onClick={handleExport}
       className="w-full"
     >

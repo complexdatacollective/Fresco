@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
-import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
+// import GenerateParticipationURLButton from './GenerateParticipantURLButton';
 import { type ParticipantWithInterviews } from '~/shared/types';
 import Image from 'next/image';
 import InfoTooltip from '~/components/InfoTooltip';
@@ -83,7 +83,8 @@ export function getParticipantColumns(): ColumnDef<
         ).length;
         return (
           <span>
-            {row.original._count.interviews} ({completedInterviews} completed)
+            {row.original._count.interviews ?? ''} ({completedInterviews}{' '}
+            completed)
           </span>
         );
       },
@@ -119,9 +120,9 @@ export function getParticipantColumns(): ColumnDef<
           />
         );
       },
-      cell: ({ row }) => {
-        return <GenerateParticipationURLButton participant={row.original} />;
-      },
+      // cell: ({ row }) => {
+      //   return <GenerateParticipationURLButton participant={row.original} />;
+      // },
     },
   ];
 }

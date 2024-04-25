@@ -2,8 +2,8 @@
 
 import { Check } from 'lucide-react';
 import { cn } from '~/utils/shadcn';
-import { useOnboardingContext } from './OnboardingProvider';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 const stepLabels = [
   'Create Account',
@@ -13,7 +13,10 @@ const stepLabels = [
 ];
 
 function OnboardSteps() {
-  const { currentStep, setCurrentStep } = useOnboardingContext();
+  const [currentStep, setCurrentStep] = useQueryState(
+    'step',
+    parseAsInteger.withDefault(1),
+  );
 
   return (
     <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">

@@ -1,48 +1,16 @@
-'use client';
-
-import { api } from '~/trpc/client';
+import { prisma } from '~/utils/db';
 import { Switch } from './ui/switch';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
 
-const RecruitmentSwitch = () => {
-  const { data: appSettings, isLoading } = api.appSettings.get.useQuery(
-    undefined,
-    {},
-  );
+const RecruitmentSwitch = async () => {
+  const appSettings = await prisma.appSettings.findFirst();
 
-  const utils = api.useUtils();
-
-  const { mutate: updateAnonymousRecruitment } =
-    api.appSettings.updateAnonymousRecruitment.useMutation({
-      onMutate: async (allowAnonymousRecruitment: boolean) => {
-        await utils.appSettings.get.cancel();
-
-        const appSettingsGetAll = utils.appSettings.get.getData();
-
-        if (!appSettingsGetAll) {
-          return;
-        }
-
-        utils.appSettings.get.setData(undefined, {
-          ...appSettingsGetAll,
-          allowAnonymousRecruitment,
-        });
-
-        return { appSettingsGetAll };
-      },
-      onSettled: () => {
-        void utils.appSettings.get.invalidate();
-        void clientRevalidateTag('appSettings.get');
-      },
-      onError: (_error, _allowAnonymousRecruitment, context) => {
-        utils.appSettings.get.setData(undefined, context?.appSettingsGetAll);
-      },
-    });
+  const updateAnonymousRecruitment = (value: boolean) => {
+    console.log('update anon recriot', value);
+  };
 
   return (
     <Switch
       name="allowAnonymousRecruitment"
-      disabled={isLoading}
       checked={appSettings?.allowAnonymousRecruitment}
       onCheckedChange={(value) => {
         updateAnonymousRecruitment(value);

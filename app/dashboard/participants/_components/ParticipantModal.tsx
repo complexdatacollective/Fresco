@@ -13,7 +13,6 @@ import {
 } from '~/components/ui/dialog';
 import useZodForm from '~/hooks/useZodForm';
 import ActionError from '~/components/ActionError';
-import { api } from '~/trpc/client';
 import {
   participantIdentifierSchema,
   participantLabelSchema,
@@ -21,10 +20,11 @@ import {
 import type { Participant } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import InfoTooltip from '~/components/InfoTooltip';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Loader2 } from 'lucide-react';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { createId } from '@paralleldrive/cuid2';
+import { createParticipant, updateParticipant } from '../_actions';
 
 type ParticipantModalProps = {
   open: boolean;
@@ -42,7 +42,9 @@ function ParticipantModal({
   existingParticipants,
 }: ParticipantModalProps) {
   const [error, setError] = useState<string | null>(null);
-  const utils = api.useUtils();
+  const [working, setWorking] = useState(false);
+
+  const router = useRouter();
 
   const formSchema = z
     .object({
@@ -60,86 +62,6 @@ function ParticipantModal({
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
-  const { mutateAsync: updateParticipant } = api.participant.update.useMutation(
-    {
-      async onMutate({ identifier, data }) {
-        await utils.participant.get.all.cancel();
-
-        // snapshot current participants
-        const previousValue = utils.participant.get.all.getData();
-
-        // Optimistically update to the new value
-        const newValue = previousValue?.map((p) =>
-          p.identifier === identifier ? { ...p, ...data } : p,
-        );
-
-        utils.participant.get.all.setData(undefined, newValue);
-
-        setOpen(false);
-
-        return { previousValue };
-      },
-      onSuccess() {
-        router.refresh();
-      },
-      onError(error, _, context) {
-        utils.participant.get.all.setData(undefined, context?.previousValue);
-        setError(error.message);
-      },
-      async onSettled() {
-        await utils.participant.get.all.invalidate();
-      },
-    },
-  );
-
-  const router = useRouter();
-
-  const { mutateAsync: createParticipant } = api.participant.create.useMutation(
-    {
-      async onMutate(participantsData) {
-        const participants = participantsData.map((p) => ({
-          ...p,
-          label: p.label ?? null,
-        }));
-        await utils.participant.get.all.cancel();
-
-        // snapshot current participants
-        const previousValue = utils.participant.get.all.getData();
-
-        const newParticipants = participants.map((p, index) => ({
-          id: `optimistic-${index}`,
-          identifier: p.identifier ?? createId(),
-          label: p.label,
-          interviews: [],
-          _count: {
-            interviews: 0,
-          },
-        }));
-
-        const newValue = previousValue
-          ? [...newParticipants, ...previousValue]
-          : newParticipants;
-
-        // Optimistically update to the new value
-        utils.participant.get.all.setData(undefined, newValue);
-
-        setOpen(false);
-        reset();
-        return { previousValue };
-      },
-      onError(error, _, context) {
-        utils.participant.get.all.setData(undefined, context?.previousValue);
-        setError(error.message);
-      },
-      async onSettled() {
-        await utils.participant.get.all.invalidate();
-      },
-      onSuccess() {
-        router.refresh();
-      },
-    },
-  );
-
   const {
     register,
     handleSubmit,
@@ -153,6 +75,7 @@ function ParticipantModal({
 
   const onSubmit = async (data: ValidationSchema) => {
     setError(null);
+    setWorking(true);
 
     if (editingParticipant) {
       await updateParticipant({
@@ -162,8 +85,17 @@ function ParticipantModal({
     }
 
     if (!editingParticipant) {
-      await createParticipant([data]);
+      const result = await createParticipant([data]);
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        router.refresh();
+        setOpen(false);
+      }
     }
+
+    setWorking(false);
   };
 
   useEffect(() => {
@@ -262,7 +194,8 @@ function ParticipantModal({
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
-          <Button form="participant-form" type="submit">
+          <Button form="participant-form" type="submit" disabled={working}>
+            {working && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {editingParticipant ? 'Update' : 'Submit'}
           </Button>
         </DialogFooter>

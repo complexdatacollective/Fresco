@@ -1,20 +1,21 @@
 'use client';
 
+import type { Protocol } from '@prisma/client';
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import { type RouterOutputs, getBaseUrl } from '~/trpc/shared';
+import { type getParticipants } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
 
 function ExportCSVParticipantURLs({
-  participants,
   protocol,
+  participants,
   disabled,
 }: {
-  participants: RouterOutputs['participant']['get']['all'];
-  protocol: RouterOutputs['protocol']['get']['all'][0];
+  protocol: Protocol;
+  participants: Awaited<ReturnType<typeof getParticipants>>;
   disabled: boolean;
 }) {
   const download = useDownload();
@@ -31,9 +32,7 @@ function ExportCSVParticipantURLs({
       const csvData = participants.map((participant) => ({
         id: participant.id,
         identifier: participant.identifier,
-        interview_url: `${getBaseUrl()}/onboard/${protocol.id}/?participantId=${
-          participant.id
-        }`,
+        interview_url: `/onboard/${protocol.id}/?participantId=${participant.id}`,
       }));
 
       const csv = unparse(csvData, { header: true });

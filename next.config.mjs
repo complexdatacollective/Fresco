@@ -29,6 +29,9 @@ const config = {
       },
     });
 
+    // add the node-rs externals to the webpack config so they arent bundled: https://lucia-auth.com/getting-started/nextjs-app
+    config.externals.push("@node-rs/argon2", "@node-rs/bcrypt");
+
     return config;
   },
   env: {
