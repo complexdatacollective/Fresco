@@ -8,14 +8,12 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
-import { exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import { useDownload } from '~/hooks/useDownload';
 import {
   ExportOptionsSchema,
   defaultExportOptions,
 } from '~/lib/network-exporters/utils/exportOptionsSchema';
-import { type RouterOutputs } from '~/trpc/shared';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Loader2, XCircle } from 'lucide-react';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
@@ -24,6 +22,8 @@ import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
 import { deleteZipFromUploadThing } from '~/app/dashboard/interviews/_actions/deleteZipFromUploadThing';
+import { exportInterviews } from '~/actions/interviews';
+import { Interview } from '@prisma/client';
 
 const ExportingStateAnimation = () => {
   return (
@@ -50,7 +50,7 @@ export const ExportInterviewsDialog = ({
 }: {
   open: boolean;
   handleCancel: () => void;
-  interviewsToExport: RouterOutputs['interview']['get']['all'];
+  interviewsToExport: Interview[];
 }) => {
   const download = useDownload();
   const { toast } = useToast();
@@ -68,7 +68,7 @@ export const ExportInterviewsDialog = ({
     try {
       const interviewIds = interviewsToExport.map((interview) => interview.id);
 
-      const result = await exportSessions(interviewIds, exportOptions);
+      const result = await exportInterviews(interviewIds, exportOptions);
 
       if (result.error || !result.data) {
         const e = ensureError(result.error);

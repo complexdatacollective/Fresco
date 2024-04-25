@@ -16,9 +16,7 @@ const InterviewPage = () => {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="7xl">
         <Section>
-          <Suspense fallback={<DataTableSkeleton columnCount={10} />}>
-            <InterviewsTableServer />
-          </Suspense>
+          <InterviewsTableServer />
         </Section>
       </ResponsiveContainer>
     </>

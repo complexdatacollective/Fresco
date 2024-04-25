@@ -16,3 +16,27 @@ const participantWithInterviews =
 export type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
   typeof participantWithInterviews
 >;
+
+export type UploadData = {
+  key: string;
+  url: string;
+  name: string;
+  size: number;
+};
+
+export type UpdateItems = {
+  statusText: string;
+  progress: number;
+};
+
+export type FailResult = {
+  data: null;
+  error: unknown;
+  message: string;
+};
+
+export type SuccessResult = {
+  data: UploadData;
+  error: null;
+  message: string;
+};

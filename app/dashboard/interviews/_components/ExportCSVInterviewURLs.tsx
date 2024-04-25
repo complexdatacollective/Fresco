@@ -6,15 +6,16 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import { type RouterOutputs, getBaseUrl } from '~/trpc/shared';
+import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 function ExportCSVInterviewURLs({
   protocol,
   interviews,
   disabled,
 }: {
-  protocol: RouterOutputs['protocol']['get']['all'][0];
-  interviews: RouterOutputs['interview']['get']['all'];
+  protocol: GetProtocolsReturnType;
+  interviews: Awaited<GetInterviewsReturnType>;
   disabled: boolean;
 }) {
   const download = useDownload();

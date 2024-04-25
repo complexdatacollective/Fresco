@@ -1,21 +1,16 @@
 import { InterviewsTable } from './InterviewsTable';
-import { unstable_noStore } from 'next/cache';
-import { prisma } from '~/utils/db';
+import { Suspense } from 'react';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { getInterviews } from '~/queries/interviews';
 
-async function getInterviews() {
-  unstable_noStore();
+export default function InterviewsTableServer() {
+  const interviewsPromise = getInterviews();
 
-  const interviews = await prisma.interview.findMany({
-    include: {
-      protocol: true,
-      participant: true,
-    },
-  });
-  return interviews;
-}
-
-export default async function InterviewsTableServer() {
-  const initialInterviews = await getInterviews();
-
-  return <InterviewsTable initialInterviews={initialInterviews} />;
+  return (
+    <Suspense
+      fallback={<DataTableSkeleton columnCount={5} filterableColumnCount={3} />}
+    >
+      <InterviewsTable interviewsPromise={interviewsPromise} />
+    </Suspense>
+  );
 }

@@ -1,4 +1,4 @@
-import { Loader2, AlertCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
   AlertDialog,
@@ -10,9 +10,9 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { api } from '~/trpc/client';
 import type { Interview } from '@prisma/client';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { deleteInterviews } from '~/actions/interviews';
 
 type DeleteInterviewsDialog = {
   open: boolean;
@@ -26,13 +26,6 @@ export const DeleteInterviewsDialog = ({
   interviewsToDelete,
 }: DeleteInterviewsDialog) => {
   const [hasUnexported, setHasUnexported] = useState<boolean>(false);
-  const { mutateAsync: deleteInterviews, isLoading: isDeleting } =
-    api.interview.delete.useMutation({
-      onError(error) {
-        throw new Error(error.message);
-      },
-    });
-  const utils = api.useUtils();
 
   useEffect(() => {
     setHasUnexported(
@@ -42,7 +35,6 @@ export const DeleteInterviewsDialog = ({
 
   const handleConfirm = async () => {
     await deleteInterviews(interviewsToDelete.map((d) => ({ id: d.id })));
-    await utils.interview.get.all.refetch();
     setHasUnexported(false);
 
     setOpen(false);
@@ -90,13 +82,12 @@ export const DeleteInterviewsDialog = ({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
+          <AlertDialogCancel onClick={handleCancelDialog}>
             Cancel
           </AlertDialogCancel>
           <Button onClick={() => void handleConfirm()} variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
-            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+            Delete
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

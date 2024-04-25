@@ -1,39 +1,31 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { Button } from '~/components/ui/Button';
-import { api } from '~/trpc/client';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
-import type { RouterOutputs } from '~/trpc/shared';
 import { HardDriveUpload } from 'lucide-react';
-import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/ExportInterviewUrlSection';
+import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/GenerateInterviewURLs';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-
-type Interviews = RouterOutputs['interview']['get']['all'];
+import type { GetInterviewsReturnType } from '~/queries/interviews';
 
 export const InterviewsTable = ({
-  initialInterviews,
+  interviewsPromise,
 }: {
-  initialInterviews: Interviews;
+  interviewsPromise: GetInterviewsReturnType;
 }) => {
-  const { data: interviews } = api.interview.get.all.useQuery(undefined, {
-    initialData: initialInterviews,
-    refetchOnMount: false,
-    onError(error) {
-      throw new Error(error.message);
-    },
-  });
+  const interviews = use(interviewsPromise);
 
-  const [selectedInterviews, setSelectedInterviews] = useState<Interviews>();
+  const [selectedInterviews, setSelectedInterviews] =
+    useState<typeof interviews>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
 
@@ -42,7 +34,7 @@ export const InterviewsTable = ({
     [interviews],
   );
 
-  const handleDelete = (data: Interviews) => {
+  const handleDelete = (data: typeof interviews) => {
     setSelectedInterviews(data);
     setShowDeleteModal(true);
   };
@@ -106,7 +98,7 @@ export const InterviewsTable = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <GenerateInterviewURLs />
+            <GenerateInterviewURLs interviews={interviews} />
           </>
         }
       />
