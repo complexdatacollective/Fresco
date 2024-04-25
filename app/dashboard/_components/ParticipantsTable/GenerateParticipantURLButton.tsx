@@ -1,5 +1,7 @@
+'use client';
+
 import type { Participant, Protocol } from '@prisma/client';
-import { useState, useEffect, useRef, Suspense, use } from 'react';
+import { useState, useRef } from 'react';
 import {
   Select,
   SelectContent,
@@ -14,40 +16,17 @@ import { Popover, PopoverContent } from '~/components/ui/popover';
 import { PopoverTrigger } from '@radix-ui/react-popover';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { Check, Copy } from 'lucide-react';
-import { prisma } from '~/utils/db';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
+import getBaseUrl from '~/utils/getBaseUrl';
 
-async function getProtocolData() {
-  const protocolData = await prisma.protocol.findMany();
-  return protocolData;
-}
-
-export default function GenerateParticipantURLButton({
+export const GenerateParticipationURLButton = ({
   participant,
+  protocols,
 }: {
   participant: Participant;
-}) {
-  const protocolPromise = getProtocolData();
-
-  return (
-    <Suspense fallback="loading...">
-      <GenerateParticipationURLButtonClient
-        participant={participant}
-        protocolPromise={protocolPromise}
-      />
-    </Suspense>
-  );
-}
-
-export const GenerateParticipationURLButtonClient = ({
-  participant,
-  protocolPromise,
-}: {
-  participant: Participant;
-  protocolPromise: ReturnType<typeof getProtocolData>;
+  protocols: Awaited<GetProtocolsReturnType>;
 }) => {
-  const protocols = use(protocolPromise);
-
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
+  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>();
 
   const { toast } = useToast();
 
@@ -95,10 +74,12 @@ export const GenerateParticipationURLButtonClient = ({
 
             setSelectedProtocol(protocol);
             handleCopy(
-              `/onboard/${protocol?.id}/?participantIdentifier=${participant.identifier}`,
+              `${getBaseUrl()}/onboard/${protocol?.id}/?participantIdentifier=${participant.identifier}`,
             );
 
             ref.current?.click();
+
+            setSelectedProtocol(null);
           }}
           value={selectedProtocol?.id}
         >

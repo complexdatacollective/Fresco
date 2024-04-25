@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import {
   Select,
   SelectContent,
@@ -22,14 +22,16 @@ import {
 import { FileUp } from 'lucide-react';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 import type { Interview, Protocol } from '@prisma/client';
-import { getProtocols } from '~/queries/protocols';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 export const GenerateInterviewURLs = ({
   interviews,
+  protocolsPromise,
 }: {
   interviews: Awaited<GetInterviewsReturnType>;
+  protocolsPromise: GetProtocolsReturnType;
 }) => {
-  const protocols = use(getProtocols());
+  const protocols = use(protocolsPromise);
 
   const [interviewsToExport, setInterviewsToExport] = useState<Interview[]>([]);
 

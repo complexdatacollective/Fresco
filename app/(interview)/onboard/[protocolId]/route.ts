@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { trackEvent } from '~/analytics/utils';
-import { api } from '~/trpc/server';
 import { cookies } from 'next/headers';
+import { createInterview } from '~/actions/interviews';
+import { getLimitInterviewsStatus } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +17,12 @@ const handler = async (
     return NextResponse.redirect('/onboard/error');
   }
 
-  const appSettings = await api.appSettings.get.query();
+  const limitInterviews = await getLimitInterviewsStatus();
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (appSettings?.limitInterviews && cookies().get(protocolId)) {
+  if (limitInterviews && cookies().get(protocolId)) {
     return NextResponse.redirect('/interview/finished');
   }
 
@@ -41,7 +42,7 @@ const handler = async (
   }
 
   // Create a new interview given the protocolId and participantId
-  const { createdInterviewId, error } = await api.interview.create.mutate({
+  const { createdInterviewId, error } = await createInterview({
     participantIdentifier,
     protocolId,
   });

@@ -6,13 +6,13 @@ import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Progress } from '~/components/ui/progress';
 import type { Stage } from '@codaco/shared-consts';
 import { Badge } from '~/components/ui/badge';
-import type { RouterOutputs } from '~/trpc/shared';
 import TimeAgo from '~/components/ui/TimeAgo';
 import Image from 'next/image';
+import type { GetInterviewsReturnType } from '~/queries/interviews';
 
-type Interviews = RouterOutputs['interview']['get']['all'][0];
-
-export const InterviewColumns = (): ColumnDef<Interviews>[] => [
+export const InterviewColumns = (): ColumnDef<
+  Awaited<GetInterviewsReturnType>
+>[] => [
   {
     id: 'select',
     header: ({ table }) => (

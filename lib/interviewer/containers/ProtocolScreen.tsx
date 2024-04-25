@@ -12,7 +12,6 @@ import {
   makeGetFakeSessionProgress,
 } from '../selectors/session';
 import Stage from './Stage';
-import { sessionAtom } from '~/providers/SessionProvider';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -64,7 +63,6 @@ export default function ProtocolScreen() {
 
   // State
   const [, setQueryStep] = useQueryState('step', parseAsInteger.withDefault(0));
-  const session = useAtomValue(sessionAtom);
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
   const makeFakeSessionProgress = useSelector(makeGetFakeSessionProgress);
 
@@ -232,7 +230,7 @@ export default function ProtocolScreen() {
 
   return (
     <>
-      {session && <FeedbackBanner />}
+      {/* {session && <FeedbackBanner />} */}
       <motion.div
         className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
         initial={{ opacity: 0 }}

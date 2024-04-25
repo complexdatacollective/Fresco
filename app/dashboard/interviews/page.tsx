@@ -1,6 +1,4 @@
-import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';

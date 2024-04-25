@@ -15,19 +15,23 @@ import {
 } from '~/actions/participants';
 import AddParticipantButton from '../../participants/_components/AddParticipantButton';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
-import { type getParticipants } from '~/queries/participants';
+import type { GetParticipantsReturnType } from '~/queries/participants';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 export const ParticipantsTableClient = ({
   participantsPromise,
+  protocolsPromise,
 }: {
-  participantsPromise: ReturnType<typeof getParticipants>;
+  participantsPromise: GetParticipantsReturnType;
+  protocolsPromise: GetProtocolsReturnType;
 }) => {
   const participants = use(participantsPromise);
+  const protocols = use(protocolsPromise);
 
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(
-    () => getParticipantColumns(),
-    [],
+    () => getParticipantColumns(protocols),
+    [protocols],
   );
 
   const [participantsToDelete, setParticipantsToDelete] = useState<

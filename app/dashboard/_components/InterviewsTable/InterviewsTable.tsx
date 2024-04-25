@@ -16,11 +16,14 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 export const InterviewsTable = ({
   interviewsPromise,
+  protocolsPromise,
 }: {
   interviewsPromise: GetInterviewsReturnType;
+  protocolsPromise: GetProtocolsReturnType;
 }) => {
   const interviews = use(interviewsPromise);
 
@@ -98,7 +101,10 @@ export const InterviewsTable = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <GenerateInterviewURLs interviews={interviews} />
+            <GenerateInterviewURLs
+              interviews={interviews}
+              protocolsPromise={protocolsPromise}
+            />
           </>
         }
       />

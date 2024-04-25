@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Checkbox } from '~/components/ui/checkbox';
-// import GenerateParticipationURLButton from './GenerateParticipantURLButton';
+import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import { type ParticipantWithInterviews } from '~/types/types';
 import Image from 'next/image';
 import InfoTooltip from '~/components/InfoTooltip';
@@ -10,11 +10,11 @@ import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { buttonVariants } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
 
-export function getParticipantColumns(): ColumnDef<
-  ParticipantWithInterviews,
-  unknown
->[] {
+export function getParticipantColumns(
+  protocols: Awaited<GetProtocolsReturnType>,
+): ColumnDef<ParticipantWithInterviews, unknown>[] {
   return [
     {
       id: 'select',
@@ -120,9 +120,14 @@ export function getParticipantColumns(): ColumnDef<
           />
         );
       },
-      // cell: ({ row }) => {
-      //   return <GenerateParticipationURLButton participant={row.original} />;
-      // },
+      cell: ({ row }) => {
+        return (
+          <GenerateParticipationURLButton
+            participant={row.original}
+            protocols={protocols}
+          />
+        );
+      },
     },
   ];
 }

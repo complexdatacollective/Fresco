@@ -1,13 +1,18 @@
 'use server';
 
-import type { Interview, Protocol } from '@prisma/client';
+import { createId } from '@paralleldrive/cuid2';
+import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { trackEvent } from '~/analytics/utils';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import type { ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { getInterviewsForExport } from '~/queries/interviews';
-import { type DeleteInterviews } from '~/schemas/interviews';
+import type {
+  CreateInterview,
+  DeleteInterviews,
+  SyncInterview,
+} from '~/schemas/interviews';
 import type { FailResult, SuccessResult, UpdateItems } from '~/types/types';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -34,7 +39,7 @@ export async function deleteInterviews(data: DeleteInterviews) {
       },
     });
 
-    revalidateTag('activitesTable');
+    revalidateTag('activityFeed');
     revalidateTag('getInterviews');
 
     return { error: null, interview: deletedInterviews };
@@ -168,3 +173,118 @@ export const exportInterviews = async (
     };
   }
 };
+
+export async function createInterview(data: CreateInterview) {
+  const { participantIdentifier, protocolId } = data;
+
+  /**
+   * If no participant identifier is provided, we check if anonymous recruitment is enabled.
+   * If it is, we create a new participant and use that identifier.
+   */
+  const participantStatement = participantIdentifier
+    ? {
+        connect: {
+          identifier: participantIdentifier,
+        },
+      }
+    : {
+        create: {
+          identifier: `p-${createId()}`,
+          label: 'Anonymous Participant',
+        },
+      };
+
+  try {
+    if (!participantIdentifier) {
+      const appSettings = await prisma.appSettings.findFirst();
+      if (!appSettings || !appSettings.allowAnonymousRecruitment) {
+        return {
+          errorType: 'no-anonymous-recruitment',
+          error: 'Anonymous recruitment is not enabled',
+          createdInterviewId: null,
+        };
+      }
+    }
+
+    const createdInterview = await prisma.interview.create({
+      select: {
+        participant: true,
+        id: true,
+      },
+      data: {
+        network: Prisma.JsonNull,
+        participant: participantStatement,
+        protocol: {
+          connect: {
+            id: protocolId,
+          },
+        },
+      },
+    });
+
+    await prisma.events.create({
+      data: {
+        type: 'Interview started',
+        message: `Participant "${
+          createdInterview.participant.label ??
+          createdInterview.participant.identifier
+        }" started an interview`,
+      },
+    });
+
+    revalidateTag('getInterviews');
+    revalidateTag('getParticipants');
+    revalidateTag('activityFeed');
+
+    return {
+      error: null,
+      createdInterviewId: createdInterview.id,
+      errorType: null,
+    };
+  } catch (error) {
+    const e = ensureError(error);
+
+    void trackEvent({
+      type: 'Error',
+      name: e.name,
+      message: e.message,
+      stack: e.stack,
+      metadata: {
+        path: '/routers/interview.ts',
+      },
+    });
+
+    return {
+      errorType: e.message,
+      error: 'Failed to create interview',
+      createdInterviewId: null,
+    };
+  }
+}
+
+export async function syncInterview(data: SyncInterview) {
+  const { id, network, currentStep, stageMetadata } = data;
+
+  try {
+    await prisma.interview.update({
+      where: {
+        id,
+      },
+      data: {
+        network,
+        currentStep,
+        stageMetadata,
+        lastUpdated: new Date(),
+      },
+    });
+
+    revalidateTag('getInterviews');
+
+    return { success: true };
+  } catch (error) {
+    const message = ensureError(error).message;
+    return { success: false, error: message };
+  }
+}
+
+export type SyncInterviewType = typeof syncInterview;
