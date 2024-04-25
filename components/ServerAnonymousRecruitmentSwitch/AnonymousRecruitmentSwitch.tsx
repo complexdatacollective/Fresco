@@ -1,22 +1,9 @@
+import { getAnonymousRecruitmentStatus } from '~/queries/appSettings';
 import Switch from './Switch';
-import { prisma } from '~/utils/db';
-import { unstable_noStore } from 'next/cache';
-import 'server-only';
-
-async function getAnonymousRecruitmentStatus() {
-  unstable_noStore();
-
-  const appSettings = await prisma.appSettings.findFirst({
-    select: {
-      allowAnonymousRecruitment: true,
-    },
-  });
-
-  return !!appSettings?.allowAnonymousRecruitment;
-}
 
 const AnonymousRecruitmentSwitch = async () => {
   const allowAnonymousRecruitment = await getAnonymousRecruitmentStatus();
+  console.log('allowAnonymousRecruitment', allowAnonymousRecruitment);
   return <Switch allowAnonymousRecruitment={allowAnonymousRecruitment} />;
 };
 

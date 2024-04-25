@@ -4,12 +4,7 @@ import { Button } from '~/components/ui/Button';
 import useZodForm from '~/hooks/useZodForm';
 import { Input } from '~/components/ui/Input';
 import { userCreateFormSchema } from './schemas';
-import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
-import { useAtomValue } from 'jotai';
-import { sessionAtom } from '~/providers/SessionProvider';
-import { signup } from '../../../actions/auth';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import { signup } from '~/actions/auth';
 
 export const SignUpForm = () => {
   const {
@@ -19,19 +14,6 @@ export const SignUpForm = () => {
     schema: userCreateFormSchema,
     mode: 'all',
   });
-
-  const session = useAtomValue(sessionAtom);
-
-  const [currentStep, setCurrentStep] = useQueryState(
-    'step',
-    parseAsInteger.withDefault(1),
-  );
-  // If we are logged in, skip this step.
-  useEffect(() => {
-    if (session) {
-      void setCurrentStep(2);
-    }
-  }, [session, setCurrentStep, currentStep]);
 
   return (
     <form

@@ -37,10 +37,8 @@ interface DatabaseUserAttributes {
   hashedPassword: string;
 }
 
-export const getServerSession = async () => {
+export const getServerSession = cache(async () => {
   const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-
-  console.log('getServerSession cookies', sessionId, lucia.sessionCookieName);
   if (!sessionId)
     return {
       session: null,
@@ -68,7 +66,7 @@ export const getServerSession = async () => {
     // Next.js throws error when attempting to set cookies when rendering page
   }
   return result;
-};
+});
 
 export type RequireAuthOptions = {
   redirectPath?: string;
@@ -78,8 +76,6 @@ export async function requirePageAuth(
   { redirectPath = null } = {} as RequireAuthOptions,
 ) {
   const { session } = await getServerSession();
-
-  console.log('requireAuth', { session, redirectPath });
 
   if (!session) {
     if (!redirectPath) {

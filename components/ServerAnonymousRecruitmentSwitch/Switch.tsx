@@ -2,7 +2,7 @@
 
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { useOptimistic, useTransition } from 'react';
-import { setAnonymousRecruitment } from './utils';
+import { setAnonymousRecruitment } from '~/actions/appSettings';
 
 const Switch = ({
   allowAnonymousRecruitment,
@@ -10,24 +10,23 @@ const Switch = ({
   allowAnonymousRecruitment: boolean;
 }) => {
   const [, startTransition] = useTransition();
-  const [
-    optimisticAllowAnonymousRecruitment,
-    setOptimisticAllowAnonymousRecruitment,
-  ] = useOptimistic(
+  const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
     allowAnonymousRecruitment,
-    (state: boolean, newState: boolean) => newState,
+    (_, newValue: boolean) => newValue,
   );
+
+  const updateIsActive = async (newValue: boolean) => {
+    setOptimisticIsActive(newValue);
+    await setAnonymousRecruitment(newValue); // this is a server action which calls `revalidateTag`
+  };
 
   return (
     <SwitchUI
       name="allowAnonymousRecruitment"
-      checked={optimisticAllowAnonymousRecruitment}
-      onCheckedChange={(value) => {
-        startTransition(async () => {
-          setOptimisticAllowAnonymousRecruitment(value);
-          await setAnonymousRecruitment(value);
-        });
-      }}
+      checked={optimisticIsActive}
+      onCheckedChange={(checked) =>
+        startTransition(() => updateIsActive(checked))
+      }
     />
   );
 };

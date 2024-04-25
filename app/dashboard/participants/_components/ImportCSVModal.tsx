@@ -19,7 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { useForm } from 'react-hook-form';
 import DropzoneField from './DropzoneField';
 import { FormSchema } from '~/shared/schemas/schemas';
-import { importParticipants } from '../_actions';
+import { importParticipants } from '~/actions/participants';
 
 const ImportCSVModal = ({
   onImportComplete,

@@ -1,4 +1,4 @@
-import { resetAppSettings } from '~/app/_actions';
+import { resetAppSettings } from '~/actions/reset';
 import SubmitButton from '~/components/ui/SubmitButton';
 
 const ResetButton = () => {

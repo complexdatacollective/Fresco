@@ -1,5 +1,5 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { getBaseUrl } from '~/trpc/shared';
+import { redirect } from 'next/navigation';
 
 /**
  *
@@ -22,5 +22,5 @@ export function GET() {
   revalidateTag('participant.get.all');
   revalidateTag('dashboard.getActivities');
 
-  return Response.redirect(getBaseUrl());
+  redirect('/');
 }

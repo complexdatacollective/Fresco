@@ -1,4 +1,4 @@
-import { SignUpForm } from '~/app/(setup)/_components/SignUpForm';
+import { SignUpForm } from '~/app/(blobs)/(setup)/_components/SignUpForm';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 

@@ -8,7 +8,7 @@ import {
 } from '~/shared/schemas/schemas';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
-import { addEvent } from '../_components/ActivityFeed/actions';
+import { addEvent } from '~/actions/activityFeed';
 
 export async function deleteParticipants(participantIds: string[]) {
   await requireApiAuth();

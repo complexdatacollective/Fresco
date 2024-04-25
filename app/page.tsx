@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
+import { requireAppNotExpired } from '~/queries/appSettings';
 
-export default function Home() {
+export default async function Home() {
+  await requireAppNotExpired();
   redirect('/dashboard');
 }

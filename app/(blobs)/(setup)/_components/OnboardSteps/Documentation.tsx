@@ -1,5 +1,5 @@
 import { FileText } from 'lucide-react';
-import { setAppConfigured } from '~/app/_actions';
+import { setAppConfigured } from '~/actions/reset';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { trackEvent } from '~/analytics/utils';
 import Heading from '~/components/ui/typography/Heading';

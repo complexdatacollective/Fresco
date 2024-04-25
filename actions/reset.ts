@@ -1,13 +1,14 @@
 'use server';
 
-import * as context from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '~/utils/db';
-import { utapi } from './api/uploadthing/core';
+import { utapi } from '../app/api/uploadthing/core';
 import { revalidatePath } from 'next/cache';
-import { getServerSession } from '~/utils/auth';
+import { requireApiAuth } from '~/utils/auth';
 
 export const resetAppSettings = async () => {
+  await requireApiAuth();
+
   try {
     // Delete all data:
     await Promise.all([
@@ -32,6 +33,8 @@ export const resetAppSettings = async () => {
 };
 
 export const setAppConfigured = async () => {
+  await requireApiAuth();
+
   try {
     await prisma.appSettings.updateMany({
       data: {
@@ -41,5 +44,6 @@ export const setAppConfigured = async () => {
   } catch (error) {
     return { error: 'Failed to update appSettings', appSettings: null };
   }
+
   redirect('/dashboard');
 };

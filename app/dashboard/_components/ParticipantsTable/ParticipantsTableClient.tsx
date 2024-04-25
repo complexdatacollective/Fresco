@@ -12,7 +12,7 @@ import { Trash } from 'lucide-react';
 import {
   deleteAllParticipants,
   deleteParticipants,
-} from '../../participants/_actions';
+} from '~/actions/participants';
 import { type getParticipants } from './ParticipantsTable';
 import AddParticipantButton from '../../participants/_components/AddParticipantButton';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';

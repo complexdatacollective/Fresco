@@ -24,7 +24,7 @@ import { HelpCircle, Loader2 } from 'lucide-react';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { createId } from '@paralleldrive/cuid2';
-import { createParticipant, updateParticipant } from '../_actions';
+import { createParticipant, updateParticipant } from '~/actions/participants';
 
 type ParticipantModalProps = {
   open: boolean;
