@@ -1,4 +1,4 @@
-import { revalidatePath, unstable_cache } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
@@ -7,22 +7,22 @@ import { prisma } from '~/utils/db';
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-export const getAppSettings = cache(async () => {
+export const getAppSettings = unstable_cache(async () => {
   const appSettings = await prisma.appSettings.findFirst();
 
   // If there are no app settings, create them
   if (!appSettings) {
-    const newAppSettings = await createAppSettings();
-
-    if (newAppSettings.error ?? !newAppSettings.appSettings) {
-      throw new Error('Failed to create app settings');
-    }
+    const newAppSettings = await prisma.appSettings.create({
+      data: {
+        initializedAt: new Date(),
+      },
+    });
 
     return {
-      ...newAppSettings.appSettings,
+      ...newAppSettings,
       expired: calculateIsExpired(
-        newAppSettings.appSettings.configured,
-        newAppSettings.appSettings.initializedAt,
+        newAppSettings.configured,
+        newAppSettings.initializedAt,
       ),
     };
   }
@@ -34,23 +34,7 @@ export const getAppSettings = cache(async () => {
       appSettings.initializedAt,
     ),
   };
-});
-
-// Not exported because it should only be called internally.
-async function createAppSettings() {
-  try {
-    const appSettings = await prisma.appSettings.create({
-      data: {
-        initializedAt: new Date(),
-      },
-    });
-
-    revalidatePath('/');
-    return { error: null, appSettings };
-  } catch (error) {
-    return { error: 'Failed to create appSettings', appSettings: null };
-  }
-}
+}, ['appSettings']);
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   const appSettings = await getAppSettings();
@@ -84,4 +68,14 @@ export const getAnonymousRecruitmentStatus = unstable_cache(async () => {
   });
 
   return !!appSettings?.allowAnonymousRecruitment;
-}, ['anonymousRecruitmentStatus']);
+}, ['appSettings', 'allowAnonymousRecruitment']);
+
+export const getLimitInterviewsStatus = unstable_cache(async () => {
+  const appSettings = await prisma.appSettings.findFirst({
+    select: {
+      limitInterviews: true,
+    },
+  });
+
+  return !!appSettings?.limitInterviews;
+}, ['appSettings', 'limitInterviews']);

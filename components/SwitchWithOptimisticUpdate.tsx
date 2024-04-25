@@ -2,27 +2,30 @@
 
 import { Switch as SwitchUI } from '~/components/ui/switch';
 import { useOptimistic, useTransition } from 'react';
-import { setAnonymousRecruitment } from '~/actions/appSettings';
 
-const Switch = ({
-  allowAnonymousRecruitment,
+const SwitchWithOptimisticUpdate = ({
+  initialValue,
+  name,
+  action,
 }: {
-  allowAnonymousRecruitment: boolean;
+  initialValue: boolean;
+  name: string;
+  action: (value: boolean) => Promise<boolean>;
 }) => {
   const [, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
-    allowAnonymousRecruitment,
+    initialValue,
     (_, newValue: boolean) => newValue,
   );
 
   const updateIsActive = async (newValue: boolean) => {
     setOptimisticIsActive(newValue);
-    await setAnonymousRecruitment(newValue); // this is a server action which calls `revalidateTag`
+    await action(newValue); // this is a server action which calls `revalidateTag`
   };
 
   return (
     <SwitchUI
-      name="allowAnonymousRecruitment"
+      name={name}
       checked={optimisticIsActive}
       onCheckedChange={(checked) =>
         startTransition(() => updateIsActive(checked))
@@ -31,4 +34,4 @@ const Switch = ({
   );
 };
 
-export default Switch;
+export default SwitchWithOptimisticUpdate;

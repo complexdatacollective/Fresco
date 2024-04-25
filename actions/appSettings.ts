@@ -4,7 +4,6 @@ import { revalidateTag } from 'next/cache';
 import { prisma } from '~/utils/db';
 
 export async function setAnonymousRecruitment(input: boolean) {
-  console.log('setAnonymousRecruitment', input);
   const result = await prisma.appSettings.updateMany({
     data: {
       allowAnonymousRecruitment: input,
@@ -12,15 +11,22 @@ export async function setAnonymousRecruitment(input: boolean) {
   });
 
   if (result.count === 0) {
-    console.log(
-      'setAnonymousRecruitment: settings not updated!',
-      result,
-      !input,
-    );
     return !input;
   }
 
-  revalidateTag('anonymousRecruitmentStatus');
+  revalidateTag('allowAnonymousRecruitment');
+
+  return input;
+}
+
+export async function setLimitInterviews(input: boolean) {
+  await prisma.appSettings.updateMany({
+    data: {
+      limitInterviews: input,
+    },
+  });
+
+  revalidateTag('limitInterviews');
 
   return input;
 }
