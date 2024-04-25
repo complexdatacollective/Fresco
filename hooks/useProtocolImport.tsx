@@ -17,21 +17,14 @@ import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
-import type {
-  GetExistingAssetIdsType,
-  GetProtocolByHashType,
-} from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
-import type { InsertProtocolType } from '~/actions/protocols';
+import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { insertProtocol } from '~/actions/protocols';
 
 // Utility helper for adding artificial delay to async functions
 // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const useProtocolImport = (
-  getProtocolByHash: GetProtocolByHashType,
-  getExistingAssetIds: GetExistingAssetIdsType,
-  insertProtocol: InsertProtocolType,
-) => {
+export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
 
   /**
