@@ -19,7 +19,7 @@ export async function deleteParticipants(participantIds: string[]) {
     },
   });
 
-  revalidatePath('/dashboard/participants');
+  revalidatePath('getParticipants');
 }
 
 export async function deleteAllParticipants() {
@@ -27,7 +27,7 @@ export async function deleteAllParticipants() {
 
   await prisma.participant.deleteMany();
 
-  revalidatePath('/dashboard/participants');
+  revalidatePath('getParticipants');
 }
 
 export async function importParticipants(rawInput: unknown) {
@@ -66,7 +66,7 @@ export async function importParticipants(rawInput: unknown) {
       },
     });
 
-    revalidatePath('/dashboard/participants');
+    revalidatePath('getParticipants');
 
     return {
       error: null,
@@ -93,7 +93,7 @@ export async function updateParticipant(rawInput: unknown) {
       data,
     });
 
-    revalidatePath('/dashboard/participants');
+    revalidatePath('getParticipants');
 
     return { error: null, participant: updatedParticipant };
   } catch (error) {
@@ -134,7 +134,7 @@ export async function createParticipant(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    revalidatePath('/dashboard/participants');
+    revalidatePath('getParticipants');
 
     return {
       error: null,

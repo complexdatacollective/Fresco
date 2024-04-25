@@ -1,6 +1,6 @@
 'use sever';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import type { Activity, ActivityType } from '~/lib/data-table/types';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -19,7 +19,7 @@ export async function addEvent(
       },
     });
 
-    revalidatePath('/dashboard');
+    revalidateTag('activityFeed');
 
     return { success: true, error: null };
   } catch (error) {

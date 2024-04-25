@@ -13,9 +13,9 @@ import {
   deleteAllParticipants,
   deleteParticipants,
 } from '~/actions/participants';
-import { type getParticipants } from './ParticipantsTable';
 import AddParticipantButton from '../../participants/_components/AddParticipantButton';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
+import { type getParticipants } from '~/queries/participants';
 
 export const ParticipantsTableClient = ({
   participantsPromise,

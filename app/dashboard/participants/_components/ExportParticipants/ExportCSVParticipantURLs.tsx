@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import { type getParticipants } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
+import { type getParticipants } from '~/queries/participants';
 
 function ExportCSVParticipantURLs({
   protocol,

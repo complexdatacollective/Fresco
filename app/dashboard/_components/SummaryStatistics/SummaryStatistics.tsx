@@ -4,24 +4,7 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import StatCard, { StatCardSkeleton } from './StatCard';
 import { Suspense } from 'react';
-import { unstable_noStore } from 'next/cache';
-import { prisma } from '~/utils/db';
-
-const getSummaryStatistics = async () => {
-  unstable_noStore();
-
-  const counts = await prisma.$transaction([
-    prisma.interview.count(),
-    prisma.protocol.count(),
-    prisma.participant.count(),
-  ]);
-
-  return {
-    interviewCount: counts[0],
-    protocolCount: counts[1],
-    participantCount: counts[2],
-  };
-};
+import { getSummaryStatistics } from '~/queries/summaryStatistics';
 
 export default function SummaryStatistics() {
   const data = getSummaryStatistics();

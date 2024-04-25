@@ -1,10 +1,7 @@
-import { unstable_noStore } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { prisma } from '~/utils/db';
-import 'server-only';
 
-export async function getParticipants() {
-  unstable_noStore();
-
+export const getParticipants = unstable_cache(async () => {
   const participants = await prisma.participant.findMany({
     include: {
       interviews: true,
@@ -13,4 +10,4 @@ export async function getParticipants() {
   });
 
   return participants;
-}
+}, ['getParticipants']);
