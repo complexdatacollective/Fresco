@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { sessionAtom } from '~/providers/SessionProvider';
-import { signup } from './actions';
+import { signup } from '../../../actions/auth';
 import { parseAsInteger, useQueryState } from 'nuqs';
 
 export const SignUpForm = () => {

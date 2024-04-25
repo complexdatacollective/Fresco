@@ -37,20 +37,26 @@ interface DatabaseUserAttributes {
   hashedPassword: string;
 }
 
-export const getServerSession = cache(async () => {
+export const getServerSession = async () => {
   const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-  if (!sessionId) return null;
-  const { user, session } = await lucia.validateSession(sessionId);
+
+  console.log('getServerSession cookies', sessionId, lucia.sessionCookieName);
+  if (!sessionId)
+    return {
+      session: null,
+      user: null,
+    };
+  const result = await lucia.validateSession(sessionId);
   try {
-    if (session && session.fresh) {
-      const sessionCookie = lucia.createSessionCookie(session.id);
+    if (result.session && result.session.fresh) {
+      const sessionCookie = lucia.createSessionCookie(result.session.id);
       cookies().set(
         sessionCookie.name,
         sessionCookie.value,
         sessionCookie.attributes,
       );
     }
-    if (!session) {
+    if (!result.session) {
       const sessionCookie = lucia.createBlankSessionCookie();
       cookies().set(
         sessionCookie.name,
@@ -61,8 +67,8 @@ export const getServerSession = cache(async () => {
   } catch {
     // Next.js throws error when attempting to set cookies when rendering page
   }
-  return user;
-});
+  return result;
+};
 
 export type RequireAuthOptions = {
   redirectPath?: string;
@@ -71,7 +77,9 @@ export type RequireAuthOptions = {
 export async function requirePageAuth(
   { redirectPath = null } = {} as RequireAuthOptions,
 ) {
-  const session = await getServerSession();
+  const { session } = await getServerSession();
+
+  console.log('requireAuth', { session, redirectPath });
 
   if (!session) {
     if (!redirectPath) {
@@ -89,7 +97,7 @@ export async function requirePageAuth(
 }
 
 export async function requireApiAuth() {
-  const session = await getServerSession();
+  const { session } = await getServerSession();
 
   if (!session) {
     throw new Error('Unauthorized');

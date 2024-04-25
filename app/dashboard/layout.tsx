@@ -1,24 +1,29 @@
-import Providers from '~/providers/Providers';
+import { redirect } from 'next/navigation';
 import { NavigationBar } from './_components/NavigationBar';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
-import { getServerSession, requirePageAuth } from '~/utils/auth';
+import { getServerSession } from '~/utils/auth';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Dashboard',
   description: 'Fresco.',
 };
 
-const Layout = async ({ children }: { children: React.ReactNode }) => {
-  await requirePageAuth({ redirectPath: '/dashboard' });
+export const dynamic = 'force-dynamic';
 
-  const initialSession = await getServerSession();
+const Layout = async ({ children }: { children: React.ReactNode }) => {
+  const { session } = await getServerSession();
+
+  if (!session) {
+    console.log('layout: no session, redirecting.');
+    redirect('/signin');
+  }
 
   return (
-    <Providers initialSession={initialSession}>
+    <>
       <NavigationBar />
       <FeedbackBanner />
       {children}
-    </Providers>
+    </>
   );
 };
 

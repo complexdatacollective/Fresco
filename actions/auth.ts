@@ -4,10 +4,10 @@ import { parseWithZod } from '@conform-to/zod';
 import { prisma } from '~/utils/db';
 import { cookies } from 'next/headers';
 import { Argon2id } from 'oslo/password';
-import { loginSchema } from './SignInForm';
-import { lucia } from '~/utils/auth';
+import { getServerSession, lucia } from '~/utils/auth';
 import { redirect } from 'next/navigation';
 import { generateIdFromEntropySize } from 'lucia';
+import { loginSchema } from '../app/(setup)/signin/schemas';
 
 export async function signup(formData: FormData) {
   const username = formData.get('username') as string;
@@ -99,6 +99,26 @@ export async function login(formData: FormData) {
   console.log('auth success');
   const session = await lucia.createSession(existingUser.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+
+  return redirect('/dashboard');
+}
+
+export async function logout() {
+  const { session } = await getServerSession();
+  if (!session) {
+    return {
+      error: 'Unauthorized',
+    };
+  }
+
+  await lucia.invalidateSession(session.id);
+
+  const sessionCookie = lucia.createBlankSessionCookie();
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,

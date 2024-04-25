@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/AlertDialog';
-import { logoutAction } from '~/app/_actions';
+import { logout } from '~/actions/auth';
 
 type SignOutModalProps = {
   openSignOutModal: boolean;
@@ -39,7 +39,7 @@ const SignOutModal = ({
           <AlertDialogCancel onClick={() => setOpenSignOutModal(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={() => void logoutAction()}>
+          <AlertDialogAction onClick={() => void logout()}>
             Sign Out and Hide Banner
           </AlertDialogAction>
         </AlertDialogFooter>

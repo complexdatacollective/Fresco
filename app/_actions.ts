@@ -2,10 +2,10 @@
 
 import * as context from 'next/headers';
 import { redirect } from 'next/navigation';
-import { auth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { utapi } from './api/uploadthing/core';
 import { revalidatePath } from 'next/cache';
+import { getServerSession } from '~/utils/auth';
 
 export const resetAppSettings = async () => {
   try {
@@ -43,18 +43,3 @@ export const setAppConfigured = async () => {
   }
   redirect('/dashboard');
 };
-
-export async function logoutAction() {
-  const authRequest = auth.handleRequest('POST', context);
-
-  const session = await authRequest.validate();
-
-  if (!session) {
-    return;
-  }
-
-  await auth.invalidateSession(session.sessionId);
-  authRequest.setSession(null);
-
-  return redirect('/signin');
-}

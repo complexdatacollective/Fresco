@@ -7,7 +7,7 @@ export const metadata = {
   description: 'Fresco.',
 };
 
-const poppins = Quicksand({
+const quicksand = Quicksand({
   weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin', 'latin-ext'],
   display: 'swap',
@@ -16,7 +16,7 @@ const poppins = Quicksand({
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} antialiased`}>
+      <body className={`${quicksand.className} antialiased`}>
         {children}
         <Toaster />
       </body>
