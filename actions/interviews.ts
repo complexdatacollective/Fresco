@@ -280,6 +280,7 @@ export async function syncInterview(data: SyncInterview) {
 
     revalidateTag('getInterviews');
 
+    console.log(`🚀 Interview synced with server! (${id})`);
     return { success: true };
   } catch (error) {
     const message = ensureError(error).message;
