@@ -12,7 +12,7 @@ const SwitchWithOptimisticUpdate = ({
   name: string;
   action: (value: boolean) => Promise<boolean>;
 }) => {
-  const [, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
     initialValue,
     (_, newValue: boolean) => newValue,
@@ -30,6 +30,7 @@ const SwitchWithOptimisticUpdate = ({
       onCheckedChange={(checked) =>
         startTransition(() => updateIsActive(checked))
       }
+      disabled={isTransitioning}
     />
   );
 };
