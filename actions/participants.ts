@@ -1,7 +1,7 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { revalidatePath } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import {
   participantListInputSchema,
   updateSchema,
@@ -19,7 +19,8 @@ export async function deleteParticipants(participantIds: string[]) {
     },
   });
 
-  revalidatePath('getParticipants');
+  revalidateTag('getParticipants');
+  revalidateTag('summaryStatistics');
 }
 
 export async function deleteAllParticipants() {
@@ -27,7 +28,8 @@ export async function deleteAllParticipants() {
 
   await prisma.participant.deleteMany();
 
-  revalidatePath('getParticipants');
+  revalidateTag('getParticipants');
+  revalidateTag('summaryStatistics');
 }
 
 export async function importParticipants(rawInput: unknown) {
@@ -59,14 +61,14 @@ export async function importParticipants(rawInput: unknown) {
           skipDuplicates: true,
         }),
       ]);
-    await prisma.events.create({
-      data: {
-        type: 'Participant(s) Added',
-        message: `Added ${createdParticipants.count} participant(s)`,
-      },
-    });
 
-    revalidatePath('getParticipants');
+    void addEvent(
+      'Participant(s) Added',
+      `Added ${createdParticipants.count} participant(s)`,
+    );
+
+    revalidateTag('getParticipants');
+    revalidateTag('summaryStatistics');
 
     return {
       error: null,
@@ -93,7 +95,8 @@ export async function updateParticipant(rawInput: unknown) {
       data,
     });
 
-    revalidatePath('getParticipants');
+    revalidateTag('getParticipants');
+    revalidateTag('summaryStatistics');
 
     return { error: null, participant: updatedParticipant };
   } catch (error) {
@@ -134,7 +137,8 @@ export async function createParticipant(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    revalidatePath('getParticipants');
+    revalidateTag('getParticipants');
+    revalidateTag('summaryStatistics');
 
     return {
       error: null,

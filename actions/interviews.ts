@@ -17,6 +17,7 @@ import type { FailResult, SuccessResult, UpdateItems } from '~/types/types';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
+import { addEvent } from './activityFeed';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   await requireApiAuth();
@@ -32,15 +33,13 @@ export async function deleteInterviews(data: DeleteInterviews) {
       },
     });
 
-    await prisma.events.create({
-      data: {
-        type: 'Interview Deleted',
-        message: `Deleted ${deletedInterviews.count} interview(s)`,
-      },
-    });
+    void addEvent(
+      'Interview(s) Deleted',
+      `Deleted ${deletedInterviews.count} interview(s)`,
+    );
 
-    revalidateTag('activityFeed');
     revalidateTag('getInterviews');
+    revalidateTag('summaryStatistics');
 
     return { error: null, interview: deletedInterviews };
   } catch (error) {
@@ -61,6 +60,8 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
         exportTime: new Date(),
       },
     });
+
+    revalidateTag('getInterviews');
 
     return { error: null, interview: updatedInterviews };
   } catch (error) {
@@ -145,12 +146,15 @@ export const exportInterviews = async (
 
     if (updatedInterviews.error) throw new Error(updatedInterviews.error);
 
-    void (await trackEvent({
+    void trackEvent({
       type: 'DataExported',
       metadata: {
         sessions: interviewIds.length,
       },
-    }));
+    });
+
+    revalidateTag('getInterviews');
+
     return { ...output };
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -222,19 +226,17 @@ export async function createInterview(data: CreateInterview) {
       },
     });
 
-    await prisma.events.create({
-      data: {
-        type: 'Interview started',
-        message: `Participant "${
-          createdInterview.participant.label ??
-          createdInterview.participant.identifier
-        }" started an interview`,
-      },
-    });
+    void addEvent(
+      'Interview Started',
+      `Participant "${
+        createdInterview.participant.label ??
+        createdInterview.participant.identifier
+      }" started an interview`,
+    );
 
     revalidateTag('getInterviews');
     revalidateTag('getParticipants');
-    revalidateTag('activityFeed');
+    revalidateTag('summaryStatistics');
 
     return {
       error: null,
@@ -301,7 +303,13 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
+    void addEvent(
+      'Interview Completed',
+      `Interview with ID ${interviewId} has been completed`,
+    );
+
     revalidateTag('getInterviews');
+    revalidateTag('summaryStatistics');
 
     return { error: null };
   } catch (error) {
