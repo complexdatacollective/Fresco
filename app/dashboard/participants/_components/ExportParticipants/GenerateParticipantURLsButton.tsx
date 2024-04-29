@@ -10,7 +10,6 @@ import {
 } from '~/components/ui/select';
 
 import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
-import { Skeleton } from '~/components/ui/skeleton';
 import FancyBox from '~/components/ui/FancyBox';
 import { Button } from '~/components/ui/Button';
 import {
@@ -22,11 +21,22 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { FileUp } from 'lucide-react';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
+import type { GetParticipantsReturnType } from '~/queries/participants';
 
-export const GenerateParticipantURLs = ({ protocols, participants }) => {
-  const [selectedParticipants, setSelectedParticipants] = useState([]);
+export const GenerateParticipantURLs = ({
+  protocols,
+  participants,
+}: {
+  protocols: Awaited<GetProtocolsReturnType>;
+  participants: Awaited<GetParticipantsReturnType>;
+}) => {
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
+    [],
+  );
 
-  const [selectedProtocol, setSelectedProtocol] = useState();
+  const [selectedProtocol, setSelectedProtocol] =
+    useState<Awaited<GetProtocolsReturnType>[0]>();
 
   // Default to all participants selected
   useEffect(() => {
@@ -102,11 +112,10 @@ export const GenerateParticipantURLs = ({ protocols, participants }) => {
               Cancel
             </Button>
             <ExportCSVParticipantURLs
-              protocol={selectedProtocol!}
-              participants={selectedParticipants.map((id) =>
-                participants?.find((p) => p.id === id),
+              protocol={selectedProtocol}
+              participants={selectedParticipants.map(
+                (id) => participants.find((p) => p.id === id)!,
               )}
-              disabled={!selectedParticipants || !selectedProtocol}
             />
           </DialogFooter>
         </DialogContent>

@@ -21,9 +21,9 @@ import Heading from '~/components/ui/typography/Heading';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
-import { deleteZipFromUploadThing } from '~/app/dashboard/interviews/_actions/deleteZipFromUploadThing';
+import { deleteZipFromUploadThing } from '~/actions/deleteZipFromUploadThing';
 import { exportInterviews } from '~/actions/interviews';
-import { Interview } from '@prisma/client';
+import type { Interview } from '@prisma/client';
 
 const ExportingStateAnimation = () => {
   return (

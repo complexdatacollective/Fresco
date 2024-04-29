@@ -1,23 +1,21 @@
 'use client';
 
-import type { Protocol } from '@prisma/client';
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import { type getParticipants } from '~/queries/participants';
+import type { GetParticipantsReturnType } from '~/queries/participants';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
 import getBaseUrl from '~/utils/getBaseUrl';
 
 function ExportCSVParticipantURLs({
   protocol,
   participants,
-  disabled,
 }: {
-  protocol: Protocol;
-  participants: Awaited<ReturnType<typeof getParticipants>>;
-  disabled: boolean;
+  protocol?: Awaited<GetProtocolsReturnType>[0];
+  participants: Awaited<GetParticipantsReturnType>;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
@@ -66,7 +64,7 @@ function ExportCSVParticipantURLs({
 
   return (
     <Button
-      disabled={disabled || isExporting}
+      disabled={!protocol || participants?.length === 0 || isExporting}
       onClick={handleExport}
       className="w-full"
     >

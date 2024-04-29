@@ -12,8 +12,6 @@ import {
   makeGetFakeSessionProgress,
 } from '../selectors/session';
 import Stage from './Stage';
-import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
-import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getNavigationInfo } from '../selectors/session';
 import { getNavigableStages } from '../selectors/skip-logic';
@@ -230,7 +228,6 @@ export default function ProtocolScreen() {
 
   return (
     <>
-      {/* {session && <FeedbackBanner />} */}
       <motion.div
         className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
         initial={{ opacity: 0 }}

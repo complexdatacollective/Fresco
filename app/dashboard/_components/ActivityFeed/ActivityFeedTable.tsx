@@ -10,7 +10,7 @@ import {
   filterableColumns,
 } from './ColumnDefinition';
 import type { Events } from '@prisma/client';
-import { type ActivitiesFeed } from './ActivityFeed';
+import type { ActivitiesFeed } from '~/queries/activityFeed';
 
 export default function ActivityFeedTable({
   activitiesPromise,
@@ -39,8 +39,6 @@ export default function ActivityFeedTable({
       columns={columns}
       searchableColumns={searchableColumns}
       filterableColumns={filterableColumns}
-      // floatingBarContent={TasksTableFloatingBarContent(dataTable)}
-      // deleteRowsAction={(_event) => {}}
     />
   );
 }

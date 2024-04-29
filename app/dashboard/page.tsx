@@ -8,12 +8,17 @@ import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 import { Suspense } from 'react';
 import { searchParamsCache } from './_components/ActivityFeed/searchParamsCache';
+import { requireAppNotExpired } from '~/queries/appSettings';
+import { requirePageAuth } from '~/utils/auth';
 
-function Home({
+export default async function Home({
   searchParams,
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+  await requireAppNotExpired();
+  await requirePageAuth();
+
   searchParamsCache.parse(searchParams);
 
   return (
@@ -43,5 +48,3 @@ function Home({
     </>
   );
 }
-
-export default Home;

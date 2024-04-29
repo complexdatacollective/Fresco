@@ -4,11 +4,11 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { containerClasses } from '../_components/schemas';
 import dynamic from 'next/dynamic';
 import { StepLoadingState } from '../_components/Helpers';
-import { AnimatePresence, motion } from 'framer-motion';
 import OnboardSteps from '../_components/Sidebar';
 import { cn } from '~/utils/shadcn';
 import { use, useEffect } from 'react';
 import type { DataPromiseType } from './page';
+import { motion } from 'framer-motion';
 
 // Stages are dynamically imported, and then conditionally rendered, so that
 // we don't load all the code for all the stages at once.

@@ -1,49 +1,12 @@
-'use client';
-
-import { Check } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
 import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
-import { useState } from 'react';
-import RecruitmentSwitch from '~/components/RecruitmentSwitch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SettingsSection from '~/components/layout/SettingsSection';
-import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
-import { parseAsInteger, useQueryState } from 'nuqs';
-
-// const SettingsSection = ({
-//   title,
-//   description,
-//   children,
-// }: {
-//   title: string;
-//   description: string;
-//   children: React.ReactNode;
-// }) => (
-//   <div className="flex items-center justify-between rounded-md border border-muted p-4">
-//     <div>
-//       <Heading variant="h4-all-caps">{title}</Heading>
-//       <Paragraph>{description}</Paragraph>
-//     </div>
-//     {children}
-//   </div>
-// );
+// import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
+import OnboardContinue from '../OnboardContinue';
+// import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
 
 function ManageParticipants() {
-  const [participantsUploaded, setParticipantsUploaded] = useState(false);
-  const [currentStep, setCurrentStep] = useQueryState(
-    'step',
-    parseAsInteger.withDefault(1),
-  );
-
-  const handleParticipantsUploaded = () => {
-    setParticipantsUploaded(true);
-  };
-
-  const handleNextStep = () => {
-    void setCurrentStep(currentStep + 1);
-  };
-
   return (
     <div className="max-w-[30rem]">
       <div className="mb-6">
@@ -58,20 +21,14 @@ function ManageParticipants() {
       <div className="mb-6 flex flex-col gap-2">
         <SettingsSection
           heading="Import Participants"
-          controlArea={
-            <>
-              {participantsUploaded && <Check />}
-              {!participantsUploaded && (
-                <ImportCSVModal onImportComplete={handleParticipantsUploaded} />
-              )}
-            </>
-          }
+          controlArea={<ImportCSVModal />}
         >
           <Paragraph>Upload a CSV file of participants.</Paragraph>
         </SettingsSection>
         <SettingsSection
           heading="Anonymous Recruitment"
-          controlArea={<RecruitmentSwitch />}
+          controlArea={<></>}
+          // controlArea={<AnonymousRecruitmentSwitch />}
         >
           <Paragraph>
             Allow participants to join your study by visiting a URL.
@@ -79,7 +36,8 @@ function ManageParticipants() {
         </SettingsSection>
         <SettingsSection
           heading="Limit Interviews"
-          controlArea={<LimitInterviewsSwitch />}
+          controlArea={<></>}
+          // controlArea={<LimitInterviewsSwitch />}
         >
           <Paragraph>
             Limit each participant to being allowed to complete one interview
@@ -88,7 +46,7 @@ function ManageParticipants() {
         </SettingsSection>
       </div>
       <div className="flex justify-start">
-        <Button onClick={handleNextStep}>Continue</Button>
+        <OnboardContinue />
       </div>
     </div>
   );

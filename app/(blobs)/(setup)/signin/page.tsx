@@ -17,7 +17,6 @@ export default async function Page() {
   const { session } = await getServerSession();
 
   if (session) {
-    console.log('signin page: had session, redirecting.');
     // If the user is already signed in, redirect to the dashboard
     redirect('/dashboard');
   }

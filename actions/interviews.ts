@@ -289,3 +289,22 @@ export async function syncInterview(data: SyncInterview) {
 }
 
 export type SyncInterviewType = typeof syncInterview;
+
+export async function finishInterview(interviewId: Interview['id']) {
+  try {
+    await prisma.interview.update({
+      where: {
+        id: interviewId,
+      },
+      data: {
+        finishTime: new Date(),
+      },
+    });
+
+    revalidateTag('getInterviews');
+
+    return { error: null };
+  } catch (error) {
+    return { error: 'Failed to finish interview' };
+  }
+}

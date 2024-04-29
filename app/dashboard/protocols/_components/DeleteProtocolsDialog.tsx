@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import type { ProtocolWithInterviews } from '~/types/types';
 import { useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { useRouter } from 'next/navigation';
+import { deleteProtocols } from '~/actions/protocols';
 
 type DeleteProtocolsDialogProps = {
   open: boolean;
@@ -28,8 +28,6 @@ export const DeleteProtocolsDialog = ({
   setOpen,
   protocolsToDelete,
 }: DeleteProtocolsDialogProps) => {
-  const router = useRouter();
-
   const isDeleting = false;
 
   const [protocolsInfo, setProtocolsInfo] = useState<{
@@ -49,10 +47,6 @@ export const DeleteProtocolsDialog = ({
       ),
     });
   }, [protocolsToDelete]);
-
-  const deleteProtocols = async (hashes: string[]) => {
-    console.log('Deleting protocols with hashes:', hashes);
-  };
 
   const handleConfirm = async () => {
     await deleteProtocols(protocolsToDelete.map((d) => d.hash));

@@ -11,7 +11,7 @@ import Image from 'next/image';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 
 export const InterviewColumns = (): ColumnDef<
-  Awaited<GetInterviewsReturnType>
+  Awaited<GetInterviewsReturnType>[0]
 >[] => [
   {
     id: 'select',

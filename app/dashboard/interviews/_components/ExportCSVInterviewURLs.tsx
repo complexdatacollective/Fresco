@@ -8,15 +8,14 @@ import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
+import getBaseUrl from '~/utils/getBaseUrl';
 
 function ExportCSVInterviewURLs({
   protocol,
   interviews,
-  disabled,
 }: {
-  protocol: GetProtocolsReturnType;
+  protocol?: Awaited<GetProtocolsReturnType>[0];
   interviews: Awaited<GetInterviewsReturnType>;
-  disabled: boolean;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
@@ -66,7 +65,7 @@ function ExportCSVInterviewURLs({
 
   return (
     <Button
-      disabled={disabled || isExporting}
+      disabled={!protocol || isExporting}
       onClick={handleExport}
       className="w-full"
     >

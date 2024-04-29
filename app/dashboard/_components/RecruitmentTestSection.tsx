@@ -1,8 +1,3 @@
-import type { Participant, Protocol } from '@prisma/client';
-import type { Route } from 'next';
-import { unstable_noStore } from 'next/cache';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import {

@@ -4,16 +4,10 @@
 // This is to ensure that we are not storing any sensitive data on UploadThing for longer than necessary.
 
 import { utapi } from '~/app/api/uploadthing/core';
-import { getServerSession } from '~/utils/auth';
+import { requireApiAuth } from '~/utils/auth';
 
 export const deleteZipFromUploadThing = async (key: string) => {
-  const session = await getServerSession();
-
-  if (!session) {
-    throw new Error(
-      'You must be logged in to delete interview data from UploadThing!.',
-    );
-  }
+  await requireApiAuth();
 
   const deleteResponse = await utapi.deleteFiles(key);
 

@@ -2,7 +2,7 @@ import { env } from '~/env.mjs';
 import SettingsSection from './layout/SettingsSection';
 import Paragraph from './ui/typography/Paragraph';
 import { z } from 'zod';
-import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle2, Info } from 'lucide-react';
 import { unstable_noStore } from 'next/cache';
 
 const GithubApiResponseSchema = z.object({

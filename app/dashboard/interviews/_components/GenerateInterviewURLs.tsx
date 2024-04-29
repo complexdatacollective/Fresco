@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use, useRef } from 'react';
+import { useState, useEffect, use } from 'react';
 import {
   Select,
   SelectContent,
@@ -21,7 +21,6 @@ import {
 } from '~/components/ui/dialog';
 import { FileUp } from 'lucide-react';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
-import type { Interview, Protocol } from '@prisma/client';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 export const GenerateInterviewURLs = ({
@@ -33,9 +32,12 @@ export const GenerateInterviewURLs = ({
 }) => {
   const protocols = use(protocolsPromise);
 
-  const [interviewsToExport, setInterviewsToExport] = useState<Interview[]>([]);
+  const [interviewsToExport, setInterviewsToExport] = useState<
+    typeof interviews
+  >([]);
 
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
+  const [selectedProtocol, setSelectedProtocol] =
+    useState<(typeof protocols)[0]>();
 
   // Only export interviews that are 1. incomplete and 2. belong to the selected protocol
   useEffect(() => {
@@ -111,7 +113,6 @@ export const GenerateInterviewURLs = ({
             <ExportCSVInterviewURLs
               protocol={selectedProtocol}
               interviews={interviewsToExport}
-              disabled={!selectedProtocol}
             />
           </DialogFooter>
         </DialogContent>

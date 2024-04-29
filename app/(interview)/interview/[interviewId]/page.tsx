@@ -2,12 +2,12 @@
 import InterviewShell from '../_components/InterviewShell';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { prisma } from '~/utils/db';
-import { unstable_noStore } from 'next/cache';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
 import { Suspense } from 'react';
 import { syncInterview } from '~/actions/interviews';
 import { getInterviewById } from '~/queries/interviews';
+import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
+import { getServerSession } from '~/utils/auth';
 
 export default async function Page({
   params,
@@ -21,6 +21,7 @@ export default async function Page({
   }
 
   const interview = await getInterviewById(interviewId);
+  const { session } = await getServerSession();
 
   // If the interview is not found, redirect to the 404 page
   if (!interview) {
@@ -42,8 +43,11 @@ export default async function Page({
   }
 
   return (
-    <Suspense fallback="Loading interview shell...">
-      <InterviewShell interview={interview} syncInterview={syncInterview} />
-    </Suspense>
+    <>
+      {session && <FeedbackBanner />}
+      <Suspense fallback="Loading interview shell...">
+        <InterviewShell interview={interview} syncInterview={syncInterview} />
+      </Suspense>
+    </>
   );
 }

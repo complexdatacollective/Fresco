@@ -3,8 +3,10 @@ import SettingsSection from '~/components/layout/SettingsSection';
 import ImportCSVModal from '../ImportCSVModal';
 import ExportParticipants from './ExportParticipants';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { getParticipants } from '~/queries/participants';
 
-export default function ImportExportSection() {
+export default async function ImportExportSection() {
+  const participants = await getParticipants();
   return (
     <ResponsiveContainer>
       <SettingsSection
@@ -12,7 +14,7 @@ export default function ImportExportSection() {
         controlArea={
           <div className="flex w-72 flex-col items-center justify-end gap-4">
             <ImportCSVModal />
-            <ExportParticipants />
+            <ExportParticipants participants={participants} />
           </div>
         }
       >

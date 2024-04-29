@@ -47,7 +47,7 @@ const ServerSync = ({
       return;
     }
 
-    debouncedSessionSync({
+    void debouncedSessionSync({
       id: interviewId,
       network: currentSession.network,
       currentStep: currentSession.currentStep ?? 0,

@@ -3,8 +3,13 @@ import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
+import { requireAppNotExpired } from '~/queries/appSettings';
+import { requirePageAuth } from '~/utils/auth';
+import { Suspense } from 'react';
 
-const ParticipantPage = () => {
+export default async function ParticipantPage() {
+  await requireAppNotExpired();
+  await requirePageAuth();
   return (
     <>
       <ResponsiveContainer>
@@ -13,7 +18,9 @@ const ParticipantPage = () => {
           subHeaderText="View and manage your participants."
         />
       </ResponsiveContainer>
-      <ImportExportSection />
+      <Suspense fallback="Loading...">
+        <ImportExportSection />
+      </Suspense>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
           <ParticipantsTable />
@@ -21,6 +28,4 @@ const ParticipantPage = () => {
       </ResponsiveContainer>
     </>
   );
-};
-
-export default ParticipantPage;
+}
