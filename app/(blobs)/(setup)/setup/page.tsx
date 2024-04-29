@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import Setup from './Setup';
 import { getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
+import { requireAppNotExpired } from '~/queries/appSettings';
 
 async function getSteupData() {
   const { session } = await getServerSession();
@@ -17,13 +18,16 @@ async function getSteupData() {
   };
 }
 
-export type DataPromiseType = ReturnType<typeof getSteupData>;
+export type SetupData = ReturnType<typeof getSteupData>;
 
-export default function Page() {
-  const dataPromise = getSteupData();
+export default async function Page() {
+  await requireAppNotExpired(true);
+
+  const setupDataPromise = getSteupData();
+
   return (
-    <Suspense>
-      <Setup dataPromise={dataPromise} />
+    <Suspense fallback="Loading...">
+      <Setup setupDataPromise={setupDataPromise} />
     </Suspense>
   );
 }
