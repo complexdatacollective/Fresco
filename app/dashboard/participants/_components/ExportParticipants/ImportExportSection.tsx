@@ -1,12 +1,15 @@
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SettingsSection from '~/components/layout/SettingsSection';
 import ImportCSVModal from '../ImportCSVModal';
-import ExportParticipants from './ExportParticipants';
+import ExportParticipants, {
+  ExportParticipantsFallback,
+} from './ExportParticipants';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { Suspense } from 'react';
 import { getParticipants } from '~/queries/participants';
 
-export default async function ImportExportSection() {
-  const participants = await getParticipants();
+export default function ImportExportSection() {
+  const participantsPromise = getParticipants();
   return (
     <ResponsiveContainer>
       <SettingsSection
@@ -14,7 +17,9 @@ export default async function ImportExportSection() {
         controlArea={
           <div className="flex w-72 flex-col items-center justify-end gap-4">
             <ImportCSVModal />
-            <ExportParticipants participants={participants} />
+            <Suspense fallback={<ExportParticipantsFallback />}>
+              <ExportParticipants participantsPromise={participantsPromise} />
+            </Suspense>
           </div>
         }
       >

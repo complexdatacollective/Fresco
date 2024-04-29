@@ -48,6 +48,9 @@ export const getActivities = unstable_cache(
     return { events, pageCount };
   },
   ['activityFeed'],
+  {
+    tags: ['activityFeed'],
+  },
 );
 
 export type ActivitiesFeed = ReturnType<typeof getActivities>;

@@ -6,34 +6,38 @@ import { prisma } from '~/utils/db';
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-export const getAppSettings = unstable_cache(async () => {
-  const appSettings = await prisma.appSettings.findFirst();
+export const getAppSettings = unstable_cache(
+  async () => {
+    const appSettings = await prisma.appSettings.findFirst();
 
-  // If there are no app settings, create them
-  if (!appSettings) {
-    const newAppSettings = await prisma.appSettings.create({
-      data: {
-        initializedAt: new Date(),
-      },
-    });
+    // If there are no app settings, create them
+    if (!appSettings) {
+      const newAppSettings = await prisma.appSettings.create({
+        data: {
+          initializedAt: new Date(),
+        },
+      });
+
+      return {
+        ...newAppSettings,
+        expired: calculateIsExpired(
+          newAppSettings.configured,
+          newAppSettings.initializedAt,
+        ),
+      };
+    }
 
     return {
-      ...newAppSettings,
+      ...appSettings,
       expired: calculateIsExpired(
-        newAppSettings.configured,
-        newAppSettings.initializedAt,
+        appSettings.configured,
+        appSettings.initializedAt,
       ),
     };
-  }
-
-  return {
-    ...appSettings,
-    expired: calculateIsExpired(
-      appSettings.configured,
-      appSettings.initializedAt,
-    ),
-  };
-}, ['appSettings']);
+  },
+  ['appSettings'],
+  { tags: ['appSettings', 'allowAnonymousRecruitment', 'limitInterviews'] },
+);
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   const appSettings = await getAppSettings();
@@ -59,22 +63,32 @@ export async function isAppExpired() {
   return appSettings.expired;
 }
 
-export const getAnonymousRecruitmentStatus = unstable_cache(async () => {
-  const appSettings = await prisma.appSettings.findFirst({
-    select: {
-      allowAnonymousRecruitment: true,
-    },
-  });
+export const getAnonymousRecruitmentStatus = unstable_cache(
+  async () => {
+    const appSettings = await prisma.appSettings.findFirst({
+      select: {
+        allowAnonymousRecruitment: true,
+      },
+    });
 
-  return !!appSettings?.allowAnonymousRecruitment;
-}, ['appSettings', 'allowAnonymousRecruitment']);
+    return !!appSettings?.allowAnonymousRecruitment;
+  },
+  ['allowAnonymousRecruitment'],
+  { tags: ['appSettings', 'allowAnonymousRecruitment'] },
+);
 
-export const getLimitInterviewsStatus = unstable_cache(async () => {
-  const appSettings = await prisma.appSettings.findFirst({
-    select: {
-      limitInterviews: true,
-    },
-  });
+export const getLimitInterviewsStatus = unstable_cache(
+  async () => {
+    const appSettings = await prisma.appSettings.findFirst({
+      select: {
+        limitInterviews: true,
+      },
+    });
 
-  return !!appSettings?.limitInterviews;
-}, ['appSettings', 'limitInterviews']);
+    return !!appSettings?.limitInterviews;
+  },
+  ['limitInterviews'],
+  {
+    tags: ['appSettings', 'limitInterviews'],
+  },
+);

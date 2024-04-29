@@ -16,11 +16,11 @@ import { redirect } from 'next/navigation';
  */
 export function GET() {
   revalidatePath('/');
-  revalidateTag('appSettings.get');
-  revalidateTag('appSettings.getAnonymousRecruitmentStatus');
-  revalidateTag('interview.get.all');
-  revalidateTag('participant.get.all');
-  revalidateTag('dashboard.getActivities');
+  revalidateTag('appSettings');
+  revalidateTag('getInterviews');
+  revalidateTag('getParticipants');
+  revalidateTag('getProtocols');
+  revalidateTag('activityFeed');
 
   redirect('/');
 }

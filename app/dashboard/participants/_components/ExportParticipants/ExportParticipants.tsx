@@ -1,14 +1,20 @@
 'use client';
 
-import { type Participant } from '@prisma/client';
 import { Check, FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
+import { use, useState } from 'react';
+import { Button, ButtonSkeleton } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
+import type { GetParticipantsReturnType } from '~/queries/participants';
 
-function ExportParticipants({ participants }: { participants: Participant[] }) {
+function ExportParticipants({
+  participantsPromise,
+}: {
+  participantsPromise: GetParticipantsReturnType;
+}) {
+  const participants = use(participantsPromise);
+
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
@@ -62,5 +68,9 @@ function ExportParticipants({ participants }: { participants: Participant[] }) {
     </Button>
   );
 }
+
+export const ExportParticipantsFallback = () => (
+  <ButtonSkeleton className="w-full" />
+);
 
 export default ExportParticipants;
