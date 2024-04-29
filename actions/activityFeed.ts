@@ -2,15 +2,12 @@
 
 import { revalidateTag } from 'next/cache';
 import type { Activity, ActivityType } from '~/lib/data-table/types';
-import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 export async function addEvent(
   type: ActivityType,
   message: Activity['message'],
 ) {
-  await requireApiAuth();
-
   try {
     await prisma.events.create({
       data: {
