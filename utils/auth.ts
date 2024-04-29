@@ -4,7 +4,6 @@ import { prisma as client } from '~/utils/db';
 import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
 import { env } from '~/env.mjs';
 import { cache } from 'react';
-import { createRouteWithSearchParams } from './calculateRedirectedRoutes';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import 'server-only';
@@ -83,12 +82,7 @@ export async function requirePageAuth(
       redirect('/signin');
     }
 
-    const redirectRoute = createRouteWithSearchParams(
-      '/signin',
-      'callbackUrl=' + encodeURI(redirectPath),
-    );
-
-    redirect(redirectRoute);
+    redirect('/signin');
   }
   return session;
 }
