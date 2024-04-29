@@ -1,7 +1,9 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_noStore } from 'next/cache';
 import { prisma } from '~/utils/db';
 
-export const getParticipants = unstable_cache(async () => {
+export const getParticipants = async () => {
+  unstable_noStore();
+
   const participants = await prisma.participant.findMany({
     include: {
       interviews: true,
@@ -10,7 +12,7 @@ export const getParticipants = unstable_cache(async () => {
   });
 
   return participants;
-}, ['getParticipants']);
+};
 
 export type GetParticipantsType = typeof getParticipants;
 export type GetParticipantsReturnType = ReturnType<GetParticipantsType>;
