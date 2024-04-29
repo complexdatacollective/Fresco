@@ -3,6 +3,7 @@ import { trackEvent } from '~/analytics/utils';
 import { cookies } from 'next/headers';
 import { createInterview } from '~/actions/interviews';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
+import getBaseUrl from '~/utils/getBaseUrl';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ const handler = async (
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    return NextResponse.redirect('/onboard/error');
+    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
   }
 
   const limitInterviews = await getLimitInterviewsStatus();
@@ -57,7 +58,7 @@ const handler = async (
       },
     });
 
-    return NextResponse.redirect('/onboard/error');
+    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
   }
 
   // eslint-disable-next-line no-console
@@ -75,7 +76,9 @@ const handler = async (
   });
 
   // Redirect to the interview
-  return NextResponse.redirect(`/interview/${createdInterviewId}`);
+  return NextResponse.redirect(
+    `${getBaseUrl()}/interview/${createdInterviewId}`,
+  );
 };
 
 export { handler as GET, handler as POST };
