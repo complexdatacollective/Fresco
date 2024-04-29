@@ -8,7 +8,7 @@ const PageHeader = ({
   headerText: string;
   subHeaderText: string;
 }) => (
-  <div className="flex flex-col">
+  <div>
     <Heading variant="h1" className="mb-2">
       {headerText}
     </Heading>
