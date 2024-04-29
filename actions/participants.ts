@@ -13,11 +13,16 @@ import { addEvent } from '~/actions/activityFeed';
 export async function deleteParticipants(participantIds: string[]) {
   await requireApiAuth();
 
-  await prisma.participant.deleteMany({
+  const result = await prisma.participant.deleteMany({
     where: {
       id: { in: participantIds },
     },
   });
+
+  void addEvent(
+    'Participant(s) Removed',
+    `Deleted ${result.count} participant(s)`,
+  );
 
   revalidateTag('getParticipants');
   revalidateTag('summaryStatistics');
