@@ -75,12 +75,13 @@ $module-name: form-field-text;
   }
 
   &--area {
-    display: block;
+    display: flex;
     width: 100%;
     min-height: 14rem;
     padding-top: 2rem;
     padding-bottom: 2rem;
     resize: vertical;
+    align-content: flex-start;
   }
 
   &--has-right-adornment {
