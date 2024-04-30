@@ -34,12 +34,9 @@ export async function signup(formData: FormData) {
       sessionCookie.attributes,
     );
 
-    console.log('signup success');
-
     return;
   } catch (error) {
     // db error, email taken, etc
-    console.log('signup error', error);
     return {
       error: 'Username already taken',
     };
@@ -47,17 +44,12 @@ export async function signup(formData: FormData) {
 }
 
 export async function login(formData: FormData) {
-  console.log('form', formData);
-
   const submission = parseWithZod(formData, {
     schema: loginSchema,
   });
 
   // Validate
   if (submission.status !== 'success') {
-    console.log(submission.payload);
-    console.log('invalid');
-    console.log(submission.reply());
     return {
       error: 'Invalid form submission',
     };
@@ -79,7 +71,6 @@ export async function login(formData: FormData) {
     // Since protecting against this is non-trivial,
     // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
     // If usernames are public, you may outright tell the user that the username is invalid.
-    console.log('invalid username');
     return {
       error: 'Incorrect username or password',
     };
@@ -90,13 +81,11 @@ export async function login(formData: FormData) {
     submission.value.password,
   );
   if (!validPassword) {
-    console.log('invalid password');
     return {
       error: 'Incorrect username or password',
     };
   }
 
-  console.log('auth success');
   const session = await lucia.createSession(existingUser.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
   cookies().set(

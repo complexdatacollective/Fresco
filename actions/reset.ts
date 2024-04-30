@@ -31,19 +31,3 @@ export const resetAppSettings = async () => {
     return { error: 'Failed to reset appSettings', appSettings: null };
   }
 };
-
-export const setAppConfigured = async () => {
-  await requireApiAuth();
-
-  try {
-    await prisma.appSettings.updateMany({
-      data: {
-        configured: true,
-      },
-    });
-  } catch (error) {
-    return { error: 'Failed to update appSettings', appSettings: null };
-  }
-
-  redirect('/dashboard');
-};

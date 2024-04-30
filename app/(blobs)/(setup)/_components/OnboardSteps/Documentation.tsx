@@ -1,11 +1,11 @@
 import { FileText } from 'lucide-react';
-import { setAppConfigured } from '~/actions/reset';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { trackEvent } from '~/analytics/utils';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
+import { setAppConfigured } from '~/actions/appSettings';
 
 function Documentation() {
   const handleAppConfigured = async () => {
