@@ -17,7 +17,7 @@ import {
 } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { type RouterOutputs } from '~/trpc/shared';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { Loader2, XCircle } from 'lucide-react';
+import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import Heading from '~/components/ui/typography/Heading';
 import { ensureError } from '~/utils/ensureError';
@@ -64,6 +64,8 @@ export const ExportInterviewsDialog = ({
   );
 
   const handleConfirm = async () => {
+    let exportFilename = null; // Used to track the filename of the temp file uploaded to UploadThing
+
     // start export process
     setIsExporting(true);
     try {
@@ -75,6 +77,8 @@ export const ExportInterviewsDialog = ({
         const e = ensureError(result.error);
         throw new Error(e.message);
       }
+
+      exportFilename = result.data.key;
 
       const response = await fetch(result.data.url);
 
@@ -90,9 +94,6 @@ export const ExportInterviewsDialog = ({
       download(url, result.data.name);
       // clean up the URL object
       URL.revokeObjectURL(url);
-
-      // Delete the zip file from UploadThing
-      await deleteZipFromUploadThing(result.data.key);
     } catch (error) {
       toast({
         icon: <XCircle />,
@@ -108,10 +109,37 @@ export const ExportInterviewsDialog = ({
         stack: e.stack,
         metadata: {
           error: e.name,
+          string: e.toString(),
           path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
         },
       });
     } finally {
+      if (exportFilename) {
+        // Attempt to delete the zip file from UploadThing.
+        void deleteZipFromUploadThing(exportFilename).catch((error) => {
+          const e = ensureError(error);
+          void trackEvent({
+            type: 'Error',
+            name: 'FailedToDeleteTempFile',
+            message: e.message,
+            stack: e.stack,
+            metadata: {
+              error: e.name,
+              string: e.toString(),
+              path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
+            },
+          });
+
+          toast({
+            icon: <FileWarning />,
+            variant: 'default',
+            title: 'Could not delete temp file',
+            description:
+              'We were unable to delete the temporary file stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. If you have any concerns, please contact info@networkcanvas.com.',
+          });
+        });
+      }
+
       setIsExporting(false);
       handleCancel(); // Close the dialog
     }

@@ -11,13 +11,9 @@ export const deleteZipFromUploadThing = async (key: string) => {
 
   if (!session) {
     throw new Error(
-      'You must be logged in to delete interview data from UploadThing!.',
+      'You must be logged in to delete interview data from UploadThing!',
     );
   }
 
-  const deleteResponse = await utapi.deleteFiles(key);
-
-  if (!deleteResponse.success) {
-    throw new Error('Failed to delete the zip file from UploadThing');
-  }
+  await utapi.deleteFiles(key);
 };
