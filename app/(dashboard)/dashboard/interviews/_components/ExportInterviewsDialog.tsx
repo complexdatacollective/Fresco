@@ -24,6 +24,7 @@ import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
 import { deleteZipFromUploadThing } from '../_actions/deleteZipFromUploadThing';
+import { trackEvent } from '~/analytics/utils';
 
 const ExportingStateAnimation = () => {
   return (
@@ -98,6 +99,17 @@ export const ExportInterviewsDialog = ({
         title: 'Error',
         description: 'Failed to export, please try again.',
         variant: 'destructive',
+      });
+      const e = ensureError(error);
+      void trackEvent({
+        type: 'Error',
+        name: 'FailedToExportInterviews',
+        message: e.message,
+        stack: e.stack,
+        metadata: {
+          error: e.name,
+          path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
+        },
       });
     } finally {
       setIsExporting(false);
