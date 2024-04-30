@@ -1,13 +1,9 @@
-'use server';
-
 import { unstable_cache } from 'next/cache';
-import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
+import 'server-only';
 
 export const getProtocols = unstable_cache(
   async () => {
-    await requireApiAuth();
-
     const protocols = await prisma.protocol.findMany({
       include: { interviews: true },
     });
@@ -25,7 +21,6 @@ export type GetProtocolsReturnType = ReturnType<typeof getProtocols>;
 
 export const getProtocolByHash = unstable_cache(
   async (hash: string) => {
-    await requireApiAuth();
     const protocol = await prisma.protocol.findFirst({
       where: {
         hash,
@@ -45,7 +40,6 @@ export type GetProtocolByHashReturnType = ReturnType<typeof getProtocolByHash>;
 
 export const getProtocolByLastUpdated = unstable_cache(
   async () => {
-    await requireApiAuth();
     const protocol = await prisma.protocol.findFirst({
       orderBy: {
         importedAt: 'desc',
@@ -67,8 +61,6 @@ export type GetProtocolByLastUpdatedReturnType = ReturnType<
 
 export const getExistingAssetIds = unstable_cache(
   async (assetIds: string[]) => {
-    await requireApiAuth();
-
     const assets = await prisma.asset.findMany({
       where: {
         assetId: {

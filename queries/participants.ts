@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { prisma } from '~/utils/db';
+import 'server-only';
 
 export const getParticipants = unstable_cache(
   async () => {

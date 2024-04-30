@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { type SearchParams } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
+import 'server-only';
 
 export const getActivities = unstable_cache(
   async (rawSearchParams: unknown) => {

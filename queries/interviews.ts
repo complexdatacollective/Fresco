@@ -1,6 +1,6 @@
 import { prisma } from '~/utils/db';
-import 'server-only';
 import { unstable_cache } from 'next/cache';
+import 'server-only';
 
 export const getInterviews = unstable_cache(
   async () => {
