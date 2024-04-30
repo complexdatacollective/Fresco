@@ -6,6 +6,8 @@ import Paragraph from './ui/typography/Paragraph';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
+import { use } from 'react';
+import { getInstallationId } from '~/analytics/utils';
 
 const GithubApiResponseSchema = z.object({
   status: z.string(),
@@ -39,11 +41,13 @@ const checkIfUpdateAvailable = async () => {
   }
 };
 
-export default function VersionSection() {
+export default function VersionSection({ installationIdPromise}: {  installationIdPromise: ReturnType<typeof getInstallationId> }) {
   const { isLoading, data, isError } = useQuery({
     queryKey: ['repoData'],
     queryFn: checkIfUpdateAvailable,
   });
+
+  const installationID = use(installationIdPromise);
 
   return (
     <SettingsSection
@@ -96,7 +100,10 @@ export default function VersionSection() {
       }
     >
       <Paragraph>
-        You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH})
+        You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH}).
+      </Paragraph>
+      <Paragraph>
+        Your unique installation ID is: {installationID}
       </Paragraph>
     </SettingsSection>
   );

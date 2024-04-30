@@ -88,6 +88,15 @@ export const exportSessions = async (
     fileExportManager.on('error', (errResult: FailResult) => {
       // eslint-disable-next-line no-console
       console.log('Session export failed, Error:', errResult.message);
+      void trackEvent({
+        type: 'Error',
+        name: 'SessionExportFailed',
+        message: errResult.message,
+        metadata: {
+          errResult,
+          path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
+        },
+      })
     });
 
     fileExportManager.on(
@@ -117,12 +126,12 @@ export const exportSessions = async (
 
     if (updatedInterviews.error) throw new Error(updatedInterviews.error);
 
-    void (await trackEvent({
+    void trackEvent({
       type: 'DataExported',
       metadata: {
         sessions: interviewIds.length,
       },
-    }));
+    });
     return { ...output };
   } catch (error) {
     // eslint-disable-next-line no-console
