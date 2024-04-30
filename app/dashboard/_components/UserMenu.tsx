@@ -1,12 +1,12 @@
 import { logout } from '~/actions/auth';
-import { Button } from '~/components/ui/Button';
+import SubmitButton from '~/components/ui/SubmitButton';
 
 const UserMenu = () => {
   return (
     <form action={logout}>
-      <Button variant="secondary" size="sm" type="submit">
+      <SubmitButton variant="secondary" size="sm" type="submit">
         Sign out
-      </Button>
+      </SubmitButton>
     </form>
   );
 };

@@ -2,9 +2,9 @@ import { containerClasses } from '../_components/schemas';
 import { cn } from '~/utils/shadcn';
 import { getServerSession } from '~/utils/auth';
 import { redirect } from 'next/navigation';
-import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { login } from '~/actions/auth';
+import SubmitButton from '~/components/ui/SubmitButton';
 
 export const metadata = {
   title: 'Fresco - Sign In',
@@ -55,14 +55,7 @@ export default async function Page() {
           />
         </div>
         <div className="flex flex-wrap">
-          {/* {loading ? ( */}
-          {/* <Button disabled>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Signing in...
-        </Button> */}
-          {/* ) : ( */}
-          <Button type="submit">Sign in</Button>
-          {/* )} */}
+          <SubmitButton>Sign In</SubmitButton>
         </div>
       </form>
     </div>
