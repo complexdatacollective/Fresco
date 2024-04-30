@@ -10,12 +10,15 @@ import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch/LimitInter
 import { api } from '~/trpc/server';
 import VersionSection from '~/components/VersionSection';
 import { env } from '~/env.mjs';
+import { getInstallationId } from '~/analytics/utils';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Settings() {
   const allowAnonymousRecruitment =
     await api.appSettings.getAnonymousRecruitmentStatus.query();
+
+  const installationIdPromise = getInstallationId();
 
   return (
     <>
@@ -26,7 +29,7 @@ export default async function Settings() {
         />
       </ResponsiveContainer>
       <ResponsiveContainer className="gap-4">
-        <VersionSection />
+        <VersionSection installationIdPromise={installationIdPromise} />
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={
