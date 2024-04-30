@@ -57,7 +57,7 @@ $global-input-border-space: 0.25rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-content: center;
+  align-content: flex-start;
   justify-items: center;
 
   &__inline {
