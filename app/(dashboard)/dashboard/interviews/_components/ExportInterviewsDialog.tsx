@@ -25,6 +25,7 @@ import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
 import { deleteZipFromUploadThing } from '../_actions/deleteZipFromUploadThing';
 import { trackEvent } from '~/analytics/utils';
+import { api } from '~/trpc/client';
 
 const ExportingStateAnimation = () => {
   return (
@@ -57,6 +58,9 @@ export const ExportInterviewsDialog = ({
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
+  const { mutate: updateExportTime } =
+    api.interview.updateExportTime.useMutation();
+
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
     'exportOptions',
     ExportOptionsSchema,
@@ -75,6 +79,9 @@ export const ExportInterviewsDialog = ({
         const e = ensureError(result.error);
         throw new Error(e.message);
       }
+
+      // update export time of interviews
+      updateExportTime(interviewIds);
 
       const response = await fetch(result.data.url);
 

@@ -96,7 +96,7 @@ export const exportSessions = async (
           errResult,
           path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
         },
-      })
+      });
     });
 
     fileExportManager.on(
@@ -119,12 +119,6 @@ export const exportSessions = async (
     const { run } = await exportJob;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const output: SuccessResult = await run(); // main export method
-
-    // update export time of interviews
-    const updatedInterviews =
-      await api.interview.updateExportTime.mutate(interviewIds);
-
-    if (updatedInterviews.error) throw new Error(updatedInterviews.error);
 
     void trackEvent({
       type: 'DataExported',
