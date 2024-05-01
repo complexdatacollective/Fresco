@@ -17,6 +17,24 @@ type InterviewsWithProtocol = (Interview & { protocol: Protocol } & {
   participant: Participant;
 })[];
 
+type FormattedSession = {
+  sessionNetwork: object;
+  sessionVariables: {
+    [caseProperty]: string;
+    [sessionProperty]: string;
+    [protocolProperty]: string;
+    [protocolName]: string;
+    [codebookHashProperty]: string;
+    [sessionExportTimeProperty]: string;
+    [sessionStartTimeProperty]?: string;
+    [sessionFinishTimeProperty]?: string;
+    COMMIT_HASH: string;
+    APP_VERSION: string;
+  };
+};
+
+export type FormattedSessions = FormattedSession[];
+
 /**
  * Creates an object containing all required session metadata for export
  * and appends it to the session

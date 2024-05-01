@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { useToast } from '~/components/ui/use-toast';
-import { exportSessions } from '../_actions/export';
+import { prepareExportData, exportSessions } from '../_actions/export';
 import ExportOptionsView from './ExportOptionsView';
 import { useDownload } from '~/hooks/useDownload';
 import {
@@ -73,7 +73,20 @@ export const ExportInterviewsDialog = ({
     try {
       const interviewIds = interviewsToExport.map((interview) => interview.id);
 
-      const result = await exportSessions(interviewIds, exportOptions);
+      // prepare data for export
+      const { formattedSessions, formattedProtocols } =
+        await prepareExportData(interviewIds);
+
+      if (!formattedSessions || !formattedProtocols) {
+        throw new Error('Failed to prepare export data');
+      }
+      // export the data
+      const result = await exportSessions(
+        formattedSessions,
+        formattedProtocols,
+        interviewIds,
+        exportOptions,
+      );
 
       if (result.error || !result.data) {
         const e = ensureError(result.error);

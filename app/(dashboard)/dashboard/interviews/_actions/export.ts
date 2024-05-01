@@ -3,7 +3,10 @@
 import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
-import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
+import {
+  formatExportableSessions,
+  type FormattedSessions,
+} from '~/lib/network-exporters/formatters/formatExportableSessions';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
@@ -33,30 +36,34 @@ type SuccessResult = {
   message: string;
 };
 
+export const prepareExportData = async (interviewIds: Interview['id'][]) => {
+  const session = await getServerSession();
+
+  if (!session) {
+    throw new Error('You must be logged in to export interview sessions!.');
+  }
+
+  const interviewsSessions =
+    await api.interview.get.forExport.query(interviewIds);
+
+  const protocolsMap = new Map<string, Protocol>();
+  interviewsSessions.forEach((session) => {
+    protocolsMap.set(session.protocol.hash, session.protocol);
+  });
+
+  const formattedProtocols = Object.fromEntries(protocolsMap);
+  const formattedSessions = formatExportableSessions(interviewsSessions);
+
+  return { formattedSessions, formattedProtocols };
+};
+
 export const exportSessions = async (
+  formattedSessions: FormattedSessions,
+  formattedProtocols: Record<string, Protocol>,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ) => {
   try {
-    const session = await getServerSession();
-
-    if (!session) {
-      throw new Error('You must be logged in to export interview sessions!.');
-    }
-
-    // Get interviews From DB, by ids
-    const interviewsSessions =
-      await api.interview.get.forExport.query(interviewIds);
-
-    // store unique protocols in a Map, keyed by protocol hash
-    const protocolsMap = new Map<string, Protocol>();
-    interviewsSessions.forEach((session) => {
-      protocolsMap.set(session.protocol.hash, session.protocol);
-    });
-
-    const formattedProtocols = Object.fromEntries(protocolsMap);
-    const formattedSessions = formatExportableSessions(interviewsSessions);
-
     const fileExportManager = new FileExportManager(exportOptions);
 
     fileExportManager.on('begin', () => {
