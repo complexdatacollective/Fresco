@@ -54,7 +54,10 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   const formattedProtocols = Object.fromEntries(protocolsMap);
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
-  return { formattedSessions, formattedProtocols };
+  return { formattedSessions, formattedProtocols } as {
+    formattedSessions: FormattedSessions;
+    formattedProtocols: Record<string, Protocol>;
+  };
 };
 
 export const exportSessions = async (
