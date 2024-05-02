@@ -2,7 +2,6 @@ import InterviewShell from '../_components/InterviewShell';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
-import { Suspense } from 'react';
 import { syncInterview } from '~/actions/interviews';
 import { getInterviewById } from '~/queries/interviews';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
