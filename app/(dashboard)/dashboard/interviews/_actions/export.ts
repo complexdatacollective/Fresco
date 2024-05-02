@@ -54,10 +54,7 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   const formattedProtocols = Object.fromEntries(protocolsMap);
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
-  return { formattedSessions, formattedProtocols } as {
-    formattedSessions: FormattedSessions;
-    formattedProtocols: Record<string, Protocol>;
-  };
+  return { formattedSessions, formattedProtocols };
 };
 
 export const exportSessions = async (
@@ -128,15 +125,19 @@ export const exportSessions = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { run } = await exportJob;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const output: SuccessResult = await run(); // main export method
+    const result: SuccessResult | FailResult = await run(); // main export method
 
     void trackEvent({
       type: 'DataExported',
       metadata: {
         sessions: interviewIds.length,
+        exportOptions,
+        resultError: result.error,
+        resultMessage: result.message,
       },
     });
-    return { ...output };
+
+    return result;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);

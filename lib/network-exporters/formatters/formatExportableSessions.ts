@@ -1,4 +1,5 @@
 import {
+  type NcNetwork,
   caseProperty,
   codebookHashProperty,
   protocolName,
@@ -8,17 +9,12 @@ import {
   sessionProperty,
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
-
-import type { Interview, Protocol, Participant } from '@prisma/client';
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
-
-type InterviewsWithProtocol = (Interview & { protocol: Protocol } & {
-  participant: Participant;
-})[];
+import type { RouterOutputs } from '~/trpc/shared';
 
 type FormattedSession = {
-  sessionNetwork: object;
+  sessionNetwork: NcNetwork;
   sessionVariables: {
     [caseProperty]: string;
     [sessionProperty]: string;
@@ -40,12 +36,12 @@ export type FormattedSessions = FormattedSession[];
  * and appends it to the session
  */
 
-export const formatExportableSessions = (sessions: InterviewsWithProtocol) =>
-  sessions.map((session) => {
+export const formatExportableSessions = (
+  sessions: RouterOutputs['interview']['get']['forExport'],
+) => {
+  return sessions.map((session) => {
     const sessionProtocol = session.protocol;
     const sessionParticipant = session.participant;
-
-    if (!sessionProtocol) return;
 
     const sessionVariables = {
       [caseProperty]: sessionParticipant.label,
@@ -64,12 +60,11 @@ export const formatExportableSessions = (sessions: InterviewsWithProtocol) =>
       APP_VERSION: env.APP_VERSION,
     };
 
-    const sessionNetwork = JSON.parse(
-      JSON.stringify(session.network),
-    ) as object;
+    const sessionNetwork = session.network as unknown as NcNetwork;
 
     return {
-      ...sessionNetwork,
+      sessionNetwork,
       sessionVariables,
-    };
+    } as FormattedSession;
   });
+};
