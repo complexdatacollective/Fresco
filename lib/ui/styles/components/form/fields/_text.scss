@@ -81,6 +81,7 @@ $module-name: form-field-text;
     padding-top: 2rem;
     padding-bottom: 2rem;
     resize: vertical;
+    align-content: flex-start;
   }
 
   &--has-right-adornment {
