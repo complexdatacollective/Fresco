@@ -109,7 +109,7 @@ export const ParticipantsTableClient = ({
               <AddParticipantButton existingParticipants={participants} />
               <GenerateParticipantURLs
                 participants={participants}
-                protocols={[]}
+                protocols={protocols}
               />
             </div>
             <Button variant="destructive" onClick={handleDeleteAll}>
