@@ -297,6 +297,7 @@ export async function syncInterview(data: SyncInterview) {
 
     revalidateTag(`getInterviewById-${id}`);
 
+    // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${id})`);
     return { success: true };
   } catch (error) {
