@@ -1,6 +1,7 @@
+'use server';
+
 import { unstable_cache } from 'next/cache';
 import { prisma } from '~/utils/db';
-import 'server-only';
 
 export const getProtocols = unstable_cache(
   async () => {
