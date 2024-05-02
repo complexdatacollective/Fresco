@@ -10,9 +10,8 @@ import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import VersionSection from '~/components/VersionSection';
 import { env } from '~/env.mjs';
 import { Suspense } from 'react';
-import { requireAppNotExpired } from '~/queries/appSettings';
+import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
-import { getInstallationId } from '~/analytics/utils';
 
 export default async function Settings() {
   await requireAppNotExpired();

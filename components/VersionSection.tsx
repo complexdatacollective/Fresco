@@ -6,8 +6,8 @@ import Paragraph from './ui/typography/Paragraph';
 import { z } from 'zod';
 import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
-import type { getInstallationId } from '~/analytics/utils';
 import { ensureError } from '~/utils/ensureError';
+import { type getInstallationId } from '~/queries/appSettings';
 
 const GithubApiResponseSchema = z.object({
   status: z.string(),

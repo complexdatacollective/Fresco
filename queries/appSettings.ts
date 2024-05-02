@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { prisma } from '~/utils/db';
 import 'server-only';
+import { env } from '~/env.mjs';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
@@ -66,11 +67,7 @@ export async function isAppExpired() {
 
 export const getAnonymousRecruitmentStatus = unstable_cache(
   async () => {
-    const appSettings = await prisma.appSettings.findFirst({
-      select: {
-        allowAnonymousRecruitment: true,
-      },
-    });
+    const appSettings = await getAppSettings();
 
     return !!appSettings?.allowAnonymousRecruitment;
   },
@@ -80,11 +77,7 @@ export const getAnonymousRecruitmentStatus = unstable_cache(
 
 export const getLimitInterviewsStatus = unstable_cache(
   async () => {
-    const appSettings = await prisma.appSettings.findFirst({
-      select: {
-        limitInterviews: true,
-      },
-    });
+    const appSettings = await getAppSettings();
 
     return !!appSettings?.limitInterviews;
   },
@@ -92,4 +85,18 @@ export const getLimitInterviewsStatus = unstable_cache(
   {
     tags: ['appSettings', 'limitInterviews'],
   },
+);
+
+export const getInstallationId = unstable_cache(
+  async () => {
+    if (env.INSTALLATION_ID) {
+      return env.INSTALLATION_ID;
+    }
+
+    const appSettings = await getAppSettings();
+
+    return appSettings?.installationId ?? 'Unknown';
+  },
+  ['getInstallationId'],
+  { tags: ['getInstallationId', 'appSettings'] },
 );

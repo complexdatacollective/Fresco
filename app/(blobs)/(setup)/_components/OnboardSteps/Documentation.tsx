@@ -1,6 +1,6 @@
 import { FileText } from 'lucide-react';
 import SubmitButton from '~/components/ui/SubmitButton';
-import { trackEvent } from '~/analytics/utils';
+import { trackEvent } from '~/lib/analytics';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import Section from '~/components/layout/Section';

@@ -3,7 +3,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
-import { trackEvent } from '~/analytics/utils';
+import { trackEvent } from '~/lib/analytics';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import {
   type FormattedSessions,
@@ -295,7 +295,7 @@ export async function syncInterview(data: SyncInterview) {
       },
     });
 
-    revalidateTag('getInterviews');
+    revalidateTag(`getInterviewById-${id}`);
 
     console.log(`🚀 Interview synced with server! (${id})`);
     return { success: true };

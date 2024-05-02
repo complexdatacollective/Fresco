@@ -1,4 +1,3 @@
-/* eslint-disable local-rules/require-data-mapper */
 import InterviewShell from '../_components/InterviewShell';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';

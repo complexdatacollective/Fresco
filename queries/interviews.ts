@@ -47,25 +47,26 @@ export type GetInterviewsForExportReturnType = ReturnType<
   typeof getInterviewsForExport
 >;
 
-export const getInterviewById = unstable_cache(
-  async (interviewId: string) => {
-    const interview = await prisma.interview.findUnique({
-      where: {
-        id: interviewId,
-      },
-      include: {
-        protocol: {
-          include: {
-            assets: true,
+export const getInterviewById = (interviewId: string) =>
+  unstable_cache(
+    async (interviewId: string) => {
+      const interview = await prisma.interview.findUnique({
+        where: {
+          id: interviewId,
+        },
+        include: {
+          protocol: {
+            include: {
+              assets: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    return interview;
-  },
-  ['getInterviewById'],
-  {
-    tags: ['getInterviewById', 'getInterviews'],
-  },
-);
+      return interview;
+    },
+    [`getInterviewById-${interviewId}`],
+    {
+      tags: [`getInterviewById-${interviewId}`, 'getInterviewById'],
+    },
+  )(interviewId);

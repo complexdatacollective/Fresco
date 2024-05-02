@@ -1,15 +1,27 @@
-import { File } from 'node:buffer';
-import { readFileSync } from 'node:fs';
-import { unlink } from 'node:fs/promises';
+'use server';
+
 import { utapi } from '~/app/api/uploadthing/core';
+import { requireApiAuth } from '~/utils/auth';
+import { File } from 'node:buffer';
+import { unlink, readFile } from 'node:fs/promises';
 import { ensureError } from '~/utils/ensureError';
+
+export const deleteZipFromUploadThing = async (key: string) => {
+  await requireApiAuth();
+
+  const deleteResponse = await utapi.deleteFiles(key);
+
+  if (!deleteResponse.success) {
+    throw new Error('Failed to delete the zip file from UploadThing');
+  }
+};
 
 export const uploadZipToUploadThing = async (
   zipLocation: string,
   fileName: string,
 ) => {
   try {
-    const zipBuffer = readFileSync(zipLocation);
+    const zipBuffer = await readFile(zipLocation);
     const zipFile = new File([zipBuffer], `${fileName}.zip`, {
       type: 'application/zip',
     });

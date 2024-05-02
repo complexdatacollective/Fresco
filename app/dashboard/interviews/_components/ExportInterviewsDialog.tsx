@@ -23,14 +23,14 @@ import Heading from '~/components/ui/typography/Heading';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
-import { deleteZipFromUploadThing } from '~/actions/deleteZipFromUploadThing';
+import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import {
   prepareExportData,
   exportSessions,
   updateExportTime,
 } from '~/actions/interviews';
 import type { Interview } from '@prisma/client';
-import { trackEvent } from '~/analytics/utils';
+import { trackEvent } from '~/lib/analytics';
 
 const ExportingStateAnimation = () => {
   return (

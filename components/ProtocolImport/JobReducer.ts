@@ -1,4 +1,4 @@
-import { trackEvent } from '~/analytics/utils';
+import { trackEvent } from '~/lib/analytics';
 
 export const importStatuses = [
   'Queued',

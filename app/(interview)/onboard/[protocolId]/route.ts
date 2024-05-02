@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { trackEvent } from '~/analytics/utils';
+import { trackEvent } from '~/lib/analytics';
 import { cookies } from 'next/headers';
 import { createInterview } from '~/actions/interviews';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
