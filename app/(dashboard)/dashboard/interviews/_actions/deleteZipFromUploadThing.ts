@@ -11,7 +11,7 @@ export const deleteZipFromUploadThing = async (key: string) => {
 
   if (!session) {
     throw new Error(
-      'You must be logged in to delete interview data from UploadThing!.',
+      'You must be logged in to delete interview data from UploadThing!',
     );
   }
 

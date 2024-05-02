@@ -3,7 +3,10 @@
 import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
-import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
+import {
+  formatExportableSessions,
+  type FormattedSessions,
+} from '~/lib/network-exporters/formatters/formatExportableSessions';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
@@ -23,7 +26,7 @@ type UpdateItems = {
 
 type FailResult = {
   data: null;
-  error: unknown;
+  error: string;
   message: string;
 };
 
@@ -33,30 +36,34 @@ type SuccessResult = {
   message: string;
 };
 
+export const prepareExportData = async (interviewIds: Interview['id'][]) => {
+  const session = await getServerSession();
+
+  if (!session) {
+    throw new Error('You must be logged in to export interview sessions!.');
+  }
+
+  const interviewsSessions =
+    await api.interview.get.forExport.query(interviewIds);
+
+  const protocolsMap = new Map<string, Protocol>();
+  interviewsSessions.forEach((session) => {
+    protocolsMap.set(session.protocol.hash, session.protocol);
+  });
+
+  const formattedProtocols = Object.fromEntries(protocolsMap);
+  const formattedSessions = formatExportableSessions(interviewsSessions);
+
+  return { formattedSessions, formattedProtocols };
+};
+
 export const exportSessions = async (
+  formattedSessions: FormattedSessions,
+  formattedProtocols: Record<string, Protocol>,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ) => {
   try {
-    const session = await getServerSession();
-
-    if (!session) {
-      throw new Error('You must be logged in to export interview sessions!.');
-    }
-
-    // Get interviews From DB, by ids
-    const interviewsSessions =
-      await api.interview.get.forExport.query(interviewIds);
-
-    // store unique protocols in a Map, keyed by protocol hash
-    const protocolsMap = new Map<string, Protocol>();
-    interviewsSessions.forEach((session) => {
-      protocolsMap.set(session.protocol.hash, session.protocol);
-    });
-
-    const formattedProtocols = Object.fromEntries(protocolsMap);
-    const formattedSessions = formatExportableSessions(interviewsSessions);
-
     const fileExportManager = new FileExportManager(exportOptions);
 
     fileExportManager.on('begin', () => {
@@ -96,7 +103,7 @@ export const exportSessions = async (
           errResult,
           path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
         },
-      })
+      });
     });
 
     fileExportManager.on(
@@ -118,21 +125,19 @@ export const exportSessions = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { run } = await exportJob;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const output: SuccessResult = await run(); // main export method
-
-    // update export time of interviews
-    const updatedInterviews =
-      await api.interview.updateExportTime.mutate(interviewIds);
-
-    if (updatedInterviews.error) throw new Error(updatedInterviews.error);
+    const result: SuccessResult | FailResult = await run(); // main export method
 
     void trackEvent({
       type: 'DataExported',
       metadata: {
         sessions: interviewIds.length,
+        exportOptions,
+        resultError: result.error,
+        resultMessage: result.message,
       },
     });
-    return { ...output };
+
+    return result;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -150,7 +155,7 @@ export const exportSessions = async (
     return {
       data: null,
       message: 'Error during data export!',
-      error,
+      error: e.message,
     };
   }
 };
