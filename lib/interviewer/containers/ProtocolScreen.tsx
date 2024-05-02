@@ -203,7 +203,7 @@ export default function ProtocolScreen() {
 
   useEffect(() => {
     if (currentStep !== prevCurrentStep) {
-      void setQueryStep(currentStep);
+      void setQueryStep(currentStep, { history: 'push' });
     }
   }, [currentStep, prevCurrentStep, setQueryStep]);
 
