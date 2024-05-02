@@ -10,9 +10,9 @@ import {
 import { store } from '~/lib/interviewer/store';
 import ServerSync from './ServerSync';
 import { useEffect, useState } from 'react';
-import type { Prisma } from '@prisma/client';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import type { SyncInterviewType } from '~/actions/interviews';
+import type { getInterviewById } from '~/queries/interviews';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
@@ -21,15 +21,7 @@ const InterviewShell = ({
   interview,
   syncInterview,
 }: {
-  interview: Prisma.InterviewGetPayload<{
-    include: {
-      protocol: {
-        include: {
-          assets: true;
-        };
-      };
-    };
-  }>;
+  interview: Awaited<ReturnType<typeof getInterviewById>>;
   syncInterview: SyncInterviewType;
 }) => {
   const [initialized, setInitialized] = useState(false);
@@ -63,9 +55,9 @@ const InterviewShell = ({
     });
 
     setInitialized(true);
-  }, [interview, initialized, setInitialized, currentStage, setCurrentStage]);
+  }, [initialized, setInitialized, currentStage, setCurrentStage, interview]);
 
-  if (!initialized) {
+  if (!initialized || !interview) {
     return null;
   }
 

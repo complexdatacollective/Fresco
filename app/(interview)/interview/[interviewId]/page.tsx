@@ -44,9 +44,7 @@ export default async function Page({
   return (
     <>
       {session && <FeedbackBanner />}
-      <Suspense fallback="Loading interview shell...">
-        <InterviewShell interview={interview} syncInterview={syncInterview} />
-      </Suspense>
+      <InterviewShell interview={interview} syncInterview={syncInterview} />
     </>
   );
 }
