@@ -9,6 +9,7 @@ import { utapi } from '~/app/api/uploadthing/core';
 import { protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
+import { addEvent } from './activityFeed';
 
 // When deleting protocols we must first delete the assets associated with them
 // from the cloud storage.
@@ -107,6 +108,8 @@ export async function deleteAllProtocols() {
 }
 
 async function deleteFilesFromUploadThing(fileKey: string | string[]) {
+  await requireApiAuth();
+
   if (fileKey.length === 0) {
     // eslint-disable-next-line no-console
     console.log('No assets to delete');
@@ -155,21 +158,15 @@ export async function insertProtocol(
       },
     });
 
-    await prisma.events.create({
-      data: {
-        type: 'Protocol Installed',
-        message: `Protocol "${protocolName}" installed`,
-      },
-    });
+    void addEvent('Protocol Installed', `Protocol "${protocolName}" installed`);
 
-    revalidateTag('activityFeed');
     revalidateTag('getProtocols');
 
     return { error: null, success: true };
   } catch (e) {
     // Attempt to delete any assets we uploaded to storage
     if (newAssets.length > 0) {
-      await deleteFilesFromUploadThing(newAssets.map((a) => a.key));
+      void deleteFilesFromUploadThing(newAssets.map((a) => a.key));
     }
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
