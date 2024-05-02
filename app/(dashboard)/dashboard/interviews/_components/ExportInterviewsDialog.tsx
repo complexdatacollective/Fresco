@@ -135,7 +135,7 @@ export const ExportInterviewsDialog = ({
             variant: 'default',
             title: 'Could not delete temp file',
             description:
-              'We were unable to delete the temporary file stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. If you have any concerns, please contact info@networkcanvas.com.',
+              'We were unable to delete the temporary file stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please use the feedback button to report this issue.',
           });
         });
       }
