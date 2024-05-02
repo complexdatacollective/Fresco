@@ -12,10 +12,14 @@ import { env } from '~/env.mjs';
 import { Suspense } from 'react';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
+import { getInstallationId } from '~/analytics/utils';
 
 export default async function Settings() {
   await requireAppNotExpired();
   await requirePageAuth();
+
+  const installationIdPromise = getInstallationId();
+
   return (
     <>
       <ResponsiveContainer>
@@ -25,7 +29,7 @@ export default async function Settings() {
         />
       </ResponsiveContainer>
       <ResponsiveContainer className="gap-4">
-        <VersionSection />
+        <VersionSection installationIdPromise={installationIdPromise} />
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={

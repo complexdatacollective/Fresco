@@ -44,7 +44,7 @@ function ExportCSVInterviewURLs({
       // Clean up the URL object
       URL.revokeObjectURL(url);
       toast({
-        description: 'Incomplete intervew URLs CSV exported successfully',
+        description: 'Incomplete interview URLs CSV exported successfully',
         variant: 'success',
         duration: 3000,
       });
