@@ -1,6 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { prisma } from '~/utils/db';
 import { utapi } from '../app/api/uploadthing/core';
 import { revalidatePath } from 'next/cache';
@@ -23,10 +22,12 @@ export const resetAppSettings = async () => {
     revalidatePath('/');
 
     // Remove all files from UploadThing:
-    await utapi.listFiles({}).then((assets) => {
-      const keys = assets.map((asset) => asset.key);
+    await utapi.listFiles({}).then(({ files }) => {
+      const keys = files.map((file) => file.key);
       return utapi.deleteFiles(keys);
     });
+
+    return { error: null, appSettings: null };
   } catch (error) {
     return { error: 'Failed to reset appSettings', appSettings: null };
   }
