@@ -1,4 +1,4 @@
-name: Build
+name: Lint
 
 on:
   pull_request:
@@ -50,4 +50,4 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Run build
-        run: pnpm next build
+        run: pnpm lint

@@ -8,7 +8,8 @@
     "dev": "next dev",
     "postinstall": "node postinstall.mjs",
     "lint": "SKIP_ENV_VALIDATION=true next lint",
-    "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
+    "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
+    "ts-lint:watch": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
     "db:push": "cross-env NODE_ENV=development prisma db push"
   },
