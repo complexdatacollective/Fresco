@@ -2,6 +2,7 @@ import { File } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { unlink } from 'node:fs/promises';
 import { utapi } from '~/app/api/uploadthing/core';
+import { ensureError } from '~/utils/ensureError';
 
 export const uploadZipToUploadThing = async (
   zipLocation: string,
@@ -15,25 +16,23 @@ export const uploadZipToUploadThing = async (
 
     const { data, error } = await utapi.uploadFiles(zipFile);
 
-    if (data) {
-      await unlink(zipLocation); // Delete the zip file after successful upload
+    if (error) {
       return {
         data,
-        error,
-        message: 'Zip file uploaded to UploadThing successfully!',
+        error: error.message,
       };
     }
 
+    await unlink(zipLocation); // Delete the zip file after successful upload
     return {
       data,
-      error,
-      message: 'Failed to upload zip file to UploadThing!',
+      error: null,
     };
   } catch (error) {
+    const e = ensureError(error);
     return {
       data: null,
-      error,
-      message: 'Failed to upload zip file to UploadThing!',
+      error: e.message,
     };
   }
 };

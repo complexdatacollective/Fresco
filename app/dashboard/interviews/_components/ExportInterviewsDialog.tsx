@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
@@ -15,14 +17,18 @@ import {
   defaultExportOptions,
 } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { Loader2, XCircle } from 'lucide-react';
+import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import Heading from '~/components/ui/typography/Heading';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import { cardClasses } from '~/components/ui/card';
 import { deleteZipFromUploadThing } from '~/actions/deleteZipFromUploadThing';
-import { exportInterviews } from '~/actions/interviews';
+import {
+  prepareExportData,
+  exportSessions,
+  updateExportTime,
+} from '~/actions/interviews';
 import type { Interview } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 
@@ -64,35 +70,50 @@ export const ExportInterviewsDialog = ({
   );
 
   const handleConfirm = async () => {
+    let exportFilename = null; // Used to track the filename of the temp file uploaded to UploadThing
+
     // start export process
     setIsExporting(true);
     try {
       const interviewIds = interviewsToExport.map((interview) => interview.id);
 
-      const result = await exportInterviews(interviewIds, exportOptions);
+      // prepare data for export
+      const { formattedSessions, formattedProtocols } =
+        await prepareExportData(interviewIds);
 
-      if (result.error || !result.data) {
-        const e = ensureError(result.error);
-        throw new Error(e.message);
+      // export the data
+      const result = await exportSessions(
+        formattedSessions,
+        formattedProtocols,
+        interviewIds,
+        exportOptions,
+      );
+
+      if (!result.data) {
+        throw new Error(result.error);
       }
 
-      const response = await fetch(result.data.url);
+      // update export time of interviews
+      await updateExportTime(interviewIds);
 
-      if (!response.ok) {
-        throw new Error('HTTP error ' + response.status);
-      }
+      const { key, name, url: resultUrl } = result.data;
 
-      const blob = await response.blob();
+      exportFilename = key;
+
+      const responseAsBlob = await fetch(resultUrl).then((res) => {
+        if (!res.ok) {
+          throw new Error('HTTP error ' + res.status);
+        }
+        return res.blob();
+      });
+
       // create a download link
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(responseAsBlob);
 
       // Download the zip file
-      download(url, result.data.name);
+      download(url, name);
       // clean up the URL object
       URL.revokeObjectURL(url);
-
-      // Delete the zip file from UploadThing
-      await deleteZipFromUploadThing(result.data.key);
     } catch (error) {
       toast({
         icon: <XCircle />,
@@ -108,10 +129,38 @@ export const ExportInterviewsDialog = ({
         stack: e.stack,
         metadata: {
           error: e.name,
+          string: e.toString(),
           path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
         },
       });
     } finally {
+      if (exportFilename) {
+        // Attempt to delete the zip file from UploadThing.
+        void deleteZipFromUploadThing(exportFilename).catch((error) => {
+          const e = ensureError(error);
+          void trackEvent({
+            type: 'Error',
+            name: 'FailedToDeleteTempFile',
+            message: e.message,
+            stack: e.stack,
+            metadata: {
+              error: e.name,
+              string: e.toString(),
+              path: '/dashboard/interviews/_components/ExportInterviewsDialog.tsx',
+            },
+          });
+
+          toast({
+            icon: <FileWarning />,
+            duration: Infinity,
+            variant: 'default',
+            title: 'Could not delete temporary file',
+            description:
+              'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please use the feedback button to report this issue.',
+          });
+        });
+      }
+
       setIsExporting(false);
       handleCancel(); // Close the dialog
     }

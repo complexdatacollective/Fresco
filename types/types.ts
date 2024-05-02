@@ -31,12 +31,10 @@ export type UpdateItems = {
 
 export type FailResult = {
   data: null;
-  error: unknown;
-  message: string;
+  error: string;
 };
 
 export type SuccessResult = {
   data: UploadData;
   error: null;
-  message: string;
 };

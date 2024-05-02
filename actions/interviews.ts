@@ -5,7 +5,10 @@ import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { trackEvent } from '~/analytics/utils';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
-import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
+import {
+  type FormattedSessions,
+  formatExportableSessions,
+} from '~/lib/network-exporters/formatters/formatExportableSessions';
 import type { ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { getInterviewsForExport } from '~/queries/interviews';
 import type {
@@ -69,24 +72,31 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
   }
 };
 
-export const exportInterviews = async (
+export const prepareExportData = async (interviewIds: Interview['id'][]) => {
+  await requireApiAuth();
+
+  const interviewsSessions = await getInterviewsForExport(interviewIds);
+
+  const protocolsMap = new Map<string, Protocol>();
+  interviewsSessions.forEach((session) => {
+    protocolsMap.set(session.protocol.hash, session.protocol);
+  });
+
+  const formattedProtocols = Object.fromEntries(protocolsMap);
+  const formattedSessions = formatExportableSessions(interviewsSessions);
+
+  return { formattedSessions, formattedProtocols };
+};
+
+export const exportSessions = async (
+  formattedSessions: FormattedSessions,
+  formattedProtocols: Record<string, Protocol>,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ) => {
   await requireApiAuth();
+
   try {
-    // Get interviews From DB, by ids
-    const interviewsSessions = await getInterviewsForExport(interviewIds);
-
-    // store unique protocols in a Map, keyed by protocol hash
-    const protocolsMap = new Map<string, Protocol>();
-    interviewsSessions.forEach((session) => {
-      protocolsMap.set(session.protocol.hash, session.protocol);
-    });
-
-    const formattedProtocols = Object.fromEntries(protocolsMap);
-    const formattedSessions = formatExportableSessions(interviewsSessions);
-
     const fileExportManager = new FileExportManager(exportOptions);
 
     fileExportManager.on('begin', () => {
@@ -117,16 +127,16 @@ export const exportInterviews = async (
 
     fileExportManager.on('error', (errResult: FailResult) => {
       // eslint-disable-next-line no-console
-      console.log('Session export failed, Error:', errResult.message);
+      console.log('Session export failed, Error:', errResult.error);
       void trackEvent({
         type: 'Error',
         name: 'SessionExportFailed',
-        message: errResult.message,
+        message: errResult.error,
         metadata: {
           errResult,
-          path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
+          path: '~/actions/interviews.ts',
         },
-      })
+      });
     });
 
     fileExportManager.on(
@@ -148,23 +158,20 @@ export const exportInterviews = async (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { run } = await exportJob;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const output: SuccessResult = await run(); // main export method
-
-    // update export time of interviews
-    const updatedInterviews = await updateExportTime(interviewIds);
-
-    if (updatedInterviews.error) throw new Error(updatedInterviews.error);
+    const result: SuccessResult | FailResult = await run(); // main export method
 
     void trackEvent({
       type: 'DataExported',
       metadata: {
         sessions: interviewIds.length,
+        exportOptions,
+        result,
       },
     });
 
     revalidateTag('getInterviews');
 
-    return { ...output };
+    return result;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -175,14 +182,13 @@ export const exportInterviews = async (
       message: e.message,
       stack: e.stack,
       metadata: {
-        path: 'interview export action',
+        path: '~/actions/interviews.ts',
       },
     });
 
     return {
       data: null,
-      message: 'Error during data export!',
-      error,
+      error: `Error during data export: ${e.message}`,
     };
   }
 };

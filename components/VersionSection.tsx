@@ -1,3 +1,5 @@
+'use client';
+
 import { env } from '~/env.mjs';
 import SettingsSection from './layout/SettingsSection';
 import Paragraph from './ui/typography/Paragraph';
