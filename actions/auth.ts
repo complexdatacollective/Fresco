@@ -97,7 +97,7 @@ export async function login(formData: FormData) {
   return redirect('/dashboard');
 }
 
-export async function logout() {
+export async function logout(shouldRedirect?: boolean) {
   const { session } = await getServerSession();
   if (!session) {
     return {
@@ -113,5 +113,10 @@ export async function logout() {
     sessionCookie.value,
     sessionCookie.attributes,
   );
-  return redirect('/');
+
+  if (shouldRedirect) {
+    return redirect('/');
+  }
+
+  return;
 }
