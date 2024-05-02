@@ -115,13 +115,16 @@ export const ExportInterviewsDialog = ({
       // clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {
+      const e = ensureError(error);
+
       toast({
         icon: <XCircle />,
         title: 'Error',
-        description: 'Failed to export, please try again.',
+        description:
+          'Failed to export, please try again. The error was: ' + e.message,
         variant: 'destructive',
       });
-      const e = ensureError(error);
+
       void trackEvent({
         type: 'Error',
         name: 'FailedToExportInterviews',
