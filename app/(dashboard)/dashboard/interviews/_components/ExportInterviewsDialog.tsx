@@ -150,6 +150,7 @@ export const ExportInterviewsDialog = ({
 
           toast({
             icon: <FileWarning />,
+            duration: Infinity,
             variant: 'default',
             title: 'Could not delete temporary file',
             description:
