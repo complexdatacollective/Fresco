@@ -26,7 +26,7 @@ type UpdateItems = {
 
 type FailResult = {
   data: null;
-  error: unknown;
+  error: string;
   message: string;
 };
 
@@ -155,7 +155,7 @@ export const exportSessions = async (
     return {
       data: null,
       message: 'Error during data export!',
-      error,
+      error: e.message,
     };
   }
 };
