@@ -61,10 +61,6 @@ const ServerSync = ({
     debouncedSessionSync,
   ]);
 
-  if (!init) {
-    return <div>Sync Loading (no init)...</div>;
-  }
-
   return children;
 };
 
