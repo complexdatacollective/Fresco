@@ -20,6 +20,7 @@ export const resetAppSettings = async () => {
     ]);
 
     revalidatePath('/');
+    revalidatePath('/signin');
 
     // Remove all files from UploadThing:
     await utapi.listFiles({}).then(({ files }) => {
