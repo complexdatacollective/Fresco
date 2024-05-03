@@ -7,7 +7,7 @@ import { requirePageAuth } from '~/utils/auth';
 
 export default async function InterviewPage() {
   await requireAppNotExpired();
-  await requirePageAuth();
+  await requirePageAuth({ redirectPath: '/dashboard/interviews' });
   return (
     <>
       <ResponsiveContainer>

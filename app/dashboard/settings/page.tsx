@@ -15,7 +15,7 @@ import { requirePageAuth } from '~/utils/auth';
 
 export default async function Settings() {
   await requireAppNotExpired();
-  await requirePageAuth();
+  await requirePageAuth({ redirectPath: '/dashboard/settings' });
 
   const installationIdPromise = getInstallationId();
 

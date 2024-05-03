@@ -82,7 +82,7 @@ export async function requirePageAuth(
       redirect('/signin');
     }
 
-    redirect('/signin');
+    redirect('/signin?callbackUrl=' + encodeURIComponent(redirectPath));
   }
   return session;
 }

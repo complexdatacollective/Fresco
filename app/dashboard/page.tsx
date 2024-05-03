@@ -17,7 +17,7 @@ export default async function Home({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   await requireAppNotExpired();
-  await requirePageAuth();
+  await requirePageAuth({ redirectPath: '/dashboard' });
 
   searchParamsCache.parse(searchParams);
 

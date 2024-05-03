@@ -7,7 +7,7 @@ import { requirePageAuth } from '~/utils/auth';
 
 export default async function ProtocolsPage() {
   await requireAppNotExpired();
-  await requirePageAuth();
+  await requirePageAuth({ redirectPath: '/dashboard/protocols' });
   return (
     <>
       <ResponsiveContainer>

@@ -8,7 +8,7 @@ import { requirePageAuth } from '~/utils/auth';
 
 export default async function ParticipantPage() {
   await requireAppNotExpired();
-  await requirePageAuth();
+  await requirePageAuth({ redirectPath: '/dashboard/participants' });
   return (
     <>
       <ResponsiveContainer>
