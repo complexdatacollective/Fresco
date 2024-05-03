@@ -8,6 +8,7 @@ import { getServerSession, lucia } from '~/utils/auth';
 import { redirect } from 'next/navigation';
 import { generateIdFromEntropySize } from 'lucia';
 import { loginSchema } from '~/schemas/auth';
+import { revalidatePath } from 'next/cache';
 
 export async function signup(formData: FormData) {
   const username = formData.get('username') as string;
@@ -96,11 +97,8 @@ export async function login(formData: FormData) {
 
   return redirect('/dashboard');
 }
-/**
- * @param disableRedirect If true, does not redirect to the homepage after logging out
- */
 
-export async function logout(disableRedirect?: boolean) {
+export async function logout() {
   const { session } = await getServerSession();
   if (!session) {
     return {
@@ -117,9 +115,5 @@ export async function logout(disableRedirect?: boolean) {
     sessionCookie.attributes,
   );
 
-  if (disableRedirect) {
-    return;
-  }
-
-  return redirect('/');
+  revalidatePath('/');
 }
