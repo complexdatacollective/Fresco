@@ -1,4 +1,4 @@
-const ProgressMessages = {
+export const ProgressMessages = {
   Begin: {
     progress: 0,
     statusText: 'Starting export...',
@@ -11,7 +11,7 @@ const ProgressMessages = {
     progress: 20,
     statusText: 'Merging sessions by protocol...',
   },
-  ExportSession: (sessionExportCount, sessionExportTotal) => ({
+  ExportSession: (sessionExportCount: number, sessionExportTotal: number) => ({
     progress: 30 + ((50 - 30) * sessionExportCount) / sessionExportTotal,
     statusText: `Encoding session ${sessionExportCount} of ${sessionExportTotal}...`,
   }),
@@ -19,12 +19,12 @@ const ProgressMessages = {
     progress: 60,
     statusText: 'Creating zip archive...',
   },
-  ZipProgress: (percent) => ({
+  ZipProgress: (percent: number) => ({
     progress: 60 + (95 - 60) * (percent / 100), // between ZipStart and Saving
     statusText: 'Zipping files...',
   }),
   Saving: {
-    progress: 100,
+    progress: 95,
     statusText: 'Saving file...',
   },
   Finished: {
@@ -35,6 +35,17 @@ const ProgressMessages = {
     progress: 100,
     statusText: 'Export cancelled.',
   },
+} as const;
+
+export type ProgressMessage = {
+  progress: number;
+  statusText: string;
 };
 
-export default ProgressMessages;
+export type ExportEventTypes = {
+  'begin': [ProgressMessage];
+  'update': [ProgressMessage];
+  'error': [ProgressMessage];
+  'finished': [ProgressMessage];
+  'session-exported': [ProgressMessage];
+};

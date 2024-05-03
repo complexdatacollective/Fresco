@@ -21,3 +21,17 @@ export const defaultExportOptions: ExportOptions = {
     useScreenLayoutCoordinates: false,
   },
 };
+
+export type UploadData = {
+  key: string;
+  url: string;
+  name: string;
+  size: number;
+};
+
+export type ExportResult = {
+  status: 'success' | 'error' | 'cancelled' | 'partial';
+  error: string | null;
+  successfulExports?: string[];
+  failedExports?: Record<string, string>;
+};

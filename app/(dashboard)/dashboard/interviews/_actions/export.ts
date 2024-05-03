@@ -2,6 +2,7 @@
 
 import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
+import { type InstalledProtocols } from '~/lib/interviewer/store';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import {
   formatExportableSessions,
@@ -11,30 +12,6 @@ import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsS
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
-
-type UploadData = {
-  key: string;
-  url: string;
-  name: string;
-  size: number;
-};
-
-type UpdateItems = {
-  statusText: string;
-  progress: number;
-};
-
-type FailResult = {
-  data: null;
-  error: string;
-  message: string;
-};
-
-type SuccessResult = {
-  data: UploadData;
-  error: null;
-  message: string;
-};
 
 export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   const session = await getServerSession();
@@ -59,81 +36,25 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 
 export const exportSessions = async (
   formattedSessions: FormattedSessions,
-  formattedProtocols: Record<string, Protocol>,
+  formattedProtocols: InstalledProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ) => {
   try {
     const fileExportManager = new FileExportManager(exportOptions);
 
-    fileExportManager.on('begin', () => {
-      // eslint-disable-next-line no-console
-      console.log({
-        statusText: 'Starting export...',
-        percentProgress: 0,
-      });
-    });
-
-    fileExportManager.on('update', ({ statusText, progress }: UpdateItems) => {
-      // eslint-disable-next-line no-console
-      console.log({
-        statusText,
-        percentProgress: progress,
-      });
-    });
-
-    fileExportManager.on('session-exported', (sessionId: unknown) => {
-      if (!sessionId || typeof sessionId !== 'string') {
-        // eslint-disable-next-line no-console
-        console.warn('session-exported event did not contain a sessionID');
-        return;
-      }
-      // eslint-disable-next-line no-console
-      console.log('session-exported success sessionId:', sessionId);
-    });
-
-    fileExportManager.on('error', (errResult: FailResult) => {
-      // eslint-disable-next-line no-console
-      console.log('Session export failed, Error:', errResult.message);
-      void trackEvent({
-        type: 'Error',
-        name: 'SessionExportFailed',
-        message: errResult.message,
-        metadata: {
-          errResult,
-          path: '/(dashboard)/dashboard/interviews/_actions/export.ts',
-        },
-      });
-    });
-
-    fileExportManager.on(
-      'finished',
-      ({ statusText, progress }: UpdateItems) => {
-        // eslint-disable-next-line no-console
-        console.log({
-          statusText,
-          percentProgress: progress,
-        });
-      },
-    );
-
-    const exportJob = fileExportManager.exportSessions(
+    const result = await fileExportManager.exportSessions(
       formattedSessions,
       formattedProtocols,
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { run } = await exportJob;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const result: SuccessResult | FailResult = await run(); // main export method
-
     void trackEvent({
       type: 'DataExported',
       metadata: {
+        status: result.status,
         sessions: interviewIds.length,
         exportOptions,
-        resultError: result.error,
-        resultMessage: result.message,
+        resultError: result.error ?? null,
       },
     });
 
