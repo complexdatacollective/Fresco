@@ -7,7 +7,7 @@ import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import {
   formatExportableSessions,
   type FormattedSessions,
-} from '~/lib/network-exporters/formatters/formatExportableSessions';
+} from '~/lib/network-exporters/formatters/session/formatExportableSessions';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';

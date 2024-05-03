@@ -13,7 +13,7 @@ import { hash } from 'ohash';
 import { env } from '~/env.mjs';
 import type { RouterOutputs } from '~/trpc/shared';
 
-type FormattedSession = {
+export type FormattedSession = {
   sessionNetwork: NcNetwork;
   sessionVariables: {
     [caseProperty]: string;

@@ -1,5 +1,5 @@
 import { protocolProperty } from '@codaco/shared-consts';
-import { queue } from 'async';
+import { queue, seq } from 'async';
 import { EventEmitter } from 'eventemitter3';
 import { groupBy, isEmpty, merge } from 'lodash';
 import os from 'node:os';
@@ -22,7 +22,7 @@ import { getFilePrefix, verifySessionVariables } from './utils/general';
 import { uploadZipToUploadThing } from './utils/uploadZipToUploadThing';
 import { ExportOptions, ExportResult } from './utils/exportOptionsSchema';
 import TypedEventEmitter from './utils/TypedEventEmitter';
-import { FormattedSessions } from './formatters/formatExportableSessions';
+import { FormattedSessions } from './formatters/session/formatExportableSessions';
 import { InstalledProtocols } from '../interviewer/store';
 
 const defaultCSVOptions = {
@@ -138,6 +138,24 @@ class FileExportManager {
 
     const succeeded: string[] = [];
     const failed: Record<string, string> = {};
+
+    this.emit('update', ProgressMessages.Formatting);
+
+    const process = seq(
+      insertEgoIntoSessionNetworks,
+      (s: unknown) => groupBy(s, `sessionVariables.${protocolProperty}`),
+      (s: unknown) => {
+        if (!this.exportOptions.globalOptions.unifyNetworks) {
+          return s;
+        }
+
+        this.emit('update', ProgressMessages.Merging);
+        return unionOfNetworks(s);
+      },
+      resequenceIds,
+    );
+
+    process(sessions);
 
     // Main work of the process happens here
     return new Promise((resolveRun, rejectRun) => {
