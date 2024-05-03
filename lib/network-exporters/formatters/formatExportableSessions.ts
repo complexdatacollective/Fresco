@@ -63,8 +63,8 @@ export const formatExportableSessions = (
     const sessionNetwork = session.network as unknown as NcNetwork;
 
     return {
-      sessionNetwork,
+      ...sessionNetwork,
       sessionVariables,
-    } as FormattedSession;
+    };
   });
 };
