@@ -8,13 +8,18 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
+  type NcNode,
+  type NcEntity,
+  type NcEdge,
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
 import type { RouterOutputs } from '~/trpc/shared';
 
 type FormattedSession = {
-  sessionNetwork: NcNetwork;
+  ego: NcEntity | undefined;
+  nodes: NcNode[];
+  edges: NcEdge[];
   sessionVariables: {
     [caseProperty]: string;
     [sessionProperty]: string;
@@ -63,7 +68,7 @@ export const formatExportableSessions = (
     const sessionNetwork = session.network as unknown as NcNetwork;
 
     return {
-      sessionNetwork,
+      ...sessionNetwork,
       sessionVariables,
     } as FormattedSession;
   });
