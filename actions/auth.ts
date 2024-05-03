@@ -96,8 +96,11 @@ export async function login(formData: FormData) {
 
   return redirect('/dashboard');
 }
+/**
+ * @param disableRedirect If true, does not redirect to the homepage after logging out
+ */
 
-export async function logout(shouldRedirect?: boolean) {
+export async function logout(disableRedirect?: boolean) {
   const { session } = await getServerSession();
   if (!session) {
     return {
@@ -114,9 +117,9 @@ export async function logout(shouldRedirect?: boolean) {
     sessionCookie.attributes,
   );
 
-  if (shouldRedirect) {
-    return redirect('/');
+  if (disableRedirect) {
+    return;
   }
 
-  return;
+  return redirect('/');
 }
