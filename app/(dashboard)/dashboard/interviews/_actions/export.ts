@@ -4,10 +4,8 @@ import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 import { type InstalledProtocols } from '~/lib/interviewer/store';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
-import {
-  formatExportableSessions,
-  type FormattedSessions,
-} from '~/lib/network-exporters/formatters/session/formatExportableSessions';
+import { formatExportableSessions } from '~/lib/network-exporters/formatters/session/formatExportableSessions';
+import { FormattedSessions } from '~/lib/network-exporters/formatters/session/types';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';

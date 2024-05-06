@@ -28,10 +28,3 @@ export type UploadData = {
   name: string;
   size: number;
 };
-
-export type ExportResult = {
-  status: 'success' | 'error' | 'cancelled' | 'partial';
-  error: string | null;
-  successfulExports?: string[];
-  failedExports?: Record<string, string>;
-};

@@ -1,40 +1,26 @@
 import { protocolProperty } from '@codaco/shared-consts';
 import { queue, seq } from 'async';
-import { EventEmitter } from 'eventemitter3';
 import { groupBy, isEmpty, merge } from 'lodash';
 import os from 'node:os';
 import sanitizeFilename from 'sanitize-filename';
 import {
   ProgressMessages,
-  ExportEventTypes,
-  ProgressMessage,
+  type ExportEventTypes,
+  type ProgressMessage,
 } from './ProgressMessages';
 import { ErrorMessages, ExportError } from './errors/ExportError';
 import exportFile from './exportFile';
-import {
-  insertEgoIntoSessionNetworks,
-  partitionNetworkByType,
-  resequenceIds,
-  unionOfNetworks,
-} from './formatters/network';
 import archive from './utils/archive';
 import { getFilePrefix, verifySessionVariables } from './utils/general';
 import { uploadZipToUploadThing } from './utils/uploadZipToUploadThing';
 import { ExportOptions, ExportResult } from './utils/exportOptionsSchema';
 import TypedEventEmitter from './utils/TypedEventEmitter';
-import { FormattedSessions } from './formatters/session/formatExportableSessions';
 import { InstalledProtocols } from '../interviewer/store';
-
-const defaultCSVOptions = {
-  adjacencyMatrix: false,
-  attributeList: true,
-  edgeList: true,
-  // If CSV is exported, egoAttributeList must be exported
-  // as it contains session info so this option is generally
-  // ignored and only relevant for *only* exporting
-  // egoAttributeList
-  egoAttributeList: true,
-};
+import { insertEgoIntoSessionNetworks } from './formatters/session/insertEgoIntoSessionnetworks';
+import { FormattedSessions } from './formatters/session/types';
+import groupByProtocolProperty from './formatters/session/groupByProtocolProperty';
+import { handleUnionOption } from './formatters/session/unionOfNetworks';
+import { resequenceIds } from './formatters/session/resequenceIds';
 
 const defaultExportOptions = {
   exportGraphML: true,
@@ -107,7 +93,12 @@ class FileExportManager {
   exportSessions(
     sessions: FormattedSessions,
     protocols: InstalledProtocols,
-  ): Promise<ExportResult> {
+  ): Promise<{
+    status: 'success' | 'error' | 'cancelled' | 'partial';
+    error: string | null;
+    successfulExports?: string[];
+    failedExports?: Record<string, string>;
+  }> {
     // https://vercel.com/guides/how-can-i-use-files-in-serverless-functions#using-temporary-storage
     const temporaryDirectory = os.tmpdir();
 
@@ -143,19 +134,12 @@ class FileExportManager {
 
     const process = seq(
       insertEgoIntoSessionNetworks,
-      (s: unknown) => groupBy(s, `sessionVariables.${protocolProperty}`),
-      (s: unknown) => {
-        if (!this.exportOptions.globalOptions.unifyNetworks) {
-          return s;
-        }
-
-        this.emit('update', ProgressMessages.Merging);
-        return unionOfNetworks(s);
-      },
+      groupByProtocolProperty,
+      handleUnionOption(this.exportOptions.globalOptions.unifyNetworks),
       resequenceIds,
     );
 
-    process(sessions);
+    const result = await process(sessions);
 
     // Main work of the process happens here
     return new Promise((resolveRun, rejectRun) => {

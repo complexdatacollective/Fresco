@@ -1,10 +1,10 @@
 import { basename, join } from 'node:path';
-import fs from 'node:fs';
+import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
 
 // const zlibFastestCompression = 1;
 // const zlibBestCompression = 9;
-const zlibDefaultCompression = -1;
+const zlibDefaultCompression = 1;
 
 // Use zlib default: compromise speed & size
 // archiver overrides zlib's default (with 'best speed'), so we need to provide it
@@ -21,12 +21,17 @@ const archiveOptions = {
  * @param {object} filesystem filesystem to use for reading files in to zip
  * @return Returns a promise that resolves to (sourcePath, destinationPath)
  */
-const archive = (sourcePaths, tempDir, filename, updateCallback) => {
+const archive = async (
+  sourcePaths: string[],
+  tempDir: string,
+  filename: string,
+  updateCallback: (percent: number) => void,
+) => {
   const filenameWithExtension = `${filename}.zip`;
   const writePath = join(tempDir, filenameWithExtension);
 
   return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(writePath);
+    const output = createWriteStream(writePath);
     const zip = archiver('zip', archiveOptions);
 
     output.on('close', () => {
@@ -50,7 +55,7 @@ const archive = (sourcePaths, tempDir, filename, updateCallback) => {
       zip.file(sourcePath, { name: basename(sourcePath) });
     });
 
-    zip.finalize();
+    void zip.finalize();
   });
 };
 

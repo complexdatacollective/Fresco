@@ -5,8 +5,9 @@
  */
 
 import { egoProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import type { FormattedSession, FormattedSessions } from './types';
 
-const insertNetworkEgo = (session) => ({
+const insertNetworkEgo = (session: FormattedSession) => ({
   ...session,
   nodes: session.nodes
     ? session.nodes.map((node) => ({
@@ -23,5 +24,5 @@ const insertNetworkEgo = (session) => ({
   ego: session.ego ?? {},
 });
 
-export const insertEgoIntoSessionNetworks = (sessions) =>
+export const insertEgoIntoSessionNetworks = (sessions: FormattedSessions) =>
   sessions.map((session) => insertNetworkEgo(session));
