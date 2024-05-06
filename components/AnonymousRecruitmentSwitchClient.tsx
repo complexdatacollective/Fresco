@@ -2,7 +2,7 @@
 import SwitchWithOptimisticUpdate from './SwitchWithOptimisticUpdate';
 import { setAnonymousRecruitment } from '~/actions/appSettings';
 
-const AnonymousRecruitmentSwitch = ({
+const AnonymousRecruitmentSwitchClient = ({
   allowAnonymousRecruitment,
 }: {
   allowAnonymousRecruitment: boolean;
@@ -16,4 +16,4 @@ const AnonymousRecruitmentSwitch = ({
   );
 };
 
-export default AnonymousRecruitmentSwitch;
+export default AnonymousRecruitmentSwitchClient;

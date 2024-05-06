@@ -1,7 +1,7 @@
 import Switch from './SwitchWithOptimisticUpdate';
 import { setLimitInterviews } from '~/actions/appSettings';
 
-const LimitInterviewsSwitch = ({
+const LimitInterviewsSwitchClient = ({
   limitInterviews,
 }: {
   limitInterviews: boolean;
@@ -15,4 +15,4 @@ const LimitInterviewsSwitch = ({
   );
 };
 
-export default LimitInterviewsSwitch;
+export default LimitInterviewsSwitchClient;
