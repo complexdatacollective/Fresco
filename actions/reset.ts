@@ -2,7 +2,7 @@
 
 import { prisma } from '~/utils/db';
 import { utapi } from '../app/api/uploadthing/core';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { requireApiAuth } from '~/utils/auth';
 
 export const resetAppSettings = async () => {
@@ -20,7 +20,7 @@ export const resetAppSettings = async () => {
     ]);
 
     revalidatePath('/');
-    revalidatePath('/signin');
+    revalidateTag('appSettings');
 
     // Remove all files from UploadThing:
     await utapi.listFiles({}).then(({ files }) => {

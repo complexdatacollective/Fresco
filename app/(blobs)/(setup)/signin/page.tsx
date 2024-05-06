@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation';
 import { Input } from '~/components/ui/Input';
 import { login } from '~/actions/auth';
 import SubmitButton from '~/components/ui/SubmitButton';
-import { requireAppNotExpired } from '~/queries/appSettings';
 
 export const metadata = {
   title: 'Fresco - Sign In',
@@ -15,7 +14,6 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  await requireAppNotExpired();
   const { session } = await getServerSession();
 
   if (session) {
