@@ -4,7 +4,7 @@ import { getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { requireAppNotExpired } from '~/queries/appSettings';
 
-async function getSteupData() {
+async function getSetupData() {
   const { session } = await getServerSession();
   const otherData = await prisma.$transaction([
     prisma.protocol.count(),
@@ -18,12 +18,12 @@ async function getSteupData() {
   };
 }
 
-export type SetupData = ReturnType<typeof getSteupData>;
+export type SetupData = ReturnType<typeof getSetupData>;
 
 export default async function Page() {
   await requireAppNotExpired(true);
 
-  const setupDataPromise = getSteupData();
+  const setupDataPromise = getSetupData();
 
   return (
     <Suspense fallback="Loading...">
