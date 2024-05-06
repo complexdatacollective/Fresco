@@ -2,10 +2,16 @@ import React, { Suspense } from 'react';
 import Setup from './Setup';
 import { getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
-import { requireAppNotExpired } from '~/queries/appSettings';
+import {
+  requireAppNotExpired,
+  getAnonymousRecruitmentStatus,
+  getLimitInterviewsStatus,
+} from '~/queries/appSettings';
 
 async function getSetupData() {
   const { session } = await getServerSession();
+  const allowAnonymousRecruitment = await getAnonymousRecruitmentStatus();
+  const limitInterviews = await getLimitInterviewsStatus();
   const otherData = await prisma.$transaction([
     prisma.protocol.count(),
     prisma.participant.count(),
@@ -13,6 +19,8 @@ async function getSetupData() {
 
   return {
     hasAuth: !!session,
+    allowAnonymousRecruitment,
+    limitInterviews,
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
   };

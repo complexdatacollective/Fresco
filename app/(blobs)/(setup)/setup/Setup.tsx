@@ -19,7 +19,8 @@ export default function Setup({
 }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
 
-  const { hasAuth } = use(setupDataPromise);
+  const { hasAuth, allowAnonymousRecruitment, limitInterviews } =
+    use(setupDataPromise);
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
@@ -42,7 +43,12 @@ export default function Setup({
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
         {step === 2 && <UploadProtocol />}
-        {step === 3 && <ManageParticipants />}
+        {step === 3 && (
+          <ManageParticipants
+            allowAnonymousRecruitment={allowAnonymousRecruitment}
+            limitInterviews={limitInterviews}
+          />
+        )}
         {step === 4 && <Documentation />}
       </div>
     </motion.div>

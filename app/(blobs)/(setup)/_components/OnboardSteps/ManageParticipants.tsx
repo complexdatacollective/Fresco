@@ -2,11 +2,17 @@ import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVMo
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import SettingsSection from '~/components/layout/SettingsSection';
-// import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
+import LimitInterviewsSwitchClient from '~/components/LimitInterviewsSwitchClient';
 import OnboardContinue from '../OnboardContinue';
-// import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
+import AnonymousRecruitmentSwitchClient from '~/components/AnonymousRecruitmentSwitchClient';
 
-function ManageParticipants() {
+function ManageParticipants({
+  allowAnonymousRecruitment,
+  limitInterviews,
+}: {
+  allowAnonymousRecruitment: boolean;
+  limitInterviews: boolean;
+}) {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-6">
@@ -27,8 +33,11 @@ function ManageParticipants() {
         </SettingsSection>
         <SettingsSection
           heading="Anonymous Recruitment"
-          controlArea={<></>}
-          // controlArea={<AnonymousRecruitmentSwitch />}
+          controlArea={
+            <AnonymousRecruitmentSwitchClient
+              allowAnonymousRecruitment={allowAnonymousRecruitment}
+            />
+          }
         >
           <Paragraph>
             Allow participants to join your study by visiting a URL.
@@ -36,8 +45,9 @@ function ManageParticipants() {
         </SettingsSection>
         <SettingsSection
           heading="Limit Interviews"
-          controlArea={<></>}
-          // controlArea={<LimitInterviewsSwitch />}
+          controlArea={
+            <LimitInterviewsSwitchClient limitInterviews={limitInterviews} />
+          }
         >
           <Paragraph>
             Limit each participant to being allowed to complete one interview
