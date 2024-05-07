@@ -52,6 +52,8 @@ export const ParticipantsTableClient = ({
     }
 
     await deleteParticipants(participantsToDelete.map((p) => p.identifier));
+
+    resetDelete();
   };
 
   // Resets the state when the dialog is closed.
