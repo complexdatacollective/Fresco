@@ -1,6 +1,7 @@
 import { basename, join } from 'node:path';
 import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
+import { tmpdir } from 'node:os';
 
 // const zlibFastestCompression = 1;
 // const zlibBestCompression = 9;
@@ -23,14 +24,15 @@ const archiveOptions = {
  */
 const archive = async (
   sourcePaths: string[],
-  tempDir: string,
-  filename: string,
   updateCallback: (percent: number) => void,
 ) => {
-  const filenameWithExtension = `${filename}.zip`;
-  const writePath = join(tempDir, filenameWithExtension);
+  // https://vercel.com/guides/how-can-i-use-files-in-serverless-functions#using-temporary-storage
+  const temporaryDirectory = tmpdir();
 
-  return new Promise((resolve, reject) => {
+  const filenameWithExtension = `networkCanvasExport-${Date.now()}.zip`;
+  const writePath = join(temporaryDirectory, filenameWithExtension);
+
+  return new Promise((resolve: (value: string) => void, reject) => {
     const output = createWriteStream(writePath);
     const zip = archiver('zip', archiveOptions);
 

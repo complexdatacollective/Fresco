@@ -173,6 +173,9 @@ dependencies:
   dotenv:
     specifier: ^16.4.1
     version: 16.4.1
+  effect:
+    specifier: ^3.1.2
+    version: 3.1.2
   eslint-plugin-local-rules:
     specifier: ^2.0.0
     version: 2.0.0
@@ -4740,6 +4743,10 @@ packages:
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  /effect@3.1.2:
+    resolution: {integrity: sha512-XakSWck6w6ROqKyEys0tKE9K6Gx2p8W/09u2ZTEZZrneO5Z3QEdPhXzWTyC73kD5zUvfJinZLVIas8I1xoHaTg==}
+    dev: false
 
   /electron-to-chromium@1.4.565:
     resolution: {integrity: sha512-XbMoT6yIvg2xzcbs5hCADi0dXBh4//En3oFXmtPX+jiyyiCTiM9DGFT2SLottjpEs9Z8Mh8SqahbR96MaHfuSg==}

@@ -2,10 +2,7 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { protectedProcedure, publicProcedure, router } from '~/server/trpc';
-import {
-  NcNetworkZod,
-  type NcNetworkType,
-} from '~/shared/schemas/network-canvas';
+import { ZNcNetwork, type NcNetwork } from '~/shared/schemas/network-canvas';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { revalidatePath, revalidateTag } from 'next/cache';
@@ -20,7 +17,7 @@ export const interviewRouter = router({
     .input(
       z.object({
         id: z.string(),
-        network: NcNetworkZod,
+        network: ZNcNetwork,
         currentStep: z.number(),
         stageMetadata: z
           .record(z.string(), z.array(z.array(NumberStringBoolean)))
@@ -229,7 +226,7 @@ export const interviewRouter = router({
 
         const network = JSON.parse(
           JSON.stringify(updatedInterview.network),
-        ) as NcNetworkType;
+        ) as NcNetwork;
 
         void trackEvent({
           type: 'InterviewCompleted',

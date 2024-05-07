@@ -5,9 +5,33 @@
  */
 
 import { egoProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import type { FormattedSession, FormattedSessions } from './types';
+import { ZFormattedSessionSchema, type FormattedSession } from './types';
+import { ZNcEdge, ZNcEntity, ZNcNode } from '~/shared/schemas/network-canvas';
+import { z } from 'zod';
 
-const insertNetworkEgo = (session: FormattedSession) => ({
+export const ZNodeWithEgo = ZNcNode.extend({
+  [egoProperty]: z.string(),
+});
+
+export type NodeWithEgo = z.infer<typeof ZNodeWithEgo>;
+
+export const ZEdgeWithEgo = ZNcEdge.extend({
+  [egoProperty]: z.string(),
+});
+
+export type EdgeWithEgo = z.infer<typeof ZEdgeWithEgo>;
+
+export const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
+  nodes: ZNodeWithEgo.array(),
+  edges: ZEdgeWithEgo.array(),
+  ego: ZNcEntity,
+});
+
+export type SessionWithNetworkEgo = z.infer<typeof ZSessionWithNetworkEgo>;
+
+const insertNetworkEgo = (
+  session: FormattedSession,
+): SessionWithNetworkEgo => ({
   ...session,
   nodes: session.nodes
     ? session.nodes.map((node) => ({
@@ -24,5 +48,5 @@ const insertNetworkEgo = (session: FormattedSession) => ({
   ego: session.ego ?? {},
 });
 
-export const insertEgoIntoSessionNetworks = (sessions: FormattedSessions) =>
-  sessions.map((session) => insertNetworkEgo(session));
+export const insertEgoIntoSessionNetworks = (sessions: FormattedSession[]) =>
+  sessions.map(insertNetworkEgo);

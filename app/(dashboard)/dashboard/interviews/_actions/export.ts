@@ -5,7 +5,7 @@ import { trackEvent } from '~/analytics/utils';
 import { type InstalledProtocols } from '~/lib/interviewer/store';
 import FileExportManager from '~/lib/network-exporters/FileExportManager';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/session/formatExportableSessions';
-import { FormattedSessions } from '~/lib/network-exporters/formatters/session/types';
+import { type FormattedSession } from '~/lib/network-exporters/formatters/session/types';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
@@ -33,7 +33,7 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 };
 
 export const exportSessions = async (
-  formattedSessions: FormattedSessions,
+  formattedSessions: FormattedSession[],
   formattedProtocols: InstalledProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,

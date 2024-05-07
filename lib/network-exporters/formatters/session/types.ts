@@ -9,11 +9,7 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import {
-  NcEdgeZod,
-  NcEntityZod,
-  NcNodeZod,
-} from '~/shared/schemas/network-canvas';
+import { ZNcEdge, ZNcEntity, ZNcNode } from '~/shared/schemas/network-canvas';
 
 export const ZSessionVariables = z.object({
   [caseProperty]: z.string(),
@@ -31,12 +27,10 @@ export const ZSessionVariables = z.object({
 export type SessionVariables = z.infer<typeof ZSessionVariables>;
 
 export const ZFormattedSessionSchema = z.object({
-  nodes: NcNodeZod.array(),
-  edges: NcEdgeZod.array(),
-  ego: NcEntityZod, // Should this be optional?
+  nodes: ZNcNode.array(),
+  edges: ZNcEdge.array(),
+  ego: ZNcEntity, // Should this be optional?
   sessionVariables: ZSessionVariables,
 });
 
 export type FormattedSession = z.infer<typeof ZFormattedSessionSchema>;
-
-export type FormattedSessions = FormattedSession[];

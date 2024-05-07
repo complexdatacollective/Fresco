@@ -1,9 +1,11 @@
 import { protocolProperty } from '@codaco/shared-consts';
-import { groupBy } from 'lodash';
-import { type insertEgoIntoSessionNetworks } from './insertEgoIntoSessionnetworks';
+import groupBy from 'lodash/groupBy';
+import type { SessionWithNetworkEgo } from './insertEgoIntoSessionnetworks';
 
 export default function groupByProtocolProperty(
-  s: ReturnType<typeof insertEgoIntoSessionNetworks>,
-) {
+  s: SessionWithNetworkEgo[],
+): SessionsByProtocol {
   return groupBy(s, `sessionVariables.${protocolProperty}`);
 }
+
+export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
