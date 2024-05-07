@@ -6,7 +6,7 @@ import type { InstalledProtocols } from '../interviewer/store';
 import { insertEgoIntoSessionNetworks } from './formatters/session/insertEgoIntoSessionnetworks';
 import type { FormattedSession } from './formatters/session/types';
 import groupByProtocolProperty from './formatters/session/groupByProtocolProperty';
-import { handleUnionOption } from './formatters/session/unionOfNetworks';
+// import { handleUnionOption } from './formatters/session/unionOfNetworks';
 import { resequenceIds } from './formatters/session/resequenceIds';
 import { generateOutputFiles } from './formatters/session/generateOutputFiles';
 import { pipe } from 'effect';
@@ -39,14 +39,21 @@ class FileExportManager {
     sessions: FormattedSession[],
     protocols: InstalledProtocols,
   ) {
+    const exportFormats = [
+      ...(this.exportOptions.exportGraphML ? ['graphml'] : []),
+      ...(this.exportOptions.exportCSV
+        ? ['attributeList', 'edgeList', 'ego']
+        : []),
+    ];
+
     try {
       const result = await pipe(
         sessions,
         insertEgoIntoSessionNetworks,
         groupByProtocolProperty,
-        handleUnionOption(this.exportOptions.globalOptions.unifyNetworks),
+        // handleUnionOption(this.exportOptions.globalOptions.unifyNetworks),
         resequenceIds,
-        generateOutputFiles(protocols),
+        generateOutputFiles(protocols, exportFormats, this.exportOptions),
         archive,
         uploadZipToUploadThing,
       );

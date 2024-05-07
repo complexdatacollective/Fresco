@@ -11,7 +11,7 @@ import type { Codebook } from '@codaco/shared-consts';
  * @return {Array} An array of networks, partitioned by type. Each network object is decorated
  *                 with an additional `partitionEntity` prop to facilitate format naming.
  */
-export const partitionkByType = (codebook: Codebook, session, format) => {
+export const partitionByType = (codebook: Codebook, session, format) => {
   const getEntityName = (uuid, type) => codebook[type][uuid].name;
 
   switch (format) {

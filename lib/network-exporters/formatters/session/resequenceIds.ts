@@ -12,9 +12,10 @@ import {
   ZNodeWithSessionProperty,
   ZEdgeWithSessionProperty,
   type UnifiedSession,
-  type UnifiedSessionsByProtocol,
 } from './unionOfNetworks';
 import { z } from 'zod';
+import type { SessionsByProtocol } from './groupByProtocolProperty';
+import { ZSessionWithNetworkEgo } from './insertEgoIntoSessionnetworks';
 
 const ZNodeWithResequencedID = ZNodeWithSessionProperty.extend({
   [nodeExportIDProperty]: z.number(),
@@ -30,7 +31,7 @@ const ZEdgeWithResequencedID = ZEdgeWithSessionProperty.extend({
 
 export type EdgeWithResequencedID = z.infer<typeof ZEdgeWithResequencedID>;
 
-export const ZSessionWithResequencedIDs = ZUnifiedSession.extend({
+export const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
   nodes: ZNodeWithResequencedID.array(),
   edges: ZEdgeWithResequencedID.array(),
 });
@@ -38,13 +39,6 @@ export const ZSessionWithResequencedIDs = ZUnifiedSession.extend({
 export type SessionWithResequencesIDs = z.infer<
   typeof ZSessionWithResequencedIDs
 >;
-
-const ZOutputType = ZUnifiedSession.merge({
-  nodes: ZNodeWithResequencedID.array(),
-  edges: ZEdgeWithResequencedID.array(),
-});
-
-export type ZO = z.infer<typeof ZOutputType>;
 
 const resequenceEntities = (target: UnifiedSession[]) => {
   return target.map((session) => {
@@ -85,9 +79,7 @@ const resequenceEntities = (target: UnifiedSession[]) => {
  * Adds sequential IDs to the nodes and edges in the session to help researchers
  * that have limited experience with working with data.
  */
-export const resequenceIds = (
-  sessionsByProtocol: UnifiedSessionsByProtocol,
-) => {
+export const resequenceIds = (sessionsByProtocol: SessionsByProtocol) => {
   const result: Record<string, ZO[]> = {};
 
   Object.entries(sessionsByProtocol).forEach(([protocol, sessions]) => {
