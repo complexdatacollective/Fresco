@@ -3,7 +3,7 @@
 import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 import { type InstalledProtocols } from '~/lib/interviewer/store';
-import FileExportManager from '~/lib/network-exporters/FileExportManager';
+import exportSessions from '~/lib/network-exporters/exportSessions';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/session/formatExportableSessions';
 import { type FormattedSession } from '~/lib/network-exporters/formatters/session/types';
 import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
@@ -32,18 +32,17 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   return { formattedSessions, formattedProtocols };
 };
 
-export const exportSessions = async (
+export const exportAction = async (
   formattedSessions: FormattedSession[],
   formattedProtocols: InstalledProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ) => {
   try {
-    const fileExportManager = new FileExportManager(exportOptions);
-
-    const result = await fileExportManager.exportSessions(
+    const result = await exportSessions(
       formattedSessions,
       formattedProtocols,
+      exportOptions,
     );
 
     void trackEvent({

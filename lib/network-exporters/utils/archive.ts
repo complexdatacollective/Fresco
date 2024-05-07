@@ -2,6 +2,7 @@ import { basename, join } from 'node:path';
 import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
 import { tmpdir } from 'node:os';
+import { type ExportResult } from '../formatters/session/exportFile';
 
 // const zlibFastestCompression = 1;
 // const zlibBestCompression = 9;
@@ -15,50 +16,59 @@ const archiveOptions = {
 };
 
 /**
- * Write a bundled (zip) from source files
- * @param {string[]} sourcePaths
- * @param {string} targetFileName full FS path to write
- * @param {object} fileWriter fileWriter to use for outputting zip
- * @param {object} filesystem filesystem to use for reading files in to zip
- * @return Returns a promise that resolves to (sourcePath, destinationPath)
+ * Write a zip from source files
  */
-const archive = async (
-  sourcePaths: string[],
-  updateCallback: (percent: number) => void,
-) => {
-  // https://vercel.com/guides/how-can-i-use-files-in-serverless-functions#using-temporary-storage
+const archive = async (results: Promise<ExportResult[]>) => {
+  const exportResults = await results;
   const temporaryDirectory = tmpdir();
 
   const filenameWithExtension = `networkCanvasExport-${Date.now()}.zip`;
   const writePath = join(temporaryDirectory, filenameWithExtension);
 
-  return new Promise((resolve: (value: string) => void, reject) => {
-    const output = createWriteStream(writePath);
-    const zip = archiver('zip', archiveOptions);
+  return new Promise(
+    (
+      resolve: (value: {
+        path: string;
+        completed: ExportResult[];
+        rejected: ExportResult[];
+      }) => void,
+      reject,
+    ) => {
+      const completed: ExportResult[] = [];
+      const rejected: ExportResult[] = [];
 
-    output.on('close', () => {
-      resolve(writePath);
-    });
+      const output = createWriteStream(writePath);
+      const zip = archiver('zip', archiveOptions);
 
-    output.on('warning', reject);
-    output.on('error', reject);
+      output.on('close', () => {
+        resolve({
+          path: writePath,
+          completed,
+          rejected,
+        });
+      });
 
-    zip.pipe(output);
+      output.on('warning', reject);
+      output.on('error', reject);
 
-    zip.on('warning', reject);
-    zip.on('error', reject);
-    zip.on('progress', (progress) => {
-      const percent =
-        (progress.entries.processed / progress.entries.total) * 100;
-      updateCallback(percent);
-    });
+      zip.pipe(output);
 
-    sourcePaths.forEach((sourcePath) => {
-      zip.file(sourcePath, { name: basename(sourcePath) });
-    });
+      zip.on('warning', reject);
+      zip.on('error', reject);
 
-    void zip.finalize();
-  });
+      exportResults.forEach((exportResult) => {
+        if (exportResult.success) {
+          const { path } = exportResult;
+          zip.file(path, { name: basename(path) });
+          completed.push(exportResult);
+        } else {
+          rejected.push(exportResult);
+        }
+
+        void zip.finalize();
+      });
+    },
+  );
 };
 
 export default archive;

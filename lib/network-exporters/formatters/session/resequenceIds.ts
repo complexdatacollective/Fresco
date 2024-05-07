@@ -7,23 +7,22 @@ import {
   ncTargetUUID,
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
-import {
-  ZUnifiedSession,
-  ZNodeWithSessionProperty,
-  ZEdgeWithSessionProperty,
-  type UnifiedSession,
-} from './unionOfNetworks';
 import { z } from 'zod';
 import type { SessionsByProtocol } from './groupByProtocolProperty';
-import { ZSessionWithNetworkEgo } from './insertEgoIntoSessionnetworks';
+import {
+  type SessionWithNetworkEgo,
+  ZEdgeWithEgo,
+  ZNodeWithEgo,
+  ZSessionWithNetworkEgo,
+} from './insertEgoIntoSessionnetworks';
 
-const ZNodeWithResequencedID = ZNodeWithSessionProperty.extend({
+const ZNodeWithResequencedID = ZNodeWithEgo.extend({
   [nodeExportIDProperty]: z.number(),
 });
 
 export type NodeWithResequencedID = z.infer<typeof ZNodeWithResequencedID>;
 
-const ZEdgeWithResequencedID = ZEdgeWithSessionProperty.extend({
+const ZEdgeWithResequencedID = ZEdgeWithEgo.extend({
   [edgeExportIDProperty]: z.number(),
   from: z.number(),
   to: z.number(),
@@ -36,11 +35,11 @@ export const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
   edges: ZEdgeWithResequencedID.array(),
 });
 
-export type SessionWithResequencesIDs = z.infer<
+export type SessionWithResequencedIDs = z.infer<
   typeof ZSessionWithResequencedIDs
 >;
 
-const resequenceEntities = (target: UnifiedSession[]) => {
+const resequenceEntities = (target: SessionWithNetworkEgo[]) => {
   return target.map((session) => {
     let resequencedNodeId = 0;
     let resequencedEdgeId = 0;
@@ -67,8 +66,8 @@ const resequenceEntities = (target: UnifiedSession[]) => {
           [ncSourceUUID]: edge[edgeSourceProperty],
           [ncTargetUUID]: edge[edgeTargetProperty],
           [edgeExportIDProperty]: resequencedEdgeId,
-          from: IDLookupMap[edge[edgeSourceProperty]],
-          to: IDLookupMap[edge[edgeTargetProperty]],
+          from: IDLookupMap[edge[edgeSourceProperty]]!,
+          to: IDLookupMap[edge[edgeTargetProperty]]!,
         };
       }),
     };
@@ -80,7 +79,7 @@ const resequenceEntities = (target: UnifiedSession[]) => {
  * that have limited experience with working with data.
  */
 export const resequenceIds = (sessionsByProtocol: SessionsByProtocol) => {
-  const result: Record<string, ZO[]> = {};
+  const result: Record<string, SessionWithResequencedIDs[]> = {};
 
   Object.entries(sessionsByProtocol).forEach(([protocol, sessions]) => {
     result[protocol] = resequenceEntities(sessions);

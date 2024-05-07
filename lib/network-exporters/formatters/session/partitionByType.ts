@@ -1,4 +1,6 @@
 import type { Codebook } from '@codaco/shared-consts';
+import type { ExportFormat } from './exportFile';
+import type { SessionWithResequencedIDs } from './resequenceIds';
 
 /**
  * Partition a network as needed for edge-list and adjacency-matrix formats.
@@ -11,8 +13,13 @@ import type { Codebook } from '@codaco/shared-consts';
  * @return {Array} An array of networks, partitioned by type. Each network object is decorated
  *                 with an additional `partitionEntity` prop to facilitate format naming.
  */
-export const partitionByType = (codebook: Codebook, session, format) => {
-  const getEntityName = (uuid, type) => codebook[type][uuid].name;
+export const partitionByType = (
+  codebook: Codebook,
+  session: SessionWithResequencedIDs,
+  format: ExportFormat,
+) => {
+  const getEntityName = (uuid: string, type: 'node' | 'edge') =>
+    codebook[type]?.[uuid]?.name ?? null;
 
   switch (format) {
     case 'graphml':

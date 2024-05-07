@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { join } from 'node:path';
-import { getFileExtension, makeFilename } from './utils/general';
-import getFormatterClass from './utils/getFormatterClass';
+import { getFileExtension, makeFilename } from '../../utils/general';
+import getFormatterClass from '../../utils/getFormatterClass';
 import { tmpdir } from 'node:os';
-import { type ExportOptions } from './utils/exportOptionsSchema';
+import { type ExportOptions } from '../../utils/exportOptionsSchema';
 import { type Codebook } from '@codaco/shared-consts';
 
 export type ExportFormat = 'graphml' | 'attributeList' | 'edgeList' | 'ego';
