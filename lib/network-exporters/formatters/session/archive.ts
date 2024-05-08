@@ -2,7 +2,7 @@ import archiver from 'archiver';
 import { createWriteStream } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
-import type { ArchiveResult, ExportResult } from './types';
+import type { ArchiveResult, ExportResult } from '../../utils/types';
 
 /**
  * Write a zip from source files

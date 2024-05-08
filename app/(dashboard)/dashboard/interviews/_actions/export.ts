@@ -3,8 +3,13 @@
 import { type Interview, type Protocol } from '@prisma/client';
 import { trackEvent } from '~/analytics/utils';
 import { type InstalledProtocols } from '~/lib/interviewer/store';
-import exportSessions from '~/lib/network-exporters/exportSessions';
+import archive from '~/lib/network-exporters/formatters/session/archive';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/session/formatExportableSessions';
+import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
+import groupByProtocolProperty from '~/lib/network-exporters/formatters/session/groupByProtocolProperty';
+import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/formatters/session/insertEgoIntoSessionnetworks';
+import { resequenceIds } from '~/lib/network-exporters/formatters/session/resequenceIds';
+import { uploadZipToUploadThing } from '~/lib/network-exporters/formatters/session/uploadZipToUploadThing';
 import type {
   ExportOptions,
   FormattedSession,
@@ -34,18 +39,22 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   return { formattedSessions, formattedProtocols };
 };
 
-export const exportAction = async (
+export const exportSessions = async (
   formattedSessions: FormattedSession[],
   formattedProtocols: InstalledProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ) => {
   try {
-    const result = await exportSessions(
-      formattedSessions,
-      formattedProtocols,
-      exportOptions,
-    );
+    const result = await Promise.resolve(formattedSessions)
+      .then(insertEgoIntoSessionNetworks)
+      .then(groupByProtocolProperty)
+      .then(resequenceIds)
+      .then(generateOutputFiles(formattedProtocols, exportOptions))
+      .then(archive)
+      .then(uploadZipToUploadThing);
+
+    console.log(result);
 
     void trackEvent({
       type: 'DataExported',

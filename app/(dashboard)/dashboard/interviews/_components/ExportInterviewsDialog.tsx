@@ -1,5 +1,9 @@
+import { DialogDescription } from '@radix-ui/react-dialog';
+import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { trackEvent } from '~/analytics/utils';
 import { Button } from '~/components/ui/Button';
+import { cardClasses } from '~/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -7,25 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { useToast } from '~/components/ui/use-toast';
-import { prepareExportData, exportSessions } from '../_actions/export';
-import ExportOptionsView from './ExportOptionsView';
-import { useDownload } from '~/hooks/useDownload';
-import {
-  ExportOptionsSchema,
-  defaultExportOptions,
-} from '~/lib/network-exporters/utils/exportOptionsSchema';
-import { type RouterOutputs } from '~/trpc/shared';
-import { DialogDescription } from '@radix-ui/react-dialog';
-import { FileWarning, Loader2, XCircle } from 'lucide-react';
-import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import Heading from '~/components/ui/typography/Heading';
+import { useToast } from '~/components/ui/use-toast';
+import { useDownload } from '~/hooks/useDownload';
+import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
+import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
+import { api } from '~/trpc/client';
+import { type RouterOutputs } from '~/trpc/shared';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
-import { cardClasses } from '~/components/ui/card';
 import { deleteZipFromUploadThing } from '../_actions/deleteZipFromUploadThing';
-import { trackEvent } from '~/analytics/utils';
-import { api } from '~/trpc/client';
+import { exportSessions, prepareExportData } from '../_actions/export';
+import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
@@ -64,7 +61,15 @@ export const ExportInterviewsDialog = ({
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
     'exportOptions',
     ExportOptionsSchema,
-    defaultExportOptions,
+    {
+      exportCSV: true,
+      exportGraphML: true,
+      globalOptions: {
+        useScreenLayoutCoordinates: true,
+        screenLayoutHeight: 1080,
+        screenLayoutWidth: 1920,
+      },
+    },
   );
 
   const handleConfirm = async () => {
