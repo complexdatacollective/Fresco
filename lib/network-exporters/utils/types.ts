@@ -132,3 +132,9 @@ export const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
 export type SessionWithNetworkEgo = z.infer<typeof ZSessionWithNetworkEgo>;
 
 export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
+
+export type ArchiveResult = {
+  path: string;
+  completed: ExportResult[];
+  rejected: ExportResult[];
+};

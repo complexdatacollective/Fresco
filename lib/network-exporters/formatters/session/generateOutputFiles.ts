@@ -36,15 +36,15 @@ export const generateOutputFiles =
           );
 
           partitionedNetworks.forEach((partitionedNetwork) => {
-            exportPromises.push(
-              exportFile({
-                fileName: prefix,
-                exportFormat: format,
-                network: partitionedNetwork,
-                codebook: protocol.codebook,
-                exportOptions,
-              }),
-            );
+            const exportPromise = exportFile({
+              fileName: prefix,
+              exportFormat: format,
+              network: partitionedNetwork,
+              codebook: protocol.codebook,
+              exportOptions,
+            });
+
+            exportPromises.push(exportPromise);
           });
         });
       });

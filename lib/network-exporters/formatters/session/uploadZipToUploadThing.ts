@@ -2,13 +2,11 @@ import { File } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { unlink } from 'node:fs/promises';
 import { utapi } from '~/app/api/uploadthing/core';
-import type archive from '../../utils/archive';
 import { ensureError } from '~/utils/ensureError';
+import type { ArchiveResult } from '../../utils/types';
 
-export const uploadZipToUploadThing = async (
-  results: ReturnType<typeof archive>,
-) => {
-  const { path: zipLocation, completed, rejected } = await results;
+export const uploadZipToUploadThing = async (results: ArchiveResult) => {
+  const { path: zipLocation, completed, rejected } = results;
 
   try {
     const fileName = zipLocation.split('/').pop()?.split('.').shift() ?? 'file';
