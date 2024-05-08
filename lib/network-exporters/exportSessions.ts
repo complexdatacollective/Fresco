@@ -1,24 +1,12 @@
-import archive from './utils/archive';
-import { uploadZipToUploadThing } from './formatters/session/uploadZipToUploadThing';
-import type { ExportOptions } from './utils/exportOptionsSchema';
-import type { InstalledProtocols } from '../interviewer/store';
-import { insertEgoIntoSessionNetworks } from './formatters/session/insertEgoIntoSessionnetworks';
-import type { FormattedSession } from './formatters/session/types';
-import groupByProtocolProperty from './formatters/session/groupByProtocolProperty';
-import { resequenceIds } from './formatters/session/resequenceIds';
-import { generateOutputFiles } from './formatters/session/generateOutputFiles';
 import { pipe } from 'effect';
-import type {
-  ExportResult,
-  ExportFormat,
-} from './formatters/session/exportFile';
-
-export type ExportReturn = {
-  status: 'success' | 'error' | 'cancelled' | 'partial';
-  error: string | null;
-  successfulExports?: ExportResult[];
-  failedExports?: ExportResult[];
-};
+import type { InstalledProtocols } from '../interviewer/store';
+import { generateOutputFiles } from './formatters/session/generateOutputFiles';
+import groupByProtocolProperty from './formatters/session/groupByProtocolProperty';
+import { insertEgoIntoSessionNetworks } from './formatters/session/insertEgoIntoSessionnetworks';
+import { resequenceIds } from './formatters/session/resequenceIds';
+import { uploadZipToUploadThing } from './formatters/session/uploadZipToUploadThing';
+import archive from './utils/archive';
+import type { ExportOptions, FormattedSession } from './utils/types';
 
 const defaultExportOptions: ExportOptions = {
   exportGraphML: true,
@@ -35,18 +23,21 @@ export default async function exportSessions(
   protocols: InstalledProtocols,
   exportOptions: ExportOptions = defaultExportOptions,
 ) {
-  const exportFormats = [
-    ...(exportOptions.exportGraphML ? ['graphml'] : []),
-    ...(exportOptions.exportCSV ? ['attributeList', 'edgeList', 'ego'] : []),
-  ] as ExportFormat[];
-
   try {
+    const test = Promise.resolve(sessions)
+      .then(insertEgoIntoSessionNetworks)
+      .then(groupByProtocolProperty)
+      .then(resequenceIds)
+      .then(generateOutputFiles(protocols, exportOptions))
+      .then(archive)
+      .then(uploadZipToUploadThing);
+
     const result = await pipe(
       sessions,
       insertEgoIntoSessionNetworks,
       groupByProtocolProperty,
       resequenceIds,
-      generateOutputFiles(protocols, exportFormats, exportOptions),
+      generateOutputFiles(protocols, exportOptions),
       archive,
       uploadZipToUploadThing,
     );

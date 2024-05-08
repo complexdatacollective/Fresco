@@ -1,8 +1,8 @@
-import { basename, join } from 'node:path';
-import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
+import { createWriteStream } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { type ExportResult } from '../formatters/session/exportFile';
+import { basename, join } from 'node:path';
+import type { ExportResult } from './types';
 
 // const zlibFastestCompression = 1;
 // const zlibBestCompression = 9;

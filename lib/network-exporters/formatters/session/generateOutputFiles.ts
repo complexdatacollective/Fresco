@@ -1,17 +1,22 @@
 import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { getFilePrefix } from '../../utils/general';
-import { type ExportOptions } from '../../utils/exportOptionsSchema';
-import exportFile, { type ExportFormat, type ExportResult } from './exportFile';
+import type {
+  ExportFormat,
+  ExportOptions,
+  ExportResult,
+  SessionWithResequencedIDs,
+} from '../../utils/types';
+import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
-import { type SessionWithResequencedIDs } from './resequenceIds';
 
 export const generateOutputFiles =
-  (
-    protocols: InstalledProtocols,
-    exportFormats: ExportFormat[],
-    exportOptions: ExportOptions,
-  ) =>
+  (protocols: InstalledProtocols, exportOptions: ExportOptions) =>
   async (unifiedSessions: Record<string, SessionWithResequencedIDs[]>) => {
+    const exportFormats = [
+      ...(exportOptions.exportGraphML ? ['graphml'] : []),
+      ...(exportOptions.exportCSV ? ['attributeList', 'edgeList', 'ego'] : []),
+    ] as ExportFormat[];
+
     const exportPromises: Promise<ExportResult>[] = [];
 
     Object.entries(unifiedSessions).forEach(([protocolUID, sessions]) => {

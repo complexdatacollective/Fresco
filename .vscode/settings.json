@@ -9,5 +9,8 @@
   "jest.jestCommandLine": "pnpm run test",
   "cSpell.words": [
     "resequence"
-  ]
+  ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  }
 }

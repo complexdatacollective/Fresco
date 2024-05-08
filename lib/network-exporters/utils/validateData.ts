@@ -1,4 +1,4 @@
-import { ZFormattedSessionSchema } from '../formatters/session/types';
+import { ZFormattedSessionSchema } from './types';
 
 export default async function validateData(
   sessions: unknown,

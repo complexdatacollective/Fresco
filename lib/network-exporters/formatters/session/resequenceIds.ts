@@ -7,37 +7,11 @@ import {
   ncTargetUUID,
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
-import { z } from 'zod';
-import type { SessionsByProtocol } from './groupByProtocolProperty';
-import {
-  type SessionWithNetworkEgo,
-  ZEdgeWithEgo,
-  ZNodeWithEgo,
-  ZSessionWithNetworkEgo,
-} from './insertEgoIntoSessionnetworks';
-
-const ZNodeWithResequencedID = ZNodeWithEgo.extend({
-  [nodeExportIDProperty]: z.number(),
-});
-
-export type NodeWithResequencedID = z.infer<typeof ZNodeWithResequencedID>;
-
-const ZEdgeWithResequencedID = ZEdgeWithEgo.extend({
-  [edgeExportIDProperty]: z.number(),
-  from: z.number(),
-  to: z.number(),
-});
-
-export type EdgeWithResequencedID = z.infer<typeof ZEdgeWithResequencedID>;
-
-export const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
-  nodes: ZNodeWithResequencedID.array(),
-  edges: ZEdgeWithResequencedID.array(),
-});
-
-export type SessionWithResequencedIDs = z.infer<
-  typeof ZSessionWithResequencedIDs
->;
+import type {
+  SessionWithNetworkEgo,
+  SessionWithResequencedIDs,
+  SessionsByProtocol,
+} from '../../utils/types';
 
 const resequenceEntities = (target: SessionWithNetworkEgo[]) => {
   return target.map((session) => {

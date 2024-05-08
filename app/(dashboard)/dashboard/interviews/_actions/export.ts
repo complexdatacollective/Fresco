@@ -5,8 +5,10 @@ import { trackEvent } from '~/analytics/utils';
 import { type InstalledProtocols } from '~/lib/interviewer/store';
 import exportSessions from '~/lib/network-exporters/exportSessions';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/session/formatExportableSessions';
-import { type FormattedSession } from '~/lib/network-exporters/formatters/session/types';
-import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import type {
+  ExportOptions,
+  FormattedSession,
+} from '~/lib/network-exporters/utils/types';
 import { api } from '~/trpc/server';
 import { getServerSession } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';

@@ -1,34 +1,9 @@
 import fs from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getFileExtension, makeFilename } from '../../utils/general';
 import getFormatterClass from '../../utils/getFormatterClass';
-import { tmpdir } from 'node:os';
-import { type ExportOptions } from '../../utils/exportOptionsSchema';
-import { type Codebook } from '@codaco/shared-consts';
-
-export type ExportFormat = 'graphml' | 'attributeList' | 'edgeList' | 'ego';
-
-type ExportFileProps = {
-  fileName: string;
-  exportFormat: ExportFormat;
-  network: unknown;
-  codebook: Codebook;
-  exportOptions: ExportOptions;
-};
-
-type ExportError = {
-  id: string;
-  success: false;
-  error: Error;
-};
-
-type ExportSuccess = {
-  id: string;
-  success: true;
-  path: string;
-};
-
-export type ExportResult = ExportError | ExportSuccess;
+import { ExportFileProps, ExportResult } from '../../utils/types';
 
 const exportFile = ({
   fileName: namePrefix,
