@@ -1,7 +1,17 @@
 'use client';
 
+import type { Interview } from '@prisma/client';
+import { DialogDescription } from '@radix-ui/react-dialog';
+import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import {
+  exportSessions,
+  prepareExportData,
+  updateExportTime,
+} from '~/actions/interviews';
+import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import { Button } from '~/components/ui/Button';
+import { cardClasses } from '~/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -9,28 +19,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { useToast } from '~/components/ui/use-toast';
-import ExportOptionsView from './ExportOptionsView';
-import { useDownload } from '~/hooks/useDownload';
-import {
-  ExportOptionsSchema,
-  defaultExportOptions,
-} from '~/lib/network-exporters/utils/exportOptionsSchema';
-import { DialogDescription } from '@radix-ui/react-dialog';
-import { FileWarning, Loader2, XCircle } from 'lucide-react';
-import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import Heading from '~/components/ui/typography/Heading';
+import { useToast } from '~/components/ui/use-toast';
+import { useDownload } from '~/hooks/useDownload';
+import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
+import { trackEvent } from '~/lib/analytics';
+import {
+  ExportOptionsSchema
+} from '~/lib/network-exporters/utils/exportOptionsSchema';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
-import { cardClasses } from '~/components/ui/card';
-import { deleteZipFromUploadThing } from '~/actions/uploadThing';
-import {
-  prepareExportData,
-  exportSessions,
-  updateExportTime,
-} from '~/actions/interviews';
-import type { Interview } from '@prisma/client';
-import { trackEvent } from '~/lib/analytics';
+import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
@@ -66,7 +65,15 @@ export const ExportInterviewsDialog = ({
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
     'exportOptions',
     ExportOptionsSchema,
-    defaultExportOptions,
+    {
+      exportCSV: true,
+      exportGraphML: true,
+      globalOptions: {
+        useScreenLayoutCoordinates: true,
+        screenLayoutHeight: 1080,
+        screenLayoutWidth: 1920,
+      },
+    },,
   );
 
   const handleConfirm = async () => {

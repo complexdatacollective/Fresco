@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { NcNetworkZod } from './network-canvas';
+import { ZNcNetwork } from './network-canvas';
 
 export const deleteInterviewsSchema = z.array(
   z.object({
@@ -20,7 +20,7 @@ const NumberStringBoolean = z.union([z.number(), z.string(), z.boolean()]);
 
 export const syncInterviewScheme = z.object({
   id: z.string(),
-  network: NcNetworkZod,
+  network: ZNcNetwork,
   currentStep: z.number(),
   stageMetadata: z
     .record(z.string(), z.array(z.array(NumberStringBoolean)))

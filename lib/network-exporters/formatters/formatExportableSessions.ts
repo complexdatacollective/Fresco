@@ -1,5 +1,4 @@
 import {
-  type NcNetwork,
   caseProperty,
   codebookHashProperty,
   protocolName,
@@ -8,28 +7,11 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
+  type NcNetwork,
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
 import type { getInterviewsForExport } from '~/queries/interviews';
-
-type FormattedSession = {
-  sessionNetwork: NcNetwork;
-  sessionVariables: {
-    [caseProperty]: string;
-    [sessionProperty]: string;
-    [protocolProperty]: string;
-    [protocolName]: string;
-    [codebookHashProperty]: string;
-    [sessionExportTimeProperty]: string;
-    [sessionStartTimeProperty]?: string;
-    [sessionFinishTimeProperty]?: string;
-    COMMIT_HASH: string;
-    APP_VERSION: string;
-  };
-};
-
-export type FormattedSessions = FormattedSession[];
 
 /**
  * Creates an object containing all required session metadata for export
@@ -63,8 +45,8 @@ export const formatExportableSessions = (
     const sessionNetwork = session.network as unknown as NcNetwork;
 
     return {
-      sessionNetwork,
+      ...sessionNetwork,
       sessionVariables,
-    } as FormattedSession;
+    };
   });
 };
