@@ -68,7 +68,7 @@ export const getServerSession = cache(async () => {
   return result;
 });
 
-export type RequireAuthOptions = {
+type RequireAuthOptions = {
   redirectPath?: string;
 };
 

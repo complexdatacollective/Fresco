@@ -15,7 +15,7 @@ import type {
 import { type AnyAction } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
 
-export const matchEntry =
+const matchEntry =
   (promptIndex: number, pair: Pair) =>
   ([p, a, b]: StageMetadataEntry) =>
     (p === promptIndex && a === pair[0] && b === pair[1]) ||

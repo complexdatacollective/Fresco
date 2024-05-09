@@ -22,11 +22,6 @@ export const userCreateFormSchema = z.object({
   ),
 });
 
-export const userSignInFormSchema = z.object({
-  username: z.string().min(1, { message: 'Username cannot be empty' }),
-  password: z.string().min(1, { message: 'Password cannot be empty' }),
-});
-
 export const containerClasses = cn(
   'relative mt-[-60px] flex flex-col rounded-xl min-w-full-[30rem] bg-card p-8',
   'after:absolute after:inset-[-20px] after:z-[-1] after:rounded-3xl after:bg-panel/30 after:shadow-2xl after:backdrop-blur-sm',

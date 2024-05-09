@@ -26,7 +26,7 @@ export const paragraphVariants = cva('text-pretty font-normal', {
   },
 });
 
-export type ParagraphProps = {
+type ParagraphProps = {
   variant?: VariantProps<typeof paragraphVariants>['variant'];
   margin?: VariantProps<typeof paragraphVariants>['margin'];
   asChild?: boolean;

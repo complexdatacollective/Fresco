@@ -8,7 +8,7 @@ import { env } from '~/env.mjs';
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-export const getAppSettings = unstable_cache(
+const getAppSettings = unstable_cache(
   async () => {
     const appSettings = await prisma.appSettings.findFirst();
 

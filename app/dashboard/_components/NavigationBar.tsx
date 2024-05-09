@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 import Heading from '~/components/ui/typography/Heading';
 import { env } from '~/env.mjs';
 
-export const NavButton = ({
+const NavButton = ({
   label,
   href,
   isActive = false,

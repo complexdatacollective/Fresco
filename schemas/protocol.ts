@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const assetInsertSchema = z.array(
+const assetInsertSchema = z.array(
   z.object({
     key: z.string(),
     assetId: z.string(),
@@ -21,5 +21,3 @@ export const protocolInsertSchema = z
     existingAssetIds: z.array(z.string()),
   })
   .passthrough();
-
-export type ProtocolInsertType = z.infer<typeof protocolInsertSchema>;
