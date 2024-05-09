@@ -14,7 +14,7 @@ export default function useSafeLocalStorage<T>(
   schema: z.Schema<T>,
   initialData: T,
 ) {
-  const storage = useLocalStorage(key, initialData, {
+  const [value, setValue] = useLocalStorage(key, initialData, {
     initializeWithValue: false,
     deserializer(value) {
       // If the value fails schema validation, fallback to initialData
@@ -25,6 +25,7 @@ export default function useSafeLocalStorage<T>(
         if (!safeNewValue.success) {
           // eslint-disable-next-line no-console
           console.log('Existing data was invalid. Discarding.');
+          setValue(initialData);
           return initialData;
         }
 
@@ -35,5 +36,5 @@ export default function useSafeLocalStorage<T>(
     },
   });
 
-  return storage;
+  return [value, setValue];
 }

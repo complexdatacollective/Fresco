@@ -18,13 +18,9 @@ const archive = async (exportResults: ExportResult[]) => {
       const completed: ExportResult[] = [];
       const rejected: ExportResult[] = [];
 
-      const output = createWriteStream(writePath);
-      const zip = archiver('zip', {
-        zlib: { level: 1 }, // 1 = low 9 = high
-        store: true, // Seems to skip compression entirely?
-      });
+      const writeStream = createWriteStream(writePath);
 
-      output.on('close', () => {
+      writeStream.on('close', async () => {
         resolve({
           path: writePath,
           completed,
@@ -32,10 +28,15 @@ const archive = async (exportResults: ExportResult[]) => {
         });
       });
 
-      output.on('warning', reject);
-      output.on('error', reject);
+      writeStream.on('warning', reject);
+      writeStream.on('error', reject);
 
-      zip.pipe(output);
+      const zip = archiver('zip', {
+        zlib: { level: 1 }, // 1 = low 9 = high
+        store: true, // Seems to skip compression entirely?
+      });
+
+      zip.pipe(writeStream);
 
       zip.on('warning', reject);
       zip.on('error', reject);
@@ -48,9 +49,9 @@ const archive = async (exportResults: ExportResult[]) => {
         } else {
           rejected.push(exportResult);
         }
-
-        void zip.finalize();
       });
+
+      void zip.finalize(); // Will trigger writeStream close event
     },
   );
 
