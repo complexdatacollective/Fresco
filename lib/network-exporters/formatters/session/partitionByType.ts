@@ -1,6 +1,14 @@
 import type { Codebook } from '@codaco/shared-consts';
-import type { ExportFormat } from './exportFile';
-import type { SessionWithResequencedIDs } from './resequenceIds';
+import type {
+  EdgeWithResequencedID,
+  ExportFormat,
+  NodeWithResequencedID,
+  SessionWithResequencedIDs,
+} from '../../utils/types';
+
+type ReturnType =
+  | SessionWithResequencedIDs[]
+  | (SessionWithResequencedIDs & { partitionEntity: string })[];
 
 /**
  * Partition a network as needed for edge-list and adjacency-matrix formats.
@@ -17,7 +25,7 @@ export const partitionByType = (
   codebook: Codebook,
   session: SessionWithResequencedIDs,
   format: ExportFormat,
-) => {
+): ReturnType => {
   const getEntityName = (uuid: string, type: 'node' | 'edge') =>
     codebook[type]?.[uuid]?.name ?? null;
 
@@ -31,17 +39,24 @@ export const partitionByType = (
         return [session];
       }
 
-      const partitionedNodeMap = session?.nodes?.reduce((nodeMap, node) => {
-        nodeMap[node.type] = nodeMap[node.type] || []; // eslint-disable-line no-param-reassign
-        nodeMap[node.type].push(node);
-        return nodeMap;
-      }, {});
+      const partitionedNodeMap = session?.nodes?.reduce(
+        (nodeMap, node) => {
+          nodeMap[node.type] = nodeMap[node.type] ?? [];
+          nodeMap[node.type]!.push(node);
+          return nodeMap;
+        },
+        {} as Record<string, NodeWithResequencedID[]>,
+      );
 
-      return Object.entries(partitionedNodeMap).map(([nodeType, nodes]) => ({
-        ...session,
-        nodes,
-        partitionEntity: getEntityName(nodeType, 'node'),
-      }));
+      const thing = Object.entries(partitionedNodeMap).map(
+        ([nodeType, nodes]) => ({
+          ...session,
+          nodes,
+          partitionEntity: getEntityName(nodeType, 'node')!,
+        }),
+      );
+
+      return thing;
     }
     case 'edgeList':
     case 'adjacencyMatrix': {
@@ -49,19 +64,24 @@ export const partitionByType = (
         return [session];
       }
 
-      const partitionedEdgeMap = session?.edges?.reduce((edgeMap, edge) => {
-        edgeMap[edge.type] = edgeMap[edge.type] || []; // eslint-disable-line no-param-reassign
-        edgeMap[edge.type].push(edge);
-        return edgeMap;
-      }, {});
+      const partitionedEdgeMap = session?.edges?.reduce(
+        (edgeMap, edge) => {
+          edgeMap[edge.type] = edgeMap[edge.type] ?? [];
+          edgeMap[edge.type]!.push(edge);
+          return edgeMap;
+        },
+        {} as Record<string, EdgeWithResequencedID[]>,
+      );
 
-      return Object.entries(partitionedEdgeMap).map(([edgeType, edges]) => ({
-        ...session,
-        edges,
-        partitionEntity: getEntityName(edgeType, 'edge'),
-      }));
+      const thing = Object.entries(partitionedEdgeMap).map(
+        ([edgeType, edges]) => ({
+          ...session,
+          edges,
+          partitionEntity: getEntityName(edgeType, 'edge')!,
+        }),
+      );
+
+      return thing;
     }
-    default:
-      throw new Error('Unexpected format', format);
   }
 };

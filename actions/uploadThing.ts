@@ -3,6 +3,10 @@
 import { File } from 'node:buffer';
 import { readFile, unlink } from 'node:fs/promises';
 import { utapi } from '~/app/api/uploadthing/core';
+import type {
+  ArchiveResult,
+  ExportReturn,
+} from '~/lib/network-exporters/utils/types';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 
@@ -16,7 +20,9 @@ export const deleteZipFromUploadThing = async (key: string) => {
   }
 };
 
-export const uploadZipToUploadThing = async (results: ArchiveResult) => {
+export const uploadZipToUploadThing = async (
+  results: ArchiveResult,
+): Promise<ExportReturn> => {
   const { path: zipLocation, completed, rejected } = results;
 
   try {
@@ -31,6 +37,8 @@ export const uploadZipToUploadThing = async (results: ArchiveResult) => {
     if (data) {
       void unlink(zipLocation); // Delete the zip file after successful upload
       return {
+        zipUrl: data.url,
+        zipKey: data.key,
         status: rejected.length ? 'partial' : 'success',
         error: rejected.length ? 'Some exports failed' : null,
         failedExports: rejected,

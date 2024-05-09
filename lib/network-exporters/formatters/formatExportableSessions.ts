@@ -26,7 +26,7 @@ export const formatExportableSessions = (
     const sessionParticipant = session.participant;
 
     const sessionVariables = {
-      [caseProperty]: sessionParticipant.label,
+      [caseProperty]: sessionParticipant.label!,
       [sessionProperty]: sessionParticipant.identifier,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
@@ -38,8 +38,8 @@ export const formatExportableSessions = (
         [sessionFinishTimeProperty]: new Date(session.finishTime).toISOString(),
       }),
       [sessionExportTimeProperty]: new Date().toISOString(),
-      COMMIT_HASH: env.COMMIT_HASH,
-      APP_VERSION: env.APP_VERSION,
+      COMMIT_HASH: env.COMMIT_HASH!,
+      APP_VERSION: env.APP_VERSION!,
     };
 
     const sessionNetwork = session.network as unknown as NcNetwork;

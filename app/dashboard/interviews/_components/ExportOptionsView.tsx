@@ -3,7 +3,7 @@ import { cardClasses } from '~/components/ui/card';
 import { Switch } from '~/components/ui/switch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { cn } from '~/utils/shadcn';
 
 const sectionClasses = cn(

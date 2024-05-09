@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getFileExtension, makeFilename } from '../../utils/general';
 import getFormatterClass from '../../utils/getFormatterClass';
-import { ExportFileProps, ExportResult } from '../../utils/types';
+import type { ExportFileProps, ExportResult } from '../../utils/types';
 
 const exportFile = ({
   fileName: namePrefix,

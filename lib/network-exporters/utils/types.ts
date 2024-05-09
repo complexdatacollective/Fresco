@@ -10,9 +10,10 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
+  type Codebook,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import { ZNcEdge, ZNcEntity, ZNcNode } from '~/shared/schemas/network-canvas';
+import { ZNcEdge, ZNcEntity, ZNcNode } from '~/schemas/network-canvas';
 
 export const ZSessionVariables = z.object({
   [caseProperty]: z.string(),
@@ -32,7 +33,7 @@ export type SessionVariables = z.infer<typeof ZSessionVariables>;
 export const ZFormattedSessionSchema = z.object({
   nodes: ZNcNode.array(),
   edges: ZNcEdge.array(),
-  ego: ZNcEntity, // Should this be optional?
+  ego: ZNcEntity.optional(), // Should this be optional?
   sessionVariables: ZSessionVariables,
 });
 
@@ -57,7 +58,12 @@ export type UploadData = {
 
 export type FormattedSession = z.infer<typeof ZFormattedSessionSchema>;
 
-export type ExportFormat = 'graphml' | 'attributeList' | 'edgeList' | 'ego';
+export type ExportFormat =
+  | 'graphml'
+  | 'attributeList'
+  | 'edgeList'
+  | 'ego'
+  | 'adjacencyMatrix';
 
 export type ExportFileProps = {
   fileName: string;
@@ -70,7 +76,7 @@ export type ExportFileProps = {
 export type ExportError = {
   id: string;
   success: false;
-  error: Error;
+  error: string;
 };
 
 export type ExportSuccess = {
@@ -82,6 +88,8 @@ export type ExportSuccess = {
 export type ExportResult = ExportError | ExportSuccess;
 
 export type ExportReturn = {
+  zipUrl?: string;
+  zipKey?: string;
   status: 'success' | 'error' | 'cancelled' | 'partial';
   error: string | null;
   successfulExports?: ExportResult[];

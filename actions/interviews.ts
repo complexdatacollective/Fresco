@@ -1,12 +1,22 @@
 'use server';
 
+import { Protocol } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview, type Protocol } from '@prisma/client';
+import { Prisma, type Interview } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { trackEvent } from '~/lib/analytics';
-import { InstalledProtocols } from '~/lib/interviewer/store';
+import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
-import type { ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import archive from '~/lib/network-exporters/formatters/session/archive';
+import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
+import groupByProtocolProperty from '~/lib/network-exporters/formatters/session/groupByProtocolProperty';
+import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/formatters/session/insertEgoIntoSessionNetworks';
+import { resequenceIds } from '~/lib/network-exporters/formatters/session/resequenceIds';
+import type {
+  ExportOptions,
+  ExportReturn,
+  FormattedSession,
+} from '~/lib/network-exporters/utils/types';
 import { getInterviewsForExport } from '~/queries/interviews';
 import type {
   CreateInterview,
@@ -17,6 +27,7 @@ import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
+import { uploadZipToUploadThing } from './uploadThing';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   await requireApiAuth();
@@ -78,7 +89,8 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols = Object.fromEntries(protocolsMap);
+  const formattedProtocols: InstalledProtocols =
+    Object.fromEntries(protocolsMap);
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
   return { formattedSessions, formattedProtocols };
@@ -89,7 +101,7 @@ export const exportSessions = async (
   formattedProtocols: InstalledProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
-) => {
+): Promise<ExportReturn> => {
   await requireApiAuth();
 
   try {
@@ -101,6 +113,7 @@ export const exportSessions = async (
       .then(archive)
       .then(uploadZipToUploadThing);
 
+    // eslint-disable-next-line no-console
     console.log(result);
 
     void trackEvent({
@@ -131,7 +144,7 @@ export const exportSessions = async (
     });
 
     return {
-      data: null,
+      status: 'error',
       error: `Error during data export: ${e.message}`,
     };
   }

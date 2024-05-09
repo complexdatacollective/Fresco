@@ -1,15 +1,16 @@
-import { AdjacencyMatrixFormatter } from '../formatters/csv/matrix';
 import { AttributeListFormatter } from '../formatters/csv/attribute-list';
-import { EgoListFormatter } from '../formatters/csv/ego-list';
 import { EdgeListFormatter } from '../formatters/csv/edge-list';
+import { EgoListFormatter } from '../formatters/csv/ego-list';
+import { AdjacencyMatrixFormatter } from '../formatters/csv/matrix';
 import GraphMLFormatter from '../formatters/graphml/GraphMLFormatter';
+import type { ExportFormat } from './types';
 
 /**
  * Formatter factory
  * @param  {string} formatterType one of the `format`s
  * @return {class}
  */
-const getFormatterClass = (formatterType) => {
+const getFormatterClass = (formatterType: ExportFormat) => {
   switch (formatterType) {
     case 'graphml':
       return GraphMLFormatter;
@@ -21,8 +22,6 @@ const getFormatterClass = (formatterType) => {
       return AttributeListFormatter;
     case 'ego':
       return EgoListFormatter;
-    default:
-      return null;
   }
 };
 

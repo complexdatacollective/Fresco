@@ -1,5 +1,3 @@
-'use client';
-
 import type { Interview } from '@prisma/client';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { FileWarning, Loader2, XCircle } from 'lucide-react';
@@ -24,9 +22,7 @@ import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import { trackEvent } from '~/lib/analytics';
-import {
-  ExportOptionsSchema
-} from '~/lib/network-exporters/utils/exportOptionsSchema';
+import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
 import ExportOptionsView from './ExportOptionsView';
@@ -73,7 +69,7 @@ export const ExportInterviewsDialog = ({
         screenLayoutHeight: 1080,
         screenLayoutWidth: 1920,
       },
-    },,
+    },
   );
 
   const handleConfirm = async () => {
@@ -89,25 +85,23 @@ export const ExportInterviewsDialog = ({
         await prepareExportData(interviewIds);
 
       // export the data
-      const result = await exportSessions(
+      const { zipUrl, zipKey, status, error } = await exportSessions(
         formattedSessions,
         formattedProtocols,
         interviewIds,
         exportOptions,
       );
 
-      if (!result.data) {
-        throw new Error(result.error);
+      if (status === 'error' || !zipUrl || !zipKey) {
+        throw new Error(error ?? 'An error occured during export.');
       }
+
+      exportFilename = zipKey;
 
       // update export time of interviews
       await updateExportTime(interviewIds);
 
-      const { key, name, url: resultUrl } = result.data;
-
-      exportFilename = key;
-
-      const responseAsBlob = await fetch(resultUrl).then((res) => {
+      const responseAsBlob = await fetch(zipUrl).then((res) => {
         if (!res.ok) {
           throw new Error('HTTP error ' + res.status);
         }
@@ -118,7 +112,7 @@ export const ExportInterviewsDialog = ({
       const url = URL.createObjectURL(responseAsBlob);
 
       // Download the zip file
-      download(url, name);
+      download(url, 'Network Canvas export.zip');
       // clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {
