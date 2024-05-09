@@ -2,7 +2,7 @@ import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import Image from 'next/image';
 
-export const SmallScreenOverlay = () => {
+const SmallScreenOverlay = () => {
   return (
     <div className="fixed inset-0 z-50 flex  items-center justify-center bg-[--nc-background]  lg:hidden">
       <div className="flex max-w-[72ch] flex-col items-center justify-center p-6 text-center">
@@ -26,4 +26,5 @@ export const SmallScreenOverlay = () => {
     </div>
   );
 };
+
 export default SmallScreenOverlay;
