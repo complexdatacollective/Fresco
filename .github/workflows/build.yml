@@ -51,3 +51,6 @@ jobs:
 
       - name: Run build
         run: pnpm lint
+
+      - name: Run knip
+        run: pnpm knip
