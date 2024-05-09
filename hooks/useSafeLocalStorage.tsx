@@ -14,7 +14,7 @@ export default function useSafeLocalStorage<T>(
   schema: z.Schema<T>,
   initialData: T,
 ) {
-  const [value, setValue] = useLocalStorage(key, initialData, {
+  const storage = useLocalStorage(key, initialData, {
     initializeWithValue: false,
     deserializer(value) {
       // If the value fails schema validation, fallback to initialData
@@ -25,7 +25,7 @@ export default function useSafeLocalStorage<T>(
         if (!safeNewValue.success) {
           // eslint-disable-next-line no-console
           console.log('Existing data was invalid. Discarding.');
-          setValue(initialData);
+          storage[1](initialData); // Not sure why, but destructuring value and setValue above causes TS errors.
           return initialData;
         }
 
@@ -36,5 +36,5 @@ export default function useSafeLocalStorage<T>(
     },
   });
 
-  return [value, setValue];
+  return storage;
 }
