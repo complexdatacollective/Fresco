@@ -7,5 +7,6 @@
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js"
-  ]
+  ],
+  "ignoreDependencies": ["server-only", "prop-types"]
 }
