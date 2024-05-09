@@ -2,11 +2,7 @@ import type { Stage } from '@codaco/shared-consts';
 import { createDeepEqualSelector } from './utils';
 import { getProtocolStages } from './protocol';
 import { createSelector } from '@reduxjs/toolkit';
-import type { RootState, Session } from '../store';
-
-export type SessionState = Record<string, unknown>;
-
-export type SessionsState = Record<string, Session>;
+import type { RootState } from '../store';
 
 export const getActiveSessionId = (state: RootState) => state.activeSessionId;
 

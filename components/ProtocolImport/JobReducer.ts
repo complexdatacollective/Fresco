@@ -11,7 +11,7 @@ export const importStatuses = [
 
 type ImportStatus = (typeof importStatuses)[number];
 
-export type ErrorState = {
+type ErrorState = {
   title: string;
   description: React.ReactNode;
   additionalContent?: React.ReactNode;

@@ -56,13 +56,7 @@ export type Activity = Prisma.EventsGetPayload<{
   };
 }>;
 
-export type Result = {
-  data: Activity[];
-  pageCount: number;
-};
-
 export const sortOrder = ['asc', 'desc'] as const;
-export type SortOrder = (typeof sortOrder)[number]; // 'asc' | 'desc'
 
 export const sortableFields = [
   // Todo: couldn't work out a way to derive this from the Db schema
@@ -75,7 +69,6 @@ export type SortableField = (typeof sortableFields)[number];
 
 // As above, this should be derivable from the column definition...
 export const searchableFields = ['message'] as const;
-export type SearchableField = (typeof searchableFields)[number];
 
 export const pageSizes = [10, 20, 50, 100] as const;
 export type PageSize = (typeof pageSizes)[number];

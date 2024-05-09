@@ -35,7 +35,7 @@ const variantElementMap: Record<
   'label': 'label',
 };
 
-export type HeadingProps = {
+type HeadingProps = {
   asChild?: boolean;
   as?: string;
 } & React.HTMLAttributes<HTMLHeadingElement> &

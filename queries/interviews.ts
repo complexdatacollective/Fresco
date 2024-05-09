@@ -18,7 +18,6 @@ export const getInterviews = unstable_cache(
   },
 );
 
-export type GetInterviewsType = typeof getInterviews;
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
 
 export const getInterviewsForExport = unstable_cache(
@@ -41,11 +40,6 @@ export const getInterviewsForExport = unstable_cache(
     tags: ['getInterviewsForExport', 'getInterviews'],
   },
 );
-
-export type GetInterviewsForExportType = typeof getInterviewsForExport;
-export type GetInterviewsForExportReturnType = ReturnType<
-  typeof getInterviewsForExport
->;
 
 export const getInterviewById = (interviewId: string) =>
   unstable_cache(

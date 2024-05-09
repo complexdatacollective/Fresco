@@ -28,5 +28,3 @@ export const NcNetworkZod = z.object({
   edges: z.array(NcEdgeZod),
   ego: NcEntityZod.optional(),
 });
-
-export type NcNetworkType = z.infer<typeof NcNetworkZod>;

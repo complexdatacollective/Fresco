@@ -17,7 +17,7 @@ export type ParticipantWithInterviews = Prisma.ParticipantGetPayload<
   typeof participantWithInterviews
 >;
 
-export type UploadData = {
+type UploadData = {
   key: string;
   url: string;
   name: string;

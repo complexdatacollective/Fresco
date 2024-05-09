@@ -21,5 +21,3 @@ export const protocolInsertSchema = z
     existingAssetIds: z.array(z.string()),
   })
   .passthrough();
-
-export type ProtocolInsertType = z.infer<typeof protocolInsertSchema>;

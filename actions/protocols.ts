@@ -190,5 +190,3 @@ export async function insertProtocol(
     throw e;
   }
 }
-
-export type InsertProtocolType = typeof insertProtocol;

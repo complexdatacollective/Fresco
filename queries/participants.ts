@@ -19,5 +19,4 @@ export const getParticipants = unstable_cache(
   },
 );
 
-export type GetParticipantsType = typeof getParticipants;
 export type GetParticipantsReturnType = ReturnType<GetParticipantsType>;

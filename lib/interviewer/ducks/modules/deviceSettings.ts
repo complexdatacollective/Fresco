@@ -4,7 +4,7 @@ const TOGGLE_SETTING = 'SETTINGS/TOGGLE_SETTING' as const;
 const SET_SETTING = 'SETTINGS/SET_SETTING' as const;
 
 // Static defaults should be distinguishable from user choices (e.g., undefined instead of false).
-export type DeviceSettings = {
+type DeviceSettings = {
   useDynamicScaling: boolean;
   useFullScreenForms?: boolean; // leave using full screen forms up to the user
   interfaceScale: number;
