@@ -126,15 +126,4 @@ const SheetDescription = React.forwardRef<
 ));
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
 
-export {
-  Sheet,
-  ,
-  ,
-  ,
-  ,
-  SheetContent,
-  ,
-  ,
-  ,
-  ,
-};
+export { Sheet, SheetContent };
