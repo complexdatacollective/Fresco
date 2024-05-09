@@ -11,7 +11,7 @@ const rotateIndex = (max: number, nextIndex: number) => (nextIndex + max) % max;
 
 const maxLength = (state: RootState) => getProtocolStages(state).length;
 
-export const getNextIndex = (index: number) =>
+const getNextIndex = (index: number) =>
   createSelector(maxLength, (max) => rotateIndex(max, index));
 
 const getSkipLogic = (index: number) =>
@@ -37,7 +37,7 @@ const formatQueryParameters = (params: Record<string, unknown>) => ({
 
 // Hacked together version of isStageSkipped that returns a map of all stages.
 // This is more convinient to use with useSelector.
-export const getSkipMap = createSelector(
+const getSkipMap = createSelector(
   getProtocolStages,
   getNetwork,
   (stages: Stage[], network: NcNetwork | undefined): Record<number, boolean> =>
@@ -67,7 +67,7 @@ export const getSkipMap = createSelector(
     ),
 );
 
-export const isStageSkipped = (index: number) =>
+const isStageSkipped = (index: number) =>
   createSelector(
     getSkipLogic(index),
     isSkipAction(index),

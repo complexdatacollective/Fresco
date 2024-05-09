@@ -40,7 +40,7 @@ export const activityTypes = [
 
 export type ActivityType = (typeof activityTypes)[number];
 
-export const ActivitySchema = z.object({
+const ActivitySchema = z.object({
   id: z.string(),
   timestamp: z.date(),
   type: z.enum(activityTypes),
@@ -68,7 +68,7 @@ export const sortableFields = [
 export type SortableField = (typeof sortableFields)[number];
 
 // As above, this should be derivable from the column definition...
-export const searchableFields = ['message'] as const;
+const searchableFields = ['message'] as const;
 
 export const pageSizes = [10, 20, 50, 100] as const;
 export type PageSize = (typeof pageSizes)[number];
@@ -79,7 +79,7 @@ export const FilterParam = z.object({
 });
 export type FilterParam = z.infer<typeof FilterParam>;
 
-export const SearchParamsSchema = z.object({
+const SearchParamsSchema = z.object({
   page: z.number(),
   perPage: numberEnum(pageSizes),
   sort: z.enum(sortOrder),

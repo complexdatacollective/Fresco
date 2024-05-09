@@ -11,7 +11,7 @@ const labelAnimationVariants = {
 
 type ReportStates = 'idle' | 'loading' | 'success' | 'error';
 
-export function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
+function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
   return (
     <div className="absolute right-10 top-10">
       <AnimatePresence mode="wait" initial={false}>

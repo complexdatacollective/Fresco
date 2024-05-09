@@ -58,6 +58,6 @@ const Heading = React.forwardRef<HTMLElement, HeadingProps>(
 
 Heading.displayName = 'Heading';
 
-export const MotionHeading = motion(Heading);
+const MotionHeading = motion(Heading);
 
 export default Heading;

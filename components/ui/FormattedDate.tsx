@@ -30,4 +30,3 @@ function FormattedDate({
   );
 }
 
-export default withNoSSRWrapper(FormattedDate);

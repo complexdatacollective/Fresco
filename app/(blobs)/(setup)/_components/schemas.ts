@@ -22,7 +22,7 @@ export const userCreateFormSchema = z.object({
   ),
 });
 
-export const userSignInFormSchema = z.object({
+const userSignInFormSchema = z.object({
   username: z.string().min(1, { message: 'Username cannot be empty' }),
   password: z.string().min(1, { message: 'Password cannot be empty' }),
 });

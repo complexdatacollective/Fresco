@@ -19,14 +19,14 @@ export const participantIdentifierSchema = z
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
-export const participantIdSchema = z
+const participantIdSchema = z
   .string()
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
 export const participantLabelSchema = z.string().optional();
 
-export const ParticipantRowSchema = z.union([
+const ParticipantRowSchema = z.union([
   z.object({
     identifier: z.string(),
     label: z.string().optional(),

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { NcNetworkZod } from './network-canvas';
 
-export const deleteInterviewsSchema = z.array(
+const deleteInterviewsSchema = z.array(
   z.object({
     id: z.string(),
   }),
@@ -9,7 +9,7 @@ export const deleteInterviewsSchema = z.array(
 
 export type DeleteInterviews = z.infer<typeof deleteInterviewsSchema>;
 
-export const createInterviewSchema = z.object({
+const createInterviewSchema = z.object({
   participantIdentifier: z.string().optional(),
   protocolId: z.string(),
 });
@@ -18,7 +18,7 @@ export type CreateInterview = z.infer<typeof createInterviewSchema>;
 
 const NumberStringBoolean = z.union([z.number(), z.string(), z.boolean()]);
 
-export const syncInterviewScheme = z.object({
+const syncInterviewScheme = z.object({
   id: z.string(),
   network: NcNetworkZod,
   currentStep: z.number(),

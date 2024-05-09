@@ -106,4 +106,4 @@ const actionTypes = {
   SET_SETTING,
 };
 
-export { actionCreators, actionTypes };
+export { actionCreators,  };

@@ -35,7 +35,7 @@ export const getProtocolByHash = unstable_cache(
   },
 );
 
-export const getProtocolByLastUpdated = unstable_cache(
+const getProtocolByLastUpdated = unstable_cache(
   async () => {
     const protocol = await prisma.protocol.findFirst({
       orderBy: {

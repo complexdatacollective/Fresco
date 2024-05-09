@@ -97,7 +97,7 @@ export async function deleteProtocols(hashes: string[]) {
   }
 }
 
-export async function deleteAllProtocols() {
+async function deleteAllProtocols() {
   await requireApiAuth();
 
   const protocols = await prisma.protocol.findMany({

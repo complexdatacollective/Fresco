@@ -23,13 +23,13 @@ export const getNetwork = createSelector(
   (session) => session?.network,
 );
 
-export const getPropStageFilter = (_: unknown, props: { stage: Stage }) =>
+const getPropStageFilter = (_: unknown, props: { stage: Stage }) =>
   props?.stage?.filter ?? null;
 
 type FilterFunction = (network: NcNetwork) => NcNetwork;
 
 // Filtered network
-export const getFilteredNetwork = createSelector(
+const getFilteredNetwork = createSelector(
   getNetwork,
   getPropStageFilter,
   (network, nodeFilter: FilterDefinition | null) => {
@@ -75,7 +75,7 @@ export const getNodeTypeDefinition = createSelector(
 );
 
 // The user-defined name of a node type; e.g. `codebook.node[uuid].name == 'person'`
-export const makeGetNodeTypeDefinition = () => getNodeTypeDefinition;
+const makeGetNodeTypeDefinition = () => getNodeTypeDefinition;
 
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (
@@ -130,12 +130,12 @@ export const getNodeLabel = createSelector(
 
 // Gets the node label variable and returns its value, or "No label".
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
-export const makeGetNodeLabel = () => getNodeLabel;
+const makeGetNodeLabel = () => getNodeLabel;
 
 const getType = (_: unknown, props: Record<string, string>) =>
   props.type ?? null;
 
-export const getNodeColorSelector = createSelector(
+const getNodeColorSelector = createSelector(
   getProtocolCodebook,
   getType,
   (codebook: Codebook, nodeType: string | null) => {
@@ -147,7 +147,7 @@ export const getNodeColorSelector = createSelector(
   },
 );
 
-export const makeGetNodeColor = () => getNodeColorSelector;
+const makeGetNodeColor = () => getNodeColorSelector;
 
 // Pure state selector variant of makeGetNodeColor
 export const getNodeColor = (nodeType: string) => (state: RootState) =>

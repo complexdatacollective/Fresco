@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const assetInsertSchema = z.array(
+const assetInsertSchema = z.array(
   z.object({
     key: z.string(),
     assetId: z.string(),

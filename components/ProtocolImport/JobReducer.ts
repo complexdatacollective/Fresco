@@ -1,6 +1,6 @@
 import { trackEvent } from '~/lib/analytics';
 
-export const importStatuses = [
+const importStatuses = [
   'Queued',
   'Extracting protocol',
   'Validating protocol',
