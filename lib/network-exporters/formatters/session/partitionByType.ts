@@ -6,10 +6,6 @@ import type {
   SessionWithResequencedIDs,
 } from '../../utils/types';
 
-type ReturnType =
-  | SessionWithResequencedIDs[]
-  | (SessionWithResequencedIDs & { partitionEntity: string })[];
-
 /**
  * Partition a network as needed for edge-list and adjacency-matrix formats.
  * Each network contains a reference to the original nodes, with a subset of edges
@@ -25,11 +21,13 @@ export const partitionByType = (
   codebook: Codebook,
   session: SessionWithResequencedIDs,
   format: ExportFormat,
-): ReturnType => {
+): (SessionWithResequencedIDs & { partitionEntity?: string })[] => {
   const getEntityName = (uuid: string, type: 'node' | 'edge') =>
     codebook[type]?.[uuid]?.name ?? null;
 
   switch (format) {
+    // For graphml and ego formats, we don't need to do any processing because
+    // everything is contained in a single file.
     case 'graphml':
     case 'ego': {
       return [session];
@@ -48,16 +46,13 @@ export const partitionByType = (
         {} as Record<string, NodeWithResequencedID[]>,
       );
 
-      const thing = Object.entries(partitionedNodeMap).map(
-        ([nodeType, nodes]) => ({
-          ...session,
-          nodes,
-          partitionEntity: getEntityName(nodeType, 'node')!,
-        }),
-      );
-
-      return thing;
+      return Object.entries(partitionedNodeMap).map(([nodeType, nodes]) => ({
+        ...session,
+        nodes,
+        partitionEntity: getEntityName(nodeType, 'node')!,
+      }));
     }
+
     case 'edgeList':
     case 'adjacencyMatrix': {
       if (!session?.edges?.length) {
@@ -73,15 +68,11 @@ export const partitionByType = (
         {} as Record<string, EdgeWithResequencedID[]>,
       );
 
-      const thing = Object.entries(partitionedEdgeMap).map(
-        ([edgeType, edges]) => ({
-          ...session,
-          edges,
-          partitionEntity: getEntityName(edgeType, 'edge')!,
-        }),
-      );
-
-      return thing;
+      return Object.entries(partitionedEdgeMap).map(([edgeType, edges]) => ({
+        ...session,
+        edges,
+        partitionEntity: getEntityName(edgeType, 'edge')!,
+      }));
     }
   }
 };

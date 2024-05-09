@@ -18,7 +18,7 @@ export type CreateInterview = z.infer<typeof createInterviewSchema>;
 
 const NumberStringBoolean = z.union([z.number(), z.string(), z.boolean()]);
 
-export const syncInterviewScheme = z.object({
+export const syncInterviewSchema = z.object({
   id: z.string(),
   network: ZNcNetwork,
   currentStep: z.number(),
@@ -27,4 +27,4 @@ export const syncInterviewScheme = z.object({
     .optional(), // Sorry about this. :/
 });
 
-export type SyncInterview = z.infer<typeof syncInterviewScheme>;
+export type SyncInterview = z.infer<typeof syncInterviewSchema>;

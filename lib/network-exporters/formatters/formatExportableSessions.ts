@@ -7,11 +7,11 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
-  type NcNetwork,
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
 import type { getInterviewsForExport } from '~/queries/interviews';
+import type { NcNetwork } from '~/schemas/network-canvas';
 
 /**
  * Creates an object containing all required session metadata for export

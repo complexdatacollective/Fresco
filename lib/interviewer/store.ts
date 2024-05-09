@@ -1,15 +1,16 @@
+import type { Protocol } from '@prisma/client';
 import { configureStore } from '@reduxjs/toolkit';
-import thunk from 'redux-thunk';
-import logger from './ducks/middleware/logger';
-import sound from './ducks/middleware/sound';
 import { reducer as form } from 'redux-form';
+import thunk from 'redux-thunk';
 import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
-import sessions from '~/lib/interviewer/ducks/modules/session';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
-import ui from '~/lib/interviewer/ducks/modules/ui';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
-import type { NcNetwork, Protocol } from '@codaco/shared-consts';
+import sessions from '~/lib/interviewer/ducks/modules/session';
+import ui from '~/lib/interviewer/ducks/modules/ui';
+import type { NcNetwork } from '~/schemas/network-canvas';
+import logger from './ducks/middleware/logger';
+import sound from './ducks/middleware/sound';
 
 export const store = configureStore({
   reducer: {

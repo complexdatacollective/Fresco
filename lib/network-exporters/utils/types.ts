@@ -10,10 +10,23 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
-  type Codebook,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import { ZNcEdge, ZNcEntity, ZNcNode } from '~/schemas/network-canvas';
+import { ZNcEdge, ZNcNetwork, ZNcNode } from '~/schemas/network-canvas';
+
+export const ZNodeWithEgo = ZNcNode.extend({
+  [egoProperty]: z.string(),
+});
+
+export type NodeWithEgo = z.infer<typeof ZNodeWithEgo>;
+
+export const ZEdgeWithEgo = ZNcEdge.extend({
+  [egoProperty]: z.string(),
+});
+
+export type EdgeWithEgo = z.infer<typeof ZEdgeWithEgo>;
+
+export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
 
 export const ZSessionVariables = z.object({
   [caseProperty]: z.string(),
@@ -30,12 +43,16 @@ export const ZSessionVariables = z.object({
 
 export type SessionVariables = z.infer<typeof ZSessionVariables>;
 
-export const ZFormattedSessionSchema = z.object({
-  nodes: ZNcNode.array(),
-  edges: ZNcEdge.array(),
-  ego: ZNcEntity.optional(), // Should this be optional?
+export const ZFormattedSessionSchema = ZNcNetwork.extend({
   sessionVariables: ZSessionVariables,
 });
+
+export const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
+  nodes: ZNodeWithEgo.array(),
+  edges: ZEdgeWithEgo.array(),
+});
+
+export type SessionWithNetworkEgo = z.infer<typeof ZSessionWithNetworkEgo>;
 
 export const ExportOptionsSchema = z.object({
   exportGraphML: z.boolean(),
@@ -65,24 +82,14 @@ export type ExportFormat =
   | 'ego'
   | 'adjacencyMatrix';
 
-export type ExportFileProps = {
-  fileName: string;
-  exportFormat: ExportFormat;
-  network: unknown;
-  codebook: Codebook;
-  exportOptions: ExportOptions;
-};
-
 export type ExportError = {
-  id: string;
   success: false;
-  error: string;
+  error: Error;
 };
 
 export type ExportSuccess = {
-  id: string;
   success: true;
-  path: string;
+  filePath: string;
 };
 
 export type ExportResult = ExportError | ExportSuccess;
@@ -118,28 +125,6 @@ export const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
 export type SessionWithResequencedIDs = z.infer<
   typeof ZSessionWithResequencedIDs
 >;
-
-export const ZNodeWithEgo = ZNcNode.extend({
-  [egoProperty]: z.string(),
-});
-
-export type NodeWithEgo = z.infer<typeof ZNodeWithEgo>;
-
-export const ZEdgeWithEgo = ZNcEdge.extend({
-  [egoProperty]: z.string(),
-});
-
-export type EdgeWithEgo = z.infer<typeof ZEdgeWithEgo>;
-
-export const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
-  nodes: ZNodeWithEgo.array(),
-  edges: ZEdgeWithEgo.array(),
-  ego: ZNcEntity,
-});
-
-export type SessionWithNetworkEgo = z.infer<typeof ZSessionWithNetworkEgo>;
-
-export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
 
 export type ArchiveResult = {
   path: string;

@@ -23,10 +23,11 @@ export const ZNcEdge = ZNcEntity.extend({
   to: z.string(),
 });
 
+// Always use this instead of @codaco/shared-consts. Main difference is that ego is not optional.
 export const ZNcNetwork = z.object({
   nodes: z.array(ZNcNode),
   edges: z.array(ZNcEdge),
-  ego: ZNcEntity.optional(),
+  ego: ZNcEntity,
 });
 
 export type NcNetwork = z.infer<typeof ZNcNetwork>;

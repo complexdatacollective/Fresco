@@ -1,8 +1,7 @@
 'use server';
 
-import { Protocol } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview } from '@prisma/client';
+import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { trackEvent } from '~/lib/analytics';
 import type { InstalledProtocols } from '~/lib/interviewer/store';

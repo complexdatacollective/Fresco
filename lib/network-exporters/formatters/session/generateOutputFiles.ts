@@ -1,3 +1,4 @@
+import type { Codebook } from '@codaco/shared-consts';
 import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { getFilePrefix } from '../../utils/general';
 import type {
@@ -27,20 +28,21 @@ export const generateOutputFiles =
         const prefix = getFilePrefix(session);
 
         exportFormats.forEach((format) => {
-          // Partitioning the network based on node and edge type so we can create
-          // an individual export file for each type
+          const codebook = protocol.codebook as unknown as Codebook; // Needed due to prisma.Json type
+
+          // Split each network into separate files based on format and entity type.
           const partitionedNetworks = partitionByType(
-            protocol.codebook,
+            codebook,
             session,
             format,
           );
 
           partitionedNetworks.forEach((partitionedNetwork) => {
             const exportPromise = exportFile({
-              fileName: prefix,
+              prefix,
               exportFormat: format,
               network: partitionedNetwork,
-              codebook: protocol.codebook,
+              codebook,
               exportOptions,
             });
 

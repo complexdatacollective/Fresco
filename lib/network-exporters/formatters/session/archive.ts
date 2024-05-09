@@ -42,8 +42,8 @@ const archive = async (exportResults: ExportResult[]) => {
 
       exportResults.forEach((exportResult) => {
         if (exportResult.success) {
-          const { path } = exportResult;
-          zip.file(path, { name: basename(path) });
+          const { filePath } = exportResult;
+          zip.file(filePath, { name: basename(filePath) });
           completed.push(exportResult);
         } else {
           rejected.push(exportResult);

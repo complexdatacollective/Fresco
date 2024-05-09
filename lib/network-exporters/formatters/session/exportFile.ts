@@ -1,28 +1,38 @@
+import type { Codebook } from '@codaco/shared-consts';
 import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getFileExtension, makeFilename } from '../../utils/general';
 import getFormatterClass from '../../utils/getFormatterClass';
-import type { ExportFileProps, ExportResult } from '../../utils/types';
+import type {
+  ExportFormat,
+  ExportOptions,
+  ExportResult,
+} from '../../utils/types';
+import type { partitionByType } from './partitionByType';
 
 const exportFile = ({
-  fileName: namePrefix,
+  prefix,
   exportFormat,
   network,
   codebook,
   exportOptions,
-}: ExportFileProps): Promise<ExportResult> => {
+}: {
+  prefix: string;
+  exportFormat: ExportFormat;
+  network: ReturnType<typeof partitionByType>[number];
+  codebook: Codebook;
+  exportOptions: ExportOptions;
+}): Promise<ExportResult> => {
   const outDir = tmpdir();
-
-  const partitionedEntityName = network.partitionEntity;
 
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
 
   const formatter = new Formatter(network, codebook, exportOptions);
   const outputName = makeFilename(
-    namePrefix,
-    partitonedEntityName,
+    prefix,
+    network.partitionEntity,
     exportFormat,
     extension,
   );
@@ -33,13 +43,19 @@ const exportFile = ({
 
   return new Promise((resolve, reject) => {
     writeStream.on('finish', () => {
-      resolve(filePath);
+      resolve({
+        success: true,
+        filePath,
+      });
     });
-    writeStream.on('error', (err) => {
-      reject(err);
+    writeStream.on('error', (error) => {
+      reject({
+        success: false,
+        error,
+      });
     });
 
-    const streamController = formatter.writeToStream(writeStream);
+    formatter.writeToStream(writeStream);
   });
 };
 
