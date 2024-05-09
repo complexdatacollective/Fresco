@@ -1,5 +1,4 @@
 import type { Stage } from '@codaco/shared-consts';
-import { createDeepEqualSelector } from './utils';
 import { getProtocolStages } from './protocol';
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
@@ -15,25 +14,6 @@ export const getActiveSession = createSelector(
     return sessions[activeSessionId]!;
   },
 );
-
-const getLastActiveSession = createSelector(getSessions, (sessions) => {
-  const lastActiveSession = Object.keys(sessions).reduce(
-    (lastSessionId: string | null, sessionId) => {
-      const session = sessions[sessionId]!;
-      if (
-        !lastSessionId ||
-        (session.lastUpdated &&
-          session.lastUpdated > sessions[lastSessionId]!.lastUpdated)
-      ) {
-        return sessionId;
-      }
-      return lastSessionId;
-    },
-    null,
-  );
-
-  return lastActiveSession;
-});
 
 export const getStageIndex = createSelector(getActiveSession, (session) => {
   return session.currentStep;
@@ -56,20 +36,9 @@ export const getCurrentStage = createSelector(
   },
 );
 
-const getCaseId = createDeepEqualSelector(
-  getActiveSession,
-  (session) => session?.caseId,
-);
-
 export const getPromptIndex = createSelector(
   getActiveSession,
   (session) => session?.promptIndex ?? 0,
-);
-
-const getCurrentPrompt = createSelector(
-  getCurrentStage,
-  getPromptIndex,
-  (stage, promptIndex) => stage?.prompts?.[promptIndex],
 );
 
 export const getPrompts = createSelector(
@@ -184,9 +153,4 @@ export const getNavigationInfo = createSelector(
     canMoveForward: !(isLastPrompt && isLastStage),
     canMoveBackward: !(isFirstPrompt && isFirstStage),
   }),
-);
-
-const anySessionIsActive = createSelector(
-  getActiveSession,
-  (session) => !!session,
 );

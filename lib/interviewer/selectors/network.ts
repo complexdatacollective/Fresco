@@ -74,9 +74,6 @@ export const getNodeTypeDefinition = createSelector(
   },
 );
 
-// The user-defined name of a node type; e.g. `codebook.node[uuid].name == 'person'`
-const makeGetNodeTypeDefinition = () => getNodeTypeDefinition;
-
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (
   codebookForNodeType: NodeTypeDefinition,
@@ -128,10 +125,6 @@ export const getNodeLabel = createSelector(
   },
 );
 
-// Gets the node label variable and returns its value, or "No label".
-// See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
-const makeGetNodeLabel = () => getNodeLabel;
-
 const getType = (_: unknown, props: Record<string, string>) =>
   props.type ?? null;
 
@@ -146,8 +139,6 @@ const getNodeColorSelector = createSelector(
     return codebook.node?.[nodeType]?.color ?? 'node-color-seq-1';
   },
 );
-
-const makeGetNodeColor = () => getNodeColorSelector;
 
 // Pure state selector variant of makeGetNodeColor
 export const getNodeColor = (nodeType: string) => (state: RootState) =>

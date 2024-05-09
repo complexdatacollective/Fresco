@@ -40,13 +40,6 @@ export const activityTypes = [
 
 export type ActivityType = (typeof activityTypes)[number];
 
-const ActivitySchema = z.object({
-  id: z.string(),
-  timestamp: z.date(),
-  type: z.enum(activityTypes),
-  message: z.string(),
-});
-
 export type Activity = Prisma.EventsGetPayload<{
   select: {
     id: true;
@@ -66,9 +59,6 @@ export const sortableFields = [
   'message',
 ] as const;
 export type SortableField = (typeof sortableFields)[number];
-
-// As above, this should be derivable from the column definition...
-const searchableFields = ['message'] as const;
 
 export const pageSizes = [10, 20, 50, 100] as const;
 export type PageSize = (typeof pageSizes)[number];

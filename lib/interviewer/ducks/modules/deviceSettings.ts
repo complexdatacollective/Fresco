@@ -99,11 +99,4 @@ const actionCreators = {
   setSetting,
 };
 
-const actionTypes = {
-  SET_DESCRIPTION,
-  SET_INTERFACE_SCALE,
-  TOGGLE_SETTING,
-  SET_SETTING,
-};
-
-export { actionCreators,  };
+export { actionCreators };
