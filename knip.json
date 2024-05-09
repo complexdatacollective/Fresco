@@ -8,5 +8,10 @@
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js"
   ],
-  "ignoreDependencies": ["server-only", "prop-types"]
+  "ignoreDependencies": [
+    "server-only",
+    "prop-types",
+    "@node-rs/bcrypt",
+    "@node-rs/argon2"
+  ]
 }
