@@ -1,39 +1,52 @@
 'use server';
 
 import { parseWithZod } from '@conform-to/zod';
-import { prisma } from '~/utils/db';
-import { cookies } from 'next/headers';
-import { Argon2id } from 'oslo/password';
-import { getServerSession, lucia } from '~/utils/auth';
+import { getServerSession, auth } from '~/utils/auth';
 import { redirect } from 'next/navigation';
-import { generateIdFromEntropySize } from 'lucia';
 import { loginSchema } from '~/schemas/auth';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { prisma } from '~/utils/db';
 
 export async function signup(formData: FormData) {
   const username = formData.get('username') as string;
   const password = formData.get('password') as string;
 
-  const hashedPassword = await new Argon2id().hash(password);
-  const userId = generateIdFromEntropySize(10); // 16 characters long
-
   try {
-    await prisma.user.create({
-      data: {
-        id: userId,
+    const user = await auth.createUser({
+      key: {
+        providerId: 'username', // auth method
+        providerUserId: username, // unique id when using "username" auth method
+        password, // hashed by Lucia
+      },
+      attributes: {
         username,
-        hashedPassword,
       },
     });
 
-    const session = await lucia.createSession(userId, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    const session = await auth.createSession({
+      userId: user.userId,
+      attributes: {},
+    });
+
+    if (!session) {
+      return {
+        error: 'Failed to create session',
+      };
+    }
+
+    // set session cookie
+
+    const sessionCookie = auth.createSessionCookie(session);
 
     cookies().set(
       sessionCookie.name,
       sessionCookie.value,
       sessionCookie.attributes,
     );
+
+    // eslint-disable-next-line no-console
+    console.log('signup success');
 
     return;
   } catch (error) {
@@ -56,6 +69,8 @@ export async function login(formData: FormData) {
     };
   }
 
+  // get user by userId
+
   const existingUser = await prisma.user.findFirst({
     where: {
       username: submission.value.username.toLowerCase(),
@@ -72,23 +87,31 @@ export async function login(formData: FormData) {
     // Since protecting against this is non-trivial,
     // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
     // If usernames are public, you may outright tell the user that the username is invalid.
+    // eslint-disable-next-line no-console
+    console.log('invalid username');
     return {
       error: 'Incorrect username or password',
     };
   }
 
-  const validPassword = await new Argon2id().verify(
-    existingUser.hashedPassword,
+  const key = await auth.useKey(
+    'username',
+    submission.value.username,
     submission.value.password,
   );
-  if (!validPassword) {
+
+  if (!key) {
     return {
-      error: 'Incorrect username or password',
+      error: 'Invalid username or password',
     };
   }
 
-  const session = await lucia.createSession(existingUser.id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
+  const session = await auth.createSession({
+    userId: key.userId,
+    attributes: {},
+  });
+
+  const sessionCookie = auth.createSessionCookie(session);
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,
@@ -99,21 +122,14 @@ export async function login(formData: FormData) {
 }
 
 export async function logout() {
-  const { session } = await getServerSession();
+  const session = await getServerSession();
   if (!session) {
     return {
       error: 'Unauthorized',
     };
   }
 
-  await lucia.invalidateSession(session.id);
-
-  const sessionCookie = lucia.createBlankSessionCookie();
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
+  await auth.invalidateSession(session.sessionId);
 
   revalidatePath('/');
 }

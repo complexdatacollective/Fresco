@@ -14,7 +14,7 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const { session } = await getServerSession();
+  const session = await getServerSession();
 
   if (session) {
     // If the user is already signed in, redirect to the dashboard
