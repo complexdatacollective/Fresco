@@ -17,7 +17,6 @@ export const getProtocols = unstable_cache(
   },
 );
 
-export type GetProtocolsType = typeof getProtocols;
 export type GetProtocolsReturnType = ReturnType<typeof getProtocols>;
 
 export const getProtocolByHash = unstable_cache(
@@ -36,10 +35,7 @@ export const getProtocolByHash = unstable_cache(
   },
 );
 
-export type GetProtocolByHashType = typeof getProtocolByHash;
-export type GetProtocolByHashReturnType = ReturnType<typeof getProtocolByHash>;
-
-export const getProtocolByLastUpdated = unstable_cache(
+const getProtocolByLastUpdated = unstable_cache(
   async () => {
     const protocol = await prisma.protocol.findFirst({
       orderBy: {
@@ -54,11 +50,6 @@ export const getProtocolByLastUpdated = unstable_cache(
     tags: ['getProtocolByLastUpdated', 'getProtocols'],
   },
 );
-
-export type GetProtocolByLastUpdatedType = typeof getProtocolByLastUpdated;
-export type GetProtocolByLastUpdatedReturnType = ReturnType<
-  typeof getProtocolByLastUpdated
->;
 
 export const getExistingAssetIds = unstable_cache(
   async (assetIds: string[]) => {
@@ -78,8 +69,3 @@ export const getExistingAssetIds = unstable_cache(
     tags: ['getExistingAssetIds', 'getProtocols'],
   },
 );
-
-export type GetExistingAssetIdsType = typeof getExistingAssetIds;
-export type GetExistingAssetIdsReturnType = ReturnType<
-  typeof getExistingAssetIds
->;

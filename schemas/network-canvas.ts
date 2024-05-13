@@ -4,7 +4,7 @@ import {
 } from '@codaco/shared-consts';
 import { z } from 'zod';
 
-export const ZNcEntity = z.object({
+const ZNcEntity = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),
   type: z.string().optional(),
   [entityAttributesProperty]: z.record(z.string(), z.any()),

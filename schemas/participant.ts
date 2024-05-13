@@ -19,14 +19,14 @@ export const participantIdentifierSchema = z
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
-export const participantIdSchema = z
+const participantIdSchema = z
   .string()
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
 export const participantLabelSchema = z.string().optional();
 
-export const ParticipantRowSchema = z.union([
+const ParticipantRowSchema = z.union([
   z.object({
     identifier: z.string(),
     label: z.string().optional(),
@@ -36,8 +36,6 @@ export const ParticipantRowSchema = z.union([
     identifier: z.string().optional(),
   }),
 ]);
-
-export type ParticipantRow = z.infer<typeof ParticipantRowSchema>;
 
 export const FormSchema = z.object({
   csvFile: z.array(ParticipantRowSchema, {
@@ -57,5 +55,3 @@ export const updateSchema = z.object({
     label: participantLabelSchema,
   }),
 });
-
-export type ParticipantsWithLabel = z.infer<typeof participantListInputSchema>;

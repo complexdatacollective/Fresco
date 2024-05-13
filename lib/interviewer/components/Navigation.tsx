@@ -4,7 +4,7 @@ import { cn } from '~/utils/shadcn';
 import { useSelector } from 'react-redux';
 import { getNavigationInfo } from '../selectors/session';
 
-export const NavigationButton = ({
+const NavigationButton = ({
   disabled,
   onClick,
   className,

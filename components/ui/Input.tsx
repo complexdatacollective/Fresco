@@ -2,7 +2,7 @@ import * as React from 'react';
 import { cn } from '~/utils/shadcn';
 import { Label } from '~/components/ui/Label';
 
-export type InputProps = {
+type InputProps = {
   inputClassName?: string;
   label?: string;
   hint?: React.ReactNode;

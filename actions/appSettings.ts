@@ -7,15 +7,12 @@ import { prisma } from '~/utils/db';
 
 export async function setAnonymousRecruitment(input: boolean) {
   await requireApiAuth();
-  const result = await prisma.appSettings.updateMany({
+
+  await prisma.appSettings.updateMany({
     data: {
       allowAnonymousRecruitment: input,
     },
   });
-
-  if (result.count === 0) {
-    return !input;
-  }
 
   revalidateTag('allowAnonymousRecruitment');
 

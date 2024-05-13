@@ -28,7 +28,7 @@ export const store = configureStore({
 export type StageMetadataEntry = [number, string, string, boolean];
 export type StageMetadata = StageMetadataEntry[];
 
-export type Session = {
+type Session = {
   id: string;
   protocolUid: string;
   promptIndex: number;
@@ -42,11 +42,11 @@ export type Session = {
   stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
 };
 
-export type SessionsState = Record<string, Session>;
+type SessionsState = Record<string, Session>;
 
 export type InstalledProtocols = Record<string, Protocol>;
 
-export type Dialog = {
+type Dialog = {
   id: string;
   title: string;
   type: string;
@@ -54,7 +54,7 @@ export type Dialog = {
   message: string;
 };
 
-export type Dialogs = {
+type Dialogs = {
   dialogs: Dialog[];
 };
 
@@ -67,5 +67,3 @@ export type RootState = {
   dialogs: Dialogs;
   ui: Record<string, unknown>;
 };
-
-export type AppDispatch = typeof store.dispatch;

@@ -43,4 +43,3 @@ export const withNoSSRWrapper = <P extends object>(
   return WithNoSSRWrapper;
 };
 
-export default NoSSRWrapperDynamic;

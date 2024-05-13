@@ -20,7 +20,7 @@ const archive = async (exportResults: ExportResult[]) => {
 
       const writeStream = createWriteStream(writePath);
 
-      writeStream.on('close', async () => {
+      writeStream.on('close', () => {
         resolve({
           path: writePath,
           completed,
