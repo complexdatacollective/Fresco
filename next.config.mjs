@@ -18,16 +18,19 @@ const config = {
   reactStrictMode: true,
   experimental: {
     typedRoutes: true,
-    webpackBuildWorker: true
+    webpackBuildWorker: true,
   },
   webpack: (config) => {
     config.module.rules.push({
-      test: /\.(jpe?g|png|svg|gif|ico|eot|ttf|woff|woff2|mp4|pdf|webm|txt|wav)$/,
+      test: /\.(jpe?g|png|svg|gif|ico|eot|ttf|woff|woff2|mp4|pdf|webm|txt|mp3)$/,
       type: 'asset/resource',
       generator: {
         filename: 'static/chunks/[path][name].[hash][ext]'
       },
     });
+
+    // add the node-rs externals to the webpack config so they arent bundled: https://lucia-auth.com/getting-started/nextjs-app
+    config.externals.push("@node-rs/argon2", "@node-rs/bcrypt");
 
     return config;
   },

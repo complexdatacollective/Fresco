@@ -23,7 +23,7 @@ import type {
   SortableField,
 } from '~/lib/data-table/types';
 
-import { useTableStateFromSearchParams } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
+import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 import { debounce } from 'lodash';
 
 type UseDataTableProps<TData, TValue> = {
@@ -67,9 +67,8 @@ type UseDataTableProps<TData, TValue> = {
 export function useDataTable<TData, TValue>({
   data,
   columns,
-  pageCount,
-} // Todo: the below should be used to filter filter/search terms before setting search params
-// searchableColumns = [],
+  pageCount, // Todo: the below should be used to filter filter/search terms before setting search params
+} // searchableColumns = [],
 // filterableColumns = [],
 : UseDataTableProps<TData, TValue>) {
   const { searchParams, setSearchParams } = useTableStateFromSearchParams();

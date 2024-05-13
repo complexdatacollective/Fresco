@@ -1,52 +1,16 @@
-'use client';
+import 'server-only';
+import Switch from './SwitchWithOptimisticUpdate';
+import { setLimitInterviews } from '~/actions/appSettings';
+import { getLimitInterviewsStatus } from '~/queries/appSettings';
 
-import { api } from '~/trpc/client';
-import { Switch } from './ui/switch';
-import { clientRevalidateTag } from '~/utils/clientRevalidate';
-
-const LimitInterviewsSwitch = () => {
-  const { data: appSettings, isLoading } = api.appSettings.get.useQuery(
-    undefined,
-    {},
-  );
-
-  const utils = api.useUtils();
-
-  const { mutate: updateLimitInterviews } =
-    api.appSettings.updateLimitInterviews.useMutation({
-      onMutate: async (limitInterviews: boolean) => {
-        await utils.appSettings.get.cancel();
-
-        const appSettingsGetAll = utils.appSettings.get.getData();
-
-        if (!appSettingsGetAll) {
-          return;
-        }
-
-        utils.appSettings.get.setData(undefined, {
-          ...appSettingsGetAll,
-          limitInterviews,
-        });
-
-        return { appSettingsGetAll };
-      },
-      onSettled: () => {
-        void utils.appSettings.get.invalidate();
-        void clientRevalidateTag('appSettings.get');
-      },
-      onError: (_error, _limitInterviews, context) => {
-        utils.appSettings.get.setData(undefined, context?.appSettingsGetAll);
-      },
-    });
+const LimitInterviewsSwitch = async () => {
+  const limitInterviews = await getLimitInterviewsStatus();
 
   return (
     <Switch
+      initialValue={limitInterviews}
       name="limitInterviews"
-      disabled={isLoading}
-      checked={appSettings?.limitInterviews}
-      onCheckedChange={(value) => {
-        updateLimitInterviews(value);
-      }}
+      action={setLimitInterviews}
     />
   );
 };

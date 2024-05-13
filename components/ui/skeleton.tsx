@@ -4,12 +4,8 @@ function Skeleton({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn('animate-pulse rounded-input bg-platinum', className)}
-      {...props}
-    />
-  );
+  const classes = cn('animate-pulse rounded-md bg-platinum', className);
+  return <div className={classes} {...props} />;
 }
 
 export { Skeleton };

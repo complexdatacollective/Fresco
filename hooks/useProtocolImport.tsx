@@ -1,6 +1,5 @@
 import { useCallback, useReducer, useRef } from 'react';
 import { uploadFiles } from '~/lib/uploadthing-helpers';
-import { api } from '~/trpc/client';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
 import { queue } from 'async';
@@ -16,28 +15,17 @@ import {
 import Link from '~/components/Link';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import { XCircle } from 'lucide-react';
-import type { assetInsertSchema } from '~/server/routers/protocol';
-import type { z } from 'zod';
 import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
+import { type AssetInsertType } from '~/schemas/protocol';
+import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { insertProtocol } from '~/actions/protocols';
 
 // Utility helper for adding artificial delay to async functions
 // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
-  const utils = api.useUtils();
-
-  const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation({
-    async onSuccess() {
-      await utils.protocol.get.all.invalidate();
-    },
-  });
-
-  const { mutateAsync: getProtocolExists } =
-    api.protocol.get.byHash.useMutation();
-
-  const { mutateAsync: getNewAssetIds } = api.asset.checkExisting.useMutation();
 
   /**
    * This is the main job processing function. Takes a file, and handles all
@@ -138,7 +126,7 @@ export const useProtocolImport = () => {
 
       // Check if the protocol already exists in the database
       const protocolHash = hash(protocolJson);
-      const exists = await getProtocolExists(protocolHash);
+      const exists = await getProtocolByHash(protocolHash);
       if (exists) {
         dispatch({
           type: 'UPDATE_ERROR',
@@ -167,14 +155,14 @@ export const useProtocolImport = () => {
 
       const existingAssetIds: string[] = [];
 
-      let newAssetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
       // If not, add them to newAssets to be uploaded.
 
       try {
-        const newAssetIds = await getNewAssetIds(
+        const newAssetIds = await getExistingAssetIds(
           assets.map((asset) => asset.assetId),
         );
 

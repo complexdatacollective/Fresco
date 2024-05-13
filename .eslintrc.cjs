@@ -19,7 +19,7 @@ const config = {
   parserOptions: {
     project: path.join(__dirname, 'tsconfig.json'),
   },
-  plugins: ['@typescript-eslint', 'eslint-plugin-local-rules'],
+  plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/stylistic',
@@ -54,7 +54,6 @@ const config = {
       }
     ],
     'no-unreachable': 'error',
-    'local-rules/require-data-mapper': 'error',
   },
 };
 module.exports = config;

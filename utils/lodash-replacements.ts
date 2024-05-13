@@ -31,7 +31,7 @@ type Path = string | string[];
 
 // WARNING: This is not a drop in replacement solution and
 // it might not work for some edge cases. Test your code!
-export const get = (obj: object, path: Path, defValue: unknown = undefined) => {
+const get = (obj: object, path: Path, defValue: unknown = undefined) => {
   // If path is not defined or it has false value
   if (!path) return undefined;
   // Check if path is string or array. Regex : ensure that we do not have '.' and brackets.
@@ -46,7 +46,7 @@ export const get = (obj: object, path: Path, defValue: unknown = undefined) => {
   return result ?? defValue;
 };
 
-export const has = (obj: object, key: string): boolean => {
+const has = (obj: object, key: string): boolean => {
   const keyParts = key.split('.');
 
   return (
@@ -57,12 +57,12 @@ export const has = (obj: object, key: string): boolean => {
   );
 };
 
-export const isObject = (obj: unknown): boolean => {
+const isObject = (obj: unknown): boolean => {
   return obj instanceof Object;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => {};
+const noop = () => {};
 
 export const random = (a = 1, b = 0) => {
   const lower = Math.min(a, b);
@@ -76,13 +76,13 @@ export const randomInt = (a = 1, b = 0) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export const omit = (obj: object, keys: string[]) => {
+const omit = (obj: object, keys: string[]) => {
   const result = { ...obj };
   keys.forEach((key) => delete result[key as keyof object]);
   return result;
 };
 
-export const isEmpty = (value: unknown) => {
+const isEmpty = (value: unknown) => {
   return (
     value == null || // From standard.js: Always use === - but obj == null is allowed to check null || undefined
     (typeof value === 'object' && Object.keys(value).length === 0) ||
@@ -90,26 +90,26 @@ export const isEmpty = (value: unknown) => {
   );
 };
 
-export const clamp = (num: number, clamp: number, higher: number) =>
+const clamp = (num: number, clamp: number, higher: number) =>
   higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp);
 
-export const times = (n: number, func = (i: unknown) => i) =>
+const times = (n: number, func = (i: unknown) => i) =>
   Array.from({ length: n }).map((_, i) => func(i));
 
-export const difference = (arr1: unknown[], arr2: unknown[]) =>
+const difference = (arr1: unknown[], arr2: unknown[]) =>
   arr1.filter((x) => !arr2.includes(x));
 
-export const intersection = (...arrays: unknown[][]) =>
+const intersection = (...arrays: unknown[][]) =>
   arrays.reduce((a, b) => a.filter((c) => b.includes(c)));
 
-export const round = (num: number, precision: number) => {
+const round = (num: number, precision: number) => {
   const modifier = 10 ** precision;
   return Math.round(num * modifier) / modifier;
 };
 
-export const isNil = (val: unknown) => val == null;
+const isNil = (val: unknown) => val == null;
 
-export const uniqueId = (
+const uniqueId = (
   (counter) =>
   (str = '') =>
     `${str}${++counter}`
@@ -122,7 +122,7 @@ export const uniqueId = (
  * @param {...object} objects - Objects to merge
  * @returns {object} New object with merged key/values
  */
-export const merge = (...objects: Record<string, unknown>[]) => {
+const merge = (...objects: Record<string, unknown>[]) => {
   const isObject = (obj: unknown): boolean => typeof obj === 'object';
 
   return objects.reduce((prev, obj) => {
@@ -146,7 +146,7 @@ export const merge = (...objects: Record<string, unknown>[]) => {
   }, {});
 };
 
-export const debounce = (
+const debounce = (
   func: (...rest: unknown[]) => void,
   delay: number,
   { leading, trailing } = { leading: false, trailing: undefined },
@@ -170,14 +170,14 @@ export const debounce = (
   };
 };
 
-export const flowRight =
+const flowRight =
   (funcs: ((...args: unknown[]) => void)[]) =>
   (...args: unknown[]) =>
     funcs.reverse().reduce((prev, fnc) => [fnc(...prev)], args)[0];
 
 // Function that accepts an array of unknown items, and a function that returns a promise.
 // It will run the function on each item in the array, and wait for the promise to resolve before moving on to the next item.
-export const inSequence = async (
+const inSequence = async (
   items: unknown[],
   apply: (item: unknown) => Promise<unknown>,
 ) => {
@@ -187,13 +187,13 @@ export const inSequence = async (
 };
 
 // Replacement for lodash/fp trimChars
-export const trimChars = (chars: string) => (str: string) => {
+const trimChars = (chars: string) => (str: string) => {
   const charsRegex = new RegExp(`^[${chars}]+|[${chars}]+$`, 'g');
   return str.replace(charsRegex, '');
 };
 
 // This method is like _.find except that it returns the key of the first element predicate returns truthy for instead of the element itself.
-export const findKey = (
+const findKey = (
   obj: Record<string, unknown>,
   predicate: (value: unknown) => boolean,
 ) => {
@@ -206,13 +206,13 @@ export const findKey = (
 };
 
 // Creates an array of own enumerable string keyed-value pairs for object. If object is a map or set, its entries are returned.
-export const toPairs = (obj: Record<string, unknown>) => {
+const toPairs = (obj: Record<string, unknown>) => {
   const keys = Object.keys(obj);
   return keys.map((key) => [key, obj[key]]);
 };
 
 // Creates an object composed of keys generated from the results of running each element of collection thru iteratee. The corresponding value of each key is the number of times the key was returned by iteratee. The iteratee is invoked with one argument: (value).
-export const countBy = (
+const countBy = (
   collection: unknown[],
   iteratee: (value: unknown) => unknown,
 ) => {
@@ -228,20 +228,20 @@ export const countBy = (
   return result;
 };
 
-export const isMatch = (
+const isMatch = (
   obj: Record<string, unknown>,
   properties: Record<string, unknown>,
 ) => Object.keys(properties).every((key) => obj[key] === properties[key]);
 
 // If condition is not met, throws. When thrown from a selector, the error
 // will be handled by stage boundary and displayed to the user.
-export const assert = (condition: boolean, errorMessage: string) => {
+const assert = (condition: boolean, errorMessage: string) => {
   if (!condition) {
     throw new Error(errorMessage);
   }
 };
 
-export const mapValues = (
+const mapValues = (
   obj: Record<string, unknown>,
   iteratee: (value: unknown) => unknown,
 ) => {
@@ -250,4 +250,4 @@ export const mapValues = (
   );
 };
 
-export const values = (obj: Record<string, unknown>) => Object.values(obj);
+const values = (obj: Record<string, unknown>) => Object.values(obj);

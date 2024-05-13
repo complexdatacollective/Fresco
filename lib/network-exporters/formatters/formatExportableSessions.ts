@@ -11,7 +11,7 @@ import {
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
-import type { RouterOutputs } from '~/trpc/shared';
+import type { getInterviewsForExport } from '~/queries/interviews';
 
 type FormattedSession = {
   sessionNetwork: NcNetwork;
@@ -37,7 +37,7 @@ export type FormattedSessions = FormattedSession[];
  */
 
 export const formatExportableSessions = (
-  sessions: RouterOutputs['interview']['get']['forExport'],
+  sessions: Awaited<ReturnType<typeof getInterviewsForExport>>,
 ) => {
   return sessions.map((session) => {
     const sessionProtocol = session.protocol;

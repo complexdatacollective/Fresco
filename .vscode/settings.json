@@ -6,5 +6,4 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "WillLuke.nextjs.addTypesOnSave": true,
   "WillLuke.nextjs.hasPrompted": true,
-  "jest.jestCommandLine": "pnpm run test"
 }

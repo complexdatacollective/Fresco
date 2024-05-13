@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { trackEvent } from '~/analytics/utils';
-import { api } from '~/trpc/server';
+import { trackEvent } from '~/lib/analytics';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { createInterview } from '~/actions/interviews';
+import { getLimitInterviewsStatus } from '~/queries/appSettings';
+import getBaseUrl from '~/utils/getBaseUrl';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,16 +15,16 @@ const handler = async (
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
   }
 
-  const appSettings = await api.appSettings.get.query();
+  const limitInterviews = await getLimitInterviewsStatus();
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (appSettings?.limitInterviews && cookies().get(protocolId)) {
-    redirect('/interview/finished');
+  if (limitInterviews && cookies().get(protocolId)) {
+    return NextResponse.redirect('/interview/finished');
   }
 
   let participantIdentifier: string | undefined;
@@ -42,7 +43,7 @@ const handler = async (
   }
 
   // Create a new interview given the protocolId and participantId
-  const { createdInterviewId, error } = await api.interview.create.mutate({
+  const { createdInterviewId, error } = await createInterview({
     participantIdentifier,
     protocolId,
   });
@@ -57,7 +58,7 @@ const handler = async (
       },
     });
 
-    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
   }
 
   // eslint-disable-next-line no-console
@@ -76,7 +77,7 @@ const handler = async (
 
   // Redirect to the interview
   return NextResponse.redirect(
-    new URL(`/interview/${createdInterviewId}`, req.nextUrl),
+    `${getBaseUrl()}/interview/${createdInterviewId}`,
   );
 };
 
