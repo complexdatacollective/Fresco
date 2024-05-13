@@ -14,21 +14,17 @@ import {
 import { z } from 'zod';
 import { ZNcEdge, ZNcNetwork, ZNcNode } from '~/schemas/network-canvas';
 
-export const ZNodeWithEgo = ZNcNode.extend({
+const ZNodeWithEgo = ZNcNode.extend({
   [egoProperty]: z.string(),
 });
 
-export type NodeWithEgo = z.infer<typeof ZNodeWithEgo>;
-
-export const ZEdgeWithEgo = ZNcEdge.extend({
+const ZEdgeWithEgo = ZNcEdge.extend({
   [egoProperty]: z.string(),
 });
-
-export type EdgeWithEgo = z.infer<typeof ZEdgeWithEgo>;
 
 export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
 
-export const ZSessionVariables = z.object({
+const ZSessionVariables = z.object({
   [caseProperty]: z.string(),
   [sessionProperty]: z.string(),
   [protocolProperty]: z.string(),
@@ -41,13 +37,11 @@ export const ZSessionVariables = z.object({
   APP_VERSION: z.string(),
 });
 
-export type SessionVariables = z.infer<typeof ZSessionVariables>;
-
-export const ZFormattedSessionSchema = ZNcNetwork.extend({
+const ZFormattedSessionSchema = ZNcNetwork.extend({
   sessionVariables: ZSessionVariables,
 });
 
-export const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
+const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
   nodes: ZNodeWithEgo.array(),
   edges: ZEdgeWithEgo.array(),
 });
@@ -66,13 +60,6 @@ export const ExportOptionsSchema = z.object({
 
 export type ExportOptions = z.infer<typeof ExportOptionsSchema>;
 
-export type UploadData = {
-  key: string;
-  url: string;
-  name: string;
-  size: number;
-};
-
 export type FormattedSession = z.infer<typeof ZFormattedSessionSchema>;
 
 export type ExportFormat =
@@ -82,12 +69,12 @@ export type ExportFormat =
   | 'ego'
   | 'adjacencyMatrix';
 
-export type ExportError = {
+type ExportError = {
   success: false;
   error: Error;
 };
 
-export type ExportSuccess = {
+type ExportSuccess = {
   success: true;
   filePath: string;
 };
@@ -117,7 +104,7 @@ const ZEdgeWithResequencedID = ZEdgeWithEgo.extend({
 
 export type EdgeWithResequencedID = z.infer<typeof ZEdgeWithResequencedID>;
 
-export const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
+const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
   nodes: ZNodeWithResequencedID.array(),
   edges: ZEdgeWithResequencedID.array(),
 });
