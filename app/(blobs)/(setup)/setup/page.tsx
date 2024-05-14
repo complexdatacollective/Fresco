@@ -1,12 +1,12 @@
-import React, { Suspense } from 'react';
-import Setup from './Setup';
-import { getServerSession } from '~/utils/auth';
-import { prisma } from '~/utils/db';
+import { Suspense } from 'react';
 import {
-  requireAppNotExpired,
   getAnonymousRecruitmentStatus,
   getLimitInterviewsStatus,
+  requireAppNotExpired,
 } from '~/queries/appSettings';
+import { getServerSession } from '~/utils/auth';
+import { prisma } from '~/utils/db';
+import Setup from './Setup';
 
 async function getSetupData() {
   const session = await getServerSession();
@@ -27,6 +27,8 @@ async function getSetupData() {
 }
 
 export type SetupData = ReturnType<typeof getSetupData>;
+
+export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   await requireAppNotExpired(true);

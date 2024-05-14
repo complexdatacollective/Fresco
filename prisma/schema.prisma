@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -24,6 +24,7 @@ model Session {
   active_expires BigInt
   idle_expires   BigInt
   user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
   @@index([user_id])
 }
 
@@ -32,6 +33,7 @@ model Key {
   hashed_password String?
   user_id         String
   user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
   @@index([user_id])
 }
 

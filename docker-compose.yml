@@ -1,18 +1,47 @@
-version: '3.9'
 services:
-  database:
-    image: 'postgres:16-alpine'
-    restart: always
-    container_name: test-template-postgres
+  fresco:
+    container_name: fresco
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Set environment variables directly in the docker-compose file
     environment:
-      POSTGRES_USER: 'postgres'
-      POSTGRES_PASSWORD: 'postgres'
-      POSTGRES_DB: 'postgres'
-
-    ports:
-      - 5432:5432
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/fresco?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
-      - pgdata:/var/lib/postgresql
+      - .:/app/next-app
+    restart: always
+    ports:
+      - 3000:3000
+    # networks:
+    #   - fresco_network
 
-volumes:
-  pgdata:
+  postgres:
+    container_name: postgres
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres', '-d', 'midshiftDB']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    # networks:
+    #   - fresco_network
+
+# volumes:
+#   postgres:
+#     name: fresco-db
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+# networks:
+#   fresco_network:
+#     external: true

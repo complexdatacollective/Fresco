@@ -3,13 +3,19 @@
  * for Docker builds.
  */
 import('./env.mjs');
+import ChildProcess from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
-import ChildProcess from 'child_process';
 
-// starts a command line process to get the git hash
-const commitHash = ChildProcess.execSync('git log --pretty=format:"%h" -n1')
-  .toString()
-  .trim();
+
+let commitHash = 'Unknown commit hash';
+
+try {
+  commitHash = ChildProcess.execSync('git log --pretty=format:"%h" -n1')
+    .toString()
+    .trim()
+} catch (error) {
+  console.error('Error getting commit hash:', error);
+}
 
 /** @type {import("next").NextConfig} */
 const config = {
