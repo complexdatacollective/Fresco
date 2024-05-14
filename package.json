@@ -7,7 +7,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "postinstall": "node postinstall.mjs",
+    "postinstall": "node postinstall.js",
     "lint": "SKIP_ENV_VALIDATION=true next lint",
     "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
     "ts-lint:watch": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
@@ -113,7 +113,6 @@
   },
   "devDependencies": {
     "@prisma/client": "^5.13.0",
-    "@testing-library/react": "^15.0.7",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/archiver": "^6.0.2",
     "@types/d3-interpolate-path": "^2.0.3",
