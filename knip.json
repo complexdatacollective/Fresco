@@ -6,7 +6,8 @@
     "public/scripts/d3-quadtree.v3.min.js",
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
-    "lib/ui/components/Sprites/ExportSprite.js"
+    "lib/ui/components/Sprites/ExportSprite.js",
+    "utils/auth.ts"
   ],
   "ignoreDependencies": [
     "server-only",

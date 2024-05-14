@@ -19,7 +19,7 @@ export default async function Page({
   }
 
   const interview = await getInterviewById(interviewId);
-  const { session } = await getServerSession();
+  const session = await getServerSession();
 
   // If the interview is not found, redirect to the 404 page
   if (!interview) {

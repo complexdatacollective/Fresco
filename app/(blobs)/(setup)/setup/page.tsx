@@ -9,7 +9,7 @@ import {
 } from '~/queries/appSettings';
 
 async function getSetupData() {
-  const { session } = await getServerSession();
+  const session = await getServerSession();
   const allowAnonymousRecruitment = await getAnonymousRecruitmentStatus();
   const limitInterviews = await getLimitInterviewsStatus();
   const otherData = await prisma.$transaction([
