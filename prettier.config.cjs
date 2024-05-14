@@ -1,9 +1,11 @@
+import tailwind from 'prettier-plugin-tailwindcss';
+
 /** @type {import("prettier").Config} */
 const config = {
-  plugins: [require.resolve('prettier-plugin-tailwindcss')],
+  plugins: [tailwind],
   printWidth: 80,
   quoteProps: 'consistent',
   singleQuote: true,
 };
 
-module.exports = config;
+export default config;

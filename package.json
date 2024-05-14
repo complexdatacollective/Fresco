@@ -2,6 +2,7 @@
   "name": "fresco",
   "version": "1.0.0-beta.4",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.0.5+sha256.61bd66913b52012107ec25a6ee4d6a161021ab99e04f6acee3aa50d0e34b4af9",
   "scripts": {
     "build": "next build",
@@ -144,6 +145,7 @@
     "sass": "^1.76.0",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
+    "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0"
   }
 }
