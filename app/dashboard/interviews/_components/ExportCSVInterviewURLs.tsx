@@ -14,7 +14,7 @@ function ExportCSVInterviewURLs({
   protocol,
   interviews,
 }: {
-  protocol?: Awaited<GetProtocolsReturnType>[0];
+  protocol?: Awaited<GetProtocolsReturnType>[number];
   interviews: Awaited<GetInterviewsReturnType>;
 }) {
   const download = useDownload();

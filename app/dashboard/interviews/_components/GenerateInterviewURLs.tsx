@@ -1,15 +1,7 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
-import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
-import { Skeleton } from '~/components/ui/skeleton';
+import { FileUp } from 'lucide-react';
+import { use, useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -19,9 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { FileUp } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
+import { Skeleton } from '~/components/ui/skeleton';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
+import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
 
 export const GenerateInterviewURLs = ({
   interviews,
@@ -37,7 +37,7 @@ export const GenerateInterviewURLs = ({
   >([]);
 
   const [selectedProtocol, setSelectedProtocol] =
-    useState<(typeof protocols)[0]>();
+    useState<(typeof protocols)[number]>();
 
   // Only export interviews that are 1. incomplete and 2. belong to the selected protocol
   useEffect(() => {

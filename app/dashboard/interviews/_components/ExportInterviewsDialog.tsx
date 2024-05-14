@@ -1,7 +1,15 @@
-'use client';
-
+import type { Interview } from '@prisma/client';
+import { DialogDescription } from '@radix-ui/react-dialog';
+import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import {
+  exportSessions,
+  prepareExportData,
+  updateExportTime,
+} from '~/actions/interviews';
+import { deleteZipFromUploadThing } from '~/actions/uploadThing';
 import { Button } from '~/components/ui/Button';
+import { cardClasses } from '~/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -9,28 +17,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { useToast } from '~/components/ui/use-toast';
-import ExportOptionsView from './ExportOptionsView';
-import { useDownload } from '~/hooks/useDownload';
-import {
-  ExportOptionsSchema,
-  defaultExportOptions,
-} from '~/lib/network-exporters/utils/exportOptionsSchema';
-import { DialogDescription } from '@radix-ui/react-dialog';
-import { FileWarning, Loader2, XCircle } from 'lucide-react';
-import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import Heading from '~/components/ui/typography/Heading';
+import { useToast } from '~/components/ui/use-toast';
+import { useDownload } from '~/hooks/useDownload';
+import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
+import { trackEvent } from '~/lib/analytics';
+import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';
-import { cardClasses } from '~/components/ui/card';
-import { deleteZipFromUploadThing } from '~/actions/uploadThing';
-import {
-  prepareExportData,
-  exportSessions,
-  updateExportTime,
-} from '~/actions/interviews';
-import type { Interview } from '@prisma/client';
-import { trackEvent } from '~/lib/analytics';
+import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
@@ -66,7 +61,15 @@ export const ExportInterviewsDialog = ({
   const [exportOptions, setExportOptions] = useSafeLocalStorage(
     'exportOptions',
     ExportOptionsSchema,
-    defaultExportOptions,
+    {
+      exportCSV: true,
+      exportGraphML: true,
+      globalOptions: {
+        useScreenLayoutCoordinates: true,
+        screenLayoutHeight: 1080,
+        screenLayoutWidth: 1920,
+      },
+    },
   );
 
   const handleConfirm = async () => {
@@ -82,25 +85,23 @@ export const ExportInterviewsDialog = ({
         await prepareExportData(interviewIds);
 
       // export the data
-      const result = await exportSessions(
+      const { zipUrl, zipKey, status, error } = await exportSessions(
         formattedSessions,
         formattedProtocols,
         interviewIds,
         exportOptions,
       );
 
-      if (!result.data) {
-        throw new Error(result.error);
+      if (status === 'error' || !zipUrl || !zipKey) {
+        throw new Error(error ?? 'An error occured during export.');
       }
+
+      exportFilename = zipKey;
 
       // update export time of interviews
       await updateExportTime(interviewIds);
 
-      const { key, name, url: resultUrl } = result.data;
-
-      exportFilename = key;
-
-      const responseAsBlob = await fetch(resultUrl).then((res) => {
+      const responseAsBlob = await fetch(zipUrl).then((res) => {
         if (!res.ok) {
           throw new Error('HTTP error ' + res.status);
         }
@@ -111,7 +112,7 @@ export const ExportInterviewsDialog = ({
       const url = URL.createObjectURL(responseAsBlob);
 
       // Download the zip file
-      download(url, name);
+      download(url, 'Network Canvas export.zip');
       // clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {

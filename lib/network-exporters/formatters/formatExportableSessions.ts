@@ -1,5 +1,4 @@
 import {
-  type NcNetwork,
   caseProperty,
   codebookHashProperty,
   protocolName,
@@ -12,24 +11,7 @@ import {
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
 import type { getInterviewsForExport } from '~/queries/interviews';
-
-type FormattedSession = {
-  sessionNetwork: NcNetwork;
-  sessionVariables: {
-    [caseProperty]: string;
-    [sessionProperty]: string;
-    [protocolProperty]: string;
-    [protocolName]: string;
-    [codebookHashProperty]: string;
-    [sessionExportTimeProperty]: string;
-    [sessionStartTimeProperty]?: string;
-    [sessionFinishTimeProperty]?: string;
-    COMMIT_HASH: string;
-    APP_VERSION: string;
-  };
-};
-
-export type FormattedSessions = FormattedSession[];
+import type { NcNetwork } from '~/schemas/network-canvas';
 
 /**
  * Creates an object containing all required session metadata for export
@@ -44,7 +26,7 @@ export const formatExportableSessions = (
     const sessionParticipant = session.participant;
 
     const sessionVariables = {
-      [caseProperty]: sessionParticipant.label,
+      [caseProperty]: sessionParticipant.label!,
       [sessionProperty]: sessionParticipant.identifier,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
@@ -56,15 +38,15 @@ export const formatExportableSessions = (
         [sessionFinishTimeProperty]: new Date(session.finishTime).toISOString(),
       }),
       [sessionExportTimeProperty]: new Date().toISOString(),
-      COMMIT_HASH: env.COMMIT_HASH,
-      APP_VERSION: env.APP_VERSION,
+      COMMIT_HASH: env.COMMIT_HASH!,
+      APP_VERSION: env.APP_VERSION!,
     };
 
     const sessionNetwork = session.network as unknown as NcNetwork;
 
     return {
-      sessionNetwork,
+      ...sessionNetwork,
       sessionVariables,
-    } as FormattedSession;
+    };
   });
 };

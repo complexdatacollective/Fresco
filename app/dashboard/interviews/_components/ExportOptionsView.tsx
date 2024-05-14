@@ -3,7 +3,7 @@ import { cardClasses } from '~/components/ui/card';
 import { Switch } from '~/components/ui/switch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { type ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { cn } from '~/utils/shadcn';
 
 const sectionClasses = cn(
@@ -60,18 +60,6 @@ const ExportOptionsView = ({
     });
   };
 
-  const handleUnifyNetworksSwitch = (value: boolean) =>
-    setExportOptions((prevState) => {
-      const updatedOptions = {
-        ...prevState,
-        globalOptions: {
-          ...prevState.globalOptions,
-          unifyNetworks: value,
-        },
-      };
-      return updatedOptions;
-    });
-
   const handleScreenLayoutCoordinatesSwitch = (value: boolean) =>
     setExportOptions((prevState) => {
       const updatedOptions = {
@@ -118,27 +106,6 @@ const ExportOptionsView = ({
           <Switch
             checked={exportOptions.exportCSV}
             onCheckedChange={handleCSVSwitch}
-          />
-        </div>
-      </div>
-      <div className={sectionClasses}>
-        <div>
-          <Heading variant="h4-all-caps">Merge Sessions</Heading>
-          <Paragraph variant="smallText">
-            If you enable this option, exporting multiple sessions at the same
-            time will cause them to be merged into a single file, on a
-            per-protocol basis. In the case of CSV export, you will receive one
-            of each type of file for each protocol. In the case of GraphML you
-            will receive a single GraphML file with multiple{' '}
-            <code>&lt;graph&gt;</code> elements. Please note that with the
-            exception of Network Canvas Server, most software does not yet
-            support multiple graphs in a single GraphML file.
-          </Paragraph>
-        </div>
-        <div>
-          <Switch
-            checked={exportOptions.globalOptions.unifyNetworks}
-            onCheckedChange={handleUnifyNetworksSwitch}
           />
         </div>
       </div>

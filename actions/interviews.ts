@@ -4,23 +4,29 @@ import { createId } from '@paralleldrive/cuid2';
 import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { trackEvent } from '~/lib/analytics';
-import FileExportManager from '~/lib/network-exporters/FileExportManager';
-import {
-  type FormattedSessions,
-  formatExportableSessions,
-} from '~/lib/network-exporters/formatters/formatExportableSessions';
-import type { ExportOptions } from '~/lib/network-exporters/utils/exportOptionsSchema';
+import type { InstalledProtocols } from '~/lib/interviewer/store';
+import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
+import archive from '~/lib/network-exporters/formatters/session/archive';
+import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
+import groupByProtocolProperty from '~/lib/network-exporters/formatters/session/groupByProtocolProperty';
+import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/formatters/session/insertEgoIntoSessionNetworks';
+import { resequenceIds } from '~/lib/network-exporters/formatters/session/resequenceIds';
+import type {
+  ExportOptions,
+  ExportReturn,
+  FormattedSession,
+} from '~/lib/network-exporters/utils/types';
 import { getInterviewsForExport } from '~/queries/interviews';
 import type {
   CreateInterview,
   DeleteInterviews,
   SyncInterview,
 } from '~/schemas/interviews';
-import type { FailResult, SuccessResult, UpdateItems } from '~/types/types';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
+import { uploadZipToUploadThing } from './uploadThing';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   await requireApiAuth();
@@ -82,90 +88,37 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols = Object.fromEntries(protocolsMap);
+  const formattedProtocols: InstalledProtocols =
+    Object.fromEntries(protocolsMap);
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
   return { formattedSessions, formattedProtocols };
 };
 
 export const exportSessions = async (
-  formattedSessions: FormattedSessions,
-  formattedProtocols: Record<string, Protocol>,
+  formattedSessions: FormattedSession[],
+  formattedProtocols: InstalledProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
-) => {
+): Promise<ExportReturn> => {
   await requireApiAuth();
 
   try {
-    const fileExportManager = new FileExportManager(exportOptions);
-
-    fileExportManager.on('begin', () => {
-      // eslint-disable-next-line no-console
-      console.log({
-        statusText: 'Starting export...',
-        percentProgress: 0,
-      });
-    });
-
-    fileExportManager.on('update', ({ statusText, progress }: UpdateItems) => {
-      // eslint-disable-next-line no-console
-      console.log({
-        statusText,
-        percentProgress: progress,
-      });
-    });
-
-    fileExportManager.on('session-exported', (sessionId: unknown) => {
-      if (!sessionId || typeof sessionId !== 'string') {
-        // eslint-disable-next-line no-console
-        console.warn('session-exported event did not contain a sessionID');
-        return;
-      }
-      // eslint-disable-next-line no-console
-      console.log('session-exported success sessionId:', sessionId);
-    });
-
-    fileExportManager.on('error', (errResult: FailResult) => {
-      // eslint-disable-next-line no-console
-      console.log('Session export failed, Error:', errResult.error);
-      void trackEvent({
-        type: 'Error',
-        name: 'SessionExportFailed',
-        message: errResult.error,
-        metadata: {
-          errResult,
-          path: '~/actions/interviews.ts',
-        },
-      });
-    });
-
-    fileExportManager.on(
-      'finished',
-      ({ statusText, progress }: UpdateItems) => {
-        // eslint-disable-next-line no-console
-        console.log({
-          statusText,
-          percentProgress: progress,
-        });
-      },
-    );
-
-    const exportJob = fileExportManager.exportSessions(
-      formattedSessions,
-      formattedProtocols,
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { run } = await exportJob;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const result: SuccessResult | FailResult = await run(); // main export method
+    const result = await Promise.resolve(formattedSessions)
+      .then(insertEgoIntoSessionNetworks)
+      .then(groupByProtocolProperty)
+      .then(resequenceIds)
+      .then(generateOutputFiles(formattedProtocols, exportOptions))
+      .then(archive)
+      .then(uploadZipToUploadThing);
 
     void trackEvent({
       type: 'DataExported',
       metadata: {
+        status: result.status,
         sessions: interviewIds.length,
         exportOptions,
-        result,
+        result: result,
       },
     });
 
@@ -187,7 +140,7 @@ export const exportSessions = async (
     });
 
     return {
-      data: null,
+      status: 'error',
       error: `Error during data export: ${e.message}`,
     };
   }
