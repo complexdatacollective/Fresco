@@ -9,10 +9,5 @@
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts"
   ],
-  "ignoreDependencies": [
-    "server-only",
-    "prop-types",
-    "@node-rs/bcrypt",
-    "@node-rs/argon2"
-  ]
+  "ignoreDependencies": ["server-only", "prop-types"]
 }
