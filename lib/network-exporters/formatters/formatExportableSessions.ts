@@ -11,25 +11,7 @@ import {
 import { hash } from 'ohash';
 import { env } from '~/env.mjs';
 import type { getInterviewsForExport } from '~/queries/interviews';
-import type { NcNetwork, NcNode, NcEntity, NcEdge } from '~/schemas/network-canvas';
-
-type FormattedSession = {
-  ego: NcEntity | undefined;
-  nodes: NcNode[];
-  edges: NcEdge[];
-  sessionVariables: {
-    [caseProperty]: string;
-    [sessionProperty]: string;
-    [protocolProperty]: string;
-    [protocolName]: string;
-    [codebookHashProperty]: string;
-    [sessionExportTimeProperty]: string;
-    [sessionStartTimeProperty]?: string;
-    [sessionFinishTimeProperty]?: string;
-    COMMIT_HASH: string;
-    APP_VERSION: string;
-  };
-};
+import type { NcNetwork } from '~/schemas/network-canvas';
 
 /**
  * Creates an object containing all required session metadata for export
