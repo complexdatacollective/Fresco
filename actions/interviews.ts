@@ -112,9 +112,6 @@ export const exportSessions = async (
       .then(archive)
       .then(uploadZipToUploadThing);
 
-    // eslint-disable-next-line no-console
-    console.log(result);
-
     void trackEvent({
       type: 'DataExported',
       metadata: {
