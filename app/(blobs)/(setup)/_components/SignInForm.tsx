@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { useToast } from '~/components/ui/use-toast';
 import useZodForm from '~/hooks/useZodForm';
-import { loginSchema } from '~/schemas/auth';
+import { loginFormSchema } from './schemas';
 
 export const SignInForm = () => {
   const {
@@ -16,7 +16,7 @@ export const SignInForm = () => {
     setError,
     formState: { errors, isSubmitting },
   } = useZodForm({
-    schema: loginSchema,
+    schema: loginFormSchema,
   });
 
   console.log('errors', errors);

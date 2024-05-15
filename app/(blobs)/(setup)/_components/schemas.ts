@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import isStrongPassword from 'validator/es/lib/isStrongPassword';
+import { z } from 'zod';
 import { cn } from '~/utils/shadcn';
 
 export const userCreateFormSchema = z.object({
@@ -20,6 +20,11 @@ export const userCreateFormSchema = z.object({
         'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
     },
   ),
+});
+
+export const loginFormSchema = z.object({
+  username: z.string().min(1, { message: 'Username cannot be empty' }),
+  password: z.string().min(1, { message: 'Password cannot be empty' }),
 });
 
 export const containerClasses = cn(
