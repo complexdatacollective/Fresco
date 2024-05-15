@@ -15,6 +15,7 @@
     "start:prod": "cross-env NODE_ENV=production pnpm db:migrate:prod && next start",
     "db:push": "cross-env NODE_ENV=development prisma db push",
     "db:migrate:prod": "cross-env NODE_ENV=production prisma migrate deploy",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "knip": "knip",
     "test": "vitest"
   },
