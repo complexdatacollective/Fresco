@@ -36,7 +36,7 @@ export const SignInForm = () => {
     if (result.fieldErrors) {
       for (const error of result.fieldErrors) {
         console.log('setting', error);
-        setError(error.path, {
+        setError(`root.${error.path.toString()}`, {
           message: error.message,
         });
       }
