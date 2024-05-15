@@ -2,13 +2,13 @@ import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/Par
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
+import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 
 export default async function ParticipantPage() {
   await requireAppNotExpired();
-  await requirePageAuth({ redirectPath: '/dashboard/participants' });
+  await requirePageAuth();
   return (
     <>
       <ResponsiveContainer>

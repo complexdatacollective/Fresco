@@ -2,17 +2,23 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { safeAction } from '~/lib/safe-action';
-import { loginSchema } from '~/schemas/auth';
+import { loginSchema, signupSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
-export async function signup(formData: FormData) {
-  const username = formData.get('username') as string;
-  const password = formData.get('password') as string;
+export async function signup(formData: unknown) {
+  const parsedFormData = signupSchema.safeParse(formData);
+
+  if (!parsedFormData.success) {
+    return {
+      success: false,
+      error: 'Invalid form submission',
+    };
+  }
 
   try {
+    const { username, password } = parsedFormData.data;
+
     const user = await auth.createUser({
       key: {
         providerId: 'username', // auth method
@@ -31,6 +37,7 @@ export async function signup(formData: FormData) {
 
     if (!session) {
       return {
+        success: false,
         error: 'Failed to create session',
       };
     }
@@ -45,66 +52,81 @@ export async function signup(formData: FormData) {
       sessionCookie.attributes,
     );
 
-    return;
+    return {
+      success: true,
+    };
   } catch (error) {
     // db error, email taken, etc
     return {
+      success: false,
       error: 'Username already taken',
     };
   }
 }
 
-export const safeLogin = safeAction(
-  loginSchema,
-  async ({ username, password }) => {
-    // get user by userId
+export async function login(formData: unknown) {
+  const parsedFormData = loginSchema.safeParse(formData);
 
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        username: username.toLowerCase(),
-      },
-    });
+  if (!parsedFormData.success) {
+    return {
+      success: false,
+      fieldErrors: parsedFormData.error.errors,
+    };
+  }
 
-    if (!existingUser) {
-      // NOTE:
-      // Returning immediately allows malicious actors to figure out valid usernames from response times,
-      // allowing them to only focus on guessing passwords in brute-force attacks.
-      // As a preventive measure, you may want to hash passwords even for invalid usernames.
-      // However, valid usernames can be already be revealed with the signup page among other methods.
-      // It will also be much more resource intensive.
-      // Since protecting against this is non-trivial,
-      // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
-      // If usernames are public, you may outright tell the user that the username is invalid.
-      // eslint-disable-next-line no-console
-      return {
-        error: 'Incorrect username or password',
-      };
-    }
+  const { username, password } = parsedFormData.data;
 
-    let key;
-    try {
-      key = await auth.useKey('username', username, password);
-    } catch (error) {
-      return {
-        error: 'Incorrect username or password',
-      };
-    }
+  // get user by userId
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      username,
+    },
+  });
 
-    const session = await auth.createSession({
-      userId: key.userId,
-      attributes: {},
-    });
+  if (!existingUser) {
+    // NOTE:
+    // Returning immediately allows malicious actors to figure out valid usernames from response times,
+    // allowing them to only focus on guessing passwords in brute-force attacks.
+    // As a preventive measure, you may want to hash passwords even for invalid usernames.
+    // However, valid usernames can be already be revealed with the signup page among other methods.
+    // It will also be much more resource intensive.
+    // Since protecting against this is non-trivial,
+    // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
+    // If usernames are public, you may outright tell the user that the username is invalid.
+    // eslint-disable-next-line no-console
+    console.log('invalid username');
+    return {
+      success: false,
+      error: 'Incorrect username or password',
+    };
+  }
 
-    const sessionCookie = auth.createSessionCookie(session);
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+  let key;
+  try {
+    key = await auth.useKey('username', username, password);
+  } catch (e) {
+    return {
+      success: false,
+      error: 'Incorrect username or password',
+    };
+  }
 
-    return redirect('/dashboard');
-  },
-);
+  const session = await auth.createSession({
+    userId: key.userId,
+    attributes: {},
+  });
+
+  const sessionCookie = auth.createSessionCookie(session);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+
+  return {
+    success: true,
+  };
+}
 
 export async function logout() {
   const session = await getServerSession();

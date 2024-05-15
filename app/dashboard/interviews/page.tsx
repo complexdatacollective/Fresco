@@ -1,13 +1,13 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
+import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
 
 export default async function InterviewPage() {
   await requireAppNotExpired();
-  await requirePageAuth({ redirectPath: '/dashboard/interviews' });
+  await requirePageAuth();
   return (
     <>
       <ResponsiveContainer>

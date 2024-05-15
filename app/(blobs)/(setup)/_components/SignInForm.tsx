@@ -1,48 +1,53 @@
 'use client';
 
-import { useState } from 'react';
-import { safeLogin } from '~/actions/auth';
-import ActionError from '~/components/ActionError';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { login } from '~/actions/auth';
+import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import SubmitButton from '~/components/ui/SubmitButton';
+import { useToast } from '~/components/ui/use-toast';
 import useZodForm from '~/hooks/useZodForm';
 import { loginSchema } from '~/schemas/auth';
-
-type ResponseError = {
-  title: string;
-  description: string;
-};
 
 export const SignInForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useZodForm({
     schema: loginSchema,
-    mode: 'all',
   });
 
-  const [responseError, setResponseError] = useState<ResponseError | null>(
-    null,
-  );
+  console.log('errors', errors);
 
-  const onSubmit = async ({
-    username,
-    password,
-  }: {
-    username?: unknown;
-    password?: unknown;
-  }) => {
-    const result = await safeLogin({ username, password });
-    if (!result?.data) {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const onSubmit = async (data: unknown) => {
+    const result = await login(data);
+    console.log(result);
+    if (result.success) {
+      router.push('/dashboard');
       return;
     }
 
-    if (result.data?.error) {
-      setResponseError({
-        title: 'Sign In Failed',
-        description: result.data.error,
+    // We have either a global error or field errors
+    if (result.fieldErrors) {
+      for (const error of result.fieldErrors) {
+        console.log('setting', error);
+        setError(error.path, {
+          message: error.message,
+        });
+      }
+    }
+
+    // Global error
+    if (result.error) {
+      toast({
+        variant: 'destructive',
+        title: 'An error occurred',
+        description: result.error,
       });
     }
   };
@@ -52,14 +57,6 @@ export const SignInForm = () => {
       onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       className="flex w-full flex-col"
     >
-      {responseError && (
-        <div className="mb-6 flex flex-wrap">
-          <ActionError
-            errorTitle={responseError.title}
-            errorDescription={responseError.description}
-          />
-        </div>
-      )}
       <div className="mb-6 flex flex-wrap">
         <Input
           label="Username"
@@ -80,7 +77,10 @@ export const SignInForm = () => {
         />
       </div>
       <div className="flex flex-wrap">
-        <SubmitButton>Sign In</SubmitButton>
+        <Button disabled={isSubmitting} type="submit">
+          {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+          {isSubmitting ? 'Signing in...' : 'Sign In'}
+        </Button>
       </div>
     </form>
   );
