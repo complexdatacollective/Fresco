@@ -19,14 +19,11 @@ export const SignInForm = () => {
     schema: loginFormSchema,
   });
 
-  console.log('errors', errors);
-
   const { toast } = useToast();
   const router = useRouter();
 
   const onSubmit = async (data: unknown) => {
     const result = await login(data);
-    console.log(result);
     if (result.success) {
       router.push('/dashboard');
       return;
@@ -35,7 +32,6 @@ export const SignInForm = () => {
     // We have either a global error or field errors
     if (result.fieldErrors) {
       for (const error of result.fieldErrors) {
-        console.log('setting', error);
         setError(`root.${error.path.toString()}`, {
           message: error.message,
         });
