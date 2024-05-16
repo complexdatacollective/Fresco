@@ -23,8 +23,10 @@ import type {
   SortableField,
 } from '~/lib/data-table/types';
 
-import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 import { debounce } from 'lodash';
+import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
+
+import { useRouter } from 'next/navigation';
 
 type UseDataTableProps<TData, TValue> = {
   /**
@@ -68,10 +70,11 @@ export function useDataTable<TData, TValue>({
   data,
   columns,
   pageCount, // Todo: the below should be used to filter filter/search terms before setting search params
-} // searchableColumns = [],
-// filterableColumns = [],
-: UseDataTableProps<TData, TValue>) {
+  // searchableColumns = [],
+  // filterableColumns = [],
+}: UseDataTableProps<TData, TValue>) {
   const { searchParams, setSearchParams } = useTableStateFromSearchParams();
+  const router = useRouter();
 
   // Table states
   const [rowSelection, setRowSelection] = React.useState({});
@@ -99,10 +102,12 @@ export function useDataTable<TData, TValue>({
     (columnFilters: FilterParam[]) => {
       if (!columnFilters || columnFilters.length === 0) {
         void setSearchParams.setFilterParams(null);
+        router.refresh();
         return;
       }
 
       void setSearchParams.setFilterParams(columnFilters);
+      router.refresh();
       // Changing the filter params should reset the page to 1
       // void setSearchParams.setPage(1);
     },
@@ -118,6 +123,7 @@ export function useDataTable<TData, TValue>({
     // If we are resetting, skip the debounce
     if (!columnFilters || columnFilters.length === 0) {
       void setSearchParams.setFilterParams(null);
+      router.refresh();
       return;
     }
 
@@ -125,6 +131,7 @@ export function useDataTable<TData, TValue>({
 
     // Changing the filter params should reset the page to 1
     void setSearchParams.setPage(1);
+    router.refresh();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnFilters]);
@@ -139,6 +146,7 @@ export function useDataTable<TData, TValue>({
   React.useEffect(() => {
     void setSearchParams.setPage(pageIndex + 1);
     void setSearchParams.setPerPage(pageSize as PageSize);
+    router.refresh();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
@@ -153,6 +161,7 @@ export function useDataTable<TData, TValue>({
   React.useEffect(() => {
     void setSearchParams.setSort(sorting[0]?.desc ? 'desc' : 'asc');
     void setSearchParams.setSortField(sorting[0]?.id as SortableField);
+    router.refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sorting]);
 
