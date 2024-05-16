@@ -24,9 +24,8 @@ import type {
 } from '~/lib/data-table/types';
 
 import { debounce } from 'lodash';
-import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
-
 import { useRouter } from 'next/navigation';
+import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
 type UseDataTableProps<TData, TValue> = {
   /**
@@ -101,13 +100,15 @@ export function useDataTable<TData, TValue>({
   const debouncedUpdateFilterParams = debounce(
     (columnFilters: FilterParam[]) => {
       if (!columnFilters || columnFilters.length === 0) {
-        void setSearchParams.setFilterParams(null);
-        router.refresh();
+        void setSearchParams.setFilterParams(null).then(() => {
+          router.refresh();
+        });
         return;
       }
 
-      void setSearchParams.setFilterParams(columnFilters);
-      router.refresh();
+      void setSearchParams.setFilterParams(columnFilters).then(() => {
+        router.refresh();
+      });
       // Changing the filter params should reset the page to 1
       // void setSearchParams.setPage(1);
     },
@@ -122,16 +123,18 @@ export function useDataTable<TData, TValue>({
   React.useEffect(() => {
     // If we are resetting, skip the debounce
     if (!columnFilters || columnFilters.length === 0) {
-      void setSearchParams.setFilterParams(null);
-      router.refresh();
+      void setSearchParams.setFilterParams(null).then(() => {
+        router.refresh();
+      });
       return;
     }
 
     debouncedUpdateFilterParams(columnFilters as FilterParam[]);
 
     // Changing the filter params should reset the page to 1
-    void setSearchParams.setPage(1);
-    router.refresh();
+    void setSearchParams.setPage(1).then(() => {
+      router.refresh();
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnFilters]);
@@ -144,9 +147,13 @@ export function useDataTable<TData, TValue>({
   }, [searchParams.page, searchParams.perPage]);
 
   React.useEffect(() => {
-    void setSearchParams.setPage(pageIndex + 1);
-    void setSearchParams.setPerPage(pageSize as PageSize);
-    router.refresh();
+    void setSearchParams.setPage(pageIndex + 1).then(() => {
+      router.refresh();
+    });
+    void setSearchParams.setPerPage(pageSize as PageSize).then(() => {
+      router.refresh();
+    });
+    //router.refresh();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
@@ -160,8 +167,11 @@ export function useDataTable<TData, TValue>({
 
   React.useEffect(() => {
     void setSearchParams.setSort(sorting[0]?.desc ? 'desc' : 'asc');
-    void setSearchParams.setSortField(sorting[0]?.id as SortableField);
-    router.refresh();
+    void setSearchParams
+      .setSortField(sorting[0]?.id as SortableField)
+      .then(() => {
+        router.refresh();
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sorting]);
 

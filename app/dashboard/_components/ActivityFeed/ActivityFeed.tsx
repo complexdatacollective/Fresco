@@ -1,8 +1,8 @@
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
-import ActivityFeedTable from './ActivityFeedTable';
 import { Suspense } from 'react';
-import { searchParamsCache } from './searchParamsCache';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import { getActivities } from '~/queries/activityFeed';
+import ActivityFeedTable from './ActivityFeedTable';
+import { searchParamsCache } from './searchParamsCache';
 
 export default function ActivityFeed() {
   const searchParams = searchParamsCache.all();
