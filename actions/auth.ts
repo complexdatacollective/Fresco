@@ -1,18 +1,24 @@
 'use server';
 
-import { parseWithZod } from '@conform-to/zod';
-import { getServerSession, auth } from '~/utils/auth';
-import { redirect } from 'next/navigation';
-import { loginSchema } from '~/schemas/auth';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
+import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
-export async function signup(formData: FormData) {
-  const username = formData.get('username') as string;
-  const password = formData.get('password') as string;
+export async function signup(formData: unknown) {
+  const parsedFormData = createUserFormDataSchema.safeParse(formData);
+
+  if (!parsedFormData.success) {
+    return {
+      success: false,
+      error: 'Invalid form submission',
+    };
+  }
 
   try {
+    const { username, password } = parsedFormData.data;
+
     const user = await auth.createUser({
       key: {
         providerId: 'username', // auth method
@@ -31,6 +37,7 @@ export async function signup(formData: FormData) {
 
     if (!session) {
       return {
+        success: false,
         error: 'Failed to create session',
       };
     }
@@ -45,35 +52,45 @@ export async function signup(formData: FormData) {
       sessionCookie.attributes,
     );
 
-    // eslint-disable-next-line no-console
-    console.log('signup success');
-
-    return;
+    return {
+      success: true,
+    };
   } catch (error) {
     // db error, email taken, etc
     return {
+      success: false,
       error: 'Username already taken',
     };
   }
 }
 
-export async function login(formData: FormData) {
-  const submission = parseWithZod(formData, {
-    schema: loginSchema,
-  });
+export const login = async (
+  data: unknown,
+): Promise<
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      formErrors: string[];
+      fieldErrors?: Record<string, string[]>;
+    }
+> => {
+  const parsedFormData = loginSchema.safeParse(data);
 
-  // Validate
-  if (submission.status !== 'success') {
+  if (!parsedFormData.success) {
     return {
-      error: 'Invalid form submission',
+      success: false,
+      ...parsedFormData.error.flatten(),
     };
   }
 
-  // get user by userId
+  const { username, password } = parsedFormData.data;
 
+  // get user by userId
   const existingUser = await prisma.user.findFirst({
     where: {
-      username: submission.value.username.toLowerCase(),
+      username,
     },
   });
 
@@ -90,19 +107,18 @@ export async function login(formData: FormData) {
     // eslint-disable-next-line no-console
     console.log('invalid username');
     return {
-      error: 'Incorrect username or password',
+      success: false,
+      formErrors: ['Incorrect username or password'],
     };
   }
 
-  const key = await auth.useKey(
-    'username',
-    submission.value.username,
-    submission.value.password,
-  );
-
-  if (!key) {
+  let key;
+  try {
+    key = await auth.useKey('username', username, password);
+  } catch (e) {
     return {
-      error: 'Invalid username or password',
+      success: false,
+      formErrors: ['Incorrect username or password'],
     };
   }
 
@@ -118,8 +134,10 @@ export async function login(formData: FormData) {
     sessionCookie.attributes,
   );
 
-  return redirect('/dashboard');
-}
+  return {
+    success: true,
+  };
+};
 
 export async function logout() {
   const session = await getServerSession();

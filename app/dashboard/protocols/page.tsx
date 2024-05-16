@@ -1,13 +1,13 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
-import PageHeader from '~/components/ui/typography/PageHeader';
 import Section from '~/components/layout/Section';
+import PageHeader from '~/components/ui/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
+import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
 
 export default async function ProtocolsPage() {
   await requireAppNotExpired();
-  await requirePageAuth({ redirectPath: '/dashboard/protocols' });
+  await requirePageAuth();
   return (
     <>
       <ResponsiveContainer>

@@ -1,9 +1,9 @@
-import { env } from '~/env.mjs';
-import { containerClasses } from '../(setup)/_components/schemas';
+import { redirect } from 'next/navigation';
 import { resetAppSettings } from '~/actions/reset';
 import SubmitButton from '~/components/ui/SubmitButton';
+import { env } from '~/env.mjs';
 import { isAppExpired } from '~/queries/appSettings';
-import { redirect } from 'next/navigation';
+import { containerClasses } from '../../../components/ContainerClasses';
 
 export default async function Page() {
   const isExpired = await isAppExpired();

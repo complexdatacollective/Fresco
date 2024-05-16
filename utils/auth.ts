@@ -1,14 +1,14 @@
-import { lucia } from 'lucia';
 import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
-import { prisma as client } from '~/utils/db';
+import type { User } from '@prisma/client';
+import { lucia } from 'lucia';
+import { nextjs_future } from 'lucia/middleware';
 import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
 import * as context from 'next/headers';
-import { nextjs_future } from 'lucia/middleware';
-import { env } from '~/env.mjs';
-import type { User } from '@prisma/client';
+import { RedirectType, redirect } from 'next/navigation';
 import { cache } from 'react';
-import { redirect } from 'next/navigation';
 import 'server-only';
+import { env } from '~/env.mjs';
+import { prisma as client } from '~/utils/db';
 
 export const auth = lucia({
   env: env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
@@ -34,21 +34,11 @@ export const getServerSession = cache(() => {
 
 export type Auth = typeof auth;
 
-type RequireAuthOptions = {
-  redirectPath?: string;
-};
-
-export async function requirePageAuth(
-  { redirectPath = null } = {} as RequireAuthOptions,
-) {
+export async function requirePageAuth() {
   const session = await getServerSession();
 
   if (!session) {
-    if (!redirectPath) {
-      redirect('/signin');
-    }
-
-    redirect('/signin?callbackUrl=' + encodeURIComponent(redirectPath));
+    redirect('/signin', RedirectType.replace);
   }
   return session;
 }

@@ -1,21 +1,21 @@
-import ResponsiveContainer from '~/components/ResponsiveContainer';
-import PageHeader from '~/components/ui/typography/PageHeader';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import ResetButton from '../_components/ResetButton';
-import AnalyticsButton from '../_components/AnalyticsButton';
-import RecruitmentTestSection from '../_components/RecruitmentTestSection';
-import SettingsSection from '~/components/layout/SettingsSection';
+import { Suspense } from 'react';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
+import ResponsiveContainer from '~/components/ResponsiveContainer';
 import VersionSection from '~/components/VersionSection';
+import SettingsSection from '~/components/layout/SettingsSection';
+import PageHeader from '~/components/ui/typography/PageHeader';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env.mjs';
-import { Suspense } from 'react';
 import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
+import AnalyticsButton from '../_components/AnalyticsButton';
+import RecruitmentTestSection from '../_components/RecruitmentTestSection';
+import ResetButton from '../_components/ResetButton';
 
 export default async function Settings() {
   await requireAppNotExpired();
-  await requirePageAuth({ redirectPath: '/dashboard/settings' });
+  await requirePageAuth();
 
   const installationIdPromise = getInstallationId();
 
