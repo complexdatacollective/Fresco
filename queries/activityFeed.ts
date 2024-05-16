@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache';
+import { hash } from 'ohash';
 import 'server-only';
 import { type SearchParams } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
@@ -52,7 +53,7 @@ export const getActivities = (searchParams: unknown) =>
     },
     ['getActivities'],
     {
-      tags: [`getActivities`, `getActivities-${JSON.stringify(searchParams)}`],
+      tags: [`getActivities`, `getActivities-${hash(searchParams)}`],
     },
   )(searchParams);
 
