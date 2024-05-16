@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { resetAppSettings } from '~/actions/reset';
+import { containerClasses } from '~/components/ContainerClasses';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env.mjs';
 import { isAppExpired } from '~/queries/appSettings';
-import { containerClasses } from '../(setup)/_components/schemas';
 
 export const dynamic = 'force-dynamic';
 

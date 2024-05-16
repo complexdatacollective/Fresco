@@ -1,7 +1,7 @@
-import { NavigationBar } from './_components/NavigationBar';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
-import { requirePageAuth } from '~/utils/auth';
 import { requireAppNotExpired } from '~/queries/appSettings';
+import { requirePageAuth } from '~/utils/auth';
+import { NavigationBar } from './_components/NavigationBar';
 
 export const metadata = {
   title: 'Network Canvas Fresco - Dashboard',
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   await requireAppNotExpired();
-  await requirePageAuth({ redirectPath: '/dashboard' });
+  await requirePageAuth();
 
   return (
     <>

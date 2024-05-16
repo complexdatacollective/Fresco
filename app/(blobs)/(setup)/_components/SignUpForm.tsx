@@ -1,18 +1,17 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
-import useZodForm from '~/hooks/useZodForm';
-import { Input } from '~/components/ui/Input';
-import { userCreateFormSchema } from './schemas';
 import { signup } from '~/actions/auth';
+import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
+import useZodForm from '~/hooks/useZodForm';
+import { createUserSchema } from '~/schemas/auth';
 
 export const SignUpForm = () => {
   const {
     register,
     formState: { errors, isValid },
   } = useZodForm({
-    schema: userCreateFormSchema,
-    mode: 'all',
+    schema: createUserSchema,
   });
 
   return (

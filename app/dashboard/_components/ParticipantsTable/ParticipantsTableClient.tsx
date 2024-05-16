@@ -1,22 +1,22 @@
 'use client';
 
-import { DataTable } from '~/components/DataTable/DataTable';
-import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
-import type { ParticipantWithInterviews } from '~/types/types';
-import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
-import { use, useCallback, useMemo, useState } from 'react';
-import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Button } from '~/components/ui/Button';
 import { Trash } from 'lucide-react';
+import { use, useCallback, useMemo, useState } from 'react';
 import {
   deleteAllParticipants,
   deleteParticipants,
 } from '~/actions/participants';
-import AddParticipantButton from '../../participants/_components/AddParticipantButton';
-import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
+import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
+import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
+import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
+import { DataTable } from '~/components/DataTable/DataTable';
+import { Button } from '~/components/ui/Button';
 import type { GetParticipantsReturnType } from '~/queries/participants';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
+import type { ParticipantWithInterviews } from '~/types/types';
+import AddParticipantButton from '../../participants/_components/AddParticipantButton';
+import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
 
 export const ParticipantsTableClient = ({
   participantsPromise,
@@ -48,10 +48,11 @@ export const ParticipantsTableClient = ({
     // Check if we are deleting all and call the appropriate function
     if (participantsToDelete.length === participants.length) {
       await deleteAllParticipants();
+      resetDelete();
       return;
     }
 
-    await deleteParticipants(participantsToDelete.map((p) => p.identifier));
+    await deleteParticipants(participantsToDelete.map((p) => p.id));
 
     resetDelete();
   };
