@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
+import { containerClasses } from '~/components/ContainerClasses';
 import { getServerSession } from '~/utils/auth';
 import { cn } from '~/utils/shadcn';
 import { SignInForm } from '../_components/SignInForm';
-import { containerClasses } from '../_components/schemas';
 
 export const metadata = {
   title: 'Fresco - Sign In',

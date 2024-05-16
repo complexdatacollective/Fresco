@@ -1,16 +1,16 @@
 'use client';
 
-import { containerClasses } from '../_components/schemas';
-import OnboardSteps from '../_components/Sidebar';
-import { cn } from '~/utils/shadcn';
 import { motion } from 'framer-motion';
-import type { SetupData } from './page';
-import { use, useEffect } from 'react';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { use, useEffect } from 'react';
+import { containerClasses } from '~/components/ContainerClasses';
+import { cn } from '~/utils/shadcn';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
-import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
-import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
 import Documentation from '../_components/OnboardSteps/Documentation';
+import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
+import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
+import OnboardSteps from '../_components/Sidebar';
+import type { SetupData } from './page';
 
 export default function Setup({
   setupDataPromise,

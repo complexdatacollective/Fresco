@@ -2,7 +2,7 @@ import { isStrongPassword } from 'validator';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-export const signupSchema = zfd.formData({
+export const createUserSchema = z.object({
   username: z
     .string()
     .min(4, { message: 'Username must be at least 4 characters' })
@@ -22,7 +22,9 @@ export const signupSchema = zfd.formData({
   ),
 });
 
-export const loginSchema = zfd.formData({
+export const createUserFormDataSchema = zfd.formData(createUserSchema);
+
+export const loginSchema = z.object({
   username: z.string().min(1, { message: 'Username cannot be empty' }),
   password: z.string().min(1, { message: 'Password cannot be empty' }),
 });

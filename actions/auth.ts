@@ -2,12 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { loginSchema, signupSchema } from '~/schemas/auth';
+import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 export async function signup(formData: unknown) {
-  const parsedFormData = signupSchema.safeParse(formData);
+  const parsedFormData = createUserFormDataSchema.safeParse(formData);
 
   if (!parsedFormData.success) {
     return {
@@ -64,13 +64,24 @@ export async function signup(formData: unknown) {
   }
 }
 
-export async function login(formData: unknown) {
-  const parsedFormData = loginSchema.safeParse(formData);
+export const login = async (
+  data: unknown,
+): Promise<
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      formErrors: string[];
+      fieldErrors?: Record<string, string[]>;
+    }
+> => {
+  const parsedFormData = loginSchema.safeParse(data);
 
   if (!parsedFormData.success) {
     return {
       success: false,
-      fieldErrors: parsedFormData.error.errors,
+      ...parsedFormData.error.flatten(),
     };
   }
 
@@ -97,7 +108,7 @@ export async function login(formData: unknown) {
     console.log('invalid username');
     return {
       success: false,
-      error: 'Incorrect username or password',
+      formErrors: ['Incorrect username or password'],
     };
   }
 
@@ -107,7 +118,7 @@ export async function login(formData: unknown) {
   } catch (e) {
     return {
       success: false,
-      error: 'Incorrect username or password',
+      formErrors: ['Incorrect username or password'],
     };
   }
 
@@ -126,7 +137,7 @@ export async function login(formData: unknown) {
   return {
     success: true,
   };
-}
+};
 
 export async function logout() {
   const session = await getServerSession();

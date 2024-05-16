@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { login } from '~/actions/auth';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
+import UnorderedList from '~/components/ui/typography/UnorderedList';
 import { useToast } from '~/components/ui/use-toast';
 import useZodForm from '~/hooks/useZodForm';
-import { loginFormSchema } from './schemas';
+import { loginSchema } from '~/schemas/auth';
 
 export const SignInForm = () => {
   const {
@@ -16,7 +17,7 @@ export const SignInForm = () => {
     setError,
     formState: { errors, isSubmitting },
   } = useZodForm({
-    schema: loginFormSchema,
+    schema: loginSchema,
   });
 
   const { toast } = useToast();
@@ -24,27 +25,34 @@ export const SignInForm = () => {
 
   const onSubmit = async (data: unknown) => {
     const result = await login(data);
-    if (result.success) {
+
+    if (result.success === true) {
       router.push('/dashboard');
       return;
     }
 
-    // We have either a global error or field errors
-    if (result.fieldErrors) {
-      for (const error of result.fieldErrors) {
-        setError(`root.${error.path.toString()}`, {
-          message: error.message,
-        });
-      }
-    }
-
-    // Global error
-    if (result.error) {
+    // Handle formErrors
+    if (result.formErrors.length > 0) {
       toast({
         variant: 'destructive',
-        title: 'An error occurred',
-        description: result.error,
+        title: 'Login failed',
+        description: (
+          <>
+            <UnorderedList>
+              {result.formErrors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </UnorderedList>
+          </>
+        ),
       });
+    }
+
+    // Handle field errors
+    if (result.fieldErrors) {
+      for (const [field, message] of Object.entries(result.fieldErrors)) {
+        setError(`root.${field}`, { types: { type: 'manual', message } });
+      }
     }
   };
 
