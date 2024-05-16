@@ -1,16 +1,16 @@
 'use client';
 
-import { use, useMemo } from 'react';
+import type { Events } from '@prisma/client';
 import type { ColumnDef } from '@tanstack/react-table';
-import { useDataTable } from '~/hooks/use-data-table';
+import { use, useMemo } from 'react';
 import { DataTable } from '~/components/data-table/data-table';
+import { useDataTable } from '~/hooks/use-data-table';
+import type { ActivitiesFeed } from '~/queries/activityFeed';
 import {
   fetchActivityFeedTableColumnDefs,
-  searchableColumns,
   filterableColumns,
+  searchableColumns,
 } from './ColumnDefinition';
-import type { Events } from '@prisma/client';
-import type { ActivitiesFeed } from '~/queries/activityFeed';
 
 export default function ActivityFeedTable({
   activitiesPromise,

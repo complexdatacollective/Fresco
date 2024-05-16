@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import {
   getCoreRowModel,
   getFacetedRowModel,
@@ -15,6 +14,7 @@ import {
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table';
+import * as React from 'react';
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,

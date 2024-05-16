@@ -9,13 +9,13 @@ export const getActivities = (searchParams: unknown) =>
       // Convert searchParams to the expected type
       const searchParams = rawSearchParams as SearchParams;
 
-      // Destructure searchParams object
       const { page, perPage, sort, sortField, filterParams } = searchParams;
 
-      // Calculate offset for pagination
+      // Number of items to skip
       const offset = page > 0 ? (page - 1) * perPage : 0;
 
-      // Generate filter parameters for the database query
+      // Generate the dynamic filter parameters for the database call from the
+      // input filter params.
       const queryFilterParams = filterParams
         ? {
             OR: [
@@ -29,7 +29,7 @@ export const getActivities = (searchParams: unknown) =>
           }
         : {};
 
-      // Execute both count and findMany queries in a single transaction
+      // Transaction is used to ensure both queries are executed in a single transaction
       const [count, events] = await prisma.$transaction([
         prisma.events.count({
           where: {
@@ -46,10 +46,8 @@ export const getActivities = (searchParams: unknown) =>
         }),
       ]);
 
-      // Calculate pageCount
       const pageCount = Math.ceil(count / perPage);
 
-      // Return events and pageCount
       return { events, pageCount };
     },
     ['getActivities'],

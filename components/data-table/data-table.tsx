@@ -1,9 +1,9 @@
-import * as React from 'react';
 import {
   flexRender,
   type ColumnDef,
   type Table as TanstackTable,
 } from '@tanstack/react-table';
+import * as React from 'react';
 
 import {
   Table,
@@ -14,14 +14,14 @@ import {
   TableRow,
 } from '~/components/ui/table';
 
-import { DataTableAdvancedToolbar } from './advanced/data-table-advanced-toolbar';
-import { DataTableFloatingBar } from './data-table-floating-bar';
-import { DataTablePagination } from './data-table-pagination';
-import { DataTableToolbar } from './data-table-toolbar';
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from '~/lib/data-table/types';
+import { DataTableAdvancedToolbar } from './advanced/data-table-advanced-toolbar';
+import { DataTableFloatingBar } from './data-table-floating-bar';
+import { DataTablePagination } from './data-table-pagination';
+import { DataTableToolbar } from './data-table-toolbar';
 
 type DataTableProps<TData, TValue> = {
   /**
