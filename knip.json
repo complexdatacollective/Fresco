@@ -9,5 +9,5 @@
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts"
   ],
-  "ignoreDependencies": ["server-only", "prop-types"]
+  "ignoreDependencies": ["server-only", "prop-types", "sharp"]
 }
