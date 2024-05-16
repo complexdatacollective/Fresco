@@ -22,9 +22,6 @@ export const auth = lucia({
     };
   },
   adapter: prismaAdapter(client),
-  // experimental: {
-  //   debugMode: env.NODE_ENV !== 'production',
-  // },
 });
 
 export const getServerSession = cache(() => {

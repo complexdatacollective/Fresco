@@ -1,9 +1,9 @@
 import { unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
-import { prisma } from '~/utils/db';
 import 'server-only';
 import { env } from '~/env.mjs';
+import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
+import { prisma } from '~/utils/db';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
