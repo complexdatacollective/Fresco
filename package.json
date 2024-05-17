@@ -3,7 +3,7 @@
   "version": "1.0.0-beta.4",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.0.5+sha256.61bd66913b52012107ec25a6ee4d6a161021ab99e04f6acee3aa50d0e34b4af9",
+  "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
