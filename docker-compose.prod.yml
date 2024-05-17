@@ -6,9 +6,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # Set environment variables directly in the docker-compose file
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?schema=public
     depends_on:
       postgres:
         condition: service_healthy
