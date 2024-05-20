@@ -4,8 +4,8 @@ import { type Protocol } from '@codaco/shared-consts';
 import { Prisma } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { hash } from 'ohash';
+import { UTApi } from 'uploadthing/server';
 import { type z } from 'zod';
-import { utapi } from '~/app/api/uploadthing/core';
 import { protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -115,6 +115,8 @@ async function deleteFilesFromUploadThing(fileKey: string | string[]) {
     console.log('No assets to delete');
     return;
   }
+
+  const utapi = new UTApi();
 
   const response = await utapi.deleteFiles(fileKey);
 
