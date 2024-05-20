@@ -3,9 +3,7 @@ services:
     container_name: nextjs-app
     env_file:
       - .env
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: "ghcr.io/complexdatacollective/fresco:latest"
     depends_on:
       postgres:
         condition: service_healthy
