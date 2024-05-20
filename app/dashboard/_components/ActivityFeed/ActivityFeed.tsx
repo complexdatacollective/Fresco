@@ -1,18 +1,38 @@
-import { Suspense } from 'react';
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
-import { getActivities } from '~/queries/activityFeed';
 import ActivityFeedTable from './ActivityFeedTable';
-import { searchParamsCache } from './searchParamsCache';
+import { useTableStateFromSearchParams } from './useTableStateFromSearchParams';
 
-export default function ActivityFeed() {
-  const searchParams = searchParamsCache.all();
-  const activitiesPromise = getActivities(searchParams);
+const ActivityFeed = () => {
+  const { searchParams } = useTableStateFromSearchParams();
 
-  return (
-    <Suspense
-      fallback={<DataTableSkeleton columnCount={3} filterableColumnCount={1} />}
-    >
-      <ActivityFeedTable activitiesPromise={activitiesPromise} />
-    </Suspense>
-  );
-}
+  // Stringify filterParams
+  const filterParams = JSON.stringify(searchParams.filterParams);
+
+  // Convert all values to strings
+  const params = {
+    page: String(searchParams.page),
+    perPage: String(searchParams.perPage),
+    sort: searchParams.sort,
+    sortField: searchParams.sortField,
+    filterParams,
+  };
+
+  const { isLoading, data } = useQuery({
+    queryKey: ['activities'],
+    queryFn: () =>
+      fetch('/api/activities?' + new URLSearchParams(params).toString()).then(
+        (res) => res.json(),
+      ),
+  });
+
+  if (isLoading) {
+    return <DataTableSkeleton columnCount={3} filterableColumnCount={1} />;
+  }
+
+  return <ActivityFeedTable tableData={data ?? { events: [], pageCount: 0 }} />;
+};
+
+export default ActivityFeed;

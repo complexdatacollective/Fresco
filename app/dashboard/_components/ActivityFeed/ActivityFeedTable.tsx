@@ -2,10 +2,10 @@
 
 import type { Events } from '@prisma/client';
 import type { ColumnDef } from '@tanstack/react-table';
-import { use, useMemo } from 'react';
+import { useMemo } from 'react';
 import { DataTable } from '~/components/data-table/data-table';
 import { useDataTable } from '~/hooks/use-data-table';
-import type { ActivitiesFeed } from '~/queries/activityFeed';
+import { type ActivitiesFeed } from '~/queries/activityFeed';
 import {
   fetchActivityFeedTableColumnDefs,
   filterableColumns,
@@ -13,22 +13,22 @@ import {
 } from './ColumnDefinition';
 
 export default function ActivityFeedTable({
-  activitiesPromise,
+  tableData,
 }: {
-  activitiesPromise: ActivitiesFeed;
+  tableData: unknown;
 }) {
-  const tableData = use(activitiesPromise);
-
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo<ColumnDef<Events, unknown>[]>(
     () => fetchActivityFeedTableColumnDefs(),
     [],
   );
 
+  const data = tableData as ActivitiesFeed;
+
   const { dataTable } = useDataTable({
-    data: tableData.events,
+    data: data.events,
     columns,
-    pageCount: tableData.pageCount,
+    pageCount: data.pageCount,
     searchableColumns,
     filterableColumns,
   });

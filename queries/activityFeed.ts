@@ -57,4 +57,5 @@ export const getActivities = (searchParams: unknown) =>
     },
   )(searchParams);
 
-export type ActivitiesFeed = ReturnType<typeof getActivities>;
+export type ActivitiesFeed =
+  ReturnType<typeof getActivities> extends Promise<infer R> ? R : never;

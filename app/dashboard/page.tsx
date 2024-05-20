@@ -4,6 +4,7 @@ import Section from '~/components/layout/Section';
 import Heading from '~/components/ui/typography/Heading';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import ReactQueryProvider from '~/lib/query-provider';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
@@ -42,7 +43,9 @@ export default async function Home({
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ActivityFeed />
+          <ReactQueryProvider>
+            <ActivityFeed />
+          </ReactQueryProvider>
         </Section>
       </ResponsiveContainer>
     </>
