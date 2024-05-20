@@ -1,4 +1,4 @@
 #!/bin/sh
 
-npx prisma migrate deploy
+node handleMigrations.js
 node server.js

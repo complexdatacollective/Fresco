@@ -12,10 +12,7 @@
     "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
     "ts-lint:watch": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
-    "start:prod": "cross-env NODE_ENV=production pnpm db:migrate:prod && next start",
-    "db:push": "cross-env NODE_ENV=development prisma db push",
-    "db:migrate:prod": "cross-env NODE_ENV=production prisma migrate deploy",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "node ./handle-migrations.js && next build",
     "knip": "knip",
     "test": "vitest"
   },
