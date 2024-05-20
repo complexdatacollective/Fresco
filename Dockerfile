@@ -14,7 +14,6 @@ COPY prisma ./prisma
 COPY package.json pnpm-lock.yaml* postinstall.js migrate-and-start.sh handle-migrations.js ./
 
 # # Install pnpm and install dependencies
-# ENV SKIP_ENV_VALIDATION=true
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 # ---------
