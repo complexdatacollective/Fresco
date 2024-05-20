@@ -11,7 +11,7 @@ WORKDIR /app
 COPY prisma ./prisma
 
 # Copy package.json and lockfile, along with postinstall script
-COPY package.json pnpm-lock.yaml* postinstall.js migrate-and-start.sh ./
+COPY package.json pnpm-lock.yaml* postinstall.js migrate-and-start.sh handle-migrations.js ./
 
 # Install pnpm and install dependencies
 RUN corepack enable pnpm && pnpm i --frozen-lockfile

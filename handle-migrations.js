@@ -1,9 +1,6 @@
 /* eslint-disable no-console */
 import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const prisma = new PrismaClient();
 

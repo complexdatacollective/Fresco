@@ -1,6 +1,6 @@
 services:
   fresco:
-    container_name: fresco
+    container_name: nextjs-app
     env_file:
       - .env
     build:
@@ -23,8 +23,6 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres:/var/lib/postgresql/data
     healthcheck:

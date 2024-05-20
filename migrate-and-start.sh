@@ -1,4 +1,4 @@
 #!/bin/sh
 
-node handleMigrations.js
+node handle-migrations.js
 node server.js
