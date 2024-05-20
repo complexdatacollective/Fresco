@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { hash } from 'ohash';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import ActivityFeedTable from './ActivityFeedTable';
 import { useTableStateFromSearchParams } from './useTableStateFromSearchParams';
@@ -21,7 +22,7 @@ const ActivityFeed = () => {
   };
 
   const { isLoading, data } = useQuery({
-    queryKey: ['activities'],
+    queryKey: ['activities', hash(params)],
     queryFn: () =>
       fetch('/api/activities?' + new URLSearchParams(params).toString()).then(
         (res) => res.json(),
