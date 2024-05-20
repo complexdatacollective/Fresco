@@ -23,7 +23,7 @@ export default function ActivityFeedTable({
     [],
   );
 
-  const data = tableData.data as ActivitiesFeed;
+  const data = tableData as ActivitiesFeed;
 
   const { dataTable } = useDataTable({
     data: data.events,

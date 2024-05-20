@@ -15,5 +15,5 @@ export async function GET(request: NextRequest) {
 
   const activities = await getActivities(params);
 
-  return NextResponse.json({ data: activities });
+  return NextResponse.json(activities);
 }
