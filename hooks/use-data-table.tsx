@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import {
   getCoreRowModel,
   getFacetedRowModel,
@@ -15,16 +14,14 @@ import {
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table';
+import * as React from 'react';
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
-  FilterParam,
-  PageSize,
   SortableField,
 } from '~/lib/data-table/types';
 
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
-import { debounce } from 'lodash';
 
 type UseDataTableProps<TData, TValue> = {
   /**
@@ -68,9 +65,9 @@ export function useDataTable<TData, TValue>({
   data,
   columns,
   pageCount, // Todo: the below should be used to filter filter/search terms before setting search params
-} // searchableColumns = [],
-// filterableColumns = [],
-: UseDataTableProps<TData, TValue>) {
+  // searchableColumns = [],
+  // filterableColumns = [],
+}: UseDataTableProps<TData, TValue>) {
   const { searchParams, setSearchParams } = useTableStateFromSearchParams();
 
   // Table states
@@ -78,7 +75,7 @@ export function useDataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    (searchParams.filterParams as ColumnFiltersState) ?? [],
+    (searchParams.filterParams as ColumnFiltersState) ?? null,
   );
 
   const [{ pageIndex, pageSize }, setPagination] =
@@ -95,39 +92,20 @@ export function useDataTable<TData, TValue>({
     [pageIndex, pageSize],
   );
 
-  const debouncedUpdateFilterParams = debounce(
-    (columnFilters: FilterParam[]) => {
-      if (!columnFilters || columnFilters.length === 0) {
-        void setSearchParams.setFilterParams(null);
-        return;
-      }
-
-      void setSearchParams.setFilterParams(columnFilters);
-      // Changing the filter params should reset the page to 1
-      // void setSearchParams.setPage(1);
-    },
-    2000,
-    {
-      trailing: true,
-      leading: false,
-    },
-  );
-
   // Sync any changes to columnFilters back to searchParams
   React.useEffect(() => {
-    // If we are resetting, skip the debounce
     if (!columnFilters || columnFilters.length === 0) {
-      void setSearchParams.setFilterParams(null);
+      void setSearchParams({
+        filterParams: null,
+      });
       return;
     }
 
-    debouncedUpdateFilterParams(columnFilters as FilterParam[]);
-
-    // Changing the filter params should reset the page to 1
-    void setSearchParams.setPage(1);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columnFilters]);
+    void setSearchParams({
+      page: 1,
+      filterParams: columnFilters as { id: string; value: string | string[] }[], // Hack!
+    });
+  }, [columnFilters, setSearchParams]);
 
   React.useEffect(() => {
     setPagination({
@@ -137,11 +115,11 @@ export function useDataTable<TData, TValue>({
   }, [searchParams.page, searchParams.perPage]);
 
   React.useEffect(() => {
-    void setSearchParams.setPage(pageIndex + 1);
-    void setSearchParams.setPerPage(pageSize as PageSize);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize]);
+    void setSearchParams({
+      page: pageIndex + 1,
+      perPage: pageSize,
+    });
+  }, [pageIndex, pageSize, setSearchParams]);
 
   const [sorting, setSorting] = React.useState<SortingState>([
     {
@@ -151,10 +129,11 @@ export function useDataTable<TData, TValue>({
   ]);
 
   React.useEffect(() => {
-    void setSearchParams.setSort(sorting[0]?.desc ? 'desc' : 'asc');
-    void setSearchParams.setSortField(sorting[0]?.id as SortableField);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sorting]);
+    void setSearchParams({
+      sort: sorting[0]?.desc ? 'desc' : 'asc',
+      sortField: sorting[0]?.id as SortableField,
+    });
+  }, [sorting, setSearchParams]);
 
   const dataTable = useReactTable({
     data,

@@ -1,6 +1,7 @@
+import { Quicksand } from 'next/font/google';
+import TanstackQueryClient from '~/components/TanstackQueryClient';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
-import { Quicksand } from 'next/font/google';
 
 export const metadata = {
   title: 'Network Canvas Fresco',
@@ -17,7 +18,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${quicksand.className} antialiased`}>
-        {children}
+        <TanstackQueryClient>{children}</TanstackQueryClient>
         <Toaster />
       </body>
     </html>
