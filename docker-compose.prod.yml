@@ -1,9 +1,8 @@
 services:
   fresco:
-    container_name: nextjs-app
     env_file:
       - .env
-    image: "ghcr.io/complexdatacollective/fresco:latest"
+    image: "ghcr.io/complexdatacollective/fresco:feature-docker"
     depends_on:
       postgres:
         condition: service_healthy
@@ -11,12 +10,11 @@ services:
       - .:/app/next-app
     restart: always
     ports:
-      - 3000:3000
+      - 0:3000
     networks:
       - fresco_network
 
   postgres:
-    container_name: postgres
     image: postgres:16-alpine
     restart: always
     env_file:
@@ -33,7 +31,6 @@ services:
 
 volumes:
   postgres:
-    name: fresco-db
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
