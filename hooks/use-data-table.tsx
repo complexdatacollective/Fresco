@@ -23,7 +23,7 @@ import type {
   SortableField,
 } from '~/lib/data-table/types';
 
-import { debounce, isEqual } from 'lodash';
+import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
@@ -121,10 +121,6 @@ export function useDataTable<TData, TValue>({
 
   // Sync any changes to columnFilters back to searchParams
   React.useEffect(() => {
-    // Deep compare the columnFilters and searchParams.filterParams
-    if (isEqual(columnFilters, searchParams.filterParams)) {
-      return;
-    }
     // If we are resetting, skip the debounce
     if (!columnFilters || columnFilters.length === 0) {
       void setSearchParams.setFilterParams(null).then(() => {
