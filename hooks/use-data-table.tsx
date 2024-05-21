@@ -18,9 +18,11 @@ import * as React from 'react';
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
+  FilterParam,
   SortableField,
 } from '~/lib/data-table/types';
 
+import { debounce } from 'lodash';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
 type UseDataTableProps<TData, TValue> = {
@@ -92,6 +94,25 @@ export function useDataTable<TData, TValue>({
     [pageIndex, pageSize],
   );
 
+  const debouncedUpdateFilterParams = debounce(
+    (columnFilters: FilterParam[]) => {
+      if (!columnFilters || columnFilters.length === 0) {
+        void setSearchParams({ filterParams: null });
+        return;
+      }
+
+      void setSearchParams({
+        page: 1,
+        filterParams: columnFilters,
+      });
+    },
+    2000,
+    {
+      trailing: true,
+      leading: false,
+    },
+  );
+
   // Sync any changes to columnFilters back to searchParams
   React.useEffect(() => {
     if (!columnFilters || columnFilters.length === 0) {
@@ -101,10 +122,7 @@ export function useDataTable<TData, TValue>({
       return;
     }
 
-    void setSearchParams({
-      page: 1,
-      filterParams: columnFilters as { id: string; value: string | string[] }[], // Hack!
-    });
+    debouncedUpdateFilterParams(columnFilters as FilterParam[]);
   }, [columnFilters, setSearchParams]);
 
   React.useEffect(() => {
