@@ -9,17 +9,19 @@ import { useTableStateFromSearchParams } from './useTableStateFromSearchParams';
 const ActivityFeed = () => {
   const { searchParams } = useTableStateFromSearchParams();
 
-  // Stringify filterParams
-  const filterParams = JSON.stringify(searchParams.filterParams);
+  function convertObjectToStringRecord(
+    obj: Record<string, unknown>,
+  ): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        result[key] = String(obj[key]);
+      }
+    }
+    return result;
+  }
 
-  // Convert all values to strings
-  const params = {
-    page: String(searchParams.page),
-    perPage: String(searchParams.perPage),
-    sort: searchParams.sort,
-    sortField: searchParams.sortField,
-    filterParams,
-  };
+  const params = convertObjectToStringRecord(searchParams);
 
   const { isLoading, data } = useQuery({
     queryKey: ['activities', hash(params)],

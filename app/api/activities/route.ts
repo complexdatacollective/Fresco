@@ -1,19 +1,16 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { type SearchParams } from 'nuqs/server';
+import { searchParamsCache } from '~/app/dashboard/_components/ActivityFeed/searchParamsCache';
 import { getActivities } from '~/queries/activityFeed';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
-  // Parse the search parameters back to their original form
-  const params = {
-    page: Number(searchParams.get('page')),
-    perPage: Number(searchParams.get('perPage')),
-    sort: searchParams.get('sort'),
-    sortField: searchParams.get('sortField'),
-    filterParams: JSON.parse(searchParams.get('filterParams') ?? 'null'),
-  };
+  const parsedParams = searchParamsCache.parse(
+    searchParams as unknown as SearchParams,
+  );
 
-  const activities = await getActivities(params);
+  const activities = await getActivities(parsedParams);
 
   return NextResponse.json(activities);
 }
