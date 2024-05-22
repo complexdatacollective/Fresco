@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { trackEvent } from '~/lib/analytics';
 import { cookies } from 'next/headers';
+import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
+import { trackEvent } from '~/lib/analytics';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
 import getBaseUrl from '~/utils/getBaseUrl';
 
@@ -24,7 +24,7 @@ const handler = async (
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
   if (limitInterviews && cookies().get(protocolId)) {
-    return NextResponse.redirect('/interview/finished');
+    return NextResponse.redirect(`${getBaseUrl()}/interview/finished`);
   }
 
   let participantIdentifier: string | undefined;
