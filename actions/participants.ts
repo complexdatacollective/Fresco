@@ -2,13 +2,13 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { revalidateTag } from 'next/cache';
+import { addEvent } from '~/actions/activityFeed';
 import {
   participantListInputSchema,
   updateSchema,
 } from '~/schemas/participant';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
-import { addEvent } from '~/actions/activityFeed';
 
 export async function deleteParticipants(participantIds: string[]) {
   await requireApiAuth();
@@ -31,7 +31,12 @@ export async function deleteParticipants(participantIds: string[]) {
 export async function deleteAllParticipants() {
   await requireApiAuth();
 
-  await prisma.participant.deleteMany();
+  const result = await prisma.participant.deleteMany();
+
+  void addEvent(
+    'Participant(s) Removed',
+    `Deleted ${result.count} participant(s)`,
+  );
 
   revalidateTag('getParticipants');
   revalidateTag('summaryStatistics');
