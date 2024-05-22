@@ -14,14 +14,18 @@ const insertNetworkEgo = (
   session: FormattedSession,
 ): SessionWithNetworkEgo => ({
   ...session,
-  nodes: session.nodes.map((node) => ({
-    [egoProperty]: session.ego[entityPrimaryKeyProperty],
-    ...node,
-  })),
-  edges: session.edges.map((edge) => ({
-    [egoProperty]: session?.ego[entityPrimaryKeyProperty],
-    ...edge,
-  })),
+  nodes: session.nodes
+    ? session.nodes.map((node) => ({
+        [egoProperty]: session.ego[entityPrimaryKeyProperty],
+        ...node,
+      }))
+    : [],
+  edges: session.edges
+    ? session.edges.map((edge) => ({
+        [egoProperty]: session?.ego[entityPrimaryKeyProperty],
+        ...edge,
+      }))
+    : [],
 });
 
 export const insertEgoIntoSessionNetworks = (sessions: FormattedSession[]) =>
