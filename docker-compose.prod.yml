@@ -36,4 +36,3 @@ volumes:
 # with each other, by using their container name as a hostname
 networks:
   fresco_network:
-    name: fresco_network
