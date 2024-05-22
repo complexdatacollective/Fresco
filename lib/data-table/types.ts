@@ -1,6 +1,5 @@
 import { type Prisma } from '@prisma/client';
 import * as z from 'zod';
-import { numberEnum } from '~/schemas/participant';
 
 export type Option = {
   label: string;
@@ -61,20 +60,9 @@ export const sortableFields = [
 export type SortableField = (typeof sortableFields)[number];
 
 export const pageSizes = [10, 20, 50, 100] as const;
-export type PageSize = (typeof pageSizes)[number];
 
 export const FilterParam = z.object({
   id: z.string(),
   value: z.union([z.string(), z.array(z.string())]),
 });
 export type FilterParam = z.infer<typeof FilterParam>;
-
-const SearchParamsSchema = z.object({
-  page: z.number(),
-  perPage: numberEnum(pageSizes),
-  sort: z.enum(sortOrder),
-  sortField: z.enum(sortableFields),
-  filterParams: z.array(FilterParam).nullable(),
-});
-
-export type SearchParams = z.infer<typeof SearchParamsSchema>;
