@@ -1,0 +1,127 @@
+$light-color-list: (
+  var(---sea-serpent),
+  var(---mustard),
+  var(---neon-coral),
+  var(---sea-green)
+);
+$dark-color-list: (
+  var(---sea-serpent--dark),
+  var(---mustard--dark),
+  var(---neon-coral--dark),
+  var(---sea-green--dark)
+);
+
+.spinner {
+  --circle-size: 2rem;
+  --container-size: calc(var(--circle-size) * 3);
+  --animation-duration: 1.8s;
+  --circle-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  will-change: transform;
+  backface-visibility: hidden;
+  width: var(--container-size);
+  height: var(--container-size);
+  margin: var(--circle-size);
+  animation: nc-spin var(--animation-duration) ease-in-out infinite;
+  transform: rotate(45deg);
+
+  &--small {
+    --circle-size: 1rem;
+  }
+
+  &--large {
+    --circle-size: 3rem;
+  }
+
+  .circle {
+    position: absolute;
+
+    &:nth-child(1) {
+      top: calc(var(--circle-size) * -1);
+      left: 0;
+    }
+
+    &:nth-child(2) {
+      top: 0;
+      left: calc(var(--circle-size) * 2);
+      transform: rotate(90deg);
+    }
+
+    &:nth-child(3) {
+      top: var(--circle-size);
+      left: calc(var(--circle-size) * -1);
+      transform: rotate(-90deg);
+    }
+
+    &:nth-child(4) {
+      top: calc(var(--circle-size) * 2);
+      left: var(--circle-size);
+      transform: rotate(-180deg);
+    }
+
+    .half-circle {
+      height: var(--circle-size);
+      width: calc(var(--circle-size) * 2);
+      border-top-left-radius: calc(var(--circle-size) * 2);
+      border-top-right-radius: calc(var(--circle-size) * 2);
+      background: cadetblue !important;
+
+      &--rotated {
+        transform: rotate(180deg);
+        position: relative;
+        top: -1px;
+      }
+    }
+  }
+
+  @each $color in $light-color-list {
+    $color-index: index($light-color-list, $color);
+
+    @keyframes circle-color-#{$color-index} {
+      0% {
+        transform: translateX(0);
+        background: $color;
+      }
+
+      100% {
+        transform: translateX(var(--circle-size));
+        background: nth($dark-color-list, $color-index);
+      }
+    }
+
+    .circle {
+      &:nth-child(#{$color-index}) {
+        :nth-child(1) {
+          background: nth($dark-color-list, $color-index);
+          animation: circle-color-#{$color-index}
+            calc(var(--animation-duration) / 2)
+            var(--circle-easing)
+            alternate
+            infinite;
+        }
+
+        :nth-child(2) {
+          background: $color;
+        }
+      }
+    }
+  }
+}
+
+@keyframes nc-spin {
+  0% {
+    transform: rotate(45deg) scale(0.8);
+  }
+
+  40% {
+    transform: rotate(45deg) scale(1);
+  }
+
+  57% {
+    transform: rotate(45deg) scale(1);
+  }
+
+  100% {
+    transform: rotate(405deg) scale(0.8);
+  }
+}

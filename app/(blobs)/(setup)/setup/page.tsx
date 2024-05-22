@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
 import {
   getAnonymousRecruitmentStatus,
@@ -36,7 +37,9 @@ export default async function Page() {
   const setupDataPromise = getSetupData();
 
   return (
-    <Suspense fallback="Loading...">
+    <Suspense
+      fallback={<Loader2 className="h-10 w-10 animate-spin text-background" />}
+    >
       <Setup setupDataPromise={setupDataPromise} />
     </Suspense>
   );
