@@ -86,6 +86,8 @@ export async function deleteProtocols(hashes: string[]) {
     revalidateTag('activityFeed');
     revalidateTag('summaryStatistics');
     revalidateTag('getProtocols');
+    revalidateTag('getInterviews');
+    revalidateTag('getParticipants');
 
     return { error: null, deletedProtocols: deletedProtocols };
   } catch (error) {

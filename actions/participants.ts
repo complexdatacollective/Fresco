@@ -25,6 +25,7 @@ export async function deleteParticipants(participantIds: string[]) {
   );
 
   revalidateTag('getParticipants');
+  revalidateTag('getInterviews');
   revalidateTag('summaryStatistics');
 }
 
@@ -39,6 +40,7 @@ export async function deleteAllParticipants() {
   );
 
   revalidateTag('getParticipants');
+  revalidateTag('getInterviews');
   revalidateTag('summaryStatistics');
 }
 
