@@ -84,6 +84,7 @@ export async function deleteProtocols(hashes: string[]) {
     });
 
     revalidateTag('activityFeed');
+    revalidateTag('summaryStatistics');
     revalidateTag('getProtocols');
 
     return { error: null, deletedProtocols: deletedProtocols };
@@ -161,6 +162,7 @@ export async function insertProtocol(
     void addEvent('Protocol Installed', `Protocol "${protocolName}" installed`);
 
     revalidateTag('getProtocols');
+    revalidateTag('summaryStatistics');
 
     return { error: null, success: true };
   } catch (e) {
