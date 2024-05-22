@@ -18,11 +18,12 @@ const config = {
   parserOptions: {
     project: path.join(__dirname, 'tsconfig.json'),
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', '@tanstack/query',],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/stylistic',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
     'next/core-web-vitals',
     'prettier',
   ],

@@ -1,13 +1,10 @@
 import { unstable_cache } from 'next/cache';
-import { type SearchParams } from '~/lib/data-table/types';
-import { prisma } from '~/utils/db';
 import 'server-only';
+import type { searchParamsCache } from '~/app/dashboard/_components/ActivityFeed/SearchParams';
+import { prisma } from '~/utils/db';
 
 export const getActivities = unstable_cache(
-  async (rawSearchParams: unknown) => {
-    // const searchParams = SearchParamsSchema.parse(rawSearchParams);
-    const searchParams = rawSearchParams as SearchParams;
-
+  async (searchParams: ReturnType<typeof searchParamsCache.parse>) => {
     const { page, perPage, sort, sortField, filterParams } = searchParams;
 
     // Number of items to skip
@@ -53,5 +50,3 @@ export const getActivities = unstable_cache(
     tags: ['activityFeed'],
   },
 );
-
-export type ActivitiesFeed = ReturnType<typeof getActivities>;
