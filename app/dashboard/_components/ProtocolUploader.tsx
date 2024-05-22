@@ -1,19 +1,18 @@
 'use client';
 
-import { useDropzone } from 'react-dropzone';
-import { Button } from '~/components/ui/Button';
-import { useProtocolImport } from '~/hooks/useProtocolImport';
-import { FileDown, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { FileDown, Loader2 } from 'lucide-react';
 import { useCallback } from 'react';
-import usePortal from 'react-useportal';
-import { cn } from '~/utils/shadcn';
+import { useDropzone } from 'react-dropzone';
 import JobCard from '~/components/ProtocolImport/JobCard';
+import { Button } from '~/components/ui/Button';
+import usePortal from '~/hooks/usePortal';
+import { useProtocolImport } from '~/hooks/useProtocolImport';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+import { cn } from '~/utils/shadcn';
 
 function ProtocolUploader() {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { Portal } = usePortal();
+  const Portal = usePortal();
 
   const { importProtocols, jobs, cancelJob, cancelAllJobs } =
     useProtocolImport();
