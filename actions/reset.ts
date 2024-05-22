@@ -1,9 +1,9 @@
 'use server';
 
-import { prisma } from '~/utils/db';
-import { utapi } from '../app/api/uploadthing/core';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { requireApiAuth } from '~/utils/auth';
+import { prisma } from '~/utils/db';
+import { utapi } from '../app/api/uploadthing/core';
 
 export const resetAppSettings = async () => {
   await requireApiAuth();
@@ -21,6 +21,7 @@ export const resetAppSettings = async () => {
 
     revalidatePath('/');
     revalidateTag('appSettings');
+    revalidateTag('activityFeed');
 
     // Remove all files from UploadThing:
     await utapi.listFiles({}).then(({ files }) => {

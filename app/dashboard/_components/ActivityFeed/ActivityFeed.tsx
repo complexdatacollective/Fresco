@@ -12,7 +12,9 @@ export const ActivityFeed = () => {
   const { isPending, data } = useQuery({
     queryKey: ['activityFeed', params.toString()],
     queryFn: async () => {
-      const response = await fetch(`/api/activity-feed?${params.toString()}`);
+      const response = await fetch(`/api/activity-feed?${params.toString()}`, {
+        next: { tags: ['activityFeed'] },
+      });
       return response.json() as Promise<{
         events: Events[];
         pageCount: number;
