@@ -23,6 +23,7 @@ import type {
   DeleteInterviews,
   SyncInterview,
 } from '~/schemas/interviews';
+import { type NcNetwork } from '~/schemas/network-canvas';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
@@ -277,6 +278,18 @@ export async function finishInterview(interviewId: Interview['id']) {
       'Interview Completed',
       `Interview with ID ${interviewId} has been completed`,
     );
+
+    const network = JSON.parse(
+      JSON.stringify(updatedInterview.network),
+    ) as NcNetwork;
+
+    void trackEvent({
+      type: 'InterviewCompleted',
+      metadata: {
+        nodeCount: network?.nodes?.length ?? 0,
+        edgeCount: network?.edges?.length ?? 0,
+      },
+    });
 
     cookies().set(updatedInterview.protocolId, 'completed');
 
