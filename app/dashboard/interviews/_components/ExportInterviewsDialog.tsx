@@ -21,7 +21,7 @@ import Heading from '~/components/ui/typography/Heading';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
-import { trackEvent } from '~/lib/analytics';
+import trackEvent from '~/lib/analytics';
 import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
 import { cn } from '~/utils/shadcn';

@@ -4,7 +4,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
-import { trackEvent } from '~/lib/analytics';
+import trackEvent from '~/lib/analytics';
 import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';

@@ -19,6 +19,9 @@ export const env = createEnv({
   server: {
     POSTGRES_PRISMA_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
+    DISABLE_ANALYTICS: strictBooleanSchema,
+    PUBLIC_URL: z.string().url().optional(),
+    VERCEL_URL: z.string().optional(),
   },
 
   /**
@@ -28,12 +31,9 @@ export const env = createEnv({
    */
   client: {},
   shared: {
-    NEXT_PUBLIC_URL: z.string().url().optional(),
-    VERCEL_URL: z.string().optional(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    NEXT_PUBLIC_DISABLE_ANALYTICS: strictBooleanSchema,
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
@@ -47,9 +47,9 @@ export const env = createEnv({
     POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
     POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
     NODE_ENV: process.env.NODE_ENV,
-    NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
+    PUBLIC_URL: process.env.PUBLIC_URL,
     VERCEL_URL: process.env.VERCEL_URL,
-    NEXT_PUBLIC_DISABLE_ANALYTICS: process.env.NEXT_PUBLIC_DISABLE_ANALYTICS,
+    DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     APP_VERSION: process.env.APP_VERSION,

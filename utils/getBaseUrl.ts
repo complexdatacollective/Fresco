@@ -1,3 +1,4 @@
+import 'server-only';
 import { env } from '~/env.mjs';
 
 export default function getBaseUrl() {
@@ -5,11 +6,10 @@ export default function getBaseUrl() {
     // reference for vercel.com
     return `https://${env.VERCEL_URL}`;
 
-  if (env.NEXT_PUBLIC_URL)
+  if (env.PUBLIC_URL)
     // Manually set deployment URL from env
-    return env.NEXT_PUBLIC_URL;
+    return env.PUBLIC_URL;
 
   // assume localhost
-  console.log('caught');
   return `http://127.0.0.1:3000`;
 }

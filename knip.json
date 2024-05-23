@@ -7,7 +7,8 @@
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js",
-    "utils/auth.ts"
+    "utils/auth.ts",
+    "load-test.js"
   ],
   "ignoreDependencies": ["server-only", "prop-types", "sharp"],
   "ignoreBinaries": ["docker-compose"]

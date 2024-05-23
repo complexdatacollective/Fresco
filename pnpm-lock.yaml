@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       '@codaco/analytics':
-        specifier: ^5.1.0
-        version: 5.1.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))
+        specifier: 6.0.0-alpha.3
+        version: 6.0.0-alpha.3(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))
       '@codaco/protocol-validation':
         specifier: 3.0.0-alpha.4
         version: 3.0.0-alpha.4(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)
@@ -345,9 +345,6 @@ importers:
       jsdom:
         specifier: ^24.0.0
         version: 24.0.0
-      k6:
-        specifier: ^0.0.0
-        version: 0.0.0
       knip:
         specifier: ^5.13.0
         version: 5.16.0(@types/node@20.12.12)(typescript@5.4.5)
@@ -663,10 +660,10 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@codaco/analytics@5.1.0':
-    resolution: {integrity: sha512-GhQd15GvGug/CrCc2kLPxyrJgyVqz+M0ZowazSKJ83IUH7HgqouMoT2V4XqrmD1W6bjuNaD3rJPT6MAMcaIbpQ==}
+  '@codaco/analytics@6.0.0-alpha.3':
+    resolution: {integrity: sha512-cHx/xE59ycEd1VVrSWgU+VMp2fb69LQfQ5gPDCIkFzu2xFjHCTRHJ50OTKZjiSDqdAFlxm+NJZKFa63B7A8i9A==}
     peerDependencies:
-      next: 13 || 14
+      next: 13 || 14 || 15
 
   '@codaco/protocol-validation@3.0.0-alpha.4':
     resolution: {integrity: sha512-2vV5Tga/zco/vrdDwkmirkiEqvwq+pduV4U4bHJhIgivxFSxswy6Ae7VLsbgOsFRaypx/SMrh7kF9wmU30liLQ==}
@@ -3877,9 +3874,6 @@ packages:
   jszip@3.10.1:
     resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
 
-  k6@0.0.0:
-    resolution: {integrity: sha512-GAQSWayS2+LjbH5bkRi+pMPYyP1JSp7o+4j58ANZ762N/RH/SdlAT3CHHztnn8s/xgg8kYNM24Gd2IPo9b5W+g==}
-
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -6020,7 +6014,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@codaco/analytics@5.1.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))':
+  '@codaco/analytics@6.0.0-alpha.3(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))':
     dependencies:
       next: 14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2)
       zod: 3.23.8
@@ -9786,8 +9780,6 @@ snapshots:
       pako: 1.0.11
       readable-stream: 2.3.8
       setimmediate: 1.0.5
-
-  k6@0.0.0: {}
 
   keyv@4.5.4:
     dependencies:

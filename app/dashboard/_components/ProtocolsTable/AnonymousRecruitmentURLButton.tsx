@@ -1,9 +1,8 @@
 'use client';
 
-import { useToast } from '~/components/ui/use-toast';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
-import getBaseUrl from '~/utils/getBaseUrl';
+import { useToast } from '~/components/ui/use-toast';
 
 export const AnonymousRecruitmentURLButton = ({
   protocolId,
@@ -11,7 +10,7 @@ export const AnonymousRecruitmentURLButton = ({
   protocolId: string;
 }) => {
   const { toast } = useToast();
-  const url = `${getBaseUrl()}/onboard/${protocolId}`;
+  const url = `${window.location.origin}/onboard/${protocolId}`;
   const handleCopyClick = () => {
     navigator.clipboard
       .writeText(url)
