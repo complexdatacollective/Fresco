@@ -82,9 +82,7 @@ export default async function Settings() {
                 server.
               </Paragraph>
             </SettingsSection>
-            <Suspense fallback="Loading">
-              <RecruitmentTestSectionServer />
-            </Suspense>
+            <RecruitmentTestSectionServer />
           </>
         )}
       </ResponsiveContainer>

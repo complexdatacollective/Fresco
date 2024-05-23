@@ -16,7 +16,7 @@ export default function RecruitmentTestSectionServer() {
     <Section>
       <Heading variant="h4-all-caps">Recruitment Test Section</Heading>
       <Paragraph>This section allows you to test recruitment.</Paragraph>
-      <Suspense>
+      <Suspense fallback="Loading">
         <RecruitmentTestSection
           protocolsPromise={protocolsPromise}
           participantsPromise={participantsPromise}
