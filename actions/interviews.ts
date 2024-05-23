@@ -74,6 +74,11 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
 
     revalidateTag('getInterviews');
 
+    void addEvent(
+      'Data Exported',
+      `Exported data for ${updatedInterviews.count} interview(s)`,
+    );
+
     return { error: null, interview: updatedInterviews };
   } catch (error) {
     return { error: 'Failed to update interviews', interview: null };
