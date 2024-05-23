@@ -22,6 +22,7 @@ export const resetAppSettings = async () => {
     revalidatePath('/');
     revalidateTag('appSettings');
     revalidateTag('activityFeed');
+    revalidateTag('summaryStatistics');
 
     // Remove all files from UploadThing:
     await utapi.listFiles({}).then(({ files }) => {
