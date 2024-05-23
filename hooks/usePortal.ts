@@ -1,12 +1,8 @@
-import { useEffect, useState, type FC, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type FC, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-type PortalProps = {
-  children: ReactNode;
-};
-
-const usePortal = (targetElement?: HTMLElement | null) => {
-  const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
+const usePortal = (targetElement: HTMLElement | null = null) => {
+  const portalNodeRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // Ensure the hook is only used in the browser
@@ -14,17 +10,23 @@ const usePortal = (targetElement?: HTMLElement | null) => {
     if (!isBrowser) {
       return;
     }
+  }, []);
 
-    const element = targetElement ?? document.body;
-    setPortalElement(element);
+  useEffect(() => {
+    const node = targetElement ?? document.body;
+    portalNodeRef.current = node;
+
+    return () => {
+      portalNodeRef.current = null;
+    };
   }, [targetElement]);
 
-  const Portal: FC<PortalProps> = ({ children }) => {
-    if (!portalElement) return null;
-    return createPortal(children, portalElement);
+  const Portal: FC<{ children: ReactNode }> = ({ children }) => {
+    if (!portalNodeRef.current) return null;
+    return createPortal(children, portalNodeRef.current);
   };
 
-  return Portal;
+  return useMemo(() => Portal, []);
 };
 
 export default usePortal;
