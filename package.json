@@ -14,7 +14,8 @@
     "start": "next start",
     "vercel-build": "node ./handle-migrations.js && next build",
     "knip": "knip",
-    "test": "vitest"
+    "test": "vitest",
+    "load-test": "docker run -i grafana/k6 run - <load-test.js"
   },
   "pnpm": {
     "overrides": {
@@ -135,6 +136,7 @@
     "eslint-config-prettier": "^9.1.0",
     "jest": "^29.7.0",
     "jsdom": "^24.0.0",
+    "k6": "^0.0.0",
     "knip": "^5.13.0",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",

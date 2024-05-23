@@ -345,6 +345,9 @@ importers:
       jsdom:
         specifier: ^24.0.0
         version: 24.0.0
+      k6:
+        specifier: ^0.0.0
+        version: 0.0.0
       knip:
         specifier: ^5.13.0
         version: 5.16.0(@types/node@20.12.12)(typescript@5.4.5)
@@ -3873,6 +3876,9 @@ packages:
 
   jszip@3.10.1:
     resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
+
+  k6@0.0.0:
+    resolution: {integrity: sha512-GAQSWayS2+LjbH5bkRi+pMPYyP1JSp7o+4j58ANZ762N/RH/SdlAT3CHHztnn8s/xgg8kYNM24Gd2IPo9b5W+g==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -9780,6 +9786,8 @@ snapshots:
       pako: 1.0.11
       readable-stream: 2.3.8
       setimmediate: 1.0.5
+
+  k6@0.0.0: {}
 
   keyv@4.5.4:
     dependencies:
