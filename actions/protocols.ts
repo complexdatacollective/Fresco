@@ -100,16 +100,6 @@ export async function deleteProtocols(hashes: string[]) {
   }
 }
 
-async function deleteAllProtocols() {
-  await requireApiAuth();
-
-  const protocols = await prisma.protocol.findMany({
-    select: { hash: true },
-  });
-
-  return deleteProtocols(protocols.map((p) => p.hash));
-}
-
 async function deleteFilesFromUploadThing(fileKey: string | string[]) {
   await requireApiAuth();
 
