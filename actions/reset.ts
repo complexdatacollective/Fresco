@@ -21,6 +21,7 @@ export const resetAppSettings = async () => {
 
     revalidatePath('/');
     revalidateTag('appSettings');
+    revalidateTag('activityFeed');
 
     const utapi = new UTApi();
 

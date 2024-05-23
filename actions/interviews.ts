@@ -3,6 +3,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma, type Interview, type Protocol } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
+import { cookies } from 'next/headers';
 import { trackEvent } from '~/lib/analytics';
 import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
@@ -22,6 +23,7 @@ import type {
   DeleteInterviews,
   SyncInterview,
 } from '~/schemas/interviews';
+import { type NcNetwork } from '~/schemas/network-canvas';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
@@ -263,7 +265,7 @@ export type SyncInterviewType = typeof syncInterview;
 
 export async function finishInterview(interviewId: Interview['id']) {
   try {
-    await prisma.interview.update({
+    const updatedInterview = await prisma.interview.update({
       where: {
         id: interviewId,
       },
@@ -276,6 +278,20 @@ export async function finishInterview(interviewId: Interview['id']) {
       'Interview Completed',
       `Interview with ID ${interviewId} has been completed`,
     );
+
+    const network = JSON.parse(
+      JSON.stringify(updatedInterview.network),
+    ) as NcNetwork;
+
+    void trackEvent({
+      type: 'InterviewCompleted',
+      metadata: {
+        nodeCount: network?.nodes?.length ?? 0,
+        edgeCount: network?.edges?.length ?? 0,
+      },
+    });
+
+    cookies().set(updatedInterview.protocolId, 'completed');
 
     revalidateTag('getInterviews');
     revalidateTag('summaryStatistics');
