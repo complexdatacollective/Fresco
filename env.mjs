@@ -31,6 +31,7 @@ export const env = createEnv({
    */
   client: {},
   shared: {
+    PUBLIC_URL: z.string().url().optional(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),

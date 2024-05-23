@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       '@codaco/analytics':
-        specifier: 6.0.0-alpha.3
-        version: 6.0.0-alpha.3(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))
+        specifier: 6.0.0-alpha.4
+        version: 6.0.0-alpha.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))
       '@codaco/protocol-validation':
         specifier: 3.0.0-alpha.4
         version: 3.0.0-alpha.4(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)
@@ -660,8 +660,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@codaco/analytics@6.0.0-alpha.3':
-    resolution: {integrity: sha512-cHx/xE59ycEd1VVrSWgU+VMp2fb69LQfQ5gPDCIkFzu2xFjHCTRHJ50OTKZjiSDqdAFlxm+NJZKFa63B7A8i9A==}
+  '@codaco/analytics@6.0.0-alpha.4':
+    resolution: {integrity: sha512-ey7Y4nBD3j2w5Tvam3KiQZfeJF/Tne50dIblRt2c/F/aRvbnrJLyubgWFUjee6wtmeCHBNmdaO2VmZBrETtJDw==}
     peerDependencies:
       next: 13 || 14 || 15
 
@@ -6014,7 +6014,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@codaco/analytics@6.0.0-alpha.3(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))':
+  '@codaco/analytics@6.0.0-alpha.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))':
     dependencies:
       next: 14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2)
       zod: 3.23.8

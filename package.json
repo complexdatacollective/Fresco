@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@codaco/analytics": "6.0.0-alpha.3",
+    "@codaco/analytics": "6.0.0-alpha.4",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@hookform/resolvers": "^3.3.4",
