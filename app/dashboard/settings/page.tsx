@@ -10,7 +10,7 @@ import { env } from '~/env.mjs';
 import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
-import RecruitmentTestSection from '../_components/RecruitmentTestSection';
+import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
 import ResetButton from '../_components/ResetButton';
 
 export default async function Settings() {
@@ -82,9 +82,7 @@ export default async function Settings() {
                 server.
               </Paragraph>
             </SettingsSection>
-            <Suspense fallback="Loading">
-              <RecruitmentTestSection />
-            </Suspense>
+            <RecruitmentTestSectionServer />
           </>
         )}
       </ResponsiveContainer>
