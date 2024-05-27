@@ -3,13 +3,14 @@ import {
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import { has, omit } from 'lodash';
-import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
+import { type NcNode } from '~/schemas/network-canvas';
 import { usePrompts } from '../../behaviours/withPrompt';
+import { DraggableNode } from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
@@ -23,9 +24,9 @@ import {
 } from '../../selectors/name-generator';
 import { getNodeColor, getNodeTypeLabel } from '../../selectors/network';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { get } from '../../utils/lodash-replacements';
 import NodeForm from '../NodeForm';
 import NodePanels from '../NodePanels';
+import { type directions } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
 import {
   MaxNodesMet,
@@ -34,19 +35,38 @@ import {
   minNodesWithDefault,
 } from './utils/StageLevelValidation';
 
-export const nameGeneratorHandleBeforeLeaving = (isLastPrompt, stageNodeCount, minNodes, setShowMinWarning) => (direction) => {
-  if (
-    (isLastPrompt && direction === 'forwards') &&
-    stageNodeCount < minNodes
-  ) {
-    setShowMinWarning(true);
-    return false;
-  }
+export const nameGeneratorHandleBeforeLeaving =
+  (
+    isLastPrompt: boolean,
+    stageNodeCount: number,
+    minNodes: number,
+    setShowMinWarning: (value: boolean) => void,
+  ) =>
+  (direction: directions) => {
+    if (isLastPrompt && direction === 'forwards' && stageNodeCount < minNodes) {
+      setShowMinWarning(true);
+      return false;
+    }
 
-  return true;
+    return true;
+  };
+
+type NameGeneratorProps = {
+  registerBeforeNext: (callback: (direction: directions) => boolean) => void;
+  stage: {
+    form: boolean;
+    quickAdd: boolean;
+    behaviours: {
+      minNodes: number;
+      maxNodes: number;
+    };
+    subject: {
+      type: string;
+    };
+  };
 };
 
-const NameGenerator = (props) => {
+const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;
 
   const { form, quickAdd, behaviours, subject } = stage;
@@ -58,17 +78,23 @@ const NameGenerator = (props) => {
   const [selectedNode, setSelectedNode] = useState(null);
   const [showMinWarning, setShowMinWarning] = useState(false);
 
-  const minNodes = minNodesWithDefault(behaviours?.minNodes);
-  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes);
+  const minNodes = minNodesWithDefault(behaviours?.minNodes) as number;
+  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes) as number;
 
-  const stageNodeCount = usePropSelector(getStageNodeCount, props); // 1
+  const stageNodeCount = usePropSelector(getStageNodeCount, props) as number; // 1
   const newNodeAttributes = usePropSelector(getAdditionalAttributesSelector, {
     prompt,
     ...props,
-  }); // 2
-  const newNodeModelData = usePropSelector(getPromptNodeModelData, props); // 3
-  const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props); // 4
-  const nodeIconName = usePropSelector(getNodeIconName, props);
+  }) as Record<string, unknown>; // 2
+  const newNodeModelData = usePropSelector(
+    getPromptNodeModelData,
+    props,
+  ) as Record<string, unknown>; // 3
+  const nodesForPrompt = usePropSelector(
+    getNetworkNodesForPrompt,
+    props,
+  ) as NcNode[]; // 4
+  const nodeIconName = usePropSelector(getNodeIconName, props) as string;
   const nodeType = useSelector(getNodeTypeLabel(subject?.type));
   const nodeColor = useSelector(getNodeColor(subject?.type));
 
@@ -78,9 +104,6 @@ const NameGenerator = (props) => {
     dispatch(sessionActions.addNode(...properties));
   const addNodeToPrompt = (...properties) =>
     dispatch(sessionActions.addNodeToPrompt(...properties));
-  const removeNode = (uid) => {
-    dispatch(sessionActions.removeNode(uid));
-  };
 
   const maxNodesReached = stageNodeCount >= maxNodes;
 
@@ -90,7 +113,14 @@ const NameGenerator = (props) => {
     }
   }, [stageNodeCount, minNodes]);
 
-  registerBeforeNext(nameGeneratorHandleBeforeLeaving(isLastPrompt, stageNodeCount, minNodes, setShowMinWarning));
+  registerBeforeNext(
+    nameGeneratorHandleBeforeLeaving(
+      isLastPrompt,
+      stageNodeCount,
+      minNodes,
+      setShowMinWarning,
+    ),
+  );
 
   /**
    * Drop node handler
@@ -108,10 +138,11 @@ const NameGenerator = (props) => {
       const droppedAttributeData = node[entityAttributesProperty];
       const droppedModelData = omit(node, entityAttributesProperty);
 
-      addNode(
-        { ...newNodeModelData, ...droppedModelData },
-        { ...droppedAttributeData, ...newNodeAttributes },
-      );
+      debugger;
+      // addNode(
+      //   { ...newNodeModelData, ...droppedModelData },
+      //   { ...droppedAttributeData, ...newNodeAttributes },
+      // );
     }
   };
 
@@ -128,41 +159,31 @@ const NameGenerator = (props) => {
       <div className="name-generator-interface__prompt">
         <Prompts />
       </div>
-      <div className="flex h-full relative">
-        <NodePanels
-          disableAddNew={maxNodesReached}
-        />
+      <div className="relative flex h-full">
+        <NodePanels disableAddNew={maxNodesReached} />
         <NodeList
           key={`${stage.id}_${promptIndex}`}
           items={nodesForPrompt}
-          stage={stage}
-          listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
-          id="MAIN_NODE_LIST"
-          accepts={({ meta }) => get(meta, 'itemType', null) === 'NEW_NODE'}
-          itemType="EXISTING_NODE"
+          ItemComponent={DraggableNode}
           onDrop={handleDropNode}
-          onItemClick={handleSelectNode}
+          allowDrop={!maxNodesReached} // allow dropping of items
+          itemType="EXISTING_NODE" // items originating here have this meta type
+          accepts={['NEW_NODE']} // items accepted here have these meta types
         />
       </div>
-      <NodeBin
-        accepts={(meta) => meta.itemType === 'EXISTING_NODE'}
-        dropHandler={(meta) => removeNode(meta[entityPrimaryKeyProperty])}
-        id="NODE_BIN"
-      />
-      {
-        createPortal(
-          <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
-          document.getElementById('stage'),
-        )}
-      {
-        createPortal(
-          <MinNodesNotMet
-            show={showMinWarning}
-            minNodes={minNodes}
-            onHideCallback={() => setShowMinWarning(false)}
-          />,
-          document.getElementById('stage'),
-        )}
+      <NodeBin accepts={['EXISTING_NODE']} />
+      {createPortal(
+        <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
+        document.getElementById('stage'),
+      )}
+      {createPortal(
+        <MinNodesNotMet
+          show={showMinWarning}
+          minNodes={minNodes}
+          onHideCallback={() => setShowMinWarning(false)}
+        />,
+        document.getElementById('stage'),
+      )}
       {form && (
         <NodeForm
           subject={subject}
@@ -194,7 +215,3 @@ const NameGenerator = (props) => {
 };
 
 export default NameGenerator;
-
-NameGenerator.propTypes = {
-  stage: PropTypes.object.isRequired,
-};

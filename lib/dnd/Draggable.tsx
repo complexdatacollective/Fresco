@@ -1,8 +1,8 @@
-import { type DragEventHandler } from 'react';
+import { forwardRef, type ComponentType, type DragEventHandler } from 'react';
 import useStore from './store';
 
-export default function draggable(WrappedComponent) {
-  return function Draggable(props) {
+export default function draggable(WrappedComponent: ComponentType) {
+  const Draggable = forwardRef((props, ref) => {
     const setDraggingItem = useStore((state) => state.setDraggingItem);
 
     const handleDragStart: DragEventHandler<HTMLDivElement> = (event) => {
@@ -15,12 +15,18 @@ export default function draggable(WrappedComponent) {
     };
 
     return (
-      <WrappedComponent
-        {...props}
+      <div
         draggable
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-      />
+        ref={ref}
+      >
+        <WrappedComponent {...props} />
+      </div>
     );
-  };
+  });
+
+  Draggable.displayName = `Draggable(${WrappedComponent.displayName || WrappedComponent.name})`;
+
+  return Draggable;
 }

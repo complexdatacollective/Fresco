@@ -21,7 +21,7 @@ import {
 import { getNavigableStages } from '../selectors/skip-logic';
 import Stage from './Stage';
 
-type directions = 'forwards' | 'backwards';
+export type directions = 'forwards' | 'backwards';
 
 export type BeforeNextFunction = (
   direction: directions,

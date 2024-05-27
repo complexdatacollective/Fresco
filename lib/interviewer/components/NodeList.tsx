@@ -1,144 +1,66 @@
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  DragEventHandler,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { useSelector } from 'react-redux';
-import { v4 } from 'uuid';
-import useStore from '~/lib/dnd/store';
+import { useMemo } from 'react';
+import useDroppable from '~/lib/dnd/useDroppable';
 import { cn } from '~/utils/shadcn';
-import { getCurrentStage } from '../selectors/session';
-import createSorter from '../utils/createSorter';
-import Node from './Node';
 
-const EnhancedNode = (props) => {
-  const setDraggingItem = useStore((state) => state.setDraggingItem);
-
-  const handleDragStart: DragEventHandler<HTMLDivElement> = (event) => {
-    setDraggingItem({ id: 'test', type: 'TEST_NODE' });
-    event.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragEnd: DragEventHandler<HTMLDivElement> = () => {
-    setDraggingItem(null);
-  };
-
-  return (
-    <div draggable onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <Node {...props} />
-    </div>
-  );
-};
-
-export const NodeTransition = ({
-  children,
-  delay,
-}: {
-  children: ReactNode;
-  delay: number;
-}) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, y: '20%' }}
-    animate={{ opacity: 1, y: 0, scale: 1, transition: { delay } }}
-    exit={{ opacity: 0, scale: 0 }}
-  >
-    {children}
-  </motion.div>
-);
-
-const NodeList = ({
-  disableDragNew,
-  items: initialItems = [],
-  label = () => '',
-  itemType = 'NODE',
-  className,
-  externalData,
-  sortOrder = [],
-  onItemClick,
-  onDrop,
-}: {
-  listId: string;
-  disableDragNew: boolean;
+type NodeListProps = {
   items: unknown[];
-  label: (node: unknown) => string;
+  ItemComponent: React.ComponentType<unknown>;
   itemType: string;
   accepts: string[];
-  className: string;
-  stage: { id: string };
-  externalData: unknown[];
-  sortOrder: string[];
-  onItemClick?: (node: unknown) => void;
-  onDrop?: (node: unknown) => void;
-}) => {
-  const stage = useSelector(getCurrentStage);
+  allowDrop: boolean;
+  onDrop?: (event: DragEvent) => void;
+  className?: string;
+};
 
-  const [items] = useState(createSorter(sortOrder)(initialItems));
-  const [stagger] = useState(true);
-  const instanceId = useRef(v4());
+const NodeList = (props: NodeListProps) => {
+  const {
+    items,
+    itemType,
+    accepts,
+    allowDrop,
+    onDrop,
+    className,
+    ItemComponent,
+  } = props;
 
-  // isActive
-  // isValid
-  // isOver
+  const ItemMotionComponent = useMemo(() => motion(ItemComponent), []);
 
-  const [isActive, setIsActive] = useState(false);
-  const [isValid, setIsValid] = useState(false);
-  const [isOver, setIsOver] = useState(false);
-
-  const draggingItem = useStore((state) => state.draggingItem);
-
-  useEffect(() => {
-    if (draggingItem) {
-    }
-  }, [draggingItem]);
+  const { ref, isActive, isValid, isOver } = useDroppable({
+    disabled: !allowDrop,
+    onDrop: (event) => {
+      console.log('dropped', event);
+    },
+    accepts,
+  });
 
   return (
     <motion.div
       className={cn(
-        'flex h-full w-full flex-wrap content-start items-start justify-center',
+        'flex h-full w-full flex-wrap content-start items-start justify-center rounded-[var(--nc-border-radius)]',
         className,
-        isOver && 'bg-[var(--nc-light-background)]',
+        isOver && 'opacity-1',
+        isActive && 'bg-cerulean-blue opacity-25',
+        isValid && 'bg-sea-green opacity-25',
       )}
       layout
-      onDragEnter={(event) => {
-        event.preventDefault();
-        setIsOver(true);
-      }}
-      onDragOver={(event) => {
-        event.preventDefault();
-      }}
-      onDragLeave={(event) => {
-        event.preventDefault();
-        setIsOver(false);
-      }}
-      onDrop={(event) => {
-        console.log('drop', event);
-        setIsOver(false);
-        onDrop?.(event);
-      }}
+      ref={ref}
     >
       <AnimatePresence mode="sync">
-        {items.map((node, index) => {
-          const isDraggable =
-            !(externalData && disableDragNew) &&
-            !(disableDragNew && node.stageId !== stage.id);
+        {items.map((item, index) => {
+          const delay = index * 0.1;
+
+          // return <ItemComponent key={index} {...item} />;
+
           return (
-            <NodeTransition
-              key={`${instanceId.current}-${node[entityPrimaryKeyProperty]}`}
-              delay={stagger ? index * 0.05 : 0}
-            >
-              <EnhancedNode
-                allowDrag={isDraggable}
-                label={`${label(node)}`}
-                itemType={itemType}
-                onClick={() => onItemClick?.(node)}
-                {...node}
-              />
-            </NodeTransition>
+            <ItemMotionComponent
+              layout
+              initial={{ opacity: 0, y: '20%' }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: { delay } }}
+              exit={{ opacity: 0, scale: 0 }}
+              key={index}
+              {...item}
+            />
           );
         })}
       </AnimatePresence>

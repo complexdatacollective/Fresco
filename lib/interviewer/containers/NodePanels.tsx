@@ -1,26 +1,22 @@
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useStore from '~/lib/dnd/store';
-import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { usePrompts } from '../behaviours/withPrompt';
 import Panels from '../components/Panels';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import usePropSelector from '../hooks/usePropSelector';
-import { defaultPanelConfiguration } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getCurrentStage } from '../selectors/session';
 import { get } from '../utils/lodash-replacements';
 import NodePanel from './NodePanel';
 
-/**
- * Configures and renders `NodePanels` according to the protocol config
- */
+type NodePanelsProps = {
+  disableAddNew?: boolean;
+};
 
-export default function NodePanels(props) {
-  const {
-    disableAddNew,
-  } = props;
+export default function NodePanels(props: NodePanelsProps) {
+  const { disableAddNew } = props;
 
   const [isAnyPanelOpen, setAnyPanelOpen] = useState(false);
 
@@ -29,39 +25,37 @@ export default function NodePanels(props) {
 
   const dispatch = useDispatch();
 
-  const removeNodeFromPrompt = (...args) => dispatch(sessionActions.removeNodeFromPrompt(...args));
+  const removeNodeFromPrompt = (...args) =>
+    dispatch(sessionActions.removeNodeFromPrompt(...args));
   const removeNode = (...args) => dispatch(sessionActions.removeNode(...args));
 
   const draggingItem = useStore((state) => state.draggingItem);
 
   useEffect(() => {
-    setAnyPanelOpen(draggingItem !== null);
+    setAnyPanelOpen(!!draggingItem);
   }, [draggingItem]);
 
-
-  const newNodeAttributes = usePropSelector(getAdditionalAttributesSelector, props);
-  const panels = stage.panels.map((panel) => ({ ...defaultPanelConfiguration, ...panel }))
+  const newNodeAttributes = usePropSelector(
+    getAdditionalAttributesSelector,
+    props,
+  );
+  const panels = stage.panels ?? [];
 
   const activePromptId = prompt.id;
 
-
   const [panelIndexes, setPanelIndexes] = useState([]);
 
-  const colorPresets = useMemo(() => ([
-    getCSSVariableAsString('--nc-primary-color-seq-1'),
-    getCSSVariableAsString('--nc-primary-color-seq-2'),
-    getCSSVariableAsString('--nc-primary-color-seq-3'),
-    getCSSVariableAsString('--nc-primary-color-seq-4'),
-    getCSSVariableAsString('--nc-primary-color-seq-5'),
-  ]), []);
+  const colorPresets = [
+    '--nc-primary-color-seq-1',
+    '--nc-primary-color-seq-2',
+    '--nc-primary-color-seq-3',
+    '--nc-primary-color-seq-4',
+    '--nc-primary-color-seq-5',
+  ];
 
-  const getHighlight = (panelNumber) => {
-    if (panelNumber === 0) {
-      return null;
-    }
-
+  const getHighlight = (panelNumber: number) => {
     return colorPresets[panelNumber % colorPresets.length];
-  }
+  };
 
   const handleDrop = ({ meta }, dataSource) => {
     /**
@@ -70,17 +64,21 @@ export default function NodePanels(props) {
      * If it is an external data panel, remove the node form the interview network.
      */
     if (dataSource === 'existing') {
-      removeNodeFromPrompt(meta[entityPrimaryKeyProperty], prompt.id, newNodeAttributes);
+      removeNodeFromPrompt(
+        meta[entityPrimaryKeyProperty],
+        prompt.id,
+        newNodeAttributes,
+      );
     } else {
       removeNode(meta[entityPrimaryKeyProperty]);
     }
-  }
+  };
 
   const isPanelEmpty = (index) => {
     const count = get(panelIndexes, [index, 'count'], 0);
 
     return count === 0;
-  }
+  };
 
   const isPanelCompatible = (index) => {
     if (panelIndexes.length !== panels.length) {
@@ -104,7 +102,7 @@ export default function NodePanels(props) {
     // Rules for when panel contains external data
     // We need the original list though
     return panelIndex && panelIndex.has(meta[entityPrimaryKeyProperty]);
-  }
+  };
 
   // const isPanelOpen = (index) => {
   //   const isCompatible = isPanelCompatible(index);
@@ -119,34 +117,22 @@ export default function NodePanels(props) {
 
       return panelIndexes;
     });
-  }
-
-  const renderNodePanel = (panel, index) => {
-    const { dataSource, filter, ...nodeListProps } = panel;
-
-    return (
-      <NodePanel
-        {...nodeListProps}
-        key={index}
-        prompt={prompt}
-        stage={stage}
-        dataSource={dataSource}
-        filter={filter}
-        accepts={() => isPanelCompatible(index)}
-        externalDataSource={dataSource !== 'existing' && dataSource}
-        highlight={getHighlight(index)}
-        minimize={false}
-        listId={`PANEL_NODE_LIST_${stage.id}_${prompt.id}_${index}`}
-        itemType="NEW_NODE"
-        onDrop={handleDrop}
-        onUpdate={(nodeCount, nodeIndex) => handlePanelUpdate(index, nodeCount, nodeIndex)}
-      />
-    );
-  }
+  };
 
   return (
     <Panels show={isAnyPanelOpen}>
-      {panels.map(renderNodePanel)}
+      {panels.map((panel, index: number) => {
+        return (
+          <NodePanel
+            key={index}
+            panel={panel}
+            highlight={getHighlight(index)}
+            itemType="NEW_NODE"
+            onDrop={handleDrop}
+            disableAddNew={disableAddNew}
+          />
+        );
+      })}
     </Panels>
   );
 }
