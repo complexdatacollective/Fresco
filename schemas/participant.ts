@@ -19,12 +19,12 @@ export const participantLabelSchema = z
   });
 const ParticipantRowSchema = z.union([
   z.object({
-    identifier: z.string(),
-    label: z.string().optional(),
+    identifier: participantIdentifierSchema,
+    label: participantLabelSchema,
   }),
   z.object({
-    label: z.string(),
-    identifier: z.string().optional(),
+    label: participantLabelSchema, // this should NOT be optional here.
+    identifier: participantIdentifierSchema.optional(),
   }),
 ]);
 
