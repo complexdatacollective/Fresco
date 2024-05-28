@@ -1,5 +1,5 @@
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { NcNode } from '~/schemas/network-canvas';
 import useExternalData from '../hooks/useExternalData';
@@ -28,12 +28,18 @@ export default function usePanelData({ dataSource }: { dataSource: string }) {
     getNetworkNodesForOtherPrompts(state, { stage }),
   );
 
-  const nodeIds = {
-    prompt: nodesForPrompt.map((node) => node[entityPrimaryKeyProperty]),
-    other: nodesForOtherPrompts.map((node) => node[entityPrimaryKeyProperty]),
-  };
+  const nodeIds = useMemo(
+    () => ({
+      prompt: nodesForPrompt.map((node) => node[entityPrimaryKeyProperty]),
+      other: nodesForOtherPrompts.map((node) => node[entityPrimaryKeyProperty]),
+    }),
+    [nodesForPrompt, nodesForOtherPrompts],
+  );
 
-  const usingExternalData = dataSource !== 'existing';
+  const usingExternalData = useMemo(
+    () => dataSource !== 'existing',
+    [dataSource],
+  );
 
   const {
     data,
@@ -45,16 +51,20 @@ export default function usePanelData({ dataSource }: { dataSource: string }) {
     if (usingExternalData) {
       setIsLoading(isLoadingExternalData);
     }
-  }, [isLoadingExternalData]);
+  }, [isLoadingExternalData, usingExternalData]);
 
   useEffect(() => {
     if (usingExternalData) {
-      setNodes(data);
+      if (data) {
+        setNodes(data);
+        setIsLoading(false);
+      }
     }
-  }, [data]);
+  }, [data, usingExternalData]);
 
   useEffect(() => {
     if (!usingExternalData) {
+      setIsLoading(false);
       const nodes = nodesForOtherPrompts.filter(
         notInSet(new Set(nodeIds.prompt)),
       );
