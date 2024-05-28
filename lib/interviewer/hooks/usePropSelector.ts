@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 /**
@@ -17,14 +17,17 @@ import { useSelector } from 'react-redux';
  *
  * const results = usePropSelector(makeOldSelector, props, true);
  */
-const usePropSelector = (selector, props, isFactory = false, equalityFn) => {
+const usePropSelector = (
+  selector: (state: unknown, props: Record<string, unknown>) => unknown,
+  props: Record<string, unknown>,
+  equalityFn: (a: unknown, b: unknown) => boolean = Object.is,
+) => {
   const memoizedSelector = useMemo(() => {
-    if (isFactory) { return selector(); }
     return selector;
-  }, [isFactory, selector]);
+  }, [selector]);
 
   const selectorWithProps = useCallback(
-    (state) => memoizedSelector(state, props),
+    (state: unknown) => memoizedSelector(state, props),
     [props, memoizedSelector],
   );
 

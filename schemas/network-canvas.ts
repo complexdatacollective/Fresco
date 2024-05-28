@@ -4,13 +4,14 @@ import {
 } from '@codaco/shared-consts';
 import { z } from 'zod';
 
-// Not always used due to inconsistencies...
-export const ZEntityType = z.enum(['ego', 'node', 'edge']);
+export const ZSubjectEntity = z.enum(['node', 'edge']);
+
+export type SubjectEntity = z.infer<typeof ZSubjectEntity>;
 
 const ZNcEntity = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),
-  type: ZEntityType.optional(),
-  [entityAttributesProperty]: z.record(z.string(), z.any()),
+  type: ZSubjectEntity.optional(),
+  [entityAttributesProperty]: z.record(z.string(), z.unknown()),
 });
 
 export const ZNcNode = ZNcEntity.extend({
@@ -27,6 +28,8 @@ export const ZNcEdge = ZNcEntity.extend({
   from: z.string(),
   to: z.string(),
 });
+
+export type NcEdge = z.infer<typeof ZNcEdge>;
 
 // Always use this instead of @codaco/shared-consts. Main difference is that ego is not optional.
 export const ZNcNetwork = z.object({
@@ -63,10 +66,18 @@ export const ZFilterRule = z.object({
   }),
 });
 
+export type FilterRule = z.infer<typeof ZFilterRule>;
+
+const ZFilterJoin = z.enum(['AND', 'OR']);
+
+export type FilterJoin = z.infer<typeof ZFilterJoin>;
+
 export const ZFilterDefinition = z.object({
-  join: z.enum(['AND', 'OR']),
+  join: ZFilterJoin,
   rules: z.array(ZFilterRule),
 });
+
+export type FilterDefinition = z.infer<typeof ZFilterDefinition>;
 
 export const ZPanel = z.object({
   id: z.string(),
@@ -106,7 +117,7 @@ export const ZForm = z.object({
 });
 
 export const ZStageSubject = z.object({
-  entity: ZEntityType,
+  entity: ZSubjectEntity,
   type: z.string(),
 });
 

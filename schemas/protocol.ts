@@ -11,6 +11,8 @@ const assetInsertSchema = z.array(
   }),
 );
 
+export type ProtocolAssets = z.infer<typeof assetInsertSchema>;
+
 export type AssetInsertType = z.infer<typeof assetInsertSchema>;
 
 export const protocolInsertSchema = z

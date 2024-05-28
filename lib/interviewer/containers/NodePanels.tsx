@@ -1,61 +1,87 @@
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useStore from '~/lib/dnd/store';
+import { cn } from '~/utils/shadcn';
 import { usePrompts } from '../behaviours/withPrompt';
-import Panels from '../components/Panels';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import usePropSelector from '../hooks/usePropSelector';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getCurrentStage } from '../selectors/session';
-import { get } from '../utils/lodash-replacements';
 import NodePanel from './NodePanel';
 
 type NodePanelsProps = {
   disableAddNew?: boolean;
 };
 
+const colorPresets = [
+  '--nc-primary-color-seq-1',
+  '--nc-primary-color-seq-2',
+  '--nc-primary-color-seq-3',
+  '--nc-primary-color-seq-4',
+  '--nc-primary-color-seq-5',
+];
+
 export default function NodePanels(props: NodePanelsProps) {
   const { disableAddNew } = props;
 
-  const [isAnyPanelOpen, setAnyPanelOpen] = useState(false);
-
-  const stage = useSelector(getCurrentStage);
+  const { panels } = useSelector(getCurrentStage);
   const prompt = usePrompts().prompt;
 
   const dispatch = useDispatch();
+
+  const [isAnyPanelOpen, setAnyPanelOpen] = useState(false);
+
+  // This state is used to track the number of nodes in each panel so that
+  // we can recalculate if any panels are open.
+  const [panelNodeCount, setPanelNodeCount] = useState(
+    panels?.reduce(
+      (acc, panel) => {
+        acc[panel.id] = 0;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+  );
+
+  const itemIsDragging = useStore((state) => !!state.draggingItem);
+
+  useEffect(() => {
+    // If there are no panels, we don't need to open any
+    if (!panelNodeCount) {
+      setAnyPanelOpen(false);
+      return;
+    }
+
+    // If any panel has nodes, we should open the panels
+    const panelsHaveNodes = Object.values(panelNodeCount).some(
+      (count) => count > 0,
+    );
+
+    if (panelsHaveNodes) {
+      setAnyPanelOpen(true);
+      return;
+    }
+
+    // If an item is dragging, and one of the panels uses external data, we
+    // should open the panels incase the user wants to drop it.
+    const hasExternalDataPanel = panels!.some(
+      (panel) => panel.dataSource === 'external',
+    );
+
+    if (itemIsDragging && hasExternalDataPanel) {
+      setAnyPanelOpen(true);
+    }
+  }, [itemIsDragging, panelNodeCount, panels]);
 
   const removeNodeFromPrompt = (...args) =>
     dispatch(sessionActions.removeNodeFromPrompt(...args));
   const removeNode = (...args) => dispatch(sessionActions.removeNode(...args));
 
-  const draggingItem = useStore((state) => state.draggingItem);
-
-  useEffect(() => {
-    setAnyPanelOpen(!!draggingItem);
-  }, [draggingItem]);
-
   const newNodeAttributes = usePropSelector(
     getAdditionalAttributesSelector,
     props,
   );
-  const panels = stage.panels ?? [];
-
-  const activePromptId = prompt.id;
-
-  const [panelIndexes, setPanelIndexes] = useState([]);
-
-  const colorPresets = [
-    '--nc-primary-color-seq-1',
-    '--nc-primary-color-seq-2',
-    '--nc-primary-color-seq-3',
-    '--nc-primary-color-seq-4',
-    '--nc-primary-color-seq-5',
-  ];
-
-  const getHighlight = (panelNumber: number) => {
-    return colorPresets[panelNumber % colorPresets.length];
-  };
 
   const handleDrop = ({ meta }, dataSource) => {
     /**
@@ -74,19 +100,8 @@ export default function NodePanels(props: NodePanelsProps) {
     }
   };
 
-  const isPanelEmpty = (index) => {
-    const count = get(panelIndexes, [index, 'count'], 0);
-
-    return count === 0;
-  };
-
   const isPanelCompatible = (index) => {
-    if (panelIndexes.length !== panels.length) {
-      return false;
-    }
-
-    const panel = panels[index];
-    const panelIndex = panelIndexes[index].index;
+    const panel = panels!.find((panel) => panel.id === index);
 
     // We only accept existing nodes in panels
     if (meta.itemType !== 'EXISTING_NODE') {
@@ -95,7 +110,8 @@ export default function NodePanels(props: NodePanelsProps) {
 
     // Rules for when panel contains existing nodes
     if (panel.dataSource === 'existing') {
-      // Don't allow nodes into existing panel if this is their last prompt ID
+      // Don't allow nodes into existing panel if this is their last prompt ID - they should be
+      // deleted via the bin instead.
       return meta.promptIDs.length !== 1;
     }
 
@@ -104,35 +120,41 @@ export default function NodePanels(props: NodePanelsProps) {
     return panelIndex && panelIndex.has(meta[entityPrimaryKeyProperty]);
   };
 
-  // const isPanelOpen = (index) => {
-  //   const isCompatible = isPanelCompatible(index);
-  //   const isNotEmpty = !isPanelEmpty(index);
-  //   return isNotEmpty || (isDragging && isCompatible);
-  // }
+  const updateParentNodeCount = useCallback(
+    (panelId: string) => (count: number) => {
+      setPanelNodeCount((prev) => ({
+        ...prev,
+        [panelId]: count,
+      }));
+    },
+    [],
+  );
 
-  const handlePanelUpdate = (index, displayCount, nodeIndex) => {
-    setPanelIndexes((state) => {
-      const panelIndexes = [...state];
-      panelIndexes[index] = { count: displayCount, index: nodeIndex };
-
-      return panelIndexes;
-    });
-  };
+  if (!panels) {
+    return null;
+  }
 
   return (
-    <Panels show={isAnyPanelOpen}>
+    <div
+      className={cn(
+        'flex max-w-96 shrink-0 basis-1/2 flex-col gap-4 transition-all duration-500 ease-in-out md:basis-1/3',
+        !isAnyPanelOpen && '!basis-0 overflow-hidden opacity-0',
+        isAnyPanelOpen && 'mr-4',
+      )}
+    >
       {panels.map((panel, index: number) => {
         return (
           <NodePanel
             key={index}
             panel={panel}
-            highlight={getHighlight(index)}
+            highlight={colorPresets[index % colorPresets.length]}
             itemType="NEW_NODE"
             onDrop={handleDrop}
             disableAddNew={disableAddNew}
+            updateParentNodeCount={updateParentNodeCount(panel.id)}
           />
         );
       })}
-    </Panels>
+    </div>
   );
 }

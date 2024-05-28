@@ -1,7 +1,12 @@
+import { Codebook } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import type { Stage } from '~/schemas/network-canvas';
 import type { RootState } from '../store';
-import { getProtocolStages } from './protocol';
+import {
+  getAssetManifest,
+  getProtocolCodebook,
+  getProtocolStages,
+} from './protocol';
 
 const getActiveSessionId = (state: RootState) => state.activeSessionId;
 
@@ -25,6 +30,25 @@ export const getStageMetadata = createSelector(
   getStageIndex,
   (session, stageIndex) => {
     return session.stageMetadata?.[stageIndex] ?? undefined;
+  },
+);
+
+export const getSessionMeta = createSelector(
+  getActiveSession,
+  getProtocolCodebook,
+  getAssetManifest,
+  (
+    session,
+    protocolCodebook: Codebook,
+    assetManifest: Record<string, { name: string; url: string }>,
+  ) => {
+    const { protocolUID } = session;
+
+    return {
+      protocolUID,
+      assetManifest,
+      protocolCodebook,
+    };
   },
 );
 
