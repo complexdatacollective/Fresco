@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   // Generate the dynamic filter parameters for the database call from the
   // input filter params.
-  const queryFilterParams = filterParams
+  const queryFilterParams = filterParams?.length
     ? {
         OR: [
           ...filterParams.map(({ id, value }) => {
@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
   ]);
 
   const pageCount = Math.ceil(count / perPage);
-
 
   return NextResponse.json({ events, pageCount });
 }
