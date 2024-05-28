@@ -41,7 +41,7 @@ function NodePanel(props: NodePanelProps) {
         items={nodes}
         itemType={itemType}
         ItemComponent={DraggableNode}
-        accepts={[itemType]}
+        accepts={['EXISTING_NODE']}
         onDrop={handleDrop}
         allowDrop={!disableAddNew}
       />

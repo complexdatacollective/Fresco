@@ -37,11 +37,11 @@ const NodeList = (props: NodeListProps) => {
   return (
     <motion.div
       className={cn(
-        'flex h-full w-full flex-wrap content-start items-start justify-center rounded-[var(--nc-border-radius)]',
+        'flex h-full w-full flex-wrap content-start items-start justify-center rounded-[var(--nc-border-radius)] transition-colors duration-500',
         className,
-        isOver && 'opacity-1',
-        isActive && 'bg-cerulean-blue opacity-25',
-        isValid && 'bg-sea-green opacity-25',
+        isOver && !isValid && 'bg-tomato',
+        isOver && isValid && 'bg-sea-green/75',
+        isValid && !isOver && 'bg-sea-green/25',
       )}
       layout
       ref={ref}

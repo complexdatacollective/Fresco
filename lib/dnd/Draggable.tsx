@@ -6,7 +6,7 @@ export default function draggable(WrappedComponent: ComponentType) {
     const setDraggingItem = useStore((state) => state.setDraggingItem);
 
     const handleDragStart: DragEventHandler<HTMLDivElement> = (event) => {
-      setDraggingItem({ id: 'test', type: 'TEST_NODE' });
+      setDraggingItem({ id: 'test', type: 'EXISTING_NODE' });
       event.dataTransfer.effectAllowed = 'move';
     };
 

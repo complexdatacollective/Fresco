@@ -31,8 +31,10 @@ export default function useDroppable(props: UseDroppableProps) {
     console.log(draggingItem?.type, accepts);
 
     if (accepts.includes(draggingItem?.type)) {
+      console.log('valid!');
       setIsValid(true);
     } else {
+      console.log('invalid!');
       setIsValid(false);
     }
   }, [draggingItem, accepts]);
@@ -40,6 +42,7 @@ export default function useDroppable(props: UseDroppableProps) {
   // Attach event listeners to the ref
   useEffect(() => {
     if (disabled) {
+      console.log('disabled');
       return;
     }
 
@@ -68,6 +71,8 @@ export default function useDroppable(props: UseDroppableProps) {
 
     const element = ref.current;
 
+    console.log('element', element);
+
     if (element) {
       element.addEventListener('dragenter', handleDragEnter);
       element.addEventListener('dragover', handleDragOver);
@@ -77,13 +82,14 @@ export default function useDroppable(props: UseDroppableProps) {
 
     return () => {
       if (element) {
+        console.log('remove listeners');
         element.removeEventListener('dragenter', handleDragEnter);
         element.removeEventListener('dragover', handleDragOver);
         element.removeEventListener('dragleave', handleDragLeave);
         element.removeEventListener('drop', handleDrop);
       }
     };
-  }, [disabled, onDrop]);
+  }, [disabled]);
 
   return {
     ref,
