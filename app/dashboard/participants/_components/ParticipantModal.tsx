@@ -57,19 +57,7 @@ function ParticipantModal({
         path: ['identifier'],
         message: 'This identifier is already in use.',
       },
-    )
-    // Ensure that the identifier is not just whitespace
-    .refine((data) => data.identifier.trim() !== '', {
-      path: ['identifier'],
-      message: 'You must enter one or more characters.',
-    })
-
-    // If the label is provided, ensure it is not just whitespace
-    .refine((data) => !data.label || data.label.trim() !== '', {
-      path: ['label'],
-      message:
-        'Label cannot contain only spaces. Enter one or more characters or leave this field empty.',
-    });
+    );
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
