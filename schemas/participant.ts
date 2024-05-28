@@ -9,6 +9,20 @@ export const participantIdentifierSchema = z
     message: 'Identifier cannot have leading or trailing spaces',
   });
 
+const participantIdentifierOptionalSchema = z
+  .string()
+  .max(255, {
+    message: 'Identifier too long. Maximum of 255 characters.',
+  })
+  .optional()
+  .refine(
+    (identifier) =>
+      identifier === undefined || identifier.trim() === identifier,
+    {
+      message: 'Identifier cannot have leading or trailing spaces',
+    },
+  );
+
 export const participantLabelSchema = z
   .string()
   .optional()
@@ -18,12 +32,11 @@ export const participantLabelSchema = z
       'Label cannot contain only spaces. Enter one or more characters or leave this field empty.',
   });
 
-const participantLabelRequiredSchema = participantLabelSchema.refine(
-  (label) => label !== undefined && label.trim() !== '',
-  {
+const participantLabelRequiredSchema = z
+  .string()
+  .refine((label) => label.trim() !== '', {
     message: 'Label cannot contain only spaces. Enter one or more characters.',
-  },
-);
+  });
 
 const ParticipantRowSchema = z.union([
   z.object({
@@ -32,7 +45,7 @@ const ParticipantRowSchema = z.union([
   }),
   z.object({
     label: participantLabelRequiredSchema,
-    identifier: participantIdentifierSchema.optional(),
+    identifier: participantIdentifierOptionalSchema,
   }),
 ]);
 
