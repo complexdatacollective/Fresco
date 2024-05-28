@@ -88,6 +88,10 @@ function ParticipantModal({
     setError(null);
     setWorking(true);
 
+    if (data.label === '') {
+      data.label = undefined;
+    }
+
     if (editingParticipant) {
       await updateParticipant({
         identifier: editingParticipant.identifier,
