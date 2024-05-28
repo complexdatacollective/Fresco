@@ -10,7 +10,7 @@ import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import { type NcNode } from '~/schemas/network-canvas';
 import { usePrompts } from '../../behaviours/withPrompt';
-import { DraggableNode } from '../../components/Node';
+import { createDraggableNode } from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
@@ -54,6 +54,7 @@ export const nameGeneratorHandleBeforeLeaving =
 type NameGeneratorProps = {
   registerBeforeNext: (callback: (direction: directions) => boolean) => void;
   stage: {
+    id: string;
     form: boolean;
     quickAdd: boolean;
     behaviours: {
@@ -65,6 +66,8 @@ type NameGeneratorProps = {
     };
   };
 };
+
+const DraggableNode = createDraggableNode('INTERVIEW_NODE');
 
 const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;
@@ -167,8 +170,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
           ItemComponent={DraggableNode}
           onDrop={handleDropNode}
           allowDrop={!maxNodesReached} // allow dropping of items
-          itemType="EXISTING_NODE" // items originating here have this meta type
-          accepts={['NEW_NODE']} // items accepted here have these meta types
+          accepts={['EXISTING_NODE', 'ROSTER_NODE']} // items accepted here have these meta types
         />
       </div>
       <NodeBin accepts={['EXISTING_NODE']} />

@@ -121,7 +121,7 @@ export default function NodePanels(props: NodePanelsProps) {
   };
 
   const updateParentNodeCount = useCallback(
-    (panelId: string) => (count: number) => {
+    (count: number, panelId: string) => {
       setPanelNodeCount((prev) => ({
         ...prev,
         [panelId]: count,
@@ -143,17 +143,14 @@ export default function NodePanels(props: NodePanelsProps) {
       )}
     >
       {panels.map((panel, index: number) => {
-        const highlightColor = colorPresets[index % colorPresets.length]!;
-        console.log('highlightColor', highlightColor);
         return (
           <NodePanel
             key={index}
             panel={panel}
-            highlight={highlightColor}
-            itemType="NEW_NODE"
+            highlight={colorPresets[index % colorPresets.length]!}
             onDrop={handleDrop}
             disableAddNew={disableAddNew}
-            updateParentNodeCount={updateParentNodeCount(panel.id)}
+            updateParentNodeCount={updateParentNodeCount}
           />
         );
       })}

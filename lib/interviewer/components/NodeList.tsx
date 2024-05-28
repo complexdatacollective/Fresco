@@ -1,28 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { hash } from 'ohash';
+import { useMemo, type ComponentType } from 'react';
+import type { ItemType } from '~/lib/dnd/config';
 import useDroppable from '~/lib/dnd/useDroppable';
 import { cn } from '~/utils/shadcn';
 
 type NodeListProps = {
   items: unknown[];
-  ItemComponent: React.ComponentType<unknown>;
-  itemType: string;
-  accepts: string[];
+  ItemComponent: ComponentType;
+  accepts: ItemType[];
   allowDrop: boolean;
   onDrop?: (event: DragEvent) => void;
   className?: string;
 };
 
 const NodeList = (props: NodeListProps) => {
-  const {
-    items,
-    itemType,
-    accepts,
-    allowDrop,
-    onDrop,
-    className,
-    ItemComponent,
-  } = props;
+  const { items, accepts, allowDrop, onDrop, className, ItemComponent } = props;
 
   const ItemMotionComponent = useMemo(() => motion(ItemComponent), []);
 
@@ -50,7 +43,7 @@ const NodeList = (props: NodeListProps) => {
         {items.map((item, index) => {
           const delay = index * 0.1;
 
-          // return <ItemComponent key={index} {...item} />;
+          const itemHash = hash(item);
 
           return (
             <ItemMotionComponent
@@ -58,7 +51,7 @@ const NodeList = (props: NodeListProps) => {
               initial={{ opacity: 0, y: '20%' }}
               animate={{ opacity: 1, y: 0, scale: 1, transition: { delay } }}
               exit={{ opacity: 0, scale: 0 }}
-              key={index}
+              key={itemHash}
               {...item}
             />
           );

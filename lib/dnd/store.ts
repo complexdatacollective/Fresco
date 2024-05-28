@@ -1,8 +1,9 @@
 import { create } from 'zustand';
+import { type ItemType } from './config';
 
 type DraggingItem = {
   id: string;
-  type: string;
+  type: ItemType;
 };
 
 type DropZone = {

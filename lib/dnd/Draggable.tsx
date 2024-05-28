@@ -1,12 +1,17 @@
 import { forwardRef, type ComponentType, type DragEventHandler } from 'react';
+import type { ItemType } from './config';
 import useStore from './store';
 
-export default function draggable(WrappedComponent: ComponentType) {
+export default function draggable(
+  WrappedComponent: ComponentType,
+  itemType: ItemType,
+) {
   const Draggable = forwardRef((props, ref) => {
     const setDraggingItem = useStore((state) => state.setDraggingItem);
 
     const handleDragStart: DragEventHandler<HTMLDivElement> = (event) => {
-      setDraggingItem({ id: 'test', type: 'EXISTING_NODE' });
+      console.log('drag start', itemType);
+      setDraggingItem({ id: 'test', type: itemType });
       event.dataTransfer.effectAllowed = 'move';
     };
 

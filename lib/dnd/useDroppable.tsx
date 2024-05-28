@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ItemType } from './config';
 import useStore from './store';
 
 type UseDroppableProps = {
   disabled?: boolean;
   onDrop?: (event: DragEvent) => void;
-  accepts: string[];
+  accepts: ItemType[];
 };
 
 export default function useDroppable(props: UseDroppableProps) {

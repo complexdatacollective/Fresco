@@ -2,44 +2,36 @@ import { useEffect } from 'react';
 import Panel from '~/lib/interviewer/components/Panel';
 import { Spinner } from '~/lib/ui/components';
 import type { Panel as PanelType } from '~/schemas/network-canvas';
-import { DraggableNode } from '../components/Node';
+import { createDraggableNode } from '../components/Node';
 import NodeList from '../components/NodeList';
 import usePanelData from './usePanelData';
 
 type NodePanelProps = {
   panel: PanelType;
   highlight: string;
-  itemType: string;
-  externalData?: unknown[];
   onDrop: (item: unknown, dataSource: string) => void;
-  updateParentNodeCount: (count: number) => void;
+  updateParentNodeCount: (count: number, id: string) => void;
   disableAddNew?: boolean;
 };
 
-function NodePanel(props: NodePanelProps) {
-  const {
-    panel,
-    highlight,
-    itemType,
-    onDrop,
-    disableAddNew,
-    updateParentNodeCount,
-  } = props;
+const DraggableRosterNode = createDraggableNode('ROSTER_NODE');
+const DraggableExistingNode = createDraggableNode('EXISTING_NODE');
 
-  const { dataSource, title, filter } = panel;
+function NodePanel(props: NodePanelProps) {
+  const { panel, highlight, onDrop, disableAddNew, updateParentNodeCount } =
+    props;
+
+  const { dataSource, title, filter, id } = panel;
 
   const { nodes, isLoading } = usePanelData({ dataSource });
 
-  console.log('nodes', nodes, isLoading);
-
   useEffect(() => {
-    console.log('nodes', nodes);
     if (nodes) {
-      updateParentNodeCount(nodes.length);
+      updateParentNodeCount(nodes.length, id);
     } else {
-      updateParentNodeCount(0);
+      updateParentNodeCount(0, id);
     }
-  }, [nodes]);
+  }, [nodes, id, updateParentNodeCount]);
 
   const handleDrop = (item) => {
     console.log('dropped', item);
@@ -52,10 +44,14 @@ function NodePanel(props: NodePanelProps) {
         <Spinner />
       ) : (
         <NodeList
+          key={nodes.length}
           items={nodes}
-          itemType={itemType}
-          ItemComponent={DraggableNode}
-          accepts={['EXISTING_NODE']}
+          ItemComponent={
+            dataSource === 'existing'
+              ? DraggableExistingNode
+              : DraggableRosterNode
+          }
+          accepts={dataSource === 'existing' ? ['EXISTING_NODE'] : []}
           onDrop={handleDrop}
           allowDrop={!disableAddNew}
         />
