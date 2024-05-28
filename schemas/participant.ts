@@ -17,13 +17,21 @@ export const participantLabelSchema = z
     message:
       'Label cannot contain only spaces. Enter one or more characters or leave this field empty.',
   });
+
+const participantLabelRequiredSchema = participantLabelSchema.refine(
+  (label) => label !== undefined && label.trim() !== '',
+  {
+    message: 'Label cannot contain only spaces. Enter one or more characters.',
+  },
+);
+
 const ParticipantRowSchema = z.union([
   z.object({
     identifier: participantIdentifierSchema,
     label: participantLabelSchema,
   }),
   z.object({
-    label: participantLabelSchema, // this should NOT be optional here.
+    label: participantLabelRequiredSchema,
     identifier: participantIdentifierSchema.optional(),
   }),
 ]);
