@@ -137,17 +137,19 @@ export default function NodePanels(props: NodePanelsProps) {
   return (
     <div
       className={cn(
-        'flex max-w-96 shrink-0 basis-1/2 flex-col gap-4 transition-all duration-500 ease-in-out md:basis-1/3',
+        'flex max-w-96 shrink-0 grow-0 basis-1/2 flex-col gap-4 transition-all duration-500 ease-in-out md:basis-1/3',
         !isAnyPanelOpen && '!basis-0 overflow-hidden opacity-0',
         isAnyPanelOpen && 'mr-4',
       )}
     >
       {panels.map((panel, index: number) => {
+        const highlightColor = colorPresets[index % colorPresets.length]!;
+        console.log('highlightColor', highlightColor);
         return (
           <NodePanel
             key={index}
             panel={panel}
-            highlight={colorPresets[index % colorPresets.length]}
+            highlight={highlightColor}
             itemType="NEW_NODE"
             onDrop={handleDrop}
             disableAddNew={disableAddNew}

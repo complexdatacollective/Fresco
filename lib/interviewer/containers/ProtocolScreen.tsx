@@ -10,6 +10,7 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import usePrevious from '~/hooks/usePrevious';
+import { cn } from '~/utils/shadcn';
 import Navigation from '../components/Navigation';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
@@ -229,7 +230,10 @@ export default function ProtocolScreen() {
   return (
     <>
       <motion.div
-        className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
+        className={cn(
+          'flex-col-reverse sm:flex-row',
+          'relative flex h-full w-full flex-1 overflow-hidden',
+        )}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >

@@ -43,7 +43,7 @@ function NodePanel(props: NodePanelProps) {
 
   const handleDrop = (item) => {
     console.log('dropped', item);
-    // return onDrop(item, dataSource);
+    return onDrop(item, dataSource);
   };
 
   return (
