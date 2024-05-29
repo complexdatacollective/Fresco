@@ -25,7 +25,7 @@ const ZEdgeWithEgo = ZNcEdge.extend({
 export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
 
 const ZSessionVariables = z.object({
-  [caseProperty]: z.string(),
+  [caseProperty]: z.string().optional(),
   [sessionProperty]: z.string(),
   [protocolProperty]: z.string(),
   [protocolName]: z.string(),
