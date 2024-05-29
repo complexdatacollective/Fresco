@@ -49,12 +49,17 @@ export async function importParticipants(rawInput: unknown) {
 
   const participantList = participantListInputSchema.parse(rawInput);
 
-  // Ensure all participants have an identifier by generating one for any
-  // that don't have one.
+
+  /*
+  Format participantList:
+  - Ensure all participants have an identifier by generating one for any
+    that don't have one.
+  - If participant label is empty string, set it to undefined
+  */
   const participantsWithIdentifiers = participantList.map((participant) => {
     return {
       identifier: participant.identifier ?? createId(),
-      ...participant,
+      label: participant.label === '' ? undefined : participant.label,
     };
   });
 
