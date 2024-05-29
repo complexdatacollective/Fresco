@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const participantIdentifierSchema = z
   .string()
   .min(1, { message: 'Identifier cannot be empty' })
-  .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' })
+  .max(255, { message: 'Identifier too long. Maximum of 255 characters.' })
   // Ensure that the identifier is not just whitespace or have leading/trailing spaces
   .refine((identifier) => identifier.trim() === identifier, {
     message: 'Identifier cannot have leading or trailing spaces',
