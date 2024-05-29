@@ -1,23 +1,32 @@
-import { prisma } from '~/utils/db';
 import { unstable_noStore } from 'next/cache';
+import { prisma } from '~/utils/db';
 import ProtocolsTableClient from './ProtocolsTableClient';
 
 async function getData() {
   unstable_noStore();
 
-  const data = await prisma.$transaction([
-    prisma.protocol.findMany({
-      include: {
-        interviews: true,
-      },
-    }),
-    prisma.appSettings.findFirst(),
-  ]);
+  try {
+    const data = await prisma.$transaction([
+      prisma.protocol.findMany({
+        include: {
+          interviews: true,
+        },
+      }),
+      prisma.appSettings.findFirst(),
+    ]);
 
-  return {
-    protocols: data[0],
-    appSettings: data[1],
-  };
+    return {
+      protocols: data[0],
+      appSettings: data[1],
+    };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return {
+      protocols: null,
+      appSettings: null,
+    };
+  }
 }
 
 export type GetData = ReturnType<typeof getData>;
