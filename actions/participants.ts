@@ -52,8 +52,7 @@ export async function importParticipants(rawInput: unknown) {
 
   /*
   Format participantList:
-  - Ensure all participants have an identifier by generating one for any
-    that don't have one.
+  - Ensure all participants have an identifier by generating one for any that don't have one.
   - If participant label is empty string, set it to undefined
   */
   const participantsWithIdentifiers = participantList.map((participant) => {
