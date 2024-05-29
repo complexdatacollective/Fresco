@@ -26,7 +26,7 @@ export const formatExportableSessions = (
     const sessionParticipant = session.participant;
 
     const sessionVariables = {
-      [caseProperty]: sessionParticipant.label!,
+      [caseProperty]: sessionParticipant.id,
       [sessionProperty]: sessionParticipant.identifier,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
