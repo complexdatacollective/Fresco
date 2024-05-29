@@ -4,6 +4,7 @@ import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import VersionSection from '~/components/VersionSection';
 import SettingsSection from '~/components/layout/SettingsSection';
+import { SwitchSkeleton } from '~/components/ui/switch';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env.mjs';
@@ -32,7 +33,7 @@ export default async function Settings() {
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={
-            <Suspense fallback="Loading">
+            <Suspense fallback={<SwitchSkeleton />}>
               <AnonymousRecruitmentSwitch />
             </Suspense>
           }
@@ -46,7 +47,7 @@ export default async function Settings() {
         <SettingsSection
           heading="Limit Interviews"
           controlArea={
-            <Suspense fallback="Loading">
+            <Suspense fallback={<SwitchSkeleton />}>
               <LimitInterviewsSwitch />
             </Suspense>
           }
@@ -82,7 +83,9 @@ export default async function Settings() {
                 server.
               </Paragraph>
             </SettingsSection>
-            <RecruitmentTestSectionServer />
+            <Suspense fallback="Loading...">
+              <RecruitmentTestSectionServer />
+            </Suspense>
           </>
         )}
       </ResponsiveContainer>
