@@ -51,13 +51,22 @@ function ParticipantModal({
       label: participantLabelSchema,
     })
     .refine(
-      (data) =>
-        !existingParticipants?.find((p) => p.identifier === data.identifier),
+      (data) => {
+        const existingParticipant = existingParticipants.find(
+          (p) => p.identifier === data.identifier
+        );
+        // Allow the current identifier if editing
+        return (
+          !existingParticipant ||
+          (editingParticipant && existingParticipant.id === editingParticipant.id)
+        );
+      },
       {
         path: ['identifier'],
         message: 'This identifier is already in use.',
       },
     );
+
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
