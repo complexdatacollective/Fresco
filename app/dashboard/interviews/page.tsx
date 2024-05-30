@@ -8,6 +8,7 @@ import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTabl
 export default async function InterviewPage() {
   await requireAppNotExpired();
   await requirePageAuth();
+
   return (
     <>
       <ResponsiveContainer>
