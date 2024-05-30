@@ -1,5 +1,7 @@
-import { prisma } from '~/utils/db';
 import { unstable_noStore } from 'next/cache';
+import { Suspense } from 'react';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { prisma } from '~/utils/db';
 import ProtocolsTableClient from './ProtocolsTableClient';
 
 async function getData() {
@@ -25,5 +27,11 @@ export type GetData = ReturnType<typeof getData>;
 export default function ProtocolsTable() {
   const dataPromise = getData();
 
-  return <ProtocolsTableClient dataPromise={dataPromise} />;
+  return (
+    <Suspense
+      fallback={<DataTableSkeleton columnCount={5} filterableColumnCount={3} />}
+    >
+      <ProtocolsTableClient dataPromise={dataPromise} />
+    </Suspense>
+  );
 }
