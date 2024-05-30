@@ -2,43 +2,48 @@ import { z } from 'zod';
 
 // Utility function to check for non-whitespace characters
 const hasNonWhitespaceCharacters = (input: string | undefined) =>
-  input ? input.trim() !== '' : true;
+  input ? input !== '' : true;
 
 export const participantIdentifierSchema = z
   .string()
-  .trim()
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maximum of 255 characters.' })
-  .refine(hasNonWhitespaceCharacters, {
-    message: 'Identifier requires one or more non-whitespace characters.',
-  });
-
-const participantIdentifierOptionalSchema = z
-  .string()
   .trim()
+  .refine(
+    (value) => {
+      return value.length > 0 && hasNonWhitespaceCharacters(value);
+    },
+    {
+      message: 'Identifier requires one or more non-whitespace characters.',
+    },
+  );
+
+export const participantIdentifierOptionalSchema = z
+  .string()
   .max(255, {
     message: 'Identifier too long. Maximum of 255 characters.',
   })
+  .trim()
   .optional()
   .refine(hasNonWhitespaceCharacters, {
     message: 'Identifier requires one or more non-whitespace characters.',
   });
 
-export const participantLabelSchema = z
-  .string()
-  .optional()
-  .refine(hasNonWhitespaceCharacters, {
-    message:
-      'Label cannot contain only spaces. Enter one or more characters or leave this field empty.',
-  });
+export const participantLabelSchema = z.string().trim().optional();
 
-const participantLabelRequiredSchema = z
+export const participantLabelRequiredSchema = z
   .string()
-  .refine(hasNonWhitespaceCharacters, {
-    message: 'Label cannot contain only spaces. Enter one or more characters.',
-  });
+  .trim()
+  .refine(
+    (value) => {
+      return value.length > 0 && hasNonWhitespaceCharacters(value);
+    },
+    {
+      message: 'Label requires one or more non-whitespace characters.',
+    },
+  );
 
-const ParticipantRowSchema = z.union([
+export const ParticipantRowSchema = z.union([
   z.object({
     identifier: participantIdentifierSchema,
     label: participantLabelSchema,
