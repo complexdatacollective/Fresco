@@ -1,6 +1,8 @@
+import { type ReactNode } from 'react';
 import { cn } from '~/utils/shadcn';
-import Section from './Section';
+import { Skeleton } from '../ui/skeleton';
 import Heading from '../ui/typography/Heading';
+import Section from './Section';
 
 export default function SettingsSection({
   heading,
@@ -9,8 +11,8 @@ export default function SettingsSection({
   classNames,
 }: {
   heading: string;
-  children: React.ReactNode;
-  controlArea: React.ReactNode;
+  children: ReactNode;
+  controlArea: ReactNode;
   classNames?: string;
 }) {
   return (
@@ -23,6 +25,24 @@ export default function SettingsSection({
       </div>
       <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
         {controlArea}
+      </div>
+    </Section>
+  );
+}
+
+export function SettingsSectionSkeleton({
+  controlAreaSkelton,
+}: {
+  controlAreaSkelton: ReactNode;
+}) {
+  return (
+    <Section classNames="flex gap-10">
+      <div className="flex-1 space-y-6">
+        <Skeleton className="h-6 w-1/2 rounded" />
+        <Skeleton className="h-12 rounded" />
+      </div>
+      <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+        {controlAreaSkelton}
       </div>
     </Section>
   );
