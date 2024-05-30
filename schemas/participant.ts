@@ -2,21 +2,16 @@ import { z } from 'zod';
 
 // Utility function to check for non-whitespace characters
 const hasNonWhitespaceCharacters = (input: string | undefined) =>
-  input ? input !== '' : true;
+  input && input.length > 0;
 
 export const participantIdentifierSchema = z
   .string()
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maximum of 255 characters.' })
   .trim()
-  .refine(
-    (value) => {
-      return value.length > 0 && hasNonWhitespaceCharacters(value);
-    },
-    {
-      message: 'Identifier requires one or more non-whitespace characters.',
-    },
-  );
+  .refine(hasNonWhitespaceCharacters, {
+    message: 'Identifier requires one or more non-whitespace characters.',
+  });
 
 export const participantIdentifierOptionalSchema = z
   .string()
@@ -24,24 +19,16 @@ export const participantIdentifierOptionalSchema = z
     message: 'Identifier too long. Maximum of 255 characters.',
   })
   .trim()
-  .optional()
-  .refine(hasNonWhitespaceCharacters, {
-    message: 'Identifier requires one or more non-whitespace characters.',
-  });
+  .optional();
 
 export const participantLabelSchema = z.string().trim().optional();
 
 export const participantLabelRequiredSchema = z
   .string()
   .trim()
-  .refine(
-    (value) => {
-      return value.length > 0 && hasNonWhitespaceCharacters(value);
-    },
-    {
-      message: 'Label requires one or more non-whitespace characters.',
-    },
-  );
+  .refine(hasNonWhitespaceCharacters, {
+    message: 'Label requires one or more non-whitespace characters.',
+  });
 
 export const ParticipantRowSchema = z.union([
   z.object({
