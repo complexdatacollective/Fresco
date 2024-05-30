@@ -9,6 +9,7 @@ import ImportExportSection from './_components/ExportParticipants/ImportExportSe
 export default async function ParticipantPage() {
   await requireAppNotExpired();
   await requirePageAuth();
+
   return (
     <>
       <ResponsiveContainer>
