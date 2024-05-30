@@ -1,5 +1,19 @@
 import { z } from 'zod';
 
+export const numberEnum = <Num extends number, T extends Readonly<Num[]>>(
+  args: T,
+): z.ZodSchema<T[number]> => {
+  return z.custom<T[number]>((val: unknown) => {
+    if (typeof val !== 'number') {
+      return false;
+    }
+    if (!args.includes(val as T[number])) {
+      return false;
+    }
+    return true;
+  });
+};
+
 // Utility function to check for non-whitespace characters
 const hasNonWhitespaceCharacters = (input: string | undefined) =>
   input && input.length > 0;
@@ -20,6 +34,11 @@ export const participantIdentifierOptionalSchema = z
   })
   .trim()
   .optional();
+
+const participantIdSchema = z
+  .string()
+  .min(1, { message: 'Identifier cannot be empty' })
+  .max(255, { message: 'Identifier too long. Maxiumum of 255 characters.' });
 
 export const participantLabelSchema = z.string().trim().optional();
 

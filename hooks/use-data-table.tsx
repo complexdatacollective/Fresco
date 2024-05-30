@@ -15,6 +15,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import * as React from 'react';
+import { useCallback } from 'react';
 import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
@@ -94,13 +95,8 @@ export function useDataTable<TData, TValue>({
     [pageIndex, pageSize],
   );
 
-  const debouncedUpdateFilterParams = debounce(
+  const debouncedUpdateFilterParams = useCallback(debounce(
     (columnFilters: FilterParam[]) => {
-      if (!columnFilters || columnFilters.length === 0) {
-        void setSearchParams({ filterParams: null });
-        return;
-      }
-
       void setSearchParams({
         page: 1,
         filterParams: columnFilters,
@@ -111,7 +107,7 @@ export function useDataTable<TData, TValue>({
       trailing: true,
       leading: false,
     },
-  );
+  ), []);
 
   // Sync any changes to columnFilters back to searchParams
   React.useEffect(() => {
@@ -123,7 +119,7 @@ export function useDataTable<TData, TValue>({
     }
 
     debouncedUpdateFilterParams(columnFilters as FilterParam[]);
-  }, [columnFilters, setSearchParams]);
+  }, [columnFilters, setSearchParams, debouncedUpdateFilterParams]);
 
   React.useEffect(() => {
     setPagination({
