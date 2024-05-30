@@ -3,8 +3,8 @@
  * for Docker builds.
  */
 import('./env.mjs');
-import pkg from './package.json' with { type: 'json' };
 import ChildProcess from 'child_process';
+import pkg from './package.json' with { type: 'json' };
 
 // starts a command line process to get the git hash
 const commitHash = ChildProcess.execSync('git log --pretty=format:"%h" -n1')
@@ -35,5 +35,8 @@ const config = {
     APP_VERSION: pkg.version,
     COMMIT_HASH: commitHash,
   },
+  eslint: {
+    dirs: ['./'],
+  }
 };
 export default config;
