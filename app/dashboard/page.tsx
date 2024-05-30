@@ -6,13 +6,20 @@ import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
-import { ActivityFeed } from './_components/ActivityFeed/ActivityFeed';
+import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
+import { searchParamsCache } from './_components/ActivityFeed/searchParamsCache';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
   await requireAppNotExpired();
   await requirePageAuth();
+
+  searchParamsCache.parse(searchParams);
 
   return (
     <>

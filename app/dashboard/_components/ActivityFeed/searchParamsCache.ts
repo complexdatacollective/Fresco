@@ -1,15 +1,22 @@
 import {
-  createSearchParamsCache,
+  FilterParam,
+  pageSizes,
+  sortOrder,
+  sortableFields,
+} from '~/lib/data-table/types';
+
+import {
   parseAsArrayOf,
   parseAsInteger,
   parseAsJson,
+  parseAsNumberLiteral,
   parseAsStringLiteral,
-} from 'nuqs/server';
-import { FilterParam, sortOrder, sortableFields } from '~/lib/data-table/types';
+} from 'nuqs';
+import { createSearchParamsCache } from 'nuqs/server';
 
-export const searchParamsParsers = {
+export const parsers = {
   page: parseAsInteger.withDefault(1),
-  perPage: parseAsInteger.withDefault(10),
+  perPage: parseAsNumberLiteral(pageSizes).withDefault(10),
   sort: parseAsStringLiteral(sortOrder).withDefault('desc'),
   sortField: parseAsStringLiteral(sortableFields).withDefault('timestamp'),
   filterParams: parseAsArrayOf(
@@ -17,4 +24,4 @@ export const searchParamsParsers = {
   ),
 };
 
-export const searchParamsCache = createSearchParamsCache(searchParamsParsers);
+export const searchParamsCache = createSearchParamsCache(parsers);
