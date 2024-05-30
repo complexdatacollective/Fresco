@@ -1,4 +1,3 @@
-import { hash } from 'ohash';
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
@@ -43,7 +42,7 @@ export default async function Home({
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ActivityFeed key={hash(searchParams)} />
+          <ActivityFeed />
         </Section>
       </ResponsiveContainer>
     </>
