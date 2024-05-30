@@ -13,7 +13,9 @@ import { searchParamsParsers } from './SearchParams';
  */
 export const useTableStateFromSearchParams = () => {
   const [{ page, perPage, sort, sortField, filterParams }, setSearchParams] =
-    useQueryStates(searchParamsParsers);
+    useQueryStates(searchParamsParsers, {
+      clearOnDefault: true,
+    });
 
   return {
     searchParams: {
