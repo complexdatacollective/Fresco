@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   // Generate the dynamic filter parameters for the database call from the
   // input filter params.
-  const queryFilterParams = filterParams?.length
+  const queryFilterParams = filterParams
     ? {
         OR: [
           ...filterParams.map(({ id, value }) => {
