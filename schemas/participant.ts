@@ -1,40 +1,40 @@
 import { z } from 'zod';
 
+// Utility function to check for non-whitespace characters
+const hasNonWhitespaceCharacters = (input: string | undefined) =>
+  input ? input.trim() !== '' : true;
+
 export const participantIdentifierSchema = z
   .string()
+  .trim()
   .min(1, { message: 'Identifier cannot be empty' })
   .max(255, { message: 'Identifier too long. Maximum of 255 characters.' })
-  // Ensure that the identifier is not just whitespace or have leading/trailing spaces
-  .refine((identifier) => identifier.trim() === identifier, {
-    message: 'Identifier cannot have leading or trailing spaces',
+  .refine(hasNonWhitespaceCharacters, {
+    message: 'Identifier requires one or more non-whitespace characters.',
   });
 
 const participantIdentifierOptionalSchema = z
   .string()
+  .trim()
   .max(255, {
     message: 'Identifier too long. Maximum of 255 characters.',
   })
   .optional()
-  .refine(
-    (identifier) =>
-      identifier === undefined || identifier.trim() === identifier,
-    {
-      message: 'Identifier cannot have leading or trailing spaces',
-    },
-  );
+  .refine(hasNonWhitespaceCharacters, {
+    message: 'Identifier requires one or more non-whitespace characters.',
+  });
 
 export const participantLabelSchema = z
   .string()
   .optional()
-  // If the label is provided, ensure it is not just whitespace
-  .refine((label) => !label || label.trim() !== '', {
+  .refine(hasNonWhitespaceCharacters, {
     message:
       'Label cannot contain only spaces. Enter one or more characters or leave this field empty.',
   });
 
 const participantLabelRequiredSchema = z
   .string()
-  .refine((label) => label.trim() !== '', {
+  .refine(hasNonWhitespaceCharacters, {
     message: 'Label cannot contain only spaces. Enter one or more characters.',
   });
 
