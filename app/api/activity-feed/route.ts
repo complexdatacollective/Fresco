@@ -48,6 +48,5 @@ export async function GET(request: NextRequest) {
 
   const pageCount = Math.ceil(count / perPage);
 
-
   return NextResponse.json({ events, pageCount });
 }
