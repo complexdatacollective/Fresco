@@ -57,7 +57,7 @@ export async function importParticipants(rawInput: unknown) {
   */
   const participantsWithIdentifiers = participantList.map((participant) => {
     return {
-      identifier: participant.identifier ?? createId(),
+      identifier: !participant.identifier ? createId() : participant.identifier,
       label: participant.label === '' ? undefined : participant.label,
     };
   });
