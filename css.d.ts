@@ -9,8 +9,8 @@ import 'react';
 declare module 'react' {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface CSSProperties {
-    // Allow namespaced CSS Custom Properties
-    [index: `--nc-${string}`]: string;
-    [index: `--tx-${string}`]: string;
+    // Allow only namespaced CSS Custom Properties
+    [index: `--nc-${string}`]: string; // Interviewer
+    [index: `--tw-${string}`]: string; // Tailwind CSS
   }
 }
