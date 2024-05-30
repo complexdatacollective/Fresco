@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { getSummaryStatistics } from '~/queries/summaryStatistics';
 import { InterviewIcon, ProtocolIcon } from './Icons';
 import StatCard, { StatCardSkeleton } from './StatCard';
-import { Suspense } from 'react';
-import { getSummaryStatistics } from '~/queries/summaryStatistics';
 
 export default function SummaryStatistics() {
   const data = getSummaryStatistics();
@@ -78,3 +78,25 @@ export default function SummaryStatistics() {
     </ResponsiveContainer>
   );
 }
+
+export const SummaryStatisticsSkeleton = () => (
+  <ResponsiveContainer
+    className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
+    maxWidth="6xl"
+  >
+    <StatCardSkeleton title="Protocols" icon={<ProtocolIcon />} />
+    <StatCardSkeleton
+      title="Participants"
+      icon={
+        <Image
+          src="/images/participant.svg"
+          width={50}
+          height={50}
+          alt="Participant icon"
+          className="max-w-none"
+        />
+      }
+    />
+    <StatCardSkeleton title="Interviews" icon={<InterviewIcon />} />
+  </ResponsiveContainer>
+);

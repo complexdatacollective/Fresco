@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import Heading from '~/components/ui/typography/Heading';
@@ -22,9 +21,7 @@ export default async function Home() {
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
       </ResponsiveContainer>
-      <Suspense>
-        <AnonymousRecruitmentWarning />
-      </Suspense>
+      <AnonymousRecruitmentWarning />
       <SummaryStatistics />
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>
