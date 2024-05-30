@@ -61,7 +61,6 @@ export const sortableFields = [
 export type SortableField = (typeof sortableFields)[number];
 
 export const pageSizes = [10, 20, 50, 100] as const;
-export type PageSize = (typeof pageSizes)[number];
 
 export const FilterParam = z.object({
   id: z.string(),
