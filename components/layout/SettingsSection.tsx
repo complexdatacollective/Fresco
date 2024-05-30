@@ -38,8 +38,8 @@ export function SettingsSectionSkeleton({
   return (
     <Section classNames="flex gap-10">
       <div className="flex-1 space-y-6">
-        <Skeleton className="h-6 w-1/2 rounded" />
-        <Skeleton className="h-12 rounded" />
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-12 w-3/4" />
       </div>
       <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
         {controlAreaSkelton}
