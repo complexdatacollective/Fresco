@@ -1,7 +1,6 @@
 'use client';
-
-import { useQueryState } from 'nuqs';
-import { parsers } from './searchParamsCache';
+import { useQueryStates } from 'nuqs';
+import { searchParamsParsers } from './SearchParams';
 
 /**
  * This hook implements the table state items required by the DataTable.
@@ -13,18 +12,11 @@ import { parsers } from './searchParamsCache';
  *
  */
 export const useTableStateFromSearchParams = () => {
-  const [page, setPage] = useQueryState('page', parsers.page);
-  const [perPage, setPerPage] = useQueryState('perPage', parsers.perPage);
-  const [sort, setSort] = useQueryState('sort', parsers.sort);
-  const [sortField, setSortField] = useQueryState(
-    'sortField',
-    parsers.sortField,
-  );
-
-  const [filterParams, setFilterParams] = useQueryState(
-    'filterParams',
-    parsers.filterParams,
-  );
+  const [{ page, perPage, sort, sortField, filterParams }, setSearchParams] =
+    useQueryStates(searchParamsParsers, {
+      clearOnDefault: true,
+      shallow: false,
+    });
 
   return {
     searchParams: {
@@ -34,12 +26,6 @@ export const useTableStateFromSearchParams = () => {
       sortField,
       filterParams,
     },
-    setSearchParams: {
-      setPage,
-      setPerPage,
-      setSort,
-      setSortField,
-      setFilterParams,
-    },
+    setSearchParams,
   };
 };

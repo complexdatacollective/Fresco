@@ -1,3 +1,4 @@
+import { hash } from 'ohash';
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
@@ -7,7 +8,7 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
-import { searchParamsCache } from './_components/ActivityFeed/searchParamsCache';
+import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
@@ -42,7 +43,7 @@ export default async function Home({
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ActivityFeed />
+          <ActivityFeed key={hash(searchParams)} />
         </Section>
       </ResponsiveContainer>
     </>

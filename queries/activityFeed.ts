@@ -1,9 +1,10 @@
 import { unstable_cache } from 'next/cache';
+import { hash } from 'ohash';
+import 'server-only';
 import { type SearchParams } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
-import 'server-only';
 
-export const getActivities = unstable_cache(
+export const getActivities = (rawSearchParams: unknown) => unstable_cache(
   async (rawSearchParams: unknown) => {
     // const searchParams = SearchParamsSchema.parse(rawSearchParams);
     const searchParams = rawSearchParams as SearchParams;
@@ -50,8 +51,8 @@ export const getActivities = unstable_cache(
   },
   ['activityFeed'],
   {
-    tags: ['activityFeed'],
+    tags: ['activityFeed', `activityFeed:${hash(rawSearchParams)}`],
   },
-);
+)(rawSearchParams);
 
 export type ActivitiesFeed = ReturnType<typeof getActivities>;
