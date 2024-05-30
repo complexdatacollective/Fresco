@@ -11,11 +11,6 @@ jobs:
 
     env:
       SKIP_ENV_VALIDATION: true
-      NEXT_PUBLIC_DISABLE_ANALYTICS: true
-      DATABASE_URL: mysql://connection-string
-      UPLOADTHING_SECRET: sk_live_secret
-      UPLOADTHING_APP_ID: app-id
-      INSTALLATION_ID: gh-action
 
     steps:
       - uses: actions/checkout@v4
