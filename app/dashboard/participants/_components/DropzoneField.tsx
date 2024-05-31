@@ -1,13 +1,13 @@
-import { useController, type Control } from 'react-hook-form';
-import parseCSV from '~/utils/parseCSV';
-import { useDropzone } from 'react-dropzone';
-import { cn } from '~/utils/shadcn';
-import { useId } from 'react';
-import { Label } from '~/components/ui/Label';
 import { isArray } from 'lodash';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { FileCheck, FileText } from 'lucide-react';
+import { useId } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useController, type Control } from 'react-hook-form';
+import { Label } from '~/components/ui/Label';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { type FormSchema } from '~/schemas/participant';
+import parseCSV from '~/utils/parseCSV';
+import { cn } from '~/utils/shadcn';
 
 const accept = {
   'text/csv': [],
@@ -46,7 +46,10 @@ export default function DropzoneField<T>({
           }
 
           // Check that every row has either a label or an identifier
-          const valid = value.every((row) => row.label ?? row.identifier);
+          const valid = value.every(
+            (row) =>
+              (row.label !== undefined && row.label !== '') || row.identifier,
+          );
 
           if (!valid) {
             return 'Invalid CSV. Every row must have either a label or an identifier';

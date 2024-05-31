@@ -15,6 +15,7 @@ export const useTableStateFromSearchParams = () => {
   const [{ page, perPage, sort, sortField, filterParams }, setSearchParams] =
     useQueryStates(searchParamsParsers, {
       clearOnDefault: true,
+      shallow: false,
     });
 
   return {
