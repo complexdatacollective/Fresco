@@ -18,16 +18,15 @@ const config = {
   parserOptions: {
     project: path.join(__dirname, 'tsconfig.json'),
   },
-  plugins: ['@typescript-eslint', '@tanstack/query',],
+  plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/stylistic',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@tanstack/eslint-plugin-query/recommended',
     'next/core-web-vitals',
     'prettier',
   ],
-  ignorePatterns: ['node_modules', '*.stories.*', '*.test.*'],
+  ignorePatterns: ['node_modules', '*.stories.*', '*.test.*', 'public', '.eslintrc.cjs',],
   rules: {
     "@next/next/no-img-element": "off",
     "import/no-anonymous-default-export": "off",
@@ -42,7 +41,7 @@ const config = {
       },
     ],
     '@typescript-eslint/no-unused-vars': [
-      'warn',
+      'error',
       {
         argsIgnorePattern: '^_',
       },
@@ -56,4 +55,5 @@ const config = {
     'no-unreachable': 'error',
   },
 };
+
 module.exports = config;

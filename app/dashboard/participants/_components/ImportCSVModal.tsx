@@ -1,6 +1,11 @@
 'use client';
 
+import { AlertCircle, FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { ZodError } from 'zod';
+import { importParticipants } from '~/actions/participants';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -11,15 +16,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { useToast } from '~/components/ui/use-toast';
-import { AlertCircle, FileDown, Loader2 } from 'lucide-react';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import UnorderedList from '~/components/ui/typography/UnorderedList';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { useForm } from 'react-hook-form';
-import DropzoneField from './DropzoneField';
+import { useToast } from '~/components/ui/use-toast';
 import { FormSchema } from '~/schemas/participant';
-import { importParticipants } from '~/actions/participants';
+import DropzoneField from './DropzoneField';
 
 const ImportCSVModal = ({
   onImportComplete,
@@ -78,6 +79,17 @@ const ImportCSVModal = ({
       reset();
       setShowImportDialog(false);
     } catch (e) {
+      // if it's a validation error, show the error message
+      if (e instanceof ZodError) {
+        toast({
+          title: 'Error',
+          description: e.errors[0]
+            ? `Invalid CSV File: ${e.errors[0].message}`
+            : 'Invalid CSV file. Please check the file requirements and try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
       // eslint-disable-next-line no-console
       console.log(e);
       toast({

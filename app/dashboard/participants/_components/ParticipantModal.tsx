@@ -1,7 +1,14 @@
 'use client';
 
-import { type Dispatch, type SetStateAction, useState, useEffect } from 'react';
+import { createId } from '@paralleldrive/cuid2';
+import type { Participant } from '@prisma/client';
+import { HelpCircle, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { z } from 'zod';
+import { createParticipant, updateParticipant } from '~/actions/participants';
+import ActionError from '~/components/ActionError';
+import InfoTooltip from '~/components/InfoTooltip';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -11,20 +18,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import useZodForm from '~/hooks/useZodForm';
-import ActionError from '~/components/ActionError';
 import {
   participantIdentifierSchema,
   participantLabelSchema,
 } from '~/schemas/participant';
-import type { Participant } from '@prisma/client';
-import { useRouter } from 'next/navigation';
-import InfoTooltip from '~/components/InfoTooltip';
-import { HelpCircle, Loader2 } from 'lucide-react';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { createId } from '@paralleldrive/cuid2';
-import { createParticipant, updateParticipant } from '~/actions/participants';
 
 type ParticipantModalProps = {
   open: boolean;
@@ -45,20 +45,28 @@ function ParticipantModal({
   const [working, setWorking] = useState(false);
 
   const router = useRouter();
-
   const formSchema = z
     .object({
       identifier: participantIdentifierSchema,
       label: participantLabelSchema,
     })
     .refine(
-      (data) =>
-        !existingParticipants?.find((p) => p.identifier === data.identifier),
+      (data) => {
+        const existingParticipant = existingParticipants.find(
+          (p) => p.identifier === data.identifier
+        );
+        // Allow the current identifier if editing
+        return (
+          !existingParticipant ||
+          (editingParticipant && existingParticipant.id === editingParticipant.id)
+        );
+      },
       {
         path: ['identifier'],
         message: 'This identifier is already in use.',
       },
     );
+
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
@@ -76,6 +84,10 @@ function ParticipantModal({
   const onSubmit = async (data: ValidationSchema) => {
     setError(null);
     setWorking(true);
+
+    if (data.label === '') {
+      data.label = undefined;
+    }
 
     if (editingParticipant) {
       await updateParticipant({

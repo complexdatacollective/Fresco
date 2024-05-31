@@ -35,22 +35,6 @@ export const getProtocolByHash = unstable_cache(
   },
 );
 
-const getProtocolByLastUpdated = unstable_cache(
-  async () => {
-    const protocol = await prisma.protocol.findFirst({
-      orderBy: {
-        importedAt: 'desc',
-      },
-    });
-
-    return protocol;
-  },
-  ['getProtocolByLastUpdated'],
-  {
-    tags: ['getProtocolByLastUpdated', 'getProtocols'],
-  },
-);
-
 export const getExistingAssetIds = unstable_cache(
   async (assetIds: string[]) => {
     const assets = await prisma.asset.findMany({

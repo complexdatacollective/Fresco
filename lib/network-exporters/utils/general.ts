@@ -1,17 +1,20 @@
 import {
   caseProperty,
   entityAttributesProperty,
-  sessionProperty
+  sessionProperty,
+  type Codebook,
+  type NcEntity,
+  type StageSubject
 } from '@codaco/shared-consts';
 import sanitizeFilename from 'sanitize-filename';
+import type { ExportFormat, SessionWithResequencedIDs } from './types';
 
+export const getEntityAttributes = (entity: NcEntity) =>
+  (entity?.[entityAttributesProperty]) || {};
 
-export const getEntityAttributes = (entity) =>
-  (entity && entity[entityAttributesProperty]) || {};
+const escapeFilePart = (part: string) => part.replace(/\W/g, '');
 
-const escapeFilePart = (part) => part.replace(/\W/g, '');
-
-export const makeFilename = (prefix, entityName, exportFormat, extension) => {
+export const makeFilename = (prefix:string, entityName: string | undefined, exportFormat: string, extension: string) => {
   let name = prefix;
   if (extension !== `.${exportFormat}`) {
     name += name ? '_' : '';
@@ -33,7 +36,8 @@ const extensions = {
  * @param  {string} formatterType one of the `format`s
  * @return {string}
  */
-export const getFileExtension = (formatterType) => {
+
+export const getFileExtension = (formatterType: ExportFormat) => {
   switch (formatterType) {
     case 'graphml':
       return extensions.graphml;
@@ -42,8 +46,6 @@ export const getFileExtension = (formatterType) => {
     case 'attributeList':
     case 'ego':
       return extensions.csv;
-    default:
-      return null;
   }
 };
 
@@ -52,7 +54,7 @@ export const getFileExtension = (formatterType) => {
  * Generate a filename prefix based on the session in the format:
  * `{caseId}_{sessionId}` 
  */
-export const getFilePrefix = (session) => `${sanitizeFilename(session.sessionVariables[caseProperty])}_${session.sessionVariables[sessionProperty]}`;
+export const getFilePrefix = (session: SessionWithResequencedIDs) => sanitizeFilename(`${session.sessionVariables[caseProperty]}_${session.sessionVariables[sessionProperty]}`);
 
 /**
  * Given a codebook, an entity type, an entity, and an attribute key:
@@ -62,11 +64,8 @@ export const getFilePrefix = (session) => `${sanitizeFilename(session.sessionVar
  * @param {*} entity
  * @param {*} key
  */
-const getVariableInfo = (codebook, type, entity, key) =>
-  codebook[type] &&
-  codebook[type][entity.type] &&
-  codebook[type][entity.type].variables &&
-  codebook[type][entity.type].variables[key];
+const getVariableInfo = (codebook: Codebook, type: 'node' | 'edge', entity: StageSubject, key: string) =>
+  codebook[type]?.[entity.type]?.variables?.[key];
 
 /**
  * Ego version of getVariableInfo
@@ -74,8 +73,8 @@ const getVariableInfo = (codebook, type, entity, key) =>
  * @param {*} type
  * @param {*} key
  */
-const getEgoVariableInfo = (codebook, key) =>
-  codebook.ego && codebook.ego.variables && codebook.ego.variables[key];
+const getEgoVariableInfo = (codebook: Codebook, key: string) =>
+  codebook.ego?.variables?.[key];
 
 /**
  * Get the 'type' of a given variable from the codebook
@@ -86,16 +85,17 @@ const getEgoVariableInfo = (codebook, key) =>
  * @param {*} variableAttribute property of key to return
  */
 export const getAttributePropertyFromCodebook = (
-  codebook,
-  type,
-  element,
-  key,
+  codebook: Codebook,
+  type: 'node' | 'edge' | 'ego',
+  element: StageSubject,
+  key: string,
   attributeProperty = 'type',
 ) => {
+  let variableInfo;
   if (type === 'ego') {
-    const variableInfo = getEgoVariableInfo(codebook, key);
-    return variableInfo && variableInfo[attributeProperty];
+    variableInfo = getEgoVariableInfo(codebook, key);
+  } else {
+    variableInfo = getVariableInfo(codebook, type, element, key);
   }
-  const variableInfo = getVariableInfo(codebook, type, element, key);
-  return variableInfo && variableInfo[attributeProperty];
+  return variableInfo?.[attributeProperty as keyof typeof variableInfo];
 };

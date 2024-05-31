@@ -38,5 +38,8 @@ const config = {
     APP_VERSION: pkg.version,
     COMMIT_HASH: commitHash,
   },
+  eslint: {
+    dirs: ['./'],
+  }
 };
 export default config;

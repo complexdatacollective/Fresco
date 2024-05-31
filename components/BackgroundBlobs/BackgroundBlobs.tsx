@@ -1,9 +1,9 @@
 'use client';
 
-import { memo, useMemo } from 'react';
 import * as blobs2 from 'blobs/v2';
 import { interpolatePath as interpolate } from 'd3-interpolate-path';
-import { random, randomInt } from '~/utils/lodash-replacements';
+import { memo, useMemo } from 'react';
+import { random, randomInt } from '~/utils/general';
 import Canvas from './Canvas';
 
 const gradients = [
