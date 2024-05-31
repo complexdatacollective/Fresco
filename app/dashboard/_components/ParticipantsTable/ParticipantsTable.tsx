@@ -10,7 +10,7 @@ export default function ParticipantsTable() {
 
   return (
     <Suspense
-      fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={2} />}
+      fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={3} />}
     >
       <ParticipantsTableClient
         participantsPromise={participantsPromise}

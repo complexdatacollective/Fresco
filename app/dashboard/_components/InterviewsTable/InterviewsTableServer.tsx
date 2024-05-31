@@ -10,7 +10,7 @@ export default function InterviewsTableServer() {
 
   return (
     <Suspense
-      fallback={<DataTableSkeleton columnCount={6} filterableColumnCount={3} />}
+      fallback={<DataTableSkeleton columnCount={6} filterableColumnCount={2} />}
     >
       <InterviewsTable
         interviewsPromise={interviewsPromise}
