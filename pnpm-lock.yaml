@@ -93,8 +93,8 @@ importers:
         specifier: ^3.2.24
         version: 3.2.24
       '@uploadthing/react':
-        specifier: ^6.5.1
-        version: 6.5.4(@uploadthing/mime-types@0.2.10)(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(react@18.3.1)(uploadthing@6.10.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5))))
+        specifier: ^6.6.0
+        version: 6.6.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(react@18.3.1)(uploadthing@6.12.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5))))
       '@xmldom/xmldom':
         specifier: ^0.8.10
         version: 0.8.10
@@ -252,8 +252,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5)))
       uploadthing:
-        specifier: ^6.10.1
-        version: 6.10.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5)))
+        specifier: ^6.12.0
+        version: 6.12.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5)))
       usehooks-ts:
         specifier: ^2.16.0
         version: 2.16.0(react@18.3.1)
@@ -1909,8 +1909,8 @@ packages:
   '@total-typescript/ts-reset@0.5.1':
     resolution: {integrity: sha512-AqlrT8YA1o7Ff5wPfMOL0pvL+1X+sw60NN6CcOCqs658emD6RfiXhF7Gu9QcfKBH7ELY2nInLhKSCWVoNL70MQ==}
 
-  '@tsconfig/node10@1.0.9':
-    resolution: {integrity: sha512-jNsYVVxU8v5g43Erja32laIDHXeoNvFEpX33OK4d6hljo3jDhCBDhx5dhCCTMWUojscpAagGiRkBKxpdl9fxqA==}
+  '@tsconfig/node10@1.0.11':
+    resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
 
   '@tsconfig/node12@1.0.11':
     resolution: {integrity: sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==}
@@ -2128,23 +2128,18 @@ packages:
   '@uploadthing/mime-types@0.2.10':
     resolution: {integrity: sha512-kz3F0oEgAyts25NAGXlUBCWh3mXonbSOQJFGFMawHuIgbUbnzXbe4w5WI+0XdneCbjNmikfWrdWrs8m/7HATfQ==}
 
-  '@uploadthing/react@6.5.4':
-    resolution: {integrity: sha512-c1RFZggXqlc4wQ0hnxjgOM+9066NUMOJmUAPG2N7EKYO64/uRrZMpq5CvYdxsKwI0YiCnhIeInct21QvSSEa6Q==}
+  '@uploadthing/react@6.6.0':
+    resolution: {integrity: sha512-jLN4Oy21d0n8F6CNPl9qjEu0/Q1rnddSxny/02Lm89L/sYuR4RXfk1vBgBGPAGXBak0BO9z5eEmYURLrXXUAJQ==}
     peerDependencies:
       next: '*'
       react: ^17.0.2 || ^18.0.0
-      uploadthing: 6.10.4
+      uploadthing: 6.12.0
     peerDependenciesMeta:
       next:
         optional: true
 
-  '@uploadthing/shared@6.7.4':
-    resolution: {integrity: sha512-7e35U7/84qQQx+bhldSdze9ODiAo4NCCZiYEV3NomD44O9fE5bfQXcCPtBeXh3y3udf7S28PMZbT6ybJeuKfgw==}
-    peerDependencies:
-      '@uploadthing/mime-types': 0.2.10
-    peerDependenciesMeta:
-      '@uploadthing/mime-types':
-        optional: true
+  '@uploadthing/shared@6.7.5':
+    resolution: {integrity: sha512-BZXzvh6zGEt4ip//mxfXdRTNWYw9XJ6tommL6A1TEo2l8jvdNbUpPUwXnMVWBMwio2b48BO7D9V3siYIKMD4pg==}
 
   '@vitejs/plugin-react@4.2.1':
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
@@ -2819,6 +2814,9 @@ packages:
 
   effect@3.1.5:
     resolution: {integrity: sha512-nTkW/ViRF8cXVMKjusYMVp7L1eqLwMZV7K6GHoqq3MD7NjPT/tJRVhY8d6z5Vam9kxgvRAzqwJKkaRpRVz1jTw==}
+
+  effect@3.2.7:
+    resolution: {integrity: sha512-8YXJVBVs1zBQCPjwsTUgqE91c6woa6sxo0wni0H3mMM4qpO4vsixEVx+IZLYnh1BnRinJqC7/mJazIfYxLj2Rg==}
 
   electron-to-chromium@1.4.773:
     resolution: {integrity: sha512-87eHF+h3PlCRwbxVEAw9KtK3v7lWfc/sUDr0W76955AdYTG4bV/k0zrl585Qnj/skRMH2qOSiE+kqMeOQ+LOpw==}
@@ -5343,8 +5341,8 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
-  uploadthing@6.10.4:
-    resolution: {integrity: sha512-0hGO0Q7R7MnxzVkUbYHE6PkwFieYH+UUa905uo7JtA0h3Gpc89bNDFaOfK8634Z66088VRLNVuWxY2FTIqw4sg==}
+  uploadthing@6.12.0:
+    resolution: {integrity: sha512-uoWG1riH6z2IHCcbMo3xnGe6p/+sx2PPOOLOsk5DeqGv5HtlY7ISauFFRXW8H+jdhevZm1n/j4Je/Z+bbIziSg==}
     engines: {node: '>=18.13.0'}
     peerDependencies:
       express: '*'
@@ -7313,7 +7311,7 @@ snapshots:
 
   '@total-typescript/ts-reset@0.5.1': {}
 
-  '@tsconfig/node10@1.0.9':
+  '@tsconfig/node10@1.0.11':
     optional: true
 
   '@tsconfig/node12@1.0.11':
@@ -7567,28 +7565,26 @@ snapshots:
 
   '@uploadthing/mime-types@0.2.10': {}
 
-  '@uploadthing/react@6.5.4(@uploadthing/mime-types@0.2.10)(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(react@18.3.1)(uploadthing@6.10.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5))))':
+  '@uploadthing/react@6.6.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(react@18.3.1)(uploadthing@6.12.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5))))':
     dependencies:
       '@uploadthing/dropzone': 0.4.1(react@18.3.1)
-      '@uploadthing/shared': 6.7.4(@uploadthing/mime-types@0.2.10)
+      '@uploadthing/shared': 6.7.5
       file-selector: 0.6.0
       react: 18.3.1
       tailwind-merge: 2.3.0
-      uploadthing: 6.10.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5)))
+      uploadthing: 6.12.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5)))
     optionalDependencies:
       next: 14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2)
     transitivePeerDependencies:
-      - '@uploadthing/mime-types'
       - solid-js
       - svelte
       - vue
 
-  '@uploadthing/shared@6.7.4(@uploadthing/mime-types@0.2.10)':
+  '@uploadthing/shared@6.7.5':
     dependencies:
-      effect: 3.1.5
-      std-env: 3.7.0
-    optionalDependencies:
       '@uploadthing/mime-types': 0.2.10
+      effect: 3.2.7
+      std-env: 3.7.0
 
   '@vitejs/plugin-react@4.2.1(vite@5.2.11(@types/node@20.12.12)(sass@1.77.2)(terser@5.31.0))':
     dependencies:
@@ -8327,6 +8323,8 @@ snapshots:
       wcwidth: 1.0.1
 
   effect@3.1.5: {}
+
+  effect@3.2.7: {}
 
   electron-to-chromium@1.4.773: {}
 
@@ -11289,7 +11287,7 @@ snapshots:
   ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.9
+      '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
@@ -11425,11 +11423,11 @@ snapshots:
       escalade: 3.1.2
       picocolors: 1.0.1
 
-  uploadthing@6.10.4(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5))):
+  uploadthing@6.12.0(next@14.2.3(@babel/core@7.23.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.2))(tailwindcss@3.4.3(ts-node@10.9.1(@types/node@20.12.12)(typescript@5.4.5))):
     dependencies:
       '@effect/schema': 0.66.16(effect@3.1.5)(fast-check@3.18.0)
       '@uploadthing/mime-types': 0.2.10
-      '@uploadthing/shared': 6.7.4(@uploadthing/mime-types@0.2.10)
+      '@uploadthing/shared': 6.7.5
       consola: 3.2.3
       effect: 3.1.5
       fast-check: 3.18.0
