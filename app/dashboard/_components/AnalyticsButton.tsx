@@ -1,7 +1,7 @@
 'use client';
-import { trackEvent } from '~/lib/analytics';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
+import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 
 const AnalyticsButton = () => {

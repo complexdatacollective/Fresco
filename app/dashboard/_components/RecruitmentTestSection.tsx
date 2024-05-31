@@ -13,7 +13,6 @@ import {
 } from '~/components/ui/select';
 import { type GetParticipantsReturnType } from '~/queries/participants';
 import { type GetProtocolsReturnType } from '~/queries/protocols';
-import getBaseUrl from '~/utils/getBaseUrl';
 
 export default function RecruitmentTestSection({
   protocolsPromise,
@@ -106,7 +105,7 @@ export default function RecruitmentTestSection({
         <Button
           disabled={buttonDisabled}
           onClick={async () =>
-            await fetch(getBaseUrl() + getInterviewURL(), {
+            await fetch(window.location.origin + getInterviewURL(), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

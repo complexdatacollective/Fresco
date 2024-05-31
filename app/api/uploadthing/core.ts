@@ -1,5 +1,4 @@
 import { createUploadthing } from 'uploadthing/next';
-import { UTApi } from 'uploadthing/server';
 import { getServerSession } from '~/utils/auth';
 
 const f = createUploadthing();
@@ -17,7 +16,5 @@ export const ourFileRouter = {
     })
     .onUploadComplete(() => undefined),
 };
-
-export const utapi = new UTApi();
 
 export type OurFileRouter = typeof ourFileRouter;

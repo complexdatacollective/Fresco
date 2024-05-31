@@ -1,7 +1,7 @@
 'use client';
 
 import type { Participant, Protocol } from '@prisma/client';
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -10,14 +10,13 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 
-import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
-import { Popover, PopoverContent } from '~/components/ui/popover';
 import { PopoverTrigger } from '@radix-ui/react-popover';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { Check, Copy } from 'lucide-react';
+import { Button } from '~/components/ui/Button';
+import { Popover, PopoverContent } from '~/components/ui/popover';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { useToast } from '~/components/ui/use-toast';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
-import getBaseUrl from '~/utils/getBaseUrl';
 
 export const GenerateParticipationURLButton = ({
   participant,
@@ -74,7 +73,7 @@ export const GenerateParticipationURLButton = ({
 
             setSelectedProtocol(protocol);
             handleCopy(
-              `${getBaseUrl()}/onboard/${protocol?.id}/?participantIdentifier=${participant.identifier}`,
+              `${window.location.origin}/onboard/${protocol?.id}/?participantIdentifier=${participant.identifier}`,
             );
 
             ref.current?.click();

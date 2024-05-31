@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckIcon, Loader2, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { trackEvent } from '~/lib/analytics';
+import trackEvent from '~/lib/analytics';
 
 const labelAnimationVariants = {
   hidden: { opacity: 0, y: '-100%' },

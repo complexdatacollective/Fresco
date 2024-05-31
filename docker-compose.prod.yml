@@ -1,0 +1,38 @@
+services:
+  fresco:
+    env_file:
+      - .env
+    image: "ghcr.io/complexdatacollective/fresco:feature-docker"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app/next-app
+    restart: always
+    ports:
+      - 0:3000
+    networks:
+      - fresco_network
+
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", '-U', 'postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fresco_network
+
+volumes:
+  postgres:
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  fresco_network:

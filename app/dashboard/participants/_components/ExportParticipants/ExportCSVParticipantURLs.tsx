@@ -8,7 +8,6 @@ import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetParticipantsReturnType } from '~/queries/participants';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
-import getBaseUrl from '~/utils/getBaseUrl';
 
 function ExportCSVParticipantURLs({
   protocol,
@@ -31,7 +30,7 @@ function ExportCSVParticipantURLs({
       const csvData = participants.map((participant) => ({
         id: participant.id,
         identifier: participant.identifier,
-        interview_url: `${getBaseUrl()}/onboard/${protocol.id}/?participantId=${participant.id}`,
+        interview_url: `${window.location.origin}/onboard/${protocol.id}/?participantId=${participant.id}`,
       }));
 
       const csv = unparse(csvData, { header: true });

@@ -8,7 +8,6 @@ import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
-import getBaseUrl from '~/utils/getBaseUrl';
 
 function ExportCSVInterviewURLs({
   protocol,
@@ -29,7 +28,7 @@ function ExportCSVInterviewURLs({
       const csvData = interviews.map((interview) => ({
         participant_id: interview.participantId,
         identifier: interview.participant.identifier,
-        interview_url: `${getBaseUrl()}/interview/${interview.id}`,
+        interview_url: `${window.location.origin}/interview/${interview.id}`,
       }));
 
       const csv = unparse(csvData, { header: true });
