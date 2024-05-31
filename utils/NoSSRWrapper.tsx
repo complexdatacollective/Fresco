@@ -1,9 +1,8 @@
 import dynamic from 'next/dynamic';
-import {
-  Component,
+import type {
   ComponentProps,
   ComponentType,
-  type ReactNode,
+  ReactNode,
 } from 'react';
 
 /**
