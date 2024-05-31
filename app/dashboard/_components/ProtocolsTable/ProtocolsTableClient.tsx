@@ -1,13 +1,12 @@
 'use client';
 
-import { DataTable } from '~/components/DataTable/DataTable';
-import { ActionsDropdown } from './ActionsDropdown';
-import { getProtocolColumns } from './Columns';
-import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { use, useState } from 'react';
+import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
+import { DataTable } from '~/components/DataTable/DataTable';
 import type { ProtocolWithInterviews } from '~/types/types';
 import ProtocolUploader from '../ProtocolUploader';
-import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { ActionsDropdown } from './ActionsDropdown';
+import { getProtocolColumns } from './Columns';
 import { type GetData } from './ProtocolsTable';
 
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
@@ -25,10 +24,6 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
     setProtocolsToDelete(data);
     setShowAlertDialog(true);
   };
-
-  if (!protocols) {
-    return <DataTableSkeleton columnCount={getProtocolColumns().length} />;
-  }
 
   return (
     <>

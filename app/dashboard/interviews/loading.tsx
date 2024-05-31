@@ -1,14 +1,9 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { requireAppNotExpired } from '~/queries/appSettings';
-import { requirePageAuth } from '~/utils/auth';
-import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
 
-export default async function InterviewPage() {
-  await requireAppNotExpired();
-  await requirePageAuth();
-
+export default function Loading() {
   return (
     <>
       <ResponsiveContainer>
@@ -17,9 +12,9 @@ export default async function InterviewPage() {
           subHeaderText="View and manage your interview data."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="7xl">
+      <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <InterviewsTableServer />
+          <DataTableSkeleton columnCount={6} filterableColumnCount={2} />
         </Section>
       </ResponsiveContainer>
     </>

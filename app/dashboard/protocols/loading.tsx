@@ -1,14 +1,9 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { requireAppNotExpired } from '~/queries/appSettings';
-import { requirePageAuth } from '~/utils/auth';
-import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
 
-export default async function ProtocolsPage() {
-  await requireAppNotExpired();
-  await requirePageAuth();
-
+export default function Loading() {
   return (
     <>
       <ResponsiveContainer>
@@ -19,7 +14,7 @@ export default async function ProtocolsPage() {
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <ProtocolsTable />
+          <DataTableSkeleton columnCount={4} filterableColumnCount={1} />
         </Section>
       </ResponsiveContainer>
     </>
