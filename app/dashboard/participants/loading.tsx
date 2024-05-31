@@ -3,15 +3,17 @@ import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
 import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
 import { ButtonSkeleton } from '~/components/ui/Button';
-import { PageHeaderSkeleton } from '~/components/ui/typography/PageHeader';
+import PageHeader from '~/components/ui/typography/PageHeader';
 
 export default function Loading() {
   return (
     <>
       <ResponsiveContainer>
-        <PageHeaderSkeleton />
+        <PageHeader
+          headerText="Participants"
+          subHeaderText="View and manage your participants."
+        />
       </ResponsiveContainer>
-
       <ResponsiveContainer>
         <SettingsSectionSkeleton
           controlAreaSkelton={

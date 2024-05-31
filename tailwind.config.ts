@@ -82,7 +82,6 @@ export default {
       'white': 'hsl(var(--white) / <alpha-value>)',
 
       'background': 'hsl(var(--background) / <alpha-value>)',
-      'background-darker': 'hsl(var(--background-darker) / <alpha-value>)',
       'foreground': 'hsl(var(--foreground) / <alpha-value>)',
 
       'primary': {

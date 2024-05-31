@@ -1,13 +1,16 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
-import { PageHeaderSkeleton } from '~/components/ui/typography/PageHeader';
+import PageHeader from '~/components/ui/typography/PageHeader';
 
 export default function Loading() {
   return (
     <>
       <ResponsiveContainer>
-        <PageHeaderSkeleton />
+        <PageHeader
+          headerText="Interviews"
+          subHeaderText="View and manage your interview data."
+        />
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
         <Section>

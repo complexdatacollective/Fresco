@@ -3,14 +3,17 @@ import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
 import { ButtonSkeleton } from '~/components/ui/Button';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SwitchSkeleton } from '~/components/ui/switch';
-import { PageHeaderSkeleton } from '~/components/ui/typography/PageHeader';
+import PageHeader from '~/components/ui/typography/PageHeader';
 import { env } from '~/env.mjs';
 
 export default function Loading() {
   return (
     <>
       <ResponsiveContainer>
-        <PageHeaderSkeleton />
+        <PageHeader
+          headerText="Settings"
+          subHeaderText="Here you can configure your installation of Fresco."
+        />
       </ResponsiveContainer>
 
       <ResponsiveContainer className="gap-4">
