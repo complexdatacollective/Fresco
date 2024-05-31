@@ -111,6 +111,7 @@
 
     // Semantic slots
     --background: var(--platinum);
+    --background-darker: var(--platinum-hue) var(--platinum-saturation) calc(var(--platinum-lightness) - 18%);
     --foreground: var(--cyber-grape);
  
     --primary: var(--cyber-grape);
