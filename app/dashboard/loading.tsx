@@ -3,7 +3,7 @@ import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import Section from '~/components/layout/Section';
 import { PageHeaderSkeleton } from '~/components/ui/typography/PageHeader';
 import { SummaryStatisticsSkeleton } from './_components/SummaryStatistics/SummaryStatistics';
-import { AnonymousRecruitmentWarningSkeleton } from './protocols/_components/AnonymousRecruitmentWarningClient';
+import { AnonymousRecruitmentWarningSkeleton } from './protocols/_components/AnonymousRecruitmentWarning';
 
 export default function Loading() {
   return (
