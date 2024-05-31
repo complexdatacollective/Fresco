@@ -1,8 +1,8 @@
-import { InterviewsTable } from './InterviewsTable';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
 import { getInterviews } from '~/queries/interviews';
 import { getProtocols } from '~/queries/protocols';
+import { InterviewsTable } from './InterviewsTable';
 
 export default function InterviewsTableServer() {
   const interviewsPromise = getInterviews();
@@ -10,7 +10,7 @@ export default function InterviewsTableServer() {
 
   return (
     <Suspense
-      fallback={<DataTableSkeleton columnCount={5} filterableColumnCount={3} />}
+      fallback={<DataTableSkeleton columnCount={6} filterableColumnCount={3} />}
     >
       <InterviewsTable
         interviewsPromise={interviewsPromise}

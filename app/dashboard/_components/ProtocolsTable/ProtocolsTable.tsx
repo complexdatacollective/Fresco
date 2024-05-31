@@ -29,7 +29,7 @@ export default function ProtocolsTable() {
 
   return (
     <Suspense
-      fallback={<DataTableSkeleton columnCount={5} filterableColumnCount={3} />}
+      fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={2} />}
     >
       <ProtocolsTableClient dataPromise={dataPromise} />
     </Suspense>
