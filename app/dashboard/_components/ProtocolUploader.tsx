@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import JobCard from '~/components/ProtocolImport/JobCard';
 import { Button } from '~/components/ui/Button';
+import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import usePortal from '~/hooks/usePortal';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -23,8 +24,8 @@ function ProtocolUploader() {
     noClick: true,
     onDropAccepted: importProtocols,
     accept: {
-      'application/octect-stream': ['.netcanvas'],
-      'application/zip': ['.netcanvas'],
+      'application/octect-stream': [PROTOCOL_EXTENSION],
+      'application/zip': [PROTOCOL_EXTENSION],
     },
   });
 
