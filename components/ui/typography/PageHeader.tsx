@@ -19,8 +19,8 @@ const PageHeader = ({
 
 const PageHeaderSkeleton = () => (
   <div className="space-y-8">
-    <Skeleton className="h-10 w-1/3 bg-primary" />
-    <Skeleton className="h-7 w-1/2 bg-primary" />
+    <Skeleton className="h-10 w-1/3 bg-card" />
+    <Skeleton className="h-7 w-1/2 bg-card" />
   </div>
 );
 
