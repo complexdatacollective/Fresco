@@ -25,7 +25,7 @@ export default function Loading() {
 
       <ResponsiveContainer maxWidth="6xl">
         <Section>
-          <DataTableSkeleton columnCount={5} filterableColumnCount={3} />
+          <DataTableSkeleton columnCount={4} filterableColumnCount={3} />
         </Section>
       </ResponsiveContainer>
     </>
