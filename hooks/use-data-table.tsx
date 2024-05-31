@@ -95,6 +95,7 @@ export function useDataTable<TData, TValue>({
     [pageIndex, pageSize],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdateFilterParams = useCallback(debounce(
     (columnFilters: FilterParam[]) => {
       void setSearchParams({

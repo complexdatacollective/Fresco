@@ -1,25 +1,27 @@
-import { useCallback, useReducer, useRef } from 'react';
-import { uploadFiles } from '~/lib/uploadthing-helpers';
-import { DatabaseError } from '~/utils/databaseError';
-import { ensureError } from '~/utils/ensureError';
 import { queue } from 'async';
-import {
-  fileAsArrayBuffer,
-  getProtocolJson,
-  getProtocolAssets,
-} from '~/utils/protocolImport';
+import { XCircle } from 'lucide-react';
+import { hash } from 'ohash';
+import { useCallback, useReducer, useRef } from 'react';
+import { insertProtocol } from '~/actions/protocols';
+import { ErrorDetails } from '~/components/ErrorDetails';
+import Link from '~/components/Link';
 import {
   jobInitialState,
   jobReducer,
 } from '~/components/ProtocolImport/JobReducer';
-import Link from '~/components/Link';
-import { ErrorDetails } from '~/components/ErrorDetails';
-import { XCircle } from 'lucide-react';
-import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
-import { type AssetInsertType } from '~/schemas/protocol';
+import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import { uploadFiles } from '~/lib/uploadthing-helpers';
 import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
-import { insertProtocol } from '~/actions/protocols';
+import { type AssetInsertType } from '~/schemas/protocol';
+import { DatabaseError } from '~/utils/databaseError';
+import { ensureError } from '~/utils/ensureError';
+import { formatNumberList } from '~/utils/general';
+import {
+  fileAsArrayBuffer,
+  getProtocolAssets,
+  getProtocolJson,
+} from '~/utils/protocolImport';
 
 // Utility helper for adding artificial delay to async functions
 // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -59,6 +61,32 @@ export const useProtocolImport = () => {
           status: 'Validating protocol',
         },
       });
+
+      // Check if the protocol version is compatible with the app.
+      const protocolVersion = protocolJson.schemaVersion;
+      if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
+        dispatch({
+          type: 'UPDATE_ERROR',
+          payload: {
+            id: fileName,
+            rawError: new Error('Protocol version not supported'),
+            error: {
+              title: 'Protocol version not supported',
+              description: (
+                <AlertDialogDescription>
+                  The protocol you uploaded is not compatible with this version
+                  of the app. Fresco supports protocols using version number{
+                    APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}
+                  {' '}
+                  {formatNumberList(APP_SUPPORTED_SCHEMA_VERSIONS)}.
+                </AlertDialogDescription>
+              ),
+            },
+          },
+        });
+
+        return;
+      }
 
       const { validateProtocol } = await import('@codaco/protocol-validation');
 
