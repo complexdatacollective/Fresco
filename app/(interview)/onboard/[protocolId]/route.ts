@@ -3,7 +3,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import trackEvent from '~/lib/analytics';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
-import getBaseUrl from '~/utils/getBaseUrl';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,10 +11,12 @@ const handler = async (
   { params }: { params: { protocolId: string } },
 ) => {
   const protocolId = params.protocolId; // From route segment
+  const url = req.nextUrl.clone();
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
   }
 
   const limitInterviews = await getLimitInterviewsStatus();
@@ -24,7 +25,8 @@ const handler = async (
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
   if (limitInterviews && cookies().get(protocolId)) {
-    return NextResponse.redirect(`${getBaseUrl()}/interview/finished`);
+    url.pathname = '/interview/finished';
+    return NextResponse.redirect(url);
   }
 
   let participantIdentifier: string | undefined;
@@ -58,7 +60,8 @@ const handler = async (
       },
     });
 
-    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
   }
 
   // eslint-disable-next-line no-console
@@ -76,9 +79,8 @@ const handler = async (
   });
 
   // Redirect to the interview
-  return NextResponse.redirect(
-    `${getBaseUrl()}/interview/${createdInterviewId}`,
-  );
+  url.pathname = `/interview/${createdInterviewId}`;
+  return NextResponse.redirect(url);
 };
 
 export { handler as GET, handler as POST };

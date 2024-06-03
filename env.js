@@ -21,7 +21,6 @@ export const env = createEnv({
     POSTGRES_URL_NON_POOLING: z.string(),
     DISABLE_ANALYTICS: strictBooleanSchema,
     PUBLIC_URL: z.string().url().optional(),
-    VERCEL_URL: z.string().optional(),
   },
 
   /**
@@ -49,7 +48,6 @@ export const env = createEnv({
     POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_URL: process.env.PUBLIC_URL,
-    VERCEL_URL: process.env.VERCEL_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
