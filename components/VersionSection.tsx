@@ -1,13 +1,13 @@
 'use client';
 
-import { env } from '~/env.mjs';
+import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
+import { use, useEffect, useState } from 'react';
+import { z } from 'zod';
+import { env } from '~/env';
+import { type getInstallationId } from '~/queries/appSettings';
+import { ensureError } from '~/utils/ensureError';
 import SettingsSection from './layout/SettingsSection';
 import Paragraph from './ui/typography/Paragraph';
-import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
-import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
-import { use } from 'react';
-import { getInstallationId } from '~/analytics/utils';
 
 const GithubApiResponseSchema = z.object({
   status: z.string(),
@@ -15,39 +15,46 @@ const GithubApiResponseSchema = z.object({
   behind_by: z.number(),
 });
 
-// Use the github API to compare the current COMMIT_HASH against the head of the repo
-const checkIfUpdateAvailable = async () => {
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/complexdatacollective/fresco/compare/${env.COMMIT_HASH}...main`,
-    );
-    const raw = await res.json();
-
-    const data = GithubApiResponseSchema.parse(raw);
-
-    return {
-      upToDate: data.status === 'identical' || data.status === 'behind',
-      aheadBy: data.ahead_by,
-      behindBy: data.behind_by,
-      error: null,
-    };
-  } catch (e) {
-    return {
-      upToDate: null,
-      aheadBy: null,
-      behindBy: null,
-      error: e,
-    };
-  }
-};
-
-export default function VersionSection({ installationIdPromise}: {  installationIdPromise: ReturnType<typeof getInstallationId> }) {
-  const { isLoading, data, isError } = useQuery({
-    queryKey: ['repoData'],
-    queryFn: checkIfUpdateAvailable,
-  });
-
+export default function VersionSection({
+  installationIdPromise,
+}: {
+  installationIdPromise: ReturnType<typeof getInstallationId>;
+}) {
   const installationID = use(installationIdPromise);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<{
+    upToDate: boolean;
+    aheadBy: number;
+    behindBy: number;
+  } | null>(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(
+      `https://api.github.com/repos/complexdatacollective/fresco/compare/${env.COMMIT_HASH}...main`,
+    )
+      .then((res) => res.json())
+      .then(
+        (result: unknown) => {
+          setIsLoading(false);
+
+          const response = GithubApiResponseSchema.parse(result);
+          setData({
+            upToDate:
+              response.status === 'identical' || response.status === 'behind',
+            aheadBy: response.ahead_by,
+            behindBy: response.behind_by,
+          });
+        },
+        (error) => {
+          const e = ensureError(error);
+          setIsLoading(false);
+          setError(e.message);
+        },
+      );
+  }, []);
 
   return (
     <SettingsSection
@@ -62,7 +69,7 @@ export default function VersionSection({ installationIdPromise}: {  installation
               </Paragraph>
             </div>
           )}
-          {data?.upToDate === false && (
+          {!isLoading && data?.upToDate === false && (
             <div className="flex flex-col items-center space-x-2">
               <Info className="h-8 w-8 fill-info text-info-foreground" />
               <Paragraph
@@ -76,7 +83,7 @@ export default function VersionSection({ installationIdPromise}: {  installation
               </Paragraph>
             </div>
           )}
-          {data?.upToDate === true && (
+          {!isLoading && data?.upToDate === true && (
             <div className="flex flex-col items-center space-x-2">
               <CheckCircle2 className="h-8 w-8 fill-success text-success-foreground" />
               <Paragraph variant="smallText" margin="none">
@@ -84,11 +91,11 @@ export default function VersionSection({ installationIdPromise}: {  installation
               </Paragraph>
             </div>
           )}
-          {isError && (
+          {error && (
             <div className="flex flex-col items-center space-x-2">
               <XCircle className="h-8 w-8 fill-destructive text-destructive-foreground" />
               <Paragraph
-                className="text-destructive "
+                className="text-destructive"
                 variant="smallText"
                 margin="none"
               >
@@ -100,11 +107,10 @@ export default function VersionSection({ installationIdPromise}: {  installation
       }
     >
       <Paragraph>
-        You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH}).
+        You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH}
+        ).
       </Paragraph>
-      <Paragraph>
-        Your unique installation ID is: {installationID}
-      </Paragraph>
+      <Paragraph>Your unique installation ID is: {installationID}</Paragraph>
     </SettingsSection>
   );
 }

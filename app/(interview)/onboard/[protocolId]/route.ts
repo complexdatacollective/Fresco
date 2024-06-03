@@ -1,8 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { trackEvent } from '~/analytics/utils';
-import { api } from '~/trpc/server';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { NextResponse, type NextRequest } from 'next/server';
+import { createInterview } from '~/actions/interviews';
+import trackEvent from '~/lib/analytics';
+import { getLimitInterviewsStatus } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,19 +11,22 @@ const handler = async (
   { params }: { params: { protocolId: string } },
 ) => {
   const protocolId = params.protocolId; // From route segment
+  const url = req.nextUrl.clone();
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
   }
 
-  const appSettings = await api.appSettings.get.query();
+  const limitInterviews = await getLimitInterviewsStatus();
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (appSettings?.limitInterviews && cookies().get(protocolId)) {
-    redirect('/interview/finished');
+  if (limitInterviews && cookies().get(protocolId)) {
+    url.pathname = '/interview/finished';
+    return NextResponse.redirect(url);
   }
 
   let participantIdentifier: string | undefined;
@@ -42,7 +45,7 @@ const handler = async (
   }
 
   // Create a new interview given the protocolId and participantId
-  const { createdInterviewId, error } = await api.interview.create.mutate({
+  const { createdInterviewId, error } = await createInterview({
     participantIdentifier,
     protocolId,
   });
@@ -57,7 +60,8 @@ const handler = async (
       },
     });
 
-    return NextResponse.redirect(new URL('/onboard/error', req.nextUrl));
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
   }
 
   // eslint-disable-next-line no-console
@@ -75,9 +79,8 @@ const handler = async (
   });
 
   // Redirect to the interview
-  return NextResponse.redirect(
-    new URL(`/interview/${createdInterviewId}`, req.nextUrl),
-  );
+  url.pathname = `/interview/${createdInterviewId}`;
+  return NextResponse.redirect(url);
 };
 
 export { handler as GET, handler as POST };

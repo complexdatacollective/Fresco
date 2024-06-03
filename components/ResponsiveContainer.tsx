@@ -24,7 +24,7 @@ const containerVariants = cva('mx-auto flex flex-col my-6 md:my-10 ', {
   },
 });
 
-export type ContainerProps = {
+type ContainerProps = {
   maxWidth?: VariantProps<typeof containerVariants>['maxWidth'];
   baseSize?: VariantProps<typeof containerVariants>['baseSize'];
 } & HTMLAttributes<HTMLDivElement>;

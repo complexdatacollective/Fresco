@@ -1,28 +1,25 @@
 'use client';
 
+import type { AnyAction } from '@reduxjs/toolkit';
 import {
-  type ValueAnimationTransition,
   motion,
   useAnimate,
+  type ValueAnimationTransition,
 } from 'framer-motion';
-import { useSelector, useDispatch } from 'react-redux';
-import Navigation from '../components/Navigation';
-import {
-  getCurrentStage,
-  makeGetFakeSessionProgress,
-} from '../selectors/session';
-import Stage from './Stage';
-import { sessionAtom } from '~/providers/SessionProvider';
-import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
-import { useAtomValue } from 'jotai';
+import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getNavigationInfo } from '../selectors/session';
-import { getNavigableStages } from '../selectors/skip-logic';
+import { useDispatch, useSelector } from 'react-redux';
+import usePrevious from '~/hooks/usePrevious';
+import Navigation from '../components/Navigation';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
-import type { AnyAction } from '@reduxjs/toolkit';
-import usePrevious from '~/hooks/usePrevious';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import {
+  getCurrentStage,
+  getNavigationInfo,
+  makeGetFakeSessionProgress,
+} from '../selectors/session';
+import { getNavigableStages } from '../selectors/skip-logic';
+import Stage from './Stage';
 
 type directions = 'forwards' | 'backwards';
 
@@ -64,7 +61,6 @@ export default function ProtocolScreen() {
 
   // State
   const [, setQueryStep] = useQueryState('step', parseAsInteger.withDefault(0));
-  const session = useAtomValue(sessionAtom);
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
   const makeFakeSessionProgress = useSelector(makeGetFakeSessionProgress);
 
@@ -232,7 +228,6 @@ export default function ProtocolScreen() {
 
   return (
     <>
-      {session && <FeedbackBanner />}
       <motion.div
         className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
         initial={{ opacity: 0 }}

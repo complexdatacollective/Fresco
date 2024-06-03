@@ -1,9 +1,8 @@
 import dynamic from 'next/dynamic';
-import {
-  Component,
+import type {
   ComponentProps,
   ComponentType,
-  type ReactNode,
+  ReactNode,
 } from 'react';
 
 /**
@@ -43,4 +42,3 @@ export const withNoSSRWrapper = <P extends object>(
   return WithNoSSRWrapper;
 };
 
-export default NoSSRWrapperDynamic;

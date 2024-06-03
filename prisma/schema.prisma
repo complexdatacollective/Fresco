@@ -7,60 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-}
-
-model Protocol {
-  id            String      @id @default(cuid())
-  hash          String      @unique
-  name          String
-  schemaVersion Int
-  description   String?
-  importedAt    DateTime    @default(now())
-  lastModified  DateTime
-  stages        Json
-  codebook      Json
-  assets        Asset[]
-  interviews    Interview[]
-}
-
-model Asset {
-  key        String   @id
-  assetId    String   @unique
-  name       String
-  type       String
-  url        String
-  size       Int
-  protocols  Protocol[]
-
- @@index(fields: [assetId, key])
-}
-
-model Interview {
-  id            String      @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
-  startTime     DateTime    @default(now())
-  finishTime    DateTime?
-  exportTime    DateTime?
-  lastUpdated   DateTime    @updatedAt
-  network       Json
-  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  participantId String
-  protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
-  protocolId    String      @map("protocolId")
-  currentStep   Int         @default(0)
-  stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
-
-  @@index(fields: [protocolId])
-  @@index([participantId])
-}
-
-model Participant {
-  id         String      @id @unique @default(cuid())
-  identifier String      @unique
-  label      String?
-  interviews Interview[]
 }
 
 model User {
@@ -89,11 +38,62 @@ model Key {
   @@index([user_id])
 }
 
+model Protocol {
+  id            String      @id @default(cuid())
+  hash          String      @unique
+  name          String
+  schemaVersion Int
+  description   String?
+  importedAt    DateTime    @default(now())
+  lastModified  DateTime
+  stages        Json
+  codebook      Json
+  assets        Asset[]
+  interviews    Interview[]
+}
+
+model Asset {
+  key       String     @id
+  assetId   String     @unique
+  name      String
+  type      String
+  url       String
+  size      Int
+  protocols Protocol[]
+
+  @@index(fields: [assetId, key])
+}
+
+model Interview {
+  id            String      @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
+  startTime     DateTime    @default(now())
+  finishTime    DateTime?
+  exportTime    DateTime?
+  lastUpdated   DateTime    @updatedAt
+  network       Json
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participantId String
+  protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  protocolId    String      @map("protocolId")
+  currentStep   Int         @default(0)
+  stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
+
+  @@index(fields: [protocolId])
+  @@index([participantId])
+}
+
+model Participant {
+  id         String      @id @unique @default(cuid())
+  identifier String      @unique
+  label      String?
+  interviews Interview[]
+}
+
 model AppSettings {
   configured                Boolean  @default(false)
   initializedAt             DateTime @default(now())
   allowAnonymousRecruitment Boolean  @default(false)
-  limitInterviews            Boolean  @default(true)
+  limitInterviews           Boolean  @default(true)
   installationId            String   @unique @default(cuid())
 }
 

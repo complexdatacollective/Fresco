@@ -34,7 +34,7 @@
     ]
   },
   "include": [
-    ".eslintrc.cjs",
+    ".eslintrc.mjs",
     "next-env.d.ts",
     "**/*.js",
     "**/*.ts",
@@ -43,7 +43,8 @@
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts",
-    "eslint-local-rules/index.js"
+    "eslint-local-rules/index.js",
+    "actions/auth.ts"
   ],
   "exclude": [
     "node_modules"

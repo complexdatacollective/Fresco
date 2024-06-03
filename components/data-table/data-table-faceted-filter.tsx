@@ -1,6 +1,6 @@
 import { type Column } from '@tanstack/react-table';
 import { Check, PlusCircle } from 'lucide-react';
-import { getBadgeColorsForActivityType } from '~/app/(dashboard)/dashboard/_components/ActivityFeed/utils';
+import { getBadgeColorsForActivityType } from '~/app/dashboard/_components/ActivityFeed/utils';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
 import {

@@ -1,3 +1,5 @@
+'use client';
+
 import { type Dispatch, type SetStateAction } from 'react';
 import {
   AlertDialog,
@@ -9,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/AlertDialog';
-import { api } from '~/trpc/client';
+import { logout } from '~/actions/auth';
 
 type SignOutModalProps = {
   openSignOutModal: boolean;
@@ -20,13 +22,6 @@ const SignOutModal = ({
   openSignOutModal,
   setOpenSignOutModal,
 }: SignOutModalProps) => {
-  const utils = api.useUtils();
-  const { mutateAsync: signOut } = api.session.signOut.useMutation({
-    onSuccess: async () => {
-      await utils.session.get.invalidate();
-    },
-  });
-
   return (
     <AlertDialog open={openSignOutModal} onOpenChange={setOpenSignOutModal}>
       <AlertDialogContent>
@@ -44,7 +39,7 @@ const SignOutModal = ({
           <AlertDialogCancel onClick={() => setOpenSignOutModal(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={() => void signOut()}>
+          <AlertDialogAction onClick={() => void logout()}>
             Sign Out and Hide Banner
           </AlertDialogAction>
         </AlertDialogFooter>

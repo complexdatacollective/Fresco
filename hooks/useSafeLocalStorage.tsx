@@ -25,6 +25,7 @@ export default function useSafeLocalStorage<T>(
         if (!safeNewValue.success) {
           // eslint-disable-next-line no-console
           console.log('Existing data was invalid. Discarding.');
+          storage[1](initialData); // Not sure why, but destructuring value and setValue above causes TS errors.
           return initialData;
         }
 

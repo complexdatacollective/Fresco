@@ -1,43 +1,33 @@
-import { useCallback, useReducer, useRef } from 'react';
-import { uploadFiles } from '~/lib/uploadthing-helpers';
-import { api } from '~/trpc/client';
-import { DatabaseError } from '~/utils/databaseError';
-import { ensureError } from '~/utils/ensureError';
 import { queue } from 'async';
-import {
-  fileAsArrayBuffer,
-  getProtocolJson,
-  getProtocolAssets,
-} from '~/utils/protocolImport';
+import { XCircle } from 'lucide-react';
+import { hash } from 'ohash';
+import { useCallback, useReducer, useRef } from 'react';
+import { insertProtocol } from '~/actions/protocols';
+import { ErrorDetails } from '~/components/ErrorDetails';
+import Link from '~/components/Link';
 import {
   jobInitialState,
   jobReducer,
 } from '~/components/ProtocolImport/JobReducer';
-import Link from '~/components/Link';
-import { ErrorDetails } from '~/components/ErrorDetails';
-import { XCircle } from 'lucide-react';
-import type { assetInsertSchema } from '~/server/routers/protocol';
-import type { z } from 'zod';
-import { hash } from 'ohash';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
+import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import { uploadFiles } from '~/lib/uploadthing-helpers';
+import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { type AssetInsertType } from '~/schemas/protocol';
+import { DatabaseError } from '~/utils/databaseError';
+import { ensureError } from '~/utils/ensureError';
+import { formatNumberList } from '~/utils/general';
+import {
+  fileAsArrayBuffer,
+  getProtocolAssets,
+  getProtocolJson,
+} from '~/utils/protocolImport';
 
 // Utility helper for adding artificial delay to async functions
 // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
-  const utils = api.useUtils();
-
-  const { mutateAsync: insertProtocol } = api.protocol.insert.useMutation({
-    async onSuccess() {
-      await utils.protocol.get.all.invalidate();
-    },
-  });
-
-  const { mutateAsync: getProtocolExists } =
-    api.protocol.get.byHash.useMutation();
-
-  const { mutateAsync: getNewAssetIds } = api.asset.checkExisting.useMutation();
 
   /**
    * This is the main job processing function. Takes a file, and handles all
@@ -71,6 +61,32 @@ export const useProtocolImport = () => {
           status: 'Validating protocol',
         },
       });
+
+      // Check if the protocol version is compatible with the app.
+      const protocolVersion = protocolJson.schemaVersion;
+      if (!APP_SUPPORTED_SCHEMA_VERSIONS.includes(protocolVersion)) {
+        dispatch({
+          type: 'UPDATE_ERROR',
+          payload: {
+            id: fileName,
+            rawError: new Error('Protocol version not supported'),
+            error: {
+              title: 'Protocol version not supported',
+              description: (
+                <AlertDialogDescription>
+                  The protocol you uploaded is not compatible with this version
+                  of the app. Fresco supports protocols using version number{
+                    APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}
+                  {' '}
+                  {formatNumberList(APP_SUPPORTED_SCHEMA_VERSIONS)}.
+                </AlertDialogDescription>
+              ),
+            },
+          },
+        });
+
+        return;
+      }
 
       const { validateProtocol } = await import('@codaco/protocol-validation');
 
@@ -138,7 +154,7 @@ export const useProtocolImport = () => {
 
       // Check if the protocol already exists in the database
       const protocolHash = hash(protocolJson);
-      const exists = await getProtocolExists(protocolHash);
+      const exists = await getProtocolByHash(protocolHash);
       if (exists) {
         dispatch({
           type: 'UPDATE_ERROR',
@@ -167,14 +183,14 @@ export const useProtocolImport = () => {
 
       const existingAssetIds: string[] = [];
 
-      let newAssetsWithCombinedMetadata: z.infer<typeof assetInsertSchema> = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
       // If not, add them to newAssets to be uploaded.
 
       try {
-        const newAssetIds = await getNewAssetIds(
+        const newAssetIds = await getExistingAssetIds(
           assets.map((asset) => asset.assetId),
         );
 

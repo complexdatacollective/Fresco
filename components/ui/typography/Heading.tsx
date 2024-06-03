@@ -4,7 +4,6 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import React from 'react';
 import { cn } from '~/utils/shadcn';
 import { Slot } from '@radix-ui/react-slot';
-import { motion } from 'framer-motion';
 
 export const headingVariants = cva('text-balance', {
   variants: {
@@ -35,7 +34,7 @@ const variantElementMap: Record<
   'label': 'label',
 };
 
-export type HeadingProps = {
+type HeadingProps = {
   asChild?: boolean;
   as?: string;
 } & React.HTMLAttributes<HTMLHeadingElement> &
@@ -57,7 +56,5 @@ const Heading = React.forwardRef<HTMLElement, HeadingProps>(
 );
 
 Heading.displayName = 'Heading';
-
-export const MotionHeading = motion(Heading);
 
 export default Heading;

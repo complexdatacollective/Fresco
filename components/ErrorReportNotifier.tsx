@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckIcon, Loader2, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { trackEvent } from '~/analytics/utils';
+import trackEvent from '~/lib/analytics';
 
 const labelAnimationVariants = {
   hidden: { opacity: 0, y: '-100%' },
@@ -11,7 +11,7 @@ const labelAnimationVariants = {
 
 type ReportStates = 'idle' | 'loading' | 'success' | 'error';
 
-export function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
+function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
   return (
     <div className="absolute right-10 top-10">
       <AnimatePresence mode="wait" initial={false}>

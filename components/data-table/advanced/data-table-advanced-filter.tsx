@@ -1,5 +1,3 @@
-'use client';
-
 import { ChevronDown, ChevronsUpDown, Plus, TextIcon } from 'lucide-react';
 import * as React from 'react';
 

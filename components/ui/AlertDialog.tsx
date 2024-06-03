@@ -10,8 +10,6 @@ import { DialogTitle, DialogDescription } from '~/components/ui/dialog';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
-const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
-
 const AlertDialogPortal = ({
   ...props
 }: AlertDialogPrimitive.AlertDialogPortalProps) => (
@@ -118,7 +116,6 @@ AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 
 export {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogFooter,

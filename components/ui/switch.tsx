@@ -1,9 +1,10 @@
 'use client';
 
-import * as React from 'react';
 import * as SwitchPrimitives from '@radix-ui/react-switch';
+import * as React from 'react';
 
 import { cn } from '~/utils/shadcn';
+import { Skeleton } from './skeleton';
 
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
@@ -11,7 +12,7 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchPrimitives.Root
     className={cn(
-      'border-transparent focus-visible:ring-ring peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-success data-[state=unchecked]:bg-primary',
+      'focus-visible:ring-ring peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-success data-[state=unchecked]:bg-primary',
       className,
     )}
     {...props}
@@ -26,4 +27,6 @@ const Switch = React.forwardRef<
 ));
 Switch.displayName = SwitchPrimitives.Root.displayName;
 
-export { Switch };
+const SwitchSkeleton = () => <Skeleton className="h-[24px] w-[44px]" />;
+
+export { Switch, SwitchSkeleton };
