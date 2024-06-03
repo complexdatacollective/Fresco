@@ -1,20 +1,10 @@
 import { AlertCircle } from 'lucide-react';
-import { Suspense } from 'react';
 import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { Skeleton } from '~/components/ui/skeleton';
 import { getAnonymousRecruitmentStatus } from '~/queries/appSettings';
 
-export default function AnonymousRecruitmentWarning() {
-  return (
-    <Suspense fallback={<AnonymousRecruitmentWarningSkeleton />}>
-      <AnonymousRecruitmentWarningChild />
-    </Suspense>
-  );
-}
-
-const AnonymousRecruitmentWarningChild = async () => {
+export default async function AnonymousRecruitmentWarning() {
   const allowAnonymousRecruitment = await getAnonymousRecruitmentStatus();
 
   if (!allowAnonymousRecruitment) return null;
@@ -31,21 +21,6 @@ const AnonymousRecruitmentWarningChild = async () => {
           recruitment, visit{' '}
           <Link href="/dashboard/settings">the settings page</Link>.
         </AlertDescription>
-      </Alert>
-    </ResponsiveContainer>
-  );
-};
-
-export function AnonymousRecruitmentWarningSkeleton() {
-  return (
-    <ResponsiveContainer>
-      <Alert variant="info" className="space-y-5">
-        <div className="flex gap-3">
-          <Skeleton className="h-4 w-4 rounded-full" />
-          <Skeleton className="h-4 w-20" />
-        </div>
-
-        <Skeleton className="ml-4 h-12" />
       </Alert>
     </ResponsiveContainer>
   );
