@@ -23,6 +23,9 @@ export const resetAppSettings = async () => {
     revalidateTag('appSettings');
     revalidateTag('activityFeed');
     revalidateTag('summaryStatistics');
+    revalidateTag('getProtocols');
+    revalidateTag('getParticipants');
+    revalidateTag('getInterviews');
 
     const utapi = new UTApi();
 
