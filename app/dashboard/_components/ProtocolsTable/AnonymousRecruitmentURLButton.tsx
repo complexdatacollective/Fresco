@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Copy } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 
@@ -10,8 +11,17 @@ export const AnonymousRecruitmentURLButton = ({
   protocolId: string;
 }) => {
   const { toast } = useToast();
-  const url = `${window.location.origin}/onboard/${protocolId}`;
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (window) {
+      setUrl(`${window.location.origin}/onboard/${protocolId}`);
+    }
+  }, [protocolId]);
+
   const handleCopyClick = () => {
+    if (!url) return;
+
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -34,9 +44,11 @@ export const AnonymousRecruitmentURLButton = ({
   };
 
   return (
-    <Button size="xs" onClick={handleCopyClick} variant="accent">
-      <Copy className="mr-2 h-4 w-4" />
-      <span className="w-36 truncate">{url}</span>
-    </Button>
+    url && (
+      <Button size="xs" onClick={handleCopyClick} variant="accent">
+        <Copy className="mr-2 h-4 w-4" />
+        <span className="w-36 truncate">{url}</span>
+      </Button>
+    )
   );
 };
