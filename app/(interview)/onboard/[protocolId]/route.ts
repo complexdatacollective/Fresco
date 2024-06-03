@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
-import { trackEvent } from '~/lib/analytics';
+import trackEvent from '~/lib/analytics';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
 import getBaseUrl from '~/utils/getBaseUrl';
 

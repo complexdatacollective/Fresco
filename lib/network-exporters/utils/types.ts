@@ -37,6 +37,8 @@ const ZSessionVariables = z.object({
   APP_VERSION: z.string(),
 });
 
+export type SessionVariables = z.infer<typeof ZSessionVariables>;
+
 const ZFormattedSessionSchema = ZNcNetwork.extend({
   sessionVariables: ZSessionVariables,
 });

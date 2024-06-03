@@ -9,9 +9,10 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
-import { env } from '~/env.mjs';
+import { env } from '~/env';
 import type { getInterviewsForExport } from '~/queries/interviews';
 import type { NcNetwork } from '~/schemas/network-canvas';
+import { type SessionVariables } from '../utils/types';
 
 /**
  * Creates an object containing all required session metadata for export
@@ -25,9 +26,11 @@ export const formatExportableSessions = (
     const sessionProtocol = session.protocol;
     const sessionParticipant = session.participant;
 
-    const sessionVariables = {
-      [caseProperty]: sessionParticipant.label!,
-      [sessionProperty]: sessionParticipant.identifier,
+    const sessionVariables: SessionVariables = {
+      // Label is optional, so fallback to identifier because caseProperty is used
+      // to create the filename during export.
+      [caseProperty]: sessionParticipant.label ?? sessionParticipant.identifier,
+      [sessionProperty]: session.id,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),

@@ -3,7 +3,7 @@
 import { Check, FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { use, useState } from 'react';
-import { Button, ButtonSkeleton } from '~/components/ui/Button';
+import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetParticipantsReturnType } from '~/queries/participants';
@@ -68,9 +68,5 @@ function ExportParticipants({
     </Button>
   );
 }
-
-export const ExportParticipantsFallback = () => (
-  <ButtonSkeleton className="w-full" />
-);
 
 export default ExportParticipants;

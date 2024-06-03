@@ -2,7 +2,7 @@
 
 import { File } from 'node:buffer';
 import { readFile, unlink } from 'node:fs/promises';
-import { utapi } from '~/app/api/uploadthing/core';
+import { UTApi } from 'uploadthing/server';
 import type {
   ArchiveResult,
   ExportReturn,
@@ -12,6 +12,8 @@ import { ensureError } from '~/utils/ensureError';
 
 export const deleteZipFromUploadThing = async (key: string) => {
   await requireApiAuth();
+
+  const utapi = new UTApi();
 
   const deleteResponse = await utapi.deleteFiles(key);
 
@@ -31,6 +33,8 @@ export const uploadZipToUploadThing = async (
     const zipFile = new File([zipBuffer], `${fileName}.zip`, {
       type: 'application/zip',
     });
+
+    const utapi = new UTApi();
 
     const { data, error } = await utapi.uploadFiles(zipFile);
 

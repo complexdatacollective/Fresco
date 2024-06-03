@@ -1,16 +1,15 @@
 'use client';
 
-import * as React from 'react';
+import { motion } from 'framer-motion';
+import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { UrlObject } from 'url';
+import Heading from '~/components/ui/typography/Heading';
+import { env } from '~/env';
 import { cn } from '~/utils/shadcn';
 import UserMenu from './UserMenu';
-import type { UrlObject } from 'url';
-import type { Route } from 'next';
-import { motion } from 'framer-motion';
-import Heading from '~/components/ui/typography/Heading';
-import { env } from '~/env.mjs';
 
 const NavButton = ({
   label,
@@ -22,7 +21,7 @@ const NavButton = ({
   isActive?: boolean;
 }) => {
   return (
-    <motion.li layout className=" relative flex flex-col justify-start">
+    <motion.li layout className="relative flex flex-col justify-start">
       <Link
         href={href}
         className={cn(

@@ -8,6 +8,7 @@ import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
 export default async function ProtocolsPage() {
   await requireAppNotExpired();
   await requirePageAuth();
+
   return (
     <>
       <ResponsiveContainer>

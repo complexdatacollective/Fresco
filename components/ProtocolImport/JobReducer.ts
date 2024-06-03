@@ -1,4 +1,4 @@
-import { trackEvent } from '~/lib/analytics';
+import trackEvent from '~/lib/analytics';
 
 const importStatuses = [
   'Queued',
@@ -150,6 +150,6 @@ export function jobReducer(state: ImportJob[], action: Action) {
       });
     }
     default:
-      throw new Error('Unknown error occured');
+      throw new Error('Unknown error occurred');
   }
 }

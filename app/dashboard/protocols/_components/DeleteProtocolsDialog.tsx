@@ -1,7 +1,8 @@
-'use client';
-
-import { Loader2, AlertCircle, Trash2 } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
+import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
+import { deleteProtocols } from '~/actions/protocols';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -11,11 +12,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { Button } from '~/components/ui/Button';
 import type { ProtocolWithInterviews } from '~/types/types';
-import { useEffect, useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
-import { deleteProtocols } from '~/actions/protocols';
 
 type DeleteProtocolsDialogProps = {
   open: boolean;

@@ -1,13 +1,13 @@
 'use client';
 
-import { env } from '~/env.mjs';
-import SettingsSection from './layout/SettingsSection';
-import Paragraph from './ui/typography/Paragraph';
-import { z } from 'zod';
 import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
-import { ensureError } from '~/utils/ensureError';
+import { z } from 'zod';
+import { env } from '~/env';
 import { type getInstallationId } from '~/queries/appSettings';
+import { ensureError } from '~/utils/ensureError';
+import SettingsSection from './layout/SettingsSection';
+import Paragraph from './ui/typography/Paragraph';
 
 const GithubApiResponseSchema = z.object({
   status: z.string(),
@@ -95,7 +95,7 @@ export default function VersionSection({
             <div className="flex flex-col items-center space-x-2">
               <XCircle className="h-8 w-8 fill-destructive text-destructive-foreground" />
               <Paragraph
-                className="text-destructive "
+                className="text-destructive"
                 variant="smallText"
                 margin="none"
               >
