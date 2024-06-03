@@ -14,7 +14,7 @@ export const AnonymousRecruitmentURLButton = ({
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (window) {
+    if (typeof window !== 'undefined') {
       setUrl(`${window.location.origin}/onboard/${protocolId}`);
     }
   }, [protocolId]);
