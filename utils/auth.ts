@@ -7,7 +7,7 @@ import * as context from 'next/headers';
 import { RedirectType, redirect } from 'next/navigation';
 import { cache } from 'react';
 import 'server-only';
-import { env } from '~/env.mjs';
+import { env } from '~/env';
 import { prisma as client } from '~/utils/db';
 
 export const auth = lucia({

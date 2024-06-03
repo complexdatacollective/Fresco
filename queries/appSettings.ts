@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { env } from '~/env.mjs';
+import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { prisma } from '~/utils/db';
 

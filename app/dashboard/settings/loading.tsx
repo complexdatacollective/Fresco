@@ -4,7 +4,7 @@ import { ButtonSkeleton } from '~/components/ui/Button';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SwitchSkeleton } from '~/components/ui/switch';
 import PageHeader from '~/components/ui/typography/PageHeader';
-import { env } from '~/env.mjs';
+import { env } from '~/env';
 
 export default function Loading() {
   return (

@@ -9,7 +9,7 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
-import { env } from '~/env.mjs';
+import { env } from '~/env';
 import type { getInterviewsForExport } from '~/queries/interviews';
 import type { NcNetwork } from '~/schemas/network-canvas';
 import { type SessionVariables } from '../utils/types';

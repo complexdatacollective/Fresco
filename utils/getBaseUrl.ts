@@ -1,7 +1,11 @@
 import 'server-only';
-import { env } from '~/env.mjs';
+import { env } from '~/env';
 
 export default function getBaseUrl() {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
   if (env.VERCEL_URL)
     // reference for vercel.com
     return `https://${env.VERCEL_URL}`;
@@ -10,6 +14,7 @@ export default function getBaseUrl() {
     // Manually set deployment URL from env
     return env.PUBLIC_URL;
 
-  // assume localhost
-  return `http://127.0.0.1:3000`;
+  // eslint-disable-next-line no-console
+  console.warn("⚠️ Couldn't determine base URL, using default");
+  return `http://localhost:3000`;
 }
