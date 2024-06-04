@@ -12,7 +12,7 @@ export default function Loading() {
           subHeaderText="View and manage your interview data."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="6xl">
+      <ResponsiveContainer maxWidth="7xl">
         <Section>
           <DataTableSkeleton columnCount={6} filterableColumnCount={2} />
         </Section>
