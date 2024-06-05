@@ -60,7 +60,7 @@ export default async function Settings() {
             prevented.
           </Paragraph>
         </SettingsSection>
-        {!env.SANDBOX_MODE && (
+        {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
           <SettingsSection
             heading="Reset Settings"
             controlArea={<ResetButton />}
