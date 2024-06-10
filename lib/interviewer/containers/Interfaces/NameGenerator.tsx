@@ -10,7 +10,7 @@ import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import { type NcNode } from '~/schemas/network-canvas';
 import { usePrompts } from '../../behaviours/withPrompt';
-import { createDraggableNode } from '../../components/Node';
+import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
@@ -25,7 +25,6 @@ import {
 import { getNodeColor, getNodeTypeLabel } from '../../selectors/network';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import NodeForm from '../NodeForm';
-import NodePanels from '../NodePanels';
 import { type directions } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
 import {
@@ -66,8 +65,6 @@ type NameGeneratorProps = {
     };
   };
 };
-
-const DraggableNode = createDraggableNode('INTERVIEW_NODE');
 
 const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;
@@ -163,17 +160,20 @@ const NameGenerator = (props: NameGeneratorProps) => {
         <Prompts />
       </div>
       <div className="relative flex h-full">
-        <NodePanels disableAddNew={maxNodesReached} />
+        {/* <NodePanels disableAddNew={maxNodesReached} /> */}
         <NodeList
-          key={`${stage.id}_${promptIndex}`}
+          listId={`${stage.id}_${promptIndex}`}
           items={nodesForPrompt}
-          ItemComponent={DraggableNode}
+          ItemComponent={Node}
           onDrop={handleDropNode}
           allowDrop={!maxNodesReached} // allow dropping of items
-          accepts={['EXISTING_NODE', 'ROSTER_NODE']} // items accepted here have these meta types
+          // items accepted here have these meta types
+          willAccept={(item) =>
+            ['EXISTING_NODE', 'ROSTER_NODE'].includes(item.type)
+          }
         />
       </div>
-      <NodeBin accepts={['EXISTING_NODE']} />
+      <NodeBin />
       {createPortal(
         <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
         document.getElementById('stage'),

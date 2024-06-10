@@ -1,30 +1,37 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { hash } from 'ohash';
-import { useMemo, type ComponentType } from 'react';
-import type { ItemType } from '~/lib/dnd/config';
+import { ForwardRefExoticComponent, useCallback } from 'react';
+import draggable from '~/lib/dnd/Draggable';
+import { type DraggingItem } from '~/lib/dnd/store';
 import useDroppable from '~/lib/dnd/useDroppable';
 import { cn } from '~/utils/shadcn';
 
 type NodeListProps = {
-  items: unknown[];
-  ItemComponent: ComponentType;
-  accepts: ItemType[];
+  listId: string;
+  items: Record<string, unknown>[];
+  ItemComponent: ForwardRefExoticComponent<unknown>;
+  willAccept: (item: DraggingItem) => boolean;
   allowDrop: boolean;
   onDrop?: (event: DragEvent) => void;
   className?: string;
 };
 
 const NodeList = (props: NodeListProps) => {
-  const { items, accepts, allowDrop, onDrop, className, ItemComponent } = props;
+  const { items, willAccept, allowDrop, onDrop, className, ItemComponent } =
+    props;
 
-  const ItemMotionComponent = useMemo(() => motion(ItemComponent), []);
+  const ItemMotionComponent = useCallback(
+    () => (props) =>
+      draggable(ItemComponent, { type: 'EXISTING_NODE', metaData: props }),
+    [],
+  );
 
   const { ref, isActive, isValid, isOver } = useDroppable({
     disabled: !allowDrop,
     onDrop: (event) => {
       console.log('dropped', event);
     },
-    accepts,
+    willAccept,
   });
 
   return (
@@ -45,16 +52,7 @@ const NodeList = (props: NodeListProps) => {
 
           const itemHash = hash(item);
 
-          return (
-            <ItemMotionComponent
-              layout
-              initial={{ opacity: 0, y: '20%' }}
-              animate={{ opacity: 1, y: 0, scale: 1, transition: { delay } }}
-              exit={{ opacity: 0, scale: 0 }}
-              key={itemHash}
-              {...item}
-            />
-          );
+          return ItemMotionComponent(item);
         })}
       </AnimatePresence>
     </motion.div>

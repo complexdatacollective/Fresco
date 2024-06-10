@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ItemType } from './config';
-import useStore from './store';
+import useStore, { DraggingItem } from './store';
 
 type UseDroppableProps = {
   disabled?: boolean;
   onDrop?: (event: DragEvent) => void;
-  accepts: ItemType[];
+  willAccept: (item: DraggingItem) => boolean;
 };
 
 export default function useDroppable(props: UseDroppableProps) {
-  const { disabled, onDrop, accepts } = props;
+  const { disabled, onDrop, willAccept } = props;
   const [isActive, setIsActive] = useState(false); // is the user currently dragging something
   const [isValid, setIsValid] = useState(false); // is the user currently dragging something that can be dropped here
   const [isOver, setIsOver] = useState(false); // is the user currently dragging something over this component
@@ -29,12 +28,12 @@ export default function useDroppable(props: UseDroppableProps) {
 
     setIsActive(true);
 
-    if (accepts.includes(draggingItem?.type)) {
+    if (willAccept(draggingItem)) {
       setIsValid(true);
     } else {
       setIsValid(false);
     }
-  }, [draggingItem, accepts]);
+  }, [draggingItem, willAccept]);
 
   // Attach event listeners to the ref
   useEffect(() => {

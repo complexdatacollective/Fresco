@@ -8,11 +8,29 @@ export const ZSubjectEntity = z.enum(['node', 'edge']);
 
 export type SubjectEntity = z.infer<typeof ZSubjectEntity>;
 
+const ZLayoutValue = z.object({
+  x: z.number(),
+  y: z.number(),
+});
+
+const ZCategoricalValue = z.array(
+  z.union([z.boolean(), z.number(), z.string()]),
+);
+
+const ZAttributeValues = z.union([
+  z.boolean(),
+  z.number(),
+  z.string(),
+  ZLayoutValue,
+  ZCategoricalValue,
+]);
+
 const ZNcEntity = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),
-  type: ZSubjectEntity.optional(),
-  [entityAttributesProperty]: z.record(z.string(), z.unknown()),
+  [entityAttributesProperty]: z.record(z.string(), ZAttributeValues).optional(),
 });
+
+export type NcEntity = z.infer<typeof ZNcEntity>;
 
 export const ZNcNode = ZNcEntity.extend({
   type: z.string(),
@@ -120,6 +138,8 @@ export const ZStageSubject = z.object({
   entity: ZSubjectEntity,
   type: z.string(),
 });
+
+export type StageSubject = z.infer<typeof ZStageSubject>;
 
 export const ZAdditionalAttribute = z.object({
   variable: z.string(),

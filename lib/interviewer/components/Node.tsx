@@ -1,9 +1,11 @@
+import { Codebook } from '@codaco/shared-consts';
 import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
-import { type ItemType } from '~/lib/dnd/config';
 import draggable from '~/lib/dnd/draggable';
-import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
+import { DraggingItem } from '~/lib/dnd/store';
 import UINode from '~/lib/ui/components/Node';
+import { NcNode } from '~/schemas/network-canvas';
+import { getEntityAttributes } from '~/utils/general';
 import { getNodeColor, labelLogic } from '../selectors/network';
 import { getProtocolCodebook } from '../selectors/protocol';
 
@@ -11,12 +13,12 @@ import { getProtocolCodebook } from '../selectors/protocol';
  * Renders a Node.
  */
 
-const Node = forwardRef((props, ref) => {
+const Node = forwardRef<HTMLDivElement, NcNode>((props, ref) => {
   const { type } = props;
 
   const color = useSelector(getNodeColor(type));
-  const codebook = useSelector(getProtocolCodebook);
-  const label = labelLogic(codebook.node[type], getEntityAttributes(props));
+  const codebook = useSelector(getProtocolCodebook) as Codebook;
+  const label = labelLogic(codebook.node![type]!, getEntityAttributes(props));
 
   return (
     <div ref={ref}>
@@ -27,7 +29,7 @@ const Node = forwardRef((props, ref) => {
 
 Node.displayName = 'Node';
 
-export const createDraggableNode = (itemType: ItemType) =>
-  draggable(Node, itemType);
+export const createDraggableNode = (item: DraggingItem) =>
+  draggable(Node, item);
 
 export default Node;

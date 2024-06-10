@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import { DraggingItem } from '~/lib/dnd/store';
 import Panel from '~/lib/interviewer/components/Panel';
 import { Spinner } from '~/lib/ui/components';
 import type { Panel as PanelType } from '~/schemas/network-canvas';
@@ -24,6 +25,17 @@ function NodePanel(props: NodePanelProps) {
   const { dataSource, title, filter, id } = panel;
 
   const { nodes, isLoading } = usePanelData({ dataSource });
+
+  const willAccept = useCallback(
+    (item: DraggingItem) => {
+      if (dataSource === 'existing') {
+        return item.type === 'EXISTING_NODE';
+      }
+
+      return false;
+    },
+    [dataSource],
+  );
 
   useEffect(() => {
     if (nodes) {
@@ -51,7 +63,7 @@ function NodePanel(props: NodePanelProps) {
               ? DraggableExistingNode
               : DraggableRosterNode
           }
-          accepts={dataSource === 'existing' ? ['EXISTING_NODE'] : []}
+          willAccept={willAccept}
           onDrop={handleDrop}
           allowDrop={!disableAddNew}
         />
