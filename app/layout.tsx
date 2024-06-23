@@ -1,4 +1,4 @@
-import { Viewport, type Metadata } from 'next';
+import { type Metadata, type Viewport } from 'next';
 import { Quicksand } from 'next/font/google';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
