@@ -8,6 +8,7 @@ import { Serwist } from 'serwist';
 // `"self.__SW_MANIFEST"`.
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+
   interface WorkerGlobalScope extends SerwistGlobalConfig {
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
   }
