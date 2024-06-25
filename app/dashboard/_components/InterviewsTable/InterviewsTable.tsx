@@ -1,14 +1,14 @@
 'use client';
 
+import { HardDriveUpload } from 'lucide-react';
 import { use, useMemo, useState } from 'react';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
-import { DataTable } from '~/components/DataTable/DataTable';
-import { Button } from '~/components/ui/Button';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
-import { HardDriveUpload } from 'lucide-react';
 import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/GenerateInterviewURLs';
+import { DataTable } from '~/components/DataTable/DataTable';
+import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,6 +80,7 @@ export const InterviewsTable = ({
           setShowExportModal(true);
         }}
         actions={ActionsDropdown}
+        defaultSortBy={{ id: 'lastUpdated', desc: true }}
         headerItems={
           <>
             <DropdownMenu>
