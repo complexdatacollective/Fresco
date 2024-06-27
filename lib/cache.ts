@@ -10,6 +10,13 @@ const CACHE_TAGS = [
   'getParticipants',
   'getInterviewById',
   'getProtocols',
+  'getInstallationId',
+  'getInterviewsForExport',
+  'getProtocolsByHash',
+  'getExistingAssetIds',
+  'interviewCount',
+  'protocolCount',
+  'participantCount',
 ] as const;
 
 type StaticTag = (typeof CACHE_TAGS)[number];
