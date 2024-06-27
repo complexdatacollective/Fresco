@@ -1,7 +1,7 @@
 'use client';
 
-import { Switch as SwitchUI } from '~/components/ui/switch';
 import { useOptimistic, useTransition } from 'react';
+import { Switch as SwitchUI } from '~/components/ui/switch';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,

@@ -1,7 +1,7 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { safeRevalidateTag } from '~/lib/cache';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
@@ -14,7 +14,7 @@ export async function setAnonymousRecruitment(input: boolean) {
     },
   });
 
-  revalidateTag('allowAnonymousRecruitment');
+  safeRevalidateTag('allowAnonymousRecruitment');
 
   return input;
 }
@@ -27,7 +27,7 @@ export async function setLimitInterviews(input: boolean) {
     },
   });
 
-  revalidateTag('limitInterviews');
+  safeRevalidateTag('limitInterviews');
 
   return input;
 }
@@ -42,7 +42,7 @@ export const setAppConfigured = async () => {
       },
     });
 
-    revalidateTag('appSettings');
+    safeRevalidateTag('appSettings');
   } catch (error) {
     return { error: 'Failed to update appSettings', appSettings: null };
   }

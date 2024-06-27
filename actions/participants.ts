@@ -1,8 +1,8 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { revalidateTag } from 'next/cache';
 import { addEvent } from '~/actions/activityFeed';
+import { safeRevalidateTag } from '~/lib/cache';
 import {
   participantListInputSchema,
   updateSchema,
@@ -24,9 +24,9 @@ export async function deleteParticipants(participantIds: string[]) {
     `Deleted ${result.count} participant(s)`,
   );
 
-  revalidateTag('getParticipants');
-  revalidateTag('getInterviews');
-  revalidateTag('summaryStatistics');
+  safeRevalidateTag('getParticipants');
+  safeRevalidateTag('getInterviews');
+  safeRevalidateTag('summaryStatistics');
 }
 
 export async function deleteAllParticipants() {
@@ -39,16 +39,15 @@ export async function deleteAllParticipants() {
     `Deleted ${result.count} participant(s)`,
   );
 
-  revalidateTag('getParticipants');
-  revalidateTag('getInterviews');
-  revalidateTag('summaryStatistics');
+  safeRevalidateTag('getParticipants');
+  safeRevalidateTag('getInterviews');
+  safeRevalidateTag('summaryStatistics');
 }
 
 export async function importParticipants(rawInput: unknown) {
   await requireApiAuth();
 
   const participantList = participantListInputSchema.parse(rawInput);
-
 
   /*
   Format participantList:
@@ -83,8 +82,8 @@ export async function importParticipants(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return {
       error: null,
@@ -111,8 +110,8 @@ export async function updateParticipant(rawInput: unknown) {
       data,
     });
 
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null, participant: updatedParticipant };
   } catch (error) {
@@ -153,8 +152,8 @@ export async function createParticipant(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return {
       error: null,

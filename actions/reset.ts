@@ -1,7 +1,8 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { UTApi } from 'uploadthing/server';
+import { safeRevalidateTag } from '~/lib/cache';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
@@ -20,12 +21,12 @@ export const resetAppSettings = async () => {
     ]);
 
     revalidatePath('/');
-    revalidateTag('appSettings');
-    revalidateTag('activityFeed');
-    revalidateTag('summaryStatistics');
-    revalidateTag('getProtocols');
-    revalidateTag('getParticipants');
-    revalidateTag('getInterviews');
+    safeRevalidateTag('appSettings');
+    safeRevalidateTag('activityFeed');
+    safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('getProtocols');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('getInterviews');
 
     const utapi = new UTApi();
 
