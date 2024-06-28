@@ -8,8 +8,10 @@
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "app/sw.ts",
+    "public/sw.js"
   ],
-  "ignoreDependencies": ["server-only", "prop-types", "sharp"],
+  "ignoreDependencies": ["server-only", "prop-types", "sharp", "serwist"],
   "ignoreBinaries": ["docker-compose"]
 }
