@@ -1,5 +1,7 @@
 'use server';
 
+import { hash, verify } from '@node-rs/argon2';
+import { generateIdFromEntropySize } from 'lucia';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
@@ -16,35 +18,22 @@ export async function signup(formData: unknown) {
     };
   }
 
+  const { username, password } = parsedFormData.data;
+
+  const hashedPassword = await hash(password);
+  const userId = generateIdFromEntropySize(10); // 16 characters long
+
   try {
-    const { username, password } = parsedFormData.data;
-
-    const user = await auth.createUser({
-      key: {
-        providerId: 'username', // auth method
-        providerUserId: username, // unique id when using "username" auth method
-        password, // hashed by Lucia
-      },
-      attributes: {
+    await prisma.user.create({
+      data: {
+        id: userId,
         username,
+        hashedPassword,
       },
     });
 
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {},
-    });
-
-    if (!session) {
-      return {
-        success: false,
-        error: 'Failed to create session',
-      };
-    }
-
-    // set session cookie
-
-    const sessionCookie = auth.createSessionCookie(session);
+    const session = await auth.createSession(userId, {});
+    const sessionCookie = auth.createSessionCookie(session.id);
 
     cookies().set(
       sessionCookie.name,
@@ -112,22 +101,17 @@ export const login = async (
     };
   }
 
-  let key;
-  try {
-    key = await auth.useKey('username', username, password);
-  } catch (e) {
+  const validPassword = await verify(existingUser.hashedPassword, password);
+  if (!validPassword) {
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
     };
   }
 
-  const session = await auth.createSession({
-    userId: key.userId,
-    attributes: {},
-  });
+  const session = await auth.createSession(existingUser.id, {});
+  const sessionCookie = auth.createSessionCookie(session.id);
 
-  const sessionCookie = auth.createSessionCookie(session);
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,
@@ -140,14 +124,21 @@ export const login = async (
 };
 
 export async function logout() {
-  const session = await getServerSession();
+  const { session } = await getServerSession();
   if (!session) {
     return {
       error: 'Unauthorized',
     };
   }
 
-  await auth.invalidateSession(session.sessionId);
+  await auth.invalidateSession(session.id);
+
+  const sessionCookie = auth.createBlankSessionCookie();
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
 
   revalidatePath('/');
 }

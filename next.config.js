@@ -1,4 +1,4 @@
-import('./env.ts');
+// import('./env');
 import ChildProcess from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
 
@@ -19,6 +19,8 @@ const config = {
   output: 'standalone',
   reactStrictMode: true,
   experimental: {
+     // Todo: remove this config once we upgrade to Next 15
+    serverComponentsExternalPackages: ['@node-rs/argon2'],
     typedRoutes: true,
     webpackBuildWorker: true,
   },

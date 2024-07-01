@@ -16,7 +16,7 @@ model User {
   id           String    @id @default(cuid())
   username     String    @unique
   auth_session Session[]
-  key          Key[]
+  hashedPassword String
 }
 
 model Session {
@@ -25,15 +25,6 @@ model Session {
   active_expires BigInt
   idle_expires   BigInt
   user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
-
-  @@index([user_id])
-}
-
-model Key {
-  id              String  @id @unique
-  hashed_password String?
-  user_id         String
-  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
 }

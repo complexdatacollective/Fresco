@@ -2,7 +2,7 @@
 import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
 import { type User } from '@prisma/client';
 import { Lucia } from 'lucia';
-import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
+// import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
@@ -41,6 +41,7 @@ declare module 'lucia' {
 interface DatabaseUserAttributes {
   id: string;
   username: string;
+  hashedPassword: string;
 }
 
 export const getServerSession = cache(async () => {
