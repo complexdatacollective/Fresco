@@ -1,4 +1,4 @@
-import('./env.js');
+import('./env.ts');
 import ChildProcess from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
 
