@@ -13,6 +13,11 @@
   display: flex;
   flex: 1;
   overflow: hidden;
-  padding: units.unit(2) units.unit(4);
+  padding: units.unit(2);
   position: relative;
+
+  // Increase padding for larger screens
+  @media (min-width: 1024px) {
+    padding: units.unit(2) units.unit(4);
+  }
 }

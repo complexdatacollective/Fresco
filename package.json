@@ -108,7 +108,8 @@
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
     "zod": "^3.23.5",
-    "zod-form-data": "^2.0.2"
+    "zod-form-data": "^2.0.2",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@prisma/client": "^5.14.0",

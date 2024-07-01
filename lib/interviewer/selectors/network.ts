@@ -1,22 +1,24 @@
-import { findKey, find } from 'lodash';
-import { getActiveSession } from './session';
-import { createDeepEqualSelector } from './utils';
-import { getProtocolCodebook } from './protocol';
-import customFilter from '~/lib/network-query/filter';
-import { createSelector } from '@reduxjs/toolkit';
-import { getStageSubject, getSubjectType } from './prop';
 import {
   entityAttributesProperty,
   type Codebook,
-  type FilterDefinition,
-  type NcNetwork,
-  type NcNode,
   type NodeTypeDefinition,
-  type Stage,
-  type StageSubject,
 } from '@codaco/shared-consts';
+import { createSelector } from '@reduxjs/toolkit';
+import { find, findKey } from 'lodash';
+import customFilter from '~/lib/network-query/filter';
+import type {
+  FilterDefinition,
+  NcNetwork,
+  NcNode,
+  Stage,
+  StageSubject,
+} from '~/schemas/network-canvas';
+import { getEntityAttributes } from '~/utils/general';
 import type { RootState } from '../store';
-import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
+import { getStageSubject, getSubjectType } from './prop';
+import { getProtocolCodebook } from './protocol';
+import { getActiveSession } from './session';
+import { createDeepEqualSelector } from './utils';
 
 export const getNetwork = createSelector(
   getActiveSession,
@@ -51,8 +53,18 @@ export const getNetworkNodes = createSelector(
   (network) => network?.nodes ?? [],
 );
 
+export const UNFILTERED_getNetworkNodes = createSelector(
+  getNetwork,
+  (network) => network?.nodes ?? [],
+);
+
 export const getNetworkEgo = createSelector(
   getFilteredNetwork,
+  (network) => network?.ego ?? null,
+);
+
+export const UNFILTERED_getNetworkEgo = createSelector(
+  getNetwork,
   (network) => network?.ego ?? null,
 );
 
@@ -63,6 +75,11 @@ export const getEgoAttributes = createSelector(
 
 export const getNetworkEdges = createSelector(
   getFilteredNetwork,
+  (network) => network?.edges ?? [],
+);
+
+export const UNFILTERED_getNetworkEdges = createSelector(
+  getNetwork,
   (network) => network?.edges ?? [],
 );
 
@@ -119,7 +136,7 @@ export const getNodeLabel = createSelector(
       return 'Node';
     }
 
-    const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
+    const nodeAttributes = getEntityAttributes(node);
 
     return labelLogic(nodeTypeDefinition, nodeAttributes);
   },

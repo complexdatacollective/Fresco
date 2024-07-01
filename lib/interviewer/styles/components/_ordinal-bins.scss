@@ -36,13 +36,6 @@
     justify-content: center;
     height: calc(100% - 5rem);
 
-    .node-list {
-      &--hover,
-      &--drag {
-        background-color: inherit;
-      }
-    }
-
     .scrollable {
       height: 100%;
     }
