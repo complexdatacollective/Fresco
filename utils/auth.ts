@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
-import { type User } from '@prisma/client';
 import { Lucia } from 'lucia';
-// import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect, RedirectType } from 'next/navigation';
 import { cache } from 'react';
 import 'server-only';
 import { env } from '~/env';
@@ -13,11 +11,6 @@ import { prisma } from '~/utils/db';
 const adapter = new PrismaAdapter(prisma.session, prisma.user);
 
 export const auth = new Lucia(adapter, {
-  getUserAttributes: (data: User) => {
-    return {
-      username: data.username,
-    };
-  },
   sessionCookie: {
     name: 'fresco-session',
     // this sets cookies with super long expiration
@@ -77,19 +70,11 @@ export const getServerSession = cache(async () => {
 
 export type Auth = typeof auth;
 
-export async function requirePageAuth({
-  redirectPath,
-}: {
-  redirectPath?: string | null;
-} = {}) {
+export async function requirePageAuth() {
   const { session } = await getServerSession();
 
   if (!session) {
-    if (!redirectPath) {
-      redirect('/signin');
-    }
-
-    redirect('/signin?callbackUrl=' + encodeURIComponent(redirectPath));
+    redirect('/signin', RedirectType.replace);
   }
   return session;
 }

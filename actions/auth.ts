@@ -45,7 +45,7 @@ export async function signup(formData: unknown) {
       success: true,
     };
   } catch (error) {
-    // db error, email taken, etc
+    // db error, username taken, etc
     return {
       success: false,
       error: 'Username already taken',
@@ -76,7 +76,7 @@ export const login = async (
 
   const { username, password } = parsedFormData.data;
 
-  // get user by userId
+  // get user by username
   const existingUser = await prisma.user.findFirst({
     where: {
       username,
