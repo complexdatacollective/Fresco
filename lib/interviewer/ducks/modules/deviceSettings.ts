@@ -23,14 +23,8 @@ const initialState: DeviceSettings = {
   enableExperimentalSounds: false,
 };
 
-type ActionType =
-  | typeof SET_DESCRIPTION
-  | typeof SET_INTERFACE_SCALE
-  | typeof TOGGLE_SETTING
-  | typeof SET_SETTING;
-
 type Action = {
-  type: ActionType;
+  type: string;
   description?: string;
   scale?: number;
   item?: keyof DeviceSettings;
