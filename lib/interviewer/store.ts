@@ -1,7 +1,6 @@
 import type { Protocol } from '@prisma/client';
-import { configureStore, Tuple } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
-import { thunk } from 'redux-thunk';
 import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
@@ -22,7 +21,10 @@ export const store = configureStore({
     dialogs,
     ui,
   },
-  middleware: () => new Tuple(thunk, logger, sound),
+  // configureStore adds some middleware (e.g: `redux-thunk`) to the store by default
+  // https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(logger, sound), // add custom middleware
 });
 
 export type StageMetadataEntry = [number, string, string, boolean];

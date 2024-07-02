@@ -15,6 +15,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
+    // changed from "module" to "Bundler" to load types of `@t3-oss/env-nextjs`
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
