@@ -16,9 +16,10 @@ $animation-easing-android: cubic-bezier(0.4, 0, 0.2, 1);
   --animation-duration-slow-ms: #{$animation-default-scale-factor-ms * 0.5};
   --animation-easing: #{$animation-easing-android};
 
-  // Values provided to JS must be valid JSON
-  --animation-easing-json: [0.4, 0, 0.2, 1];
-  --animation-easing-js: var(--animation-easing-json);
+  // updating the easing effect based on 3.2.2 version on animejs
+  // https://animejs.com/documentation/#cubicBezier
+  --animation-easing-effect: 'cubicBezier(0.4, 0, 0.2, 1)';
+  --animation-easing-js: var(--animation-easing-effect);
 }
 
 // Preset animations **********************************************************/
