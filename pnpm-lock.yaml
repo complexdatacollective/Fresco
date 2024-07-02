@@ -218,9 +218,6 @@ importers:
       redux-logger:
         specifier: ^3.0.6
         version: 3.0.6
-      redux-thunk:
-        specifier: ^3.1.0
-        version: 3.1.0(redux@5.0.1)
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0
