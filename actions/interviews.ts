@@ -176,7 +176,7 @@ export async function createInterview(data: CreateInterview) {
   try {
     if (!participantIdentifier) {
       const appSettings = await prisma.appSettings.findFirst();
-      if (!appSettings || !appSettings.allowAnonymousRecruitment) {
+      if (!appSettings?.allowAnonymousRecruitment) {
         return {
           errorType: 'no-anonymous-recruitment',
           error: 'Anonymous recruitment is not enabled',

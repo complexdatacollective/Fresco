@@ -8,7 +8,7 @@ export const ourFileRouter = {
     blob: { maxFileSize: '256MB', maxFileCount: 50 },
   })
     .middleware(async () => {
-      const session = await getServerSession();
+      const { session } = await getServerSession();
       if (!session) {
         throw new Error('You must be logged in to upload assets.');
       }
