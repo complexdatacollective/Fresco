@@ -309,6 +309,9 @@ importers:
       '@types/redux-form':
         specifier: ^8.3.11
         version: 8.3.11
+      '@types/redux-logger':
+        specifier: ^3.0.13
+        version: 3.0.13
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -2276,6 +2279,9 @@ packages:
 
   '@types/redux-form@8.3.11':
     resolution: {integrity: sha512-aHZgvDt9rg6C/8IHVgooCABxrWzQxJlVP47b6draiMLXKfWbyhYOVf8AV8+UPujRTnVxp1mWb57kL+r/Rl3wNQ==}
+
+  '@types/redux-logger@3.0.13':
+    resolution: {integrity: sha512-jylqZXQfMxahkuPcO8J12AKSSCQngdEWQrw7UiLUJzMBcv1r4Qg77P6mjGLjM27e5gFQDPD8vwUMJ9AyVxFSsg==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -7751,6 +7757,10 @@ snapshots:
     dependencies:
       '@types/react': 18.3.3
       redux: 4.2.1
+
+  '@types/redux-logger@3.0.13':
+    dependencies:
+      redux: 5.0.1
 
   '@types/stack-utils@2.0.3': {}
 
