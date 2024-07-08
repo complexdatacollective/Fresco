@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
+import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
 
@@ -11,7 +12,7 @@ const handler = async (
   { params }: { params: { protocolId: string } },
 ) => {
   const protocolId = params.protocolId; // From route segment
-  const url = req.nextUrl.clone();
+  const url = env.PUBLIC_URL ? new URL(env.PUBLIC_URL) : req.nextUrl.clone();
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
