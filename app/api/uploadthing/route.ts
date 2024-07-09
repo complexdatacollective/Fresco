@@ -6,9 +6,10 @@ import { ourFileRouter } from './core';
 export const { GET, POST } = createRouteHandler({
   router: ourFileRouter,
   config: {
-    callbackUrl:
-      env.NODE_ENV === 'production' && env.PUBLIC_URL
-        ? env.PUBLIC_URL + '/api/uploadthing'
-        : undefined,
+    // The URL to where the route handler is hosted
+    // UploadThing attempts to automatically detect this value based on the request URL and headers
+    // However, the automatic detection fails in docker deployments
+    // docs: https://docs.uploadthing.com/api-reference/server#config
+    callbackUrl: env.PUBLIC_URL && `${env.PUBLIC_URL}/api/uploadthing`,
   },
 });

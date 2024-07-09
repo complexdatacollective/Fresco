@@ -12,7 +12,12 @@ const handler = async (
   { params }: { params: { protocolId: string } },
 ) => {
   const protocolId = params.protocolId; // From route segment
-  const url = env.PUBLIC_URL ? new URL(env.PUBLIC_URL) : req.nextUrl.clone();
+
+  // when deployed via docker `req.url` and `req.nextUrl`
+  // shows Docker Container ID instead of real host
+  // issue: https://github.com/vercel/next.js/issues/65568
+  // workaround: use `env.PUBLIC_URL` to get the correct url
+  const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
