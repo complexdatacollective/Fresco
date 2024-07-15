@@ -1,45 +1,41 @@
-import { unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
+import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
-const getAppSettings = unstable_cache(
-  async () => {
-    const appSettings = await prisma.appSettings.findFirst();
+const getAppSettings = createCachedFunction(async () => {
+  const appSettings = await prisma.appSettings.findFirst();
 
-    // If there are no app settings, create them
-    if (!appSettings) {
-      const newAppSettings = await prisma.appSettings.create({
-        data: {
-          initializedAt: new Date(),
-        },
-      });
-
-      return {
-        ...newAppSettings,
-        expired: calculateIsExpired(
-          newAppSettings.configured,
-          newAppSettings.initializedAt,
-        ),
-      };
-    }
+  // If there are no app settings, create them
+  if (!appSettings) {
+    const newAppSettings = await prisma.appSettings.create({
+      data: {
+        initializedAt: new Date(),
+      },
+    });
 
     return {
-      ...appSettings,
+      ...newAppSettings,
       expired: calculateIsExpired(
-        appSettings.configured,
-        appSettings.initializedAt,
+        newAppSettings.configured,
+        newAppSettings.initializedAt,
       ),
     };
-  },
-  ['appSettings'],
-  { tags: ['appSettings', 'allowAnonymousRecruitment', 'limitInterviews'] },
-);
+  }
+
+  return {
+    ...appSettings,
+    expired: calculateIsExpired(
+      appSettings.configured,
+      appSettings.initializedAt,
+    ),
+  };
+}, ['appSettings', 'allowAnonymousRecruitment', 'limitInterviews']);
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   const appSettings = await getAppSettings();
@@ -65,38 +61,24 @@ export async function isAppExpired() {
   return appSettings.expired;
 }
 
-export const getAnonymousRecruitmentStatus = unstable_cache(
-  async () => {
-    const appSettings = await getAppSettings();
+export const getAnonymousRecruitmentStatus = createCachedFunction(async () => {
+  const appSettings = await getAppSettings();
 
-    return !!appSettings?.allowAnonymousRecruitment;
-  },
-  ['allowAnonymousRecruitment'],
-  { tags: ['appSettings', 'allowAnonymousRecruitment'] },
-);
+  return !!appSettings?.allowAnonymousRecruitment;
+}, ['allowAnonymousRecruitment', 'appSettings', 'allowAnonymousRecruitment']);
 
-export const getLimitInterviewsStatus = unstable_cache(
-  async () => {
-    const appSettings = await getAppSettings();
+export const getLimitInterviewsStatus = createCachedFunction(async () => {
+  const appSettings = await getAppSettings();
 
-    return !!appSettings?.limitInterviews;
-  },
-  ['limitInterviews'],
-  {
-    tags: ['appSettings', 'limitInterviews'],
-  },
-);
+  return !!appSettings?.limitInterviews;
+}, ['limitInterviews', 'appSettings']);
 
-export const getInstallationId = unstable_cache(
-  async () => {
-    if (env.INSTALLATION_ID) {
-      return env.INSTALLATION_ID;
-    }
+export const getInstallationId = createCachedFunction(async () => {
+  if (env.INSTALLATION_ID) {
+    return env.INSTALLATION_ID;
+  }
 
-    const appSettings = await getAppSettings();
+  const appSettings = await getAppSettings();
 
-    return appSettings?.installationId ?? 'Unknown';
-  },
-  ['getInstallationId'],
-  { tags: ['getInstallationId', 'appSettings'] },
-);
+  return appSettings?.installationId ?? 'Unknown';
+}, ['getInstallationId', 'appSettings']);
