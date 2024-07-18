@@ -87,8 +87,12 @@ DialogFooter.displayName = 'DialogFooter';
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <Heading variant="h3" {...props} className={cn(className)} ref={ref} />
+>(({ className, children, ...props }, ref) => (
+  <DialogPrimitive.Title asChild ref={ref} {...props}>
+    <Heading variant="h3" className={cn(className)}>
+      {children}
+    </Heading>
+  </DialogPrimitive.Title>
 ));
 
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
@@ -96,12 +100,12 @@ DialogTitle.displayName = DialogPrimitive.Title.displayName;
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(paragraphVariants({ variant: 'smallText' }), className)}
-    {...props}
-  />
+>(({ className, children, ...props }, ref) => (
+  <DialogPrimitive.Description asChild ref={ref} {...props}>
+    <div className={cn(paragraphVariants({ variant: 'smallText' }), className)}>
+      {children}
+    </div>
+  </DialogPrimitive.Description>
 ));
 
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
@@ -116,5 +120,11 @@ const DialogClose = React.forwardRef<
 DialogClose.displayName = DialogPrimitive.Title.displayName;
 
 export {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 };

@@ -1,12 +1,13 @@
 'use client';
 
-import * as React from 'react';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
+import * as React from 'react';
 
-import { cn } from '~/utils/shadcn';
-import { buttonVariants } from '~/components/ui/Button';
 import { type VariantProps } from 'class-variance-authority';
-import { DialogTitle, DialogDescription } from '~/components/ui/dialog';
+import { buttonVariants } from '~/components/ui/Button';
+import { cn } from '~/utils/shadcn';
+import Heading from './typography/Heading';
+import { paragraphVariants } from './typography/Paragraph';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -79,6 +80,31 @@ const AlertDialogFooter = ({
 );
 AlertDialogFooter.displayName = 'AlertDialogFooter';
 
+const AlertDialogTitle = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
+>(({ className, children, ...props }, ref) => (
+  <AlertDialogPrimitive.Title asChild ref={ref} {...props}>
+    <Heading variant="h3" className={cn(className)}>
+      {children}
+    </Heading>
+  </AlertDialogPrimitive.Title>
+));
+AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
+
+const AlertDialogDescription = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
+>(({ className, children, ...props }, ref) => (
+  <AlertDialogPrimitive.Description asChild ref={ref} {...props}>
+    <div className={cn(paragraphVariants({ variant: 'smallText' }), className)}>
+      {children}
+    </div>
+  </AlertDialogPrimitive.Description>
+));
+AlertDialogDescription.displayName =
+  AlertDialogPrimitive.Description.displayName;
+
 const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> & {
@@ -116,11 +142,11 @@ AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 
 export {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  DialogTitle as AlertDialogTitle,
-  DialogDescription as AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 };
