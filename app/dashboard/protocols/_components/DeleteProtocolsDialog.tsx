@@ -26,7 +26,7 @@ export const DeleteProtocolsDialog = ({
   setOpen,
   protocolsToDelete,
 }: DeleteProtocolsDialogProps) => {
-  const isDeleting = false;
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [protocolsInfo, setProtocolsInfo] = useState<{
     hasInterviews: boolean;
@@ -47,7 +47,9 @@ export const DeleteProtocolsDialog = ({
   }, [protocolsToDelete]);
 
   const handleConfirm = async () => {
+    setIsDeleting(true);
     await deleteProtocols(protocolsToDelete.map((d) => d.hash));
+    setIsDeleting(false);
     setOpen(false);
   };
 

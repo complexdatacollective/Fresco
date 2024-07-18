@@ -1,5 +1,6 @@
-import { AlertCircle, Trash2 } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
+import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -9,15 +10,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { useMemo } from 'react';
+import { Button } from '~/components/ui/Button';
 
 type DeleteParticipantsDialog = {
   open: boolean;
   participantCount: number;
   haveInterviews: boolean;
   haveUnexportedInterviews: boolean;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   onCancel: () => void;
 };
 
@@ -29,6 +29,8 @@ export const DeleteParticipantsDialog = ({
   onConfirm,
   onCancel,
 }: DeleteParticipantsDialog) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const dialogContent = useMemo(() => {
     if (!haveInterviews) {
       return null;
@@ -97,9 +99,17 @@ export const DeleteParticipantsDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <Button onClick={onConfirm} variant="destructive">
+          <Button
+            onClick={async () => {
+              setIsDeleting(true);
+              await onConfirm();
+              setIsDeleting(false);
+            }}
+            variant="destructive"
+          >
             <Trash2 className="mr-2 h-4 w-4" />
-            Permanently Delete
+            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
