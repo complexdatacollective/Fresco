@@ -1,15 +1,15 @@
 'use client';
 
 import { ArrowLeftFromLine } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { cn } from '~/utils/shadcn';
+import Banner from '../Banner/Banner';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
-import Banner from '../Banner/Banner';
-import FeedbackButton from './FeedbackButton';
-import { useState } from 'react';
-import SignOutModal from './SignOutModal';
-import { usePathname } from 'next/navigation';
 import Paragraph from '../ui/typography/Paragraph';
-import { cn } from '~/utils/shadcn';
+import FeedbackButton from './FeedbackButton';
+import SignOutModal from './SignOutModal';
 
 const FeedbackBanner = () => {
   const [openSignOutModal, setOpenSignOutModal] = useState(false);
@@ -74,7 +74,7 @@ const FeedbackBanner = () => {
         {isDashboard && (
           <Paragraph margin="none" className="m-0 hidden sm:inline-flex">
             <strong className="hidden font-semibold lg:inline-flex">
-              🤖 Fresco is Beta software – &nbsp;
+              🤖 Fresco is now officially released – &nbsp;
             </strong>
             We depend on your feedback and issue reports to improve
           </Paragraph>
