@@ -98,8 +98,11 @@ export const DeleteParticipantsDialog = ({
           {dialogContent}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting} onClick={onCancel}>
+            Cancel
+          </AlertDialogCancel>
           <Button
+            disabled={isDeleting}
             onClick={async () => {
               setIsDeleting(true);
               await onConfirm();
@@ -107,9 +110,15 @@ export const DeleteParticipantsDialog = ({
             }}
             variant="destructive"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" /> Permanently Delete
+              </>
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

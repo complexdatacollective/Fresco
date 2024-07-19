@@ -83,10 +83,11 @@ export const DeleteInterviewsDialog = ({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancelDialog}>
+          <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
             Cancel
           </AlertDialogCancel>
           <Button
+            disabled={isDeleting}
             onClick={async () => {
               setIsDeleting(true);
               await handleConfirm();
@@ -94,9 +95,15 @@ export const DeleteInterviewsDialog = ({
             }}
             variant="destructive"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </>
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

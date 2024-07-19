@@ -119,10 +119,20 @@ export const DeleteProtocolsDialog = ({
           <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
             Cancel
           </AlertDialogCancel>
-          <Button onClick={() => void handleConfirm()} variant="destructive">
-            <Trash2 className="mr-2 h-4 w-4" />
-            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+          <Button
+            disabled={isDeleting}
+            onClick={() => void handleConfirm()}
+            variant="destructive"
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" /> Permanently Delete
+              </>
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
