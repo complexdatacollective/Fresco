@@ -2,9 +2,9 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma, type Interview, type Protocol } from '@prisma/client';
-import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
+import { safeRevalidateTag } from '~/lib/cache';
 import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
@@ -49,8 +49,8 @@ export async function deleteInterviews(data: DeleteInterviews) {
       `Deleted ${deletedInterviews.count} interview(s)`,
     );
 
-    revalidateTag('getInterviews');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null, interview: deletedInterviews };
   } catch (error) {
@@ -72,7 +72,7 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
       },
     });
 
-    revalidateTag('getInterviews');
+    safeRevalidateTag('getInterviews');
 
     void addEvent(
       'Data Exported',
@@ -129,7 +129,7 @@ export const exportSessions = async (
       },
     });
 
-    revalidateTag('getInterviews');
+    safeRevalidateTag('getInterviews');
 
     return result;
   } catch (error) {
@@ -209,9 +209,9 @@ export async function createInterview(data: CreateInterview) {
       }" started an interview`,
     );
 
-    revalidateTag('getInterviews');
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return {
       error: null,
@@ -255,7 +255,7 @@ export async function syncInterview(data: SyncInterview) {
       },
     });
 
-    revalidateTag(`getInterviewById-${id}`);
+    safeRevalidateTag(`getInterviewById-${id}`);
 
     // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${id})`);
@@ -298,8 +298,8 @@ export async function finishInterview(interviewId: Interview['id']) {
 
     cookies().set(updatedInterview.protocolId, 'completed');
 
-    revalidateTag('getInterviews');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null };
   } catch (error) {

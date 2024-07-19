@@ -1,26 +1,20 @@
-import { prisma } from '~/utils/db';
-import { unstable_cache } from 'next/cache';
 import 'server-only';
+import { createCachedFunction } from '~/lib/cache';
+import { prisma } from '~/utils/db';
 
-export const getInterviews = unstable_cache(
-  async () => {
-    const interviews = await prisma.interview.findMany({
-      include: {
-        protocol: true,
-        participant: true,
-      },
-    });
-    return interviews;
-  },
-  ['getInterviews'],
-  {
-    tags: ['getInterviews'],
-  },
-);
+export const getInterviews = createCachedFunction(async () => {
+  const interviews = await prisma.interview.findMany({
+    include: {
+      protocol: true,
+      participant: true,
+    },
+  });
+  return interviews;
+}, ['getInterviews']);
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
 
-export const getInterviewsForExport = unstable_cache(
+export const getInterviewsForExport = createCachedFunction(
   async (interviewIds: string[]) => {
     const interviews = await prisma.interview.findMany({
       where: {
@@ -35,14 +29,11 @@ export const getInterviewsForExport = unstable_cache(
     });
     return interviews;
   },
-  ['getInterviewsForExport'],
-  {
-    tags: ['getInterviewsForExport', 'getInterviews'],
-  },
+  ['getInterviewsForExport', 'getInterviews'],
 );
 
 export const getInterviewById = (interviewId: string) =>
-  unstable_cache(
+  createCachedFunction(
     async (interviewId: string) => {
       const interview = await prisma.interview.findUnique({
         where: {
@@ -59,8 +50,5 @@ export const getInterviewById = (interviewId: string) =>
 
       return interview;
     },
-    [`getInterviewById-${interviewId}`],
-    {
-      tags: [`getInterviewById-${interviewId}`, 'getInterviewById'],
-    },
+    [`getInterviewById-${interviewId}`, 'getInterviewById'],
   )(interviewId);
