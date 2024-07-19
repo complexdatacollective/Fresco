@@ -26,14 +26,14 @@ docker build -t ghcr.io/complexdatacollective/fresco:x.y.z -t ghcr.io/complexdat
 
 **NOTE: The image name must be in this pattern `ghcr.io/complexdatacollective/fresco:tag` otherwise GitHub container registry won't accept the image. Also, don't forget to replace `x.y.z` with appropriate version you want**
 
-## Step 2: Log in to GitHub Container Registry
+### Step 2: Log in to GitHub Container Registry
 
 Authenticate with the GitHub Container Registry using the token (PAT) you set up above.
 
 - Run `docker login ghcr.io`
 - For `username` enter your GitHub username, and for `password` enter the token (PAT) you set up (e.g: `ghp_xxxxxxxxxxxxx`)
 
-## Step 3: Push the Docker Images
+### Step 3: Push the Docker Images
 
 After building and tagging your image, push both tags to the GitHub Container Registry.
 
