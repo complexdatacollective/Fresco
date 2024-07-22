@@ -1,25 +1,15 @@
 name: Build docker container
-# on:
-#   push:
-#     tags:
-#       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - 'master'
-  #   tags:
-  #     - 'v*'
-  # pull_request:
-  #   branches:
-  #     - 'master'
+  push:
+    branches:
+      - 'next'
 
 env:
   SKIP_ENV_VALIDATION: true
 
 jobs:
-  build:
+  docker_build:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,6 +21,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/complexdatacollective/fresco
+          tags: |
+            type=sha,prefix=next-${{ github.sha }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -54,7 +46,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }} # Use the PAT stored in your repository's secrets
 
       - name: Build and Push Image
         uses: docker/build-push-action@v5
