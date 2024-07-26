@@ -1,7 +1,11 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview, type Protocol } from '@prisma/client';
+import {
+  Prisma,
+  type Interview,
+  type Protocol
+} from '@prisma/client';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
@@ -156,23 +160,6 @@ export const exportSessions = async (
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;
 
-  /**
-   * If no participant identifier is provided, we check if anonymous recruitment is enabled.
-   * If it is, we create a new participant and use that identifier.
-   */
-  const participantStatement = participantIdentifier
-    ? {
-        connect: {
-          identifier: participantIdentifier,
-        },
-      }
-    : {
-        create: {
-          identifier: `p-${createId()}`,
-          label: 'Anonymous Participant',
-        },
-      };
-
   try {
     if (!participantIdentifier) {
       const appSettings = await prisma.appSettings.findFirst();
@@ -185,6 +172,29 @@ export async function createInterview(data: CreateInterview) {
       }
     }
 
+    /**
+     * If no participant identifier is provided, we check if anonymous recruitment is enabled.
+     * If it is, we create a new participant and use that identifier.
+     */
+    const participantStatement = participantIdentifier
+      ? {
+          connectOrCreate: {
+            create: {
+              identifier: participantIdentifier,
+            },
+            where: {
+              identifier: participantIdentifier,
+            },
+          },
+        }
+      : {
+          create: {
+            identifier: `p-${createId()}`,
+            label: 'Anonymous Participant',
+          },
+        };
+
+    // Otherwise, we will definitely create an interview.
     const createdInterview = await prisma.interview.create({
       select: {
         participant: true,
