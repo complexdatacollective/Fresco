@@ -156,23 +156,6 @@ export const exportSessions = async (
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;
 
-  /**
-   * If no participant identifier is provided, we check if anonymous recruitment is enabled.
-   * If it is, we create a new participant and use that identifier.
-   */
-  const participantStatement = participantIdentifier
-    ? {
-        connect: {
-          identifier: participantIdentifier,
-        },
-      }
-    : {
-        create: {
-          identifier: `p-${createId()}`,
-          label: 'Anonymous Participant',
-        },
-      };
-
   try {
     if (!participantIdentifier) {
       const appSettings = await prisma.appSettings.findFirst();
@@ -184,6 +167,29 @@ export async function createInterview(data: CreateInterview) {
         };
       }
     }
+
+    /**
+     * If a participant identifier is provided, we attempt to connect to an existing participant
+     * or create a new one with that identifier. If no participant identifier is provided,
+     * we create a new anonymous participant with a generated identifier.
+     */
+    const participantStatement = participantIdentifier
+      ? {
+          connectOrCreate: {
+            create: {
+              identifier: participantIdentifier,
+            },
+            where: {
+              identifier: participantIdentifier,
+            },
+          },
+        }
+      : {
+          create: {
+            identifier: `p-${createId()}`,
+            label: 'Anonymous Participant',
+          },
+        };
 
     const createdInterview = await prisma.interview.create({
       select: {
