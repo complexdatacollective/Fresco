@@ -2,34 +2,25 @@ import { describe, expect, it, vi } from 'vitest';
 import prisma from '~/utils/__mocks__/db';
 import { createInterview } from './interviews';
 
-vi.mock('~/utils/db', () => ({ prisma: vi.fn() }));
+vi.mock('~/utils/db', () => ({ prisma }));
 
-// vi.mock('~/utils/db', () => ({
-//   prisma: {
-//     interview: {
-//       create: vi.fn(),
-//     },
-//     appSettings: {
-//       findFirst: vi.fn(),
-//     },
-//   },
-// }));
+// mock server-only module
+vi.mock('server-only', () => ({}));
 
-vi.mock('server-only', () => {
+// Mock the '~/lib/analytics's module
+vi.mock('@codaco/analytics', () => {
   return {
-    // mock server-only module
+    makeEventTracker: vi.fn(() => {
+      return vi.fn(); // Mock implementation of `trackEvent`
+    }),
   };
 });
-
-vi.mock('~/lib/analytics', () => ({
-  trackEvent: vi.fn(),
-}));
 
 // vi.mock('~/lib/analytics', async (importOriginal) => {
 //   const actual = await importOriginal<typeof import('~/lib/analytics')>();
 //   return {
 //     ...actual,
-//     trackEvent: vi.fn(),
+//     default: vi.fn(),
 //   };
 // });
 
@@ -45,6 +36,7 @@ vi.mock('react', async (importOriginal) => {
 
 describe('createInterview', () => {
   it('should return an error if anonymous recruitment is not enabled and participantIdentifier is not provided ', async () => {
+    // mock appSettings call
     prisma.appSettings.findFirst.mockResolvedValue({
       configured: false,
       initializedAt: new Date(),
