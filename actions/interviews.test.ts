@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import prisma from '~/utils/__mocks__/db';
 import { createInterview } from './interviews';
 
+// mock prisma client
 vi.mock('~/utils/db', () => ({ prisma }));
 
 // mock server-only module
@@ -16,6 +17,15 @@ vi.mock('@codaco/analytics', () => {
   };
 });
 
+// Mock the cache.ts module
+vi.mock('~/lib/cache', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('~/lib/cache')>();
+  return {
+    ...actual,
+    safeRevalidateTag: vi.fn(),
+  };
+});
+
 // vi.mock('~/lib/analytics', async (importOriginal) => {
 //   const actual = await importOriginal<typeof import('~/lib/analytics')>();
 //   return {
@@ -24,6 +34,7 @@ vi.mock('@codaco/analytics', () => {
 //   };
 // });
 
+// Mock the '~/utils/auth' module
 vi.mock('react', async (importOriginal) => {
   const testCache = <T extends (...args: Array<unknown>) => unknown>(func: T) =>
     func;
@@ -36,7 +47,6 @@ vi.mock('react', async (importOriginal) => {
 
 describe('createInterview', () => {
   it('should return an error if anonymous recruitment is not enabled and participantIdentifier is not provided ', async () => {
-    // mock appSettings call
     prisma.appSettings.findFirst.mockResolvedValue({
       configured: false,
       initializedAt: new Date(),
@@ -57,57 +67,53 @@ describe('createInterview', () => {
     });
   });
 
-  // it('should create an interview with an anonymous participant if no identifier is provided', async () => {
+  it('should create an interview with an anonymous participant if no identifier is provided', async () => {
+    prisma.appSettings.findFirst.mockResolvedValue({
+      configured: false,
+      initializedAt: new Date(),
+      allowAnonymousRecruitment: true,
+      limitInterviews: false,
+      installationId: 'installation-id',
+    });
+
+    prisma.interview.create.mockResolvedValue({
+      id: 'interview-id',
+      participant: {
+        id: 'participant-id',
+        identifier: 'p-generated-id',
+        label: 'Anonymous Participant',
+      },
+    });
+
+    const result = await createInterview({
+      protocolId: 'protocol-id',
+      participantIdentifier: undefined,
+    });
+
+    expect(result).toEqual({
+      error: null,
+      createdInterviewId: 'interview-id',
+      errorType: null,
+    });
+  });
+
+  // it('should connect a participant if an existing identifier is provided', async () => {
   //   prisma.appSettings.findFirst.mockResolvedValue({
+  //     configured: false,
+  //     initializedAt: new Date(),
   //     allowAnonymousRecruitment: true,
-  //   });
-  //   const mockCreate = prisma.interview.create.mockResolvedValue({
-  //     id: 'interview-id',
-  //     participant: {
-  //       identifier: 'p-generated-id',
-  //       label: 'Anonymous Participant',
-  //     },
-  //   });
-
-  //   const result = await createInterview({
-  //     protocolId: 'protocol-id',
-  //     participantIdentifier: 'participant-identifier',
-  //   });
-
-  //   expect(mockCreate).toHaveBeenCalledWith({
-  //     select: {
-  //       participant: true,
-  //       id: true,
-  //     },
-  //     data: {
-  //       network: Prisma.JsonNull,
-  //       participant: {
-  //         create: {
-  //           identifier: expect.stringMatching(/^p-/),
-  //           label: 'Anonymous Participant',
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   expect(result).toEqual({
-  //     id: 'interview-id',
-  //     participant: {
-  //       identifier: 'p-generated-id',
-  //       label: 'Anonymous Participant',
-  //     },
-  //   });
-  // });
-
-  // it('should connect or create a participant if an identifier is provided', async () => {
-  //   prisma.appSettings.findFirst.mockResolvedValue({
-  //     allowAnonymousRecruitment: true,
+  //     limitInterviews: false,
+  //     installationId: 'installation-id',
   //   });
   //   const participantIdentifier = 'existing-participant';
-  //   const mockCreate = prisma.interview.create.mockResolvedValue({
+  //   const mockCreate = vi.spyOn(prisma.interview, 'create');
+
+  //   prisma.interview.create.mockResolvedValue({
   //     id: 'interview-id',
   //     participant: {
+  //       id: 'participant-id',
   //       identifier: participantIdentifier,
+  //       label: 'Existing Participant',
   //     },
   //   });
 
@@ -124,23 +130,22 @@ describe('createInterview', () => {
   //     data: {
   //       network: Prisma.JsonNull,
   //       participant: {
-  //         connectOrCreate: {
-  //           create: {
-  //             identifier: participantIdentifier,
-  //           },
-  //           where: {
-  //             identifier: participantIdentifier,
-  //           },
+  //         connect: {
+  //           identifier: participantIdentifier,
+  //         },
+  //       },
+  //       protocol: {
+  //         connect: {
+  //           id: 'protocol-id',
   //         },
   //       },
   //     },
   //   });
 
   //   expect(result).toEqual({
-  //     id: 'interview-id',
-  //     participant: {
-  //       identifier: participantIdentifier,
-  //     },
+  //     error: null,
+  //     createdInterviewId: 'interview-id',
+  //     errorType: null,
   //   });
   // });
 });
