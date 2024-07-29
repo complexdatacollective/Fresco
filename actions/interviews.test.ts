@@ -1,19 +1,19 @@
-/** @jest-environment node */
-
-import { describe, expect, it, Mock, vi } from 'vitest';
-import { prisma } from '~/utils/db';
+import { describe, expect, it, vi } from 'vitest';
+import prisma from '~/utils/__mocks__/db';
 import { createInterview } from './interviews';
 
-vi.mock('~/utils/db', () => ({
-  prisma: {
-    interview: {
-      create: vi.fn(),
-    },
-    appSettings: {
-      findFirst: vi.fn(),
-    },
-  },
-}));
+vi.mock('~/utils/db', () => ({ prisma: vi.fn() }));
+
+// vi.mock('~/utils/db', () => ({
+//   prisma: {
+//     interview: {
+//       create: vi.fn(),
+//     },
+//     appSettings: {
+//       findFirst: vi.fn(),
+//     },
+//   },
+// }));
 
 vi.mock('server-only', () => {
   return {
@@ -24,6 +24,14 @@ vi.mock('server-only', () => {
 vi.mock('~/lib/analytics', () => ({
   trackEvent: vi.fn(),
 }));
+
+// vi.mock('~/lib/analytics', async (importOriginal) => {
+//   const actual = await importOriginal<typeof import('~/lib/analytics')>();
+//   return {
+//     ...actual,
+//     trackEvent: vi.fn(),
+//   };
+// });
 
 vi.mock('react', async (importOriginal) => {
   const testCache = <T extends (...args: Array<unknown>) => unknown>(func: T) =>
@@ -37,7 +45,7 @@ vi.mock('react', async (importOriginal) => {
 
 describe('createInterview', () => {
   it('should return an error if anonymous recruitment is not enabled and participantIdentifier is not provided ', async () => {
-    (prisma.appSettings.findFirst as Mock).mockResolvedValue({
+    prisma.appSettings.findFirst.mockResolvedValue({
       configured: false,
       initializedAt: new Date(),
       allowAnonymousRecruitment: false,
