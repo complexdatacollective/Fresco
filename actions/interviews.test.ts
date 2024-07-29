@@ -1,3 +1,5 @@
+/** @jest-environment node */
+
 import { describe, expect, it, Mock, vi } from 'vitest';
 import { prisma } from '~/utils/db';
 import { createInterview } from './interviews';
