@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    environment: 'jsdom', // Defauult, but see below.
+    environment: 'jsdom', // Default, but see below.
     // Tests for actions/queries shouldn't use the browser environment, because
     // they can potentially import RSC modules (such as 'server-only') which
     // don't export browser versions (meaning you can't mock them).

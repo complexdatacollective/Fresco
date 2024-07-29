@@ -25,6 +25,16 @@ vi.mock('~/lib/analytics', () => ({
   trackEvent: vi.fn(),
 }));
 
+vi.mock('react', async (importOriginal) => {
+  const testCache = <T extends (...args: Array<unknown>) => unknown>(func: T) =>
+    func;
+  const originalModule = await importOriginal<typeof import('react')>();
+  return {
+    ...originalModule,
+    cache: testCache,
+  };
+});
+
 describe('createInterview', () => {
   it('should return an error if anonymous recruitment is not enabled and participantIdentifier is not provided ', async () => {
     (prisma.appSettings.findFirst as Mock).mockResolvedValue({
