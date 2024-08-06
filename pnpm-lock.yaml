@@ -372,6 +372,9 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(sass@1.77.6)(terser@5.31.1)
+      vitest-mock-extended:
+        specifier: ^2.0.0
+        version: 2.0.0(typescript@5.5.3)(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(sass@1.77.6)(terser@5.31.1))
 
 packages:
 
@@ -5064,6 +5067,14 @@ packages:
     peerDependencies:
       typescript: '>=4.2.0'
 
+  ts-essentials@10.0.1:
+    resolution: {integrity: sha512-HPH+H2bkkO8FkMDau+hFvv7KYozzned9Zr1Urn7rRPXMF4mZmCKOq+u4AI1AAW+2bofIOXTuSdKo9drQuni2dQ==}
+    peerDependencies:
+      typescript: '>=4.5.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
@@ -5312,6 +5323,12 @@ packages:
         optional: true
       terser:
         optional: true
+
+  vitest-mock-extended@2.0.0:
+    resolution: {integrity: sha512-iDV40gSKlN5RZRSfpOv5SKTdEeBvu4VMpLNNakDSHMWnUmnlfsEVGXHndWAfUD+nZBR+HDcQw7p/JO5sCWo1VQ==}
+    peerDependencies:
+      typescript: 3.x || 4.x || 5.x
+      vitest: '>=2.0.0'
 
   vitest@1.6.0:
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
@@ -10920,6 +10937,10 @@ snapshots:
     dependencies:
       typescript: 5.5.3
 
+  ts-essentials@10.0.1(typescript@5.5.3):
+    optionalDependencies:
+      typescript: 5.5.3
+
   ts-interface-checker@0.1.13: {}
 
   ts-node@10.9.2(@types/node@20.14.9)(typescript@5.5.3):
@@ -11181,6 +11202,12 @@ snapshots:
       fsevents: 2.3.3
       sass: 1.77.6
       terser: 5.31.1
+
+  vitest-mock-extended@2.0.0(typescript@5.5.3)(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(sass@1.77.6)(terser@5.31.1)):
+    dependencies:
+      ts-essentials: 10.0.1(typescript@5.5.3)
+      typescript: 5.5.3
+      vitest: 1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(sass@1.77.6)(terser@5.31.1)
 
   vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(sass@1.77.6)(terser@5.31.1):
     dependencies:
