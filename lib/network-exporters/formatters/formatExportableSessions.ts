@@ -26,10 +26,19 @@ export const formatExportableSessions = (
     const sessionProtocol = session.protocol;
     const sessionParticipant = session.participant;
 
+    const getCaseProperty = () => {
+      if (sessionParticipant.label && sessionParticipant.label !== '') {
+        return sessionParticipant.label;
+      }
+
+      return sessionParticipant.identifier;
+    };
+
     const sessionVariables: SessionVariables = {
-      // Label is optional, so fallback to identifier because caseProperty is used
-      // to create the filename during export.
-      [caseProperty]: sessionParticipant.label ?? sessionParticipant.identifier,
+      // Label is optional, but defaults to an empty string!
+      // We **must** fallback to identifier in this case, because caseProperty
+      // is used to create the filename during export.
+      [caseProperty]: getCaseProperty(),
       [sessionProperty]: session.id,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
