@@ -46,7 +46,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }} # Use the PAT stored in your repository's secrets
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Image
         uses: docker/build-push-action@v5
