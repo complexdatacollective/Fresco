@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import {
   getAnonymousRecruitmentStatus,
   getLimitInterviewsStatus,
+  requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
@@ -33,6 +34,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   await requireAppNotExpired(true);
+  await requireAppNotConfigured();
 
   const setupDataPromise = getSetupData();
 
