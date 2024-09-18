@@ -13,9 +13,7 @@ const useReadyForNextStage = () => {
     [dispatch],
   );
 
-  const isReady = useSelector(
-    (state: RootState) => !!state.ui.FORM_IS_READY ?? false,
-  );
+  const isReady = useSelector((state: RootState) => !!state.ui.FORM_IS_READY);
 
   useEffect(() => {
     updateReady(false);
