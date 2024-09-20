@@ -85,14 +85,12 @@ function ParticipantModal({
     setError(null);
     setWorking(true);
 
-    if (data.label === '') {
-      data.label = undefined;
-    }
+    console.log('on', data);
 
     if (editingParticipant) {
       await updateParticipant({
         identifier: editingParticipant.identifier,
-        data,
+        label: data.label,
       });
     }
 

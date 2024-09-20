@@ -112,7 +112,7 @@ export const ExportInterviewsDialog = ({
       const url = URL.createObjectURL(responseAsBlob);
 
       // Download the zip file
-      download(url, 'Network Canvas export.zip');
+      download(url, 'Network Canvas Export.zip');
       // clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {

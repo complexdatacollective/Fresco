@@ -33,9 +33,14 @@ export const participantIdentifierOptionalSchema = z
     message: 'Identifier too long. Maximum of 255 characters.',
   })
   .trim()
+  .transform((e) => (e === '' ? undefined : e))
   .optional();
 
-export const participantLabelSchema = z.string().trim().optional();
+export const participantLabelSchema = z
+  .string()
+  .trim()
+  .transform((e) => (e === '' ? undefined : e))
+  .optional();
 
 export const participantLabelRequiredSchema = z
   .string()
@@ -68,8 +73,5 @@ export const participantListInputSchema = z.array(ParticipantRowSchema);
 
 export const updateSchema = z.object({
   identifier: participantIdentifierSchema,
-  data: z.object({
-    identifier: participantIdentifierSchema,
-    label: participantLabelSchema,
-  }),
+  label: participantLabelSchema,
 });
