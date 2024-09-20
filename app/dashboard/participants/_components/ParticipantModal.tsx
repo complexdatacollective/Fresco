@@ -85,8 +85,6 @@ function ParticipantModal({
     setError(null);
     setWorking(true);
 
-    console.log('on', data);
-
     if (editingParticipant) {
       await updateParticipant({
         identifier: editingParticipant.identifier,
