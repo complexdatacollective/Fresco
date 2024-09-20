@@ -102,12 +102,14 @@ export async function importParticipants(rawInput: unknown) {
 export async function updateParticipant(rawInput: unknown) {
   await requireApiAuth();
 
-  const { identifier, data } = updateSchema.parse(rawInput);
+  const { identifier, label } = updateSchema.parse(rawInput);
 
   try {
     const updatedParticipant = await prisma.participant.update({
       where: { identifier },
-      data,
+      data: {
+        label: label,
+      },
     });
 
     safeRevalidateTag('getParticipants');
@@ -125,9 +127,11 @@ export async function createParticipant(rawInput: unknown) {
   const participants = participantListInputSchema.parse(rawInput);
 
   const participantsWithIdentifiers = participants.map((participant) => {
+    const { identifier, ...rest } = participant;
+
     return {
-      identifier: participant.identifier ?? createId(),
-      ...participant,
+      identifier: identifier ?? createId(),
+      ...rest,
     };
   });
 

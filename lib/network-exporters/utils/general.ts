@@ -4,17 +4,22 @@ import {
   sessionProperty,
   type Codebook,
   type NcEntity,
-  type StageSubject
+  type StageSubject,
 } from '@codaco/shared-consts';
 import sanitizeFilename from 'sanitize-filename';
 import type { ExportFormat, SessionWithResequencedIDs } from './types';
 
 export const getEntityAttributes = (entity: NcEntity) =>
-  (entity?.[entityAttributesProperty]) || {};
+  entity?.[entityAttributesProperty] || {};
 
 const escapeFilePart = (part: string) => part.replace(/\W/g, '');
 
-export const makeFilename = (prefix:string, entityName: string | undefined, exportFormat: string, extension: string) => {
+export const makeFilename = (
+  prefix: string,
+  entityName: string | undefined,
+  exportFormat: string,
+  extension: string,
+) => {
   let name = prefix;
   if (extension !== `.${exportFormat}`) {
     name += name ? '_' : '';
@@ -49,12 +54,14 @@ export const getFileExtension = (formatterType: ExportFormat) => {
   }
 };
 
-
 /**
  * Generate a filename prefix based on the session in the format:
- * `{caseId}_{sessionId}` 
+ * `{caseId}_{sessionId}`
  */
-export const getFilePrefix = (session: SessionWithResequencedIDs) => sanitizeFilename(`${session.sessionVariables[caseProperty]}_${session.sessionVariables[sessionProperty]}`);
+export const getFilePrefix = (session: SessionWithResequencedIDs) =>
+  sanitizeFilename(
+    `${session.sessionVariables[caseProperty]}_${session.sessionVariables[sessionProperty]}`,
+  );
 
 /**
  * Given a codebook, an entity type, an entity, and an attribute key:
@@ -64,8 +71,12 @@ export const getFilePrefix = (session: SessionWithResequencedIDs) => sanitizeFil
  * @param {*} entity
  * @param {*} key
  */
-const getVariableInfo = (codebook: Codebook, type: 'node' | 'edge', entity: StageSubject, key: string) =>
-  codebook[type]?.[entity.type]?.variables?.[key];
+const getVariableInfo = (
+  codebook: Codebook,
+  type: 'node' | 'edge',
+  entity: StageSubject,
+  key: string,
+) => codebook[type]?.[entity.type]?.variables?.[key];
 
 /**
  * Ego version of getVariableInfo

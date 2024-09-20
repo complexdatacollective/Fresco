@@ -2,7 +2,6 @@ import('./env.js');
 import ChildProcess from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
 
-
 let commitHash = 'Unknown commit hash';
 
 try {
@@ -11,7 +10,7 @@ try {
     .trim()
 } catch (error) {
   // eslint-disable-next-line no-console
-  console.error('Error getting commit hash:', error);
+  console.info('Error getting commit hash:', error.message ?? 'Unknown error');
 }
 
 /** @type {import("next").NextConfig} */
