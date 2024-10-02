@@ -23,3 +23,23 @@ export const getUploadthingVariables = createCachedFunction(async () => {
     UPLOADTHING_APP_ID: uploadthingVariables.UPLOADTHING_APP_ID ?? null,
   };
 }, []);
+
+export const getInstallationId = createCachedFunction(async () => {
+  const keyValues = await prisma.environment.findMany({
+    where: {
+      key: 'INSTALLATION_ID',
+    },
+  });
+
+  return keyValues[0]?.value ?? null;
+}, []);
+
+export const getPublicUrl = createCachedFunction(async () => {
+  const keyValues = await prisma.environment.findMany({
+    where: {
+      key: 'PUBLIC_URL',
+    },
+  });
+
+  return keyValues[0]?.value ?? null;
+}, []);

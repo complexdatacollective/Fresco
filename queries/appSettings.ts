@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
+import { getInstallationId as getInstallationIdFromDb } from '~/queries/environment';
 import { prisma } from '~/utils/db';
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
@@ -85,8 +85,11 @@ export const getLimitInterviewsStatus = createCachedFunction(async () => {
 }, ['limitInterviews', 'appSettings']);
 
 export const getInstallationId = createCachedFunction(async () => {
-  if (env.INSTALLATION_ID) {
-    return env.INSTALLATION_ID;
+  // TODO: prob need to reconsider how we save the installationID
+  const INSTALLATION_ID = await getInstallationIdFromDb();
+
+  if (INSTALLATION_ID) {
+    return INSTALLATION_ID;
   }
 
   const appSettings = await getAppSettings();

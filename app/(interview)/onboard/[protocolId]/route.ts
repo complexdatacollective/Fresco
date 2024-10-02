@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
-import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { getLimitInterviewsStatus } from '~/queries/appSettings';
+import { getPublicUrl } from '~/queries/environment';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,11 +13,13 @@ const handler = async (
 ) => {
   const protocolId = params.protocolId; // From route segment
 
+  const PUBLIC_URL = await getPublicUrl();
+
   // when deployed via docker `req.url` and `req.nextUrl`
   // shows Docker Container ID instead of real host
   // issue: https://github.com/vercel/next.js/issues/65568
-  // workaround: use `env.PUBLIC_URL` to get the correct url
-  const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
+  // workaround: use `PUBLIC_URL` to get the correct url
+  const url = new URL(PUBLIC_URL ?? req.nextUrl.clone());
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {

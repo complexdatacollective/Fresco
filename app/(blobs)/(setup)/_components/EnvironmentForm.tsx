@@ -4,6 +4,7 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { storeEnvironment } from '~/actions/environment';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
+import SubmitButton from '~/components/ui/SubmitButton';
 import useZodForm from '~/hooks/useZodForm';
 import { createEnvironmentSchema } from '~/schemas/environment';
 
@@ -40,16 +41,36 @@ export const EnvironmentForm = () => {
         <Input
           label="UPLOADTHING_APP_ID"
           hint="Copy from the dashboard"
-          type="password"
+          type="text"
           placeholder="app-id..."
           error={errors.UPLOADTHING_APP_ID?.message}
           {...register('UPLOADTHING_APP_ID')}
         />
       </div>
+      <div className="mb-6 flex flex-wrap">
+        <Input
+          label="PUBLIC_URL"
+          hint="When using advanced deployment, this is required. Set to the domain name of your app"
+          type="text"
+          placeholder="app-id..."
+          error={errors.PUBLIC_URL?.message}
+          {...register('PUBLIC_URL')}
+        />
+      </div>
+      <div className="mb-6 flex flex-wrap">
+        <Input
+          label="INSTALLATION_ID"
+          hint="A unique identifier for your app, used for analytics. Generated automatically if not set."
+          type="text"
+          placeholder="app-id..."
+          error={errors.INSTALLATION_ID?.message}
+          {...register('INSTALLATION_ID')}
+        />
+      </div>
       <div className="flex flex-wrap">
-        <Button type="submit" disabled={!isValid}>
-          Save
-        </Button>
+        <SubmitButton type="submit" disabled={!isValid}>
+          Submit
+        </SubmitButton>
         <Button onClick={handleNextStep}>Proceed</Button>
       </div>
     </form>
