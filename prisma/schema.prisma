@@ -97,6 +97,11 @@ model AppSettings {
   installationId            String   @unique @default(cuid())
 }
 
+model Environment {
+  key String @id @unique
+  value String
+}
+
 model Events {
   id        String   @id @default(cuid())
   timestamp DateTime @default(now())

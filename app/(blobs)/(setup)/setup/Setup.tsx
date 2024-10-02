@@ -5,6 +5,7 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { use, useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
 import { cn } from '~/utils/shadcn';
+import ConfigureProject from '../_components/OnboardSteps/ConfigureProject';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
 import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
@@ -42,14 +43,15 @@ export default function Setup({
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && <UploadProtocol />}
-        {step === 3 && (
+        {step === 2 && <ConfigureProject />}
+        {step === 3 && <UploadProtocol />}
+        {step === 4 && (
           <ManageParticipants
             allowAnonymousRecruitment={allowAnonymousRecruitment}
             limitInterviews={limitInterviews}
           />
         )}
-        {step === 4 && <Documentation />}
+        {step === 5 && <Documentation />}
       </div>
     </motion.div>
   );

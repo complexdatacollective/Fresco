@@ -17,6 +17,7 @@ export const resetAppSettings = async () => {
       prisma.protocol.deleteMany(), // Deleting protocol will cascade to Interviews
       prisma.appSettings.deleteMany(),
       prisma.events.deleteMany(),
+      prisma.environment.deleteMany(),
       prisma.asset.deleteMany(),
     ]);
 
