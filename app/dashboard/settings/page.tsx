@@ -8,6 +8,7 @@ import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env';
 import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
+import { getSandboxMode } from '~/queries/environment';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -18,6 +19,7 @@ export default async function Settings() {
   await requirePageAuth();
 
   const installationIdPromise = getInstallationId();
+  const sandboxMode = await getSandboxMode();
 
   return (
     <>
@@ -60,7 +62,7 @@ export default async function Settings() {
             prevented.
           </Paragraph>
         </SettingsSection>
-        {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
+        {(env.NODE_ENV === 'development' || !sandboxMode) && (
           <SettingsSection
             heading="Reset Settings"
             controlArea={<ResetButton />}

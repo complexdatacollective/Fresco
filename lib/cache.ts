@@ -17,6 +17,10 @@ const CACHE_TAGS = [
   'interviewCount',
   'protocolCount',
   'participantCount',
+  'getUploadthingVariables',
+  'getPublicUrl',
+  'getSandboxMode',
+  'getDisableAnalytics',
 ] as const;
 
 type StaticTag = (typeof CACHE_TAGS)[number];

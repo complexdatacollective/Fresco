@@ -1,8 +1,6 @@
 'use client';
 
-import { parseAsInteger, useQueryState } from 'nuqs';
 import { storeEnvironment } from '~/actions/environment';
-import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import SubmitButton from '~/components/ui/SubmitButton';
 import useZodForm from '~/hooks/useZodForm';
@@ -15,15 +13,6 @@ export const EnvironmentForm = () => {
   } = useZodForm({
     schema: createEnvironmentSchema,
   });
-
-  const [currentStep, setCurrentStep] = useQueryState(
-    'step',
-    parseAsInteger.withDefault(1),
-  );
-
-  const handleNextStep = () => {
-    void setCurrentStep(currentStep + 1);
-  };
 
   return (
     <form className="flex flex-col" action={storeEnvironment}>
@@ -67,11 +56,11 @@ export const EnvironmentForm = () => {
           {...register('INSTALLATION_ID')}
         />
       </div>
+
       <div className="flex flex-wrap">
         <SubmitButton type="submit" disabled={!isValid}>
           Submit
         </SubmitButton>
-        <Button onClick={handleNextStep}>Proceed</Button>
       </div>
     </form>
   );

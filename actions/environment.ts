@@ -1,5 +1,6 @@
 'use server';
 
+import { safeRevalidateTag } from '~/lib/cache';
 import { createEnvironmentFormSchema } from '~/schemas/environment';
 import { prisma } from '~/utils/db';
 
@@ -37,6 +38,10 @@ export async function storeEnvironment(formData: unknown) {
       data.push({ key: 'INSTALLATION_ID', value: INSTALLATION_ID });
     }
 
+    // add the default env variables
+    data.push({ key: 'SANDBOX_MODE', value: 'false' });
+    data.push({ key: 'DISABLE_ANALYTICS', value: 'false' });
+
     await prisma.environment.createMany({
       data,
     });
@@ -48,4 +53,26 @@ export async function storeEnvironment(formData: unknown) {
       error: 'Failed to store environment',
     };
   }
+}
+
+export async function setSandboxMode(sandboxMode: boolean) {
+  await prisma.environment.update({
+    where: { key: 'SANDBOX_MODE' },
+    data: {
+      value: sandboxMode.toString(),
+    },
+  });
+  safeRevalidateTag('getSandboxMode');
+  return sandboxMode;
+}
+
+export async function setDisableAnalytics(disableAnalytics: boolean) {
+  await prisma.environment.update({
+    where: { key: 'DISABLE_ANALYTICS' },
+    data: {
+      value: disableAnalytics.toString(),
+    },
+  });
+  safeRevalidateTag('getDisableAnalytics');
+  return disableAnalytics;
 }

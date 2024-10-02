@@ -22,7 +22,7 @@ export const getUploadthingVariables = createCachedFunction(async () => {
     UPLOADTHING_SECRET: uploadthingVariables.UPLOADTHING_SECRET ?? null,
     UPLOADTHING_APP_ID: uploadthingVariables.UPLOADTHING_APP_ID ?? null,
   };
-}, []);
+}, ['getUploadthingVariables']);
 
 export const getInstallationId = createCachedFunction(async () => {
   const keyValues = await prisma.environment.findMany({
@@ -32,7 +32,7 @@ export const getInstallationId = createCachedFunction(async () => {
   });
 
   return keyValues[0]?.value ?? null;
-}, []);
+}, ['getInstallationId']);
 
 export const getPublicUrl = createCachedFunction(async () => {
   const keyValues = await prisma.environment.findMany({
@@ -42,4 +42,24 @@ export const getPublicUrl = createCachedFunction(async () => {
   });
 
   return keyValues[0]?.value ?? null;
-}, []);
+}, ['getPublicUrl']);
+
+export const getSandboxMode = createCachedFunction(async () => {
+  const keyValues = await prisma.environment.findMany({
+    where: {
+      key: 'SANDBOX_MODE',
+    },
+  });
+
+  return keyValues[0]?.value === 'true';
+}, ['getSandboxMode']);
+
+export const getDisableAnalytics = createCachedFunction(async () => {
+  const keyValues = await prisma.environment.findMany({
+    where: {
+      key: 'DISABLE_ANALYTICS',
+    },
+  });
+
+  return keyValues[0]?.value === 'true';
+}, ['getDisableAnalytics']);

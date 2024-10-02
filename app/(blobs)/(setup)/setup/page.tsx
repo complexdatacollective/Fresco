@@ -6,6 +6,7 @@ import {
   requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
+import { getDisableAnalytics, getSandboxMode } from '~/queries/environment';
 import { getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import Setup from './Setup';
@@ -19,12 +20,17 @@ async function getSetupData() {
     prisma.participant.count(),
   ]);
 
+  const sandboxMode = await getSandboxMode();
+  const disableAnalytics = await getDisableAnalytics();
+
   return {
     hasAuth: !!session,
     allowAnonymousRecruitment,
     limitInterviews,
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
+    sandboxMode: sandboxMode,
+    disableAnalytics: disableAnalytics,
   };
 }
 
