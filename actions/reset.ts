@@ -28,6 +28,8 @@ export const resetAppSettings = async () => {
     safeRevalidateTag('getProtocols');
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('getInterviews');
+    safeRevalidateTag('getSandboxMode');
+    safeRevalidateTag('getDisableAnalytics');
 
     const utapi = new UTApi();
 
