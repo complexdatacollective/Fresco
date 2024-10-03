@@ -1,38 +1,73 @@
+import { createId } from '@paralleldrive/cuid2';
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
-import { getInstallationId as getInstallationIdFromDb } from '~/queries/environment';
 import { prisma } from '~/utils/db';
+
+type AppSettingsKeys =
+  | 'configured'
+  | 'allowAnonymousRecruitment'
+  | 'limitInterviews'
+  | 'initializedAt'
+  | 'installationId';
+
+type AppSettings = Record<AppSettingsKeys, string>;
+
+const DEFAULT_SETTINGS: Record<AppSettingsKeys, string> = {
+  configured: 'false',
+  allowAnonymousRecruitment: 'false',
+  limitInterviews: 'true',
+  initializedAt: new Date().toISOString(),
+  installationId: createId(),
+};
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
 
 const getAppSettings = createCachedFunction(async () => {
-  const appSettings = await prisma.appSettings.findFirst();
+  const appSettingsRecords = await prisma.appSettings.findMany({
+    select: { key: true, value: true },
+  });
 
-  // If there are no app settings, create them
-  if (!appSettings) {
-    const newAppSettings = await prisma.appSettings.create({
-      data: {
-        initializedAt: new Date(),
-      },
+  // Check if there are any existing settings
+  if (appSettingsRecords.length === 0) {
+    // No app settings exist, so create all default settings
+    await prisma.appSettings.createMany({
+      data: Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
+        key: key as AppSettingsKeys,
+        value,
+      })),
     });
 
     return {
-      ...newAppSettings,
+      ...DEFAULT_SETTINGS,
+      configured: DEFAULT_SETTINGS.configured === 'true',
+      allowAnonymousRecruitment:
+        DEFAULT_SETTINGS.allowAnonymousRecruitment === 'true',
+      limitInterviews: DEFAULT_SETTINGS.limitInterviews === 'true',
+      initializedAt: new Date(DEFAULT_SETTINGS.initializedAt),
       expired: calculateIsExpired(
-        newAppSettings.configured,
-        newAppSettings.initializedAt,
+        DEFAULT_SETTINGS.configured === 'true',
+        new Date(DEFAULT_SETTINGS.initializedAt),
       ),
     };
   }
 
+  const appSettings = appSettingsRecords.reduce((acc, { key, value }) => {
+    acc[key as AppSettingsKeys] = value;
+    return acc;
+  }, {} as AppSettings);
+
   return {
-    ...appSettings,
+    configured: appSettings.configured === 'true',
+    allowAnonymousRecruitment: appSettings.allowAnonymousRecruitment === 'true',
+    limitInterviews: appSettings.limitInterviews === 'true',
+    initializedAt: new Date(appSettings.initializedAt),
+    installationId: appSettings.installationId,
     expired: calculateIsExpired(
-      appSettings.configured,
-      appSettings.initializedAt,
+      appSettings.configured === 'true',
+      new Date(appSettings.initializedAt),
     ),
   };
 }, ['appSettings', 'allowAnonymousRecruitment', 'limitInterviews']);
@@ -75,24 +110,74 @@ export async function isAppExpired() {
 export const getAnonymousRecruitmentStatus = createCachedFunction(async () => {
   const appSettings = await getAppSettings();
 
-  return !!appSettings?.allowAnonymousRecruitment;
-}, ['allowAnonymousRecruitment', 'appSettings', 'allowAnonymousRecruitment']);
+  return appSettings.allowAnonymousRecruitment;
+}, ['allowAnonymousRecruitment', 'appSettings']);
 
 export const getLimitInterviewsStatus = createCachedFunction(async () => {
   const appSettings = await getAppSettings();
 
-  return !!appSettings?.limitInterviews;
+  return appSettings.limitInterviews;
 }, ['limitInterviews', 'appSettings']);
 
+export const getUploadthingVariables = createCachedFunction(async () => {
+  const keyValues = await prisma.appSettings.findMany({
+    where: {
+      key: {
+        in: ['UPLOADTHING_SECRET', 'UPLOADTHING_APP_ID'],
+      },
+    },
+  });
+
+  const uploadthingVariables = keyValues.reduce(
+    (acc, { key, value }) => {
+      acc[key] = value;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  return {
+    UPLOADTHING_SECRET: uploadthingVariables.UPLOADTHING_SECRET ?? null,
+    UPLOADTHING_APP_ID: uploadthingVariables.UPLOADTHING_APP_ID ?? null,
+  };
+}, ['getUploadthingVariables']);
+
 export const getInstallationId = createCachedFunction(async () => {
-  // TODO: prob need to reconsider how we save the installationID
-  const INSTALLATION_ID = await getInstallationIdFromDb();
+  const keyValues = await prisma.appSettings.findMany({
+    where: {
+      key: 'INSTALLATION_ID',
+    },
+  });
 
-  if (INSTALLATION_ID) {
-    return INSTALLATION_ID;
-  }
+  return keyValues[0]?.value ?? null;
+}, ['getInstallationId']);
 
-  const appSettings = await getAppSettings();
+export const getPublicUrl = createCachedFunction(async () => {
+  const keyValues = await prisma.appSettings.findMany({
+    where: {
+      key: 'PUBLIC_URL',
+    },
+  });
 
-  return appSettings?.installationId ?? 'Unknown';
-}, ['getInstallationId', 'appSettings']);
+  return keyValues[0]?.value ?? null;
+}, ['getPublicUrl']);
+
+export const getSandboxMode = createCachedFunction(async () => {
+  const keyValues = await prisma.appSettings.findMany({
+    where: {
+      key: 'SANDBOX_MODE',
+    },
+  });
+
+  return keyValues[0]?.value === 'true';
+}, ['getSandboxMode']);
+
+export const getDisableAnalytics = createCachedFunction(async () => {
+  const keyValues = await prisma.appSettings.findMany({
+    where: {
+      key: 'DISABLE_ANALYTICS',
+    },
+  });
+
+  return keyValues[0]?.value === 'true';
+}, ['getDisableAnalytics']);

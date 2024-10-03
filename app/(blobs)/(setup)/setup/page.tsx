@@ -2,11 +2,12 @@ import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
 import {
   getAnonymousRecruitmentStatus,
+  getDisableAnalytics,
   getLimitInterviewsStatus,
+  getSandboxMode,
   requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
-import { getDisableAnalytics, getSandboxMode } from '~/queries/environment';
 import { getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import Setup from './Setup';

@@ -1,5 +1,5 @@
 'use client';
-import { setSandboxMode } from '~/actions/environment';
+import { setSandboxMode } from '~/actions/appSettings';
 import SwitchWithOptimisticUpdate from '~/components/SwitchWithOptimisticUpdate';
 
 const SandboxModeSwitch = ({ sandboxMode }: { sandboxMode: boolean }) => {

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { containerClasses } from '~/components/ContainerClasses';
-import { getSandboxMode } from '~/queries/environment';
+import { getSandboxMode } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
 import { cn } from '~/utils/shadcn';
 import SandboxCredentials from '../_components/SandboxCredentials';

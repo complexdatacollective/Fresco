@@ -90,16 +90,13 @@ model Participant {
 }
 
 model AppSettings {
+  key                       String?    @unique
+  value                     String?
   configured                Boolean  @default(false)
   initializedAt             DateTime @default(now())
   allowAnonymousRecruitment Boolean  @default(false)
   limitInterviews           Boolean  @default(true)
   installationId            String   @unique @default(cuid())
-}
-
-model Environment {
-  key String @id @unique
-  value String
 }
 
 model Events {

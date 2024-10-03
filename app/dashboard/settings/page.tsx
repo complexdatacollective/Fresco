@@ -7,8 +7,11 @@ import SettingsSection from '~/components/layout/SettingsSection';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env';
-import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
-import { getSandboxMode } from '~/queries/environment';
+import {
+  getInstallationId,
+  getSandboxMode,
+  requireAppNotExpired,
+} from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';

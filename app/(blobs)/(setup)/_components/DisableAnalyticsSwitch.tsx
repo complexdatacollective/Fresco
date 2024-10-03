@@ -1,5 +1,5 @@
 'use client';
-import { setDisableAnalytics } from '~/actions/environment';
+import { setDisableAnalytics } from '~/actions/appSettings';
 import SwitchWithOptimisticUpdate from '~/components/SwitchWithOptimisticUpdate';
 
 const DisableAnalyticsSwitch = ({

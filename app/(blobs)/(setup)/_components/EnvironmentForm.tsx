@@ -1,6 +1,6 @@
 'use client';
 
-import { storeEnvironment } from '~/actions/environment';
+import { storeEnvironment } from '~/actions/appSettings';
 import { Input } from '~/components/ui/Input';
 import SubmitButton from '~/components/ui/SubmitButton';
 import useZodForm from '~/hooks/useZodForm';

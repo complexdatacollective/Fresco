@@ -2,8 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import trackEvent from '~/lib/analytics';
-import { getLimitInterviewsStatus } from '~/queries/appSettings';
-import { getPublicUrl } from '~/queries/environment';
+import { getLimitInterviewsStatus, getPublicUrl } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 

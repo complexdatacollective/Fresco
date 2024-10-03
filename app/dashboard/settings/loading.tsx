@@ -5,7 +5,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { SwitchSkeleton } from '~/components/ui/switch';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { env } from '~/env';
-import { getSandboxMode } from '~/queries/environment';
+import { getSandboxMode } from '~/queries/appSettings';
 
 export default async function Loading() {
   const sandboxMode = await getSandboxMode();
