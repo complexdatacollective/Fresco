@@ -1,3 +1,5 @@
+import { createId } from '@paralleldrive/cuid2';
+
 export const PROTOCOL_EXTENSION = '.netcanvas' as const;
 export const APP_SUPPORTED_SCHEMA_VERSIONS = [7];
 // If unconfigured, the app will shut down after 30 minutes (1800000 ms)
@@ -11,3 +13,11 @@ export const dateOptions: Intl.DateTimeFormatOptions = {
   hour: 'numeric',
   minute: 'numeric',
 };
+
+export const DEFAULT_APP_SETTINGS = {
+  initializedAt: new Date(),
+  configured: false,
+  allowAnonymousRecruitment: false,
+  limitInterviews: true,
+  installationId: createId(),
+} as const;

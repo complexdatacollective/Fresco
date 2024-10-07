@@ -2,25 +2,18 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 
 const CACHE_TAGS = [
   'activityFeed',
-  'allowAnonymousRecruitment',
-  'limitInterviews',
   'appSettings',
   'getInterviews',
   'summaryStatistics',
   'getParticipants',
   'getInterviewById',
   'getProtocols',
-  'getInstallationId',
   'getInterviewsForExport',
   'getProtocolsByHash',
   'getExistingAssetIds',
   'interviewCount',
   'protocolCount',
   'participantCount',
-  'getUploadthingVariables',
-  'getPublicUrl',
-  'getSandboxMode',
-  'getDisableAnalytics',
 ] as const;
 
 type StaticTag = (typeof CACHE_TAGS)[number];

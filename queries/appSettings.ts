@@ -1,8 +1,7 @@
-import { createId } from '@paralleldrive/cuid2';
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
-import { createAppSetting } from '~/actions/appSettings';
+import { initializeWithDefaults } from '~/actions/appSettings';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
 import { type appSettingSchema } from '~/schemas/appSettings';
@@ -17,13 +16,7 @@ export async function getAppSetting<
   });
 
   if (!initializedAt) {
-    // initialize the app
-    // todo: should these come from fresco.config?
-    await createAppSetting('initializedAt', new Date());
-    await createAppSetting('configured', false);
-    await createAppSetting('allowAnonymousRecruitment', false);
-    await createAppSetting('limitInterviews', true);
-    await createAppSetting('installationId', createId());
+    await initializeWithDefaults();
   }
 
   const keyValue = await prisma.appSettings.findUnique({
@@ -87,12 +80,12 @@ export const getAnonymousRecruitmentStatus = createCachedFunction(async () => {
     'allowAnonymousRecruitment',
   );
   return getAnonymousRecruitmentStatus;
-}, ['allowAnonymousRecruitment', 'appSettings']);
+}, ['appSettings-allowAnonymousRecruitment', 'appSettings']);
 
 export const getLimitInterviewsStatus = createCachedFunction(async () => {
   const limitInterviews = await getAppSetting('limitInterviews');
   return limitInterviews;
-}, ['limitInterviews', 'appSettings']);
+}, ['appSettings-limitInterviews', 'appSettings']);
 
 export const getUploadthingVariables = createCachedFunction(async () => {
   const UPLOADTHING_SECRET = await getAppSetting('UPLOADTHING_SECRET');
@@ -102,24 +95,24 @@ export const getUploadthingVariables = createCachedFunction(async () => {
     UPLOADTHING_SECRET,
     UPLOADTHING_APP_ID,
   };
-}, ['getUploadthingVariables']);
+}, ['appSettings-UPLOADTHING_SECRET', 'appSettings-UPLOADTHING_APP_ID']);
 
 export const getInstallationId = createCachedFunction(async () => {
   const installationId = await getAppSetting('installationId');
   return installationId;
-}, ['getInstallationId']);
+}, ['appSettings-installationId']);
 
 export const getPublicUrl = createCachedFunction(async () => {
   const publicUrl = await getAppSetting('PUBLIC_URL');
   return publicUrl;
-}, ['getPublicUrl']);
+}, ['appSettings-PUBLIC_URL']);
 
 export const getSandboxMode = createCachedFunction(async () => {
   const sandboxMode = await getAppSetting('SANDBOX_MODE');
   return sandboxMode;
-}, ['getSandboxMode']);
+}, ['appSettings-SANDBOX_MODE']);
 
 export const getDisableAnalytics = createCachedFunction(async () => {
   const disableAnalytics = await getAppSetting('DISABLE_ANALYTICS');
   return disableAnalytics;
-}, ['getDisableAnalytics']);
+}, ['appSettings-DISABLE_ANALYTICS']);

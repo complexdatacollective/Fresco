@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { type z } from 'zod';
+import { DEFAULT_APP_SETTINGS } from '~/fresco.config';
 import { safeRevalidateTag } from '~/lib/cache';
 import { appSettingSchema } from '~/schemas/appSettings';
 import { createEnvironmentFormSchema } from '~/schemas/environment';
@@ -12,14 +13,19 @@ import { prisma } from '~/utils/db';
 export async function setAppSetting<
   Key extends keyof z.infer<typeof appSettingSchema>,
 >(key: Key, value: z.infer<typeof appSettingSchema>[Key]) {
+  await requireApiAuth();
   console.log('setting app setting', key, value);
 
   // validate
   appSettingSchema.shape[key].parse(value);
 
-  await prisma.appSettings.update({
+  await prisma.appSettings.upsert({
     where: { key },
-    data: {
+    update: {
+      value:
+        typeof value === 'boolean' ? value.toString() : JSON.stringify(value),
+    },
+    create: {
       key: key,
       value:
         typeof value === 'boolean' ? value.toString() : JSON.stringify(value),
@@ -27,35 +33,19 @@ export async function setAppSetting<
   });
 
   // handle revalidation tag
-  // safeRevalidateTag('appSettings', key);
-  return value;
-}
-
-export async function createAppSetting<
-  Key extends keyof z.infer<typeof appSettingSchema>,
->(key: Key, value: z.infer<typeof appSettingSchema>[Key]) {
-  await prisma.appSettings.create({
-    data: {
-      key: key,
-      value:
-        typeof value === 'boolean' ? value.toString() : JSON.stringify(value),
-    },
-  });
-
+  safeRevalidateTag(`appSettings-${key}`);
   return value;
 }
 
 export async function setAnonymousRecruitment(input: boolean) {
   await requireApiAuth();
   await setAppSetting('allowAnonymousRecruitment', input);
-  safeRevalidateTag('allowAnonymousRecruitment');
   return input;
 }
 
 export async function setLimitInterviews(input: boolean) {
   await requireApiAuth();
   await setAppSetting('limitInterviews', input);
-  safeRevalidateTag('limitInterviews');
   return input;
 }
 
@@ -64,7 +54,6 @@ export const setAppConfigured = async () => {
 
   try {
     await setAppSetting('configured', true);
-    safeRevalidateTag('appSettings');
   } catch (error) {
     return { error: 'Failed to update appSettings', appSettings: null };
   }
@@ -90,16 +79,16 @@ export async function storeEnvironment(formData: unknown) {
       INSTALLATION_ID,
     } = parsedFormData.data;
 
-    await createAppSetting('UPLOADTHING_APP_ID', UPLOADTHING_APP_ID);
-    await createAppSetting('UPLOADTHING_SECRET', UPLOADTHING_SECRET);
+    await setAppSetting('UPLOADTHING_APP_ID', UPLOADTHING_APP_ID);
+    await setAppSetting('UPLOADTHING_SECRET', UPLOADTHING_SECRET);
 
     // add the default env variables
-    await createAppSetting('SANDBOX_MODE', false);
-    await createAppSetting('DISABLE_ANALYTICS', false);
+    await setAppSetting('SANDBOX_MODE', false);
+    await setAppSetting('DISABLE_ANALYTICS', false);
 
     // add optional env variables if they were provided
     if (PUBLIC_URL) {
-      await createAppSetting('PUBLIC_URL', PUBLIC_URL);
+      await setAppSetting('PUBLIC_URL', PUBLIC_URL);
     }
 
     if (INSTALLATION_ID) {
@@ -117,12 +106,32 @@ export async function storeEnvironment(formData: unknown) {
 
 export async function setSandboxMode(sandboxMode: boolean) {
   await setAppSetting('SANDBOX_MODE', sandboxMode);
-  safeRevalidateTag('getSandboxMode');
   return sandboxMode;
 }
 
 export async function setDisableAnalytics(disableAnalytics: boolean) {
   await setAppSetting('DISABLE_ANALYTICS', disableAnalytics);
-  safeRevalidateTag('getDisableAnalytics');
   return disableAnalytics;
+}
+
+export async function initializeWithDefaults() {
+  await prisma.$transaction(
+    async (tx) => {
+      // Use DEFAULT_APP_SETTINGS to initialize the app settings
+      for (const [key, value] of Object.entries(DEFAULT_APP_SETTINGS)) {
+        await tx.appSettings.create({
+          data: {
+            key: key as keyof typeof DEFAULT_APP_SETTINGS,
+            value:
+              typeof value === 'boolean'
+                ? value.toString()
+                : JSON.stringify(value),
+          },
+        });
+      }
+    },
+    {
+      timeout: 10000, // default is 5000 which is too short for this
+    },
+  );
 }
