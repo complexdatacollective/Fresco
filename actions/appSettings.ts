@@ -23,12 +23,20 @@ export async function setAppSetting<
     where: { key },
     update: {
       value:
-        typeof value === 'boolean' ? value.toString() : JSON.stringify(value),
+        typeof value === 'boolean'
+          ? value.toString()
+          : value instanceof Date
+            ? value.toISOString()
+            : value,
     },
     create: {
       key: key,
       value:
-        typeof value === 'boolean' ? value.toString() : JSON.stringify(value),
+        typeof value === 'boolean'
+          ? value.toString()
+          : value instanceof Date
+            ? value.toISOString()
+            : value,
     },
   });
 
