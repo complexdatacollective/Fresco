@@ -125,7 +125,9 @@ export async function initializeWithDefaults() {
             value:
               typeof value === 'boolean'
                 ? value.toString()
-                : JSON.stringify(value),
+                : value instanceof Date
+                  ? value.toISOString()
+                  : value,
           },
         });
       }

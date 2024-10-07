@@ -4,13 +4,12 @@ import { type z } from 'zod';
 import { initializeWithDefaults } from '~/actions/appSettings';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
-import { type appSettingSchema } from '~/schemas/appSettings';
+import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-// Generic function to get an app setting
 export async function getAppSetting<
-  Key extends keyof z.infer<typeof appSettingSchema>,
->(key: Key): Promise<z.infer<typeof appSettingSchema>[Key]> {
+  Key extends keyof z.infer<typeof appSettingPreprocessedSchema>,
+>(key: Key): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> {
   const initializedAt = await prisma.appSettings.findUnique({
     where: { key: 'initializedAt' },
   });
@@ -27,17 +26,12 @@ export async function getAppSetting<
     return null;
   }
 
-  // Parse the value based on the expected type
-  const parsedValue =
-    key === 'initializedAt'
-      ? new Date(keyValue.value)
-      : keyValue.value === 'true'
-        ? true
-        : keyValue.value === 'false'
-          ? false
-          : keyValue.value;
+  // Parse the value using the preprocessed schema
+  const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+    keyValue.value,
+  );
 
-  return parsedValue as z.infer<typeof appSettingSchema>[Key];
+  return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
 }
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
