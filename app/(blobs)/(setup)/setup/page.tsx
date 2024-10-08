@@ -32,7 +32,7 @@ async function getSetupData() {
     hasParticipants: otherData[1] > 0,
     sandboxMode: sandboxMode,
     disableAnalytics: disableAnalytics,
-    installationId,
+    installationId: installationId,
   };
 }
 

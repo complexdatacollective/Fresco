@@ -18,6 +18,7 @@ export const getAppSetting = <
       where: { key: 'configured' },
     });
 
+    // if there is no app setting for 'configured', then the app has not been initialized with defaults
     if (configured === null) {
       const data = await initializeWithDefaults();
 
@@ -41,6 +42,10 @@ export const getAppSetting = <
       where: { key },
     });
 
+    if (key === 'initializedAt') {
+      console.log('key', key, 'keyValue', keyValue);
+    }
+
     if (!keyValue) {
       return null;
     }
@@ -54,10 +59,11 @@ export const getAppSetting = <
   }, ['appSettings', `appSettings-${key}`])();
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
+  console.log('configured', configured, 'initializedAt', initializedAt);
+  return false;
   // return (
   //   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
   // );
-  return false;
 };
 
 export async function requireAppNotExpired(isSetupRoute = false) {

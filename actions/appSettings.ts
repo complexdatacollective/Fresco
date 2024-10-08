@@ -63,6 +63,7 @@ export const setAppConfigured = async () => {
 };
 
 export async function storeEnvironment(formData: unknown) {
+  await requireApiAuth();
   const parsedFormData = createEnvironmentFormSchema.safeParse(formData);
 
   if (!parsedFormData.success) {
@@ -93,6 +94,7 @@ export async function storeEnvironment(formData: unknown) {
       data.push({ key: 'PUBLIC_URL', value: PUBLIC_URL });
     }
 
+<<<<<<< Updated upstream
     data.push({
       key: 'installationId',
       value: INSTALLATION_ID ?? createId(),
@@ -103,6 +105,14 @@ export async function storeEnvironment(formData: unknown) {
       data,
       skipDuplicates: true,
     });
+=======
+    if (INSTALLATION_ID) {
+      await setAppSetting('installationId', INSTALLATION_ID);
+    } else {
+      // no env or installation id provided, generate one
+      await setAppSetting('installationId', createId());
+    }
+>>>>>>> Stashed changes
 
     return { success: true };
   } catch (error) {
@@ -114,13 +124,19 @@ export async function storeEnvironment(formData: unknown) {
 }
 
 export async function initializeWithDefaults() {
+  await requireApiAuth();
   const data = Object.entries(DEFAULT_APP_SETTINGS).map(([key, value]) => ({
     key: key as keyof typeof DEFAULT_APP_SETTINGS,
     value: typeof value === 'boolean' ? value.toString() : value,
   }));
 
+<<<<<<< Updated upstream
   const installationId = env.INSTALLATION_ID;
 
+=======
+  // add installation id if there is one in the env
+  const installationId = env.INSTALLATION_ID;
+>>>>>>> Stashed changes
   if (installationId) {
     data.push({
       key: 'installationId',
@@ -132,6 +148,8 @@ export async function initializeWithDefaults() {
     data,
     skipDuplicates: true,
   });
+
+  console.log('Initialized app settings with defaults', appSettings);
 
   return appSettings;
 }

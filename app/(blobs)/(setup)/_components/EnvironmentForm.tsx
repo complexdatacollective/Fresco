@@ -62,7 +62,6 @@ export const EnvironmentForm = ({
           />
         </div>
       )}
-
       <div className="flex flex-wrap">
         <SubmitButton type="submit" disabled={!isValid}>
           Submit
