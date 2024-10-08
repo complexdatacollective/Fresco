@@ -26,10 +26,9 @@ export default function Setup({
     allowAnonymousRecruitment,
     limitInterviews,
     installationId,
+    sandboxMode,
+    disableAnalytics,
   } = use(setupDataPromise);
-
-  const { sandboxMode, disableAnalytics, installationId } =
-    use(setupDataPromise);
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');

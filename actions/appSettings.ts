@@ -94,25 +94,12 @@ export async function storeEnvironment(formData: unknown) {
       data.push({ key: 'PUBLIC_URL', value: PUBLIC_URL });
     }
 
-<<<<<<< Updated upstream
-    data.push({
-      key: 'installationId',
-      value: INSTALLATION_ID ?? createId(),
-    });
-
-    // use createMany to store the env variables all at once
-    await prisma.appSettings.createMany({
-      data,
-      skipDuplicates: true,
-    });
-=======
     if (INSTALLATION_ID) {
       await setAppSetting('installationId', INSTALLATION_ID);
     } else {
       // no env or installation id provided, generate one
       await setAppSetting('installationId', createId());
     }
->>>>>>> Stashed changes
 
     return { success: true };
   } catch (error) {
@@ -130,13 +117,8 @@ export async function initializeWithDefaults() {
     value: typeof value === 'boolean' ? value.toString() : value,
   }));
 
-<<<<<<< Updated upstream
-  const installationId = env.INSTALLATION_ID;
-
-=======
   // add installation id if there is one in the env
   const installationId = env.INSTALLATION_ID;
->>>>>>> Stashed changes
   if (installationId) {
     data.push({
       key: 'installationId',
