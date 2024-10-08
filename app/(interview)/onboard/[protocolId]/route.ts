@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import trackEvent from '~/lib/analytics';
-import { getLimitInterviewsStatus, getPublicUrl } from '~/queries/appSettings';
+import { getAppSetting } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,7 @@ const handler = async (
 ) => {
   const protocolId = params.protocolId; // From route segment
 
-  const PUBLIC_URL = await getPublicUrl();
+  const PUBLIC_URL = await getAppSetting('PUBLIC_URL');
 
   // when deployed via docker `req.url` and `req.nextUrl`
   // shows Docker Container ID instead of real host
@@ -26,7 +26,7 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
-  const limitInterviews = await getLimitInterviewsStatus();
+  const limitInterviews = await getAppSetting('limitInterviews');
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol

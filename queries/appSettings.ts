@@ -7,39 +7,63 @@ import { createCachedFunction } from '~/lib/cache';
 import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-export async function getAppSetting<
+export const getAppSetting = <
   Key extends keyof z.infer<typeof appSettingPreprocessedSchema>,
->(key: Key): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key]> {
-  const initializedAt = await prisma.appSettings.findUnique({
-    where: { key: 'initializedAt' },
-  });
+>(
+  key: Key,
+) =>
+  createCachedFunction(async (): Promise<
+    z.infer<typeof appSettingPreprocessedSchema>[Key]
+  > => {
+    const initializedAt = await prisma.appSettings.findUnique({
+      where: { key: 'initializedAt' },
+    });
 
-  if (!initializedAt) {
-    await initializeWithDefaults();
-  }
+    if (!initializedAt) {
+      const data = await initializeWithDefaults();
 
-  const keyValue = await prisma.appSettings.findUnique({
-    where: { key },
-  });
+      const initializedSetting = data.find((item) => item.key === key);
 
-  if (!keyValue) {
-    return null;
-  }
+      if (!initializedSetting) {
+        return null;
+      }
 
-  // Parse the value using the preprocessed schema
-  const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
-    keyValue.value,
+      // Parse the value using the preprocessed schema
+      const parsedInitializedValue = appSettingPreprocessedSchema.shape[
+        key
+      ].parse(initializedSetting.value);
+      return parsedInitializedValue as z.infer<
+        typeof appSettingPreprocessedSchema
+      >[Key];
+    }
+
+    // from here, we know that the app has been initialized
+    const keyValue = await prisma.appSettings.findUnique({
+      where: { key },
+    });
+
+    if (!keyValue) {
+      return null;
+    }
+
+    // Parse the value using the preprocessed schema
+    const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+      keyValue.value,
+    );
+
+    return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
+  }, ['appSettings', `appSettings-${key}`])();
+
+const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
+  return (
+    !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
   );
-
-  return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
-}
-
-const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
-  !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
+};
 
 export async function requireAppNotExpired(isSetupRoute = false) {
   const configured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
+
   const expired = calculateIsExpired(configured, initializedAt);
 
   if (expired) {
@@ -58,6 +82,13 @@ export async function requireAppNotExpired(isSetupRoute = false) {
   return;
 }
 
+export async function isAppExpired() {
+  const configured = await getAppSetting('configured');
+  const initializedAt = await getAppSetting('initializedAt');
+  console.log('configured', configured, 'initializedAt', initializedAt);
+  return calculateIsExpired(configured, initializedAt);
+}
+
 // Used to prevent user account creation after the app has been configured
 export async function requireAppNotConfigured() {
   const configured = await getAppSetting('configured');
@@ -68,45 +99,3 @@ export async function requireAppNotConfigured() {
 
   return;
 }
-
-export const getAnonymousRecruitmentStatus = createCachedFunction(async () => {
-  const getAnonymousRecruitmentStatus = await getAppSetting(
-    'allowAnonymousRecruitment',
-  );
-  return getAnonymousRecruitmentStatus;
-}, ['appSettings-allowAnonymousRecruitment', 'appSettings']);
-
-export const getLimitInterviewsStatus = createCachedFunction(async () => {
-  const limitInterviews = await getAppSetting('limitInterviews');
-  return limitInterviews;
-}, ['appSettings-limitInterviews', 'appSettings']);
-
-export const getUploadthingVariables = createCachedFunction(async () => {
-  const UPLOADTHING_SECRET = await getAppSetting('UPLOADTHING_SECRET');
-  const UPLOADTHING_APP_ID = await getAppSetting('UPLOADTHING_APP_ID');
-
-  return {
-    UPLOADTHING_SECRET,
-    UPLOADTHING_APP_ID,
-  };
-}, ['appSettings-UPLOADTHING_SECRET', 'appSettings-UPLOADTHING_APP_ID']);
-
-export const getInstallationId = createCachedFunction(async () => {
-  const installationId = await getAppSetting('installationId');
-  return installationId;
-}, ['appSettings-installationId']);
-
-export const getPublicUrl = createCachedFunction(async () => {
-  const publicUrl = await getAppSetting('PUBLIC_URL');
-  return publicUrl;
-}, ['appSettings-PUBLIC_URL']);
-
-export const getSandboxMode = createCachedFunction(async () => {
-  const sandboxMode = await getAppSetting('SANDBOX_MODE');
-  return sandboxMode;
-}, ['appSettings-SANDBOX_MODE']);
-
-export const getDisableAnalytics = createCachedFunction(async () => {
-  const disableAnalytics = await getAppSetting('DISABLE_ANALYTICS');
-  return disableAnalytics;
-}, ['appSettings-DISABLE_ANALYTICS']);

@@ -14,7 +14,6 @@ export async function setAppSetting<
   Key extends keyof z.infer<typeof appSettingSchema>,
 >(key: Key, value: z.infer<typeof appSettingSchema>[Key]) {
   await requireApiAuth();
-  console.log('setting app setting', key, value);
 
   // validate
   appSettingSchema.shape[key].parse(value);
@@ -43,18 +42,6 @@ export async function setAppSetting<
   // handle revalidation tag
   safeRevalidateTag(`appSettings-${key}`);
   return value;
-}
-
-export async function setAnonymousRecruitment(input: boolean) {
-  await requireApiAuth();
-  await setAppSetting('allowAnonymousRecruitment', input);
-  return input;
-}
-
-export async function setLimitInterviews(input: boolean) {
-  await requireApiAuth();
-  await setAppSetting('limitInterviews', input);
-  return input;
 }
 
 export const setAppConfigured = async () => {
@@ -112,36 +99,21 @@ export async function storeEnvironment(formData: unknown) {
   }
 }
 
-export async function setSandboxMode(sandboxMode: boolean) {
-  await setAppSetting('SANDBOX_MODE', sandboxMode);
-  return sandboxMode;
-}
-
-export async function setDisableAnalytics(disableAnalytics: boolean) {
-  await setAppSetting('DISABLE_ANALYTICS', disableAnalytics);
-  return disableAnalytics;
-}
-
 export async function initializeWithDefaults() {
-  await prisma.$transaction(
-    async (tx) => {
-      // Use DEFAULT_APP_SETTINGS to initialize the app settings
-      for (const [key, value] of Object.entries(DEFAULT_APP_SETTINGS)) {
-        await tx.appSettings.create({
-          data: {
-            key: key as keyof typeof DEFAULT_APP_SETTINGS,
-            value:
-              typeof value === 'boolean'
-                ? value.toString()
-                : value instanceof Date
-                  ? value.toISOString()
-                  : value,
-          },
-        });
-      }
-    },
-    {
-      timeout: 10000, // default is 5000 which is too short for this
-    },
-  );
+  const data = Object.entries(DEFAULT_APP_SETTINGS).map(([key, value]) => ({
+    key: key as keyof typeof DEFAULT_APP_SETTINGS,
+    value:
+      typeof value === 'boolean'
+        ? value.toString()
+        : value instanceof Date
+          ? value.toISOString()
+          : value,
+  }));
+
+  const appSettings = await prisma.appSettings.createManyAndReturn({
+    data,
+    skipDuplicates: true,
+  });
+
+  return appSettings;
 }

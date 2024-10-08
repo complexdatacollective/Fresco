@@ -1,10 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
 import {
-  getAnonymousRecruitmentStatus,
-  getDisableAnalytics,
-  getLimitInterviewsStatus,
-  getSandboxMode,
+  getAppSetting,
   requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
@@ -14,15 +11,17 @@ import Setup from './Setup';
 
 async function getSetupData() {
   const session = await getServerSession();
-  const allowAnonymousRecruitment = await getAnonymousRecruitmentStatus();
-  const limitInterviews = await getLimitInterviewsStatus();
+  const allowAnonymousRecruitment = await getAppSetting(
+    'allowAnonymousRecruitment',
+  );
+  const limitInterviews = await getAppSetting('limitInterviews');
   const otherData = await prisma.$transaction([
     prisma.protocol.count(),
     prisma.participant.count(),
   ]);
 
-  const sandboxMode = await getSandboxMode();
-  const disableAnalytics = await getDisableAnalytics();
+  const sandboxMode = await getAppSetting('SANDBOX_MODE');
+  const disableAnalytics = await getAppSetting('DISABLE_ANALYTICS');
 
   return {
     hasAuth: !!session,

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { containerClasses } from '~/components/ContainerClasses';
-import { getSandboxMode } from '~/queries/appSettings';
+import { getAppSetting } from '~/queries/appSettings';
 import { getServerSession } from '~/utils/auth';
 import { cn } from '~/utils/shadcn';
 import SandboxCredentials from '../_components/SandboxCredentials';
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   const session = await getServerSession();
-  const sandboxMode = await getSandboxMode();
+  const sandboxMode = await getAppSetting('SANDBOX_MODE');
 
   if (session) {
     // If the user is already signed in, redirect to the dashboard

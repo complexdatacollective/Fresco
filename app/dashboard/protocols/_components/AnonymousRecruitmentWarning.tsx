@@ -2,10 +2,12 @@ import { AlertCircle } from 'lucide-react';
 import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { getAnonymousRecruitmentStatus } from '~/queries/appSettings';
+import { getAppSetting } from '~/queries/appSettings';
 
 export default async function AnonymousRecruitmentWarning() {
-  const allowAnonymousRecruitment = await getAnonymousRecruitmentStatus();
+  const allowAnonymousRecruitment = await getAppSetting(
+    'allowAnonymousRecruitment',
+  );
 
   if (!allowAnonymousRecruitment) return null;
 

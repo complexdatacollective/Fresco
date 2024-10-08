@@ -1,16 +1,16 @@
 import { createRouteHandler } from 'uploadthing/next';
-import { getPublicUrl, getUploadthingVariables } from '~/queries/environment';
+import { getAppSetting } from '~/queries/appSettings';
 import { ourFileRouter } from './core';
 
 // get env variables from db
-const { UPLOADTHING_APP_ID, UPLOADTHING_SECRET } =
-  await getUploadthingVariables();
+const UPLOADTHING_APP_ID = await getAppSetting('UPLOADTHING_APP_ID');
+const UPLOADTHING_SECRET = await getAppSetting('UPLOADTHING_SECRET');
 
 if (!UPLOADTHING_APP_ID || !UPLOADTHING_SECRET) {
   throw new Error('Missing UploadThing environment variables');
 }
 
-const PUBLIC_URL = await getPublicUrl();
+const PUBLIC_URL = await getAppSetting('PUBLIC_URL');
 
 // Export routes for Next App Router
 export const { GET, POST } = createRouteHandler({

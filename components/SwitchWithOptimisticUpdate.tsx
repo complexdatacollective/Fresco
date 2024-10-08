@@ -10,7 +10,7 @@ const SwitchWithOptimisticUpdate = ({
 }: {
   initialValue: boolean;
   name: string;
-  action: (value: boolean) => Promise<boolean>;
+  action: (key: string, value: boolean) => Promise<void>;
 }) => {
   const [isTransitioning, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
@@ -20,7 +20,7 @@ const SwitchWithOptimisticUpdate = ({
 
   const updateIsActive = async (newValue: boolean) => {
     setOptimisticIsActive(newValue);
-    await action(newValue); // this is a server action which calls `revalidateTag`
+    await action(name, newValue); // this is a server action which calls `revalidateTag`
   };
 
   return (
