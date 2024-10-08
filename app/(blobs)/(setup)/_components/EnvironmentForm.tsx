@@ -6,7 +6,11 @@ import SubmitButton from '~/components/ui/SubmitButton';
 import useZodForm from '~/hooks/useZodForm';
 import { createEnvironmentSchema } from '~/schemas/environment';
 
-export const EnvironmentForm = () => {
+export const EnvironmentForm = ({
+  installationId,
+}: {
+  installationId: string;
+}) => {
   const {
     register,
     formState: { errors, isValid },
@@ -46,16 +50,18 @@ export const EnvironmentForm = () => {
           {...register('PUBLIC_URL')}
         />
       </div>
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          label="INSTALLATION_ID"
-          hint="A unique identifier for your app, used for analytics. Generated automatically if not set."
-          type="text"
-          placeholder="app-id..."
-          error={errors.INSTALLATION_ID?.message}
-          {...register('INSTALLATION_ID')}
-        />
-      </div>
+      {!installationId && (
+        <div className="mb-6 flex flex-wrap">
+          <Input
+            label="INSTALLATION_ID"
+            hint="A unique identifier for your app, used for analytics. Generated automatically if not set."
+            type="text"
+            placeholder="app-id..."
+            error={errors.INSTALLATION_ID?.message}
+            {...register('INSTALLATION_ID')}
+          />
+        </div>
+      )}
 
       <div className="flex flex-wrap">
         <SubmitButton type="submit" disabled={!isValid}>

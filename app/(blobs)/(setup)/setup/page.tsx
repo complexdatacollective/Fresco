@@ -22,6 +22,7 @@ async function getSetupData() {
 
   const sandboxMode = await getAppSetting('SANDBOX_MODE');
   const disableAnalytics = await getAppSetting('DISABLE_ANALYTICS');
+  const installationId = await getAppSetting('installationId');
 
   return {
     hasAuth: !!session,
@@ -31,6 +32,7 @@ async function getSetupData() {
     hasParticipants: otherData[1] > 0,
     sandboxMode: sandboxMode,
     disableAnalytics: disableAnalytics,
+    installationId,
   };
 }
 

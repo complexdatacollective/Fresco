@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
 import { initializeWithDefaults } from '~/actions/appSettings';
-import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
 import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
@@ -15,11 +14,11 @@ export const getAppSetting = <
   createCachedFunction(async (): Promise<
     z.infer<typeof appSettingPreprocessedSchema>[Key]
   > => {
-    const initializedAt = await prisma.appSettings.findUnique({
-      where: { key: 'initializedAt' },
+    const configured = await prisma.appSettings.findUnique({
+      where: { key: 'configured' },
     });
 
-    if (!initializedAt) {
+    if (configured === null) {
       const data = await initializeWithDefaults();
 
       const initializedSetting = data.find((item) => item.key === key);
@@ -55,9 +54,10 @@ export const getAppSetting = <
   }, ['appSettings', `appSettings-${key}`])();
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
-  return (
-    !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
-  );
+  // return (
+  //   !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+  // );
+  return false;
 };
 
 export async function requireAppNotExpired(isSetupRoute = false) {

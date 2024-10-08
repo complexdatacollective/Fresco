@@ -21,8 +21,12 @@ export default function Setup({
 }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
 
-  const { hasAuth, allowAnonymousRecruitment, limitInterviews } =
-    use(setupDataPromise);
+  const {
+    hasAuth,
+    allowAnonymousRecruitment,
+    limitInterviews,
+    installationId,
+  } = use(setupDataPromise);
 
   const { sandboxMode, disableAnalytics } = use(setupDataPromise);
 
@@ -46,7 +50,7 @@ export default function Setup({
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && <ConfigureEnvironment />}
+        {step === 2 && <ConfigureEnvironment installationId={installationId} />}
         {step === 3 && (
           <DeploymentSettings
             sandboxMode={sandboxMode}

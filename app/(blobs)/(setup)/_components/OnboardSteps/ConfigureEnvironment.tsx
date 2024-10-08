@@ -4,7 +4,7 @@ import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { EnvironmentForm } from '../EnvironmentForm';
 
-function ConfigureEnvironment() {
+function ConfigureEnvironment({ installationId }: { installationId: string }) {
   const [currentStep, setCurrentStep] = useQueryState(
     'step',
     parseAsInteger.withDefault(1),
@@ -20,7 +20,7 @@ function ConfigureEnvironment() {
         <Paragraph>
           To use Fresco, you need to configure your project.
         </Paragraph>
-        <EnvironmentForm />
+        <EnvironmentForm installationId={installationId} />
       </div>
       <Button onClick={handleNextStep}>Proceed</Button>
     </div>
