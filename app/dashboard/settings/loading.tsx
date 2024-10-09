@@ -8,7 +8,7 @@ import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function Loading() {
-  const sandboxMode = await getAppSetting('SANDBOX_MODE');
+  const sandboxMode = await getAppSetting('sandboxMode');
   return (
     <>
       <ResponsiveContainer>

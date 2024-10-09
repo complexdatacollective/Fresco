@@ -26,8 +26,8 @@ export const EnvironmentForm = ({
           hint="Copy from the dashboard"
           type="text"
           placeholder="sk_live_******************"
-          error={errors.UPLOADTHING_SECRET?.message}
-          {...register('UPLOADTHING_SECRET')}
+          error={errors.uploadThingSecret?.message}
+          {...register('uploadThingSecret')}
         />
       </div>
       <div className="mb-6 flex flex-wrap">
@@ -36,29 +36,29 @@ export const EnvironmentForm = ({
           hint="Copy from the dashboard"
           type="text"
           placeholder="app-id..."
-          error={errors.UPLOADTHING_APP_ID?.message}
-          {...register('UPLOADTHING_APP_ID')}
+          error={errors.uploadThingAppId?.message}
+          {...register('uploadThingAppId')}
         />
       </div>
       <div className="mb-6 flex flex-wrap">
         <Input
-          label="PUBLIC_URL"
+          label="Public URL"
           hint="When using advanced deployment, this is required. Set to the domain name of your app"
           type="text"
           placeholder="app-id..."
-          error={errors.PUBLIC_URL?.message}
-          {...register('PUBLIC_URL')}
+          error={errors.publicUrl?.message}
+          {...register('publicUrl')}
         />
       </div>
       {!installationId && (
         <div className="mb-6 flex flex-wrap">
           <Input
-            label="INSTALLATION_ID"
+            label="Installation Id"
             hint="A unique identifier for your app, used for analytics. Generated automatically if not set."
             type="text"
             placeholder="app-id..."
-            error={errors.INSTALLATION_ID?.message}
-            {...register('INSTALLATION_ID')}
+            error={errors.installationId?.message}
+            {...register('installationId')}
           />
         </div>
       )}

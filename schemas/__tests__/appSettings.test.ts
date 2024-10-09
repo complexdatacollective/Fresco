@@ -10,11 +10,11 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date(),
         installationId: 'installation123',
-        SANDBOX_MODE: false,
-        DISABLE_ANALYTICS: true,
-        PUBLIC_URL: 'https://example.com',
-        UPLOADTHING_SECRET: 'secret123',
-        UPLOADTHING_APP_ID: 'appid123',
+        sandboxMode: false,
+        disableAnalytics: true,
+        publicUrl: 'https://example.com',
+        uploadThingSecret: 'secret123',
+        uploadThingAppId: 'appid123',
       };
 
       expect(appSettingSchema.parse(validSettings)).toEqual(validSettings);
@@ -25,7 +25,7 @@ describe('App Settings Schema Validators', () => {
         allowAnonymousRecruitment: false,
         initializedAt: new Date(),
         installationId: 'installation123',
-        SANDBOX_MODE: false,
+        sandboxMode: false,
       };
 
       expect(() => appSettingSchema.parse(invalidSettings)).toThrow();
@@ -38,8 +38,8 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date(),
         installationId: 'installation123',
-        SANDBOX_MODE: false,
-        DISABLE_ANALYTICS: true,
+        sandboxMode: false,
+        disableAnalytics: true,
       };
 
       expect(appSettingSchema.parse(settings)).toEqual(settings);
@@ -54,8 +54,8 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        SANDBOX_MODE: 'false',
-        DISABLE_ANALYTICS: 'true',
+        sandboxMode: 'false',
+        disableAnalytics: 'true',
       };
 
       const result = appSettingPreprocessedSchema.parse(validSettings);
@@ -69,16 +69,16 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        SANDBOX_MODE: 'false',
-        DISABLE_ANALYTICS: 'true',
+        sandboxMode: 'false',
+        disableAnalytics: 'true',
       };
 
       const result = appSettingPreprocessedSchema.parse(validSettings);
       expect(result.configured).toBe(true);
       expect(result.allowAnonymousRecruitment).toBe(false);
       expect(result.limitInterviews).toBe(true);
-      expect(result.SANDBOX_MODE).toBe(false);
-      expect(result.DISABLE_ANALYTICS).toBe(true);
+      expect(result.sandboxMode).toBe(false);
+      expect(result.disableAnalytics).toBe(true);
     });
 
     it('should reject invalid boolean strings for boolean fields', () => {
@@ -88,8 +88,8 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'Y',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        SANDBOX_MODE: 'Yes',
-        DISABLE_ANALYTICS: 'Yes',
+        sandboxMode: 'Yes',
+        disableAnalytics: 'Yes',
       };
 
       expect(() =>
@@ -104,8 +104,8 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: 'invalid-date',
         installationId: 'installation123',
-        SANDBOX_MODE: 'false',
-        DISABLE_ANALYTICS: 'true',
+        sandboxMode: 'false',
+        disableAnalytics: 'true',
       };
 
       expect(() =>
@@ -120,9 +120,9 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        SANDBOX_MODE: 'false',
-        DISABLE_ANALYTICS: 'true',
-        PUBLIC_URL: 'invalid-url',
+        sandboxMode: 'false',
+        disableAnalytics: 'true',
+        publicUrl: 'invalid-url',
       };
 
       expect(() =>
@@ -137,9 +137,9 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        SANDBOX_MODE: 'false',
-        DISABLE_ANALYTICS: 'true',
-        PUBLIC_URL: 'https://example.com',
+        sandboxMode: 'false',
+        disableAnalytics: 'true',
+        publicUrl: 'https://example.com',
       };
 
       expect(appSettingPreprocessedSchema.parse(validSettings)).toEqual({
@@ -148,9 +148,9 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date('2023-10-01T00:00:00.000Z'),
         installationId: 'installation123',
-        SANDBOX_MODE: false,
-        DISABLE_ANALYTICS: true,
-        PUBLIC_URL: 'https://example.com',
+        sandboxMode: false,
+        disableAnalytics: true,
+        publicUrl: 'https://example.com',
       });
     });
 
@@ -161,8 +161,8 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        SANDBOX_MODE: 'false',
-        DISABLE_ANALYTICS: 'true',
+        sandboxMode: 'false',
+        disableAnalytic: 'true',
       };
 
       expect(appSettingPreprocessedSchema.parse(validSettings)).toEqual({
@@ -171,8 +171,8 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date('2023-10-01T00:00:00.000Z'),
         installationId: 'installation123',
-        SANDBOX_MODE: false,
-        DISABLE_ANALYTICS: true,
+        sandboxMode: false,
+        disableAnalytics: true,
       });
     });
   });

@@ -18,7 +18,7 @@ export default async function Settings() {
   await requirePageAuth();
 
   const installationIdPromise = getAppSetting('installationId');
-  const sandboxMode = await getAppSetting('SANDBOX_MODE');
+  const sandboxMode = await getAppSetting('sandboxMode');
 
   return (
     <>

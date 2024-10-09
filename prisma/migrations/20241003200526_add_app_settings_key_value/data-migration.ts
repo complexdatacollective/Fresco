@@ -39,7 +39,7 @@ async function main() {
     if (env.PUBLIC_URL) {
       await tx.appSettings.create({
         data: {
-          key: 'PUBLIC_URL',
+          key: 'publicUrl',
           value: env.PUBLIC_URL,
         },
       });
@@ -47,7 +47,7 @@ async function main() {
     if (env.UPLOADTHING_SECRET) {
       await tx.appSettings.create({
         data: {
-          key: 'UPLOADTHING_SECRET',
+          key: 'uploadThingSecret',
           value: env.UPLOADTHING_SECRET,
         },
       });
@@ -55,7 +55,7 @@ async function main() {
     if (env.UPLOADTHING_APP_ID) {
       await tx.appSettings.create({
         data: {
-          key: 'UPLOADTHING_APP_ID',
+          key: 'uploadThingAppId',
           value: env.UPLOADTHING_APP_ID,
         },
       });

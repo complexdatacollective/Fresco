@@ -20,11 +20,11 @@ async function getSetupData() {
     prisma.participant.count(),
   ]);
 
-  const sandboxMode = await getAppSetting('SANDBOX_MODE');
-  const disableAnalytics = await getAppSetting('DISABLE_ANALYTICS');
+  const sandboxMode = await getAppSetting('sandboxMode');
+  const disableAnalytics = await getAppSetting('disableAnalytics');
   const installationId = await getAppSetting('installationId');
-  const UPLOADTHING_APP_ID = await getAppSetting('UPLOADTHING_APP_ID');
-  const UPLOADTHING_SECRET = await getAppSetting('UPLOADTHING_SECRET');
+  const uploadThingAppId = await getAppSetting('uploadThingAppId');
+  const uploadThingSecret = await getAppSetting('uploadThingSecret');
 
   return {
     hasAuth: !!session,
@@ -35,7 +35,7 @@ async function getSetupData() {
     sandboxMode: sandboxMode,
     disableAnalytics: disableAnalytics,
     installationId: installationId,
-    hasUploadthingEnv: !!UPLOADTHING_APP_ID && !!UPLOADTHING_SECRET,
+    hasUploadthingEnv: !!uploadThingAppId && !!uploadThingSecret,
   };
 }
 

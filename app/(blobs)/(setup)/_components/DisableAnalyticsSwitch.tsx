@@ -10,7 +10,7 @@ const DisableAnalyticsSwitch = ({
   return (
     <SwitchWithOptimisticUpdate
       initialValue={disableAnalytics}
-      name="DISABLE_ANALYTICS"
+      name="disableAnalytics"
       action={setAppSetting}
     />
   );

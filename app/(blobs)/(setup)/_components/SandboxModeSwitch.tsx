@@ -6,7 +6,7 @@ const SandboxModeSwitch = ({ sandboxMode }: { sandboxMode: boolean }) => {
   return (
     <SwitchWithOptimisticUpdate
       initialValue={sandboxMode}
-      name="SANDBOX_MODE"
+      name="sandboxMode"
       action={setAppSetting}
     />
   );

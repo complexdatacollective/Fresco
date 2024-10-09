@@ -3,14 +3,14 @@ import { getAppSetting } from '~/queries/appSettings';
 import { ourFileRouter } from './core';
 
 // get env variables from db
-const UPLOADTHING_APP_ID = await getAppSetting('UPLOADTHING_APP_ID');
-const UPLOADTHING_SECRET = await getAppSetting('UPLOADTHING_SECRET');
+const uploadThingAppId = await getAppSetting('uploadThingAppId');
+const uploadthingSecret = await getAppSetting('uploadThingSecret');
 
-if (!UPLOADTHING_APP_ID || !UPLOADTHING_SECRET) {
+if (!uploadThingAppId || !uploadthingSecret) {
   throw new Error('Missing UploadThing environment variables');
 }
 
-const PUBLIC_URL = await getAppSetting('PUBLIC_URL');
+const publicUrl = await getAppSetting('publicUrl');
 
 // Export routes for Next App Router
 export const { GET, POST } = createRouteHandler({
@@ -20,8 +20,8 @@ export const { GET, POST } = createRouteHandler({
     // UploadThing attempts to automatically detect this value based on the request URL and headers
     // However, the automatic detection fails in docker deployments
     // docs: https://docs.uploadthing.com/api-reference/server#config
-    callbackUrl: PUBLIC_URL ? `${PUBLIC_URL}/api/uploadthing` : undefined,
-    uploadthingId: UPLOADTHING_APP_ID,
-    uploadthingSecret: UPLOADTHING_SECRET,
+    callbackUrl: publicUrl ? `${publicUrl}/api/uploadthing` : undefined,
+    uploadthingId: uploadThingAppId,
+    uploadthingSecret: uploadthingSecret,
   },
 });

@@ -75,27 +75,23 @@ export async function storeEnvironment(formData: unknown) {
   }
 
   try {
-    const {
-      UPLOADTHING_SECRET,
-      UPLOADTHING_APP_ID,
-      PUBLIC_URL,
-      INSTALLATION_ID,
-    } = parsedFormData.data;
+    const { uploadThingSecret, uploadThingAppId, publicUrl, installationId } =
+      parsedFormData.data;
 
     const data = [
-      { key: 'UPLOADTHING_APP_ID', value: UPLOADTHING_APP_ID },
-      { key: 'UPLOADTHING_SECRET', value: UPLOADTHING_SECRET },
-      { key: 'SANDBOX_MODE', value: 'false' },
-      { key: 'DISABLE_ANALYTICS', value: 'false' },
+      { key: 'uploadThingAppId', value: uploadThingAppId },
+      { key: 'uploadThingSecret', value: uploadThingSecret },
+      { key: 'sandboxMode', value: 'false' },
+      { key: 'disableAnalytics', value: 'false' },
     ];
 
     // Add optional env variables if they were provided
-    if (PUBLIC_URL) {
-      data.push({ key: 'PUBLIC_URL', value: PUBLIC_URL });
+    if (publicUrl) {
+      data.push({ key: 'publicUrl', value: publicUrl });
     }
 
-    if (INSTALLATION_ID) {
-      await setAppSetting('installationId', INSTALLATION_ID);
+    if (installationId) {
+      await setAppSetting('installationId', installationId);
     } else {
       // no env or installation id provided, generate one
       await setAppSetting('installationId', createId());
