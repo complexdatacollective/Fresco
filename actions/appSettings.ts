@@ -6,6 +6,7 @@ import { type z } from 'zod';
 import { env } from '~/env';
 import { DEFAULT_APP_SETTINGS } from '~/fresco.config';
 import { safeRevalidateTag } from '~/lib/cache';
+import { getAppSetting } from '~/queries/appSettings';
 import { appSettingSchema } from '~/schemas/appSettings';
 import { createEnvironmentFormSchema } from '~/schemas/environment';
 import { requireApiAuth } from '~/utils/auth';
@@ -93,8 +94,12 @@ export async function storeEnvironment(formData: unknown) {
     if (installationId) {
       await setAppSetting('installationId', installationId);
     } else {
-      // no env or installation id provided, generate one
-      await setAppSetting('installationId', createId());
+      // check for existing installationId in db (from env)
+      const existingInstallationId = await getAppSetting('installationId');
+      if (!existingInstallationId) {
+        // no env or installation id provided, generate one
+        await setAppSetting('installationId', createId());
+      }
     }
 
     // insert the rest of the env variables
@@ -102,6 +107,12 @@ export async function storeEnvironment(formData: unknown) {
       data,
       skipDuplicates: true,
     });
+    safeRevalidateTag(`appSettings-uploadThingAppId`);
+    safeRevalidateTag(`appSettings-uploadThingSecret`);
+    safeRevalidateTag(`appSettings-publicUrl`);
+    safeRevalidateTag(`appSettings-installationId`);
+    safeRevalidateTag(`appSettings-sandboxMode`);
+    safeRevalidateTag(`appSettings-disableAnalytics`);
 
     return { success: true };
   } catch (error) {

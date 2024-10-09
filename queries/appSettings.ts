@@ -3,58 +3,66 @@ import 'server-only';
 import { type z } from 'zod';
 import { initializeWithDefaults } from '~/actions/appSettings';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
+import { createCachedFunction } from '~/lib/cache';
 import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-export const getAppSetting = async <
+export const getAppSetting = <
   Key extends keyof z.infer<typeof appSettingPreprocessedSchema>,
 >(
   key: Key,
-): Promise<z.infer<typeof appSettingPreprocessedSchema>[Key] | null> => {
-  const configured = await prisma.appSettings.findUnique({
-    where: { key: 'configured' },
-  });
+) =>
+  createCachedFunction(
+    async (key: Key) => {
+      const configured = await prisma.appSettings.findUnique({
+        where: { key: 'configured' },
+      });
 
-  // If there is no app setting for 'configured', then the app has not been initialized with defaults
-  if (configured === null) {
-    const data = await initializeWithDefaults();
+      // If there is no app setting for 'configured', then the app has not been initialized with defaults
+      if (configured === null) {
+        const data = await initializeWithDefaults();
 
-    const initializedSetting = data.find((item) => item.key === key);
+        const initializedSetting = data.find((item) => item.key === key);
 
-    if (!initializedSetting) {
-      return null;
-    }
+        if (!initializedSetting) {
+          return null;
+        }
 
-    // Parse the value using the preprocessed schema
-    const parsedInitializedValue = appSettingPreprocessedSchema.shape[
-      key
-    ].parse(initializedSetting.value);
+        // Parse the value using the preprocessed schema
+        const parsedInitializedValue = appSettingPreprocessedSchema.shape[
+          key
+        ].parse(initializedSetting.value);
 
-    return parsedInitializedValue as z.infer<
-      typeof appSettingPreprocessedSchema
-    >[Key];
-  }
+        return parsedInitializedValue as z.infer<
+          typeof appSettingPreprocessedSchema
+        >[Key];
+      }
 
-  // From here, we know that the app has been initialized
-  const keyValue = await prisma.appSettings.findUnique({
-    where: { key },
-  });
+      // From here, we know that the app has been initialized
+      const keyValue = await prisma.appSettings.findUnique({
+        where: { key },
+      });
 
-  if (!keyValue) {
-    return null;
-  }
+      if (!keyValue) {
+        return null;
+      }
 
-  // Parse the value using the preprocessed schema
-  const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
-    keyValue.value,
-  );
+      // Parse the value using the preprocessed schema
+      const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+        keyValue.value,
+      );
 
-  return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
-};
+      console.log('parsedValue', parsedValue);
+
+      return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
+    },
+    [`appSettings-${key}`, 'appSettings'],
+  )(key);
 
 const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
   return (
-    !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+    !configured &&
+    new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
   );
 };
 
