@@ -44,19 +44,19 @@ export default function Setup({
       void setStep(2);
       return;
     }
-  }, [hasAuth, step, setStep]);
+
+    if (step === 2 && hasUploadthingEnv) {
+      void setStep(3);
+      return;
+    }
+  }, [hasAuth, step, setStep, hasUploadthingEnv]);
 
   return (
     <motion.div className={cardClasses}>
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && (
-          <ConfigureEnvironment
-            installationId={installationId}
-            hasUploadthingEnv={hasUploadthingEnv}
-          />
-        )}
+        {step === 2 && <ConfigureEnvironment installationId={installationId} />}
         {step === 3 && (
           <DeploymentSettings
             sandboxMode={sandboxMode}
