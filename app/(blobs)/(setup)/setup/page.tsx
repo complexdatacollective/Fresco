@@ -23,8 +23,7 @@ async function getSetupData() {
   const sandboxMode = await getAppSetting('sandboxMode');
   const disableAnalytics = await getAppSetting('disableAnalytics');
   const installationId = await getAppSetting('installationId');
-  const uploadThingAppId = await getAppSetting('uploadThingAppId');
-  const uploadThingSecret = await getAppSetting('uploadThingSecret');
+  const uploadThingToken = await getAppSetting('uploadThingToken');
 
   return {
     hasAuth: !!session,
@@ -35,7 +34,7 @@ async function getSetupData() {
     sandboxMode: sandboxMode,
     disableAnalytics: disableAnalytics,
     installationId: installationId,
-    hasUploadthingEnv: !!uploadThingAppId && !!uploadThingSecret,
+    hasUploadThingToken: !!uploadThingToken,
   };
 }
 

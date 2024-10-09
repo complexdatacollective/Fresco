@@ -9,8 +9,7 @@ export const appSettingSchema = z.object({
   sandboxMode: z.boolean(),
   disableAnalytics: z.boolean(),
   publicUrl: z.string().url().optional(),
-  uploadThingSecret: z.string().optional(),
-  uploadThingAppId: z.string().optional(),
+  uploadThingToken: z.string().optional(),
 });
 
 const parseBoolean = (value: unknown): boolean | undefined => {
@@ -30,8 +29,7 @@ export const appSettingPreprocessedSchema = appSettingSchema.extend({
   configured: z.preprocess(parseBoolean, z.boolean()),
   allowAnonymousRecruitment: z.preprocess(parseBoolean, z.boolean()),
   limitInterviews: z.preprocess(parseBoolean, z.boolean()),
-  uploadThingSecret: z.preprocess((value) => value, z.string()).optional(),
-  uploadThingAppId: z.preprocess((value) => value, z.string()).optional(),
+  uploadThingToken: z.preprocess((value) => value, z.string()).optional(),
   installationId: z.preprocess((value) => value, z.string()),
   publicUrl: z.preprocess((value) => value, z.string().url()).optional(),
   sandboxMode: z.preprocess(parseBoolean, z.boolean()),

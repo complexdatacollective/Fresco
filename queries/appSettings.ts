@@ -52,8 +52,6 @@ export const getAppSetting = <
         keyValue.value,
       );
 
-      console.log('parsedValue', parsedValue);
-
       return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
     },
     [`appSettings-${key}`, 'appSettings'],

@@ -22,22 +22,12 @@ export const EnvironmentForm = ({
     <form className="flex flex-col" action={storeEnvironment}>
       <div className="mb-6 flex flex-wrap">
         <Input
-          label="UPLOADTHING_SECRET"
+          label="UPLOADTHING_TOKEN"
           hint="Copy from the dashboard"
           type="text"
           placeholder="sk_live_******************"
-          error={errors.uploadThingSecret?.message}
-          {...register('uploadThingSecret')}
-        />
-      </div>
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          label="UPLOADTHING_APP_ID"
-          hint="Copy from the dashboard"
-          type="text"
-          placeholder="app-id..."
-          error={errors.uploadThingAppId?.message}
-          {...register('uploadThingAppId')}
+          error={errors.uploadThingToken?.message}
+          {...register('uploadThingToken')}
         />
       </div>
       <div className="mb-6 flex flex-wrap">

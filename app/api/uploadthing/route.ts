@@ -2,12 +2,11 @@ import { createRouteHandler } from 'uploadthing/next';
 import { getAppSetting } from '~/queries/appSettings';
 import { ourFileRouter } from './core';
 
-// get env variables from db
-const uploadThingAppId = await getAppSetting('uploadThingAppId');
-const uploadthingSecret = await getAppSetting('uploadThingSecret');
+// get env variable from db
+const uploadThingToken = await getAppSetting('uploadThingToken');
 
-if (!uploadThingAppId || !uploadthingSecret) {
-  throw new Error('Missing UploadThing environment variables');
+if (!uploadThingToken) {
+  throw new Error('Missing UploadThing environment variable');
 }
 
 const publicUrl = await getAppSetting('publicUrl');
@@ -21,7 +20,6 @@ export const { GET, POST } = createRouteHandler({
     // However, the automatic detection fails in docker deployments
     // docs: https://docs.uploadthing.com/api-reference/server#config
     callbackUrl: publicUrl ? `${publicUrl}/api/uploadthing` : undefined,
-    uploadthingId: uploadThingAppId,
-    uploadthingSecret: uploadthingSecret,
+    token: uploadThingToken,
   },
 });

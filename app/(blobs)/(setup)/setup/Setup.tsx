@@ -28,7 +28,7 @@ export default function Setup({
     installationId,
     sandboxMode,
     disableAnalytics,
-    hasUploadthingEnv,
+    hasUploadThingToken,
   } = use(setupDataPromise);
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
@@ -45,11 +45,11 @@ export default function Setup({
       return;
     }
 
-    if (step === 2 && hasUploadthingEnv) {
+    if (step === 2 && hasUploadThingToken) {
       void setStep(3);
       return;
     }
-  }, [hasAuth, step, setStep, hasUploadthingEnv]);
+  }, [hasAuth, step, setStep, hasUploadThingToken]);
 
   return (
     <motion.div className={cardClasses}>

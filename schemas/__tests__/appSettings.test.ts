@@ -13,8 +13,7 @@ describe('App Settings Schema Validators', () => {
         sandboxMode: false,
         disableAnalytics: true,
         publicUrl: 'https://example.com',
-        uploadThingSecret: 'secret123',
-        uploadThingAppId: 'appid123',
+        hasUploadThingToken: 'secret123',
       };
 
       expect(appSettingSchema.parse(validSettings)).toEqual(validSettings);

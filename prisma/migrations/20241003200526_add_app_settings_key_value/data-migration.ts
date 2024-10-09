@@ -44,22 +44,6 @@ async function main() {
         },
       });
     }
-    if (env.UPLOADTHING_SECRET) {
-      await tx.appSettings.create({
-        data: {
-          key: 'uploadThingSecret',
-          value: env.UPLOADTHING_SECRET,
-        },
-      });
-    }
-    if (env.UPLOADTHING_APP_ID) {
-      await tx.appSettings.create({
-        data: {
-          key: 'uploadThingAppId',
-          value: env.UPLOADTHING_APP_ID,
-        },
-      });
-    }
     if (env.SANDBOX_MODE) {
       await tx.appSettings.create({
         data: {

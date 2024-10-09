@@ -76,12 +76,10 @@ export async function storeEnvironment(formData: unknown) {
   }
 
   try {
-    const { uploadThingSecret, uploadThingAppId, publicUrl, installationId } =
-      parsedFormData.data;
+    const { uploadThingToken, publicUrl, installationId } = parsedFormData.data;
 
     const data = [
-      { key: 'uploadThingAppId', value: uploadThingAppId },
-      { key: 'uploadThingSecret', value: uploadThingSecret },
+      { key: 'uploadThingToken', value: uploadThingToken },
       { key: 'sandboxMode', value: 'false' },
       { key: 'disableAnalytics', value: 'false' },
     ];
@@ -107,10 +105,7 @@ export async function storeEnvironment(formData: unknown) {
       data,
       skipDuplicates: true,
     });
-    safeRevalidateTag(`appSettings-uploadThingAppId`);
-    safeRevalidateTag(`appSettings-uploadThingSecret`);
-    safeRevalidateTag(`appSettings-publicUrl`);
-    safeRevalidateTag(`appSettings-installationId`);
+    safeRevalidateTag(`appSettings-uploadThingToken`);
     safeRevalidateTag(`appSettings-sandboxMode`);
     safeRevalidateTag(`appSettings-disableAnalytics`);
 
