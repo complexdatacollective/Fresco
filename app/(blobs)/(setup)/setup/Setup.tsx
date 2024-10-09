@@ -28,6 +28,7 @@ export default function Setup({
     installationId,
     sandboxMode,
     disableAnalytics,
+    hasUploadthingEnv,
   } = use(setupDataPromise);
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
@@ -50,7 +51,12 @@ export default function Setup({
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && <ConfigureEnvironment installationId={installationId} />}
+        {step === 2 && (
+          <ConfigureEnvironment
+            installationId={installationId}
+            hasUploadthingEnv={hasUploadthingEnv}
+          />
+        )}
         {step === 3 && (
           <DeploymentSettings
             sandboxMode={sandboxMode}

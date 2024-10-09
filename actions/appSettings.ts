@@ -101,6 +101,12 @@ export async function storeEnvironment(formData: unknown) {
       await setAppSetting('installationId', createId());
     }
 
+    // insert the rest of the env variables
+    await prisma.appSettings.createManyAndReturn({
+      data,
+      skipDuplicates: true,
+    });
+
     return { success: true };
   } catch (error) {
     return {
@@ -111,7 +117,6 @@ export async function storeEnvironment(formData: unknown) {
 }
 
 export async function initializeWithDefaults() {
-  await requireApiAuth();
   const data = Object.entries(DEFAULT_APP_SETTINGS).map(([key, value]) => ({
     key: key as keyof typeof DEFAULT_APP_SETTINGS,
     value: typeof value === 'boolean' ? value.toString() : value,

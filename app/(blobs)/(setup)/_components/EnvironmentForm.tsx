@@ -1,15 +1,15 @@
 'use client';
 
 import { storeEnvironment } from '~/actions/appSettings';
+import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import SubmitButton from '~/components/ui/SubmitButton';
 import useZodForm from '~/hooks/useZodForm';
 import { createEnvironmentSchema } from '~/schemas/environment';
 
 export const EnvironmentForm = ({
   installationId,
 }: {
-  installationId: string;
+  installationId: string | null;
 }) => {
   const {
     register,
@@ -63,9 +63,9 @@ export const EnvironmentForm = ({
         </div>
       )}
       <div className="flex flex-wrap">
-        <SubmitButton type="submit" disabled={!isValid}>
+        <Button disabled={!isValid} type="submit">
           Submit
-        </SubmitButton>
+        </Button>
       </div>
     </form>
   );

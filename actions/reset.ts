@@ -20,6 +20,14 @@ export const resetAppSettings = async () => {
       prisma.asset.deleteMany(),
     ]);
 
+    // add a new initializedAt date
+    await prisma.appSettings.create({
+      data: {
+        key: 'initializedAt',
+        value: new Date().toISOString(),
+      },
+    });
+
     revalidatePath('/');
     safeRevalidateTag('appSettings');
     safeRevalidateTag('activityFeed');
