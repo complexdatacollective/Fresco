@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { appSettingPreprocessedSchema, appSettingSchema } from '../appSettings';
+import { createEnvironmentFormSchema } from '../environment';
 
 describe('App Settings Schema Validators', () => {
   describe('App Setting Schema', () => {
@@ -13,7 +14,7 @@ describe('App Settings Schema Validators', () => {
         sandboxMode: false,
         disableAnalytics: true,
         publicUrl: 'https://example.com',
-        hasUploadThingToken: 'secret123',
+        uploadThingToken: 'ABCD1234Token',
       };
 
       expect(appSettingSchema.parse(validSettings)).toEqual(validSettings);
@@ -161,7 +162,7 @@ describe('App Settings Schema Validators', () => {
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
         sandboxMode: 'false',
-        disableAnalytic: 'true',
+        disableAnalytics: 'true',
       };
 
       expect(appSettingPreprocessedSchema.parse(validSettings)).toEqual({
@@ -173,6 +174,31 @@ describe('App Settings Schema Validators', () => {
         sandboxMode: false,
         disableAnalytics: true,
       });
+    });
+  });
+  describe('UPLOADTHING_TOKEN Parsing through Schema', () => {
+    it("should parse token value from UPLOADTHING_TOKEN='token'", () => {
+      const validData = new FormData();
+      validData.append('uploadThingToken', "UPLOADTHING_TOKEN='ABCD1234Token'");
+
+      const result = createEnvironmentFormSchema.parse(validData);
+      expect(result.uploadThingToken).toBe('ABCD1234Token');
+    });
+
+    it('should remove surrounding quotes', () => {
+      const validData = new FormData();
+      validData.append('uploadThingToken', "'ABCD1234Token'");
+
+      const result = createEnvironmentFormSchema.parse(validData);
+      expect(result.uploadThingToken).toBe('ABCD1234Token');
+    });
+
+    it('should not change already correct tokens', () => {
+      const validData = new FormData();
+      validData.append('uploadThingToken', 'ABCD1234Token');
+
+      const result = createEnvironmentFormSchema.parse(validData);
+      expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
   });
 });

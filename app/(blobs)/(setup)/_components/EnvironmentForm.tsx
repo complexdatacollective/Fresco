@@ -20,12 +20,12 @@ export const EnvironmentForm = ({
 
   return (
     <form className="flex flex-col" action={storeEnvironment}>
-      <div className="mb-6 flex flex-wrap">
+      <div className="mb-6 flex">
         <Input
           label="UPLOADTHING_TOKEN"
-          hint="Copy from the dashboard"
+          hint="Copy the full token from the dashboard."
           type="text"
-          placeholder="sk_live_******************"
+          placeholder="UPLOADTHING_TOKEN=******************"
           error={errors.uploadThingToken?.message}
           {...register('uploadThingToken')}
         />
