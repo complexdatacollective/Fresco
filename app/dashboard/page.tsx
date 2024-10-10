@@ -30,6 +30,7 @@ export default async function Home({
       </ResponsiveContainer>
       <AnonymousRecruitmentWarning />
       <SummaryStatistics />
+
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>
         <Paragraph>
