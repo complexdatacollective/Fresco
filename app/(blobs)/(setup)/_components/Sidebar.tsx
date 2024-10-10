@@ -1,12 +1,14 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { cn } from '~/utils/shadcn';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { cn } from '~/utils/shadcn';
 
 const stepLabels = [
   'Create Account',
+  'Configure Environment',
+  'Deployment Settings',
   'Upload Protocol',
   'Configure Participation',
   'Documentation',

@@ -7,7 +7,7 @@ import SettingsSection from '~/components/layout/SettingsSection';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env';
-import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
+import { getAppSetting, requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -17,7 +17,8 @@ export default async function Settings() {
   await requireAppNotExpired();
   await requirePageAuth();
 
-  const installationIdPromise = getInstallationId();
+  const installationIdPromise = getAppSetting('installationId');
+  const sandboxMode = await getAppSetting('sandboxMode');
 
   return (
     <>
@@ -60,7 +61,7 @@ export default async function Settings() {
             prevented.
           </Paragraph>
         </SettingsSection>
-        {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
+        {(env.NODE_ENV === 'development' || !sandboxMode) && (
           <SettingsSection
             heading="Reset Settings"
             controlArea={<ResetButton />}

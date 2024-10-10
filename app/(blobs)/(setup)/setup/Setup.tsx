@@ -5,7 +5,9 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { use, useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
 import { cn } from '~/utils/shadcn';
+import ConfigureEnvironment from '../_components/OnboardSteps/ConfigureEnvironment';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
+import DeploymentSettings from '../_components/OnboardSteps/DeploymentSettings';
 import Documentation from '../_components/OnboardSteps/Documentation';
 import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
 import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
@@ -19,8 +21,15 @@ export default function Setup({
 }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
 
-  const { hasAuth, allowAnonymousRecruitment, limitInterviews } =
-    use(setupDataPromise);
+  const {
+    hasAuth,
+    allowAnonymousRecruitment,
+    limitInterviews,
+    installationId,
+    sandboxMode,
+    disableAnalytics,
+    hasUploadThingToken,
+  } = use(setupDataPromise);
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
@@ -35,21 +44,33 @@ export default function Setup({
       void setStep(2);
       return;
     }
-  }, [hasAuth, step, setStep]);
+
+    if (step === 2 && hasUploadThingToken) {
+      void setStep(3);
+      return;
+    }
+  }, [hasAuth, step, setStep, hasUploadThingToken]);
 
   return (
     <motion.div className={cardClasses}>
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && <UploadProtocol />}
+        {step === 2 && <ConfigureEnvironment installationId={installationId} />}
         {step === 3 && (
+          <DeploymentSettings
+            sandboxMode={sandboxMode}
+            disableAnalytics={disableAnalytics}
+          />
+        )}
+        {step === 4 && <UploadProtocol />}
+        {step === 5 && (
           <ManageParticipants
             allowAnonymousRecruitment={allowAnonymousRecruitment}
             limitInterviews={limitInterviews}
           />
         )}
-        {step === 4 && <Documentation />}
+        {step === 6 && <Documentation />}
       </div>
     </motion.div>
   );
