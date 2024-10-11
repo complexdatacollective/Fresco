@@ -31,9 +31,9 @@ async function getSetupData() {
     limitInterviews,
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
-    sandboxMode: sandboxMode,
-    disableAnalytics: disableAnalytics,
-    installationId: installationId,
+    sandboxMode,
+    disableAnalytics,
+    installationId,
     hasUploadThingToken: !!uploadThingToken,
   };
 }

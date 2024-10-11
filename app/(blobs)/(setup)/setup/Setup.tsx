@@ -45,11 +45,34 @@ export default function Setup({
       return;
     }
 
-    if (step === 2 && hasUploadThingToken) {
+    if (hasAuth && step === 2 && hasUploadThingToken) {
       void setStep(3);
       return;
     }
-  }, [hasAuth, step, setStep, hasUploadThingToken]);
+
+    //  if we're past step 2 but we still have null values, go back to step 2
+    if (hasAuth && step > 2) {
+      if (
+        !hasUploadThingToken ||
+        sandboxMode === null ||
+        disableAnalytics === null ||
+        allowAnonymousRecruitment === null ||
+        limitInterviews === null
+      ) {
+        void setStep(2);
+        return;
+      }
+    }
+  }, [
+    hasAuth,
+    step,
+    setStep,
+    hasUploadThingToken,
+    sandboxMode,
+    disableAnalytics,
+    allowAnonymousRecruitment,
+    limitInterviews,
+  ]);
 
   return (
     <motion.div className={cardClasses}>
