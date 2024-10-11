@@ -1,19 +1,20 @@
-import { setAppSetting } from '~/actions/appSettings';
 import { getAppSetting } from '~/queries/appSettings';
-import SwitchWithOptimisticUpdate from './SwitchWithOptimisticUpdate';
+import SwitchWithOptimisticUpdate from './AppSettingsSwitchWithOptimisticUpdate';
 
 const AnonymousRecruitmentSwitch = async () => {
   const allowAnonymousRecruitment = await getAppSetting(
     'allowAnonymousRecruitment',
   );
 
-  console.log(allowAnonymousRecruitment);
+  if (allowAnonymousRecruitment === null) {
+    return null;
+  }
 
   return (
     <SwitchWithOptimisticUpdate
       initialValue={allowAnonymousRecruitment}
       name="allowAnonymousRecruitment"
-      action={setAppSetting}
+      appSettingKey="allowAnonymousRecruitment"
     />
   );
 };

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-// Custom parser for UPLOADTHING_TOKEN
-export const parseUploadThingToken = (token: string) => {
+// Custom parser for UPLOADTHING_TOKEN to remove token name and quotes
+const parseUploadThingToken = (token: string) => {
   return token.replace(/^(UPLOADTHING_TOKEN=)?['"]?|['"]$/g, '').trim();
 };
 

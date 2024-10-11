@@ -1,6 +1,5 @@
 'use client';
-import { setAppSetting } from '~/actions/appSettings';
-import SwitchWithOptimisticUpdate from './SwitchWithOptimisticUpdate';
+import SwitchWithOptimisticUpdate from './AppSettingsSwitchWithOptimisticUpdate';
 
 const AnonymousRecruitmentSwitchClient = ({
   allowAnonymousRecruitment,
@@ -11,7 +10,7 @@ const AnonymousRecruitmentSwitchClient = ({
     <SwitchWithOptimisticUpdate
       initialValue={allowAnonymousRecruitment}
       name="allowAnonymousRecruitment"
-      action={setAppSetting}
+      appSettingKey="allowAnonymousRecruitment"
     />
   );
 };

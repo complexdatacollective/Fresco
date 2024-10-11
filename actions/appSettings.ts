@@ -29,7 +29,7 @@ export async function setAppSetting<
     where: { key },
   });
 
-  const formattedValue =
+  const formattedValue: string | undefined =
     typeof value === 'boolean'
       ? value.toString()
       : value instanceof Date
@@ -68,6 +68,7 @@ export async function storeEnvironment(formData: unknown) {
   const parsedFormData = createEnvironmentFormSchema.safeParse(formData);
 
   if (!parsedFormData.success) {
+    // eslint-disable-next-line no-console
     console.error('Invalid form submission', parsedFormData.error);
     return {
       success: false,
@@ -119,10 +120,11 @@ export async function storeEnvironment(formData: unknown) {
 }
 
 export async function initializeWithDefaults() {
+  type InitializeKeys = keyof typeof DEFAULT_APP_SETTINGS | 'installationId';
   const data = Object.entries(DEFAULT_APP_SETTINGS).map(([key, value]) => ({
     key: key as keyof typeof DEFAULT_APP_SETTINGS,
     value: typeof value === 'boolean' ? value.toString() : value,
-  }));
+  })) as { key: InitializeKeys; value: string }[];
 
   // add installation id if there is one in the env
   const installationId = env.INSTALLATION_ID;
@@ -137,8 +139,6 @@ export async function initializeWithDefaults() {
     data,
     skipDuplicates: true,
   });
-
-  console.log('Initialized app settings with defaults', appSettings);
 
   return appSettings;
 }

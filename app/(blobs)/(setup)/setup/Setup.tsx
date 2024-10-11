@@ -57,19 +57,21 @@ export default function Setup({
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
         {step === 2 && <ConfigureEnvironment installationId={installationId} />}
-        {step === 3 && (
+        {step === 3 && sandboxMode !== null && disableAnalytics !== null && (
           <DeploymentSettings
             sandboxMode={sandboxMode}
             disableAnalytics={disableAnalytics}
           />
         )}
         {step === 4 && <UploadProtocol />}
-        {step === 5 && (
-          <ManageParticipants
-            allowAnonymousRecruitment={allowAnonymousRecruitment}
-            limitInterviews={limitInterviews}
-          />
-        )}
+        {step === 5 &&
+          allowAnonymousRecruitment !== null &&
+          limitInterviews !== null && (
+            <ManageParticipants
+              allowAnonymousRecruitment={allowAnonymousRecruitment}
+              limitInterviews={limitInterviews}
+            />
+          )}
         {step === 6 && <Documentation />}
       </div>
     </motion.div>

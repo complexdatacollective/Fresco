@@ -1,6 +1,5 @@
 'use client';
-import { setAppSetting } from '~/actions/appSettings';
-import SwitchWithOptimisticUpdate from '~/components/SwitchWithOptimisticUpdate';
+import SwitchWithOptimisticUpdate from '~/components/AppSettingsSwitchWithOptimisticUpdate';
 
 const DisableAnalyticsSwitch = ({
   disableAnalytics,
@@ -11,7 +10,7 @@ const DisableAnalyticsSwitch = ({
     <SwitchWithOptimisticUpdate
       initialValue={disableAnalytics}
       name="disableAnalytics"
-      action={setAppSetting}
+      appSettingKey="disableAnalytics"
     />
   );
 };

@@ -1,13 +1,12 @@
 'use client';
-import { setAppSetting } from '~/actions/appSettings';
-import SwitchWithOptimisticUpdate from '~/components/SwitchWithOptimisticUpdate';
+import SwitchWithOptimisticUpdate from '~/components/AppSettingsSwitchWithOptimisticUpdate';
 
 const SandboxModeSwitch = ({ sandboxMode }: { sandboxMode: boolean }) => {
   return (
     <SwitchWithOptimisticUpdate
       initialValue={sandboxMode}
       name="sandboxMode"
-      action={setAppSetting}
+      appSettingKey="sandboxMode"
     />
   );
 };
