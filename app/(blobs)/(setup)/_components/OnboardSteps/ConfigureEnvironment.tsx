@@ -12,7 +12,8 @@ function ConfigureEnvironment({
       <div className="mb-4">
         <Heading variant="h2">Configure Environment</Heading>
         <Paragraph>
-          To use Fresco, you need to configure your project.
+          Next, configure your environment. Follow the steps in the deployment
+          guide to set these values.
         </Paragraph>
         <EnvironmentForm installationId={installationId} />
       </div>

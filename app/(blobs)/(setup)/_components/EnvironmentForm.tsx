@@ -23,7 +23,7 @@ export const EnvironmentForm = ({
       <div className="mb-6 flex">
         <Input
           label="UPLOADTHING_TOKEN"
-          hint="Copy the full token from the dashboard."
+          hint="Copy and paste the full token from your UploadThing dashboard."
           type="text"
           placeholder="UPLOADTHING_TOKEN=******************"
           error={errors.uploadThingToken?.message}
@@ -33,9 +33,8 @@ export const EnvironmentForm = ({
       <div className="mb-6 flex flex-wrap">
         <Input
           label="Public URL"
-          hint="When using advanced deployment, this is required. Set to the domain name of your app"
+          hint="When using advanced deployment, this is required. Set to the domain name of your app."
           type="text"
-          placeholder="app-id..."
           error={errors.publicUrl?.message}
           {...register('publicUrl')}
         />
@@ -44,9 +43,9 @@ export const EnvironmentForm = ({
         <div className="mb-6 flex flex-wrap">
           <Input
             label="Installation Id"
-            hint="A unique identifier for your app, used for analytics. Generated automatically if not set."
+            hint="An optional unique identifier for your app, used for analytics. This will be generated automatically if not set."
             type="text"
-            placeholder="app-id..."
+            placeholder="installation-id..."
             error={errors.installationId?.message}
             {...register('installationId')}
           />
