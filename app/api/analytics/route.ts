@@ -4,9 +4,11 @@ import { getAppSetting } from '~/queries/appSettings';
 
 const routeHandler = async (request: NextRequest) => {
   const installationId = await getAppSetting('installationId');
+  const disableAnalytics = await getAppSetting('disableAnalytics');
 
   return createRouteHandler({
     installationId,
+    disableAnalytics,
   })(request);
 };
 
