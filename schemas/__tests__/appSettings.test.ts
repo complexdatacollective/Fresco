@@ -3,7 +3,7 @@ import {
   appSettingPreprocessedSchema,
   appSettingsSchema,
 } from '../appSettings';
-import { createEnvironmentFormSchema } from '../environment';
+import { createUploadThingTokenFormSchema } from '../environment';
 
 describe('App Settings Schema Validators', () => {
   describe('App Setting Schema', () => {
@@ -167,7 +167,7 @@ describe('App Settings Schema Validators', () => {
       const validData = new FormData();
       validData.append('uploadThingToken', "UPLOADTHING_TOKEN='ABCD1234Token'");
 
-      const result = createEnvironmentFormSchema.parse(validData);
+      const result = createUploadThingTokenFormSchema.parse(validData);
       expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
 
@@ -175,7 +175,7 @@ describe('App Settings Schema Validators', () => {
       const validData = new FormData();
       validData.append('uploadThingToken', "'ABCD1234Token'");
 
-      const result = createEnvironmentFormSchema.parse(validData);
+      const result = createUploadThingTokenFormSchema.parse(validData);
       expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
 
@@ -183,7 +183,7 @@ describe('App Settings Schema Validators', () => {
       const validData = new FormData();
       validData.append('uploadThingToken', 'ABCD1234Token');
 
-      const result = createEnvironmentFormSchema.parse(validData);
+      const result = createUploadThingTokenFormSchema.parse(validData);
       expect(result.uploadThingToken).toBe('ABCD1234Token');
     });
   });

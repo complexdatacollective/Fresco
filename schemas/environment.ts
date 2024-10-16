@@ -6,7 +6,7 @@ const parseUploadThingToken = (token: string) => {
   return token.replace(/^(UPLOADTHING_TOKEN=)?['"]?|['"]$/g, '').trim();
 };
 
-export const createEnvironmentSchema = z.object({
+export const createUploadThingTokenForm = z.object({
   uploadThingToken: z
     .string()
     .min(10, {
@@ -15,6 +15,6 @@ export const createEnvironmentSchema = z.object({
     .transform((token) => parseUploadThingToken(token)),
 });
 
-export const createEnvironmentFormSchema = zfd.formData(
-  createEnvironmentSchema,
+export const createUploadThingTokenFormSchema = zfd.formData(
+  createUploadThingTokenForm,
 );

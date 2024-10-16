@@ -5,9 +5,9 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { use, useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
 import { cn } from '~/utils/shadcn';
-import ConfigureEnvironment from '../_components/OnboardSteps/ConfigureEnvironment';
+import Analytics from '../_components/OnboardSteps/Analytics';
+import ConnectUploadThing from '../_components/OnboardSteps/ConnectUploadThing';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
-import DeploymentSettings from '../_components/OnboardSteps/DeploymentSettings';
 import Documentation from '../_components/OnboardSteps/Documentation';
 import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
 import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
@@ -75,9 +75,9 @@ export default function Setup({
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && <ConfigureEnvironment />}
+        {step === 2 && <ConnectUploadThing />}
         {step === 3 && disableAnalytics !== null && (
-          <DeploymentSettings disableAnalytics={disableAnalytics} />
+          <Analytics disableAnalytics={disableAnalytics} />
         )}
         {step === 4 && <UploadProtocol />}
         {step === 5 &&

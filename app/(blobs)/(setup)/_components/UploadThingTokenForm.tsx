@@ -5,15 +5,15 @@ import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';
-import { createEnvironmentSchema } from '~/schemas/environment';
+import { createUploadThingTokenForm } from '~/schemas/environment';
 
-export const EnvironmentForm = () => {
+export const UploadThingTokenForm = () => {
   const {
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
   } = useZodForm({
-    schema: createEnvironmentSchema,
+    schema: createUploadThingTokenForm,
   });
 
   const onSubmit = async ({

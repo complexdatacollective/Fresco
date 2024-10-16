@@ -7,8 +7,8 @@ import { cn } from '~/utils/shadcn';
 
 const stepLabels = [
   'Create Account',
-  'Configure Environment',
-  'Deployment Settings',
+  'Connect UploadThing',
+  'Configure Analytics',
   'Upload Protocol',
   'Configure Participation',
   'Documentation',

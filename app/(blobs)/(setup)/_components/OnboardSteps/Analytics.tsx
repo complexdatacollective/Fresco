@@ -5,11 +5,7 @@ import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import DisableAnalyticsSwitch from '../DisableAnalyticsSwitch';
 
-function DeploymentSettings({
-  disableAnalytics,
-}: {
-  disableAnalytics: boolean;
-}) {
+function Analytics({ disableAnalytics }: { disableAnalytics: boolean }) {
   const [currentStep, setCurrentStep] = useQueryState(
     'step',
     parseAsInteger.withDefault(1),
@@ -21,10 +17,15 @@ function DeploymentSettings({
   return (
     <div className="w-[30rem]">
       <div className="mb-6">
-        <Heading variant="h2">Deployment Settings</Heading>
+        <Heading variant="h2">Configure Analytics</Heading>
         <Paragraph>
-          These are optional deployment settings. These cannot be changed later.
-          Refer to the deployment guide for more information.
+          We use anonymous analytics to gather error data from instances of
+          Fresco to troubleshoot issues. No identifiable information of any kind
+          is collected or sent to us. We use this data to identify bugs and
+          improve the app.
+        </Paragraph>
+        <Paragraph>
+          If you would like to disable all analytics, toggle the switch below.
         </Paragraph>
       </div>
       <div className="mb-6 flex flex-col gap-2">
@@ -35,8 +36,7 @@ function DeploymentSettings({
           }
         >
           <Paragraph>
-            We use anonymous analytics to gather error data from instances of
-            Fresco to troubleshoot issues. To disable analytics, toggle this on.
+            Disable all anonymous analytics data collection for this deployment.
           </Paragraph>
         </SettingsSection>
       </div>
@@ -45,4 +45,4 @@ function DeploymentSettings({
   );
 }
 
-export default DeploymentSettings;
+export default Analytics;
