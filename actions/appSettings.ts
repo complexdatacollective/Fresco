@@ -23,10 +23,6 @@ export async function setAppSetting<
   // validate
   appSettingsSchema.shape[key].parse(value);
 
-  const existingSetting = await prisma.appSettings.findUnique({
-    where: { key },
-  });
-
   const formattedValue: string | undefined =
     typeof value === 'boolean'
       ? value.toString()
@@ -34,19 +30,18 @@ export async function setAppSetting<
         ? value.toISOString()
         : value;
 
-  if (existingSetting) {
-    await prisma.appSettings.update({
+  try {
+    await prisma.appSettings.upsert({
       where: { key },
-      data: { value: formattedValue },
+      create: { key, value: formattedValue },
+      update: { value: formattedValue },
     });
-  } else {
-    await prisma.appSettings.create({
-      data: { key, value: formattedValue },
-    });
+  } catch (error) {
+    throw new Error(`Failed to update appSettings: ${key}`);
   }
-
   // handle revalidation tag
   safeRevalidateTag(`appSettings-${key}`);
+
   return value;
 }
 
