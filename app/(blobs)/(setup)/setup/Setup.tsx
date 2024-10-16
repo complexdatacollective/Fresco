@@ -25,8 +25,6 @@ export default function Setup({
     hasAuth,
     allowAnonymousRecruitment,
     limitInterviews,
-    installationId,
-    sandboxMode,
     disableAnalytics,
     hasUploadThingToken,
   } = use(setupDataPromise);
@@ -54,7 +52,6 @@ export default function Setup({
     if (hasAuth && step > 2) {
       if (
         !hasUploadThingToken ||
-        sandboxMode === null ||
         disableAnalytics === null ||
         allowAnonymousRecruitment === null ||
         limitInterviews === null
@@ -68,7 +65,6 @@ export default function Setup({
     step,
     setStep,
     hasUploadThingToken,
-    sandboxMode,
     disableAnalytics,
     allowAnonymousRecruitment,
     limitInterviews,
@@ -79,12 +75,9 @@ export default function Setup({
       <OnboardSteps />
       <div className={mainClasses}>
         {step === 1 && <CreateAccount />}
-        {step === 2 && <ConfigureEnvironment installationId={installationId} />}
-        {step === 3 && sandboxMode !== null && disableAnalytics !== null && (
-          <DeploymentSettings
-            sandboxMode={sandboxMode}
-            disableAnalytics={disableAnalytics}
-          />
+        {step === 2 && <ConfigureEnvironment />}
+        {step === 3 && disableAnalytics !== null && (
+          <DeploymentSettings disableAnalytics={disableAnalytics} />
         )}
         {step === 4 && <UploadProtocol />}
         {step === 5 &&

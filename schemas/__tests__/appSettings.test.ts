@@ -14,9 +14,7 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date(),
         installationId: 'installation123',
-        sandboxMode: false,
         disableAnalytics: true,
-        publicUrl: 'https://example.com',
         uploadThingToken: 'ABCD1234Token',
       };
 
@@ -28,7 +26,6 @@ describe('App Settings Schema Validators', () => {
         allowAnonymousRecruitment: false,
         initializedAt: new Date(),
         installationId: 'installation123',
-        sandboxMode: false,
       };
 
       expect(() => appSettingsSchema.parse(invalidSettings)).toThrow();
@@ -41,7 +38,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date(),
         installationId: 'installation123',
-        sandboxMode: false,
         disableAnalytics: true,
       };
 
@@ -57,7 +53,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        sandboxMode: 'false',
         disableAnalytics: 'true',
       };
 
@@ -72,7 +67,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        sandboxMode: 'false',
         disableAnalytics: 'true',
       };
 
@@ -80,7 +74,6 @@ describe('App Settings Schema Validators', () => {
       expect(result.configured).toBe(true);
       expect(result.allowAnonymousRecruitment).toBe(false);
       expect(result.limitInterviews).toBe(true);
-      expect(result.sandboxMode).toBe(false);
       expect(result.disableAnalytics).toBe(true);
     });
 
@@ -91,7 +84,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'Y',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        sandboxMode: 'Yes',
         disableAnalytics: 'Yes',
       };
 
@@ -107,7 +99,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: 'invalid-date',
         installationId: 'installation123',
-        sandboxMode: 'false',
         disableAnalytics: 'true',
       };
 
@@ -123,9 +114,7 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        sandboxMode: 'false',
         disableAnalytics: 'true',
-        publicUrl: 'invalid-url',
       };
 
       expect(() =>
@@ -140,9 +129,7 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        sandboxMode: 'false',
         disableAnalytics: 'true',
-        publicUrl: 'https://example.com',
       };
 
       expect(appSettingPreprocessedSchema.parse(validSettings)).toEqual({
@@ -151,9 +138,7 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date('2023-10-01T00:00:00.000Z'),
         installationId: 'installation123',
-        sandboxMode: false,
         disableAnalytics: true,
-        publicUrl: 'https://example.com',
       });
     });
 
@@ -164,7 +149,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: 'true',
         initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
-        sandboxMode: 'false',
         disableAnalytics: 'true',
       };
 
@@ -174,7 +158,6 @@ describe('App Settings Schema Validators', () => {
         limitInterviews: true,
         initializedAt: new Date('2023-10-01T00:00:00.000Z'),
         installationId: 'installation123',
-        sandboxMode: false,
         disableAnalytics: true,
       });
     });

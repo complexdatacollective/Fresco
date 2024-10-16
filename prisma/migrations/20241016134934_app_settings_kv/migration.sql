@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "AppSetting" AS ENUM ('configured', 'allowAnonymousRecruitment', 'limitInterviews', 'initializedAt', 'installationId', 'sandboxMode', 'disableAnalytics', 'publicUrl', 'uploadThingToken');
+CREATE TYPE "AppSetting" AS ENUM ('configured', 'allowAnonymousRecruitment', 'limitInterviews', 'initializedAt', 'installationId',  'disableAnalytics',  'uploadThingToken');
 
 -- Temporary table to hold the data
 CREATE TEMPORARY TABLE _OldAppSettings AS SELECT * FROM "AppSettings";

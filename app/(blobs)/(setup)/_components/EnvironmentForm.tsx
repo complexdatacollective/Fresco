@@ -6,11 +6,7 @@ import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';
 import { createEnvironmentSchema } from '~/schemas/environment';
 
-export const EnvironmentForm = ({
-  installationId,
-}: {
-  installationId: string | null;
-}) => {
+export const EnvironmentForm = () => {
   const {
     register,
     formState: { errors, isValid },
@@ -30,27 +26,6 @@ export const EnvironmentForm = ({
           {...register('uploadThingToken')}
         />
       </div>
-      <div className="mb-6 flex flex-wrap">
-        <Input
-          label="Public URL"
-          hint="When using advanced deployment, this is required. Set to the domain name of your app."
-          type="text"
-          error={errors.publicUrl?.message}
-          {...register('publicUrl')}
-        />
-      </div>
-      {!installationId && (
-        <div className="mb-6 flex flex-wrap">
-          <Input
-            label="Installation Id"
-            hint="An optional unique identifier for your app, used for analytics. This will be generated automatically if not set."
-            type="text"
-            placeholder="installation-id..."
-            error={errors.installationId?.message}
-            {...register('installationId')}
-          />
-        </div>
-      )}
       <div className="flex flex-wrap">
         <Button disabled={!isValid} type="submit">
           Submit

@@ -96,9 +96,7 @@ enum AppSetting {
   limitInterviews
   initializedAt
   installationId
-  sandboxMode
   disableAnalytics
-  publicUrl
   uploadThingToken
 }
 

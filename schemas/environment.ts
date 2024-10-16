@@ -13,9 +13,6 @@ export const createEnvironmentSchema = z.object({
       message: 'UPLOADTHING_TOKEN must have at least 10 characters.',
     })
     .transform((token) => parseUploadThingToken(token)),
-
-  publicUrl: z.string().optional(),
-  installationId: z.string().optional(),
 });
 
 export const createEnvironmentFormSchema = zfd.formData(

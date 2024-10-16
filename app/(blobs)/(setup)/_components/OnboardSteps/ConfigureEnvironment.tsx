@@ -2,11 +2,7 @@ import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { EnvironmentForm } from '../EnvironmentForm';
 
-function ConfigureEnvironment({
-  installationId,
-}: {
-  installationId: string | null;
-}) {
+function ConfigureEnvironment() {
   return (
     <div className="w-[30rem]">
       <div className="mb-4">
@@ -15,7 +11,7 @@ function ConfigureEnvironment({
           Next, configure your environment. Follow the steps in the deployment
           guide to set these values.
         </Paragraph>
-        <EnvironmentForm installationId={installationId} />
+        <EnvironmentForm />
       </div>
     </div>
   );

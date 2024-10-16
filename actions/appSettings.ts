@@ -6,7 +6,6 @@ import { type z } from 'zod';
 import { env } from '~/env';
 import { DEFAULT_APP_SETTINGS } from '~/fresco.config';
 import { safeRevalidateTag } from '~/lib/cache';
-import { getAppSetting } from '~/queries/appSettings';
 import { appSettingsSchema } from '~/schemas/appSettings';
 import { createEnvironmentFormSchema } from '~/schemas/environment';
 import { requireApiAuth } from '~/utils/auth';
@@ -77,29 +76,12 @@ export async function storeEnvironment(formData: unknown) {
   }
 
   try {
-    const { uploadThingToken, publicUrl, installationId } = parsedFormData.data;
+    const { uploadThingToken } = parsedFormData.data;
 
     const data = [
       { key: 'uploadThingToken', value: uploadThingToken },
-      { key: 'sandboxMode', value: 'false' },
       { key: 'disableAnalytics', value: 'false' },
     ];
-
-    // Add optional env variables if they were provided
-    if (publicUrl) {
-      data.push({ key: 'publicUrl', value: publicUrl });
-    }
-
-    if (installationId) {
-      await setAppSetting('installationId', installationId);
-    } else {
-      // check for existing installationId in db (from env)
-      const existingInstallationId = await getAppSetting('installationId');
-      if (!existingInstallationId) {
-        // no env or installation id provided, generate one
-        await setAppSetting('installationId', createId());
-      }
-    }
 
     // insert the rest of the env variables
     await prisma.appSettings.createManyAndReturn({
@@ -107,7 +89,6 @@ export async function storeEnvironment(formData: unknown) {
       skipDuplicates: true,
     });
     safeRevalidateTag(`appSettings-uploadThingToken`);
-    safeRevalidateTag(`appSettings-sandboxMode`);
     safeRevalidateTag(`appSettings-disableAnalytics`);
 
     return { success: true };
@@ -127,7 +108,8 @@ export async function initializeWithDefaults() {
   })) as { key: InitializeKeys; value: string }[];
 
   // add installation id if there is one in the env
-  const installationId = env.INSTALLATION_ID;
+  // if not, generate one
+  const installationId = env.INSTALLATION_ID ?? createId();
   if (installationId) {
     data.push({
       key: 'installationId',

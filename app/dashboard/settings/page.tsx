@@ -18,7 +18,6 @@ export default async function Settings() {
   await requirePageAuth();
 
   const installationIdPromise = getAppSetting('installationId');
-  const sandboxMode = await getAppSetting('sandboxMode');
 
   return (
     <>
@@ -61,7 +60,7 @@ export default async function Settings() {
             prevented.
           </Paragraph>
         </SettingsSection>
-        {(env.NODE_ENV === 'development' || !sandboxMode) && (
+        {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
           <SettingsSection
             heading="Reset Settings"
             controlArea={<ResetButton />}

@@ -4,13 +4,10 @@ import { Button } from '~/components/ui/Button';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import DisableAnalyticsSwitch from '../DisableAnalyticsSwitch';
-import SandboxModeSwitch from '../SandboxModeSwitch';
 
 function DeploymentSettings({
-  sandboxMode,
   disableAnalytics,
 }: {
-  sandboxMode: boolean;
   disableAnalytics: boolean;
 }) {
   const [currentStep, setCurrentStep] = useQueryState(
@@ -31,15 +28,6 @@ function DeploymentSettings({
         </Paragraph>
       </div>
       <div className="mb-6 flex flex-col gap-2">
-        <SettingsSection
-          heading="Sandbox Mode"
-          controlArea={<SandboxModeSwitch sandboxMode={sandboxMode} />}
-        >
-          <Paragraph>
-            If enabled, the app will use the sandbox mode, which disables
-            resetting the database and other features.
-          </Paragraph>
-        </SettingsSection>
         <SettingsSection
           heading="Disable Analytics"
           controlArea={

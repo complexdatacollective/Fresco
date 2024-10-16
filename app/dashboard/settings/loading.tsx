@@ -5,10 +5,8 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { SwitchSkeleton } from '~/components/ui/switch';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import { env } from '~/env';
-import { getAppSetting } from '~/queries/appSettings';
 
-export default async function Loading() {
-  const sandboxMode = await getAppSetting('sandboxMode');
+export default function Loading() {
   return (
     <>
       <ResponsiveContainer>
@@ -24,7 +22,7 @@ export default async function Loading() {
         />
         <SettingsSectionSkeleton controlAreaSkelton={<SwitchSkeleton />} />
         <SettingsSectionSkeleton controlAreaSkelton={<SwitchSkeleton />} />
-        {!sandboxMode && (
+        {!env.SANDBOX_MODE && (
           <SettingsSectionSkeleton
             controlAreaSkelton={
               <ButtonSkeleton variant="destructive" className="w-full" />
