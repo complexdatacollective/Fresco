@@ -50,6 +50,7 @@ async function seedInitialisedAt() {
       key: 'initializedAt',
     },
     // No update emulates findOrCreate
+    update: {},
     create: {
       key: 'initializedAt',
       value: new Date().toISOString()
