@@ -1,13 +1,16 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { env } from 'process';
 import { UTApi } from 'uploadthing/server';
 import { safeRevalidateTag } from '~/lib/cache';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 export const resetAppSettings = async () => {
-  await requireApiAuth();
+  if (env.NODE_ENV !== 'development') {
+    await requireApiAuth();
+  }
 
   try {
     // Delete all data:
