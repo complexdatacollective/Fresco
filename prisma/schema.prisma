@@ -89,14 +89,27 @@ model Participant {
   interviews Interview[]
 }
 
+// Cant be shared with TS, unfortunately.
+enum AppSetting {
+  configured
+  allowAnonymousRecruitment
+  limitInterviews
+  initializedAt
+  installationId
+  sandboxMode
+  disableAnalytics
+  publicUrl
+  uploadThingToken
+}
+
 model AppSettings {
-  key                       String?    @unique
-  value                     String?
-  configured                Boolean  @default(false)
-  initializedAt             DateTime @default(now())
-  allowAnonymousRecruitment Boolean  @default(false)
-  limitInterviews           Boolean  @default(true)
-  installationId            String   @unique @default(cuid())
+  key                       AppSetting @unique
+  value                     String
+  configured                Boolean    @default(false)
+  initializedAt             DateTime   @default(now())
+  allowAnonymousRecruitment Boolean    @default(false)
+  limitInterviews           Boolean    @default(true)
+  installationId            String     @unique @default(cuid())
 }
 
 model Events {

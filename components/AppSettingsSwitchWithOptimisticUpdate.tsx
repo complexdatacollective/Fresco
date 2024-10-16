@@ -4,7 +4,7 @@ import { useOptimistic, useTransition } from 'react';
 import { type z } from 'zod';
 import { setAppSetting } from '~/actions/appSettings';
 import { Switch as SwitchUI } from '~/components/ui/switch';
-import { type appSettingSchema } from '~/schemas/appSettings';
+import { type appSettingsSchema } from '~/schemas/appSettings';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,
@@ -13,7 +13,7 @@ const SwitchWithOptimisticUpdate = ({
 }: {
   initialValue: boolean;
   name: string;
-  appSettingKey: keyof z.infer<typeof appSettingSchema>;
+  appSettingKey: keyof z.infer<typeof appSettingsSchema>;
 }) => {
   const [isTransitioning, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(

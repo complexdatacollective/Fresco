@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const appSettingSchema = z.object({
+export const appSettingsSchema = z.object({
   configured: z.boolean(),
   allowAnonymousRecruitment: z.boolean(),
   limitInterviews: z.boolean(),
@@ -12,13 +12,17 @@ export const appSettingSchema = z.object({
   uploadThingToken: z.string().optional(),
 });
 
+const appSettings = [...appSettingsSchema.keyof().options] as const;
+
+export type AppSetting = (typeof appSettings)[number];
+
 const parseBoolean = (value: unknown): boolean | undefined => {
   if (value === 'true') return true;
   if (value === 'false') return false;
   return undefined;
 };
 
-export const appSettingPreprocessedSchema = appSettingSchema.extend({
+export const appSettingPreprocessedSchema = appSettingsSchema.extend({
   initializedAt: z.preprocess((value) => {
     if (typeof value === 'string' || value instanceof Date) {
       const date = new Date(value);

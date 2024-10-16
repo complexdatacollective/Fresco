@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { appSettingPreprocessedSchema, appSettingSchema } from '../appSettings';
+import {
+  appSettingPreprocessedSchema,
+  appSettingsSchema,
+} from '../appSettings';
 import { createEnvironmentFormSchema } from '../environment';
 
 describe('App Settings Schema Validators', () => {
@@ -17,7 +20,7 @@ describe('App Settings Schema Validators', () => {
         uploadThingToken: 'ABCD1234Token',
       };
 
-      expect(appSettingSchema.parse(validSettings)).toEqual(validSettings);
+      expect(appSettingsSchema.parse(validSettings)).toEqual(validSettings);
     });
 
     it('should reject missing required fields', () => {
@@ -28,7 +31,7 @@ describe('App Settings Schema Validators', () => {
         sandboxMode: false,
       };
 
-      expect(() => appSettingSchema.parse(invalidSettings)).toThrow();
+      expect(() => appSettingsSchema.parse(invalidSettings)).toThrow();
     });
 
     it('should allow optional fields to be undefined', () => {
@@ -42,7 +45,7 @@ describe('App Settings Schema Validators', () => {
         disableAnalytics: true,
       };
 
-      expect(appSettingSchema.parse(settings)).toEqual(settings);
+      expect(appSettingsSchema.parse(settings)).toEqual(settings);
     });
   });
 

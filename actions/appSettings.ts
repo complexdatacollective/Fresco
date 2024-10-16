@@ -7,23 +7,23 @@ import { env } from '~/env';
 import { DEFAULT_APP_SETTINGS } from '~/fresco.config';
 import { safeRevalidateTag } from '~/lib/cache';
 import { getAppSetting } from '~/queries/appSettings';
-import { appSettingSchema } from '~/schemas/appSettings';
+import { appSettingsSchema } from '~/schemas/appSettings';
 import { createEnvironmentFormSchema } from '~/schemas/environment';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 // Generic function to set an app setting with validation
 export async function setAppSetting<
-  Key extends keyof z.infer<typeof appSettingSchema>,
->(key: Key, value: z.infer<typeof appSettingSchema>[Key]) {
+  Key extends keyof z.infer<typeof appSettingsSchema>,
+>(key: Key, value: z.infer<typeof appSettingsSchema>[Key]) {
   await requireApiAuth();
 
-  if (!appSettingSchema.shape[key]) {
+  if (!appSettingsSchema.shape[key]) {
     throw new Error(`Invalid app setting key: ${key}`);
   }
 
   // validate
-  appSettingSchema.shape[key].parse(value);
+  appSettingsSchema.shape[key].parse(value);
 
   const existingSetting = await prisma.appSettings.findUnique({
     where: { key },
