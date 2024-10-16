@@ -7,7 +7,6 @@ import { env } from '~/env';
 import { DEFAULT_APP_SETTINGS } from '~/fresco.config';
 import { safeRevalidateTag } from '~/lib/cache';
 import { appSettingsSchema } from '~/schemas/appSettings';
-import { createEnvironmentFormSchema } from '~/schemas/environment';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
@@ -61,44 +60,6 @@ export const setAppConfigured = async () => {
   }
   redirect('/dashboard');
 };
-
-export async function storeEnvironment(formData: unknown) {
-  await requireApiAuth();
-  const parsedFormData = createEnvironmentFormSchema.safeParse(formData);
-
-  if (!parsedFormData.success) {
-    // eslint-disable-next-line no-console
-    console.error('Invalid form submission', parsedFormData.error);
-    return {
-      success: false,
-      error: 'Invalid form submission',
-    };
-  }
-
-  try {
-    const { uploadThingToken } = parsedFormData.data;
-
-    const data = [
-      { key: 'uploadThingToken', value: uploadThingToken },
-      { key: 'disableAnalytics', value: 'false' },
-    ];
-
-    // insert the rest of the env variables
-    await prisma.appSettings.createManyAndReturn({
-      data,
-      skipDuplicates: true,
-    });
-    safeRevalidateTag(`appSettings-uploadThingToken`);
-    safeRevalidateTag(`appSettings-disableAnalytics`);
-
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to store environment',
-    };
-  }
-}
 
 export async function initializeWithDefaults() {
   type InitializeKeys = keyof typeof DEFAULT_APP_SETTINGS | 'installationId';

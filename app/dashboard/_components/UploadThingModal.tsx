@@ -1,6 +1,6 @@
 'use client';
 
-import { storeEnvironment } from '~/actions/appSettings';
+import { setAppSetting } from '~/actions/appSettings';
 import Link from '~/components/Link';
 import { Button } from '~/components/ui/Button';
 import {
@@ -21,10 +21,19 @@ const setTokenSchema = createEnvironmentSchema.pick({
 function UploadThingModal() {
   const {
     register,
+    handleSubmit,
     formState: { errors, isValid },
   } = useZodForm({
     schema: setTokenSchema,
   });
+
+  const onSubmit = async ({
+    uploadThingToken,
+  }: {
+    uploadThingToken: string;
+  }) => {
+    await setAppSetting('uploadThingToken', uploadThingToken);
+  };
 
   return (
     <Dialog open={true}>
@@ -55,7 +64,10 @@ function UploadThingModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <form className="flex flex-col" action={storeEnvironment}>
+        <form
+          className="flex flex-col"
+          onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+        >
           <div className="mb-6 w-full">
             <Input
               label="UPLOADTHING_TOKEN"

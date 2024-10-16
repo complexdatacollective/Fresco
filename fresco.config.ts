@@ -16,4 +16,5 @@ export const DEFAULT_APP_SETTINGS = {
   configured: false,
   allowAnonymousRecruitment: false,
   limitInterviews: true,
+  disableAnalytics: false,
 } as const;
