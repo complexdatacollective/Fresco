@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
@@ -10,7 +11,7 @@ export const EnvironmentForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isSubmitting },
   } = useZodForm({
     schema: createEnvironmentSchema,
   });
@@ -39,8 +40,9 @@ export const EnvironmentForm = () => {
         />
       </div>
       <div className="flex flex-wrap">
-        <Button disabled={!isValid} type="submit">
-          Submit
+        <Button disabled={isSubmitting || !isValid} type="submit">
+          {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </Button>
       </div>
     </form>
