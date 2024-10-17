@@ -34,7 +34,7 @@ async function getSetupData() {
   };
 }
 
-export type SetupData = ReturnType<typeof getSetupData>;
+export type SetupData = Awaited<ReturnType<typeof getSetupData>>;
 
 export const dynamic = 'force-dynamic';
 
@@ -42,13 +42,13 @@ export default async function Page() {
   await requireAppNotExpired(true);
   await requireAppNotConfigured();
 
-  const setupDataPromise = getSetupData();
+  const setupData = await getSetupData();
 
   return (
     <Suspense
       fallback={<Loader2 className="h-10 w-10 animate-spin text-background" />}
     >
-      <Setup setupDataPromise={setupDataPromise} />
+      <Setup setupData={setupData} />
     </Suspense>
   );
 }

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { use, useEffect } from 'react';
+import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
 import { cn } from '~/utils/shadcn';
 import Analytics from '../_components/OnboardSteps/Analytics';
@@ -14,11 +14,7 @@ import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
 import OnboardSteps from '../_components/Sidebar';
 import type { SetupData } from './page';
 
-export default function Setup({
-  setupDataPromise,
-}: {
-  setupDataPromise: SetupData;
-}) {
+export default function Setup({ setupData }: { setupData: SetupData }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
 
   const {
@@ -27,7 +23,7 @@ export default function Setup({
     limitInterviews,
     disableAnalytics,
     hasUploadThingToken,
-  } = use(setupDataPromise);
+  } = setupData;
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
