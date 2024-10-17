@@ -4,7 +4,7 @@ import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { env } from '~/env';
-import { type getInstallationId } from '~/queries/appSettings';
+import { type getAppSetting } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
 import SettingsSection from './layout/SettingsSection';
 import Paragraph from './ui/typography/Paragraph';
@@ -18,9 +18,9 @@ const GithubApiResponseSchema = z.object({
 export default function VersionSection({
   installationIdPromise,
 }: {
-  installationIdPromise: ReturnType<typeof getInstallationId>;
+  installationIdPromise: ReturnType<typeof getAppSetting>;
 }) {
-  const installationID = use(installationIdPromise);
+  const installationID = use(installationIdPromise) as string;
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

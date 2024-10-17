@@ -21,6 +21,8 @@ export const env = createEnv({
     POSTGRES_URL_NON_POOLING: z.string(),
     DISABLE_ANALYTICS: strictBooleanSchema,
     PUBLIC_URL: z.string().url().optional(),
+    UPLOADTHING_APP_ID: z.string().optional(), // needed for migration
+    UPLOADTHING_SECRET: z.string().optional(), // needed for migration
   },
 
   /**

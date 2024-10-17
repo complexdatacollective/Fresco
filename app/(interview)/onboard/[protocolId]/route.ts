@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
 import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
-import { getLimitInterviewsStatus } from '~/queries/appSettings';
+import { getAppSetting } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,7 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
-  const limitInterviews = await getLimitInterviewsStatus();
+  const limitInterviews = await getAppSetting('limitInterviews');
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
