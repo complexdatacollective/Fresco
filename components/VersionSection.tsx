@@ -20,7 +20,7 @@ export default function VersionSection({
 }: {
   installationIdPromise: ReturnType<typeof getAppSetting>;
 }) {
-  const installationID = use(installationIdPromise);
+  const installationID = use(installationIdPromise) as string;
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

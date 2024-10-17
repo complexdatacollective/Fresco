@@ -68,6 +68,10 @@ export async function requireAppNotExpired(isSetupRoute = false) {
   const configured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
 
+  if (!configured || !initializedAt) {
+    throw new Error('Could not get app settings');
+  }
+
   const expired = calculateIsExpired(configured, initializedAt);
 
   if (expired) {
@@ -89,6 +93,10 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 export async function isAppExpired() {
   const configured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
+
+  if (!configured || !initializedAt) {
+    throw new Error('Could not get app settings');
+  }
   return calculateIsExpired(configured, initializedAt);
 }
 

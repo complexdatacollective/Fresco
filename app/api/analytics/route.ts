@@ -6,6 +6,10 @@ const routeHandler = async (request: NextRequest) => {
   const installationId = await getAppSetting('installationId');
   const disableAnalytics = await getAppSetting('disableAnalytics');
 
+  if (!installationId || !disableAnalytics) {
+    throw new Error('Missing appSettings');
+  }
+
   return createRouteHandler({
     installationId,
     disableAnalytics,
