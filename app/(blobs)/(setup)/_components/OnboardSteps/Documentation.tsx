@@ -12,7 +12,7 @@ import trackEvent from '~/lib/analytics';
 
 function Documentation() {
   const handleAppConfigured = async () => {
-    const installationId = env.INSTALLATION_ID ?? createId();
+    const installationId = env.NEXT_PUBLIC_INSTALLATION_ID ?? createId();
     await setAppSetting('installationId', installationId);
     await setAppSetting('configured', true);
     void trackEvent({

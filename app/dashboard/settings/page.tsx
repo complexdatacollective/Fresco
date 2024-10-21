@@ -21,7 +21,7 @@ export default async function Settings() {
   await requirePageAuth();
 
   const installationId = await getAppSetting('installationId');
-  const envInstallationId = !!env.INSTALLATION_ID;
+  const envInstallationId = !!env.NEXT_PUBLIC_INSTALLATION_ID;
   const uploadThingKey = await getAppSetting('uploadThingToken');
 
   return (
@@ -56,7 +56,7 @@ export default async function Settings() {
             This is the API key used to communicate with the UploadThing
             service.
           </Paragraph>
-          <Input value={uploadThingKey} />
+          <Input value={uploadThingKey} readOnly />
         </SettingsSection>
         <SettingsSection
           heading="Anonymous Recruitment"
