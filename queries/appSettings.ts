@@ -58,7 +58,8 @@ export async function isAppExpired() {
   const initializedAt = await getAppSetting('initializedAt');
 
   return (
-    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+    !isConfigured &&
+    new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
   );
 }
 
