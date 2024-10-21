@@ -13,11 +13,6 @@ import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
 import OnboardSteps from '../_components/Sidebar';
 import type { SetupData } from './page';
 
-export type OnboardStep = {
-  label: string;
-  component: () => JSX.Element;
-};
-
 export default function Setup({ setupData }: { setupData: SetupData }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
 

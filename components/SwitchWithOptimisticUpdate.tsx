@@ -1,19 +1,14 @@
 'use client';
 
 import { useOptimistic, useTransition } from 'react';
-import { type z } from 'zod';
-import { setAppSetting } from '~/actions/appSettings';
 import { Switch as SwitchUI } from '~/components/ui/switch';
-import { type appSettingsSchema } from '~/schemas/appSettings';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,
-  name,
-  appSettingKey,
+  updateValue,
 }: {
   initialValue: boolean;
-  name: string;
-  appSettingKey: keyof z.infer<typeof appSettingsSchema>;
+  updateValue: (value: boolean) => Promise<boolean>;
 }) => {
   const [isTransitioning, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
@@ -23,12 +18,11 @@ const SwitchWithOptimisticUpdate = ({
 
   const updateIsActive = async (newValue: boolean) => {
     setOptimisticIsActive(newValue);
-    await setAppSetting(appSettingKey, newValue); // this is a server action which calls `revalidateTag`
+    await updateValue(newValue);
   };
 
   return (
     <SwitchUI
-      name={name}
       checked={optimisticIsActive}
       onCheckedChange={(checked) =>
         startTransition(() => updateIsActive(checked))

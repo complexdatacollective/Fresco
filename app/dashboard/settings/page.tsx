@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
+import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import VersionSection from '~/components/VersionSection';
@@ -86,6 +87,19 @@ export default async function Settings() {
             Once an interview has been completed, attempting to start a new
             interview or to resume any other in-progress interview, will be
             prevented.
+          </Paragraph>
+        </SettingsSection>
+        <SettingsSection
+          heading="Disable Analytics"
+          controlArea={
+            <Suspense fallback="Loading">
+              <DisableAnalyticsSwitch />
+            </Suspense>
+          }
+        >
+          <Paragraph margin="none">
+            If this option is enabled, no anonymous analytics data will be sent
+            to the Network Canvas team.
           </Paragraph>
         </SettingsSection>
         {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
