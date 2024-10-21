@@ -12,9 +12,7 @@ import { type GetData } from './ProtocolsTable';
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
   const data = use(dataPromise);
 
-  const { protocols, appSettings } = data;
-
-  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
+  const { protocols, allowAnonymousRecruitment } = data;
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =

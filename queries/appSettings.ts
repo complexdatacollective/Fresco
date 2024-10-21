@@ -57,7 +57,13 @@ export const getAppSetting = <
     [`appSettings-${key}`, 'appSettings'],
   )(key);
 
-const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
+const calculateIsExpired = (
+  configured: boolean | null,
+  initializedAt: Date | null,
+) => {
+  if (!initializedAt) {
+    return false;
+  }
   return (
     !configured &&
     new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
@@ -67,10 +73,6 @@ const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
 export async function requireAppNotExpired(isSetupRoute = false) {
   const configured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
-
-  if (!configured || !initializedAt) {
-    throw new Error('Could not get app settings');
-  }
 
   const expired = calculateIsExpired(configured, initializedAt);
 

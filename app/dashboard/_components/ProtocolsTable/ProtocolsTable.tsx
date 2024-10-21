@@ -1,6 +1,7 @@
 import { unstable_noStore } from 'next/cache';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import { getAppSetting } from '~/queries/appSettings';
 import { prisma } from '~/utils/db';
 import ProtocolsTableClient from './ProtocolsTableClient';
 
@@ -13,12 +14,15 @@ async function getData() {
         interviews: true,
       },
     }),
-    prisma.appSettings.findFirst(),
   ]);
+
+  const allowAnonymousRecruitment = await getAppSetting(
+    'allowAnonymousRecruitment',
+  );
 
   return {
     protocols: data[0],
-    appSettings: data[1],
+    allowAnonymousRecruitment: allowAnonymousRecruitment ?? false,
   };
 }
 
