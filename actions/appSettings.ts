@@ -1,82 +1,44 @@
 'use server';
 
-import { createId } from '@paralleldrive/cuid2';
-import { redirect } from 'next/navigation';
 import { type z } from 'zod';
-import { env } from '~/env';
-import { DEFAULT_APP_SETTINGS } from '~/fresco.config';
 import { safeRevalidateTag } from '~/lib/cache';
-import { appSettingsSchema } from '~/schemas/appSettings';
+import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
+import { ensureError } from '~/utils/ensureError';
 
-// Generic function to set an app setting with validation
+// Convert string | boolean | Date to string
+const getStringValue = (value: string | boolean | Date) => {
+  if (typeof value === 'boolean') return value.toString();
+  if (value instanceof Date) return value.toISOString();
+  return value;
+};
+
 export async function setAppSetting<
-  Key extends keyof z.infer<typeof appSettingsSchema>,
->(key: Key, value: z.infer<typeof appSettingsSchema>[Key]) {
+  Key extends AppSetting,
+  V extends z.infer<typeof appSettingsSchema>[Key],
+>(key: Key, value: V): Promise<V> {
   await requireApiAuth();
 
   if (!appSettingsSchema.shape[key]) {
-    throw new Error(`Invalid app setting key: ${key}`);
+    throw new Error(`Invalid app setting: ${key}`);
   }
 
-  // validate
-  appSettingsSchema.shape[key].parse(value);
-
-  const formattedValue: string | undefined =
-    typeof value === 'boolean'
-      ? value.toString()
-      : value instanceof Date
-        ? value.toISOString()
-        : value;
-
   try {
+    const result = appSettingsSchema.shape[key].parse(value);
+    const stringValue = getStringValue(result);
+
     await prisma.appSettings.upsert({
       where: { key },
-      create: { key, value: formattedValue },
-      update: { value: formattedValue },
+      create: { key, value: stringValue },
+      update: { value: stringValue },
     });
+
+    safeRevalidateTag(`appSettings-${key}`);
+
+    return value;
   } catch (error) {
-    throw new Error(`Failed to update appSettings: ${key}`);
+    const e = ensureError(error);
+    throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
   }
-  // handle revalidation tag
-  safeRevalidateTag(`appSettings-${key}`);
-
-  return value;
-}
-
-export const setAppConfigured = async () => {
-  await requireApiAuth();
-
-  try {
-    await setAppSetting('configured', true);
-  } catch (error) {
-    return { error: 'Failed to update appSettings', appSettings: null };
-  }
-  redirect('/dashboard');
-};
-
-export async function initializeWithDefaults() {
-  type InitializeKeys = keyof typeof DEFAULT_APP_SETTINGS | 'installationId';
-  const data = Object.entries(DEFAULT_APP_SETTINGS).map(([key, value]) => ({
-    key: key as keyof typeof DEFAULT_APP_SETTINGS,
-    value: typeof value === 'boolean' ? value.toString() : value,
-  })) as { key: InitializeKeys; value: string }[];
-
-  // add installation id if there is one in the env
-  // if not, generate one
-  const installationId = env.INSTALLATION_ID ?? createId();
-  if (installationId) {
-    data.push({
-      key: 'installationId',
-      value: installationId,
-    });
-  }
-
-  const appSettings = await prisma.appSettings.createManyAndReturn({
-    data,
-    skipDuplicates: true,
-  });
-
-  return appSettings;
 }

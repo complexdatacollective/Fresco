@@ -1,10 +1,9 @@
 'use client';
 
 import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { env } from '~/env';
-import { type getAppSetting } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
 import SettingsSection from './layout/SettingsSection';
 import Paragraph from './ui/typography/Paragraph';
@@ -15,13 +14,7 @@ const GithubApiResponseSchema = z.object({
   behind_by: z.number(),
 });
 
-export default function VersionSection({
-  installationIdPromise,
-}: {
-  installationIdPromise: ReturnType<typeof getAppSetting>;
-}) {
-  const installationID = use(installationIdPromise) as string;
-
+export default function VersionSection() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<{
@@ -110,7 +103,6 @@ export default function VersionSection({
         You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH}
         ).
       </Paragraph>
-      <Paragraph>Your unique installation ID is: {installationID}</Paragraph>
     </SettingsSection>
   );
 }

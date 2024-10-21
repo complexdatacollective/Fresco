@@ -1,9 +1,11 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
+import SubmitButton from '~/components/ui/SubmitButton';
 import useZodForm from '~/hooks/useZodForm';
 import { createUploadThingTokenForm } from '~/schemas/environment';
 
@@ -22,6 +24,7 @@ export const UploadThingTokenForm = () => {
     uploadThingToken: string;
   }) => {
     await setAppSetting('uploadThingToken', uploadThingToken);
+    redirect('/setup?step=3');
   };
 
   return (
@@ -40,6 +43,7 @@ export const UploadThingTokenForm = () => {
         />
       </div>
       <div className="flex flex-wrap">
+        <SubmitButton>Submit</SubmitButton>
         <Button disabled={isSubmitting || !isValid} type="submit">
           {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
           {isSubmitting ? 'Submitting...' : 'Submit'}

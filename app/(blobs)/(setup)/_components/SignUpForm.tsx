@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { signup } from '~/actions/auth';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
@@ -18,6 +19,7 @@ export const SignUpForm = () => {
 
   const onSubmit = async (data: unknown) => {
     await signup(data);
+    redirect('/setup?step=2');
   };
 
   return (
@@ -48,7 +50,7 @@ export const SignUpForm = () => {
           {...register('password')}
         />
       </div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap justify-end">
         <Button disabled={isSubmitting || !isValid} type="submit">
           {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
           {isSubmitting ? 'Creating account...' : 'Create account'}

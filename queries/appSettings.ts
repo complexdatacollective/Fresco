@@ -1,78 +1,39 @@
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
-import { initializeWithDefaults } from '~/actions/appSettings';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
-import { appSettingPreprocessedSchema } from '~/schemas/appSettings';
+import {
+  type AppSetting,
+  appSettingPreprocessedSchema,
+} from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-export const getAppSetting = <
-  Key extends keyof z.infer<typeof appSettingPreprocessedSchema>,
->(
-  key: Key,
-) =>
+export const getAppSetting = <Key extends AppSetting>(key: Key) =>
   createCachedFunction(
     async (key: Key) => {
-      const configured = await prisma.appSettings.findUnique({
-        where: { key: 'configured' },
-      });
-
-      // If there is no app setting for 'configured', then the app has not been initialized with defaults
-      if (configured === null) {
-        const data = await initializeWithDefaults();
-
-        const initializedSetting = data.find((item) => item.key === key);
-
-        if (!initializedSetting) {
-          return null;
-        }
-
-        // Parse the value using the preprocessed schema
-        const parsedInitializedValue = appSettingPreprocessedSchema.shape[
-          key
-        ].parse(initializedSetting.value);
-
-        return parsedInitializedValue as z.infer<
-          typeof appSettingPreprocessedSchema
-        >[Key];
-      }
-
-      // From here, we know that the app has been initialized
       const keyValue = await prisma.appSettings.findUnique({
-        where: { key },
+        where: { key: key as AppSetting },
       });
 
+      // If the key does not exist, return the default value
       if (!keyValue) {
-        return null;
+        const value = appSettingPreprocessedSchema.shape[key].parse(
+          undefined,
+        ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
+        return value;
       }
 
       // Parse the value using the preprocessed schema
-      const parsedValue = appSettingPreprocessedSchema.shape[key].parse(
+      return appSettingPreprocessedSchema.shape[key].parse(
         keyValue.value,
-      );
-
-      return parsedValue as z.infer<typeof appSettingPreprocessedSchema>[Key];
+      ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
     },
     [`appSettings-${key}`, 'appSettings'],
   )(key);
 
-const calculateIsExpired = (configured: boolean, initializedAt: Date) => {
-  return (
-    !configured &&
-    new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
-  );
-};
-
 export async function requireAppNotExpired(isSetupRoute = false) {
-  const configured = await getAppSetting('configured');
-  const initializedAt = await getAppSetting('initializedAt');
-
-  if (!configured || !initializedAt) {
-    throw new Error('Could not get app settings');
-  }
-
-  const expired = calculateIsExpired(configured, initializedAt);
+  const expired = await isAppExpired();
 
   if (expired) {
     redirect('/expired');
@@ -83,7 +44,9 @@ export async function requireAppNotExpired(isSetupRoute = false) {
     return;
   }
 
-  if (!configured) {
+  const isConfigured = await getAppSetting('configured');
+
+  if (!isConfigured) {
     redirect('/setup');
   }
 
@@ -91,13 +54,12 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 }
 
 export async function isAppExpired() {
-  const configured = await getAppSetting('configured');
+  const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
 
-  if (!configured || !initializedAt) {
-    throw new Error('Could not get app settings');
-  }
-  return calculateIsExpired(configured, initializedAt);
+  return (
+    !isConfigured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+  );
 }
 
 // Used to prevent user account creation after the app has been configured

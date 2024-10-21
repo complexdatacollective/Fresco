@@ -5,7 +5,6 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
 import { cn } from '~/utils/shadcn';
-import Analytics from '../_components/OnboardSteps/Analytics';
 import ConnectUploadThing from '../_components/OnboardSteps/ConnectUploadThing';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
@@ -13,6 +12,11 @@ import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
 import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
 import OnboardSteps from '../_components/Sidebar';
 import type { SetupData } from './page';
+
+export type OnboardStep = {
+  label: string;
+  component: () => JSX.Element;
+};
 
 export default function Setup({ setupData }: { setupData: SetupData }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
@@ -24,6 +28,38 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     disableAnalytics,
     hasUploadThingToken,
   } = setupData;
+
+  const steps = [
+    {
+      label: 'Create Account',
+      component: CreateAccount,
+      // skip: async () => !!(await getServerSession()),
+    },
+    {
+      label: 'Connect UploadThing',
+      component: ConnectUploadThing,
+      // skip: async () => !!(await getAppSetting('uploadThingToken')),
+    },
+    {
+      label: 'Upload Protocol',
+      component: UploadProtocol,
+      // skip: async () => (await prisma.protocol.count()) > 0,
+    },
+    {
+      label: 'Configure Participation',
+      component: () => (
+        <ManageParticipants
+          allowAnonymousRecruitment={allowAnonymousRecruitment}
+          limitInterviews={limitInterviews}
+        />
+      ),
+      // skip: async () => (await prisma.participant.count()) > 0,
+    },
+    {
+      label: 'Documentation',
+      component: Documentation,
+    },
+  ];
 
   const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
@@ -66,25 +102,13 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     limitInterviews,
   ]);
 
+  const StepComponent = steps[step - 1]!.component;
+
   return (
     <motion.div className={cardClasses}>
-      <OnboardSteps />
+      <OnboardSteps steps={steps.map((step) => step.label)} />
       <div className={mainClasses}>
-        {step === 1 && <CreateAccount />}
-        {step === 2 && <ConnectUploadThing />}
-        {step === 3 && disableAnalytics !== null && (
-          <Analytics disableAnalytics={disableAnalytics} />
-        )}
-        {step === 4 && <UploadProtocol />}
-        {step === 5 &&
-          allowAnonymousRecruitment !== null &&
-          limitInterviews !== null && (
-            <ManageParticipants
-              allowAnonymousRecruitment={allowAnonymousRecruitment}
-              limitInterviews={limitInterviews}
-            />
-          )}
-        {step === 6 && <Documentation />}
+        <StepComponent />
       </div>
     </motion.div>
   );
