@@ -1,12 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { setAppSetting } from '~/actions/appSettings';
 import SettingsSection from '~/components/layout/SettingsSection';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import SubmitButton from '~/components/ui/SubmitButton';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import useZodForm from '~/hooks/useZodForm';
 import { createUploadThingTokenForm } from '~/schemas/environment';
@@ -20,21 +19,19 @@ export default function UpdateUploadThingSection({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
   } = useZodForm({
     schema: createUploadThingTokenForm,
   });
   const handleEdit = () => {
     setInputDisabled(false);
   };
-  const router = useRouter();
   const onSubmit = async ({
     uploadThingToken,
   }: {
     uploadThingToken: string;
   }) => {
     await setAppSetting('uploadThingToken', uploadThingToken);
-    router.refresh();
     setInputDisabled(true);
   };
   return (
@@ -49,7 +46,10 @@ export default function UpdateUploadThingSection({
             {inputDisabled ? (
               <Button onClick={handleEdit}>Edit</Button>
             ) : (
-              <SubmitButton>Save</SubmitButton>
+              <Button disabled={isSubmitting || !isValid} type="submit">
+                {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </Button>
             )}
           </Suspense>
         }
@@ -57,15 +57,14 @@ export default function UpdateUploadThingSection({
         <Paragraph margin="none">
           This is the API key used to communicate with the UploadThing service.
         </Paragraph>
-        {inputDisabled ? (
-          <Input value={uploadThingKey} disabled={inputDisabled} />
-        ) : (
-          <Input
-            type="text"
-            error={errors.uploadThingToken?.message}
-            {...register('uploadThingToken')}
-          />
-        )}
+
+        <Input
+          type="text"
+          placeholder={uploadThingKey}
+          error={errors.uploadThingToken?.message}
+          {...register('uploadThingToken')}
+          disabled={inputDisabled}
+        />
       </SettingsSection>
     </form>
   );
