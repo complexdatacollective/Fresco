@@ -49,7 +49,7 @@ function ConnectUploadThing() {
           </Link>{' '}
           in the Fresco documentation.
         </Paragraph>
-        <UploadThingTokenForm />
+        <UploadThingTokenForm isSetup />
       </div>
     </div>
   );

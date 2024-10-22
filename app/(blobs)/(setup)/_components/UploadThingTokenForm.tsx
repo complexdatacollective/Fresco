@@ -8,7 +8,7 @@ import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';
 import { createUploadThingTokenForm } from '~/schemas/environment';
 
-export const UploadThingTokenForm = () => {
+export const UploadThingTokenForm = ({ isSetup }: { isSetup?: boolean }) => {
   const {
     register,
     handleSubmit,
@@ -24,7 +24,9 @@ export const UploadThingTokenForm = () => {
     uploadThingToken: string;
   }) => {
     await setAppSetting('uploadThingToken', uploadThingToken);
-    router.push('/setup?step=3');
+    if (isSetup) {
+      router.push('/setup?step=3');
+    }
   };
 
   return (
