@@ -15,6 +15,7 @@ import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
 import ResetButton from '../_components/ResetButton';
+import UpdateUploadThingSection from '../_components/UpdateUploadThing';
 
 export default async function Settings() {
   await requireAppNotExpired();
@@ -51,13 +52,7 @@ export default async function Settings() {
           )}
           <Input disabled={envInstallationId} value={installationId} />
         </SettingsSection>
-        <SettingsSection heading="UploadThing API Key">
-          <Paragraph margin="none">
-            This is the API key used to communicate with the UploadThing
-            service.
-          </Paragraph>
-          <Input value={uploadThingKey} readOnly />
-        </SettingsSection>
+        <UpdateUploadThingSection uploadThingKey={uploadThingKey ?? ''} />
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={
