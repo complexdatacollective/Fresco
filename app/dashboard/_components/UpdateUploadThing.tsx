@@ -19,13 +19,17 @@ export default function UpdateUploadThingSection({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isValid, isSubmitting },
   } = useZodForm({
     schema: createUploadThingTokenForm,
   });
-  const handleEdit = () => {
-    setInputDisabled(false);
+
+  const handleCancel = () => {
+    setInputDisabled(true);
+    reset();
   };
+
   const onSubmit = async ({
     uploadThingToken,
   }: {
@@ -44,12 +48,27 @@ export default function UpdateUploadThingSection({
         controlArea={
           <Suspense fallback="Loading">
             {inputDisabled ? (
-              <Button onClick={handleEdit}>Edit</Button>
-            ) : (
-              <Button disabled={isSubmitting || !isValid} type="submit">
-                {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-                {isSubmitting ? 'Saving...' : 'Save'}
+              <Button
+                onClick={() => {
+                  setInputDisabled(false);
+                }}
+              >
+                Edit
               </Button>
+            ) : (
+              <div className="flex flex-row gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={handleCancel}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button disabled={isSubmitting || !isValid} type="submit">
+                  {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+                  {isSubmitting ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
             )}
           </Suspense>
         }
