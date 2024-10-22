@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
-import Section from '~/components/layout/Section';
-import Heading from '~/components/ui/typography/Heading';
+import SettingsSection from '~/components/layout/SettingsSection';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { getAppSetting } from '~/queries/appSettings';
 import { getParticipants } from '~/queries/participants';
@@ -15,8 +14,7 @@ export default function RecruitmentTestSectionServer() {
   );
 
   return (
-    <Section>
-      <Heading variant="h4-all-caps">Recruitment Test Section</Heading>
+    <SettingsSection devOnly heading="Recruitment Test Section">
       <Paragraph>This section allows you to test recruitment.</Paragraph>
       <Suspense fallback="Loading">
         <RecruitmentTestSection
@@ -25,6 +23,6 @@ export default function RecruitmentTestSectionServer() {
           allowAnonymousRecruitmentPromise={allowAnonymousRecruitmentPromise}
         />
       </Suspense>
-    </Section>
+    </SettingsSection>
   );
 }

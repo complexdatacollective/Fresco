@@ -1,5 +1,6 @@
+import { setAppSetting } from '~/actions/appSettings';
 import { getAppSetting } from '~/queries/appSettings';
-import SwitchWithOptimisticUpdate from './AppSettingsSwitchWithOptimisticUpdate';
+import SwitchWithOptimisticUpdate from './SwitchWithOptimisticUpdate';
 
 const AnonymousRecruitmentSwitch = async () => {
   const allowAnonymousRecruitment = await getAppSetting(
@@ -13,8 +14,11 @@ const AnonymousRecruitmentSwitch = async () => {
   return (
     <SwitchWithOptimisticUpdate
       initialValue={allowAnonymousRecruitment}
-      name="allowAnonymousRecruitment"
-      appSettingKey="allowAnonymousRecruitment"
+      updateValue={async (value) => {
+        'use server';
+        await setAppSetting('allowAnonymousRecruitment', value);
+        return value;
+      }}
     />
   );
 };

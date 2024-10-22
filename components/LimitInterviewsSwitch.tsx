@@ -1,6 +1,7 @@
 import 'server-only';
+import { setAppSetting } from '~/actions/appSettings';
 import { getAppSetting } from '~/queries/appSettings';
-import Switch from './AppSettingsSwitchWithOptimisticUpdate';
+import Switch from './SwitchWithOptimisticUpdate';
 
 const LimitInterviewsSwitch = async () => {
   const limitInterviews = await getAppSetting('limitInterviews');
@@ -12,8 +13,11 @@ const LimitInterviewsSwitch = async () => {
   return (
     <Switch
       initialValue={limitInterviews}
-      name="limitInterviews"
-      appSettingKey="limitInterviews"
+      updateValue={async (value) => {
+        'use server';
+        await setAppSetting('limitInterviews', value);
+        return value;
+      }}
     />
   );
 };

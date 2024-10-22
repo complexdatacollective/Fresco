@@ -1,18 +1,28 @@
+import { createId } from '@paralleldrive/cuid2';
 import { FileText } from 'lucide-react';
-import { setAppConfigured } from '~/actions/appSettings';
+import { redirect } from 'next/navigation';
+import { setAppSetting } from '~/actions/appSettings';
 import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import SubmitButton from '~/components/ui/SubmitButton';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 
 function Documentation() {
   const handleAppConfigured = async () => {
-    await setAppConfigured();
+    const installationId = env.NEXT_PUBLIC_INSTALLATION_ID ?? createId();
+    await setAppSetting('installationId', installationId);
+    await setAppSetting('configured', true);
     void trackEvent({
       type: 'AppSetup',
+      metadata: {
+        installationId,
+      },
     });
+
+    redirect('/dashboard');
   };
 
   return (
