@@ -7,16 +7,14 @@ import { Button } from '~/components/ui/Button';
 import SubmitButton from '~/components/ui/SubmitButton';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
+import { getInstallationId } from '~/queries/appSettings';
 
 function Documentation() {
   const handleAppConfigured = async () => {
-    console.log('env.INSTALLATION_ID', env.INSTALLATION_ID);
-    const installationId = env.INSTALLATION_ID ?? createId();
-    if (!env.INSTALLATION_ID) {
-      console.log('setting installationId', installationId);
-      await setAppSetting('installationId', installationId);
+    const installationId = await getInstallationId();
+    if (!installationId) {
+      await setAppSetting('installationId', createId());
     }
     await setAppSetting('configured', true);
     void trackEvent({
