@@ -19,7 +19,7 @@ export type AppSetting = (typeof appSettings)[number];
 const parseBoolean = (value: unknown): boolean => {
   if (value === 'true') return true;
   if (value === 'false') return false;
-  return false;
+  throw new Error('Invalid boolean value');
 };
 
 // Variation of the schema that converts the string types in the db to the correct types

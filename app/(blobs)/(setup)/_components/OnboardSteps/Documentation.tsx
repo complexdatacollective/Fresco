@@ -14,7 +14,9 @@ function Documentation() {
   const handleAppConfigured = async () => {
     console.log('env.INSTALLATION_ID', env.INSTALLATION_ID);
     const installationId = env.INSTALLATION_ID ?? createId();
-    await setAppSetting('installationId', installationId);
+    if (!env.INSTALLATION_ID) {
+      await setAppSetting('installationId', installationId);
+    }
     await setAppSetting('configured', true);
     void trackEvent({
       type: 'AppSetup',

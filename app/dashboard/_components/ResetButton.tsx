@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { resetAppSettings } from '~/actions/reset';
 import {
@@ -46,12 +47,14 @@ const ResetButton = () => {
               Cancel
             </Button>
             <Button
+              disabled={isResetting}
               onClick={() => {
                 setIsResetting(true);
-                resetAppSettings();
+                void resetAppSettings();
               }}
               variant="destructive"
             >
+              {isResetting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
               {isResetting ? 'Resetting...' : 'Delete all data'}
             </Button>
           </AlertDialogFooter>

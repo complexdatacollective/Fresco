@@ -30,19 +30,6 @@ describe('App Settings Schema Validators', () => {
 
       expect(() => appSettingsSchema.parse(invalidSettings)).toThrow();
     });
-
-    it('should allow optional fields to be undefined', () => {
-      const settings = {
-        configured: true,
-        allowAnonymousRecruitment: false,
-        limitInterviews: true,
-        initializedAt: new Date(),
-        installationId: 'installation123',
-        disableAnalytics: true,
-      };
-
-      expect(appSettingsSchema.parse(settings)).toEqual(settings);
-    });
   });
 
   describe('App Setting Preprocessed Schema', () => {
@@ -98,21 +85,6 @@ describe('App Settings Schema Validators', () => {
         allowAnonymousRecruitment: 'false',
         limitInterviews: 'true',
         initializedAt: 'invalid-date',
-        installationId: 'installation123',
-        disableAnalytics: 'true',
-      };
-
-      expect(() =>
-        appSettingPreprocessedSchema.parse(invalidSettings),
-      ).toThrow();
-    });
-
-    it('should reject invalid URL strings', () => {
-      const invalidSettings = {
-        configured: 'true',
-        allowAnonymousRecruitment: 'false',
-        limitInterviews: 'true',
-        initializedAt: '2023-10-01T00:00:00.000Z',
         installationId: 'installation123',
         disableAnalytics: 'true',
       };

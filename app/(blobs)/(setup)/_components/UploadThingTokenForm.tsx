@@ -42,7 +42,7 @@ export const UploadThingTokenForm = () => {
           {...register('uploadThingToken')}
         />
       </div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap justify-end">
         <Button disabled={isSubmitting || !isValid} type="submit">
           {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
           {isSubmitting ? 'Saving...' : 'Save and continue'}

@@ -10,7 +10,11 @@ import { Input } from '~/components/ui/Input';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env';
-import { getAppSetting, requireAppNotExpired } from '~/queries/appSettings';
+import {
+  getAppSetting,
+  getInstallationId,
+  requireAppNotExpired,
+} from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -21,8 +25,7 @@ export default async function Settings() {
   await requireAppNotExpired();
   await requirePageAuth();
 
-  const installationId = await getAppSetting('installationId');
-  const envInstallationId = !!env.NEXT_PUBLIC_INSTALLATION_ID;
+  const installationId = await getInstallationId();
   const uploadThingKey = await getAppSetting('uploadThingToken');
 
   return (
@@ -41,16 +44,16 @@ export default async function Settings() {
             ID is used to track analytics data and for other internal purposes.
           </Paragraph>
 
-          {envInstallationId && (
+          {!!env.INSTALLATION_ID && (
             <Alert variant="info" className="mt-4">
               <AlertTitle>Note:</AlertTitle>
               <AlertDescription>
-                Your installation ID was set using your <code>.env</code> file,
-                and so can only be changed by modifying that file.
+                This setting is controlled by your <code>.env</code> file, and
+                so can only be changed by modifying that file.
               </AlertDescription>
             </Alert>
           )}
-          <Input disabled={envInstallationId} value={installationId} />
+          <Input disabled={!!env.INSTALLATION_ID} value={installationId} />
         </SettingsSection>
         <UpdateUploadThingSection uploadThingKey={uploadThingKey ?? ''} />
         <SettingsSection
@@ -96,6 +99,15 @@ export default async function Settings() {
             If this option is enabled, no anonymous analytics data will be sent
             to the Network Canvas team.
           </Paragraph>
+          {!!env.DISABLE_ANALYTICS && (
+            <Alert variant="info" className="mt-4">
+              <AlertTitle>Note:</AlertTitle>
+              <AlertDescription>
+                This setting is controlled by your <code>.env</code> file, and
+                so can only be changed by modifying that file.
+              </AlertDescription>
+            </Alert>
+          )}
         </SettingsSection>
         {(env.NODE_ENV === 'development' || !env.SANDBOX_MODE) && (
           <SettingsSection

@@ -55,37 +55,33 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
   const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
 
   useEffect(() => {
-    if (!hasAuth && step > 1) {
+    if (!setupData.hasAuth && step > 1) {
       void setStep(1);
       return;
     }
 
-    if (hasAuth && step === 1) {
+    if (setupData.hasAuth && step === 1) {
       void setStep(2);
       return;
     }
 
-    if (hasAuth && step === 2 && hasUploadThingToken) {
+    if (setupData.hasAuth && step === 2 && setupData.hasUploadThingToken) {
       void setStep(3);
       return;
     }
 
     //  if we're past step 2 but we still have null values, go back to step 2
-    if (hasAuth && step > 2) {
+    if (setupData.hasAuth && step > 2) {
       if (
-        !hasUploadThingToken ||
-        allowAnonymousRecruitment === null ||
-        limitInterviews === null
+        !setupData.hasUploadThingToken ||
+        setupData.allowAnonymousRecruitment === null ||
+        setupData.limitInterviews === null
       ) {
         void setStep(2);
         return;
       }
     }
-  }, [
-    step,
-    setStep,
-    setupData,    
-  ]);
+  }, [step, setStep, setupData]);
 
   const StepComponent = steps[step - 1]!.component;
 
