@@ -44,11 +44,7 @@ export async function setAppSetting<
   }
 }
 
-export async function submitUploadThingForm({
-  uploadThingToken,
-}: {
-  uploadThingToken: string;
-}) {
-  await setAppSetting('uploadThingToken', uploadThingToken);
+export async function submitUploadThingForm(token: string) {
+  await setAppSetting('uploadThingToken', token);
   redirect('/setup?step=3');
 }

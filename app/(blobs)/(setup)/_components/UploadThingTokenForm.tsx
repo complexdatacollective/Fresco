@@ -1,13 +1,14 @@
-'use client';
-
 import { Loader2 } from 'lucide-react';
-import { submitUploadThingForm } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';
 import { createUploadThingTokenForm } from '~/schemas/environment';
 
-export const UploadThingTokenForm = () => {
+export const UploadThingTokenForm = ({
+  action,
+}: {
+  action: (token: string) => Promise<string | void>;
+}) => {
   const {
     register,
     handleSubmit,
@@ -21,7 +22,7 @@ export const UploadThingTokenForm = () => {
   }: {
     uploadThingToken: string;
   }) => {
-    await submitUploadThingForm({ uploadThingToken });
+    await action(uploadThingToken);
   };
 
   return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { setAppSetting } from '~/actions/appSettings';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
 import Link from '~/components/Link';
 import {
@@ -57,7 +58,9 @@ function UploadThingModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <UploadThingTokenForm />
+        <UploadThingTokenForm
+          action={(token) => setAppSetting('uploadThingToken', token)}
+        />
       </DialogContent>
     </Dialog>
   );
