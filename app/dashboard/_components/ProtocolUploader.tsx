@@ -5,14 +5,24 @@ import { FileDown, Loader2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import JobCard from '~/components/ProtocolImport/JobCard';
-import { Button } from '~/components/ui/Button';
+import { Button, ButtonProps } from '~/components/ui/Button';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import usePortal from '~/hooks/usePortal';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { cn } from '~/utils/shadcn';
 
-function ProtocolUploader() {
+function ProtocolUploader({
+  className,
+  buttonVariant,
+  buttonSize,
+  hideCancelButton,
+}: {
+  className?: string;
+  buttonVariant?: ButtonProps['variant'];
+  buttonSize?: ButtonProps['size'];
+  hideCancelButton?: boolean;
+}) {
   const Portal = usePortal();
 
   const { importProtocols, jobs, cancelJob, cancelAllJobs } =
@@ -40,12 +50,15 @@ function ProtocolUploader() {
     <>
       <Button
         onClick={open}
+        variant={buttonVariant}
+        size={buttonSize}
         className={cn(
           isActive &&
             cn(
-              'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape',
+              'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape text-white',
               'pointer-events-none animate-background-gradient cursor-wait bg-[length:400%]',
             ),
+          className,
         )}
       >
         {isActive ? (
@@ -56,7 +69,7 @@ function ProtocolUploader() {
         <input {...getInputProps()} />
         Import protocols
       </Button>
-      {jobs.length > 0 && (
+      {!hideCancelButton && jobs.length > 0 && (
         <Button variant="outline" onClick={cancelAllJobs}>
           Cancel all
         </Button>

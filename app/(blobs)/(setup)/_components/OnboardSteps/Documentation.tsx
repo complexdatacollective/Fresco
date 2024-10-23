@@ -12,7 +12,8 @@ import trackEvent from '~/lib/analytics';
 
 function Documentation() {
   const handleAppConfigured = async () => {
-    const installationId = env.NEXT_PUBLIC_INSTALLATION_ID ?? createId();
+    console.log('env.INSTALLATION_ID', env.INSTALLATION_ID);
+    const installationId = env.INSTALLATION_ID ?? createId();
     await setAppSetting('installationId', installationId);
     await setAppSetting('configured', true);
     void trackEvent({
@@ -75,11 +76,9 @@ function Documentation() {
         </Section>
       </div>
 
-      <div className="flex justify-start pt-12">
+      <div className="flex justify-end pt-12">
         <form action={handleAppConfigured}>
-          <SubmitButton variant="default" size={'lg'}>
-            Go to the dashboard!
-          </SubmitButton>
+          <SubmitButton variant="default">Go to the dashboard!</SubmitButton>
         </form>
       </div>
     </div>

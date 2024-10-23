@@ -55,7 +55,7 @@ function ManageParticipants({
           </Paragraph>
         </SettingsSection>
       </div>
-      <div className="flex justify-start">
+      <div className="flex justify-end">
         <OnboardContinue />
       </div>
     </div>

@@ -1,6 +1,9 @@
+'use server';
+
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
+import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
 import {
@@ -72,4 +75,24 @@ export async function requireAppNotConfigured() {
   }
 
   return;
+}
+
+// Unique fetcher for installationID, which defers to the environment variable
+// if set, and otherwise fetches from the database
+export async function getInstallationId() {
+  if (env.INSTALLATION_ID) {
+    return env.INSTALLATION_ID;
+  }
+
+  return getAppSetting('installationId');
+}
+
+// Unique fetcher for disableAnalytics, which defers to the environment variable
+// if set, and otherwise fetches from the database
+export async function getDisableAnalytics() {
+  if (env.DISABLE_ANALYTICS) {
+    return env.DISABLE_ANALYTICS;
+  }
+
+  return getAppSetting('disableAnalytics');
 }

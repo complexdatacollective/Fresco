@@ -20,7 +20,6 @@ async function getSetupData() {
     prisma.participant.count(),
   ]);
 
-  const disableAnalytics = await getAppSetting('disableAnalytics');
   const uploadThingToken = await getAppSetting('uploadThingToken');
 
   return {
@@ -29,7 +28,6 @@ async function getSetupData() {
     limitInterviews,
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
-    disableAnalytics,
     hasUploadThingToken: !!uploadThingToken,
   };
 }

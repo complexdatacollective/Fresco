@@ -20,7 +20,6 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     hasAuth,
     allowAnonymousRecruitment,
     limitInterviews,
-    disableAnalytics,
     hasUploadThingToken,
   } = setupData;
 
@@ -28,17 +27,14 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     {
       label: 'Create Account',
       component: CreateAccount,
-      // skip: async () => !!(await getServerSession()),
     },
     {
       label: 'Connect UploadThing',
       component: ConnectUploadThing,
-      // skip: async () => !!(await getAppSetting('uploadThingToken')),
     },
     {
       label: 'Upload Protocol',
       component: UploadProtocol,
-      // skip: async () => (await prisma.protocol.count()) > 0,
     },
     {
       label: 'Configure Participation',
@@ -48,7 +44,6 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
           limitInterviews={limitInterviews}
         />
       ),
-      // skip: async () => (await prisma.participant.count()) > 0,
     },
     {
       label: 'Documentation',
@@ -79,7 +74,6 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     if (hasAuth && step > 2) {
       if (
         !hasUploadThingToken ||
-        disableAnalytics === null ||
         allowAnonymousRecruitment === null ||
         limitInterviews === null
       ) {
@@ -88,13 +82,9 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
       }
     }
   }, [
-    hasAuth,
     step,
     setStep,
-    hasUploadThingToken,
-    disableAnalytics,
-    allowAnonymousRecruitment,
-    limitInterviews,
+    setupData,    
   ]);
 
   const StepComponent = steps[step - 1]!.component;

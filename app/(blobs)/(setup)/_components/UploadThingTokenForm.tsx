@@ -8,7 +8,7 @@ import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';
 import { createUploadThingTokenForm } from '~/schemas/environment';
 
-export const UploadThingTokenForm = ({ isSetup }: { isSetup?: boolean }) => {
+export const UploadThingTokenForm = () => {
   const {
     register,
     handleSubmit,
@@ -24,9 +24,7 @@ export const UploadThingTokenForm = ({ isSetup }: { isSetup?: boolean }) => {
     uploadThingToken: string;
   }) => {
     await setAppSetting('uploadThingToken', uploadThingToken);
-    if (isSetup) {
-      router.push('/setup?step=3');
-    }
+    router.push('/setup?step=3');
   };
 
   return (
@@ -47,7 +45,7 @@ export const UploadThingTokenForm = ({ isSetup }: { isSetup?: boolean }) => {
       <div className="flex flex-wrap">
         <Button disabled={isSubmitting || !isValid} type="submit">
           {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-          {isSubmitting ? 'Submitting...' : 'Submit'}
+          {isSubmitting ? 'Saving...' : 'Save and continue'}
         </Button>
       </div>
     </form>
