@@ -5,7 +5,7 @@ import { FileDown, Loader2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import JobCard from '~/components/ProtocolImport/JobCard';
-import { Button, ButtonProps } from '~/components/ui/Button';
+import { Button, type ButtonProps } from '~/components/ui/Button';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import usePortal from '~/hooks/usePortal';
 import { useProtocolImport } from '~/hooks/useProtocolImport';

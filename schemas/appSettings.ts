@@ -16,27 +16,22 @@ const appSettings = [...appSettingsSchema.keyof().options] as const;
 
 export type AppSetting = (typeof appSettings)[number];
 
-const parseBoolean = (value: unknown): boolean => {
+const parseBoolean = (value: unknown): boolean | undefined => {
   if (value === 'true') return true;
   if (value === 'false') return false;
-  throw new Error('Invalid boolean value');
+  return undefined;
 };
 
 // Variation of the schema that converts the string types in the db to the correct types
 export const appSettingPreprocessedSchema = appSettingsSchema.extend({
-  initializedAt: z.preprocess((value: unknown) => {
-    if (typeof value === 'string' || value instanceof Date) {
-      const date = new Date(value);
-      return isNaN(date.getTime()) ? undefined : date;
-    }
-    return value;
-  }, z.date()),
-  configured: z.preprocess(parseBoolean, z.boolean()).default(false),
-  allowAnonymousRecruitment: z
-    .preprocess(parseBoolean, z.boolean())
-    .default(false),
-  limitInterviews: z.preprocess(parseBoolean, z.boolean()).default(false),
-  disableAnalytics: z.preprocess(parseBoolean, z.boolean()).default(false),
+  initializedAt: z.coerce.date(),
+  configured: z.preprocess(parseBoolean, z.boolean().default(false)),
+  allowAnonymousRecruitment: z.preprocess(
+    parseBoolean,
+    z.boolean().default(false),
+  ),
+  limitInterviews: z.preprocess(parseBoolean, z.boolean().default(false)),
+  disableAnalytics: z.preprocess(parseBoolean, z.boolean().default(false)),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),
 });

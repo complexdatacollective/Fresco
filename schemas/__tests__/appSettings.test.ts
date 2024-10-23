@@ -64,19 +64,20 @@ describe('App Settings Schema Validators', () => {
       expect(result.disableAnalytics).toBe(true);
     });
 
-    it('should reject invalid boolean strings for boolean fields', () => {
-      const invalidSettings = {
-        configured: 'Yes',
-        allowAnonymousRecruitment: 'No',
-        limitInterviews: 'Y',
-        initializedAt: '2023-10-01T00:00:00.000Z',
-        installationId: 'installation123',
-        disableAnalytics: 'Yes',
-      };
+    it('should assign the default valid to invalid boolean fields', () => {
+      expect(
+        appSettingPreprocessedSchema.shape['configured'].parse('Yes'),
+      ).toEqual(false);
 
-      expect(() =>
-        appSettingPreprocessedSchema.parse(invalidSettings),
-      ).toThrow();
+      expect(
+        appSettingPreprocessedSchema.shape['allowAnonymousRecruitment'].parse(
+          'No',
+        ),
+      ).toEqual(false);
+
+      expect(
+        appSettingPreprocessedSchema.shape['disableAnalytics'].parse('Y'),
+      ).toEqual(false);
     });
 
     it('should reject invalid date strings', () => {

@@ -24,8 +24,8 @@ function ConfigureStudy() {
           <code>.netcanvas</code>) you can import it now.
         </Paragraph>
         <Paragraph>
-          If you don't have a protocol yet, you can upload one later from the
-          dashboard.
+          If you don&apos;t have a protocol yet, you can upload one later from
+          the dashboard.
         </Paragraph>
         <ProtocolUploader
           className="m-14 p-6"

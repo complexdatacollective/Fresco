@@ -16,13 +16,6 @@ import type { SetupData } from './page';
 export default function Setup({ setupData }: { setupData: SetupData }) {
   const [step, setStep] = useQueryState('step', parseAsInteger.withDefault(1));
 
-  const {
-    hasAuth,
-    allowAnonymousRecruitment,
-    limitInterviews,
-    hasUploadThingToken,
-  } = setupData;
-
   const steps = [
     {
       label: 'Create Account',
@@ -40,8 +33,8 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
       label: 'Configure Participation',
       component: () => (
         <ManageParticipants
-          allowAnonymousRecruitment={allowAnonymousRecruitment}
-          limitInterviews={limitInterviews}
+          allowAnonymousRecruitment={setupData.allowAnonymousRecruitment}
+          limitInterviews={setupData.limitInterviews}
         />
       ),
     },

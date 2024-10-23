@@ -15,6 +15,7 @@ function Documentation() {
     console.log('env.INSTALLATION_ID', env.INSTALLATION_ID);
     const installationId = env.INSTALLATION_ID ?? createId();
     if (!env.INSTALLATION_ID) {
+      console.log('setting installationId', installationId);
       await setAppSetting('installationId', installationId);
     }
     await setAppSetting('configured', true);

@@ -10,7 +10,7 @@ const SwitchWithOptimisticUpdate = ({
 }: {
   initialValue: boolean;
   updateValue: (value: boolean) => Promise<boolean>;
-  readOnly: boolean;
+  readOnly?: boolean;
 }) => {
   const [isTransitioning, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
@@ -25,7 +25,7 @@ const SwitchWithOptimisticUpdate = ({
 
   return (
     <SwitchUI
-      disabled={readOnly || isTransitioning}
+      disabled={readOnly ?? isTransitioning}
       checked={optimisticIsActive}
       onCheckedChange={(checked) =>
         startTransition(() => updateIsActive(checked))
