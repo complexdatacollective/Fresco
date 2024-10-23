@@ -1,7 +1,6 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { signup } from '~/actions/auth';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
@@ -17,11 +16,8 @@ export const SignUpForm = () => {
     schema: createUserSchema,
   });
 
-  const router = useRouter();
-
   const onSubmit = async (data: unknown) => {
     await signup(data);
-    router.push('/setup?step=2');
   };
 
   return (
