@@ -1,8 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { setAppSetting } from '~/actions/appSettings';
+import { submitUploadThingForm } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';
@@ -16,15 +15,13 @@ export const UploadThingTokenForm = () => {
   } = useZodForm({
     schema: createUploadThingTokenForm,
   });
-  const router = useRouter();
 
   const onSubmit = async ({
     uploadThingToken,
   }: {
     uploadThingToken: string;
   }) => {
-    await setAppSetting('uploadThingToken', uploadThingToken);
-    router.push('/setup?step=3');
+    await submitUploadThingForm({ uploadThingToken });
   };
 
   return (
