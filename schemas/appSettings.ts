@@ -45,7 +45,7 @@ const parseUploadThingToken = (token: string) => {
 export const createUploadThingTokenSchema = z
   .string()
   .min(10, {
-    message: 'UPLOADTHING_TOKEN pnpm must have at least 10 characters.',
+    message: 'UPLOADTHING_TOKEN must have at least 10 characters.',
   })
   .transform((token) => parseUploadThingToken(token));
 
