@@ -10,11 +10,8 @@ import { getProtocolColumns } from './Columns';
 import { type GetData } from './ProtocolsTable';
 
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
-  const data = use(dataPromise);
-
-  const { protocols, appSettings } = data;
-
-  const allowAnonymousRecruitment = !!appSettings?.allowAnonymousRecruitment;
+  const [protocols, allowAnonymousRecruitment, hasUploadThingToken] =
+    use(dataPromise);
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =
@@ -33,7 +30,7 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
         filterColumnAccessorKey="name"
         handleDeleteSelected={handleDelete}
         actions={ActionsDropdown}
-        headerItems={<ProtocolUploader />}
+        headerItems={<ProtocolUploader buttonDisabled={!hasUploadThingToken} />}
       />
       <DeleteProtocolsDialog
         open={showAlertDialog}

@@ -1,10 +1,10 @@
 import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import AnonymousRecruitmentSwitchClient from '~/components/AnonymousRecruitmentSwitchClient';
 import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitchClient from '~/components/LimitInterviewsSwitchClient';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import OnboardContinue from '../OnboardContinue';
-import AnonymousRecruitmentSwitchClient from '~/components/AnonymousRecruitmentSwitchClient';
 
 function ManageParticipants({
   allowAnonymousRecruitment,
@@ -55,7 +55,7 @@ function ManageParticipants({
           </Paragraph>
         </SettingsSection>
       </div>
-      <div className="flex justify-start">
+      <div className="flex justify-end">
         <OnboardContinue />
       </div>
     </div>

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-node handle-migrations.js
+node setup-database.js
 node server.js

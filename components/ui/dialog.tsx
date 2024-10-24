@@ -102,9 +102,7 @@ const DialogDescription = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, children, ...props }, ref) => (
   <DialogPrimitive.Description asChild ref={ref} {...props}>
-    <div className={cn(paragraphVariants({ variant: 'smallText' }), className)}>
-      {children}
-    </div>
+    <div className={cn(paragraphVariants(), className)}>{children}</div>
   </DialogPrimitive.Description>
 ));
 

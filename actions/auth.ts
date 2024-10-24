@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
 import { auth, getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -52,9 +53,7 @@ export async function signup(formData: unknown) {
       sessionCookie.attributes,
     );
 
-    return {
-      success: true,
-    };
+    redirect('/setup?step=2');
   } catch (error) {
     // db error, email taken, etc
     return {

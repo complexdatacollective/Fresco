@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { signup } from '~/actions/auth';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
@@ -9,15 +10,20 @@ import { createUserSchema } from '~/schemas/auth';
 export const SignUpForm = () => {
   const {
     register,
-    formState: { errors, isValid },
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
   } = useZodForm({
     schema: createUserSchema,
   });
 
+  const onSubmit = async (data: unknown) => {
+    await signup(data);
+  };
+
   return (
     <form
       className="flex flex-col"
-      action={signup}
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       autoComplete="do-not-autofill"
     >
       <div className="mb-6 flex flex-wrap">
@@ -42,17 +48,11 @@ export const SignUpForm = () => {
           {...register('password')}
         />
       </div>
-      <div className="flex flex-wrap">
-        {/* {isLoading ? (
-          <Button disabled>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Creating account...
-          </Button>
-        ) : ( */}
-        <Button type="submit" disabled={!isValid}>
-          Create account
+      <div className="flex flex-wrap justify-end">
+        <Button disabled={isSubmitting || !isValid} type="submit">
+          {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+          {isSubmitting ? 'Creating account...' : 'Create account'}
         </Button>
-        {/* )} */}
       </div>
     </form>
   );

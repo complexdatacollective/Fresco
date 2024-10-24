@@ -11,7 +11,7 @@ WORKDIR /app
 COPY prisma ./prisma
 
 # Copy package.json and lockfile, along with postinstall script
-COPY package.json pnpm-lock.yaml* postinstall.js migrate-and-start.sh handle-migrations.js ./
+COPY package.json pnpm-lock.yaml* postinstall.js migrate-and-start.sh setup-database.js ./
 
 # # Install pnpm and install dependencies
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
@@ -55,7 +55,7 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/handle-migrations.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/setup-database.js ./
 COPY --from=builder --chown=nextjs:nodejs /app/migrate-and-start.sh ./
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 

@@ -1,5 +1,5 @@
+import { setAppSetting } from '~/actions/appSettings';
 import Switch from './SwitchWithOptimisticUpdate';
-import { setLimitInterviews } from '~/actions/appSettings';
 
 const LimitInterviewsSwitchClient = ({
   limitInterviews,
@@ -9,8 +9,10 @@ const LimitInterviewsSwitchClient = ({
   return (
     <Switch
       initialValue={limitInterviews}
-      name="limitInterviews"
-      action={setLimitInterviews}
+      updateValue={async (value) => {
+        await setAppSetting('limitInterviews', value);
+        return value;
+      }}
     />
   );
 };
