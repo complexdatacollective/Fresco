@@ -17,11 +17,13 @@ function ProtocolUploader({
   buttonVariant,
   buttonSize,
   hideCancelButton,
+  buttonDisabled,
 }: {
   className?: string;
   buttonVariant?: ButtonProps['variant'];
   buttonSize?: ButtonProps['size'];
   hideCancelButton?: boolean;
+  buttonDisabled?: boolean;
 }) {
   const Portal = usePortal();
 
@@ -49,6 +51,7 @@ function ProtocolUploader({
   return (
     <>
       <Button
+        disabled={buttonDisabled}
         onClick={open}
         variant={buttonVariant}
         size={buttonSize}
