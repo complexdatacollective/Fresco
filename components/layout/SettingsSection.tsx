@@ -32,7 +32,7 @@ export default function SettingsSection({
         {children}
       </div>
       {controlArea && (
-        <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+        <div className="flex flex-shrink-0 flex-col items-end justify-center">
           {controlArea}
         </div>
       )}

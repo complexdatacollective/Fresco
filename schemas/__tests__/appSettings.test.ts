@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   appSettingPreprocessedSchema,
   appSettingsSchema,
+  createUploadThingTokenFormSchema,
 } from '../appSettings';
-import { createUploadThingTokenFormSchema } from '../environment';
 
 describe('App Settings Schema Validators', () => {
   describe('App Setting Schema', () => {

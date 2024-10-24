@@ -7,7 +7,7 @@ type InputProps = {
   label?: string;
   hint?: React.ReactNode;
   id?: string;
-  error?: string;
+  error?: string | null;
   leftAdornment?: React.ReactNode;
   rightAdornment?: React.ReactNode;
 } & React.InputHTMLAttributes<HTMLInputElement>;
