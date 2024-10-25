@@ -100,7 +100,7 @@ export default function VersionSection() {
       }
     >
       <Paragraph>
-        You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH}
+        You are currently running Fresco v{env.APP_VERSION} ({env.COMMIT_HASH}
         ).
       </Paragraph>
     </SettingsSection>
