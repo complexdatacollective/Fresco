@@ -15,7 +15,6 @@ import { ourFileRouter } from './core';
  */
 const routeHandler = async () => {
   const uploadThingToken = await getAppSetting('uploadThingToken');
-  const callbackUrl = env.PUBLIC_URL && `${env.PUBLIC_URL}/api/uploadthing`;
 
   const handler = createRouteHandler({
     router: ourFileRouter,
@@ -24,7 +23,7 @@ const routeHandler = async () => {
       // UploadThing attempts to automatically detect this value based on the request URL and headers
       // However, the automatic detection fails in docker deployments
       // docs: https://docs.uploadthing.com/api-reference/server#config
-      ...(callbackUrl && { callbackUrl }),
+      callbackUrl: env.PUBLIC_URL && `${env.PUBLIC_URL}/api/uploadthing`,
       token: uploadThingToken,
     },
   });
