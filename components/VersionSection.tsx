@@ -44,9 +44,9 @@ export default function VersionSection({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<{
-    upToDate: boolean;
     semVerUpdateType: SemVerUpdateType | null;
     releaseNotes: string;
+    newVersion: string;
   } | null>(null);
 
   const semVerUpdateMessages = {
@@ -70,15 +70,20 @@ export default function VersionSection({
 
           const response = GithubApiResponseSchema.parse(result);
 
-          const upToDate = response.tag_name === env.APP_VERSION; // do we need this? can just use getSemverUpdateType being null?
-          const semVerUpdateType = upToDate
-            ? null
-            : getSemverUpdateType(env.APP_VERSION, response.tag_name);
+          if (!env.APP_VERSION) {
+            setError('Current APP_VERSION is not set in the environment.');
+            return;
+          }
+
+          const semVerUpdateType =
+            response.tag_name === env.APP_VERSION
+              ? null
+              : getSemverUpdateType(env.APP_VERSION, response.tag_name);
 
           setData({
-            upToDate,
             semVerUpdateType,
             releaseNotes: response.body,
+            newVersion: response.tag_name,
           });
         },
         (error) => {
@@ -89,86 +94,74 @@ export default function VersionSection({
       );
   }, []);
 
+  const statusContent = (
+    <div className="mt-4 flex flex-col items-center space-x-2">
+      {isLoading ? (
+        <>
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <Paragraph variant="smallText" margin="none">
+            Checking for updates...
+          </Paragraph>
+        </>
+      ) : error ? (
+        <>
+          <XCircle className="h-8 w-8 fill-destructive text-destructive-foreground" />
+          <Paragraph
+            className="text-destructive"
+            variant="smallText"
+            margin="none"
+          >
+            There was an error checking for updates.
+          </Paragraph>
+        </>
+      ) : (
+        <>
+          <CheckCircle2 className="h-8 w-8 fill-success text-success-foreground" />
+          <Paragraph variant="smallText" margin="none">
+            You are up to date!
+          </Paragraph>
+        </>
+      )}
+    </div>
+  );
+
   return (
     <SettingsSection
       heading="App Version"
-      controlArea={
-        <div className="flex max-w-52 flex-1 flex-col items-center justify-center text-center">
-          {isLoading && (
-            <div className="flex flex-col items-center space-x-2">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <Paragraph variant="smallText" margin="none">
-                Checking for updates...
-              </Paragraph>
-            </div>
-          )}
-          {!isLoading && data?.upToDate === false && (
-            <div className="flex flex-col items-center space-x-2">
-              <Info className="h-8 w-8 fill-info text-info-foreground" />
-              <Paragraph
-                className="text-info"
-                variant="smallText"
-                margin="none"
-              >
-                A new version of Fresco is available! This is a{' '}
-                {data?.semVerUpdateType} update.{' '}
-                {data.semVerUpdateType &&
-                  semVerUpdateMessages[data?.semVerUpdateType]}
-              </Paragraph>
-            </div>
-          )}
-          {!isLoading && data?.upToDate === true && (
-            <div className="flex flex-col items-center space-x-2">
-              <CheckCircle2 className="h-8 w-8 fill-success text-success-foreground" />
-              <Paragraph variant="smallText" margin="none">
-                You are up to date!
-              </Paragraph>
-            </div>
-          )}
-          {error && (
-            <div className="flex flex-col items-center space-x-2">
-              <XCircle className="h-8 w-8 fill-destructive text-destructive-foreground" />
-              <Paragraph
-                className="text-destructive"
-                variant="smallText"
-                margin="none"
-              >
-                There was an error checking for updates.
-              </Paragraph>
-            </div>
-          )}
-        </div>
-      }
+      controlArea={!data?.semVerUpdateType ? statusContent : undefined}
     >
       <Paragraph>
         You are currently running Fresco v.{env.APP_VERSION} ({env.COMMIT_HASH}
         ).
       </Paragraph>
       <Paragraph>Your unique installation ID is: {installationID}</Paragraph>
+
+      {!isLoading && data?.semVerUpdateType && (
+        <div className="mt-4 flex flex-row items-center space-x-2">
+          <Info className="h-8 w-8 fill-info text-info-foreground" />
+          <Paragraph className="text-info" variant="smallText" margin="none">
+            A new version of Fresco is available: {data.newVersion}
+          </Paragraph>
+        </div>
+      )}
+
       {data?.semVerUpdateType && (
-        <SemVerUpdateAlert
-          type={data?.semVerUpdateType}
-          releaseNotes={data?.releaseNotes}
-        />
+        <>
+          <Alert variant="info" className="mt-4">
+            <AlertTitle>{data.semVerUpdateType} Update</AlertTitle>
+            <AlertDescription>
+              {data.semVerUpdateType &&
+                semVerUpdateMessages[data.semVerUpdateType]}
+            </AlertDescription>
+          </Alert>
+          <Alert className="mt-4">
+            <AlertTitle>Release Notes:</AlertTitle>
+            <AlertDescription>
+              <Markdown>{data.releaseNotes}</Markdown>
+            </AlertDescription>
+          </Alert>
+        </>
       )}
     </SettingsSection>
   );
 }
-
-const SemVerUpdateAlert = ({
-  type,
-  releaseNotes,
-}: {
-  type: SemVerUpdateType;
-  releaseNotes: string;
-}) => {
-  const variant = type === 'major' ? 'destructive' : 'info';
-  return (
-    <Alert variant={variant} className="mt-4">
-      <AlertTitle>Release Notes:</AlertTitle>
-      <AlertDescription>
-        <Markdown>{releaseNotes}</Markdown>
-      </AlertDescription>
-    </Alert>
-  );
-};

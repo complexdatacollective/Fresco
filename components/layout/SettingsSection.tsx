@@ -12,7 +12,7 @@ export default function SettingsSection({
 }: {
   heading: string;
   children: ReactNode;
-  controlArea: ReactNode;
+  controlArea?: ReactNode;
   classNames?: string;
 }) {
   return (
@@ -23,9 +23,11 @@ export default function SettingsSection({
         </Heading>
         {children}
       </div>
-      <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
-        {controlArea}
-      </div>
+      {controlArea && (
+        <div className="flex flex-shrink-0 flex-col items-end justify-center">
+          {controlArea}
+        </div>
+      )}
     </Section>
   );
 }
