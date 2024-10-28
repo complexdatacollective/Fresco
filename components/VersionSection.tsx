@@ -155,7 +155,7 @@ export default function VersionSection({
             <AlertTitle>
               {' '}
               <div className="mt-4 flex flex-row items-center space-x-2">
-                <Info className="h-8 w-8 fill-info text-info-foreground" />
+                <Info className="h-8 w-8 text-info" />
                 <Paragraph
                   className="text-info"
                   variant="smallText"
@@ -169,8 +169,7 @@ export default function VersionSection({
               <Paragraph>
                 To upgrade your Fresco version, you will need to sync your fork
                 with the latest version of the Fresco repository. For more
-                information, refer to the upgrade documentation. For more
-                information on how to do this, please refer to the{' '}
+                information, please refer to the{' '}
                 <Link href="https://documentation.networkcanvas.com/en/fresco/deployment/upgrading">
                   upgrade documentation.
                 </Link>
