@@ -113,6 +113,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^5.19.1",
+    "@tailwindcss/typography": "^0.5.15",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/archiver": "^6.0.2",
     "@types/d3-interpolate-path": "^2.0.3",

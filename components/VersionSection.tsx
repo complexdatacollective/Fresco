@@ -4,6 +4,7 @@ import { CheckCircle2, Info, Loader2, XCircle } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import { z } from 'zod';
+import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { env } from '~/env';
 import { type getInstallationId } from '~/queries/appSettings';
@@ -49,14 +50,23 @@ export default function VersionSection({
     newVersion: string;
   } | null>(null);
 
-  const semVerUpdateMessages = {
-    major:
-      'A major version bump will require additional configuration work, and should NOT be done while collecting data. If you are actively collecting data, please wait until data collection is complete before updating.',
-    minor:
-      'A minor version bump will add new features, but will not require any additional configuration work. Please review the release notes and update.',
-    patch:
-      'A patch version bump will include bug or security fixes. We recommend updating immediately.',
-  };
+  const updateTypeMessages = {
+    major: {
+      label: 'Major Update',
+      message:
+        'A major version bump will require additional configuration work, and should NOT be done while collecting data. If you are actively collecting data, please wait until data collection is complete before updating.',
+    },
+    minor: {
+      label: 'Minor Update',
+      message:
+        'A minor version bump will add new features, but will not require any additional configuration work. Please review the release notes and update.',
+    },
+    patch: {
+      label: 'Patch Update',
+      message:
+        'A patch version bump will include bug or security fixes. We recommend updating immediately.',
+    },
+  } as const;
 
   useEffect(() => {
     setIsLoading(true);
@@ -136,28 +146,60 @@ export default function VersionSection({
       </Paragraph>
       <Paragraph>Your unique installation ID is: {installationID}</Paragraph>
 
-      {!isLoading && data?.semVerUpdateType && (
-        <div className="mt-4 flex flex-row items-center space-x-2">
-          <Info className="h-8 w-8 fill-info text-info-foreground" />
-          <Paragraph className="text-info" variant="smallText" margin="none">
-            A new version of Fresco is available: {data.newVersion}
-          </Paragraph>
-        </div>
-      )}
-
       {data?.semVerUpdateType && (
         <>
-          <Alert variant="info" className="mt-4">
-            <AlertTitle>{data.semVerUpdateType} Update</AlertTitle>
+          <Alert
+            variant={data.semVerUpdateType === 'major' ? 'default' : 'info'}
+            className="mt-4"
+          >
+            <AlertTitle>
+              {' '}
+              <div className="mt-4 flex flex-row items-center space-x-2">
+                <Info className="h-8 w-8 fill-info text-info-foreground" />
+                <Paragraph
+                  className="text-info"
+                  variant="smallText"
+                  margin="none"
+                >
+                  A new version of Fresco is available: {data.newVersion}
+                </Paragraph>
+              </div>
+            </AlertTitle>
             <AlertDescription>
-              {data.semVerUpdateType &&
-                semVerUpdateMessages[data.semVerUpdateType]}
-            </AlertDescription>
-          </Alert>
-          <Alert className="mt-4">
-            <AlertTitle>Release Notes:</AlertTitle>
-            <AlertDescription>
-              <Markdown>{data.releaseNotes}</Markdown>
+              <Paragraph>
+                To upgrade your Fresco version, you will need to sync your fork
+                with the latest version of the Fresco repository. For more
+                information, refer to the upgrade documentation. For more
+                information on how to do this, please refer to the{' '}
+                <Link href="https://documentation.networkcanvas.com/en/fresco/deployment/upgrading">
+                  upgrade documentation.
+                </Link>
+              </Paragraph>
+
+              <Paragraph>
+                {data.semVerUpdateType && (
+                  <Alert
+                    variant={
+                      data.semVerUpdateType === 'major'
+                        ? 'destructive'
+                        : 'default'
+                    }
+                  >
+                    <AlertTitle>
+                      {updateTypeMessages[data.semVerUpdateType].label}
+                    </AlertTitle>
+                    <AlertDescription>
+                      {updateTypeMessages[data.semVerUpdateType].message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </Paragraph>
+
+              <Paragraph>
+                <article className="prose prose-a:text-blue-600 prose-headings:text-sm prose-headings:text-foreground prose-headings:font-extrabold prose-headings:foreground prose-headings:tracking-widest prose-headings:uppercase text-sm text-foreground">
+                  <Markdown>{data.releaseNotes}</Markdown>
+                </article>
+              </Paragraph>
             </AlertDescription>
           </Alert>
         </>
