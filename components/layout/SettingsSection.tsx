@@ -12,7 +12,7 @@ export default function SettingsSection({
 }: {
   heading: string;
   children: ReactNode;
-  controlArea: ReactNode;
+  controlArea?: ReactNode;
   classNames?: string;
 }) {
   return (
@@ -23,9 +23,11 @@ export default function SettingsSection({
         </Heading>
         {children}
       </div>
-      <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
-        {controlArea}
-      </div>
+      {controlArea && (
+        <div className="flex flex-shrink-0 flex-col items-end justify-center">
+          {controlArea}
+        </div>
+      )}
     </Section>
   );
 }
@@ -33,7 +35,7 @@ export default function SettingsSection({
 export function SettingsSectionSkeleton({
   controlAreaSkelton,
 }: {
-  controlAreaSkelton: ReactNode;
+  controlAreaSkelton?: ReactNode;
 }) {
   return (
     <Section classNames="flex gap-10">
@@ -41,9 +43,11 @@ export function SettingsSectionSkeleton({
         <Skeleton className="h-6 w-1/3" />
         <Skeleton className="h-12 w-3/4" />
       </div>
-      <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
-        {controlAreaSkelton}
-      </div>
+      {controlAreaSkelton && (
+        <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+          {controlAreaSkelton}
+        </div>
+      )}
     </Section>
   );
 }

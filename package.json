@@ -1,6 +1,6 @@
 {
   "name": "fresco",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
@@ -113,6 +113,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^5.19.1",
+    "@tailwindcss/typography": "^0.5.15",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/archiver": "^6.0.2",
     "@types/d3-interpolate-path": "^2.0.3",

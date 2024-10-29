@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '~/utils/shadcn';
 import Heading from './typography/Heading';
 import { paragraphVariants } from './typography/Paragraph';
@@ -12,9 +12,11 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: '',
-        info: 'border-info bg-info/10 [--link:var(--info)]',
+        info: 'border-info bg-info/10 [--link:var(--info)] [&>svg]:text-info',
         destructive:
-          'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive [--link:var(--destructive)]',
+          'border-destructive bg-destructive/5 text-destructive dark:border-destructive [&>svg]:text-destructive [--link:var(--destructive)]',
+        success:
+          'border-success bg-success/10 text-success-foreground [&>svg]:text-success-foreground [--link:var(--success-foreground)]',
       },
     },
     defaultVariants: {
@@ -65,4 +67,4 @@ const AlertDescription = React.forwardRef<
 ));
 AlertDescription.displayName = 'AlertDescription';
 
-export { Alert, AlertTitle, AlertDescription };
+export { Alert, AlertDescription, AlertTitle };

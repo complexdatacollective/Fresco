@@ -2,12 +2,14 @@ import { Suspense } from 'react';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
-import VersionSection from '~/components/VersionSection';
+import VersionSection, {
+  VersionSectionSkeleton,
+} from '~/components/VersionSection';
 import SettingsSection from '~/components/layout/SettingsSection';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { env } from '~/env';
-import { getInstallationId, requireAppNotExpired } from '~/queries/appSettings';
+import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import AnalyticsButton from '../_components/AnalyticsButton';
 import RecruitmentTestSectionServer from '../_components/RecruitmentTestSectionServer';
@@ -16,8 +18,6 @@ import ResetButton from '../_components/ResetButton';
 export default async function Settings() {
   await requireAppNotExpired();
   await requirePageAuth();
-
-  const installationIdPromise = getInstallationId();
 
   return (
     <>
@@ -28,7 +28,9 @@ export default async function Settings() {
         />
       </ResponsiveContainer>
       <ResponsiveContainer className="gap-4">
-        <VersionSection installationIdPromise={installationIdPromise} />
+        <Suspense fallback={<VersionSectionSkeleton />}>
+          <VersionSection />
+        </Suspense>
         <SettingsSection
           heading="Anonymous Recruitment"
           controlArea={

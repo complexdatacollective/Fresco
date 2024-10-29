@@ -50,7 +50,7 @@ export function NavigationBar() {
         <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
         <Heading variant="h3" className="hidden text-white lg:block">
           Fresco
-          <sup className="align-super text-xs">v.{env.APP_VERSION}</sup>
+          <sup className="align-super text-xs">{env.APP_VERSION}</sup>
         </Heading>
       </Link>
       <ul className="flex items-center gap-10">
