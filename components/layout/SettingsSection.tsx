@@ -35,7 +35,7 @@ export default function SettingsSection({
 export function SettingsSectionSkeleton({
   controlAreaSkelton,
 }: {
-  controlAreaSkelton: ReactNode;
+  controlAreaSkelton?: ReactNode;
 }) {
   return (
     <Section classNames="flex gap-10">
@@ -43,9 +43,11 @@ export function SettingsSectionSkeleton({
         <Skeleton className="h-6 w-1/3" />
         <Skeleton className="h-12 w-3/4" />
       </div>
-      <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
-        {controlAreaSkelton}
-      </div>
+      {controlAreaSkelton && (
+        <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+          {controlAreaSkelton}
+        </div>
+      )}
     </Section>
   );
 }
