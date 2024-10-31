@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+env:
+  IMAGE_NAME: fresco
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -20,7 +23,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}  # Make sure to add your PAT in the repository secrets as GHCR_PAT
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract release version
         id: extract_version
