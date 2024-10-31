@@ -7,7 +7,9 @@ import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import VersionSection from '~/components/VersionSection';
+import VersionSection, {
+  VersionSectionSkeleton,
+} from '~/components/VersionSection';
 import { env } from '~/env';
 import {
   getAppSetting,
@@ -38,8 +40,10 @@ export default async function Settings() {
           subHeaderText="Here you can configure your installation of Fresco."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer className="gap-4">
+      <Suspense fallback={<VersionSectionSkeleton />}>
         <VersionSection />
+      </Suspense>
+      <ResponsiveContainer className="gap-4">
         <SettingsSection heading="Installation ID">
           <Paragraph margin="none">
             This is the unique identifier for your installation of Fresco. This

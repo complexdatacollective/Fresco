@@ -34,7 +34,7 @@ const config = {
   },
   env: {
     // add the package.json version and git hash to the environment
-    APP_VERSION: pkg.version,
+    APP_VERSION: `v${pkg.version}`,
     COMMIT_HASH: commitHash,
   },
   eslint: {
