@@ -17,6 +17,7 @@ import type {
   ExportReturn,
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
+import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewsForExport } from '~/queries/interviews';
 import type {
   CreateInterview,
@@ -158,8 +159,10 @@ export async function createInterview(data: CreateInterview) {
 
   try {
     if (!participantIdentifier) {
-      const appSettings = await prisma.appSettings.findFirst();
-      if (!appSettings || !appSettings.allowAnonymousRecruitment) {
+      const allowAnonymousRecruitment = await getAppSetting(
+        'allowAnonymousRecruitment',
+      );
+      if (!allowAnonymousRecruitment) {
         return {
           errorType: 'no-anonymous-recruitment',
           error: 'Anonymous recruitment is not enabled',

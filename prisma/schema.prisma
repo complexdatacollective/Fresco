@@ -89,12 +89,20 @@ model Participant {
   interviews Interview[]
 }
 
+// Cant be shared with TS, unfortunately. Ensure `./schemas/appSettings.ts` is in sync
+enum AppSetting {
+  configured
+  allowAnonymousRecruitment
+  limitInterviews
+  initializedAt
+  installationId
+  disableAnalytics
+  uploadThingToken
+}
+
 model AppSettings {
-  configured                Boolean  @default(false)
-  initializedAt             DateTime @default(now())
-  allowAnonymousRecruitment Boolean  @default(false)
-  limitInterviews           Boolean  @default(true)
-  installationId            String   @unique @default(cuid())
+  key   AppSetting @unique
+  value String
 }
 
 model Events {

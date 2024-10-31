@@ -1,6 +1,6 @@
 {
   "name": "fresco",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
@@ -12,7 +12,7 @@
     "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
     "ts-lint:watch": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
-    "vercel-build": "node ./handle-migrations.js && next build",
+    "vercel-build": "node ./setup-database.js && next build",
     "knip": "knip",
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js"
@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@codaco/analytics": "6.0.0",
+    "@codaco/analytics": "7.0.0",
     "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@hookform/resolvers": "^3.9.0",
@@ -51,7 +51,7 @@
     "@tailwindcss/forms": "^0.5.9",
     "@tanstack/react-table": "^8.20.5",
     "@types/async": "^3.2.24",
-    "@uploadthing/react": "^6.8.0",
+    "@uploadthing/react": "^7.1.0",
     "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
@@ -104,7 +104,7 @@
     "strip-markdown": "^6.0.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "uploadthing": "^6.13.3",
+    "uploadthing": "^7.2.0",
     "usehooks-ts": "^2.16.0",
     "uuid": "^9.0.1",
     "validator": "^13.12.0",

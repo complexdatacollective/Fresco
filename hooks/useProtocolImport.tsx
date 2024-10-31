@@ -75,9 +75,8 @@ export const useProtocolImport = () => {
               description: (
                 <AlertDialogDescription>
                   The protocol you uploaded is not compatible with this version
-                  of the app. Fresco supports protocols using version number{
-                    APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}
-                  {' '}
+                  of the app. Fresco supports protocols using version number
+                  {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
                   {formatNumberList(APP_SUPPORTED_SCHEMA_VERSIONS)}.
                 </AlertDialogDescription>
               ),
@@ -233,16 +232,17 @@ export const useProtocolImport = () => {
         const uploadedFiles = await uploadFiles('assetRouter', {
           files,
           onUploadProgress({ progress, file }) {
-            const thisFileSize = newAssets.find((asset) => asset.name === file)!
-              .file.size; // eg. 1000
+            const thisFileSize = newAssets.find(
+              (asset) => asset.name === file.name,
+            )!.file.size; // eg. 1000
 
             const thisCompletedBytes = thisFileSize * (progress / 100);
 
-            if (!currentBytesUploaded[file]) {
-              currentBytesUploaded[file] = 0;
+            if (!currentBytesUploaded[file.name]) {
+              currentBytesUploaded[file.name] = 0;
             }
 
-            currentBytesUploaded[file] = thisCompletedBytes;
+            currentBytesUploaded[file.name] = thisCompletedBytes;
 
             // Sum all totals for all files to calculate overall progress
             const totalUploadedBytes = Object.values(
