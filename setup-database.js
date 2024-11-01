@@ -63,8 +63,8 @@ async function handleMigrations() {
     const needsMigrations = checkForNeededMigrations();
 
     if (needsMigrations) {
-      console.log('Migrations needed! Running: prisma migrate dev');
-      execSync('npx prisma migrate dev', { stdio: 'inherit' });
+      console.log('Migrations needed! Running: prisma migrate deploy');
+      execSync('npx prisma migrate deploy', { stdio: 'inherit' });
     } else {
       console.log('No migrations needed.');
     }
