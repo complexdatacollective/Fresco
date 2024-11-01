@@ -76,26 +76,7 @@ async function handleMigrations() {
   }
 }
 
-/** 
- * We set the the initializedAt key here, because this script is run when the
- * app is first deployed.
-**/
-async function seedInitialisedAt() {
-  await prisma.appSettings.upsert({
-    where: {
-      key: 'initializedAt',
-    },
-    // No update emulates findOrCreate
-    update: {},
-    create: {
-      key: 'initializedAt',
-      value: new Date().toISOString()
-    }
-  });
-}
 
-// Self executing function
 (async () => {
   await handleMigrations();
-  await seedInitialisedAt();
 })();
