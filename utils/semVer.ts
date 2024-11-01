@@ -30,7 +30,7 @@ export const semverSchema = z
     };
   });
 
-export type SemVer = z.infer<typeof semverSchema>;
+type SemVer = z.infer<typeof semverSchema>;
 
 export function getSemverUpdateType(
   currentVersion: SemVer,
