@@ -40,10 +40,10 @@ export default async function Settings() {
           subHeaderText="Here you can configure your installation of Fresco."
         />
       </ResponsiveContainer>
-      <Suspense fallback={<VersionSectionSkeleton />}>
-        <VersionSection />
-      </Suspense>
       <ResponsiveContainer className="gap-4">
+        <Suspense fallback={<VersionSectionSkeleton />}>
+          <VersionSection />
+        </Suspense>
         <SettingsSection heading="Installation ID">
           <Paragraph margin="none">
             This is the unique identifier for your installation of Fresco. This
