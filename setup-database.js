@@ -1,8 +1,37 @@
 /* eslint-disable no-console */
 import { PrismaClient } from '@prisma/client';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 
 const prisma = new PrismaClient();
+
+function checkForNeededMigrations() {
+  const command = 'npx';
+  const args = [
+    'prisma', 'migrate', 'diff',
+    '--to-schema-datasource', './prisma/schema.prisma',
+    '--from-schema-datamodel', './prisma/schema.prisma',
+    '--exit-code'
+  ];
+
+  const result = spawnSync(command, args, { encoding: 'utf-8' });
+
+  if (result.error) {
+    console.error('Failed to run command:', result.error);
+    return false;
+  }
+
+  // Handling the exit code
+  if (result.status === 0) {
+    console.log('No differences between DB and schema detected.');
+    return false;
+  } else if (result.status === 2) {
+    console.log('There are differences between the schemas.');
+    return true;
+  } else if (result.status === 1) {
+    console.log('An error occurred.');
+    return false;
+  }
+}
 
 async function handleMigrations() {
   /**
@@ -30,8 +59,15 @@ async function handleMigrations() {
       execSync('npx prisma migrate resolve --applied 0_init', { stdio: 'inherit' });
     }
 
-    console.log('Running: prisma migrate deploy');
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+    // Determine if there are any migrations to run, by comparing the local schema with the database schema using prisma migrate diff
+    const needsMigrations = checkForNeededMigrations();
+
+    if (needsMigrations) {
+      console.log('Migrations needed! Running: prisma migrate dev');
+      execSync('npx prisma migrate dev', { stdio: 'inherit' });
+    } else {
+      console.log('No migrations needed.');
+    }
   } catch (error) {
     console.error('Error during migration process:', error);
     process.exit(1);
