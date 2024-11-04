@@ -112,7 +112,7 @@
     "zod-form-data": "^2.0.2"
   },
   "devDependencies": {
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "^5.21.1",
     "@tailwindcss/typography": "^0.5.15",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/archiver": "^6.0.2",
@@ -140,7 +140,7 @@
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
-    "prisma": "^5.19.1",
+    "prisma": "^5.21.1",
     "sass": "^1.79.1",
     "tailwindcss": "^3.4.12",
     "typescript": "^5.6.2",
