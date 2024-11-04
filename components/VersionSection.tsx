@@ -8,42 +8,11 @@ import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
 import { getInstallationId } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
+import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsSection from './layout/SettingsSection';
 import { Button } from './ui/Button';
 import Heading from './ui/typography/Heading';
 import Paragraph from './ui/typography/Paragraph';
-
-const semverSchema = z
-  .string()
-  .regex(
-    /^v(\d+)\.(\d+)\.(\d+)$/,
-    "Invalid version format. Expected format is 'v1.2.3'.",
-  )
-  .transform((version) => {
-    const [, major, minor, patch] = version.match(
-      /^v(\d+)\.(\d+)\.(\d+)$/,
-    ) as string[];
-
-    if (!major || !minor || !patch) {
-      throw new Error('Invalid version format');
-    }
-
-    // Convert version parts to numbers
-    const majorNum = parseInt(major, 10);
-    const minorNum = parseInt(minor, 10);
-    const patchNum = parseInt(patch, 10);
-
-    return {
-      major: majorNum,
-      minor: minorNum,
-      patch: patchNum,
-      toString() {
-        return `v${majorNum}.${minorNum}.${patchNum}`;
-      },
-    };
-  });
-
-type SemVer = z.infer<typeof semverSchema>;
 
 const GithubApiResponseSchema = z
   .object({
@@ -57,22 +26,6 @@ const GithubApiResponseSchema = z
     releaseNotes: value.body,
     releaseUrl: value.html_url,
   }));
-
-function getSemverUpdateType(currentVersion: SemVer, newVersion: SemVer) {
-  if (currentVersion.major < newVersion.major) {
-    return 'major';
-  }
-
-  if (currentVersion.minor < newVersion.minor) {
-    return 'minor';
-  }
-
-  if (currentVersion.patch < newVersion.patch) {
-    return 'patch';
-  }
-
-  return null;
-}
 
 async function checkForUpdate() {
   unstable_noStore();
