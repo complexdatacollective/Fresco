@@ -33,25 +33,26 @@ function checkForNeededMigrations() {
   }
 }
 
-async function handleMigrations() {
-  /**
-   * This function checks if the database is in a state where the workaround is needed.
-   * 
-   * The workaround is needed when the database is not empty and the _prisma_migrations
-   * table does not exist.
-   */
-  async function shouldApplyWorkaround() {
-    const tables = await prisma.$queryRaw`
+/**
+ * This function checks if the database is in a state where the workaround is needed.
+ * 
+ * The workaround is needed when the database is not empty and the _prisma_migrations
+ * table does not exist.
+ */
+async function shouldApplyWorkaround() {
+  const tables = await prisma.$queryRaw`
     SELECT table_name 
     FROM information_schema.tables 
     WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`;
 
-    const databaseNotEmpty = tables.length > 0;
-    const migrationsTableExists = tables.some(table => table.table_name === '_prisma_migrations');
+  const databaseNotEmpty = tables.length > 0;
+  const migrationsTableExists = tables.some(table => table.table_name === '_prisma_migrations');
 
 
-    return !migrationsTableExists && databaseNotEmpty;
-  }
+  return !migrationsTableExists && databaseNotEmpty;
+}
+
+async function handleMigrations() {
 
   try {
     if (await shouldApplyWorkaround()) {
