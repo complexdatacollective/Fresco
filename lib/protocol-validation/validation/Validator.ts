@@ -1,6 +1,6 @@
-import { Protocol, StageSubject } from "@codaco/shared-consts";
-import { get } from "lodash-es";
-import { ValidationError } from "..";
+import { type Protocol, type StageSubject } from '@codaco/shared-consts';
+import { get } from 'lodash-es';
+import { type ValidationError } from '..';
 
 /**
  * See addValidation().
@@ -22,12 +22,12 @@ import { ValidationError } from "..";
  * @private
  */
 const ensurePatternRegExp = (pattern: string | RegExp): RegExp => {
-  if (typeof pattern === "string") {
+  if (typeof pattern === 'string') {
     const re = pattern
-      .replace(/\\/g, "\\\\")
-      .replace(/\./g, "\\.")
-      .replace(/\*/g, "[^.]+")
-      .replace(/\[\]/g, ".?\\[\\d+\\]");
+      .replace(/\\/g, '\\\\')
+      .replace(/\./g, '\\.')
+      .replace(/\*/g, '[^.]+')
+      .replace(/\[\]/g, '.?\\[\\d+\\]');
     return new RegExp(`${re}$`);
   }
   return pattern;
@@ -35,8 +35,8 @@ const ensurePatternRegExp = (pattern: string | RegExp): RegExp => {
 
 export type KeyPath = string[];
 
-const keypathToString = (keypath: string | Array<string>): string => {
-  if (typeof keypath === "string") {
+const keypathToString = (keypath: string | string[]): string => {
+  if (typeof keypath === 'string') {
     return keypath;
   }
 
@@ -252,7 +252,7 @@ class Validator {
       if (!pattern.test(keypathToString(keypath))) {
         return;
       }
-      if ("sequence" in validation) {
+      if ('sequence' in validation) {
         this.validateSequence(keypath, fragment, validation.sequence, subject);
       } else {
         this.validateSingle(
@@ -286,19 +286,19 @@ class Validator {
    */
   traverse(
     fragment: unknown,
-    keypath = ["protocol"],
+    keypath = ['protocol'],
     subject: StageSubject | null = null,
   ) {
     if (!fragment) {
       return;
     }
 
-    let stageSubject: StageSubject | null | null;
+    let stageSubject: StageSubject | null;
 
     if (subject) {
       stageSubject = subject;
     } else {
-      stageSubject = get(fragment, "subject", null);
+      stageSubject = get(fragment, 'subject', null);
     }
 
     this.checkFragment(keypath, fragment, stageSubject);
@@ -307,7 +307,7 @@ class Validator {
       fragment.forEach((v, i) => {
         this.traverse(v, [...keypath, `[${i}]`], stageSubject);
       });
-    } else if (fragment && typeof fragment === "object") {
+    } else if (fragment && typeof fragment === 'object') {
       Object.entries(fragment).forEach(([key, val]) => {
         this.traverse(val, [...keypath, key], stageSubject);
       });

@@ -1,7 +1,7 @@
-import { validateSchema } from "./validation/validateSchema";
-import { validateLogic } from "./validation/validateLogic";
-import { Protocol } from "@codaco/shared-consts";
-import { ensureError } from "./utils/ensureError";
+import { type Protocol } from '@codaco/shared-consts';
+import { ensureError } from '~/utils/ensureError';
+import { validateLogic } from './validation/validateLogic';
+import { validateSchema } from './validation/validateSchema';
 
 export type ValidationError = {
   path: string;
@@ -21,7 +21,7 @@ const validateProtocol = async (
   forceSchemaVersion?: number,
 ) => {
   if (protocol === undefined) {
-    throw new Error("Protocol is undefined");
+    throw new Error('Protocol is undefined');
   }
 
   try {
@@ -46,4 +46,4 @@ const validateProtocol = async (
   }
 };
 
-export { validateSchema, validateLogic, validateProtocol };
+export { validateLogic, validateProtocol, validateSchema };
