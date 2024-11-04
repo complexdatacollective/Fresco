@@ -97,7 +97,7 @@
     "rehype-sanitize": "^6.0.0",
     "remark": "^15.0.1",
     "remark-gemoji": "^8.0.0",
-    "reselect": "^4.1.8",
+    "reselect": "^5.1.1",
     "sanitize-filename": "^1.6.3",
     "scrollparent": "^2.1.0",
     "sharp": "^0.33.5",
