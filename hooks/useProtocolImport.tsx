@@ -11,7 +11,6 @@ import {
 } from '~/components/ProtocolImport/JobReducer';
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import { uploadFiles } from '~/lib/uploadthing-helpers';
 import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
@@ -22,6 +21,7 @@ import {
   getProtocolAssets,
   getProtocolJson,
 } from '~/utils/protocolImport';
+import { uploadFiles } from '~/utils/uploadthing-helpers';
 
 // Utility helper for adding artificial delay to async functions
 // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -87,7 +87,7 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const { validateProtocol } = await import('@codaco/protocol-validation');
+      const { validateProtocol } = await import('~/lib/protocol-validation');
 
       const validationResult = await validateProtocol(protocolJson);
 

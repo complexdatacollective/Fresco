@@ -23,7 +23,7 @@ import type {
   SortableField,
 } from '~/lib/data-table/types';
 
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
 type UseDataTableProps<TData, TValue> = {
@@ -96,19 +96,22 @@ export function useDataTable<TData, TValue>({
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedUpdateFilterParams = useCallback(debounce(
-    (columnFilters: FilterParam[]) => {
-      void setSearchParams({
-        page: 1,
-        filterParams: columnFilters,
-      });
-    },
-    2000,
-    {
-      trailing: true,
-      leading: false,
-    },
-  ), []);
+  const debouncedUpdateFilterParams = useCallback(
+    debounce(
+      (columnFilters: FilterParam[]) => {
+        void setSearchParams({
+          page: 1,
+          filterParams: columnFilters,
+        });
+      },
+      2000,
+      {
+        trailing: true,
+        leading: false,
+      },
+    ),
+    [],
+  );
 
   // Sync any changes to columnFilters back to searchParams
   React.useEffect(() => {

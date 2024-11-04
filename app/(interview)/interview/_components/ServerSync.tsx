@@ -1,7 +1,7 @@
 'use client';
 
-import { debounce, isEqual } from 'lodash';
-import { type ReactNode, useEffect, useState, useCallback } from 'react';
+import { debounce, isEqual } from 'lodash-es';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { SyncInterviewType } from '~/actions/interviews';
 import usePrevious from '~/hooks/usePrevious';

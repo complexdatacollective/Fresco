@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import { isArray } from 'lodash-es';
 import { FileCheck, FileText } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
