@@ -38,9 +38,20 @@ const getInterface = (
     | StageTypes.AlterEdgeForm
     | StageTypes.DyadCensus
     | StageTypes.TieStrengthCensus
-    | 'FinishSession',
+    | 'FinishSession'
+    | 'Anonymisation'
+    | 'OneToManyDyadCensus',
 ) => {
   switch (interfaceType) {
+    // Schema 8 interfaces
+    case 'Anonymisation':
+      return dynamic(() => import('./Anonymisation'), {
+        loading: StageLoading,
+      });
+    case 'OneToManyDyadCensus':
+      return dynamic(() => import('./OneToManyDyadCensus'), {
+        loading: StageLoading,
+      });
     case StageTypes.NameGenerator:
       return dynamic(() => import('./NameGenerator'), {
         loading: StageLoading,
