@@ -3,5 +3,3 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     target-branch: 'next'
-    schedule:
-      interval: 'daily'
