@@ -95,7 +95,10 @@
             "TieStrengthCensus",
             "Information",
             "OrdinalBin",
-            "CategoricalBin"
+            "CategoricalBin",
+            "Anonymisation",
+            "OneToManyDyadCensus",
+            "FamilyTreeCensus"
           ]
         },
         "label": {
