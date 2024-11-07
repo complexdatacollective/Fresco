@@ -251,7 +251,10 @@
                 "Sociogram",
                 "OrdinalBin",
                 "CategoricalBin",
-                "DyadCensus"
+                "DyadCensus",
+                "Anonymisation",
+                "OneToManyDyadCensus",
+                "FamilyTreeCensus"
               ]
             }
           },

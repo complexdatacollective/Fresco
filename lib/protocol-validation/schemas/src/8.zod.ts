@@ -1,317 +1,410 @@
-import * as z from 'zod';
+import { z } from 'zod';
 
-export const JoinSchema = z.enum(['AND', 'OR']);
-export type Join = z.infer<typeof JoinSchema>;
+// Constants for repeated values
+const validVariableName = /^[a-zA-Z0-9._:-]+$/;
 
-export const OperatorSchema = z.enum([
-  'CONTAINS',
-  'DOES NOT CONTAIN',
-  'EXACTLY',
-  'EXCLUDES',
-  'EXISTS',
-  'GREATER_THAN',
-  'GREATER_THAN_OR_EQUAL',
-  'INCLUDES',
-  'LESS_THAN',
-  'LESS_THAN_OR_EQUAL',
-  'NOT',
-  'NOT_EXISTS',
-  'OPTIONS_EQUALS',
-  'OPTIONS_GREATER_THAN',
-  'OPTIONS_LESS_THAN',
-  'OPTIONS_NOT_EQUALS',
+// Enums
+const componentEnum = z.enum([
+  'Boolean',
+  'CheckboxGroup',
+  'Number',
+  'RadioGroup',
+  'Text',
+  'TextArea',
+  'Toggle',
+  'ToggleButtonGroup',
+  'Slider',
+  'VisualAnalogScale',
+  'LikertScale',
+  'DatePicker',
+  'RelativeDatePicker',
 ]);
-export type Operator = z.infer<typeof OperatorSchema>;
 
-export const RuleTypeSchema = z.enum(['alter', 'edge', 'ego']);
-export type RuleType = z.infer<typeof RuleTypeSchema>;
-
-export const ItemTypeSchema = z.enum(['asset', 'text']);
-export type ItemType = z.infer<typeof ItemTypeSchema>;
-
-export const DestinationSchema = z.enum(['all', 'different', 'same']);
-export type Destination = z.infer<typeof DestinationSchema>;
-
-export const DirectionSchema = z.enum(['asc', 'desc']);
-export type Direction = z.infer<typeof DirectionSchema>;
-
-export const SortOrderTypeSchema = z.enum([
+const typeEnum = z.enum([
   'boolean',
-  'date',
-  'hierarchy',
+  'text',
   'number',
-  'string',
+  'datetime',
+  'ordinal',
+  'scalar',
+  'categorical',
+  'layout',
+  'location',
 ]);
-export type SortOrderType = z.infer<typeof SortOrderTypeSchema>;
 
-export const ActionSchema = z.enum(['SHOW', 'SKIP']);
-export type Action = z.infer<typeof ActionSchema>;
+// Validation Schema
+const validationSchema = z
+  .object({
+    required: z.boolean().optional(),
+    requiredAcceptsNull: z.boolean().optional(),
+    minLength: z.number().int().optional(),
+    maxLength: z.number().int().optional(),
+    minValue: z.number().int().optional(),
+    maxValue: z.number().int().optional(),
+    minSelected: z.number().int().optional(),
+    maxSelected: z.number().int().optional(),
+    unique: z.boolean().optional(),
+    differentFrom: z.string().optional(),
+    sameAs: z.string().optional(),
+    greaterThanVariable: z.string().optional(),
+    lessThanVariable: z.string().optional(),
+  })
+  .strict();
 
-export const EntitySchema = z.enum(['edge', 'ego', 'node']);
-export type Entity = z.infer<typeof EntitySchema>;
+// Options Schema
+const optionsSchema = z
+  .array(
+    z.union([
+      z
+        .object({
+          label: z.string(),
+          value: z.union([
+            z.number().int(),
+            z.string().regex(validVariableName),
+            z.boolean(),
+          ]),
+          negative: z.boolean().optional(),
+        })
+        .strict(),
+      z.number().int(),
+      z.string(),
+    ]),
+  )
+  .optional();
 
-export const InterfaceTypeSchema = z.enum([
-  'AlterEdgeForm',
-  'AlterForm',
-  'CategoricalBin',
-  'DyadCensus',
-  'EgoForm',
-  'Information',
-  'NameGenerator',
-  'NameGeneratorQuickAdd',
-  'NameGeneratorRoster',
-  'Narrative',
-  'OrdinalBin',
-  'Sociogram',
-  'TieStrengthCensus',
-  'Anonymisation',
-  'OneToManyDyadCensus',
-  'FamilyTreeCensus',
-]);
-export type InterfaceType = z.infer<typeof InterfaceTypeSchema>;
+// Variable Schema
+const variableSchema = z
+  .object({
+    name: z.string().regex(validVariableName),
+    type: typeEnum,
+    component: componentEnum.optional(),
+    options: optionsSchema,
+    parameters: z.record(z.any()).optional(),
+    validation: validationSchema.optional(),
+  })
+  .strict();
 
-export const EdgeSchema = z.object({});
-export type Edge = z.infer<typeof EdgeSchema>;
+// Node, Edge, and Ego Schemas
+const nodeSchema = z
+  .object({
+    name: z.string(),
+    displayVariable: z.string().optional(),
+    iconVariant: z.string().optional(),
+    variables: z.record(variableSchema),
+    color: z.string(),
+  })
+  .strict();
 
-export const VariablesSchema = z.object({});
-export type Variables = z.infer<typeof VariablesSchema>;
+const edgeSchema = z
+  .object({
+    name: z.string(),
+    color: z.string(),
+    variables: z.record(variableSchema),
+  })
+  .strict();
 
-export const NodeSchema = z.object({});
-export type Node = z.infer<typeof NodeSchema>;
+const egoSchema = z
+  .object({
+    variables: z.record(variableSchema),
+  })
+  .strict();
 
-export const BackgroundSchema = z.object({
-  concentricCircles: z.number().optional(),
-  image: z.string().optional(),
-  skewedTowardCenter: z.boolean().optional(),
-});
-export type Background = z.infer<typeof BackgroundSchema>;
+// Codebook Schema
+const codebookSchema = z
+  .object({
+    node: z.record(z.union([nodeSchema, z.never()])),
+    edge: z.record(z.union([edgeSchema, z.never()])),
+    ego: egoSchema.optional(),
+  })
+  .strict();
 
-export const AutomaticLayoutSchema = z.object({
-  enabled: z.boolean(),
-});
-export type AutomaticLayout = z.infer<typeof AutomaticLayoutSchema>;
+// Filter and Sort Options Schemas
+const filterRuleSchema = z
+  .object({
+    type: z.enum(['alter', 'ego', 'edge']),
+    id: z.string(),
+    options: z
+      .object({
+        type: z.string().optional(),
+        attribute: z.string().optional(),
+        operator: z.enum([
+          'EXISTS',
+          'NOT_EXISTS',
+          'EXACTLY',
+          'NOT',
+          'GREATER_THAN',
+          'GREATER_THAN_OR_EQUAL',
+          'LESS_THAN',
+          'LESS_THAN_OR_EQUAL',
+          'INCLUDES',
+          'EXCLUDES',
+          'OPTIONS_GREATER_THAN',
+          'OPTIONS_LESS_THAN',
+          'OPTIONS_EQUALS',
+          'OPTIONS_NOT_EQUALS',
+          'CONTAINS',
+          'DOES NOT CONTAIN',
+        ]),
+        value: z
+          .union([z.number().int(), z.string(), z.boolean(), z.array(z.any())])
+          .optional(),
+      })
+      .strict()
+      .and(z.any()),
+  })
+  .strict();
 
-export const PropertySchema = z.object({
-  label: z.string(),
-  variable: z.string(),
-});
-export type Property = z.infer<typeof PropertySchema>;
+const filterSchema = z
+  .object({
+    join: z.enum(['OR', 'AND']).optional(),
+    rules: z.array(filterRuleSchema).optional(),
+  })
+  .strict()
+  .optional();
 
-export const RuleOptionsSchema = z.object({
-  attribute: z.string().optional(),
-  operator: OperatorSchema,
-  type: z.string().optional(),
-  value: z
-    .union([z.array(z.any()), z.boolean(), z.number(), z.string()])
-    .optional(),
-});
-export type RuleOptions = z.infer<typeof RuleOptionsSchema>;
+const sortOrderSchema = z.array(
+  z
+    .object({
+      property: z.string(),
+      direction: z.enum(['desc', 'asc']).optional(),
+      type: z
+        .enum(['string', 'number', 'boolean', 'date', 'hierarchy'])
+        .optional(),
+      hierarchy: z
+        .array(z.union([z.string(), z.number(), z.boolean()]))
+        .optional(),
+    })
+    .strict(),
+);
 
-export const FieldSchema = z.object({
-  prompt: z.string(),
-  variable: z.string(),
-});
-export type Field = z.infer<typeof FieldSchema>;
+// Stage and Related Schemas
+const panelSchema = z
+  .object({
+    id: z.string(),
+    title: z.string(),
+    filter: z.union([filterSchema, z.null()]).optional(),
+    dataSource: z.union([z.string(), z.null()]),
+  })
+  .strict();
 
-export const IntroductionPanelSchema = z.object({
-  text: z.string(),
-  title: z.string(),
-});
-export type IntroductionPanel = z.infer<typeof IntroductionPanelSchema>;
+const promptSchema = z
+  .object({
+    id: z.string(),
+    text: z.string(),
+    additionalAttributes: z
+      .array(
+        z
+          .object({
+            variable: z.string(),
+            value: z.union([z.boolean()]),
+          })
+          .strict(),
+      )
+      .optional(),
+    variable: z.string().optional(),
+    edgeVariable: z.string().optional(),
+    negativeLabel: z.string().optional(),
+    otherVariable: z.string().optional(),
+    otherVariablePrompt: z.string().optional(),
+    otherOptionLabel: z.string().optional(),
+    bucketSortOrder: sortOrderSchema.optional(),
+    binSortOrder: sortOrderSchema.optional(),
+    sortOrder: sortOrderSchema.optional(),
+    color: z.string().optional(),
+    layout: z
+      .object({
+        layoutVariable: z.union([z.string(), z.record(z.any())]),
+        allowPositioning: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    edges: z
+      .object({
+        display: z.array(z.string()).optional(),
+        create: z.string().optional(),
+        restrict: z
+          .object({
+            origin: z.string().optional(),
+            destination: z.enum(['same', 'different', 'all']).optional(),
+          })
+          .optional(),
+      })
+      .strict()
+      .optional(),
+    highlight: z
+      .object({
+        variable: z.string().optional(),
+        allowHighlighting: z.boolean(),
+      })
+      .strict()
+      .optional(),
+    createEdge: z.string().optional(),
+  })
+  .strict();
 
-export const ItemSchema = z.object({
-  content: z.string(),
-  description: z.string().optional(),
-  id: z.string(),
-  loop: z.boolean().optional(),
-  size: z.string().optional(),
-  type: ItemTypeSchema,
-});
-export type Item = z.infer<typeof ItemSchema>;
+const stageSchema = z
+  .object({
+    id: z.string(),
+    interviewScript: z.string().optional(),
+    type: z.enum([
+      'Narrative',
+      'AlterForm',
+      'AlterEdgeForm',
+      'EgoForm',
+      'NameGenerator',
+      'NameGeneratorQuickAdd',
+      'NameGeneratorRoster',
+      'Sociogram',
+      'DyadCensus',
+      'TieStrengthCensus',
+      'Information',
+      'OrdinalBin',
+      'CategoricalBin',
+      'Anonymisation',
+      'OneToManyDyadCensus',
+      'FamilyTreeCensus',
+    ]),
+    label: z.string(),
+    form: z
+      .union([
+        z
+          .object({
+            title: z.string().optional(),
+            fields: z.array(
+              z.object({ variable: z.string(), prompt: z.string() }).strict(),
+            ),
+          })
+          .strict(),
+        z.null(),
+      ])
+      .optional(),
+    quickAdd: z.union([z.string(), z.null()]).optional(),
+    createEdge: z.string().optional(),
+    dataSource: z.union([z.string(), z.null()]).optional(),
+    subject: z
+      .object({
+        entity: z.enum(['edge', 'node', 'ego']),
+        type: z.string(),
+      })
+      .strict()
+      .optional(),
+    panels: z.array(panelSchema).optional(),
+    prompts: z.array(promptSchema).min(1).optional(),
+    presets: z
+      .array(
+        z
+          .object({
+            id: z.string(),
+            label: z.string(),
+            layoutVariable: z.string(),
+            groupVariable: z.string().optional(),
+            edges: z
+              .object({
+                display: z.array(z.string()).optional(),
+                create: z.string().optional(),
+                restrict: z
+                  .object({
+                    origin: z.string().optional(),
+                    destination: z
+                      .enum(['same', 'different', 'all'])
+                      .optional(),
+                  })
+                  .optional(),
+              })
+              .strict()
+              .optional(),
+            highlight: z.array(z.string()).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .optional(),
+    background: z
+      .object({
+        image: z.string().optional(),
+        concentricCircles: z.number().int().optional(),
+        skewedTowardCenter: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    sortOptions: z
+      .object({
+        sortOrder: sortOrderSchema,
+        sortableProperties: z.array(
+          z.object({ label: z.string(), variable: z.string() }).strict(),
+        ),
+      })
+      .strict()
+      .optional(),
+    cardOptions: z
+      .object({
+        displayLabel: z.string().optional(),
+        additionalProperties: z
+          .array(z.object({ label: z.string(), variable: z.string() }).strict())
+          .optional(),
+      })
+      .strict()
+      .optional(),
+    searchOptions: z
+      .object({
+        fuzziness: z.number(),
+        matchProperties: z.array(z.string()),
+      })
+      .strict()
+      .optional(),
+    behaviours: z
+      .object({
+        minNodes: z.number().int().optional(),
+        maxNodes: z.number().int().optional(),
+        freeDraw: z.boolean().optional(),
+        featureNode: z.boolean().optional(),
+        allowRepositioning: z.boolean().optional(),
+        automaticLayout: z.object({ enabled: z.boolean() }).strict().optional(),
+      })
+      .catchall(z.any())
+      .optional(),
+    showExistingNodes: z.boolean().optional(),
+    title: z.string().optional(),
+    items: z
+      .array(
+        z
+          .object({
+            id: z.string(),
+            type: z.enum(['text', 'asset']),
+            content: z.string(),
+            description: z.string().optional(),
+            size: z.string().optional(),
+            loop: z.boolean().optional(),
+          })
+          .strict(),
+      )
+      .optional(),
+    introductionPanel: z
+      .object({ title: z.string(), text: z.string() })
+      .strict()
+      .optional(),
+    skipLogic: z
+      .object({
+        action: z.enum(['SHOW', 'SKIP']),
+        filter: z.union([filterSchema, z.null()]),
+      })
+      .strict()
+      .optional(),
+    filter: z.union([filterSchema, z.null()]).optional(),
+  })
+  .strict();
 
-export const RestrictSchema = z.object({
-  destination: DestinationSchema.optional(),
-  origin: z.string().optional(),
-});
-export type Restrict = z.infer<typeof RestrictSchema>;
+// Main Protocol Schema
+export const Protocol = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    lastModified: z.string().datetime().optional(),
+    schemaVersion: z.literal(8),
+    codebook: codebookSchema,
+    assetManifest: z.record(z.any()).optional(),
+    stages: z.array(stageSchema),
+  })
+  .strict();
 
-export const AdditionalAttributeSchema = z.object({
-  value: z.boolean(),
-  variable: z.string(),
-});
-export type AdditionalAttribute = z.infer<typeof AdditionalAttributeSchema>;
-
-export const SortOrderSchema = z.object({
-  direction: DirectionSchema.optional(),
-  hierarchy: z.array(z.union([z.boolean(), z.number(), z.string()])).optional(),
-  property: z.string(),
-  type: SortOrderTypeSchema.optional(),
-});
-export type SortOrder = z.infer<typeof SortOrderSchema>;
-
-export const HighlightSchema = z.object({
-  allowHighlighting: z.boolean(),
-  variable: z.string().optional(),
-});
-export type Highlight = z.infer<typeof HighlightSchema>;
-
-export const LayoutSchema = z.object({
-  allowPositioning: z.boolean().optional(),
-  layoutVariable: z.union([z.record(z.string(), z.any()), z.string()]),
-});
-export type Layout = z.infer<typeof LayoutSchema>;
-
-export const SearchOptionsSchema = z.object({
-  fuzziness: z.number(),
-  matchProperties: z.array(z.string()),
-});
-export type SearchOptions = z.infer<typeof SearchOptionsSchema>;
-
-export const SortOptionsSchema = z.object({
-  sortableProperties: z.array(PropertySchema),
-  sortOrder: z.array(SortOrderSchema),
-});
-export type SortOptions = z.infer<typeof SortOptionsSchema>;
-
-export const SubjectSchema = z.object({
-  entity: EntitySchema,
-  type: z.string(),
-});
-export type Subject = z.infer<typeof SubjectSchema>;
-
-export const EgoSchema = z.object({
-  variables: VariablesSchema.optional(),
-});
-export type Ego = z.infer<typeof EgoSchema>;
-
-export const BehavioursSchema = z.object({
-  allowRepositioning: z.boolean().optional(),
-  automaticLayout: AutomaticLayoutSchema.optional(),
-  featureNode: z.boolean().optional(),
-  freeDraw: z.boolean().optional(),
-  maxNodes: z.number().optional(),
-  minNodes: z.number().optional(),
-});
-export type Behaviours = z.infer<typeof BehavioursSchema>;
-
-export const CardOptionsSchema = z.object({
-  additionalProperties: z.array(PropertySchema).optional(),
-  displayLabel: z.string().optional(),
-});
-export type CardOptions = z.infer<typeof CardOptionsSchema>;
-
-export const RuleSchema = z.object({
-  id: z.string(),
-  options: RuleOptionsSchema,
-  type: RuleTypeSchema,
-});
-export type Rule = z.infer<typeof RuleSchema>;
-
-export const FormSchema = z.object({
-  fields: z.array(FieldSchema),
-  title: z.string().optional(),
-});
-export type Form = z.infer<typeof FormSchema>;
-
-export const EdgesSchema = z.object({
-  create: z.string().optional(),
-  display: z.array(z.string()).optional(),
-  restrict: RestrictSchema.optional(),
-});
-export type Edges = z.infer<typeof EdgesSchema>;
-
-export const PromptSchema = z.object({
-  additionalAttributes: z.array(AdditionalAttributeSchema).optional(),
-  binSortOrder: z.array(SortOrderSchema).optional(),
-  bucketSortOrder: z.array(SortOrderSchema).optional(),
-  color: z.string().optional(),
-  createEdge: z.string().optional(),
-  edges: EdgesSchema.optional(),
-  edgeVariable: z.string().optional(),
-  highlight: HighlightSchema.optional(),
-  id: z.string(),
-  layout: LayoutSchema.optional(),
-  negativeLabel: z.string().optional(),
-  otherOptionLabel: z.string().optional(),
-  otherVariable: z.string().optional(),
-  otherVariablePrompt: z.string().optional(),
-  sortOrder: z.array(SortOrderSchema).optional(),
-  text: z.string(),
-  variable: z.string().optional(),
-});
-export type Prompt = z.infer<typeof PromptSchema>;
-
-export const CodebookSchema = z.object({
-  edge: EdgeSchema.optional(),
-  ego: EgoSchema.optional(),
-  node: NodeSchema.optional(),
-});
-export type Codebook = z.infer<typeof CodebookSchema>;
-
-export const FilterSchema = z.object({
-  join: JoinSchema.optional(),
-  rules: z.array(RuleSchema).optional(),
-});
-export type Filter = z.infer<typeof FilterSchema>;
-
-export const PanelSchema = z.object({
-  dataSource: z.union([z.null(), z.string()]),
-  filter: z.union([FilterSchema, z.null()]).optional(),
-  id: z.string(),
-  title: z.string(),
-});
-export type Panel = z.infer<typeof PanelSchema>;
-
-export const PresetSchema = z.object({
-  edges: EdgesSchema.optional(),
-  groupVariable: z.string().optional(),
-  highlight: z.array(z.string()).optional(),
-  id: z.string(),
-  label: z.string(),
-  layoutVariable: z.string(),
-});
-export type Preset = z.infer<typeof PresetSchema>;
-
-export const SkipLogicSchema = z.object({
-  action: ActionSchema,
-  filter: z.union([FilterSchema, z.null()]),
-});
-export type SkipLogic = z.infer<typeof SkipLogicSchema>;
-
-export const InterfaceSchema = z.object({
-  background: BackgroundSchema.optional(),
-  behaviours: BehavioursSchema.optional(),
-  cardOptions: CardOptionsSchema.optional(),
-  createEdge: z.string().optional(),
-  dataSource: z.union([z.null(), z.string()]).optional(),
-  filter: z.union([FilterSchema, z.null()]).optional(),
-  form: z.union([FormSchema, z.null()]).optional(),
-  id: z.string(),
-  interviewScript: z.string().optional(),
-  introductionPanel: IntroductionPanelSchema.optional(),
-  items: z.array(ItemSchema).optional(),
-  label: z.string(),
-  panels: z.array(PanelSchema).optional(),
-  presets: z.array(PresetSchema).optional(),
-  prompts: z.array(PromptSchema).optional(),
-  quickAdd: z.union([z.null(), z.string()]).optional(),
-  searchOptions: SearchOptionsSchema.optional(),
-  showExistingNodes: z.boolean().optional(),
-  skipLogic: SkipLogicSchema.optional(),
-  sortOptions: SortOptionsSchema.optional(),
-  subject: SubjectSchema.optional(),
-  title: z.string().optional(),
-  type: InterfaceTypeSchema,
-});
-export type Interface = z.infer<typeof InterfaceSchema>;
-
-export const ProtocolSchema = z.object({
-  assetManifest: z.record(z.string(), z.any()).optional(),
-  codebook: CodebookSchema,
-  description: z.string().optional(),
-  lastModified: z.string().optional(),
-  name: z.string().optional(),
-  schemaVersion: z.literal(8),
-  stages: z.array(InterfaceSchema),
-});
-export type Protocol = z.infer<typeof ProtocolSchema>;
+export type Protocol = z.infer<typeof Protocol>;
