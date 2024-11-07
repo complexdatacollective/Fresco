@@ -1,6 +1,9 @@
 'use client';
 
+import { parseAsInteger, useQueryState } from 'nuqs';
+import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
+import type { SyncInterviewType } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import {
@@ -8,15 +11,11 @@ import {
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { store } from '~/lib/interviewer/store';
-import ServerSync from './ServerSync';
-import { useEffect, useState } from 'react';
-import { parseAsInteger, useQueryState } from 'nuqs';
-import type { SyncInterviewType } from '~/actions/interviews';
 import type { getInterviewById } from '~/queries/interviews';
+import ServerSync from './ServerSync';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
-// Eventually it will handle syncing this data back.
 const InterviewShell = ({
   interview,
   syncInterview,

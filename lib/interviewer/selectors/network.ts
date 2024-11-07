@@ -3,15 +3,18 @@ import {
   type Codebook,
   type FilterDefinition,
   type NcNetwork,
-  type NcNode,
   type NodeTypeDefinition,
   type Stage,
   type StageSubject,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import { find, findKey } from 'lodash-es';
 import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
 import customFilter from '~/lib/network-query/filter';
+import {
+  decryptData,
+  entitySecureAttributesMeta,
+  type NodeWithSecureAttributes,
+} from '../containers/Interfaces/Anonymisation';
 import type { RootState } from '../store';
 import { getStageSubject, getSubjectType } from './prop';
 import { getProtocolCodebook } from './protocol';
@@ -75,55 +78,66 @@ export const getNodeTypeDefinition = createSelector(
 );
 
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
-export const labelLogic = (
-  codebookForNodeType: NodeTypeDefinition,
-  nodeAttributes: Record<string, unknown>,
-): string => {
+export const labelLogic = async (
+  codebookVariables: NodeTypeDefinition['variables'],
+  node: NodeWithSecureAttributes,
+): Promise<string> => {
+  const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
+
   // 1. In the codebook for the stage's subject, look for a variable with a name
   // property of "name", and try to retrieve this value by key in the node's
   // attributes
-  const variableCalledName =
-    codebookForNodeType &&
-    codebookForNodeType.variables &&
-    // Ignore case when looking for 'name'
-    findKey(
-      codebookForNodeType.variables,
-      (variable) => variable.name.toLowerCase() === 'name',
-    );
+  const variableCalledName = Object.keys(codebookVariables).find(
+    (variableId) =>
+      codebookVariables[variableId]?.name.toLowerCase() === 'name',
+  );
 
   if (variableCalledName && nodeAttributes[variableCalledName]) {
-    return nodeAttributes[variableCalledName] as string;
+    // Handle encrypted value.
+    const isEncrypted = codebookVariables[variableCalledName]?.encrypted;
+
+    if (!isEncrypted) {
+      return nodeAttributes[variableCalledName] as string;
+    }
+
+    // Handle encrypted value.
+    // To do this, we need to fetch the salt and IV from the node attributes, and the passphrase
+    // from the session.
+    const secureAttributes =
+      node[entitySecureAttributesMeta]![variableCalledName];
+
+    if (!secureAttributes) {
+      throw new Error(
+        `Node ${node[entityPrimaryKeyProperty]} is missing secure attributes`,
+      );
+    }
+
+    const decryptedValue = await decryptData(
+      {
+        encryptedData: nodeAttributes[variableCalledName] as number[],
+        salt: secureAttributes.salt,
+        iv: secureAttributes.iv,
+      },
+      'passphrase',
+    );
+
+    return `🔒 ${decryptedValue}`;
   }
 
   // 2. Look for a property on the node with a key of ‘name’, and try to retrieve this
   // value as a key in the node's attributes.
   // const nodeVariableCalledName = get(nodeAttributes, 'name');
-
-  const nodeVariableCalledName = find(
-    nodeAttributes,
-    (_, key) => key.toLowerCase() === 'name',
-  );
-
-  if (nodeVariableCalledName) {
-    return nodeVariableCalledName as string;
+  if (
+    Object.keys(nodeAttributes)
+      .map((a) => a.toLowerCase())
+      .includes('name')
+  ) {
+    return nodeAttributes.name as string;
   }
 
   // 3. Last resort!
   return "No 'name' variable!";
 };
-
-export const getNodeLabel = createSelector(
-  getNodeTypeDefinition,
-  (nodeTypeDefinition: NodeTypeDefinition | null) => (node: NcNode) => {
-    if (!nodeTypeDefinition) {
-      return 'Node';
-    }
-
-    const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
-
-    return labelLogic(nodeTypeDefinition, nodeAttributes);
-  },
-);
 
 const getType = (_: unknown, props: Record<string, string>) =>
   props.type ?? null;

@@ -1,11 +1,19 @@
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { useState } from 'react';
 // import Node from '~/lib/interviewer/components/Node';
 import Switch from '~/lib/interviewer/components/Switch';
 import { Node } from '~/lib/ui/components';
+
+export type NodeWithSecureAttributes = NcNode & {
+  [entitySecureAttributesMeta]?: Record<
+    string,
+    { salt: number[]; iv: number[] }
+  >;
+};
 
 /**
  * Creates a key from a passphrase and a random salt. The salt is used to
@@ -15,7 +23,7 @@ import { Node } from '~/lib/ui/components';
  * encryption more secure by adding a random salt. This ensures the same
  * passphrase results in a unique key each time.
  */
-async function generateKey(passphrase: string, salt: Uint8Array) {
+export async function generateKey(passphrase: string, salt: Uint8Array) {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -39,7 +47,7 @@ async function generateKey(passphrase: string, salt: Uint8Array) {
   );
 }
 
-async function encryptData(data: string, passphrase: string) {
+export async function encryptData(data: string, passphrase: string) {
   const encoder = new TextEncoder();
 
   // Create a new salt and IV for each encryption
@@ -62,8 +70,10 @@ async function encryptData(data: string, passphrase: string) {
 
 type EncryptedData = Awaited<ReturnType<typeof encryptData>>;
 
-async function decryptData(encrypted: EncryptedData, passphrase: string) {
-  console.log('d', encrypted);
+export async function decryptData(
+  encrypted: EncryptedData,
+  passphrase: string,
+) {
   const { salt, iv, encryptedData } = encrypted;
 
   const key = await generateKey(passphrase, new Uint8Array(salt));
@@ -82,13 +92,17 @@ async function decryptData(encrypted: EncryptedData, passphrase: string) {
 }
 
 // Secure cookie name must include protocol name for uniqueness
-const SECURE_COOKIE_NAME = 'fresco-interview-encrypted';
-const entitySecureAttributesMeta = '_secureAttributes';
-const SENSITIVE_ATTRIBUTES = ['name'];
+export const SECURE_COOKIE_NAME = 'fresco-interview-encrypted';
+export const entitySecureAttributesMeta = '_secureAttributes';
 
-const NodeData = [
+// Can only be string or number variables.
+// TODO: move to protocol?
+export const SENSITIVE_ATTRIBUTES = ['name'];
+
+const NodeData: NodeWithSecureAttributes[] = [
   {
-    [entityPrimaryKeyProperty]: 1,
+    [entityPrimaryKeyProperty]: '1',
+    type: 'person',
     [entityAttributesProperty]: {
       name: 'Steve',
       other: 123,
@@ -101,14 +115,16 @@ const NodeData = [
     // }
   },
   {
-    [entityPrimaryKeyProperty]: 2,
+    [entityPrimaryKeyProperty]: '2',
+    type: 'person',
     [entityAttributesProperty]: {
       name: 'Alice',
       other: 456,
     },
   },
   {
-    [entityPrimaryKeyProperty]: 3,
+    [entityPrimaryKeyProperty]: '3',
+    type: 'person',
     [entityAttributesProperty]: {
       name: 'Bob',
       other: 789,
@@ -119,7 +135,7 @@ const NodeData = [
 export default function AnonymisationInterface() {
   const [passphrase, setPassphrase] = useState<string | undefined>(undefined);
   const [isEncrypted, setIsEncrypted] = useState(false);
-  const [data, setData] = useState(NodeData);
+  const [data, setData] = useState<NodeWithSecureAttributes[]>(NodeData);
 
   const toggleEncryption = async () => {
     if (isEncrypted) {
@@ -133,26 +149,28 @@ export default function AnonymisationInterface() {
       }
       // already encrypted - decrypt
       const newData = await Promise.all(
-        data.map(async (node) => {
+        data.map(async (node: NodeWithSecureAttributes) => {
           // Iterate the sensitive attributes to see if the node has them
           for (const attr of SENSITIVE_ATTRIBUTES) {
             if (node[entityAttributesProperty][attr]) {
-              // If the node has sensitive attributes, decrypt them
-              const encrypted = node[entityAttributesProperty][attr];
-              const meta = node[entitySecureAttributesMeta][attr];
+              const encryptedAttribute = node[entityAttributesProperty][
+                attr
+              ] as number[];
+              const meta = node[entitySecureAttributesMeta]![attr]!;
 
               const decrypted = await decryptData(
                 {
-                  encryptedData: encrypted,
+                  encryptedData: encryptedAttribute,
                   ...meta,
                 },
-                passphrase,
+                passphrase!,
               );
 
               // replace the sensitive attribute with the decrypted data
               node[entityAttributesProperty][attr] = decrypted;
 
               // delete the salt and iv from the meta object
+              delete node[entitySecureAttributesMeta]![attr];
             }
           }
 
@@ -163,13 +181,13 @@ export default function AnonymisationInterface() {
       setData(newData);
       setIsEncrypted(false);
     } else {
-      // TODO: must be 'strong'!
+      // TODO: passphrase must be 'strong'!
       const passphrase = prompt('Enter the encryption key');
-      setPassphrase(passphrase);
-
       if (!passphrase) {
         return;
       }
+
+      setPassphrase(passphrase);
 
       const newData = await Promise.all(
         data.map(async (node) => {
@@ -178,7 +196,7 @@ export default function AnonymisationInterface() {
             if (node[entityAttributesProperty][attr]) {
               // If the node has sensitive attributes, encrypt them
               const { salt, iv, encryptedData } = await encryptData(
-                node[entityAttributesProperty][attr],
+                node[entityAttributesProperty][attr] as string,
                 passphrase,
               );
 
