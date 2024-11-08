@@ -63,4 +63,5 @@ export const protocol: Protocol = {
   assetManifest: {},
   schemaVersion: 8,
   lastModified: '2024-11-05T07:37:16.725Z',
+  name: 'Test Protocol',
 };

@@ -3,16 +3,17 @@ import {
   type Codebook,
   type FilterDefinition,
   type NcNetwork,
-  type NodeTypeDefinition,
   type Stage,
   type StageSubject,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
 import customFilter from '~/lib/network-query/filter';
+import { type Variables } from '~/lib/protocol-validation/schemas/src/8.zod';
 import {
   decryptData,
   entitySecureAttributesMeta,
+  getPassphrase,
   type NodeWithSecureAttributes,
 } from '../containers/Interfaces/Anonymisation';
 import type { RootState } from '../store';
@@ -79,7 +80,7 @@ export const getNodeTypeDefinition = createSelector(
 
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = async (
-  codebookVariables: NodeTypeDefinition['variables'],
+  codebookVariables: Variables,
   node: NodeWithSecureAttributes,
 ): Promise<string> => {
   const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
@@ -104,24 +105,32 @@ export const labelLogic = async (
     // To do this, we need to fetch the salt and IV from the node attributes, and the passphrase
     // from the session.
     const secureAttributes =
-      node[entitySecureAttributesMeta]![variableCalledName];
+      node[entitySecureAttributesMeta]?.[variableCalledName];
 
     if (!secureAttributes) {
-      throw new Error(
-        `Node ${node[entityPrimaryKeyProperty]} is missing secure attributes`,
-      );
+      // eslint-disable-next-line no-console
+      console.log(`Node ${node._uid} is missing secure attributes`);
+    }
+
+    const passphrase = getPassphrase();
+
+    // If we don't have an active passphrase, show the lock icon.
+    if (!passphrase) {
+      return '🔒\nNo passphrase';
     }
 
     const decryptedValue = await decryptData(
       {
-        encryptedData: nodeAttributes[variableCalledName] as number[],
-        salt: secureAttributes.salt,
-        iv: secureAttributes.iv,
+        [entitySecureAttributesMeta]: {
+          salt: secureAttributes!.salt,
+          iv: secureAttributes!.iv,
+        },
+        data: nodeAttributes[variableCalledName] as number[],
       },
-      'passphrase',
+      passphrase,
     );
 
-    return `🔒 ${decryptedValue}`;
+    return `🔓\n${decryptedValue}`;
   }
 
   // 2. Look for a property on the node with a key of ‘name’, and try to retrieve this

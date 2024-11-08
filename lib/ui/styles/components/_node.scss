@@ -51,7 +51,6 @@
 
   &__node-outer-trim {
     fill: transparent;
-
   }
 
   &__label {
@@ -60,7 +59,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 15%;
+    padding: 10%;
     color: var(--nc-node-label);
 
     &-text {
@@ -72,36 +71,12 @@
       align-items: center;
       flex-wrap: nowrap;
       text-align: center;
-      font-size: 0.15em;
+      font-size: 0.13em;
       font-family: $netcanvas-font-stack;
       color: palette('text');
       hyphens: auto;
       overflow: hidden;
       white-space: pre-line;
-
-      &.len-1 {
-        font-size: 0.17em;
-      }
-
-      &.len-2 {
-        font-size: 0.17em;
-      }
-
-      &.len-3 {
-        font-size: 0.17em;
-      }
-
-      &.len-4 {
-        font-size: 0.17em;
-      }
-
-      &.len-5 {
-        font-size: 0.17em;
-      }
-
-      &.len-6 {
-        font-size: 0.17em;
-      }
     }
   }
 
@@ -141,6 +116,5 @@
       transform-origin: 250px 250px;
       animation: linking var(--animation-duration-slow) ease-in-out infinite;
     }
-
   }
 }

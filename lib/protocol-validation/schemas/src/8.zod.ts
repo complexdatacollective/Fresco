@@ -77,12 +77,20 @@ const variableSchema = z
   .object({
     name: z.string().regex(validVariableName),
     type: typeEnum,
+    encrypted: z.boolean().optional(),
     component: componentEnum.optional(),
     options: optionsSchema,
     parameters: z.record(z.any()).optional(),
     validation: validationSchema.optional(),
   })
   .strict();
+export type Variable = z.infer<typeof variableSchema>;
+
+const VariablesSchema = z.record(
+  z.string().regex(validVariableName),
+  variableSchema,
+);
+export type Variables = z.infer<typeof VariablesSchema>;
 
 // Node, Edge, and Ego Schemas
 const nodeSchema = z
@@ -90,7 +98,7 @@ const nodeSchema = z
     name: z.string(),
     displayVariable: z.string().optional(),
     iconVariant: z.string().optional(),
-    variables: z.record(variableSchema),
+    variables: VariablesSchema,
     color: z.string(),
   })
   .strict();
@@ -99,13 +107,13 @@ const edgeSchema = z
   .object({
     name: z.string(),
     color: z.string(),
-    variables: z.record(variableSchema),
+    variables: VariablesSchema,
   })
   .strict();
 
 const egoSchema = z
   .object({
-    variables: z.record(variableSchema),
+    variables: VariablesSchema,
   })
   .strict();
 
@@ -113,10 +121,11 @@ const egoSchema = z
 const codebookSchema = z
   .object({
     node: z.record(z.union([nodeSchema, z.never()])),
-    edge: z.record(z.union([edgeSchema, z.never()])),
+    edge: z.record(z.union([edgeSchema, z.never()])).optional(),
     ego: egoSchema.optional(),
   })
   .strict();
+export type Codebook = z.infer<typeof codebookSchema>;
 
 // Filter and Sort Options Schemas
 const filterRuleSchema = z
@@ -196,7 +205,7 @@ const promptSchema = z
         z
           .object({
             variable: z.string(),
-            value: z.union([z.boolean()]),
+            value: z.boolean(),
           })
           .strict(),
       )

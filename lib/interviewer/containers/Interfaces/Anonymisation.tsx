@@ -1,18 +1,25 @@
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
-} from '@codaco/shared-consts';
+import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 // import Node from '~/lib/interviewer/components/Node';
 import Switch from '~/lib/interviewer/components/Switch';
-import { Node } from '~/lib/ui/components';
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Window {
+    passphrase?: string;
+  }
+}
+
+// If the passphrase is in local storage, return it. Otherwise use a prompt
+// to ask the user to set it, and store it.
+export function getPassphrase(): string | undefined {
+  return window.passphrase;
+}
+
+export type SecureAttributes = Record<string, { salt: number[]; iv: number[] }>;
 
 export type NodeWithSecureAttributes = NcNode & {
-  [entitySecureAttributesMeta]?: Record<
-    string,
-    { salt: number[]; iv: number[] }
-  >;
+  [entitySecureAttributesMeta]?: SecureAttributes;
 };
 
 /**
@@ -62,9 +69,11 @@ export async function encryptData(data: string, passphrase: string) {
   );
 
   return {
-    salt: Array.from(salt),
-    iv: Array.from(iv),
-    encryptedData: Array.from(new Uint8Array(encryptedData)),
+    [entitySecureAttributesMeta]: {
+      salt: Array.from(salt),
+      iv: Array.from(iv),
+    },
+    data: Array.from(new Uint8Array(encryptedData)),
   };
 }
 
@@ -74,7 +83,10 @@ export async function decryptData(
   encrypted: EncryptedData,
   passphrase: string,
 ) {
-  const { salt, iv, encryptedData } = encrypted;
+  const {
+    data,
+    _secureAttributes: { iv, salt },
+  } = encrypted;
 
   const key = await generateKey(passphrase, new Uint8Array(salt));
 
@@ -84,7 +96,7 @@ export async function decryptData(
       iv: new Uint8Array(iv),
     },
     key,
-    new Uint8Array(encryptedData),
+    new Uint8Array(data),
   );
 
   const decoder = new TextDecoder();
@@ -99,131 +111,27 @@ export const entitySecureAttributesMeta = '_secureAttributes';
 // TODO: move to protocol?
 export const SENSITIVE_ATTRIBUTES = ['name'];
 
-const NodeData: NodeWithSecureAttributes[] = [
-  {
-    [entityPrimaryKeyProperty]: '1',
-    type: 'person',
-    [entityAttributesProperty]: {
-      name: 'Steve',
-      other: 123,
-    },
-    // [entitySecureAttributesMeta]: {
-    //   name: {
-    //     salt: [1, 2, 3],
-    //     iv: [4, 5, 6],
-    //   }
-    // }
-  },
-  {
-    [entityPrimaryKeyProperty]: '2',
-    type: 'person',
-    [entityAttributesProperty]: {
-      name: 'Alice',
-      other: 456,
-    },
-  },
-  {
-    [entityPrimaryKeyProperty]: '3',
-    type: 'person',
-    [entityAttributesProperty]: {
-      name: 'Bob',
-      other: 789,
-    },
-  },
-];
-
 export default function AnonymisationInterface() {
-  const [passphrase, setPassphrase] = useState<string | undefined>(undefined);
-  const [isEncrypted, setIsEncrypted] = useState(false);
-  const [data, setData] = useState<NodeWithSecureAttributes[]>(NodeData);
+  const [isEncrypted, setIsEncrypted] = useState(!!window.passphrase);
 
-  const toggleEncryption = async () => {
+  const toggleEncryption = () => {
     if (isEncrypted) {
-      if (!passphrase) {
-        const newPassphrase = prompt('Please re-enter your passphrase');
-        if (!newPassphrase) {
-          return;
-        }
-
-        setPassphrase(newPassphrase);
-      }
-      // already encrypted - decrypt
-      const newData = await Promise.all(
-        data.map(async (node: NodeWithSecureAttributes) => {
-          // Iterate the sensitive attributes to see if the node has them
-          for (const attr of SENSITIVE_ATTRIBUTES) {
-            if (node[entityAttributesProperty][attr]) {
-              const encryptedAttribute = node[entityAttributesProperty][
-                attr
-              ] as number[];
-              const meta = node[entitySecureAttributesMeta]![attr]!;
-
-              const decrypted = await decryptData(
-                {
-                  encryptedData: encryptedAttribute,
-                  ...meta,
-                },
-                passphrase!,
-              );
-
-              // replace the sensitive attribute with the decrypted data
-              node[entityAttributesProperty][attr] = decrypted;
-
-              // delete the salt and iv from the meta object
-              delete node[entitySecureAttributesMeta]![attr];
-            }
-          }
-
-          return node;
-        }),
-      );
-
-      setData(newData);
+      console.log('Disabling encryption');
+      window.passphrase = undefined;
       setIsEncrypted(false);
     } else {
+      console.log('Enabling encryption');
       // TODO: passphrase must be 'strong'!
       const passphrase = prompt('Enter the encryption key');
       if (!passphrase) {
         return;
       }
 
-      setPassphrase(passphrase);
+      window.passphrase = passphrase;
 
-      const newData = await Promise.all(
-        data.map(async (node) => {
-          // Iterate the sensitive attributes to see if the node has them
-          for (const attr of SENSITIVE_ATTRIBUTES) {
-            if (node[entityAttributesProperty][attr]) {
-              // If the node has sensitive attributes, encrypt them
-              const { salt, iv, encryptedData } = await encryptData(
-                node[entityAttributesProperty][attr] as string,
-                passphrase,
-              );
-
-              // replace the sensitive attribute with the encrypted data
-              node[entityAttributesProperty][attr] = encryptedData;
-
-              // store the salt and iv in the meta object
-              node[entitySecureAttributesMeta] = {
-                ...node[entitySecureAttributesMeta],
-                [attr]: {
-                  salt,
-                  iv,
-                },
-              };
-            }
-          }
-
-          return node;
-        }),
-      );
-
-      setData(newData);
       setIsEncrypted(true);
     }
   };
-
-  console.log(data);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center">
@@ -235,14 +143,6 @@ export default function AnonymisationInterface() {
           className="mt-4"
           onChange={toggleEncryption}
         />
-      </div>
-      <div>
-        {data.map((node) => (
-          <Node
-            label={node[entityAttributesProperty].name}
-            key={node[entityPrimaryKeyProperty]}
-          />
-        ))}
       </div>
     </div>
   );
