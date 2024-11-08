@@ -1,20 +1,58 @@
 import { type NcNode } from '@codaco/shared-consts';
-import { useState } from 'react';
-// import Node from '~/lib/interviewer/components/Node';
+import { useEffect, useState } from 'react';
 import Switch from '~/lib/interviewer/components/Switch';
+import getEntityAttributes from '../../utils/getEntityAttributes';
+import {
+  SESSION_STORAGE_KEY,
+  UnauthorizedError,
+  useNodeAttributes,
+} from '../../utils/labelLogic';
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Window {
-    passphrase?: string;
-  }
+export function useNodeLabel(node: NodeWithSecureAttributes) {
+  const [label, setLabel] = useState<string | undefined>(undefined);
+  const { getByName } = useNodeAttributes(node);
+
+  useEffect(() => {
+    async function calculateLabel() {
+      // 1. Look for a variable called 'name'.
+      try {
+        const variableCalledName = await getByName<string>('name');
+
+        if (variableCalledName) {
+          setLabel(variableCalledName);
+          return;
+        }
+      } catch (e) {
+        if (e instanceof UnauthorizedError) {
+          setLabel('🔒');
+          return;
+        }
+      }
+
+      // 2. Look for a property on the node with a key of ‘name’
+      const nodeAttributes = getEntityAttributes(node);
+
+      if (
+        Object.keys(nodeAttributes)
+          .map((a) => a.toLowerCase())
+          .includes('name')
+      ) {
+        setLabel(nodeAttributes.name as string);
+        return;
+      }
+
+      // 3. Last resort!
+      setLabel("No 'name' variable!");
+      return;
+    }
+
+    void calculateLabel();
+  }, [node, getByName]);
+
+  return label;
 }
 
-// If the passphrase is in local storage, return it. Otherwise use a prompt
-// to ask the user to set it, and store it.
-export function getPassphrase(): string | undefined {
-  return window.passphrase;
-}
+export const entitySecureAttributesMeta = '_secureAttributes';
 
 export type SecureAttributes = Record<string, { salt: number[]; iv: number[] }>;
 
@@ -103,21 +141,15 @@ export async function decryptData(
   return decoder.decode(decryptedData);
 }
 
-// Secure cookie name must include protocol name for uniqueness
-export const SECURE_COOKIE_NAME = 'fresco-interview-encrypted';
-export const entitySecureAttributesMeta = '_secureAttributes';
-
-// Can only be string or number variables.
-// TODO: move to protocol?
-export const SENSITIVE_ATTRIBUTES = ['name'];
-
 export default function AnonymisationInterface() {
-  const [isEncrypted, setIsEncrypted] = useState(!!window.passphrase);
+  const [isEncrypted, setIsEncrypted] = useState(
+    () => !!sessionStorage.getItem(SESSION_STORAGE_KEY),
+  );
 
   const toggleEncryption = () => {
     if (isEncrypted) {
       console.log('Disabling encryption');
-      window.passphrase = undefined;
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
       setIsEncrypted(false);
     } else {
       console.log('Enabling encryption');
@@ -127,7 +159,7 @@ export default function AnonymisationInterface() {
         return;
       }
 
-      window.passphrase = passphrase;
+      sessionStorage.setItem(SESSION_STORAGE_KEY, passphrase);
 
       setIsEncrypted(true);
     }

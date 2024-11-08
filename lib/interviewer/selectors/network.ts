@@ -7,15 +7,7 @@ import {
   type StageSubject,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
 import customFilter from '~/lib/network-query/filter';
-import { type Variables } from '~/lib/protocol-validation/schemas/src/8.zod';
-import {
-  decryptData,
-  entitySecureAttributesMeta,
-  getPassphrase,
-  type NodeWithSecureAttributes,
-} from '../containers/Interfaces/Anonymisation';
 import type { RootState } from '../store';
 import { getStageSubject, getSubjectType } from './prop';
 import { getProtocolCodebook } from './protocol';
@@ -77,76 +69,6 @@ export const getNodeTypeDefinition = createSelector(
     return codebook.node?.[type] ?? null;
   },
 );
-
-// See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
-export const labelLogic = async (
-  codebookVariables: Variables,
-  node: NodeWithSecureAttributes,
-): Promise<string> => {
-  const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
-
-  // 1. In the codebook for the stage's subject, look for a variable with a name
-  // property of "name", and try to retrieve this value by key in the node's
-  // attributes
-  const variableCalledName = Object.keys(codebookVariables).find(
-    (variableId) =>
-      codebookVariables[variableId]?.name.toLowerCase() === 'name',
-  );
-
-  if (variableCalledName && nodeAttributes[variableCalledName]) {
-    // Handle encrypted value.
-    const isEncrypted = codebookVariables[variableCalledName]?.encrypted;
-
-    if (!isEncrypted) {
-      return nodeAttributes[variableCalledName] as string;
-    }
-
-    // Handle encrypted value.
-    // To do this, we need to fetch the salt and IV from the node attributes, and the passphrase
-    // from the session.
-    const secureAttributes =
-      node[entitySecureAttributesMeta]?.[variableCalledName];
-
-    if (!secureAttributes) {
-      // eslint-disable-next-line no-console
-      console.log(`Node ${node._uid} is missing secure attributes`);
-    }
-
-    const passphrase = getPassphrase();
-
-    // If we don't have an active passphrase, show the lock icon.
-    if (!passphrase) {
-      return '🔒\nNo passphrase';
-    }
-
-    const decryptedValue = await decryptData(
-      {
-        [entitySecureAttributesMeta]: {
-          salt: secureAttributes!.salt,
-          iv: secureAttributes!.iv,
-        },
-        data: nodeAttributes[variableCalledName] as number[],
-      },
-      passphrase,
-    );
-
-    return `🔓\n${decryptedValue}`;
-  }
-
-  // 2. Look for a property on the node with a key of ‘name’, and try to retrieve this
-  // value as a key in the node's attributes.
-  // const nodeVariableCalledName = get(nodeAttributes, 'name');
-  if (
-    Object.keys(nodeAttributes)
-      .map((a) => a.toLowerCase())
-      .includes('name')
-  ) {
-    return nodeAttributes.name as string;
-  }
-
-  // 3. Last resort!
-  return "No 'name' variable!";
-};
 
 const getType = (_: unknown, props: Record<string, string>) =>
   props.type ?? null;

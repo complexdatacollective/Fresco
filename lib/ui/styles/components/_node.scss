@@ -61,23 +61,17 @@
     height: 100%;
     padding: 10%;
     color: var(--nc-node-label);
-
-    &-text {
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      text-align: center;
-      font-size: 0.13em;
-      font-family: $netcanvas-font-stack;
-      color: palette('text');
-      hyphens: auto;
-      overflow: hidden;
-      white-space: pre-line;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    text-align: center;
+    font-size: 0.13em;
+    font-family: $netcanvas-font-stack;
+    color: palette('text');
+    hyphens: auto;
+    overflow: hidden;
+    white-space: pre-line;
   }
 
   &--inactive {
