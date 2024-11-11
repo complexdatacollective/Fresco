@@ -6,6 +6,7 @@ import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
 import { UTApi } from 'uploadthing/server';
 import { type z } from 'zod';
+import { getAppSetting } from '~/queries/appSettings';
 import { protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -103,13 +104,18 @@ export async function deleteProtocols(hashes: string[]) {
 async function deleteFilesFromUploadThing(fileKey: string | string[]) {
   await requireApiAuth();
 
+  const UPLOADTHING_TOKEN = await getAppSetting('uploadThingToken');
+
+
   if (fileKey.length === 0) {
     // eslint-disable-next-line no-console
     console.log('No assets to delete');
     return;
   }
 
-  const utapi = new UTApi();
+  const utapi = new UTApi({
+    token: UPLOADTHING_TOKEN,
+  });
 
   const response = await utapi.deleteFiles(fileKey);
 

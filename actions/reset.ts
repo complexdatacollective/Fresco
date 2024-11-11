@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { env } from 'process';
 import { UTApi } from 'uploadthing/server';
 import { safeRevalidateTag } from '~/lib/cache';
+import { getAppSetting } from '~/queries/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
@@ -11,6 +12,8 @@ export const resetAppSettings = async () => {
   if (env.NODE_ENV !== 'development') {
     await requireApiAuth();
   }
+
+  const UPLOADTHING_TOKEN = await getAppSetting('uploadThingToken');
 
   try {
     // Delete all data:
@@ -39,7 +42,9 @@ export const resetAppSettings = async () => {
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('getInterviews');
 
-    const utapi = new UTApi();
+    const utapi = new UTApi({
+      token: UPLOADTHING_TOKEN,
+    });
 
     // Remove all files from UploadThing:
     await utapi.listFiles({}).then(({ files }) => {
