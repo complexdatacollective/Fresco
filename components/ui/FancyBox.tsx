@@ -1,4 +1,6 @@
+import { CommandList } from 'cmdk';
 import { Check, ChevronsUpDown } from 'lucide-react';
+import { type ReactNode, useMemo, useRef, useState } from 'react';
 import {
   Command,
   CommandGroup,
@@ -13,7 +15,6 @@ import {
 } from '~/components/ui/popover';
 import { cn } from '~/utils/shadcn';
 import { selectTriggerStyles } from './select';
-import { type ReactNode, useMemo, useRef, useState } from 'react';
 
 const DefaultItemComponent = (item: {
   value: unknown;
@@ -100,34 +101,37 @@ export default function FancyBox<
                 className="my-2 h-8"
               />
             )}
-            <CommandGroup className="max-h-72 overflow-auto">
-              <CommandItem
-                onSelect={() => onValueChange(items.map((i) => i.id))}
-              >
-                Select All
-              </CommandItem>
-              <CommandItem onSelect={() => onValueChange([])}>
-                Deselect All
-              </CommandItem>
-              <CommandSeparator />
-              {items.map((item) => {
-                const isActive = value.includes(item.id);
-                return (
-                  <CommandItem
-                    key={item.id}
-                    onSelect={() => toggleItem(item.id)}
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 h-4 w-4',
-                        isActive ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    <ItemComponent {...item} />
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
+            <CommandList>
+              <CommandGroup className="max-h-72 overflow-auto">
+                <CommandItem
+                  onSelect={() => onValueChange(items.map((i) => i.id))}
+                >
+                  Select All
+                </CommandItem>
+                <CommandItem onSelect={() => onValueChange([])}>
+                  Deselect All
+                </CommandItem>
+                <CommandSeparator />
+                {items.map((item) => {
+                  const isActive = value.includes(item.id);
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      onSelect={() => toggleItem(item.id)}
+                      value={item.id}
+                    >
+                      <Check
+                        className={cn(
+                          'mr-2 h-4 w-4',
+                          isActive ? 'opacity-100' : 'opacity-0',
+                        )}
+                      />
+                      <ItemComponent {...item} />
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
