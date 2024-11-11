@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { actionCreators as dialogActions } from '~/lib/interviewer/ducks/modules/dialogs';
 import getEntityAttributes from '~/lib/interviewer/utils/getEntityAttributes';
@@ -32,10 +32,6 @@ window.getting = false;
 // Emits a custom event when the passphrase is set, and triggers a dialog if the passphrase
 // is not set.
 export function usePassphrase() {
-  const [passphrase, setPassphrase] = useState(() =>
-    sessionStorage.getItem(SESSION_STORAGE_KEY),
-  );
-
   const dispatch = useDispatch();
   const openDialog = useCallback(
     (dialog) => dispatch(dialogActions.openDialog(dialog)),
@@ -43,15 +39,16 @@ export function usePassphrase() {
   );
 
   async function requirePassphrase() {
+    const passphrase = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (passphrase) {
       return passphrase as string;
     }
 
     if (window.getting) {
-      // Return a promise that doesn't resolve
+      // Return a promise that resolves based on events from the dialog.
       return new Promise((resolve, reject) => {
         window.addEventListener('passphrase-set', () => {
-          resolve('passphrase');
+          resolve(sessionStorage.getItem(SESSION_STORAGE_KEY) as string);
         });
 
         window.addEventListener('passphrase-cancel', () => {
@@ -71,15 +68,15 @@ export function usePassphrase() {
       onCancel: () => {},
     });
     window.getting = false;
-    console.log(result);
 
+    // If the dialog is cancelled, throw an error that the consumer can handle
+    // and dispatch a custom event to notify any other concurrent listeners.
     if (!result) {
       window.dispatchEvent(new CustomEvent('passphrase-cancel'));
       throw new UnauthorizedError();
     }
 
     sessionStorage.setItem(SESSION_STORAGE_KEY, 'passphrase');
-    setPassphrase('passphrase' as string);
 
     window.dispatchEvent(new CustomEvent('passphrase-set'));
 
