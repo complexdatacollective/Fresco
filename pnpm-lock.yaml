@@ -123,8 +123,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       color:
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^4.2.3
+        version: 4.2.3
       concaveman:
         specifier: ^1.2.1
         version: 1.2.1
@@ -2537,9 +2537,6 @@ packages:
 
   color-string@1.9.1:
     resolution: {integrity: sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg==}
-
-  color@2.0.1:
-    resolution: {integrity: sha512-ubUCVVKfT7r2w2D3qtHakj8mbmKms+tThR8gI8zEYCbUBl8/voqFGt3kgBqGwXAopgXybnkuOq+qMYCRrp4cXw==}
 
   color@4.2.3:
     resolution: {integrity: sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==}
@@ -7763,11 +7760,6 @@ snapshots:
     dependencies:
       color-name: 1.1.4
       simple-swizzle: 0.2.2
-
-  color@2.0.1:
-    dependencies:
-      color-convert: 1.9.3
-      color-string: 1.9.1
 
   color@4.2.3:
     dependencies:
