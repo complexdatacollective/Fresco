@@ -1,5 +1,6 @@
 'use server';
 
+import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
 import { type z } from 'zod';
@@ -57,6 +58,7 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 }
 
 export async function isAppExpired() {
+  unstable_noStore();
   const isConfigured = await getAppSetting('configured');
   const initializedAt = await getAppSetting('initializedAt');
 
