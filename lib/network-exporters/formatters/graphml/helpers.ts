@@ -1,19 +1,6 @@
+import { NcEntity } from '@codaco/shared-consts';
 import { isNil } from 'lodash';
 import { getEntityAttributes } from '../../utils/general';
-
-// Gephi does not support long lines in graphML, meaning we need to "beautify" the output
-const formatXml = (xml, tab = '\t') => {
-  // tab = optional indent value, default is tab (\t)
-  let formatted = '';
-  let indent = '';
-
-  xml.split(/>\s*</).forEach((node) => {
-    if (node.match(/^\/\w/)) indent = indent.substring(tab.length); // decrease indent by one 'tab'
-    formatted += `${indent}<${node}>\r\n`;
-    if (node.match(/^<?\w[^>]*[^/]$/)) indent += tab; // increase indent
-  });
-  return formatted.substring(1, formatted.length - 3);
-};
 
 /**
  * For a given key, return a valid Graphml data 'type' for encoding
@@ -28,7 +15,7 @@ const formatXml = (xml, tab = '\t') => {
  * @param {*} data
  * @param {*} key
  */
-const getGraphMLTypeForKey = (data, key) =>
+const getGraphMLTypeForKey = (data: NcEntity[], key: string) =>
   data.reduce((result, value) => {
     const attrs = getEntityAttributes(value);
     if (isNil(attrs[key])) return result;
@@ -49,7 +36,12 @@ const getGraphMLTypeForKey = (data, key) =>
     return 'string';
   }, '');
 
-const createElement = (xmlDoc, tagName, attrs = {}, child = null) => {
+const createElement = (
+  xmlDoc: XMLDocument,
+  tagName: string,
+  attrs: Record<string, string>,
+  child = null,
+) => {
   const element = xmlDoc.createElement(tagName);
   Object.entries(attrs).forEach(([key, val]) => {
     element.setAttribute(key, val);
@@ -60,12 +52,16 @@ const createElement = (xmlDoc, tagName, attrs = {}, child = null) => {
   return element;
 };
 
-const createDataElement = (xmlDoc, attributes, text) =>
-  createElement(xmlDoc, 'data', attributes, xmlDoc.createTextNode(text));
+const createDataElement = (
+  xmlDoc: XMLDocument,
+  attributes: Record<string, string>,
+  text: string,
+) => {
+  const textNode = xmlDoc.createTextNode(text);
+  const element = createElement(xmlDoc, 'data', attributes);
+  element.appendChild(textNode);
 
-export {
-  createDataElement,
-  formatXml,
-  getGraphMLTypeForKey
+  return element;
 };
 
+export { createDataElement, getGraphMLTypeForKey };

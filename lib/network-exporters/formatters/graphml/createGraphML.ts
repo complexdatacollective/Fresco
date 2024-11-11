@@ -1,12 +1,12 @@
 import jsSHA from 'jssha/dist/sha1';
-import { findKey, groupBy, includes } from 'lodash';
-import {
-  createDataElement,
-  formatXml,
-  getGraphMLTypeForKey,
-} from './helpers';
+import { findKey, includes } from 'lodash';
+import { createDataElement, getGraphMLTypeForKey } from './helpers';
 
 import {
+  type Codebook,
+  type NcEgo,
+  type NcEntity,
+  type NcNetwork,
   VariableType,
   caseProperty,
   codebookHashProperty,
@@ -27,130 +27,96 @@ import {
   sessionProperty,
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
-import dom, { MIME_TYPE } from '@xmldom/xmldom';
-import { getAttributePropertyFromCodebook, getEntityAttributes } from '~/lib/network-exporters/utils/general';
-
-// In a browser process, window provides a globalContext;
-// in an electron main process, we can inject required globals
-let globalContext;
-
-// Use native DOMParser and XMLSerializer if available
-if (typeof window !== 'undefined' && window.DOMParser && window.XMLSerializer) {
-  globalContext = window;
-} else {
-  globalContext = {};
-  globalContext.DOMParser = dom.DOMParser;
-  globalContext.XMLSerializer = dom.XMLSerializer;
-}
-
-const eol = '\n';
-
-// Create a serializer for reuse below.
-const serializer = new globalContext.XMLSerializer();
-const serialize = (fragment) =>
-  `${serializer.serializeToString(fragment)}${eol}`;
-
-// Utility function for indenting and serializing XML element
-const formatAndSerialize = (element) => formatXml(serialize(element));
+import { DOMImplementation, XMLSerializer } from '@xmldom/xmldom';
+import {
+  getAttributePropertyFromCodebook,
+  getEntityAttributes,
+} from '~/lib/network-exporters/utils/general';
+import { type ExportOptions } from '../../utils/types';
+import { type ExportFileNetwork } from '../session/exportFile';
 
 // Utility sha1 function that returns hashed text
-const sha1 = (text) => {
+const sha1 = (text: string) => {
   // eslint-disable-next-line new-cap
   const shaInstance = new jsSHA('SHA-1', 'TEXT', { encoding: 'UTF8' });
   shaInstance.update(text.toString());
   return shaInstance.getHash('HEX');
 };
 
-// If includeNCMeta is true, include our custom XML schema
-const getXmlHeader = () => `<?xml version="1.0" encoding="UTF-8"?>
-  <graphml
-    xmlns="http://graphml.graphdrawing.org/xmlns"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
-    http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"
-    xmlns:nc="http://schema.networkcanvas.com/xmlns">${eol}`;
+// Use exportOptions from FileExportManager to determine XML properties
+const setUpXml = (sessionVariables: ExportFileNetwork['sessionVariables']) => {
+  const doc = new DOMImplementation().createDocument(null, 'graphml', null);
 
-// Use exportOptions.defaultOptions from FileExportManager to determine parameters
-// for edge direction.
-const getGraphHeader = (
-  { globalOptions: { useDirectedEdges } },
-  sessionVariables,
-) => {
-  const edgeDefault = useDirectedEdges ? 'directed' : 'undirected';
+  // Set the necessary namespaces and attributes
+  const root = doc.documentElement!;
+  root.setAttribute('xmlns', 'http://graphml.graphdrawing.org/xmlns');
+  root.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+  root.setAttribute(
+    'xsi:schemaLocation',
+    'http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd',
+  );
+  root.setAttribute('xmlns:nc', 'http://schema.networkcanvas.com/xmlns');
 
-  let metaAttributes = `nc:caseId="${sessionVariables[caseProperty]}"
-  nc:sessionUUID="${sessionVariables[sessionProperty]}"
-  nc:protocolName="${sessionVariables[protocolName]}"
-  nc:protocolUID="${sessionVariables[protocolProperty]}"
-  nc:codebookHash="${sessionVariables[codebookHashProperty]}"
-  nc:sessionExportTime="${sessionVariables[sessionExportTimeProperty]}"`;
+  const pi = doc.createProcessingInstruction(
+    'xml',
+    'version="1.0" encoding="UTF-8"',
+  );
+  doc.insertBefore(pi, doc.firstChild);
+
+  // Create the graph element
+  const graph = doc.createElement('graph');
+
+  // Add attributes
+  graph.setAttribute('edgedefault', 'undirected');
+  graph.setAttribute('nc:caseId', sessionVariables[caseProperty]);
+  graph.setAttribute('nc:sessionUUID', sessionVariables[sessionProperty]);
+  graph.setAttribute('nc:protocolName', sessionVariables[protocolName]);
+  graph.setAttribute('nc:protocolUID', sessionVariables[protocolProperty]);
+  graph.setAttribute('nc:codebookHash', sessionVariables[codebookHashProperty]);
+  graph.setAttribute(
+    'nc:sessionExportTime',
+    sessionVariables[sessionExportTimeProperty],
+  );
 
   if (sessionVariables[sessionStartTimeProperty]) {
-    metaAttributes += `${eol}    nc:sessionStartTime="${sessionVariables[sessionStartTimeProperty]}"`;
+    graph.setAttribute(
+      'nc:sessionStartTime',
+      sessionVariables[sessionStartTimeProperty],
+    );
   }
 
   if (sessionVariables[sessionFinishTimeProperty]) {
-    metaAttributes += `${eol}    nc:sessionFinishTime="${sessionVariables[sessionFinishTimeProperty]}"`;
+    graph.setAttribute(
+      'nc:sessionFinishTime',
+      sessionVariables[sessionFinishTimeProperty],
+    );
   }
-  return `<graph
-  edgedefault="${edgeDefault}"
-  ${metaAttributes}
->${eol}`;
-};
 
-const getGraphFooter = `</graph>${eol}`;
+  root.appendChild(graph);
 
-const xmlFooter = `</graphml>${eol}`;
-
-// Use exportOptions from FileExportManager to determine XML properties
-const setUpXml = (exportOptions, sessionVariables) => {
-  const graphMLOutline = `${getXmlHeader()}${getGraphHeader(
-    exportOptions,
-    sessionVariables,
-  )}${xmlFooter}`;
-  return new globalContext.DOMParser().parseFromString(
-    graphMLOutline,
-    MIME_TYPE.XML_TEXT
-  );
+  return doc;
 };
 
 // <key> elements provide the type definitions for GraphML data elements
 // @return {Object} a fragment to insert
 //                  codebook: `{ fragment: <DocumentFragment> }`.
 const generateKeyElements = (
-  document, // the XML ownerDocument
-  entities, // network.nodes or edges, or ego
-  type, // 'node' or 'edge' or 'ego'
-  excludeList, // Variables to exlcude
-  codebook, // codebook
-  exportOptions = {},
+  document: XMLDocument, // the XML ownerDocument
+  entities: NcNetwork['nodes'] | NcNetwork['edges'] | NcEgo,
+  type: 'node' | 'edge' | 'ego', // 'node' or 'edge' or 'ego'
+  excludeList: string[], // Variables to exclude
+  codebook: Codebook, // codebook
+  exportOptions: ExportOptions,
 ) => {
-  let fragment = '';
+  const fragment = document.createDocumentFragment();
 
   // Create an array to track variables we have already created <key>s for
-  const done = [];
-
-  // Create <key> for a 'label' variable that is allowed on all elements.
-  // This is used by Gephi to label nodes/edges.
-  // Only create once!
-  if (
-    type === 'node' &&
-    done.indexOf('label') === -1 &&
-    !excludeList.includes('label')
-  ) {
-    const labelDataElement = document.createElement('key');
-    labelDataElement.setAttribute('id', 'label');
-    labelDataElement.setAttribute('attr.name', 'label');
-    labelDataElement.setAttribute('attr.type', 'string');
-    labelDataElement.setAttribute('for', 'all');
-    fragment += `${serialize(labelDataElement)}`;
-    done.push('label');
-  }
+  const done = new Set();
 
   // Create a <key> for the network canvas entity type.
   if (
     type === 'node' &&
-    done.indexOf('type') === -1 &&
+    done.has('type') === false &&
     !excludeList.includes('type')
   ) {
     const typeDataElement = document.createElement('key');
@@ -158,14 +124,14 @@ const generateKeyElements = (
     typeDataElement.setAttribute('attr.name', ncTypeProperty);
     typeDataElement.setAttribute('attr.type', 'string');
     typeDataElement.setAttribute('for', 'all');
-    fragment += `${serialize(typeDataElement)}`;
-    done.push('type');
+    fragment.appendChild(typeDataElement);
+    done.add('type');
   }
 
   // Create a <key> for network canvas UUID.
   if (
     type === 'node' &&
-    done.indexOf('uuid') === -1 &&
+    done.has('uuid') === false &&
     !excludeList.includes('uuid')
   ) {
     const typeDataElement = document.createElement('key');
@@ -173,33 +139,33 @@ const generateKeyElements = (
     typeDataElement.setAttribute('attr.name', ncUUIDProperty);
     typeDataElement.setAttribute('attr.type', 'string');
     typeDataElement.setAttribute('for', 'all');
-    fragment += `${serialize(typeDataElement)}`;
-    done.push('uuid');
+    fragment.appendChild(typeDataElement);
+    done.add('uuid');
   }
 
   // Create a <key> for `from` and `to` properties that reference network canvas UUIDs.
-  if (type === 'edge' && done.indexOf('originalEdgeSource') === -1) {
+  if (type === 'edge' && done.has('originalEdgeSource') === false) {
     // Create <key> for type
-    const typeDataElement = document.createElement('key');
-    typeDataElement.setAttribute('id', ncTargetUUID);
-    typeDataElement.setAttribute('attr.name', ncTargetUUID);
-    typeDataElement.setAttribute('attr.type', 'string');
-    typeDataElement.setAttribute('for', 'edge');
-    fragment += `${serialize(typeDataElement)}`;
+    const targetDataElement = document.createElement('key');
+    targetDataElement.setAttribute('id', ncTargetUUID);
+    targetDataElement.setAttribute('attr.name', ncTargetUUID);
+    targetDataElement.setAttribute('attr.type', 'string');
+    targetDataElement.setAttribute('for', 'edge');
+    fragment.appendChild(targetDataElement);
 
-    const typeDataElement2 = document.createElement('key');
-    typeDataElement2.setAttribute('id', ncSourceUUID);
-    typeDataElement2.setAttribute('attr.name', ncSourceUUID);
-    typeDataElement2.setAttribute('attr.type', 'string');
-    typeDataElement2.setAttribute('for', 'edge');
-    fragment += `${serialize(typeDataElement2)}`;
+    const sourceDataElement = document.createElement('key');
+    sourceDataElement.setAttribute('id', ncSourceUUID);
+    sourceDataElement.setAttribute('attr.name', ncSourceUUID);
+    sourceDataElement.setAttribute('attr.type', 'string');
+    sourceDataElement.setAttribute('for', 'edge');
+    fragment.appendChild(sourceDataElement);
 
-    done.push('originalEdgeSource');
+    done.add('originalEdgeSource');
   }
 
   // Main loop over entities
-  entities.forEach((element) => {
-    const elementAttributes = getEntityAttributes(element);
+  entities.forEach((entity: NcEntity) => {
+    const elementAttributes = getEntityAttributes(entity);
 
     // nodes and edges have for="node|edge" but ego has for="graph"
     const keyTarget = type === 'ego' ? 'graph' : type;
@@ -208,24 +174,24 @@ const generateKeyElements = (
     Object.keys(elementAttributes).forEach((key) => {
       // transpose ids to names based on codebook; fall back to the raw key
       const keyName =
-        getAttributePropertyFromCodebook(
+        (getAttributePropertyFromCodebook(
           codebook,
           type,
-          element,
+          entity,
           key,
           'name',
-        ) || key;
+        ) as string) ?? key;
 
       // Test if we have already created a key for this variable, and that it
       // isn't on our exclude list.
-      if (done.indexOf(key) === -1 && !excludeList.includes(keyName)) {
+      if (done.has(key) === false && !excludeList.includes(keyName)) {
         const keyElement = document.createElement('key');
 
         // Determine attribute type to decide how to encode it
         const variableType = getAttributePropertyFromCodebook(
           codebook,
           type,
-          element,
+          entity,
           key,
         );
 
@@ -250,7 +216,11 @@ const generateKeyElements = (
             break;
           case VariableType.ordinal:
           case VariableType.number: {
-            const keyType = getGraphMLTypeForKey(entities, key);
+            const keyType = getGraphMLTypeForKey(entities, key) as
+              | 'int'
+              | 'double'
+              | 'string'
+              | 'number';
             keyElement.setAttribute('attr.type', keyType || 'string');
             break;
           }
@@ -268,7 +238,7 @@ const generateKeyElements = (
             keyElement2.setAttribute('attr.name', `${keyName}_X`);
             keyElement2.setAttribute('attr.type', 'double');
             keyElement2.setAttribute('for', keyTarget);
-            fragment += `${serialize(keyElement2)}`;
+            fragment.appendChild(keyElement2);
 
             if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
               // Create a third element to model the <key> for
@@ -278,7 +248,7 @@ const generateKeyElements = (
               keyElement3.setAttribute('attr.name', `${keyName}_screenSpaceY`);
               keyElement3.setAttribute('attr.type', 'double');
               keyElement3.setAttribute('for', keyTarget);
-              fragment += `${serialize(keyElement3)}`;
+              fragment.appendChild(keyElement3);
 
               // Create a fourth element to model the <key> for
               // the screen space X value
@@ -287,7 +257,7 @@ const generateKeyElements = (
               keyElement4.setAttribute('attr.name', `${keyName}_screenSpaceX`);
               keyElement4.setAttribute('attr.type', 'double');
               keyElement4.setAttribute('for', keyTarget);
-              fragment += `${serialize(keyElement4)}`;
+              fragment.appendChild(keyElement4);
             }
 
             break;
@@ -305,10 +275,10 @@ const generateKeyElements = (
             const options = getAttributePropertyFromCodebook(
               codebook,
               type,
-              element,
+              entity,
               key,
               'options',
-            );
+            ) as { value: string }[];
 
             options.forEach((option, index) => {
               // Hash the value to ensure that it is NKTOKEN compliant
@@ -330,7 +300,7 @@ const generateKeyElements = (
                 );
                 keyElement2.setAttribute('attr.type', 'boolean');
                 keyElement2.setAttribute('for', keyTarget);
-                fragment += `${serialize(keyElement2)}`;
+                fragment.appendChild(keyElement2);
               }
             });
             break;
@@ -345,8 +315,8 @@ const generateKeyElements = (
         }
 
         keyElement.setAttribute('for', keyTarget);
-        fragment += `${serialize(keyElement)}`;
-        done.push(key);
+        fragment.appendChild(keyElement);
+        done.add(key);
       }
     });
   });
@@ -364,19 +334,19 @@ const generateKeyElements = (
  * @param {Object} exportOptions - Export options object
  */
 const generateEgoDataElements = (
-  document,
-  ego,
-  excludeList,
-  codebook,
-  exportOptions,
+  document: XMLDocument,
+  ego: NcEgo,
+  excludeList: string[],
+  codebook: Codebook,
+  exportOptions: ExportOptions,
 ) => {
-  let fragment = '';
+  const fragment = document.createDocumentFragment();
 
   // Get the ego's attributes for looping over later
   const entityAttributes = getEntityAttributes(ego);
 
   // Create data element for Ego UUID
-  fragment += formatAndSerialize(
+  fragment.appendChild(
     createDataElement(
       document,
       { key: ncUUIDProperty },
@@ -415,21 +385,22 @@ const generateEgoDataElements = (
           null,
           key,
           'options',
-        );
+        ) as { value: string }[];
+
         options.forEach((option) => {
           const hashedOptionValue = sha1(option.value);
           const optionKey = `${key}_${hashedOptionValue}`;
-          fragment += formatAndSerialize(
+          fragment.appendChild(
             createDataElement(
               document,
               { key: optionKey },
               !!entityAttributes[key] &&
-              includes(entityAttributes[key], option.value),
+                includes(entityAttributes[key], option.value),
             ),
           );
         });
       } else if (keyType && typeof entityAttributes[key] !== 'object') {
-        fragment += formatAndSerialize(
+        fragment.appendChild(
           createDataElement(document, { key }, entityAttributes[key]),
         );
       } else if (keyType === 'layout') {
@@ -438,10 +409,10 @@ const generateEgoDataElements = (
         const xCoord = entityAttributes[key].x;
         const yCoord = entityAttributes[key].y;
 
-        fragment += formatAndSerialize(
+        fragment.appendChild(
           createDataElement(document, { key: `${key}_X` }, xCoord),
         );
-        fragment += formatAndSerialize(
+        fragment.appendChild(
           createDataElement(document, { key: `${key}_Y` }, yCoord),
         );
 
@@ -454,14 +425,14 @@ const generateEgoDataElements = (
             (1.0 - yCoord) *
             screenLayoutHeight
           ).toFixed(2);
-          fragment += formatAndSerialize(
+          fragment.appendChild(
             createDataElement(
               document,
               { key: `${key}_screenSpaceX` },
               screenSpaceXCoord,
             ),
           );
-          fragment += formatAndSerialize(
+          fragment.appendChild(
             createDataElement(
               document,
               { key: `${key}_screenSpaceY` },
@@ -470,7 +441,7 @@ const generateEgoDataElements = (
           );
         }
       } else {
-        fragment += formatAndSerialize(
+        fragment.appendChild(
           createDataElement(document, { key: keyName }, entityAttributes[key]),
         );
       }
@@ -482,14 +453,14 @@ const generateEgoDataElements = (
 
 // @return {DocumentFragment} a fragment containing all XML elements for the supplied dataList
 const generateDataElements = (
-  document, // the XML ownerDocument
-  entities, // List of nodes or edges or an object representing ego
-  type, // Element type to be created. "node" or "egde"
-  excludeList, // Attributes to exclude lookup of in codebook
-  codebook, // Copy of codebook
-  exportOptions, // Export options object
+  document: XMLDocument, // the XML ownerDocument
+  entities: NcNetwork['nodes'] | NcNetwork['edges'], // the list of entities to generate data elements for
+  type: 'node' | 'edge', // 'node' or 'edge'
+  excludeList: string[], // Variables to exclude
+  codebook: Codebook, // codebook
+  exportOptions: ExportOptions,
 ) => {
-  let fragment = '';
+  const fragment = document.createDocumentFragment();
 
   // Iterate entities
   entities.forEach((entity) => {
@@ -517,7 +488,7 @@ const generateDataElements = (
     );
 
     // Create data element for entity type
-    const entityTypeName = codebook[type][entity.type].name || entity.type;
+    const entityTypeName = codebook[type]?.[entity.type]?.name ?? entity.type;
     domElement.appendChild(
       createDataElement(document, { key: ncTypeProperty }, entityTypeName),
     );
@@ -549,7 +520,7 @@ const generateDataElements = (
       // For nodes, add a <data> element for the label using the name property
       const entityLabel = () => {
         const variableCalledName = findKey(
-          codebook[type][entity.type].variables,
+          codebook[type]?.[entity.type]?.variables,
           (variable) => variable.name.toLowerCase() === 'name',
         );
 
@@ -576,7 +547,7 @@ const generateDataElements = (
         entity,
         key,
         'name',
-      );
+      ) as string;
       const keyType = getAttributePropertyFromCodebook(
         codebook,
         type,
@@ -599,7 +570,8 @@ const generateDataElements = (
             entity,
             key,
             'options',
-          );
+          ) as { value: string }[];
+
           options.forEach((option) => {
             const hashedOptionValue = sha1(option.value);
             const optionKey = `${key}_${hashedOptionValue}`;
@@ -608,7 +580,7 @@ const generateDataElements = (
                 document,
                 { key: optionKey },
                 !!entityAttributes[key] &&
-                includes(entityAttributes[key], option.value),
+                  includes(entityAttributes[key], option.value),
               ),
             );
           });
@@ -671,7 +643,7 @@ const generateDataElements = (
       }
     });
 
-    fragment += `${formatAndSerialize(domElement)}`;
+    fragment.appendChild(domElement);
   });
 
   return fragment;
@@ -683,113 +655,102 @@ const generateDataElements = (
  * @param {*} codebook
  * @param {*} exportOptions
  */
-function* graphMLGenerator(network, codebook, exportOptions) {
-  yield getXmlHeader();
+function* graphMLGenerator(
+  network: ExportFileNetwork,
+  codebook: Codebook,
+  exportOptions: ExportOptions,
+) {
+  const xmlDoc = setUpXml(network.sessionVariables);
 
-  const xmlDoc = setUpXml(exportOptions, network.sessionVariables);
+  // get the graphML element, which is where keys are appended
+  const graphMLElement = xmlDoc.getElementsByTagName('graphml')[0]!;
 
-  const generateEgoKeys = (ego) =>
-    generateKeyElements(xmlDoc, [ego], 'ego', [], codebook, exportOptions);
+  // Create <key> for a 'label' variable for display in Gephi.
 
-  const generateNodeKeys = (nodes) =>
-    generateKeyElements(xmlDoc, nodes, 'node', [], codebook, exportOptions);
+  const labelDataElement = xmlDoc.createElement('key');
+  labelDataElement.setAttribute('id', 'label');
+  labelDataElement.setAttribute('attr.name', 'label');
+  labelDataElement.setAttribute('attr.type', 'string');
+  labelDataElement.setAttribute('for', 'all');
 
-  const generateEdgeKeys = (edges) =>
-    generateKeyElements(xmlDoc, edges, 'edge', [], codebook);
-  const generateNodeElements = (nodes) =>
-    generateDataElements(xmlDoc, nodes, 'node', [], codebook, exportOptions);
-
-  const generateEdgeElements = (edges) =>
-    generateDataElements(xmlDoc, edges, 'edge', [], codebook, exportOptions);
-
-  const generateEgoElements = (ego) =>
-    generateEgoDataElements(xmlDoc, ego, [], codebook, exportOptions);
+  graphMLElement.appendChild(labelDataElement);
 
   // generate keys for ego
-  if (exportOptions.globalOptions.unifyNetworks) {
-    const combinedEgos = Object.values(network.ego).reduce(
-      (union, ego) => ({
-        [entityAttributesProperty]: {
-          ...union[entityAttributesProperty],
-          ...ego[entityAttributesProperty],
-        },
-      }),
-      { [entityAttributesProperty]: {} },
-    );
-
-    yield generateEgoKeys(combinedEgos);
-  } else {
-    yield generateEgoKeys(network.ego);
-  }
+  graphMLElement.appendChild(
+    generateKeyElements(
+      xmlDoc,
+      [network.ego],
+      'ego',
+      [],
+      codebook,
+      exportOptions,
+    ),
+  );
 
   // generate keys for nodes
-  yield generateNodeKeys(network.nodes);
+  graphMLElement.appendChild(
+    generateKeyElements(
+      xmlDoc,
+      network.nodes,
+      'node',
+      [],
+      codebook,
+      exportOptions,
+    ),
+  );
 
   // generate keys for edges
-  yield generateEdgeKeys(network.edges);
+  graphMLElement.appendChild(
+    generateKeyElements(
+      xmlDoc,
+      network.edges,
+      'edge',
+      [],
+      codebook,
+      exportOptions,
+    ),
+  );
 
-  if (exportOptions.globalOptions.unifyNetworks) {
-    // Group nodes and edges by sessionProperty, and then map.
-    const groupedNetwork = {
-      nodes: groupBy(network.nodes, sessionProperty),
-      edges: groupBy(network.edges, sessionProperty),
-    };
+  // get the graph element, since this is what we will mostly be appending to
+  const graphElement = xmlDoc.getElementsByTagName('graph')[0]!;
 
-    /* eslint-disable no-restricted-syntax, guard-for-in, no-unused-vars */
-    for (const sessionID in network.sessionVariables) {
-      yield getGraphHeader(exportOptions, network.sessionVariables[sessionID]);
-
-      // Add ego to graph
-      if (network.ego[sessionID] && codebook.ego) {
-        yield generateEgoElements(network.ego[sessionID]);
-      }
-
-      // add nodes and edges to graph
-      if (groupedNetwork.nodes[sessionID]) {
-        for (let i = 0; i < groupedNetwork.nodes[sessionID].length; i += 100) {
-          yield generateNodeElements(
-            groupedNetwork.nodes[sessionID].slice(i, i + 100),
-          );
-        }
-      }
-
-      if (groupedNetwork.edges[sessionID]) {
-        for (let i = 0; i < groupedNetwork.edges[sessionID].length; i += 100) {
-          yield generateEdgeElements(
-            groupedNetwork.edges[sessionID].slice(i, i + 100),
-          );
-        }
-      }
-
-      yield getGraphFooter;
-    }
-    /* eslint-enable no-restricted-syntax, guard-for-in */
-  } else {
-    // TODO: reduce duplication with this code
-    yield getGraphHeader(exportOptions, network.sessionVariables);
-
-    // Add ego to graph
-    if (network.ego && codebook.ego) {
-      yield generateEgoElements(network.ego);
-    }
-
-    // add nodes and edges to graph
-    if (network.nodes) {
-      for (let i = 0; i < network.nodes.length; i += 100) {
-        yield generateNodeElements(network.nodes.slice(i, i + 100));
-      }
-    }
-
-    if (network.edges) {
-      for (let i = 0; i < network.edges.length; i += 100) {
-        yield generateEdgeElements(network.edges.slice(i, i + 100));
-      }
-    }
-
-    yield getGraphFooter;
+  // Add ego to graph
+  if (network.ego && codebook.ego) {
+    graphElement.appendChild(
+      generateEgoDataElements(xmlDoc, network.ego, [], codebook, exportOptions),
+    );
   }
 
-  yield xmlFooter;
+  // add nodes and edges to graph
+  if (network.nodes) {
+    graphElement.appendChild(
+      generateDataElements(
+        xmlDoc,
+        network.nodes,
+        'node',
+        [],
+        codebook,
+        exportOptions,
+      ),
+    );
+  }
+
+  if (network.edges) {
+    graphElement.appendChild(
+      generateDataElements(
+        xmlDoc,
+        network.edges,
+        'edge',
+        [],
+        codebook,
+        exportOptions,
+      ),
+    );
+  }
+
+  // Serialize the XML document
+  const serializer = new XMLSerializer();
+  yield serializer.serializeToString(xmlDoc);
 }
 
 export default graphMLGenerator;
