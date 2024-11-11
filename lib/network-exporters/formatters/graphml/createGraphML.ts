@@ -95,7 +95,7 @@ const setUpXml = (sessionVariables: ExportFileNetwork['sessionVariables']) => {
 // <key> elements provide the type definitions for GraphML data elements
 const generateKeyElements = (
   document: XMLDocument,
-  entities: NcNetwork['nodes'] | NcNetwork['edges'] | NcEgo,
+  entities: NcNetwork['nodes'] | NcNetwork['edges'],
   type: 'node' | 'edge' | 'ego',
   excludeList: string[],
   codebook: Codebook,
@@ -348,13 +348,10 @@ const generateEgoDataElements = (
 
   // Add entity attributes
   Object.keys(entityAttributes).forEach((key) => {
-    let keyName = getAttributePropertyFromCodebook(
-      codebook,
-      'ego',
-      null,
-      key,
-      'name',
-    );
+    const keyName =
+      getAttributePropertyFromCodebook(codebook, 'ego', null, key, 'name') ??
+      sha1(key);
+
     const keyType = getAttributePropertyFromCodebook(
       codebook,
       'ego',
@@ -362,12 +359,6 @@ const generateEgoDataElements = (
       key,
       'type',
     );
-
-    // Generate sha1 of keyName if it wasn't found in the codebook
-    // To ensure NMTOKEN compliance
-    if (!keyName) {
-      keyName = sha1(key);
-    }
 
     if (!excludeList.includes(keyName) && entityAttributes[key] !== null) {
       if (keyType === 'categorical') {
