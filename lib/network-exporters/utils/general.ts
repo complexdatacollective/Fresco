@@ -98,15 +98,14 @@ const getEgoVariableInfo = (codebook: Codebook, key: string) =>
 export const getAttributePropertyFromCodebook = (
   codebook: Codebook,
   type: 'node' | 'edge' | 'ego',
-  element: StageSubject,
+  element: StageSubject | null,
   key: string,
   attributeProperty = 'type',
 ) => {
-  let variableInfo;
-  if (type === 'ego') {
-    variableInfo = getEgoVariableInfo(codebook, key);
-  } else {
-    variableInfo = getVariableInfo(codebook, type, element, key);
-  }
+  const variableInfo =
+    type === 'ego'
+      ? getEgoVariableInfo(codebook, key)
+      : element && getVariableInfo(codebook, type, element, key);
+
   return variableInfo?.[attributeProperty as keyof typeof variableInfo];
 };

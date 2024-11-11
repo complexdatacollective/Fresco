@@ -1,4 +1,4 @@
-import { NcEntity } from '@codaco/shared-consts';
+import { type NcEntity } from '@codaco/shared-consts';
 import { isNil } from 'lodash';
 import { getEntityAttributes } from '../../utils/general';
 

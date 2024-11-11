@@ -43,7 +43,7 @@ const setUpXml = (sessionVariables: ExportFileNetwork['sessionVariables']) => {
   const doc = new DOMImplementation().createDocument(null, 'graphml', null);
 
   // Set the necessary namespaces and attributes
-  const root = doc.documentElement!;
+  const root = doc.documentElement;
   root.setAttribute('xmlns', 'http://graphml.graphdrawing.org/xmlns');
   root.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
   root.setAttribute(
@@ -169,7 +169,10 @@ const generateKeyElements = (
         (getAttributePropertyFromCodebook(
           codebook,
           type,
-          entity,
+          {
+            entity: type,
+            type: entity.type ?? '',
+          },
           key,
           'name',
         ) as string) ?? key;
@@ -183,7 +186,10 @@ const generateKeyElements = (
         const variableType = getAttributePropertyFromCodebook(
           codebook,
           type,
-          entity,
+          {
+            entity: type,
+            type: entity.type ?? '',
+          },
           key,
         );
 
@@ -267,7 +273,10 @@ const generateKeyElements = (
             const options = getAttributePropertyFromCodebook(
               codebook,
               type,
-              entity,
+              {
+                entity: type,
+                type: entity.type ?? '',
+              },
               key,
               'options',
             ) as { value: string }[];
@@ -360,7 +369,11 @@ const generateEgoDataElements = (
       'type',
     );
 
-    if (!excludeList.includes(keyName) && entityAttributes[key] !== null) {
+    if (
+      typeof keyName === 'string' &&
+      !excludeList.includes(keyName) &&
+      entityAttributes[key] !== null
+    ) {
       if (keyType === 'categorical') {
         const options = getAttributePropertyFromCodebook(
           codebook,
@@ -389,14 +402,14 @@ const generateEgoDataElements = (
       } else if (keyType === 'layout') {
         // TODO: can ego have a layout?
         // Determine if we should use the normalized or the "screen space" value
-        const xCoord = entityAttributes[key].x;
-        const yCoord = entityAttributes[key].y;
+        const xCoord = entityAttributes[key]?.x as number;
+        const yCoord = entityAttributes[key]?.y as number;
 
         fragment.appendChild(
-          createDataElement(document, { key: `${key}_X` }, xCoord),
+          createDataElement(document, { key: `${key}_X` }, xCoord.toString()),
         );
         fragment.appendChild(
-          createDataElement(document, { key: `${key}_Y` }, yCoord),
+          createDataElement(document, { key: `${key}_Y` }, yCoord.toString()),
         );
 
         const { screenLayoutWidth, screenLayoutHeight } =
@@ -527,14 +540,20 @@ const generateDataElements = (
       let keyName = getAttributePropertyFromCodebook(
         codebook,
         type,
-        entity,
+        {
+          entity: type,
+          type: entity.type ?? '',
+        },
         key,
         'name',
       ) as string;
       const keyType = getAttributePropertyFromCodebook(
         codebook,
         type,
-        entity,
+        {
+          entity: type,
+          type: entity.type ?? '',
+        },
         key,
         'type',
       );
@@ -550,7 +569,10 @@ const generateDataElements = (
           const options = getAttributePropertyFromCodebook(
             codebook,
             type,
-            entity,
+            {
+              entity: type,
+              type: entity.type ?? '',
+            },
             key,
             'options',
           ) as { value: string }[];
