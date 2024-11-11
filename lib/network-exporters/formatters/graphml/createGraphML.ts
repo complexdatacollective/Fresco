@@ -1,7 +1,3 @@
-import jsSHA from 'jssha/dist/sha1';
-import { findKey, includes } from 'lodash';
-import { createDataElement, getGraphMLTypeForKey } from './helpers';
-
 import {
   type Codebook,
   type NcEgo,
@@ -28,22 +24,21 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { DOMImplementation, XMLSerializer } from '@xmldom/xmldom';
+import { createHash } from 'crypto';
+import { findKey, includes } from 'lodash';
 import {
   getAttributePropertyFromCodebook,
   getEntityAttributes,
 } from '~/lib/network-exporters/utils/general';
 import { type ExportOptions } from '../../utils/types';
 import { type ExportFileNetwork } from '../session/exportFile';
+import { createDataElement, getGraphMLTypeForKey } from './helpers';
 
 // Utility sha1 function that returns hashed text
 const sha1 = (text: string) => {
-  // eslint-disable-next-line new-cap
-  const shaInstance = new jsSHA('SHA-1', 'TEXT', { encoding: 'UTF8' });
-  shaInstance.update(text.toString());
-  return shaInstance.getHash('HEX');
+  return createHash('sha1').update(text, 'utf8').digest('hex');
 };
 
-// Use exportOptions from FileExportManager to determine XML properties
 const setUpXml = (sessionVariables: ExportFileNetwork['sessionVariables']) => {
   const doc = new DOMImplementation().createDocument(null, 'graphml', null);
 
@@ -98,22 +93,19 @@ const setUpXml = (sessionVariables: ExportFileNetwork['sessionVariables']) => {
 };
 
 // <key> elements provide the type definitions for GraphML data elements
-// @return {Object} a fragment to insert
-//                  codebook: `{ fragment: <DocumentFragment> }`.
 const generateKeyElements = (
-  document: XMLDocument, // the XML ownerDocument
+  document: XMLDocument,
   entities: NcNetwork['nodes'] | NcNetwork['edges'] | NcEgo,
-  type: 'node' | 'edge' | 'ego', // 'node' or 'edge' or 'ego'
-  excludeList: string[], // Variables to exclude
-  codebook: Codebook, // codebook
+  type: 'node' | 'edge' | 'ego',
+  excludeList: string[],
+  codebook: Codebook,
   exportOptions: ExportOptions,
 ) => {
   const fragment = document.createDocumentFragment();
 
-  // Create an array to track variables we have already created <key>s for
+  // track variables we have already created <key>s for
   const done = new Set();
 
-  // Create a <key> for the network canvas entity type.
   if (
     type === 'node' &&
     done.has('type') === false &&
