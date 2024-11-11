@@ -38,7 +38,6 @@ export const env = createEnv({
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
-
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
