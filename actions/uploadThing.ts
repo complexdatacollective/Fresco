@@ -1,6 +1,5 @@
 'use server';
 
-import { File } from 'node:buffer';
 import { readFile, unlink } from 'node:fs/promises';
 import { UTApi } from 'uploadthing/server';
 import type {
