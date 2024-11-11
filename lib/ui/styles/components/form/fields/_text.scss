@@ -19,6 +19,7 @@ $module-name: form-field-text;
     border-bottom-color: transparent;
     transition: border-bottom-color var(--animation-easing)
       var(--animation-duration-standard);
+    justify-items: initial;
 
     &::placeholder {
       color: var(--nc-input-placeholder);
