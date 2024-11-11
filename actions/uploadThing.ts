@@ -2,24 +2,18 @@
 
 import { File } from 'node:buffer';
 import { readFile, unlink } from 'node:fs/promises';
-import { UTApi } from 'uploadthing/server';
 import type {
   ArchiveResult,
   ExportReturn,
 } from '~/lib/network-exporters/utils/types';
-import { getAppSetting } from '~/queries/appSettings';
+import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 
 export const deleteZipFromUploadThing = async (key: string) => {
   await requireApiAuth();
 
-  const UPLOADTHING_TOKEN = await getAppSetting('uploadThingToken');
-
-
-  const utapi = new UTApi({
-    token: UPLOADTHING_TOKEN,
-  });
+  const utapi = await getUTApi();
 
   const deleteResponse = await utapi.deleteFiles(key);
 
@@ -40,11 +34,7 @@ export const uploadZipToUploadThing = async (
       type: 'application/zip',
     });
 
-    const UPLOADTHING_TOKEN = await getAppSetting('uploadThingToken');
-
-    const utapi = new UTApi({
-      token: UPLOADTHING_TOKEN,
-    });
+    const utapi = await getUTApi();
 
     const { data, error } = await utapi.uploadFiles(zipFile);
 
