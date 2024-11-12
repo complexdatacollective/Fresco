@@ -3,6 +3,8 @@ import {
   codebookHashProperty,
   edgeExportIDProperty,
   egoProperty,
+  ncSourceUUID,
+  ncTargetUUID,
   nodeExportIDProperty,
   protocolName,
   protocolProperty,
@@ -99,6 +101,8 @@ const ZNodeWithResequencedID = ZNodeWithEgo.extend({
 export type NodeWithResequencedID = z.infer<typeof ZNodeWithResequencedID>;
 
 const ZEdgeWithResequencedID = ZEdgeWithEgo.extend({
+  [ncSourceUUID]: z.string(),
+  [ncTargetUUID]: z.string(),
   [edgeExportIDProperty]: z.number(),
   from: z.number(),
   to: z.number(),
