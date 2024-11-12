@@ -99,8 +99,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0(next@14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.79.1))(react@18.3.1)(uploadthing@7.2.0(next@14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.79.1))(tailwindcss@3.4.12(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.3))))
       '@xmldom/xmldom':
-        specifier: ^0.9.5
-        version: 0.9.5
+        specifier: ^0.8.10
+        version: 0.8.10
       animejs:
         specifier: ^2.2.0
         version: 2.2.0
@@ -2069,9 +2069,9 @@ packages:
   '@vitest/utils@2.1.4':
     resolution: {integrity: sha512-MXDnZn0Awl2S86PSNIim5PWXgIAx8CIkzu35mBdSApUip6RFOGXBCf3YFyeEu8n1IHk4bWD46DeYFu9mQlFIRg==}
 
-  '@xmldom/xmldom@0.9.5':
-    resolution: {integrity: sha512-6g1EwSs8cr8JhP1iBxzyVAWM6BIDvx9Y3FZRIQiMDzgG43Pxi8YkWOZ0nQj2NHgNzgXDZbJewFx/n+YAvMZrfg==}
-    engines: {node: '>=14.6'}
+  '@xmldom/xmldom@0.8.10':
+    resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
+    engines: {node: '>=10.0.0'}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -7133,7 +7133,7 @@ snapshots:
       loupe: 3.1.2
       tinyrainbow: 1.2.0
 
-  '@xmldom/xmldom@0.9.5': {}
+  '@xmldom/xmldom@0.8.10': {}
 
   abort-controller@3.0.0:
     dependencies:

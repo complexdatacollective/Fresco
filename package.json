@@ -52,7 +52,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@types/async": "^3.2.24",
     "@uploadthing/react": "^7.1.0",
-    "@xmldom/xmldom": "^0.9.5",
+    "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",
