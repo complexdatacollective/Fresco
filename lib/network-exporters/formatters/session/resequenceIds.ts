@@ -13,7 +13,9 @@ import type {
   SessionsByProtocol,
 } from '../../utils/types';
 
-const resequenceEntities = (target: SessionWithNetworkEgo[]) => {
+const resequenceEntities = (
+  target: SessionWithNetworkEgo[],
+): SessionWithResequencedIDs[] => {
   return target.map((session) => {
     let resequencedNodeId = 0;
     let resequencedEdgeId = 0;

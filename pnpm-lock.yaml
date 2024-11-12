@@ -143,9 +143,6 @@ importers:
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
-      jssha:
-        specifier: ^3.3.1
-        version: 3.3.1
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -3661,9 +3658,6 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
-
-  jssha@3.3.1:
-    resolution: {integrity: sha512-VCMZj12FCFMQYcFLPRm/0lOBbLi8uM2BhXPTqw3U4YAfs4AZfiApOoBLoN8cQE60Z50m1MYMTQVCfgF/KaCVhQ==}
 
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
@@ -9182,8 +9176,6 @@ snapshots:
       minimist: 1.2.8
 
   json5@2.2.3: {}
-
-  jssha@3.3.1: {}
 
   jsx-ast-utils@3.3.5:
     dependencies:
