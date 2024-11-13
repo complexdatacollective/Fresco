@@ -4,8 +4,8 @@ import { type Protocol } from '@codaco/shared-consts';
 import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
-import { UTApi } from 'uploadthing/server';
 import { type z } from 'zod';
+import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -109,7 +109,7 @@ async function deleteFilesFromUploadThing(fileKey: string | string[]) {
     return;
   }
 
-  const utapi = new UTApi();
+  const utapi = await getUTApi();
 
   const response = await utapi.deleteFiles(fileKey);
 

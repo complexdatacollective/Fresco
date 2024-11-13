@@ -1,6 +1,6 @@
+import { Quicksand } from 'next/font/google';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.scss';
-import { Quicksand } from 'next/font/google';
 
 export const metadata = {
   title: 'Network Canvas Fresco',

@@ -14,7 +14,7 @@ const alertVariants = cva(
         default: '',
         info: 'border-info bg-info/10 [--link:var(--info)] [&>svg]:text-info',
         destructive:
-          'border-destructive bg-destructive/5 text-destructive dark:border-destructive [&>svg]:text-destructive [--link:var(--destructive)]',
+          'border-destructive bg-destructive/5 text-destructive-foreground dark:border-destructive [&>svg]:text-destructive [--link:var(--destructive)]',
         success:
           'border-success bg-success/10 text-success-foreground [&>svg]:text-success-foreground [--link:var(--success-foreground)]',
       },
@@ -58,8 +58,7 @@ const AlertDescription = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'mt-1',
-      paragraphVariants({ variant: 'smallText' }),
+      paragraphVariants({ variant: 'smallText', margin: 'none' }),
       className,
     )}
     {...props}

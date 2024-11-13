@@ -1,11 +1,11 @@
-import InterviewShell from '../_components/InterviewShell';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { getLimitInterviewsStatus } from '~/queries/appSettings';
 import { syncInterview } from '~/actions/interviews';
-import { getInterviewById } from '~/queries/interviews';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
+import { getAppSetting } from '~/queries/appSettings';
+import { getInterviewById } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
+import InterviewShell from '../_components/InterviewShell';
 
 export default async function Page({
   params,
@@ -29,7 +29,7 @@ export default async function Page({
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  const limitInterviews = await getLimitInterviewsStatus();
+  const limitInterviews = await getAppSetting('limitInterviews');
 
   if (limitInterviews && cookies().get(interview?.protocol?.id ?? '')) {
     redirect('/interview/finished');

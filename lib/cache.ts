@@ -2,15 +2,12 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 
 const CACHE_TAGS = [
   'activityFeed',
-  'allowAnonymousRecruitment',
-  'limitInterviews',
   'appSettings',
   'getInterviews',
   'summaryStatistics',
   'getParticipants',
   'getInterviewById',
   'getProtocols',
-  'getInstallationId',
   'getInterviewsForExport',
   'getProtocolsByHash',
   'getExistingAssetIds',

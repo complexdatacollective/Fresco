@@ -6,7 +6,6 @@ import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
-import { getInstallationId } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsSection from './layout/SettingsSection';
@@ -71,10 +70,8 @@ async function checkForUpdate() {
 }
 
 export default async function VersionSection() {
-  const [
-    installationID,
-    { error, updateType, latestVersion, releaseNotes, releaseUrl },
-  ] = await Promise.all([getInstallationId(), checkForUpdate()]);
+  const { error, updateType, latestVersion, releaseNotes, releaseUrl } =
+    await checkForUpdate();
 
   return (
     <SettingsSection heading="App Version">
@@ -82,8 +79,6 @@ export default async function VersionSection() {
         You are currently running Fresco {env.APP_VERSION} ({env.COMMIT_HASH}
         ).
       </Paragraph>
-
-      <Paragraph>Your unique installation ID is: {installationID}</Paragraph>
 
       {error && (
         <Alert variant="destructive" className="mt-4">

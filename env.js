@@ -19,7 +19,6 @@ export const env = createEnv({
   server: {
     POSTGRES_PRISMA_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
-    DISABLE_ANALYTICS: strictBooleanSchema,
     PUBLIC_URL: z.string().url().optional(),
   },
 
@@ -31,13 +30,14 @@ export const env = createEnv({
   client: {},
   shared: {
     PUBLIC_URL: z.string().url().optional(),
+    INSTALLATION_ID: z.string().optional(),
+    DISABLE_ANALYTICS: strictBooleanSchema,
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
-    INSTALLATION_ID: z.string().optional(),
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -49,8 +49,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
-    SANDBOX_MODE: process.env.SANDBOX_MODE,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
+    SANDBOX_MODE: process.env.SANDBOX_MODE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
   },
