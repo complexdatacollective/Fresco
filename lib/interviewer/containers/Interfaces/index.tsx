@@ -40,7 +40,8 @@ const getInterface = (
     | StageTypes.TieStrengthCensus
     | 'FinishSession'
     | 'Anonymisation'
-    | 'OneToManyDyadCensus',
+    | 'OneToManyDyadCensus'
+    | 'FamilyTreeCensus',
 ) => {
   switch (interfaceType) {
     // Schema 8 interfaces
@@ -50,6 +51,10 @@ const getInterface = (
       });
     case 'OneToManyDyadCensus':
       return dynamic(() => import('./OneToManyDyadCensus'), {
+        loading: StageLoading,
+      });
+    case 'FamilyTreeCensus':
+      return dynamic(() => import('./FamilyTreeCensus'), {
         loading: StageLoading,
       });
     case StageTypes.NameGenerator:
