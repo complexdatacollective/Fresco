@@ -109,16 +109,16 @@ function* graphMLGenerator(
 
   // Add ego to graph
   if (network.ego && codebook.ego) {
-    graphElement.appendChild(dataGenerator([network.ego], 'ego'));
+    graphElement.appendChild(dataGenerator(network.ego));
   }
 
   // add nodes and edges to graph
   if (network.nodes) {
-    graphElement.appendChild(dataGenerator(network.nodes, 'node'));
+    graphElement.appendChild(dataGenerator(network.nodes));
   }
 
   if (network.edges) {
-    graphElement.appendChild(dataGenerator(network.edges, 'edge'));
+    graphElement.appendChild(dataGenerator(network.edges));
   }
 
   // Serialize the XML document

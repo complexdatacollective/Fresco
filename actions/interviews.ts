@@ -116,7 +116,7 @@ export const exportSessions = async (
       .then(insertEgoIntoSessionNetworks)
       .then(groupByProtocolProperty)
       .then(resequenceIds)
-      .then(generateOutputFiles(formattedProtocols, exportOptions))
+      .then(generateOutputFiles(formattedProtocols, exportOptions)) // Contains partitionByType
       .then(archive)
       .then(uploadZipToUploadThing);
 

@@ -39,19 +39,19 @@ function processAttributes(
       return;
     }
 
-    const keyName =
-      (getAttributePropertyFromCodebook(
+    const codebookAttributeName =
+      getAttributePropertyFromCodebook(
         codebook,
         type,
         {
           entity: type,
-          type: entity.type ?? '',
+          type: entity.type,
         },
         key,
         'name',
-      ) as string) ?? sha1(key);
+      ) ?? sha1(key);
 
-    const keyType = getAttributePropertyFromCodebook(
+    const codebookAttributeType = getAttributePropertyFromCodebook(
       codebook,
       type,
       {
@@ -62,90 +62,99 @@ function processAttributes(
       'type',
     );
 
-    switch (keyType) {
-      case 'categorical': {
-      }
+    switch (codebookAttributeType) {
+      case 'categorical':
+        {
+          const options = getAttributePropertyFromCodebook(
+            codebook,
+            type,
+            {
+              entity: type,
+              type: entity.type ?? '',
+            },
+            key,
+            'options',
+          ) as { value: string }[];
+
+          options.forEach((option) => {
+            const hashedOptionValue = sha1(option.value);
+            const optionKey = `${key}_${hashedOptionValue}`;
+            domElement.appendChild(
+              createDataElement(
+                document,
+                { key: optionKey },
+                !!entityAttributes[key] &&
+                  includes(entityAttributes[key], option.value),
+              ),
+            );
+          });
+        }
+
+        break;
       case 'layout': {
+        // Determine if we should use the normalized or the "screen space" value
+        const xCoord = entityAttributes[key].x;
+        const yCoord = entityAttributes[key].y;
+
+        domElement.appendChild(
+          createDataElement(document, { key: `${key}_X` }, xCoord),
+        );
+        domElement.appendChild(
+          createDataElement(document, { key: `${key}_Y` }, yCoord),
+        );
+
+        const { screenLayoutWidth, screenLayoutHeight } =
+          exportOptions.globalOptions;
+
+        if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
+          const screenSpaceXCoord = (xCoord * screenLayoutWidth).toFixed(2);
+          const screenSpaceYCoord = (
+            (1.0 - yCoord) *
+            screenLayoutHeight
+          ).toFixed(2);
+          domElement.appendChild(
+            createDataElement(
+              document,
+              { key: `${key}_screenSpaceX` },
+              screenSpaceXCoord,
+            ),
+          );
+          domElement.appendChild(
+            createDataElement(
+              document,
+              { key: `${key}_screenSpaceY` },
+              screenSpaceYCoord,
+            ),
+          );
+        }
+
+        break;
       }
       default: {
+        // If we reach this point, we could not detect the attribute type by looking
+        // in the codebook.
+        // We therefore use the SHA1 hash of the name as the key
+        domElement.appendChild(
+          createDataElement(
+            document,
+            { key: codebookAttributeName },
+            entityAttributes[key],
+          ),
+        );
       }
     }
 
     // Handle categorical variables
-    if (keyType === 'categorical') {
-      const options = getAttributePropertyFromCodebook(
-        codebook,
-        type,
-        {
-          entity: type,
-          type: entity.type ?? '',
-        },
-        key,
-        'options',
-      ) as { value: string }[];
-
-      options.forEach((option) => {
-        const hashedOptionValue = sha1(option.value);
-        const optionKey = `${key}_${hashedOptionValue}`;
-        domElement.appendChild(
-          createDataElement(
-            document,
-            { key: optionKey },
-            !!entityAttributes[key] &&
-              includes(entityAttributes[key], option.value),
-          ),
-        );
-      });
+    if (codebookAttributeType === 'categorical') {
       // Handle all codebook variables apart from layout variables
-    } else if (keyType && typeof entityAttributes[key] !== 'object') {
+    } else if (typeof entityAttributes[key] !== 'object') {
       domElement.appendChild(
         createDataElement(document, { key }, entityAttributes[key]),
       );
       // Handle layout variables
-    } else if (keyType === 'layout') {
-      // Determine if we should use the normalized or the "screen space" value
-      const xCoord = entityAttributes[key].x;
-      const yCoord = entityAttributes[key].y;
-
-      domElement.appendChild(
-        createDataElement(document, { key: `${key}_X` }, xCoord),
-      );
-      domElement.appendChild(
-        createDataElement(document, { key: `${key}_Y` }, yCoord),
-      );
-
-      const { screenLayoutWidth, screenLayoutHeight } =
-        exportOptions.globalOptions;
-
-      if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
-        const screenSpaceXCoord = (xCoord * screenLayoutWidth).toFixed(2);
-        const screenSpaceYCoord = ((1.0 - yCoord) * screenLayoutHeight).toFixed(
-          2,
-        );
-        domElement.appendChild(
-          createDataElement(
-            document,
-            { key: `${key}_screenSpaceX` },
-            screenSpaceXCoord,
-          ),
-        );
-        domElement.appendChild(
-          createDataElement(
-            document,
-            { key: `${key}_screenSpaceY` },
-            screenSpaceYCoord,
-          ),
-        );
-      }
-
+    } else if (codebookAttributeType === 'layout') {
       // Handle non-codebook variables
     } else {
-      // If we reach this point, we could not detect the attribute type by looking
-      // in the codebook.
-      // We therefore use the SHA1 hash of the name as the key
-      domElement.appendChild(
-        createDataElement(document, { key: keyName }, entityAttributes[key]),
-      );
     }
   });
 }
@@ -251,6 +260,15 @@ export default function getDataElementGenerator(
           createDataElement(document, { key: 'label' }, entityLabel()),
         );
       }
+
+      const attributes = processAttributes(
+        entityAttributes,
+        codebook,
+        type,
+        document,
+        domElement,
+        exportOptions,
+      );
 
       fragment.appendChild(domElement);
     });
