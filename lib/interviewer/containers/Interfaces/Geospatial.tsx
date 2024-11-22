@@ -18,6 +18,7 @@ export default function GeospatialInterface() {
       zoom: INITIAL_ZOOM,
     });
     setSelectedCensusTract(null);
+    mapRef.current.setFilter('selectedCensusTract', ['==', 'namelsad10', '']);
   };
 
   useEffect(() => {
