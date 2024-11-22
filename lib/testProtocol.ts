@@ -3,6 +3,11 @@ import { type Protocol } from './protocol-validation/schemas/src/8.zod';
 export const protocol: Protocol = {
   stages: [
     {
+      id: 'geospatial-interface',
+      label: 'Geospatial Interface',
+      type: 'Geospatial',
+    },
+    {
       id: 'anonymisation-interface',
       label: 'Anonymisation Interface',
       type: 'Anonymisation',
@@ -37,22 +42,22 @@ export const protocol: Protocol = {
       id: 'one-to-many-dyad-census',
       label: 'One to Many Dyad Census',
       type: 'OneToManyDyadCensus',
-      "subject": {
-        "entity": "node",
-        "type": "person_node_type"
+      subject: {
+        entity: 'node',
+        type: 'person_node_type',
       },
-      "prompts": [
+      prompts: [
         {
-          "id": "friends",
-          "text": "Are these people friends?",
-          "createEdge": "friend_edge_type"
+          id: 'friends',
+          text: 'Are these people friends?',
+          createEdge: 'friend_edge_type',
         },
         {
-          "id": "professional",
-          "text": "Do these people work together?",
-          "createEdge": "professional_edge_type"
-        }
-      ]
+          id: 'professional',
+          text: 'Do these people work together?',
+          createEdge: 'professional_edge_type',
+        },
+      ],
     },
     {
       id: 'family-tree-census',

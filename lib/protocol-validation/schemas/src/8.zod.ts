@@ -203,14 +203,13 @@ const promptSchema = z
   })
   .strict();
 
-  const subjectSchema = z
-      .object({
-        entity: z.enum(['edge', 'node', 'ego']),
-        type: z.string(),
-      })
-      .strict()
-      .optional();
-
+const subjectSchema = z
+  .object({
+    entity: z.enum(['edge', 'node', 'ego']),
+    type: z.string(),
+  })
+  .strict()
+  .optional();
 
 // Common schemas used across different stage types
 const baseStageSchema = z.object({
@@ -326,67 +325,83 @@ const sociogramStage = baseStageSchema.extend({
 const dyadCensusStage = baseStageSchema.extend({
   type: z.literal('DyadCensus'),
   subject: subjectSchema,
-  prompts: z.array(
-    promptSchema.extend({
-      createEdge: z.string(),
-    }),
-  ).min(1),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        createEdge: z.string(),
+      }),
+    )
+    .min(1),
 });
 
 const tieStrengthCensusStage = baseStageSchema.extend({
   type: z.literal('TieStrengthCensus'),
   subject: subjectSchema,
-  prompts: z.array(
-    promptSchema.extend({
-      createEdge: z.string(),
-      edgeVariable: z.string(),
-      negativeLabel: z.string(),
-    }),
-  ).min(1),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        createEdge: z.string(),
+        edgeVariable: z.string(),
+        negativeLabel: z.string(),
+      }),
+    )
+    .min(1),
 });
 
 const ordinalBinStage = baseStageSchema.extend({
   type: z.literal('OrdinalBin'),
   subject: subjectSchema,
-  prompts: z.array(promptSchema.extend({
-    variable: z.string(),
-    bucketSortOrder: sortOrderSchema.optional(),
-    binSortOrder: sortOrderSchema.optional(),
-    color: z.string().optional(),
-  })).min(1),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        variable: z.string(),
+        bucketSortOrder: sortOrderSchema.optional(),
+        binSortOrder: sortOrderSchema.optional(),
+        color: z.string().optional(),
+      }),
+    )
+    .min(1),
 });
 
 const categoricalBinStage = baseStageSchema.extend({
   type: z.literal('CategoricalBin'),
   subject: subjectSchema,
-  prompts: z.array(promptSchema.extend({
-    variable: z.string(),
-    otherVariable: z.string().optional(),
-    otherVariablePrompt: z.string().optional(),
-    otherOptionLabel: z.string().optional(),
-    bucketSortOrder: sortOrderSchema.optional(),
-    binSortOrder: sortOrderSchema.optional(),
-  })).min(1),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        variable: z.string(),
+        otherVariable: z.string().optional(),
+        otherVariablePrompt: z.string().optional(),
+        otherOptionLabel: z.string().optional(),
+        bucketSortOrder: sortOrderSchema.optional(),
+        binSortOrder: sortOrderSchema.optional(),
+      }),
+    )
+    .min(1),
 });
 
 const narrativeStage = baseStageSchema.extend({
   type: z.literal('Narrative'),
   subject: subjectSchema,
-  presets: z.array(
-    z.object({
-      id: z.string(),
-      label: z.string(),
-      layoutVariable: z.string(),
-      groupVariable: z.string().optional(),
-      edges: z
+  presets: z
+    .array(
+      z
         .object({
-          display: z.array(z.string()).optional(),
+          id: z.string(),
+          label: z.string(),
+          layoutVariable: z.string(),
+          groupVariable: z.string().optional(),
+          edges: z
+            .object({
+              display: z.array(z.string()).optional(),
+            })
+            .strict()
+            .optional(),
+          highlight: z.array(z.string()).optional(),
         })
-        .strict()
-        .optional(),
-      highlight: z.array(z.string()).optional(),
-    }).strict(),
-  ).min(1),
+        .strict(),
+    )
+    .min(1),
   background: z
     .object({
       concentricCircles: z.number().int().optional(),
@@ -407,41 +422,51 @@ const informationStage = baseStageSchema.extend({
   type: z.literal('Information'),
   title: z.string().optional(),
   items: z.array(
-    z.object({
-      id: z.string(),
-      type: z.enum(['text', 'asset']),
-      content: z.string(),
-      description: z.string().optional(),
-      size: z.string().optional(),
-      loop: z.boolean().optional(),
-    }).strict(),
+    z
+      .object({
+        id: z.string(),
+        type: z.enum(['text', 'asset']),
+        content: z.string(),
+        description: z.string().optional(),
+        size: z.string().optional(),
+        loop: z.boolean().optional(),
+      })
+      .strict(),
   ),
 });
 
 const anonymisationStage = baseStageSchema.extend({
   type: z.literal('Anonymisation'),
   items: z.array(
-    z.object({
-      id: z.string(),
-      type: z.enum(['text', 'asset']),
-      content: z.string(),
-      size: z.string().optional(),
-    }).strict(),
+    z
+      .object({
+        id: z.string(),
+        type: z.enum(['text', 'asset']),
+        content: z.string(),
+        size: z.string().optional(),
+      })
+      .strict(),
   ),
 });
 
 const oneToManyDyadCensusStage = baseStageSchema.extend({
   type: z.literal('OneToManyDyadCensus'),
   subject: subjectSchema,
-  prompts: z.array(
-    promptSchema.extend({
-      createEdge: z.string(),
-    }),
-  ).min(1),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        createEdge: z.string(),
+      }),
+    )
+    .min(1),
 });
 
 const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
+});
+
+const geospatialStage = baseStageSchema.extend({
+  type: z.literal('Geospatial'),
 });
 
 // Combine all stage types
@@ -462,6 +487,7 @@ const stageSchema = z.discriminatedUnion('type', [
   anonymisationStage,
   oneToManyDyadCensusStage,
   familyTreeCensusStage,
+  geospatialStage,
 ]);
 
 // Main Protocol Schema
