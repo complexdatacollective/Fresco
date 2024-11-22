@@ -3,6 +3,11 @@ import { type Protocol } from './protocol-validation/schemas/src/8.zod';
 export const protocol: Protocol = {
   stages: [
     {
+      id: 'geospatial-interface',
+      label: 'Geospatial Interface',
+      type: 'Geospatial',
+    },
+    {
       id: 'anonymisation-interface',
       label: 'Anonymisation Interface',
       type: 'Anonymisation',

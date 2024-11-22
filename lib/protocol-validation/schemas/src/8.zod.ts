@@ -464,6 +464,10 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
+const geospatialStage = baseStageSchema.extend({
+  type: z.literal('Geospatial'),
+});
+
 // Combine all stage types
 const stageSchema = z.discriminatedUnion('type', [
   egoFormStage,
@@ -482,6 +486,7 @@ const stageSchema = z.discriminatedUnion('type', [
   anonymisationStage,
   oneToManyDyadCensusStage,
   familyTreeCensusStage,
+  geospatialStage,
 ]);
 
 // Main Protocol Schema
