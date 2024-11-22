@@ -37,6 +37,22 @@ export const protocol: Protocol = {
       id: 'one-to-many-dyad-census',
       label: 'One to Many Dyad Census',
       type: 'OneToManyDyadCensus',
+      "subject": {
+        "entity": "node",
+        "type": "person_node_type"
+      },
+      "prompts": [
+        {
+          "id": "friends",
+          "text": "Are these people friends?",
+          "createEdge": "friend_edge_type"
+        },
+        {
+          "id": "professional",
+          "text": "Do these people work together?",
+          "createEdge": "professional_edge_type"
+        }
+      ]
     },
     {
       id: 'family-tree-census',

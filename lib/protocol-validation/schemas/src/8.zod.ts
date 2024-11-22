@@ -200,208 +200,269 @@ const promptSchema = z
   .object({
     id: z.string(),
     text: z.string(),
-    additionalAttributes: z
-      .array(
-        z
-          .object({
-            variable: z.string(),
-            value: z.boolean(),
-          })
-          .strict(),
-      )
-      .optional(),
-    variable: z.string().optional(),
-    edgeVariable: z.string().optional(),
-    negativeLabel: z.string().optional(),
-    otherVariable: z.string().optional(),
-    otherVariablePrompt: z.string().optional(),
-    otherOptionLabel: z.string().optional(),
-    bucketSortOrder: sortOrderSchema.optional(),
-    binSortOrder: sortOrderSchema.optional(),
-    sortOrder: sortOrderSchema.optional(),
-    color: z.string().optional(),
-    layout: z
-      .object({
-        layoutVariable: z.union([z.string(), z.record(z.any())]),
-        allowPositioning: z.boolean().optional(),
-      })
-      .strict()
-      .optional(),
-    edges: z
-      .object({
-        display: z.array(z.string()).optional(),
-        create: z.string().optional(),
-        restrict: z
-          .object({
-            origin: z.string().optional(),
-            destination: z.enum(['same', 'different', 'all']).optional(),
-          })
-          .optional(),
-      })
-      .strict()
-      .optional(),
-    highlight: z
-      .object({
-        variable: z.string().optional(),
-        allowHighlighting: z.boolean(),
-      })
-      .strict()
-      .optional(),
-    createEdge: z.string().optional(),
   })
   .strict();
 
-const stageSchema = z
-  .object({
-    id: z.string(),
-    interviewScript: z.string().optional(),
-    type: z.enum([
-      'Narrative',
-      'AlterForm',
-      'AlterEdgeForm',
-      'EgoForm',
-      'NameGenerator',
-      'NameGeneratorQuickAdd',
-      'NameGeneratorRoster',
-      'Sociogram',
-      'DyadCensus',
-      'TieStrengthCensus',
-      'Information',
-      'OrdinalBin',
-      'CategoricalBin',
-      'Anonymisation',
-      'OneToManyDyadCensus',
-      'FamilyTreeCensus',
-    ]),
-    label: z.string(),
-    form: z
-      .union([
-        z
-          .object({
-            title: z.string().optional(),
-            fields: z.array(
-              z.object({ variable: z.string(), prompt: z.string() }).strict(),
-            ),
-          })
-          .strict(),
-        z.null(),
-      ])
-      .optional(),
-    quickAdd: z.union([z.string(), z.null()]).optional(),
-    createEdge: z.string().optional(),
-    dataSource: z.union([z.string(), z.null()]).optional(),
-    subject: z
+  const subjectSchema = z
       .object({
         entity: z.enum(['edge', 'node', 'ego']),
         type: z.string(),
       })
       .strict()
-      .optional(),
-    panels: z.array(panelSchema).optional(),
-    prompts: z.array(promptSchema).min(1).optional(),
-    presets: z
-      .array(
-        z
-          .object({
-            id: z.string(),
-            label: z.string(),
-            layoutVariable: z.string(),
-            groupVariable: z.string().optional(),
-            edges: z
-              .object({
-                display: z.array(z.string()).optional(),
-                create: z.string().optional(),
-                restrict: z
-                  .object({
-                    origin: z.string().optional(),
-                    destination: z
-                      .enum(['same', 'different', 'all'])
-                      .optional(),
-                  })
-                  .optional(),
-              })
-              .strict()
-              .optional(),
-            highlight: z.array(z.string()).optional(),
-          })
-          .strict(),
-      )
-      .min(1)
-      .optional(),
-    background: z
-      .object({
-        image: z.string().optional(),
-        concentricCircles: z.number().int().optional(),
-        skewedTowardCenter: z.boolean().optional(),
-      })
-      .strict()
-      .optional(),
-    sortOptions: z
-      .object({
-        sortOrder: sortOrderSchema,
-        sortableProperties: z.array(
-          z.object({ label: z.string(), variable: z.string() }).strict(),
-        ),
-      })
-      .strict()
-      .optional(),
-    cardOptions: z
-      .object({
-        displayLabel: z.string().optional(),
-        additionalProperties: z
-          .array(z.object({ label: z.string(), variable: z.string() }).strict())
-          .optional(),
-      })
-      .strict()
-      .optional(),
-    searchOptions: z
-      .object({
-        fuzziness: z.number(),
-        matchProperties: z.array(z.string()),
-      })
-      .strict()
-      .optional(),
-    behaviours: z
-      .object({
-        minNodes: z.number().int().optional(),
-        maxNodes: z.number().int().optional(),
-        freeDraw: z.boolean().optional(),
-        featureNode: z.boolean().optional(),
-        allowRepositioning: z.boolean().optional(),
-        automaticLayout: z.object({ enabled: z.boolean() }).strict().optional(),
-      })
-      .catchall(z.any())
-      .optional(),
-    showExistingNodes: z.boolean().optional(),
+      .optional();
+
+
+// Common schemas used across different stage types
+const baseStageSchema = z.object({
+  id: z.string(),
+  interviewScript: z.string().optional(),
+  label: z.string(),
+  filter: z.union([filterSchema, z.null()]).optional(),
+  skipLogic: z
+    .object({
+      action: z.enum(['SHOW', 'SKIP']),
+      filter: z.union([filterSchema, z.null()]),
+    })
+    .strict()
+    .optional(),
+  introductionPanel: z
+    .object({ title: z.string(), text: z.string() })
+    .strict()
+    .optional(),
+});
+
+const formFieldsSchema = z
+  .object({
     title: z.string().optional(),
-    items: z
-      .array(
-        z
-          .object({
-            id: z.string(),
-            type: z.enum(['text', 'asset']),
-            content: z.string(),
-            description: z.string().optional(),
-            size: z.string().optional(),
-            loop: z.boolean().optional(),
-          })
-          .strict(),
-      )
-      .optional(),
-    introductionPanel: z
-      .object({ title: z.string(), text: z.string() })
-      .strict()
-      .optional(),
-    skipLogic: z
-      .object({
-        action: z.enum(['SHOW', 'SKIP']),
-        filter: z.union([filterSchema, z.null()]),
-      })
-      .strict()
-      .optional(),
-    filter: z.union([filterSchema, z.null()]).optional(),
+    fields: z.array(
+      z.object({ variable: z.string(), prompt: z.string() }).strict(),
+    ),
   })
   .strict();
+
+// Individual stage schemas
+const egoFormStage = baseStageSchema.extend({
+  type: z.literal('EgoForm'),
+  form: formFieldsSchema,
+});
+
+const alterFormStage = baseStageSchema.extend({
+  type: z.literal('AlterForm'),
+  subject: subjectSchema,
+  form: formFieldsSchema,
+});
+
+const alterEdgeFormStage = baseStageSchema.extend({
+  type: z.literal('AlterEdgeForm'),
+  subject: subjectSchema,
+  form: formFieldsSchema,
+});
+
+const nameGeneratorStage = baseStageSchema.extend({
+  type: z.literal('NameGenerator'),
+  form: formFieldsSchema,
+  subject: subjectSchema,
+  panels: z.array(panelSchema).optional(),
+  prompts: z.array(promptSchema).min(1),
+});
+
+const nameGeneratorQuickAddStage = baseStageSchema.extend({
+  type: z.literal('NameGeneratorQuickAdd'),
+  quickAdd: z.string(),
+  subject: subjectSchema,
+  panels: z.array(panelSchema).optional(),
+  prompts: z.array(promptSchema).min(1),
+  behaviours: z
+    .object({
+      minNodes: z.number().int().optional(),
+      maxNodes: z.number().int().optional(),
+    })
+    .optional(),
+});
+
+const nameGeneratorRosterStage = baseStageSchema.extend({
+  type: z.literal('NameGeneratorRoster'),
+  subject: subjectSchema,
+  dataSource: z.string(),
+  cardOptions: z
+    .object({
+      displayLabel: z.string().optional(),
+      additionalProperties: z
+        .array(z.object({ label: z.string(), variable: z.string() }).strict())
+        .optional(),
+    })
+    .strict()
+    .optional(),
+  searchOptions: z
+    .object({
+      fuzziness: z.number(),
+      matchProperties: z.array(z.string()),
+    })
+    .strict()
+    .optional(),
+  prompts: z.array(promptSchema).min(1),
+});
+
+const sociogramStage = baseStageSchema.extend({
+  type: z.literal('Sociogram'),
+  subject: subjectSchema,
+  background: z
+    .object({
+      image: z.string().optional(),
+      concentricCircles: z.number().int().optional(),
+      skewedTowardCenter: z.boolean().optional(),
+    })
+    .strict()
+    .optional(),
+  behaviours: z
+    .object({
+      automaticLayout: z.object({ enabled: z.boolean() }).strict().optional(),
+    })
+    .catchall(z.any())
+    .optional(),
+  prompts: z.array(promptSchema).min(1),
+});
+
+const dyadCensusStage = baseStageSchema.extend({
+  type: z.literal('DyadCensus'),
+  subject: subjectSchema,
+  prompts: z.array(
+    promptSchema.extend({
+      createEdge: z.string(),
+    }),
+  ).min(1),
+});
+
+const tieStrengthCensusStage = baseStageSchema.extend({
+  type: z.literal('TieStrengthCensus'),
+  subject: subjectSchema,
+  prompts: z.array(
+    promptSchema.extend({
+      createEdge: z.string(),
+      edgeVariable: z.string(),
+      negativeLabel: z.string(),
+    }),
+  ).min(1),
+});
+
+const ordinalBinStage = baseStageSchema.extend({
+  type: z.literal('OrdinalBin'),
+  subject: subjectSchema,
+  prompts: z.array(promptSchema.extend({
+    variable: z.string(),
+    bucketSortOrder: sortOrderSchema.optional(),
+    binSortOrder: sortOrderSchema.optional(),
+    color: z.string().optional(),
+  })).min(1),
+});
+
+const categoricalBinStage = baseStageSchema.extend({
+  type: z.literal('CategoricalBin'),
+  subject: subjectSchema,
+  prompts: z.array(promptSchema.extend({
+    variable: z.string(),
+    otherVariable: z.string().optional(),
+    otherVariablePrompt: z.string().optional(),
+    otherOptionLabel: z.string().optional(),
+    bucketSortOrder: sortOrderSchema.optional(),
+    binSortOrder: sortOrderSchema.optional(),
+  })).min(1),
+});
+
+const narrativeStage = baseStageSchema.extend({
+  type: z.literal('Narrative'),
+  subject: subjectSchema,
+  presets: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      layoutVariable: z.string(),
+      groupVariable: z.string().optional(),
+      edges: z
+        .object({
+          display: z.array(z.string()).optional(),
+        })
+        .strict()
+        .optional(),
+      highlight: z.array(z.string()).optional(),
+    }).strict(),
+  ).min(1),
+  background: z
+    .object({
+      concentricCircles: z.number().int().optional(),
+      skewedTowardCenter: z.boolean().optional(),
+    })
+    .strict()
+    .optional(),
+  behaviours: z
+    .object({
+      freeDraw: z.boolean().optional(),
+      allowRepositioning: z.boolean().optional(),
+    })
+    .strict()
+    .optional(),
+});
+
+const informationStage = baseStageSchema.extend({
+  type: z.literal('Information'),
+  title: z.string().optional(),
+  items: z.array(
+    z.object({
+      id: z.string(),
+      type: z.enum(['text', 'asset']),
+      content: z.string(),
+      description: z.string().optional(),
+      size: z.string().optional(),
+      loop: z.boolean().optional(),
+    }).strict(),
+  ),
+});
+
+const anonymisationStage = baseStageSchema.extend({
+  type: z.literal('Anonymisation'),
+  items: z.array(
+    z.object({
+      id: z.string(),
+      type: z.enum(['text', 'asset']),
+      content: z.string(),
+      size: z.string().optional(),
+    }).strict(),
+  ),
+});
+
+const oneToManyDyadCensusStage = baseStageSchema.extend({
+  type: z.literal('OneToManyDyadCensus'),
+  subject: subjectSchema,
+  prompts: z.array(
+    promptSchema.extend({
+      createEdge: z.string(),
+    }),
+  ).min(1),
+});
+
+const familyTreeCensusStage = baseStageSchema.extend({
+  type: z.literal('FamilyTreeCensus'),
+});
+
+// Combine all stage types
+const stageSchema = z.discriminatedUnion('type', [
+  egoFormStage,
+  alterFormStage,
+  alterEdgeFormStage,
+  nameGeneratorStage,
+  nameGeneratorQuickAddStage,
+  nameGeneratorRosterStage,
+  sociogramStage,
+  dyadCensusStage,
+  tieStrengthCensusStage,
+  ordinalBinStage,
+  categoricalBinStage,
+  narrativeStage,
+  informationStage,
+  anonymisationStage,
+  oneToManyDyadCensusStage,
+  familyTreeCensusStage,
+]);
 
 // Main Protocol Schema
 export const Protocol = z
