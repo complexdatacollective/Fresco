@@ -115,7 +115,7 @@
     "@prisma/client": "^5.22.0",
     "@tailwindcss/typography": "^0.5.15",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/archiver": "^6.0.2",
+    "@types/archiver": "^6.0.3",
     "@types/d3-interpolate-path": "^2.0.3",
     "@types/eslint": "^8.56.12",
     "@types/jest": "^29.5.14",
