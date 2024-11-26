@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { FileDown, Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import JobCard from '~/components/ProtocolImport/JobCard';

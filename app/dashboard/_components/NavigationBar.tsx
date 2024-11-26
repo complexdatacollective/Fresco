@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
