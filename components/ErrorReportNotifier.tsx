@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { CheckIcon, Loader2, XCircle } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import trackEvent from '~/lib/analytics';
 

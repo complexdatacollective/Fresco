@@ -65,7 +65,6 @@
     "csvtojson": "^2.0.10",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^16.4.5",
-    "framer-motion": "11.11.11",
     "fuse.js": "^7.0.0",
     "jssha": "^3.3.1",
     "jszip": "^3.10.1",
@@ -73,6 +72,7 @@
     "lucia": "^2.7.7",
     "lucide-react": "^0.314.0",
     "luxon": "^3.5.0",
+    "motion": "^11.11.17",
     "next": "^14.2.16",
     "nuqs": "^1.19.1",
     "ohash": "^1.1.4",
@@ -144,7 +144,7 @@
     "sass": "^1.79.1",
     "tailwindcss": "^3.4.12",
     "typescript": "5.6.3",
-    "vitest": "^2.1.5",
-    "vite-tsconfig-paths": "^5.1.2"
+    "vite-tsconfig-paths": "^5.1.2",
+    "vitest": "^2.1.5"
   }
 }
