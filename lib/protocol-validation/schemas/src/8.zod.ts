@@ -466,6 +466,9 @@ const familyTreeCensusStage = baseStageSchema.extend({
 
 const geospatialStage = baseStageSchema.extend({
   type: z.literal('Geospatial'),
+  center: z.tuple([z.number(), z.number()]),
+  token: z.string(),
+  data: z.string(),
 });
 
 // Combine all stage types
