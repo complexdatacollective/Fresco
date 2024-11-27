@@ -468,7 +468,26 @@ const geospatialStage = baseStageSchema.extend({
   type: z.literal('Geospatial'),
   center: z.tuple([z.number(), z.number()]),
   token: z.string(),
-  data: z.string(),
+  layers: z.array(
+    z
+      .object({
+        id: z.string(),
+        data: z.string(),
+        type: z.enum(['line', 'fill']),
+        color: z.string(),
+        opacity: z.number().optional(),
+        filter: z.string().optional(),
+      })
+      .strict(),
+  ),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        layer: z.string(),
+        mapVariable: z.string(),
+      }),
+    )
+    .min(1),
 });
 
 // Combine all stage types
