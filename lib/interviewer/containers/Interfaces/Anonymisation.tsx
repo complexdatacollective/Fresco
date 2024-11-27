@@ -1,4 +1,5 @@
 import { type NcNode } from '@codaco/shared-consts';
+import crypto from 'crypto';
 import { useEffect, useState } from 'react';
 import Switch from '~/lib/interviewer/components/Switch';
 import getEntityAttributes from '../../utils/getEntityAttributes';
@@ -7,7 +8,6 @@ import {
   UnauthorizedError,
   useNodeAttributes,
 } from '../../utils/labelLogic';
-import crypto from 'crypto';
 
 export function useNodeLabel(node: NodeWithSecureAttributes) {
   const [label, setLabel] = useState<string | undefined>(undefined);
@@ -147,16 +147,6 @@ export default function AnonymisationInterface() {
     () => !!sessionStorage.getItem(SESSION_STORAGE_KEY),
   );
 
-  const encrypt = (text: string, key: string) => {
-    const cipher = crypto.createCipher('aes-256-ctr', key);
-    return cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
-  };
-
-  const decrypt = (text: string, key: string) => {
-    const decipher = crypto.createDecipher('aes-256-ctr', key);
-    return decipher.update(text, 'hex', 'utf8') + decipher.final('utf8');
-  };
-
   const toggleEncryption = () => {
     if (isEncrypted) {
       console.log('Disabling encryption');
@@ -170,8 +160,7 @@ export default function AnonymisationInterface() {
         return;
       }
 
-      const encryptedPassphrase = encrypt(passphrase, 'encryption_key');
-      sessionStorage.setItem(SESSION_STORAGE_KEY, encryptedPassphrase);
+      sessionStorage.setItem(SESSION_STORAGE_KEY, passphrase);
 
       setIsEncrypted(true);
     }
