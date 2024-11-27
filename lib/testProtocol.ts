@@ -8,16 +8,77 @@ export const protocol: Protocol = {
       label: 'Chicago Geospatial Interface',
       type: 'Geospatial',
       center: [-87.6298, 41.8781],
-      data: '/interviewer/ChicagoCensusTracts.geojson',
       token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+      layers: [
+        {
+          id: 'censusTractsOutlineLayer',
+          data: '/interviewer/ChicagoCensusTracts.geojson',
+          type: 'line',
+          color: 'purple',
+        },
+        {
+          id: 'censusTractsFillLayer',
+          data: '/interviewer/ChicagoCensusTracts.geojson',
+          type: 'fill',
+          color: 'purple',
+          opacity: 0.1,
+        },
+        {
+          id: 'selectedCensusTract',
+          data: '/interviewer/ChicagoCensusTracts.geojson',
+          type: 'fill',
+          color: 'green',
+          opacity: 0.5,
+          filter: 'namelsad10',
+        },
+      ],
+      prompts: [
+        {
+          id: 'censusTractPrompt',
+          layer: 'censusTractsFillLayer',
+          mapVariable: 'namelsad10', // variable from geojson data
+          text: 'Please select a census tract in Chicago',
+          // TODO: connect to an alter variable
+        },
+      ],
     },
     {
       id: 'geospatial-interface-2',
       label: 'New York Geospatial Interface',
       type: 'Geospatial',
       center: [-74.006, 40.7128],
-      data: '/interviewer/NewYorkCensusTracts.geojson',
       token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+      layers: [
+        {
+          id: 'censusTractsOutlineLayer',
+          data: '/interviewer/NewYorkCensusTracts.geojson',
+          type: 'line',
+          color: 'blue',
+        },
+        {
+          id: 'censusTractsFillLayer',
+          data: '/interviewer/NewYorkCensusTracts.geojson',
+          type: 'fill',
+          color: 'blue',
+          opacity: 0.1,
+        },
+        {
+          id: 'selectedCensusTract',
+          data: '/interviewer/NewYorkCensusTracts.geojson',
+          type: 'fill',
+          color: 'orange',
+          filter: 'NTAName',
+          opacity: 0.5,
+        },
+      ],
+      prompts: [
+        {
+          id: 'censusTractPrompt',
+          layer: 'censusTractsFillLayer',
+          mapVariable: 'NTAName', // variable from geojson data
+          text: 'Please select a census tract in New York',
+        },
+      ],
     },
     {
       id: 'anonymisation-interface',
