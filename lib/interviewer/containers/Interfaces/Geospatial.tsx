@@ -1,80 +1,75 @@
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useEffect, useRef, useState } from 'react';
-import { env } from '~/env';
+import { type StageProps } from '../Stage';
 
-const INITIAL_CENTER = [-87.6298, 41.8781]; //chicago
-const INITIAL_ZOOM = 10;
-const TILESET_URL = 'mapbox://buckhalt.8xmfmn5d'; // chicago census tracts tileset. private -- needs to be used with corresponding mapbox token.
+const INITIAL_ZOOM = 10; // should this be configurable?
 
-export default function GeospatialInterface() {
+export default function GeospatialInterface({ stage }: { stage: StageProps }) {
   const mapRef = useRef();
   const mapContainerRef = useRef();
   const [selectedCensusTract, setSelectedCensusTract] = useState(null);
+  const { center, data, token } = stage;
 
   const handleReset = () => {
     mapRef.current.flyTo({
-      center: INITIAL_CENTER,
       zoom: INITIAL_ZOOM,
+      center,
     });
     setSelectedCensusTract(null);
     mapRef.current.setFilter('selectedCensusTract', ['==', 'namelsad10', '']);
   };
 
   useEffect(() => {
-    mapboxgl.accessToken = env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    mapboxgl.accessToken = token;
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
-      center: INITIAL_CENTER,
+      center,
       zoom: INITIAL_ZOOM,
       style: 'mapbox://styles/mapbox/light-v11',
     });
 
     mapRef.current.on('load', () => {
-      // add census geojson using tileset
-      mapRef.current.addSource('chicago-census-tiles', {
-        type: 'vector',
-        url: TILESET_URL,
+      mapRef.current.addSource('geojson-data', {
+        type: 'geojson',
+        data,
       });
 
       // census tract outlines
       mapRef.current.addLayer({
-        'id': 'censusTractsOutlineLayer',
-        'type': 'line',
-        'source': 'chicago-census-tiles',
-        'source-layer': 'Census_Tracts_2010-6h8rw5',
-        'paint': {
+        id: 'censusTractsOutlineLayer',
+        type: 'line',
+        source: 'geojson-data',
+        paint: {
           'line-color': 'purple',
           'line-width': 2,
         },
       });
       mapRef.current.addLayer({
-        'id': 'censusTractsFillLayer',
-        'type': 'fill',
-        'source': 'chicago-census-tiles',
-        'source-layer': 'Census_Tracts_2010-6h8rw5',
-        'paint': {
+        id: 'censusTractsFillLayer',
+        type: 'fill',
+        source: 'geojson-data',
+        paint: {
           'fill-color': 'purple',
           'fill-opacity': 0.1,
         },
       });
 
       mapRef.current.addLayer({
-        'id': 'selectedCensusTract',
-        'type': 'fill',
-        'source': 'chicago-census-tiles',
-        'source-layer': 'Census_Tracts_2010-6h8rw5',
-        'paint': {
+        id: 'selectedCensusTract',
+        type: 'fill',
+        source: 'geojson-data',
+        paint: {
           'fill-color': 'green',
           'fill-opacity': 0.5,
         },
-        'filter': ['==', 'namelsad10', ''],
+        filter: ['==', 'namelsad10', ''],
       });
 
       // handle click of census tracts
       mapRef.current.on('click', 'censusTractsFillLayer', (e) => {
         const feature = e.features[0];
-        const tractId = feature.properties.namelsad10; // census tract name prop in the tileset. comes from the geojson.
+        const tractId = feature.properties.namelsad10; // census tract name prop. comes from the geojson. this will need to be configured based on the geojson
         setSelectedCensusTract(tractId);
 
         mapRef.current.setFilter('selectedCensusTract', [
@@ -88,7 +83,7 @@ export default function GeospatialInterface() {
     return () => {
       mapRef.current.remove();
     };
-  }, []);
+  }, [center, data, token]);
 
   return (
     <div className="interface">

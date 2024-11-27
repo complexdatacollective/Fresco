@@ -1,11 +1,23 @@
+import { env } from '~/env';
 import { type Protocol } from './protocol-validation/schemas/src/8.zod';
 
 export const protocol: Protocol = {
   stages: [
     {
-      id: 'geospatial-interface',
-      label: 'Geospatial Interface',
+      id: 'geospatial-interface-1',
+      label: 'Chicago Geospatial Interface',
       type: 'Geospatial',
+      center: [-87.6298, 41.8781],
+      data: '/interviewer/ChicagoCensusTracts.geojson',
+      token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+    },
+    {
+      id: 'geospatial-interface-2',
+      label: 'New York Geospatial Interface',
+      type: 'Geospatial',
+      center: [-74.006, 40.7128],
+      data: '/interviewer/NewYorkCensusTracts.geojson',
+      token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
     },
     {
       id: 'anonymisation-interface',
@@ -81,7 +93,26 @@ export const protocol: Protocol = {
       },
     },
   },
-  assetManifest: {},
+  assetManifest: {
+    '1': {
+      id: '1',
+      type: 'geojson',
+      name: 'ChicagoCensusTracts.geojson',
+      source: '/interviewer/ChicagoCensusTracts.geojson',
+    },
+    '2': {
+      id: '2',
+      type: 'geojson',
+      name: 'ChicagoCensusTracts.geojson',
+      source: '/interviewer/NewYorkCensusTracts.geojson',
+    },
+    '3': {
+      id: '3',
+      type: 'string',
+      name: 'Mapbox API Token',
+      source: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`, // this will come directly from the protocol. passing as an env variable for development
+    },
+  },
   schemaVersion: 8,
   lastModified: '2024-11-05T07:37:16.725Z',
   name: 'Test Protocol',
