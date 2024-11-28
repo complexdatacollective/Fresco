@@ -95,9 +95,6 @@ importers:
       '@types/async':
         specifier: ^3.2.24
         version: 3.2.24
-      '@types/lodash-es':
-        specifier: ^4.17.12
-        version: 4.17.12
       '@uploadthing/react':
         specifier: ^7.1.0
         version: 7.1.0(next@14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.79.1))(react@18.3.1)(uploadthing@7.2.0(next@14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.79.1))(tailwindcss@3.4.12(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))))
@@ -140,6 +137,9 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
+      es-toolkit:
+        specifier: ^1.27.0
+        version: 1.27.0
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
@@ -149,9 +149,6 @@ importers:
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
-      lodash-es:
-        specifier: ^4.17.21
-        version: 4.17.21
       lucia:
         specifier: ^2.7.7
         version: 2.7.7
@@ -2687,6 +2684,9 @@ packages:
   es-to-primitive@1.2.1:
     resolution: {integrity: sha512-QCOllgZJtaUo9miYBcLChTUaHNjJF3PYs1VidD7AwiEj1kYxKeQTctLAezAOH5ZKRH0g2IgPn6KwB4IT8iRpvA==}
     engines: {node: '>= 0.4'}
+
+  es-toolkit@1.27.0:
+    resolution: {integrity: sha512-ETSFA+ZJArcuSCpzD2TjAy6UHpx4E4uqFsoDg9F/nTLogrLmVVZQ+zNxco5h7cWnA1nNak07IXsLcaSMih+ZPQ==}
 
   es6-error@4.1.1:
     resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
@@ -7817,6 +7817,8 @@ snapshots:
       is-callable: 1.2.7
       is-date-object: 1.0.5
       is-symbol: 1.0.4
+
+  es-toolkit@1.27.0: {}
 
   es6-error@4.1.1: {}
 

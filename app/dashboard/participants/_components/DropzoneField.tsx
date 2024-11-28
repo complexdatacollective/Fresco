@@ -1,4 +1,3 @@
-import { isArray } from 'lodash-es';
 import { FileCheck, FileText } from 'lucide-react';
 import { useId } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -41,7 +40,7 @@ export default function DropzoneField<T>({
             return 'No CSV file selected. Please select a file.';
           }
 
-          if (!isArray(value)) {
+          if (!Array.isArray(value)) {
             return 'Invalid CSV. Please select a valid CSV file.';
           }
 

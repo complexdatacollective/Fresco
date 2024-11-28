@@ -23,7 +23,7 @@ import type {
   SortableField,
 } from '~/lib/data-table/types';
 
-import { debounce } from 'lodash-es';
+import { debounce } from 'es-toolkit';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
 type UseDataTableProps<TData, TValue> = {
@@ -106,8 +106,7 @@ export function useDataTable<TData, TValue>({
       },
       2000,
       {
-        trailing: true,
-        leading: false,
+        edges: ['trailing'],
       },
     ),
     [],

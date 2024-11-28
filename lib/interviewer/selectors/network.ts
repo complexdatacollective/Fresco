@@ -9,7 +9,8 @@ import {
   type StageSubject,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import { find, findKey } from 'lodash-es';
+import { findKey } from 'es-toolkit';
+import { toString } from 'es-toolkit/compat';
 import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
 import customFilter from '~/lib/network-query/filter';
 import type { RootState } from '../store';
@@ -95,17 +96,14 @@ export const labelLogic = (
     return nodeAttributes[variableCalledName] as string;
   }
 
-  // 2. Look for a property on the node with a key of ‘name’, and try to retrieve this
-  // value as a key in the node's attributes.
-  // const nodeVariableCalledName = get(nodeAttributes, 'name');
-
-  const nodeVariableCalledName = find(
-    nodeAttributes,
-    (_, key) => key.toLowerCase() === 'name',
-  );
+  // 2. Look for a property in nodeAttributes with a key of ‘name’, and return the value
+  const nodeVariableCalledName = Object.entries(nodeAttributes).find(
+    ([key]) => key.toLowerCase() === 'name',
+  )?.[1];
 
   if (nodeVariableCalledName) {
-    return nodeVariableCalledName as string;
+    // cast to string
+    return toString(nodeVariableCalledName);
   }
 
   // 3. Last resort!
