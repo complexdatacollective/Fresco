@@ -1,5 +1,5 @@
 import { protocolProperty } from '@codaco/shared-consts';
-import groupBy from 'lodash/groupBy';
+import { groupBy } from 'lodash-es';
 import type {
   SessionWithNetworkEgo,
   SessionsByProtocol,
