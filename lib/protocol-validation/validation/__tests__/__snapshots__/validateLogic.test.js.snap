@@ -1,0 +1,21 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`validateLogic A well formed protocol will return an array of errors 1`] = `
+{
+  "errors": [
+    {
+      "message": "Duplicate entity name "du"",
+      "path": "protocol.codebook",
+    },
+    {
+      "message": "Form field variable not found in codebook.",
+      "path": "protocol.stages[0].form.fields[0]",
+    },
+    {
+      "message": "Form field variable not found in codebook.",
+      "path": "protocol.stages[5].form.fields[0]",
+    },
+  ],
+  "hasErrors": true,
+}
+`;
