@@ -10,6 +10,15 @@
     "utils/auth.ts",
     "load-test.js"
   ],
-  "ignoreDependencies": ["server-only", "prop-types", "sharp"],
+  "ignoreDependencies": [
+    "server-only",
+    "prop-types",
+    "sharp",
+    "@tailwindcss/aspect-ratio",
+    "@tailwindcss/container-queries",
+    "@tailwindcss/forms",
+    "@tailwindcss/typography",
+    "tailwindcss-animate"
+  ],
   "ignoreBinaries": ["docker-compose"]
 }

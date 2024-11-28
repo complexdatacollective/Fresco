@@ -45,7 +45,7 @@ function Documentation() {
             </Heading>
             Visit our documentation site to learn more about Fresco.
           </div>
-          <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+          <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
             <a
               href="https://documentation.networkcanvas.com/en/fresco"
               target="_blank"
@@ -64,7 +64,7 @@ function Documentation() {
             Read our guide on the basic workflow for using Fresco to conduct
             your study.
           </div>
-          <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+          <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
             <a
               href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
               target="_blank"

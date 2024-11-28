@@ -32,7 +32,7 @@ export default function SettingsSection({
         {children}
       </div>
       {controlArea && (
-        <div className="flex flex-shrink-0 flex-col items-end justify-center">
+        <div className="flex shrink-0 flex-col items-end justify-center">
           {controlArea}
         </div>
       )}
@@ -52,7 +52,7 @@ export function SettingsSectionSkeleton({
         <Skeleton className="h-12 w-3/4" />
       </div>
       {controlAreaSkelton && (
-        <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+        <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
           {controlAreaSkelton}
         </div>
       )}
