@@ -1,12 +1,13 @@
-$font-path: '~~/lib/ui/assets/fonts';
-$image-path: '~~/lib/ui/assets/images';
-
-@use '~~/lib/ui/styles/global/core/units';
 @import '~~/lib/ui/styles/_all';
 @import 'helpers/all';
 @import 'components/all';
 @import 'containers/all';
 @import 'transitions';
+
+$font-path: '~~/lib/ui/assets/fonts';
+$image-path: '~~/lib/ui/assets/images';
+
+@use '~~/lib/ui/styles/global/core/units';
 
 // Remove touch and focus outlines
 * {

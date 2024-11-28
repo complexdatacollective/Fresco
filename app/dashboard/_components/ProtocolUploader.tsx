@@ -58,7 +58,7 @@ function ProtocolUploader({
         className={cn(
           isActive &&
             cn(
-              'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape text-white',
+              'bg-linear-to-r from-cyber-grape via-neon-coral to-cyber-grape text-white',
               'pointer-events-none animate-background-gradient cursor-wait bg-[length:400%]',
             ),
           className,

@@ -113,6 +113,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^5.22.0",
+    "@tailwindcss/postcss": "4.0.0-beta.3",
     "@tailwindcss/typography": "^0.5.15",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/archiver": "^6.0.3",
@@ -130,7 +131,6 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.3.3",
-    "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.0.3",
     "eslint-config-prettier": "^9.1.0",
@@ -142,7 +142,7 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "prisma": "^5.22.0",
     "sass": "^1.79.1",
-    "tailwindcss": "^3.4.12",
+    "tailwindcss": "4.0.0-beta.3",
     "typescript": "5.6.3",
     "vite-tsconfig-paths": "^5.1.2",
     "vitest": "^2.1.5"

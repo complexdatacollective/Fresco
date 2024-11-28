@@ -52,7 +52,7 @@ const Navigation = ({
   return (
     <div
       role="navigation"
-      className="flex flex-shrink-0 flex-grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
+      className="flex shrink-0 grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
       <NavigationButton
         onClick={moveBackward}
@@ -60,7 +60,7 @@ const Navigation = ({
       >
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
-      <div className="m-6 flex flex-grow">
+      <div className="m-6 flex grow">
         <ProgressBar percentProgress={progress} />
       </div>
       <NavigationButton
