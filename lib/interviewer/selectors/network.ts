@@ -1,10 +1,3 @@
-import { findKey, find } from 'lodash';
-import { getActiveSession } from './session';
-import { createDeepEqualSelector } from './utils';
-import { getProtocolCodebook } from './protocol';
-import customFilter from '~/lib/network-query/filter';
-import { createSelector } from '@reduxjs/toolkit';
-import { getStageSubject, getSubjectType } from './prop';
 import {
   entityAttributesProperty,
   type Codebook,
@@ -15,8 +8,15 @@ import {
   type Stage,
   type StageSubject,
 } from '@codaco/shared-consts';
-import type { RootState } from '../store';
+import { createSelector } from '@reduxjs/toolkit';
+import { find, findKey } from 'lodash-es';
 import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
+import customFilter from '~/lib/network-query/filter';
+import type { RootState } from '../store';
+import { getStageSubject, getSubjectType } from './prop';
+import { getProtocolCodebook } from './protocol';
+import { getActiveSession } from './session';
+import { createDeepEqualSelector } from './utils';
 
 export const getNetwork = createSelector(
   getActiveSession,
