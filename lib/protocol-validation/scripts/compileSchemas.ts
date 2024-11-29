@@ -23,11 +23,11 @@ const asVariableName = (schemaName: string) =>
   `version_${schemaName.replace(/\./g, '_')}`;
 
 const asIntName = (schemaVersion: string | number) => {
-  if (isNaN(parseInt(schemaVersion, 10))) {
+  if (isNaN(parseInt(schemaVersion as string, 10))) {
     throw Error('Schema version could not be converted to integer');
   }
 
-  return parseInt(schemaVersion, 10);
+  return parseInt(schemaVersion as string, 10);
 };
 
 // get schemas,
