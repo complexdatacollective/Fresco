@@ -1,4 +1,4 @@
-import getMigrationPath from "./getMigrationPath";
+import getMigrationPath from './getMigrationPath';
 
 const getMigrationNotes = (
   sourceSchemaVersion: number,
@@ -11,7 +11,7 @@ const getMigrationNotes = (
     );
 
     const notes = migrationPath.reduce(
-      (acc: Array<{ notes?: string; version: number }>, migration) => {
+      (acc: { notes?: string; version: number }[], migration) => {
         if (!migration.notes) {
           return acc;
         }

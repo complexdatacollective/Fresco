@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 import { type Protocol } from '@codaco/shared-consts';
-import type { ValidateFunction, ValidationError } from 'ajv';
+import type { ValidateFunction } from 'ajv';
 
 export const validateSchema = async (
   protocol: Protocol,
@@ -24,21 +25,25 @@ export const validateSchema = async (
   let validator: ValidateFunction;
 
   try {
-    validator = await import(
+    const result = (await import(
       `~/lib/protocol-validation/schemas/${version}.js`
-    ).then((module) => module.default);
+    )) as { default: ValidateFunction };
+
+    validator = result.default;
   } catch (e) {
     throw new Error(`Couldn't find validator for schema version ${version}.`);
   }
 
+  const result = validator(protocol);
+
   // Validate
-  if (!validator(protocol)) {
+  if (!result) {
     // If we get here, validator has validator.errors.
     const errorMessages = validator.errors!.map((error) => {
       return {
         path: error.instancePath,
         message: error.message,
-      } as ValidationError;
+      };
     });
 
     return {

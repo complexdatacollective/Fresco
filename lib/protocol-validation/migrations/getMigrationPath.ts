@@ -1,12 +1,12 @@
-import { migrations } from "./migrations";
 import {
   MigrationNotPossibleError,
-  VersionMismatchError,
   StringVersionError,
-} from "./errors";
-import { ProtocolMigration } from "./migrateProtocol";
+  VersionMismatchError,
+} from './errors';
+import { type ProtocolMigration } from './migrateProtocol';
+import { migrations } from './migrations';
 
-const isMigrationPathValid = (path: Array<ProtocolMigration>) =>
+const isMigrationPathValid = (path: ProtocolMigration[]) =>
   !path.some(({ migration }) => !migration);
 
 const matchMigrations =

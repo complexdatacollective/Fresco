@@ -1,5 +1,5 @@
 import { type Protocol, type StageSubject } from '@codaco/shared-consts';
-import { get } from 'lodash-es';
+import { get } from 'es-toolkit/compat';
 import { type ValidationError } from '..';
 
 /**
@@ -83,7 +83,7 @@ export type ValidationItemBase = {
 export type Validation<T> = ValidationItemBase &
   (ValidationItemSingle<T> | ValidationItemSequence<T>);
 
-export type LogicError = {};
+export type LogicError = Record<string, never>;
 
 /**
  * @class

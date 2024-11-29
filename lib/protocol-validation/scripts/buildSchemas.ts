@@ -1,10 +1,10 @@
-import { readdir, writeFile, exists, mkdir } from "node:fs/promises";
-import { join, extname, basename, resolve } from "node:path";
-import Ajv from "ajv";
-import standaloneCode from "ajv/dist/standalone/index.js";
+import Ajv from 'ajv';
+import standaloneCode from 'ajv/dist/standalone/index.js';
+import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import { basename, extname, join, resolve } from 'node:path';
 
-const SCHEMA_SRC_PATH = "./src/schemas";
-const SCHEMA_OUTPUT_PATH = "./dist/schemas";
+const SCHEMA_SRC_PATH = './src/schemas';
+const SCHEMA_OUTPUT_PATH = './dist/schemas';
 
 const ajv = new Ajv({
   code: { source: true, esm: true, lines: true },
@@ -12,19 +12,19 @@ const ajv = new Ajv({
   allowUnionTypes: true,
 });
 
-ajv.addFormat("integer", /\d+/);
-ajv.addFormat("date-time", /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
+ajv.addFormat('integer', /\d+/);
+ajv.addFormat('date-time', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
 
-const isJsonFile = (fileName: string) => extname(fileName) === ".json";
+const isJsonFile = (fileName: string) => extname(fileName) === '.json';
 const getBaseName = (schemaFileName: string) =>
-  basename(schemaFileName, ".json");
+  basename(schemaFileName, '.json');
 
 const asVariableName = (schemaName: string) =>
-  `version_${schemaName.replace(/\./g, "_")}`;
+  `version_${schemaName.replace(/\./g, '_')}`;
 
 const asIntName = (schemaVersion: string | number) => {
   if (isNaN(parseInt(schemaVersion, 10))) {
-    throw Error("Schema version could not be converted to integer");
+    throw Error('Schema version could not be converted to integer');
   }
 
   return parseInt(schemaVersion, 10);
@@ -49,8 +49,8 @@ const generateModuleIndex = (schemas) => {
       baseSchemaName,
     )} },`;
 
-  const schemaRequires = schemas.map(formatRequire).join("\n");
-  const schemaVersions = `${schemas.map(formatVersions).join("\n")}`;
+  const schemaRequires = schemas.map(formatRequire).join('\n');
+  const schemaVersions = `${schemas.map(formatVersions).join('\n')}`;
 
   return `${schemaRequires}
 
@@ -66,7 +66,7 @@ export const buildSchemas = async () => {
   const schemaSrcDirectory = resolve(SCHEMA_SRC_PATH);
   const schemaOutputDirectory = resolve(SCHEMA_OUTPUT_PATH);
 
-  if (!(await exists(schemaOutputDirectory))) {
+  if (!(await stat(schemaOutputDirectory)).isDirectory()) {
     await mkdir(schemaOutputDirectory, { recursive: true });
   }
 
@@ -85,7 +85,7 @@ export const buildSchemas = async () => {
     console.log(`${baseSchemaName} done.`); // eslint-disable-line
   });
 
-  const moduleIndexPath = join(schemaOutputDirectory, "index.js");
+  const moduleIndexPath = join(schemaOutputDirectory, 'index.js');
   const moduleIndex = generateModuleIndex(schemas);
   await writeFile(moduleIndexPath, moduleIndex);
 };

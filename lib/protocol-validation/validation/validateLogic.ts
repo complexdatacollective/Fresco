@@ -9,7 +9,7 @@ import {
   type VariableDefinition,
   type VariableValidation,
 } from '@codaco/shared-consts';
-import { get, isObject } from 'lodash-es';
+import { get, isObject } from 'es-toolkit/compat';
 import Validator from './Validator';
 import {
   duplicateId,

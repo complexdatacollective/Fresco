@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@codaco/analytics": "7.0.0",
-    "@codaco/protocol-validation": "3.0.0-alpha.4",
     "@codaco/shared-consts": "^0.0.2",
     "@hookform/resolvers": "^3.9.1",
     "@lucia-auth/adapter-prisma": "^3.0.2",
@@ -48,6 +47,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@uploadthing/react": "^7.1.0",
     "@xmldom/xmldom": "^0.8.10",
+    "ajv": "^8.17.1",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",

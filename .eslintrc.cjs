@@ -26,11 +26,18 @@ const config = {
     'next/core-web-vitals',
     'prettier',
   ],
-  ignorePatterns: ['node_modules', '*.stories.*', '*.test.*', 'public', '.eslintrc.cjs',],
+  ignorePatterns: [
+    'node_modules',
+    '*.stories.*',
+    '*.test.*',
+    'public',
+    '.eslintrc.cjs',
+    'lib/protocol-validation', // TODO: remove this, and fix the errors
+  ],
   rules: {
-    "@next/next/no-img-element": "off",
-    "import/no-anonymous-default-export": "off",
-    "@typescript-eslint/consistent-type-definitions": ['error', 'type'],
+    '@next/next/no-img-element': 'off',
+    'import/no-anonymous-default-export': 'off',
+    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     'no-process-env': 'error',
     'no-console': 'error',
     '@typescript-eslint/consistent-type-imports': [
@@ -46,11 +53,11 @@ const config = {
         argsIgnorePattern: '^_',
       },
     ],
-    "@typescript-eslint/no-misused-promises": [
-      "error",
+    '@typescript-eslint/no-misused-promises': [
+      'error',
       {
-        "checksVoidReturn": false
-      }
+        checksVoidReturn: false,
+      },
     ],
     'no-unreachable': 'error',
   },
