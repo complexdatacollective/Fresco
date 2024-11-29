@@ -26,7 +26,7 @@ export const validateSchema = async (
 
   try {
     const result = (await import(
-      `~/lib/protocol-validation/schemas/${version}.js`
+      `~/lib/protocol-validation/schemas/compiled/${version}.js`
     )) as { default: ValidateFunction };
 
     validator = result.default;

@@ -15,7 +15,9 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
-    "load-test": "docker run -i grafana/k6 run - <load-test.js"
+    "load-test": "docker run -i grafana/k6 run - <load-test.js",
+    "validate-protocol": "node --experimental-strip-types ./lib/protocol-validation/scripts/validateProtocol.ts",
+    "compile-schemas": "node --experimental-strip-types ./lib/protocol-validation/scripts/compileSchemas.ts"
   },
   "pnpm": {
     "overrides": {
