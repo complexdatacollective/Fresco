@@ -33,7 +33,7 @@ const ensurePatternRegExp = (pattern: string | RegExp): RegExp => {
   return pattern;
 };
 
-export type KeyPath = string[];
+type KeyPath = string[];
 
 const keypathToString = (keypath: string | string[]): string => {
   if (typeof keypath === 'string') {
@@ -48,42 +48,42 @@ const keypathToString = (keypath: string | string[]): string => {
   });
 };
 
-export type ValidationPattern = RegExp;
+type ValidationPattern = RegExp;
 
-export type ValidationFunction<T> = (
+type ValidationFunction<T> = (
   fragment: T,
   subject: StageSubject | null,
   keypath: KeyPath,
 ) => boolean;
 
-export type ValidationMakeFailureMessage<T> = (
+type ValidationMakeFailureMessage<T> = (
   fragment: T,
   subject: StageSubject | null,
   keypath: KeyPath,
 ) => string;
 
-export type ValidationSequence<T> = [
+type ValidationSequence<T> = [
   ValidationFunction<T>,
   ValidationMakeFailureMessage<T>,
 ][];
 
-export type ValidationItemSingle<T> = {
+type ValidationItemSingle<T> = {
   validate: ValidationFunction<T>;
   makeFailureMessage: ValidationMakeFailureMessage<T>;
 };
 
-export type ValidationItemSequence<T> = {
+type ValidationItemSequence<T> = {
   sequence: ValidationSequence<T>;
 };
 
-export type ValidationItemBase = {
+type ValidationItemBase = {
   pattern: ValidationPattern;
 };
 
-export type Validation<T> = ValidationItemBase &
+type Validation<T> = ValidationItemBase &
   (ValidationItemSingle<T> | ValidationItemSequence<T>);
 
-export type LogicError = Record<string, never>;
+type LogicError = Record<string, never>;
 
 /**
  * @class

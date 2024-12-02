@@ -1,10 +1,10 @@
 import Ajv from 'ajv';
 import standaloneCode from 'ajv/dist/standalone/index.js';
-import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { basename, extname, join, resolve } from 'node:path';
 
-const SCHEMA_SRC_PATH = './src/schemas';
-const SCHEMA_OUTPUT_PATH = './dist/schemas';
+const SCHEMA_SRC_PATH = './lib/protocol-validation/schemas/src';
+const SCHEMA_OUTPUT_PATH = './lib/protocol-validation/schemas/compiled';
 
 const ajv = new Ajv({
   code: { source: true, esm: true, lines: true },
@@ -36,15 +36,15 @@ const getSchemas = async (directory: string) => {
   return files.filter(isJsonFile).map(getBaseName);
 };
 
-const generateModuleIndex = (schemas) => {
-  const formatRequire = (baseSchemaName) => {
+const generateModuleIndex = (schemas: string[]) => {
+  const formatRequire = (baseSchemaName: string) => {
     const relativeModulePath = join(`./${baseSchemaName}.js`);
     return `import ${asVariableName(
       baseSchemaName,
     )} from './${relativeModulePath}';`;
   };
 
-  const formatVersions = (baseSchemaName) =>
+  const formatVersions = (baseSchemaName: string) =>
     `  { version: ${asIntName(baseSchemaName)}, validator: ${asVariableName(
       baseSchemaName,
     )} },`;
@@ -62,7 +62,7 @@ export default versions;
 \r\n`;
 };
 
-export const buildSchemas = async () => {
+const buildSchemas = async () => {
   const schemaSrcDirectory = resolve(SCHEMA_SRC_PATH);
   const schemaOutputDirectory = resolve(SCHEMA_OUTPUT_PATH);
 
@@ -72,11 +72,16 @@ export const buildSchemas = async () => {
 
   const schemas = await getSchemas(schemaSrcDirectory);
 
+  console.log('Compiling schemas...'); // eslint-disable-line
+
   schemas.forEach(async (baseSchemaName) => {
     const schemaPath = join(schemaSrcDirectory, `${baseSchemaName}.json`);
     const modulePath = join(schemaOutputDirectory, `${baseSchemaName}.js`);
 
-    const schema = await Bun.file(schemaPath).json();
+    // Read the file at schemaPath and parse as JSON
+    const schema = (await readFile(schemaPath, 'utf8').then(
+      JSON.parse,
+    )) as Record<string, unknown>;
     const validateFunction = ajv.compile(schema);
     const moduleCode = standaloneCode(ajv, validateFunction);
 
@@ -89,3 +94,5 @@ export const buildSchemas = async () => {
   const moduleIndex = generateModuleIndex(schemas);
   await writeFile(moduleIndexPath, moduleIndex);
 };
+
+buildSchemas();

@@ -1,6 +1,6 @@
-import getMigrationPath from "./getMigrationPath";
+import getMigrationPath from './getMigrationPath';
 
-export const canUpgrade = (
+const canUpgrade = (
   sourceSchemaVersion: number,
   targetSchemaVersion: number,
 ) => {

@@ -5,7 +5,7 @@ import type Zip from 'jszip';
 import JSZip from 'jszip';
 import { join } from 'path';
 import { describe, it } from 'vitest';
-import { validateProtocol } from '~/lib/protocol-validation';
+import { validateProtocol } from '../index';
 
 // Utility functions for encryption handling
 const decryptFile = async (

@@ -6,14 +6,20 @@
  */
 import { type Protocol } from '@codaco/shared-consts';
 import chalk from 'chalk';
+import JSZip from 'jszip';
+import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { ensureError } from '~/utils/ensureError';
+import { getProtocolJson } from '~/utils/protocolImport';
 import { validateProtocol } from '..';
 import { errToString } from '../validation/helpers';
 
 // eslint-disable-next-line no-console
 const log = console.log;
 const protocolArg = process.argv[2];
-const forceSchemaArg = process.argv[3];
+const forceSchemaArg = process.argv[3]
+  ? parseInt(process.argv[3], 10)
+  : undefined;
 
 if (!protocolArg) {
   console.error('You must specify a protocol file to validate.');
@@ -23,41 +29,44 @@ if (!protocolArg) {
 const protocolFilepath = protocolArg;
 const protocolName = basename(protocolFilepath);
 
-const error = (msg: string) => log(chalk.red(msg));
-const success = (msg: string) => log(chalk.green(msg));
+const logError = (msg: string) => log(chalk.red(msg));
+const logSuccess = (msg: string) => log(chalk.green(msg));
 
 export const validateJson = async (data: Protocol) => {
   try {
-    await validateProtocol(data, parseInt(forceSchemaArg));
-    success(`${protocolName} is valid.`);
+    const result = await validateProtocol(data, forceSchemaArg);
+
+    if (result.isValid) {
+      logSuccess(`${protocolName} is valid.`);
+      return;
+    }
+
+    const { schemaErrors, logicErrors } = result;
+    logError(`${protocolName} is NOT valid!`);
+    if (schemaErrors.length) {
+      logError(`${protocolName} has the following schema errors:`);
+      schemaErrors.forEach((err) => logError(`\t- ${errToString(err)}`));
+    }
+
+    if (logicErrors.length) {
+      console.error(`${protocolName} has the following logic errors:`);
+      logicErrors.forEach((err) => logError(`\t- ${errToString(err)}`));
+    }
   } catch (e: unknown) {
-    // Validation errors
-    if (e instanceof ValidationError) {
-      const { schemaErrors, logicErrors } = e;
-      error(`${protocolName} is NOT valid!`);
-      if (schemaErrors.length) {
-        console.error(`${protocolName} has the following schema errors:`);
-        schemaErrors.forEach((err) => error(`\t- ${errToString(err)}`));
-      }
-
-      if (logicErrors.length) {
-        console.error(`${protocolName} has the following logic errors:`);
-        logicErrors.forEach((err) => error(`\t- ${errToString(err)}`));
-      }
-    }
-
-    // Internal errors
-    if (e instanceof Error) {
-      error('Validation failed.');
-      error(e.message);
-    }
+    const error = ensureError(e);
+    logError('Validation failed.');
+    logError(error.message);
   }
 };
 
 try {
-  const file = await Bun.file(protocolFilepath).json();
-  await validateJson(file);
-} catch (err) {
-  console.error(err);
+  // Unzip the protocol file
+  const protocolFile = await readFile(protocolFilepath);
+  const zip = await JSZip.loadAsync(protocolFile);
+  const protocolJson = await getProtocolJson(zip);
+  await validateJson(protocolJson);
+} catch (e) {
+  const error = ensureError(e);
+  logError(error.message);
   process.exit(1);
 }

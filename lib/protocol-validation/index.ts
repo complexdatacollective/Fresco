@@ -8,7 +8,7 @@ export type ValidationError = {
   message: string;
 };
 
-export type ValidationResult = {
+type ValidationResult = {
   isValid: boolean;
   schemaErrors: ValidationError[];
   logicErrors: ValidationError[];
@@ -46,4 +46,4 @@ const validateProtocol = async (
   }
 };
 
-export { validateLogic, validateProtocol, validateSchema };
+export {  validateProtocol,  };

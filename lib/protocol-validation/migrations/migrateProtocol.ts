@@ -44,8 +44,3 @@ export const migrateProtocol = (
   return resultProtocol;
 };
 
-export default {
-  migrateProtocol,
-  getMigrationNotes,
-  canUpgrade,
-};

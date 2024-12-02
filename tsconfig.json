@@ -14,7 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -49,6 +49,5 @@
   ],
   "exclude": [
     "node_modules",
-    "lib/protocol-validation/**/*",
   ]
 }
