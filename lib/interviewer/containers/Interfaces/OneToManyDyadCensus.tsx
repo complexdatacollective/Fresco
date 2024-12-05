@@ -3,7 +3,7 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
@@ -12,6 +12,8 @@ import Prompts from '../../components/Prompts';
 import { getNetworkNodesForType } from '../../selectors/interface';
 import { getNetworkEdges } from '../../selectors/network';
 import { type StageProps } from '../Stage';
+
+const MotionNode = motion.create(Node);
 
 /**
  * For a given nodelist, we need to cycle through each node, and offer the
@@ -48,9 +50,9 @@ const generateEdgeOptions = (nodes: NcNode[]) => {
   return options;
 };
 
-const cardvariants = {
+const cardvariants: Variants = {
   hide: { opacity: 0, scale: 0.9 },
-  show: { opacity: 1, scale: 1 },
+  show: { opacity: 1, scale: 1, transition: { when: 'beforeChildren' } },
 };
 
 type OneToManyDyadCensusProps = StageProps & {
@@ -109,26 +111,23 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           exit="hide"
           animate="show"
         >
-          <div>
-            <motion.div
-              layoutId={options[currentStep]?.source[entityPrimaryKeyProperty]}
-              // layout
-              key={options[currentStep]?.source[entityPrimaryKeyProperty]}
-              className="inline-block"
-            >
-              <Node {...options[currentStep]?.source} isStatic />
-            </motion.div>
-          </div>
+          <MotionNode
+            {...options[currentStep]?.source}
+            selected
+            layoutId={options[currentStep]?.source[entityPrimaryKeyProperty]}
+            // layout
+            key={options[currentStep]?.source[entityPrimaryKeyProperty]}
+            variants={cardvariants}
+          />
+
           <div>
             {options[currentStep]?.targets.map((node) => (
-              <motion.div
+              <MotionNode
+                {...node}
                 layoutId={node[entityPrimaryKeyProperty]}
                 // layout
                 key={node[entityPrimaryKeyProperty]}
-                className="inline-block"
-              >
-                <Node {...node} isStatic />
-              </motion.div>
+              />
             ))}
           </div>
         </motion.div>
