@@ -87,7 +87,7 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const { validateProtocol } = await import('@codaco/protocol-validation');
+      const { validateProtocol } = await import('~/lib/protocol-validation');
 
       const validationResult = await validateProtocol(protocolJson);
 
@@ -130,7 +130,7 @@ export const useProtocolImport = () => {
                       ...validationResult.logicErrors,
                     ].map((validationError, i) => (
                       <li className="flex capitalize" key={i}>
-                        <XCircle className="mr-2 h-4 w-4 text-destructive" />
+                        <XCircle className="text-destructive mr-2 h-4 w-4" />
                         <span>
                           {validationError.message}{' '}
                           <span className="text-xs italic">
