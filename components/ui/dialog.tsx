@@ -17,16 +17,19 @@ const DialogPortal = ({ ...props }: DialogPrimitive.DialogPortalProps) => (
 );
 DialogPortal.displayName = DialogPrimitive.Portal.displayName;
 
+export const dialogOverlayClasses = (className?: string) =>
+  cn(
+    'bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 backdrop-blur-sm',
+    className,
+  );
+
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn(
-      'bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 backdrop-blur-sm',
-      className,
-    )}
+    className={dialogOverlayClasses(className)}
     {...props}
   />
 ));
