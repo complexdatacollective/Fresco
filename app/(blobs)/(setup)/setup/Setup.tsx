@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';

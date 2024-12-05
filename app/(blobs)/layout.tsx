@@ -19,7 +19,7 @@ export default function Layout({ children }: PropsWithChildren) {
             />
           </Link>
         </div>
-        <main className="flex flex-grow items-center justify-center">
+        <main className="flex grow items-center justify-center">
           {children}
         </main>
       </div>

@@ -1,13 +1,13 @@
-import { forwardRef, useEffect, useState } from 'react';
-import ErrorDialog from '../ui/ErrorDialog';
-import { CloseButton } from '../ui/CloseButton';
-import { type ImportJob } from './JobReducer';
-import { cn } from '~/utils/shadcn';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
+import { motion } from 'motion/react';
+import { forwardRef, useEffect, useState } from 'react';
+import { cn } from '~/utils/shadcn';
 import { Button } from '../ui/Button';
+import { CloseButton } from '../ui/CloseButton';
+import ErrorDialog from '../ui/ErrorDialog';
 import Heading from '../ui/typography/Heading';
 import Paragraph from '../ui/typography/Paragraph';
-import { motion } from 'framer-motion';
+import { type ImportJob } from './JobReducer';
 
 type JobCardProps = {
   job: ImportJob;
