@@ -455,6 +455,7 @@ const oneToManyDyadCensusStage = baseStageSchema.extend({
     .array(
       promptSchema.extend({
         createEdge: z.string(),
+        bucketSortOrder: sortOrderSchema.optional(),
       }),
     )
     .min(1),

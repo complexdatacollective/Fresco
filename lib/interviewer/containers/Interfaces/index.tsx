@@ -9,6 +9,53 @@ const StageLoading = () => (
   </div>
 );
 
+const NameGenerator = dynamic(() => import('./NameGenerator'), {
+  loading: StageLoading,
+});
+const NameGeneratorQuickAdd = dynamic(() => import('./NameGeneratorQuickAdd'), {
+  loading: StageLoading,
+});
+const NameGeneratorRoster = dynamic(() => import('./NameGeneratorRoster'), {
+  loading: StageLoading,
+});
+const Sociogram = dynamic(() => import('./Sociogram'), {
+  loading: StageLoading,
+});
+const Information = dynamic(() => import('./Information'), {
+  loading: StageLoading,
+});
+const OrdinalBin = dynamic(() => import('./OrdinalBin'), {
+  loading: StageLoading,
+});
+const CategoricalBin = dynamic(() => import('./CategoricalBin'), {
+  loading: StageLoading,
+});
+const Narrative = dynamic(() => import('./Narrative'), {
+  loading: StageLoading,
+});
+const AlterForm = dynamic(() => import('./AlterForm'), {
+  loading: StageLoading,
+});
+const EgoForm = dynamic(() => import('./EgoForm'), { loading: StageLoading });
+const AlterEdgeForm = dynamic(() => import('./AlterEdgeForm'), {
+  loading: StageLoading,
+});
+const DyadCensus = dynamic(() => import('./DyadCensus/DyadCensus'), {
+  loading: StageLoading,
+});
+const TieStrengthCensus = dynamic(() => import('./TieStrengthCensus'), {
+  loading: StageLoading,
+});
+const FinishSession = dynamic(() => import('./FinishSession'), {
+  loading: StageLoading,
+});
+const Anonymisation = dynamic(() => import('./Anonymisation'), {
+  loading: StageLoading,
+});
+const OneToManyDyadCensus = dynamic(() => import('./OneToManyDyadCensus'), {
+  loading: StageLoading,
+});
+
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <div
     style={{
@@ -32,57 +79,38 @@ const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
 const getInterface = (interfaceType: string) => {
   switch (interfaceType) {
     case StageType.NameGenerator:
-      return dynamic(() => import('./NameGenerator'), {
-        loading: StageLoading,
-      });
+      return NameGenerator;
     case StageType.NameGeneratorQuickAdd:
-      return dynamic(() => import('./NameGeneratorQuickAdd'), {
-        loading: StageLoading,
-      });
+      return NameGeneratorQuickAdd;
     case StageType.NameGeneratorRoster:
-      return dynamic(() => import('./NameGeneratorRoster'), {
-        loading: StageLoading,
-      });
+      return NameGeneratorRoster;
     case StageType.Sociogram:
-      return dynamic(() => import('./Sociogram'), { loading: StageLoading });
+      return Sociogram;
     case StageType.Information:
-      return dynamic(() => import('./Information'), { loading: StageLoading });
+      return Information;
     case StageType.OrdinalBin:
-      return dynamic(() => import('./OrdinalBin'), { loading: StageLoading });
+      return OrdinalBin;
     case StageType.CategoricalBin:
-      return dynamic(() => import('./CategoricalBin'), {
-        loading: StageLoading,
-      });
+      return CategoricalBin;
     case StageType.Narrative:
-      return dynamic(() => import('./Narrative'), { loading: StageLoading });
+      return Narrative;
     case StageType.AlterForm:
-      return dynamic(() => import('./AlterForm'), { loading: StageLoading });
+      return AlterForm;
     case StageType.EgoForm:
-      return dynamic(() => import('./EgoForm'), { loading: StageLoading });
+      return EgoForm;
     case StageType.AlterEdgeForm:
-      return dynamic(() => import('./AlterEdgeForm'), {
-        loading: StageLoading,
-      });
+      return AlterEdgeForm;
     case StageType.DyadCensus:
-      return dynamic(() => import('./DyadCensus/DyadCensus'), {
-        loading: StageLoading,
-      });
+      return DyadCensus;
     case StageType.TieStrengthCensus:
-      return dynamic(() => import('./TieStrengthCensus'), {
-        loading: StageLoading,
-      });
-    case StageType.OneToManyDyadCensus:
-      return dynamic(() => import('./OneToManyDyadCensus'), {
-        loading: StageLoading,
-      });
+      return TieStrengthCensus;
     case StageType.Anonymisation:
-      return dynamic(() => import('./Anonymisation'), {
-        loading: StageLoading,
-      });
+      return Anonymisation;
+    case StageType.OneToManyDyadCensus:
+      return OneToManyDyadCensus;
     case 'FinishSession':
-      return dynamic(() => import('./FinishSession'), {
-        loading: StageLoading,
-      });
+      return FinishSession;
+
     default:
       return <NotFoundInterface interfaceType={interfaceType} />;
   }

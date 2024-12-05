@@ -27,7 +27,11 @@ export const protocol: Protocol = {
       quickAdd: '28c8ae72-2b6a-438f-ab09-35169aaffdeb',
       prompts: [
         {
-          id: 'a9ad8715-6bce-46be-a9c4-10e6766dfe62',
+          id: 'people',
+          text: 'Please name some people\n',
+        },
+        {
+          id: 'places',
           text: 'Please name some people\n',
         },
       ],
@@ -39,13 +43,19 @@ export const protocol: Protocol = {
       type: 'OneToManyDyadCensus',
       subject: {
         entity: 'node',
-        type: 'person_node_type',
+        type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
       },
       prompts: [
         {
           id: 'friends',
           text: 'Are these people friends?',
           createEdge: 'friend_edge_type',
+          bucketSortOrder: [
+            {
+              property: '*',
+              direction: 'desc',
+            },
+          ],
         },
         {
           id: 'professional',
