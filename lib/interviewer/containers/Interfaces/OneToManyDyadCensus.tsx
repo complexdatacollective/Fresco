@@ -4,6 +4,7 @@ import {
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
+import { type AnyAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,41 +18,6 @@ import { getNetworkEdges } from '../../selectors/network';
 import { type StageProps } from '../Stage';
 
 const MotionNode = motion.create(Node);
-
-/**
- * For a given nodelist, we need to cycle through each node, and offer the
- * participant a list of the rest of the nodes that could be linked to.
- *
- * Because edges are assumed to be undirected, we can remove pairs that have
- * already been considered.
- *
- * This function generates a data structure that allows this, which looks like
- * the following:
- *
- * [
- *    {
- *      source: NcNode,
- *      targets: NcNode[]
- *    }
- * ]
- */
-const generateEdgeOptions = (nodes: NcNode[]) => {
-  const options = [];
-
-  for (const source of nodes) {
-    const targets = nodes.filter(
-      (node) =>
-        node[entityAttributesProperty] !== source[entityAttributesProperty],
-    );
-
-    options.push({
-      source,
-      targets,
-    });
-  }
-
-  return options;
-};
 
 const cardvariants: Variants = {
   hide: { opacity: 0, scale: 0.9 },
@@ -68,7 +34,13 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
 
-  const options = generateEdgeOptions(nodes);
+  const targets = nodes.filter(
+    (node) =>
+      node[entityAttributesProperty] !==
+      nodes[currentStep]?.[entityAttributesProperty],
+  );
+
+  const source = nodes[currentStep];
 
   /**
    * Hijack stage navigation:
@@ -80,7 +52,7 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   // eslint-disable-next-line @typescript-eslint/require-await
   registerBeforeNext(async (direction) => {
     if (direction === 'forwards') {
-      if (currentStep < options.length - 1) {
+      if (currentStep < nodes.length - 1) {
         setCurrentStep((prev) => prev + 1);
         return false;
       }
@@ -107,14 +79,10 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   const dispatch = useDispatch();
 
-  console.log({ nodes, edges, options: generateEdgeOptions(nodes) });
-
   // Reset the step when the prompt changes
   useEffect(() => {
     setCurrentStep(0);
   }, [promptIndex]);
-
-  const sourceNode = options[currentStep]?.source!;
 
   function edgeExists(
     targetId: string,
@@ -133,13 +101,12 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   }
 
   const handleNodeClick = (node: NcNode) => () => {
-    console.log('Creating edge between', sourceNode, node);
     dispatch(
       sessionActions.toggleEdge({
-        from: sourceNode[entityPrimaryKeyProperty],
+        from: source![entityPrimaryKeyProperty],
         to: node[entityPrimaryKeyProperty],
         type: createEdge,
-      }),
+      }) as unknown as AnyAction,
     );
   };
 
@@ -158,26 +125,24 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
             <Prompts />
             <div>
               <MotionNode
-                {...sourceNode}
+                {...source}
                 linking
-                layoutId={sourceNode[entityPrimaryKeyProperty]}
-                // layout
-                key={sourceNode[entityPrimaryKeyProperty]}
+                layoutId={source![entityPrimaryKeyProperty]}
+                key={source![entityPrimaryKeyProperty]}
                 variants={cardvariants}
               />
             </div>
           </div>
 
           <div className="grow rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
-            {options[currentStep]?.targets.map((node) => (
+            {targets.map((node) => (
               <MotionNode
                 {...node}
                 layoutId={node[entityPrimaryKeyProperty]}
-                // layout
                 key={node[entityPrimaryKeyProperty]}
                 selected={edgeExists(
                   node[entityPrimaryKeyProperty],
-                  sourceNode[entityPrimaryKeyProperty],
+                  source![entityPrimaryKeyProperty],
                   edges,
                 )}
                 handleClick={handleNodeClick(node)}

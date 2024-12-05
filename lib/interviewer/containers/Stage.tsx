@@ -1,13 +1,11 @@
+import { type Stage } from '@codaco/shared-consts';
 import { type ElementType, memo } from 'react';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
 import { type BeforeNextFunction } from './ProtocolScreen';
 
 export type StageProps = {
-  stage: {
-    id: string;
-    type: string;
-  };
+  stage: Stage;
   registerBeforeNext: (fn: BeforeNextFunction | null) => void;
   getNavigationHelpers: () => {
     moveForward: () => void;
