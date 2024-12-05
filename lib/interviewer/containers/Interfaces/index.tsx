@@ -57,15 +57,8 @@ const OneToManyDyadCensus = dynamic(() => import('./OneToManyDyadCensus'), {
 });
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
-  <div
-    style={{
-      display: 'flex',
-      height: '100%',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <div style={{ textAlign: 'center' }}>
+  <div className="flex h-full w-full items-center justify-center">
+    <div className="flex flex-col items-center">
       <Icon name="warning" />
       <h1 style={{ marginTop: '1rem' }}>
         No &quot;
@@ -112,7 +105,8 @@ const getInterface = (interfaceType: string) => {
       return FinishSession;
 
     default:
-      return <NotFoundInterface interfaceType={interfaceType} />;
+      // eslint-disable-next-line react/display-name
+      return () => <NotFoundInterface interfaceType={interfaceType} />;
   }
 };
 

@@ -123,8 +123,12 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   ): boolean {
     return edges.some(
       (edge) =>
-        (edge.from === targetId && edge.to === sourceId) ||
-        (edge.from === sourceId && edge.to === targetId),
+        (edge.from === targetId &&
+          edge.to === sourceId &&
+          edge.type === createEdge) ||
+        (edge.from === sourceId &&
+          edge.to === targetId &&
+          edge.type === createEdge),
     );
   }
 
