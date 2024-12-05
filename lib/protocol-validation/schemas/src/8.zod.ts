@@ -229,8 +229,6 @@ const baseStageSchema = z.object({
     .optional(),
 });
 
-export type BaseStage = z.infer<typeof baseStageSchema>;
-
 const formFieldsSchema = z
   .object({
     title: z.string().optional(),
