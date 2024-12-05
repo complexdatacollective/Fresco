@@ -229,7 +229,7 @@
 
     --sea-green-hue: 168;
     --sea-green-saturation: 100%;
-    --sea-green-lightness: 40%;
+    --sea-green-lightness: 35%;
     --sea-green: var(--sea-green-hue) var(--sea-green-saturation)
       var(--sea-green-lightness);
     --sea-green--dark: var(--sea-green-hue) var(--sea-green-saturation)
@@ -374,8 +374,7 @@
     --info-foreground: var(--white);
 
     --success: var(--sea-green);
-    --success-foreground: var(--sea-green-hue) var(--sea-green-saturation)
-      calc(var(--sea-green-lightness) - 12%);
+    --success-foreground: var(--white);
 
     --border: var(--platinum--dark);
 
