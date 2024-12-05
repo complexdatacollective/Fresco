@@ -48,7 +48,7 @@ export const protocol: Protocol = {
       prompts: [
         {
           id: 'friends',
-          text: 'Are these people friends?',
+          text: 'Tap on all the people who would consider this person a friend',
           createEdge: 'friend_edge_type',
           bucketSortOrder: [
             {
@@ -59,7 +59,7 @@ export const protocol: Protocol = {
         },
         {
           id: 'professional',
-          text: 'Do these people work together?',
+          text: 'Tap on all the people who work with this person.',
           createEdge: 'professional_edge_type',
         },
       ],
@@ -83,6 +83,16 @@ export const protocol: Protocol = {
         },
         iconVariant: 'add-a-person',
         name: 'Person',
+      },
+    },
+    edge: {
+      friend_edge_type: {
+        color: 'edge-color-seq-1',
+        name: 'Friend',
+      },
+      professional_edge_type: {
+        color: 'edge-color-seq-2',
+        name: 'Professional',
       },
     },
   },

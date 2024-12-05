@@ -1,11 +1,14 @@
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
+  type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
+import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
@@ -60,7 +63,7 @@ type OneToManyDyadCensusProps = StageProps & {
 };
 
 export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
-  const { registerBeforeNext, stage } = props;
+  const { registerBeforeNext } = props;
   const [currentStep, setCurrentStep] = useState(0);
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
@@ -75,10 +78,23 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
    * - If we are moving backward and on step 0, allow navigation
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  registerBeforeNext(async () => {
-    if (currentStep < options.length - 1) {
-      setCurrentStep(currentStep + 1);
-      return false;
+  registerBeforeNext(async (direction) => {
+    if (direction === 'forwards') {
+      if (currentStep < options.length - 1) {
+        setCurrentStep((prev) => prev + 1);
+        return false;
+      }
+
+      return true;
+    }
+
+    if (direction === 'backwards') {
+      if (currentStep > 0) {
+        setCurrentStep((prev) => prev - 1);
+        return false;
+      }
+
+      return true;
     }
 
     return true;
@@ -87,8 +103,9 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const {
     prompt: { createEdge },
     promptIndex,
-    prompts,
   } = usePrompts();
+
+  const dispatch = useDispatch();
 
   console.log({ nodes, edges, options: generateEdgeOptions(nodes) });
 
@@ -97,36 +114,69 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     setCurrentStep(0);
   }, [promptIndex]);
 
+  const sourceNode = options[currentStep]?.source!;
+
+  function edgeExists(
+    targetId: string,
+    sourceId: string,
+    edges: NcEdge[],
+  ): boolean {
+    return edges.some(
+      (edge) =>
+        (edge.from === targetId && edge.to === sourceId) ||
+        (edge.from === sourceId && edge.to === targetId),
+    );
+  }
+
+  const handleNodeClick = (node: NcNode) => () => {
+    console.log('Creating edge between', sourceNode, node);
+    dispatch(
+      sessionActions.toggleEdge({
+        from: sourceNode[entityPrimaryKeyProperty],
+        to: node[entityPrimaryKeyProperty],
+        type: createEdge,
+      }),
+    );
+  };
+
   return (
-    <div className="one-to-many-dyad-census flex h-full w-full flex-col">
-      <div className="shrink-0 grow-0 overflow-auto">
-        <Prompts />
-      </div>
-      <AnimatePresence mode="wait">
+    <div className="one-to-many-dyad-census flex h-full w-full flex-col px-[2.4rem] py-[1.2rem]">
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={promptIndex}
-          className="m-10 flex grow flex-col rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) p-4"
           variants={cardvariants}
           initial="hide"
           exit="hide"
           animate="show"
+          className="flex h-full grow flex-col gap-4"
         >
-          <MotionNode
-            {...options[currentStep]?.source}
-            selected
-            layoutId={options[currentStep]?.source[entityPrimaryKeyProperty]}
-            // layout
-            key={options[currentStep]?.source[entityPrimaryKeyProperty]}
-            variants={cardvariants}
-          />
+          <div className="flex flex-col items-center">
+            <Prompts />
+            <div>
+              <MotionNode
+                {...sourceNode}
+                linking
+                layoutId={sourceNode[entityPrimaryKeyProperty]}
+                // layout
+                key={sourceNode[entityPrimaryKeyProperty]}
+                variants={cardvariants}
+              />
+            </div>
+          </div>
 
-          <div>
+          <div className="grow rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
             {options[currentStep]?.targets.map((node) => (
               <MotionNode
                 {...node}
                 layoutId={node[entityPrimaryKeyProperty]}
                 // layout
                 key={node[entityPrimaryKeyProperty]}
+                selected={edgeExists(
+                  node[entityPrimaryKeyProperty],
+                  sourceNode[entityPrimaryKeyProperty],
+                  edges,
+                )}
+                handleClick={handleNodeClick(node)}
               />
             ))}
           </div>
