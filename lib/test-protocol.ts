@@ -11,7 +11,7 @@ export const protocol: Protocol = {
           size: 'MEDIUM',
           id: '08964cf2-4c7b-4ecd-a6ef-123456',
           content:
-            'This interview allows you to encrypt the names of the people you mention so that they cannot be seen by anyone but you - even the researchers running this study. \n',
+            'This interview allows you to encrypt the names of the people you mention so that they cannot be seen by anyone but you - even the researchers running this study. \n\nTo use this feature, click on the padlock icon below, and enter a passcode when prompted.',
           type: 'text',
         },
       ],

@@ -448,6 +448,8 @@ const anonymisationStage = baseStageSchema.extend({
   ),
 });
 
+export type AnonymisationStage = z.infer<typeof anonymisationStage>;
+
 const oneToManyDyadCensusStage = baseStageSchema.extend({
   type: z.literal('OneToManyDyadCensus'),
   subject: subjectSchema,

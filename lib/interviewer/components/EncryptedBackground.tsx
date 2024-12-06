@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Stream = {
   id: number;
@@ -15,6 +15,7 @@ type Stream = {
     scrambleCount: number;
     maxScrambles: number;
   }[];
+  lastScrambleTime?: number;
 };
 
 const names = [
@@ -110,19 +111,22 @@ const getRandomChar = (): string => {
   return encryptionChars[Math.floor(Math.random() * encryptionChars.length)]!;
 };
 
-const createStream = (yPosition = -20) => {
+const createStream = (yPosition = -20, thresholdPosition: number) => {
   const name = names[Math.floor(Math.random() * names.length)]!;
+  const shouldBeEncrypted = yPosition > thresholdPosition;
+
   return {
     id: Math.random(),
     word: name,
     x: Math.random() * 100,
     y: yPosition,
-    speed: 0.1 + Math.random() * 0.2,
-    encrypted: false,
+    speed: 0.05 + Math.random() * 0.1,
+    encrypted: shouldBeEncrypted,
+    lastScrambleTime: 0,
     letters: Array.from(name).map((letter) => ({
       original: letter,
-      current: letter,
-      target: '',
+      current: shouldBeEncrypted ? getRandomChar() : letter,
+      target: shouldBeEncrypted ? getRandomChar() : '',
       isScrambling: false,
       scrambleCount: 0,
       maxScrambles: 5 + Math.floor(Math.random() * 5),
@@ -130,102 +134,158 @@ const createStream = (yPosition = -20) => {
   };
 };
 
-const EncryptionBackground = () => {
+type EncryptionBackgroundProps = {
+  thresholdPosition?: number;
+};
+
+const EncryptionBackground = ({
+  thresholdPosition = 25,
+}: EncryptionBackgroundProps) => {
   const [streams, setStreams] = useState<Stream[]>([]);
+  const animationFrameRef = useRef<number>();
+  const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    const initialStreams = Array.from({ length: 40 }, (_, index) =>
-      createStream(index * 6),
+    const initialStreams = Array.from({ length: 20 }, (_, index) =>
+      createStream(index * 6, thresholdPosition),
     );
     setStreams(initialStreams);
 
-    const interval = setInterval(() => {
-      setStreams((currentStreams) => {
-        return currentStreams.map((stream) => {
-          const newY = stream.y + stream.speed;
+    const updateStreams = (currentTime: number) => {
+      const timeDelta = currentTime - lastUpdateTimeRef.current;
 
-          if (newY > 120) {
-            return createStream();
+      setStreams((currentStreams) =>
+        currentStreams.map((stream) => {
+          const newY = stream.y + (stream.speed * timeDelta) / 16;
+
+          if (newY > 100) {
+            return createStream(-20, thresholdPosition);
           }
 
-          const shouldStartEncrypt = Math.random() < 0.01;
-          const shouldStartDecrypt = Math.random() < 0.01;
+          // Check if crossing threshold
+          const shouldStartEncrypt =
+            !stream.encrypted &&
+            stream.y <= thresholdPosition &&
+            newY > thresholdPosition;
 
-          const newLetters = stream.letters.map((letterState) => {
-            if (
-              shouldStartEncrypt &&
-              !stream.encrypted &&
-              !letterState.isScrambling
-            ) {
-              return {
-                ...letterState,
-                isScrambling: true,
-                scrambleCount: 0,
-                target: getRandomChar(),
-              };
-            }
-            if (
-              shouldStartDecrypt &&
-              stream.encrypted &&
-              !letterState.isScrambling
-            ) {
-              return {
-                ...letterState,
-                isScrambling: true,
-                scrambleCount: 0,
-                target: letterState.original,
-              };
-            }
-            if (letterState.isScrambling) {
-              const newScrambleCount = letterState.scrambleCount + 1;
-              if (newScrambleCount >= letterState.maxScrambles) {
+          // Force encryption state based on position
+          const shouldBeEncrypted = newY > thresholdPosition;
+
+          const shouldUpdateScramble =
+            currentTime - (stream.lastScrambleTime || 0) > 50;
+
+          let newLetters = stream.letters;
+          if (shouldUpdateScramble || shouldStartEncrypt) {
+            newLetters = stream.letters.map((letterState) => {
+              // Start encryption
+              if (shouldStartEncrypt && !letterState.isScrambling) {
                 return {
                   ...letterState,
-                  current: letterState.target,
-                  isScrambling: false,
+                  isScrambling: true,
+                  scrambleCount: 0,
+                  target: getRandomChar(),
                 };
               }
-              return {
-                ...letterState,
-                current: getRandomChar(),
-                scrambleCount: newScrambleCount,
-              };
-            }
-            return letterState;
-          });
+              // Continue scrambling
+              if (letterState.isScrambling && shouldUpdateScramble) {
+                const newScrambleCount = letterState.scrambleCount + 1;
+                if (newScrambleCount >= letterState.maxScrambles) {
+                  return {
+                    ...letterState,
+                    current: letterState.target,
+                    isScrambling: false,
+                  };
+                }
+                return {
+                  ...letterState,
+                  current: getRandomChar(),
+                  scrambleCount: newScrambleCount,
+                };
+              }
+              // Force encryption state if below threshold
+              if (
+                shouldBeEncrypted &&
+                !letterState.isScrambling &&
+                letterState.current === letterState.original
+              ) {
+                return {
+                  ...letterState,
+                  current: getRandomChar(),
+                  target: getRandomChar(),
+                };
+              }
+              return letterState;
+            });
+          }
 
-          const isNowEncrypted = newLetters.every(
-            (l) => !l.isScrambling && l.current !== l.original,
-          );
+          const isNowEncrypted =
+            shouldBeEncrypted ||
+            newLetters.every(
+              (l) => !l.isScrambling && l.current !== l.original,
+            );
 
           return {
             ...stream,
             y: newY,
             encrypted: isNowEncrypted,
             letters: newLetters,
+            lastScrambleTime: shouldUpdateScramble
+              ? currentTime
+              : stream.lastScrambleTime,
           };
-        });
-      });
-    }, 50);
+        }),
+      );
 
-    return () => clearInterval(interval);
-  }, []);
+      lastUpdateTimeRef.current = currentTime;
+      animationFrameRef.current = requestAnimationFrame(updateStreams);
+    };
+
+    lastUpdateTimeRef.current = performance.now();
+    animationFrameRef.current = requestAnimationFrame(updateStreams);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [thresholdPosition]);
 
   return (
-    <div className="pointer-events-none h-full w-full overflow-hidden text-white/30 select-none">
+    <div
+      className="preserve-3d pointer-events-none absolute relative inset-0 h-full w-full overflow-hidden text-white/30 select-none"
+      style={{ perspective: '1000px' }}
+    >
+      <div
+        className="absolute w-full text-center text-[4rem] text-white/100 will-change-transform"
+        style={{
+          top: `${thresholdPosition}%`,
+          background:
+            'linear-gradient(rgba(255,255, 255, 0) 40%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 60%)',
+        }}
+      >
+        🔒
+      </div>
+
       {streams.map((stream) => (
         <div
           key={stream.id}
-          className="absolute font-mono whitespace-nowrap transition-all duration-300"
+          className="absolute font-mono whitespace-nowrap transition-colors duration-300 will-change-transform"
           style={{
-            left: `${stream.x}%`,
-            top: `${stream.y}%`,
-            transform: 'translate(-50%, -50%)',
+            transform: `translate3d(${stream.x}vw, ${stream.y}vh, 0)`,
             opacity: Math.max(0, Math.min(1, (100 - stream.y) / 50)),
+            color: stream.encrypted ? 'rgb(100, 255, 150, 0.3)' : undefined,
           }}
         >
           {stream.letters.map((letterState, index) => (
-            <span key={index} className="inline-block">
+            <span
+              key={index}
+              className="inline-block transition-colors duration-300"
+              style={{
+                color: letterState.isScrambling
+                  ? 'rgb(255, 255, 180, 0.5)'
+                  : undefined,
+              }}
+            >
               {letterState.current}
             </span>
           ))}
