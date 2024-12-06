@@ -211,12 +211,12 @@ export default function GeospatialInterface({
 
       <div
         id="map-container"
-        className="h-2/3 w-2/3 p-2"
+        className="m-4 h-1/2 w-1/2"
         ref={mapContainerRef}
       />
 
       <Button size="small" onClick={handleResetMap}>
-        Reset Map
+        Reset
       </Button>
       <p>Selected: {selection}</p>
 
