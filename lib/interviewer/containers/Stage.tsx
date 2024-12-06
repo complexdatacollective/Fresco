@@ -1,13 +1,11 @@
-import getInterface from './Interfaces';
-import StageErrorBoundary from '../components/StageErrorBoundary';
+import { type Stage } from '@codaco/shared-consts';
 import { type ElementType, memo } from 'react';
+import StageErrorBoundary from '../components/StageErrorBoundary';
+import getInterface from './Interfaces';
 import { type BeforeNextFunction } from './ProtocolScreen';
 
-type StageProps = {
-  stage: {
-    id: string;
-    type: string;
-  };
+export type StageProps = {
+  stage: Stage;
   registerBeforeNext: (fn: BeforeNextFunction | null) => void;
   getNavigationHelpers: () => {
     moveForward: () => void;
@@ -24,7 +22,7 @@ function Stage(props: StageProps) {
 
   return (
     <div
-      className="flex-grow-1 relative flex h-full w-full basis-full overflow-hidden"
+      className="relative flex h-full w-full flex-grow-1 basis-full overflow-hidden"
       id="stage"
     >
       <StageErrorBoundary>

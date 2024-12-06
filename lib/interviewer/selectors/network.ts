@@ -43,7 +43,7 @@ const getFilteredNetwork = createSelector(
       return filterFunction(network);
     }
 
-    return network;
+    return network as NcNetwork;
   },
 );
 

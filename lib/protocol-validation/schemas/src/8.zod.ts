@@ -98,7 +98,7 @@ const nodeSchema = z
     name: z.string(),
     displayVariable: z.string().optional(),
     iconVariant: z.string().optional(),
-    variables: VariablesSchema,
+    variables: VariablesSchema.optional(),
     color: z.string(),
   })
   .strict();
@@ -107,13 +107,13 @@ const edgeSchema = z
   .object({
     name: z.string(),
     color: z.string(),
-    variables: VariablesSchema,
+    variables: VariablesSchema.optional(),
   })
   .strict();
 
 const egoSchema = z
   .object({
-    variables: VariablesSchema,
+    variables: VariablesSchema.optional(),
   })
   .strict();
 
@@ -448,6 +448,8 @@ const anonymisationStage = baseStageSchema.extend({
   ),
 });
 
+export type AnonymisationStage = z.infer<typeof anonymisationStage>;
+
 const oneToManyDyadCensusStage = baseStageSchema.extend({
   type: z.literal('OneToManyDyadCensus'),
   subject: subjectSchema,
@@ -455,6 +457,7 @@ const oneToManyDyadCensusStage = baseStageSchema.extend({
     .array(
       promptSchema.extend({
         createEdge: z.string(),
+        bucketSortOrder: sortOrderSchema.optional(),
       }),
     )
     .min(1),

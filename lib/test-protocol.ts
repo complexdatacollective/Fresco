@@ -11,7 +11,7 @@ export const protocol: Protocol = {
           size: 'MEDIUM',
           id: '08964cf2-4c7b-4ecd-a6ef-123456',
           content:
-            'This interview allows you to encrypt the names of the people you mention so that they cannot be seen by anyone but you - even the researchers running this study. \n',
+            'This interview allows you to encrypt the names of the people you mention so that they cannot be seen by anyone but you - even the researchers running this study. \n\nTo use this feature, click on the padlock icon below, and enter a passcode when prompted.',
           type: 'text',
         },
       ],
@@ -27,7 +27,11 @@ export const protocol: Protocol = {
       quickAdd: '28c8ae72-2b6a-438f-ab09-35169aaffdeb',
       prompts: [
         {
-          id: 'a9ad8715-6bce-46be-a9c4-10e6766dfe62',
+          id: 'people',
+          text: 'Please name some people\n',
+        },
+        {
+          id: 'places',
           text: 'Please name some people\n',
         },
       ],
@@ -39,17 +43,23 @@ export const protocol: Protocol = {
       type: 'OneToManyDyadCensus',
       subject: {
         entity: 'node',
-        type: 'person_node_type',
+        type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
       },
       prompts: [
         {
           id: 'friends',
-          text: 'Are these people friends?',
+          text: 'Tap on all the people who would consider this person a friend',
           createEdge: 'friend_edge_type',
+          bucketSortOrder: [
+            {
+              property: '*',
+              direction: 'desc',
+            },
+          ],
         },
         {
           id: 'professional',
-          text: 'Do these people work together?',
+          text: 'Tap on all the people who work with this person.',
           createEdge: 'professional_edge_type',
         },
       ],
@@ -73,6 +83,16 @@ export const protocol: Protocol = {
         },
         iconVariant: 'add-a-person',
         name: 'Person',
+      },
+    },
+    edge: {
+      friend_edge_type: {
+        color: 'edge-color-seq-1',
+        name: 'Friend',
+      },
+      professional_edge_type: {
+        color: 'edge-color-seq-2',
+        name: 'Professional',
       },
     },
   },
