@@ -4,9 +4,29 @@ import { type Protocol } from './protocol-validation/schemas/src/8.zod';
 export const protocol: Protocol = {
   stages: [
     {
+      label: 'Name Generator',
+      type: 'NameGeneratorQuickAdd',
+      subject: {
+        entity: 'node',
+        type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
+      },
+      quickAdd: '28c8ae72-2b6a-438f-ab09-35169aaffdeb',
+      prompts: [
+        {
+          id: 'a9ad8715-6bce-46be-a9c4-10e6766dfe62',
+          text: 'Please name some people',
+        },
+      ],
+      id: 'c6f6d330-9b48-11ef-b627-9b9889d75dc0',
+    },
+    {
       id: 'geospatial-interface-1',
       label: 'Chicago Geospatial Interface',
       type: 'Geospatial',
+      subject: {
+        type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
+        entity: 'node',
+      },
       center: [-87.6298, 41.8781],
       token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
       layers: [
@@ -37,8 +57,9 @@ export const protocol: Protocol = {
           id: 'censusTractPrompt',
           layer: 'censusTractsFillLayer',
           mapVariable: 'namelsad10', // variable from geojson data
-          text: 'Please select a census tract in Chicago',
+          text: 'Select the census tract this person lives in',
           // TODO: connect to an alter variable
+          variable: 'e0b5901f-bf78-4538-882b-c4dd955603d5',
         },
       ],
     },
@@ -46,6 +67,10 @@ export const protocol: Protocol = {
       id: 'geospatial-interface-2',
       label: 'New York Geospatial Interface',
       type: 'Geospatial',
+      subject: {
+        type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
+        entity: 'node',
+      },
       center: [-74.006, 40.7128],
       token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
       layers: [
@@ -76,67 +101,52 @@ export const protocol: Protocol = {
           id: 'censusTractPrompt',
           layer: 'censusTractsFillLayer',
           mapVariable: 'NTAName', // variable from geojson data
-          text: 'Please select a census tract in New York',
+          text: 'Select the census tract this person works in',
+          variable: '1de0750b-b718-44bd-95d6-07b85b03bb76',
         },
       ],
     },
-    {
-      id: 'anonymisation-interface',
-      label: 'Anonymisation Interface',
-      type: 'Anonymisation',
-      items: [
-        {
-          size: 'MEDIUM',
-          id: '08964cf2-4c7b-4ecd-a6ef-123456',
-          content:
-            'This interview allows you to encrypt the names of the people you mention so that they cannot be seen by anyone but you - even the researchers running this study. \n',
-          type: 'text',
-        },
-      ],
-    },
+    // {
+    //   id: 'anonymisation-interface',
+    //   label: 'Anonymisation Interface',
+    //   type: 'Anonymisation',
+    //   items: [
+    //     {
+    //       size: 'MEDIUM',
+    //       id: '08964cf2-4c7b-4ecd-a6ef-123456',
+    //       content:
+    //         'This interview allows you to encrypt the names of the people you mention so that they cannot be seen by anyone but you - even the researchers running this study. \n',
+    //       type: 'text',
+    //     },
+    //   ],
+    // },
 
-    {
-      label: 'Name Generator',
-      type: 'NameGeneratorQuickAdd',
-      subject: {
-        entity: 'node',
-        type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
-      },
-      quickAdd: '28c8ae72-2b6a-438f-ab09-35169aaffdeb',
-      prompts: [
-        {
-          id: 'a9ad8715-6bce-46be-a9c4-10e6766dfe62',
-          text: 'Please name some people\n',
-        },
-      ],
-      id: 'c6f6d330-9b48-11ef-b627-9b9889d75dc0',
-    },
-    {
-      id: 'one-to-many-dyad-census',
-      label: 'One to Many Dyad Census',
-      type: 'OneToManyDyadCensus',
-      subject: {
-        entity: 'node',
-        type: 'person_node_type',
-      },
-      prompts: [
-        {
-          id: 'friends',
-          text: 'Are these people friends?',
-          createEdge: 'friend_edge_type',
-        },
-        {
-          id: 'professional',
-          text: 'Do these people work together?',
-          createEdge: 'professional_edge_type',
-        },
-      ],
-    },
-    {
-      id: 'family-tree-census',
-      label: 'Family Tree Census',
-      type: 'FamilyTreeCensus',
-    },
+    // {
+    //   id: 'one-to-many-dyad-census',
+    //   label: 'One to Many Dyad Census',
+    //   type: 'OneToManyDyadCensus',
+    //   subject: {
+    //     entity: 'node',
+    //     type: 'person_node_type',
+    //   },
+    //   prompts: [
+    //     {
+    //       id: 'friends',
+    //       text: 'Are these people friends?',
+    //       createEdge: 'friend_edge_type',
+    //     },
+    //     {
+    //       id: 'professional',
+    //       text: 'Do these people work together?',
+    //       createEdge: 'professional_edge_type',
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 'family-tree-census',
+    //   label: 'Family Tree Census',
+    //   type: 'FamilyTreeCensus',
+    // },
   ],
   codebook: {
     node: {
@@ -146,6 +156,14 @@ export const protocol: Protocol = {
           '28c8ae72-2b6a-438f-ab09-35169aaffdeb': {
             name: 'name',
             encrypted: true,
+            type: 'text',
+          },
+          'e0b5901f-bf78-4538-882b-c4dd955603d5': {
+            name: 'censusTractLive',
+            type: 'text',
+          },
+          '1de0750b-b718-44bd-95d6-07b85b03bb76': {
+            name: 'censusTractWork',
             type: 'text',
           },
         },

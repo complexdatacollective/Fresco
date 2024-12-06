@@ -468,6 +468,7 @@ const geospatialStage = baseStageSchema.extend({
   type: z.literal('Geospatial'),
   center: z.tuple([z.number(), z.number()]),
   token: z.string(),
+  subject: subjectSchema,
   layers: z.array(
     z
       .object({
@@ -485,6 +486,7 @@ const geospatialStage = baseStageSchema.extend({
       promptSchema.extend({
         layer: z.string(),
         mapVariable: z.string(),
+        variable: z.string(),
       }),
     )
     .min(1),
