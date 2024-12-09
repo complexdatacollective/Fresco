@@ -240,8 +240,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0(next@14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.81.0))(tailwindcss@4.0.0-beta.3)
       usehooks-ts:
-        specifier: ^2.16.0
-        version: 2.16.0(react@18.3.1)
+        specifier: ^3.1.0
+        version: 3.1.0(react@18.3.1)
       uuid:
         specifier: ^11.0.2
         version: 11.0.2
@@ -5181,8 +5181,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  usehooks-ts@2.16.0:
-    resolution: {integrity: sha512-bez95WqYujxp6hFdM/CpRDiVPirZPxlMzOH2QB8yopoKQMXpscyZoxOjpEdaxvV+CAWUDSM62cWnqHE0E/MZ7w==}
+  usehooks-ts@3.1.0:
+    resolution: {integrity: sha512-bBIa7yUyPhE1BCc0GmR96VU/15l/9gP1Ch5mYdLcFBaFGQsdmXkvjV0TtOqW1yUd6VjIwDunm+flSciCQXujiw==}
     engines: {node: '>=16.15.0'}
     peerDependencies:
       react: ^16.8.0  || ^17 || ^18
@@ -10881,7 +10881,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  usehooks-ts@2.16.0(react@18.3.1):
+  usehooks-ts@3.1.0(react@18.3.1):
     dependencies:
       lodash.debounce: 4.0.8
       react: 18.3.1
