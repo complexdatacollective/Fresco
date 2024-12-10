@@ -14,7 +14,10 @@ import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../Interfaces/utils/constants';
 
-const INITIAL_ZOOM = 10; // should this be configurable?
+// Map configuration constants
+// Could be configurable from the protocol
+const INITIAL_ZOOM = 10;
+const STYLE = 'mapbox://styles/mapbox/standard';
 
 type GeospatialStage = Extract<
   Protocol['stages'][number],
@@ -120,7 +123,7 @@ export default function GeospatialInterface({
       container: mapContainerRef.current,
       center,
       zoom: INITIAL_ZOOM,
-      style: 'mapbox://styles/mapbox/standard', // should this be configurable?
+      style: STYLE,
     });
 
     mapRef.current.on('load', () => {
@@ -209,19 +212,13 @@ export default function GeospatialInterface({
       className="interface w-full items-center justify-center"
       ref={dragSafeRef}
     >
-      <div
-        id="map-container"
-        className="m-4 h-full w-full"
-        ref={mapContainerRef}
-      />
+      <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
 
-      {/* <Button
-        size="small"
-        onClick={handleResetMap}
-      >
-        Reset
-      </Button> */}
-
+      <div className="absolute top-10 right-14 z-10">
+        <Button size="small" onClick={handleResetMap}>
+          Reset Map
+        </Button>
+      </div>
       {/* similar to NodeBucket without drag */}
       <AnimatePresence>
         <motion.div
