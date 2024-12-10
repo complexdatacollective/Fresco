@@ -464,6 +464,35 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
+const geospatialStage = baseStageSchema.extend({
+  type: z.literal('Geospatial'),
+  center: z.tuple([z.number(), z.number()]),
+  token: z.string(),
+  subject: subjectSchema,
+  layers: z.array(
+    z
+      .object({
+        id: z.string(),
+        data: z.string(),
+        type: z.enum(['line', 'fill']),
+        color: z.string(),
+        opacity: z.number().optional(),
+        filter: z.string().optional(),
+        width: z.number().optional(),
+      })
+      .strict(),
+  ),
+  prompts: z
+    .array(
+      promptSchema.extend({
+        layer: z.string(),
+        mapVariable: z.string(),
+        variable: z.string(),
+      }),
+    )
+    .min(1),
+});
+
 // Combine all stage types
 const stageSchema = z.discriminatedUnion('type', [
   egoFormStage,
@@ -482,6 +511,7 @@ const stageSchema = z.discriminatedUnion('type', [
   anonymisationStage,
   oneToManyDyadCensusStage,
   familyTreeCensusStage,
+  geospatialStage,
 ]);
 
 // Main Protocol Schema
