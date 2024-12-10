@@ -1,9 +1,3 @@
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcEdge,
-  type NcNode,
-} from '@codaco/shared-consts';
 import { type AnyAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -11,6 +5,12 @@ import { useDispatch } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcEdge,
+  type NcNode,
+} from '~/lib/shared-consts';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { getNetworkNodesForType } from '../../selectors/interface';

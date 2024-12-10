@@ -118,9 +118,10 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
   return {
     id: Math.random(),
     word: name,
-    x: Math.random() * 100,
+    // random x position clamped between 20 and 80
+    x: 20 + Math.random() * 60,
     y: yPosition,
-    speed: 0.05 + Math.random() * 0.1,
+    speed: 0.025 + Math.random() * 0.05,
     encrypted: shouldBeEncrypted,
     lastScrambleTime: 0,
     letters: Array.from(name).map((letter) => ({
@@ -135,18 +136,18 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
 };
 
 type EncryptionBackgroundProps = {
-  thresholdPosition?: number;
+  thresholdPosition: number;
 };
 
 const EncryptionBackground = ({
-  thresholdPosition = 25,
+  thresholdPosition,
 }: EncryptionBackgroundProps) => {
   const [streams, setStreams] = useState<Stream[]>([]);
   const animationFrameRef = useRef<number>();
   const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    const initialStreams = Array.from({ length: 20 }, (_, index) =>
+    const initialStreams = Array.from({ length: 25 }, (_, index) =>
       createStream(index * 6, thresholdPosition),
     );
     setStreams(initialStreams);
@@ -162,17 +163,15 @@ const EncryptionBackground = ({
             return createStream(-20, thresholdPosition);
           }
 
-          // Check if crossing threshold
           const shouldStartEncrypt =
             !stream.encrypted &&
             stream.y <= thresholdPosition &&
             newY > thresholdPosition;
 
-          // Force encryption state based on position
           const shouldBeEncrypted = newY > thresholdPosition;
 
           const shouldUpdateScramble =
-            currentTime - (stream.lastScrambleTime || 0) > 50;
+            currentTime - (stream.lastScrambleTime ?? 0) > 50;
 
           let newLetters = stream.letters;
           if (shouldUpdateScramble || shouldStartEncrypt) {
@@ -255,17 +254,6 @@ const EncryptionBackground = ({
       className="preserve-3d pointer-events-none absolute relative inset-0 h-full w-full overflow-hidden text-white/30 select-none"
       style={{ perspective: '1000px' }}
     >
-      <div
-        className="absolute w-full text-center text-[4rem] text-white/100 will-change-transform"
-        style={{
-          top: `${thresholdPosition}%`,
-          background:
-            'linear-gradient(rgba(255,255, 255, 0) 40%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 60%)',
-        }}
-      >
-        🔒
-      </div>
-
       {streams.map((stream) => (
         <div
           key={stream.id}

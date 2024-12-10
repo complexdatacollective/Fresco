@@ -84,7 +84,8 @@ const variableSchema = z
     validation: validationSchema.optional(),
   })
   .strict();
-type Variable = z.infer<typeof variableSchema>;
+
+export type Variable = z.infer<typeof variableSchema>;
 
 const VariablesSchema = z.record(
   z.string().regex(validVariableName),

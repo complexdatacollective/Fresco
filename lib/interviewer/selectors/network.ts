@@ -1,3 +1,7 @@
+import { createSelector } from '@reduxjs/toolkit';
+import { findKey } from 'es-toolkit';
+import { toString } from 'es-toolkit/compat';
+import customFilter from '~/lib/network-query/filter';
 import {
   entityAttributesProperty,
   type Codebook,
@@ -7,12 +11,8 @@ import {
   type NodeTypeDefinition,
   type Stage,
   type StageSubject,
-} from '@codaco/shared-consts';
-import { createSelector } from '@reduxjs/toolkit';
-import { findKey } from 'es-toolkit';
-import { toString } from 'es-toolkit/compat';
-import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
-import customFilter from '~/lib/network-query/filter';
+} from '~/lib/shared-consts';
+import { getEntityAttributes } from '~/utils/general';
 import type { RootState } from '../store';
 import { getStageSubject, getSubjectType } from './prop';
 import { getProtocolCodebook } from './protocol';
@@ -117,7 +117,7 @@ export const getNodeLabel = createSelector(
       return 'Node';
     }
 
-    const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
+    const nodeAttributes = getEntityAttributes(node);
 
     return labelLogic(nodeTypeDefinition, nodeAttributes);
   },

@@ -1,8 +1,8 @@
+import { z } from 'zod';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-} from '@codaco/shared-consts';
-import { z } from 'zod';
+} from '~/lib/shared-consts';
 
 const ZNcEntity = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),
@@ -23,7 +23,7 @@ export const ZNcEdge = ZNcEntity.extend({
   to: z.string(),
 });
 
-// Always use this instead of @codaco/shared-consts. Main difference is that ego is not optional.
+// Always use this instead of ~/lib/shared-consts. Main difference is that ego is not optional.
 export const ZNcNetwork = z.object({
   nodes: z.array(ZNcNode),
   edges: z.array(ZNcEdge),

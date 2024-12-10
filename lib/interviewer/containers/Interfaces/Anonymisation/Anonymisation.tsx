@@ -1,15 +1,33 @@
+import { type AnyAction } from '@reduxjs/toolkit';
 import { motion } from 'motion/react';
+import { type ReactNode } from 'react';
+import { useDispatch } from 'react-redux';
+import { actionCreators as dialogActions } from '~/lib/interviewer/ducks/modules/dialogs';
 import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { Markdown } from '~/lib/ui/components/Fields';
-import EncryptionBackground from '../../components/EncryptedBackground';
-import { type StageProps } from '../Stage';
+import EncryptionBackground from '../../../components/EncryptedBackground';
+import { type StageProps } from '../../Stage';
 
 type AnonymisationProps = StageProps & {
   stage: AnonymisationStage;
 };
 
+const THRESHOLD_POSITION = 25;
+
+type Dialog = {
+  id: string;
+  type: 'Confirm' | 'Notice' | 'Warning' | 'Error';
+  title: string;
+  message: ReactNode;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+};
+
 export default function Anonymisation(props: AnonymisationProps) {
-  console.log(props.stage.items);
+  const dispatch = useDispatch();
+  const openDialog = (dialog: Dialog) =>
+    dispatch(dialogActions.openDialog(dialog) as unknown as AnyAction);
+
   return (
     <>
       <motion.div className="anonymisation flex h-full w-full flex-col items-center justify-center">
@@ -45,7 +63,19 @@ export default function Anonymisation(props: AnonymisationProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <EncryptionBackground />
+        <div
+          className="absolute z-10 w-full text-center text-[4rem] text-white/100 will-change-transform"
+          style={{
+            top: `${THRESHOLD_POSITION}%`,
+            background:
+              'linear-gradient(rgba(255,255, 255, 0) 40%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 60%)',
+          }}
+        >
+          <div className="inline-flex h-28 w-28 animate-pulse items-center justify-center rounded-full bg-(--form-intro-panel-background)">
+            🔒
+          </div>
+        </div>
+        <EncryptionBackground thresholdPosition={THRESHOLD_POSITION} />
       </motion.div>
     </>
   );

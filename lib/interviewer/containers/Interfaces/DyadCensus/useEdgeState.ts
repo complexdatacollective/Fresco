@@ -1,19 +1,19 @@
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcEdge,
-} from '@codaco/shared-consts';
+import { type AnyAction } from '@reduxjs/toolkit';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { edgeExists } from '~/lib/interviewer/ducks/modules/network';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
-import { actionCreators as sessionActions } from '../../../ducks/modules/session';
 import type {
   StageMetadata,
   StageMetadataEntry,
 } from '~/lib/interviewer/store';
-import { type AnyAction } from '@reduxjs/toolkit';
-import { useEffect, useState } from 'react';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcEdge,
+} from '~/lib/shared-consts';
+import { actionCreators as sessionActions } from '../../../ducks/modules/session';
 
 const matchEntry =
   (promptIndex: number, pair: Pair) =>

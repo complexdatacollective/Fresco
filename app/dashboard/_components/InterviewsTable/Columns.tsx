@@ -1,13 +1,13 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Progress } from '~/components/ui/progress';
-import type { Stage } from '@codaco/shared-consts';
-import { Badge } from '~/components/ui/badge';
-import TimeAgo from '~/components/ui/TimeAgo';
 import Image from 'next/image';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { Badge } from '~/components/ui/badge';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Progress } from '~/components/ui/progress';
+import TimeAgo from '~/components/ui/TimeAgo';
+import type { Stage } from '~/lib/shared-consts';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 
 export const InterviewColumns = (): ColumnDef<

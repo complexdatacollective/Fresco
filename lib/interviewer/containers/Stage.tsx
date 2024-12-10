@@ -1,5 +1,5 @@
-import { type Stage } from '@codaco/shared-consts';
 import { type ElementType, memo } from 'react';
+import { type Stage } from '~/lib/shared-consts';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
 import { type BeforeNextFunction } from './ProtocolScreen';

@@ -1,3 +1,4 @@
+import { get, isObject } from 'es-toolkit/compat';
 import {
   type AdditionalAttributes,
   type Codebook,
@@ -8,8 +9,7 @@ import {
   type StageSubject,
   type VariableDefinition,
   type VariableValidation,
-} from '@codaco/shared-consts';
-import { get, isObject } from 'es-toolkit/compat';
+} from '~/lib/shared-consts';
 import Validator from './Validator';
 import {
   duplicateId,

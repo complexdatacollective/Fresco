@@ -14,9 +14,6 @@ importers:
       '@codaco/analytics':
         specifier: 7.0.0
         version: 7.0.0(next@14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.81.0))
-      '@codaco/shared-consts':
-        specifier: ^0.0.2
-        version: 0.0.2
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.9.1(react-hook-form@7.53.2(react@18.3.1))
@@ -575,9 +572,6 @@ packages:
     resolution: {integrity: sha512-Cig7fyEC6rFFlkMXHw5+wFFl8f1Wj2qwv2+af/ugn/8f0jHoq5UABPnAivLyTjOWq52vyvzjNmxDdrywoulGPA==}
     peerDependencies:
       next: 13 || 14 || 15
-
-  '@codaco/shared-consts@0.0.2':
-    resolution: {integrity: sha512-qPmZQm50NhIuQGznQx00kdCxXJ/rOW8UkCrLPQObmPFjq3iIOTwBjAWddq7gRBsDByRfdB/gMCwcd7Pay2aOFQ==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -5772,8 +5766,6 @@ snapshots:
     dependencies:
       next: 14.2.16(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.81.0)
       zod: 3.23.8
-
-  '@codaco/shared-consts@0.0.2': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:

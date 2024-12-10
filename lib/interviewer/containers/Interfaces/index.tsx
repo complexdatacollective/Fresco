@@ -49,7 +49,7 @@ const TieStrengthCensus = dynamic(() => import('./TieStrengthCensus'), {
 const FinishSession = dynamic(() => import('./FinishSession'), {
   loading: StageLoading,
 });
-const Anonymisation = dynamic(() => import('./Anonymisation'), {
+const Anonymisation = dynamic(() => import('./Anonymisation/Anonymisation'), {
   loading: StageLoading,
 });
 const OneToManyDyadCensus = dynamic(() => import('./OneToManyDyadCensus'), {

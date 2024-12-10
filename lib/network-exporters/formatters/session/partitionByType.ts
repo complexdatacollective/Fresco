@@ -1,4 +1,4 @@
-import type { Codebook } from '@codaco/shared-consts';
+import type { Codebook } from '~/lib/shared-consts';
 import type {
   EdgeWithResequencedID,
   ExportFormat,

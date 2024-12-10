@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@codaco/analytics": "7.0.0",
-    "@codaco/shared-consts": "^0.0.2",
     "@hookform/resolvers": "^3.9.1",
     "@lucia-auth/adapter-prisma": "^3.0.2",
     "@paralleldrive/cuid2": "^2.2.2",

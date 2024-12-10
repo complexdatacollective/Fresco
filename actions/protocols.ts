@@ -1,10 +1,10 @@
 'use server';
 
-import { type Protocol } from '@codaco/shared-consts';
 import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
+import { type Protocol } from '~/lib/shared-consts';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';

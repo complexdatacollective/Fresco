@@ -1,5 +1,5 @@
-import type { Codebook } from '@codaco/shared-consts';
 import type { InstalledProtocols } from '~/lib/interviewer/store';
+import type { Codebook } from '~/lib/shared-consts';
 import { getFilePrefix } from '../../utils/general';
 import type {
   ExportFormat,

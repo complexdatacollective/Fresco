@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
   caseProperty,
   codebookHashProperty,
@@ -10,8 +11,7 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
-} from '@codaco/shared-consts';
-import { z } from 'zod';
+} from '~/lib/shared-consts';
 import { ZNcEdge, ZNcNetwork, ZNcNode } from '~/schemas/network-canvas';
 
 const ZNodeWithEgo = ZNcNode.extend({
