@@ -5,14 +5,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
-import Button from '~/lib/ui/components/Button';
-import ProgressBar from '~/lib/ui/components/ProgressBar';
+import CollapsablePrompts from '../../components/CollapsablePrompts';
 import Node from '../../components/Node';
-import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
+import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../Interfaces/utils/constants';
 
 const INITIAL_ZOOM = 10; // should this be configurable?
 
@@ -39,6 +38,7 @@ export default function GeospatialInterface({
 
   const mapRef = useRef();
   const mapContainerRef = useRef();
+  const dragSafeRef = useRef(null);
   const [selection, setSelection] = useState(null);
   const { center, token, layers, prompts } = stage;
 
@@ -120,7 +120,7 @@ export default function GeospatialInterface({
       container: mapContainerRef.current,
       center,
       zoom: INITIAL_ZOOM,
-      style: 'mapbox://styles/mapbox/light-v11', // should this be configurable?
+      style: 'mapbox://styles/mapbox/standard', // should this be configurable?
     });
 
     mapRef.current.on('load', () => {
@@ -142,7 +142,7 @@ export default function GeospatialInterface({
             source: 'geojson-data',
             paint: {
               'line-color': layer.color,
-              'line-width': 2,
+              'line-width': layer.width,
             },
           });
         } else if (layer.type === 'fill' && !layer.filter) {
@@ -204,45 +204,59 @@ export default function GeospatialInterface({
     };
   }, [center, currentPrompt, filterLayer, filterLayer?.filter, layers, token]);
 
-  return (
-    <div className="interface w-full items-center justify-center">
-      <Prompts />
-      <Node {...stageNodes[activeIndex]} />
+  console.log(stageNodes);
 
+  return (
+    <div
+      className="interface w-full items-center justify-center"
+      ref={dragSafeRef}
+    >
       <div
         id="map-container"
-        className="m-4 h-1/2 w-1/2"
+        className="m-4 h-full w-full"
         ref={mapContainerRef}
       />
 
-      <Button size="small" onClick={handleResetMap}>
+      {/* <Button
+        size="small"
+        onClick={handleResetMap}
+      >
         Reset
-      </Button>
-      <p>Selected: {selection}</p>
+      </Button> */}
+      {/* <NodeBucket
+        id="NODE_BUCKET"
+        node={stageNodes[activeIndex]}
+        allowPositioning
+      /> */}
 
+      {/* similar to NodeBucket without drag */}
       <AnimatePresence>
         <motion.div
-          className="flex w-1/3 flex-col items-center gap-1"
-          key="progress-container"
-          initial={{ opacity: 0, y: 100 }}
+          className="node-bucket"
+          initial={{ opacity: 0, y: '100%' }}
           animate={{
             opacity: 1,
             y: 0,
-            transition: { delay: 0.5, duration: 0.5 },
+            transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
           }}
-          exit={{ opacity: 0, y: 100 }}
+          exit={{ opacity: 0, y: '100%' }}
         >
-          <h6 className="progress-container__status-text">
-            <strong>{activeIndex + 1}</strong> of{' '}
-            <strong>{stageNodes.length}</strong>
-          </h6>
-          <ProgressBar
-            orientation="horizontal"
-            percentProgress={(activeIndex + 1 / stageNodes.length) * 100}
-            nudge={false}
-          />
+          <motion.div
+            key={stageNodes[activeIndex][entityPrimaryKeyProperty]}
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0, transition: { delay: 0.15 } }}
+            exit={{ opacity: 0, y: '100%' }}
+          >
+            <Node {...stageNodes[activeIndex]} />
+          </motion.div>
         </motion.div>
       </AnimatePresence>
+
+      <CollapsablePrompts
+        prompts={stage.prompts}
+        currentPromptIndex={0} // TODO: implement multiple prompts
+        dragConstraints={dragSafeRef}
+      />
     </div>
   );
 }

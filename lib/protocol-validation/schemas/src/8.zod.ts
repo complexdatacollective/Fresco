@@ -478,6 +478,7 @@ const geospatialStage = baseStageSchema.extend({
         color: z.string(),
         opacity: z.number().optional(),
         filter: z.string().optional(),
+        width: z.number().optional(),
       })
       .strict(),
   ),

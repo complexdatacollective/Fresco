@@ -35,13 +35,14 @@ export const protocol: Protocol = {
           data: '/interviewer/ChicagoCensusTracts.geojson',
           type: 'line',
           color: 'purple',
+          width: 1,
         },
         {
           id: 'censusTractsFillLayer',
           data: '/interviewer/ChicagoCensusTracts.geojson',
           type: 'fill',
           color: 'purple',
-          opacity: 0.1,
+          opacity: 0,
         },
         {
           id: 'selectedCensusTract',
@@ -79,13 +80,14 @@ export const protocol: Protocol = {
           data: '/interviewer/NewYorkCensusTracts.geojson',
           type: 'line',
           color: 'blue',
+          width: 0,
         },
         {
           id: 'censusTractsFillLayer',
           data: '/interviewer/NewYorkCensusTracts.geojson',
           type: 'fill',
           color: 'blue',
-          opacity: 0.1,
+          opacity: 0,
         },
         {
           id: 'selectedCensusTract',
