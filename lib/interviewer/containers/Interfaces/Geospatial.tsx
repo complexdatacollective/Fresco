@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
+import Button from '~/lib/ui/components/Button';
 import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
 import Node from '../../components/Node';
