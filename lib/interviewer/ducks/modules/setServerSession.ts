@@ -1,5 +1,5 @@
-import { type Protocol, type Prisma } from '@prisma/client';
-// import type { Protocol } from '@codaco/shared-consts';
+import { type Prisma, type Protocol } from '@prisma/client';
+// import type { Protocol } from '~/lib/shared-consts';
 // import type { ServerSession } from '~/app/(interview)/interview/[interviewId]/page';
 
 // temporarily declaring this type

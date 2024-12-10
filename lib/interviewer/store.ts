@@ -1,4 +1,3 @@
-import type { Protocol } from '@prisma/client';
 import { configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
 import thunk from 'redux-thunk';
@@ -9,6 +8,7 @@ import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtoco
 import sessions from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import type { NcNetwork } from '~/schemas/network-canvas';
+import { type Protocol } from '../shared-consts';
 import logger from './ducks/middleware/logger';
 import sound from './ducks/middleware/sound';
 
@@ -28,7 +28,7 @@ export const store = configureStore({
 export type StageMetadataEntry = [number, string, string, boolean];
 export type StageMetadata = StageMetadataEntry[];
 
-type Session = {
+export type Session = {
   id: string;
   protocolUid: string;
   promptIndex: number;

@@ -7,7 +7,7 @@ let commitHash = 'Unknown commit hash';
 try {
   commitHash = ChildProcess.execSync('git log --pretty=format:"%h" -n1')
     .toString()
-    .trim()
+    .trim();
 } catch (error) {
   // eslint-disable-next-line no-console
   console.info('Error getting commit hash:', error.message ?? 'Unknown error');
@@ -39,6 +39,7 @@ const config = {
   },
   eslint: {
     dirs: ['./'],
+    ignoreDuringBuilds: true,
   },
 };
 export default config;

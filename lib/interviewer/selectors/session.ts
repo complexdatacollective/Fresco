@@ -1,7 +1,7 @@
-import type { Stage } from '@codaco/shared-consts';
-import { getProtocolStages } from './protocol';
 import { createSelector } from '@reduxjs/toolkit';
+import type { Stage } from '~/lib/shared-consts';
 import type { RootState } from '../store';
+import { getProtocolStages } from './protocol';
 
 const getActiveSessionId = (state: RootState) => state.activeSessionId;
 
