@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
 import Node from '../../components/Node';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
@@ -44,7 +45,7 @@ export default function GeospatialInterface({
 
   const filterLayer = layers.find((layer) => layer.filter);
 
-  const currentPrompt = prompts[0]; // only one prompt for now
+  const { prompt: currentPrompt } = usePrompts();
 
   const handleResetMap = useCallback(() => {
     mapRef.current.flyTo({
@@ -62,7 +63,6 @@ export default function GeospatialInterface({
   const [activeIndex, setActiveIndex] = useState(0);
   const getNodeIndex = useCallback(() => activeIndex - 1, [activeIndex]);
   const stageNodes = usePropSelector(getNetworkNodesForType, { stage });
-  console.log('stageNodes', stageNodes);
   const isLastNode = useCallback(
     () => activeIndex + 1 >= stageNodes.length,
     [activeIndex, stageNodes.length],
@@ -202,9 +202,7 @@ export default function GeospatialInterface({
     return () => {
       mapRef.current.remove();
     };
-  }, [center, currentPrompt, filterLayer, filterLayer?.filter, layers, token]);
-
-  console.log(stageNodes);
+  }, [center, filterLayer, filterLayer?.filter, layers, token]);
 
   return (
     <div
@@ -223,11 +221,6 @@ export default function GeospatialInterface({
       >
         Reset
       </Button> */}
-      {/* <NodeBucket
-        id="NODE_BUCKET"
-        node={stageNodes[activeIndex]}
-        allowPositioning
-      /> */}
 
       {/* similar to NodeBucket without drag */}
       <AnimatePresence>
@@ -254,7 +247,7 @@ export default function GeospatialInterface({
 
       <CollapsablePrompts
         prompts={stage.prompts}
-        currentPromptIndex={0} // TODO: implement multiple prompts
+        currentPromptIndex={prompts.indexOf(currentPrompt)}
         dragConstraints={dragSafeRef}
       />
     </div>

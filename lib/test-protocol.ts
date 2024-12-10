@@ -55,12 +55,18 @@ export const protocol: Protocol = {
       ],
       prompts: [
         {
-          id: 'censusTractPrompt',
-          layer: 'censusTractsFillLayer',
+          id: 'prompt1',
           mapVariable: 'namelsad10', // variable from geojson data
           text: 'Select the census tract this person lives in',
-          // TODO: connect to an alter variable
           variable: 'e0b5901f-bf78-4538-882b-c4dd955603d5',
+          layer: 'censusTractsFillLayer',
+        },
+        {
+          id: 'prompt2',
+          mapVariable: 'namelsad10', // variable from geojson data
+          text: 'Select the census tract this person works in',
+          variable: '1de0750b-b718-44bd-95d6-07b85b03bb76',
+          layer: 'censusTractsFillLayer',
         },
       ],
     },
@@ -82,6 +88,7 @@ export const protocol: Protocol = {
           color: 'blue',
           width: 0,
         },
+        // needed to have something to select
         {
           id: 'censusTractsFillLayer',
           data: '/interviewer/NewYorkCensusTracts.geojson',
@@ -101,10 +108,10 @@ export const protocol: Protocol = {
       prompts: [
         {
           id: 'censusTractPrompt',
-          layer: 'censusTractsFillLayer',
           mapVariable: 'NTAName', // variable from geojson data
-          text: 'Select the census tract this person works in',
+          text: 'Select the neighborhood this person lives in',
           variable: '1de0750b-b718-44bd-95d6-07b85b03bb76',
+          layer: 'censusTractsFillLayer',
         },
       ],
     },
