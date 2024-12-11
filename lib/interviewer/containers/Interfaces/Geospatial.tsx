@@ -73,7 +73,7 @@ export default function GeospatialInterface({
   const { prompt: currentPrompt } = usePrompts();
 
   const handleResetMapZoom = useCallback(() => {
-    mapRef.current.flyTo({
+    mapRef.current?.flyTo({
       zoom: INITIAL_ZOOM,
       center,
     });
@@ -88,7 +88,9 @@ export default function GeospatialInterface({
   const [activeIndex, setActiveIndex] = useState(0);
   const [navDirection, setNavDirection] = useState<
     'forwards' | 'backwards' | null
-  >(null); // used for animation
+  >(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
   const getNodeIndex = useCallback(() => activeIndex - 1, [activeIndex]);
   const stageNodes = usePropSelector(getNetworkNodesForType, { stage });
   const isLastNode = useCallback(
@@ -139,19 +141,18 @@ export default function GeospatialInterface({
 
   registerBeforeNext(beforeNext);
 
-  console.log(stageNodes[activeIndex].attributes[currentPrompt.variable]);
-
-  // Update the navigation button to glow when there is a valid selection
+  // Update navigation button based on selection
   useEffect(() => {
     const readyForNext = !!stageNodes[activeIndex][currentPrompt.variable];
     setIsReadyForNext(readyForNext);
   }, [activeIndex, currentPrompt.variable, setIsReadyForNext, stageNodes]);
 
+  // Initialize map
   useEffect(() => {
+    if (!mapContainerRef.current || !center || !token) return;
+
     mapboxgl.accessToken = token;
     const dataSources = [...new Set(layers.map((layer) => layer.data))];
-
-    if (!mapContainerRef.current || !center || !token) return;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -160,7 +161,9 @@ export default function GeospatialInterface({
       style: STYLE,
     });
 
-    mapRef.current.on('load', () => {
+    const handleMapLoad = () => {
+      setIsMapLoaded(true);
+
       if (!layers) return;
 
       dataSources.forEach((dataSource) => {
@@ -207,48 +210,79 @@ export default function GeospatialInterface({
           });
         }
       });
+    };
 
-      // If the node already has a value, set the selection
-      filterLayer &&
-        mapRef.current.setFilter(filterLayer.id, [
-          '==',
-          filterLayer.filter,
-          stageNodes[activeIndex].attributes[currentPrompt.variable],
-        ]);
-
-      // if there's a prompt, configure the click event
-      if (currentPrompt) {
-        mapRef.current?.on('click', currentPrompt.layer, (e) => {
-          const feature = e.features[0];
-          const propToSelect = currentPrompt.mapVariable; // Variable from geojson data
-          const selected = feature.properties[propToSelect];
-          /**
-           * update node with the selected value
-           * updateNode(nodeId, newModelData, newAttributeData)
-           */
-          updateNode(
-            stageNodes[activeIndex][entityPrimaryKeyProperty],
-            {},
-            {
-              [currentPrompt.variable]: selected,
-            },
-          );
-
-          // Apply the filter to the selection layer if it exists
-          filterLayer &&
-            mapRef.current.setFilter(filterLayer.id, [
-              '==',
-              filterLayer.filter,
-              selected,
-            ]);
-        });
+    const handleMapStyleLoad = () => {
+      // ensure map is loaded before adding layers
+      // necessary to prevent "style not loaded" errors
+      if (mapRef.current.isStyleLoaded()) {
+        handleMapLoad();
+      } else {
+        mapRef.current.once('styledata', handleMapLoad);
       }
-    });
+    };
+
+    mapRef.current.on('load', handleMapStyleLoad);
 
     return () => {
-      mapRef.current.remove();
+      mapRef.current?.remove();
     };
-  }, [center, filterLayer, filterLayer?.filter, layers, token, activeIndex]);
+  }, [center, layers, token]);
+
+  // handle map selections
+  useEffect(() => {
+    if (!isMapLoaded || !currentPrompt || !filterLayer) return;
+
+    const mapInstance = mapRef.current;
+    if (!mapInstance) return;
+
+    // Set initial filter if node has a value
+    const initialFilterValue =
+      stageNodes[activeIndex].attributes[currentPrompt.variable];
+
+    if (initialFilterValue) {
+      mapInstance.setFilter(filterLayer.id, [
+        '==',
+        filterLayer.filter,
+        initialFilterValue,
+      ]);
+    }
+
+    const handleMapClick = (e) => {
+      const feature = e.features[0];
+      const propToSelect = currentPrompt.mapVariable;
+      const selected = feature.properties[propToSelect];
+
+      updateNode(
+        stageNodes[activeIndex][entityPrimaryKeyProperty],
+        {},
+        {
+          [currentPrompt.variable]: selected,
+        },
+      );
+
+      mapInstance.setFilter(filterLayer.id, [
+        '==',
+        filterLayer.filter,
+        selected,
+      ]);
+    };
+
+    // add click event listener to map
+    mapInstance.on('click', currentPrompt.layer, handleMapClick);
+
+    // cleanup
+    return () => {
+      mapInstance.off('click', currentPrompt.layer, handleMapClick);
+    };
+  }, [
+    isMapLoaded,
+    currentPrompt,
+    filterLayer,
+    stageNodes,
+    activeIndex,
+    updateNode,
+  ]);
 
   return (
     <div
