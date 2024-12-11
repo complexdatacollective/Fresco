@@ -30,15 +30,15 @@ export const protocol: Protocol = {
       center: [-87.6298, 41.8781],
       token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
       layers: [
+        // {
+        //   id: 'censusTractsOutlineLayer',
+        //   data: '/interviewer/ChicagoCensusTracts.geojson',
+        //   type: 'line',
+        //   color: 'purple',
+        //   width: 0,
+        // },
         {
-          id: 'censusTractsOutlineLayer',
-          data: '/interviewer/ChicagoCensusTracts.geojson',
-          type: 'line',
-          color: 'purple',
-          width: 0,
-        },
-        {
-          id: 'censusTractsFillLayer',
+          id: 'censusTractsFillLayer', // a fill layer is needed to have something to select
           data: '/interviewer/ChicagoCensusTracts.geojson',
           type: 'fill',
           color: 'purple',

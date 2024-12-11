@@ -63,28 +63,27 @@ export default function GeospatialInterface({
     [dispatch],
   );
 
-  const mapRef = useRef();
-  const mapContainerRef = useRef();
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const dragSafeRef = useRef(null);
-  const [selection, setSelection] = useState(null);
   const { center, token, layers, prompts } = stage;
 
   const filterLayer = layers.find((layer) => layer.filter);
 
   const { prompt: currentPrompt } = usePrompts();
 
-  const handleResetMap = useCallback(() => {
+  const handleResetMapZoom = useCallback(() => {
     mapRef.current.flyTo({
       zoom: INITIAL_ZOOM,
       center,
     });
+  }, [center]);
 
-    setSelection(null);
-
-    if (filterLayer) {
+  const handleResetSelection = useCallback(() => {
+    if (filterLayer && mapRef.current) {
       mapRef.current.setFilter(filterLayer.id, ['==', filterLayer.filter, '']);
     }
-  }, [center, filterLayer]);
+  }, [filterLayer]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [navDirection, setNavDirection] = useState<
@@ -96,21 +95,22 @@ export default function GeospatialInterface({
     () => activeIndex + 1 >= stageNodes.length,
     [activeIndex, stageNodes.length],
   );
+
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
   const previousNode = useCallback(() => {
     setNavDirection('backwards');
 
     setActiveIndex(getNodeIndex());
-    handleResetMap();
-  }, [getNodeIndex, handleResetMap]);
+    handleResetSelection();
+  }, [getNodeIndex, handleResetSelection]);
 
   const nextNode = useCallback(() => {
     setNavDirection('forwards');
 
     setActiveIndex(activeIndex + 1);
-    handleResetMap();
-  }, [activeIndex, handleResetMap]);
+    handleResetSelection();
+  }, [activeIndex, handleResetSelection]);
 
   const beforeNext = (direction: 'forwards' | 'backwards') => {
     // Leave the stage if there are no nodes
@@ -139,15 +139,19 @@ export default function GeospatialInterface({
 
   registerBeforeNext(beforeNext);
 
+  console.log(stageNodes[activeIndex].attributes[currentPrompt.variable]);
+
   // Update the navigation button to glow when there is a valid selection
   useEffect(() => {
-    const readyForNext = selection !== null;
+    const readyForNext = !!stageNodes[activeIndex][currentPrompt.variable];
     setIsReadyForNext(readyForNext);
-  }, [selection, setIsReadyForNext]);
+  }, [activeIndex, currentPrompt.variable, setIsReadyForNext, stageNodes]);
 
   useEffect(() => {
     mapboxgl.accessToken = token;
     const dataSources = [...new Set(layers.map((layer) => layer.data))];
+
+    if (!mapContainerRef.current || !center || !token) return;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -160,10 +164,12 @@ export default function GeospatialInterface({
       if (!layers) return;
 
       dataSources.forEach((dataSource) => {
-        mapRef.current.addSource('geojson-data', {
-          type: 'geojson',
-          data: dataSource,
-        });
+        if (mapRef.current) {
+          mapRef.current.addSource('geojson-data', {
+            type: 'geojson',
+            data: dataSource,
+          });
+        }
       });
 
       // add layers based on the protocol
@@ -175,7 +181,7 @@ export default function GeospatialInterface({
             source: 'geojson-data',
             paint: {
               'line-color': layer.color,
-              'line-width': layer.width,
+              'line-width': (layer.width as number) ?? 1,
             },
           });
         } else if (layer.type === 'fill' && !layer.filter) {
@@ -202,13 +208,20 @@ export default function GeospatialInterface({
         }
       });
 
+      // If the node already has a value, set the selection
+      filterLayer &&
+        mapRef.current.setFilter(filterLayer.id, [
+          '==',
+          filterLayer.filter,
+          stageNodes[activeIndex].attributes[currentPrompt.variable],
+        ]);
+
       // if there's a prompt, configure the click event
       if (currentPrompt) {
-        mapRef.current.on('click', currentPrompt.layer, (e) => {
+        mapRef.current?.on('click', currentPrompt.layer, (e) => {
           const feature = e.features[0];
           const propToSelect = currentPrompt.mapVariable; // Variable from geojson data
           const selected = feature.properties[propToSelect];
-          setSelection(selected);
           /**
            * update node with the selected value
            * updateNode(nodeId, newModelData, newAttributeData)
@@ -235,7 +248,7 @@ export default function GeospatialInterface({
     return () => {
       mapRef.current.remove();
     };
-  }, [center, filterLayer, filterLayer?.filter, layers, token]);
+  }, [center, filterLayer, filterLayer?.filter, layers, token, activeIndex]);
 
   return (
     <div
@@ -245,8 +258,8 @@ export default function GeospatialInterface({
       <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
 
       <div className="absolute top-10 right-14 z-10">
-        <Button size="small" onClick={handleResetMap}>
-          Reset Map
+        <Button size="small" onClick={handleResetMapZoom}>
+          Recenter Map
         </Button>
       </div>
 
