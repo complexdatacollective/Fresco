@@ -35,7 +35,7 @@ export const protocol: Protocol = {
           data: '/interviewer/ChicagoCensusTracts.geojson',
           type: 'line',
           color: 'purple',
-          width: 1,
+          width: 0,
         },
         {
           id: 'censusTractsFillLayer',

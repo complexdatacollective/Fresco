@@ -13,12 +13,34 @@ import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../Interfaces/utils/constants';
 
 // Map configuration constants
 // Could be configurable from the protocol
-const INITIAL_ZOOM = 10;
+const INITIAL_ZOOM = 12;
 const STYLE = 'mapbox://styles/mapbox/standard';
+
+const NodeAnimationVariants = {
+  initial: (navDirection: 'forwards' | 'backwards') => ({
+    opacity: 0,
+    x: navDirection === 'backwards' ? '-100%' : '100%',
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: 'tween',
+      duration: 0.3,
+    },
+  },
+  exit: (navDirection: 'forwards' | 'backwards') => ({
+    opacity: 0,
+    x: navDirection === 'backwards' ? '100%' : '-100%',
+    transition: {
+      type: 'tween',
+      duration: 0.3,
+    },
+  }),
+};
 
 type GeospatialStage = Extract<
   Protocol['stages'][number],
@@ -65,6 +87,9 @@ export default function GeospatialInterface({
   }, [center, filterLayer]);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [navDirection, setNavDirection] = useState<
+    'forwards' | 'backwards' | null
+  >(null); // used for animation
   const getNodeIndex = useCallback(() => activeIndex - 1, [activeIndex]);
   const stageNodes = usePropSelector(getNetworkNodesForType, { stage });
   const isLastNode = useCallback(
@@ -74,11 +99,15 @@ export default function GeospatialInterface({
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
   const previousNode = useCallback(() => {
+    setNavDirection('backwards');
+
     setActiveIndex(getNodeIndex());
     handleResetMap();
   }, [getNodeIndex, handleResetMap]);
 
   const nextNode = useCallback(() => {
+    setNavDirection('forwards');
+
     setActiveIndex(activeIndex + 1);
     handleResetMap();
   }, [activeIndex, handleResetMap]);
@@ -220,34 +249,28 @@ export default function GeospatialInterface({
           Reset Map
         </Button>
       </div>
-      {/* similar to NodeBucket without drag */}
-      <AnimatePresence>
-        <motion.div
-          className="node-bucket"
-          initial={{ opacity: 0, y: '100%' }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
-          }}
-          exit={{ opacity: 0, y: '100%' }}
+
+      <CollapsablePrompts
+        currentPromptIndex={prompts.indexOf(currentPrompt)}
+        dragConstraints={dragSafeRef}
+      >
+        <AnimatePresence
+          mode="wait"
+          key={currentPrompt.id}
+          custom={navDirection}
         >
           <motion.div
             key={stageNodes[activeIndex][entityPrimaryKeyProperty]}
-            initial={{ opacity: 0, y: '100%' }}
-            animate={{ opacity: 1, y: 0, transition: { delay: 0.15 } }}
-            exit={{ opacity: 0, y: '100%' }}
+            variants={NodeAnimationVariants}
+            custom={navDirection}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
             <Node {...stageNodes[activeIndex]} />
           </motion.div>
-        </motion.div>
-      </AnimatePresence>
-
-      <CollapsablePrompts
-        prompts={stage.prompts}
-        currentPromptIndex={prompts.indexOf(currentPrompt)}
-        dragConstraints={dragSafeRef}
-      />
+        </AnimatePresence>
+      </CollapsablePrompts>
     </div>
   );
 }
