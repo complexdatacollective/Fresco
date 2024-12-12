@@ -30,7 +30,7 @@ export type StageMetadata = StageMetadataEntry[];
 
 export type Session = {
   id: string;
-  protocolUID: string;
+  protocolId: string;
   promptIndex: number;
   currentStep: number;
   caseId: string;

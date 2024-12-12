@@ -20,11 +20,11 @@ export const generateOutputFiles =
 
     const exportPromises: Promise<ExportResult>[] = [];
 
-    Object.entries(unifiedSessions).forEach(([protocolUID, sessions]) => {
+    Object.entries(unifiedSessions).forEach(([protocolId, sessions]) => {
       sessions.forEach((session) => {
         // Skip if sessions don't have required sessionVariables
 
-        const protocol = protocols[protocolUID]!;
+        const protocol = protocols[protocolId]!;
         const prefix = getFilePrefix(session);
 
         exportFormats.forEach((format) => {

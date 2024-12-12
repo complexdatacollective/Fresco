@@ -29,7 +29,7 @@ const getCurrentSessionProtocol = createSelector(
   getInstalledProtocols,
   (session, protocols) => {
     if (!session) return undefined;
-    return protocols[session.protocolUID];
+    return protocols[session.protocolId];
   },
 );
 
