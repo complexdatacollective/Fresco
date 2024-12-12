@@ -1,30 +1,30 @@
-import { type Protocol } from '@prisma/client';
 import { type Dispatch } from '@reduxjs/toolkit';
 import { omit } from 'es-toolkit';
-import { has } from 'es-toolkit/compat';
+import { has, invariant } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import {
   entityPrimaryKeyProperty,
   type EntityAttributesProperty,
   type EntityPrimaryKey,
   type EntityTypeDefinition,
+  type NcEntity,
+  type NcNetwork,
   type NcNode,
 } from '~/lib/shared-consts';
 import { getPromptId } from '../../selectors/interface';
-import {
-  getCodebookVariablesForNodeType,
-  getProtocolCodebook,
-} from '../../selectors/protocol';
-import { getActiveSession } from '../../selectors/session';
-import { type GetState, type Session } from '../../store';
+import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
+import { getActiveSessionId, getCurrentStageId } from '../../selectors/session';
+import { type GetState, type Session, type StageMetadata } from '../../store';
 import networkReducer, {
   actionTypes as networkActionTypes,
   actionCreators as networkActions,
   type AddNodeAction,
-  type ModelData,
   type NetworkActions,
 } from './network';
-import { SET_SERVER_SESSION } from './setServerSession';
+import {
+  SET_SERVER_SESSION,
+  type SetServerSessionAction,
+} from './setServerSession';
 
 const ADD_SESSION = 'ADD_SESSION';
 const SET_SESSION_FINISHED = 'SET_SESSION_FINISHED';
@@ -34,25 +34,17 @@ const UPDATE_STAGE_METADATA = 'UPDATE_STAGE_METADATA';
 
 const initialState = {} as Record<string, SessionWithoutId>;
 
-const withTimestamp = (session: SessionWithoutId): SessionWithoutId => ({
+const withTimestamp = (session: SessionWithoutId) => ({
   ...session,
   lastUpdated: new Date(),
 });
 
 const sessionExists = (
   sessionId: Session['id'],
-  sessions: SessionWithoutId[],
+  sessions: Record<string, SessionWithoutId>,
 ) => has(sessions, sessionId);
 
-type setServerSessionAction = {
-  type: typeof SET_SERVER_SESSION;
-  payload: {
-    protocol: Protocol;
-    session: Session;
-  };
-};
-
-type Action = setServerSessionAction | NetworkActions;
+type Action = SetServerSessionAction | NetworkActions;
 export type SessionWithoutId = Omit<Session, 'id'>;
 
 const getReducer =
@@ -60,46 +52,48 @@ const getReducer =
   (state = initialState, action: Action): Record<string, SessionWithoutId> => {
     switch (action.type) {
       case SET_SERVER_SESSION: {
-        if (!action.payload.session) {
-          return state;
-        }
+        const session = omit(action.payload, ['protocol']);
 
         return {
           ...state,
-          [action.payload.session.id]: {
-            ...(omit(action.payload.session, ['id']) as SessionWithoutId),
-            network:
-              action.payload.session.network ??
-              network(undefined, { type: networkActionTypes.INITIALIZE }),
-            stageMetadata: action.payload.session.stageMetadata,
+          [action.payload.id]: {
+            ...session,
+            network: (action.payload.network ??
+              network(undefined, {
+                type: networkActionTypes.INITIALIZE,
+              })) as unknown as NcNetwork,
+            stageMetadata: (action.payload.stageMetadata ?? {}) as Record<
+              string,
+              StageMetadata
+            >,
           },
         };
       }
       // Whenever a network action occurs, pass the action through to the network reducer
-      case networkActionTypes.ADD_NODE:
-      case networkActionTypes.ADD_NODE_TO_PROMPT:
-      case networkActionTypes.BATCH_ADD_NODES:
-      case networkActionTypes.REMOVE_NODE:
-      case networkActionTypes.REMOVE_NODE_FROM_PROMPT:
-      case networkActionTypes.UPDATE_NODE:
-      case networkActionTypes.TOGGLE_NODE_ATTRIBUTES:
-      case networkActionTypes.ADD_EDGE:
-      case networkActionTypes.UPDATE_EDGE:
-      case networkActionTypes.TOGGLE_EDGE:
-      case networkActionTypes.REMOVE_EDGE:
-      case networkActionTypes.UPDATE_EGO: {
-        const third = state[action.sessionId]!.network;
-        const test = action;
-        const newNetwork = network(third, action);
+      case networkActionTypes.ADD_NODE: // case networkActionTypes.TOGGLE_NODE_ATTRIBUTES: // case networkActionTypes.UPDATE_NODE: // case networkActionTypes.REMOVE_NODE_FROM_PROMPT: // case networkActionTypes.REMOVE_NODE: // case networkActionTypes.BATCH_ADD_NODES: // case networkActionTypes.ADD_NODE_TO_PROMPT:
+      // case networkActionTypes.ADD_EDGE:
+      // case networkActionTypes.UPDATE_EDGE:
+      // case networkActionTypes.TOGGLE_EDGE:
+      // case networkActionTypes.REMOVE_EDGE:
+      // case networkActionTypes.UPDATE_EGO:
+      {
+        if (!sessionExists(action.sessionMeta.sessionId, state)) {
+          return state;
+        }
+
+        const session = state[action.sessionMeta.sessionId]!;
 
         return {
           ...state,
-          [action.sessionId]: withTimestamp({
-            ...state[action.sessionId],
+          [action.sessionMeta.sessionId]: withTimestamp({
+            ...session,
             // Reset finished and exported state if network changes
             finishTime: null,
             exportTime: null,
-            network: network(state[action.sessionId].network, action),
+            network: network(
+              state[action.sessionMeta.sessionId]!.network,
+              action,
+            ),
           }),
         };
       }
@@ -113,18 +107,6 @@ const getReducer =
             ...state[action.sessionId],
             finishTime: new Date(),
           }),
-        };
-      }
-      case SET_SESSION_EXPORTED: {
-        if (!sessionExists(action.sessionId, state)) {
-          return state;
-        }
-        return {
-          ...state,
-          [action.sessionId]: {
-            ...state[action.sessionId],
-            exportTime: new Date(),
-          },
         };
       }
       case UPDATE_PROMPT: {
@@ -177,17 +159,17 @@ const getReducer =
  * This function generates default values for all variables in the variable registry for this node
  * type.
  *
- * @param {object} registryForType - An object containing the variable registry entry for this
+ * @param {object} variablesForType - An object containing the variable registry entry for this
  *                                   node type.
  */
 
 const getDefaultAttributesForEntityType = (
-  registryForType: EntityTypeDefinition['variables'] = {},
+  variablesForType: EntityTypeDefinition['variables'] = {},
 ) => {
-  const defaultAttributesObject = {} as Record<string, any>;
+  const defaultAttributesObject = {} as NcEntity[EntityAttributesProperty];
 
   // ALL variables initialised as `null`
-  Object.keys(registryForType).forEach((variableUUID) => {
+  Object.keys(variablesForType).forEach((variableUUID) => {
     defaultAttributesObject[variableUUID] = null;
   });
 
@@ -248,53 +230,43 @@ const batchAddNodes =
 
 const addNode =
   (
-    modelData: ModelData,
+    type: NcNode['type'],
     attributeData: NcNode[EntityAttributesProperty] = {},
   ) =>
   (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const { activeSessionId, sessions, installedProtocols } = state;
 
-    const activeSession = getActiveSession(state);
+    const sessionId = getActiveSessionId(state);
+    invariant(sessionId, 'Session ID is required to add a node');
 
-    const codebook = getProtocolCodebook(state);
-    const registryForType = getCodebookVariablesForNodeType(modelData.type);
+    const variablesForType = getCodebookVariablesForNodeType(type)(state);
 
-    // We need to create the `entitySecureAttribtuesMeta` object for the node
-    // for any attributes that have `encrypted` set to true in the codebook.
+    const defaultVariablesForType =
+      getDefaultAttributesForEntityType(variablesForType);
 
-    const modelDataWithSecureAttributes = Object.keys(registryForType).reduce(
-      (acc, key) => {
-        if (registryForType[key].encrypted) {
-          return {
-            ...acc,
-            [key]: {
-              value: modelData[key],
-              encrypted: true,
-            },
-          };
-        }
-        return {
-          ...acc,
-          [key]: modelData[key],
-        };
-      },
-      {},
-    );
+    const stageId = getCurrentStageId(state);
+    invariant(stageId, 'Stage ID is required to add a node');
 
-    console.log('modelDataWithSecureAttributes', modelDataWithSecureAttributes);
+    const promptId = getPromptId(state);
+    invariant(promptId, 'Prompt ID is required to add a node');
 
-    // Inject the current promptId into the model data.
+    // TODO: handle encryption here
+    const secureAttributes = {};
 
     dispatch<AddNodeAction>({
       type: networkActionTypes.ADD_NODE,
-      sessionId: activeSessionId!,
+      sessionMeta: {
+        sessionId,
+        promptId,
+        stageId,
+      },
       payload: {
-        modelData,
+        type,
         attributeData: {
-          ...getDefaultAttributesForEntityType(registryForType),
+          ...defaultVariablesForType,
           ...attributeData,
         },
+        secureAttributes,
       },
     });
   };
@@ -550,10 +522,8 @@ const actionCreators = {
   removeEdge,
   toggleNodeAttributes,
   addSession,
-  loadSession,
   updatePrompt,
   updateStage,
-  updateCaseId,
   updateStageMetadata,
   removeSession,
   setSessionFinished,
@@ -563,13 +533,9 @@ const actionCreators = {
 const actionTypes = {
   ADD_SESSION,
   SET_SESSION_FINISHED,
-  SET_SESSION_EXPORTED,
-  LOAD_SESSION,
   UPDATE_PROMPT,
   UPDATE_STAGE,
-  UPDATE_CASE_ID,
   UPDATE_STAGE_METADATA,
-  REMOVE_SESSION,
 };
 
 export { actionCreators, actionTypes };

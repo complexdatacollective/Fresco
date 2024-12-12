@@ -1,18 +1,20 @@
 import { z } from 'zod';
 import { validVariableNameSchema } from './variables';
 
+// When vqlues are encrypted, this is the resulting type.
 const encryptedValueSchema = z.array(z.number());
-
 export type EncryptedValue = z.infer<typeof encryptedValueSchema>;
 
-const variableValueSchema = z.union([
-  z.string(),
-  z.array(z.unknown()), // remove
-  z.boolean(),
-  z.number(),
-  encryptedValueSchema,
-  z.record(z.string(), z.union([z.string(), z.boolean(), z.number()])),
-]);
+const variableValueSchema = z
+  .union([
+    z.string(),
+    z.boolean(),
+    z.number(),
+    encryptedValueSchema,
+    z.array(z.union([z.string(), z.number(), z.boolean()])), // Ordinal
+    z.record(z.string(), z.union([z.string(), z.boolean(), z.number()])), // Categorical
+  ])
+  .nullable();
 
 export type VariableValue = z.infer<typeof variableValueSchema>;
 

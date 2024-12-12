@@ -1,11 +1,8 @@
 import { type Session } from '../../store';
-import { actionTypes as installedProtocolsActionTypes } from './installedProtocols';
-import { SET_SERVER_SESSION } from './setServerSession';
-
-type SetServerSessionAction = {
-  type: typeof SET_SERVER_SESSION;
-  session: Session;
-};
+import {
+  SET_SERVER_SESSION,
+  type SetServerSessionAction,
+} from './setServerSession';
 
 type SetSessionAction = {
   type: 'SET_SESSION';
@@ -16,15 +13,10 @@ type EndSessionAction = {
   type: 'END_SESSION';
 };
 
-type DeleteProtocolAction = {
-  type: typeof installedProtocolsActionTypes.DELETE_PROTOCOL;
-};
-
 type SessionActionTypes =
   | SetServerSessionAction
   | SetSessionAction
-  | EndSessionAction
-  | DeleteProtocolAction;
+  | EndSessionAction;
 
 // Initial State
 const initialState: Session['id'] | null = null;
@@ -36,17 +28,13 @@ export default function sessionReducer(
 ): Session['id'] | null {
   switch (action.type) {
     case SET_SERVER_SESSION: {
-      if (!action.session) {
-        return state;
-      }
-      return action.session.id;
+      return action.payload.id;
     }
 
     case 'SET_SESSION':
       return action.sessionId;
 
     case 'END_SESSION':
-    case installedProtocolsActionTypes.DELETE_PROTOCOL:
       return initialState;
 
     default:

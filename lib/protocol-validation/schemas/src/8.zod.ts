@@ -131,19 +131,8 @@ const alterEdgeFormStage = baseStageSchema.extend({
   form: formFieldsSchema,
 });
 
-const nameGeneratorStage = baseStageSchema.extend({
-  type: z.literal('NameGenerator'),
-  form: formFieldsSchema,
+const baseNameGeneratorStage = baseStageSchema.extend({
   subject: subjectSchema,
-  panels: z.array(panelSchema).optional(),
-  prompts: z.array(promptSchema).min(1),
-});
-
-const nameGeneratorQuickAddStage = baseStageSchema.extend({
-  type: z.literal('NameGeneratorQuickAdd'),
-  quickAdd: z.string(),
-  subject: subjectSchema,
-  panels: z.array(panelSchema).optional(),
   prompts: z.array(promptSchema).min(1),
   behaviours: z
     .object({
@@ -153,9 +142,24 @@ const nameGeneratorQuickAddStage = baseStageSchema.extend({
     .optional(),
 });
 
-const nameGeneratorRosterStage = baseStageSchema.extend({
+const nameGeneratorStage = baseNameGeneratorStage.extend({
+  type: z.literal('NameGenerator'),
+  form: formFieldsSchema,
+  panels: z.array(panelSchema).optional(),
+});
+
+const nameGeneratorQuickAddStage = baseNameGeneratorStage.extend({
+  type: z.literal('NameGeneratorQuickAdd'),
+  quickAdd: z.string(),
+  panels: z.array(panelSchema).optional(),
+});
+
+export type NameGeneratorStageProps =
+  | z.infer<typeof nameGeneratorStage>
+  | z.infer<typeof nameGeneratorQuickAddStage>;
+
+const nameGeneratorRosterStage = baseNameGeneratorStage.extend({
   type: z.literal('NameGeneratorRoster'),
-  subject: subjectSchema,
   dataSource: z.string(),
   cardOptions: z
     .object({
@@ -173,7 +177,6 @@ const nameGeneratorRosterStage = baseStageSchema.extend({
     })
     .strict()
     .optional(),
-  prompts: z.array(promptSchema).min(1),
 });
 
 const sociogramStage = baseStageSchema.extend({

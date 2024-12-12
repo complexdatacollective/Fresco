@@ -45,8 +45,8 @@
     ".next/types/**/*.ts",
     "eslint-local-rules/index.js",
     "actions/auth.ts",
-    "env.tjs"
-, "lib/interviewer/ducks/modules/dialogs.jts"  ],
+    "env.js", 
+  ],
   "exclude": [
     "node_modules",
   ]

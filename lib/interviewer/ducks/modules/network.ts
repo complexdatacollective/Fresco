@@ -2,9 +2,12 @@ import { omit } from 'es-toolkit';
 import { find, get, isMatch } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import {
+  type EntityAttributesProperty,
   entityAttributesProperty,
   type EntityPrimaryKey,
   entityPrimaryKeyProperty,
+  entitySecureAttributesMeta,
+  type EntitySecureAttributesMeta,
   type NcEdge,
   type NcNetwork,
   type NcNode,
@@ -49,8 +52,8 @@ export const initialState: NcNetwork = {
  */
 const batchAddNodes = (
   nodeList: NcNode[],
-  attributeData: NcNode['attributes'] = {},
-  defaultAttributes: NcNode['attributes'] = {},
+  attributeData: NcNode[EntityAttributesProperty] = {},
+  defaultAttributes: NcNode[EntityAttributesProperty] = {},
 ) => ({
   type: BATCH_ADD_NODES,
   nodeList,
@@ -98,18 +101,18 @@ export function edgeExists(
  * Correctly construct the node object based on a
  * node-like object, and an key-value attributes object
  */
-const formatNodeAttributes = (modelData, attributeData) => ({
-  ...omit(modelData, 'promptId'),
-  [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] || uuid(),
-  [entityAttributesProperty]: {
-    ...modelData[entityAttributesProperty],
-    ...attributeData,
-  },
-  promptIDs: [modelData.promptId],
-  stageId: modelData.stageId,
-  type: modelData.type,
-  itemType: modelData.itemType,
-});
+// const formatNodeAttributes = (modelData: ModelData, attributeData: Record<string, unknown>): NcNode => ({
+//   ...omit(modelData, ['promptId']),
+//   [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] || uuid(),
+//   [entityAttributesProperty]: {
+//     ...modelData[entityAttributesProperty],
+//     ...attributeData,
+//   },
+//   promptIDs: [modelData.promptId],
+//   stageId: modelData.stageId,
+//   type: modelData.type,
+//   itemType: modelData.itemType,
+// });
 
 const formatEgoAttributes = (modelData, attributeData) => ({
   ...modelData,
@@ -147,17 +150,17 @@ const removeEdge = (state, edgeId) => ({
   ),
 });
 
-export type ModelData = {
-  [entityPrimaryKeyProperty]: string;
-  promptId?: string[];
-};
-
 export type AddNodeAction = {
   type: typeof ADD_NODE;
-  sessionId: string;
+  sessionMeta: {
+    sessionId: string;
+    promptId: string;
+    stageId: string;
+  };
   payload: {
-    modelData: ModelData;
-    attributeData: NcNode['attributes'];
+    type: NcNode['type'];
+    attributeData: NcNode[EntityAttributesProperty];
+    secureAttributes?: NcNode[EntitySecureAttributesMeta];
   };
 };
 
@@ -165,13 +168,13 @@ type UpdateNodeAction = {
   type: typeof UPDATE_NODE;
   nodeId: NcNode[EntityPrimaryKey];
   newModelData: ModelData;
-  newAttributeData: NcNode['attributes'];
+  newAttributeData: NcNode[EntityAttributesProperty];
 };
 
 type ToggleNodeAttributesAction = {
   type: typeof TOGGLE_NODE_ATTRIBUTES;
   [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
-  attributes: NcNode['attributes'];
+  attributes: NcNode[EntityAttributesProperty];
 };
 
 type RemoveNodeAction = {
@@ -183,21 +186,21 @@ type AddNodeToPromptAction = {
   type: typeof ADD_NODE_TO_PROMPT;
   nodeId: NcNode[EntityPrimaryKey];
   promptId: string;
-  promptAttributes: NcNode['attributes'];
+  promptAttributes: NcNode[EntityAttributesProperty];
 };
 
 type RemoveNodeFromPromptAction = {
   type: typeof REMOVE_NODE_FROM_PROMPT;
   nodeId: NcNode[EntityPrimaryKey];
   promptId: string;
-  promptAttributes: NcNode['attributes'];
+  promptAttributes: NcNode[EntityAttributesProperty];
 };
 
 type BatchAddNodesAction = {
   type: typeof BATCH_ADD_NODES;
   nodeList: NcNode[];
-  defaultAttributes: NcNode['attributes'];
-  attributeData: NcNode['attributes'];
+  defaultAttributes: NcNode[EntityAttributesProperty];
+  attributeData: NcNode[EntityAttributesProperty];
 };
 
 type AddEdgeAction = {
@@ -226,12 +229,12 @@ type RemoveEdgeAction = {
 type UpdateEgoAction = {
   type: typeof UPDATE_EGO;
   modelData: NcNode;
-  attributeData: NcNode['attributes'];
+  attributeData: NcNode[EntityAttributesProperty];
 };
 
 type AddSessionAction = {
   type: typeof ADD_SESSION;
-  egoAttributeData: NcNode['attributes'];
+  egoAttributeData: NcNode[EntityAttributesProperty];
 };
 
 type InitializeAction = {
@@ -254,18 +257,36 @@ export type NetworkActions =
   | UpdateEgoAction
   | AddSessionAction;
 
-export default function reducer(state = initialState, action: NetworkActions) {
+export default function reducer(
+  state = initialState,
+  action: NetworkActions,
+): NcNetwork {
   switch (action.type) {
     case INITIALIZE: {
       return initialState;
     }
     case ADD_NODE: {
+      // Here is where we need to use codebook data to determine if the attribute is encrypted
+      // and then store the encrypted data in the secure attributes meta
+
+      // This approach will mean that existing interfaces don't need to update their use
+      // of addNode.
+
+      const newNode: NcNode = {
+        [entityPrimaryKeyProperty]: uuid(),
+        type: action.payload.type,
+        [entityAttributesProperty]: action.payload.attributeData,
+        promptIDs: [action.sessionMeta.promptId],
+        stageId: action.sessionMeta.stageId,
+      };
+
+      if (action.payload.secureAttributes) {
+        newNode[entitySecureAttributesMeta] = action.payload.secureAttributes;
+      }
+
       return {
         ...state,
-        nodes: [
-          ...state.nodes,
-          formatNodeAttributes(action.modelData, action.attributeData),
-        ],
+        nodes: [...state.nodes, newNode],
       };
     }
     case UPDATE_EGO: {

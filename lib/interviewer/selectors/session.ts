@@ -3,7 +3,7 @@ import type { Stage } from '~/lib/shared-consts';
 import { type RootState } from '../store';
 import { getProtocolStages } from './protocol';
 
-const getActiveSessionId = (state: RootState) => state.activeSessionId;
+export const getActiveSessionId = (state: RootState) => state.activeSessionId;
 
 const getSessions = (state: RootState) => state.sessions;
 
@@ -36,7 +36,16 @@ export const getCurrentStage = createSelector(
   getProtocolStages,
   getStageIndex,
   (stages: Stage[], currentStep) => {
-    return stages[currentStep!];
+    if (currentStep === null) return null;
+    return stages[currentStep];
+  },
+);
+
+export const getCurrentStageId = createSelector(
+  getCurrentStage,
+  (currentStage) => {
+    if (!currentStage) return null;
+    return currentStage.id;
   },
 );
 
