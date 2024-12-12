@@ -103,6 +103,10 @@ export default function GeospatialInterface({
     [activeIndex, stageNodes.length],
   );
 
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [promptIndex]);
+
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
   const previousNode = useCallback(() => {
