@@ -16,17 +16,16 @@ import { getNetworkNodesForType } from '../../selectors/interface';
 
 // Map configuration constants
 // Could be configurable from the protocol
-const INITIAL_ZOOM = 12;
 const STYLE = 'mapbox://styles/mapbox/standard';
 
 const NodeAnimationVariants = {
   initial: (navDirection: 'forwards' | 'backwards') => ({
     opacity: 0,
-    x: navDirection === 'backwards' ? '-100%' : '100%',
+    y: navDirection === 'backwards' ? '-100%' : '100%',
   }),
   animate: {
     opacity: 1,
-    x: 0,
+    y: 0,
     transition: {
       type: 'tween',
       duration: 0.3,
@@ -34,7 +33,7 @@ const NodeAnimationVariants = {
   },
   exit: (navDirection: 'forwards' | 'backwards') => ({
     opacity: 0,
-    x: navDirection === 'backwards' ? '100%' : '-100%',
+    y: navDirection === 'backwards' ? '100%' : '-100%',
     transition: {
       type: 'tween',
       duration: 0.3,
@@ -66,7 +65,8 @@ export default function GeospatialInterface({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const dragSafeRef = useRef(null);
-  const { center, token, layers, prompts } = stage;
+  const { prompts } = stage;
+  const { center, token, layers, initialZoom } = stage.mapOptions;
 
   const filterLayer = layers.find((layer) => layer.filter);
 
@@ -74,7 +74,7 @@ export default function GeospatialInterface({
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
-      zoom: INITIAL_ZOOM,
+      zoom: initialZoom,
       center,
     });
   }, [center]);
@@ -157,7 +157,7 @@ export default function GeospatialInterface({
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       center,
-      zoom: INITIAL_ZOOM,
+      zoom: initialZoom,
       style: STYLE,
     });
 
@@ -285,10 +285,7 @@ export default function GeospatialInterface({
   ]);
 
   return (
-    <div
-      className="interface w-full items-center justify-center"
-      ref={dragSafeRef}
-    >
+    <div className="w-full items-center justify-center" ref={dragSafeRef}>
       <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
 
       <div className="absolute top-10 right-14 z-10">

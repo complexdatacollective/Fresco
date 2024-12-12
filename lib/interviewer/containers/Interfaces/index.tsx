@@ -1,8 +1,7 @@
-import { StageTypes } from '@codaco/shared-consts';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Icon from '~/lib/ui/components/Icon';
-import { type StageProps } from '../Stage';
+import { StageType } from '../../protocol-consts';
 
 const StageLoading = () => (
   <div className="flex h-full w-full items-center justify-center">
@@ -10,99 +9,99 @@ const StageLoading = () => (
   </div>
 );
 
-const NotFoundInterface = ({ stage }: StageProps) => (
+const NameGenerator = dynamic(() => import('./NameGenerator'), {
+  loading: StageLoading,
+});
+const NameGeneratorQuickAdd = dynamic(() => import('./NameGeneratorQuickAdd'), {
+  loading: StageLoading,
+});
+const NameGeneratorRoster = dynamic(() => import('./NameGeneratorRoster'), {
+  loading: StageLoading,
+});
+const Sociogram = dynamic(() => import('./Sociogram'), {
+  loading: StageLoading,
+});
+const Information = dynamic(() => import('./Information'), {
+  loading: StageLoading,
+});
+const OrdinalBin = dynamic(() => import('./OrdinalBin'), {
+  loading: StageLoading,
+});
+const CategoricalBin = dynamic(() => import('./CategoricalBin'), {
+  loading: StageLoading,
+});
+const Narrative = dynamic(() => import('./Narrative'), {
+  loading: StageLoading,
+});
+const AlterForm = dynamic(() => import('./AlterForm'), {
+  loading: StageLoading,
+});
+const EgoForm = dynamic(() => import('./EgoForm'), { loading: StageLoading });
+const AlterEdgeForm = dynamic(() => import('./AlterEdgeForm'), {
+  loading: StageLoading,
+});
+const DyadCensus = dynamic(() => import('./DyadCensus/DyadCensus'), {
+  loading: StageLoading,
+});
+const TieStrengthCensus = dynamic(() => import('./TieStrengthCensus'), {
+  loading: StageLoading,
+});
+const FinishSession = dynamic(() => import('./FinishSession'), {
+  loading: StageLoading,
+});
+const Geospatial = dynamic(() => import('./Geospatial'), {
+  loading: StageLoading,
+});
+
+const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <div className="flex h-full w-full items-center justify-center">
     <div className="flex flex-col items-center">
       <Icon name="warning" />
       <h1 style={{ marginTop: '1rem' }}>
         No &quot;
-        {stage.type}
+        {interfaceType}
         &quot; interface found.
       </h1>
     </div>
   </div>
 );
 
-const getInterface = (
-  interfaceType:
-    | StageTypes.NameGenerator
-    | StageTypes.NameGeneratorQuickAdd
-    | StageTypes.NameGeneratorRoster
-    | StageTypes.Sociogram
-    | StageTypes.Information
-    | StageTypes.OrdinalBin
-    | StageTypes.CategoricalBin
-    | StageTypes.Narrative
-    | StageTypes.AlterForm
-    | StageTypes.EgoForm
-    | StageTypes.AlterEdgeForm
-    | StageTypes.DyadCensus
-    | StageTypes.TieStrengthCensus
-    | 'FinishSession'
-    | 'Geospatial',
-) => {
+const getInterface = (interfaceType: string) => {
   switch (interfaceType) {
-    // Schema 8 interfaces
-    case 'Geospatial':
-      return dynamic(() => import('./Geospatial'), {
-        loading: StageLoading,
-      });
-    case StageTypes.NameGenerator:
-      return dynamic(() => import('./NameGenerator'), {
-        loading: StageLoading,
-      });
-    case StageTypes.NameGeneratorQuickAdd:
-      return dynamic(() => import('./NameGeneratorQuickAdd'), {
-        loading: StageLoading,
-      });
-    case StageTypes.NameGeneratorRoster:
-      return dynamic(() => import('./NameGeneratorRoster'), {
-        loading: StageLoading,
-      });
-    case StageTypes.Sociogram:
-      return dynamic(() => import('./Sociogram'), {
-        loading: StageLoading,
-      });
-    case StageTypes.Information:
-      return dynamic(() => import('./Information'), {
-        loading: StageLoading,
-      });
-    case StageTypes.OrdinalBin:
-      return dynamic(() => import('./OrdinalBin'), {
-        loading: StageLoading,
-      });
-    case StageTypes.CategoricalBin:
-      return dynamic(() => import('./CategoricalBin'), {
-        loading: StageLoading,
-      });
-    case StageTypes.Narrative:
-      return dynamic(() => import('./Narrative'), {
-        loading: StageLoading,
-      });
-    case StageTypes.AlterForm:
-      return dynamic(() => import('./AlterForm'), {
-        loading: StageLoading,
-      });
-    case StageTypes.EgoForm:
-      return dynamic(() => import('./EgoForm'), { loading: StageLoading });
-    case StageTypes.AlterEdgeForm:
-      return dynamic(() => import('./AlterEdgeForm'), {
-        loading: StageLoading,
-      });
-    case StageTypes.DyadCensus:
-      return dynamic(() => import('./DyadCensus'), {
-        loading: StageLoading,
-      });
-    case StageTypes.TieStrengthCensus:
-      return dynamic(() => import('./TieStrengthCensus'), {
-        loading: StageLoading,
-      });
+    case StageType.NameGenerator:
+      return NameGenerator;
+    case StageType.NameGeneratorQuickAdd:
+      return NameGeneratorQuickAdd;
+    case StageType.NameGeneratorRoster:
+      return NameGeneratorRoster;
+    case StageType.Sociogram:
+      return Sociogram;
+    case StageType.Information:
+      return Information;
+    case StageType.OrdinalBin:
+      return OrdinalBin;
+    case StageType.CategoricalBin:
+      return CategoricalBin;
+    case StageType.Narrative:
+      return Narrative;
+    case StageType.AlterForm:
+      return AlterForm;
+    case StageType.EgoForm:
+      return EgoForm;
+    case StageType.AlterEdgeForm:
+      return AlterEdgeForm;
+    case StageType.DyadCensus:
+      return DyadCensus;
+    case StageType.TieStrengthCensus:
+      return TieStrengthCensus;
+    case StageType.Geospatial:
+      return Geospatial;
     case 'FinishSession':
-      return dynamic(() => import('./FinishSession'), {
-        loading: StageLoading,
-      });
+      return FinishSession;
+
     default:
-      return NotFoundInterface;
+      // eslint-disable-next-line react/display-name
+      return () => <NotFoundInterface interfaceType={interfaceType} />;
   }
 };
 

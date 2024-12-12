@@ -27,32 +27,35 @@ export const protocol: Protocol = {
         type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
         entity: 'node',
       },
-      center: [-87.6298, 41.8781],
-      token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
-      layers: [
-        // {
-        //   id: 'censusTractsOutlineLayer',
-        //   data: '/interviewer/ChicagoCensusTracts.geojson',
-        //   type: 'line',
-        //   color: 'purple',
-        //   width: 0,
-        // },
-        {
-          id: 'censusTractsFillLayer', // a fill layer is needed to have something to select
-          data: '/interviewer/ChicagoCensusTracts.geojson',
-          type: 'fill',
-          color: 'purple',
-          opacity: 0,
-        },
-        {
-          id: 'selectedCensusTract',
-          data: '/interviewer/ChicagoCensusTracts.geojson',
-          type: 'fill',
-          color: 'purple',
-          opacity: 0.2,
-          filter: 'namelsad10',
-        },
-      ],
+      mapOptions: {
+        center: [-87.6298, 41.8781],
+        token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+        initialZoom: 12,
+        layers: [
+          {
+            id: 'censusTractsOutlineLayer',
+            data: '/interviewer/ChicagoCensusTracts.geojson',
+            type: 'line',
+            color: 'purple',
+            width: 1,
+          },
+          {
+            id: 'censusTractsFillLayer', // a fill layer is needed to have something to select
+            data: '/interviewer/ChicagoCensusTracts.geojson',
+            type: 'fill',
+            color: 'purple',
+            opacity: 0,
+          },
+          {
+            id: 'selectedCensusTract',
+            data: '/interviewer/ChicagoCensusTracts.geojson',
+            type: 'fill',
+            color: 'purple',
+            opacity: 0.2,
+            filter: 'namelsad10',
+          },
+        ],
+      },
       prompts: [
         {
           id: 'prompt1',
@@ -78,33 +81,36 @@ export const protocol: Protocol = {
         type: 'd88fa70b-cbfa-4f4b-8536-85d1dc14de1e',
         entity: 'node',
       },
-      center: [-74.006, 40.7128],
-      token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
-      layers: [
-        {
-          id: 'censusTractsOutlineLayer',
-          data: '/interviewer/NewYorkCensusTracts.geojson',
-          type: 'line',
-          color: 'blue',
-          width: 0,
-        },
-        // needed to have something to select
-        {
-          id: 'censusTractsFillLayer',
-          data: '/interviewer/NewYorkCensusTracts.geojson',
-          type: 'fill',
-          color: 'blue',
-          opacity: 0,
-        },
-        {
-          id: 'selectedCensusTract',
-          data: '/interviewer/NewYorkCensusTracts.geojson',
-          type: 'fill',
-          color: 'orange',
-          filter: 'NTAName',
-          opacity: 0.2,
-        },
-      ],
+      mapOptions: {
+        center: [-74.006, 40.7128],
+        initialZoom: 14,
+        token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+        layers: [
+          {
+            id: 'censusTractsOutlineLayer',
+            data: '/interviewer/NewYorkCensusTracts.geojson',
+            type: 'line',
+            color: 'blue',
+            width: 1,
+          },
+          // needed to have something to select
+          {
+            id: 'censusTractsFillLayer',
+            data: '/interviewer/NewYorkCensusTracts.geojson',
+            type: 'fill',
+            color: 'blue',
+            opacity: 0,
+          },
+          {
+            id: 'selectedCensusTract',
+            data: '/interviewer/NewYorkCensusTracts.geojson',
+            type: 'fill',
+            color: 'orange',
+            filter: 'NTAName',
+            opacity: 0.2,
+          },
+        ],
+      },
       prompts: [
         {
           id: 'censusTractPrompt',

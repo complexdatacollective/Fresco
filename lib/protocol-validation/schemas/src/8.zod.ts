@@ -466,22 +466,25 @@ const familyTreeCensusStage = baseStageSchema.extend({
 
 const geospatialStage = baseStageSchema.extend({
   type: z.literal('Geospatial'),
-  center: z.tuple([z.number(), z.number()]),
-  token: z.string(),
   subject: subjectSchema,
-  layers: z.array(
-    z
-      .object({
-        id: z.string(),
-        data: z.string(),
-        type: z.enum(['line', 'fill']),
-        color: z.string(),
-        opacity: z.number().optional(),
-        filter: z.string().optional(),
-        width: z.number().optional(),
-      })
-      .strict(),
-  ),
+  mapOptions: z.object({
+    center: z.tuple([z.number(), z.number()]),
+    token: z.string(),
+    initialZoom: z.number().int(),
+    layers: z.array(
+      z
+        .object({
+          id: z.string(),
+          data: z.string(),
+          type: z.enum(['line', 'fill']),
+          color: z.string(),
+          opacity: z.number().optional(),
+          filter: z.string().optional(),
+          width: z.number().optional(),
+        })
+        .strict(),
+    ),
+  }),
   prompts: z
     .array(
       promptSchema.extend({
