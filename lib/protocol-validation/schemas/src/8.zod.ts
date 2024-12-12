@@ -103,6 +103,8 @@ const nodeSchema = z
   })
   .strict();
 
+export type Node = z.infer<typeof nodeSchema>;
+
 const edgeSchema = z
   .object({
     name: z.string(),

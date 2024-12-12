@@ -1,14 +1,16 @@
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import mapboxgl, { MapMouseEvent } from 'mapbox-gl';
+import mapboxgl, { type MapMouseEvent } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
+import type {
+  Node as NodeType,
+  Protocol,
+} from '~/lib/protocol-validation/schemas/src/8.zod';
 import Button from '~/lib/ui/components/Button';
 import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
-import Node from '../../components/Node';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
@@ -18,8 +20,10 @@ import { getNetworkNodesForType } from '../../selectors/interface';
 // Could be configurable from the protocol
 const STYLE = 'mapbox://styles/mapbox/standard';
 
+type NavDirection = 'forwards' | 'backwards';
+
 const NodeAnimationVariants = {
-  initial: (navDirection: 'forwards' | 'backwards') => ({
+  initial: (navDirection: NavDirection) => ({
     opacity: 0,
     y: navDirection === 'backwards' ? '-100%' : '100%',
   }),
@@ -31,7 +35,7 @@ const NodeAnimationVariants = {
       duration: 0.3,
     },
   },
-  exit: (navDirection: 'forwards' | 'backwards') => ({
+  exit: (navDirection: NavDirection) => ({
     opacity: 0,
     y: navDirection === 'backwards' ? '100%' : '-100%',
     transition: {
@@ -46,16 +50,31 @@ type GeospatialStage = Extract<
   { type: 'Geospatial' }
 >;
 
+type GeospatialInterfaceProps = {
+  stage: GeospatialStage;
+  registerBeforeNext: (
+    beforeNext: (direction: NavDirection) => boolean,
+  ) => void;
+};
+
 export default function GeospatialInterface({
   stage,
   registerBeforeNext,
-}: {
-  stage: GeospatialStage;
-  registerBeforeNext: (
-    beforeNext: (direction: 'forwards' | 'backwards') => boolean,
-  ) => void;
-}) {
-  const dispatch = useDispatch<any>();
+}: GeospatialInterfaceProps) {
+  const dispatch = useDispatch();
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const dragSafeRef = useRef(null);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [navDirection, setNavDirection] = useState<NavDirection | null>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+  const { prompts } = stage;
+  const { promptIndex } = usePrompts();
+  const currentPrompt = prompts[promptIndex];
+  const { center, token, layers, initialZoom } = stage.mapOptions;
+  const filterLayer = layers.find((layer) => layer.filter);
 
   const updateNode = useCallback(
     (
@@ -67,22 +86,12 @@ export default function GeospatialInterface({
     [dispatch],
   );
 
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const dragSafeRef = useRef(null);
-  const { prompts } = stage;
-  const { promptIndex } = usePrompts();
-  const currentPrompt = prompts[promptIndex];
-  const { center, token, layers, initialZoom } = stage.mapOptions;
-
-  const filterLayer = layers.find((layer) => layer.filter);
-
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
       zoom: initialZoom,
       center,
     });
-  }, [center]);
+  }, [center, initialZoom]);
 
   const handleResetSelection = useCallback(() => {
     if (filterLayer && mapRef.current) {
@@ -90,14 +99,10 @@ export default function GeospatialInterface({
     }
   }, [filterLayer]);
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [navDirection, setNavDirection] = useState<
-    'forwards' | 'backwards' | null
-  >(null);
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
-
   const getNodeIndex = useCallback(() => activeIndex - 1, [activeIndex]);
-  const stageNodes = usePropSelector(getNetworkNodesForType, { stage });
+  const stageNodes = usePropSelector(getNetworkNodesForType, {
+    stage,
+  }) as NodeType[];
   const isLastNode = useCallback(
     () => activeIndex + 1 >= stageNodes.length,
     [activeIndex, stageNodes.length],
@@ -123,7 +128,7 @@ export default function GeospatialInterface({
     handleResetSelection();
   }, [activeIndex, handleResetSelection]);
 
-  const beforeNext = (direction: 'forwards' | 'backwards') => {
+  const beforeNext = (direction: NavDirection) => {
     // Leave the stage if there are no nodes
     if (stageNodes.length === 0) {
       return true;
@@ -195,7 +200,7 @@ export default function GeospatialInterface({
             source: 'geojson-data',
             paint: {
               'line-color': layer.color,
-              'line-width': (layer.width as number) ?? 1,
+              'line-width': layer.width! ?? 1,
             },
           });
         } else if (layer.type === 'fill' && !layer.filter) {
@@ -238,7 +243,7 @@ export default function GeospatialInterface({
     return () => {
       mapRef.current?.remove();
     };
-  }, [center, layers, token]);
+  }, [center, initialZoom, layers, token]);
 
   // handle map selections
   useEffect(() => {
@@ -248,9 +253,12 @@ export default function GeospatialInterface({
     if (!mapInstance) return;
 
     // Set initial filter if node has a value
-    const initialFilterValue = currentPrompt.variable
-      ? stageNodes[activeIndex].attributes[currentPrompt.variable]
-      : undefined;
+    const initialFilterValue =
+      currentPrompt?.variable && stageNodes[activeIndex]?.attributes
+        ? (stageNodes[activeIndex].attributes as Record<string, unknown>)[
+            currentPrompt.variable
+          ]
+        : undefined;
 
     if (initialFilterValue) {
       mapInstance.setFilter(filterLayer.id, [
