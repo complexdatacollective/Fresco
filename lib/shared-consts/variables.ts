@@ -1,12 +1,42 @@
-export type VariableValue =
-  | string
-  | unknown[]
-  | boolean
-  | number
-  | Record<string, string | boolean | number>;
+import { z } from 'zod';
 
-// This isn't working currently
-export enum VariableType {
+// Constants for repeated values
+const validVariableName = /^[a-zA-Z0-9._:-]+$/;
+
+export const validVariableNameSchema = z.string().regex(validVariableName);
+
+export type ValidVariableName = z.infer<typeof validVariableNameSchema>;
+
+// Enums
+const componentEnum = z.enum([
+  'Boolean',
+  'CheckboxGroup',
+  'Number',
+  'RadioGroup',
+  'Text',
+  'TextArea',
+  'Toggle',
+  'ToggleButtonGroup',
+  'Slider',
+  'VisualAnalogScale',
+  'LikertScale',
+  'DatePicker',
+  'RelativeDatePicker',
+]);
+
+const typeEnum = z.enum([
+  'boolean',
+  'text',
+  'number',
+  'datetime',
+  'ordinal',
+  'scalar',
+  'categorical',
+  'layout',
+  'location',
+]);
+
+export enum VariableTypeEnum {
   boolean = 'boolean',
   text = 'text',
   number = 'number',
@@ -18,36 +48,70 @@ export enum VariableType {
   location = 'location',
 }
 
-export type OptionsOption = {
-  label: string;
-  value: string | number | boolean;
-};
+export type VariableType = z.infer<typeof typeEnum>;
 
-export type VariableValidation = {
-  required?: boolean;
-  minValue?: number;
-  maxValue?: number;
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  unique?: boolean;
-  sameAs?: string;
-  differentFrom?: string;
-  greaterThanVariable?: string;
-  lessThanVariable?: string;
-};
+// Validation Schema
+const validationSchema = z
+  .object({
+    required: z.boolean().optional(),
+    requiredAcceptsNull: z.boolean().optional(),
+    minLength: z.number().int().optional(),
+    maxLength: z.number().int().optional(),
+    minValue: z.number().int().optional(),
+    maxValue: z.number().int().optional(),
+    minSelected: z.number().int().optional(),
+    maxSelected: z.number().int().optional(),
+    unique: z.boolean().optional(),
+    differentFrom: z.string().optional(),
+    sameAs: z.string().optional(),
+    greaterThanVariable: z.string().optional(),
+    lessThanVariable: z.string().optional(),
+  })
+  .strict();
 
-export type VariableDefinition = {
-  name: string;
-  type: string;
-  component?: string;
-  validation?: VariableValidation;
-  options?: OptionsOption[];
-  parameters?: {
-    minLabel?: string;
-    maxLabel?: string;
-    before?: number;
-    type?: string; // Todo: map out possible values for this
-    min?: string;
-  };
-};
+export type VariableValidation = z.infer<typeof validationSchema>;
+
+const OptionsOptionSchema = z.object({
+  label: z.string(),
+  value: z.union([
+    z.number().int(),
+    z.string().regex(validVariableName),
+    z.boolean(),
+  ]),
+  negative: z.boolean().optional(),
+});
+
+export type OptionsOption = z.infer<typeof OptionsOptionSchema>;
+
+// Options Schema
+const optionsSchema = z
+  .array(z.union([OptionsOptionSchema.strict(), z.number().int(), z.string()]))
+  .optional();
+
+// Variable Schema
+const variableSchema = z
+  .object({
+    name: z.string().regex(validVariableName),
+    type: typeEnum,
+    encrypted: z.boolean().optional(),
+    component: componentEnum.optional(),
+    options: optionsSchema,
+    parameters: z
+      .object({
+        minLabel: z.string().optional(),
+        maxLabel: z.string().optional(),
+        before: z.number().int().optional(),
+        type: z.string().optional(),
+        min: z.string().optional(),
+      })
+      .optional(),
+    validation: validationSchema.optional(),
+  })
+  .strict();
+
+export type VariableDefinition = z.infer<typeof variableSchema>;
+
+export const VariablesSchema = z.record(
+  validVariableNameSchema,
+  variableSchema,
+);

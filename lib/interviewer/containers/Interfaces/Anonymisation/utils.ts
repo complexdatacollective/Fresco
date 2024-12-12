@@ -1,3 +1,7 @@
+import { entitySecureAttributesMeta } from '~/lib/shared-consts';
+
+export const SESSION_STORAGE_KEY = 'passphrase';
+
 export class UnauthorizedError extends Error {
   constructor() {
     super('Unauthorized');
@@ -65,10 +69,10 @@ export type EncryptedData = Awaited<ReturnType<typeof encryptData>>;
 export async function decryptData(
   encrypted: EncryptedData,
   passphrase: string,
-) {
+): Promise<string> {
   const {
     data,
-    _secureAttributes: { iv, salt },
+    [entitySecureAttributesMeta]: { iv, salt },
   } = encrypted;
 
   const key = await generateKey(passphrase, new Uint8Array(salt));
@@ -83,5 +87,8 @@ export async function decryptData(
   );
 
   const decoder = new TextDecoder();
+
+  // TODO: We need to look up the variable type and re-cast it here.
+
   return decoder.decode(decryptedData);
 }

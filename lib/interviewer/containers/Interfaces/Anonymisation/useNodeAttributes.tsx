@@ -6,13 +6,16 @@ import {
   type VariableValue,
 } from '~/lib/shared-consts';
 import { getEntityAttributes } from '~/utils/general';
-import { decryptData } from './utils';
+import { usePassphrase } from './usePassphrase';
+import { decryptData, UnauthorizedError } from './utils';
 
 export const useNodeAttributes = (
   node: NcNode,
 ): {
-  getById<T extends VariableValue>(attributeId: string): Promise<T | null>;
-  getByName<T extends VariableValue>(attributeName: string): Promise<T | null>;
+  getById<T extends VariableValue>(attributeId: string): Promise<T | undefined>;
+  getByName<T extends VariableValue>(
+    attributeName: string,
+  ): Promise<T | undefined>;
 } => {
   const codebookAttributes = useSelector(
     getCodebookVariablesForNodeType(node.type),
@@ -20,11 +23,13 @@ export const useNodeAttributes = (
   const nodeAttributes = getEntityAttributes(node);
   const requirePassphrase = usePassphrase();
 
-  async function getById(attributeId: string) {
+  const getById = async <T extends VariableValue>(
+    attributeId: string,
+  ): Promise<T | undefined> => {
     const isEncrypted = codebookAttributes[attributeId]?.encrypted;
 
     if (!isEncrypted) {
-      return nodeAttributes[attributeId];
+      return nodeAttributes[attributeId] as T | undefined;
     }
 
     const secureAttributes = node[entitySecureAttributesMeta]?.[attributeId];
@@ -32,27 +37,42 @@ export const useNodeAttributes = (
     if (!secureAttributes) {
       // eslint-disable-next-line no-console
       console.log(`Node ${node._uid} is missing secure attributes`);
-      return null;
+      return undefined;
     }
 
     // This will trigger a prompt for the passphrase, and throw an error if it is cancelled.
-    const passphrase = await requirePassphrase();
+    try {
+      const passphrase = await requirePassphrase();
 
-    const decryptedValue = await decryptData(
-      {
-        [entitySecureAttributesMeta]: {
-          salt: secureAttributes.salt,
-          iv: secureAttributes.iv,
+      const decryptedValue = await decryptData(
+        {
+          [entitySecureAttributesMeta]: {
+            salt: secureAttributes.salt,
+            iv: secureAttributes.iv,
+          },
+          data: nodeAttributes[attributeId] as number[],
         },
-        data: nodeAttributes[attributeId] as number[],
-      },
-      passphrase,
-    );
+        passphrase,
+      );
 
-    return decryptedValue;
-  }
+      return decryptedValue as T;
+    } catch (e) {
+      // User cancelled or passphrase was incorrect
+      if (e instanceof UnauthorizedError) {
+        return undefined;
+      }
 
-  const getByName = async (attributeName: string) => {
+      // Internal error should be logged
+
+      // eslint-disable-next-line no-console
+      console.error(e);
+      return undefined;
+    }
+  };
+
+  const getByName = async <T extends VariableValue>(
+    attributeName: string,
+  ): Promise<T | undefined> => {
     const attributeId = Object.keys(codebookAttributes).find(
       (id) =>
         codebookAttributes[id]!.name.toLowerCase() ===
@@ -60,7 +80,7 @@ export const useNodeAttributes = (
     );
 
     if (!attributeId) {
-      return null;
+      return undefined;
     }
 
     return await getById(attributeId);

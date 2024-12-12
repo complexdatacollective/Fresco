@@ -1,7 +1,24 @@
+import { type Dispatch } from '@reduxjs/toolkit';
+import { type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
 
 const OPEN_DIALOG = Symbol('PROTOCOL/OPEN_DIALOG');
 const CLOSE_DIALOG = Symbol('PROTOCOL/CLOSE_DIALOG');
+
+type Action = {
+  type: typeof OPEN_DIALOG | typeof CLOSE_DIALOG;
+  id: string;
+  dialog?: Dialog;
+};
+
+export type Dialog = {
+  id: string;
+  type: 'Confirm' | 'Notice' | 'Warning' | 'Error';
+  title: string;
+  message: ReactNode;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+};
 
 const initialState = [
   // {
@@ -34,46 +51,46 @@ const initialState = [
   //   onConfirm: () => {},
   //   onCancel: () => {},
   // },
-];
+] as Dialog[];
 
-const openDialog = (dialog) => (dispatch) => new Promise((resolve) => {
-  const onConfirm = () => {
-    if (dialog.onConfirm) { dialog.onConfirm(); }
-    resolve(true);
-  };
+const openDialog = (dialog: Dialog) => (dispatch: Dispatch) =>
+  new Promise((resolve) => {
+    const onConfirm = () => {
+      if (dialog.onConfirm) {
+        dialog.onConfirm();
+      }
+      resolve(true);
+    };
 
-  const onCancel = () => {
-    if (dialog.onCancel) { dialog.onCancel(); }
-    resolve(false);
-  };
+    const onCancel = () => {
+      if (dialog.onCancel) {
+        dialog.onCancel();
+      }
+      resolve(false);
+    };
 
-  dispatch({
-    id: uuid(),
-    type: OPEN_DIALOG,
-    dialog: {
-      ...dialog,
-      onConfirm,
-      onCancel,
-    },
+    dispatch({
+      id: uuid(),
+      type: OPEN_DIALOG,
+      dialog: {
+        ...dialog,
+        onConfirm,
+        onCancel,
+      },
+    });
   });
-});
 
-const closeDialog = (id) => ({
+const closeDialog = (id: Dialog['id']) => ({
   type: CLOSE_DIALOG,
   id,
 });
 
-function reducer(state = initialState, action = {}) {
+function reducer(state = initialState, action: Action) {
   switch (action.type) {
     case OPEN_DIALOG:
-      return [
-        ...state,
-        { id: action.id, ...action.dialog },
-      ];
+      return [...state, { id: action.id, ...action.dialog }];
     case CLOSE_DIALOG:
-      return [
-        ...state.filter((dialog) => dialog.id !== action.id),
-      ];
+      return [...state.filter((dialog) => dialog.id !== action.id)];
     default:
       return state;
   }
@@ -84,8 +101,6 @@ const actionCreators = {
   closeDialog,
 };
 
-export {
-  actionCreators,
-};
+export { actionCreators };
 
 export default reducer;

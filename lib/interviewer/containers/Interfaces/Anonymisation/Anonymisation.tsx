@@ -1,8 +1,4 @@
-import { type AnyAction } from '@reduxjs/toolkit';
 import { motion } from 'motion/react';
-import { type ReactNode } from 'react';
-import { useDispatch } from 'react-redux';
-import { actionCreators as dialogActions } from '~/lib/interviewer/ducks/modules/dialogs';
 import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
@@ -14,19 +10,13 @@ type AnonymisationProps = StageProps & {
 
 const THRESHOLD_POSITION = 25;
 
-type Dialog = {
-  id: string;
-  type: 'Confirm' | 'Notice' | 'Warning' | 'Error';
-  title: string;
-  message: ReactNode;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-};
-
 export default function Anonymisation(props: AnonymisationProps) {
-  const dispatch = useDispatch();
-  const openDialog = (dialog: Dialog) =>
-    dispatch(dialogActions.openDialog(dialog) as unknown as AnyAction);
+  // const dispatch = useDispatch();
+  // const openDialog = useCallback(
+  //   (dialog: Dialog) =>
+  //     dispatch(dialogActions.openDialog(dialog) as unknown as AnyAction),
+  //   [dispatch],
+  // );
 
   return (
     <>

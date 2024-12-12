@@ -6,11 +6,10 @@ import {
   type EdgeTypeDefinition,
   type EntityTypeDefinition,
   type NodeTypeDefinition,
-  type Protocol,
   type StageSubject,
   type VariableDefinition,
 } from '~/lib/shared-consts';
-import { type RootState, type Session } from '../store';
+import { type RootState } from '../store';
 import { getStageSubject } from './prop';
 
 const DefaultFinishStage = {
@@ -28,24 +27,22 @@ const getInstalledProtocols = (state: RootState) => state.installedProtocols;
 const getCurrentSessionProtocol = createSelector(
   getActiveSession,
   getInstalledProtocols,
-  (session: Session | undefined, protocols: Record<string, Protocol>) => {
-    if (!session) {
-      throw new Error('No active session');
-    }
-    return protocols[session.protocolUid]!;
+  (session, protocols) => {
+    if (!session) return undefined;
+    return protocols[session.protocolUID];
   },
 );
 
 export const getAssetManifest = createSelector(
   getCurrentSessionProtocol,
   (protocol) =>
-    protocol.assets.reduce(
+    protocol?.assets.reduce(
       (manifest, asset) => {
         manifest[asset.assetId] = asset;
         return manifest;
       },
       {} as Record<string, Asset>,
-    ),
+    ) ?? {},
 );
 
 export const getAssetUrlFromId = createSelector(
@@ -55,13 +52,13 @@ export const getAssetUrlFromId = createSelector(
 
 export const getProtocolCodebook = createSelector(
   getCurrentSessionProtocol,
-  (protocol) => protocol.codebook,
+  (protocol) => protocol?.codebook ?? { node: {}, edge: {}, ego: {} },
 );
 
 // Get all variables for all subjects in the codebook, adding the entity and type
 export const getAllVariableUUIDsByEntity = createSelector(
   getProtocolCodebook,
-  ({ node: nodeTypes = {}, edge: edgeTypes = {}, ego = {} }) => {
+  ({ node: nodeTypes, edge: edgeTypes, ego }) => {
     const variables = {} as Record<
       string,
       VariableDefinition & {
@@ -123,7 +120,7 @@ export const getAllVariableUUIDsByEntity = createSelector(
 export const getProtocolStages = createSelector(
   getCurrentSessionProtocol,
   // Insert default finish stage here.
-  ({ stages = [] }) => [...stages, DefaultFinishStage],
+  (protocol) => [...(protocol?.stages ?? []), DefaultFinishStage],
 );
 
 export const getCodebookVariablesForSubjectType = createSelector(
@@ -133,7 +130,7 @@ export const getCodebookVariablesForSubjectType = createSelector(
     subject
       ? (codebook[subject.entity as 'node' | 'edge']?.[subject.type]
           ?.variables ?? {})
-      : (codebook.ego?.variables ?? {}),
+      : codebook,
 );
 
 export const getCodebookVariablesForNodeType = (type: string) =>

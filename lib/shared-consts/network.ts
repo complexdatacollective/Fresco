@@ -1,4 +1,20 @@
-import { type VariableValue } from './variables';
+import { z } from 'zod';
+import { validVariableNameSchema } from './variables';
+
+const encryptedValueSchema = z.array(z.number());
+
+export type EncryptedValue = z.infer<typeof encryptedValueSchema>;
+
+const variableValueSchema = z.union([
+  z.string(),
+  z.array(z.unknown()), // remove
+  z.boolean(),
+  z.number(),
+  encryptedValueSchema,
+  z.record(z.string(), z.union([z.string(), z.boolean(), z.number()])),
+]);
+
+export type VariableValue = z.infer<typeof variableValueSchema>;
 
 export const entityPrimaryKeyProperty = '_uid' as const;
 export const entitySecureAttributesMeta = '_secureAttributes' as const;
@@ -6,28 +22,37 @@ export const entityAttributesProperty = 'attributes' as const;
 export const edgeSourceProperty = 'from' as const;
 export const edgeTargetProperty = 'to' as const;
 
-export type NcEntity = {
-  readonly [entityPrimaryKeyProperty]: string;
-  type?: string;
-  [entityAttributesProperty]: Record<string, VariableValue>;
-  [entitySecureAttributesMeta]?: Record<
-    string,
-    { iv: number[]; salt: number[] }
-  >;
-};
+const NcEntitySchema = z.object({
+  [entityPrimaryKeyProperty]: z.string().readonly(),
+  [entityAttributesProperty]: z.record(
+    validVariableNameSchema,
+    variableValueSchema,
+  ),
+  [entitySecureAttributesMeta]: z.record(
+    z.object({
+      iv: z.array(z.number()),
+      salt: z.array(z.number()),
+    }),
+  ),
+});
 
-export type NcNode = NcEntity & {
-  type: string;
-  stageId?: string;
-  promptIDs?: string[];
-  displayVariable?: string; // @deprecated
-};
+export type NcEntity = z.infer<typeof NcEntitySchema>;
 
-export type NcEdge = NcEntity & {
-  type: string;
-  from: string;
-  to: string;
-};
+const NcNodeSchema = NcEntitySchema.extend({
+  type: z.string(),
+  stageId: z.string().optional(),
+  promptIDs: z.array(z.string()).optional(),
+});
+
+export type NcNode = z.infer<typeof NcNodeSchema>;
+
+export const NcEdgeSchema = NcEntitySchema.extend({
+  type: z.string(),
+  from: z.string(),
+  to: z.string(),
+});
+
+export type NcEdge = z.infer<typeof NcEdgeSchema>;
 
 export type NcEgo = NcEntity;
 

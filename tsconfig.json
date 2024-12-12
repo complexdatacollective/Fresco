@@ -46,7 +46,7 @@
     "eslint-local-rules/index.js",
     "actions/auth.ts",
     "env.tjs"
-  ],
+, "lib/interviewer/ducks/modules/dialogs.jts"  ],
   "exclude": [
     "node_modules",
   ]
