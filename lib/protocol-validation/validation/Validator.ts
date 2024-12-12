@@ -1,5 +1,5 @@
-import { type Protocol, type StageSubject } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
+import { type Protocol, type StageSubject } from '~/lib/shared-consts';
 import { type ValidationError } from '..';
 
 /**

@@ -1,4 +1,4 @@
-import { type Protocol } from '@codaco/shared-consts';
+import { type Protocol } from '~/lib/shared-consts';
 import { ensureError } from '~/utils/ensureError';
 import { validateLogic } from './validation/validateLogic';
 import { validateSchema } from './validation/validateSchema';
@@ -46,4 +46,4 @@ const validateProtocol = async (
   }
 };
 
-export {  validateProtocol,  };
+export { validateProtocol };

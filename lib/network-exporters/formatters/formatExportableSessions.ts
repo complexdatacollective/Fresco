@@ -1,3 +1,5 @@
+import { hash } from 'ohash';
+import { env } from '~/env';
 import {
   caseProperty,
   codebookHashProperty,
@@ -7,9 +9,7 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
-} from '@codaco/shared-consts';
-import { hash } from 'ohash';
-import { env } from '~/env';
+} from '~/lib/shared-consts';
 import type { getInterviewsForExport } from '~/queries/interviews';
 import type { NcNetwork } from '~/schemas/network-canvas';
 import { type SessionVariables } from '../utils/types';

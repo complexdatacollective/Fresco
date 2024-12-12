@@ -1,7 +1,7 @@
-import type { Codebook } from '@codaco/shared-consts';
 import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { Codebook } from '~/lib/shared-consts';
 import { getFileExtension, makeFilename } from '../../utils/general';
 import getFormatterClass from '../../utils/getFormatterClass';
 import type {
