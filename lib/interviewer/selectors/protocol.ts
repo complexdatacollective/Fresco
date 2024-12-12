@@ -19,8 +19,13 @@ const DefaultFinishStage = {
   label: 'Finish Interview',
 };
 
-const getActiveSession = (state: RootState) =>
-  state.sessions[state.activeSessionId];
+const getActiveSession = (state: RootState) => {
+  const activeSessionId = state.activeSessionId;
+
+  if (!activeSessionId) return undefined;
+
+  return state.sessions[activeSessionId];
+};
 
 const getInstalledProtocols = (state: RootState) => state.installedProtocols;
 

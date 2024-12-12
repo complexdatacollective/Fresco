@@ -1,11 +1,12 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview, type Protocol } from '@prisma/client';
+import { Prisma, type Interview } from '@prisma/client';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
-import type { InstalledProtocols } from '~/lib/interviewer/store';
+import { type ProtocolWithAssets } from '~/lib/interviewer/ducks/modules/setServerSession';
+import { type RootState } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -17,6 +18,7 @@ import type {
   ExportReturn,
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
+import { type NcNetwork } from '~/lib/shared-consts';
 import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewsForExport } from '~/queries/interviews';
 import type {
@@ -24,7 +26,6 @@ import type {
   DeleteInterviews,
   SyncInterview,
 } from '~/schemas/interviews';
-import { type NcNetwork } from '~/schemas/network-canvas';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
@@ -91,13 +92,14 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 
   const interviewsSessions = await getInterviewsForExport(interviewIds);
 
-  const protocolsMap = new Map<string, Protocol>();
+  const protocolsMap = new Map<string, ProtocolWithAssets>();
   interviewsSessions.forEach((session) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols: InstalledProtocols =
+  const formattedProtocols: RootState['installedProtocols'] =
     Object.fromEntries(protocolsMap);
+
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
   return { formattedSessions, formattedProtocols };
@@ -105,7 +107,7 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 
 export const exportSessions = async (
   formattedSessions: FormattedSession[],
-  formattedProtocols: InstalledProtocols,
+  formattedProtocols: RootState['installedProtocols'],
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ): Promise<ExportReturn> => {
@@ -260,7 +262,7 @@ export async function syncInterview(data: SyncInterview) {
         network,
         currentStep,
         stageMetadata,
-        lastUpdated: new Date(),
+        lastUpdated: new Date(), // TODO: this is present in the store - shouldn't we be using that value?
       },
     });
 

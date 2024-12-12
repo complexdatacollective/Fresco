@@ -24,7 +24,11 @@ export const getInterviewsForExport = createCachedFunction(
         },
       },
       include: {
-        protocol: true,
+        protocol: {
+          include: {
+            assets: true,
+          },
+        },
         participant: true,
       },
     });
@@ -49,7 +53,20 @@ export const getInterviewById = (interviewId: string) =>
         },
       });
 
-      return interview;
+      if (!interview) {
+        return null;
+      }
+
+      return {
+        ...interview,
+        protocol: {
+          ...interview.protocol,
+          stages: protocol.stages,
+          codebook: protocol.codebook,
+        },
+        stageMetadata:
+          interview.stageMetadata ?? ({} as Record<string, unknown>),
+      };
     },
     [`getInterviewById-${interviewId}`, 'getInterviewById'],
   )(interviewId);

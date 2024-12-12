@@ -3,6 +3,7 @@ import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8
 import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
 import { type StageProps } from '../../Stage';
+import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps & {
   stage: AnonymisationStage;
@@ -11,6 +12,7 @@ type AnonymisationProps = StageProps & {
 const THRESHOLD_POSITION = 25;
 
 export default function Anonymisation(props: AnonymisationProps) {
+  const { requirePassphrase, isEnabled, isPrompting } = usePassphrase();
   // const dispatch = useDispatch();
   // const openDialog = useCallback(
   //   (dialog: Dialog) =>
@@ -61,9 +63,13 @@ export default function Anonymisation(props: AnonymisationProps) {
               'linear-gradient(rgba(255,255, 255, 0) 40%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 60%)',
           }}
         >
-          <div className="inline-flex h-28 w-28 animate-pulse items-center justify-center rounded-full bg-(--form-intro-panel-background)">
-            🔒
-          </div>
+          <button
+            className="inline-flex items-center justify-center"
+            onClick={requirePassphrase}
+            disabled={isPrompting}
+          >
+            {isEnabled ? '🔒' : '🔓'}
+          </button>
         </div>
         <EncryptionBackground thresholdPosition={THRESHOLD_POSITION} />
       </motion.div>

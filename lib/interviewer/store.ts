@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
 import thunk from 'redux-thunk';
 import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
@@ -7,63 +7,41 @@ import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
 import sessions from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
-import type { NcNetwork } from '~/schemas/network-canvas';
-import { type Protocol } from '../shared-consts';
+import { type NcNetwork } from '../shared-consts';
 import logger from './ducks/middleware/logger';
 import sound from './ducks/middleware/sound';
 
+const rootReducer = combineReducers({
+  form,
+  activeSessionId,
+  sessions,
+  installedProtocols,
+  deviceSettings,
+  dialogs,
+  ui, // used for FORM_IS_READY
+});
+
 export const store = configureStore({
-  reducer: {
-    form,
-    activeSessionId,
-    sessions,
-    installedProtocols,
-    deviceSettings,
-    dialogs,
-    ui,
-  },
+  reducer: rootReducer,
   middleware: [thunk, logger, sound],
 });
+
+export type GetState = typeof store.getState;
+export type RootState = ReturnType<typeof store.getState>;
 
 export type StageMetadataEntry = [number, string, string, boolean];
 export type StageMetadata = StageMetadataEntry[];
 
+// TODO: couldn't make this work extending the Interview prisma schema...
 export type Session = {
   id: string;
-  protocolId: string;
-  promptIndex: number;
-  currentStep: number;
-  caseId: string;
-  network: NcNetwork;
-  startedAt: Date;
+  startTime: Date;
+  finishTime: Date | null;
+  exportTime: Date | null;
   lastUpdated: Date;
-  finishedAt: Date;
-  exportedAt: Date;
+  network: NcNetwork;
+  protocolId: string;
+  currentStep: number;
+  promptIndex?: number;
   stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
-};
-
-type SessionsState = Record<string, Session>;
-
-export type InstalledProtocols = Record<string, Protocol>;
-
-type Dialog = {
-  id: string;
-  title: string;
-  type: string;
-  confirmLabel?: string;
-  message: string;
-};
-
-type Dialogs = {
-  dialogs: Dialog[];
-};
-
-export type RootState = {
-  form: Record<string, unknown>;
-  activeSessionId: keyof SessionsState;
-  sessions: SessionsState;
-  installedProtocols: InstalledProtocols;
-  deviceSettings: Record<string, unknown>;
-  dialogs: Dialogs;
-  ui: Record<string, unknown>;
 };

@@ -21,7 +21,7 @@ export const useNodeAttributes = (
     getCodebookVariablesForNodeType(node.type),
   );
   const nodeAttributes = getEntityAttributes(node);
-  const requirePassphrase = usePassphrase();
+  const { requirePassphrase } = usePassphrase();
 
   const getById = async <T extends VariableValue>(
     attributeId: string,

@@ -43,7 +43,7 @@ export default async function Page({
   return (
     <>
       {session && <FeedbackBanner />}
-      <InterviewShell interview={interview} syncInterview={syncInterview} />
+      <InterviewShell serverPayload={interview} syncInterview={syncInterview} />
     </>
   );
 }

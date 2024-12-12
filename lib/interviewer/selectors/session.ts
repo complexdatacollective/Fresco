@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { Stage } from '~/lib/shared-consts';
-import type { RootState } from '../store';
+import { type RootState } from '../store';
 import { getProtocolStages } from './protocol';
 
 const getActiveSessionId = (state: RootState) => state.activeSessionId;
@@ -11,11 +11,14 @@ export const getActiveSession = createSelector(
   getActiveSessionId,
   getSessions,
   (activeSessionId, sessions) => {
-    return sessions[activeSessionId]!;
+    if (!activeSessionId) return undefined;
+
+    return sessions[activeSessionId];
   },
 );
 
 export const getStageIndex = createSelector(getActiveSession, (session) => {
+  if (!session) return null;
   return session.currentStep;
 });
 
@@ -24,7 +27,8 @@ export const getStageMetadata = createSelector(
   getActiveSession,
   getStageIndex,
   (session, stageIndex) => {
-    return session.stageMetadata?.[stageIndex] ?? undefined;
+    if (!stageIndex) return undefined;
+    return session?.stageMetadata?.[stageIndex] ?? undefined;
   },
 );
 
@@ -32,7 +36,7 @@ export const getCurrentStage = createSelector(
   getProtocolStages,
   getStageIndex,
   (stages: Stage[], currentStep) => {
-    return stages[currentStep]!;
+    return stages[currentStep!];
   },
 );
 

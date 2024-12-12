@@ -5,11 +5,18 @@ import { v4 as uuid } from 'uuid';
 const OPEN_DIALOG = Symbol('PROTOCOL/OPEN_DIALOG');
 const CLOSE_DIALOG = Symbol('PROTOCOL/CLOSE_DIALOG');
 
-type Action = {
-  type: typeof OPEN_DIALOG | typeof CLOSE_DIALOG;
+type OpenDialogAction = {
+  type: typeof OPEN_DIALOG;
   id: string;
-  dialog?: Dialog;
+  dialog: Omit<Dialog, 'id'>;
 };
+
+type CloseDialogAction = {
+  type: typeof CLOSE_DIALOG;
+  id: Dialog['id'];
+};
+
+type Action = OpenDialogAction | CloseDialogAction;
 
 export type Dialog = {
   id: string;
@@ -69,7 +76,7 @@ const openDialog = (dialog: Dialog) => (dispatch: Dispatch) =>
       resolve(false);
     };
 
-    dispatch({
+    dispatch<OpenDialogAction>({
       id: uuid(),
       type: OPEN_DIALOG,
       dialog: {
@@ -85,7 +92,7 @@ const closeDialog = (id: Dialog['id']) => ({
   id,
 });
 
-function reducer(state = initialState, action: Action) {
+function reducer(state = initialState, action: Action): Dialog[] {
   switch (action.type) {
     case OPEN_DIALOG:
       return [...state, { id: action.id, ...action.dialog }];

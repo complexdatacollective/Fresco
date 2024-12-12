@@ -1,57 +1,128 @@
-import { UnauthorizedError } from './utils';
+import { useCallback, useEffect, useState } from 'react';
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Window {
-    getting: boolean;
-    passphrase: string | null;
+export class UnauthorizedError extends Error {
+  constructor() {
+    super('Unauthorized: No passphrase provided');
+    this.name = 'UnauthorizedError';
   }
 }
 
-// Custom hook that allows for storing and retriving a passphrase from session storage.
-// Emits a custom event when the passphrase is set, and triggers a dialog if the passphrase
-// is not set.
-export function usePassphrase() {
-  // const dispatch = useDispatch();
-  // const openDialog = useCallback(
-  //   (dialog: Dialog) =>
-  //     dispatch(dialogActions.openDialog(dialog) as unknown as AnyAction),
-  //   [dispatch],
-  // );
+type EncryptionState = {
+  isEnabled: boolean;
+  passphrase: string | null;
+  isPrompting: boolean;
+};
 
-  async function requirePassphrase(): Promise<string> {
-    if (window.passphrase) {
-      return Promise.resolve(window.passphrase);
+// Singleton to store the global state and promise management
+const globalState: {
+  state: EncryptionState;
+  listeners: Set<(state: EncryptionState) => void>;
+  currentPromise: Promise<string> | null;
+} = {
+  state: {
+    isEnabled: false,
+    passphrase: null,
+    isPrompting: false,
+  },
+  listeners: new Set(),
+  currentPromise: null,
+};
+
+const updateState = (newState: Partial<EncryptionState>) => {
+  globalState.state = { ...globalState.state, ...newState };
+  globalState.listeners.forEach((listener) => listener(globalState.state));
+};
+
+export const usePassphrase = () => {
+  const [state, setState] = useState<EncryptionState>(globalState.state);
+
+  useEffect(() => {
+    const listener = (newState: EncryptionState) => {
+      setState(newState);
+    };
+
+    globalState.listeners.add(listener);
+    setState(globalState.state);
+
+    return () => {
+      globalState.listeners.delete(listener);
+    };
+  }, []);
+
+  const requirePassphrase = useCallback(async (): Promise<string> => {
+    // If we already have a passphrase, return it
+    if (globalState.state.passphrase) {
+      return globalState.state.passphrase;
     }
 
-    if (window.getting) {
-      // Return a promise that resolves based on events from the dialog.
-      return new Promise((resolve, reject) => {
-        window.addEventListener('passphrase-set', () => {
-          resolve(window.passphrase!);
-        });
+    // If we're already prompting, return the existing promise
+    if (globalState.currentPromise) {
+      return globalState.currentPromise;
+    }
 
-        window.addEventListener('passphrase-cancel', () => {
-          reject(new UnauthorizedError());
-        });
+    // Create a new promise for the passphrase prompt
+    globalState.currentPromise = new Promise<string>((resolve, reject) => {
+      updateState({ isPrompting: true });
+
+      // We're using prompt here, but you could replace this with a custom modal
+      const userInput = prompt('Please enter your passphrase to continue.');
+
+      updateState({ isPrompting: false });
+
+      if (!userInput) {
+        const error = new UnauthorizedError();
+        window.dispatchEvent(
+          new CustomEvent('passphrase-cancel', { detail: error }),
+        );
+        reject(error);
+        return;
+      }
+
+      updateState({
+        passphrase: userInput,
+        isEnabled: true,
       });
-    }
 
-    window.getting = true;
+      window.dispatchEvent(
+        new CustomEvent('passphrase-set', { detail: userInput }),
+      );
+      resolve(userInput);
+    }).finally(() => {
+      globalState.currentPromise = null;
+    });
 
-    window.passphrase = prompt('Please enter your passphrase to continue.');
+    return globalState.currentPromise;
+  }, []);
 
-    window.getting = false;
+  const clearPassphrase = useCallback(() => {
+    updateState({
+      passphrase: null,
+      isEnabled: false,
+    });
+    window.dispatchEvent(new CustomEvent('passphrase-cleared'));
+  }, []);
 
-    if (!window.passphrase) {
-      window.dispatchEvent(new CustomEvent('passphrase-cancel'));
+  const setPassphrase = useCallback((newPassphrase: string) => {
+    if (!newPassphrase) {
       throw new UnauthorizedError();
     }
 
-    window.dispatchEvent(new CustomEvent('passphrase-set'));
+    updateState({
+      passphrase: newPassphrase,
+      isEnabled: true,
+    });
 
-    return Promise.resolve(window.passphrase);
-  }
+    window.dispatchEvent(
+      new CustomEvent('passphrase-set', { detail: newPassphrase }),
+    );
+  }, []);
 
-  return requirePassphrase;
-}
+  return {
+    isEnabled: state.isEnabled,
+    passphrase: state.passphrase,
+    isPrompting: state.isPrompting,
+    requirePassphrase,
+    clearPassphrase,
+    setPassphrase,
+  };
+};

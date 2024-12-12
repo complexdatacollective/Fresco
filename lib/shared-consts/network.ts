@@ -17,8 +17,11 @@ const variableValueSchema = z.union([
 export type VariableValue = z.infer<typeof variableValueSchema>;
 
 export const entityPrimaryKeyProperty = '_uid' as const;
+export type EntityPrimaryKey = typeof entityPrimaryKeyProperty;
 export const entitySecureAttributesMeta = '_secureAttributes' as const;
+export type EntitySecureAttributesMeta = typeof entitySecureAttributesMeta;
 export const entityAttributesProperty = 'attributes' as const;
+export type EntityAttributesProperty = typeof entityAttributesProperty;
 export const edgeSourceProperty = 'from' as const;
 export const edgeTargetProperty = 'to' as const;
 
@@ -28,12 +31,14 @@ const NcEntitySchema = z.object({
     validVariableNameSchema,
     variableValueSchema,
   ),
-  [entitySecureAttributesMeta]: z.record(
-    z.object({
-      iv: z.array(z.number()),
-      salt: z.array(z.number()),
-    }),
-  ),
+  [entitySecureAttributesMeta]: z
+    .record(
+      z.object({
+        iv: z.array(z.number()),
+        salt: z.array(z.number()),
+      }),
+    )
+    .optional(),
 });
 
 export type NcEntity = z.infer<typeof NcEntitySchema>;

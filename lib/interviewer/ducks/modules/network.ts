@@ -3,29 +3,33 @@ import { find, get, isMatch } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import {
   entityAttributesProperty,
+  type EntityPrimaryKey,
   entityPrimaryKeyProperty,
+  type NcEdge,
+  type NcNetwork,
+  type NcNode,
 } from '~/lib/shared-consts';
-import { SET_SERVER_SESSION } from './setServerSession';
 
 /*
  * For actionCreators see `src/ducks/modules/sessions`
  */
-const ADD_NODE = 'ADD_NODE';
-const ADD_NODE_TO_PROMPT = 'ADD_NODE_TO_PROMPT';
-const BATCH_ADD_NODES = 'BATCH_ADD_NODES';
-const REMOVE_NODE = 'REMOVE_NODE';
-const REMOVE_NODE_FROM_PROMPT = 'REMOVE_NODE_FROM_PROMPT';
-const UPDATE_NODE = 'UPDATE_NODE';
-const TOGGLE_NODE_ATTRIBUTES = 'TOGGLE_NODE_ATTRIBUTES';
-const ADD_EDGE = 'ADD_EDGE';
-const UPDATE_EDGE = 'UPDATE_EDGE';
-const TOGGLE_EDGE = 'TOGGLE_EDGE';
-const REMOVE_EDGE = 'REMOVE_EDGE';
-const UPDATE_EGO = 'UPDATE_EGO';
-const ADD_SESSION = 'ADD_SESSION';
+const INITIALIZE = 'NETWORK/INITIALIZE' as const;
+const ADD_NODE = 'NETWORK/ADD_NODE' as const;
+const ADD_NODE_TO_PROMPT = 'NETWORK/ADD_NODE_TO_PROMPT' as const;
+const BATCH_ADD_NODES = 'NETWORK/BATCH_ADD_NODES' as const;
+const REMOVE_NODE = 'NETWORK/REMOVE_NODE' as const;
+const REMOVE_NODE_FROM_PROMPT = 'NETWORK/REMOVE_NODE_FROM_PROMPT' as const;
+const UPDATE_NODE = 'NETWORK/UPDATE_NODE' as const;
+const TOGGLE_NODE_ATTRIBUTES = 'NETWORK/TOGGLE_NODE_ATTRIBUTES' as const;
+const ADD_EDGE = 'NETWORK/ADD_EDGE' as const;
+const UPDATE_EDGE = 'NETWORK/UPDATE_EDGE' as const;
+const TOGGLE_EDGE = 'NETWORK/TOGGLE_EDGE' as const;
+const REMOVE_EDGE = 'NETWORK/REMOVE_EDGE' as const;
+const UPDATE_EGO = 'NETWORK/UPDATE_EGO' as const;
+const ADD_SESSION = 'NETWORK/ADD_SESSION' as const;
 
 // Initial network model structure
-const initialState = {
+export const initialState: NcNetwork = {
   ego: {
     [entityPrimaryKeyProperty]: uuid(),
     [entityAttributesProperty]: {},
@@ -44,9 +48,9 @@ const initialState = {
  * @param defaultAttributes Is added before other attributes
  */
 const batchAddNodes = (
-  nodeList,
-  attributeData = {},
-  defaultAttributes = {},
+  nodeList: NcNode[],
+  attributeData: NcNode['attributes'] = {},
+  defaultAttributes: NcNode['attributes'] = {},
 ) => ({
   type: BATCH_ADD_NODES,
   nodeList,
@@ -55,8 +59,7 @@ const batchAddNodes = (
 });
 
 // reducer helpers:
-
-function flipEdge(edge) {
+function flipEdge(edge: Partial<NcEdge>) {
   return { from: edge.to, to: edge.from, type: edge.type };
 }
 
@@ -74,15 +77,17 @@ function flipEdge(edge) {
  * }
  *
  */
-export function edgeExists(edges, from, to, type) {
+export function edgeExists(
+  edges: NcEdge[],
+  from: NcEdge['from'],
+  to: NcEdge['to'],
+  type: NcEdge['type'],
+): NcEdge[EntityPrimaryKey] | false {
   const forwardsEdge = find(edges, { from, to, type });
   const reverseEdge = find(edges, flipEdge({ from, to, type }));
 
-  if (
-    (forwardsEdge && forwardsEdge !== -1) ||
-    (reverseEdge && reverseEdge !== -1)
-  ) {
-    const foundEdge = forwardsEdge || reverseEdge;
+  if (forwardsEdge ?? reverseEdge) {
+    const foundEdge = (forwardsEdge ?? reverseEdge)!;
     return get(foundEdge, entityPrimaryKeyProperty);
   }
 
@@ -142,14 +147,117 @@ const removeEdge = (state, edgeId) => ({
   ),
 });
 
-export default function reducer(state = initialState, action = {}) {
-  switch (action.type) {
-    case SET_SERVER_SESSION: {
-      if (!action.payload.session.network) {
-        return state;
-      }
+export type ModelData = {
+  [entityPrimaryKeyProperty]: string;
+  promptId?: string[];
+};
 
-      return action.session.network;
+export type AddNodeAction = {
+  type: typeof ADD_NODE;
+  sessionId: string;
+  payload: {
+    modelData: ModelData;
+    attributeData: NcNode['attributes'];
+  };
+};
+
+type UpdateNodeAction = {
+  type: typeof UPDATE_NODE;
+  nodeId: NcNode[EntityPrimaryKey];
+  newModelData: ModelData;
+  newAttributeData: NcNode['attributes'];
+};
+
+type ToggleNodeAttributesAction = {
+  type: typeof TOGGLE_NODE_ATTRIBUTES;
+  [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
+  attributes: NcNode['attributes'];
+};
+
+type RemoveNodeAction = {
+  type: typeof REMOVE_NODE;
+  [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
+};
+
+type AddNodeToPromptAction = {
+  type: typeof ADD_NODE_TO_PROMPT;
+  nodeId: NcNode[EntityPrimaryKey];
+  promptId: string;
+  promptAttributes: NcNode['attributes'];
+};
+
+type RemoveNodeFromPromptAction = {
+  type: typeof REMOVE_NODE_FROM_PROMPT;
+  nodeId: NcNode[EntityPrimaryKey];
+  promptId: string;
+  promptAttributes: NcNode['attributes'];
+};
+
+type BatchAddNodesAction = {
+  type: typeof BATCH_ADD_NODES;
+  nodeList: NcNode[];
+  defaultAttributes: NcNode['attributes'];
+  attributeData: NcNode['attributes'];
+};
+
+type AddEdgeAction = {
+  type: typeof ADD_EDGE;
+  modelData: NcEdge;
+  attributeData: NcEdge['attributes'];
+};
+
+type UpdateEdgeAction = {
+  type: typeof UPDATE_EDGE;
+  edgeId: NcEdge[EntityPrimaryKey];
+  newModelData: NcEdge;
+  newAttributeData: NcEdge['attributes'];
+};
+
+type ToggleEdgeAction = {
+  type: typeof TOGGLE_EDGE;
+  modelData: NcEdge;
+};
+
+type RemoveEdgeAction = {
+  type: typeof REMOVE_EDGE;
+  edgeId: NcEdge[EntityPrimaryKey];
+};
+
+type UpdateEgoAction = {
+  type: typeof UPDATE_EGO;
+  modelData: NcNode;
+  attributeData: NcNode['attributes'];
+};
+
+type AddSessionAction = {
+  type: typeof ADD_SESSION;
+  egoAttributeData: NcNode['attributes'];
+};
+
+type InitializeAction = {
+  type: typeof INITIALIZE;
+};
+
+export type NetworkActions =
+  | InitializeAction
+  | AddNodeAction
+  | UpdateNodeAction
+  | ToggleNodeAttributesAction
+  | RemoveNodeAction
+  | AddNodeToPromptAction
+  | RemoveNodeFromPromptAction
+  | BatchAddNodesAction
+  | AddEdgeAction
+  | UpdateEdgeAction
+  | ToggleEdgeAction
+  | RemoveEdgeAction
+  | UpdateEgoAction
+  | AddSessionAction;
+
+export default function reducer(state = initialState, action: NetworkActions) {
+  switch (action.type) {
+    case INITIALIZE: {
+      return initialState;
     }
     case ADD_NODE: {
       return {
@@ -364,6 +472,7 @@ export default function reducer(state = initialState, action = {}) {
 }
 
 const actionTypes = {
+  INITIALIZE,
   ADD_NODE,
   ADD_NODE_TO_PROMPT,
   BATCH_ADD_NODES,
