@@ -1,5 +1,5 @@
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import mapboxgl from 'mapbox-gl';
+import mapboxgl, { MapMouseEvent } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -55,10 +55,15 @@ export default function GeospatialInterface({
     beforeNext: (direction: 'forwards' | 'backwards') => boolean,
   ) => void;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<any>();
 
   const updateNode = useCallback(
-    (...properties) => dispatch(sessionActions.updateNode(...properties)),
+    (
+      nodeId: string,
+      newModelData: Record<string, unknown>,
+      newAttributes: Record<string, unknown>,
+    ) =>
+      dispatch(sessionActions.updateNode(nodeId, newModelData, newAttributes)),
     [dispatch],
   );
 
@@ -66,11 +71,11 @@ export default function GeospatialInterface({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const dragSafeRef = useRef(null);
   const { prompts } = stage;
+  const { promptIndex } = usePrompts();
+  const currentPrompt = prompts[promptIndex];
   const { center, token, layers, initialZoom } = stage.mapOptions;
 
   const filterLayer = layers.find((layer) => layer.filter);
-
-  const { prompt: currentPrompt } = usePrompts();
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
@@ -143,9 +148,11 @@ export default function GeospatialInterface({
 
   // Update navigation button based on selection
   useEffect(() => {
-    const readyForNext = !!stageNodes[activeIndex][currentPrompt.variable];
+    const readyForNext = currentPrompt?.variable
+      ? !!stageNodes[activeIndex][currentPrompt.variable]
+      : false;
     setIsReadyForNext(readyForNext);
-  }, [activeIndex, currentPrompt.variable, setIsReadyForNext, stageNodes]);
+  }, [activeIndex, currentPrompt?.variable, setIsReadyForNext, stageNodes]);
 
   // Initialize map
   useEffect(() => {
@@ -215,10 +222,10 @@ export default function GeospatialInterface({
     const handleMapStyleLoad = () => {
       // ensure map is loaded before adding layers
       // necessary to prevent "style not loaded" errors
-      if (mapRef.current.isStyleLoaded()) {
+      if (mapRef?.current?.isStyleLoaded()) {
         handleMapLoad();
       } else {
-        mapRef.current.once('styledata', handleMapLoad);
+        mapRef?.current?.once('styledata', handleMapLoad);
       }
     };
 
@@ -237,8 +244,9 @@ export default function GeospatialInterface({
     if (!mapInstance) return;
 
     // Set initial filter if node has a value
-    const initialFilterValue =
-      stageNodes[activeIndex].attributes[currentPrompt.variable];
+    const initialFilterValue = currentPrompt.variable
+      ? stageNodes[activeIndex].attributes[currentPrompt.variable]
+      : undefined;
 
     if (initialFilterValue) {
       mapInstance.setFilter(filterLayer.id, [
@@ -248,10 +256,13 @@ export default function GeospatialInterface({
       ]);
     }
 
-    const handleMapClick = (e) => {
+    const handleMapClick = (e: MapMouseEvent) => {
+      if (!e?.features?.length) return;
       const feature = e.features[0];
       const propToSelect = currentPrompt.mapVariable;
-      const selected = feature.properties[propToSelect];
+      const selected = feature?.properties
+        ? feature.properties[propToSelect]
+        : null;
 
       updateNode(
         stageNodes[activeIndex][entityPrimaryKeyProperty],
@@ -295,12 +306,12 @@ export default function GeospatialInterface({
       </div>
 
       <CollapsablePrompts
-        currentPromptIndex={prompts.indexOf(currentPrompt)}
+        currentPromptIndex={currentPrompt ? prompts.indexOf(currentPrompt) : -1}
         dragConstraints={dragSafeRef}
       >
         <AnimatePresence
           mode="wait"
-          key={currentPrompt.id}
+          key={currentPrompt?.id}
           custom={navDirection}
         >
           <motion.div
