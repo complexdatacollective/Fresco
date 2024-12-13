@@ -38,7 +38,6 @@ export const env = createEnv({
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
-    NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: z.string().optional(),
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -54,8 +53,6 @@ export const env = createEnv({
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
-    NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN:
-      process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

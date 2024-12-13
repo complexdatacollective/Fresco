@@ -1,4 +1,3 @@
-import { env } from '~/env';
 import { type Protocol } from './protocol-validation/schemas/src/8.zod';
 
 export const protocol: Protocol = {
@@ -29,26 +28,26 @@ export const protocol: Protocol = {
       },
       mapOptions: {
         center: [-87.6298, 41.8781],
-        token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+        token: 'asset3',
         initialZoom: 12,
         layers: [
           {
             id: 'censusTractsOutlineLayer',
-            data: '/interviewer/ChicagoCensusTracts.geojson',
+            data: 'asset1',
             type: 'line',
             color: 'purple',
             width: 1,
           },
           {
             id: 'censusTractsFillLayer', // a fill layer is needed to have something to select
-            data: '/interviewer/ChicagoCensusTracts.geojson',
+            data: 'asset1',
             type: 'fill',
             color: 'purple',
             opacity: 0,
           },
           {
             id: 'selectedCensusTract',
-            data: '/interviewer/ChicagoCensusTracts.geojson',
+            data: 'asset1',
             type: 'fill',
             color: 'purple',
             opacity: 0.2,
@@ -84,11 +83,11 @@ export const protocol: Protocol = {
       mapOptions: {
         center: [-74.006, 40.7128],
         initialZoom: 14,
-        token: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+        token: 'asset3',
         layers: [
           {
             id: 'censusTractsOutlineLayer',
-            data: '/interviewer/NewYorkCensusTracts.geojson',
+            data: 'asset2',
             type: 'line',
             color: 'blue',
             width: 1,
@@ -96,14 +95,14 @@ export const protocol: Protocol = {
           // needed to have something to select
           {
             id: 'censusTractsFillLayer',
-            data: '/interviewer/NewYorkCensusTracts.geojson',
+            data: 'asset2',
             type: 'fill',
             color: 'blue',
             opacity: 0,
           },
           {
             id: 'selectedCensusTract',
-            data: '/interviewer/NewYorkCensusTracts.geojson',
+            data: 'asset2',
             type: 'fill',
             color: 'orange',
             filter: 'NTAName',
@@ -188,23 +187,23 @@ export const protocol: Protocol = {
     },
   },
   assetManifest: {
-    '1': {
-      id: '1',
+    asset1: {
+      id: 'asset1',
       type: 'geojson',
       name: 'ChicagoCensusTracts.geojson',
-      source: '/interviewer/ChicagoCensusTracts.geojson',
+      source: 'ChicagoCensusTracts.geojson',
     },
-    '2': {
-      id: '2',
+    asset2: {
+      id: 'asset2',
       type: 'geojson',
-      name: 'ChicagoCensusTracts.geojson',
-      source: '/interviewer/NewYorkCensusTracts.geojson',
+      name: 'NewYorkCensusTracts.geojson',
+      source: 'NewYorkCensusTracts.geojson',
     },
-    '3': {
-      id: '3',
-      type: 'string',
-      name: 'Mapbox API Token',
-      source: `${env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`, // this will come directly from the protocol. passing as an env variable for development
+    asset3: {
+      id: 'asset3',
+      type: 'txt',
+      name: 'mapbox-token.txt',
+      source: 'mapbox-token.txt',
     },
   },
   schemaVersion: 8,

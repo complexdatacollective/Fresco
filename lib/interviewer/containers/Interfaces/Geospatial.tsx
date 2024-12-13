@@ -3,7 +3,7 @@ import mapboxgl, { type MapMouseEvent } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type {
   Node as NodeType,
   Protocol,
@@ -11,10 +11,13 @@ import type {
 import Button from '~/lib/ui/components/Button';
 import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
+import Node from '../../components/Node';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
+import { useMapboxToken } from '../../hooks/useMapbox';
 import usePropSelector from '../../hooks/usePropSelector';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
+import { getAssetUrlFromId } from '../../selectors/protocol';
 
 // Map configuration constants
 // Could be configurable from the protocol
@@ -73,8 +76,12 @@ export default function GeospatialInterface({
   const { prompts } = stage;
   const { promptIndex } = usePrompts();
   const currentPrompt = prompts[promptIndex];
-  const { center, token, layers, initialZoom } = stage.mapOptions;
+  const { center, token: tokenId, layers, initialZoom } = stage.mapOptions;
   const filterLayer = layers.find((layer) => layer.filter);
+
+  const getAssetUrl = useSelector(getAssetUrlFromId);
+
+  const accessToken = useMapboxToken(tokenId);
 
   const updateNode = useCallback(
     (
@@ -165,10 +172,13 @@ export default function GeospatialInterface({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainerRef.current || !center || !token) return;
+    if (!mapContainerRef.current || !center || !tokenId) return;
 
-    mapboxgl.accessToken = token;
-    const dataSources = [...new Set(layers.map((layer) => layer.data))];
+    mapboxgl.accessToken = accessToken;
+
+    const dataSources = [
+      ...new Set(layers.map((layer) => getAssetUrl(layer.data))),
+    ];
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -243,11 +253,11 @@ export default function GeospatialInterface({
     return () => {
       mapRef.current?.remove();
     };
-  }, [center, initialZoom, layers, token]);
+  }, [accessToken, center, getAssetUrl, initialZoom, layers, tokenId]);
 
   // handle map selections
   useEffect(() => {
-    if (!isMapLoaded || !currentPrompt || !filterLayer) return;
+    if (!isMapLoaded || !currentPrompt || !filterLayer || !accessToken) return;
 
     const mapInstance = mapRef.current;
     if (!mapInstance) return;
@@ -305,7 +315,13 @@ export default function GeospatialInterface({
     stageNodes,
     activeIndex,
     updateNode,
+    accessToken,
   ]);
+
+  if (!accessToken) {
+    // TODO: improve loading state
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full items-center justify-center" ref={dragSafeRef}>
