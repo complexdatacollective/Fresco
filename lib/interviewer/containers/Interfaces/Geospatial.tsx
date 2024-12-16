@@ -78,8 +78,9 @@ export default function GeospatialInterface({
   const { prompts } = stage;
   const { promptIndex } = usePrompts();
   const currentPrompt = prompts[promptIndex];
-  const { center, token: tokenId, layers, initialZoom } = stage.mapOptions;
-  const filterLayer = layers.find((layer) => layer.filter);
+  const { center, token: tokenId, initialZoom } = stage.mapOptions;
+  const layers = currentPrompt?.layers;
+  const selectionLayer = layers.find((layer) => layer.type === 'fill');
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
@@ -103,10 +104,14 @@ export default function GeospatialInterface({
   }, [center, initialZoom]);
 
   const handleResetSelection = useCallback(() => {
-    if (filterLayer && mapRef.current) {
-      mapRef.current.setFilter(filterLayer.id, ['==', filterLayer.filter, '']);
+    if (selectionLayer && mapRef.current) {
+      mapRef.current.setFilter(selectionLayer.id, [
+        '==',
+        selectionLayer.filter,
+        '',
+      ]);
     }
-  }, [filterLayer]);
+  }, [selectionLayer]);
 
   const getNodeIndex = useCallback(() => activeIndex - 1, [activeIndex]);
   const stageNodes = usePropSelector(getNetworkNodesForType, {
@@ -219,24 +224,24 @@ export default function GeospatialInterface({
               'line-width': layer.width! ?? 1,
             },
           });
-        } else if (layer.type === 'fill' && !layer.filter) {
+        } else if (layer.type === 'fill') {
+          // add the fill layer that can be selected
           mapRef.current?.addLayer({
-            id: layer.id,
+            id: 'layerToSelect',
             type: 'fill',
             source: 'geojson-data',
             paint: {
-              'fill-color': color,
-              'fill-opacity': layer.opacity,
+              'fill-color': 'black', // must have a color to be used even when transparent
+              'fill-opacity': 0,
             },
           });
-        } else if (layer.type === 'fill' && layer.filter) {
           mapRef.current?.addLayer({
             id: layer.id,
             type: 'fill',
             source: 'geojson-data',
             paint: {
               'fill-color': color,
-              'fill-opacity': layer.opacity,
+              'fill-opacity': layer.opacity ?? 0.5,
             },
             filter: ['==', layer.filter, ''],
           });
@@ -263,31 +268,33 @@ export default function GeospatialInterface({
 
   // handle map selections
   useEffect(() => {
-    if (!isMapLoaded || !currentPrompt || !filterLayer || !accessToken) return;
+    if (!isMapLoaded || !currentPrompt || !selectionLayer || !accessToken)
+      return;
 
     const mapInstance = mapRef.current;
     if (!mapInstance) return;
 
     // Set initial filter if node has a value
-    const initialFilterValue =
+    const initialSelectionValue =
       currentPrompt?.variable && stageNodes[activeIndex]?.attributes
         ? (stageNodes[activeIndex].attributes as Record<string, unknown>)[
             currentPrompt.variable
           ]
         : undefined;
 
-    if (initialFilterValue) {
-      mapInstance.setFilter(filterLayer.id, [
+    if (initialSelectionValue) {
+      mapInstance.setFilter(selectionLayer.id, [
         '==',
-        filterLayer.filter,
-        initialFilterValue,
+        selectionLayer.filter,
+        initialSelectionValue,
       ]);
     }
 
     const handleMapClick = (e: MapMouseEvent) => {
       if (!e?.features?.length) return;
       const feature = e.features[0];
-      const propToSelect = currentPrompt.mapVariable;
+      const propToSelect = selectionLayer.filter;
+
       const selected = feature?.properties
         ? feature.properties[propToSelect]
         : null;
@@ -300,28 +307,30 @@ export default function GeospatialInterface({
         },
       );
 
-      mapInstance.setFilter(filterLayer.id, [
-        '==',
-        filterLayer.filter,
-        selected,
-      ]);
+      if (selectionLayer && mapInstance) {
+        mapInstance.setFilter(selectionLayer.id, [
+          '==',
+          selectionLayer.filter,
+          selected,
+        ]);
+      }
     };
 
     // add click event listener to map
-    mapInstance.on('click', currentPrompt.layer, handleMapClick);
+    mapInstance.on('click', 'layerToSelect', handleMapClick);
 
     // cleanup
     return () => {
-      mapInstance.off('click', currentPrompt.layer, handleMapClick);
+      mapInstance.off('click', 'layerToSelect', handleMapClick);
     };
   }, [
     isMapLoaded,
     currentPrompt,
-    filterLayer,
     stageNodes,
     activeIndex,
     updateNode,
     accessToken,
+    selectionLayer,
   ]);
 
   if (!accessToken) {
