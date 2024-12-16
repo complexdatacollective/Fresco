@@ -9,8 +9,10 @@ import type {
   Protocol,
 } from '~/lib/protocol-validation/schemas/src/8.zod';
 import Button from '~/lib/ui/components/Button';
+import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
+import Loading from '../../components/Loading';
 import Node from '../../components/Node';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import { useMapboxToken } from '../../hooks/useMapbox';
@@ -203,13 +205,17 @@ export default function GeospatialInterface({
 
       // add layers based on the protocol
       layers.forEach((layer) => {
+        const color =
+          getCSSVariableAsString(`--nc-${layer.color}`) ??
+          getCSSVariableAsString('--nc-primary-color-seq-1') ??
+          'black';
         if (layer.type === 'line') {
           mapRef.current?.addLayer({
             id: layer.id,
             type: 'line',
             source: 'geojson-data',
             paint: {
-              'line-color': layer.color,
+              'line-color': color,
               'line-width': layer.width! ?? 1,
             },
           });
@@ -219,7 +225,7 @@ export default function GeospatialInterface({
             type: 'fill',
             source: 'geojson-data',
             paint: {
-              'fill-color': layer.color,
+              'fill-color': color,
               'fill-opacity': layer.opacity,
             },
           });
@@ -229,7 +235,7 @@ export default function GeospatialInterface({
             type: 'fill',
             source: 'geojson-data',
             paint: {
-              'fill-color': layer.color,
+              'fill-color': color,
               'fill-opacity': layer.opacity,
             },
             filter: ['==', layer.filter, ''],
@@ -319,8 +325,7 @@ export default function GeospatialInterface({
   ]);
 
   if (!accessToken) {
-    // TODO: improve loading state
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
