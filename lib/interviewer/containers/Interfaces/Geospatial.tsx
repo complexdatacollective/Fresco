@@ -106,13 +106,13 @@ export default function GeospatialInterface({
       tokenId,
       getAssetUrl,
       initialSelectionValue,
-      onSelectionChange: (selection: unknown) => {
+      onSelectionChange: (value: string) => {
         if (currentPrompt && stageNodes[navState.activeIndex]) {
           updateNode(
             stageNodes[navState.activeIndex][entityPrimaryKeyProperty],
             {},
             {
-              [currentPrompt.variable]: selection,
+              [currentPrompt.variable]: value,
             },
           );
         }

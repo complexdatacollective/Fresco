@@ -20,7 +20,7 @@ type UseMapboxProps = {
   tokenId: string;
   getAssetUrl: (url: string) => string;
   initialSelectionValue?: string;
-  onSelectionChange: (value: string | null) => void;
+  onSelectionChange: (value: string) => void;
 };
 
 const useMapboxToken = (tokenId: string) => {
@@ -206,17 +206,19 @@ export const useMapbox = ({
       const feature = e.features[0];
       const propToSelect = selectionLayer.filter;
 
-      const selected = feature?.properties
-        ? feature.properties[propToSelect]
+      const selected: string | null = feature?.properties
+        ? (feature.properties[propToSelect] as string)
         : null;
 
-      onSelectionChange(selected);
+      if (selected !== null) {
+        onSelectionChange(selected);
+      }
 
       if (selectionLayer && mapInstance) {
         mapInstance.setFilter(selectionLayer.id, [
           '==',
           selectionLayer.filter,
-          selected,
+          selected ?? '',
         ]);
       }
     };
