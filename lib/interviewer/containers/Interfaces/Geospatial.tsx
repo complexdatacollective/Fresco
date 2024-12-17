@@ -21,9 +21,11 @@ import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
 import { getAssetUrlFromId } from '../../selectors/protocol';
 
-// Map configuration constants
-// Could be configurable from the protocol
-const STYLE = 'mapbox://styles/mapbox/standard';
+const MAP_CONSTANTS = {
+  STYLE: 'mapbox://styles/mapbox/standard',
+  DEFAULT_LAYER_OPACITY: 0.5,
+  DEFAULT_LINE_WIDTH: 1,
+} as const;
 
 type NavDirection = 'forwards' | 'backwards';
 
@@ -71,8 +73,10 @@ export default function GeospatialInterface({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const dragSafeRef = useRef(null);
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [navDirection, setNavDirection] = useState<NavDirection | null>(null);
+  const [navState, setNavState] = useState({
+    activeIndex: 0,
+    direction: null as NavDirection | null,
+  });
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const { prompts } = stage;
@@ -113,34 +117,42 @@ export default function GeospatialInterface({
     }
   }, [selectionLayer]);
 
-  const getNodeIndex = useCallback(() => activeIndex - 1, [activeIndex]);
+  const getNodeIndex = useCallback(
+    () => navState.activeIndex - 1,
+    [navState.activeIndex],
+  );
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
   }) as NodeType[];
   const isLastNode = useCallback(
-    () => activeIndex + 1 >= stageNodes.length,
-    [activeIndex, stageNodes.length],
+    () => navState.activeIndex + 1 >= stageNodes.length,
+    [navState.activeIndex, stageNodes.length],
   );
 
   useEffect(() => {
-    setActiveIndex(0);
+    setNavState({
+      activeIndex: 0,
+      direction: null,
+    });
   }, [promptIndex]);
 
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
   const previousNode = useCallback(() => {
-    setNavDirection('backwards');
-
-    setActiveIndex(getNodeIndex());
+    setNavState({
+      activeIndex: getNodeIndex(),
+      direction: 'backwards',
+    });
     handleResetSelection();
   }, [getNodeIndex, handleResetSelection]);
 
   const nextNode = useCallback(() => {
-    setNavDirection('forwards');
-
-    setActiveIndex(activeIndex + 1);
+    setNavState({
+      activeIndex: navState.activeIndex + 1,
+      direction: 'forwards',
+    });
     handleResetSelection();
-  }, [activeIndex, handleResetSelection]);
+  }, [handleResetSelection, navState.activeIndex]);
 
   const beforeNext = (direction: NavDirection) => {
     // Leave the stage if there are no nodes
@@ -151,7 +163,7 @@ export default function GeospatialInterface({
     // We are moving backwards.
     if (direction === 'backwards') {
       // if we are at the first node, we should leave the stage
-      if (activeIndex === 0) {
+      if (navState.activeIndex === 0) {
         return true;
       }
 
@@ -172,10 +184,15 @@ export default function GeospatialInterface({
   // Update navigation button based on selection
   useEffect(() => {
     const readyForNext = currentPrompt?.variable
-      ? !!stageNodes[activeIndex][currentPrompt.variable]
+      ? !!stageNodes[navState.activeIndex][currentPrompt.variable]
       : false;
     setIsReadyForNext(readyForNext);
-  }, [activeIndex, currentPrompt?.variable, setIsReadyForNext, stageNodes]);
+  }, [
+    currentPrompt.variable,
+    navState.activeIndex,
+    setIsReadyForNext,
+    stageNodes,
+  ]);
 
   // Initialize map
   useEffect(() => {
@@ -191,7 +208,7 @@ export default function GeospatialInterface({
       container: mapContainerRef.current,
       center,
       zoom: initialZoom,
-      style: STYLE,
+      style: MAP_CONSTANTS.STYLE,
     });
 
     const handleMapLoad = () => {
@@ -221,7 +238,7 @@ export default function GeospatialInterface({
             source: 'geojson-data',
             paint: {
               'line-color': color,
-              'line-width': layer.width! ?? 1,
+              'line-width': layer.width! ?? MAP_CONSTANTS.DEFAULT_LINE_WIDTH,
             },
           });
         } else if (layer.type === 'fill') {
@@ -241,7 +258,8 @@ export default function GeospatialInterface({
             source: 'geojson-data',
             paint: {
               'fill-color': color,
-              'fill-opacity': layer.opacity ?? 0.5,
+              'fill-opacity':
+                layer.opacity ?? MAP_CONSTANTS.DEFAULT_LAYER_OPACITY,
             },
             filter: ['==', layer.filter, ''],
           });
@@ -276,18 +294,31 @@ export default function GeospatialInterface({
 
     // Set initial filter if node has a value
     const initialSelectionValue =
-      currentPrompt?.variable && stageNodes[activeIndex]?.attributes
-        ? (stageNodes[activeIndex].attributes as Record<string, unknown>)[
-            currentPrompt.variable
-          ]
+      currentPrompt?.variable && stageNodes[navState.activeIndex]?.attributes
+        ? (
+            stageNodes[navState.activeIndex].attributes as Record<
+              string,
+              unknown
+            >
+          )[currentPrompt.variable]
         : undefined;
 
     if (initialSelectionValue) {
-      mapInstance.setFilter(selectionLayer.id, [
-        '==',
-        selectionLayer.filter,
-        initialSelectionValue,
-      ]);
+      if (mapInstance.isStyleLoaded()) {
+        mapInstance.setFilter(selectionLayer.id, [
+          '==',
+          selectionLayer.filter,
+          initialSelectionValue,
+        ]);
+      } else {
+        mapInstance.once('styledata', () => {
+          mapInstance.setFilter(selectionLayer.id, [
+            '==',
+            selectionLayer.filter,
+            initialSelectionValue,
+          ]);
+        });
+      }
     }
 
     const handleMapClick = (e: MapMouseEvent) => {
@@ -300,7 +331,7 @@ export default function GeospatialInterface({
         : null;
 
       updateNode(
-        stageNodes[activeIndex][entityPrimaryKeyProperty],
+        stageNodes[navState.activeIndex][entityPrimaryKeyProperty],
         {},
         {
           [currentPrompt.variable]: selected,
@@ -327,10 +358,10 @@ export default function GeospatialInterface({
     isMapLoaded,
     currentPrompt,
     stageNodes,
-    activeIndex,
     updateNode,
     accessToken,
     selectionLayer,
+    navState.activeIndex,
   ]);
 
   if (!accessToken) {
@@ -354,17 +385,17 @@ export default function GeospatialInterface({
         <AnimatePresence
           mode="wait"
           key={currentPrompt?.id}
-          custom={navDirection}
+          custom={navState.direction}
         >
           <motion.div
-            key={stageNodes[activeIndex][entityPrimaryKeyProperty]}
+            key={stageNodes[navState.activeIndex][entityPrimaryKeyProperty]}
             variants={NodeAnimationVariants}
-            custom={navDirection}
+            custom={navState.direction}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            <Node {...stageNodes[activeIndex]} />
+            <Node {...stageNodes[navState.activeIndex]} />
           </motion.div>
         </AnimatePresence>
       </CollapsablePrompts>
