@@ -1,5 +1,4 @@
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import mapboxgl, { type MapMouseEvent } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -9,23 +8,15 @@ import type {
   Protocol,
 } from '~/lib/protocol-validation/schemas/src/8.zod';
 import Button from '~/lib/ui/components/Button';
-import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
-import Loading from '../../components/Loading';
 import Node from '../../components/Node';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
-import { useMapboxToken } from '../../hooks/useMapbox';
+import { useMapbox } from '../../hooks/useMapbox';
 import usePropSelector from '../../hooks/usePropSelector';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
 import { getAssetUrlFromId } from '../../selectors/protocol';
-
-const MAP_CONSTANTS = {
-  STYLE: 'mapbox://styles/mapbox/standard',
-  DEFAULT_LAYER_OPACITY: 0.5,
-  DEFAULT_LINE_WIDTH: 1,
-} as const;
 
 type NavDirection = 'forwards' | 'backwards';
 
@@ -69,26 +60,23 @@ export default function GeospatialInterface({
   registerBeforeNext,
 }: GeospatialInterfaceProps) {
   const dispatch = useDispatch();
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const dragSafeRef = useRef(null);
 
   const [navState, setNavState] = useState({
     activeIndex: 0,
     direction: null as NavDirection | null,
   });
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const { prompts } = stage;
   const { promptIndex } = usePrompts();
   const currentPrompt = prompts[promptIndex];
   const { center, token: tokenId, initialZoom } = stage.mapOptions;
   const layers = currentPrompt?.layers;
-  const selectionLayer = layers.find((layer) => layer.type === 'fill');
+  const stageNodes = usePropSelector(getNetworkNodesForType, {
+    stage,
+  }) as NodeType[];
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
-
-  const accessToken = useMapboxToken(tokenId);
 
   const updateNode = useCallback(
     (
@@ -100,30 +88,39 @@ export default function GeospatialInterface({
     [dispatch],
   );
 
-  const handleResetMapZoom = useCallback(() => {
-    mapRef.current?.flyTo({
-      zoom: initialZoom,
-      center,
-    });
-  }, [center, initialZoom]);
+  const initialSelectionValue =
+    currentPrompt?.variable && stageNodes[navState.activeIndex]?.attributes
+      ? (
+          stageNodes[navState.activeIndex].attributes as Record<string, unknown>
+        )[currentPrompt.variable]
+      : undefined;
 
-  const handleResetSelection = useCallback(() => {
-    if (selectionLayer && mapRef.current) {
-      mapRef.current.setFilter(selectionLayer.id, [
-        '==',
-        selectionLayer.filter,
-        '',
-      ]);
-    }
-  }, [selectionLayer]);
+  const { mapContainerRef, handleResetMapZoom, handleResetSelection } =
+    useMapbox({
+      center,
+      initialZoom,
+      layers,
+      tokenId,
+      getAssetUrl,
+      initialSelectionValue,
+      onSelectionChange: (selection: unknown) => {
+        if (currentPrompt && stageNodes[navState.activeIndex]) {
+          updateNode(
+            stageNodes[navState.activeIndex][entityPrimaryKeyProperty],
+            {},
+            {
+              [currentPrompt.variable]: selection,
+            },
+          );
+        }
+      },
+    });
 
   const getNodeIndex = useCallback(
     () => navState.activeIndex - 1,
     [navState.activeIndex],
   );
-  const stageNodes = usePropSelector(getNetworkNodesForType, {
-    stage,
-  }) as NodeType[];
+
   const isLastNode = useCallback(
     () => navState.activeIndex + 1 >= stageNodes.length,
     [navState.activeIndex, stageNodes.length],
@@ -193,180 +190,6 @@ export default function GeospatialInterface({
     setIsReadyForNext,
     stageNodes,
   ]);
-
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainerRef.current || !center || !tokenId) return;
-
-    mapboxgl.accessToken = accessToken;
-
-    const dataSources = [
-      ...new Set(layers.map((layer) => getAssetUrl(layer.data))),
-    ];
-
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      center,
-      zoom: initialZoom,
-      style: MAP_CONSTANTS.STYLE,
-    });
-
-    const handleMapLoad = () => {
-      setIsMapLoaded(true);
-
-      if (!layers) return;
-
-      dataSources.forEach((dataSource) => {
-        if (mapRef.current) {
-          mapRef.current.addSource('geojson-data', {
-            type: 'geojson',
-            data: dataSource,
-          });
-        }
-      });
-
-      // add layers based on the protocol
-      layers.forEach((layer) => {
-        const color =
-          getCSSVariableAsString(`--nc-${layer.color}`) ??
-          getCSSVariableAsString('--nc-primary-color-seq-1') ??
-          'black';
-        if (layer.type === 'line') {
-          mapRef.current?.addLayer({
-            id: layer.id,
-            type: 'line',
-            source: 'geojson-data',
-            paint: {
-              'line-color': color,
-              'line-width': layer.width! ?? MAP_CONSTANTS.DEFAULT_LINE_WIDTH,
-            },
-          });
-        } else if (layer.type === 'fill') {
-          // add the fill layer that can be selected
-          mapRef.current?.addLayer({
-            id: 'layerToSelect',
-            type: 'fill',
-            source: 'geojson-data',
-            paint: {
-              'fill-color': 'black', // must have a color to be used even when transparent
-              'fill-opacity': 0,
-            },
-          });
-          mapRef.current?.addLayer({
-            id: layer.id,
-            type: 'fill',
-            source: 'geojson-data',
-            paint: {
-              'fill-color': color,
-              'fill-opacity':
-                layer.opacity ?? MAP_CONSTANTS.DEFAULT_LAYER_OPACITY,
-            },
-            filter: ['==', layer.filter, ''],
-          });
-        }
-      });
-    };
-
-    const handleMapStyleLoad = () => {
-      // ensure map is loaded before adding layers
-      // necessary to prevent "style not loaded" errors
-      if (mapRef?.current?.isStyleLoaded()) {
-        handleMapLoad();
-      } else {
-        mapRef?.current?.once('styledata', handleMapLoad);
-      }
-    };
-
-    mapRef.current.on('load', handleMapStyleLoad);
-
-    return () => {
-      mapRef.current?.remove();
-    };
-  }, [accessToken, center, getAssetUrl, initialZoom, layers, tokenId]);
-
-  // handle map selections
-  useEffect(() => {
-    if (!isMapLoaded || !currentPrompt || !selectionLayer || !accessToken)
-      return;
-
-    const mapInstance = mapRef.current;
-    if (!mapInstance) return;
-
-    // Set initial filter if node has a value
-    const initialSelectionValue =
-      currentPrompt?.variable && stageNodes[navState.activeIndex]?.attributes
-        ? (
-            stageNodes[navState.activeIndex].attributes as Record<
-              string,
-              unknown
-            >
-          )[currentPrompt.variable]
-        : undefined;
-
-    if (initialSelectionValue) {
-      if (mapInstance.isStyleLoaded()) {
-        mapInstance.setFilter(selectionLayer.id, [
-          '==',
-          selectionLayer.filter,
-          initialSelectionValue,
-        ]);
-      } else {
-        mapInstance.once('styledata', () => {
-          mapInstance.setFilter(selectionLayer.id, [
-            '==',
-            selectionLayer.filter,
-            initialSelectionValue,
-          ]);
-        });
-      }
-    }
-
-    const handleMapClick = (e: MapMouseEvent) => {
-      if (!e?.features?.length) return;
-      const feature = e.features[0];
-      const propToSelect = selectionLayer.filter;
-
-      const selected = feature?.properties
-        ? feature.properties[propToSelect]
-        : null;
-
-      updateNode(
-        stageNodes[navState.activeIndex][entityPrimaryKeyProperty],
-        {},
-        {
-          [currentPrompt.variable]: selected,
-        },
-      );
-
-      if (selectionLayer && mapInstance) {
-        mapInstance.setFilter(selectionLayer.id, [
-          '==',
-          selectionLayer.filter,
-          selected,
-        ]);
-      }
-    };
-
-    // add click event listener to map
-    mapInstance.on('click', 'layerToSelect', handleMapClick);
-
-    // cleanup
-    return () => {
-      mapInstance.off('click', 'layerToSelect', handleMapClick);
-    };
-  }, [
-    isMapLoaded,
-    currentPrompt,
-    stageNodes,
-    updateNode,
-    accessToken,
-    selectionLayer,
-    navState.activeIndex,
-  ]);
-
-  if (!accessToken) {
-    return <Loading />;
-  }
 
   return (
     <div className="w-full items-center justify-center" ref={dragSafeRef}>
