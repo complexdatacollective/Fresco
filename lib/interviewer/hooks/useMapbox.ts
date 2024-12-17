@@ -2,6 +2,7 @@ import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import type { MapLayer } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { getAssetUrlFromId } from '../selectors/protocol';
 
@@ -10,18 +11,6 @@ const MAP_CONSTANTS = {
   DEFAULT_LAYER_OPACITY: 0.5,
   DEFAULT_LINE_WIDTH: 1,
 } as const;
-
-//TODO: import this from schema
-// prob should be two types, one for line and one for fill instead of optional fields
-type MapLayer = {
-  id: string;
-  type: 'line' | 'fill';
-  data: string;
-  color: string;
-  width?: number;
-  opacity?: number;
-  filter?: string;
-};
 
 type UseMapboxProps = {
   accessToken: string;
@@ -65,8 +54,8 @@ const useMapboxToken = (tokenId: string) => {
 
 export const useMapbox = ({
   center,
-  initialZoom = 10,
-  layers = [],
+  initialZoom,
+  layers,
   tokenId,
   getAssetUrl,
   initialSelectionValue,

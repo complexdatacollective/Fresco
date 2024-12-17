@@ -466,6 +466,29 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
+const baseLayer = z
+  .object({
+    id: z.string(),
+    data: z.string(),
+    color: z.string(),
+  })
+  .strict();
+
+const lineLayer = baseLayer.extend({
+  type: z.literal('line'),
+  width: z.number(),
+});
+
+const fillLayer = baseLayer.extend({
+  type: z.literal('fill'),
+  opacity: z.number().optional(),
+  filter: z.string(),
+});
+
+const mapLayer = z.union([lineLayer, fillLayer]);
+
+export type MapLayer = z.infer<typeof mapLayer>;
+
 const geospatialStage = baseStageSchema.extend({
   type: z.literal('Geospatial'),
   subject: subjectSchema,
@@ -476,22 +499,12 @@ const geospatialStage = baseStageSchema.extend({
   }),
   prompts: z
     .array(
-      promptSchema.extend({
-        layers: z.array(
-          z
-            .object({
-              id: z.string(),
-              data: z.string(),
-              type: z.enum(['line', 'fill']),
-              color: z.string(),
-              opacity: z.number().optional(),
-              filter: z.string().optional(),
-              width: z.number().optional(),
-            })
-            .strict(),
-        ),
-        variable: z.string(),
-      }),
+      promptSchema
+        .extend({
+          layers: z.array(mapLayer),
+          variable: z.string(),
+        })
+        .strict(),
     )
     .min(1),
 });

@@ -70,6 +70,9 @@ export default function GeospatialInterface({
   const { prompts } = stage;
   const { promptIndex } = usePrompts();
   const currentPrompt = prompts[promptIndex];
+  if (!currentPrompt) {
+    throw new Error('Prompt not found');
+  }
   const { center, token: tokenId, initialZoom } = stage.mapOptions;
   const layers = currentPrompt?.layers;
   const stageNodes = usePropSelector(getNetworkNodesForType, {
