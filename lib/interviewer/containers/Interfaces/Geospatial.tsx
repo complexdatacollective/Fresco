@@ -53,11 +53,15 @@ type GeospatialInterfaceProps = {
   registerBeforeNext: (
     beforeNext: (direction: NavDirection) => boolean,
   ) => void;
+  getNavigationHelpers: () => {
+    moveForward: () => void;
+  };
 };
 
 export default function GeospatialInterface({
   stage,
   registerBeforeNext,
+  getNavigationHelpers,
 }: GeospatialInterfaceProps) {
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const dragSafeRef = useRef(null);
@@ -138,6 +142,8 @@ export default function GeospatialInterface({
 
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
+  const { moveForward } = getNavigationHelpers();
+
   const previousNode = useCallback(() => {
     setNavState({
       activeIndex: getNodeIndex(),
@@ -211,22 +217,27 @@ export default function GeospatialInterface({
         currentPromptIndex={currentPrompt ? prompts.indexOf(currentPrompt) : -1}
         dragConstraints={dragSafeRef}
       >
-        <AnimatePresence
-          mode="wait"
-          key={currentPrompt?.id}
-          custom={navState.direction}
-        >
-          <motion.div
-            key={stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty]}
-            variants={NodeAnimationVariants}
+        <div className="flex flex-col items-center gap-2 pb-4">
+          <AnimatePresence
+            mode="wait"
+            key={currentPrompt?.id}
             custom={navState.direction}
-            initial="initial"
-            animate="animate"
-            exit="exit"
           >
-            <Node {...stageNodes[navState.activeIndex]} />
-          </motion.div>
-        </AnimatePresence>
+            <motion.div
+              key={stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty]}
+              variants={NodeAnimationVariants}
+              custom={navState.direction}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Node {...stageNodes[navState.activeIndex]} />
+            </motion.div>
+          </AnimatePresence>
+          <Button size="small" onClick={moveForward}>
+            Skip
+          </Button>
+        </div>
       </CollapsablePrompts>
     </div>
   );

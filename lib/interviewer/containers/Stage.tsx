@@ -3,7 +3,7 @@ import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
 import { type BeforeNextFunction } from './ProtocolScreen';
 
-export type StageProps = {
+type StageProps = {
   stage: {
     id: string;
     type: string;
