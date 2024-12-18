@@ -231,7 +231,10 @@ export default function GeospatialInterface({
               animate="animate"
               exit="exit"
             >
-              <Node {...stageNodes[navState.activeIndex]} />
+              <Node
+                {...stageNodes[navState.activeIndex]}
+                style={{ fontSize: `calc(var(--nc-base-font-size) * 8)` }}
+              />
             </motion.div>
           </AnimatePresence>
           <Button size="small" onClick={moveForward}>
