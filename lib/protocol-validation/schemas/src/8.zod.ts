@@ -103,6 +103,8 @@ const nodeSchema = z
   })
   .strict();
 
+export type Node = z.infer<typeof nodeSchema>;
+
 const edgeSchema = z
   .object({
     name: z.string(),
@@ -464,6 +466,49 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
+const baseLayer = z
+  .object({
+    id: z.string(),
+    data: z.string(),
+    color: z.string(),
+  })
+  .strict();
+
+const lineLayer = baseLayer.extend({
+  type: z.literal('line'),
+  width: z.number(),
+});
+
+const fillLayer = baseLayer.extend({
+  type: z.literal('fill'),
+  opacity: z.number().optional(),
+  filter: z.string(),
+});
+
+const mapLayer = z.union([lineLayer, fillLayer]);
+
+export type MapLayer = z.infer<typeof mapLayer>;
+
+const geospatialStage = baseStageSchema.extend({
+  type: z.literal('Geospatial'),
+  subject: subjectSchema,
+  mapOptions: z.object({
+    center: z.tuple([z.number(), z.number()]),
+    token: z.string(),
+    initialZoom: z.number().int(),
+  }),
+  prompts: z
+    .array(
+      promptSchema
+        .extend({
+          layers: z.array(mapLayer),
+          variable: z.string(),
+        })
+        .strict(),
+    )
+    .min(1),
+});
+
 // Combine all stage types
 const stageSchema = z.discriminatedUnion('type', [
   egoFormStage,
@@ -482,6 +527,7 @@ const stageSchema = z.discriminatedUnion('type', [
   anonymisationStage,
   oneToManyDyadCensusStage,
   familyTreeCensusStage,
+  geospatialStage,
 ]);
 
 // Main Protocol Schema
