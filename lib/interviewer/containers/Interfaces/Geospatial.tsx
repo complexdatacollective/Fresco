@@ -1,12 +1,11 @@
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { type AnyAction } from '@reduxjs/toolkit';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type {
-  Node as NodeType,
-  Protocol,
-} from '~/lib/protocol-validation/schemas/src/8.zod';
+import { type ThunkDispatch } from 'redux-thunk';
+import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 import Button from '~/lib/ui/components/Button';
 import { usePrompts } from '../../behaviours/withPrompt';
 import CollapsablePrompts from '../../components/CollapsablePrompts';
@@ -17,6 +16,7 @@ import usePropSelector from '../../hooks/usePropSelector';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '../../selectors/interface';
 import { getAssetUrlFromId } from '../../selectors/protocol';
+import { type RootState } from '../../store';
 
 type NavDirection = 'forwards' | 'backwards';
 
@@ -59,7 +59,7 @@ export default function GeospatialInterface({
   stage,
   registerBeforeNext,
 }: GeospatialInterfaceProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const dragSafeRef = useRef(null);
 
   const [navState, setNavState] = useState({
@@ -77,7 +77,7 @@ export default function GeospatialInterface({
   const layers = currentPrompt?.layers;
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
-  }) as NodeType[];
+  }) as NcNode[];
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
@@ -91,11 +91,11 @@ export default function GeospatialInterface({
     [dispatch],
   );
 
-  const initialSelectionValue =
+  const initialSelectionValue: string | undefined =
     currentPrompt?.variable && stageNodes[navState.activeIndex]?.attributes
-      ? (
-          stageNodes[navState.activeIndex].attributes as Record<string, unknown>
-        )[currentPrompt.variable]
+      ? (stageNodes[navState.activeIndex]?.attributes?.[
+          currentPrompt.variable
+        ] as string | undefined)
       : undefined;
 
   const { mapContainerRef, handleResetMapZoom, handleResetSelection } =
@@ -109,7 +109,7 @@ export default function GeospatialInterface({
       onSelectionChange: (value: string) => {
         if (currentPrompt && stageNodes[navState.activeIndex]) {
           updateNode(
-            stageNodes[navState.activeIndex][entityPrimaryKeyProperty],
+            stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
             {},
             {
               [currentPrompt.variable]: value,
@@ -183,9 +183,12 @@ export default function GeospatialInterface({
 
   // Update navigation button based on selection
   useEffect(() => {
-    const readyForNext = currentPrompt?.variable
-      ? !!stageNodes[navState.activeIndex][currentPrompt.variable]
-      : false;
+    const readyForNext =
+      currentPrompt?.variable && stageNodes[navState.activeIndex]
+        ? !!(stageNodes[navState.activeIndex] as Record<string, unknown>)[
+            currentPrompt.variable
+          ]
+        : false;
     setIsReadyForNext(readyForNext);
   }, [
     currentPrompt.variable,
@@ -214,7 +217,7 @@ export default function GeospatialInterface({
           custom={navState.direction}
         >
           <motion.div
-            key={stageNodes[navState.activeIndex][entityPrimaryKeyProperty]}
+            key={stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty]}
             variants={NodeAnimationVariants}
             custom={navState.direction}
             initial="initial"

@@ -13,7 +13,6 @@ const MAP_CONSTANTS = {
 } as const;
 
 type UseMapboxProps = {
-  accessToken: string;
   center: [number, number];
   initialZoom?: number;
   layers: MapLayer[];
