@@ -233,7 +233,11 @@ export default function GeospatialInterface({
               />
             </motion.div>
           </AnimatePresence>
-          <Button size="small" onClick={moveForward}>
+          <Button
+            size="small"
+            onClick={moveForward}
+            disabled={!!initialSelectionValue}
+          >
             Skip
           </Button>
         </div>
