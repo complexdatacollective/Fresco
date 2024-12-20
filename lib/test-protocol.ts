@@ -32,7 +32,7 @@ export const protocol: Protocol = {
         initialZoom: 12,
         data: 'asset1',
         color: 'primary-color-seq-1',
-        filter: 'namelsad10',
+        propToSelect: 'namelsad10',
       },
       prompts: [
         {
@@ -61,7 +61,7 @@ export const protocol: Protocol = {
         token: 'asset3',
         data: 'asset2',
         color: 'primary-color-seq-2',
-        filter: 'NTAName',
+        propToSelect: 'NTAName',
       },
       prompts: [
         {

@@ -174,6 +174,7 @@ export default function GeospatialInterface({
 
     // We are moving forwards.
     if (isLastNode()) {
+      handleResetSelection();
       return true;
     }
     nextNode();

@@ -472,7 +472,7 @@ const mapOptions = z.object({
   initialZoom: z.number().int(),
   data: z.string(),
   color: z.string(),
-  filter: z.string(),
+  propToSelect: z.string(), // property of geojson to select
 });
 
 export type MapOptions = z.infer<typeof mapOptions>;

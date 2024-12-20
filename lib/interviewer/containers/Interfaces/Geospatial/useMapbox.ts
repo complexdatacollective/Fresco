@@ -58,7 +58,7 @@ export const useMapbox = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
-  const { center, initialZoom, token, data, color, filter } = mapOptions;
+  const { center, initialZoom, token, data, color, propToSelect } = mapOptions;
   const accessToken = useMapboxToken(token);
 
   const handleResetMapZoom = useCallback(() => {
@@ -70,9 +70,9 @@ export const useMapbox = ({
 
   const handleResetSelection = useCallback(() => {
     if (mapRef.current) {
-      mapRef.current.setFilter('layerToSelect', ['==', filter, '']);
+      mapRef.current.setFilter('selection', ['==', propToSelect, '']);
     }
-  }, [filter]);
+  }, [propToSelect]);
 
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
@@ -129,7 +129,7 @@ export const useMapbox = ({
           'fill-color': ncColor,
           'fill-opacity': MAP_CONSTS.OPACITY,
         },
-        filter: ['==', filter ?? '', ''],
+        filter: ['==', propToSelect ?? '', ''],
       });
     };
 
@@ -148,7 +148,15 @@ export const useMapbox = ({
     return () => {
       mapRef.current?.remove();
     };
-  }, [accessToken, center, data, getAssetUrl, initialZoom, color, filter]);
+  }, [
+    accessToken,
+    center,
+    data,
+    getAssetUrl,
+    initialZoom,
+    color,
+    propToSelect,
+  ]);
 
   // handle selections
   useEffect(() => {
@@ -162,14 +170,14 @@ export const useMapbox = ({
       if (mapInstance.isStyleLoaded()) {
         mapInstance.setFilter('selection', [
           '==',
-          filter,
+          propToSelect,
           initialSelectionValue,
         ]);
       } else {
         mapInstance.once('styledata', () => {
           mapInstance.setFilter('selection', [
             '==',
-            filter,
+            propToSelect,
             initialSelectionValue,
           ]);
         });
@@ -179,7 +187,6 @@ export const useMapbox = ({
     const handleMapClick = (e: MapMouseEvent) => {
       if (!e?.features?.length) return;
       const feature = e.features[0];
-      const propToSelect = filter;
 
       const selected: string | null = feature?.properties
         ? (feature.properties[propToSelect] as string)
@@ -190,7 +197,11 @@ export const useMapbox = ({
       }
 
       if (mapInstance) {
-        mapInstance.setFilter('selection', ['==', filter, selected ?? '']);
+        mapInstance.setFilter('selection', [
+          '==',
+          propToSelect,
+          selected ?? '',
+        ]);
       }
     };
 
@@ -201,7 +212,13 @@ export const useMapbox = ({
     return () => {
       mapInstance.off('click', 'layerToSelect', handleMapClick);
     };
-  }, [isMapLoaded, mapRef, initialSelectionValue, onSelectionChange, filter]);
+  }, [
+    isMapLoaded,
+    mapRef,
+    initialSelectionValue,
+    onSelectionChange,
+    propToSelect,
+  ]);
 
   return {
     mapContainerRef,
