@@ -103,6 +103,8 @@ const nodeSchema = z
   })
   .strict();
 
+export type Node = z.infer<typeof nodeSchema>;
+
 const edgeSchema = z
   .object({
     name: z.string(),
@@ -464,6 +466,32 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
+const mapOptions = z.object({
+  center: z.tuple([z.number(), z.number()]),
+  token: z.string(),
+  initialZoom: z.number().int(),
+  data: z.string(),
+  color: z.string(),
+  propToSelect: z.string(), // property of geojson to select
+});
+
+export type MapOptions = z.infer<typeof mapOptions>;
+
+export const geospatialStage = baseStageSchema.extend({
+  type: z.literal('Geospatial'),
+  subject: subjectSchema,
+  mapOptions: mapOptions,
+  prompts: z
+    .array(
+      promptSchema
+        .extend({
+          variable: z.string(),
+        })
+        .strict(),
+    )
+    .min(1),
+});
+
 // Combine all stage types
 const stageSchema = z.discriminatedUnion('type', [
   egoFormStage,
@@ -482,6 +510,7 @@ const stageSchema = z.discriminatedUnion('type', [
   anonymisationStage,
   oneToManyDyadCensusStage,
   familyTreeCensusStage,
+  geospatialStage,
 ]);
 
 // Main Protocol Schema
