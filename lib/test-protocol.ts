@@ -30,51 +30,20 @@ export const protocol: Protocol = {
         center: [-87.6298, 41.8781],
         token: 'asset3',
         initialZoom: 12,
+        data: 'asset1',
+        color: 'primary-color-seq-1',
+        filter: 'namelsad10',
       },
       prompts: [
         {
           id: 'prompt1',
           text: 'Select the census tract this person lives in',
           variable: 'e0b5901f-bf78-4538-882b-c4dd955603d5',
-          layers: [
-            {
-              id: 'outline',
-              data: 'asset1',
-              type: 'line',
-              color: 'primary-color-seq-1',
-              width: 1,
-            },
-            {
-              id: 'selection',
-              data: 'asset1',
-              type: 'fill',
-              color: 'primary-color-seq-2',
-              opacity: 0.5,
-              filter: 'namelsad10', // variable from geojson data
-            },
-          ],
         },
         {
           id: 'prompt2',
           text: 'Select the census tract this person works in',
           variable: '1de0750b-b718-44bd-95d6-07b85b03bb76',
-          layers: [
-            {
-              id: 'outline',
-              data: 'asset1',
-              type: 'line',
-              color: 'primary-color-seq-3',
-              width: 1,
-            },
-            {
-              id: 'selection',
-              data: 'asset1',
-              type: 'fill',
-              color: 'primary-color-seq-3',
-              opacity: 0.5,
-              filter: 'namelsad10', // variable from geojson data
-            },
-          ],
         },
       ],
     },
@@ -90,29 +59,15 @@ export const protocol: Protocol = {
         center: [-74.006, 40.7128],
         initialZoom: 14,
         token: 'asset3',
+        data: 'asset2',
+        color: 'primary-color-seq-2',
+        filter: 'NTAName',
       },
       prompts: [
         {
           id: 'censusTractPrompt',
           text: 'Select the neighborhood this person lives in',
           variable: '1de0750b-b718-44bd-95d6-07b85b03bb76',
-          layers: [
-            {
-              id: 'outline',
-              data: 'asset2',
-              type: 'line',
-              color: 'primary-color-seq-4',
-              width: 1,
-            },
-            {
-              id: 'selection',
-              data: 'asset2',
-              type: 'fill',
-              color: 'primary-color-seq-4',
-              opacity: 0.5,
-              filter: 'NTAName',
-            },
-          ],
         },
       ],
     },

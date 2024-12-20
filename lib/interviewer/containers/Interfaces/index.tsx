@@ -49,7 +49,7 @@ const TieStrengthCensus = dynamic(() => import('./TieStrengthCensus'), {
 const FinishSession = dynamic(() => import('./FinishSession'), {
   loading: StageLoading,
 });
-const Geospatial = dynamic(() => import('./Geospatial'), {
+const Geospatial = dynamic(() => import('./Geospatial/Geospatial'), {
   loading: StageLoading,
 });
 

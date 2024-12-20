@@ -7,16 +7,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 import Button from '~/lib/ui/components/Button';
-import { usePrompts } from '../../behaviours/withPrompt';
-import CollapsablePrompts from '../../components/CollapsablePrompts';
-import Node from '../../components/Node';
-import { actionCreators as sessionActions } from '../../ducks/modules/session';
-import { useMapbox } from '../../hooks/useMapbox';
-import usePropSelector from '../../hooks/usePropSelector';
-import useReadyForNextStage from '../../hooks/useReadyForNextStage';
-import { getNetworkNodesForType } from '../../selectors/interface';
-import { getAssetUrlFromId } from '../../selectors/protocol';
-import { type RootState } from '../../store';
+import { usePrompts } from '../../../behaviours/withPrompt';
+import CollapsablePrompts from '../../../components/CollapsablePrompts';
+import Node from '../../../components/Node';
+import { actionCreators as sessionActions } from '../../../ducks/modules/session';
+import usePropSelector from '../../../hooks/usePropSelector';
+import useReadyForNextStage from '../../../hooks/useReadyForNextStage';
+import { getNetworkNodesForType } from '../../../selectors/interface';
+import { getAssetUrlFromId } from '../../../selectors/protocol';
+import { type RootState } from '../../../store';
+import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
 
@@ -43,7 +43,7 @@ const NodeAnimationVariants = {
   }),
 };
 
-type GeospatialStage = Extract<
+export type GeospatialStage = Extract<
   Protocol['stages'][number],
   { type: 'Geospatial' }
 >;
@@ -71,14 +71,12 @@ export default function GeospatialInterface({
     direction: null as NavDirection | null,
   });
 
-  const { prompts } = stage;
+  const { prompts, mapOptions } = stage;
   const { promptIndex } = usePrompts();
   const currentPrompt = prompts[promptIndex];
   if (!currentPrompt) {
     throw new Error('Prompt not found');
   }
-  const { center, token: tokenId, initialZoom } = stage.mapOptions;
-  const layers = currentPrompt?.layers;
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
   }) as NcNode[];
@@ -104,10 +102,7 @@ export default function GeospatialInterface({
 
   const { mapContainerRef, handleResetMapZoom, handleResetSelection } =
     useMapbox({
-      center,
-      initialZoom,
-      layers,
-      tokenId,
+      mapOptions,
       getAssetUrl,
       initialSelectionValue,
       onSelectionChange: (value: string) => {

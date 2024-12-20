@@ -2,21 +2,18 @@ import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import type { MapLayer } from '~/lib/protocol-validation/schemas/src/8.zod';
+import type { MapOptions } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
-import { getAssetUrlFromId } from '../selectors/protocol';
+import { getAssetUrlFromId } from '../../../selectors/protocol';
 
-const MAP_CONSTANTS = {
+export const MAP_CONSTS = {
   STYLE: 'mapbox://styles/mapbox/standard',
-  DEFAULT_LAYER_OPACITY: 0.5,
-  DEFAULT_LINE_WIDTH: 1,
+  OPACITY: 0.5,
+  LINE_WIDTH: 1,
 } as const;
 
 type UseMapboxProps = {
-  center: [number, number];
-  initialZoom?: number;
-  layers: MapLayer[];
-  tokenId: string;
+  mapOptions: MapOptions;
   getAssetUrl: (url: string) => string;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
@@ -52,10 +49,7 @@ const useMapboxToken = (tokenId: string) => {
 };
 
 export const useMapbox = ({
-  center,
-  initialZoom,
-  layers,
-  tokenId,
+  mapOptions,
   getAssetUrl,
   initialSelectionValue,
   onSelectionChange,
@@ -63,9 +57,9 @@ export const useMapbox = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const selectionLayer = layers.find((layer) => layer.type === 'fill');
 
-  const accessToken = useMapboxToken(tokenId);
+  const { center, initialZoom, token, data, color, filter } = mapOptions;
+  const accessToken = useMapboxToken(token);
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
@@ -75,85 +69,67 @@ export const useMapbox = ({
   }, [center, initialZoom, mapRef]);
 
   const handleResetSelection = useCallback(() => {
-    if (selectionLayer && mapRef.current) {
-      mapRef.current.setFilter(selectionLayer.id, [
-        '==',
-        selectionLayer.filter,
-        '',
-      ]);
+    if (mapRef.current) {
+      mapRef.current.setFilter('layerToSelect', ['==', filter, '']);
     }
-  }, [selectionLayer]);
+  }, [filter]);
 
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
 
     mapboxgl.accessToken = accessToken;
 
-    const dataSources = [
-      ...new Set(layers.map((layer) => getAssetUrl(layer.data))),
-    ];
-
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       center,
       zoom: initialZoom,
-      style: MAP_CONSTANTS.STYLE,
+      style: MAP_CONSTS.STYLE,
     });
 
     const handleMapLoad = () => {
       setIsMapLoaded(true);
 
-      if (!layers) return;
+      if (mapRef.current) {
+        mapRef.current.addSource('geojson-data', {
+          type: 'geojson',
+          data: getAssetUrl(data),
+        });
+      }
 
-      dataSources.forEach((dataSource) => {
-        if (mapRef.current) {
-          mapRef.current.addSource('geojson-data', {
-            type: 'geojson',
-            data: dataSource,
-          });
-        }
+      const ncColor =
+        getCSSVariableAsString(`--nc-${color}`) ??
+        getCSSVariableAsString('--nc-primary-color-seq-1') ??
+        'black';
+
+      mapRef.current?.addLayer({
+        id: 'outline',
+        type: 'line',
+        source: 'geojson-data',
+        paint: {
+          'line-color': ncColor,
+          'line-width': MAP_CONSTS.LINE_WIDTH,
+        },
       });
 
-      // add layers based on the protocol
-      layers.forEach((layer) => {
-        const color =
-          getCSSVariableAsString(`--nc-${layer.color}`) ??
-          getCSSVariableAsString('--nc-primary-color-seq-1') ??
-          'black';
-
-        if (layer.type === 'line') {
-          mapRef.current?.addLayer({
-            id: layer.id,
-            type: 'line',
-            source: 'geojson-data',
-            paint: {
-              'line-color': color,
-              'line-width': layer.width ?? MAP_CONSTANTS.DEFAULT_LINE_WIDTH,
-            },
-          });
-        } else if (layer.type === 'fill') {
-          // add the fill layer that can be selected
-          mapRef.current?.addLayer({
-            id: 'layerToSelect',
-            type: 'fill',
-            source: 'geojson-data',
-            paint: {
-              'fill-color': 'black', // must have a color to be used even when transparent
-              'fill-opacity': 0,
-            },
-          });
-          mapRef.current?.addLayer({
-            id: layer.id,
-            type: 'fill',
-            source: 'geojson-data',
-            paint: {
-              'fill-color': color,
-              'fill-opacity':
-                layer.opacity ?? MAP_CONSTANTS.DEFAULT_LAYER_OPACITY,
-            },
-            filter: ['==', layer.filter ?? '', ''],
-          });
-        }
+      // add the fill layer that can be selected
+      mapRef.current?.addLayer({
+        id: 'layerToSelect',
+        type: 'fill',
+        source: 'geojson-data',
+        paint: {
+          'fill-color': ncColor, // must have a color to be used even when transparent
+          'fill-opacity': 0,
+        },
+      });
+      mapRef.current?.addLayer({
+        id: 'selection',
+        type: 'fill',
+        source: 'geojson-data',
+        paint: {
+          'fill-color': ncColor,
+          'fill-opacity': MAP_CONSTS.OPACITY,
+        },
+        filter: ['==', filter ?? '', ''],
       });
     };
 
@@ -172,11 +148,11 @@ export const useMapbox = ({
     return () => {
       mapRef.current?.remove();
     };
-  }, [accessToken, center, getAssetUrl, initialZoom, layers, tokenId]);
+  }, [accessToken, center, data, getAssetUrl, initialZoom, color, filter]);
 
   // handle selections
   useEffect(() => {
-    if (!isMapLoaded || !selectionLayer) return;
+    if (!isMapLoaded) return;
 
     const mapInstance = mapRef.current;
     if (!mapInstance) return;
@@ -184,16 +160,16 @@ export const useMapbox = ({
     // Set initial filter if node has a value
     if (initialSelectionValue) {
       if (mapInstance.isStyleLoaded()) {
-        mapInstance.setFilter(selectionLayer.id, [
+        mapInstance.setFilter('selection', [
           '==',
-          selectionLayer.filter,
+          filter,
           initialSelectionValue,
         ]);
       } else {
         mapInstance.once('styledata', () => {
-          mapInstance.setFilter(selectionLayer.id, [
+          mapInstance.setFilter('selection', [
             '==',
-            selectionLayer.filter,
+            filter,
             initialSelectionValue,
           ]);
         });
@@ -203,7 +179,7 @@ export const useMapbox = ({
     const handleMapClick = (e: MapMouseEvent) => {
       if (!e?.features?.length) return;
       const feature = e.features[0];
-      const propToSelect = selectionLayer.filter;
+      const propToSelect = filter;
 
       const selected: string | null = feature?.properties
         ? (feature.properties[propToSelect] as string)
@@ -213,12 +189,8 @@ export const useMapbox = ({
         onSelectionChange(selected);
       }
 
-      if (selectionLayer && mapInstance) {
-        mapInstance.setFilter(selectionLayer.id, [
-          '==',
-          selectionLayer.filter,
-          selected ?? '',
-        ]);
+      if (mapInstance) {
+        mapInstance.setFilter('selection', ['==', filter, selected ?? '']);
       }
     };
 
@@ -229,13 +201,7 @@ export const useMapbox = ({
     return () => {
       mapInstance.off('click', 'layerToSelect', handleMapClick);
     };
-  }, [
-    isMapLoaded,
-    selectionLayer,
-    mapRef,
-    initialSelectionValue,
-    onSelectionChange,
-  ]);
+  }, [isMapLoaded, mapRef, initialSelectionValue, onSelectionChange, filter]);
 
   return {
     mapContainerRef,
