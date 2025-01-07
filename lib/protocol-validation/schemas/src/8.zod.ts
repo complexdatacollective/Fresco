@@ -470,7 +470,7 @@ const mapOptions = z.object({
   center: z.tuple([z.number(), z.number()]),
   token: z.string(),
   initialZoom: z.number().int(),
-  data: z.string(),
+  dataSource: z.string(),
   color: z.string(),
   propToSelect: z.string(), // property of geojson to select
 });

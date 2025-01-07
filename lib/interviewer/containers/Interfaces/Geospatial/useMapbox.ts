@@ -58,7 +58,7 @@ export const useMapbox = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
-  const { center, initialZoom, token, data, color, propToSelect } = mapOptions;
+  const { center, initialZoom, token, dataSource, color, propToSelect } = mapOptions;
   const accessToken = useMapboxToken(token);
 
   const handleResetMapZoom = useCallback(() => {
@@ -92,7 +92,7 @@ export const useMapbox = ({
       if (mapRef.current) {
         mapRef.current.addSource('geojson-data', {
           type: 'geojson',
-          data: getAssetUrl(data),
+          data: getAssetUrl(dataSource),
         });
       }
 
@@ -151,7 +151,7 @@ export const useMapbox = ({
   }, [
     accessToken,
     center,
-    data,
+    dataSource,
     getAssetUrl,
     initialZoom,
     color,
