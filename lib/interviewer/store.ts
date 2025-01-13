@@ -10,8 +10,10 @@ import ui from '~/lib/interviewer/ducks/modules/ui';
 import { type NcNetwork } from '../shared-consts';
 import logger from './ducks/middleware/logger';
 import sound from './ducks/middleware/sound';
+import passphrase from './ducks/modules/passphrase';
 
 const rootReducer = combineReducers({
+  passphrase,
   form,
   activeSessionId,
   sessions,

@@ -12,7 +12,10 @@ export function useNodeLabel(node: NcNode) {
     async function calculateLabel() {
       // 1. Look for a variable called 'name'.
       try {
-        const variableCalledName = await getByName<string>('name');
+        const variableCalledName = await getByName<string>({
+          attributeName: 'name',
+          ignoreCase: true,
+        });
 
         if (variableCalledName) {
           setLabel(variableCalledName);
@@ -23,6 +26,9 @@ export function useNodeLabel(node: NcNode) {
           setLabel('🔒');
           return;
         }
+        console.log('yooo');
+        setLabel('Error fetching name');
+        return;
       }
 
       // 2. Look for a property on the node with a key of ‘name’

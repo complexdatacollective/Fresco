@@ -150,13 +150,21 @@ const removeEdge = (state, edgeId) => ({
   ),
 });
 
-export type AddNodeAction = {
-  type: typeof ADD_NODE;
+export type NetworkSessionMeta = {
+  sessionId: string;
+  promptId: string;
+  stageId: string;
+};
+
+type BaseNetworkAction = {
   sessionMeta: {
     sessionId: string;
-    promptId: string;
-    stageId: string;
   };
+};
+
+export type AddNodeAction = BaseNetworkAction & {
+  type: typeof ADD_NODE;
+  sessionMeta: NetworkSessionMeta;
   payload: {
     type: NcNode['type'];
     attributeData: NcNode[EntityAttributesProperty];
@@ -164,69 +172,69 @@ export type AddNodeAction = {
   };
 };
 
-type UpdateNodeAction = {
+export type RemoveNodeAction = BaseNetworkAction & {
+  type: typeof REMOVE_NODE;
+  [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
+};
+
+type UpdateNodeAction = BaseNetworkAction & {
   type: typeof UPDATE_NODE;
   nodeId: NcNode[EntityPrimaryKey];
   newModelData: ModelData;
   newAttributeData: NcNode[EntityAttributesProperty];
 };
 
-type ToggleNodeAttributesAction = {
+type ToggleNodeAttributesAction = BaseNetworkAction & {
   type: typeof TOGGLE_NODE_ATTRIBUTES;
   [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
   attributes: NcNode[EntityAttributesProperty];
 };
 
-type RemoveNodeAction = {
-  type: typeof REMOVE_NODE;
-  [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
-};
-
-type AddNodeToPromptAction = {
+type AddNodeToPromptAction = BaseNetworkAction & {
   type: typeof ADD_NODE_TO_PROMPT;
   nodeId: NcNode[EntityPrimaryKey];
   promptId: string;
   promptAttributes: NcNode[EntityAttributesProperty];
 };
 
-type RemoveNodeFromPromptAction = {
+type RemoveNodeFromPromptAction = BaseNetworkAction & {
   type: typeof REMOVE_NODE_FROM_PROMPT;
   nodeId: NcNode[EntityPrimaryKey];
   promptId: string;
   promptAttributes: NcNode[EntityAttributesProperty];
 };
 
-type BatchAddNodesAction = {
+type BatchAddNodesAction = BaseNetworkAction & {
   type: typeof BATCH_ADD_NODES;
   nodeList: NcNode[];
   defaultAttributes: NcNode[EntityAttributesProperty];
   attributeData: NcNode[EntityAttributesProperty];
 };
 
-type AddEdgeAction = {
+type AddEdgeAction = BaseNetworkAction & {
   type: typeof ADD_EDGE;
   modelData: NcEdge;
   attributeData: NcEdge['attributes'];
 };
 
-type UpdateEdgeAction = {
+type UpdateEdgeAction = BaseNetworkAction & {
   type: typeof UPDATE_EDGE;
   edgeId: NcEdge[EntityPrimaryKey];
   newModelData: NcEdge;
   newAttributeData: NcEdge['attributes'];
 };
 
-type ToggleEdgeAction = {
+type ToggleEdgeAction = BaseNetworkAction & {
   type: typeof TOGGLE_EDGE;
   modelData: NcEdge;
 };
 
-type RemoveEdgeAction = {
+type RemoveEdgeAction = BaseNetworkAction & {
   type: typeof REMOVE_EDGE;
   edgeId: NcEdge[EntityPrimaryKey];
 };
 
-type UpdateEgoAction = {
+type UpdateEgoAction = BaseNetworkAction & {
   type: typeof UPDATE_EGO;
   modelData: NcNode;
   attributeData: NcNode[EntityAttributesProperty];
@@ -266,12 +274,6 @@ export default function reducer(
       return initialState;
     }
     case ADD_NODE: {
-      // Here is where we need to use codebook data to determine if the attribute is encrypted
-      // and then store the encrypted data in the secure attributes meta
-
-      // This approach will mean that existing interfaces don't need to update their use
-      // of addNode.
-
       const newNode: NcNode = {
         [entityPrimaryKeyProperty]: uuid(),
         type: action.payload.type,
@@ -287,6 +289,19 @@ export default function reducer(
       return {
         ...state,
         nodes: [...state.nodes, newNode],
+      };
+    }
+    case REMOVE_NODE: {
+      console.log('REMOVE_NODE', action);
+      const targetUID = action[entityPrimaryKeyProperty];
+      return {
+        ...state,
+        nodes: state.nodes.filter(
+          (node) => node[entityPrimaryKeyProperty] !== targetUID,
+        ),
+        edges: state.edges.filter(
+          (edge) => edge.from !== targetUID && edge.to !== targetUID,
+        ),
       };
     }
     case UPDATE_EGO: {
@@ -375,21 +390,6 @@ export default function reducer(
               },
             };
           }))(),
-      };
-    }
-    case REMOVE_NODE: {
-      const removeentityPrimaryKeyProperty = action[entityPrimaryKeyProperty];
-      return {
-        ...state,
-        nodes: state.nodes.filter(
-          (node) =>
-            node[entityPrimaryKeyProperty] !== removeentityPrimaryKeyProperty,
-        ),
-        edges: state.edges.filter(
-          (edge) =>
-            edge.from !== removeentityPrimaryKeyProperty &&
-            edge.to !== removeentityPrimaryKeyProperty,
-        ),
       };
     }
     case ADD_NODE_TO_PROMPT: {

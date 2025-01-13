@@ -70,12 +70,8 @@ export const usePassphrase = () => {
       updateState({ isPrompting: false });
 
       if (!userInput) {
-        const error = new UnauthorizedError();
-        window.dispatchEvent(
-          new CustomEvent('passphrase-cancel', { detail: error }),
-        );
-        reject(error);
-        return;
+        window.dispatchEvent(new CustomEvent('passphrase-cancel'));
+        throw new UnauthorizedError();
       }
 
       updateState({

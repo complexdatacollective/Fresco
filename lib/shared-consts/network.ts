@@ -36,8 +36,8 @@ const NcEntitySchema = z.object({
   [entitySecureAttributesMeta]: z
     .record(
       z.object({
-        iv: z.array(z.number()),
-        salt: z.array(z.number()),
+        iv: z.instanceof(Uint8Array),
+        salt: z.instanceof(Uint8Array),
       }),
     )
     .optional(),

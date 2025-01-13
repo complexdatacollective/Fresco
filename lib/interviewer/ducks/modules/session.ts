@@ -11,15 +11,17 @@ import {
   type NcNetwork,
   type NcNode,
 } from '~/lib/shared-consts';
+import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getPromptId } from '../../selectors/interface';
 import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getActiveSessionId, getCurrentStageId } from '../../selectors/session';
 import { type GetState, type Session, type StageMetadata } from '../../store';
 import networkReducer, {
-  actionTypes as networkActionTypes,
   actionCreators as networkActions,
+  actionTypes as networkActionTypes,
   type AddNodeAction,
   type NetworkActions,
+  type RemoveNodeAction,
 } from './network';
 import {
   SET_SERVER_SESSION,
@@ -70,18 +72,21 @@ const getReducer =
         };
       }
       // Whenever a network action occurs, pass the action through to the network reducer
-      case networkActionTypes.ADD_NODE: // case networkActionTypes.TOGGLE_NODE_ATTRIBUTES: // case networkActionTypes.UPDATE_NODE: // case networkActionTypes.REMOVE_NODE_FROM_PROMPT: // case networkActionTypes.REMOVE_NODE: // case networkActionTypes.BATCH_ADD_NODES: // case networkActionTypes.ADD_NODE_TO_PROMPT:
-      // case networkActionTypes.ADD_EDGE:
-      // case networkActionTypes.UPDATE_EDGE:
-      // case networkActionTypes.TOGGLE_EDGE:
-      // case networkActionTypes.REMOVE_EDGE:
-      // case networkActionTypes.UPDATE_EGO:
-      {
-        if (!sessionExists(action.sessionMeta.sessionId, state)) {
-          return state;
-        }
+      case networkActionTypes.ADD_NODE:
+      case networkActionTypes.REMOVE_NODE:
+      case networkActionTypes.ADD_EDGE:
+      case networkActionTypes.TOGGLE_NODE_ATTRIBUTES:
+      case networkActionTypes.UPDATE_NODE:
+      case networkActionTypes.REMOVE_NODE_FROM_PROMPT:
+      case networkActionTypes.BATCH_ADD_NODES:
+      case networkActionTypes.ADD_NODE_TO_PROMPT:
+      case networkActionTypes.UPDATE_EDGE:
+      case networkActionTypes.TOGGLE_EDGE:
+      case networkActionTypes.REMOVE_EDGE:
+      case networkActionTypes.UPDATE_EGO: {
+        const session = state[action.sessionMeta.sessionId];
 
-        const session = state[action.sessionMeta.sessionId]!;
+        invariant(session, 'Session must exist to update network');
 
         return {
           ...state,
@@ -90,10 +95,7 @@ const getReducer =
             // Reset finished and exported state if network changes
             finishTime: null,
             exportTime: null,
-            network: network(
-              state[action.sessionMeta.sessionId]!.network,
-              action,
-            ),
+            network: network(session.network, action),
           }),
         };
       }
@@ -229,11 +231,8 @@ const batchAddNodes =
   };
 
 const addNode =
-  (
-    type: NcNode['type'],
-    attributeData: NcNode[EntityAttributesProperty] = {},
-  ) =>
-  (dispatch: Dispatch, getState: GetState) => {
+  (type: NcNode['type'], attributes: NcNode[EntityAttributesProperty] = {}) =>
+  async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
 
     const sessionId = getActiveSessionId(state);
@@ -250,8 +249,25 @@ const addNode =
     const promptId = getPromptId(state);
     invariant(promptId, 'Prompt ID is required to add a node');
 
-    // TODO: handle encryption here
-    const secureAttributes = {};
+    // const result = await dispatch(
+    //   openDialog({
+    //     id: uuid(),
+    //     type: 'Confirm',
+    //     title: 'Add Node',
+    //     message: 'Are you sure you want to add this node?',
+    //   }),
+    // );
+
+    // console.log('result', result);
+
+    const { secureAttributes, encryptedAttributes } =
+      await generateSecureAttributes(
+        {
+          ...defaultVariablesForType,
+          ...attributes,
+        },
+        'passphrase',
+      );
 
     dispatch<AddNodeAction>({
       type: networkActionTypes.ADD_NODE,
@@ -262,12 +278,24 @@ const addNode =
       },
       payload: {
         type,
-        attributeData: {
-          ...defaultVariablesForType,
-          ...attributeData,
-        },
+        attributeData: encryptedAttributes,
         secureAttributes,
       },
+    });
+  };
+
+const removeNode =
+  (uid: NcNode[EntityPrimaryKey]) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const { activeSessionId } = getState();
+    invariant(activeSessionId, 'Session ID is required to remove a node');
+
+    dispatch<RemoveNodeAction>({
+      type: networkActionTypes.REMOVE_NODE,
+      sessionMeta: {
+        sessionId: activeSessionId,
+      },
+      [entityPrimaryKeyProperty]: uid,
     });
   };
 
@@ -312,16 +340,6 @@ const toggleNodeAttributes = (uid, attributes) => (dispatch, getState) => {
     sessionId: activeSessionId,
     [entityPrimaryKeyProperty]: uid,
     attributes,
-  });
-};
-
-const removeNode = (uid) => (dispatch, getState) => {
-  const { activeSessionId } = getState();
-
-  dispatch({
-    type: networkActionTypes.REMOVE_NODE,
-    sessionId: activeSessionId,
-    [entityPrimaryKeyProperty]: uid,
   });
 };
 

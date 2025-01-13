@@ -2,10 +2,10 @@ import { type Dispatch } from '@reduxjs/toolkit';
 import { type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
 
-const OPEN_DIALOG = Symbol('PROTOCOL/OPEN_DIALOG');
-const CLOSE_DIALOG = Symbol('PROTOCOL/CLOSE_DIALOG');
+export const OPEN_DIALOG = Symbol('PROTOCOL/OPEN_DIALOG');
+export const CLOSE_DIALOG = Symbol('PROTOCOL/CLOSE_DIALOG');
 
-type OpenDialogAction = {
+export type OpenDialogAction = {
   type: typeof OPEN_DIALOG;
   id: string;
   dialog: Omit<Dialog, 'id'>;
@@ -60,7 +60,7 @@ const initialState = [
   // },
 ] as Dialog[];
 
-const openDialog = (dialog: Dialog) => (dispatch: Dispatch) =>
+export const openDialog = (dialog: Dialog) => (dispatch: Dispatch) =>
   new Promise((resolve) => {
     const onConfirm = () => {
       if (dialog.onConfirm) {
