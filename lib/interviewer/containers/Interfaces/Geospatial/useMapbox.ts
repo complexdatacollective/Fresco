@@ -7,7 +7,8 @@ import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { getAssetUrlFromId } from '../../../selectors/protocol';
 
 const MAP_CONSTS = {
-  OPACITY: 0.5,
+  FILL_OPACITY: 0.5,
+  HOVER_OPACITY: 0.2,
   LINE_WIDTH: 1,
 } as const;
 
@@ -128,9 +129,24 @@ export const useMapbox = ({
         source: 'geojson-data',
         paint: {
           'fill-color': ncColor,
-          'fill-opacity': MAP_CONSTS.OPACITY,
+          'fill-opacity': MAP_CONSTS.FILL_OPACITY,
         },
         filter: ['==', targetFeatureProperty ?? '', ''],
+      });
+      // hover layer
+      mapRef.current?.addLayer({
+        id: 'hover',
+        type: 'fill',
+        source: 'geojson-data',
+        paint: {
+          'fill-color': ncColor,
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            MAP_CONSTS.HOVER_OPACITY,
+            0, // non-hovered features
+          ],
+        },
       });
     };
 
@@ -198,12 +214,48 @@ export const useMapbox = ({
       }
     };
 
-    // add click event listener to map
+
+
+     // handle hover events
+    let hoveredFeatureId: string | null = null;
+    const handleMouseMove = (e: MapMouseEvent) => {
+      if (!e?.features?.length) return;
+      const feature = e.features[0];
+
+      if (hoveredFeatureId !== null) {
+        mapInstance.setFeatureState(
+          { source: 'geojson-data', id: hoveredFeatureId },
+          { hover: false }
+        );
+      }
+
+      hoveredFeatureId = feature?.id !== undefined ? String(feature.id) : null;
+      if (hoveredFeatureId === null) return;
+      mapInstance.setFeatureState(
+        { source: 'geojson-data', id: hoveredFeatureId },
+        { hover: true }
+      );
+    };
+     const handleMouseLeave = () => {
+       if (hoveredFeatureId !== null) {
+         mapInstance.setFeatureState(
+           { source: 'geojson-data', id: hoveredFeatureId },
+           { hover: false }
+         );
+       }
+       hoveredFeatureId = null;
+     };
+
+    // add event listeners to map
     mapInstance.on('click', 'layerToSelect', handleMapClick);
+    mapInstance.on('mousemove', 'layerToSelect', handleMouseMove);
+    mapInstance.on('mouseleave', 'layerToSelect', handleMouseLeave);
 
     // cleanup
     return () => {
       mapInstance.off('click', 'layerToSelect', handleMapClick);
+      mapInstance.off('mousemove', 'layerToSelect', handleMouseMove);
+      mapInstance.off('mouseleave', 'layerToSelect', handleMouseLeave);
     };
   }, [
     isMapLoaded,
