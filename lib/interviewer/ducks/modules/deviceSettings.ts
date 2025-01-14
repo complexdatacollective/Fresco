@@ -1,7 +1,7 @@
-const SET_DESCRIPTION = 'SETTINGS/SET_DESCRIPTION' as const;
-const SET_INTERFACE_SCALE = 'SETTINGS/SET_INTERFACE_SCALE' as const;
-const TOGGLE_SETTING = 'SETTINGS/TOGGLE_SETTING' as const;
-const SET_SETTING = 'SETTINGS/SET_SETTING' as const;
+const SET_DESCRIPTION = 'SETTINGS/SET_DESCRIPTION';
+const SET_INTERFACE_SCALE = 'SETTINGS/SET_INTERFACE_SCALE';
+const TOGGLE_SETTING = 'SETTINGS/TOGGLE_SETTING';
+const SET_SETTING = 'SETTINGS/SET_SETTING';
 
 // Static defaults should be distinguishable from user choices (e.g., undefined instead of false).
 type DeviceSettings = {

@@ -7,8 +7,8 @@ export const semverSchema = z
     "Invalid version format. Expected format is 'v1.2.3'.",
   )
   .transform((version) => {
-    const [, major, minor, patch] = version.match(
-      /^v(\d+)\.(\d+)\.(\d+)$/,
+    const [, major, minor, patch] = /^v(\d+)\.(\d+)\.(\d+)$/.exec(
+      version,
     ) as string[];
 
     if (!major || !minor || !patch) {

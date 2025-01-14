@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const numberEnum = <Num extends number, T extends Readonly<Num[]>>(
+export const numberEnum = <Num extends number, T extends readonly Num[]>(
   args: T,
 ): z.ZodSchema<T[number]> => {
   return z.custom<T[number]>((val: unknown) => {

@@ -19,7 +19,7 @@ export async function addEvent(
     safeRevalidateTag('activityFeed');
 
     return { success: true, error: null };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Failed to add event' };
   }
 }
