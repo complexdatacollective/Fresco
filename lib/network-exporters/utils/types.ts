@@ -12,7 +12,7 @@ import type {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import type { ZNcEdge, ZNcNetwork, ZNcNode } from '~/schemas/network-canvas';
+import type { NcNetwork, ZNcEdge, ZNcNode } from '~/schemas/network-canvas';
 
 type NodeWithEgo = z.infer<typeof ZNcNode> & {
   [egoProperty]: string;
@@ -37,11 +37,14 @@ export type SessionVariables = {
   APP_VERSION: string;
 };
 
-export type FormattedSession = z.infer<typeof ZNcNetwork> & {
+export type FormattedSession = NcNetwork & {
   sessionVariables: SessionVariables;
 };
 
-export type SessionWithNetworkEgo = FormattedSession & {
+export type SessionWithNetworkEgo = Omit<
+  FormattedSession,
+  'nodes' | 'edges'
+> & {
   nodes: NodeWithEgo[];
   edges: EdgeWithEgo[];
 };
@@ -92,11 +95,12 @@ export type NodeWithResequencedID = NodeWithEgo & {
 
 export type EdgeWithResequencedID = EdgeWithEgo & {
   [edgeExportIDProperty]: number;
-  from: number;
-  to: number;
 };
 
-export type SessionWithResequencedIDs = SessionWithNetworkEgo & {
+export type SessionWithResequencedIDs = Omit<
+  FormattedSession,
+  'nodes' | 'edges'
+> & {
   nodes: NodeWithResequencedID[];
   edges: EdgeWithResequencedID[];
 };

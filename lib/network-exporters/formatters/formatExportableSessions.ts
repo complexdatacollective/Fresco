@@ -43,12 +43,12 @@ export const formatExportableSessions = (
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),
-      ...(session.startTime && {
-        [sessionStartTimeProperty]: new Date(session.startTime).toISOString(),
-      }),
-      ...(session.finishTime && {
-        [sessionFinishTimeProperty]: new Date(session.finishTime).toISOString(),
-      }),
+      [sessionStartTimeProperty]: session.startTime
+        ? new Date(session.startTime).toISOString()
+        : undefined,
+      [sessionFinishTimeProperty]: session.finishTime
+        ? new Date(session.finishTime).toISOString()
+        : undefined,
       [sessionExportTimeProperty]: new Date().toISOString(),
       COMMIT_HASH: env.COMMIT_HASH!,
       APP_VERSION: env.APP_VERSION!,
