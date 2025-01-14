@@ -28,11 +28,12 @@ export const protocol: Protocol = {
       },
       mapOptions: {
         center: [-87.6298, 41.8781],
-        token: 'asset3',
+        tokenAssetId: 'asset3',
         initialZoom: 12,
-        dataSource: 'asset1',
+        dataSourceAssetId: 'asset1',
         color: 'primary-color-seq-1',
-        propToSelect: 'namelsad10',
+        targetFeatureProperty: 'namelsad10',
+        style: 'Standard',
       },
       prompts: [
         {
@@ -58,10 +59,11 @@ export const protocol: Protocol = {
       mapOptions: {
         center: [-74.006, 40.7128],
         initialZoom: 14,
-        token: 'asset3',
-        dataSource: 'asset2',
+        tokenAssetId: 'asset3',
+        dataSourceAssetId: 'asset2',
         color: 'primary-color-seq-2',
-        propToSelect: 'NTAName',
+        targetFeatureProperty: 'NTAName',
+        style: 'Dark',
       },
       prompts: [
         {

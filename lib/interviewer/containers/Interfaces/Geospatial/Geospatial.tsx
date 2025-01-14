@@ -1,5 +1,6 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { type AnyAction } from '@reduxjs/toolkit';
+import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -23,7 +24,7 @@ type NavDirection = 'forwards' | 'backwards';
 const NodeAnimationVariants = {
   initial: (navDirection: NavDirection) => ({
     opacity: 0,
-    y: navDirection === 'backwards' ? '-100%' : '100%',
+    y: navDirection === 'backwards' ? '-10%' : '10%',
   }),
   animate: {
     opacity: 1,
@@ -35,7 +36,7 @@ const NodeAnimationVariants = {
   },
   exit: (navDirection: NavDirection) => ({
     opacity: 0,
-    y: navDirection === 'backwards' ? '100%' : '-100%',
+    y: navDirection === 'backwards' ? '10%' : '-10%',
     transition: {
       type: 'tween',
       duration: 0.3,
@@ -43,7 +44,7 @@ const NodeAnimationVariants = {
   }),
 };
 
-export type GeospatialStage = Extract<
+type GeospatialStage = Extract<
   Protocol['stages'][number],
   { type: 'Geospatial' }
 >;
@@ -203,10 +204,8 @@ export default function GeospatialInterface({
     <div className="w-full items-center justify-center" ref={dragSafeRef}>
       <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
 
-      <div className="absolute top-10 right-14 z-10">
-        <Button size="small" onClick={handleResetMapZoom}>
-          Recenter Map
-        </Button>
+      <div className="absolute bottom-10 left-14 z-10">
+        <Button onClick={handleResetMapZoom} icon={<Locate size={24} />} />
       </div>
 
       <CollapsablePrompts
@@ -235,6 +234,7 @@ export default function GeospatialInterface({
           </AnimatePresence>
           <Button
             size="small"
+            color="navy-taupe"
             onClick={moveForward}
             disabled={!!initialSelectionValue}
           >

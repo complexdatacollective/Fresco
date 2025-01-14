@@ -2,12 +2,11 @@ import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import type { MapOptions } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { type MapOptions, mapboxStyles } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 import { getAssetUrlFromId } from '../../../selectors/protocol';
 
-export const MAP_CONSTS = {
-  STYLE: 'mapbox://styles/mapbox/standard',
+const MAP_CONSTS = {
   OPACITY: 0.5,
   LINE_WIDTH: 1,
 } as const;
@@ -19,10 +18,10 @@ type UseMapboxProps = {
   onSelectionChange: (value: string) => void;
 };
 
-const useMapboxToken = (tokenId: string) => {
+const useMapboxToken = (tokenAssetId: string) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const getAssetUrl = useSelector(getAssetUrlFromId);
-  const assetUrl = getAssetUrl(tokenId) as string;
+  const assetUrl = getAssetUrl(tokenAssetId) as string;
 
   if (!assetUrl) {
     throw new Error('No asset URL found for token ID');
@@ -43,7 +42,7 @@ const useMapboxToken = (tokenId: string) => {
     };
 
     void fetchTokenFile();
-  }, [assetUrl, getAssetUrl, tokenId]);
+  }, [assetUrl, getAssetUrl, tokenAssetId]);
 
   return accessToken;
 };
@@ -58,8 +57,8 @@ export const useMapbox = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
-  const { center, initialZoom, token, dataSource, color, propToSelect } = mapOptions;
-  const accessToken = useMapboxToken(token);
+  const { center, initialZoom, tokenAssetId, dataSourceAssetId, color, targetFeatureProperty, style } = mapOptions;
+  const accessToken = useMapboxToken(tokenAssetId);
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
@@ -70,20 +69,22 @@ export const useMapbox = ({
 
   const handleResetSelection = useCallback(() => {
     if (mapRef.current) {
-      mapRef.current.setFilter('selection', ['==', propToSelect, '']);
+      mapRef.current.setFilter('selection', ['==', targetFeatureProperty, '']);
     }
-  }, [propToSelect]);
+  }, [targetFeatureProperty]);
 
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
 
     mapboxgl.accessToken = accessToken;
 
+    const styleURL =  mapboxStyles[style];
+
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       center,
       zoom: initialZoom,
-      style: MAP_CONSTS.STYLE,
+      style: styleURL,
     });
 
     const handleMapLoad = () => {
@@ -92,14 +93,14 @@ export const useMapbox = ({
       if (mapRef.current) {
         mapRef.current.addSource('geojson-data', {
           type: 'geojson',
-          data: getAssetUrl(dataSource),
+          data: getAssetUrl(dataSourceAssetId),
         });
       }
 
       const ncColor =
         getCSSVariableAsString(`--nc-${color}`) ??
         getCSSVariableAsString('--nc-primary-color-seq-1') ??
-        'black';
+        'rgb(226, 33, 91)';
 
       mapRef.current?.addLayer({
         id: 'outline',
@@ -129,7 +130,7 @@ export const useMapbox = ({
           'fill-color': ncColor,
           'fill-opacity': MAP_CONSTS.OPACITY,
         },
-        filter: ['==', propToSelect ?? '', ''],
+        filter: ['==', targetFeatureProperty ?? '', ''],
       });
     };
 
@@ -148,15 +149,7 @@ export const useMapbox = ({
     return () => {
       mapRef.current?.remove();
     };
-  }, [
-    accessToken,
-    center,
-    dataSource,
-    getAssetUrl,
-    initialZoom,
-    color,
-    propToSelect,
-  ]);
+  }, [accessToken, center, getAssetUrl, initialZoom, color, targetFeatureProperty, dataSourceAssetId, style]);
 
   // handle selections
   useEffect(() => {
@@ -170,14 +163,14 @@ export const useMapbox = ({
       if (mapInstance.isStyleLoaded()) {
         mapInstance.setFilter('selection', [
           '==',
-          propToSelect,
+          targetFeatureProperty,
           initialSelectionValue,
         ]);
       } else {
         mapInstance.once('styledata', () => {
           mapInstance.setFilter('selection', [
             '==',
-            propToSelect,
+            targetFeatureProperty,
             initialSelectionValue,
           ]);
         });
@@ -189,7 +182,7 @@ export const useMapbox = ({
       const feature = e.features[0];
 
       const selected: string | null = feature?.properties
-        ? (feature.properties[propToSelect] as string)
+        ? (feature.properties[targetFeatureProperty] as string)
         : null;
 
       if (selected !== null) {
@@ -199,7 +192,7 @@ export const useMapbox = ({
       if (mapInstance) {
         mapInstance.setFilter('selection', [
           '==',
-          propToSelect,
+          targetFeatureProperty,
           selected ?? '',
         ]);
       }
@@ -217,7 +210,7 @@ export const useMapbox = ({
     mapRef,
     initialSelectionValue,
     onSelectionChange,
-    propToSelect,
+    targetFeatureProperty,
   ]);
 
   return {

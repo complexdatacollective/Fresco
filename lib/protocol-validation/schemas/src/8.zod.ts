@@ -103,7 +103,7 @@ const nodeSchema = z
   })
   .strict();
 
-export type Node = z.infer<typeof nodeSchema>;
+type Node = z.infer<typeof nodeSchema>;
 
 const edgeSchema = z
   .object({
@@ -466,18 +466,38 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
+export const mapboxStyles = {
+  'Standard': 'mapbox://styles/mapbox/standard',
+  'Standard Satellite': 'mapbox://styles/mapbox/standard-satellite',
+  'Streets': 'mapbox://styles/mapbox/streets-v12',
+  'Outdoors': 'mapbox://styles/mapbox/outdoors-v12',
+  'Light': 'mapbox://styles/mapbox/light-v11',
+  'Dark': 'mapbox://styles/mapbox/dark-v11',
+  'Satellite': 'mapbox://styles/mapbox/satellite-v9',
+  'Satellite Streets': 'mapbox://styles/mapbox/satellite-streets-v12',
+  'Navigation Day': 'mapbox://styles/mapbox/navigation-day-v1',
+  'Navigation Night': 'mapbox://styles/mapbox/navigation-night-v1',
+};
+
+const styleOptions = z.enum(Object.keys(mapboxStyles) as [keyof typeof mapboxStyles]);
+
 const mapOptions = z.object({
+  tokenAssetId: z.string(),
+  style: styleOptions,
   center: z.tuple([z.number(), z.number()]),
-  token: z.string(),
-  initialZoom: z.number().int(),
-  dataSource: z.string(),
+  initialZoom: z
+    .number()
+    .int()
+    .min(0, { message: "Zoom must be at least 0" })
+    .max(22, { message: "Zoom must be less than or equal to 22" }),
+  dataSourceAssetId: z.string(),
   color: z.string(),
-  propToSelect: z.string(), // property of geojson to select
+  targetFeatureProperty: z.string(), // property of geojson to select
 });
 
 export type MapOptions = z.infer<typeof mapOptions>;
 
-export const geospatialStage = baseStageSchema.extend({
+const geospatialStage = baseStageSchema.extend({
   type: z.literal('Geospatial'),
   subject: subjectSchema,
   mapOptions: mapOptions,
