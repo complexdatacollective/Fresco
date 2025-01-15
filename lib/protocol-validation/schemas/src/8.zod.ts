@@ -487,7 +487,6 @@ const mapOptions = z.object({
   center: z.tuple([z.number(), z.number()]),
   initialZoom: z
     .number()
-    .int()
     .min(0, { message: "Zoom must be at least 0" })
     .max(22, { message: "Zoom must be less than or equal to 22" }),
   dataSourceAssetId: z.string(),
