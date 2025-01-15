@@ -1,10 +1,10 @@
-import { Codebook } from '@codaco/shared-consts';
+import { type Codebook } from '@codaco/shared-consts';
 import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
-import draggable from '~/lib/dnd/draggable';
-import { DraggingItem } from '~/lib/dnd/store';
+import draggable from '~/lib/dnd/Draggable';
+import { type DraggingItem } from '~/lib/dnd/store';
 import UINode from '~/lib/ui/components/Node';
-import { NcNode } from '~/schemas/network-canvas';
+import { type NcNode } from '~/schemas/network-canvas';
 import { getEntityAttributes } from '~/utils/general';
 import { getNodeColor, labelLogic } from '../selectors/network';
 import { getProtocolCodebook } from '../selectors/protocol';

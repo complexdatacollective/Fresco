@@ -1,6 +1,6 @@
-import { ForwardRefComponent } from 'framer-motion';
+import { type ForwardRefComponent } from 'motion/react';
 import {
-  ForwardRefExoticComponent,
+  type ForwardRefExoticComponent,
   useCallback,
   useEffect,
   useRef,

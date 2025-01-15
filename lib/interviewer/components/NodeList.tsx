@@ -1,10 +1,11 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { hash } from 'ohash';
-import { ForwardRefExoticComponent, useCallback } from 'react';
+import { type ForwardRefExoticComponent } from 'react';
 import draggable from '~/lib/dnd/Draggable';
 import { type DraggingItem } from '~/lib/dnd/store';
 import useDroppable from '~/lib/dnd/useDroppable';
 import { cn } from '~/utils/shadcn';
+import Node from './Node';
 
 type NodeListProps = {
   listId: string;
@@ -16,15 +17,13 @@ type NodeListProps = {
   className?: string;
 };
 
+const DraggableNode = draggable(Node, {
+  type: 'EXISTING_NODE',
+});
+
 const NodeList = (props: NodeListProps) => {
   const { items, willAccept, allowDrop, onDrop, className, ItemComponent } =
     props;
-
-  const ItemMotionComponent = useCallback(
-    () => (props) =>
-      draggable(ItemComponent, { type: 'EXISTING_NODE', metaData: props }),
-    [],
-  );
 
   const { ref, isActive, isValid, isOver } = useDroppable({
     disabled: !allowDrop,
@@ -33,6 +32,8 @@ const NodeList = (props: NodeListProps) => {
     },
     willAccept,
   });
+
+  console.log('items', items);
 
   return (
     <motion.div
@@ -52,7 +53,7 @@ const NodeList = (props: NodeListProps) => {
 
           const itemHash = hash(item);
 
-          return ItemMotionComponent(item);
+          return <DraggableNode key={itemHash} {...item} />;
         })}
       </AnimatePresence>
     </motion.div>
