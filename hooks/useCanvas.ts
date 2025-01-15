@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 
 const resizeCanvas = (
   context: CanvasRenderingContext2D,
-  canvasRef: React.RefObject<HTMLCanvasElement>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
 ) => {
   if (!canvasRef?.current) {
     return false;
@@ -29,7 +29,7 @@ const resizeCanvas = (
 type DrawFunction = (
   ctx: CanvasRenderingContext2D,
   time: number,
-  canvasRef: React.RefObject<HTMLCanvasElement>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
 ) => void;
 
 const defaultPredraw: DrawFunction = (context: CanvasRenderingContext2D) => {

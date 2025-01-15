@@ -30,7 +30,7 @@ const handler = async (
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (limitInterviews && cookies().get(protocolId)) {
+  if (limitInterviews && (await cookies()).get(protocolId)) {
     url.pathname = '/interview/finished';
     return NextResponse.redirect(url);
   }

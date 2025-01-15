@@ -7,11 +7,12 @@ import { getInterviewById } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
 import InterviewShell from '../_components/InterviewShell';
 
-export default async function Page({
-  params,
-}: {
-  params: { interviewId: string };
-}) {
+export default async function Page(
+  props: {
+    params: Promise<{ interviewId: string }>;
+  }
+) {
+  const params = await props.params;
   const { interviewId } = params;
 
   if (!interviewId) {
@@ -31,7 +32,7 @@ export default async function Page({
   // and redirect to finished page
   const limitInterviews = await getAppSetting('limitInterviews');
 
-  if (limitInterviews && cookies().get(interview?.protocol?.id ?? '')) {
+  if (limitInterviews && (await cookies()).get(interview?.protocol?.id ?? '')) {
     redirect('/interview/finished');
   }
 
