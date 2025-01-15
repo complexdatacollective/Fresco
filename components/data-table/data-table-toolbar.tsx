@@ -29,7 +29,7 @@ export function DataTableToolbar<TData>({
   newRowLink,
   deleteRowsAction,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters?.length > 0 ?? false;
+  const isFiltered = table.getState().columnFilters?.length > 0;
   const [isPending, startTransition] = React.useTransition();
 
   return (

@@ -1,18 +1,30 @@
+import { createId } from '@paralleldrive/cuid2';
 import { FileText } from 'lucide-react';
-import { setAppConfigured } from '~/actions/appSettings';
+import { redirect } from 'next/navigation';
+import { setAppSetting } from '~/actions/appSettings';
 import Section from '~/components/layout/Section';
 import { Button } from '~/components/ui/Button';
 import SubmitButton from '~/components/ui/SubmitButton';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import trackEvent from '~/lib/analytics';
+import { getInstallationId } from '~/queries/appSettings';
 
 function Documentation() {
   const handleAppConfigured = async () => {
-    await setAppConfigured();
+    const installationId = await getInstallationId();
+    if (!installationId) {
+      await setAppSetting('installationId', createId());
+    }
+    await setAppSetting('configured', true);
     void trackEvent({
       type: 'AppSetup',
+      metadata: {
+        installationId,
+      },
     });
+
+    redirect('/dashboard');
   };
 
   return (
@@ -33,7 +45,7 @@ function Documentation() {
             </Heading>
             Visit our documentation site to learn more about Fresco.
           </div>
-          <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+          <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
             <a
               href="https://documentation.networkcanvas.com/en/fresco"
               target="_blank"
@@ -52,7 +64,7 @@ function Documentation() {
             Read our guide on the basic workflow for using Fresco to conduct
             your study.
           </div>
-          <div className="flex min-w-32 flex-shrink-0 flex-col items-end justify-center">
+          <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
             <a
               href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
               target="_blank"
@@ -65,11 +77,9 @@ function Documentation() {
         </Section>
       </div>
 
-      <div className="flex justify-start pt-12">
+      <div className="flex justify-end pt-12">
         <form action={handleAppConfigured}>
-          <SubmitButton variant="default" size={'lg'}>
-            Go to the dashboard!
-          </SubmitButton>
+          <SubmitButton variant="default">Go to the dashboard!</SubmitButton>
         </form>
       </div>
     </div>

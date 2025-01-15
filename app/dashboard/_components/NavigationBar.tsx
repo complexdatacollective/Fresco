@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -50,7 +50,7 @@ export function NavigationBar() {
         <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
         <Heading variant="h3" className="hidden text-white lg:block">
           Fresco
-          <sup className="align-super text-xs">v.{env.APP_VERSION}</sup>
+          <sup className="align-super text-xs">{env.APP_VERSION}</sup>
         </Heading>
       </Link>
       <ul className="flex items-center gap-10">

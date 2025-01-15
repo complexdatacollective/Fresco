@@ -1,26 +1,19 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { cn } from '~/utils/shadcn';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import Heading from '~/components/ui/typography/Heading';
+import { cn } from '~/utils/shadcn';
 
-const stepLabels = [
-  'Create Account',
-  'Upload Protocol',
-  'Configure Participation',
-  'Documentation',
-];
-
-function OnboardSteps() {
+function OnboardSteps({ steps }: { steps: string[] }) {
   const [currentStep, setCurrentStep] = useQueryState(
     'step',
     parseAsInteger.withDefault(1),
   );
 
   return (
-    <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">
-      {stepLabels.map((step, index) => (
+    <div className="flex shrink-0 grow-0 flex-col gap-6 rounded-xl bg-white px-8 py-12">
+      {steps.map((step, index) => (
         <div
           key={index}
           className={cn(
@@ -46,7 +39,9 @@ function OnboardSteps() {
             )}
           </div>
           <div className="flex flex-col">
-            <Paragraph margin="none">{step}</Paragraph>
+            <Heading variant={'h4-all-caps'} className="m-0">
+              {step}
+            </Heading>
           </div>
         </div>
       ))}

@@ -1,12 +1,16 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
-import { UTApi } from 'uploadthing/server';
+import { revalidatePath } from 'next/cache';
+import { env } from 'process';
+import { safeRevalidateTag } from '~/lib/cache';
+import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 export const resetAppSettings = async () => {
-  await requireApiAuth();
+  if (env.NODE_ENV !== 'development') {
+    await requireApiAuth();
+  }
 
   try {
     // Delete all data:
@@ -19,12 +23,23 @@ export const resetAppSettings = async () => {
       prisma.asset.deleteMany(),
     ]);
 
-    revalidatePath('/');
-    revalidateTag('appSettings');
-    revalidateTag('activityFeed');
-    revalidateTag('summaryStatistics');
+    // add a new initializedAt date
+    await prisma.appSettings.create({
+      data: {
+        key: 'initializedAt',
+        value: new Date().toISOString(),
+      },
+    });
 
-    const utapi = new UTApi();
+    revalidatePath('/');
+    safeRevalidateTag('appSettings');
+    safeRevalidateTag('activityFeed');
+    safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('getProtocols');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('getInterviews');
+
+    const utapi = await getUTApi();
 
     // Remove all files from UploadThing:
     await utapi.listFiles({}).then(({ files }) => {

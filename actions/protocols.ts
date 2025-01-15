@@ -2,10 +2,10 @@
 
 import { type Protocol } from '@codaco/shared-consts';
 import { Prisma } from '@prisma/client';
-import { revalidateTag } from 'next/cache';
+import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
-import { UTApi } from 'uploadthing/server';
 import { type z } from 'zod';
+import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -83,11 +83,11 @@ export async function deleteProtocols(hashes: string[]) {
       data: events,
     });
 
-    revalidateTag('activityFeed');
-    revalidateTag('summaryStatistics');
-    revalidateTag('getProtocols');
-    revalidateTag('getInterviews');
-    revalidateTag('getParticipants');
+    safeRevalidateTag('activityFeed');
+    safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('getProtocols');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('getParticipants');
 
     return { error: null, deletedProtocols: deletedProtocols };
   } catch (error) {
@@ -109,7 +109,7 @@ async function deleteFilesFromUploadThing(fileKey: string | string[]) {
     return;
   }
 
-  const utapi = new UTApi();
+  const utapi = await getUTApi();
 
   const response = await utapi.deleteFiles(fileKey);
 
@@ -155,8 +155,8 @@ export async function insertProtocol(
 
     void addEvent('Protocol Installed', `Protocol "${protocolName}" installed`);
 
-    revalidateTag('getProtocols');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getProtocols');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null, success: true };
   } catch (e) {

@@ -2,9 +2,9 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma, type Interview, type Protocol } from '@prisma/client';
-import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
+import { safeRevalidateTag } from '~/lib/cache';
 import type { InstalledProtocols } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
@@ -17,6 +17,7 @@ import type {
   ExportReturn,
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
+import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewsForExport } from '~/queries/interviews';
 import type {
   CreateInterview,
@@ -49,8 +50,8 @@ export async function deleteInterviews(data: DeleteInterviews) {
       `Deleted ${deletedInterviews.count} interview(s)`,
     );
 
-    revalidateTag('getInterviews');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null, interview: deletedInterviews };
   } catch (error) {
@@ -72,7 +73,7 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
       },
     });
 
-    revalidateTag('getInterviews');
+    safeRevalidateTag('getInterviews');
 
     void addEvent(
       'Data Exported',
@@ -129,7 +130,7 @@ export const exportSessions = async (
       },
     });
 
-    revalidateTag('getInterviews');
+    safeRevalidateTag('getInterviews');
 
     return result;
   } catch (error) {
@@ -156,27 +157,12 @@ export const exportSessions = async (
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;
 
-  /**
-   * If no participant identifier is provided, we check if anonymous recruitment is enabled.
-   * If it is, we create a new participant and use that identifier.
-   */
-  const participantStatement = participantIdentifier
-    ? {
-        connect: {
-          identifier: participantIdentifier,
-        },
-      }
-    : {
-        create: {
-          identifier: `p-${createId()}`,
-          label: 'Anonymous Participant',
-        },
-      };
-
   try {
     if (!participantIdentifier) {
-      const appSettings = await prisma.appSettings.findFirst();
-      if (!appSettings || !appSettings.allowAnonymousRecruitment) {
+      const allowAnonymousRecruitment = await getAppSetting(
+        'allowAnonymousRecruitment',
+      );
+      if (!allowAnonymousRecruitment) {
         return {
           errorType: 'no-anonymous-recruitment',
           error: 'Anonymous recruitment is not enabled',
@@ -184,6 +170,29 @@ export async function createInterview(data: CreateInterview) {
         };
       }
     }
+
+    /**
+     * If a participant identifier is provided, we attempt to connect to an existing participant
+     * or create a new one with that identifier. If no participant identifier is provided,
+     * we create a new anonymous participant with a generated identifier.
+     */
+    const participantStatement = participantIdentifier
+      ? {
+          connectOrCreate: {
+            create: {
+              identifier: participantIdentifier,
+            },
+            where: {
+              identifier: participantIdentifier,
+            },
+          },
+        }
+      : {
+          create: {
+            identifier: `p-${createId()}`,
+            label: 'Anonymous Participant',
+          },
+        };
 
     const createdInterview = await prisma.interview.create({
       select: {
@@ -209,9 +218,9 @@ export async function createInterview(data: CreateInterview) {
       }" started an interview`,
     );
 
-    revalidateTag('getInterviews');
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return {
       error: null,
@@ -255,7 +264,7 @@ export async function syncInterview(data: SyncInterview) {
       },
     });
 
-    revalidateTag('getInterviews');
+    safeRevalidateTag(`getInterviewById-${id}`);
 
     // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${id})`);
@@ -296,10 +305,10 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
-    cookies().set(updatedInterview.protocolId, 'completed');
+    (await cookies()).set(updatedInterview.protocolId, 'completed');
 
-    revalidateTag('getInterviews');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getInterviews');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null };
   } catch (error) {

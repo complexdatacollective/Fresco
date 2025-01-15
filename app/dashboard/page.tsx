@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import Heading from '~/components/ui/typography/Heading';
@@ -8,13 +9,15 @@ import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
 import SummaryStatistics from './_components/SummaryStatistics/SummaryStatistics';
+import UpdateUploadThingTokenAlert from './_components/UpdateUploadThingTokenAlert';
 import AnonymousRecruitmentWarning from './protocols/_components/AnonymousRecruitmentWarning';
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function Home(
+  props: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
   await requireAppNotExpired();
   await requirePageAuth();
 
@@ -27,9 +30,15 @@ export default async function Home({
           headerText="Dashboard"
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
+        <Suspense fallback={null}>
+          <AnonymousRecruitmentWarning />
+        </Suspense>
+        <Suspense fallback={null}>
+          <UpdateUploadThingTokenAlert />
+        </Suspense>
       </ResponsiveContainer>
-      <AnonymousRecruitmentWarning />
       <SummaryStatistics />
+
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>
         <Paragraph>

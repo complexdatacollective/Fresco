@@ -1,30 +1,38 @@
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createInterview } from '~/actions/interviews';
+import { env } from '~/env';
 import trackEvent from '~/lib/analytics';
-import { getLimitInterviewsStatus } from '~/queries/appSettings';
-import getBaseUrl from '~/utils/getBaseUrl';
+import { getAppSetting } from '~/queries/appSettings';
 
 export const dynamic = 'force-dynamic';
 
 const handler = async (
   req: NextRequest,
-  { params }: { params: { protocolId: string } },
+  { params }: { params: Promise<{ protocolId: string }> },
 ) => {
-  const protocolId = params.protocolId; // From route segment
+  const protocolId = (await params).protocolId; // From route segment
+
+  // when deployed via docker `req.url` and `req.nextUrl`
+  // shows Docker Container ID instead of real host
+  // issue: https://github.com/vercel/next.js/issues/65568
+  // workaround: use `env.PUBLIC_URL` to get the correct url
+  const url = new URL(env.PUBLIC_URL ?? req.nextUrl.clone());
 
   // If no protocol ID is provided, redirect to the error page.
   if (!protocolId || protocolId === 'undefined') {
-    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
   }
 
-  const limitInterviews = await getLimitInterviewsStatus();
+  const limitInterviews = await getAppSetting('limitInterviews');
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (limitInterviews && cookies().get(protocolId)) {
-    return NextResponse.redirect(`${getBaseUrl()}/interview/finished`);
+  if (limitInterviews && (await cookies()).get(protocolId)) {
+    url.pathname = '/interview/finished';
+    return NextResponse.redirect(url);
   }
 
   let participantIdentifier: string | undefined;
@@ -58,7 +66,8 @@ const handler = async (
       },
     });
 
-    return NextResponse.redirect(`${getBaseUrl()}/onboard/error`);
+    url.pathname = '/onboard/error';
+    return NextResponse.redirect(url);
   }
 
   // eslint-disable-next-line no-console
@@ -76,9 +85,8 @@ const handler = async (
   });
 
   // Redirect to the interview
-  return NextResponse.redirect(
-    `${getBaseUrl()}/interview/${createdInterviewId}`,
-  );
+  url.pathname = `/interview/${createdInterviewId}`;
+  return NextResponse.redirect(url);
 };
 
 export { handler as GET, handler as POST };

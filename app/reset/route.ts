@@ -1,5 +1,6 @@
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { safeRevalidateTag } from '~/lib/cache';
 
 /**
  *
@@ -16,11 +17,11 @@ import { redirect } from 'next/navigation';
  */
 export function GET() {
   revalidatePath('/');
-  revalidateTag('appSettings');
-  revalidateTag('getInterviews');
-  revalidateTag('getParticipants');
-  revalidateTag('getProtocols');
-  revalidateTag('activityFeed');
+  safeRevalidateTag('appSettings');
+  safeRevalidateTag('getInterviews');
+  safeRevalidateTag('getParticipants');
+  safeRevalidateTag('getProtocols');
+  safeRevalidateTag('activityFeed');
 
   redirect('/');
 }

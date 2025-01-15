@@ -3,7 +3,7 @@ import {
   entityPrimaryKeyProperty,
   type Codebook,
 } from '@codaco/shared-consts';
-import { mapKeys } from 'lodash';
+import { mapKeys } from 'es-toolkit';
 import { hash } from 'ohash';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';

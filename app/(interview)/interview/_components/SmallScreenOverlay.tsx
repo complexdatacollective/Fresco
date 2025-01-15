@@ -9,7 +9,7 @@ const SmallScreenOverlay = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-[--nc-background]  lg:hidden">
+    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-(--nc-background)  lg:hidden">
       <div className="flex max-w-[72ch] flex-col items-center justify-center p-6 text-center">
         <Image
           src="/images/too-small.svg"
@@ -23,7 +23,7 @@ const SmallScreenOverlay = () => {
           To complete this interview, please use a device with a larger screen,
           or maximize your browser window.
         </Paragraph>
-        <Paragraph className="!mt-16">
+        <Paragraph className="mt-16!">
           <strong>Note:</strong> it is not possible to complete this interview
           using a mobile phone.
         </Paragraph>

@@ -5,8 +5,6 @@ import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env';
 import { isAppExpired } from '~/queries/appSettings';
 
-export const dynamic = 'force-dynamic';
-
 export default async function Page() {
   const isExpired = await isAppExpired();
 

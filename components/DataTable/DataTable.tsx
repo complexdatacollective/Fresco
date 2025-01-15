@@ -7,11 +7,13 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
-  type SortingState,
   type Row,
+  type SortingState,
   type Table as TTable,
 } from '@tanstack/react-table';
+import { FileUp, Loader } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import {
@@ -22,8 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
-import { FileUp, Loader } from 'lucide-react';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -48,6 +48,7 @@ type DataTableProps<TData, TValue> = {
   actionsHeader?: React.ReactNode;
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
+  defaultSortBy?: SortingState[0];
 };
 
 export function DataTable<TData, TValue>({
@@ -60,8 +61,11 @@ export function DataTable<TData, TValue>({
   actionsHeader,
   calculateRowClasses,
   headerItems,
+  defaultSortBy,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>(
+    defaultSortBy ? [{ ...defaultSortBy }] : [],
+  );
   const [isDeleting, setIsDeleting] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

@@ -1,4 +1,5 @@
-import { find, has, isEmpty } from 'lodash';
+import { findKey } from 'es-toolkit';
+import { find, has, isEmpty } from 'es-toolkit/compat';
 
 const findCategoricalKey = (
   object: Record<string | number, unknown>,
@@ -21,16 +22,13 @@ const findCategoricalKey = (
   const categoricalVariable = collection.find((pair) => {
     foundKey = findKey(
       object,
-      (objectItem) =>
-        (objectItem as { name: string | number }).name.toString() ===
-        pair.name.toString(),
+      (objectItem) => objectItem.name.toString() === pair.name.toString(),
     );
-
     return (
       foundKey &&
       has(object[foundKey], 'options') &&
       find(
-        (object[foundKey] as { options: { value: string | number }[] }).options,
+        object[foundKey].options,
         (option) => option.value.toString() === pair.option.toString(),
       )
     );
@@ -40,21 +38,6 @@ const findCategoricalKey = (
   }
   return undefined;
 };
-
-function findKey<T extends Record<string, unknown>>(
-  obj: T,
-  predicate: (value: T[keyof T], key: string, obj: T) => boolean,
-): string | undefined {
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      const value = obj[key];
-      if (predicate(value, key, obj)) {
-        return key;
-      }
-    }
-  }
-  return undefined;
-}
 
 /**
  * Utility function that can be used to help with translating external data
@@ -95,7 +78,7 @@ const getParentKeyByNameValue = (
     const locationName = toFind.substring(0, toFind.length - 2);
     foundKey = findKey(
       object,
-      (objectItem) => (objectItem as { name: string }).name === locationName,
+      (objectItem) => objectItem.name === locationName,
     );
     if (foundKey) {
       foundKey += toFind.substring(toFind.length - 2);

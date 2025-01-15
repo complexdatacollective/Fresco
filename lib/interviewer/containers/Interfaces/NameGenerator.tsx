@@ -1,16 +1,16 @@
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
+  NcNode,
 } from '@codaco/shared-consts';
-import { has, omit } from 'lodash';
+import { omit } from 'es-toolkit';
+import { has } from 'es-toolkit/compat';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
-import { type NcNode } from '~/schemas/network-canvas';
 import { usePrompts } from '../../behaviours/withPrompt';
-import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
@@ -29,8 +29,8 @@ import { type directions } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
 import {
   MaxNodesMet,
-  MinNodesNotMet,
   maxNodesWithDefault,
+  MinNodesNotMet,
   minNodesWithDefault,
 } from './utils/StageLevelValidation';
 
@@ -173,7 +173,11 @@ const NameGenerator = (props: NameGeneratorProps) => {
           }
         />
       </div>
-      <NodeBin />
+      <NodeBin
+        accepts={(meta) => meta.itemType === 'EXISTING_NODE'}
+        dropHandler={(meta) => removeNode(meta[entityPrimaryKeyProperty])}
+        id="NODE_BIN"
+      />
       {createPortal(
         <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
         document.getElementById('stage'),

@@ -5,7 +5,6 @@ import Heading from '~/components/ui/typography/Heading';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { SummaryStatisticsSkeleton } from './_components/SummaryStatistics/SummaryStatistics';
-import { AnonymousRecruitmentWarningSkeleton } from './protocols/_components/AnonymousRecruitmentWarning';
 
 export default function Loading() {
   return (
@@ -16,7 +15,6 @@ export default function Loading() {
           subHeaderText="Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
         />
       </ResponsiveContainer>
-      <AnonymousRecruitmentWarningSkeleton />
       <SummaryStatisticsSkeleton />
       <ResponsiveContainer>
         <Heading variant="h2">Recent Activity</Heading>

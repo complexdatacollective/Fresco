@@ -29,7 +29,7 @@ import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
-    <div className="fixed inset-0 z-[99] flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
+    <div className="fixed inset-0 z-99 flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
       <div
         className={cn(
           cardClasses,
@@ -112,7 +112,7 @@ export const ExportInterviewsDialog = ({
       const url = URL.createObjectURL(responseAsBlob);
 
       // Download the zip file
-      download(url, 'Network Canvas export.zip');
+      download(url, 'Network Canvas Export.zip');
       // clean up the URL object
       URL.revokeObjectURL(url);
     } catch (error) {

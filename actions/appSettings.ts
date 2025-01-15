@@ -1,51 +1,50 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { type z } from 'zod';
+import { safeRevalidateTag } from '~/lib/cache';
+import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
+import { ensureError } from '~/utils/ensureError';
 
-export async function setAnonymousRecruitment(input: boolean) {
+// Convert string | boolean | Date to string
+const getStringValue = (value: string | boolean | Date) => {
+  if (typeof value === 'boolean') return value.toString();
+  if (value instanceof Date) return value.toISOString();
+  return value;
+};
+
+export async function setAppSetting<
+  Key extends AppSetting,
+  V extends z.infer<typeof appSettingsSchema>[Key],
+>(key: Key, value: V): Promise<V> {
   await requireApiAuth();
 
-  await prisma.appSettings.updateMany({
-    data: {
-      allowAnonymousRecruitment: input,
-    },
-  });
-
-  revalidateTag('allowAnonymousRecruitment');
-
-  return input;
-}
-
-export async function setLimitInterviews(input: boolean) {
-  await requireApiAuth();
-  await prisma.appSettings.updateMany({
-    data: {
-      limitInterviews: input,
-    },
-  });
-
-  revalidateTag('limitInterviews');
-
-  return input;
-}
-
-export const setAppConfigured = async () => {
-  await requireApiAuth();
-
-  try {
-    await prisma.appSettings.updateMany({
-      data: {
-        configured: true,
-      },
-    });
-
-    revalidateTag('appSettings');
-  } catch (error) {
-    return { error: 'Failed to update appSettings', appSettings: null };
+  if (!appSettingsSchema.shape[key]) {
+    throw new Error(`Invalid app setting: ${key}`);
   }
 
-  redirect('/dashboard');
-};
+  try {
+    const result = appSettingsSchema.shape[key].parse(value);
+    const stringValue = getStringValue(result);
+
+    await prisma.appSettings.upsert({
+      where: { key },
+      create: { key, value: stringValue },
+      update: { value: stringValue },
+    });
+
+    safeRevalidateTag(`appSettings-${key}`);
+
+    return value;
+  } catch (error) {
+    const e = ensureError(error);
+    throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
+  }
+}
+
+export async function submitUploadThingForm(token: string) {
+  await setAppSetting('uploadThingToken', token);
+  redirect('/setup?step=3');
+}

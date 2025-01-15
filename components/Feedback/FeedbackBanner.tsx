@@ -1,15 +1,15 @@
 'use client';
 
 import { ArrowLeftFromLine } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { cn } from '~/utils/shadcn';
+import Banner from '../Banner/Banner';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
-import Banner from '../Banner/Banner';
-import FeedbackButton from './FeedbackButton';
-import { useState } from 'react';
-import SignOutModal from './SignOutModal';
-import { usePathname } from 'next/navigation';
 import Paragraph from '../ui/typography/Paragraph';
-import { cn } from '~/utils/shadcn';
+import FeedbackButton from './FeedbackButton';
+import SignOutModal from './SignOutModal';
 
 const FeedbackBanner = () => {
   const [openSignOutModal, setOpenSignOutModal] = useState(false);
@@ -29,7 +29,7 @@ const FeedbackBanner = () => {
         aria-hidden="true"
       >
         <div
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
+          className="aspect-577/310 w-[36.0625rem] bg-linear-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
           style={{
             clipPath:
               'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)',
@@ -41,7 +41,7 @@ const FeedbackBanner = () => {
         aria-hidden="true"
       >
         <div
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
+          className="aspect-577/310 w-[36.0625rem] bg-linear-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
           style={{
             clipPath:
               'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)',
@@ -67,15 +67,12 @@ const FeedbackBanner = () => {
       )}
       <div
         className={cn(
-          'flex flex-grow items-center gap-4 text-sm',
+          'flex grow items-center gap-4 text-sm',
           isDashboard ? 'justify-center' : 'justify-end',
         )}
       >
         {isDashboard && (
           <Paragraph margin="none" className="m-0 hidden sm:inline-flex">
-            <strong className="hidden font-semibold lg:inline-flex">
-              🤖 Fresco is Beta software – &nbsp;
-            </strong>
             We depend on your feedback and issue reports to improve
           </Paragraph>
         )}

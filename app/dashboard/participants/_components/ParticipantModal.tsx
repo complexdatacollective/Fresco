@@ -53,12 +53,13 @@ function ParticipantModal({
     .refine(
       (data) => {
         const existingParticipant = existingParticipants.find(
-          (p) => p.identifier === data.identifier
+          (p) => p.identifier === data.identifier,
         );
         // Allow the current identifier if editing
         return (
           !existingParticipant ||
-          (editingParticipant && existingParticipant.id === editingParticipant.id)
+          (editingParticipant &&
+            existingParticipant.id === editingParticipant.id)
         );
       },
       {
@@ -66,7 +67,6 @@ function ParticipantModal({
         message: 'This identifier is already in use.',
       },
     );
-
 
   type ValidationSchema = z.infer<typeof formSchema>;
 
@@ -85,14 +85,10 @@ function ParticipantModal({
     setError(null);
     setWorking(true);
 
-    if (data.label === '') {
-      data.label = undefined;
-    }
-
     if (editingParticipant) {
       await updateParticipant({
         identifier: editingParticipant.identifier,
-        data,
+        label: data.label,
       });
     }
 
@@ -128,7 +124,7 @@ function ParticipantModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {editingParticipant ? 'Edit Participant' : 'Add Participant'}

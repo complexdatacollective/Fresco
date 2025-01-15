@@ -52,11 +52,8 @@ describe('Participant Schema Validators', () => {
     });
 
     it('should accept empty strings', () => {
-      expect(participantIdentifierOptionalSchema.parse('')).toBe('');
-    });
-
-    it('should accept and trim whitespace characters to empty string', () => {
-      expect(participantIdentifierOptionalSchema.parse('     ')).toBe('');
+      expect(participantIdentifierOptionalSchema.parse('')).toBe(undefined);
+      expect(participantIdentifierOptionalSchema.parse('   ')).toBe(undefined);
     });
 
     it('should allow and trim valid identifiers with leading and trailing whitespace characters', () => {
@@ -70,10 +67,10 @@ describe('Participant Schema Validators', () => {
       expect(participantLabelSchema.parse('Label1')).toBe('Label1');
     });
     it('should allow empty strings', () => {
-      expect(participantLabelSchema.parse('')).toBe('');
+      expect(participantLabelSchema.parse('')).toBe(undefined);
     });
-    it('should allow and trim label with only whitespace characters to empty string', () => {
-      expect(participantLabelSchema.parse('   ')).toBe('');
+    it('should allow and trim label with only whitespace characters to undefined', () => {
+      expect(participantLabelSchema.parse('   ')).toBe(undefined);
     });
   });
   describe('Participant Label Required Schema', () => {
@@ -124,7 +121,7 @@ describe('Participant Row Schema - CSV import row', () => {
       }),
     ).toEqual({
       identifier: 'abcd1234',
-      label: '',
+      label: undefined,
     });
   });
 
@@ -158,7 +155,7 @@ describe('Participant Row Schema - CSV import row', () => {
       }),
     ).toEqual({
       label: 'Label1',
-      identifier: '',
+      identifier: undefined,
     });
   });
 
@@ -224,7 +221,13 @@ describe('CSV Schema', () => {
     ];
 
     expect(FormSchema.parse({ csvFile: validCsv })).toEqual({
-      csvFile: validCsv,
+      csvFile: [
+        { identifier: 'abcd1234', label: 'Label1' },
+        { identifier: 'xyz7890', label: undefined },
+        { identifier: 'abcd5678' },
+        { identifier: 'abcd3456', label: 'Label2' },
+        { identifier: undefined, label: 'Label3' },
+      ]
     });
   });
 

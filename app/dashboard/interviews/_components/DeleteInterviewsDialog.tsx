@@ -1,5 +1,8 @@
-import { AlertCircle, Trash2 } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
+import type { Interview } from '@prisma/client';
+import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { deleteInterviews } from '~/actions/interviews';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -9,10 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import type { Interview } from '@prisma/client';
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-import { deleteInterviews } from '~/actions/interviews';
+import { Button } from '~/components/ui/Button';
 
 type DeleteInterviewsDialog = {
   open: boolean;
@@ -26,6 +26,7 @@ export const DeleteInterviewsDialog = ({
   interviewsToDelete,
 }: DeleteInterviewsDialog) => {
   const [hasUnexported, setHasUnexported] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setHasUnexported(
@@ -82,12 +83,27 @@ export const DeleteInterviewsDialog = ({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancelDialog}>
+          <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
             Cancel
           </AlertDialogCancel>
-          <Button onClick={() => void handleConfirm()} variant="destructive">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+          <Button
+            disabled={isDeleting}
+            onClick={async () => {
+              setIsDeleting(true);
+              await handleConfirm();
+              setIsDeleting(false);
+            }}
+            variant="destructive"
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </>
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

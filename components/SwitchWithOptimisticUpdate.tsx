@@ -1,16 +1,16 @@
 'use client';
 
-import { Switch as SwitchUI } from '~/components/ui/switch';
 import { useOptimistic, useTransition } from 'react';
+import { Switch as SwitchUI } from '~/components/ui/switch';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,
-  name,
-  action,
+  updateValue,
+  readOnly,
 }: {
   initialValue: boolean;
-  name: string;
-  action: (value: boolean) => Promise<boolean>;
+  updateValue: (value: boolean) => Promise<boolean>;
+  readOnly?: boolean;
 }) => {
   const [isTransitioning, startTransition] = useTransition();
   const [optimisticIsActive, setOptimisticIsActive] = useOptimistic(
@@ -20,17 +20,16 @@ const SwitchWithOptimisticUpdate = ({
 
   const updateIsActive = async (newValue: boolean) => {
     setOptimisticIsActive(newValue);
-    await action(newValue); // this is a server action which calls `revalidateTag`
+    await updateValue(newValue);
   };
 
   return (
     <SwitchUI
-      name={name}
+      disabled={readOnly ?? isTransitioning}
       checked={optimisticIsActive}
       onCheckedChange={(checked) =>
         startTransition(() => updateIsActive(checked))
       }
-      disabled={isTransitioning}
     />
   );
 };

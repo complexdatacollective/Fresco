@@ -1,6 +1,6 @@
-'use sever';
+'use server';
 
-import { revalidateTag } from 'next/cache';
+import { safeRevalidateTag } from '~/lib/cache';
 import type { Activity, ActivityType } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
 
@@ -16,10 +16,10 @@ export async function addEvent(
       },
     });
 
-    revalidateTag('activityFeed');
+    safeRevalidateTag('activityFeed');
 
     return { success: true, error: null };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Failed to add event' };
   }
 }

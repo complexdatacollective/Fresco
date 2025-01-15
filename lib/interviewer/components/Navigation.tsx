@@ -52,10 +52,7 @@ const Navigation = ({
   return (
     <div
       role="navigation"
-      className={cn(
-        'flex-row sm:flex-col',
-        'flex-grow-0l flex flex-shrink-0 items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]',
-      )}
+      className="flex shrink-0 grow-0 flex-col items-center justify-between bg-[#36315f] [--nc-light-background:#4a4677]"
     >
       <NavigationButton
         onClick={moveBackward}
@@ -76,7 +73,7 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'animate-pulse bg-success',
+          pulseNext && 'bg-success animate-pulse',
         )}
         onClick={moveForward}
         disabled={disabled || !canMoveForward}

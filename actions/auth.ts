@@ -1,11 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { createUserFormDataSchema, loginSchema } from '~/schemas/auth';
-import { auth, getServerSession } from '~/utils/auth';
+import { getServerSession } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function signup(formData: unknown) {
   const parsedFormData = createUserFormDataSchema.safeParse(formData);
 
@@ -17,44 +18,7 @@ export async function signup(formData: unknown) {
   }
 
   try {
-    const { username, password } = parsedFormData.data;
-
-    const user = await auth.createUser({
-      key: {
-        providerId: 'username', // auth method
-        providerUserId: username, // unique id when using "username" auth method
-        password, // hashed by Lucia
-      },
-      attributes: {
-        username,
-      },
-    });
-
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {},
-    });
-
-    if (!session) {
-      return {
-        success: false,
-        error: 'Failed to create session',
-      };
-    }
-
-    // set session cookie
-
-    const sessionCookie = auth.createSessionCookie(session);
-
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
-
-    return {
-      success: true,
-    };
+    redirect('/setup?step=2');
   } catch (error) {
     // db error, email taken, etc
     return {
@@ -85,7 +49,7 @@ export const login = async (
     };
   }
 
-  const { username, password } = parsedFormData.data;
+  const { username } = parsedFormData.data;
 
   // get user by userId
   const existingUser = await prisma.user.findFirst({
@@ -112,28 +76,6 @@ export const login = async (
     };
   }
 
-  let key;
-  try {
-    key = await auth.useKey('username', username, password);
-  } catch (e) {
-    return {
-      success: false,
-      formErrors: ['Incorrect username or password'],
-    };
-  }
-
-  const session = await auth.createSession({
-    userId: key.userId,
-    attributes: {},
-  });
-
-  const sessionCookie = auth.createSessionCookie(session);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-
   return {
     success: true,
   };
@@ -146,8 +88,6 @@ export async function logout() {
       error: 'Unauthorized',
     };
   }
-
-  await auth.invalidateSession(session.sessionId);
 
   revalidatePath('/');
 }

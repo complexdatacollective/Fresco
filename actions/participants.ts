@@ -1,8 +1,8 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { revalidateTag } from 'next/cache';
 import { addEvent } from '~/actions/activityFeed';
+import { safeRevalidateTag } from '~/lib/cache';
 import {
   participantListInputSchema,
   updateSchema,
@@ -24,9 +24,9 @@ export async function deleteParticipants(participantIds: string[]) {
     `Deleted ${result.count} participant(s)`,
   );
 
-  revalidateTag('getParticipants');
-  revalidateTag('getInterviews');
-  revalidateTag('summaryStatistics');
+  safeRevalidateTag('getParticipants');
+  safeRevalidateTag('getInterviews');
+  safeRevalidateTag('summaryStatistics');
 }
 
 export async function deleteAllParticipants() {
@@ -39,16 +39,15 @@ export async function deleteAllParticipants() {
     `Deleted ${result.count} participant(s)`,
   );
 
-  revalidateTag('getParticipants');
-  revalidateTag('getInterviews');
-  revalidateTag('summaryStatistics');
+  safeRevalidateTag('getParticipants');
+  safeRevalidateTag('getInterviews');
+  safeRevalidateTag('summaryStatistics');
 }
 
 export async function importParticipants(rawInput: unknown) {
   await requireApiAuth();
 
   const participantList = participantListInputSchema.parse(rawInput);
-
 
   /*
   Format participantList:
@@ -83,8 +82,8 @@ export async function importParticipants(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return {
       error: null,
@@ -103,16 +102,18 @@ export async function importParticipants(rawInput: unknown) {
 export async function updateParticipant(rawInput: unknown) {
   await requireApiAuth();
 
-  const { identifier, data } = updateSchema.parse(rawInput);
+  const { identifier, label } = updateSchema.parse(rawInput);
 
   try {
     const updatedParticipant = await prisma.participant.update({
       where: { identifier },
-      data,
+      data: {
+        label: label,
+      },
     });
 
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return { error: null, participant: updatedParticipant };
   } catch (error) {
@@ -126,9 +127,11 @@ export async function createParticipant(rawInput: unknown) {
   const participants = participantListInputSchema.parse(rawInput);
 
   const participantsWithIdentifiers = participants.map((participant) => {
+    const { identifier, ...rest } = participant;
+
     return {
-      identifier: participant.identifier ?? createId(),
-      ...participant,
+      identifier: identifier ?? createId(),
+      ...rest,
     };
   });
 
@@ -153,8 +156,8 @@ export async function createParticipant(rawInput: unknown) {
       `Added ${createdParticipants.count} participant(s)`,
     );
 
-    revalidateTag('getParticipants');
-    revalidateTag('summaryStatistics');
+    safeRevalidateTag('getParticipants');
+    safeRevalidateTag('summaryStatistics');
 
     return {
       error: null,

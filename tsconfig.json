@@ -1,52 +1,45 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "checkJs": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": [
-        "./*"
-      ]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
-  },
-  "include": [
-    ".eslintrc.mjs",
-    "next-env.d.ts",
-    "**/*.js",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.jsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    ".next/types/**/*.ts",
-    "eslint-local-rules/index.js",
-    "actions/auth.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"target": "es2017",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"checkJs": false,
+		"skipLibCheck": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"forceConsistentCasingInFileNames": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "Bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"noUncheckedIndexedAccess": true,
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["./*"]
+		},
+		"plugins": [
+			{
+				"name": "next"
+			}
+		]
+	},
+	"include": [
+		".eslintrc.cjs",
+		"next-env.d.ts",
+		"**/*.js",
+		"**/*.ts",
+		"**/*.tsx",
+		"**/*.jsx",
+		"**/*.cjs",
+		"**/*.mjs",
+		".next/types/**/*.ts",
+		"eslint-local-rules/index.js",
+		"actions/auth.ts",
+		"env.js"
+	],
+	"exclude": ["node_modules"]
 }

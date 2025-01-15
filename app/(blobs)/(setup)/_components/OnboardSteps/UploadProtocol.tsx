@@ -18,17 +18,24 @@ function ConfigureStudy() {
   return (
     <div className="flex max-w-[30rem] flex-col items-stretch justify-between">
       <div className="flex flex-col">
-        <Heading variant="h2">Upload a Protocol</Heading>
+        <Heading variant="h2">Import Protocols</Heading>
         <Paragraph>
-          Upload a Network Canvas protocol file (<code>.netcanvas</code>). You
-          can upload more protocol files later from the dashboard. You can also
-          skip this step by clicking &quot;Proceed&quot; button to upload a
-          protocol later.
+          If you have already created a Network Canvas protocol (
+          <code>.netcanvas</code>) you can import it now.
         </Paragraph>
+        <Paragraph>
+          If you don&apos;t have a protocol yet, you can upload one later from
+          the dashboard.
+        </Paragraph>
+        <ProtocolUploader
+          className="m-14 p-6"
+          buttonVariant="outline"
+          buttonSize="lg"
+          hideCancelButton
+        />
       </div>
-      <div className="flex justify-between gap-4">
-        <ProtocolUploader />
-        <Button onClick={handleNextStep}>Proceed</Button>
+      <div className="flex justify-end">
+        <Button onClick={handleNextStep}>Continue</Button>
       </div>
     </div>
   );

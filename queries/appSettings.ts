@@ -1,50 +1,45 @@
-import { unstable_cache } from 'next/cache';
+'use server';
+
+import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
+import type { z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
+import { createCachedFunction } from '~/lib/cache';
+import {
+  type AppSetting,
+  appSettingPreprocessedSchema,
+} from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-const calculateIsExpired = (configured: boolean, initializedAt: Date) =>
-  !configured && initializedAt.getTime() < Date.now() - UNCONFIGURED_TIMEOUT;
-
-const getAppSettings = unstable_cache(
-  async () => {
-    const appSettings = await prisma.appSettings.findFirst();
-
-    // If there are no app settings, create them
-    if (!appSettings) {
-      const newAppSettings = await prisma.appSettings.create({
-        data: {
-          initializedAt: new Date(),
-        },
+export const getAppSetting = async <Key extends AppSetting>(key: Key) =>
+  createCachedFunction(
+    async (key: AppSetting) => {
+      const keyValue = await prisma.appSettings.findUnique({
+        where: { key },
       });
 
-      return {
-        ...newAppSettings,
-        expired: calculateIsExpired(
-          newAppSettings.configured,
-          newAppSettings.initializedAt,
-        ),
-      };
-    }
+      // If the key does not exist, return the default value
+      if (!keyValue) {
+        const value = appSettingPreprocessedSchema.shape[key].parse(
+          undefined,
+        ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
+        return value;
+      }
 
-    return {
-      ...appSettings,
-      expired: calculateIsExpired(
-        appSettings.configured,
-        appSettings.initializedAt,
-      ),
-    };
-  },
-  ['appSettings'],
-  { tags: ['appSettings', 'allowAnonymousRecruitment', 'limitInterviews'] },
-);
+      // Parse the value using the preprocessed schema
+      return appSettingPreprocessedSchema.shape[key].parse(
+        keyValue.value,
+      ) as z.infer<typeof appSettingPreprocessedSchema>[Key];
+    },
+    [`appSettings-${key}`, 'appSettings'],
+  )(key);
 
 export async function requireAppNotExpired(isSetupRoute = false) {
-  const appSettings = await getAppSettings();
+  const expired = await isAppExpired();
 
-  if (appSettings.expired) {
+  if (expired) {
     redirect('/expired');
   }
 
@@ -53,7 +48,9 @@ export async function requireAppNotExpired(isSetupRoute = false) {
     return;
   }
 
-  if (!appSettings.configured) {
+  const isConfigured = await getAppSetting('configured');
+
+  if (!isConfigured) {
     redirect('/setup');
   }
 
@@ -61,42 +58,43 @@ export async function requireAppNotExpired(isSetupRoute = false) {
 }
 
 export async function isAppExpired() {
-  const appSettings = await getAppSettings();
-  return appSettings.expired;
+  unstable_noStore();
+  const isConfigured = await getAppSetting('configured');
+  const initializedAt = await getAppSetting('initializedAt');
+
+  return (
+    !isConfigured &&
+    new Date(initializedAt).getTime() < Date.now() - UNCONFIGURED_TIMEOUT
+  );
 }
 
-export const getAnonymousRecruitmentStatus = unstable_cache(
-  async () => {
-    const appSettings = await getAppSettings();
+// Used to prevent user account creation after the app has been configured
+export async function requireAppNotConfigured() {
+  const configured = await getAppSetting('configured');
 
-    return !!appSettings?.allowAnonymousRecruitment;
-  },
-  ['allowAnonymousRecruitment'],
-  { tags: ['appSettings', 'allowAnonymousRecruitment'] },
-);
+  if (configured) {
+    redirect('/');
+  }
 
-export const getLimitInterviewsStatus = unstable_cache(
-  async () => {
-    const appSettings = await getAppSettings();
+  return;
+}
 
-    return !!appSettings?.limitInterviews;
-  },
-  ['limitInterviews'],
-  {
-    tags: ['appSettings', 'limitInterviews'],
-  },
-);
+// Unique fetcher for installationID, which defers to the environment variable
+// if set, and otherwise fetches from the database
+export async function getInstallationId() {
+  if (env.INSTALLATION_ID) {
+    return env.INSTALLATION_ID;
+  }
 
-export const getInstallationId = unstable_cache(
-  async () => {
-    if (env.INSTALLATION_ID) {
-      return env.INSTALLATION_ID;
-    }
+  return getAppSetting('installationId');
+}
 
-    const appSettings = await getAppSettings();
+// Unique fetcher for disableAnalytics, which defers to the environment variable
+// if set, and otherwise fetches from the database
+export async function getDisableAnalytics() {
+  if (env.DISABLE_ANALYTICS) {
+    return env.DISABLE_ANALYTICS;
+  }
 
-    return appSettings?.installationId ?? 'Unknown';
-  },
-  ['getInstallationId'],
-  { tags: ['getInstallationId', 'appSettings'] },
-);
+  return getAppSetting('disableAnalytics');
+}

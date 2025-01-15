@@ -26,20 +26,29 @@ export const formatExportableSessions = (
     const sessionProtocol = session.protocol;
     const sessionParticipant = session.participant;
 
+    const getCaseProperty = () => {
+      if (sessionParticipant.label && sessionParticipant.label !== '') {
+        return sessionParticipant.label;
+      }
+
+      return sessionParticipant.identifier;
+    };
+
     const sessionVariables: SessionVariables = {
-      // Label is optional, so fallback to identifier because caseProperty is used
-      // to create the filename during export.
-      [caseProperty]: sessionParticipant.label ?? sessionParticipant.identifier,
+      // Label is optional, but defaults to an empty string!
+      // We **must** fallback to identifier in this case, because caseProperty
+      // is used to create the filename during export.
+      [caseProperty]: getCaseProperty(),
       [sessionProperty]: session.id,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),
-      ...(session.startTime && {
-        [sessionStartTimeProperty]: new Date(session.startTime).toISOString(),
-      }),
-      ...(session.finishTime && {
-        [sessionFinishTimeProperty]: new Date(session.finishTime).toISOString(),
-      }),
+      [sessionStartTimeProperty]: session.startTime
+        ? new Date(session.startTime).toISOString()
+        : undefined,
+      [sessionFinishTimeProperty]: session.finishTime
+        ? new Date(session.finishTime).toISOString()
+        : undefined,
       [sessionExportTimeProperty]: new Date().toISOString(),
       COMMIT_HASH: env.COMMIT_HASH!,
       APP_VERSION: env.APP_VERSION!,
