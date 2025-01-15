@@ -7,7 +7,7 @@ const createPrismaClient = () =>
   }).$extends({
     query: {
       async $allOperations({ args, query }) {
-        if (env.NODE_ENV === 'development') {
+        if (env.SIMULATE_DELAY) {
           // Add artificial DB delay in development
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
