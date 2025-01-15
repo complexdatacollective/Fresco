@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic';
 
 const handler = async (
   req: NextRequest,
-  { params }: { params: { protocolId: string } },
+  { params }: { params: Promise<{ protocolId: string }> },
 ) => {
-  const protocolId = params.protocolId; // From route segment
+  const protocolId = (await params).protocolId; // From route segment
 
   // when deployed via docker `req.url` and `req.nextUrl`
   // shows Docker Container ID instead of real host
