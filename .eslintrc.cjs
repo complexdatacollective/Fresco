@@ -1,5 +1,3 @@
-const path = require('path');
-
 /** @type {import("eslint").Linter.Config} */
 const config = {
   overrides: [
@@ -10,13 +8,13 @@ const config = {
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
-        project: path.join(__dirname, 'tsconfig.json'),
+        project: true, // This tells ESLint to automatically detect the tsconfig
       },
     },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: path.join(__dirname, 'tsconfig.json'),
+    project: true, // This tells ESLint to automatically detect the tsconfig
   },
   plugins: ['@typescript-eslint'],
   extends: [
@@ -26,13 +24,7 @@ const config = {
     'next/core-web-vitals',
     'prettier',
   ],
-  ignorePatterns: [
-    'node_modules',
-    '*.stories.*',
-    '*.test.*',
-    'public',
-    '.eslintrc.cjs',
-  ],
+  ignorePatterns: ['node_modules', '*.stories.*', '*.test.*', 'public'],
   rules: {
     '@next/next/no-img-element': 'off',
     'import/no-anonymous-default-export': 'off',
