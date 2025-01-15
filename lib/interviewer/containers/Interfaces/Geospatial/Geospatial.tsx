@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
 import { usePrompts } from '../../../behaviours/withPrompt';
 import CollapsablePrompts from '../../../components/CollapsablePrompts';
@@ -205,7 +206,7 @@ export default function GeospatialInterface({
       <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
 
       <div className="absolute bottom-10 left-14 z-10">
-        <Button onClick={handleResetMapZoom} icon={<Locate size={24} />} />
+        <ActionButton onClick={handleResetMapZoom} icon={<Locate />} title='Reset Map' showPlusButton={false}/>
       </div>
 
       <CollapsablePrompts

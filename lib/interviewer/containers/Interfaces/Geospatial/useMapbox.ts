@@ -95,6 +95,7 @@ export const useMapbox = ({
         mapRef.current.addSource('geojson-data', {
           type: 'geojson',
           data: getAssetUrl(dataSourceAssetId),
+          promoteId: targetFeatureProperty,
         });
       }
 
