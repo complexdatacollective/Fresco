@@ -1,4 +1,4 @@
-'use sever';
+'use server';
 
 import { safeRevalidateTag } from '~/lib/cache';
 import type { Activity, ActivityType } from '~/lib/data-table/types';
