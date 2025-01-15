@@ -20,7 +20,15 @@ export default function getAbsoluteBoundingRect(
 ): AbsoluteRect | null {
   // Type guard to check if element is valid
   if (!isValidElement(element)) {
-    return null;
+    console.warn(`getAbsoluteBoundingRect: Invalid element provided`, element);
+    return {
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+    };
   }
 
   // Get initial rect from the element
