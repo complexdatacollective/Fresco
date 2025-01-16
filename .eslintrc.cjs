@@ -24,7 +24,13 @@ const config = {
     'next/core-web-vitals',
     'prettier',
   ],
-  ignorePatterns: ['node_modules', '*.stories.*', '*.test.*', 'public'],
+  ignorePatterns: [
+    'node_modules',
+    '*.stories.*',
+    '*.test.*',
+    'public',
+    '.eslintrc.cjs',
+  ],
   rules: {
     '@next/next/no-img-element': 'off',
     'import/no-anonymous-default-export': 'off',
