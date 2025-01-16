@@ -1,16 +1,17 @@
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { omit } from 'es-toolkit';
-import { get, has } from 'es-toolkit/compat';
-import PropTypes from 'prop-types';
+import { has } from 'es-toolkit/compat';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import { usePrompts } from '../../behaviours/withPrompt';
+import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
@@ -26,6 +27,7 @@ import { getNodeColor, getNodeTypeLabel } from '../../selectors/network';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import NodeForm from '../NodeForm';
 import NodePanels from '../NodePanels';
+import { type directions } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
 import {
   MaxNodesMet,
@@ -35,8 +37,13 @@ import {
 } from './utils/StageLevelValidation';
 
 export const nameGeneratorHandleBeforeLeaving =
-  (isLastPrompt, stageNodeCount, minNodes, setShowMinWarning) =>
-  (direction) => {
+  (
+    isLastPrompt: boolean,
+    stageNodeCount: number,
+    minNodes: number,
+    setShowMinWarning: (value: boolean) => void,
+  ) =>
+  (direction: directions) => {
     if (isLastPrompt && direction === 'forwards' && stageNodeCount < minNodes) {
       setShowMinWarning(true);
       return false;
@@ -45,7 +52,23 @@ export const nameGeneratorHandleBeforeLeaving =
     return true;
   };
 
-const NameGenerator = (props) => {
+type NameGeneratorProps = {
+  registerBeforeNext: (callback: (direction: directions) => boolean) => void;
+  stage: {
+    id: string;
+    form: boolean;
+    quickAdd: boolean;
+    behaviours: {
+      minNodes: number;
+      maxNodes: number;
+    };
+    subject: {
+      type: string;
+    };
+  };
+};
+
+const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;
 
   const { form, quickAdd, behaviours, subject } = stage;
@@ -57,17 +80,23 @@ const NameGenerator = (props) => {
   const [selectedNode, setSelectedNode] = useState(null);
   const [showMinWarning, setShowMinWarning] = useState(false);
 
-  const minNodes = minNodesWithDefault(behaviours?.minNodes);
-  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes);
+  const minNodes = minNodesWithDefault(behaviours?.minNodes) as number;
+  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes) as number;
 
-  const stageNodeCount = usePropSelector(getStageNodeCount, props); // 1
+  const stageNodeCount = usePropSelector(getStageNodeCount, props) as number; // 1
   const newNodeAttributes = usePropSelector(getAdditionalAttributesSelector, {
     prompt,
     ...props,
-  }); // 2
-  const newNodeModelData = usePropSelector(getPromptNodeModelData, props); // 3
-  const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props); // 4
-  const nodeIconName = usePropSelector(getNodeIconName, props);
+  }) as Record<string, unknown>; // 2
+  const newNodeModelData = usePropSelector(
+    getPromptNodeModelData,
+    props,
+  ) as Record<string, unknown>; // 3
+  const nodesForPrompt = usePropSelector(
+    getNetworkNodesForPrompt,
+    props,
+  ) as NcNode[]; // 4
+  const nodeIconName = usePropSelector(getNodeIconName, props) as string;
   const nodeType = useSelector(getNodeTypeLabel(subject?.type));
   const nodeColor = useSelector(getNodeColor(subject?.type));
 
@@ -77,9 +106,6 @@ const NameGenerator = (props) => {
     dispatch(sessionActions.addNode(...properties));
   const addNodeToPrompt = (...properties) =>
     dispatch(sessionActions.addNodeToPrompt(...properties));
-  const removeNode = (uid) => {
-    dispatch(sessionActions.removeNode(uid));
-  };
 
   const maxNodesReached = stageNodeCount >= maxNodes;
 
@@ -114,10 +140,11 @@ const NameGenerator = (props) => {
       const droppedAttributeData = node[entityAttributesProperty];
       const droppedModelData = omit(node, entityAttributesProperty);
 
-      addNode(
-        { ...newNodeModelData, ...droppedModelData },
-        { ...droppedAttributeData, ...newNodeAttributes },
-      );
+      debugger;
+      // addNode(
+      //   { ...newNodeModelData, ...droppedModelData },
+      //   { ...droppedAttributeData, ...newNodeAttributes },
+      // );
     }
   };
 
@@ -134,26 +161,19 @@ const NameGenerator = (props) => {
       <div className="name-generator-interface__prompt">
         <Prompts />
       </div>
-      <div className="name-generator-interface__main">
-        <div className="name-generator-interface__panels">
-          <NodePanels
-            stage={stage}
-            prompt={prompt}
-            disableAddNew={maxNodesReached}
-          />
-        </div>
-        <div className="name-generator-interface__nodes">
-          <NodeList
-            items={nodesForPrompt}
-            stage={stage}
-            listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
-            id="MAIN_NODE_LIST"
-            accepts={({ meta }) => get(meta, 'itemType', null) === 'NEW_NODE'}
-            itemType="EXISTING_NODE"
-            onDrop={handleDropNode}
-            onItemClick={handleSelectNode}
-          />
-        </div>
+      <div className="relative flex h-full">
+        <NodePanels disableAddNew={maxNodesReached} />
+        <NodeList
+          listId={`${stage.id}_${promptIndex}`}
+          items={nodesForPrompt}
+          ItemComponent={Node}
+          onDrop={handleDropNode}
+          allowDrop={!maxNodesReached} // allow dropping of items
+          // items accepted here have these meta types
+          willAccept={(item) =>
+            ['EXISTING_NODE', 'ROSTER_NODE'].includes(item.type)
+          }
+        />
       </div>
       <NodeBin
         accepts={(meta) => meta.itemType === 'EXISTING_NODE'}
@@ -203,7 +223,3 @@ const NameGenerator = (props) => {
 };
 
 export default NameGenerator;
-
-NameGenerator.propTypes = {
-  stage: PropTypes.object.isRequired,
-};

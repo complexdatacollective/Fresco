@@ -1,7 +1,10 @@
 import { findKey } from 'es-toolkit';
 import { find, has, isEmpty } from 'es-toolkit/compat';
 
-const findCategoricalKey = (object, toFind) => {
+const findCategoricalKey = (
+  object: Record<string | number, unknown>,
+  toFind: string,
+) => {
   // make list of possible var_option pairs
   let previousIndex = 0;
   const collection = [];
@@ -13,7 +16,8 @@ const findCategoricalKey = (object, toFind) => {
       collection.push({ name, option });
     }
   }
-  let foundKey = '';
+  let foundKey;
+
   // check for a categorical variable with a valid option value
   const categoricalVariable = collection.find((pair) => {
     foundKey = findKey(
@@ -32,7 +36,7 @@ const findCategoricalKey = (object, toFind) => {
   if (has(categoricalVariable, 'option')) {
     return `${foundKey}_${categoricalVariable.option}`;
   }
-  return null;
+  return undefined;
 };
 
 /**
@@ -51,15 +55,24 @@ const findCategoricalKey = (object, toFind) => {
  * Finally, if neither approach finds a UUID, {toFind} is returned.
  */
 
-const getParentKeyByNameValue = (object, toFind) => {
+const getParentKeyByNameValue = (
+  object: Record<string | number, unknown>,
+  toFind: string,
+) => {
   if (isEmpty(object) || object[toFind]) {
     return toFind;
   }
 
   // Iterate object keys and return the key (itself )
-  let foundKey = findKey(object, (objectItem) => objectItem.name === toFind);
+  let foundKey = findKey(object, (objectItem) => {
+    if (objectItem && typeof objectItem === 'object') {
+      return (objectItem as { name: string }).name === toFind;
+    }
+    return false;
+  });
 
   // check for special cases
+
   // possible location
   if (!foundKey && toFind && (toFind.endsWith('_x') || toFind.endsWith('_y'))) {
     const locationName = toFind.substring(0, toFind.length - 2);
@@ -71,12 +84,13 @@ const getParentKeyByNameValue = (object, toFind) => {
       foundKey += toFind.substring(toFind.length - 2);
     }
   }
+
   // possible categorical
   if (!foundKey && toFind && toFind.includes('_')) {
     foundKey = findCategoricalKey(object, toFind);
   }
 
-  return foundKey || toFind;
+  return foundKey ?? toFind;
 };
 
 export default getParentKeyByNameValue;

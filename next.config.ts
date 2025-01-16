@@ -25,6 +25,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   experimental: {
     typedRoutes: true,
+    reactCompiler: true,
   },
   env: {
     // add the package.json version and git hash to the environment

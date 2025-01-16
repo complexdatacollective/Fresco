@@ -1,7 +1,7 @@
-import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '~/utils/shadcn';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import ProgressBar from '~/lib/ui/components/ProgressBar';
+import { cn } from '~/utils/shadcn';
 import { getNavigationInfo } from '../selectors/session';
 
 const NavigationButton = ({
@@ -58,21 +58,30 @@ const Navigation = ({
         onClick={moveBackward}
         disabled={disabled || !canMoveBackward}
       >
-        <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
+        <ChevronLeft
+          className="h-[2.4rem] w-[2.4rem] sm:rotate-90"
+          strokeWidth="3px"
+        />
       </NavigationButton>
-      <div className="m-6 flex grow">
-        <ProgressBar percentProgress={progress} />
+      <div className="m-6 flex flex-grow sm:hidden">
+        <ProgressBar percentProgress={progress} orientation="horizontal" />
+      </div>
+      <div className="m-6 hidden flex-grow sm:flex">
+        <ProgressBar percentProgress={progress} orientation="vertical" />
       </div>
       <NavigationButton
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'animate-pulse bg-success',
+          pulseNext && 'bg-success animate-pulse',
         )}
         onClick={moveForward}
         disabled={disabled || !canMoveForward}
       >
-        <ChevronDown className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
+        <ChevronRight
+          className="h-[2.4rem] w-[2.4rem] sm:rotate-90"
+          strokeWidth="3px"
+        />
       </NavigationButton>
     </div>
   );

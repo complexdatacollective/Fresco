@@ -1,18 +1,20 @@
 import {
   entityAttributesProperty,
   type Codebook,
-  type FilterDefinition,
-  type NcNetwork,
-  type NcNode,
   type NodeTypeDefinition,
-  type Stage,
-  type StageSubject,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { findKey } from 'es-toolkit';
 import { toString } from 'es-toolkit/compat';
-import { getEntityAttributes } from '~/lib/interviewer/ducks/modules/network';
 import customFilter from '~/lib/network-query/filter';
+import type {
+  FilterDefinition,
+  NcNetwork,
+  NcNode,
+  Stage,
+  StageSubject,
+} from '~/schemas/network-canvas';
+import { getEntityAttributes } from '~/utils/general';
 import type { RootState } from '../store';
 import { getStageSubject, getSubjectType } from './prop';
 import { getProtocolCodebook } from './protocol';
@@ -52,8 +54,18 @@ export const getNetworkNodes = createSelector(
   (network) => network?.nodes ?? [],
 );
 
+export const UNFILTERED_getNetworkNodes = createSelector(
+  getNetwork,
+  (network) => network?.nodes ?? [],
+);
+
 export const getNetworkEgo = createSelector(
   getFilteredNetwork,
+  (network) => network?.ego ?? null,
+);
+
+export const UNFILTERED_getNetworkEgo = createSelector(
+  getNetwork,
   (network) => network?.ego ?? null,
 );
 
@@ -64,6 +76,11 @@ export const getEgoAttributes = createSelector(
 
 export const getNetworkEdges = createSelector(
   getFilteredNetwork,
+  (network) => network?.edges ?? [],
+);
+
+export const UNFILTERED_getNetworkEdges = createSelector(
+  getNetwork,
   (network) => network?.edges ?? [],
 );
 
@@ -117,7 +134,7 @@ export const getNodeLabel = createSelector(
       return 'Node';
     }
 
-    const nodeAttributes = getEntityAttributes(node) as Record<string, unknown>;
+    const nodeAttributes = getEntityAttributes(node);
 
     return labelLogic(nodeTypeDefinition, nodeAttributes);
   },

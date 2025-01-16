@@ -1,5 +1,9 @@
 .node-bin {
-  @include transition-properties((opacity transform), var(--animation-easing), var(--animation-duration-fast));
+  @include transition-properties(
+    (opacity transform),
+    var(--animation-easing),
+    var(--animation-duration-fast)
+  );
 
   background: transparent;
   background-image: url('/interviewer/images/node-bin.svg');
@@ -22,6 +26,6 @@
   }
 
   &--hover {
-    transform: scale(2);
+    transform: scale(1.5);
   }
 }
