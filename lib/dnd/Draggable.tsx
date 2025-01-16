@@ -1,20 +1,34 @@
-import { type ForwardRefComponent } from 'motion/react';
-import {
-  type ForwardRefExoticComponent,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import useStore, { type DraggingItem } from './store';
 
 export const useDraggable = <T extends HTMLElement>(dragItem: DraggingItem) => {
   const ref = useRef<T | null>(null);
   const setDraggingItem = useStore((state) => state.setDraggingItem);
 
-  const handleDragStart = useCallback(() => {
-    console.log('drag start', dragItem.type);
-    setDraggingItem(dragItem);
-  }, [setDraggingItem, dragItem]);
+  const handleDragStart = useCallback(
+    (evt: DragEvent) => {
+      evt.stopPropagation();
+      console.log('drag start', dragItem.type);
+
+      // Now setup our dataTransfer object properly
+      // First we'll allow a move action — this is used for the cursor
+      evt.dataTransfer.effectAllowed = 'move';
+      // Setup some dummy drag-data to ensure dragging
+      evt.dataTransfer.setData('text/plain', 'some_dummy_data');
+      // Now we'll create a dummy image for our dragImage
+      const dragImage = document.createElement('div');
+      dragImage.setAttribute(
+        'style',
+        'position: absolute; left: 0px; top: 0px; width: 40px; height: 40px; background: red; z-index: -1',
+      );
+      document.body.appendChild(dragImage);
+      // And finally we assign the dragImage and center it on cursor
+      evt.dataTransfer.setDragImage(dragImage, 20, 20);
+
+      setDraggingItem(dragItem);
+    },
+    [setDraggingItem, dragItem],
+  );
 
   const handleDragEnd = useCallback(() => {
     setDraggingItem(null);
@@ -45,9 +59,7 @@ export const useDraggable = <T extends HTMLElement>(dragItem: DraggingItem) => {
 };
 
 export default function draggable(
-  WrappedComponent: ForwardRefExoticComponent<
-    ForwardRefComponent<unknown, unknown>
-  >,
+  WrappedComponent: React.ComponentType,
   dragItem: DraggingItem,
 ) {
   const Draggable = (props: Record<string, unknown>) => {

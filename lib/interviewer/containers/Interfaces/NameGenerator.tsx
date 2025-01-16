@@ -1,7 +1,7 @@
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  NcNode,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { omit } from 'es-toolkit';
 import { has } from 'es-toolkit/compat';
@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import { usePrompts } from '../../behaviours/withPrompt';
+import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
@@ -25,6 +26,7 @@ import {
 import { getNodeColor, getNodeTypeLabel } from '../../selectors/network';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import NodeForm from '../NodeForm';
+import NodePanels from '../NodePanels';
 import { type directions } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
 import {
@@ -160,7 +162,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
         <Prompts />
       </div>
       <div className="relative flex h-full">
-        {/* <NodePanels disableAddNew={maxNodesReached} /> */}
+        <NodePanels disableAddNew={maxNodesReached} />
         <NodeList
           listId={`${stage.id}_${promptIndex}`}
           items={nodesForPrompt}

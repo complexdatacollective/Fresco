@@ -1,5 +1,4 @@
 import { type Codebook } from '@codaco/shared-consts';
-import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
 import draggable from '~/lib/dnd/Draggable';
 import { type DraggingItem } from '~/lib/dnd/store';
@@ -9,12 +8,13 @@ import { getEntityAttributes } from '~/utils/general';
 import { getNodeColor, labelLogic } from '../selectors/network';
 import { getProtocolCodebook } from '../selectors/protocol';
 
-/**
- * Renders a Node.
- */
+type NodeProps = NcNode & {
+  type: string;
+  ref?: React.RefObject<HTMLDivElement>;
+};
 
-const Node = forwardRef<HTMLDivElement, NcNode>((props, ref) => {
-  const { type } = props;
+const Node = (props: NodeProps) => {
+  const { type, ref, ...rest } = props;
 
   const color = useSelector(getNodeColor(type));
   const codebook = useSelector(getProtocolCodebook) as Codebook;
@@ -22,12 +22,10 @@ const Node = forwardRef<HTMLDivElement, NcNode>((props, ref) => {
 
   return (
     <div ref={ref}>
-      <UINode color={color} {...props} label={label} />
+      <UINode color={color} {...rest} label={label} />
     </div>
   );
-});
-
-Node.displayName = 'Node';
+};
 
 export const createDraggableNode = (item: DraggingItem) =>
   draggable(Node, item);

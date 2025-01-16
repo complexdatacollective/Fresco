@@ -53,7 +53,11 @@ const NodeList = (props: NodeListProps) => {
 
           const itemHash = hash(item);
 
-          return <DraggableNode key={itemHash} {...item} />;
+          return (
+            <div key={itemHash}>
+              <DraggableNode {...item} />
+            </div>
+          );
         })}
       </AnimatePresence>
     </motion.div>
