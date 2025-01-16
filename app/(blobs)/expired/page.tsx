@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { resetAppSettings } from '~/actions/reset';
 import { containerClasses } from '~/components/ContainerClasses';
-import { Button } from '~/components/ui/Button';
+import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env';
 import { isAppExpired } from '~/queries/appSettings';
 
@@ -23,9 +23,11 @@ export default async function Page() {
         Please redeploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <Button className="mt-6 max-w-[20rem]" onClick={resetAppSettings}>
-          Dev mode: Reset Configuration
-        </Button>
+        <form action={void resetAppSettings}>
+          <SubmitButton className="mt-6 max-w-[20rem]">
+            Dev mode: Reset Configuration
+          </SubmitButton>
+        </form>
       )}
     </div>
   );

@@ -1,17 +1,12 @@
-const SET_DESCRIPTION = 'SETTINGS/SET_DESCRIPTION';
-const SET_INTERFACE_SCALE = 'SETTINGS/SET_INTERFACE_SCALE';
-const TOGGLE_SETTING = 'SETTINGS/TOGGLE_SETTING';
-const SET_SETTING = 'SETTINGS/SET_SETTING';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-// Static defaults should be distinguishable from user choices (e.g., undefined instead of false).
 type DeviceSettings = {
   useDynamicScaling: boolean;
-  useFullScreenForms?: boolean; // leave using full screen forms up to the user
+  useFullScreenForms?: boolean;
   interfaceScale: number;
   startFullScreen: boolean;
   enableExperimentalTTS: boolean;
   enableExperimentalSounds: boolean;
-  description?: string;
 };
 
 const initialState: DeviceSettings = {
@@ -23,80 +18,26 @@ const initialState: DeviceSettings = {
   enableExperimentalSounds: false,
 };
 
-type ActionType =
-  | typeof SET_DESCRIPTION
-  | typeof SET_INTERFACE_SCALE
-  | typeof TOGGLE_SETTING
-  | typeof SET_SETTING;
-
-type Action = {
-  type: ActionType;
-  description?: string;
-  scale?: number;
-  item?: keyof DeviceSettings;
-  setting?: keyof DeviceSettings;
-  value?: DeviceSettings[keyof DeviceSettings];
-};
-
-export default function reducer(
-  state: DeviceSettings = initialState,
-  action: Action,
-): DeviceSettings {
-  switch (action.type) {
-    case SET_DESCRIPTION:
-      return {
-        ...state,
-        description: action.description,
-      };
-    case SET_INTERFACE_SCALE:
-      return {
-        ...state,
-        interfaceScale: action.scale!,
-      };
-    case TOGGLE_SETTING:
-      return {
-        ...state,
-        [action.item!]: !state[action.item!],
-      };
-    case SET_SETTING:
-      return {
-        ...state,
-        [action.setting!]: action.value,
-      };
-    default:
-      return state;
-  }
-}
-
-const setDescription = (description: string) => ({
-  type: SET_DESCRIPTION,
-  description,
+const settingsSlice = createSlice({
+  name: 'settings',
+  initialState,
+  reducers: {
+    setInterfaceScale: (state, action: PayloadAction<number>) => {
+      state.interfaceScale = action.payload;
+    },
+    toggleSetting: (
+      state: DeviceSettings,
+      action: PayloadAction<keyof Omit<DeviceSettings, 'interfaceScale'>>,
+    ) => {
+      const key = action.payload;
+      if (typeof state[key] === 'boolean') {
+        const test = !state[key];
+        state[key] = test;
+      }
+    },
+  },
 });
 
-const setInterfaceScale = (scale: number) => ({
-  type: SET_INTERFACE_SCALE,
-  scale,
-});
+export const { setInterfaceScale, toggleSetting } = settingsSlice.actions;
 
-const toggleSetting = (item: keyof DeviceSettings) => ({
-  type: TOGGLE_SETTING,
-  item,
-});
-
-const setSetting = (
-  setting: keyof DeviceSettings,
-  value: DeviceSettings[keyof DeviceSettings],
-) => ({
-  type: SET_SETTING,
-  setting,
-  value,
-});
-
-const actionCreators = {
-  setDescription,
-  setInterfaceScale,
-  toggleSetting,
-  setSetting,
-};
-
-export { actionCreators };
+export default settingsSlice.reducer;
