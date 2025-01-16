@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { syncInterview } from '~/actions/interviews';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewById } from '~/queries/interviews';
+import { TESTING_getInterviewById } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
 import InterviewShell from '../_components/InterviewShell';
 
@@ -18,7 +18,7 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const interview = await getInterviewById(interviewId);
+  const interview = await TESTING_getInterviewById(interviewId);
   const session = await getServerSession();
 
   // If the interview is not found, redirect to the 404 page
