@@ -1,15 +1,12 @@
 import trackEvent from '~/lib/analytics';
 
-const importStatuses = [
-  'Queued',
-  'Extracting protocol',
-  'Validating protocol',
-  'Uploading assets',
-  'Writing to database',
-  'Complete',
-] as const;
-
-type ImportStatus = (typeof importStatuses)[number];
+type ImportStatus =
+  | 'Queued'
+  | 'Extracting protocol'
+  | 'Validating protocol'
+  | 'Uploading assets'
+  | 'Writing to database'
+  | 'Complete';
 
 type ErrorState = {
   title: string;

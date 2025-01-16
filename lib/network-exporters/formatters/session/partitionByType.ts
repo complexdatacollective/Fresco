@@ -37,7 +37,7 @@ export const partitionByType = (
         return [session];
       }
 
-      const partitionedNodeMap = session?.nodes?.reduce(
+      const partitionedNodeMap = session.nodes.reduce(
         (nodeMap, node) => {
           nodeMap[node.type] = nodeMap[node.type] ?? [];
           nodeMap[node.type]!.push(node);

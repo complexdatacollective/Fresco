@@ -13,9 +13,7 @@ export const appSettingsSchema = z
   })
   .strict();
 
-const appSettings = [...appSettingsSchema.keyof().options] as const;
-
-export type AppSetting = (typeof appSettings)[number];
+export type AppSetting = keyof z.infer<typeof appSettingsSchema>;
 
 const parseBoolean = (value: unknown): boolean | undefined => {
   if (value === 'true') return true;

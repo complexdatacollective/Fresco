@@ -15,9 +15,9 @@ import { prisma } from '~/utils/db';
 
 export const getAppSetting = <Key extends AppSetting>(key: Key) =>
   createCachedFunction(
-    async (key: Key) => {
+    async (key: AppSetting) => {
       const keyValue = await prisma.appSettings.findUnique({
-        where: { key: key as AppSetting },
+        where: { key },
       });
 
       // If the key does not exist, return the default value

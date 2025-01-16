@@ -53,6 +53,7 @@ const Geospatial = dynamic(() => import('./Geospatial/Geospatial'), {
   loading: StageLoading,
 });
 
+
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <div className="flex h-full w-full items-center justify-center">
     <div className="flex flex-col items-center">
@@ -98,7 +99,6 @@ const getInterface = (interfaceType: string) => {
       return Geospatial;
     case 'FinishSession':
       return FinishSession;
-
     default:
       // eslint-disable-next-line react/display-name
       return () => <NotFoundInterface interfaceType={interfaceType} />;
