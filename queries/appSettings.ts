@@ -3,7 +3,7 @@
 import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { type z } from 'zod';
+import type { z } from 'zod';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';
@@ -13,7 +13,7 @@ import {
 } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-export const getAppSetting = <Key extends AppSetting>(key: Key) =>
+export const getAppSetting = async <Key extends AppSetting>(key: Key) =>
   createCachedFunction(
     async (key: AppSetting) => {
       const keyValue = await prisma.appSettings.findUnique({

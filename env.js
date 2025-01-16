@@ -20,6 +20,7 @@ export const env = createEnv({
     POSTGRES_PRISMA_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
     PUBLIC_URL: z.string().url().optional(),
+    SIMULATE_DELAY: strictBooleanSchema.optional(),
   },
 
   /**
@@ -53,6 +54,7 @@ export const env = createEnv({
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
+    SIMULATE_DELAY: process.env.SIMULATE_DELAY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

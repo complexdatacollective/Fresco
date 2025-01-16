@@ -8,7 +8,16 @@
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "lib/protocol-validation/schemas/compiled/index.js",
+    "lib/protocol-validation/schemas/compiled/1.js",
+    "lib/protocol-validation/schemas/compiled/2.js",
+    "lib/protocol-validation/schemas/compiled/3.js",
+    "lib/protocol-validation/schemas/compiled/4.js",
+    "lib/protocol-validation/schemas/compiled/5.js",
+    "lib/protocol-validation/schemas/compiled/6.js",
+    "lib/protocol-validation/schemas/compiled/7.js",
+    "lib/protocol-validation/schemas/compiled/8.js"
   ],
   "ignoreDependencies": [
     "server-only",
