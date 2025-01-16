@@ -2,6 +2,7 @@ import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
 import { protocol } from '~/lib/test-protocol';
 import { prisma } from '~/utils/db';
+import { withoutDates } from '~/utils/withoutDates';
 
 export const getInterviews = createCachedFunction(async () => {
   const interviews = await prisma.interview.findMany({
@@ -57,15 +58,17 @@ export const getInterviewById = (interviewId: string) =>
         return null;
       }
 
+      const stringifiedInterview = withoutDates(interview);
+
       return {
-        ...interview,
+        ...stringifiedInterview,
         protocol: {
-          ...interview.protocol,
+          ...stringifiedInterview.protocol,
           stages: protocol.stages,
           codebook: protocol.codebook,
         },
         stageMetadata:
-          interview.stageMetadata ?? ({} as Record<string, unknown>),
+          stringifiedInterview.stageMetadata ?? ({} as Record<string, unknown>),
       };
     },
     [`getInterviewById-${interviewId}`, 'getInterviewById'],

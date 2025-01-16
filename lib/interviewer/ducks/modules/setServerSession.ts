@@ -1,5 +1,5 @@
 import { type getInterviewById } from '~/queries/interviews';
-export const SET_SERVER_SESSION = 'INIT/SET_SERVER_SESSION' as const;
+export const SET_SERVER_SESSION = 'INIT/SET_SERVER_SESSION';
 
 type Payload = NonNullable<Awaited<ReturnType<typeof getInterviewById>>>;
 
