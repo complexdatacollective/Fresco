@@ -20,13 +20,14 @@ const resequenceEntities = (target: SessionWithNetworkEgo[]) => {
 
     // Create a lookup object { [oldID] -> [incrementedID] } so we can update
     // the edge source and target properties with the new IDs.
-    const IDLookupMap: Record<string, number> = {};
+    const IDLookupMap: Record<string, string> = {};
 
     return {
       ...session,
       nodes: session?.nodes?.map((node) => {
         resequencedNodeId++;
-        IDLookupMap[node[entityPrimaryKeyProperty]] = resequencedNodeId;
+        IDLookupMap[node[entityPrimaryKeyProperty]] =
+          resequencedNodeId.toString();
         return {
           [nodeExportIDProperty]: resequencedNodeId,
           ...node,
@@ -34,7 +35,8 @@ const resequenceEntities = (target: SessionWithNetworkEgo[]) => {
       }),
       edges: session?.edges?.map((edge) => {
         resequencedEdgeId++;
-        IDLookupMap[edge[entityPrimaryKeyProperty]] = resequencedEdgeId;
+        IDLookupMap[edge[entityPrimaryKeyProperty]] =
+          resequencedEdgeId.toString();
         return {
           ...edge,
           [ncSourceUUID]: edge[edgeSourceProperty],

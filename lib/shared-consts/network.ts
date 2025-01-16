@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { validVariableNameSchema } from './variables';
 
-// When vqlues are encrypted, this is the resulting type.
+// When values are encrypted, this is the resulting type.
 const encryptedValueSchema = z.array(z.number());
 export type EncryptedValue = z.infer<typeof encryptedValueSchema>;
 
@@ -18,14 +18,14 @@ const variableValueSchema = z
 
 export type VariableValue = z.infer<typeof variableValueSchema>;
 
-export const entityPrimaryKeyProperty = '_uid' as const;
+export const entityPrimaryKeyProperty = '_uid';
 export type EntityPrimaryKey = typeof entityPrimaryKeyProperty;
-export const entitySecureAttributesMeta = '_secureAttributes' as const;
+export const entitySecureAttributesMeta = '_secureAttributes';
 export type EntitySecureAttributesMeta = typeof entitySecureAttributesMeta;
-export const entityAttributesProperty = 'attributes' as const;
+export const entityAttributesProperty = 'attributes';
 export type EntityAttributesProperty = typeof entityAttributesProperty;
-export const edgeSourceProperty = 'from' as const;
-export const edgeTargetProperty = 'to' as const;
+export const edgeSourceProperty = 'from';
+export const edgeTargetProperty = 'to';
 
 const NcEntitySchema = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),

@@ -40,7 +40,7 @@
     [contenteditable="true"] *,
     .allow-text-selection,
     .allow-text-selection * {
-      user-select: auto;
+      user-select: text;
     }
   }
 

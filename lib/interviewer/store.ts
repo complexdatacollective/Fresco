@@ -1,8 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
-import thunk from 'redux-thunk';
 import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
-import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
 import sessions from '~/lib/interviewer/ducks/modules/session';
@@ -16,14 +14,14 @@ const rootReducer = combineReducers({
   activeSessionId,
   sessions,
   installedProtocols,
-  deviceSettings,
   dialogs,
   ui, // used for FORM_IS_READY
 });
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: [thunk, logger, sound],
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(logger, sound),
 });
 
 export type GetState = typeof store.getState;

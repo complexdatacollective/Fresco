@@ -8,6 +8,6 @@
   "WillLuke.nextjs.hasPrompted": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always",
-    "source.fixAll": "always"
+    "source.fixAll": "always",
   }
 }
