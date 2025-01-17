@@ -1,10 +1,9 @@
 import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { type MapOptions, mapboxStyles } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { type MapOptions } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
-import { getAssetUrlFromId } from '../../../selectors/protocol';
+import { getApiKeyAssetValue } from '../../../selectors/protocol';
 
 const MAP_CONSTS = {
   FILL_OPACITY: 0.5,
@@ -19,35 +18,6 @@ type UseMapboxProps = {
   onSelectionChange: (value: string) => void;
 };
 
-const useMapboxToken = (tokenAssetId: string) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const getAssetUrl = useSelector(getAssetUrlFromId);
-  const assetUrl = getAssetUrl(tokenAssetId) as string;
-
-  if (!assetUrl) {
-    throw new Error('No asset URL found for token ID');
-  }
-
-  useEffect(() => {
-    const fetchTokenFile = async () => {
-      try {
-        const response = await fetch(assetUrl);
-        if (!response.ok) {
-          throw new Error('Error fetching the token file');
-        }
-        const tokenText = await response.text();
-        setAccessToken(tokenText);
-      } catch (error) {
-        throw new Error('Error fetching the token file');
-      }
-    };
-
-    void fetchTokenFile();
-  }, [assetUrl, getAssetUrl, tokenAssetId]);
-
-  return accessToken;
-};
-
 export const useMapbox = ({
   mapOptions,
   getAssetUrl,
@@ -59,7 +29,9 @@ export const useMapbox = ({
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const { center, initialZoom, tokenAssetId, dataSourceAssetId, color, targetFeatureProperty, style } = mapOptions;
-  const accessToken = useMapboxToken(tokenAssetId);
+  
+  // get token value from asset manifest, using id
+  const accessToken = getApiKeyAssetValue(tokenAssetId);
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
@@ -79,13 +51,11 @@ export const useMapbox = ({
 
     mapboxgl.accessToken = accessToken;
 
-    const styleURL =  mapboxStyles[style];
-
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       center,
       zoom: initialZoom,
-      style: styleURL,
+      style,
     });
 
     const handleMapLoad = () => {

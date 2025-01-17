@@ -154,9 +154,9 @@ export const protocol: Protocol = {
     },
     asset3: {
       id: 'asset3',
-      type: 'txt',
-      name: 'mapbox-token.txt',
-      source: 'mapbox-token.txt',
+      type: 'apikey',
+      name: 'mapbox-token',
+      value: 'MYKEY',
     },
   },
   schemaVersion: 8,

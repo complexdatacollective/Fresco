@@ -79,6 +79,6 @@ export const TESTING_getInterviewById = async (interviewId: string) => {
   // Override protocol with a test protocol
   interview.protocol.stages = protocol.stages;
   interview.protocol.codebook = protocol.codebook;
-
+  
   return interview;
 };

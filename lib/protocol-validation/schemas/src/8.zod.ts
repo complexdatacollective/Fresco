@@ -466,20 +466,20 @@ const familyTreeCensusStage = baseStageSchema.extend({
   type: z.literal('FamilyTreeCensus'),
 });
 
-export const mapboxStyles = {
-  'Standard': 'mapbox://styles/mapbox/standard',
-  'Standard Satellite': 'mapbox://styles/mapbox/standard-satellite',
-  'Streets': 'mapbox://styles/mapbox/streets-v12',
-  'Outdoors': 'mapbox://styles/mapbox/outdoors-v12',
-  'Light': 'mapbox://styles/mapbox/light-v11',
-  'Dark': 'mapbox://styles/mapbox/dark-v11',
-  'Satellite': 'mapbox://styles/mapbox/satellite-v9',
-  'Satellite Streets': 'mapbox://styles/mapbox/satellite-streets-v12',
-  'Navigation Day': 'mapbox://styles/mapbox/navigation-day-v1',
-  'Navigation Night': 'mapbox://styles/mapbox/navigation-night-v1',
-};
+const mapboxStyleOptions = [
+  { label: 'Standard', value: 'mapbox://styles/mapbox/standard' },
+  { label: 'Standard Satellite', value: 'mapbox://styles/mapbox/standard-satellite' },
+  { label: 'Streets', value: 'mapbox://styles/mapbox/streets-v12' },
+  { label: 'Outdoors', value: 'mapbox://styles/mapbox/outdoors-v12' },
+  { label: 'Light', value: 'mapbox://styles/mapbox/light-v11' },
+  { label: 'Dark', value: 'mapbox://styles/mapbox/dark-v11' },
+  { label: 'Satellite', value: 'mapbox://styles/mapbox/satellite-v9' },
+  { label: 'Satellite Streets', value: 'mapbox://styles/mapbox/satellite-streets-v12' },
+  { label: 'Navigation Day', value: 'mapbox://styles/mapbox/navigation-day-v1' },
+  { label: 'Navigation Night', value: 'mapbox://styles/mapbox/navigation-night-v1' },
+];
 
-const styleOptions = z.enum(Object.keys(mapboxStyles) as [keyof typeof mapboxStyles]);
+const styleOptions = z.enum(mapboxStyleOptions.map(option => option.value) as [string, ...string[]]);
 
 const mapOptions = z.object({
   tokenAssetId: z.string(),

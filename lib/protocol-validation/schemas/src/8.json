@@ -98,7 +98,8 @@
             "CategoricalBin",
             "Anonymisation",
             "OneToManyDyadCensus",
-            "FamilyTreeCensus"
+            "FamilyTreeCensus",
+            "Geospatial"
           ]
         },
         "label": {
@@ -180,6 +181,9 @@
         },
         "filter": {
           "$ref": "#/definitions/Filter"
+        },
+        "mapOptions": {
+          "$ref": "#/definitions/MapOptions"
         }
       },
       "required": ["id", "label", "type"],
@@ -259,6 +263,14 @@
             }
           },
           "required": ["prompts"]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Geospatial"
+            }
+          },
+          "required": ["mapOptions", "prompts"]
         }
       ]
     },
@@ -1036,6 +1048,61 @@
       "type": "string",
       "enum": ["desc", "asc"],
       "title": "Direction"
+    },
+    "MapOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tokenAssetId": {
+          "type": "string"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "mapbox://styles/mapbox/standard",
+            "mapbox://styles/mapbox/standard-satellite",
+            "mapbox://styles/mapbox/streets-v12",
+            "mapbox://styles/mapbox/outdoors-v12",
+            "mapbox://styles/mapbox/light-v11",
+            "mapbox://styles/mapbox/dark-v11",
+            "mapbox://styles/mapbox/satellite-v9",
+            "mapbox://styles/mapbox/satellite-streets-v12",
+            "mapbox://styles/mapbox/navigation-day-v1",
+            "mapbox://styles/mapbox/navigation-night-v1"
+          ]
+        },
+        "center": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "initialZoom": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 22
+        },
+        "dataSourceAssetId": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "targetFeatureProperty": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tokenAssetId",
+        "style",
+        "center",
+        "initialZoom",
+        "dataSourceAssetId",
+        "color",
+        "targetFeatureProperty"
+      ]
     }
   }
 }

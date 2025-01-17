@@ -52,6 +52,11 @@ export const getProtocolAssets = async (
     Object.keys(assetManifest).map(async (key) => {
       const asset = assetManifest[key]!;
 
+      // apiKey assets are not actually files, so we skip them.
+      if (asset.type === 'apiKey') {
+        return;
+      }
+
       const file = await protocolZip
         ?.file(`assets/${asset.source}`)
         ?.async('blob');
