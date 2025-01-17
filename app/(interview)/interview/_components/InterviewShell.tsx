@@ -43,6 +43,8 @@ const InterviewShell = ({
       serverPayload.currentStep = currentStage;
     }
 
+    console.log('Setting server session', serverPayload);
+
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({
       type: SET_SERVER_SESSION,

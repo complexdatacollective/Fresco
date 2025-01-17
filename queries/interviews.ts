@@ -33,7 +33,10 @@ export const getInterviewsForExport = createCachedFunction(
         participant: true,
       },
     });
-    return interviews;
+
+    const stringifiedInterviews = withoutDates(interviews);
+
+    return stringifiedInterviews;
   },
   ['getInterviewsForExport', 'getInterviews'],
 );
@@ -96,9 +99,11 @@ export const TESTING_getInterviewById = async (interviewId: string) => {
     return null;
   }
 
-  // Override protocol with a test protocol
-  interview.protocol.stages = protocol.stages;
-  interview.protocol.codebook = protocol.codebook;
+  const stringifiedInterview = withoutDates(interview);
 
-  return interview;
+  // Override protocol with a test protocol
+  stringifiedInterview.protocol.stages = protocol.stages;
+  stringifiedInterview.protocol.codebook = protocol.codebook;
+
+  return stringifiedInterview;
 };
