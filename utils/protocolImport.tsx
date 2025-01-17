@@ -54,6 +54,7 @@ export const getProtocolAssets = async (
 
       // apiKey assets are not actually files, so we skip them.
       if (asset.type === 'apiKey') {
+        // TODO: add to assets, but not as a file
         return;
       }
 

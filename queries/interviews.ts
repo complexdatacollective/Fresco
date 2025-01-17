@@ -79,6 +79,19 @@ export const TESTING_getInterviewById = async (interviewId: string) => {
   // Override protocol with a test protocol
   interview.protocol.stages = protocol.stages;
   interview.protocol.codebook = protocol.codebook;
-  
+
+  // add any api keys from asset manifest to the protocol assets
+
+  const apiKeyAssets = Object.entries(protocol.assetManifest)
+  .filter(([, asset]) => asset.type === 'apikey')
+  .map(([, asset]) => ({
+    assetId: asset.id,
+    type: asset.type,
+    name: asset.name,
+    value: asset.value,
+  }));
+
+  interview.protocol.assets.push(...apiKeyAssets);
+
   return interview;
 };

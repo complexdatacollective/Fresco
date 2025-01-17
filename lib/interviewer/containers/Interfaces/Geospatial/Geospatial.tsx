@@ -1,5 +1,5 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
-import { type AnyAction } from '@reduxjs/toolkit';
+import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion } from 'motion/react';
@@ -65,7 +65,7 @@ export default function GeospatialInterface({
   registerBeforeNext,
   getNavigationHelpers,
 }: GeospatialInterfaceProps) {
-  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, Action>>();
   const dragSafeRef = useRef(null);
 
   const [navState, setNavState] = useState({

@@ -1,9 +1,10 @@
 import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { getApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
 import { type MapOptions } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
-import { getApiKeyAssetValue } from '../../../selectors/protocol';
 
 const MAP_CONSTS = {
   FILL_OPACITY: 0.5,
@@ -31,7 +32,8 @@ export const useMapbox = ({
   const { center, initialZoom, tokenAssetId, dataSourceAssetId, color, targetFeatureProperty, style } = mapOptions;
   
   // get token value from asset manifest, using id
-  const accessToken = getApiKeyAssetValue(tokenAssetId);
+  const getAccessToken = useSelector(getApiKeyAssetValue);
+  const accessToken = getAccessToken(tokenAssetId);
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
