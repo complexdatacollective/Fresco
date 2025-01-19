@@ -1,11 +1,14 @@
 import { type getInterviewById } from '~/queries/interviews';
-export const SET_SERVER_SESSION = 'INIT/SET_SERVER_SESSION';
+
+export const actionTypes = {
+  setServerSession: 'INIT/SET_SERVER_SESSION' as const,
+};
 
 type Payload = NonNullable<Awaited<ReturnType<typeof getInterviewById>>>;
 
 export type ProtocolWithAssets = Omit<Payload['protocol'], 'id'>;
 
 export type SetServerSessionAction = {
-  type: typeof SET_SERVER_SESSION;
+  type: typeof actionTypes.setServerSession;
   payload: Payload;
 };

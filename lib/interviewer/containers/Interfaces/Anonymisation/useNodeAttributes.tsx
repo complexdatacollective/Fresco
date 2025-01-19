@@ -9,6 +9,10 @@ import { getEntityAttributes } from '~/utils/general';
 import { usePassphrase } from './usePassphrase';
 import { decryptData, UnauthorizedError } from './utils';
 
+/**
+ * Mechanism for accessing node attributes, which takes into account
+ * whether the attribute is encrypted or not.
+ */
 export const useNodeAttributes = (
   node: NcNode,
 ): {
@@ -21,7 +25,7 @@ export const useNodeAttributes = (
     getCodebookVariablesForNodeType(node.type),
   );
   const nodeAttributes = getEntityAttributes(node);
-  const { requirePassphrase } = usePassphrase();
+  const { passphrase } = usePassphrase();
 
   const getById = async <T extends VariableValue>(
     attributeId: string,
@@ -40,10 +44,12 @@ export const useNodeAttributes = (
       return undefined;
     }
 
-    // This will trigger a prompt for the passphrase, and throw an error if it is cancelled.
-    try {
-      const passphrase = await requirePassphrase();
+    if (!passphrase) {
+      console.log('useNodeAttributes - no passphrase');
+      throw new UnauthorizedError();
+    }
 
+    try {
       const decryptedValue = await decryptData(
         {
           [entitySecureAttributesMeta]: {

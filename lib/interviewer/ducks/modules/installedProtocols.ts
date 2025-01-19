@@ -1,7 +1,7 @@
 import { omit } from 'es-toolkit';
 import {
+  actionTypes,
   type ProtocolWithAssets,
-  SET_SERVER_SESSION,
   type SetServerSessionAction,
 } from './setServerSession';
 
@@ -11,7 +11,7 @@ type Actions = SetServerSessionAction;
 
 export default function reducer(state = initialState, action: Actions) {
   switch (action.type) {
-    case SET_SERVER_SESSION: {
+    case actionTypes.setServerSession: {
       if (!action.payload.protocol) {
         return state;
       }

@@ -117,6 +117,8 @@ export const usePassphrase = () => {
     );
   }, []);
 
+  console.log('passphrase', state.passphrase);
+
   return {
     isEnabled: state.isEnabled,
     passphrase: state.passphrase,

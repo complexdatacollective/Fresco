@@ -9,9 +9,10 @@ export function useNodeLabel(node: NcNode) {
   const { getByName } = useNodeAttributes(node);
 
   useEffect(() => {
-    async function calculateLabel() {
-      // 1. Look for a variable called 'name'.
+    const calculateLabel = async () => {
+      // 1. Look for a variable called 'name' in the codebook
       try {
+        // This will throw an error if the variable is encrypted and the passphrase is not provided
         const variableCalledName = await getByName<string>('name');
 
         if (variableCalledName) {

@@ -1,5 +1,5 @@
 import { omit } from 'es-toolkit';
-import { find, get, isMatch } from 'es-toolkit/compat';
+import { find, get, invariant, isMatch } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import {
   type EntityAttributesProperty,
@@ -12,24 +12,26 @@ import {
   type NcNetwork,
   type NcNode,
 } from '~/lib/shared-consts';
+import {
+  type ActionWithSessionMeta,
+  actionTypes as sessionActions,
+} from './session';
 
-/*
- * For actionCreators see `src/ducks/modules/sessions`
- */
-const INITIALIZE = 'NETWORK/INITIALIZE' as const;
-const ADD_NODE = 'NETWORK/ADD_NODE' as const;
-const ADD_NODE_TO_PROMPT = 'NETWORK/ADD_NODE_TO_PROMPT' as const;
-const BATCH_ADD_NODES = 'NETWORK/BATCH_ADD_NODES' as const;
-const REMOVE_NODE = 'NETWORK/REMOVE_NODE' as const;
-const REMOVE_NODE_FROM_PROMPT = 'NETWORK/REMOVE_NODE_FROM_PROMPT' as const;
-const UPDATE_NODE = 'NETWORK/UPDATE_NODE' as const;
-const TOGGLE_NODE_ATTRIBUTES = 'NETWORK/TOGGLE_NODE_ATTRIBUTES' as const;
-const ADD_EDGE = 'NETWORK/ADD_EDGE' as const;
-const UPDATE_EDGE = 'NETWORK/UPDATE_EDGE' as const;
-const TOGGLE_EDGE = 'NETWORK/TOGGLE_EDGE' as const;
-const REMOVE_EDGE = 'NETWORK/REMOVE_EDGE' as const;
-const UPDATE_EGO = 'NETWORK/UPDATE_EGO' as const;
-const ADD_SESSION = 'NETWORK/ADD_SESSION' as const;
+const actionTypes = {
+  initialize: 'NETWORK/INITIALIZE' as const,
+  addNode: 'NETWORK/ADD_NODE' as const,
+  deleteNode: 'NETWORK/DELETE_NODE' as const,
+  updateNode: 'NETWORK/UPDATE_NODE' as const,
+  toggleNodeAttributes: 'NETWORK/TOGGLE_NODE_ATTRIBUTES' as const,
+  addNodeToPrompt: 'NETWORK/ADD_NODE_TO_PROMPT' as const,
+  removeNodeFromPrompt: 'NETWORK/REMOVE_NODE_FROM_PROMPT' as const,
+  addEdge: 'NETWORK/ADD_EDGE' as const,
+  updateEdge: 'NETWORK/UPDATE_EDGE' as const,
+  toggleEdge: 'NETWORK/TOGGLE_EDGE' as const,
+  deleteEdge: 'NETWORK/DELETE_EDGE' as const,
+  updateEgo: 'NETWORK/UPDATE_EGO' as const,
+  addSession: 'SESSION/ADD_SESSION' as const,
+};
 
 // Initial network model structure
 export const initialState: NcNetwork = {
@@ -42,24 +44,6 @@ export const initialState: NcNetwork = {
 };
 
 // action creators
-
-/**
- * Action creator to add a list of nodes
- * @param nodeList If nodes have attributes they are applied before attributeData
- * and after defaultAttributes
- * @param attributeData Takes precidence over other attributes
- * @param defaultAttributes Is added before other attributes
- */
-const batchAddNodes = (
-  nodeList: NcNode[],
-  attributeData: NcNode[EntityAttributesProperty] = {},
-  defaultAttributes: NcNode[EntityAttributesProperty] = {},
-) => ({
-  type: BATCH_ADD_NODES,
-  nodeList,
-  defaultAttributes,
-  attributeData,
-});
 
 // reducer helpers:
 function flipEdge(edge: Partial<NcEdge>) {
@@ -97,43 +81,26 @@ export function edgeExists(
   return false;
 }
 
-/**
- * Correctly construct the node object based on a
- * node-like object, and an key-value attributes object
- */
-// const formatNodeAttributes = (modelData: ModelData, attributeData: Record<string, unknown>): NcNode => ({
-//   ...omit(modelData, ['promptId']),
+// const formatEgoAttributes = (modelData, attributeData) => ({
+//   ...modelData,
+//   [entityAttributesProperty]: {
+//     ...attributeData,
+//   },
+// });
+
+// /**
+//  * Correctly construct the edge object based on a
+//  * edge-like object, and an key-value attributes object
+//  */
+// const formatEdgeAttributes = (modelData, attributeData) => ({
+//   ...modelData,
 //   [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] || uuid(),
 //   [entityAttributesProperty]: {
 //     ...modelData[entityAttributesProperty],
 //     ...attributeData,
 //   },
-//   promptIDs: [modelData.promptId],
-//   stageId: modelData.stageId,
 //   type: modelData.type,
-//   itemType: modelData.itemType,
 // });
-
-const formatEgoAttributes = (modelData, attributeData) => ({
-  ...modelData,
-  [entityAttributesProperty]: {
-    ...attributeData,
-  },
-});
-
-/**
- * Correctly construct the edge object based on a
- * edge-like object, and an key-value attributes object
- */
-const formatEdgeAttributes = (modelData, attributeData) => ({
-  ...modelData,
-  [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] || uuid(),
-  [entityAttributesProperty]: {
-    ...modelData[entityAttributesProperty],
-    ...attributeData,
-  },
-  type: modelData.type,
-});
 
 const addEdge = (state, action) => ({
   ...state,
@@ -150,13 +117,8 @@ const removeEdge = (state, edgeId) => ({
   ),
 });
 
-export type AddNodeAction = {
-  type: typeof ADD_NODE;
-  sessionMeta: {
-    sessionId: string;
-    promptId: string;
-    stageId: string;
-  };
+export type AddNodeAction = ActionWithSessionMeta & {
+  type: typeof actionTypes.addNode;
   payload: {
     type: NcNode['type'];
     attributeData: NcNode[EntityAttributesProperty];
@@ -164,120 +126,114 @@ export type AddNodeAction = {
   };
 };
 
-type UpdateNodeAction = {
-  type: typeof UPDATE_NODE;
+export type DeleteNodeAction = ActionWithSessionMeta & {
+  type: typeof actionTypes.deleteNode;
+  [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
+};
+
+export type UpdateNodeAction = ActionWithSessionMeta & {
+  type: typeof actionTypes.updateNode;
   nodeId: NcNode[EntityPrimaryKey];
   newModelData: ModelData;
   newAttributeData: NcNode[EntityAttributesProperty];
 };
 
 type ToggleNodeAttributesAction = {
-  type: typeof TOGGLE_NODE_ATTRIBUTES;
+  type: typeof actionTypes.toggleNodeAttributes;
   [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
   attributes: NcNode[EntityAttributesProperty];
 };
 
-type RemoveNodeAction = {
-  type: typeof REMOVE_NODE;
-  [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
-};
-
 type AddNodeToPromptAction = {
-  type: typeof ADD_NODE_TO_PROMPT;
+  type: typeof actionTypes.addNodeToPrompt;
   nodeId: NcNode[EntityPrimaryKey];
   promptId: string;
   promptAttributes: NcNode[EntityAttributesProperty];
 };
 
 type RemoveNodeFromPromptAction = {
-  type: typeof REMOVE_NODE_FROM_PROMPT;
+  type: typeof actionTypes.removeNodeFromPrompt;
   nodeId: NcNode[EntityPrimaryKey];
   promptId: string;
   promptAttributes: NcNode[EntityAttributesProperty];
 };
 
-type BatchAddNodesAction = {
-  type: typeof BATCH_ADD_NODES;
-  nodeList: NcNode[];
-  defaultAttributes: NcNode[EntityAttributesProperty];
-  attributeData: NcNode[EntityAttributesProperty];
-};
-
 type AddEdgeAction = {
-  type: typeof ADD_EDGE;
+  type: typeof actionTypes.addEdge;
   modelData: NcEdge;
   attributeData: NcEdge['attributes'];
 };
 
 type UpdateEdgeAction = {
-  type: typeof UPDATE_EDGE;
+  type: typeof actionTypes.updateEdge;
   edgeId: NcEdge[EntityPrimaryKey];
   newModelData: NcEdge;
   newAttributeData: NcEdge['attributes'];
 };
 
 type ToggleEdgeAction = {
-  type: typeof TOGGLE_EDGE;
+  type: typeof actionTypes.toggleEdge;
   modelData: NcEdge;
 };
 
 type RemoveEdgeAction = {
-  type: typeof REMOVE_EDGE;
+  type: typeof actionTypes.removeEdge;
   edgeId: NcEdge[EntityPrimaryKey];
 };
 
 type UpdateEgoAction = {
-  type: typeof UPDATE_EGO;
+  type: typeof actionTypes.updateEgo;
   modelData: NcNode;
   attributeData: NcNode[EntityAttributesProperty];
 };
 
-type AddSessionAction = {
-  type: typeof ADD_SESSION;
-  egoAttributeData: NcNode[EntityAttributesProperty];
-};
-
 type InitializeAction = {
-  type: typeof INITIALIZE;
+  type: typeof actionTypes.initialize;
 };
 
 export type NetworkActions =
   | InitializeAction
   | AddNodeAction
-  | UpdateNodeAction
-  | ToggleNodeAttributesAction
-  | RemoveNodeAction
-  | AddNodeToPromptAction
-  | RemoveNodeFromPromptAction
-  | BatchAddNodesAction
-  | AddEdgeAction
-  | UpdateEdgeAction
-  | ToggleEdgeAction
-  | RemoveEdgeAction
-  | UpdateEgoAction
-  | AddSessionAction;
+  | DeleteNodeAction;
+// | UpdateNodeAction
+// | ToggleNodeAttributesAction
+// | AddNodeToPromptAction
+// | RemoveNodeFromPromptAction
+// | AddEdgeAction
+// | UpdateEdgeAction
+// | ToggleEdgeAction
+// | RemoveEdgeAction
+// | UpdateEgoAction;
 
 export default function reducer(
   state = initialState,
   action: NetworkActions,
 ): NcNetwork {
   switch (action.type) {
-    case INITIALIZE: {
+    case actionTypes.initialize: {
       return initialState;
     }
-    case ADD_NODE: {
+    case actionTypes.addNode: {
       // Here is where we need to use codebook data to determine if the attribute is encrypted
       // and then store the encrypted data in the secure attributes meta
 
       // This approach will mean that existing interfaces don't need to update their use
       // of addNode.
 
+      const {
+        sessionMeta: { promptId, stageId },
+        payload: { type, attributeData },
+      } = action;
+
+      invariant(stageId, 'Stage ID is required to add a node');
+      invariant(promptId, 'Prompt ID is required to add a node');
+
       const newNode: NcNode = {
         [entityPrimaryKeyProperty]: uuid(),
-        type: action.payload.type,
-        [entityAttributesProperty]: action.payload.attributeData,
-        promptIDs: [action.sessionMeta.promptId],
-        stageId: action.sessionMeta.stageId,
+        type,
+        [entityAttributesProperty]: attributeData,
+        promptIDs: [promptId],
+        stageId: stageId,
       };
 
       if (action.payload.secureAttributes) {
@@ -289,7 +245,24 @@ export default function reducer(
         nodes: [...state.nodes, newNode],
       };
     }
-    case UPDATE_EGO: {
+    case actionTypes.deleteNode: {
+      const removeentityPrimaryKeyProperty = action[entityPrimaryKeyProperty];
+
+      console.log('remove', action, removeentityPrimaryKeyProperty);
+      return {
+        ...state,
+        nodes: state.nodes.filter(
+          (node) =>
+            node[entityPrimaryKeyProperty] !== removeentityPrimaryKeyProperty,
+        ),
+        edges: state.edges.filter(
+          (edge) =>
+            edge.from !== removeentityPrimaryKeyProperty &&
+            edge.to !== removeentityPrimaryKeyProperty,
+        ),
+      };
+    }
+    case actionTypes.updateEgo: {
       return {
         ...state,
         ego: {
@@ -302,26 +275,7 @@ export default function reducer(
         },
       };
     }
-    case BATCH_ADD_NODES: {
-      // TODO: This mutation should happen in the action creator
-      // or potentially be moved to the action caller
-      return {
-        ...state,
-        nodes: [
-          ...state.nodes,
-          ...action.nodeList.map((node) => {
-            const attributes = {
-              ...action.defaultAttributes,
-              ...node[entityAttributesProperty],
-              ...action.attributeData,
-            };
-
-            return formatNodeAttributes(node, attributes);
-          }),
-        ],
-      };
-    }
-    case TOGGLE_NODE_ATTRIBUTES: {
+    case actionTypes.toggleNodeAttributes: {
       return {
         ...state,
         nodes: (() =>
@@ -355,7 +309,7 @@ export default function reducer(
           ))(),
       };
     }
-    case UPDATE_NODE: {
+    case actionTypes.updateNode: {
       return {
         ...state,
         nodes: (() =>
@@ -377,22 +331,8 @@ export default function reducer(
           }))(),
       };
     }
-    case REMOVE_NODE: {
-      const removeentityPrimaryKeyProperty = action[entityPrimaryKeyProperty];
-      return {
-        ...state,
-        nodes: state.nodes.filter(
-          (node) =>
-            node[entityPrimaryKeyProperty] !== removeentityPrimaryKeyProperty,
-        ),
-        edges: state.edges.filter(
-          (edge) =>
-            edge.from !== removeentityPrimaryKeyProperty &&
-            edge.to !== removeentityPrimaryKeyProperty,
-        ),
-      };
-    }
-    case ADD_NODE_TO_PROMPT: {
+
+    case actionTypes.addNodeToPrompt: {
       return {
         ...state,
         nodes: (() =>
@@ -411,7 +351,7 @@ export default function reducer(
           }))(),
       };
     }
-    case REMOVE_NODE_FROM_PROMPT: {
+    case actionTypes.removeNodeFromPrompt: {
       const togglePromptAttributes = Object.keys(
         action.promptAttributes,
       ).reduce(
@@ -439,10 +379,10 @@ export default function reducer(
           }))(),
       };
     }
-    case ADD_EDGE: {
+    case actionTypes.addEdge: {
       return addEdge(state, action);
     }
-    case UPDATE_EDGE: {
+    case actionTypes.updateEdge: {
       return {
         ...state,
         edges: (() =>
@@ -461,7 +401,7 @@ export default function reducer(
           }))(),
       };
     }
-    case TOGGLE_EDGE: {
+    case actionTypes.toggleEdge: {
       // remove edge if it exists, add it if it doesn't
       const { to, from, type } = action.modelData;
       if (!to || !from || !type) {
@@ -479,9 +419,9 @@ export default function reducer(
       // Edge does not exist - create it
       return addEdge(state, action);
     }
-    case REMOVE_EDGE:
+    case actionTypes.removeEdge:
       return removeEdge(state, action.edgeId);
-    case ADD_SESSION: {
+    case sessionActions.addSession: {
       return {
         ...initialState,
         ego: formatEgoAttributes(initialState.ego, action.egoAttributeData),
@@ -492,24 +432,4 @@ export default function reducer(
   }
 }
 
-const actionTypes = {
-  INITIALIZE,
-  ADD_NODE,
-  ADD_NODE_TO_PROMPT,
-  BATCH_ADD_NODES,
-  UPDATE_NODE,
-  TOGGLE_NODE_ATTRIBUTES,
-  REMOVE_NODE,
-  REMOVE_NODE_FROM_PROMPT,
-  ADD_EDGE,
-  UPDATE_EDGE,
-  TOGGLE_EDGE,
-  REMOVE_EDGE,
-  UPDATE_EGO,
-};
-
-const actionCreators = {
-  batchAddNodes,
-};
-
-export { actionCreators, actionTypes };
+export { actionTypes };

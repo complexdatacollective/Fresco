@@ -1,8 +1,5 @@
 import { type Session } from '../../store';
-import {
-  SET_SERVER_SESSION,
-  type SetServerSessionAction,
-} from './setServerSession';
+import { actionTypes, type SetServerSessionAction } from './setServerSession';
 
 type SetSessionAction = {
   type: 'SET_SESSION';
@@ -27,7 +24,7 @@ export default function sessionReducer(
   action: SessionActionTypes,
 ): Session['id'] | null {
   switch (action.type) {
-    case SET_SERVER_SESSION: {
+    case actionTypes.setServerSession: {
       return action.payload.id;
     }
 

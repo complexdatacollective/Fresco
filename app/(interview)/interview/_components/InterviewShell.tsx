@@ -7,7 +7,7 @@ import type { SyncInterview } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import {
-  SET_SERVER_SESSION,
+  actionTypes,
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { store } from '~/lib/interviewer/store';
@@ -45,7 +45,7 @@ const InterviewShell = ({
 
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({
-      type: SET_SERVER_SESSION,
+      type: actionTypes.setServerSession,
       payload: serverPayload,
     });
 
