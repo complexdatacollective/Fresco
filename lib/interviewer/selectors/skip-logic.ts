@@ -2,9 +2,8 @@ import { createSelector } from '@reduxjs/toolkit';
 import getQuery from '~/lib/network-query/query';
 import type { NcNetwork, SkipDefinition, Stage } from '~/lib/shared-consts';
 import { SkipLogicAction } from '../protocol-consts';
-import { getNetwork } from './network';
 import { getProtocolStages } from './protocol';
-import { getStageIndex } from './session';
+import { getNetwork, getStageIndex } from './session';
 
 const formatQueryParameters = (params: Record<string, unknown>) => ({
   rules: [],

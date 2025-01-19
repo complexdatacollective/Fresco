@@ -6,7 +6,6 @@ import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
 import { type ProtocolWithAssets } from '~/lib/interviewer/ducks/modules/setServerSession';
-import { type RootState } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -24,7 +23,7 @@ import { getInterviewsForExport } from '~/queries/interviews';
 import type {
   CreateInterview,
   DeleteInterviews,
-  SyncInterview,
+  SyncInterview as SyncInterviewType,
 } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
@@ -97,7 +96,7 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols: RootState['installedProtocols'] =
+  const formattedProtocols: RootState['protocol'] =
     Object.fromEntries(protocolsMap);
 
   const formattedSessions = formatExportableSessions(interviewsSessions);
@@ -250,7 +249,7 @@ export async function createInterview(data: CreateInterview) {
   }
 }
 
-export async function syncInterview(data: SyncInterview) {
+export async function syncInterview(data: SyncInterviewType) {
   const { id, network, currentStep, stageMetadata, lastUpdated } = data;
 
   try {

@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import usePrevious from '~/hooks/usePrevious';
 import Navigation from '../components/Navigation';
-import { actionCreators as sessionActions } from '../ducks/modules/session';
+import { updatePrompt, updateStage } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
   getCurrentStage,
@@ -123,9 +123,7 @@ export default function ProtocolScreen() {
 
       // Advance the prompt if we're not at the last one.
       if (stageAllowsNavigation !== 'FORCE' && !isLastPrompt) {
-        dispatch(
-          sessionActions.updatePrompt(promptIndex + 1) as unknown as AnyAction,
-        );
+        dispatch(updatePrompt(promptIndex + 1) as unknown as AnyAction);
         return;
       }
 
@@ -134,9 +132,7 @@ export default function ProtocolScreen() {
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
-      dispatch(
-        sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
-      );
+      dispatch(updateStage(nextValidStageIndex));
     })();
 
     setForceNavigationDisabled(false);
@@ -163,9 +159,7 @@ export default function ProtocolScreen() {
 
       // Advance the prompt if we're not at the last one.
       if (stageAllowsNavigation !== 'FORCE' && !isFirstPrompt) {
-        dispatch(
-          sessionActions.updatePrompt(promptIndex - 1) as unknown as AnyAction,
-        );
+        dispatch(updatePrompt(promptIndex - 1));
         return;
       }
 
@@ -174,11 +168,7 @@ export default function ProtocolScreen() {
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
-      dispatch(
-        sessionActions.updateStage(
-          previousValidStageIndex,
-        ) as unknown as AnyAction,
-      );
+      dispatch(updateStage(previousValidStageIndex));
     })();
 
     setForceNavigationDisabled(false);
@@ -218,13 +208,11 @@ export default function ProtocolScreen() {
       );
       // This should always return a valid stage, because we know that the
       // first stage is always valid.
-      dispatch(
-        sessionActions.updateStage(
-          previousValidStageIndex,
-        ) as unknown as AnyAction,
-      );
+      dispatch(updateStage(previousValidStageIndex));
     }
   }, [dispatch, isCurrentStepValid, previousValidStageIndex]);
+
+  console.log(stage);
 
   return (
     <>

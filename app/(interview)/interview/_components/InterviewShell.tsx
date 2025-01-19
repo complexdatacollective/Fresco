@@ -6,10 +6,6 @@ import { Provider } from 'react-redux';
 import type { SyncInterview } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
-import {
-  actionTypes,
-  type SetServerSessionAction,
-} from '~/lib/interviewer/ducks/modules/setServerSession';
 import { store } from '~/lib/interviewer/store';
 import type { getInterviewById } from '~/queries/interviews';
 import ServerSync from './ServerSync';
@@ -44,10 +40,7 @@ const InterviewShell = ({
     }
 
     // If there's no current stage in the URL bar, set it.
-    store.dispatch<SetServerSessionAction>({
-      type: actionTypes.setServerSession,
-      payload: serverPayload,
-    });
+    // store.dispatch(setServerSession(serverPayload));
 
     setInitialized(true);
   }, [
@@ -63,7 +56,7 @@ const InterviewShell = ({
   }
 
   return (
-    <Provider store={store}>
+    <Provider store={store(serverPayload)}>
       <ServerSync interviewId={serverPayload.id} serverSync={syncInterview}>
         <ProtocolScreen />
       </ServerSync>

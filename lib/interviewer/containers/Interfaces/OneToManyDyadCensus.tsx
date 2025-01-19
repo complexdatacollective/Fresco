@@ -3,7 +3,6 @@ import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
-import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
   entityAttributesProperty,
@@ -13,8 +12,9 @@ import {
 } from '~/lib/shared-consts';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
+import { toggleEdge } from '../../ducks/modules/session';
 import { getNetworkNodesForType } from '../../selectors/interface';
-import { getNetworkEdges } from '../../selectors/network';
+import { getNetworkEdges } from '../../selectors/session';
 import { type StageProps } from '../Stage';
 
 const MotionNode = motion.create(Node);
@@ -102,7 +102,7 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   const handleNodeClick = (node: NcNode) => () => {
     dispatch(
-      sessionActions.toggleEdge({
+      toggleEdge({
         from: source![entityPrimaryKeyProperty],
         to: node[entityPrimaryKeyProperty],
         type: createEdge,

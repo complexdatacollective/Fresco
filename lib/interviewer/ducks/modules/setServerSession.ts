@@ -1,3 +1,4 @@
+import { createAction } from '@reduxjs/toolkit';
 import { type getInterviewById } from '~/queries/interviews';
 
 export const actionTypes = {
@@ -12,3 +13,10 @@ export type SetServerSessionAction = {
   type: typeof actionTypes.setServerSession;
   payload: Payload;
 };
+
+export const setServerSession = createAction(
+  actionTypes.setServerSession,
+  (payload: Payload) => ({
+    payload,
+  }),
+);

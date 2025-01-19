@@ -1,4 +1,3 @@
-import { type Asset } from '@prisma/client';
 import { createSelector } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
@@ -9,7 +8,6 @@ import {
   type StageSubject,
   type VariableDefinition,
 } from '~/lib/shared-consts';
-import { type RootState } from '../store';
 import { getStageSubject } from './prop';
 
 const DefaultFinishStage = {
@@ -19,44 +17,12 @@ const DefaultFinishStage = {
   label: 'Finish Interview',
 };
 
-const getActiveSession = (state: RootState) => {
-  const activeSessionId = state.activeSessionId;
-
-  if (!activeSessionId) return undefined;
-
-  return state.sessions[activeSessionId];
+export const getProtocol = (state) => {
+  return state.protocol;
 };
 
-const getInstalledProtocols = (state: RootState) => state.installedProtocols;
-
-const getCurrentSessionProtocol = createSelector(
-  getActiveSession,
-  getInstalledProtocols,
-  (session, protocols) => {
-    if (!session) return undefined;
-    return protocols[session.protocolId];
-  },
-);
-
-export const getAssetManifest = createSelector(
-  getCurrentSessionProtocol,
-  (protocol) =>
-    protocol?.assets.reduce(
-      (manifest, asset) => {
-        manifest[asset.assetId] = asset;
-        return manifest;
-      },
-      {} as Record<string, Asset>,
-    ) ?? {},
-);
-
-export const getAssetUrlFromId = createSelector(
-  getAssetManifest,
-  (manifest) => (id: string) => manifest[id]?.url,
-);
-
 export const getProtocolCodebook = createSelector(
-  getCurrentSessionProtocol,
+  getProtocol,
   (protocol) => protocol?.codebook ?? { node: {}, edge: {}, ego: {} },
 );
 
@@ -123,7 +89,7 @@ export const getAllVariableUUIDsByEntity = createSelector(
 );
 
 export const getProtocolStages = createSelector(
-  getCurrentSessionProtocol,
+  getProtocol,
   // Insert default finish stage here.
   (protocol) => [...(protocol?.stages ?? []), DefaultFinishStage],
 );
