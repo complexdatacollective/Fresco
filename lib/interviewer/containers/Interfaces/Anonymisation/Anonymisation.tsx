@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
+import { useCallback, useEffect } from 'react';
 import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { Button } from '~/lib/ui/components';
 import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
+import { type BeforeNextFunction } from '../../ProtocolScreen';
 import { type StageProps } from '../../Stage';
 import { usePassphrase } from './usePassphrase';
 
@@ -12,13 +15,30 @@ type AnonymisationProps = StageProps & {
 const THRESHOLD_POSITION = 25;
 
 export default function Anonymisation(props: AnonymisationProps) {
-  const { requirePassphrase, isEnabled, isPrompting } = usePassphrase();
-  // const dispatch = useDispatch();
-  // const openDialog = useCallback(
-  //   (dialog: Dialog) =>
-  //     dispatch(dialogActions.openDialog(dialog) as unknown as AnyAction),
-  //   [dispatch],
-  // );
+  const { registerBeforeNext } = props;
+  const { requirePassphrase, isEnabled, isPrompting, passphrase } =
+    usePassphrase();
+
+  const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async (direction) => {
+      // Allow backwards navigation always
+      if (direction === 'backwards') {
+        return true;
+      }
+
+      if (!passphrase) {
+        return false;
+      }
+
+      return true;
+    },
+    [passphrase],
+  );
+
+  useEffect(() => {
+    registerBeforeNext(preventNavigationWithoutPassphrase);
+  }, [registerBeforeNext, preventNavigationWithoutPassphrase]);
 
   return (
     <>
@@ -46,6 +66,7 @@ export default function Anonymisation(props: AnonymisationProps) {
           {props.stage.items.map((item) => {
             return <Markdown key={item.id} label={item.content} />;
           })}
+          {passphrase && <Button>Passphrase created! Click to Continue</Button>}
         </motion.div>
       </motion.div>
       <motion.div
