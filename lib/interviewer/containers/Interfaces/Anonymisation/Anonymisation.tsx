@@ -42,10 +42,8 @@ export default function Anonymisation(props: AnonymisationProps) {
             delay: 0.2,
           }}
         >
-          <h1 className="text-center">Protect Your Data</h1>
+          <h1 className="text-center">Your Privacy</h1>
           {props.stage.items.map((item) => {
-            console.log(item);
-
             return <Markdown key={item.id} label={item.content} />;
           })}
         </motion.div>

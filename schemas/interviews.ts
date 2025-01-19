@@ -19,4 +19,5 @@ export type SyncInterview = {
   network: NcNetwork;
   currentStep: number;
   stageMetadata?: Record<string, NumberStringBoolean[][]>;
+  lastUpdated: string;
 };

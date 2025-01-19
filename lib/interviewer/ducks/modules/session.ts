@@ -36,7 +36,7 @@ const initialState = {} as Record<string, SessionWithoutId>;
 
 const withTimestamp = (session: SessionWithoutId) => ({
   ...session,
-  lastUpdated: new Date(),
+  lastUpdated: new Date().toISOString(),
 });
 
 const sessionExists = (

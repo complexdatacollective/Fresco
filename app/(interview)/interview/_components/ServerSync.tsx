@@ -3,7 +3,7 @@
 import { debounce, isEqual } from 'es-toolkit';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import type { SyncInterviewType } from '~/actions/interviews';
+import type { SyncInterview } from '~/actions/interviews';
 import usePrevious from '~/hooks/usePrevious';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 
@@ -16,7 +16,7 @@ const ServerSync = ({
 }: {
   interviewId: string;
   children: ReactNode;
-  serverSync: SyncInterviewType;
+  serverSync: SyncInterview;
 }) => {
   const [init, setInit] = useState(false);
   // Current stage
@@ -50,6 +50,7 @@ const ServerSync = ({
       network: currentSession.network,
       currentStep: currentSession.currentStep ?? 0,
       stageMetadata: currentSession.stageMetadata, // Temporary storage used by tiestrengthcensus/dyadcensus to store negative responses
+      lastUpdated: currentSession.lastUpdated,
     });
   }, [
     currentSession,

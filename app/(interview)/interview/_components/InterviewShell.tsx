@@ -3,7 +3,7 @@
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import type { SyncInterviewType } from '~/actions/interviews';
+import type { SyncInterview } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import {
@@ -22,7 +22,7 @@ const InterviewShell = ({
   syncInterview,
 }: {
   serverPayload: Awaited<ReturnType<typeof getInterviewById>>;
-  syncInterview: SyncInterviewType;
+  syncInterview: SyncInterview;
 }) => {
   const [initialized, setInitialized] = useState(false);
   const [currentStage, setCurrentStage] = useQueryState('step', parseAsInteger);
@@ -42,8 +42,6 @@ const InterviewShell = ({
     } else if (currentStage !== serverPayload.currentStep) {
       serverPayload.currentStep = currentStage;
     }
-
-    console.log('Setting server session', serverPayload);
 
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({

@@ -251,7 +251,7 @@ export async function createInterview(data: CreateInterview) {
 }
 
 export async function syncInterview(data: SyncInterview) {
-  const { id, network, currentStep, stageMetadata } = data;
+  const { id, network, currentStep, stageMetadata, lastUpdated } = data;
 
   try {
     await prisma.interview.update({
@@ -262,7 +262,7 @@ export async function syncInterview(data: SyncInterview) {
         network,
         currentStep,
         stageMetadata,
-        lastUpdated: new Date(), // TODO: this is present in the store - shouldn't we be using that value?
+        lastUpdated: new Date(lastUpdated),
       },
     });
 
@@ -277,7 +277,7 @@ export async function syncInterview(data: SyncInterview) {
   }
 }
 
-export type SyncInterviewType = typeof syncInterview;
+export type SyncInterview = typeof syncInterview;
 
 export async function finishInterview(interviewId: Interview['id']) {
   try {

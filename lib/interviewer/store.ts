@@ -33,10 +33,10 @@ export type StageMetadata = StageMetadataEntry[];
 // TODO: couldn't make this work extending the Interview prisma schema...
 export type Session = {
   id: string;
-  startTime: Date;
-  finishTime: Date | null;
-  exportTime: Date | null;
-  lastUpdated: Date;
+  startTime: string;
+  finishTime: string | null;
+  exportTime: string | null;
+  lastUpdated: string;
   network: NcNetwork;
   protocolId: string;
   currentStep: number;
