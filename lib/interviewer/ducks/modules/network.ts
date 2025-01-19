@@ -12,10 +12,7 @@ import {
   type NcNetwork,
   type NcNode,
 } from '~/lib/shared-consts';
-import {
-  type ActionWithSessionMeta,
-  actionTypes as sessionActions,
-} from './session';
+import { type ActionWithSessionMeta } from './session';
 
 const actionTypes = {
   initialize: 'NETWORK/INITIALIZE' as const,
@@ -30,7 +27,6 @@ const actionTypes = {
   toggleEdge: 'NETWORK/TOGGLE_EDGE' as const,
   deleteEdge: 'NETWORK/DELETE_EDGE' as const,
   updateEgo: 'NETWORK/UPDATE_EGO' as const,
-  addSession: 'SESSION/ADD_SESSION' as const,
 };
 
 // Initial network model structure
@@ -110,7 +106,7 @@ const addEdge = (state, action) => ({
     ))(),
 });
 
-const removeEdge = (state, edgeId) => ({
+const deleteEdge = (state, edgeId: NcEdge[EntityPrimaryKey]) => ({
   ...state,
   edges: state.edges.filter(
     (edge) => edge[entityPrimaryKeyProperty] !== edgeId,
@@ -413,20 +409,14 @@ export default function reducer(
 
       if (existingEdgeId) {
         // Edge exists - remove it
-        return removeEdge(state, existingEdgeId);
+        return deleteEdge(state, existingEdgeId);
       }
 
       // Edge does not exist - create it
       return addEdge(state, action);
     }
-    case actionTypes.removeEdge:
-      return removeEdge(state, action.edgeId);
-    case sessionActions.addSession: {
-      return {
-        ...initialState,
-        ego: formatEgoAttributes(initialState.ego, action.egoAttributeData),
-      };
-    }
+    case actionTypes.deleteEdge:
+      return deleteEdge(state, action.edgeId);
     default:
       return state;
   }
