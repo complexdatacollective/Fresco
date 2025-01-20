@@ -18,15 +18,11 @@ import { getStageSubject, getSubjectType, stagePromptIds } from './prop';
 import { getProtocolCodebook, getProtocolStages } from './protocol';
 import { createDeepEqualSelector } from './utils';
 
-export const getActiveSession = createSelector(
-  (state: RootState) => state.session,
-  (session) => session,
-);
+export const getActiveSession = (state: RootState) => {
+  return state.session;
+};
 
-export const getStageIndex = createSelector(
-  getActiveSession,
-  (session) => session.currentStep,
-);
+export const getStageIndex = (state: RootState) => state.session.currentStep;
 
 // Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
 export const getStageMetadata = createSelector(

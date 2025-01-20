@@ -43,43 +43,37 @@ export const getInterviewsForExport = createCachedFunction(
 );
 
 export const getInterviewById = async (interviewId: string) => {
-  unstable_noStore();
-  const interview = await prisma.interview.findUnique({
-    where: {
-      id: interviewId,
-    },
-    include: {
-      protocol: {
-        include: {
-          assets: true,
-        },
-      },
-    },
-  });
+  // unstable_noStore();
+  // const interview = await prisma.interview.findUnique({
+  //   where: {
+  //     id: interviewId,
+  //   },
+  //   include: {
+  //     protocol: {
+  //       include: {
+  //         assets: true,
+  //       },
+  //     },
+  //   },
+  // });
 
-  if (!interview) {
-    return null;
-  }
+  // if (!interview) {
+  //   return null;
+  // }
 
-  const stringifiedInterview = withoutDates(interview);
+  // const stringifiedInterview = withoutDates(interview);
 
-  return {
-    ...stringifiedInterview,
-    protocol: {
-      ...stringifiedInterview.protocol,
-      stages: protocol.stages,
-      codebook: protocol.codebook,
-    },
-    stageMetadata:
-      stringifiedInterview.stageMetadata ?? ({} as Record<string, unknown>),
-  };
-};
+  // return {
+  //   ...stringifiedInterview,
+  //   protocol: {
+  //     ...stringifiedInterview.protocol,
+  //     stages: protocol.stages,
+  //     codebook: protocol.codebook,
+  //   },
+  //   stageMetadata:
+  //     stringifiedInterview.stageMetadata ?? ({} as Record<string, unknown>),
+  // };
 
-export type GetInterviewByIdReturnType = Awaited<
-  ReturnType<typeof getInterviewById>
->;
-
-export const TESTING_getInterviewById = async (interviewId: string) => {
   unstable_noStore();
   // eslint-disable-next-line no-console
   console.warn(
@@ -110,3 +104,7 @@ export const TESTING_getInterviewById = async (interviewId: string) => {
 
   return stringifiedInterview;
 };
+
+export type GetInterviewByIdReturnType = Awaited<
+  ReturnType<typeof getInterviewById>
+>;

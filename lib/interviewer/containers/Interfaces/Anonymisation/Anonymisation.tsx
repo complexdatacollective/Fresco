@@ -109,7 +109,7 @@ export default function Anonymisation(props: AnonymisationProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <EncryptionBackground thresholdPosition={passphrase ? 50 : 100} />
+        <EncryptionBackground thresholdPosition={passphrase ? 20 : 100} />
       </motion.div>
     </>
   );

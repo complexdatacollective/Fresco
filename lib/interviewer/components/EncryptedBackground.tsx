@@ -164,7 +164,7 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
     id: Math.random(),
     word: name,
     // random x position clamped between 20 and 80
-    x: 20 + Math.random() * 60,
+    x: 10 + Math.random() * 90,
     y: yPosition,
     speed: 0.025 + Math.random() * 0.05,
     encrypted: shouldBeEncrypted,
@@ -192,7 +192,7 @@ const EncryptionBackground = ({
   const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    const initialStreams = Array.from({ length: 25 }, (_, index) =>
+    const initialStreams = Array.from({ length: 40 }, (_, index) =>
       createStream(index * 6, thresholdPosition),
     );
     setStreams(initialStreams);

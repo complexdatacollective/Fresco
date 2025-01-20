@@ -63,6 +63,12 @@ export type NcEdge = z.infer<typeof NcEdgeSchema>;
 
 export type NcEgo = NcEntity;
 
+export const NcNetworkSchema = z.object({
+  nodes: z.array(NcNodeSchema),
+  edges: z.array(NcEdgeSchema),
+  ego: NcEntitySchema.optional(),
+});
+
 export type NcNetwork = {
   nodes: NcNode[];
   edges: NcEdge[];

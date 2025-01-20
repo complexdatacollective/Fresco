@@ -5,6 +5,7 @@ import {
 } from '@reduxjs/toolkit';
 import { find, get, invariant } from 'es-toolkit/compat';
 import { v4 as uuid, v4 } from 'uuid';
+import { z } from 'zod';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -58,6 +59,18 @@ export function edgeExists(
 
   return false;
 }
+
+const StageMetadataEntrySchema = z.tuple([
+  z.number(),
+  z.string(),
+  z.string(),
+  z.boolean(),
+]);
+
+export const StageMetadataSchema = z.record(
+  z.number(),
+  z.array(StageMetadataEntrySchema),
+);
 
 export type StageMetadataEntry = [number, string, string, boolean];
 export type StageMetadata = Record<number, StageMetadataEntry[]>;
