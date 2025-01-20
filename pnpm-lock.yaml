@@ -144,8 +144,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0
       motion:
-        specifier: ^11.13.1
-        version: 11.17.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^12.0.0
+        version: 12.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next:
         specifier: ^14.2.23
         version: 14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.83.4)
@@ -3204,8 +3204,8 @@ packages:
     resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
     engines: {node: '>= 6'}
 
-  framer-motion@11.17.1:
-    resolution: {integrity: sha512-w6hMreGHgLk2M4Wso955zgG6y7xx0sNBs2pKh9RAyoi9cUuhsh3ry8lArbBCs42wpe5zfeC14SI5EdpV/ucOEA==}
+  framer-motion@12.0.0:
+    resolution: {integrity: sha512-S3V6UlZUa6km3TWJS5wH5hJs0RBgvLo2MYWINA2RwG+T/xGGKweJwEn38AtlDCjq9k70QFk7Op67jm8TAOb4qQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -4232,14 +4232,14 @@ packages:
   mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
 
-  motion-dom@11.16.4:
-    resolution: {integrity: sha512-2wuCie206pCiP2K23uvwJeci4pMFfyQKpWI0Vy6HrCTDzDCer4TsYtT7IVnuGbDeoIV37UuZiUr6SZMHEc1Vww==}
+  motion-dom@12.0.0:
+    resolution: {integrity: sha512-CvYd15OeIR6kHgMdonCc1ihsaUG4MYh/wrkz8gZ3hBX/uamyZCXN9S9qJoYF03GqfTt7thTV/dxnHYX4+55vDg==}
 
-  motion-utils@11.16.0:
-    resolution: {integrity: sha512-ngdWPjg31rD4WGXFi0eZ00DQQqKKu04QExyv/ymlC+3k+WIgYVFbt6gS5JsFPbJODTF/r8XiE/X+SsoT9c0ocw==}
+  motion-utils@12.0.0:
+    resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
 
-  motion@11.17.1:
-    resolution: {integrity: sha512-bT2Cv7usCa1+9KDYTyfAMAofPu5OO6Je2G+/8ZGqdsk79axs4RZdkFX67I3pYVxL+nz4nrhRDurSrrlioYz4dA==}
+  motion@12.0.0:
+    resolution: {integrity: sha512-nb9sDjfnq+JpBUPBC08ZGtdDhniTfNdtBhC/PtQKZWfzOUQyGHiAoo6JSjpc+ljkBaHapMypzvzr/07/kPVh0g==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -5279,9 +5279,6 @@ packages:
 
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
-
-  tslib@2.8.0:
-    resolution: {integrity: sha512-jWVzBLplnCmoaTr13V9dYbiQ99wvZRd0vNWaDRg+aVYRcjDF3nDksxFDE/+fkXnKhpnUUkmx5pK/v8mCtLVqZA==}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -7673,7 +7670,7 @@ snapshots:
 
   aria-hidden@1.2.4:
     dependencies:
-      tslib: 2.8.0
+      tslib: 2.8.1
 
   aria-query@5.3.2: {}
 
@@ -8716,10 +8713,10 @@ snapshots:
       combined-stream: 1.0.8
       mime-types: 2.1.35
 
-  framer-motion@11.17.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  framer-motion@12.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      motion-dom: 11.16.4
-      motion-utils: 11.16.0
+      motion-dom: 12.0.0
+      motion-utils: 12.0.0
       tslib: 2.8.1
     optionalDependencies:
       react: 18.3.1
@@ -10186,15 +10183,15 @@ snapshots:
 
   mitt@3.0.1: {}
 
-  motion-dom@11.16.4:
+  motion-dom@12.0.0:
     dependencies:
-      motion-utils: 11.16.0
+      motion-utils: 12.0.0
 
-  motion-utils@11.16.0: {}
+  motion-utils@12.0.0: {}
 
-  motion@11.17.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  motion@12.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      framer-motion: 11.17.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      framer-motion: 12.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tslib: 2.8.1
     optionalDependencies:
       react: 18.3.1
@@ -10587,7 +10584,7 @@ snapshots:
       react: 18.3.1
       react-remove-scroll-bar: 2.3.8(@types/react@18.3.7)(react@18.3.1)
       react-style-singleton: 2.2.1(@types/react@18.3.7)(react@18.3.1)
-      tslib: 2.8.0
+      tslib: 2.8.1
       use-callback-ref: 1.3.3(@types/react@18.3.7)(react@18.3.1)
       use-sidecar: 1.1.2(@types/react@18.3.7)(react@18.3.1)
     optionalDependencies:
@@ -11277,8 +11274,6 @@ snapshots:
       json5: 1.0.2
       minimist: 1.2.8
       strip-bom: 3.0.0
-
-  tslib@2.8.0: {}
 
   tslib@2.8.1: {}
 
