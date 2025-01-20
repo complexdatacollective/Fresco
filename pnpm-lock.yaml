@@ -24,8 +24,8 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.54.2(react@18.3.1))
       '@lucia-auth/adapter-prisma':
-        specifier: ^3.0.2
-        version: 3.0.2(@prisma/client@6.2.1(prisma@6.2.1))(lucia@2.7.7)
+        specifier: ^4.0.1
+        version: 4.0.1(@prisma/client@6.2.1(prisma@6.2.1))(lucia@2.7.7)
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
@@ -1100,11 +1100,11 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@lucia-auth/adapter-prisma@3.0.2':
-    resolution: {integrity: sha512-EyJWZene1/zasPwPctv8wwNErZt5mwwm5JATbhg+kXr3R8pbC7lJfVzDTAeeFClVH5k/FywRcsBl3JkPaNIcow==}
+  '@lucia-auth/adapter-prisma@4.0.1':
+    resolution: {integrity: sha512-3SztRhj1RAHbbhI/0aB7YC5zl6Z6aktPhkWpn2CHhiB03B9x/+A+M6pqJuAt1usU8PzkjVilgRPhrPymMar66A==}
     peerDependencies:
       '@prisma/client': ^4.2.0 || ^5.0.0
-      lucia: ^2.0.0
+      lucia: 3.x
 
   '@next/env@14.2.23':
     resolution: {integrity: sha512-CysUC9IO+2Bh0omJ3qrb47S8DtsTKbFidGm6ow4gXIG6reZybqxbkH2nhdEm1tC8SmgzDdpq3BIML0PWsmyUYA==}
@@ -6459,7 +6459,7 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
     optional: true
 
-  '@lucia-auth/adapter-prisma@3.0.2(@prisma/client@6.2.1(prisma@6.2.1))(lucia@2.7.7)':
+  '@lucia-auth/adapter-prisma@4.0.1(@prisma/client@6.2.1(prisma@6.2.1))(lucia@2.7.7)':
     dependencies:
       '@prisma/client': 6.2.1(prisma@6.2.1)
       lucia: 2.7.7
