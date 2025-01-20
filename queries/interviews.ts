@@ -1,3 +1,4 @@
+import { unstable_noStore } from 'next/cache';
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
 import { protocol } from '~/lib/test-protocol';
@@ -41,43 +42,45 @@ export const getInterviewsForExport = createCachedFunction(
   ['getInterviewsForExport', 'getInterviews'],
 );
 
-export const getInterviewById = (interviewId: string) =>
-  createCachedFunction(
-    async (interviewId: string) => {
-      const interview = await prisma.interview.findUnique({
-        where: {
-          id: interviewId,
-        },
-        include: {
-          protocol: {
-            include: {
-              assets: true,
-            },
-          },
-        },
-      });
-
-      if (!interview) {
-        return null;
-      }
-
-      const stringifiedInterview = withoutDates(interview);
-
-      return {
-        ...stringifiedInterview,
-        protocol: {
-          ...stringifiedInterview.protocol,
-          stages: protocol.stages,
-          codebook: protocol.codebook,
-        },
-        stageMetadata:
-          stringifiedInterview.stageMetadata ?? ({} as Record<string, unknown>),
-      };
+export const getInterviewById = async (interviewId: string) => {
+  unstable_noStore();
+  const interview = await prisma.interview.findUnique({
+    where: {
+      id: interviewId,
     },
-    [`getInterviewById-${interviewId}`, 'getInterviewById'],
-  )(interviewId);
+    include: {
+      protocol: {
+        include: {
+          assets: true,
+        },
+      },
+    },
+  });
+
+  if (!interview) {
+    return null;
+  }
+
+  const stringifiedInterview = withoutDates(interview);
+
+  return {
+    ...stringifiedInterview,
+    protocol: {
+      ...stringifiedInterview.protocol,
+      stages: protocol.stages,
+      codebook: protocol.codebook,
+    },
+    stageMetadata:
+      stringifiedInterview.stageMetadata ?? ({} as Record<string, unknown>),
+  };
+};
+
+export type GetInterviewByIdReturnType = Awaited<
+  ReturnType<typeof getInterviewById>
+>;
 
 export const TESTING_getInterviewById = async (interviewId: string) => {
+  unstable_noStore();
   // eslint-disable-next-line no-console
   console.warn(
     '⚠️ TESTING_getInterviewById is being used! Remove before release. ⚠️',

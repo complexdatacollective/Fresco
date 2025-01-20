@@ -1,7 +1,5 @@
-import { type AnyAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
@@ -13,8 +11,11 @@ import {
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { toggleEdge } from '../../ducks/modules/session';
-import { getNetworkNodesForType } from '../../selectors/interface';
-import { getNetworkEdges } from '../../selectors/session';
+import { useAppDispatch } from '../../hooks/redux';
+import {
+  getNetworkEdges,
+  getNetworkNodesForType,
+} from '../../selectors/session';
 import { type StageProps } from '../Stage';
 
 const MotionNode = motion.create(Node);
@@ -77,7 +78,7 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     promptIndex,
   } = usePrompts();
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // Reset the step when the prompt changes
   useEffect(() => {
@@ -103,10 +104,12 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const handleNodeClick = (node: NcNode) => () => {
     dispatch(
       toggleEdge({
-        from: source![entityPrimaryKeyProperty],
-        to: node[entityPrimaryKeyProperty],
-        type: createEdge,
-      }) as unknown as AnyAction,
+        modelData: {
+          from: source![entityPrimaryKeyProperty],
+          to: node[entityPrimaryKeyProperty],
+          type: createEdge!,
+        },
+      }),
     );
   };
 

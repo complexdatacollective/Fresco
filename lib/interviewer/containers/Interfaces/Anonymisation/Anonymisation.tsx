@@ -1,23 +1,28 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setPassphrase } from '~/lib/interviewer/ducks/modules/session';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import { type RootState } from '~/lib/interviewer/store';
 import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { Button } from '~/lib/ui/components';
-import { Markdown } from '~/lib/ui/components/Fields';
+import { Markdown, Text } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
 import { type BeforeNextFunction } from '../../ProtocolScreen';
 import { type StageProps } from '../../Stage';
-import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps & {
   stage: AnonymisationStage;
 };
 
-const THRESHOLD_POSITION = 25;
-
 export default function Anonymisation(props: AnonymisationProps) {
+  const [input, setInput] = useState('');
+  const { updateReady } = useReadyForNextStage();
   const { registerBeforeNext } = props;
-  const { requirePassphrase, isEnabled, isPrompting, passphrase } =
-    usePassphrase();
+  const passphrase = useSelector(
+    (state: RootState) => state.session.passphrase,
+  );
+  const dispatch = useDispatch();
 
   const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -39,6 +44,13 @@ export default function Anonymisation(props: AnonymisationProps) {
   useEffect(() => {
     registerBeforeNext(preventNavigationWithoutPassphrase);
   }, [registerBeforeNext, preventNavigationWithoutPassphrase]);
+
+  const handleSetPassphrase = useCallback(() => {
+    if (input && input.length > 0) {
+      dispatch(setPassphrase(input));
+      updateReady(true);
+    }
+  }, [dispatch, updateReady, input]);
 
   return (
     <>
@@ -68,7 +80,28 @@ export default function Anonymisation(props: AnonymisationProps) {
           {props.stage.items.map((item) => {
             return <Markdown key={item.id} label={item.content} />;
           })}
-          {passphrase && <Button>Passphrase created! Click to Continue</Button>}
+          <div className="mt-8 text-center">
+            {passphrase && (
+              <p className="my-10 text-xl font-bold">
+                Passphrase created! Click the down arrow to continue.
+              </p>
+            )}
+            {!passphrase && (
+              <div>
+                <Text
+                  autoFocus
+                  input={{
+                    name: 'passphrase',
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                      setInput(e.target.value),
+                    value: input,
+                  }}
+                  placeholder="Enter a passphrase..."
+                />
+                <Button onClick={handleSetPassphrase}>Set Passphrase</Button>
+              </div>
+            )}
+          </div>
         </motion.div>
       </motion.div>
       <motion.div
@@ -76,23 +109,7 @@ export default function Anonymisation(props: AnonymisationProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div
-          className="absolute z-10 w-full text-center text-[4rem] text-white/100 will-change-transform"
-          style={{
-            top: `${THRESHOLD_POSITION}%`,
-            background:
-              'linear-gradient(rgba(255,255, 255, 0) 40%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 60%)',
-          }}
-        >
-          <button
-            className="inline-flex items-center justify-center"
-            onClick={requirePassphrase}
-            disabled={isPrompting}
-          >
-            {isEnabled ? '🔒' : '🔓'}
-          </button>
-        </div>
-        <EncryptionBackground thresholdPosition={THRESHOLD_POSITION} />
+        <EncryptionBackground thresholdPosition={passphrase ? 50 : 100} />
       </motion.div>
     </>
   );

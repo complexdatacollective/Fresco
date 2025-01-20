@@ -191,11 +191,11 @@ export default function ProtocolScreen() {
     [moveForward, moveBackward],
   );
 
-  useEffect(() => {
-    if (currentStep !== prevCurrentStep) {
-      void setQueryStep(currentStep);
-    }
-  }, [currentStep, prevCurrentStep, setQueryStep]);
+  // useEffect(() => {
+  //   if (currentStep !== prevCurrentStep) {
+  //     void setQueryStep(currentStep);
+  //   }
+  // }, [currentStep, prevCurrentStep, setQueryStep]);
 
   // Check if the current stage is valid for us to be on.
   useEffect(() => {
@@ -211,8 +211,6 @@ export default function ProtocolScreen() {
       dispatch(updateStage(previousValidStageIndex));
     }
   }, [dispatch, isCurrentStepValid, previousValidStageIndex]);
-
-  console.log(stage);
 
   return (
     <>

@@ -3,25 +3,27 @@ import {
   createAsyncThunk,
   createReducer,
 } from '@reduxjs/toolkit';
-import { omit } from 'es-toolkit';
 import { invariant } from 'es-toolkit/compat';
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid, v4 } from 'uuid';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
+  entitySecureAttributesMeta,
   type EntityAttributesProperty,
   type EntityPrimaryKey,
   type NcEdge,
   type NcNetwork,
   type NcNode,
 } from '~/lib/shared-consts';
-import { getPromptId } from '../../selectors/interface';
-import { getCurrentStageId } from '../../selectors/session';
+import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
+import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
+import { getCurrentStageId, getPromptId } from '../../selectors/session';
+import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
-import { setServerSession } from './setServerSession';
+import { edgeExists } from './network';
 
 export type StageMetadataEntry = [number, string, string, boolean];
-export type StageMetadata = StageMetadataEntry[];
+export type StageMetadata = Record<number, StageMetadataEntry[]>;
 
 export type SessionState = {
   id: string;
@@ -34,11 +36,10 @@ export type SessionState = {
   network: NcNetwork;
   currentStep: number;
   promptIndex?: number;
-  stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
+  stageMetadata?: StageMetadata; // Used as temporary storage by DyadCensus/TieStrengthCensus
 };
 
 const actionTypes = {
-  initialize: 'NETWORK/INITIALIZE' as const,
   setSessionFinished: 'SESSION/SET_SESSION_FINISHED',
   updatePrompt: 'SESSION/UPDATE_PROMPT',
   updateStage: 'SESSION/UPDATE_STATE',
@@ -54,20 +55,105 @@ const actionTypes = {
   toggleEdge: 'NETWORK/TOGGLE_EDGE' as const,
   deleteEdge: 'NETWORK/DELETE_EDGE' as const,
   updateEgo: 'NETWORK/UPDATE_EGO' as const,
+  setPassphrase: 'SESSION/SET_PASSPHRASE' as const,
+  setEncryptionState: 'SESSION/SET_ENCRYPTION_STATE' as const,
+};
+
+export const initialNetwork: NcNetwork = {
+  ego: {
+    [entityPrimaryKeyProperty]: v4(),
+    [entityAttributesProperty]: {},
+  },
+  nodes: [],
+  edges: [],
 };
 
 const initialState = {} as SessionState;
 
+export const setPassphrase = createAction<string>(actionTypes.setPassphrase);
+
+export const setEncryptionState = createAction<boolean>(
+  actionTypes.setEncryptionState,
+);
+
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
-  (type: NcNode['type'], attributeData: NcNode[EntityAttributesProperty]) => {
-    const state = getState();
+  async (
+    props: {
+      type: NcNode['type'];
+      attributeData: NcNode[EntityAttributesProperty];
+    },
+    { getState },
+  ) => {
+    const { type, attributeData } = props;
+    const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
+    const variablesForType = getCodebookVariablesForNodeType(type)(state);
+
+    const mergedAttributes = {
+      ...getDefaultAttributesForEntityType(variablesForType),
+      ...attributeData,
+    };
+
+    const { passphrase, encryptionEnabled } = state.session;
+
+    if (!encryptionEnabled) {
+      return {
+        sessionMeta,
+        type,
+        attributeData: mergedAttributes,
+        secureAttributes: {},
+      };
+    }
+
+    invariant(
+      passphrase,
+      'Passphrase is required to add a node when encryption is enabled',
+    );
+
+    const { secureAttributes, encryptedAttributes } =
+      await generateSecureAttributes(mergedAttributes, passphrase);
 
     return {
       sessionMeta,
       type,
+      attributeData: encryptedAttributes,
+      secureAttributes,
+    };
+  },
+);
+
+export const addEdge = createAsyncThunk(
+  actionTypes.addEdge,
+  (
+    props: {
+      modelData: {
+        from: NcNode[EntityPrimaryKey];
+        to: NcNode[EntityPrimaryKey];
+        type: NcNode['type'];
+      };
+      attributeData?: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const {
+      modelData: { type },
       attributeData,
+    } = props;
+    const state = getState();
+    const sessionMeta = getSessionMeta(state);
+
+    const variablesForType = getCodebookVariablesForNodeType(type)(state);
+
+    const mergedAttributes = {
+      ...getDefaultAttributesForEntityType(variablesForType),
+      ...attributeData,
+    };
+
+    return {
+      sessionMeta,
+      modelData: props.modelData,
+      attributeData: mergedAttributes,
     };
   },
 );
@@ -76,41 +162,69 @@ export const deleteNode = createAction<NcNode[EntityPrimaryKey]>(
   actionTypes.deleteNode,
 );
 
+export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
+  actionTypes.deleteEdge,
+);
+
 export const updateNode = createAction<{
   nodeId: EntityPrimaryKey;
   newModelData: Record<string, unknown>;
   newAttributeData: Record<string, unknown>;
 }>(actionTypes.updateNode);
 
-export const updatePrompt = createAction<number>('SESSION/UPDATE_PROMPT');
-export const updateStage = createAction<number>('SESSION/UPDATE_STAGE');
+export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
+export const updateStage = createAction<number>(actionTypes.updateStage);
+
+export const toggleEdge = createAsyncThunk(
+  actionTypes.toggleEdge,
+  (
+    props: {
+      modelData: {
+        from: NcNode[EntityPrimaryKey];
+        to: NcNode[EntityPrimaryKey];
+        type: NcNode['type'];
+      };
+      attributeData?: Record<string, unknown>;
+    },
+    { getState, dispatch },
+  ) => {
+    const { modelData, attributeData } = props;
+    const state = getState() as RootState;
+
+    const existingEdge = edgeExists(
+      state.session.network.edges,
+      modelData.from,
+      modelData.to,
+      modelData.type,
+    );
+
+    if (existingEdge) {
+      dispatch(deleteEdge(existingEdge));
+      return;
+    }
+
+    dispatch(addEdge({ modelData, attributeData }));
+  },
+);
 
 const sessionReducer = createReducer(initialState, (builder) => {
-  builder.addCase(setServerSession, (_state, action) => {
-    const session = omit(action.payload, ['protocol']);
-
+  builder.addCase(setPassphrase, (state, action) => {
     return {
-      ...session,
-      passphrase: null,
-      encryptionEnabled: false,
-      network:
-        (action.payload.network as NcNetwork) ??
-        ({
-          ego: {
-            [entityPrimaryKeyProperty]: uuid(),
-            [entityAttributesProperty]: {},
-          },
-          nodes: [],
-          edges: [],
-        } as NcNetwork),
-      stageMetadata: (action.payload.stageMetadata ?? {}) as Record<
-        string,
-        StageMetadata
-      >,
+      ...state,
+      passphrase: action.payload,
+      encryptionEnabled: true,
+    };
+  });
+
+  builder.addCase(setEncryptionState, (state, action) => {
+    return {
+      ...state,
+      encryptionEnabled: action.payload,
     };
   });
 
   builder.addCase(addNode.fulfilled, (state, action) => {
+    const { secureAttributes } = action.payload;
     const { promptId, stageId } = action.payload.sessionMeta;
     invariant(promptId, 'Prompt ID is required to add a node');
     invariant(stageId, 'Stage ID is required to add a node');
@@ -119,10 +233,11 @@ const sessionReducer = createReducer(initialState, (builder) => {
       payload: { type, attributeData },
     } = action;
 
-    const newNode: NcNode = {
+    const newNode = {
       [entityPrimaryKeyProperty]: uuid(),
       type,
       [entityAttributesProperty]: attributeData,
+      [entitySecureAttributesMeta]: secureAttributes,
       promptIDs: [promptId],
       stageId: stageId,
     };
@@ -148,6 +263,9 @@ const sessionReducer = createReducer(initialState, (builder) => {
         ...network,
         nodes: nodes.filter(
           (node) => node[entityPrimaryKeyProperty] !== action.payload,
+        ),
+        edges: network.edges.filter(
+          (edge) => edge.from !== action.payload && edge.to !== action.payload,
         ),
       },
     };
@@ -199,6 +317,45 @@ const sessionReducer = createReducer(initialState, (builder) => {
           };
         }),
       } as NcNetwork,
+    };
+  });
+
+  builder.addCase(addEdge.fulfilled, (state, action) => {
+    const {
+      payload: { modelData, attributeData },
+    } = action;
+
+    const newEdge = {
+      [entityPrimaryKeyProperty]: uuid(),
+      from: modelData.from,
+      to: modelData.to,
+      type: modelData.type,
+      [entityAttributesProperty]: attributeData,
+    };
+
+    return {
+      ...state,
+      lastUpdated: new Date().toISOString(),
+      network: {
+        ...state.network,
+        edges: [...state.network.edges, newEdge],
+      } as NcNetwork,
+    };
+  });
+
+  builder.addCase(deleteEdge, (state, action) => {
+    const { network } = state;
+    const { edges } = network;
+
+    return {
+      ...state,
+      lastUpdated: new Date().toISOString(),
+      network: {
+        ...network,
+        edges: edges.filter(
+          (edge) => edge[entityPrimaryKeyProperty] !== action.payload,
+        ),
+      },
     };
   });
 });
@@ -275,7 +432,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
 //     }
 //   };
 
-const getSessionMeta = (state: RootState) => {
+const getSessionMeta = (state) => {
   const promptId = getPromptId(state);
   const stageId = getCurrentStageId(state);
 
@@ -287,8 +444,15 @@ const getSessionMeta = (state: RootState) => {
 
 export const addNodeToPrompt = createAsyncThunk(
   actionTypes.addNodeToPrompt,
-  (nodeId: EntityPrimaryKey, promptAttributes: Record<string, unknown>) => {
-    const state = store.getState();
+  (
+    props: {
+      nodeId: EntityPrimaryKey;
+      promptAttributes: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const { nodeId, promptAttributes } = props;
+    const state = getState();
     const promptId = getPromptId(state);
 
     return {
@@ -312,38 +476,21 @@ export const removeNodeFromPrompt = createAction<{
 
 export const updateEgo = createAsyncThunk(
   actionTypes.updateEgo,
-  (modelData = {}, attributeData = {}) => {
-    const state = store.getState();
-    const { protocol } = state;
-
-    const egoRegistry = protocol.codebook.ego ?? {};
-
-    return {
-      modelData,
-      attributeData: {
-        ...getDefaultAttributesForEntityType(egoRegistry.variables),
-        ...attributeData,
-      },
-    };
-  },
-);
-
-export const addEdge = createAsyncThunk(
-  actionTypes.addEdge,
-  (modelData, attributeData = {}) => {
-    const state = store.getState();
-    const { protocol } = state;
-
-    const edgeRegistry = protocol.codebook.edge;
-
-    const registryForType = edgeRegistry[modelData.type].variables;
+  (
+    props: {
+      modelData: Record<string, unknown>;
+      attributeData: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const { modelData, attributeData } = props;
+    const state = getState();
+    const sessionMeta = getSessionMeta(state);
 
     return {
+      sessionMeta,
       modelData,
-      attributeData: {
-        ...getDefaultAttributesForEntityType(registryForType),
-        ...attributeData,
-      },
+      attributeData,
     };
   },
 );
@@ -354,36 +501,11 @@ export const updateEdge = createAction<{
   newAttributeData: Record<string, unknown>;
 }>(actionTypes.updateEdge);
 
-export const toggleEdge = createAsyncThunk(
-  actionTypes.toggleEdge,
-  (modelData, attributeData = {}) => {
-    const { protocol } = store.getState();
-
-    const edgeRegistry = protocol.codebook.edge;
-
-    const registryForType = edgeRegistry[modelData.type].variables;
-
-    return {
-      modelData,
-      attributeData: {
-        ...getDefaultAttributesForEntityType(registryForType),
-        ...attributeData,
-      },
-    };
-  },
-);
-
-export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
-  actionTypes.deleteEdge,
-);
-
 export const updateStageMetadata = createAction<StageMetadata>(
   actionTypes.updateStageMetadata,
 );
 export const setSessionFinished = createAction<string>(
   actionTypes.setSessionFinished,
 );
-
-export { actionTypes };
 
 export default sessionReducer;

@@ -13,7 +13,10 @@ export function useNodeLabel(node: NcNode) {
       // 1. Look for a variable called 'name' in the codebook
       try {
         // This will throw an error if the variable is encrypted and the passphrase is not provided
-        const variableCalledName = await getByName<string>('name');
+        const variableCalledName = await getByName<string>({
+          attributeName: 'name',
+          ignoreCase: true,
+        });
 
         if (variableCalledName) {
           setLabel(variableCalledName);
@@ -41,7 +44,7 @@ export function useNodeLabel(node: NcNode) {
       // 3. Last resort!
       setLabel("No 'name' variable!");
       return;
-    }
+    };
 
     void calculateLabel();
   }, [node, getByName]);

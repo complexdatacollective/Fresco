@@ -1,54 +1,31 @@
-/*
- * Global UI state
- */
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 const initialState = {} as Record<string, unknown>;
 
-const UPDATE = 'UI/UPDATE' as const;
-const TOGGLE = 'UI/TOGGLE' as const;
-
-type UpdateAction = {
-  type: typeof UPDATE;
-  state: Record<string, unknown>;
-};
-
-type ToggleAction = {
-  type: typeof TOGGLE;
-  item: string;
-};
-
-type Action = UpdateAction | ToggleAction;
-
-export default function reducer(state = initialState, action: Action) {
-  switch (action.type) {
-    case UPDATE:
+const uiSlice = createSlice({
+  name: 'ui',
+  initialState,
+  reducers: {
+    update: (state, action: PayloadAction<Record<string, unknown>>) => {
       return {
         ...state,
-        ...action.state,
+        ...action.payload,
       };
-    case TOGGLE:
-      return {
-        ...state,
-        [action.item]: !state[action.item],
-      };
-    default:
-      return state;
-  }
-}
-
-const update = (state: Record<string, unknown>) => ({
-  type: UPDATE,
-  state,
+    },
+    toggle: (state, action: PayloadAction<string>) => {
+      state[action.payload] = !state[action.payload];
+    },
+  },
 });
 
-const toggle = (item: string) => ({
-  type: TOGGLE,
-  item,
-});
+// Export the reducer
+export default uiSlice.reducer;
 
-const actionCreators = {
-  update,
-  toggle,
+// Export the action creators
+export const { update, toggle } = uiSlice.actions;
+
+// If you want to keep the same export structure as before:
+export const actionCreators = {
+  update: uiSlice.actions.update,
+  toggle: uiSlice.actions.toggle,
 };
-
-export { actionCreators };

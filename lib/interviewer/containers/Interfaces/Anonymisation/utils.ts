@@ -1,4 +1,8 @@
-import { entitySecureAttributesMeta } from '~/lib/shared-consts';
+import {
+  type EntityAttributesProperty,
+  type EntitySecureAttributesMeta,
+  type NcNode,
+} from '~/lib/shared-consts';
 
 export const SESSION_STORAGE_KEY = 'passphrase';
 
@@ -41,30 +45,13 @@ export async function generateKey(passphrase: string, salt: Uint8Array) {
   );
 }
 
-export async function encryptData(data: string, passphrase: string) {
-  const encoder = new TextEncoder();
-
-  // Create a new salt and IV for each encryption
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-
-  const key = await generateKey(passphrase, salt);
-  const encryptedData = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv: iv },
-    key,
-    encoder.encode(data),
-  );
-
-  return {
-    [entitySecureAttributesMeta]: {
-      salt: Array.from(salt),
-      iv: Array.from(iv),
-    },
-    data: Array.from(new Uint8Array(encryptedData)),
+export type EncryptedData = {
+  secureAttributes: {
+    iv: number[];
+    salt: number[];
   };
-}
-
-export type EncryptedData = Awaited<ReturnType<typeof encryptData>>;
+  data: number[];
+};
 
 export async function decryptData(
   encrypted: EncryptedData,
@@ -72,7 +59,7 @@ export async function decryptData(
 ): Promise<string> {
   const {
     data,
-    [entitySecureAttributesMeta]: { iv, salt },
+    secureAttributes: { iv, salt },
   } = encrypted;
 
   const key = await generateKey(passphrase, new Uint8Array(salt));
@@ -91,4 +78,44 @@ export async function decryptData(
   // TODO: We need to look up the variable type and re-cast it here.
 
   return decoder.decode(decryptedData);
+}
+
+export async function generateSecureAttributes(
+  attributes: NcNode[EntityAttributesProperty],
+  passphrase: string,
+): Promise<{
+  secureAttributes: NcNode[EntitySecureAttributesMeta];
+  encryptedAttributes: NcNode[EntityAttributesProperty];
+}> {
+  const secureAttributes: NcNode[EntitySecureAttributesMeta] = {};
+  const encryptedAttributes: NcNode[EntityAttributesProperty] = {};
+
+  for (const [key, value] of Object.entries(attributes)) {
+    // TODO: expand this for other variable types
+    if (typeof value === 'string') {
+      const encoder = new TextEncoder();
+      // Create a new salt and IV for each encryption
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+
+      const encryptionKey = await generateKey(passphrase, salt);
+      const encryptedData = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: iv },
+        encryptionKey,
+        encoder.encode(value),
+      );
+
+      secureAttributes[key] = {
+        iv: Array.from(iv),
+        salt: Array.from(salt),
+      };
+
+      encryptedAttributes[key] = Array.from(new Uint8Array(encryptedData));
+    }
+  }
+
+  return {
+    secureAttributes,
+    encryptedAttributes,
+  };
 }

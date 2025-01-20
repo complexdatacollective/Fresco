@@ -1,11 +1,12 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview } from '@prisma/client';
+import { type Interview } from '@prisma/client';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
-import { type ProtocolWithAssets } from '~/lib/interviewer/ducks/modules/setServerSession';
+import { initialNetwork } from '~/lib/interviewer/ducks/modules/session';
+import { type RootState } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -19,7 +20,10 @@ import type {
 } from '~/lib/network-exporters/utils/types';
 import { type NcNetwork } from '~/lib/shared-consts';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewsForExport } from '~/queries/interviews';
+import {
+  getInterviewsForExport,
+  type GetInterviewByIdReturnType,
+} from '~/queries/interviews';
 import type {
   CreateInterview,
   DeleteInterviews,
@@ -85,6 +89,11 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
     return { error: 'Failed to update interviews', interview: null };
   }
 };
+
+export type ProtocolWithAssets = Omit<
+  NonNullable<GetInterviewByIdReturnType>['protocol'],
+  'id'
+>;
 
 export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   await requireApiAuth();
@@ -201,7 +210,7 @@ export async function createInterview(data: CreateInterview) {
         id: true,
       },
       data: {
-        network: Prisma.JsonNull,
+        network: initialNetwork,
         participant: participantStatement,
         protocol: {
           connect: {
@@ -264,8 +273,6 @@ export async function syncInterview(data: SyncInterviewType) {
         lastUpdated: new Date(lastUpdated),
       },
     });
-
-    safeRevalidateTag(`getInterviewById-${id}`);
 
     // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${id})`);

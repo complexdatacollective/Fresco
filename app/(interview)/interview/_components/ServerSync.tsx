@@ -1,6 +1,7 @@
 'use client';
 
 import { debounce, isEqual } from 'es-toolkit';
+import { omit } from 'es-toolkit/compat';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { SyncInterview } from '~/actions/interviews';
@@ -38,17 +39,22 @@ const ServerSync = ({
     }
 
     if (
-      isEqual(currentSession, prevCurrentSession) ||
+      isEqual(
+        omit(currentSession, ['passphrase', 'encryptionEnabled']),
+        omit(prevCurrentSession, ['passphrase', 'encryptionEnabled']),
+      ) ||
       !currentSession ||
       !prevCurrentSession
     ) {
+      console.log('no change');
       return;
     }
 
+    console.log('syncing', currentSession);
     void debouncedSessionSync({
       id: interviewId,
       network: currentSession.network,
-      currentStep: currentSession.currentStep ?? 0,
+      currentStep: currentSession.currentStep,
       stageMetadata: currentSession.stageMetadata, // Temporary storage used by tiestrengthcensus/dyadcensus to store negative responses
       lastUpdated: currentSession.lastUpdated,
     });

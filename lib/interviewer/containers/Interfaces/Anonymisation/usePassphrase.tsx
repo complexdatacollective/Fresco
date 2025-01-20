@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setPassphrase } from '~/lib/interviewer/ducks/modules/session';
+import { type RootState } from '~/lib/interviewer/store';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -8,8 +11,6 @@ export class UnauthorizedError extends Error {
 }
 
 type EncryptionState = {
-  isEnabled: boolean;
-  passphrase: string | null;
   isPrompting: boolean;
 };
 
@@ -20,8 +21,6 @@ const globalState: {
   currentPromise: Promise<string> | null;
 } = {
   state: {
-    isEnabled: false,
-    passphrase: null,
     isPrompting: false,
   },
   listeners: new Set(),
@@ -35,6 +34,17 @@ const updateState = (newState: Partial<EncryptionState>) => {
 
 export const usePassphrase = () => {
   const [state, setState] = useState<EncryptionState>(globalState.state);
+  const dispatch = useDispatch();
+
+  // Keeps track of if a passphrase has ever been set. Used to determine if we
+  // should prompt for a passphrase or not.
+  const encryptionEnabled = useSelector(
+    (state: RootState) => state.session.encryptionEnabled,
+  );
+
+  const passphrase = useSelector(
+    (state: RootState) => state.session.passphrase,
+  );
 
   useEffect(() => {
     const listener = (newState: EncryptionState) => {
@@ -51,8 +61,8 @@ export const usePassphrase = () => {
 
   const requirePassphrase = useCallback(async (): Promise<string> => {
     // If we already have a passphrase, return it
-    if (globalState.state.passphrase) {
-      return globalState.state.passphrase;
+    if (passphrase) {
+      return passphrase;
     }
 
     // If we're already prompting, return the existing promise
@@ -78,53 +88,20 @@ export const usePassphrase = () => {
         return;
       }
 
-      updateState({
-        passphrase: userInput,
-        isEnabled: true,
-      });
+      dispatch(setPassphrase(userInput));
 
-      window.dispatchEvent(
-        new CustomEvent('passphrase-set', { detail: userInput }),
-      );
       resolve(userInput);
     }).finally(() => {
       globalState.currentPromise = null;
     });
 
     return globalState.currentPromise;
-  }, []);
-
-  const clearPassphrase = useCallback(() => {
-    updateState({
-      passphrase: null,
-      isEnabled: false,
-    });
-    window.dispatchEvent(new CustomEvent('passphrase-cleared'));
-  }, []);
-
-  const setPassphrase = useCallback((newPassphrase: string) => {
-    if (!newPassphrase) {
-      throw new UnauthorizedError();
-    }
-
-    updateState({
-      passphrase: newPassphrase,
-      isEnabled: true,
-    });
-
-    window.dispatchEvent(
-      new CustomEvent('passphrase-set', { detail: newPassphrase }),
-    );
-  }, []);
-
-  console.log('passphrase', state.passphrase);
+  }, [passphrase, dispatch]);
 
   return {
-    isEnabled: state.isEnabled,
-    passphrase: state.passphrase,
+    isEnabled: encryptionEnabled,
+    passphrase,
     isPrompting: state.isPrompting,
     requirePassphrase,
-    clearPassphrase,
-    setPassphrase,
   };
 };

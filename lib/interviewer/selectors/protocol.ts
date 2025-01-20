@@ -8,6 +8,7 @@ import {
   type StageSubject,
   type VariableDefinition,
 } from '~/lib/shared-consts';
+import { type RootState } from '../store';
 import { getStageSubject } from './prop';
 
 const DefaultFinishStage = {
@@ -17,7 +18,7 @@ const DefaultFinishStage = {
   label: 'Finish Interview',
 };
 
-export const getProtocol = (state) => {
+export const getProtocol = (state: RootState) => {
   return state.protocol;
 };
 

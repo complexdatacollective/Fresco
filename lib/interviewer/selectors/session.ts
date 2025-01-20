@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { findKey } from 'es-toolkit/compat';
+import { intersection } from 'es-toolkit';
+import { filter, findKey, includes } from 'es-toolkit/compat';
 import customFilter from '~/lib/network-query/filter';
 import {
   entityAttributesProperty,
@@ -12,16 +13,16 @@ import {
   type StageSubject,
 } from '~/lib/shared-consts';
 import { getEntityAttributes } from '~/utils/general';
-import { type SessionState } from '../ducks/modules/session';
-import { getStageSubject, getSubjectType } from './prop';
+import { type RootState } from '../store';
+import { getStageSubject, getSubjectType, stagePromptIds } from './prop';
 import { getProtocolCodebook, getProtocolStages } from './protocol';
 import { createDeepEqualSelector } from './utils';
 
-export const getActiveSession = (state): SessionState => {
-  return state.session as SessionState;
+export const getActiveSession = (state: RootState) => {
+  return state.session;
 };
 
-export const getStageIndex = (state) => state.session.currentStep;
+export const getStageIndex = (state: RootState) => state.session.currentStep;
 
 // Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
 export const getStageMetadata = createSelector(
@@ -37,7 +38,6 @@ export const getCurrentStage = createSelector(
   getProtocolStages,
   getStageIndex,
   (stages: Stage[], currentStep) => {
-    console.log('stages', stages, currentStep);
     if (currentStep === null) return null;
     return stages[currentStep];
   },
@@ -99,8 +99,6 @@ const getSessionProgress = createSelector(
   getPromptIndex,
   getPromptCount,
   (currentStep, stageCount, promptIndex, promptCount) => {
-    if (currentStep === null) return 0;
-
     // Don't subtract 1 because we have a finish stage automatically added that isn't accounted for.
     const stageProgress = currentStep / stageCount;
 
@@ -158,18 +156,6 @@ export const getNavigationInfo = createSelector(
     isFirstStage,
     isLastStage,
   ) => {
-    console.log({
-      progress,
-      currentStep,
-      promptIndex,
-      isFirstPrompt,
-      isLastPrompt,
-      isFirstStage,
-      isLastStage,
-      canMoveForward: !(isLastPrompt && isLastStage),
-      canMoveBackward: !(isFirstPrompt && isFirstStage),
-    });
-
     return {
       progress,
       currentStep,
@@ -374,3 +360,98 @@ export const getCategoricalOptions = createSelector(
 );
 
 export const makeGetCategoricalOptions = () => getCategoricalOptions;
+
+/**
+ * makeNetworkEdgesForType()
+ * Get the current prompt/stage subject, and filter the network by this edge type.
+ */
+
+const getNetworkEdgesForType = createSelector(
+  getNetworkEdges,
+  getStageSubject,
+  (edges, subject) => filter(edges, ['type', subject.type]),
+);
+
+export const makeNetworkEdgesForType = () => getNetworkEdgesForType;
+
+/**
+ * makeNetworkEntitiesForType()
+ * Get the current prompt/stage subject, and filter the network by this entity type.
+ */
+export const getNetworkEntitiesForType = createSelector(
+  getNetwork,
+  getStageSubject,
+  (network, subject) => {
+    if (!subject || !network) {
+      return [];
+    }
+    if (subject.entity === 'node') {
+      return filter(network.nodes, ['type', subject.type]);
+    }
+    if (subject.entity === 'edge') {
+      return filter(network.edges, ['type', subject.type]);
+    }
+    return [network.ego];
+  },
+);
+
+export const getNetworkNodesForType = createSelector(
+  getNetworkNodes,
+  getStageSubject,
+  (nodes, subject) => filter(nodes, ['type', subject.type]),
+);
+
+export const makeNetworkNodesForType = () => getNetworkNodesForType;
+
+export const getStageNodeCount = createSelector(
+  getNetworkNodesForType,
+  stagePromptIds,
+  (nodes, promptIds) =>
+    filter(nodes, (node) => intersection(node.promptIDs, promptIds).length > 0)
+      .length,
+);
+
+export const makeGetStageNodeCount = () => {
+  return createSelector(
+    getNetworkNodesForType,
+    stagePromptIds,
+    (nodes, promptIds) =>
+      filter(
+        nodes,
+        (node) => intersection(node.promptIDs, promptIds).length > 0,
+      ).length,
+  );
+};
+
+export const getPromptId = createSelector(
+  getPrompts,
+  getPromptIndex,
+  (prompts, promptIndex) => {
+    if (!prompts) {
+      return null;
+    }
+
+    return prompts[promptIndex].id ?? null;
+  },
+);
+
+export const getNetworkNodesForPrompt = createSelector(
+  getNetworkNodesForType,
+  getPromptId,
+  (nodes, promptId) =>
+    filter(nodes, (node) => includes(node.promptIDs, promptId)),
+);
+
+/**
+ * makeNetworkNodesForOtherPrompts()
+ *
+ * Same as above, except returns a filtered node list that **excludes** nodes that match the current
+ * prompt's promptId.
+ */
+
+export const getNetworkNodesForOtherPrompts = createSelector(
+  getNetworkNodesForType,
+  getPromptId,
+  (nodes, promptId) =>
+    filter(nodes, (node) => !includes(node.promptIDs, promptId)),
+);

@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { Loader2 } from 'lucide-react';
 import { forwardRef } from 'react';
 
 export type UINodeProps = {
@@ -8,6 +9,7 @@ export type UINodeProps = {
   selected?: boolean;
   selectedColor?: string;
   linking?: boolean;
+  loading?: boolean;
   handleClick?: () => void;
 };
 
@@ -25,6 +27,7 @@ const Node = forwardRef<HTMLDivElement, UINodeProps>(
       selectedColor = '',
       linking = false,
       handleClick,
+      loading = false,
     },
     ref,
   ) => {
@@ -77,9 +80,16 @@ const Node = forwardRef<HTMLDivElement, UINodeProps>(
           />
           <circle cx="250" cy="250" r="200" className="node__node-trim" />
         </svg>
-        <div className="node__label">
-          <div className={labelClasses()}>{labelWithEllipsis}</div>
-        </div>
+        {loading && (
+          <div className="absolute flex h-full w-full items-center justify-center">
+            <Loader2 className="animate-spin" size={24} />
+          </div>
+        )}
+        {!loading && (
+          <div className="node__label">
+            <div className={labelClasses()}>{labelWithEllipsis}</div>
+          </div>
+        )}
       </div>
     );
   },
