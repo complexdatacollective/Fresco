@@ -1,11 +1,12 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma, type Interview, type Protocol } from '@prisma/client';
+import { type Interview } from '@prisma/client';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
-import type { InstalledProtocols } from '~/lib/interviewer/store';
+import { initialNetwork } from '~/lib/interviewer/ducks/modules/session';
+import { type RootState } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -17,14 +18,17 @@ import type {
   ExportReturn,
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
+import { type NcNetwork } from '~/lib/shared-consts';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewsForExport } from '~/queries/interviews';
+import {
+  getInterviewsForExport,
+  type GetInterviewByIdReturnType,
+} from '~/queries/interviews';
 import type {
   CreateInterview,
   DeleteInterviews,
-  SyncInterview,
+  SyncInterview as SyncInterviewType,
 } from '~/schemas/interviews';
-import { type NcNetwork } from '~/schemas/network-canvas';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
@@ -86,18 +90,24 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
   }
 };
 
+export type ProtocolWithAssets = Omit<
+  NonNullable<GetInterviewByIdReturnType>['protocol'],
+  'id'
+>;
+
 export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   await requireApiAuth();
 
   const interviewsSessions = await getInterviewsForExport(interviewIds);
 
-  const protocolsMap = new Map<string, Protocol>();
+  const protocolsMap = new Map<string, ProtocolWithAssets>();
   interviewsSessions.forEach((session) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols: InstalledProtocols =
+  const formattedProtocols: RootState['protocol'] =
     Object.fromEntries(protocolsMap);
+
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
   return { formattedSessions, formattedProtocols };
@@ -105,7 +115,7 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 
 export const exportSessions = async (
   formattedSessions: FormattedSession[],
-  formattedProtocols: InstalledProtocols,
+  formattedProtocols: RootState['installedProtocols'],
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ): Promise<ExportReturn> => {
@@ -200,7 +210,7 @@ export async function createInterview(data: CreateInterview) {
         id: true,
       },
       data: {
-        network: Prisma.JsonNull,
+        network: initialNetwork,
         participant: participantStatement,
         protocol: {
           connect: {
@@ -248,8 +258,8 @@ export async function createInterview(data: CreateInterview) {
   }
 }
 
-export async function syncInterview(data: SyncInterview) {
-  const { id, network, currentStep, stageMetadata } = data;
+export async function syncInterview(data: SyncInterviewType) {
+  const { id, network, currentStep, stageMetadata, lastUpdated } = data;
 
   try {
     await prisma.interview.update({
@@ -260,11 +270,9 @@ export async function syncInterview(data: SyncInterview) {
         network,
         currentStep,
         stageMetadata,
-        lastUpdated: new Date(),
+        lastUpdated: new Date(lastUpdated),
       },
     });
-
-    safeRevalidateTag(`getInterviewById-${id}`);
 
     // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${id})`);
@@ -275,7 +283,7 @@ export async function syncInterview(data: SyncInterview) {
   }
 }
 
-export type SyncInterviewType = typeof syncInterview;
+export type SyncInterview = typeof syncInterview;
 
 export async function finishInterview(interviewId: Interview['id']) {
   try {

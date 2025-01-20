@@ -1,14 +1,25 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Loader2 } from 'lucide-react';
+import { forwardRef } from 'react';
+
+export type UINodeProps = {
+  color?: string;
+  inactive?: boolean;
+  label?: string;
+  selected?: boolean;
+  selectedColor?: string;
+  linking?: boolean;
+  loading?: boolean;
+  handleClick?: () => void;
+};
 
 /**
  * Renders a Node.
  */
 
-class Node extends Component {
-  render() {
-    const {
+const Node = forwardRef<HTMLDivElement, UINodeProps>(
+  (
+    {
       label = 'Node',
       color = 'node-color-seq-1',
       inactive = false,
@@ -16,8 +27,10 @@ class Node extends Component {
       selectedColor = '',
       linking = false,
       handleClick,
-    } = this.props;
-
+      loading = false,
+    },
+    ref,
+  ) => {
     const classes = classNames('node', {
       'node--inactive': inactive,
       'node--selected': selected,
@@ -37,7 +50,7 @@ class Node extends Component {
       label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`; // Add ellipsis for really long labels
 
     return (
-      <div className={classes} onClick={() => handleClick?.()}>
+      <div className={classes} onClick={() => handleClick?.()} ref={ref}>
         <svg
           viewBox="0 0 500 500"
           xmlns="http://www.w3.org/2000/svg"
@@ -67,29 +80,21 @@ class Node extends Component {
           />
           <circle cx="250" cy="250" r="200" className="node__node-trim" />
         </svg>
-        <div className="node__label">
-          <div
-            className={labelClasses()}
-            ref={(labelText) => {
-              this.labelText = labelText;
-            }}
-          >
-            {labelWithEllipsis}
+        {loading && (
+          <div className="absolute flex h-full w-full items-center justify-center">
+            <Loader2 className="animate-spin" size={24} />
           </div>
-        </div>
+        )}
+        {!loading && (
+          <div className="node__label">
+            <div className={labelClasses()}>{labelWithEllipsis}</div>
+          </div>
+        )}
       </div>
     );
-  }
-}
+  },
+);
 
-Node.propTypes = {
-  color: PropTypes.string,
-  inactive: PropTypes.bool,
-  label: PropTypes.string,
-  selected: PropTypes.bool,
-  selectedColor: PropTypes.string,
-  linking: PropTypes.bool,
-  handleClick: PropTypes.func,
-};
+Node.displayName = 'Node';
 
 export default Node;

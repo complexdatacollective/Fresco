@@ -1,5 +1,5 @@
-import type { Protocol } from '@codaco/shared-consts';
 import type Zip from 'jszip';
+import type { Protocol } from '~/lib/shared-consts';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {

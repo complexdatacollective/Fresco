@@ -1,130 +1,5 @@
 import { z } from 'zod';
-
-// Constants for repeated values
-const validVariableName = /^[a-zA-Z0-9._:-]+$/;
-
-// Enums
-const componentEnum = z.enum([
-  'Boolean',
-  'CheckboxGroup',
-  'Number',
-  'RadioGroup',
-  'Text',
-  'TextArea',
-  'Toggle',
-  'ToggleButtonGroup',
-  'Slider',
-  'VisualAnalogScale',
-  'LikertScale',
-  'DatePicker',
-  'RelativeDatePicker',
-]);
-
-const typeEnum = z.enum([
-  'boolean',
-  'text',
-  'number',
-  'datetime',
-  'ordinal',
-  'scalar',
-  'categorical',
-  'layout',
-  'location',
-]);
-
-// Validation Schema
-const validationSchema = z
-  .object({
-    required: z.boolean().optional(),
-    requiredAcceptsNull: z.boolean().optional(),
-    minLength: z.number().int().optional(),
-    maxLength: z.number().int().optional(),
-    minValue: z.number().int().optional(),
-    maxValue: z.number().int().optional(),
-    minSelected: z.number().int().optional(),
-    maxSelected: z.number().int().optional(),
-    unique: z.boolean().optional(),
-    differentFrom: z.string().optional(),
-    sameAs: z.string().optional(),
-    greaterThanVariable: z.string().optional(),
-    lessThanVariable: z.string().optional(),
-  })
-  .strict();
-
-// Options Schema
-const optionsSchema = z
-  .array(
-    z.union([
-      z
-        .object({
-          label: z.string(),
-          value: z.union([
-            z.number().int(),
-            z.string().regex(validVariableName),
-            z.boolean(),
-          ]),
-          negative: z.boolean().optional(),
-        })
-        .strict(),
-      z.number().int(),
-      z.string(),
-    ]),
-  )
-  .optional();
-
-// Variable Schema
-const variableSchema = z
-  .object({
-    name: z.string().regex(validVariableName),
-    type: typeEnum,
-    encrypted: z.boolean().optional(),
-    component: componentEnum.optional(),
-    options: optionsSchema,
-    parameters: z.record(z.any()).optional(),
-    validation: validationSchema.optional(),
-  })
-  .strict();
-type Variable = z.infer<typeof variableSchema>;
-
-const VariablesSchema = z.record(
-  z.string().regex(validVariableName),
-  variableSchema,
-);
-type Variables = z.infer<typeof VariablesSchema>;
-
-// Node, Edge, and Ego Schemas
-const nodeSchema = z
-  .object({
-    name: z.string(),
-    displayVariable: z.string().optional(),
-    iconVariant: z.string().optional(),
-    variables: VariablesSchema,
-    color: z.string(),
-  })
-  .strict();
-
-const edgeSchema = z
-  .object({
-    name: z.string(),
-    color: z.string(),
-    variables: VariablesSchema,
-  })
-  .strict();
-
-const egoSchema = z
-  .object({
-    variables: VariablesSchema,
-  })
-  .strict();
-
-// Codebook Schema
-const codebookSchema = z
-  .object({
-    node: z.record(z.union([nodeSchema, z.never()])),
-    edge: z.record(z.union([edgeSchema, z.never()])).optional(),
-    ego: egoSchema.optional(),
-  })
-  .strict();
+import { codebookSchema } from '~/lib/shared-consts';
 
 // Filter and Sort Options Schemas
 const filterRuleSchema = z
@@ -256,19 +131,8 @@ const alterEdgeFormStage = baseStageSchema.extend({
   form: formFieldsSchema,
 });
 
-const nameGeneratorStage = baseStageSchema.extend({
-  type: z.literal('NameGenerator'),
-  form: formFieldsSchema,
+const baseNameGeneratorStage = baseStageSchema.extend({
   subject: subjectSchema,
-  panels: z.array(panelSchema).optional(),
-  prompts: z.array(promptSchema).min(1),
-});
-
-const nameGeneratorQuickAddStage = baseStageSchema.extend({
-  type: z.literal('NameGeneratorQuickAdd'),
-  quickAdd: z.string(),
-  subject: subjectSchema,
-  panels: z.array(panelSchema).optional(),
   prompts: z.array(promptSchema).min(1),
   behaviours: z
     .object({
@@ -278,9 +142,24 @@ const nameGeneratorQuickAddStage = baseStageSchema.extend({
     .optional(),
 });
 
-const nameGeneratorRosterStage = baseStageSchema.extend({
+const nameGeneratorStage = baseNameGeneratorStage.extend({
+  type: z.literal('NameGenerator'),
+  form: formFieldsSchema,
+  panels: z.array(panelSchema).optional(),
+});
+
+const nameGeneratorQuickAddStage = baseNameGeneratorStage.extend({
+  type: z.literal('NameGeneratorQuickAdd'),
+  quickAdd: z.string(),
+  panels: z.array(panelSchema).optional(),
+});
+
+export type NameGeneratorStageProps =
+  | z.infer<typeof nameGeneratorStage>
+  | z.infer<typeof nameGeneratorQuickAddStage>;
+
+const nameGeneratorRosterStage = baseNameGeneratorStage.extend({
   type: z.literal('NameGeneratorRoster'),
-  subject: subjectSchema,
   dataSource: z.string(),
   cardOptions: z
     .object({
@@ -298,7 +177,6 @@ const nameGeneratorRosterStage = baseStageSchema.extend({
     })
     .strict()
     .optional(),
-  prompts: z.array(promptSchema).min(1),
 });
 
 const sociogramStage = baseStageSchema.extend({
@@ -448,6 +326,8 @@ const anonymisationStage = baseStageSchema.extend({
   ),
 });
 
+export type AnonymisationStage = z.infer<typeof anonymisationStage>;
+
 const oneToManyDyadCensusStage = baseStageSchema.extend({
   type: z.literal('OneToManyDyadCensus'),
   subject: subjectSchema,
@@ -455,6 +335,7 @@ const oneToManyDyadCensusStage = baseStageSchema.extend({
     .array(
       promptSchema.extend({
         createEdge: z.string(),
+        bucketSortOrder: sortOrderSchema.optional(),
       }),
     )
     .min(1),

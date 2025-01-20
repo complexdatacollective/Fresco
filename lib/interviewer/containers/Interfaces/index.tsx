@@ -49,6 +49,12 @@ const TieStrengthCensus = dynamic(() => import('./TieStrengthCensus'), {
 const FinishSession = dynamic(() => import('./FinishSession'), {
   loading: StageLoading,
 });
+const Anonymisation = dynamic(() => import('./Anonymisation/Anonymisation'), {
+  loading: StageLoading,
+});
+const OneToManyDyadCensus = dynamic(() => import('./OneToManyDyadCensus'), {
+  loading: StageLoading,
+});
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <div className="flex h-full w-full items-center justify-center">
@@ -91,6 +97,10 @@ const getInterface = (interfaceType: string) => {
       return DyadCensus;
     case StageType.TieStrengthCensus:
       return TieStrengthCensus;
+    case StageType.Anonymisation:
+      return Anonymisation;
+    case StageType.OneToManyDyadCensus:
+      return OneToManyDyadCensus;
     case 'FinishSession':
       return FinishSession;
 

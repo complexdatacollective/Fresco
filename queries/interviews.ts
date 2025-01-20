@@ -1,7 +1,9 @@
+import { unstable_noStore } from 'next/cache';
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
 import { protocol } from '~/lib/test-protocol';
 import { prisma } from '~/utils/db';
+import { withoutDates } from '~/utils/withoutDates';
 
 export const getInterviews = createCachedFunction(async () => {
   const interviews = await prisma.interview.findMany({
@@ -24,37 +26,55 @@ export const getInterviewsForExport = createCachedFunction(
         },
       },
       include: {
-        protocol: true,
+        protocol: {
+          include: {
+            assets: true,
+          },
+        },
         participant: true,
       },
     });
-    return interviews;
+
+    const stringifiedInterviews = withoutDates(interviews);
+
+    return stringifiedInterviews;
   },
   ['getInterviewsForExport', 'getInterviews'],
 );
 
-export const getInterviewById = (interviewId: string) =>
-  createCachedFunction(
-    async (interviewId: string) => {
-      const interview = await prisma.interview.findUnique({
-        where: {
-          id: interviewId,
-        },
-        include: {
-          protocol: {
-            include: {
-              assets: true,
-            },
-          },
-        },
-      });
+export const getInterviewById = async (interviewId: string) => {
+  // unstable_noStore();
+  // const interview = await prisma.interview.findUnique({
+  //   where: {
+  //     id: interviewId,
+  //   },
+  //   include: {
+  //     protocol: {
+  //       include: {
+  //         assets: true,
+  //       },
+  //     },
+  //   },
+  // });
 
-      return interview;
-    },
-    [`getInterviewById-${interviewId}`, 'getInterviewById'],
-  )(interviewId);
+  // if (!interview) {
+  //   return null;
+  // }
 
-export const TESTING_getInterviewById = async (interviewId: string) => {
+  // const stringifiedInterview = withoutDates(interview);
+
+  // return {
+  //   ...stringifiedInterview,
+  //   protocol: {
+  //     ...stringifiedInterview.protocol,
+  //     stages: protocol.stages,
+  //     codebook: protocol.codebook,
+  //   },
+  //   stageMetadata:
+  //     stringifiedInterview.stageMetadata ?? ({} as Record<string, unknown>),
+  // };
+
+  unstable_noStore();
   // eslint-disable-next-line no-console
   console.warn(
     '⚠️ TESTING_getInterviewById is being used! Remove before release. ⚠️',
@@ -76,9 +96,15 @@ export const TESTING_getInterviewById = async (interviewId: string) => {
     return null;
   }
 
-  // Override protocol with a test protocol
-  interview.protocol.stages = protocol.stages;
-  interview.protocol.codebook = protocol.codebook;
+  const stringifiedInterview = withoutDates(interview);
 
-  return interview;
+  // Override protocol with a test protocol
+  stringifiedInterview.protocol.stages = protocol.stages;
+  stringifiedInterview.protocol.codebook = protocol.codebook;
+
+  return stringifiedInterview;
 };
+
+export type GetInterviewByIdReturnType = Awaited<
+  ReturnType<typeof getInterviewById>
+>;
