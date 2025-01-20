@@ -3,7 +3,7 @@ import {
   createAsyncThunk,
   createReducer,
 } from '@reduxjs/toolkit';
-import { invariant } from 'es-toolkit/compat';
+import { find, get, invariant } from 'es-toolkit/compat';
 import { v4 as uuid, v4 } from 'uuid';
 import {
   entityAttributesProperty,
@@ -20,7 +20,44 @@ import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
 import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
-import { edgeExists } from './network';
+
+// reducer helpers:
+function flipEdge(edge: Partial<NcEdge>) {
+  return { from: edge.to, to: edge.from, type: edge.type };
+}
+
+/**
+ * Check if an edge exists in the network
+ * @param {Array} edges - Array of edges
+ * @param {string} from - UID of the source node
+ * @param {string} to - UID of the target node
+ * @param {string} type - Type of edge
+ * @returns {string|boolean} - Returns the UID of the edge if it exists, otherwise false
+ * @example
+ * const edgeExists = edgeExists(edges, 'a', 'b', 'friend');
+ * if (edgeExists) {
+ *  console.log('Edge exists:', edgeExists);
+ * }
+ *
+ */
+export function edgeExists(
+  edges: NcEdge[],
+  from: NcEdge['from'],
+  to: NcEdge['to'],
+  type: NcEdge['type'],
+): NcEdge[EntityPrimaryKey] | false {
+  const forwardsEdge = find(edges, { from, to, type });
+  const reverseEdge = find(edges, flipEdge({ from, to, type }));
+
+  console.log('exists', forwardsEdge, reverseEdge);
+
+  if (forwardsEdge ?? reverseEdge) {
+    const foundEdge = (forwardsEdge ?? reverseEdge)!;
+    return get(foundEdge, entityPrimaryKeyProperty);
+  }
+
+  return false;
+}
 
 export type StageMetadataEntry = [number, string, string, boolean];
 export type StageMetadata = Record<number, StageMetadataEntry[]>;
@@ -102,7 +139,6 @@ export const addNode = createAsyncThunk(
         sessionMeta,
         type,
         attributeData: mergedAttributes,
-        secureAttributes: {},
       };
     }
 
@@ -199,11 +235,10 @@ export const toggleEdge = createAsyncThunk(
     );
 
     if (existingEdge) {
-      dispatch(deleteEdge(existingEdge));
-      return;
+      return dispatch(deleteEdge(existingEdge));
     }
 
-    dispatch(addEdge({ modelData, attributeData }));
+    return dispatch(addEdge({ modelData, attributeData }));
   },
 );
 

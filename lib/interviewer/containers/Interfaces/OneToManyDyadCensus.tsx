@@ -5,12 +5,12 @@ import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  type NcEdge,
   type NcNode,
+  type StageSubject,
 } from '~/lib/shared-consts';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
-import { toggleEdge } from '../../ducks/modules/session';
+import { edgeExists, toggleEdge } from '../../ducks/modules/session';
 import { useAppDispatch } from '../../hooks/redux';
 import {
   getNetworkEdges,
@@ -25,7 +25,11 @@ const cardvariants: Variants = {
   show: { opacity: 1, scale: 1, transition: { when: 'beforeChildren' } },
 };
 
-type OneToManyDyadCensusProps = StageProps & {
+type OneToManyDyadCensusProps = Omit<StageProps, 'stage'> & {
+  stage: {
+    subject: StageSubject;
+  };
+
   // add any additional props here
 };
 
@@ -34,6 +38,8 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
+
+  console.log(edges);
 
   const targets = nodes.filter(
     (node) =>
@@ -85,22 +91,6 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     setCurrentStep(0);
   }, [promptIndex]);
 
-  function edgeExists(
-    targetId: string,
-    sourceId: string,
-    edges: NcEdge[],
-  ): boolean {
-    return edges.some(
-      (edge) =>
-        (edge.from === targetId &&
-          edge.to === sourceId &&
-          edge.type === createEdge) ||
-        (edge.from === sourceId &&
-          edge.to === targetId &&
-          edge.type === createEdge),
-    );
-  }
-
   const handleNodeClick = (node: NcNode) => () => {
     dispatch(
       toggleEdge({
@@ -138,19 +128,26 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           </div>
 
           <div className="grow rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
-            {targets.map((node) => (
-              <MotionNode
-                {...node}
-                layoutId={node[entityPrimaryKeyProperty]}
-                key={node[entityPrimaryKeyProperty]}
-                selected={edgeExists(
-                  node[entityPrimaryKeyProperty],
-                  source![entityPrimaryKeyProperty],
-                  edges,
-                )}
-                handleClick={handleNodeClick(node)}
-              />
-            ))}
+            {targets.map((node) => {
+              const selected = !!edgeExists(
+                edges,
+                node[entityPrimaryKeyProperty],
+                source![entityPrimaryKeyProperty],
+                createEdge,
+              );
+
+              console.log(selected, edges);
+
+              return (
+                <MotionNode
+                  {...node}
+                  layoutId={node[entityPrimaryKeyProperty]}
+                  key={node[entityPrimaryKeyProperty]}
+                  selected={selected}
+                  handleClick={handleNodeClick(node)}
+                />
+              );
+            })}
           </div>
         </motion.div>
       </AnimatePresence>

@@ -128,7 +128,7 @@ export type Form = {
   fields: FormField[];
 };
 
-export interface Stage {
+export type Stage = {
   id: string;
   type: string;
   label: string;
@@ -160,4 +160,4 @@ export interface Stage {
   };
   presets?: PresetDefinition[];
   items?: ItemDefinition[];
-}
+};
