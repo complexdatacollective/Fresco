@@ -1,7 +1,5 @@
 'use client';
 
-import { parseAsInteger, useQueryState } from 'nuqs';
-import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
@@ -12,39 +10,6 @@ import ServerSync from './ServerSync';
 // and create a redux store with that data.
 // Eventually it will handle syncing this data back.
 const InterviewShell = ({ serverPayload }) => {
-  const [initialized, setInitialized] = useState(false);
-  const [currentStage, setCurrentStage] = useQueryState('step', parseAsInteger);
-
-  useEffect(() => {
-    console.log('running');
-    if (initialized || !serverPayload) {
-      return;
-    }
-
-    // If we have a current stage in the URL bar, and it is different from the
-    // server session, set the server session to the current stage.
-    //
-    // If we don't have a current stage in the URL bar, set it to the server
-    // session, and set the URL bar to the server session.
-    if (currentStage === null) {
-      void setCurrentStage(serverPayload.currentStep);
-    } else if (currentStage !== serverPayload.currentStep) {
-      serverPayload.currentStep = currentStage;
-    }
-
-    setInitialized(true);
-  }, [
-    initialized,
-    setInitialized,
-    currentStage,
-    setCurrentStage,
-    serverPayload,
-  ]);
-
-  if (!initialized || !serverPayload) {
-    return null;
-  }
-
   return (
     <Provider store={store(serverPayload)}>
       <ServerSync />

@@ -49,7 +49,11 @@ export const getNavigableStages = createSelector(
   getSkipMap,
   getStageIndex,
   (skipMap, currentStep) => {
-    const isCurrentStepValid = !skipMap[currentStep];
+    console.log('skipMap', skipMap);
+    // To determine if the current step is valid, we check if it is not skipped,
+    // and that it is within the bounds of the skipMap.
+    const isCurrentStepValid =
+      !skipMap[currentStep] && skipMap[currentStep] !== undefined;
 
     const nextStage = Object.keys(skipMap).find(
       (stage) =>

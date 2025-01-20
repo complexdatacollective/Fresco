@@ -32,8 +32,6 @@ const ServerSync = () => {
         body: JSON.stringify(data),
       });
 
-      console.log(response);
-
       if (!response.ok) {
         // Try to get error message from response
         const errorData = await response.json();
@@ -89,11 +87,10 @@ const ServerSync = () => {
       !currentSession ||
       !prevCurrentSession
     ) {
-      console.log('no change');
       return;
     }
 
-    console.log('syncing', currentSession);
+    console.log('⏱️ Syncing interview with server...');
     void debouncedSessionSync({
       id: params.interviewId,
       network: currentSession.network,

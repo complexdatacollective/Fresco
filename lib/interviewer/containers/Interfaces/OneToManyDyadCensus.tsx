@@ -1,4 +1,9 @@
-import { AnimatePresence, motion, type Variants } from 'motion/react';
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  type Variants,
+} from 'motion/react';
 import { useEffect, useState } from 'react';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
@@ -21,8 +26,8 @@ import { type StageProps } from '../Stage';
 const MotionNode = motion.create(Node);
 
 const cardvariants: Variants = {
-  hide: { opacity: 0, scale: 0.9 },
-  show: { opacity: 1, scale: 1, transition: { when: 'beforeChildren' } },
+  hide: { scale: 0.8, opacity: 0 },
+  show: { scale: 1, opacity: 1 },
 };
 
 type OneToManyDyadCensusProps = Omit<StageProps, 'stage'> & {
@@ -38,8 +43,6 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
-
-  console.log(edges);
 
   const targets = nodes.filter(
     (node) =>
@@ -105,7 +108,7 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   return (
     <div className="one-to-many-dyad-census flex h-full w-full flex-col px-[2.4rem] py-[1.2rem]">
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="wait">
         <motion.div
           key={promptIndex}
           variants={cardvariants}
@@ -114,41 +117,40 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           animate="show"
           className="flex h-full grow flex-col gap-4"
         >
-          <div className="flex flex-col items-center">
-            <Prompts />
-            <div>
-              <MotionNode
-                {...source}
-                linking
-                layoutId={source![entityPrimaryKeyProperty]}
-                key={source![entityPrimaryKeyProperty]}
-                variants={cardvariants}
-              />
-            </div>
-          </div>
-
-          <div className="grow rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
-            {targets.map((node) => {
-              const selected = !!edgeExists(
-                edges,
-                node[entityPrimaryKeyProperty],
-                source![entityPrimaryKeyProperty],
-                createEdge,
-              );
-
-              console.log(selected, edges);
-
-              return (
+          <LayoutGroup>
+            <div className="flex flex-col items-center">
+              <Prompts />
+              <div>
                 <MotionNode
-                  {...node}
-                  layoutId={node[entityPrimaryKeyProperty]}
-                  key={node[entityPrimaryKeyProperty]}
-                  selected={selected}
-                  handleClick={handleNodeClick(node)}
+                  {...source}
+                  layoutId={source![entityPrimaryKeyProperty]}
+                  key={source![entityPrimaryKeyProperty]}
+                  variants={cardvariants}
                 />
-              );
-            })}
-          </div>
+              </div>
+            </div>
+
+            <div className="grow rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
+              {targets.map((node) => {
+                const selected = !!edgeExists(
+                  edges,
+                  node[entityPrimaryKeyProperty],
+                  source![entityPrimaryKeyProperty],
+                  createEdge,
+                );
+
+                return (
+                  <MotionNode
+                    {...node}
+                    layoutId={node[entityPrimaryKeyProperty]}
+                    key={node[entityPrimaryKeyProperty]}
+                    selected={selected}
+                    handleClick={handleNodeClick(node)}
+                  />
+                );
+              })}
+            </div>
+          </LayoutGroup>
         </motion.div>
       </AnimatePresence>
     </div>
