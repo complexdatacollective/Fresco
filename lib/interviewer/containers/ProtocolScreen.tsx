@@ -193,50 +193,13 @@ export default function ProtocolScreen() {
     [moveForward, moveBackward],
   );
 
-  // useEffect(() => {
-  //   if (!queryStep && currentStep) {
-  //     console.log('Setting query step to current step');
-  //     void setQueryStep(currentStep);
-  //   }
-  // }, [setQueryStep, queryStep, currentStep]);
-
-  // useEffect(() => {
-  //   if (queryStep && currentStep) {
-  //     console.log(
-  //       'queryStep and currentStep are both set:',
-  //       queryStep,
-  //       currentStep,
-  //     );
-  //     if (queryStep !== currentStep) {
-  //       console.log(
-  //         'queryStep and currentStep are different:',
-  //         queryStep,
-  //         currentStep,
-  //       );
-
-  //       if (!prevCurrentStep) {
-  //         console.log('I think this is first load. Deferring to queryStep');
-  //         dispatch(updateStage(queryStep));
-  //         return;
-  //       }
-
-  //       console.log(
-  //         'I think this is a navigation event. Deferring to currentStep',
-  //       );
-  //       void setQueryStep(currentStep);
-  //     }
-  //   }
-  // }, [queryStep, currentStep, prevCurrentStep, dispatch, setQueryStep]);
-
   useEffect(() => {
     if (queryStep === null) {
-      console.log('QS was null', queryStep, !queryStep);
       void setQueryStep(currentStep);
     }
   }, [queryStep, currentStep, setQueryStep]);
 
   useEffect(() => {
-    // Always update currentStep to match the query string
     if (queryStep !== null && queryStep !== currentStep) {
       dispatch(updateStage(queryStep));
     }
