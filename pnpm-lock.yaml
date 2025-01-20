@@ -87,8 +87,8 @@ importers:
         specifier: ^0.9.6
         version: 0.9.6
       animejs:
-        specifier: ^2.2.0
-        version: 2.2.0
+        specifier: ^3.2.2
+        version: 3.2.2
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -2305,8 +2305,8 @@ packages:
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
-  animejs@2.2.0:
-    resolution: {integrity: sha512-suPqfRapTDhrfwxg1El8LlGz6qVGwoandR2uRQLQBxXavxkpIr9Uv2kNGrJIF7oa001jSxS5rRIXPHryKIshJg==}
+  animejs@3.2.2:
+    resolution: {integrity: sha512-Ao95qWLpDPXXM+WrmwcKbl6uNlC5tjnowlaRYtuVDHHoygjtIPfDUoK9NthrlZsQSKjZXlmji2TrBUAVbiH0LQ==}
 
   ansi-escapes@4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
@@ -7615,7 +7615,7 @@ snapshots:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  animejs@2.2.0: {}
+  animejs@3.2.2: {}
 
   ansi-escapes@4.3.2:
     dependencies:
