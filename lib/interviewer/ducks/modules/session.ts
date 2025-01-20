@@ -36,9 +36,6 @@ function flipEdge(edge: Partial<NcEdge>) {
  * @returns {string|boolean} - Returns the UID of the edge if it exists, otherwise false
  * @example
  * const edgeExists = edgeExists(edges, 'a', 'b', 'friend');
- * if (edgeExists) {
- *  console.log('Edge exists:', edgeExists);
- * }
  *
  */
 export function edgeExists(
@@ -49,8 +46,6 @@ export function edgeExists(
 ): NcEdge[EntityPrimaryKey] | false {
   const forwardsEdge = find(edges, { from, to, type });
   const reverseEdge = find(edges, flipEdge({ from, to, type }));
-
-  console.log('exists', forwardsEdge, reverseEdge);
 
   if (forwardsEdge ?? reverseEdge) {
     const foundEdge = (forwardsEdge ?? reverseEdge)!;
@@ -92,7 +87,7 @@ export type SessionState = {
 const actionTypes = {
   setSessionFinished: 'SESSION/SET_SESSION_FINISHED',
   updatePrompt: 'SESSION/UPDATE_PROMPT',
-  updateStage: 'SESSION/UPDATE_STATE',
+  updateStage: 'SESSION/UPDATE_STAGE',
   updateStageMetadata: 'SESSION/UPDATE_STAGE_METADATA',
   addNode: 'NETWORK/ADD_NODE' as const,
   deleteNode: 'NETWORK/DELETE_NODE' as const,

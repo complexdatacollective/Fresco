@@ -39,8 +39,6 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const nodes = usePropSelector(getNetworkNodesForType, props);
   const edges = usePropSelector(getNetworkEdges, props);
 
-  console.log(edges);
-
   const targets = nodes.filter(
     (node) =>
       node[entityAttributesProperty] !==
@@ -135,8 +133,6 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                 source![entityPrimaryKeyProperty],
                 createEdge,
               );
-
-              console.log(selected, edges);
 
               return (
                 <MotionNode
