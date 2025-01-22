@@ -1,10 +1,9 @@
 import cx from 'classnames';
 import { noop } from 'es-toolkit';
-import PropTypes from 'prop-types';
-import React from 'react';
+import React, { type ButtonHTMLAttributes, type ReactElement } from 'react';
 import Icon from './Icon';
 
-const renderIcon = ({ icon }) => {
+const renderIcon = (icon: ReactElement | string | undefined) => {
   let iconElement = null;
   if (icon) {
     if (typeof icon === 'string') {
@@ -16,7 +15,16 @@ const renderIcon = ({ icon }) => {
   return iconElement;
 };
 
-const ActionButton = React.memo(function ActionButton(props) {
+type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  disabled?: boolean;
+  onClick?: () => void;
+  icon?: string | ReactElement;
+  color?: string;
+  title?: string;
+  showPlusButton?: boolean;
+};
+
+export default function ActionButton(props: ActionButtonProps) {
   const {
     disabled = false,
     onClick = noop,
@@ -45,10 +53,10 @@ const ActionButton = React.memo(function ActionButton(props) {
       onClick={handleClick}
       className={classes}
       title={title}
-      tabIndex="0"
+      tabIndex={0}
       disabled={disabled}
     >
-      <div className="icon-container">{renderIcon({ icon })}</div>
+      <div className="icon-container">{renderIcon(icon)}</div>
       {showPlusButton && (
         <div className="plus-button">
           <Icon name="menu-new-session" color="sea-green" size="small" />
@@ -56,15 +64,4 @@ const ActionButton = React.memo(function ActionButton(props) {
       )}
     </button>
   );
-});
-
-ActionButton.propTypes = {
-  disabled: PropTypes.bool,
-  onClick: PropTypes.func,
-  icon: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
-  color: PropTypes.string,
-  title: PropTypes.string,
-  showPlusButton: PropTypes.bool,
-};
-
-export default ActionButton;
+}

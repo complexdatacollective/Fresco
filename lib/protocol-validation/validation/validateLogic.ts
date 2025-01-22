@@ -4,12 +4,12 @@ import {
   type FilterRule,
   type FormField,
   type NcNode,
-  type Protocol,
   type StageSubject,
   type VariableDefinition,
   type VariableValidation,
 } from '@codaco/shared-consts';
 import { get, isObject } from 'es-toolkit/compat';
+import { Protocol } from '../schemas/src/8.zod';
 import Validator from './Validator';
 import {
   duplicateId,

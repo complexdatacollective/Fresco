@@ -2,7 +2,7 @@ import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
+import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
 import { type MapOptions } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 
@@ -29,11 +29,20 @@ export const useMapbox = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
-  const { center, initialZoom, tokenAssetId, dataSourceAssetId, color, targetFeatureProperty, style } = mapOptions;
-  
+  const {
+    center,
+    initialZoom,
+    tokenAssetId,
+    dataSourceAssetId,
+    color,
+    targetFeatureProperty,
+    style,
+  } = mapOptions;
+
   // get token value from asset manifest, using id
-  const getAccessToken = useSelector(getApiKeyAssetValue);
-  const accessToken = getAccessToken(tokenAssetId);
+  const accessToken = useSelector(
+    makeGetApiKeyAssetValue(tokenAssetId),
+  ) as string;
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({
@@ -138,7 +147,16 @@ export const useMapbox = ({
     return () => {
       mapRef.current?.remove();
     };
-  }, [accessToken, center, getAssetUrl, initialZoom, color, targetFeatureProperty, dataSourceAssetId, style]);
+  }, [
+    accessToken,
+    center,
+    getAssetUrl,
+    initialZoom,
+    color,
+    targetFeatureProperty,
+    dataSourceAssetId,
+    style,
+  ]);
 
   // handle selections
   useEffect(() => {
@@ -187,9 +205,7 @@ export const useMapbox = ({
       }
     };
 
-
-
-     // handle hover events
+    // handle hover events
     let hoveredFeatureId: string | null = null;
     const handleMouseMove = (e: MapMouseEvent) => {
       if (!e?.features?.length) return;
@@ -198,7 +214,7 @@ export const useMapbox = ({
       if (hoveredFeatureId !== null) {
         mapInstance.setFeatureState(
           { source: 'geojson-data', id: hoveredFeatureId },
-          { hover: false }
+          { hover: false },
         );
       }
 
@@ -206,18 +222,18 @@ export const useMapbox = ({
       if (hoveredFeatureId === null) return;
       mapInstance.setFeatureState(
         { source: 'geojson-data', id: hoveredFeatureId },
-        { hover: true }
+        { hover: true },
       );
     };
-     const handleMouseLeave = () => {
-       if (hoveredFeatureId !== null) {
-         mapInstance.setFeatureState(
-           { source: 'geojson-data', id: hoveredFeatureId },
-           { hover: false }
-         );
-       }
-       hoveredFeatureId = null;
-     };
+    const handleMouseLeave = () => {
+      if (hoveredFeatureId !== null) {
+        mapInstance.setFeatureState(
+          { source: 'geojson-data', id: hoveredFeatureId },
+          { hover: false },
+        );
+      }
+      hoveredFeatureId = null;
+    };
 
     // add event listeners to map
     mapInstance.on('click', 'layerToSelect', handleMapClick);

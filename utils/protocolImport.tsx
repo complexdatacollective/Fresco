@@ -1,5 +1,5 @@
-import type { Protocol } from '@codaco/shared-consts';
 import type Zip from 'jszip';
+import { type Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
@@ -53,7 +53,7 @@ export const getProtocolAssets = async (
       const asset = assetManifest[key]!;
 
       // apiKey assets are not actually files, so we skip them.
-      if (asset.type === 'apiKey') {
+      if (asset.type === 'apikey') {
         // TODO: add to assets, but not as a file
         return;
       }

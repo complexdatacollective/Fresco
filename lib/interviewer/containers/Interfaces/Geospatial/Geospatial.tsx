@@ -1,4 +1,8 @@
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import {
+  entityPrimaryKeyProperty,
+  type NcNode,
+  type Stage,
+} from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -6,18 +10,18 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
+import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
+import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
+import Node from '~/lib/interviewer/components/Node';
+import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
+import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
+import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import { getNetworkNodesForType } from '~/lib/interviewer/selectors/interface';
+import { getAssetUrlFromId } from '~/lib/interviewer/selectors/protocol';
+import { type RootState } from '~/lib/interviewer/store';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
-import { usePrompts } from '../../../behaviours/withPrompt';
-import CollapsablePrompts from '../../../components/CollapsablePrompts';
-import Node from '../../../components/Node';
-import { actionCreators as sessionActions } from '../../../ducks/modules/session';
-import usePropSelector from '../../../hooks/usePropSelector';
-import useReadyForNextStage from '../../../hooks/useReadyForNextStage';
-import { getNetworkNodesForType } from '../../../selectors/interface';
-import { getAssetUrlFromId } from '../../../selectors/protocol';
-import { type RootState } from '../../../store';
 import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
@@ -50,7 +54,7 @@ type GeospatialStage = Extract<
   { type: 'Geospatial' }
 >;
 
-type GeospatialInterfaceProps = {
+type GeospatialInterfaceProps = Stage & {
   stage: GeospatialStage;
   registerBeforeNext: (
     beforeNext: (direction: NavDirection) => boolean,
@@ -73,12 +77,9 @@ export default function GeospatialInterface({
     direction: null as NavDirection | null,
   });
 
-  const { prompts, mapOptions } = stage;
-  const { promptIndex } = usePrompts();
-  const currentPrompt = prompts[promptIndex];
-  if (!currentPrompt) {
-    throw new Error('Prompt not found');
-  }
+  const { mapOptions } = stage;
+  const { promptIndex, prompt: currentPrompt } = usePrompts();
+
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
   }) as NcNode[];
@@ -113,7 +114,7 @@ export default function GeospatialInterface({
             stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
             {},
             {
-              [currentPrompt.variable]: value,
+              [currentPrompt.variable!]: value,
             },
           );
         }
@@ -206,11 +207,16 @@ export default function GeospatialInterface({
       <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
 
       <div className="absolute bottom-10 left-14 z-10">
-        <ActionButton onClick={handleResetMapZoom} icon={<Locate />} title='Reset Map' showPlusButton={false}/>
+        <ActionButton
+          onClick={handleResetMapZoom}
+          icon={<Locate />}
+          title="Reset Map"
+          showPlusButton={false}
+        />
       </div>
 
       <CollapsablePrompts
-        currentPromptIndex={currentPrompt ? prompts.indexOf(currentPrompt) : -1}
+        currentPromptIndex={promptIndex}
         dragConstraints={dragSafeRef}
       >
         <div className="flex flex-col items-center gap-2 pb-4">

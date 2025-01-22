@@ -468,18 +468,32 @@ const familyTreeCensusStage = baseStageSchema.extend({
 
 const mapboxStyleOptions = [
   { label: 'Standard', value: 'mapbox://styles/mapbox/standard' },
-  { label: 'Standard Satellite', value: 'mapbox://styles/mapbox/standard-satellite' },
+  {
+    label: 'Standard Satellite',
+    value: 'mapbox://styles/mapbox/standard-satellite',
+  },
   { label: 'Streets', value: 'mapbox://styles/mapbox/streets-v12' },
   { label: 'Outdoors', value: 'mapbox://styles/mapbox/outdoors-v12' },
   { label: 'Light', value: 'mapbox://styles/mapbox/light-v11' },
   { label: 'Dark', value: 'mapbox://styles/mapbox/dark-v11' },
   { label: 'Satellite', value: 'mapbox://styles/mapbox/satellite-v9' },
-  { label: 'Satellite Streets', value: 'mapbox://styles/mapbox/satellite-streets-v12' },
-  { label: 'Navigation Day', value: 'mapbox://styles/mapbox/navigation-day-v1' },
-  { label: 'Navigation Night', value: 'mapbox://styles/mapbox/navigation-night-v1' },
+  {
+    label: 'Satellite Streets',
+    value: 'mapbox://styles/mapbox/satellite-streets-v12',
+  },
+  {
+    label: 'Navigation Day',
+    value: 'mapbox://styles/mapbox/navigation-day-v1',
+  },
+  {
+    label: 'Navigation Night',
+    value: 'mapbox://styles/mapbox/navigation-night-v1',
+  },
 ];
 
-const styleOptions = z.enum(mapboxStyleOptions.map(option => option.value) as [string, ...string[]]);
+const styleOptions = z.enum(
+  mapboxStyleOptions.map((option) => option.value) as [string, ...string[]],
+);
 
 const mapOptions = z.object({
   tokenAssetId: z.string(),
@@ -487,8 +501,8 @@ const mapOptions = z.object({
   center: z.tuple([z.number(), z.number()]),
   initialZoom: z
     .number()
-    .min(0, { message: "Zoom must be at least 0" })
-    .max(22, { message: "Zoom must be less than or equal to 22" }),
+    .min(0, { message: 'Zoom must be at least 0' })
+    .max(22, { message: 'Zoom must be less than or equal to 22' }),
   dataSourceAssetId: z.string(),
   color: z.string(),
   targetFeatureProperty: z.string(), // property of geojson to select
@@ -532,6 +546,27 @@ const stageSchema = z.discriminatedUnion('type', [
   geospatialStage,
 ]);
 
+const baseAssetSchema = z.object({
+  id: z.string(),
+  type: z.enum(['image', 'video', 'network', 'geojson', 'apikey']),
+  name: z.string(),
+});
+
+const fileAssetSchema = baseAssetSchema.extend({
+  type: z.enum(['image', 'video', 'network', 'geojson']),
+  source: z.string(),
+});
+
+const apiKeyAssetSchema = baseAssetSchema.extend({
+  type: z.enum(['apikey']),
+  value: z.string(),
+});
+
+const assetSchema = z.discriminatedUnion('type', [
+  fileAssetSchema,
+  apiKeyAssetSchema,
+]);
+
 // Main Protocol Schema
 export const Protocol = z
   .object({
@@ -540,7 +575,7 @@ export const Protocol = z
     lastModified: z.string().datetime().optional(),
     schemaVersion: z.literal(8),
     codebook: codebookSchema,
-    assetManifest: z.record(z.any()).optional(),
+    assetManifest: z.record(z.string(), assetSchema).optional(),
     stages: z.array(stageSchema),
   })
   .strict();

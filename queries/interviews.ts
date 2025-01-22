@@ -81,15 +81,23 @@ export const TESTING_getInterviewById = async (interviewId: string) => {
   interview.protocol.codebook = protocol.codebook;
 
   // add any api keys from asset manifest to the protocol assets
-
-  const apiKeyAssets = Object.entries(protocol.assetManifest)
-  .filter(([, asset]) => asset.type === 'apikey')
-  .map(([, asset]) => ({
-    assetId: asset.id,
-    type: asset.type,
-    name: asset.name,
-    value: asset.value,
-  }));
+  const apiKeyAssets = Object.entries(protocol.assetManifest ?? {})
+    .filter(([, asset]) => asset.type === 'apikey')
+    .map(([, asset]) => {
+      if (asset.type === 'apikey') {
+        return {
+          key: asset.id,
+          assetId: asset.id,
+          type: asset.type,
+          name: asset.name,
+          value: asset.value,
+          size: 0,
+          url: '',
+        };
+      }
+      return null;
+    })
+    .filter((asset) => asset !== null);
 
   interview.protocol.assets.push(...apiKeyAssets);
 
