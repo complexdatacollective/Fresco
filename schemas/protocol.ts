@@ -8,6 +8,7 @@ const assetInsertSchema = z.array(
     type: z.string(),
     url: z.string(),
     size: z.number(),
+    value: z.string().optional(),
   }),
 );
 

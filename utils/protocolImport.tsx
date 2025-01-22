@@ -21,14 +21,37 @@ export const getProtocolJson = async (protocolZip: Zip) => {
  * return them as a collection of ProtocolAsset objects, which includes useful
  * metadata about the asset.
  */
+
+type ProtocolAsset = {
+  assetId: string;
+  name: string;
+  type: string;
+}
+
+type FileAsset = {
+  file: File;
+} & ProtocolAsset
+
+type ApiKeyAsset = {
+  value: string;
+  key: string;
+  size: number;
+  url: string;
+} & ProtocolAsset
+
+type ProtocolAssetsResult = {
+  fileAssets: FileAsset[];
+  apikeyAssets: ApiKeyAsset[];
+}
+
 export const getProtocolAssets = async (
   protocolJson: Protocol,
   protocolZip: Zip,
-) => {
+): Promise<ProtocolAssetsResult> => {
   const assetManifest = protocolJson?.assetManifest;
 
   if (!assetManifest) {
-    return [];
+    return { fileAssets: [], apikeyAssets: [] };
   }
 
   /**
@@ -40,21 +63,28 @@ export const getProtocolAssets = async (
    *     separate UID + file extension.
    *   - The type property is one of the NC asset types (e.g. 'image', 'video',
    *     etc.)
+   * Assets with type 'apikey' are handled differently:
+   *   - They are not actually files. The key itself is stored in the value field.
    */
-  const files: {
-    assetId: string;
-    name: string;
-    type: string;
-    file: File;
-  }[] = [];
+  const fileAssets: FileAsset[] = [];
+  const apikeyAssets: ApiKeyAsset[] = [];
 
   await Promise.all(
     Object.keys(assetManifest).map(async (key) => {
       const asset = assetManifest[key]!;
 
-      // apiKey assets are not actually files, so we skip them.
+      // apikey assets are not actually files, so we skip uploading them.
       if (asset.type === 'apikey') {
-        // TODO: add to assets, but not as a file
+        const apikeyAsset = {
+          assetId: asset.id,
+          key: asset.id,
+          name: asset.name,
+          type: asset.type,
+          value: asset.value,
+          size: 0,
+          url: '',
+        };
+        apikeyAssets.push(apikeyAsset);
         return;
       }
 
@@ -68,7 +98,7 @@ export const getProtocolAssets = async (
         );
       }
 
-      files.push({
+      fileAssets.push({
         assetId: key,
         name: asset.source,
         type: asset.type,
@@ -77,7 +107,7 @@ export const getProtocolAssets = async (
     }),
   );
 
-  return files;
+  return { fileAssets, apikeyAssets };
 };
 
 // Helper method for reading a file as an ArrayBuffer. Useful for preparing a

@@ -176,9 +176,9 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const assets = await getProtocolAssets(protocolJson, zip);
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(protocolJson, zip);
 
-      const newAssets: typeof assets = [];
+      const newAssets: typeof fileAssets = [];
 
       const existingAssetIds: string[] = [];
 
@@ -190,10 +190,10 @@ export const useProtocolImport = () => {
 
       try {
         const newAssetIds = await getExistingAssetIds(
-          assets.map((asset) => asset.assetId),
+          fileAssets.map((asset) => asset.assetId),
         );
 
-        assets.forEach((asset) => {
+        fileAssets.forEach((asset) => {
           if (newAssetIds.includes(asset.assetId)) {
             newAssets.push(asset);
           } else {
@@ -304,7 +304,7 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        newAssets: newAssetsWithCombinedMetadata,
+        newAssets: [...newAssetsWithCombinedMetadata, ...apikeyAssets],
         existingAssetIds: existingAssetIds,
       });
 
