@@ -33,7 +33,7 @@ export const protocol: Protocol = {
         dataSourceAssetId: 'asset1',
         color: 'primary-color-seq-1',
         targetFeatureProperty: 'namelsad10',
-        style: 'Standard',
+        style: 'mapbox://styles/mapbox/standard',
       },
       prompts: [
         {
@@ -63,7 +63,7 @@ export const protocol: Protocol = {
         dataSourceAssetId: 'asset2',
         color: 'primary-color-seq-2',
         targetFeatureProperty: 'NTAName',
-        style: 'Dark',
+        style: 'mapbox://styles/mapbox/dark-v11',
       },
       prompts: [
         {
@@ -156,6 +156,7 @@ export const protocol: Protocol = {
       id: 'asset3',
       type: 'apikey',
       name: 'mapbox-token',
+      // DEV: use your key here
       value: 'MYKEY',
     },
   },
