@@ -37,7 +37,77 @@
     },
     "AssetManifest": {
       "type": "object",
-      "title": "AssetManifest"
+      "title": "AssetManifest",
+      "additionalProperties": {
+        "$ref": "#/definitions/Asset"
+      }
+    },
+    "Asset": {
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/FileAsset"
+        },
+        {
+          "$ref": "#/definitions/ApiKeyAsset"
+        }
+      ]
+    },
+    "BaseAsset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["image", "video", "network", "geojson", "apikey"]
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "type", "name"]
+    },
+    "FileAsset": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseAsset"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["image", "video", "network", "geojson"]
+            },
+            "source": {
+              "type": "string"
+            }
+          },
+          "required": ["source"]
+        }
+      ]
+    },
+    "ApiKeyAsset": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseAsset"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["apikey"]
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": ["value"]
+        }
+      ]
     },
     "Form": {
       "type": ["object", "null"],
