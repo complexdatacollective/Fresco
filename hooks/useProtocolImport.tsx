@@ -182,7 +182,7 @@ export const useProtocolImport = () => {
 
       const existingAssetIds: string[] = [];
 
-      let newAssetsWithCombinedMetadata: AssetInsertType = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.

@@ -1,5 +1,6 @@
 import type Zip from 'jszip';
 import { type Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { type AssetInsertType } from '~/schemas/protocol';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
@@ -22,27 +23,12 @@ export const getProtocolJson = async (protocolZip: Zip) => {
  * metadata about the asset.
  */
 
-type ProtocolAsset = {
-  assetId: string;
-  name: string;
-  type: string;
-}
-
-type FileAsset = {
-  file: File;
-} & ProtocolAsset
-
-type ApiKeyAsset = {
-  value: string;
-  key: string;
-  size: number;
-  url: string;
-} & ProtocolAsset
+type FetchedFileAsset = Omit<AssetInsertType, 'value' | 'key' | 'size' | 'url'> & { file: File };
 
 type ProtocolAssetsResult = {
-  fileAssets: FileAsset[];
-  apikeyAssets: ApiKeyAsset[];
-}
+  fileAssets: FetchedFileAsset[];
+  apikeyAssets: AssetInsertType[];
+};
 
 export const getProtocolAssets = async (
   protocolJson: Protocol,
@@ -66,8 +52,8 @@ export const getProtocolAssets = async (
    * Assets with type 'apikey' are handled differently:
    *   - They are not actually files. The key itself is stored in the value field.
    */
-  const fileAssets: FileAsset[] = [];
-  const apikeyAssets: ApiKeyAsset[] = [];
+  const fileAssets: FetchedFileAsset[] = [];
+  const apikeyAssets: AssetInsertType[] = [];
 
   await Promise.all(
     Object.keys(assetManifest).map(async (key) => {
