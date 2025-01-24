@@ -22,6 +22,7 @@ import { type RootState } from '~/lib/interviewer/store';
 import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
+import Markdown from '~/lib/ui/components/Fields/Markdown';
 import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
@@ -76,8 +77,9 @@ export default function GeospatialInterface({
     activeIndex: 0,
     direction: null as NavDirection | null,
   });
+  const [isIntroduction, setIsIntroduction] = useState(true);
 
-  const { mapOptions } = stage;
+  const { mapOptions, introductionPanel } = stage;
   const { promptIndex, prompt: currentPrompt } = usePrompts();
 
   const stageNodes = usePropSelector(getNetworkNodesForType, {
@@ -119,6 +121,7 @@ export default function GeospatialInterface({
           );
         }
       },
+      show: !isIntroduction,
     });
 
   const getNodeIndex = useCallback(
@@ -164,11 +167,17 @@ export default function GeospatialInterface({
       return true;
     }
 
+    if (isIntroduction) {
+      setIsIntroduction(false);
+      return false;
+    }
+
     // We are moving backwards.
     if (direction === 'backwards') {
-      // if we are at the first node, we should leave the stage
+      // if we are at the first node, we should go back to introduction
       if (navState.activeIndex === 0) {
-        return true;
+        setIsIntroduction(true);
+        return false;
       }
 
       previousNode();
@@ -201,6 +210,17 @@ export default function GeospatialInterface({
     setIsReadyForNext,
     stageNodes,
   ]);
+
+  if (isIntroduction) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="rounded-lg bg-[var(--nc-light-background)] p-8">
+          <h1 className="text-center">{introductionPanel?.title}</h1>
+          <Markdown label={introductionPanel?.text} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full items-center justify-center" ref={dragSafeRef}>
