@@ -31,7 +31,7 @@ export const useNodeAttributes = (
     getCodebookVariablesForNodeType(node.type),
   );
   const nodeAttributes = getEntityAttributes(node);
-  const { passphrase } = usePassphrase();
+  const { requirePassphrase } = usePassphrase();
 
   const getById = useCallback(
     async <T extends VariableValue>(
@@ -48,11 +48,11 @@ export const useNodeAttributes = (
 
       invariant(secureAttributes, 'Node is missing secure attributes');
 
+      const passphrase = requirePassphrase();
+
       if (!passphrase) {
         throw new UnauthorizedError();
       }
-
-      console.log('we have a passphrase', passphrase, secureAttributes);
 
       // This will trigger a prompt for the passphrase, and throw an error if it is cancelled.
       try {
@@ -82,7 +82,7 @@ export const useNodeAttributes = (
         return '⚠️';
       }
     },
-    [codebookAttributes, nodeAttributes, node, passphrase],
+    [codebookAttributes, nodeAttributes, node, requirePassphrase],
   );
 
   const getByName = useCallback(

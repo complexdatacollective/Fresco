@@ -6,7 +6,7 @@
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
   "scripts": {
     "build": "next build",
-    "dev": "docker-compose -f docker-compose.dev.yml up -d && next dev",
+    "dev": "docker-compose -f docker-compose.dev.yml up -d && node ./initialize.js && next dev",
     "postinstall": "node postinstall.js",
     "lint": "SKIP_ENV_VALIDATION=true next lint",
     "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
@@ -42,7 +42,7 @@
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-switch": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.4",
-    "@radix-ui/react-tooltip": "^1.1.6",
+    "@radix-ui/react-tooltip": "^1.1.7",
     "@radix-ui/react-visually-hidden": "^1.1.1",
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-table": "^8.20.6",

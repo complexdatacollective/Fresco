@@ -1,17 +1,14 @@
 'use client';
 
-import * as Tooltip from '@radix-ui/react-tooltip';
-import {
-  AnimatePresence,
-  motion,
-  useWillChange,
-  type Variants,
-} from 'motion/react';
-import { useEffect, useState } from 'react';
-import { useToggle } from 'usehooks-ts';
+import * as Popover from '@radix-ui/react-tooltip';
+import { AnimatePresence, motion, useWillChange } from 'motion/react';
+import { useState } from 'react';
+import { required } from '~/lib/interviewer/utils/Validations';
 import { Button } from '~/lib/ui/components';
+import Form from '../containers/Form';
+import { usePassphrase } from '../containers/Interfaces/Anonymisation/usePassphrase';
+import Overlay from '../containers/Overlay';
 
-const variants: Variants = {};
 const transition = {
   type: 'spring',
   stiffness: 400,
@@ -19,129 +16,136 @@ const transition = {
 };
 
 export default function PassphrasePrompter() {
-  const [show, setShow] = useState(false);
-  const [expanded, toggleExpanded, setExpanded] = useToggle(false);
+  const { setPassphrase, showPassphrasePrompter } = usePassphrase();
+  const [showPassphraseOverlay, setShowPassphraseOverlay] = useState(false);
 
   const willChange = useWillChange();
 
-  useEffect(() => {
-    setTimeout(() => {
-      setShow(true);
-    }, 1000);
-  }, []);
+  const handleSetPassphrase = (passphrase: string) => {
+    if (!passphrase) {
+      return;
+    }
+    console.log('handleSetPassphrase', passphrase);
+    setPassphrase(passphrase);
+    setShowPassphraseOverlay(false);
+  };
+
+  console.log('show', showPassphrasePrompter);
 
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          key="passphrase-prompter"
-          className="bg-panel grid place-items-center overflow-hidden"
-          layout
-          initial={{ opacity: 0, scale: 0 }}
-          exit={{ opacity: 0, scale: 0 }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            width: expanded ? 400 : '4.8rem',
-            height: expanded ? 140 : '4.8rem',
-            borderRadius: expanded ? 80 : 500,
-            transition: {
-              type: 'spring',
-              stiffness: 400,
-              damping: 30,
-              when: 'afterChildren',
-            },
-          }}
-          style={{ willChange }}
-        >
-          <PanelContent expanded={expanded} toggleExpanded={toggleExpanded} />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <>
+      <Popover.Provider>
+        <Popover.Root defaultOpen>
+          <AnimatePresence>
+            {showPassphrasePrompter && (
+              <Popover.Trigger asChild>
+                <motion.button
+                  key="lock"
+                  layout
+                  className="bg-platinum group flex h-[4.8rem] w-[4.8rem] cursor-pointer items-center justify-center rounded-full"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{
+                    scale: 1,
+                    opacity: 1,
+                  }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={transition}
+                  style={{ willChange }}
+                  onClick={() => setShowPassphraseOverlay(true)}
+                >
+                  <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
+                    🔑
+                  </motion.span>
+                </motion.button>
+              </Popover.Trigger>
+            )}
+          </AnimatePresence>
+          <Popover.Portal>
+            <Popover.Content sideOffset={5} side="right" asChild>
+              <motion.div
+                key="tooltip"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-panel flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
+              >
+                <div>
+                  Your passphrase is needed to show data on this screen. Click
+                  here to enter it.
+                </div>
+                <Popover.Arrow className="fill-panel" height={10} width={20} />
+              </motion.div>
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
+      </Popover.Provider>
+      <PassphraseOverlay
+        handleSubmit={handleSetPassphrase}
+        show={showPassphraseOverlay}
+        onClose={() => setShowPassphraseOverlay(false)}
+      />
+    </>
   );
 }
 
-function PanelContent({
-  expanded,
-  toggleExpanded,
+const PassphraseOverlay = ({
+  handleSubmit,
+  show,
+  onClose,
 }: {
-  expanded: boolean;
-  toggleExpanded: () => void;
-}) {
-  const willChange = useWillChange();
-  return (
-    <AnimatePresence mode="wait">
-      {expanded && (
-        <motion.div
-          key="passphrase"
-          layout
-          className="grid place-items-center"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleExpanded();
-          }}
-          initial={{ y: 15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 15, opacity: 0 }}
-          transition={transition}
-          style={{ willChange }}
-        >
-          <motion.div className="text-2xl">Enter passphrase</motion.div>
-          <motion.input
-            className="h-12 w-2/3 rounded-md text-center text-2xl"
-            type="password"
-          />
-        </motion.div>
-      )}
-      {!expanded && <UnlockButton toggleExpanded={toggleExpanded} />}
-    </AnimatePresence>
-  );
-}
+  handleSubmit: (passphrase: string) => void;
+  show: boolean;
+  onClose: () => void;
+}) => {
+  const formConfig = {
+    formName: 'paassphrase',
+    fields: [
+      {
+        label: null,
+        name: 'passphrase',
+        component: 'Text',
+        placeholder: 'Enter your passphrase...',
+        validate: [required('You must enter a value.')],
+      },
+    ],
+  };
 
-const UnlockButton = ({ toggleExpanded }) => {
-  const [showTooltip, setShowTooltip] = useState(true);
-  const willChange = useWillChange();
+  const onSubmitForm = (fields) => {
+    console.log(fields);
+    handleSubmit(fields.passphrase);
+  };
+
   return (
-    <Tooltip.Provider>
-      <Tooltip.Root open={showTooltip} delayDuration={1500}>
-        <Tooltip.Trigger asChild>
-          <motion.button
-            key="lock"
-            layout
-            className="flex h-full w-full items-center justify-center"
-            onClick={(e) => {
-              console.log('🔒');
-              e.preventDefault();
-              e.stopPropagation();
-              toggleExpanded();
-            }}
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 15, opacity: 0 }}
-            transition={transition}
-            style={{ willChange }}
+    <Overlay
+      show={show}
+      title="Enter your Passphrase"
+      onClose={onClose}
+      forceDisableFullscreen
+      className="case-id-form-overlay"
+    >
+      <div className="case-id-form">
+        <p>
+          Enter the passphrase you created when you were first asked in order to
+          unlock the data on this screen. If you cannot remember your
+          passphrase, please contact the person who recruited you to this study.
+        </p>
+        <Form
+          className="case-id-form__form"
+          form={formConfig.formName}
+          subject={{ entity: 'ego' }}
+          autoFocus
+          onSubmit={onSubmitForm}
+          {...formConfig} // eslint-disable-line react/jsx-props-no-spreading
+        >
+          <div
+            className="case-id-form__footer"
+            style={{ marginBottom: '1.2rem' }}
           >
-            <motion.span className="animate-shake text-4xl">🔑</motion.span>
-          </motion.button>
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Content
-            side="right"
-            className="data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade bg-panel z-20 flex flex-col gap-6 rounded-xl px-6 py-4 leading-none shadow-md will-change-[transform,opacity] select-none"
-            sideOffset={5}
-          >
-            <div>Your passphrase is needed to show data on this screen.</div>
-            <div className="flex gap-4">
-              <Button size="small">Enter Passphrase</Button>
-              <Button size="small" onClick={() => setShowTooltip(false)}>
-                Dismiss Message
-              </Button>
-            </div>
-            <Tooltip.Arrow className="fill-white" height={10} width={20} />
-          </Tooltip.Content>
-        </Tooltip.Portal>
-      </Tooltip.Root>
-    </Tooltip.Provider>
+            <Button aria-label="Submit" type="submit">
+              Submit passphrase
+            </Button>
+          </div>
+        </Form>
+      </div>
+    </Overlay>
   );
 };

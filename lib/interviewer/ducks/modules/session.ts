@@ -72,8 +72,6 @@ export type StageMetadata = Record<number, StageMetadataEntry[]>;
 
 export type SessionState = {
   id: string;
-  passphrase: string | null;
-  encryptionEnabled: boolean;
   startTime: string;
   finishTime: string | null;
   exportTime: string | null;
@@ -100,8 +98,6 @@ const actionTypes = {
   toggleEdge: 'NETWORK/TOGGLE_EDGE' as const,
   deleteEdge: 'NETWORK/DELETE_EDGE' as const,
   updateEgo: 'NETWORK/UPDATE_EGO' as const,
-  setPassphrase: 'SESSION/SET_PASSPHRASE' as const,
-  setEncryptionState: 'SESSION/SET_ENCRYPTION_STATE' as const,
 };
 
 export const initialNetwork: NcNetwork = {
@@ -114,12 +110,6 @@ export const initialNetwork: NcNetwork = {
 };
 
 const initialState = {} as SessionState;
-
-export const setPassphrase = createAction<string>(actionTypes.setPassphrase);
-
-export const setEncryptionState = createAction<boolean>(
-  actionTypes.setEncryptionState,
-);
 
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
@@ -140,15 +130,7 @@ export const addNode = createAsyncThunk(
       ...attributeData,
     };
 
-    const { passphrase, encryptionEnabled } = state.session;
-
-    if (!encryptionEnabled) {
-      return {
-        sessionMeta,
-        type,
-        attributeData: mergedAttributes,
-      };
-    }
+    const { passphrase } = state.ui;
 
     invariant(
       passphrase,
@@ -156,7 +138,11 @@ export const addNode = createAsyncThunk(
     );
 
     const { secureAttributes, encryptedAttributes } =
-      await generateSecureAttributes(mergedAttributes, passphrase);
+      await generateSecureAttributes(
+        mergedAttributes,
+        variablesForType,
+        passphrase,
+      );
 
     return {
       sessionMeta,
@@ -251,21 +237,6 @@ export const toggleEdge = createAsyncThunk(
 );
 
 const sessionReducer = createReducer(initialState, (builder) => {
-  builder.addCase(setPassphrase, (state, action) => {
-    return {
-      ...state,
-      passphrase: action.payload,
-      encryptionEnabled: true,
-    };
-  });
-
-  builder.addCase(setEncryptionState, (state, action) => {
-    return {
-      ...state,
-      encryptionEnabled: action.payload,
-    };
-  });
-
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes } = action.payload;
     const { promptId, stageId } = action.payload.sessionMeta;

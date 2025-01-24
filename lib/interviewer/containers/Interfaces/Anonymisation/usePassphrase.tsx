@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setPassphrase } from '~/lib/interviewer/ducks/modules/session';
-import { type RootState } from '~/lib/interviewer/store';
+import {
+  getPassphrase,
+  setPassphrase as setPassphraseAction,
+  setShowPassphrasePrompter,
+  showPassphrasePrompter,
+} from '~/lib/interviewer/ducks/modules/ui';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -10,98 +14,43 @@ export class UnauthorizedError extends Error {
   }
 }
 
-type EncryptionState = {
-  isPrompting: boolean;
-};
-
-// Singleton to store the global state and promise management
-const globalState: {
-  state: EncryptionState;
-  listeners: Set<(state: EncryptionState) => void>;
-  currentPromise: Promise<string> | null;
-} = {
-  state: {
-    isPrompting: false,
-  },
-  listeners: new Set(),
-  currentPromise: null,
-};
-
-const updateState = (newState: Partial<EncryptionState>) => {
-  globalState.state = { ...globalState.state, ...newState };
-  globalState.listeners.forEach((listener) => listener(globalState.state));
-};
-
 export const usePassphrase = () => {
-  const [state, setState] = useState<EncryptionState>(globalState.state);
   const dispatch = useDispatch();
 
-  // Keeps track of if a passphrase has ever been set. Used to determine if we
-  // should prompt for a passphrase or not.
-  const encryptionEnabled = useSelector(
-    (state: RootState) => state.session.encryptionEnabled,
-  );
+  const isEnabled = true;
 
-  const passphrase = useSelector(
-    (state: RootState) => state.session.passphrase,
-  );
+  const passphrase = useSelector(getPassphrase);
+  const showPrompter = useSelector(showPassphrasePrompter);
 
-  useEffect(() => {
-    const listener = (newState: EncryptionState) => {
-      setState(newState);
-    };
-
-    globalState.listeners.add(listener);
-    setState(globalState.state);
-
-    return () => {
-      globalState.listeners.delete(listener);
-    };
-  }, []);
-
-  const requirePassphrase = useCallback(async (): Promise<string> => {
+  const requirePassphrase = useCallback(() => {
+    console.log('requirePassphrase');
     // If we already have a passphrase, return it
     if (passphrase) {
+      dispatch(setShowPassphrasePrompter(false));
       return passphrase;
     }
 
-    // If we're already prompting, return the existing promise
-    if (globalState.currentPromise) {
-      return globalState.currentPromise;
+    // Determine if a password is needed here?
+    if (!showPrompter) {
+      dispatch(setShowPassphrasePrompter(true));
     }
 
-    // Create a new promise for the passphrase prompt
-    globalState.currentPromise = new Promise<string>((resolve, reject) => {
-      updateState({ isPrompting: true });
+    return undefined;
+  }, [passphrase, dispatch, showPrompter]);
 
-      // We're using prompt here, but you could replace this with a custom modal
-      const userInput = prompt('Please enter your passphrase to continue.');
-
-      updateState({ isPrompting: false });
-
-      if (!userInput) {
-        const error = new UnauthorizedError();
-        window.dispatchEvent(
-          new CustomEvent('passphrase-cancel', { detail: error }),
-        );
-        reject(error);
-        return;
-      }
-
-      dispatch(setPassphrase(userInput));
-
-      resolve(userInput);
-    }).finally(() => {
-      globalState.currentPromise = null;
-    });
-
-    return globalState.currentPromise;
-  }, [passphrase, dispatch]);
+  const setPassphrase = useCallback(
+    (passphrase: string) => {
+      dispatch(setShowPassphrasePrompter(false));
+      dispatch(setPassphraseAction(passphrase));
+    },
+    [dispatch],
+  );
 
   return {
-    isEnabled: encryptionEnabled,
+    isEnabled,
     passphrase,
-    isPrompting: state.isPrompting,
+    setPassphrase,
     requirePassphrase,
+    showPassphrasePrompter: showPrompter,
   };
 };
