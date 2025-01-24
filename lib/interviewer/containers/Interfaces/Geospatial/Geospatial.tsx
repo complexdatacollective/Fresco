@@ -27,7 +27,17 @@ import { useMapbox } from './useMapbox';
 
 type NavDirection = 'forwards' | 'backwards';
 
-const NodeAnimationVariants = {
+const introVariants = {
+  show: { opacity: 1, scale: 1 },
+  hide: { opacity: 0, scale: 0 },
+};
+
+const fadeVariants = {
+  show: { opacity: 1, transition: { duration: 0.5 } },
+  hide: { opacity: 0, transition: { duration: 0.5 } },
+};
+
+const nodeAnimationVariants = {
   initial: (navDirection: NavDirection) => ({
     opacity: 0,
     y: navDirection === 'backwards' ? '-10%' : '10%',
@@ -167,13 +177,11 @@ export default function GeospatialInterface({
       return true;
     }
 
-    if (isIntroduction) {
-      setIsIntroduction(false);
-      return false;
-    }
-
     // We are moving backwards.
     if (direction === 'backwards') {
+      if (isIntroduction) {
+        return true;
+      }
       // if we are at the first node, we should go back to introduction
       if (navState.activeIndex === 0) {
         setIsIntroduction(true);
@@ -185,6 +193,11 @@ export default function GeospatialInterface({
     }
 
     // We are moving forwards.
+    if (isIntroduction) {
+      setIsIntroduction(false);
+      return false;
+    }
+
     if (isLastNode()) {
       handleResetSelection();
       return true;
@@ -213,41 +226,56 @@ export default function GeospatialInterface({
 
   if (isIntroduction) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <div className="rounded-lg bg-[var(--nc-light-background)] p-8">
+      <motion.div
+        className="flex flex-1 flex-col items-center justify-center"
+        variants={introVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        key="introduction"
+      >
+        <div className="max-w-3xl rounded-lg bg-[var(--nc-light-background)] p-8">
           <h1 className="text-center">{introductionPanel?.title}</h1>
           <Markdown label={introductionPanel?.text} />
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="w-full items-center justify-center" ref={dragSafeRef}>
-      <div id="map-container" className="h-full w-full" ref={mapContainerRef} />
-
-      <div className="absolute bottom-10 left-14 z-10">
-        <ActionButton
-          onClick={handleResetMapZoom}
-          icon={<Locate />}
-          title="Reset Map"
-          showPlusButton={false}
-        />
-      </div>
-
-      <CollapsablePrompts
-        currentPromptIndex={promptIndex}
-        dragConstraints={dragSafeRef}
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="w-full items-center justify-center"
+        ref={dragSafeRef}
+        variants={fadeVariants}
+        initial="hide"
+        animate="show"
+        exit="hide"
+        key="geospatial-interface"
       >
-        <div className="flex flex-col items-center gap-2 pb-4">
-          <AnimatePresence
-            mode="wait"
-            key={currentPrompt?.id}
-            custom={navState.direction}
-          >
+        <div
+          id="map-container"
+          className="h-full w-full"
+          ref={mapContainerRef}
+        />
+
+        <div className="absolute bottom-10 left-14 z-10">
+          <ActionButton
+            onClick={handleResetMapZoom}
+            icon={<Locate />}
+            title="Reset Map"
+            showPlusButton={false}
+          />
+        </div>
+
+        <CollapsablePrompts
+          currentPromptIndex={promptIndex}
+          dragConstraints={dragSafeRef}
+        >
+          <div className="flex flex-col items-center gap-2 pb-4">
             <motion.div
               key={stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty]}
-              variants={NodeAnimationVariants}
+              variants={nodeAnimationVariants}
               custom={navState.direction}
               initial="initial"
               animate="animate"
@@ -258,17 +286,17 @@ export default function GeospatialInterface({
                 style={{ fontSize: `calc(var(--nc-base-font-size) * 8)` }}
               />
             </motion.div>
-          </AnimatePresence>
-          <Button
-            size="small"
-            color="navy-taupe"
-            onClick={moveForward}
-            disabled={!!initialSelectionValue}
-          >
-            Skip
-          </Button>
-        </div>
-      </CollapsablePrompts>
-    </div>
+            <Button
+              size="small"
+              color="navy-taupe"
+              onClick={moveForward}
+              disabled={!!initialSelectionValue}
+            >
+              Skip
+            </Button>
+          </div>
+        </CollapsablePrompts>
+      </motion.div>
+    </AnimatePresence>
   );
 }
