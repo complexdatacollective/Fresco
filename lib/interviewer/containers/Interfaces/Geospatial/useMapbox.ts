@@ -78,6 +78,10 @@ export const useMapbox = ({
           data: getAssetUrl(dataSourceAssetId),
           promoteId: targetFeatureProperty,
         });
+        // Zoom buttons
+        mapRef.current.addControl(new mapboxgl.NavigationControl({
+          showCompass: false,
+        }));
       }
 
       const ncColor =
