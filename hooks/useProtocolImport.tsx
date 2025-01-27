@@ -176,18 +176,24 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const { fileAssets, apikeyAssets } = await getProtocolAssets(protocolJson, zip);
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(
+        protocolJson,
+        zip,
+      );
 
       const newAssets: typeof fileAssets = [];
-
       const existingAssetIds: string[] = [];
-
       let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
+      let newApikeyAssets: typeof apikeyAssets = [];
+
+      // Check if apikey assets are already in the database.
+      // if yes, add them to existingAssetIds to be connected to the protocol.
+      // if not, add them to newApikeyAssets to created in db with the protocol.
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
-      // If not, add them to newAssets to be uploaded.
-
+      // If not, add files to newAssets to be uploaded
+      // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
         const newAssetIds = await getExistingAssetIds(
           fileAssets.map((asset) => asset.assetId),
@@ -200,6 +206,14 @@ export const useProtocolImport = () => {
             existingAssetIds.push(asset.assetId);
           }
         });
+
+        const existingApiKeys = await getExistingAssetIds(
+          apikeyAssets.map((apiKey) => apiKey.assetId),
+        );
+
+        newApikeyAssets = apikeyAssets.filter(
+          (apiKey) => !existingApiKeys.includes(apiKey.key),
+        );
       } catch (e) {
         throw new Error('Error checking for existing assets');
       }
@@ -304,7 +318,7 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        newAssets: [...newAssetsWithCombinedMetadata, ...apikeyAssets],
+        newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
       });
 
