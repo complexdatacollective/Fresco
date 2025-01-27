@@ -26,7 +26,7 @@ export const getProtocolByHash = createCachedFunction(
   ['getProtocolsByHash', 'getProtocols'],
 );
 
-export const getExistingAssetIds = createCachedFunction(
+export const getNewAssetIds = createCachedFunction(
   async (assetIds: string[]) => {
     const assets = await prisma.asset.findMany({
       where: {
@@ -39,5 +39,5 @@ export const getExistingAssetIds = createCachedFunction(
     // Return the assetIds that are not in the database
     return assetIds.filter((assetId) => !existingAssets.includes(assetId));
   },
-  ['getExistingAssetIds', 'getProtocols'],
+  ['getNewAssetIds', 'getProtocols'],
 );

@@ -12,7 +12,7 @@ import {
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { uploadFiles } from '~/lib/uploadthing-client-helpers';
-import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
@@ -184,36 +184,36 @@ export const useProtocolImport = () => {
       const newAssets: typeof fileAssets = [];
       const existingAssetIds: string[] = [];
       let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
-      let newApikeyAssets: typeof apikeyAssets = [];
-
-      // Check if apikey assets are already in the database.
-      // if yes, add them to existingAssetIds to be connected to the protocol.
-      // if not, add them to newApikeyAssets to created in db with the protocol.
+      const newApikeyAssets: typeof apikeyAssets = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
       // If not, add files to newAssets to be uploaded
       // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
-        const newAssetIds = await getExistingAssetIds(
+        const newFileAssetIds = await getNewAssetIds(
           fileAssets.map((asset) => asset.assetId),
         );
 
         fileAssets.forEach((asset) => {
-          if (newAssetIds.includes(asset.assetId)) {
+          if (newFileAssetIds.includes(asset.assetId)) {
             newAssets.push(asset);
           } else {
             existingAssetIds.push(asset.assetId);
           }
         });
 
-        const existingApiKeys = await getExistingAssetIds(
+        const newApikeyAssetIds = await getNewAssetIds(
           apikeyAssets.map((apiKey) => apiKey.assetId),
         );
 
-        newApikeyAssets = apikeyAssets.filter(
-          (apiKey) => !existingApiKeys.includes(apiKey.key),
-        );
+        apikeyAssets.forEach((apiKey) => {
+          if (newApikeyAssetIds.includes(apiKey.assetId)) {
+            newApikeyAssets.push(apiKey);
+          } else {
+            existingAssetIds.push(apiKey.assetId);
+          }
+        });
       } catch (e) {
         throw new Error('Error checking for existing assets');
       }
