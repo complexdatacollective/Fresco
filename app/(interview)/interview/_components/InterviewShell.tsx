@@ -46,12 +46,25 @@ const InterviewShell = ({
     }
 
     // You can't store dates in the redux store, so we need to convert them.
+    // If the date is already an ISOstring, we don't need to convert it.
+
+    const isValidDate = (date: unknown): date is Date => {
+      return date instanceof Date && !isNaN(date.getTime());
+    };
+
+    const toISOStringIfValidDate = (date: unknown): string | null => {
+      if (date && isValidDate(date)) {
+        return date.toISOString();
+      }
+      return typeof date === 'string' ? date : null;
+    };
+
     const serialisableServerSession = {
       ...serverSession,
-      startTime: serverSession.startTime.toISOString(),
-      finishTime: serverSession.finishTime?.toISOString() ?? null,
-      exportTime: serverSession.exportTime?.toISOString() ?? null,
-      lastUpdated: serverSession.lastUpdated.toISOString(),
+      startTime: toISOStringIfValidDate(serverSession.startTime),
+      finishTime: toISOStringIfValidDate(serverSession.finishTime),
+      exportTime: toISOStringIfValidDate(serverSession.exportTime),
+      lastUpdated: toISOStringIfValidDate(serverSession.lastUpdated),
     };
 
     const serialisableProtocol = {
