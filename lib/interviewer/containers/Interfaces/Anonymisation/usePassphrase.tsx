@@ -23,27 +23,29 @@ export const usePassphrase = () => {
   const showPrompter = useSelector(showPassphrasePrompter);
 
   const requirePassphrase = useCallback(() => {
-    console.log('requirePassphrase');
-    // If we already have a passphrase, return it
     if (passphrase) {
-      dispatch(setShowPassphrasePrompter(false));
+      if (showPrompter) {
+        dispatch(setShowPassphrasePrompter(false));
+      }
+
       return passphrase;
     }
 
-    // Determine if a password is needed here?
     if (!showPrompter) {
       dispatch(setShowPassphrasePrompter(true));
     }
-
     return undefined;
   }, [passphrase, dispatch, showPrompter]);
 
   const setPassphrase = useCallback(
     (passphrase: string) => {
-      dispatch(setShowPassphrasePrompter(false));
+      if (showPrompter) {
+        dispatch(setShowPassphrasePrompter(false));
+      }
+
       dispatch(setPassphraseAction(passphrase));
     },
-    [dispatch],
+    [dispatch, showPrompter],
   );
 
   return {
