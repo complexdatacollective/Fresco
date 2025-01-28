@@ -155,6 +155,20 @@ export default function GeospatialInterface({
 
   const { moveForward } = getNavigationHelpers();
 
+  const handleOutsideSelectableAreas = () => {
+    // set the value to 'outside-selectable-areas' and automatically move to the next node
+    if (currentPrompt && stageNodes[navState.activeIndex]) {
+      updateNode(
+        stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
+        {},
+        {
+          [currentPrompt.variable!]: 'outside-selectable-areas',
+        },
+      );
+    }
+    moveForward();
+  }
+
   const previousNode = useCallback(() => {
     setNavState({
       activeIndex: getNodeIndex(),
@@ -289,10 +303,9 @@ export default function GeospatialInterface({
             <Button
               size="small"
               color="navy-taupe"
-              onClick={moveForward}
-              disabled={!!initialSelectionValue}
+              onClick={handleOutsideSelectableAreas}
             >
-              Skip
+              Outside Selectable Areas
             </Button>
           </div>
         </CollapsablePrompts>
