@@ -1,15 +1,14 @@
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setPassphrase } from '~/lib/interviewer/ducks/modules/session';
+import { useDispatch } from 'react-redux';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { type RootState } from '~/lib/interviewer/store';
 import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { Button } from '~/lib/ui/components';
 import { Markdown, Text } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
 import { type BeforeNextFunction } from '../../ProtocolScreen';
 import { type StageProps } from '../../Stage';
+import { usePassphrase } from './usePassphrase';
 
 type AnonymisationProps = StageProps & {
   stage: AnonymisationStage;
@@ -19,9 +18,7 @@ export default function Anonymisation(props: AnonymisationProps) {
   const [input, setInput] = useState('');
   const { updateReady } = useReadyForNextStage();
   const { registerBeforeNext } = props;
-  const passphrase = useSelector(
-    (state: RootState) => state.session.passphrase,
-  );
+  const { passphrase, setPassphrase } = usePassphrase();
   const dispatch = useDispatch();
 
   const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
@@ -47,10 +44,10 @@ export default function Anonymisation(props: AnonymisationProps) {
 
   const handleSetPassphrase = useCallback(() => {
     if (input && input.length > 0) {
-      dispatch(setPassphrase(input));
+      setPassphrase(input);
       updateReady(true);
     }
-  }, [dispatch, updateReady, input]);
+  }, [input, setPassphrase, updateReady]);
 
   return (
     <>
