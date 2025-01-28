@@ -74,8 +74,8 @@ const InterviewShell = ({
 
     const serialisableProtocol = {
       ...protocol,
-      importedAt: protocol.importedAt.toISOString(),
-      lastModified: protocol.lastModified.toISOString(),
+      importedAt: toRequiredISOString(protocol.importedAt),
+      lastModified: toRequiredISOString(protocol.lastModified),
     };
 
     // If there's no current stage in the URL bar, set it.
