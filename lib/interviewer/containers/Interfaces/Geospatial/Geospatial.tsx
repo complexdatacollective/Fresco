@@ -153,10 +153,8 @@ export default function GeospatialInterface({
 
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
-  const { moveForward } = getNavigationHelpers();
-
   const handleOutsideSelectableAreas = () => {
-    // set the value to 'outside-selectable-areas' and automatically move to the next node
+    // set the value to 'outside-selectable-areas'
     if (currentPrompt && stageNodes[navState.activeIndex]) {
       updateNode(
         stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
@@ -166,7 +164,6 @@ export default function GeospatialInterface({
         },
       );
     }
-    moveForward();
   }
 
   const previousNode = useCallback(() => {
