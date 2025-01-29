@@ -70,15 +70,11 @@ type GeospatialInterfaceProps = Stage & {
   registerBeforeNext: (
     beforeNext: (direction: NavDirection) => boolean,
   ) => void;
-  getNavigationHelpers: () => {
-    moveForward: () => void;
-  };
 };
 
 export default function GeospatialInterface({
   stage,
   registerBeforeNext,
-  getNavigationHelpers,
 }: GeospatialInterfaceProps) {
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, Action>>();
   const dragSafeRef = useRef(null);
@@ -164,7 +160,7 @@ export default function GeospatialInterface({
         },
       );
     }
-  }
+  };
 
   const previousNode = useCallback(() => {
     setNavState({
