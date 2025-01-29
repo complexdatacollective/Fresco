@@ -1,6 +1,5 @@
 import 'server-only';
 import { createCachedFunction } from '~/lib/cache';
-import { protocol } from '~/lib/test-protocol';
 import { prisma } from '~/utils/db';
 
 export const getInterviews = createCachedFunction(async () => {
@@ -53,32 +52,3 @@ export const getInterviewById = (interviewId: string) =>
     },
     [`getInterviewById-${interviewId}`, 'getInterviewById'],
   )(interviewId);
-
-export const TESTING_getInterviewById = async (interviewId: string) => {
-  // eslint-disable-next-line no-console
-  console.warn(
-    '⚠️ TESTING_getInterviewById is being used! Remove before release. ⚠️',
-  );
-  const interview = await prisma.interview.findUnique({
-    where: {
-      id: interviewId,
-    },
-    include: {
-      protocol: {
-        include: {
-          assets: true,
-        },
-      },
-    },
-  });
-
-  if (!interview) {
-    return null;
-  }
-
-  // Override protocol with a test protocol
-  interview.protocol.stages = protocol.stages;
-  interview.protocol.codebook = protocol.codebook;
-
-  return interview;
-};

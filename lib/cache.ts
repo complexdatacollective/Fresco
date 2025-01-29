@@ -10,7 +10,7 @@ type StaticTag =
   | 'getProtocols'
   | 'getInterviewsForExport'
   | 'getProtocolsByHash'
-  | 'getExistingAssetIds'
+  | 'getNewAssetIds'
   | 'interviewCount'
   | 'protocolCount'
   | 'participantCount';

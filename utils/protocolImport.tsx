@@ -1,5 +1,6 @@
-import type { Protocol } from '@codaco/shared-consts';
 import type Zip from 'jszip';
+import { type Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
+import { type AssetInsertType } from '~/schemas/protocol';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
@@ -21,14 +22,22 @@ export const getProtocolJson = async (protocolZip: Zip) => {
  * return them as a collection of ProtocolAsset objects, which includes useful
  * metadata about the asset.
  */
+
+type FetchedFileAsset = Omit<AssetInsertType, 'value' | 'key' | 'size' | 'url'> & { file: File };
+
+type ProtocolAssetsResult = {
+  fileAssets: FetchedFileAsset[];
+  apikeyAssets: AssetInsertType[];
+};
+
 export const getProtocolAssets = async (
   protocolJson: Protocol,
   protocolZip: Zip,
-) => {
+): Promise<ProtocolAssetsResult> => {
   const assetManifest = protocolJson?.assetManifest;
 
   if (!assetManifest) {
-    return [];
+    return { fileAssets: [], apikeyAssets: [] };
   }
 
   /**
@@ -40,17 +49,30 @@ export const getProtocolAssets = async (
    *     separate UID + file extension.
    *   - The type property is one of the NC asset types (e.g. 'image', 'video',
    *     etc.)
+   * Assets with type 'apikey' are handled differently:
+   *   - They are not actually files. The key itself is stored in the value field.
    */
-  const files: {
-    assetId: string;
-    name: string;
-    type: string;
-    file: File;
-  }[] = [];
+  const fileAssets: FetchedFileAsset[] = [];
+  const apikeyAssets: AssetInsertType[] = [];
 
   await Promise.all(
     Object.keys(assetManifest).map(async (key) => {
       const asset = assetManifest[key]!;
+
+      // apikey assets are not actually files, so we skip uploading them.
+      if (asset.type === 'apikey') {
+        const apikeyAsset = {
+          assetId: asset.id,
+          key: asset.id,
+          name: asset.name,
+          type: asset.type,
+          value: asset.value,
+          size: 0,
+          url: '',
+        };
+        apikeyAssets.push(apikeyAsset);
+        return;
+      }
 
       const file = await protocolZip
         ?.file(`assets/${asset.source}`)
@@ -62,7 +84,7 @@ export const getProtocolAssets = async (
         );
       }
 
-      files.push({
+      fileAssets.push({
         assetId: key,
         name: asset.source,
         type: asset.type,
@@ -71,7 +93,7 @@ export const getProtocolAssets = async (
     }),
   );
 
-  return files;
+  return { fileAssets, apikeyAssets };
 };
 
 // Helper method for reading a file as an ArrayBuffer. Useful for preparing a

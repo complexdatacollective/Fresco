@@ -1,5 +1,5 @@
-import { type Protocol } from '@codaco/shared-consts';
 import { ensureError } from '~/utils/ensureError';
+import { Protocol } from './schemas/src/8.zod';
 import { validateLogic } from './validation/validateLogic';
 import { validateSchema } from './validation/validateSchema';
 
@@ -46,4 +46,4 @@ const validateProtocol = async (
   }
 };
 
-export {  validateProtocol,  };
+export { validateProtocol };

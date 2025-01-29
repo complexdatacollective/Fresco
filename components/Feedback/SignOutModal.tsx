@@ -39,7 +39,7 @@ const SignOutModal = ({
           <AlertDialogCancel onClick={() => setOpenSignOutModal(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={logout}>
+          <AlertDialogAction onClick={() => logout()}>
             Sign Out and Hide Banner
           </AlertDialogAction>
         </AlertDialogFooter>

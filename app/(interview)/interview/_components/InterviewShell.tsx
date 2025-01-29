@@ -46,18 +46,36 @@ const InterviewShell = ({
     }
 
     // You can't store dates in the redux store, so we need to convert them.
+    // If the date is already an ISOstring, we don't need to convert it.
+
+    const toRequiredISOString = (date: string | Date): string => {
+      if (date && date instanceof Date) {
+        return date.toISOString();
+      }
+      return date;
+    };
+
+    const toOptionalISOString = (date: string | Date | null): string | null => {
+      if (!date) return null;
+      if (date instanceof Date) {
+        return date.toISOString();
+      }
+      return date;
+    };
+
     const serialisableServerSession = {
       ...serverSession,
-      startTime: serverSession.startTime.toISOString(),
-      finishTime: serverSession.finishTime?.toISOString() ?? null,
-      exportTime: serverSession.exportTime?.toISOString() ?? null,
-      lastUpdated: serverSession.lastUpdated.toISOString(),
+      startTime: toRequiredISOString(serverSession.startTime),
+      lastUpdated: toRequiredISOString(serverSession.lastUpdated),
+      // optional - can be null
+      finishTime: toOptionalISOString(serverSession.finishTime),
+      exportTime: toOptionalISOString(serverSession.exportTime),
     };
 
     const serialisableProtocol = {
       ...protocol,
-      importedAt: protocol.importedAt.toISOString(),
-      lastModified: protocol.lastModified.toISOString(),
+      importedAt: toRequiredISOString(protocol.importedAt),
+      lastModified: toRequiredISOString(protocol.lastModified),
     };
 
     // If there's no current stage in the URL bar, set it.
