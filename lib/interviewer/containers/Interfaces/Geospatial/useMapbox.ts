@@ -192,8 +192,18 @@ export const useMapbox = ({
         });
       }
     }
+    const handleOutsideSelectableAreas = (e: MapMouseEvent) => {
+      // check if e.point is in a selectable area
+      const features = mapInstance.queryRenderedFeatures(e.point, {
+        layers: ['layerToSelect'],
+      });
 
-    const handleMapClick = (e: MapMouseEvent) => {
+      if (!features.length) {
+        onSelectionChange('outside-selectable-areas');
+      }
+    };
+
+    const handleLayerClick = (e: MapMouseEvent) => {
       if (!e?.features?.length) return;
       const feature = e.features[0];
 
@@ -245,13 +255,15 @@ export const useMapbox = ({
     };
 
     // add event listeners to map
-    mapInstance.on('click', 'layerToSelect', handleMapClick);
+    mapInstance.on('click', 'layerToSelect', handleLayerClick);
+    mapInstance.on('click', handleOutsideSelectableAreas);
     mapInstance.on('mousemove', 'layerToSelect', handleMouseMove);
     mapInstance.on('mouseleave', 'layerToSelect', handleMouseLeave);
 
     // cleanup
     return () => {
-      mapInstance.off('click', 'layerToSelect', handleMapClick);
+      mapInstance.off('click', 'layerToSelect', handleLayerClick);
+      mapInstance.off('click', handleOutsideSelectableAreas);
       mapInstance.off('mousemove', 'layerToSelect', handleMouseMove);
       mapInstance.off('mouseleave', 'layerToSelect', handleMouseLeave);
     };

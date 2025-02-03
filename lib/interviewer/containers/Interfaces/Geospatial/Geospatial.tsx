@@ -104,6 +104,16 @@ export default function GeospatialInterface({
     [dispatch],
   );
 
+  const setLocationValue = (value: string | null) => {
+    updateNode(
+      stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
+      {},
+      {
+        [currentPrompt.variable!]: value,
+      },
+    );
+  };
+
   const initialSelectionValue: string | undefined =
     currentPrompt?.variable && stageNodes[navState.activeIndex]?.attributes
       ? (stageNodes[navState.activeIndex]?.attributes?.[
@@ -118,13 +128,7 @@ export default function GeospatialInterface({
       initialSelectionValue,
       onSelectionChange: (value: string) => {
         if (currentPrompt && stageNodes[navState.activeIndex]) {
-          updateNode(
-            stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
-            {},
-            {
-              [currentPrompt.variable!]: value,
-            },
-          );
+          setLocationValue(value);
         }
       },
       show: !isIntroduction,
@@ -152,13 +156,7 @@ export default function GeospatialInterface({
   const handleOutsideSelectableAreas = () => {
     // set the value to 'outside-selectable-areas'
     if (currentPrompt && stageNodes[navState.activeIndex]) {
-      updateNode(
-        stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
-        {},
-        {
-          [currentPrompt.variable!]: 'outside-selectable-areas',
-        },
-      );
+      setLocationValue('outside-selectable-areas');
     }
   };
 
@@ -260,13 +258,31 @@ export default function GeospatialInterface({
         exit="hide"
         key="geospatial-interface"
       >
+        {/* if outside-selectable-areas, add an overlay */}
+        {initialSelectionValue === 'outside-selectable-areas' && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+            <div className="absolute inset-0 bg-[var(--nc-background)] opacity-75" />
+            <div className="relative z-20 flex flex-col items-center gap-4">
+              <h2>Outside Map Area Selected</h2>
+              <Button
+                size="small"
+                onClick={() => {
+                  setLocationValue(null);
+                }}
+              >
+                Deselect
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div
           id="map-container"
           className="h-full w-full"
           ref={mapContainerRef}
         />
 
-        <div className="absolute bottom-10 left-14 z-10">
+        <div className="absolute bottom-10 left-14 z-5">
           <ActionButton
             onClick={handleResetMapZoom}
             icon={<Locate />}
@@ -297,6 +313,7 @@ export default function GeospatialInterface({
               size="small"
               color="navy-taupe"
               onClick={handleOutsideSelectableAreas}
+              disabled={initialSelectionValue === 'outside-selectable-areas'}
             >
               Outside Selectable Areas
             </Button>
