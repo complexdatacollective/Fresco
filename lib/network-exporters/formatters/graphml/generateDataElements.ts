@@ -182,7 +182,6 @@ export default function getDataElementGenerator(
   ) => {
     // // If the entity is an object (not an array) it is an ego
     if (!Array.isArray(entities)) {
-      console.log('getDataElementGenerator was passed ego');
       return generateEgoDataElements(
         document,
         entities,
