@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { FileDown, Loader2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import JobCard from '~/components/ProtocolImport/JobCard';
@@ -58,7 +58,7 @@ function ProtocolUploader({
         className={cn(
           isActive &&
             cn(
-              'bg-gradient-to-r from-cyber-grape via-neon-coral to-cyber-grape text-white',
+              'bg-linear-to-r from-cyber-grape via-neon-coral to-cyber-grape text-white',
               'pointer-events-none animate-background-gradient cursor-wait bg-[length:400%]',
             ),
           className,

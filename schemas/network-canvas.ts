@@ -6,9 +6,10 @@ import { z } from 'zod';
 
 const ZNcEntity = z.object({
   [entityPrimaryKeyProperty]: z.string().readonly(),
-  type: z.string().optional(),
-  [entityAttributesProperty]: z.record(z.string(), z.any()),
+  [entityAttributesProperty]: z.record(z.string(), z.unknown()),
 });
+
+export type NcEntity = z.infer<typeof ZNcEntity>;
 
 export const ZNcNode = ZNcEntity.extend({
   type: z.string(),

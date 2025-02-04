@@ -8,6 +8,8 @@ import {
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
 import type {
+  EdgeWithResequencedID,
+  NodeWithResequencedID,
   SessionWithNetworkEgo,
   SessionWithResequencedIDs,
   SessionsByProtocol,
@@ -22,22 +24,28 @@ const resequenceEntities = (
 
     // Create a lookup object { [oldID] -> [incrementedID] } so we can update
     // the edge source and target properties with the new IDs.
-    const IDLookupMap: Record<string, number> = {};
+    const IDLookupMap: Record<string, string> = {};
 
     return {
       ...session,
       nodes: session?.nodes?.map((node) => {
         resequencedNodeId++;
-        IDLookupMap[node[entityPrimaryKeyProperty]] = resequencedNodeId;
-        return {
+        IDLookupMap[node[entityPrimaryKeyProperty]] =
+          resequencedNodeId.toString();
+
+        const newNode: NodeWithResequencedID = {
           [nodeExportIDProperty]: resequencedNodeId,
           ...node,
         };
+
+        return newNode;
       }),
       edges: session?.edges?.map((edge) => {
         resequencedEdgeId++;
-        IDLookupMap[edge[entityPrimaryKeyProperty]] = resequencedEdgeId;
-        return {
+        IDLookupMap[edge[entityPrimaryKeyProperty]] =
+          resequencedEdgeId.toString();
+
+        const newEdge: EdgeWithResequencedID = {
           ...edge,
           [ncSourceUUID]: edge[edgeSourceProperty],
           [ncTargetUUID]: edge[edgeTargetProperty],
@@ -45,6 +53,8 @@ const resequenceEntities = (
           from: IDLookupMap[edge[edgeSourceProperty]]!,
           to: IDLookupMap[edge[edgeTargetProperty]]!,
         };
+
+        return newEdge;
       }),
     };
   });

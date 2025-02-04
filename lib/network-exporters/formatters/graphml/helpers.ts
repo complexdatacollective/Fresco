@@ -1,7 +1,7 @@
 import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { type Document } from '@xmldom/xmldom';
 import { createHash } from 'crypto';
-import { isNil } from 'lodash';
+import { isNil } from 'es-toolkit';
 import { getEntityAttributes } from '../../utils/general';
 
 // Utility sha1 function that returns hashed text

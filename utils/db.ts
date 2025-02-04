@@ -12,6 +12,7 @@ const createPrismaClient = () =>
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return query(args);
       },
     },

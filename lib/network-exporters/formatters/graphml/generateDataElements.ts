@@ -12,8 +12,9 @@ import {
   ncUUIDProperty,
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
-import { type Document } from '@xmldom/xmldom';
-import { findKey, includes } from 'lodash';
+import { type Document, type Element } from '@xmldom/xmldom';
+import { findKey, includes } from 'es-toolkit/compat';
+import { type NcEntity } from '~/schemas/network-canvas';
 import {
   getAttributePropertyFromCodebook,
   getEntityAttributes,
@@ -25,10 +26,14 @@ import {
 } from '../../utils/types';
 import { createDataElement, sha1 } from './helpers';
 
+/**
+ * Function for processing attributes of an entity
+ */
 function processAttributes(
   entityAttributes: Record<string, unknown>,
   codebook: Codebook,
   type: 'node' | 'edge',
+  entityName: string | null,
   document: Document,
   domElement: Element,
   exportOptions: ExportOptions,
@@ -45,7 +50,7 @@ function processAttributes(
         type,
         {
           entity: type,
-          type: entity.type,
+          type: entityName,
         },
         key,
         'name',
@@ -56,7 +61,7 @@ function processAttributes(
       type,
       {
         entity: type,
-        type: entity.type ?? '',
+        type: entityName,
       },
       key,
       'type',
@@ -70,7 +75,7 @@ function processAttributes(
             type,
             {
               entity: type,
-              type: entity.type ?? '',
+              type: entityName,
             },
             key,
             'options',
@@ -155,24 +160,39 @@ function processAttributes(
     } else if (codebookAttributeType === 'layout') {
       // Handle non-codebook variables
     } else {
+      domElement.appendChild(
+        createDataElement(document, { key: keyName }, entityAttributes[key]),
+      );
     }
   });
 }
 
+/**
+ * Function that returns a function that generates <data> elements for a given entity
+ */
 export default function getDataElementGenerator(
-  document: Document,
+  document: Document, // These could be replaced by class properties if this were moved into a class...
   codebook: Codebook,
   exportOptions: ExportOptions,
 ) {
-  return <T extends NodeWithResequencedID[] | EdgeWithResequencedID[]>(
+  return <
+    T extends NodeWithResequencedID[] | EdgeWithResequencedID[] | NcEntity,
+  >(
     entities: T,
   ) => {
-    const fragment = document.createDocumentFragment();
-
-    // If the entity is an object (not an array) it is an ego
+    // // If the entity is an object (not an array) it is an ego
     if (!Array.isArray(entities)) {
-      return;
+      console.log('getDataElementGenerator was passed ego');
+      return generateEgoDataElements(
+        document,
+        entities,
+        [],
+        codebook,
+        exportOptions,
+      );
     }
+
+    const fragment = document.createDocumentFragment();
 
     // Iterate entities
     entities.forEach((entity) => {
@@ -209,10 +229,14 @@ export default function getDataElementGenerator(
         createDataElement(document, { key: ncTypeProperty }, entityTypeName),
       );
 
-      // Special handling for model variables and variables unique to entity type
+      /**
+       *
+       * Special handling for model variables and variables unique to entity type
+       *
+       */
+
       if (type === 'edge') {
-        // Add source and target properties and map
-        // them to the _from and _to attributes
+        // Add source and target properties and map them to the _from and _to attributes
         domElement.setAttribute(
           'source',
           (entity as EdgeWithResequencedID)[edgeSourceProperty].toString(),
@@ -242,7 +266,7 @@ export default function getDataElementGenerator(
         // For nodes, add a <data> element for the label using the name property
         const entityLabel = () => {
           const variableCalledName = findKey(
-            codebook[type]?.[entity.type]?.variables,
+            codebook[type]?.[entity.type]?.variables ?? {},
             (variable) => variable.name.toLowerCase() === 'name',
           );
 
@@ -265,6 +289,7 @@ export default function getDataElementGenerator(
         entityAttributes,
         codebook,
         type,
+        entity.type,
         document,
         domElement,
         exportOptions,
@@ -287,8 +312,8 @@ export default function getDataElementGenerator(
  * @param {Object} codebook - Copy of codebook
  * @param {Object} exportOptions - Export options object
  */
-export const generateEgoDataElements = (
-  document: XMLDocument,
+const generateEgoDataElements = (
+  document: Document,
   ego: NcEgo,
   excludeList: string[],
   codebook: Codebook,

@@ -1,56 +1,63 @@
 import {
-  caseProperty,
-  codebookHashProperty,
-  edgeExportIDProperty,
+  type caseProperty,
+  type codebookHashProperty,
+  type edgeExportIDProperty,
   egoProperty,
-  ncSourceUUID,
-  ncTargetUUID,
-  nodeExportIDProperty,
-  protocolName,
-  protocolProperty,
-  sessionExportTimeProperty,
-  sessionFinishTimeProperty,
-  sessionProperty,
-  sessionStartTimeProperty,
+  type ncSourceUUID,
+  type ncTargetUUID,
+  type nodeExportIDProperty,
+  type protocolName,
+  type protocolProperty,
+  type sessionExportTimeProperty,
+  type sessionFinishTimeProperty,
+  type sessionProperty,
+  type sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import { ZNcEdge, ZNcNetwork, ZNcNode } from '~/schemas/network-canvas';
+import {
+  type NcNetwork,
+  ZNcEdge,
+  type ZNcNode,
+} from '~/schemas/network-canvas';
 
-const ZNodeWithEgo = ZNcNode.extend({
+type NodeWithEgo = z.infer<typeof ZNcNode> & {
+  [egoProperty]: string;
+};
+
+const EdgeWithEgo = ZNcEdge.extend({
   [egoProperty]: z.string(),
 });
 
-const ZEdgeWithEgo = ZNcEdge.extend({
-  [egoProperty]: z.string(),
-});
+type EdgeWithEgo = z.infer<typeof ZNcEdge> & {
+  [egoProperty]: string;
+};
 
 export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
 
-const ZSessionVariables = z.object({
-  [caseProperty]: z.string(),
-  [sessionProperty]: z.string(),
-  [protocolProperty]: z.string(),
-  [protocolName]: z.string(),
-  [codebookHashProperty]: z.string(),
-  [sessionExportTimeProperty]: z.string(),
-  [sessionStartTimeProperty]: z.string().optional(),
-  [sessionFinishTimeProperty]: z.string().optional(),
-  COMMIT_HASH: z.string(),
-  APP_VERSION: z.string(),
-});
+export type SessionVariables = {
+  [caseProperty]: string;
+  [sessionProperty]: string;
+  [protocolProperty]: string;
+  [protocolName]: string;
+  [codebookHashProperty]: string;
+  [sessionExportTimeProperty]: string;
+  [sessionStartTimeProperty]: string | undefined;
+  [sessionFinishTimeProperty]: string | undefined;
+  COMMIT_HASH: string;
+  APP_VERSION: string;
+};
 
-export type SessionVariables = z.infer<typeof ZSessionVariables>;
+export type FormattedSession = NcNetwork & {
+  sessionVariables: SessionVariables;
+};
 
-const ZFormattedSessionSchema = ZNcNetwork.extend({
-  sessionVariables: ZSessionVariables,
-});
-
-const ZSessionWithNetworkEgo = ZFormattedSessionSchema.extend({
-  nodes: ZNodeWithEgo.array(),
-  edges: ZEdgeWithEgo.array(),
-});
-
-export type SessionWithNetworkEgo = z.infer<typeof ZSessionWithNetworkEgo>;
+export type SessionWithNetworkEgo = Omit<
+  FormattedSession,
+  'nodes' | 'edges'
+> & {
+  nodes: NodeWithEgo[];
+  edges: EdgeWithEgo[];
+};
 
 export const ExportOptionsSchema = z.object({
   exportGraphML: z.boolean(),
@@ -63,8 +70,6 @@ export const ExportOptionsSchema = z.object({
 });
 
 export type ExportOptions = z.infer<typeof ExportOptionsSchema>;
-
-export type FormattedSession = z.infer<typeof ZFormattedSessionSchema>;
 
 export type ExportFormat =
   | 'graphml'
@@ -94,30 +99,23 @@ export type ExportReturn = {
   failedExports?: ExportResult[];
 };
 
-const ZNodeWithResequencedID = ZNodeWithEgo.extend({
-  [nodeExportIDProperty]: z.number(),
-});
+export type NodeWithResequencedID = NodeWithEgo & {
+  [nodeExportIDProperty]: number;
+};
 
-export type NodeWithResequencedID = z.infer<typeof ZNodeWithResequencedID>;
+export type EdgeWithResequencedID = EdgeWithEgo & {
+  [ncSourceUUID]: string;
+  [ncTargetUUID]: string;
+  [edgeExportIDProperty]: number;
+};
 
-const ZEdgeWithResequencedID = ZEdgeWithEgo.extend({
-  [ncSourceUUID]: z.string(),
-  [ncTargetUUID]: z.string(),
-  [edgeExportIDProperty]: z.number(),
-  from: z.number(),
-  to: z.number(),
-});
-
-export type EdgeWithResequencedID = z.infer<typeof ZEdgeWithResequencedID>;
-
-const ZSessionWithResequencedIDs = ZSessionWithNetworkEgo.extend({
-  nodes: ZNodeWithResequencedID.array(),
-  edges: ZEdgeWithResequencedID.array(),
-});
-
-export type SessionWithResequencedIDs = z.infer<
-  typeof ZSessionWithResequencedIDs
->;
+export type SessionWithResequencedIDs = Omit<
+  FormattedSession,
+  'nodes' | 'edges'
+> & {
+  nodes: NodeWithResequencedID[];
+  edges: EdgeWithResequencedID[];
+};
 
 export type ArchiveResult = {
   path: string;

@@ -74,7 +74,7 @@ const setUpXml = (sessionVariables: ExportFileNetwork['sessionVariables']) => {
  * @param {*} codebook
  * @param {*} exportOptions
  */
-function* graphMLGenerator(
+function graphMLGenerator(
   network: ExportFileNetwork,
   codebook: Codebook,
   exportOptions: ExportOptions,
@@ -123,7 +123,7 @@ function* graphMLGenerator(
 
   // Serialize the XML document
   const serializer = new XMLSerializer();
-  yield serializer.serializeToString(xmlDoc);
+  return serializer.serializeToString(xmlDoc);
 }
 
 export default graphMLGenerator;

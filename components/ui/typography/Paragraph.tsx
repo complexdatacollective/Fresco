@@ -16,7 +16,7 @@ export const paragraphVariants = cva('text-pretty font-normal', {
       smallText: 'text-sm',
     },
     margin: {
-      default: '[&:not(:first-child)]:mt-4',
+      default: 'not-first:mt-4',
       none: 'mt-0',
     },
   },
