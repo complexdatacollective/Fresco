@@ -1,6 +1,6 @@
 {
   "name": "fresco",
-  "version": "2.2.0",
+  "version": "2.1.1",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
@@ -47,7 +47,7 @@
     "@reduxjs/toolkit": "^1.9.7",
     "@tanstack/react-table": "^8.20.6",
     "@uploadthing/react": "^7.1.5",
-    "@xmldom/xmldom": "^0.9.6",
+    "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",
