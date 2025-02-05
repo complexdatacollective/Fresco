@@ -13,6 +13,9 @@ COPY prisma ./prisma
 # Copy package.json and lockfile, along with postinstall script
 COPY package.json pnpm-lock.yaml* postinstall.js migrate-and-start.sh setup-database.js initialize.js ./
 
+# work around signature verification issue: https://github.com/nodejs/corepack/issues/612
+RUN npm install -g corepack@latest
+
 # # Install pnpm and install dependencies
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
@@ -28,6 +31,10 @@ COPY . .
 RUN apk add --no-cache git
 
 ENV SKIP_ENV_VALIDATION=true
+
+# work around signature verification issue: https://github.com/nodejs/corepack/issues/612
+RUN npm install -g corepack@latest
+
 RUN corepack enable pnpm && pnpm run build
 
 # If using npm comment out above and use below instead
