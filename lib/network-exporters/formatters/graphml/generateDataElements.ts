@@ -5,7 +5,6 @@ import {
   edgeTargetProperty,
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  type NcEgo,
   ncSourceUUID,
   ncTargetUUID,
   ncTypeProperty,
@@ -16,7 +15,7 @@ import { type Document, type Element } from '@xmldom/xmldom';
 import { findKey, includes } from 'es-toolkit/compat';
 import { type NcEntity } from '~/schemas/network-canvas';
 import {
-  getAttributePropertyFromCodebook,
+  getCodebookEntityVariableProperty,
   getEntityAttributes,
 } from '../../utils/general';
 import {
@@ -32,7 +31,7 @@ import { createDataElement, sha1 } from './helpers';
 function processAttributes(
   entityAttributes: Record<string, unknown>,
   codebook: Codebook,
-  type: 'node' | 'edge',
+  entity: 'node' | 'edge' | 'ego',
   entityName: string | null,
   document: Document,
   domElement: Element,
@@ -45,24 +44,18 @@ function processAttributes(
     }
 
     const codebookAttributeName =
-      getAttributePropertyFromCodebook(
+      getCodebookEntityVariableProperty(
         codebook,
-        type,
-        {
-          entity: type,
-          type: entityName,
-        },
+        entity,
+        entityName,
         key,
         'name',
       ) ?? sha1(key);
 
-    const codebookAttributeType = getAttributePropertyFromCodebook(
+    const codebookAttributeType = getCodebookEntityVariableProperty(
       codebook,
-      type,
-      {
-        entity: type,
-        type: entityName,
-      },
+      entity,
+      entityName,
       key,
       'type',
     );
@@ -70,16 +63,13 @@ function processAttributes(
     switch (codebookAttributeType) {
       case 'categorical':
         {
-          const options = getAttributePropertyFromCodebook(
+          const options = getCodebookEntityVariableProperty(
             codebook,
-            type,
-            {
-              entity: type,
-              type: entityName,
-            },
+            entity,
+            entityName,
             key,
             'options',
-          ) as { value: string }[];
+          );
 
           options.forEach((option) => {
             const hashedOptionValue = sha1(option.value);
@@ -284,7 +274,7 @@ export default function getDataElementGenerator(
         );
       }
 
-      const attributes = processAttributes(
+      processAttributes(
         entityAttributes,
         codebook,
         type,
@@ -313,7 +303,7 @@ export default function getDataElementGenerator(
  */
 const generateEgoDataElements = (
   document: Document,
-  ego: NcEgo,
+  ego: NcEntity,
   excludeList: string[],
   codebook: Codebook,
   exportOptions: ExportOptions,
@@ -335,10 +325,10 @@ const generateEgoDataElements = (
   // Add entity attributes
   Object.keys(entityAttributes).forEach((key) => {
     const keyName =
-      getAttributePropertyFromCodebook(codebook, 'ego', null, key, 'name') ??
+      getCodebookEntityVariableProperty(codebook, 'ego', null, key, 'name') ??
       sha1(key);
 
-    const keyType = getAttributePropertyFromCodebook(
+    const keyType = getCodebookEntityVariableProperty(
       codebook,
       'ego',
       null,
@@ -352,13 +342,13 @@ const generateEgoDataElements = (
       entityAttributes[key] !== null
     ) {
       if (keyType === 'categorical') {
-        const options = getAttributePropertyFromCodebook(
+        const options = getCodebookEntityVariableProperty(
           codebook,
           'ego',
           null,
           key,
           'options',
-        ) as { value: string }[];
+        );
 
         options.forEach((option) => {
           const hashedOptionValue = sha1(option.value);

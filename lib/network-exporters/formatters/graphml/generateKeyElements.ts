@@ -1,7 +1,7 @@
 import {
   type Codebook,
   type NcEgo,
-  type NcEntity,
+  type NcNetwork,
   ncSourceUUID,
   ncTargetUUID,
   ncTypeProperty,
@@ -9,9 +9,8 @@ import {
   VariableType,
 } from '@codaco/shared-consts';
 import { type Document } from '@xmldom/xmldom';
-import { type NcNetwork } from '~/schemas/network-canvas';
 import {
-  getAttributePropertyFromCodebook,
+  getCodebookEntityVariableProperty,
   getEntityAttributes,
 } from '../../utils/general';
 import { type ExportOptions } from '../../utils/types';
@@ -25,14 +24,14 @@ export default function getKeyElementGenerator(
 ) {
   return (
     entities: NcNetwork['nodes'] | NcNetwork['edges'] | NcEgo[],
-    type: 'node' | 'edge' | 'ego',
+    entityType: 'node' | 'edge' | 'ego',
   ) => {
     const fragment = document.createDocumentFragment();
 
     // track variables we have already created <key>s for
     const done = new Set();
 
-    if (type === 'node' && done.has('type') === false) {
+    if (entityType === 'node' && done.has('type') === false) {
       const typeDataElement = document.createElement('key');
       typeDataElement.setAttribute('id', ncTypeProperty);
       typeDataElement.setAttribute('attr.name', ncTypeProperty);
@@ -43,7 +42,7 @@ export default function getKeyElementGenerator(
     }
 
     // Create a <key> for network canvas UUID.
-    if (type === 'node' && done.has('uuid') === false) {
+    if (entityType === 'node' && done.has('uuid') === false) {
       const typeDataElement = document.createElement('key');
       typeDataElement.setAttribute('id', ncUUIDProperty);
       typeDataElement.setAttribute('attr.name', ncUUIDProperty);
@@ -54,7 +53,7 @@ export default function getKeyElementGenerator(
     }
 
     // Create a <key> for `from` and `to` properties that reference network canvas UUIDs.
-    if (type === 'edge' && done.has('originalEdgeSource') === false) {
+    if (entityType === 'edge' && done.has('originalEdgeSource') === false) {
       // Create <key> for type
       const targetDataElement = document.createElement('key');
       targetDataElement.setAttribute('id', ncTargetUUID);
@@ -74,45 +73,41 @@ export default function getKeyElementGenerator(
     }
 
     // Main loop over entities
-    entities.forEach((entity: NcEntity) => {
+    entities.forEach((entity) => {
       const elementAttributes = getEntityAttributes(entity);
 
       // nodes and edges have for="node|edge" but ego has for="graph"
-      const keyTarget = type === 'ego' ? 'graph' : type;
+      const keyTarget = entityType === 'ego' ? 'graph' : entityType;
 
       // Loop over attributes for this entity
       Object.keys(elementAttributes).forEach((key) => {
         // transpose ids to names based on codebook; fall back to the raw key
         const keyName =
-          (getAttributePropertyFromCodebook(
+          getCodebookEntityVariableProperty({
             codebook,
-            type,
-            {
-              entity: type,
-              type: entity.type ?? '',
-            },
+            entity: entityType,
+            type: entity.type,
             key,
-            'name',
-          ) as string) ?? key;
+            attributeProperty: 'name',
+          }) ?? key;
 
         // Test if we have already created a key for this variable, and that it
         // isn't on our exclude list.
         if (done.has(key) === false) {
           const keyElement = document.createElement('key');
 
-          // Determine attribute type to decide how to encode it
-          const variableType = getAttributePropertyFromCodebook(
+          // Determine variable type to decide how to encode it
+          const variableType = getCodebookEntityVariableProperty({
             codebook,
-            type,
-            {
-              entity: type,
-              type: entity.type ?? '',
-            },
+            entity: entityType,
+            type: entity.type,
             key,
-          );
+            attributeProperty: 'type',
+          });
 
           // <key> id must be xs:NMTOKEN: http://books.xmlschemata.org/relaxng/ch19-77231.html
-          // do not be tempted to change this to the variable 'name' for this reason!
+          // do not be tempted to change this to use the variable's name for this reason, as name
+          // is not validated against xs:NMTOKEN.
           if (variableType) {
             keyElement.setAttribute('id', key);
           } else {
@@ -132,11 +127,7 @@ export default function getKeyElementGenerator(
               break;
             case VariableType.ordinal:
             case VariableType.number: {
-              const keyType = getGraphMLTypeForKey(entities, key) as
-                | 'int'
-                | 'double'
-                | 'string'
-                | 'number';
+              const keyType = getGraphMLTypeForKey(entities, key);
               keyElement.setAttribute('attr.type', keyType || 'string');
               break;
             }
@@ -194,16 +185,23 @@ export default function getKeyElementGenerator(
                */
 
               // fetch options property for this variable
-              const options = getAttributePropertyFromCodebook(
-                codebook,
-                type,
+              const options = getCodebookEntityVariableProperty<
                 {
-                  entity: type,
-                  type: entity.type ?? '',
-                },
+                  value: string;
+                  label: string;
+                }[]
+              >({
+                codebook,
+                entity: entityType,
+                type: entity.type,
                 key,
-                'options',
-              ) as { value: string }[];
+                attributeProperty: 'options',
+              });
+
+              // If there are no options, we can't create keys for this variable
+              if (!options) {
+                return;
+              }
 
               options.forEach((option, index) => {
                 // Hash the value to ensure that it is NKTOKEN compliant

@@ -3,14 +3,13 @@ import {
   entityAttributesProperty,
   sessionProperty,
   type Codebook,
-  type NcEntity,
-  type StageSubject,
 } from '@codaco/shared-consts';
 import sanitizeFilename from 'sanitize-filename';
+import { type NcEntity } from '~/schemas/network-canvas';
 import type { ExportFormat, SessionWithResequencedIDs } from './types';
 
 export const getEntityAttributes = (entity: NcEntity) =>
-  entity?.[entityAttributesProperty] || {};
+  entity?.[entityAttributesProperty] ?? {};
 
 const escapeFilePart = (part: string) => part.replace(/\W/g, '');
 
@@ -66,46 +65,47 @@ export const getFilePrefix = (session: SessionWithResequencedIDs) =>
 /**
  * Given a codebook, an entity type, an entity, and an attribute key:
  * retrieve the key value from the entity, via the codebook.
- * @param {*} codebook
- * @param {*} type
- * @param {*} entity
- * @param {*} key
  */
 const getVariableInfo = (
   codebook: Codebook,
-  type: 'node' | 'edge',
-  entity: StageSubject,
+  entity: 'node' | 'edge',
+  type: string,
   key: string,
-) => codebook[type]?.[entity.type]?.variables?.[key];
+) => codebook[entity]?.[type]?.variables?.[key];
 
 /**
  * Ego version of getVariableInfo
- * @param {*} codebook
- * @param {*} type
- * @param {*} key
  */
 const getEgoVariableInfo = (codebook: Codebook, key: string) =>
   codebook.ego?.variables?.[key];
 
 /**
- * Get the 'type' of a given variable from the codebook
+ * Retrieve a property of a variable from the codebook. For example, get the
+ * "name" of the variable with the key '123' for the node type 'person'.
+ *
  * @param {*} codebook
- * @param {*} type node, edge, or ego
- * @param {*} element entity 'type' (person, place, friend, etc.). not used for ego
- * @param {*} key key within element to select
- * @param {*} variableAttribute property of key to return
+ * @param {*} entity node, edge, or ego
+ * @param {*} type entity 'type' (person, place, friend, etc.). not used for ego
+ * @param {*} key the key of the variable
+ * @param {*} variableAttribute property of the key value to return
  */
-export const getAttributePropertyFromCodebook = (
-  codebook: Codebook,
-  type: 'node' | 'edge' | 'ego',
-  element: StageSubject | null,
-  key: string,
-  attributeProperty = 'type',
-) => {
+export const getCodebookEntityVariableProperty = <T = string>({
+  codebook,
+  entity,
+  type,
+  key,
+  attributeProperty,
+}: {
+  codebook: Codebook;
+  entity: 'node' | 'edge' | 'ego';
+  type?: string;
+  key: string;
+  attributeProperty: string;
+}): T | undefined => {
   const variableInfo =
-    type === 'ego'
+    entity === 'ego'
       ? getEgoVariableInfo(codebook, key)
-      : element && getVariableInfo(codebook, type, element, key);
+      : type && getVariableInfo(codebook, entity, type, key);
 
   return variableInfo?.[attributeProperty as keyof typeof variableInfo];
 };

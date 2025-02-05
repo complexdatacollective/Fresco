@@ -18,11 +18,15 @@ export const ZNcNode = ZNcEntity.extend({
   displayVariable: z.string().optional(),
 });
 
+export type NcNode = z.infer<typeof ZNcNode>;
+
 export const ZNcEdge = ZNcEntity.extend({
   type: z.string(),
   from: z.string(),
   to: z.string(),
 });
+
+export type NcEdge = z.infer<typeof ZNcEdge>;
 
 // Always use this instead of @codaco/shared-consts. Main difference is that ego is not optional.
 export const ZNcNetwork = z.object({
