@@ -53,7 +53,7 @@ export type VariableType = z.infer<typeof typeEnum>;
 // Validation Schema
 export const validationSchema = z
   .object({
-    required: z.boolean().optional(),
+    required: z.union([z.boolean(), z.string()]).optional(), // TODO: the function signature for required is (message) => value => string | undefined, but the schema is boolean
     requiredAcceptsNull: z.boolean().optional(),
     minLength: z.number().int().optional(),
     maxLength: z.number().int().optional(),

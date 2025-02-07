@@ -5,12 +5,14 @@ type UIState = {
   FORM_IS_READY: boolean;
   passphrase: string | null;
   showPassphrasePrompter: boolean;
+  passphraseInvalid: boolean;
 };
 
 const initialState = {
   FORM_IS_READY: false,
   passphrase: null,
   showPassphrasePrompter: false,
+  passphraseInvalid: false,
 } as UIState;
 
 const uiSlice = createSlice({
@@ -23,6 +25,7 @@ const uiSlice = createSlice({
     }),
     setPassphrase: (state, action: PayloadAction<string>) => ({
       ...state,
+      passphraseInvalid: false,
       passphrase: action.payload,
     }),
     clearPassphrase: (state) => ({
@@ -32,6 +35,10 @@ const uiSlice = createSlice({
     setShowPassphrasePrompter: (state, action: PayloadAction<boolean>) => ({
       ...state,
       showPassphrasePrompter: action.payload,
+    }),
+    setPassphraseInvalid: (state, action: PayloadAction<boolean>) => ({
+      ...state,
+      passphraseInvalid: action.payload,
     }),
   },
   extraReducers: (builder) => {
@@ -44,7 +51,9 @@ const uiSlice = createSlice({
   selectors: {
     formIsReady: (state) => state.FORM_IS_READY,
     getPassphrase: (state) => state.passphrase,
-    showPassphrasePrompter: (state) => state.showPassphrasePrompter,
+    showPassphrasePrompter: (state) =>
+      state.showPassphrasePrompter || state.passphraseInvalid,
+    getPassphraseInvalid: (state) => state.passphraseInvalid,
   },
 });
 
@@ -57,8 +66,13 @@ export const {
   setPassphrase,
   clearPassphrase,
   setShowPassphrasePrompter,
+  setPassphraseInvalid,
 } = uiSlice.actions;
 
 // Export the selectors
-export const { formIsReady, getPassphrase, showPassphrasePrompter } =
-  uiSlice.selectors;
+export const {
+  formIsReady,
+  getPassphrase,
+  showPassphrasePrompter,
+  getPassphraseInvalid,
+} = uiSlice.selectors;

@@ -2,7 +2,7 @@
 
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { AnimatePresence, motion, useWillChange } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { required } from '~/lib/interviewer/utils/Validations';
 import { Button } from '~/lib/ui/components';
 import Form from '../containers/Form';
@@ -13,31 +13,33 @@ const transition = {
   type: 'spring',
   stiffness: 400,
   damping: 30,
+  delay: 0.1,
 };
 
 export default function PassphrasePrompter() {
-  const { setPassphrase, showPassphrasePrompter } = usePassphrase();
+  const { setPassphrase, showPassphrasePrompter, passphraseInvalid } =
+    usePassphrase();
   const [showPassphraseOverlay, setShowPassphraseOverlay] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const willChange = useWillChange();
 
-  const handleSetPassphrase = (passphrase: string) => {
-    if (!passphrase) {
-      return;
-    }
-    console.log('handleSetPassphrase', passphrase);
-    setPassphrase(passphrase);
-    setShowPassphraseOverlay(false);
-  };
-
-  console.log('show', showPassphrasePrompter);
+  const handleSetPassphrase = useCallback(
+    (passphrase: string) => {
+      if (!passphrase) {
+        return;
+      }
+      setPassphrase(passphrase);
+      setShowPassphraseOverlay(false);
+    },
+    [setPassphrase],
+  );
 
   useEffect(() => {
     setTimeout(() => {
       setShowTooltip(true);
     }, 1000);
-  }, []);
+  }, [passphraseInvalid]);
 
   return (
     <>
@@ -61,7 +63,7 @@ export default function PassphrasePrompter() {
                   onClick={() => setShowPassphraseOverlay(true)}
                 >
                   <motion.span className="animate-shake scale-90 text-4xl transition-transform group-hover:scale-100">
-                    🔑
+                    {passphraseInvalid ? '⚠️' : '🔑'}
                   </motion.span>
                 </motion.button>
               </Tooltip.Trigger>
@@ -76,8 +78,9 @@ export default function PassphrasePrompter() {
                 className="bg-panel flex w-96 flex-col justify-center gap-4 rounded-xl p-6 shadow-xl"
               >
                 <div>
-                  Your passphrase is needed to show data on this screen. Click
-                  here to enter it.
+                  {passphraseInvalid
+                    ? 'There was a problem decrypting the data. Please reenter your passphrase.'
+                    : 'Your passphrase is needed to show data on this screen. Click here to enter it.'}
                 </div>
                 <Tooltip.Arrow className="fill-panel" height={10} width={20} />
               </motion.div>
@@ -103,6 +106,8 @@ const PassphraseOverlay = ({
   show: boolean;
   onClose: () => void;
 }) => {
+  const { passphraseInvalid } = usePassphrase();
+
   const formConfig = {
     formName: 'paassphrase',
     fields: [
@@ -116,8 +121,7 @@ const PassphraseOverlay = ({
     ],
   };
 
-  const onSubmitForm = (fields) => {
-    console.log(fields);
+  const onSubmitForm = (fields: { passphrase: string }) => {
     handleSubmit(fields.passphrase);
   };
 
@@ -127,26 +131,29 @@ const PassphraseOverlay = ({
       title="Enter your Passphrase"
       onClose={onClose}
       forceDisableFullscreen
-      className="passphrase-form-overlay !max-w-[65ch]"
+      className="!max-w-[65ch]"
     >
-      <div className="passphrase-form">
+      <div className="flex flex-col">
+        {passphraseInvalid && (
+          <p className="bg-accent/50 rounded-md p-6 text-white">
+            There was an error decrypting the data with the passphrase entered.
+            Please try again.
+          </p>
+        )}
         <p>
           Enter your passphrase in order to unlock the data on this screen. If
           you cannot remember your passphrase, please contact the person who
           recruited you to this study.
         </p>
         <Form
-          className="passphrase-form__form"
+          className="mt-6"
           form={formConfig.formName}
           subject={{ entity: 'ego' }}
           autoFocus
           onSubmit={onSubmitForm}
           {...formConfig} // eslint-disable-line react/jsx-props-no-spreading
         >
-          <div
-            className="passphrase-form__footer"
-            style={{ marginBottom: '1.2rem' }}
-          >
+          <div className="mb-4 flex items-center justify-end">
             <Button aria-label="Submit" type="submit">
               Submit passphrase
             </Button>

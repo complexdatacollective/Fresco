@@ -2,7 +2,9 @@ import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getPassphrase,
+  getPassphraseInvalid,
   setPassphrase as setPassphraseAction,
+  setPassphraseInvalid as setPassphraseInvalidAction,
   setShowPassphrasePrompter,
   showPassphrasePrompter,
 } from '~/lib/interviewer/ducks/modules/ui';
@@ -17,9 +19,11 @@ export class UnauthorizedError extends Error {
 export const usePassphrase = () => {
   const dispatch = useDispatch();
 
+  // Todo: this should be set at the protocol level somehow
   const isEnabled = true;
 
   const passphrase = useSelector(getPassphrase);
+  const passphraseInvalid = useSelector(getPassphraseInvalid);
   const showPrompter = useSelector(showPassphrasePrompter);
 
   const requirePassphrase = useCallback(() => {
@@ -39,20 +43,27 @@ export const usePassphrase = () => {
 
   const setPassphrase = useCallback(
     (passphrase: string) => {
-      if (showPrompter) {
-        dispatch(setShowPassphrasePrompter(false));
-      }
+      dispatch(setShowPassphrasePrompter(false));
 
       dispatch(setPassphraseAction(passphrase));
     },
-    [dispatch, showPrompter],
+    [dispatch],
+  );
+
+  const setPassphraseInvalid = useCallback(
+    (state: boolean) => {
+      dispatch(setPassphraseInvalidAction(state));
+    },
+    [dispatch],
   );
 
   return {
     isEnabled,
     passphrase,
+    passphraseInvalid,
     setPassphrase,
     requirePassphrase,
     showPassphrasePrompter: showPrompter,
+    setPassphraseInvalid,
   };
 };
