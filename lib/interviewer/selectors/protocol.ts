@@ -2,9 +2,8 @@ import { createSelector } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
 import {
-  type EdgeTypeDefinition,
-  type EntityTypeDefinition,
-  type NodeTypeDefinition,
+  type Codebook,
+  type Stage,
   type StageSubject,
   type VariableDefinition,
 } from '~/lib/shared-consts';
@@ -24,7 +23,9 @@ export const getProtocol = (state: RootState) => {
 
 export const getProtocolCodebook = createSelector(
   getProtocol,
-  (protocol) => protocol?.codebook ?? { node: {}, edge: {}, ego: {} },
+  (protocol) =>
+    (protocol?.codebook as Codebook) ??
+    ({ node: {}, edge: {}, ego: {} } as Codebook),
 );
 
 // Get all variables for all subjects in the codebook, adding the entity and type
@@ -41,11 +42,8 @@ export const getAllVariableUUIDsByEntity = createSelector(
 
     // Nodes
     Object.entries(nodeTypes).forEach(([nodeTypeIndex, nodeTypeDefinition]) => {
-      const nodeVariables = get(
-        nodeTypeDefinition,
-        'variables',
-        {} as NodeTypeDefinition['variables'],
-      );
+      const nodeVariables = get(nodeTypeDefinition, 'variables', {});
+
       Object.entries(nodeVariables).forEach(([variableIndex, definition]) => {
         variables[variableIndex] = {
           entity: 'node',
@@ -56,34 +54,30 @@ export const getAllVariableUUIDsByEntity = createSelector(
     });
 
     // Edges
-    Object.entries(edgeTypes).forEach(([edgeTypeIndex, edgeTypeDefinition]) => {
-      const edgeVariables = get(
-        edgeTypeDefinition,
-        'variables',
-        {} as EdgeTypeDefinition['variables'],
-      );
-      Object.entries(edgeVariables).forEach(([variableIndex, definition]) => {
-        variables[variableIndex] = {
-          entity: 'edge',
-          entityType: edgeTypeIndex,
-          ...definition,
-        };
-      });
-    });
+    Object.entries(edgeTypes ?? {}).forEach(
+      ([edgeTypeIndex, edgeTypeDefinition]) => {
+        const edgeVariables = get(edgeTypeDefinition, 'variables', {});
+        Object.entries(edgeVariables).forEach(([variableIndex, definition]) => {
+          variables[variableIndex] = {
+            entity: 'edge',
+            entityType: edgeTypeIndex,
+            ...definition,
+          };
+        });
+      },
+    );
 
     // Ego
-    const egoVariables = get(
-      ego,
-      'variables',
-      {} as EntityTypeDefinition['variables'],
+    const egoVariables = get(ego, 'variables', {});
+    Object.entries(egoVariables ?? {}).forEach(
+      ([variableIndex, definition]) => {
+        variables[variableIndex] = {
+          entity: 'ego',
+          entityType: null,
+          ...definition,
+        };
+      },
     );
-    Object.entries(egoVariables).forEach(([variableIndex, definition]) => {
-      variables[variableIndex] = {
-        entity: 'ego',
-        entityType: null,
-        ...definition,
-      };
-    });
 
     return variables;
   },
@@ -92,7 +86,7 @@ export const getAllVariableUUIDsByEntity = createSelector(
 export const getProtocolStages = createSelector(
   getProtocol,
   // Insert default finish stage here.
-  (protocol) => [...(protocol?.stages ?? []), DefaultFinishStage],
+  (protocol) => [...((protocol?.stages as Stage[]) ?? []), DefaultFinishStage],
 );
 
 export const getCodebookVariablesForSubjectType = createSelector(

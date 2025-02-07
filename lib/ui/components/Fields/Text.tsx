@@ -1,38 +1,57 @@
 import cx from 'classnames';
-import PropTypes from 'prop-types';
-import { memo, useId, useState } from 'react';
+import React, { memo, useId, useState } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
 const TextInput = ({
   input,
-  meta = {},
-  label = null,
+  meta,
+  label,
   placeholder = 'Enter some text...',
-  fieldLabel = null,
+  fieldLabel,
   className = '',
   type = 'text',
   autoFocus = false,
   hidden = false,
   adornmentLeft,
   adornmentRight,
+}: {
+  input: {
+    name: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+    onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  };
+  meta?: {
+    error: string | null;
+    invalid: boolean;
+    touched: boolean;
+  };
+  label?: string;
+  placeholder?: string;
+  fieldLabel?: string;
+  className?: string;
+  type?: 'text' | 'number' | 'search';
+  autoFocus?: boolean;
+  hidden?: boolean;
+  adornmentLeft?: React.ReactNode;
+  adornmentRight?: React.ReactNode;
 }) => {
-  const { error, invalid, touched } = meta;
-
   const id = useId();
   const [hasFocus, setFocus] = useState(false);
 
-  const handleFocus = (...args) => {
+  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     setFocus(true);
     if (input.onFocus) {
-      input.onFocus(...args);
+      input.onFocus(event);
     }
   };
 
-  const handleBlur = (...args) => {
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     setFocus(false);
     if (input.onBlur) {
-      input.onBlur(...args);
+      input.onBlur(event);
     }
   };
 
@@ -42,27 +61,26 @@ const TextInput = ({
 
   const seamlessClasses = cx(className, 'form-field-text', {
     'form-field-text--has-focus': hasFocus,
-    'form-field-text--has-error': invalid && touched && error,
+    'form-field-text--has-error': meta?.invalid && meta?.touched && meta?.error,
     'form-field-text--adornment': hasAdornment,
     'form-field-text--has-left-adornment': hasLeftAdornment,
     'form-field-text--has-right-adornment': hasRightAdornment,
   });
 
-  const anyLabel = fieldLabel || label;
+  const anyLabel = fieldLabel ?? label;
 
   return (
     <div className="form-field-container" hidden={hidden}>
       {anyLabel && <MarkdownLabel label={anyLabel} />}
       <div className={seamlessClasses}>
         <input
-          id={id.current}
+          {...input}
+          id={id}
           name={input.name}
           className="form-field form-field-text__input"
           placeholder={placeholder}
-          autoFocus={autoFocus} // eslint-disable-line
+          autoFocus={autoFocus}
           type={type}
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          {...input}
           onBlur={handleBlur}
           onFocus={handleFocus}
         />
@@ -74,29 +92,15 @@ const TextInput = ({
             {adornmentRight}
           </div>
         )}
-        {invalid && touched && (
+        {meta?.invalid && meta?.touched && (
           <div className="form-field-text__error">
             <Icon name="warning" />
-            {error}
+            {meta?.error}
           </div>
         )}
       </div>
     </div>
   );
-};
-
-TextInput.propTypes = {
-  adornmentLeft: PropTypes.node,
-  adornmentRight: PropTypes.node,
-  autoFocus: PropTypes.bool,
-  className: PropTypes.string,
-  fieldLabel: PropTypes.string,
-  hidden: PropTypes.bool,
-  input: PropTypes.object,
-  label: PropTypes.string,
-  meta: PropTypes.object,
-  placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  type: PropTypes.oneOf(['text', 'number', 'search']),
 };
 
 export default memo(TextInput);

@@ -2,6 +2,7 @@ import {
   type EntityAttributesProperty,
   type EntitySecureAttributesMeta,
   type NcNode,
+  type VariableDefinition,
 } from '~/lib/shared-consts';
 
 export const SESSION_STORAGE_KEY = 'passphrase';
@@ -82,6 +83,7 @@ export async function decryptData(
 
 export async function generateSecureAttributes(
   attributes: NcNode[EntityAttributesProperty],
+  codebookVariables: Record<string, VariableDefinition>,
   passphrase: string,
 ): Promise<{
   secureAttributes: NcNode[EntitySecureAttributesMeta];
@@ -91,6 +93,11 @@ export async function generateSecureAttributes(
   const encryptedAttributes: NcNode[EntityAttributesProperty] = {};
 
   for (const [key, value] of Object.entries(attributes)) {
+    // If this attribute is not encrypted, we can skip it
+    if (!codebookVariables[key]?.encrypted) {
+      continue;
+    }
+
     // TODO: expand this for other variable types
     if (typeof value === 'string') {
       const encoder = new TextEncoder();

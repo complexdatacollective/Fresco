@@ -1,20 +1,59 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { updateStage } from './session';
 
-const initialState = {} as Record<string, unknown>;
+type UIState = {
+  FORM_IS_READY: boolean;
+  passphrase: string | null;
+  showPassphrasePrompter: boolean;
+  passphraseInvalid: boolean;
+};
+
+const initialState = {
+  FORM_IS_READY: false,
+  passphrase: null,
+  showPassphrasePrompter: false,
+  passphraseInvalid: false,
+} as UIState;
 
 const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    update: (state, action: PayloadAction<Record<string, unknown>>) => {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-    toggle: (state, action: PayloadAction<string>) => {
-      state[action.payload] = !state[action.payload];
-    },
+    setFormIsReady: (state, action: PayloadAction<boolean>) => ({
+      ...state,
+      FORM_IS_READY: action.payload,
+    }),
+    setPassphrase: (state, action: PayloadAction<string>) => ({
+      ...state,
+      passphraseInvalid: false,
+      passphrase: action.payload,
+    }),
+    clearPassphrase: (state) => ({
+      ...state,
+      passphrase: null,
+    }),
+    setShowPassphrasePrompter: (state, action: PayloadAction<boolean>) => ({
+      ...state,
+      showPassphrasePrompter: action.payload,
+    }),
+    setPassphraseInvalid: (state, action: PayloadAction<boolean>) => ({
+      ...state,
+      passphraseInvalid: action.payload,
+    }),
+  },
+  extraReducers: (builder) => {
+    // Reset showPassphrasePrompter when the stage is updated
+    builder.addCase(updateStage, (state) => ({
+      ...state,
+      showPassphrasePrompter: false,
+    }));
+  },
+  selectors: {
+    formIsReady: (state) => state.FORM_IS_READY,
+    getPassphrase: (state) => state.passphrase,
+    showPassphrasePrompter: (state) =>
+      state.showPassphrasePrompter || state.passphraseInvalid,
+    getPassphraseInvalid: (state) => state.passphraseInvalid,
   },
 });
 
@@ -22,10 +61,18 @@ const uiSlice = createSlice({
 export default uiSlice.reducer;
 
 // Export the action creators
-export const { update, toggle } = uiSlice.actions;
+export const {
+  setFormIsReady,
+  setPassphrase,
+  clearPassphrase,
+  setShowPassphrasePrompter,
+  setPassphraseInvalid,
+} = uiSlice.actions;
 
-// If you want to keep the same export structure as before:
-export const actionCreators = {
-  update: uiSlice.actions.update,
-  toggle: uiSlice.actions.toggle,
-};
+// Export the selectors
+export const {
+  formIsReady,
+  getPassphrase,
+  showPassphrasePrompter,
+  getPassphraseInvalid,
+} = uiSlice.selectors;

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { codebookSchema } from '~/lib/shared-consts';
+import { codebookSchema, validationSchema } from '~/lib/shared-consts';
 
 // Filter and Sort Options Schemas
 const filterRuleSchema = z
@@ -314,6 +314,7 @@ const informationStage = baseStageSchema.extend({
 
 const anonymisationStage = baseStageSchema.extend({
   type: z.literal('Anonymisation'),
+  title: z.string(),
   items: z.array(
     z
       .object({
@@ -324,6 +325,7 @@ const anonymisationStage = baseStageSchema.extend({
       })
       .strict(),
   ),
+  passphraseValidation: validationSchema.optional(),
 });
 
 export type AnonymisationStage = z.infer<typeof anonymisationStage>;

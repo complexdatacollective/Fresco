@@ -31,7 +31,7 @@ export const useNodeAttributes = (
     getCodebookVariablesForNodeType(node.type),
   );
   const nodeAttributes = getEntityAttributes(node);
-  const { passphrase } = usePassphrase();
+  const { requirePassphrase, setPassphraseInvalid } = usePassphrase();
 
   const getById = useCallback(
     async <T extends VariableValue>(
@@ -48,14 +48,14 @@ export const useNodeAttributes = (
 
       invariant(secureAttributes, 'Node is missing secure attributes');
 
-      if (!passphrase) {
-        throw new UnauthorizedError();
-      }
-
-      console.log('we have a passphrase', passphrase, secureAttributes);
-
-      // This will trigger a prompt for the passphrase, and throw an error if it is cancelled.
       try {
+        const passphrase = requirePassphrase();
+
+        // This throw could ultimately be moved into requirePassphrase
+        if (!passphrase) {
+          throw new UnauthorizedError();
+        }
+
         const result = await decryptData(
           {
             secureAttributes: {
@@ -67,22 +67,31 @@ export const useNodeAttributes = (
           passphrase,
         );
 
-        console.log('decryptedValue', result);
-
         return result as T;
       } catch (e) {
-        console.log('here', e, e instanceof UnauthorizedError);
-        // User cancelled or passphrase was incorrect
+        // User cancelled
         if (e instanceof UnauthorizedError) {
           throw e;
         }
+
+        // If we get here, the decryption failed. This is either because
+        // the passphrase was incorrect, or there was another kind of error.
+        // In either case the only thing we can do is to set the invalid passphrase
+        // state so that the user can try again.
+        setPassphraseInvalid(true);
 
         // eslint-disable-next-line no-console
         console.error(e);
         return '⚠️';
       }
     },
-    [codebookAttributes, nodeAttributes, node, passphrase],
+    [
+      codebookAttributes,
+      nodeAttributes,
+      node,
+      requirePassphrase,
+      setPassphraseInvalid,
+    ],
   );
 
   const getByName = useCallback(
