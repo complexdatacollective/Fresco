@@ -1,12 +1,12 @@
 @use '~~/lib/ui/styles/global/core/units';
 
 .overlay {
-  &.case-id-form-overlay {
+  &.passphrase-form-overlay {
     max-width: 65rem;
   }
 }
 
-.case-id-form {
+.passphrase-form {
   flex: 1;
 
   .form-field-container {

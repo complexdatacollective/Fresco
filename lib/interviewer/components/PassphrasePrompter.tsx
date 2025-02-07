@@ -1,8 +1,8 @@
 'use client';
 
-import * as Popover from '@radix-ui/react-tooltip';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { AnimatePresence, motion, useWillChange } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { required } from '~/lib/interviewer/utils/Validations';
 import { Button } from '~/lib/ui/components';
 import Form from '../containers/Form';
@@ -18,6 +18,7 @@ const transition = {
 export default function PassphrasePrompter() {
   const { setPassphrase, showPassphrasePrompter } = usePassphrase();
   const [showPassphraseOverlay, setShowPassphraseOverlay] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const willChange = useWillChange();
 
@@ -32,13 +33,19 @@ export default function PassphrasePrompter() {
 
   console.log('show', showPassphrasePrompter);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setShowTooltip(true);
+    }, 1000);
+  }, []);
+
   return (
     <>
-      <Popover.Provider>
-        <Popover.Root defaultOpen>
+      <Tooltip.Provider>
+        <Tooltip.Root open={showTooltip} onOpenChange={setShowTooltip}>
           <AnimatePresence>
             {showPassphrasePrompter && (
-              <Popover.Trigger asChild>
+              <Tooltip.Trigger asChild>
                 <motion.button
                   key="lock"
                   layout
@@ -57,11 +64,11 @@ export default function PassphrasePrompter() {
                     🔑
                   </motion.span>
                 </motion.button>
-              </Popover.Trigger>
+              </Tooltip.Trigger>
             )}
           </AnimatePresence>
-          <Popover.Portal>
-            <Popover.Content sideOffset={5} side="right" asChild>
+          <Tooltip.Portal>
+            <Tooltip.Content sideOffset={5} side="right" asChild>
               <motion.div
                 key="tooltip"
                 initial={{ opacity: 0 }}
@@ -72,12 +79,12 @@ export default function PassphrasePrompter() {
                   Your passphrase is needed to show data on this screen. Click
                   here to enter it.
                 </div>
-                <Popover.Arrow className="fill-panel" height={10} width={20} />
+                <Tooltip.Arrow className="fill-panel" height={10} width={20} />
               </motion.div>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-      </Popover.Provider>
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>
       <PassphraseOverlay
         handleSubmit={handleSetPassphrase}
         show={showPassphraseOverlay}
@@ -120,16 +127,16 @@ const PassphraseOverlay = ({
       title="Enter your Passphrase"
       onClose={onClose}
       forceDisableFullscreen
-      className="case-id-form-overlay"
+      className="passphrase-form-overlay !max-w-[65ch]"
     >
-      <div className="case-id-form">
+      <div className="passphrase-form">
         <p>
-          Enter the passphrase you created when you were first asked in order to
-          unlock the data on this screen. If you cannot remember your
-          passphrase, please contact the person who recruited you to this study.
+          Enter your passphrase in order to unlock the data on this screen. If
+          you cannot remember your passphrase, please contact the person who
+          recruited you to this study.
         </p>
         <Form
-          className="case-id-form__form"
+          className="passphrase-form__form"
           form={formConfig.formName}
           subject={{ entity: 'ego' }}
           autoFocus
@@ -137,7 +144,7 @@ const PassphraseOverlay = ({
           {...formConfig} // eslint-disable-line react/jsx-props-no-spreading
         >
           <div
-            className="case-id-form__footer"
+            className="passphrase-form__footer"
             style={{ marginBottom: '1.2rem' }}
           >
             <Button aria-label="Submit" type="submit">
