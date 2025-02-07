@@ -1,22 +1,32 @@
-import type {
-  caseProperty,
-  codebookHashProperty,
-  edgeExportIDProperty,
+import {
+  type caseProperty,
+  type codebookHashProperty,
+  type edgeExportIDProperty,
   egoProperty,
-  nodeExportIDProperty,
-  protocolName,
-  protocolProperty,
-  sessionExportTimeProperty,
-  sessionFinishTimeProperty,
-  sessionProperty,
-  sessionStartTimeProperty,
+  type ncSourceUUID,
+  type ncTargetUUID,
+  type nodeExportIDProperty,
+  type protocolName,
+  type protocolProperty,
+  type sessionExportTimeProperty,
+  type sessionFinishTimeProperty,
+  type sessionProperty,
+  type sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import type { NcNetwork, ZNcEdge, ZNcNode } from '~/schemas/network-canvas';
+import {
+  type NcNetwork,
+  ZNcEdge,
+  type ZNcNode,
+} from '~/schemas/network-canvas';
 
 type NodeWithEgo = z.infer<typeof ZNcNode> & {
   [egoProperty]: string;
 };
+
+const EdgeWithEgo = ZNcEdge.extend({
+  [egoProperty]: z.string(),
+});
 
 type EdgeWithEgo = z.infer<typeof ZNcEdge> & {
   [egoProperty]: string;
@@ -94,6 +104,8 @@ export type NodeWithResequencedID = NodeWithEgo & {
 };
 
 export type EdgeWithResequencedID = EdgeWithEgo & {
+  [ncSourceUUID]: string;
+  [ncTargetUUID]: string;
   [edgeExportIDProperty]: number;
 };
 

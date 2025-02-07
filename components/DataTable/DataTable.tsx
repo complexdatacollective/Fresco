@@ -96,7 +96,7 @@ export function DataTable<TData, TValue>({
   if (actions) {
     const actionsColumn = {
       id: 'actions',
-      header: () => (actionsHeader ? actionsHeader : null),
+      header: () => actionsHeader ?? null,
       cell: ({ row }: { row: Row<TData> }) => {
         const cellDeleteHandler = async (item: TData) => {
           await handleDeleteSelected?.([item]);
@@ -148,7 +148,7 @@ export function DataTable<TData, TValue>({
   return (
     <>
       {(filterColumnAccessorKey || headerItems) && (
-        <div className="flex items-center gap-2 pb-4 pt-1">
+        <div className="flex items-center gap-2 pt-1 pb-4">
           {filterColumnAccessorKey && (
             <Input
               name="filter"
@@ -222,7 +222,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div>
         <div className="flex justify-between py-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>

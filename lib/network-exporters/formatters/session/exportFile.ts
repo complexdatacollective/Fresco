@@ -11,6 +11,8 @@ import type {
 } from '../../utils/types';
 import type { partitionByType } from './partitionByType';
 
+export type ExportFileNetwork = ReturnType<typeof partitionByType>[number];
+
 const exportFile = ({
   prefix,
   exportFormat,
@@ -20,7 +22,7 @@ const exportFile = ({
 }: {
   prefix: string;
   exportFormat: ExportFormat;
-  network: ReturnType<typeof partitionByType>[number];
+  network: ExportFileNetwork;
   codebook: Codebook;
   exportOptions: ExportOptions;
 }): Promise<ExportResult> => {
