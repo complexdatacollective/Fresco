@@ -1,6 +1,9 @@
 'use client';
 
+import { parseAsInteger, useQueryState } from 'nuqs';
+import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
+import type { SyncInterviewType } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import {
@@ -8,11 +11,8 @@ import {
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { store } from '~/lib/interviewer/store';
-import ServerSync from './ServerSync';
-import { useEffect, useState } from 'react';
-import { parseAsInteger, useQueryState } from 'nuqs';
-import type { SyncInterviewType } from '~/actions/interviews';
 import type { getInterviewById } from '~/queries/interviews';
+import ServerSync from './ServerSync';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
@@ -45,12 +45,27 @@ const InterviewShell = ({
       serverSession.currentStep = currentStage;
     }
 
+    // You can't store dates in the redux store, so we need to convert them.
+    const serialisableServerSession = {
+      ...serverSession,
+      startTime: serverSession.startTime.toISOString(),
+      finishTime: serverSession.finishTime?.toISOString() ?? null,
+      exportTime: serverSession.exportTime?.toISOString() ?? null,
+      lastUpdated: serverSession.lastUpdated.toISOString(),
+    };
+
+    const serialisableProtocol = {
+      ...protocol,
+      importedAt: protocol.importedAt.toISOString(),
+      lastModified: protocol.lastModified.toISOString(),
+    };
+
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({
       type: SET_SERVER_SESSION,
       payload: {
-        protocol,
-        session: serverSession,
+        protocol: serialisableProtocol,
+        session: serialisableServerSession,
       },
     });
 
