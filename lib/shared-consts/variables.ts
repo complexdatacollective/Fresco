@@ -51,7 +51,7 @@ export enum VariableTypeEnum {
 export type VariableType = z.infer<typeof typeEnum>;
 
 // Validation Schema
-const validationSchema = z
+export const validationSchema = z
   .object({
     required: z.boolean().optional(),
     requiredAcceptsNull: z.boolean().optional(),
