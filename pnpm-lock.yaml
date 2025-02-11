@@ -138,8 +138,8 @@ importers:
         specifier: ^2.7.7
         version: 2.7.7
       lucide-react:
-        specifier: ^0.471.1
-        version: 0.471.2(react@18.3.1)
+        specifier: ^0.475.0
+        version: 0.475.0(react@18.3.1)
       luxon:
         specifier: ^3.5.0
         version: 3.5.0
@@ -4195,8 +4195,8 @@ packages:
   lucia@2.7.7:
     resolution: {integrity: sha512-Hy1nMcLquLl3yDvV9zYA9fSBGUDy/Fw2zEUw2Ia4iGdk/O+hI/TvQ1tAfED/U1WE/c5DT1hEger3m7qIx1qbUg==}
 
-  lucide-react@0.471.2:
-    resolution: {integrity: sha512-A8fDycQxGeaSOTaI7Bm4fg8LBXO7Qr9ORAX47bDRvugCsjLIliugQO0PkKFoeAD57LIQwlWKd3NIQ3J7hYp84g==}
+  lucide-react@0.475.0:
+    resolution: {integrity: sha512-NJzvVu1HwFVeZ+Gwq2q00KygM1aBhy/ZrhY9FsAgJtpB+E4R7uxRk9M2iKvHa6/vNxZydIB59htha4c2vvwvVg==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -10253,7 +10253,7 @@ snapshots:
 
   lucia@2.7.7: {}
 
-  lucide-react@0.471.2(react@18.3.1):
+  lucide-react@0.475.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
