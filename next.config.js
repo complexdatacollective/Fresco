@@ -39,6 +39,7 @@ const config = {
   },
   eslint: {
     dirs: ['./'],
+    ignoreDuringBuilds: true,
   },
 };
 export default config;

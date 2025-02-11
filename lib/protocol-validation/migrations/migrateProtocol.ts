@@ -1,7 +1,5 @@
-import { type Protocol } from '@codaco/shared-consts';
-import canUpgrade from './canUpgrade';
+import { type Protocol } from '~/lib/shared-consts';
 import { MigrationStepError } from './errors';
-import getMigrationNotes from './getMigrationNotes';
 import getMigrationPath from './getMigrationPath';
 
 export type ProtocolMigration = {
@@ -43,4 +41,3 @@ export const migrateProtocol = (
 
   return resultProtocol;
 };
-

@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import JSZip from 'jszip';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { type Protocol } from '~/lib/shared-consts';
 import { ensureError } from '~/utils/ensureError';
 import { getProtocolJson } from '~/utils/protocolImport';
 import { validateProtocol } from '..';

@@ -1,5 +1,5 @@
 import { ensureError } from '~/utils/ensureError';
-import { Protocol } from './schemas/src/8.zod';
+import type { Protocol } from './schemas/src/8.zod';
 import { validateLogic } from './validation/validateLogic';
 import { validateSchema } from './validation/validateSchema';
 
