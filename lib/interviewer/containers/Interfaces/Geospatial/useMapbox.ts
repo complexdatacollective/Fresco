@@ -1,9 +1,9 @@
+import { type MapOptions } from '@codaco/protocol-validation';
 import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
-import { type MapOptions } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
 
 const MAP_CONSTS = {

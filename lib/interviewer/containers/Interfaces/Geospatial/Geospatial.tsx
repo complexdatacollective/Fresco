@@ -1,3 +1,4 @@
+import type { Protocol } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type NcNode,
@@ -19,7 +20,6 @@ import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/interface';
 import { getAssetUrlFromId } from '~/lib/interviewer/selectors/protocol';
 import { type RootState } from '~/lib/interviewer/store';
-import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
 import Markdown from '~/lib/ui/components/Fields/Markdown';
@@ -282,7 +282,7 @@ export default function GeospatialInterface({
           ref={mapContainerRef}
         />
 
-        <div className="absolute bottom-10 left-14 z-5">
+        <div className="z-5 absolute bottom-10 left-14">
           <ActionButton
             onClick={handleResetMapZoom}
             icon={<Locate />}

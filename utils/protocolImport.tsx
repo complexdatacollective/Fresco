@@ -1,5 +1,5 @@
+import { type Protocol } from '@codaco/protocol-validation';
 import type Zip from 'jszip';
-import { type Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
 import { type AssetInsertType } from '~/schemas/protocol';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
@@ -23,7 +23,10 @@ export const getProtocolJson = async (protocolZip: Zip) => {
  * metadata about the asset.
  */
 
-type FetchedFileAsset = Omit<AssetInsertType, 'value' | 'key' | 'size' | 'url'> & { file: File };
+type FetchedFileAsset = Omit<
+  AssetInsertType,
+  'value' | 'key' | 'size' | 'url'
+> & { file: File };
 
 type ProtocolAssetsResult = {
   fileAssets: FetchedFileAsset[];

@@ -1,3 +1,4 @@
+import { validateProtocol } from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -86,8 +87,6 @@ export const useProtocolImport = () => {
 
         return;
       }
-
-      const { validateProtocol } = await import('~/lib/protocol-validation');
 
       const validationResult = await validateProtocol(protocolJson);
 

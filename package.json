@@ -15,9 +15,7 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
-    "load-test": "docker run -i grafana/k6 run - <load-test.js",
-    "validate-protocol": "tsx ./lib/protocol-validation/scripts/validateProtocol.ts",
-    "compile-schemas": "tsx ./lib/protocol-validation/scripts/compileSchemas.ts"
+    "load-test": "docker run -i grafana/k6 run - <load-test.js"
   },
   "pnpm": {
     "overrides": {
@@ -26,6 +24,7 @@
   },
   "dependencies": {
     "@codaco/analytics": "7.0.0",
+    "@codaco/protocol-validation": "file:../network-canvas-monorepo/packages/protocol-validation",
     "@codaco/shared-consts": "^0.0.2",
     "@hookform/resolvers": "^3.10.0",
     "@lucia-auth/adapter-prisma": "^3.0.2",
@@ -48,7 +47,6 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-table": "^8.20.6",
     "@uploadthing/react": "^7.1.5",
-    "ajv": "^8.17.1",
     "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
