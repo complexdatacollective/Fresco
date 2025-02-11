@@ -44,7 +44,7 @@
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@radix-ui/react-visually-hidden": "^1.1.1",
-    "@reduxjs/toolkit": "^1.9.7",
+    "@reduxjs/toolkit": "^2.5.1",
     "@tanstack/react-table": "^8.20.6",
     "@uploadthing/react": "^7.1.5",
     "@xmldom/xmldom": "^0.8.10",
