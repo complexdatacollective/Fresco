@@ -60,8 +60,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@18.3.1)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-slot':
-        specifier: ^1.1.1
-        version: 1.1.1(@types/react@18.3.7)(react@18.3.1)
+        specifier: ^1.1.2
+        version: 1.1.2(@types/react@18.3.7)(react@18.3.1)
       '@radix-ui/react-switch':
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1650,6 +1650,15 @@ packages:
 
   '@radix-ui/react-slot@1.1.1':
     resolution: {integrity: sha512-RApLLOcINYJA+dMVbOju7MYv1Mb2EBp2nH4HdDzXTSyaR5optlm6Otrz1euW3HbdOR8UmmFK06TD+A9frYWv+g==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-slot@1.1.2':
+    resolution: {integrity: sha512-YAKxaiGsSQJ38VzKH86/BPRC4rh+b1Jpa+JneA5LRE7skmLPNAyeG8kPJj/oo4STLvlrs8vkf/iYyc3A5stYCQ==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -7084,6 +7093,13 @@ snapshots:
       '@types/react': 18.3.7
 
   '@radix-ui/react-slot@1.1.1(@types/react@18.3.7)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@18.3.7)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.7
+
+  '@radix-ui/react-slot@1.1.2(@types/react@18.3.7)(react@18.3.1)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.1(@types/react@18.3.7)(react@18.3.1)
       react: 18.3.1
