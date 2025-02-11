@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { ValidateFunction } from 'ajv';
-import { type Protocol } from '~/lib/shared-consts';
+import type { Protocol } from '../schemas/src/8.zod';
 
 export const validateSchema = async (
   protocol: Protocol,

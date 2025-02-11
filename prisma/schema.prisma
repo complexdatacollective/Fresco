@@ -60,6 +60,7 @@ model Asset {
   url       String
   size      Int
   protocols Protocol[]
+  value     String?
 
   @@index(fields: [assetId, key])
 }

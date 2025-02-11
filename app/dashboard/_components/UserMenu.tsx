@@ -3,8 +3,8 @@ import SubmitButton from '~/components/ui/SubmitButton';
 
 const UserMenu = () => {
   return (
-    <form action={void logout}>
-      <SubmitButton variant="secondary" size="sm" type="submit">
+    <form action={() => void logout()}>
+      <SubmitButton variant="secondary" size="sm" type="submit" onClick={() => logout()}>
         Sign out
       </SubmitButton>
     </form>

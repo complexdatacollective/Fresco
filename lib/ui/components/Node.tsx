@@ -26,6 +26,7 @@ const Node = forwardRef<HTMLDivElement, UINodeProps>(
       selected = false,
       selectedColor = '',
       linking = false,
+      style,
       handleClick,
       loading = false,
     },

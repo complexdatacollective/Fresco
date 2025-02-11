@@ -56,6 +56,8 @@ export async function importParticipants(rawInput: unknown) {
   */
   const participantsWithIdentifiers = participantList.map((participant) => {
     return {
+      // Cannot use nullish coalescing here because of https://github.com/complexdatacollective/Fresco/pull/140/commits/06260b815558030b0605e14e5baf5a6ce238b1ab
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       identifier: !participant.identifier ? createId() : participant.identifier,
       label: participant.label === '' ? undefined : participant.label,
     };

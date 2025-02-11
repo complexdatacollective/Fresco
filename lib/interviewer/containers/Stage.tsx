@@ -1,11 +1,11 @@
 import { type ElementType, memo } from 'react';
-import { type Stage } from '~/lib/shared-consts';
+import type { Stage as TStage } from '~/lib/shared-consts';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
-import { type BeforeNextFunction } from './ProtocolScreen';
+import type { BeforeNextFunction } from './ProtocolScreen';
 
 export type StageProps = {
-  stage: Stage;
+  stage: TStage;
   registerBeforeNext: (fn: BeforeNextFunction | null) => void;
   getNavigationHelpers: () => {
     moveForward: () => void;

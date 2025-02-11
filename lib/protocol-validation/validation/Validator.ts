@@ -1,6 +1,6 @@
 import { get } from 'es-toolkit/compat';
-import { type Protocol, type StageSubject } from '~/lib/shared-consts';
-import { type ValidationError } from '..';
+import type { Protocol, StageSubject } from '~/lib/shared-consts';
+import type { ValidationError } from '..';
 
 /**
  * See addValidation().

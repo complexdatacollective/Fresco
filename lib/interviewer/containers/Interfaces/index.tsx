@@ -55,6 +55,9 @@ const Anonymisation = dynamic(() => import('./Anonymisation/Anonymisation'), {
 const OneToManyDyadCensus = dynamic(() => import('./OneToManyDyadCensus'), {
   loading: StageLoading,
 });
+const Geospatial = dynamic(() => import('./Geospatial/Geospatial'), {
+  loading: StageLoading,
+});
 
 const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   <div className="flex h-full w-full items-center justify-center">
@@ -101,9 +104,10 @@ const getInterface = (interfaceType: string) => {
       return Anonymisation;
     case StageType.OneToManyDyadCensus:
       return OneToManyDyadCensus;
+    case StageType.Geospatial:
+      return Geospatial;
     case 'FinishSession':
       return FinishSession;
-
     default:
       // eslint-disable-next-line react/display-name
       return () => <NotFoundInterface interfaceType={interfaceType} />;

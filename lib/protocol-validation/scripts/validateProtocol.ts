@@ -12,6 +12,7 @@ import { type Protocol } from '~/lib/shared-consts';
 import { ensureError } from '~/utils/ensureError';
 import { getProtocolJson } from '~/utils/protocolImport';
 import { validateProtocol } from '..';
+import { Protocol } from '../schemas/src/8.zod';
 import { errToString } from '../validation/helpers';
 
 // eslint-disable-next-line no-console

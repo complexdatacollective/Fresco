@@ -1,15 +1,15 @@
 import { get, isObject } from 'es-toolkit/compat';
-import {
-  type AdditionalAttributes,
-  type Codebook,
-  type FilterRule,
-  type FormField,
-  type NcNode,
-  type Protocol,
-  type StageSubject,
-  type VariableDefinition,
-  type VariableValidation,
+import type {
+  AdditionalAttributes,
+  Codebook,
+  FilterRule,
+  FormField,
+  NcNode,
+  StageSubject,
+  VariableDefinition,
+  VariableValidation,
 } from '~/lib/shared-consts';
+import type { Protocol } from '../schemas/src/8.zod';
 import Validator from './Validator';
 import {
   duplicateId,
@@ -99,9 +99,7 @@ export const validateLogic = (protocol: Protocol) => {
   );
 
   v.addValidation<string>(
-    new RegExp(
-      'codebook\\..*\\.variables\\..*\\.validation\\.(sameAs|differentFrom|greaterThanVariable|lessThanVariable)',
-    ),
+    /codebook\..*\.variables\..*\.validation\.(sameAs|differentFrom|greaterThanVariable|lessThanVariable)/,
     (variable, _, keypath) => {
       let variablesForType: Record<string, VariableDefinition>;
 
@@ -183,7 +181,7 @@ export const validateLogic = (protocol: Protocol) => {
   );
 
   v.addValidation(
-    new RegExp('codebook\\..*\\.variables'),
+    /codebook\..*\.variables/,
     (variableMap) => !duplicateInArray(getVariableNames(variableMap)),
     (variableMap) =>
       `Duplicate variable name "${duplicateInArray(

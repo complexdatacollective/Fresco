@@ -1,5 +1,5 @@
-import { type Protocol } from '~/lib/shared-consts';
 import { ensureError } from '~/utils/ensureError';
+import type { Protocol } from './schemas/src/8.zod';
 import { validateLogic } from './validation/validateLogic';
 import { validateSchema } from './validation/validateSchema';
 
