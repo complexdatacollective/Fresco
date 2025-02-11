@@ -1,9 +1,7 @@
 import type { Protocol } from '@prisma/client';
 import { configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
-import thunk from 'redux-thunk';
 import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
-import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
 import sessions from '~/lib/interviewer/ducks/modules/session';
@@ -18,11 +16,11 @@ export const store = configureStore({
     activeSessionId,
     sessions,
     installedProtocols,
-    deviceSettings,
     dialogs,
     ui,
   },
-  middleware: [thunk, logger, sound],
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(logger, sound),
 });
 
 export type StageMetadataEntry = [number, string, string, boolean];

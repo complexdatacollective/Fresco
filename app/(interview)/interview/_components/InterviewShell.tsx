@@ -1,6 +1,9 @@
 'use client';
 
+import { parseAsInteger, useQueryState } from 'nuqs';
+import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
+import type { SyncInterviewType } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import {
@@ -8,11 +11,8 @@ import {
   type SetServerSessionAction,
 } from '~/lib/interviewer/ducks/modules/setServerSession';
 import { store } from '~/lib/interviewer/store';
-import ServerSync from './ServerSync';
-import { useEffect, useState } from 'react';
-import { parseAsInteger, useQueryState } from 'nuqs';
-import type { SyncInterviewType } from '~/actions/interviews';
 import type { getInterviewById } from '~/queries/interviews';
+import ServerSync from './ServerSync';
 
 // The job of interview shell is to receive the server-side session and protocol
 // and create a redux store with that data.
@@ -45,12 +45,45 @@ const InterviewShell = ({
       serverSession.currentStep = currentStage;
     }
 
+    // You can't store dates in the redux store, so we need to convert them.
+    // If the date is already an ISOstring, we don't need to convert it.
+
+    const toRequiredISOString = (date: string | Date): string => {
+      if (date && date instanceof Date) {
+        return date.toISOString();
+      }
+      return date;
+    };
+
+    const toOptionalISOString = (date: string | Date | null): string | null => {
+      if (!date) return null;
+      if (date instanceof Date) {
+        return date.toISOString();
+      }
+      return date;
+    };
+
+    const serialisableServerSession = {
+      ...serverSession,
+      startTime: toRequiredISOString(serverSession.startTime),
+      lastUpdated: toRequiredISOString(serverSession.lastUpdated),
+      // optional - can be null
+      finishTime: toOptionalISOString(serverSession.finishTime),
+      exportTime: toOptionalISOString(serverSession.exportTime),
+    };
+
+    const serialisableProtocol = {
+      ...protocol,
+      importedAt: toRequiredISOString(protocol.importedAt),
+      lastModified: toRequiredISOString(protocol.lastModified),
+    };
+
     // If there's no current stage in the URL bar, set it.
     store.dispatch<SetServerSessionAction>({
       type: SET_SERVER_SESSION,
       payload: {
-        protocol,
-        session: serverSession,
+        protocol: serialisableProtocol,
+        session: serialisableServerSession,
       },
     });
 
