@@ -12,7 +12,7 @@ import {
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { uploadFiles } from '~/lib/uploadthing-client-helpers';
-import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
@@ -176,28 +176,42 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const assets = await getProtocolAssets(protocolJson, zip);
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(
+        protocolJson,
+        zip,
+      );
 
-      const newAssets: typeof assets = [];
-
+      const newAssets: typeof fileAssets = [];
       const existingAssetIds: string[] = [];
-
-      let newAssetsWithCombinedMetadata: AssetInsertType = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
+      const newApikeyAssets: typeof apikeyAssets = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
-      // If not, add them to newAssets to be uploaded.
-
+      // If not, add files to newAssets to be uploaded
+      // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
-        const newAssetIds = await getExistingAssetIds(
-          assets.map((asset) => asset.assetId),
+        const newFileAssetIds = await getNewAssetIds(
+          fileAssets.map((asset) => asset.assetId),
         );
 
-        assets.forEach((asset) => {
-          if (newAssetIds.includes(asset.assetId)) {
+        fileAssets.forEach((asset) => {
+          if (newFileAssetIds.includes(asset.assetId)) {
             newAssets.push(asset);
           } else {
             existingAssetIds.push(asset.assetId);
+          }
+        });
+
+        const newApikeyAssetIds = await getNewAssetIds(
+          apikeyAssets.map((apiKey) => apiKey.assetId),
+        );
+
+        apikeyAssets.forEach((apiKey) => {
+          if (newApikeyAssetIds.includes(apiKey.assetId)) {
+            newApikeyAssets.push(apiKey);
+          } else {
+            existingAssetIds.push(apiKey.assetId);
           }
         });
       } catch (e) {
@@ -304,7 +318,7 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        newAssets: newAssetsWithCombinedMetadata,
+        newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
       });
 

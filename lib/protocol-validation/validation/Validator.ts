@@ -1,6 +1,7 @@
-import { type Protocol, type StageSubject } from '@codaco/shared-consts';
+import { type StageSubject } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { type ValidationError } from '..';
+import { Protocol } from '../schemas/src/8.zod';
 
 /**
  * See addValidation().
