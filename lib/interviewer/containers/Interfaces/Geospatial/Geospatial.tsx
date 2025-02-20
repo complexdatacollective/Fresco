@@ -216,14 +216,14 @@ export default function GeospatialInterface({
   // Update navigation button based on selection
   useEffect(() => {
     const readyForNext =
-      currentPrompt?.variable && stageNodes[navState.activeIndex]
-        ? !!(stageNodes[navState.activeIndex] as Record<string, unknown>)[
-            currentPrompt.variable
-          ]
+      stageNodes[navState.activeIndex]?.attributes?.[currentPrompt.variable!] &&
+      !isIntroduction
+        ? true
         : false;
     setIsReadyForNext(readyForNext);
   }, [
     currentPrompt.variable,
+    isIntroduction,
     navState.activeIndex,
     setIsReadyForNext,
     stageNodes,
