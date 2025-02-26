@@ -48,9 +48,17 @@ const ResetButton = () => {
             </Button>
             <Button
               disabled={isResetting}
-              onClick={() => {
+              onClick={async () => {
                 setIsResetting(true);
-                void resetAppSettings();
+                const result = await resetAppSettings();
+                if (result.error) {
+                  setIsResetting(false);
+                  // eslint-disable-next-line no-console
+                  console.log(result.error);
+                  alert(
+                    'Failed to reset app settings. See console for details.',
+                  );
+                }
               }}
               variant="destructive"
             >
