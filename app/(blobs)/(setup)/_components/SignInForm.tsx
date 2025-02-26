@@ -68,6 +68,8 @@ export const SignInForm = () => {
           error={errors.username?.message}
           className="w-full"
           {...register('username')}
+          autoCapitalize="none"
+          autoCorrect="off"
         />
       </div>
       <div className="mb-6 flex flex-wrap">

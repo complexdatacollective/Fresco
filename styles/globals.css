@@ -79,6 +79,9 @@
   --color-info: hsl(var(--info));
   --color-info-foreground: hsl(var(--info-foreground));
 
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
 
@@ -322,8 +325,8 @@
       calc(var(--kiwi-lightness) - var(--dark-mod));
 
     --neon-carrot-hue: 32;
-    --neon-carrot-saturation: 90%;
-    --neon-carrot-lightness: 55%;
+    --neon-carrot-saturation: 92%;
+    --neon-carrot-lightness: 52%;
     --neon-carrot: var(--neon-carrot-hue) var(--neon-carrot-saturation)
       var(--neon-carrot-lightness);
     --neon-carrot--dark: var(--neon-carrot-hue) var(--neon-carrot-saturation)
