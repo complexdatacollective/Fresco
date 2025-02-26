@@ -216,14 +216,14 @@ export default function GeospatialInterface({
   // Update navigation button based on selection
   useEffect(() => {
     const readyForNext =
-      currentPrompt?.variable && stageNodes[navState.activeIndex]
-        ? !!(stageNodes[navState.activeIndex] as Record<string, unknown>)[
-            currentPrompt.variable
-          ]
+      stageNodes[navState.activeIndex]?.attributes?.[currentPrompt.variable!] &&
+      !isIntroduction
+        ? true
         : false;
     setIsReadyForNext(readyForNext);
   }, [
     currentPrompt.variable,
+    isIntroduction,
     navState.activeIndex,
     setIsReadyForNext,
     stageNodes,
@@ -262,8 +262,11 @@ export default function GeospatialInterface({
         {initialSelectionValue === 'outside-selectable-areas' && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
             <div className="absolute inset-0 bg-[var(--nc-background)] opacity-75" />
-            <div className="relative z-20 flex flex-col items-center gap-4">
-              <h2>Outside Map Area Selected</h2>
+            <div className="relative z-20 flex w-1/3 flex-col items-center gap-6 text-center">
+              <h2>
+                You have indicated an area outside of the selectable map. If
+                this is correct, please select the down arrow to proceed.
+              </h2>
               <Button
                 size="small"
                 onClick={() => {
