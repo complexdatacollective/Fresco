@@ -23,7 +23,7 @@ export default async function Page() {
         Please redeploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <form action={resetAppSettings}>
+        <form action={void resetAppSettings}>
           <SubmitButton className="mt-6 max-w-[20rem]" type="submit">
             Dev mode: Reset Configuration
           </SubmitButton>
