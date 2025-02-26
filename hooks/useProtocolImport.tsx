@@ -130,7 +130,7 @@ export const useProtocolImport = () => {
                       ...validationResult.logicErrors,
                     ].map((validationError, i) => (
                       <li className="flex capitalize" key={i}>
-                        <XCircle className="mr-2 h-4 w-4 text-destructive" />
+                        <XCircle className="text-destructive mr-2 h-4 w-4" />
                         <span>
                           {validationError.message}{' '}
                           <span className="text-xs italic">
@@ -287,7 +287,7 @@ export const useProtocolImport = () => {
             assetId: asset.assetId,
             name: asset.name,
             type: asset.type,
-            url: uploadedAsset.url,
+            url: uploadedAsset.ufsUrl,
             size: uploadedAsset.size,
           };
         });
