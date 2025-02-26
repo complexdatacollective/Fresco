@@ -11,14 +11,19 @@ export const SignUpForm = () => {
   const {
     register,
     handleSubmit,
+    watch,
+    trigger,
     formState: { errors, isValid, isSubmitting },
   } = useZodForm({
     schema: createUserSchema,
+    mode: 'onTouched',
   });
 
   const onSubmit = async (data: unknown) => {
     await signup(data);
   };
+
+  const password = watch('password');
 
   return (
     <form
@@ -34,19 +39,35 @@ export const SignUpForm = () => {
           placeholder="username..."
           autoComplete="do-not-autofill"
           error={errors.username?.message}
-          {...register('username')}
+          {...register('username', {})}
         />
       </div>
       <div className="mb-6 flex flex-wrap">
         <Input
+          className="w-full"
           label="Password"
           hint="Your password must be at least 8 characters long, and contain at least one each of lowercase, uppercase, number and symbol characters."
           type="password"
           placeholder="******************"
           autoComplete="do-not-autofill"
           error={errors.password?.message}
-          {...register('password')}
+          {...register('password', {
+            onChange: () => trigger('password'),
+          })}
         />
+        {password && password.length > 0 && (
+          <Input
+            className="w-full"
+            label="Confirm password"
+            type="password"
+            placeholder="******************"
+            autoComplete="do-not-autofill"
+            error={errors.confirmPassword?.message}
+            {...register('confirmPassword', {
+              onChange: () => trigger('confirmPassword'),
+            })}
+          />
+        )}
       </div>
       <div className="flex flex-wrap justify-end">
         <Button disabled={isSubmitting || !isValid} type="submit">

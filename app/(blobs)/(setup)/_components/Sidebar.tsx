@@ -25,9 +25,9 @@ function OnboardSteps({ steps }: { steps: string[] }) {
         >
           <div
             className={cn(
-              'text-md flex h-10 w-10 items-center justify-center rounded-full border border-primary/[.06] font-bold',
+              'border-primary/[.06] flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold',
               index < currentStep - 1 &&
-                'border-teal-400 bg-success text-white',
+                'bg-success border-teal-400 text-white',
               index === currentStep - 1 &&
                 'border-primary bg-primary text-white',
             )}
@@ -39,7 +39,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
             )}
           </div>
           <div className="flex flex-col">
-            <Heading variant={'h4-all-caps'} className="m-0">
+            <Heading variant={'h4-all-caps'} className="m-0 text-xs">
               {step}
             </Heading>
           </div>
