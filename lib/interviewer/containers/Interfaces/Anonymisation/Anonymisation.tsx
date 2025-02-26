@@ -3,13 +3,13 @@ import { motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import validations from '~/lib/interviewer/utils/Validations';
-import { type AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
-import { type VariableValidation } from '~/lib/shared-consts';
+import type { AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
+import type { VariableValidation } from '~/lib/shared-consts';
 import { Button } from '~/lib/ui/components';
 import { Markdown, Text } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
-import { type BeforeNextFunction } from '../../ProtocolScreen';
-import { type StageProps } from '../../Stage';
+import type { BeforeNextFunction } from '../../ProtocolScreen';
+import type { StageProps } from '../../Stage';
 import { usePassphrase } from './usePassphrase';
 
 type ValidationKeys = keyof VariableValidation;
