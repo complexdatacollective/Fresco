@@ -27,7 +27,7 @@ function ConnectUploadThing() {
           to visit UploadThing. Create an app and copy and paste your API key
           below.
         </Paragraph>
-        <Alert variant="info" className="mt-4">
+        <Alert variant="info">
           <AlertTitle>Good to know:</AlertTitle>
           <AlertDescription>
             Your UploadThing account is unique to you, meaning that no one else
