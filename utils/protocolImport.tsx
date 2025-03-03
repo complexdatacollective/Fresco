@@ -72,7 +72,7 @@ export const getProtocolAssets = async (
           value: asset.value,
           size: 0,
           url: '',
-        };
+        } as AssetInsertType;
         apikeyAssets.push(apikeyAsset);
         return;
       }
