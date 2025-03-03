@@ -285,7 +285,7 @@ export default function GeospatialInterface({
           ref={mapContainerRef}
         />
 
-        <div className="z-5 absolute bottom-10 left-14">
+        <div className="absolute bottom-10 left-14 z-5">
           <ActionButton
             onClick={handleResetMapZoom}
             icon={<Locate />}
