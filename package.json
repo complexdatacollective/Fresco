@@ -15,7 +15,8 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
-    "load-test": "docker run -i grafana/k6 run - <load-test.js"
+    "load-test": "docker run -i grafana/k6 run - <load-test.js",
+    "test:e2e": "playwright test"
   },
   "pnpm": {
     "overrides": {
@@ -106,6 +107,7 @@
     "zod-form-data": "^2.0.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.1",
     "@prisma/client": "^6.4.1",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
