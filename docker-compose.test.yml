@@ -4,7 +4,7 @@ services:
     image: postgres:16-alpine
     restart: always
     ports:
-      - 5433:5432  # We keep the port mapping to avoid conflicts on the host
+      - 5433:5432  # Avoid conflicts with dev
     environment:
       - POSTGRES_PASSWORD=test_postgres_password
       - POSTGRES_USER=test_user
