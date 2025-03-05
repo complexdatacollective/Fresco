@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
     environment: 'jsdom',
+    exclude: ['**/e2e/**', '**/node_modules/**'], // e2e tests are handled by playwright
   },
 });
