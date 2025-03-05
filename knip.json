@@ -8,7 +8,9 @@
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "lib/ui/components/Sprites/ExportSprite.js",
     "utils/auth.ts",
-    "load-test.js"
+    "load-test.js",
+    "e2e/global.setup.ts",
+    "e2e/global.teardown.ts"
   ],
   "ignoreDependencies": [
     "server-only",
