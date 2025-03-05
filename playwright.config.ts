@@ -31,23 +31,23 @@ export default defineConfig({
       testMatch: /global\.teardown\.ts/,
     },
     {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['setup db'],
+      teardown: 'cleanup db',
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup db'],
       teardown: 'cleanup db',
     },
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    //   dependencies: ['setup db'],
-    //   teardown: 'cleanup db',
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    //   dependencies: ['setup db'],
-    //   teardown: 'cleanup db',
-    // },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup db'],
+      teardown: 'cleanup db',
+    },
   ],
 
   webServer: {
@@ -56,7 +56,7 @@ export default defineConfig({
     env: {
       // eslint-disable-next-line no-process-env
       UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN ?? '',
-    }
+    },
     // reuseExistingServer: !process.env.CI,
   },
 });
