@@ -9,7 +9,7 @@ const PORT = 3001; // run on port 3001 to avoid conflicts with dev
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: './e2e',
   fullyParallel: true,
   // forbidOnly: !!process.env.CI,
   // retries: process.env.CI ? 2 : 0,

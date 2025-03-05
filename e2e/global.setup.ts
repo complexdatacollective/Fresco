@@ -13,9 +13,10 @@ setup('create test database', () => {
   execSync('docker-compose -f docker-compose.test.yml up -d', { stdio: 'inherit' });
   
   // Optional: Wait for database to be ready
+  // eslint-disable-next-line no-console
   console.log('Waiting for database to be ready');
   execSync('sleep 5', { stdio: 'inherit' });
   
   // setup database and initialize
-  execSync('dotenv -e .env.local node ./setup-database.js && node ./initialize.js', { stdio: 'inherit' });
+  execSync('dotenv -e .env.test.local node ./setup-database.js && dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
 });
