@@ -300,7 +300,7 @@ export const useProtocolImport = () => {
             assetId: asset.assetId,
             name: asset.name,
             type: asset.type,
-            url: uploadedAsset.url,
+            url: uploadedAsset.ufsUrl,
             size: uploadedAsset.size,
           };
         });
