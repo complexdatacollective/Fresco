@@ -32,6 +32,8 @@ const config = {
     '*.test.*',
     'public',
     '.eslintrc.cjs',
+    'test-results',
+    'playwright-report'
   ],
   rules: {
     '@next/next/no-img-element': 'off',
