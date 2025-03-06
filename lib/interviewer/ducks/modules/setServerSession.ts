@@ -1,15 +1,13 @@
-import { type Protocol, type Prisma } from '@prisma/client';
-// import type { Protocol } from '@codaco/shared-consts';
-// import type { ServerSession } from '~/app/(interview)/interview/[interviewId]/page';
+import { type Prisma } from '@prisma/client';
 
 // temporarily declaring this type
 // Todo: check if you can import this type from anywhere
 type ServerSession = {
   id: string;
-  startTime: Date;
-  finishTime: Date | null;
-  exportTime: Date | null;
-  lastUpdated: Date;
+  startTime: string;
+  finishTime: string | null;
+  exportTime: string | null;
+  lastUpdated: string;
   network: Prisma.JsonValue;
   participantId: string;
   protocolId: string;
@@ -17,12 +15,24 @@ type ServerSession = {
   sessionMetadata?: Prisma.JsonValue;
 };
 
+type SerialisableProtocol = {
+  id: string;
+  name: string;
+  description: string | null;
+  hash: string;
+  schemaVersion: number;
+  stages: Prisma.JsonValue;
+  codebook: Prisma.JsonValue;
+  importedAt: string;
+  lastModified: string;
+};
+
 export const SET_SERVER_SESSION = 'INIT/SET_SERVER_SESSION';
 
 export type SetServerSessionAction = {
   type: typeof SET_SERVER_SESSION;
   payload: {
-    protocol: Protocol;
+    protocol: SerialisableProtocol;
     session: ServerSession;
   };
 };
