@@ -45,7 +45,7 @@
     ".next/types/**/*.ts",
     "eslint-local-rules/index.js",
     "actions/auth.ts",
-    "env.tjs"
+    "env.js", 
   ],
   "exclude": [
     "node_modules",

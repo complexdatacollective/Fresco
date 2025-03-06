@@ -1,11 +1,12 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { syncInterview } from '~/actions/interviews';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewById } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
+import { getBaseUrl } from '~/utils/getBaseUrl';
 import InterviewShell from '../_components/InterviewShell';
+
+export const dynamic = 'force-dynamic';
 
 export default async function Page({
   params,
@@ -18,7 +19,15 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const interview = await getInterviewById(interviewId);
+  const fetchInterview = await fetch(
+    `${getBaseUrl()}/interview/${interviewId}/fetch`,
+    {
+      cache: 'no-store',
+    },
+  );
+
+  const { result: interview } = await fetchInterview.json();
+
   const session = await getServerSession();
 
   // If the interview is not found, redirect to the 404 page
@@ -43,7 +52,7 @@ export default async function Page({
   return (
     <>
       {session && <FeedbackBanner />}
-      <InterviewShell interview={interview} syncInterview={syncInterview} />
+      <InterviewShell serverPayload={interview} />
     </>
   );
 }

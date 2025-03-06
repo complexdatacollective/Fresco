@@ -6,7 +6,6 @@ type StaticTag =
   | 'getInterviews'
   | 'summaryStatistics'
   | 'getParticipants'
-  | 'getInterviewById'
   | 'getProtocols'
   | 'getInterviewsForExport'
   | 'getProtocolsByHash'

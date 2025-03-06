@@ -1,10 +1,9 @@
-import getQuery from '~/lib/network-query/query';
-import { getProtocolStages } from './protocol';
-import { getNetwork } from './network';
-import { SkipLogicAction } from '../protocol-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import type { NcNetwork, SkipDefinition, Stage } from '@codaco/shared-consts';
-import { getStageIndex } from './session';
+import getQuery from '~/lib/network-query/query';
+import type { NcNetwork, SkipDefinition, Stage } from '~/lib/shared-consts';
+import { SkipLogicAction } from '../protocol-consts';
+import { getProtocolStages } from './protocol';
+import { getNetwork, getStageIndex } from './session';
 
 const formatQueryParameters = (params: Record<string, unknown>) => ({
   rules: [],
@@ -50,7 +49,10 @@ export const getNavigableStages = createSelector(
   getSkipMap,
   getStageIndex,
   (skipMap, currentStep) => {
-    const isCurrentStepValid = !skipMap[currentStep];
+    // To determine if the current step is valid, we check if it is not skipped,
+    // and that it is within the bounds of the skipMap.
+    const isCurrentStepValid =
+      !skipMap[currentStep] && skipMap[currentStep] !== undefined;
 
     const nextStage = Object.keys(skipMap).find(
       (stage) =>

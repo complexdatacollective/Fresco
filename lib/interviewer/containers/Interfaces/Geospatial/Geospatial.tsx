@@ -1,9 +1,4 @@
 import type { Protocol } from '@codaco/protocol-validation';
-import {
-  entityPrimaryKeyProperty,
-  type NcNode,
-  type Stage,
-} from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -14,12 +9,17 @@ import { type ThunkDispatch } from 'redux-thunk';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
-import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
+import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
+import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { getNetworkNodesForType } from '~/lib/interviewer/selectors/interface';
-import { getAssetUrlFromId } from '~/lib/interviewer/selectors/protocol';
+import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
+import {
+  entityPrimaryKeyProperty,
+  type NcNode,
+  type Stage,
+} from '~/lib/shared-consts';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
 import Markdown from '~/lib/ui/components/Fields/Markdown';
@@ -98,9 +98,8 @@ export default function GeospatialInterface({
     (
       nodeId: string,
       newModelData: Record<string, unknown>,
-      newAttributes: Record<string, unknown>,
-    ) =>
-      dispatch(sessionActions.updateNode(nodeId, newModelData, newAttributes)),
+      newAttributeData: Record<string, unknown>,
+    ) => dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
     [dispatch],
   );
 
