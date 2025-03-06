@@ -197,7 +197,7 @@ export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
 );
 
 export const updateNode = createAction<{
-  nodeId: EntityPrimaryKey;
+  nodeId: NcNode[EntityPrimaryKey];
   newModelData: Record<string, unknown>;
   newAttributeData: Record<string, unknown>;
 }>(actionTypes.updateNode);

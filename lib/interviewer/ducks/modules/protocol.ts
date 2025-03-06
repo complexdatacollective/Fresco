@@ -26,6 +26,7 @@ const protocolSlice = createSlice({
 });
 
 // export selectors
-export const getProtocol = protocolSlice.selectors.getProtocol;
+export const { getProtocol, getAssetManifest, getAssetUrlFromId } =
+  protocolSlice.selectors;
 
 export default protocolSlice;

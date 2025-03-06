@@ -28,7 +28,7 @@ function ConfigureStudy() {
           the dashboard.
         </Paragraph>
         <ProtocolUploader
-          className="m-14 p-6"
+          className="m-10 p-8"
           buttonVariant="outline"
           buttonSize="lg"
           hideCancelButton

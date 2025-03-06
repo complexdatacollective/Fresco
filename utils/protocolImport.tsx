@@ -1,6 +1,6 @@
+import { type Protocol } from '@codaco/protocol-validation';
 import type Zip from 'jszip';
-import type { Protocol } from '~/lib/protocol-validation/schemas/src/8.zod';
-import type { AssetInsertType } from '~/schemas/protocol';
+import { type AssetInsertType } from '~/schemas/protocol';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
@@ -72,7 +72,7 @@ export const getProtocolAssets = async (
           value: asset.value,
           size: 0,
           url: '',
-        };
+        } as AssetInsertType;
         apikeyAssets.push(apikeyAsset);
         return;
       }

@@ -7,7 +7,7 @@ import Heading from './typography/Heading';
 import { paragraphVariants } from './typography/Paragraph';
 
 const alertVariants = cva(
-  'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
+  'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground gap-2 grid my-6',
   {
     variants: {
       variant: {
@@ -17,6 +17,8 @@ const alertVariants = cva(
           'bg-destructive/5 border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
         success:
           'bg-success/5 border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
+        warning:
+          'bg-warning/2 border-warning text-warning [--color-link:var(--color-warning)]',
       },
     },
     defaultVariants: {
