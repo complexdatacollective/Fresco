@@ -25,8 +25,9 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: Create .env file and run tests
         run: |
-          echo "POSTGRES_PRISMA_URL=${{ secrets.POSTGRES_PRISMA_URL }}" > .env
-          echo "POSTGRES_URL_NON_POOLING=${{ secrets.POSTGRES_URL_NON_POOLING }}" >> .env
-          echo "E2E_UPLOADTHING_TOKEN=${{ secrets.E2E_UPLOADTHING_TOKEN }}" >> .env
-          echo "DISABLE_ANALYTICS=true" >> .env
+          echo "POSTGRES_PRISMA_URL=${{ secrets.POSTGRES_PRISMA_URL }}" > /home/runner/work/Fresco/Fresco/.env
+          echo "POSTGRES_URL_NON_POOLING=${{ secrets.POSTGRES_URL_NON_POOLING }}" >> /home/runner/work/Fresco/Fresco/.env
+          echo "E2E_UPLOADTHING_TOKEN=${{ secrets.E2E_UPLOADTHING_TOKEN }}" >> /home/runner/work/Fresco/Fresco/.env
+          echo "DISABLE_ANALYTICS=true" >> /home/runner/work/Fresco/Fresco/.env
+          echo "INSTALLATION_ID"="e2e-ci" >> /home/runner/work/Fresco/Fresco/.env
           pnpm run test:e2e-ci
