@@ -21,7 +21,7 @@ test('create test database and setup app', async ({ page }) => {
   execSync('sleep 5', { stdio: 'inherit' });
   
   // setup database and initialize
-  execSync('dotenv -e .env.test.local node ./setup-database.js && dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
+  execSync('pnpm exec dotenv -e .env.test.local node ./setup-database.js && pnpm exec dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
 
   test.slow(); // triple the default timeout
   // STEP 1

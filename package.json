@@ -131,6 +131,7 @@
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.1.5",
     "eslint-config-prettier": "^10.0.1",
