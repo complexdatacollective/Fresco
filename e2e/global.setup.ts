@@ -1,12 +1,10 @@
 /* eslint-disable no-console */
 /* eslint-disable no-process-env */
 
+import { expect, test } from '@playwright/test';
 import { execSync } from 'child_process';
-import { expect, test } from './fixtures/uploadthing-mock'; // custom test fixture
 
 test('create test database and setup app', async ({ page }) => {
-  test.slow(); // triple the default timeout
-
   // Stop any existing test db to ensure clean state
   try { 
     execSync('docker-compose -f docker-compose.test.yml down -v', { stdio: 'inherit' });
@@ -25,6 +23,7 @@ test('create test database and setup app', async ({ page }) => {
   // setup database and initialize
   execSync('dotenv -e .env.test.local node ./setup-database.js && dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
 
+  test.slow(); // triple the default timeout
   // STEP 1
   await page.goto("/setup");
   await page.fill('input[name="username"]', 'test-user', { timeout: 5000 });
@@ -35,23 +34,17 @@ test('create test database and setup app', async ({ page }) => {
 
   // STEP 2
   // env var cannot be UPLOADTHING_TOKEN or this step will be skipped
-  // await page.fill('input[name="uploadThingToken"]', process.env.E2E_UPLOADTHING_TOKEN ?? '', { timeout: 5000 });
-  // Mock UploadThing token - we can use any value since API is mocked
-  await page.fill('input[name="uploadThingToken"]', 'mock-upload-thing-token', { timeout: 5000 });
-
+  await page.fill('input[name="uploadThingToken"]', process.env.E2E_UPLOADTHING_TOKEN ?? '', { timeout: 5000 });
   await page.click('button[type="submit"]', { timeout: 5000 });
   await expect(page).toHaveURL(/\/setup\?step=3/);
 
   // STEP 3
   const protocolHandle = page.locator('input[type="file"]');
   await protocolHandle.setInputFiles('e2e/files/SampleProtocol.netcanvas');
-  // screenshot
-  await page.screenshot({ path: 'e2e/screenshots/step3.png' });
   // check for uploading assets toast
-  // await expect(page.getByText('Uploading assets...')).toBeVisible({ timeout: 5000 });
-  // await expect(page.getByText('Uploading assets...')).not.toBeVisible({ timeout: 120000 }); // long process if assets are large
+  await expect(page.getByText('Uploading assets...')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText('Uploading assets...')).not.toBeVisible({ timeout: 120000 }); // long process if assets are large
   await expect(page.getByText('Complete...')).toBeVisible({ timeout: 60000 });
-  await page.screenshot({ path: 'e2e/screenshots/step3-complete.png' });
 
   await page.getByRole('button', { name: 'Continue' }).click({ timeout: 5000 });
 
