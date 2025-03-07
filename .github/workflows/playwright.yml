@@ -9,6 +9,7 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
+      SKIP_ENV_VALIDATION: true # skip so that it doesn't look for UPLOADTHING_TOKEN
       POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
       POSTGRES_URL_NON_POOLING: ${{ secrets.POSTGRES_URL_NON_POOLING }}
       E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
