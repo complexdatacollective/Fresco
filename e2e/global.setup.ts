@@ -7,13 +7,13 @@ import { execSync } from 'child_process';
 test('create test database and setup app', async ({ page }) => {
   // Stop any existing test db to ensure clean state
   try { 
-    execSync('docker-compose -f docker-compose.test.yml down -v', { stdio: 'inherit' });
+    execSync('docker compose -f docker-compose.test.yml down -v', { stdio: 'inherit' });
   } catch (error) {
     // Ignore errors if no existing container
   }
   
   // Start test db
-  execSync('docker-compose -f docker-compose.test.yml up -d', { stdio: 'inherit' });
+  execSync('docker compose -f docker-compose.test.yml up -d', { stdio: 'inherit' });
   
   // Optional: Wait for database to be ready
   // eslint-disable-next-line no-console

@@ -18,5 +18,5 @@ teardown('delete test database', async () => {
   });
 
   // Stop and remove test db
-  execSync('docker-compose -f docker-compose.test.yml down -v', { stdio: 'inherit' });
+  execSync('docker compose -f docker-compose.test.yml down -v', { stdio: 'inherit' });
 });
