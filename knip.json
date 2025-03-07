@@ -20,7 +20,8 @@
     "@tailwindcss/container-queries",
     "@tailwindcss/forms",
     "@tailwindcss/typography",
-    "tailwindcss-animate"
+    "tailwindcss-animate",
+    "dotenv-cli"
   ],
   "ignoreBinaries": ["docker-compose"]
 }

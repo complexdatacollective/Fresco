@@ -21,7 +21,12 @@ test('create test database and setup app', async ({ page }) => {
   execSync('sleep 5', { stdio: 'inherit' });
   
   // setup database and initialize
-  execSync('pnpm exec dotenv -e .env.test.local node ./setup-database.js && pnpm exec dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
+  if (process.env.CI) {
+    execSync('node ./setup-database.js && node ./initialize.js', { stdio: 'inherit' });
+  } else {
+    // local dev, need to use .env.test.local
+    execSync('pnpm exec dotenv -e .env.test.local node ./setup-database.js && pnpm exec dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
+  }
 
   test.slow(); // triple the default timeout
   // STEP 1

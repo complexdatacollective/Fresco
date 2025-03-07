@@ -2,7 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Load environment variables
 import dotenv from 'dotenv';
-dotenv.config({ path: './.env.test.local' });
+dotenv.config({
+  // eslint-disable-next-line no-process-env
+  path: process.env.CI ? './.env' : './.env.test.local'
+});
 
 const PORT = 3001; // run on port 3001 to avoid conflicts with dev
 
@@ -53,10 +56,6 @@ export default defineConfig({
   webServer: {
     command: 'NODE_ENV=test next start -p 3001',
     url: baseURL,
-    env: {
-      // eslint-disable-next-line no-process-env
-      UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN ?? '',
-    },
     // reuseExistingServer: !process.env.CI,
   },
 });
