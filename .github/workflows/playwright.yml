@@ -13,7 +13,6 @@ jobs:
       POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
       POSTGRES_URL_NON_POOLING: ${{ secrets.POSTGRES_URL_NON_POOLING }}
       E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
-      INSTALLATION_ID: 'e2e-ci'
 
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +23,10 @@ jobs:
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: pnpm run test:e2e-ci
+      - name: Create .env file and run tests
+        run: |
+          echo "POSTGRES_PRISMA_URL=${{ secrets.POSTGRES_PRISMA_URL }}" > .env
+          echo "POSTGRES_URL_NON_POOLING=${{ secrets.POSTGRES_URL_NON_POOLING }}" >> .env
+          echo "E2E_UPLOADTHING_TOKEN=${{ secrets.E2E_UPLOADTHING_TOKEN }}" >> .env
+          echo "DISABLE_ANALYTICS=true" >> .env
+          pnpm run test:e2e-ci
