@@ -20,3 +20,5 @@ jobs:
 
       - name: Run tests
         run: pnpm run test:e2e-ci
+        env:
+          UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
