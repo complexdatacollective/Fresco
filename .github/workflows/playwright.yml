@@ -23,6 +23,15 @@ jobs:
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
+      - name: Debug Environment Variables
+        run: |
+          echo "Checking environment variable formats:"
+          echo "POSTGRES_PRISMA_URL prefix: $(echo $POSTGRES_PRISMA_URL | cut -c1-15)..."
+          echo "POSTGRES_URL_NON_POOLING prefix: $(echo $POSTGRES_URL_NON_POOLING | cut -c1-15)..."
+          echo "E2E_UPLOADTHING_TOKEN exists: $(if [ -n "$E2E_UPLOADTHING_TOKEN" ]; then echo 'yes'; else echo 'no'; fi)"
+
+          echo "POSTGRES_PRISMA_URL starts with postgresql:// or postgres://: $(if [[ "$POSTGRES_PRISMA_URL" == postgresql://* || "$POSTGRES_PRISMA_URL" == postgres://* ]]; then echo 'yes'; else echo 'no'; fi)"
+          echo "POSTGRES_URL_NON_POOLING starts with postgresql:// or postgres://: $(if [[ "$POSTGRES_URL_NON_POOLING" == postgresql://* || "$POSTGRES_URL_NON_POOLING" == postgres://* ]]; then echo 'yes'; else echo 'no'; fi)"
       - name: Create .env file and run tests
         run: |
           touch .env
