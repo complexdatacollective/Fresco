@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SKIP_ENV_VALIDATION: true # skip so that it doesn't look for UPLOADTHING_TOKEN
-      POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
-      POSTGRES_URL_NON_POOLING: ${{ secrets.POSTGRES_URL_NON_POOLING }}
+      POSTGRES_PRISMA_URL: 'postgres://test_user:test_postgres_password@localhost:5433/test_db'
+      POSTGRES_URL_NON_POOLING: 'postgres://test_user:test_postgres_password@localhost:5433/test_db'
       E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
 
     steps:
@@ -35,9 +35,9 @@ jobs:
       - name: Create .env file and run tests
         run: |
           touch .env
-          echo "POSTGRES_PRISMA_URL=${{ secrets.POSTGRES_PRISMA_URL }}" >> .env
-          echo "POSTGRES_URL_NON_POOLING=${{ secrets.POSTGRES_URL_NON_POOLING }}" >> .env
-          echo "E2E_UPLOADTHING_TOKEN=${{ secrets.E2E_UPLOADTHING_TOKEN }}" >> .env
+          echo "POSTGRES_PRISMA_URL=${{ env.POSTGRES_PRISMA_URL }}" >> .env
+          echo "POSTGRES_URL_NON_POOLING=${{ env.POSTGRES_URL_NON_POOLING }}" >> .env
+          echo "E2E_UPLOADTHING_TOKEN=${{ env.E2E_UPLOADTHING_TOKEN }}" >> .env
           echo "DISABLE_ANALYTICS=true" >> .env
           echo "INSTALLATION_ID"="e2e-ci" >> .env
           pnpm run test:e2e-ci
