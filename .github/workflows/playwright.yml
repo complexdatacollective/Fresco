@@ -8,12 +8,6 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    env:
-      SKIP_ENV_VALIDATION: true # skip so that it doesn't look for UPLOADTHING_TOKEN
-      POSTGRES_PRISMA_URL: 'postgres://test_user:test_postgres_password@localhost:5433/test_db'
-      POSTGRES_URL_NON_POOLING: 'postgres://test_user:test_postgres_password@localhost:5433/test_db'
-      E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,21 +17,6 @@ jobs:
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - name: Debug Environment Variables
-        run: |
-          echo "Checking environment variable formats:"
-          echo "POSTGRES_PRISMA_URL prefix: $(echo $POSTGRES_PRISMA_URL | cut -c1-15)..."
-          echo "POSTGRES_URL_NON_POOLING prefix: $(echo $POSTGRES_URL_NON_POOLING | cut -c1-15)..."
-          echo "E2E_UPLOADTHING_TOKEN exists: $(if [ -n "$E2E_UPLOADTHING_TOKEN" ]; then echo 'yes'; else echo 'no'; fi)"
 
-          echo "POSTGRES_PRISMA_URL starts with postgresql:// or postgres://: $(if [[ "$POSTGRES_PRISMA_URL" == postgresql://* || "$POSTGRES_PRISMA_URL" == postgres://* ]]; then echo 'yes'; else echo 'no'; fi)"
-          echo "POSTGRES_URL_NON_POOLING starts with postgresql:// or postgres://: $(if [[ "$POSTGRES_URL_NON_POOLING" == postgresql://* || "$POSTGRES_URL_NON_POOLING" == postgres://* ]]; then echo 'yes'; else echo 'no'; fi)"
-      - name: Create .env file and run tests
-        run: |
-          touch .env
-          echo "POSTGRES_PRISMA_URL=${{ env.POSTGRES_PRISMA_URL }}" >> .env
-          echo "POSTGRES_URL_NON_POOLING=${{ env.POSTGRES_URL_NON_POOLING }}" >> .env
-          echo "E2E_UPLOADTHING_TOKEN=${{ env.E2E_UPLOADTHING_TOKEN }}" >> .env
-          echo "DISABLE_ANALYTICS=true" >> .env
-          echo "INSTALLATION_ID"="e2e-ci" >> .env
-          pnpm run test:e2e-ci
+      - name: Run tests
+        run: pnpm run test:e2e-ci

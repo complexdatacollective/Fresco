@@ -2,14 +2,24 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Load environment variables
 import dotenv from 'dotenv';
+// const CI = process.env.CI;
+const CI = true;
 dotenv.config({
-  // eslint-disable-next-line no-process-env
-  path: process.env.CI ? './.env' : './.env.test.local'
+  path: CI ? './.env' : './.env.test.local'
 });
 
 const PORT = 3001; // run on port 3001 to avoid conflicts with dev
 
-const baseURL = `http://localhost:${PORT}`;
+const baseURL = CI
+  ? "https://fresco-sandbox-git-e2e-testing-network-canvas-f4790d84.vercel.app/"
+  : `http://localhost:${PORT}`;
+
+const webServer = CI ?
+undefined : {
+  command: `NODE_ENV=test next start -p ${PORT}`,
+  url: baseURL,
+  reuseExistingServer: true
+};
 
 export default defineConfig({
   testDir: './e2e',
@@ -53,9 +63,5 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: 'NODE_ENV=test next start -p 3001',
-    url: baseURL,
-    // reuseExistingServer: !process.env.CI,
-  },
+  webServer,
 });

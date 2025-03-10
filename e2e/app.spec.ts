@@ -10,9 +10,9 @@ test('should sign in', async ({ page }) => {
   await expect(page).toHaveURL(/\/signin/);
 
   // sign in using credentials
-  await page.fill('input[name="username"]', 'test-user', { timeout: 5000 });
-  await page.fill('input[name="password"]', 'TestUser1!', { timeout: 5000 });
-  await page.click('button[type="submit"]', { timeout: 10000 });
+  await page.fill('input[name="username"]', 'admin');
+  await page.fill('input[name="password"]', 'Administrator1!');
+  await page.click('button[type="submit"]');
 
-  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 });
