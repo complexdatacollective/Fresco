@@ -149,7 +149,7 @@ test('create test database and setup app', async ({ page }) => {
   console.log('✅ Step 4 completed: participants imported and settings toggled');
 
   // STEP 5 - documentation
-  await page.getByRole('button', { name: 'Go to the dashboard!' }).click({ timeout: 20000 });
-  await expect(page).toHaveURL(/\/dashboard/);
+  await page.getByRole('button', { name: 'Go to the dashboard!' }).click({ timeout: 10000 });
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
   console.log('✅ Setup completed: dashboard reached');
 });
