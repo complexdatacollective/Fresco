@@ -16,7 +16,7 @@ async function setInitializedAt() {
   });
 
   if (initializedAt) {
-    console.log('App already initialized. Skipping.');
+    console.log(`App already initialized at ${initializedAt}. Skipping.`);
     return;
   }
 
