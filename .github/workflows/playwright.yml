@@ -1,13 +1,11 @@
 name: Playwright Tests
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  deployment_status:
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'deployment_status' && startsWith(github.event.deployment_status.environment, 'preview') && github.event.deployment_status.state == 'success' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,3 +20,4 @@ jobs:
         run: pnpm run test:e2e-ci
         env:
           UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}

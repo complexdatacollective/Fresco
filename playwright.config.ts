@@ -11,7 +11,8 @@ dotenv.config({
 const PORT = 3001; // run on port 3001 to avoid conflicts with dev
 
 const baseURL = CI
-  ? "https://fresco-sandbox-git-e2e-testing-network-canvas-f4790d84.vercel.app/"
+  // eslint-disable-next-line no-process-env
+  ? process.env.BASE_URL
   : `http://localhost:${PORT}`;
 
 const webServer = CI ?
