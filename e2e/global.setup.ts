@@ -51,41 +51,6 @@ test('create test database and setup app', async ({ page }) => {
 
     console.log('✅ Reset app data with settings button')
 
-    // try {
-    //   console.log('🗑️ Deleting uploaded files from uploadthing');
-
-    //   const utapi = new UTApi({
-    //     token: process.env.UPLOADTHING_TOKEN,
-    //   });
-  
-    //   await utapi.listFiles({}).then(({ files }) => {
-    //     const keys = files.map((file) => file.key);
-    //     return utapi.deleteFiles(keys);
-    //   });
-
-    //   console.log('🗑️ Deleting all data from database');
-    //     // Delete all data:
-    //     await prisma.events.deleteMany();
-    //     await prisma.asset.deleteMany();
-    //     await prisma.participant.deleteMany();
-    //     await prisma.protocol.deleteMany(); // This will cascade to Interviews
-    //     await prisma.user.deleteMany(); // This will cascade to Session and Key
-    //     await prisma.appSettings.deleteMany();
-
-    //     // add a new initializedAt date
-    //     await prisma.appSettings.create({
-    //       data: {
-    //         key: 'initializedAt',
-    //         value: new Date().toISOString(),
-    //       },
-    //     });
-
-    //     const response = await page.request.get('/reset');
-    //     console.log('Cache reset response status:', response.status());
-    //     console.log('✅ Reset successful'); 
-    //   } catch (error) {
-    //     console.error('❌ Failed to reset appSettings', error);
-    //   }
   }
 
   // STEP 1

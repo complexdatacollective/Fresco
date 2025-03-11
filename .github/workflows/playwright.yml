@@ -15,10 +15,6 @@ jobs:
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - name: Get deployment preview URL
-        run: |
-          echo "Deployment Preview URL: ${{ github.event.deployment_status.environment_url }}"
-
       - name: Run tests
         run: pnpm run test:e2e-ci
         env:
