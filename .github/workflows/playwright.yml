@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers (Webkit, Chromium, Firefox)
-        run: pnpm exec playwright install webkit chromium firefox
+        run: pnpm exec playwright install webkit chromium firefox --with-deps
       - name: Run tests
         run: pnpm run test:e2e-ci
         env:
