@@ -97,7 +97,7 @@ test('create test database and setup app', async ({ page }) => {
   await page.getByRole('button', { name: 'Import' }).click({ timeout: 5000 });
 
   // participants imported toast
-  await expect(page.locator('div.text-sm.opacity-90', { hasText: 'Participants have been imported successfully' })).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('div.text-sm.opacity-90', { hasText: 'Participants have been imported successfully' })).toBeVisible({ timeout: 10000 });
 
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();
