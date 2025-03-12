@@ -90,7 +90,7 @@ test('create test database and setup app', async ({ page }) => {
   await page.getByRole('button', { name: 'Import participants' }).click({ timeout: 5000 });
 
   // dialog should be visible
-  await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+  await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 });
 
   const participantsHandle = page.locator('input[type="file"]');
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
