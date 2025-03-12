@@ -5,6 +5,7 @@ import { expect, test } from '@playwright/test';
 import { execSync } from 'child_process';
 
 test('create test database and setup app', async ({ page }) => {
+  console.log('Running setup test');
   test.slow(); // triple the default timeout
 
   // Stop any existing test db to ensure clean state
