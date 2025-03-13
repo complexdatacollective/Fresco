@@ -16,8 +16,8 @@
     "knip": "knip",
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
-    "test:e2e-dev": "rm -rf .next && NODE_ENV='test' next build && playwright test --trace on",
-    "test:e2e-ci": "playwright test"
+    "test:e2e-dev": "rm -rf .next && NODE_ENV='test' next build && playwright test --trace on --reporter=list",
+    "test:e2e-ci": "playwright test --reporter=list"
   },
   "pnpm": {
     "overrides": {

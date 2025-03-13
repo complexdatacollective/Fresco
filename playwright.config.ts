@@ -2,8 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Load environment variables
 import dotenv from 'dotenv';
-// const CI = process.env.CI;
-const CI = true;
+// eslint-disable-next-line no-process-env
+const CI = process.env.CI;
 dotenv.config({
   path: CI ? './.env' : './.env.test.local'
 });
@@ -14,6 +14,7 @@ const baseURL = CI
   // eslint-disable-next-line no-process-env
   ? process.env.BASE_URL
   : `http://localhost:${PORT}`;
+
 
 const webServer = CI ?
 undefined : {

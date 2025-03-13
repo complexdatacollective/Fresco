@@ -11,7 +11,7 @@ teardown('delete test database', async () => {
 
     const utapi = new UTApi({
       // TODO: figure out why we cannot use getUTApi here
-      token: process.env.UPLOADTHING_TOKEN,
+      token: process.env.E2E_UPLOADTHING_TOKEN,
     });
 
     await utapi.listFiles({}).then(({ files }) => {
