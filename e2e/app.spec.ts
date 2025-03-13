@@ -15,7 +15,11 @@ test('should sign in', async ({ page }) => {
   await page.click('button[type="submit"]');
 
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+
+  // check for ui issues
+  await expect(page).toHaveScreenshot();
+
   // eslint-disable-next-line no-console
   console.log('✅ Signed in successfully after setup');
-
 });
+
