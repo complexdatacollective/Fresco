@@ -6,6 +6,8 @@ import type {
   NcEdge,
   NcNetwork,
   NcNode,
+  ncSourceUUID,
+  ncTargetUUID,
   nodeExportIDProperty,
   protocolName,
   protocolProperty,
@@ -96,6 +98,8 @@ export type NodeWithResequencedID = NodeWithEgo & {
 };
 
 export type EdgeWithResequencedID = EdgeWithEgo & {
+  [ncSourceUUID]: string;
+  [ncTargetUUID]: string;
   [edgeExportIDProperty]: number;
 };
 

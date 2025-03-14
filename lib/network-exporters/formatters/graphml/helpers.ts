@@ -1,18 +1,12 @@
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
+import { type Document } from '@xmldom/xmldom';
+import { createHash } from 'crypto';
 import { isNil } from 'es-toolkit';
-import { getEntityAttributes } from '~/utils/general';
+import { getEntityAttributes } from '../../utils/general';
 
-// Gephi does not support long lines in graphML, meaning we need to "beautify" the output
-const formatXml = (xml, tab = '\t') => {
-  // tab = optional indent value, default is tab (\t)
-  let formatted = '';
-  let indent = '';
-
-  xml.split(/>\s*</).forEach((node) => {
-    if (node.match(/^\/\w/)) indent = indent.substring(tab.length); // decrease indent by one 'tab'
-    formatted += `${indent}<${node}>\r\n`;
-    if (node.match(/^<?\w[^>]*[^/]$/)) indent += tab; // increase indent
-  });
-  return formatted.substring(1, formatted.length - 3);
+// Utility sha1 function that returns hashed text
+export const sha1 = (text: string) => {
+  return createHash('sha1').update(text, 'utf8').digest('hex');
 };
 
 /**
@@ -28,7 +22,7 @@ const formatXml = (xml, tab = '\t') => {
  * @param {*} data
  * @param {*} key
  */
-const getGraphMLTypeForKey = (data, key) =>
+export const getGraphMLTypeForKey = (data: NcNode[] | NcEdge[], key: string) =>
   data.reduce((result, value) => {
     const attrs = getEntityAttributes(value);
     if (isNil(attrs[key])) return result;
@@ -49,18 +43,18 @@ const getGraphMLTypeForKey = (data, key) =>
     return 'string';
   }, '');
 
-const createElement = (xmlDoc, tagName, attrs = {}, child = null) => {
-  const element = xmlDoc.createElement(tagName);
-  Object.entries(attrs).forEach(([key, val]) => {
+export const createDataElement = (
+  xmlDoc: Document,
+  attributes: Record<string, string>,
+  text: string,
+) => {
+  const textNode = xmlDoc.createTextNode(text);
+  const element = xmlDoc.createElement('data');
+  Object.entries(attributes).forEach(([key, val]) => {
     element.setAttribute(key, val);
   });
-  if (child) {
-    element.appendChild(child);
-  }
+
+  element.appendChild(textNode);
+
   return element;
 };
-
-const createDataElement = (xmlDoc, attributes, text) =>
-  createElement(xmlDoc, 'data', attributes, xmlDoc.createTextNode(text));
-
-export { createDataElement, formatXml, getGraphMLTypeForKey };

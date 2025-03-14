@@ -1,37 +1,111 @@
-import { entityAttributesProperty, type NcEntity } from '@codaco/shared-consts';
+import type { Codebook } from '@codaco/protocol-validation';
+import {
+  caseProperty,
+  entityAttributesProperty,
+  sessionProperty,
+  type NcEntity,
+} from '@codaco/shared-consts';
+import sanitizeFilename from 'sanitize-filename';
+import type { ExportFormat, SessionWithResequencedIDs } from './types';
 
 export const getEntityAttributes = (entity: NcEntity) =>
-  entity?.[entityAttributesProperty] || {};
+  entity?.[entityAttributesProperty] ?? {};
 
-export const random = (a = 1, b = 0) => {
-  const lower = Math.min(a, b);
-  const upper = Math.max(a, b);
-  return lower + Math.random() * (upper - lower);
+const escapeFilePart = (part: string) => part.replace(/\W/g, '');
+
+export const makeFilename = (
+  prefix: string,
+  entityName: string | undefined,
+  exportFormat: string,
+  extension: string,
+) => {
+  let name = prefix;
+  if (extension !== `.${exportFormat}`) {
+    name += name ? '_' : '';
+    name += exportFormat;
+  }
+  if (entityName) {
+    name += `_${escapeFilePart(entityName)}`;
+  }
+  return `${name}${extension}`;
 };
 
-export const randomInt = (a = 1, b = 0) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
+const extensions = {
+  graphml: '.graphml',
+  csv: '.csv',
 };
 
 /**
- * Formats a list of numbers into a human-readable string.
+ * Provide the appropriate file extension for the export type
+ * @param  {string} formatterType one of the `format`s
+ * @return {string}
  */
-export function formatNumberList(numbers: number[]): string {
-  // "1"
-  if (numbers.length === 1) {
-    return numbers[0]!.toString();
+
+export const getFileExtension = (formatterType: ExportFormat) => {
+  switch (formatterType) {
+    case 'graphml':
+      return extensions.graphml;
+    case 'adjacencyMatrix':
+    case 'edgeList':
+    case 'attributeList':
+    case 'ego':
+      return extensions.csv;
   }
+};
 
-  // "1 and 2"
-  if (numbers.length === 2) {
-    return numbers.join(' and ');
-  }
+/**
+ * Generate a filename prefix based on the session in the format:
+ * `{caseId}_{sessionId}`
+ */
+export const getFilePrefix = (session: SessionWithResequencedIDs) =>
+  sanitizeFilename(
+    `${session.sessionVariables[caseProperty]}_${session.sessionVariables[sessionProperty]}`,
+  );
 
-  // "1, 2, and 3"
-  const lastNumber = numbers.pop();
-  const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
+/**
+ * Given a codebook, an entity type, an entity, and an attribute key:
+ * retrieve the key value from the entity, via the codebook.
+ */
+const getVariableInfo = (
+  codebook: Codebook,
+  entity: 'node' | 'edge',
+  type: string,
+  key: string,
+) => codebook[entity]?.[type]?.variables?.[key];
 
-  return formattedList;
-}
+/**
+ * Ego version of getVariableInfo
+ */
+const getEgoVariableInfo = (codebook: Codebook, key: string) =>
+  codebook.ego?.variables?.[key];
+
+/**
+ * Retrieve a property of a variable from the codebook. For example, get the
+ * "name" of the variable with the key '123' for the node type 'person'.
+ *
+ * @param {*} codebook
+ * @param {*} entity node, edge, or ego
+ * @param {*} type entity 'type' (person, place, friend, etc.). not used for ego
+ * @param {*} key the key of the variable
+ * @param {*} variableAttribute property of the key value to return
+ */
+export const getCodebookEntityVariableProperty = <T = string>({
+  codebook,
+  entity,
+  type,
+  key,
+  attributeProperty,
+}: {
+  codebook: Codebook;
+  entity: 'node' | 'edge' | 'ego';
+  type?: string;
+  key: string;
+  attributeProperty: string;
+}): T | undefined => {
+  const variableInfo =
+    entity === 'ego'
+      ? getEgoVariableInfo(codebook, key)
+      : type && getVariableInfo(codebook, entity, type, key);
+
+  return variableInfo?.[attributeProperty as keyof typeof variableInfo];
+};
