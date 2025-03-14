@@ -1,10 +1,8 @@
+import type { Stage, Validation } from '@codaco/protocol-validation';
 import { Check } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import validations from '~/lib/interviewer/utils/Validations';
-import type { AnonymisationStage } from '~/lib/protocol-validation/schemas/src/8.zod';
-import type { VariableValidation } from '~/lib/shared-consts';
 import { Button } from '~/lib/ui/components';
 import { Markdown, Text } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
@@ -12,34 +10,8 @@ import type { BeforeNextFunction } from '../../ProtocolScreen';
 import type { StageProps } from '../../Stage';
 import { usePassphrase } from './usePassphrase';
 
-type ValidationKeys = keyof VariableValidation;
-
-export const getValidationFunction = (validation: VariableValidation) => {
-  const entries = Object.entries(validation) as [ValidationKeys, unknown][];
-
-  const result = entries.map(([type, parameters]) => {
-    if (Object.hasOwnProperty.call(validations, type)) {
-      return validations[type as keyof typeof validations](parameters);
-    }
-
-    return () => `Validation "${type}" not found`;
-  });
-
-  // Return a function that executes each function in results in sequence, until one of the functions returns a string
-  return (currentValue: unknown): string | undefined => {
-    for (const fn of result) {
-      const error = fn(currentValue) as string | undefined;
-      if (error) {
-        return error;
-      }
-
-      return undefined;
-    }
-  };
-};
-
 type AnonymisationProps = StageProps & {
-  stage: AnonymisationStage;
+  stage: Extract<Stage, { type: 'Anonymisation' }>;
 };
 
 type InputState = {
@@ -64,14 +36,14 @@ export default function Anonymisation(props: AnonymisationProps) {
   });
 
   const { updateReady } = useReadyForNextStage();
-  const { registerBeforeNext, stage } = props;
+  const {
+    registerBeforeNext,
+    stage: { introductionPanel, validation },
+  } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
-  const { passphraseValidation } = stage;
-
   const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async (direction) => {
+    (direction) => {
       // Allow backwards navigation always
       if (direction === 'backwards') {
         return true;
@@ -97,13 +69,23 @@ export default function Anonymisation(props: AnonymisationProps) {
     }
   }, [input1, input2, setPassphrase, updateReady]);
 
-  const validate = useMemo(
-    () =>
-      getValidationFunction({
-        required: 'You must enter a passphrase',
-        ...passphraseValidation,
-      }),
-    [passphraseValidation],
+  /**
+   * Function for validating the passphrase.
+   *
+   * Passphrase is always required, and may optionally have a min and max length
+   * specified in the protocol.
+   */
+  const validate = useCallback(
+    (value: string) => {
+      const stuff: Validation = {
+        required: true,
+        ...validation,
+      };
+
+      // TODO
+      return false;
+    },
+    [validation],
   );
 
   return (
@@ -121,7 +103,6 @@ export default function Anonymisation(props: AnonymisationProps) {
             opacity: 1,
             y: 0,
           }}
-          // Reduce the spring effect
           transition={{
             type: 'spring',
             damping: 15,
@@ -129,11 +110,9 @@ export default function Anonymisation(props: AnonymisationProps) {
           }}
         >
           <h1 className="mb-8 text-center text-balance">
-            This interview provides advanced privacy protection
+            {introductionPanel.title}
           </h1>
-          {props.stage.items.map((item) => {
-            return <Markdown key={item.id} label={item.content} />;
-          })}
+          <Markdown label={introductionPanel.text} />
           <div className="mt-8 text-center">
             {passphrase && (
               <p className="my-10 text-xl font-bold">
@@ -148,10 +127,7 @@ export default function Anonymisation(props: AnonymisationProps) {
                   input={{
                     name: 'passphrase-1',
                     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                      // validate
                       const isValid = validate(e.target.value);
-                      console.log(isValid);
-
                       setInput1({
                         ...input1,
                         value: e.target.value,
@@ -183,9 +159,7 @@ export default function Anonymisation(props: AnonymisationProps) {
                     input={{
                       name: 'passphrase-2',
                       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        // validate
                         const isValid = validate(e.target.value);
-                        console.log(isValid);
 
                         if (input1.value !== e.target.value) {
                           setInput2({

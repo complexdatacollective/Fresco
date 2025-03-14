@@ -1,5 +1,5 @@
+import { type NcNode } from '@codaco/shared-consts';
 import { useEffect, useState } from 'react';
-import { type NcNode } from '~/lib/shared-consts';
 import { getEntityAttributes } from '~/utils/general';
 import { useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';

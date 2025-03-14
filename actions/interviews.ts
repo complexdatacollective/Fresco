@@ -1,12 +1,12 @@
 'use server';
 
+import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
 import { type Interview } from '@prisma/client';
 import { cookies } from 'next/headers';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
 import { initialNetwork } from '~/lib/interviewer/ducks/modules/session';
-import { type RootState } from '~/lib/interviewer/store';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -18,11 +18,11 @@ import type {
   ExportReturn,
   FormattedSession,
 } from '~/lib/network-exporters/utils/types';
-import { type NcNetwork } from '~/lib/shared-consts';
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewsForExport,
   type GetInterviewByIdReturnType,
+  type GetInterviewsForExportReturnType,
 } from '~/queries/interviews';
 import type {
   CreateInterview,
@@ -91,22 +91,24 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
 };
 
 export type ProtocolWithAssets = Omit<
-  NonNullable<GetInterviewByIdReturnType>['protocol'],
+  NonNullable<Awaited<GetInterviewByIdReturnType>>['protocol'],
   'id'
 >;
+
+export type ExportedProtocol =
+  Awaited<GetInterviewsForExportReturnType>[number]['protocol'];
 
 export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   await requireApiAuth();
 
   const interviewsSessions = await getInterviewsForExport(interviewIds);
 
-  const protocolsMap = new Map<string, ProtocolWithAssets>();
+  const protocolsMap = new Map<string, ExportedProtocol>();
   interviewsSessions.forEach((session) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
 
-  const formattedProtocols: RootState['protocol'] =
-    Object.fromEntries(protocolsMap);
+  const formattedProtocols = Object.fromEntries(protocolsMap);
 
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
@@ -115,7 +117,7 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 
 export const exportSessions = async (
   formattedSessions: FormattedSession[],
-  formattedProtocols: RootState['installedProtocols'],
+  formattedProtocols: Record<string, ExportedProtocol>,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ): Promise<ExportReturn> => {

@@ -1,12 +1,12 @@
-import { invariant } from 'es-toolkit';
-import { useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { getCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import {
   entitySecureAttributesMeta,
   type NcNode,
   type VariableValue,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
+import { invariant } from 'es-toolkit';
+import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { getCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getEntityAttributes } from '~/utils/general';
 import { usePassphrase } from './usePassphrase';
 import { decryptData, UnauthorizedError } from './utils';

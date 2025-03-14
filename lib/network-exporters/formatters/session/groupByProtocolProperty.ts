@@ -1,5 +1,5 @@
+import { protocolProperty } from '@codaco/shared-consts';
 import { groupBy } from 'es-toolkit';
-import { protocolProperty } from '~/lib/shared-consts';
 import type {
   SessionWithNetworkEgo,
   SessionsByProtocol,

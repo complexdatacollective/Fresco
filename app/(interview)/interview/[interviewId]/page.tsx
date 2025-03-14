@@ -2,11 +2,22 @@ import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
+import { type GetInterviewByIdReturnType } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
 import { getBaseUrl } from '~/utils/getBaseUrl';
 import InterviewShell from '../_components/InterviewShell';
 
 export const dynamic = 'force-dynamic';
+
+async function fetchInterview(interviewId: string) {
+  const result = await fetch(`${getBaseUrl()}/interview/${interviewId}/fetch`, {
+    cache: 'no-store',
+  });
+
+  const interview = (await result.json()) as GetInterviewByIdReturnType;
+
+  return interview;
+}
 
 export default async function Page({
   params,
@@ -19,14 +30,7 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const fetchInterview = await fetch(
-    `${getBaseUrl()}/interview/${interviewId}/fetch`,
-    {
-      cache: 'no-store',
-    },
-  );
-
-  const { result: interview } = await fetchInterview.json();
+  const { result: interview } = await fetchInterview(interviewId);
 
   const session = await getServerSession();
 

@@ -1,5 +1,3 @@
-import { hash } from 'ohash';
-import { env } from '~/env';
 import {
   caseProperty,
   codebookHashProperty,
@@ -10,7 +8,9 @@ import {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
+import { hash } from 'ohash';
+import { env } from '~/env';
 import type { getInterviewsForExport } from '~/queries/interviews';
 import { type SessionVariables } from '../utils/types';
 
@@ -43,8 +43,9 @@ export const formatExportableSessions = (
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
       [codebookHashProperty]: hash(sessionProtocol.codebook),
-      [sessionStartTimeProperty]: session.startTime,
-      [sessionFinishTimeProperty]: session.finishTime ? session.finishTime : undefined,
+      [sessionStartTimeProperty]: session.startTime.toISOString(),
+      [sessionFinishTimeProperty]:
+        session.finishTime?.toISOString() ?? undefined,
       [sessionExportTimeProperty]: new Date().toISOString(),
       COMMIT_HASH: env.COMMIT_HASH!,
       APP_VERSION: env.APP_VERSION!,

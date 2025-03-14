@@ -1,5 +1,5 @@
+import type { Stage as TStage } from '@codaco/protocol-validation';
 import { type ElementType, memo } from 'react';
-import type { Stage as TStage } from '~/lib/shared-consts';
 import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';

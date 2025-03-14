@@ -42,9 +42,7 @@ export const useMapbox = ({
   } = mapOptions;
 
   // get token value from asset manifest, using id
-  const accessToken = useSelector(
-    makeGetApiKeyAssetValue(tokenAssetId),
-  ) as string;
+  const accessToken = useSelector(makeGetApiKeyAssetValue(tokenAssetId));
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({

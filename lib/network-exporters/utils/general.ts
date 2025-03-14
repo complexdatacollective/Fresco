@@ -1,10 +1,10 @@
-import sanitizeFilename from 'sanitize-filename';
 import {
   caseProperty,
   sessionProperty,
   type Codebook,
   type StageSubject,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
+import sanitizeFilename from 'sanitize-filename';
 import type { ExportFormat, SessionWithResequencedIDs } from './types';
 
 const escapeFilePart = (part: string) => part.replace(/\W/g, '');

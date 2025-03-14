@@ -1,3 +1,8 @@
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcEdge,
+} from '@codaco/shared-consts';
 import { type AnyAction } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,11 +17,6 @@ import {
   type StageMetadataEntry,
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcEdge,
-} from '~/lib/shared-consts';
 
 const matchEntry =
   (promptIndex: number, pair: Pair) =>

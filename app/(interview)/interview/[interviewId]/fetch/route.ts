@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { getInterviewById } from '~/queries/interviews';
 
 export async function GET(
@@ -10,9 +10,9 @@ export async function GET(
   const result = await getInterviewById(interviewId);
 
   if (!result) {
-    return NextResponse.json({
+    return Response.json({
       status: 404,
-      body: { error: 'Interview not found' },
+      body: { error: 'Interview not found', result: null },
     });
   }
 

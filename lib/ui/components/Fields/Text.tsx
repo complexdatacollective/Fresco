@@ -1,21 +1,9 @@
 import cx from 'classnames';
-import React, { memo, useId, useState } from 'react';
+import React, { type InputHTMLAttributes, memo, useId, useState } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-const TextInput = ({
-  input,
-  meta,
-  label,
-  placeholder = 'Enter some text...',
-  fieldLabel,
-  className = '',
-  type = 'text',
-  autoFocus = false,
-  hidden = false,
-  adornmentLeft,
-  adornmentRight,
-}: {
+export type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
   input: {
     name: string;
     value: string;
@@ -32,12 +20,23 @@ const TextInput = ({
   placeholder?: string;
   fieldLabel?: string;
   className?: string;
-  type?: 'text' | 'number' | 'search';
-  autoFocus?: boolean;
-  hidden?: boolean;
   adornmentLeft?: React.ReactNode;
   adornmentRight?: React.ReactNode;
-}) => {
+};
+
+const TextInput = ({
+  input,
+  meta,
+  label,
+  placeholder = 'Enter some text...',
+  fieldLabel,
+  className = '',
+  type = 'text',
+  autoFocus = false,
+  hidden = false,
+  adornmentLeft,
+  adornmentRight,
+}: TextInputProps) => {
   const id = useId();
   const [hasFocus, setFocus] = useState(false);
 

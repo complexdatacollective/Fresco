@@ -1,5 +1,5 @@
-import type { InstalledProtocols } from '~/lib/interviewer/store';
-import type { Codebook } from '~/lib/shared-consts';
+import { type Codebook } from '@codaco/protocol-validation';
+import { type ExportedProtocol } from '~/actions/interviews';
 import { getFilePrefix } from '../../utils/general';
 import type {
   ExportFormat,
@@ -11,7 +11,7 @@ import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
 
 export const generateOutputFiles =
-  (protocols: InstalledProtocols, exportOptions: ExportOptions) =>
+  (protocol: Record<string, ExportedProtocol>, exportOptions: ExportOptions) =>
   async (unifiedSessions: Record<string, SessionWithResequencedIDs[]>) => {
     const exportFormats = [
       ...(exportOptions.exportGraphML ? ['graphml'] : []),
@@ -20,11 +20,10 @@ export const generateOutputFiles =
 
     const exportPromises: Promise<ExportResult>[] = [];
 
-    Object.entries(unifiedSessions).forEach(([protocolId, sessions]) => {
+    Object.entries(unifiedSessions).forEach(([, sessions]) => {
       sessions.forEach((session) => {
         // Skip if sessions don't have required sessionVariables
 
-        const protocol = protocols[protocolId]!;
         const prefix = getFilePrefix(session);
 
         exportFormats.forEach((format) => {

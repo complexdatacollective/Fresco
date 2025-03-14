@@ -24,7 +24,7 @@ type direction = 'forwards' | 'backwards';
 
 export type BeforeNextFunction = (
   direction: direction,
-) => Promise<boolean | 'FORCE'>;
+) => Promise<boolean | 'FORCE'> | boolean | 'FORCE';
 
 const animationOptions: ValueAnimationTransition = {
   type: 'spring',
@@ -239,10 +239,10 @@ export default function ProtocolScreen() {
           key={currentStep}
           ref={scope}
           className="flex h-full w-full"
-          // initial="initial"
-          // animate="animate"
-          // variants={variants}
-          // custom={{ current: currentStep, previous: prevCurrentStep }}
+          initial="initial"
+          animate="animate"
+          variants={variants}
+          custom={{ current: currentStep, previous: prevCurrentStep }}
         >
           {stage && (
             <Stage

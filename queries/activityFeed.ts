@@ -1,7 +1,7 @@
 import { hash } from 'ohash';
 import 'server-only';
+import { type SearchParams } from '~/components/DataTable/types';
 import { createCachedFunction } from '~/lib/cache';
-import { type SearchParams } from '~/lib/data-table/types';
 import { prisma } from '~/utils/db';
 
 export const getActivities = (rawSearchParams: unknown) =>

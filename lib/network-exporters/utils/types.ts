@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import type {
   caseProperty,
   codebookHashProperty,
@@ -14,7 +13,8 @@ import type {
   sessionFinishTimeProperty,
   sessionProperty,
   sessionStartTimeProperty,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
+import { z } from 'zod';
 
 type NodeWithEgo = NcNode & {
   [egoProperty]: string;

@@ -1,6 +1,6 @@
+import { type NcNetwork } from '@codaco/shared-consts';
 import { type Participant, type Protocol } from '@prisma/client';
 import { z } from 'zod';
-import { type NcNetwork } from '~/lib/shared-consts';
 
 export type DeleteInterviews = {
   id: string;

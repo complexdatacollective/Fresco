@@ -6,10 +6,11 @@ type StaticTag =
   | 'getInterviews'
   | 'summaryStatistics'
   | 'getParticipants'
+  | 'getInterviewById'
   | 'getProtocols'
   | 'getInterviewsForExport'
   | 'getProtocolsByHash'
-  | 'getNewAssetIds'
+  | 'getExistingAssetIds'
   | 'interviewCount'
   | 'protocolCount'
   | 'participantCount';

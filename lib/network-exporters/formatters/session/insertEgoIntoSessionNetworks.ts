@@ -4,7 +4,7 @@
  * @returns The session network with the ego inserted into the nodes and edges.
  */
 
-import { egoProperty, entityPrimaryKeyProperty } from '~/lib/shared-consts';
+import { egoProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import type { FormattedSession } from '../../utils/types';
 
 const insertNetworkEgo = (session: FormattedSession) => ({

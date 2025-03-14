@@ -1,22 +1,22 @@
+import type {
+  Codebook,
+  NodeDefinition,
+  Stage,
+  StageSubject,
+} from '@codaco/protocol-validation';
+import {
+  entityAttributesProperty,
+  type NcNetwork,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection } from 'es-toolkit';
 import { filter, findKey, includes } from 'es-toolkit/compat';
 import customFilter from '~/lib/network-query/filter';
-import {
-  entityAttributesProperty,
-  type Codebook,
-  type FilterDefinition,
-  type NcNetwork,
-  type NcNode,
-  type NodeTypeDefinition,
-  type Stage,
-  type StageSubject,
-} from '~/lib/shared-consts';
 import { getEntityAttributes } from '~/utils/general';
+import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
 import { getStageSubject, getSubjectType, stagePromptIds } from './prop';
-import { getProtocolCodebook, getProtocolStages } from './protocol';
-import { createDeepEqualSelector } from './utils';
 
 export const getActiveSession = (state: RootState) => {
   return state.session;
@@ -35,11 +35,17 @@ export const getStageMetadata = createSelector(
 );
 
 export const getCurrentStage = createSelector(
-  getProtocolStages,
+  getStages,
   getStageIndex,
-  (stages: Stage[], currentStep) => {
+  (stages, currentStep) => {
     if (currentStep === null) return null;
-    return stages[currentStep];
+    const result = stages[currentStep];
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
   },
 );
 
@@ -56,10 +62,17 @@ export const getPromptIndex = createSelector(
   (session) => session?.promptIndex ?? 0,
 );
 
-export const getPrompts = createSelector(
-  getCurrentStage,
-  (stage) => stage?.prompts,
-);
+export const getPrompts = createSelector(getCurrentStage, (stage) => {
+  if (!stage) {
+    return null;
+  }
+
+  if ('prompts' in stage) {
+    return stage.prompts;
+  }
+
+  return null;
+});
 
 const getPromptCount = createSelector(
   getPrompts,
@@ -84,14 +97,11 @@ const getIsFirstStage = createSelector(
 
 const getIsLastStage = createSelector(
   getStageIndex,
-  getProtocolStages,
+  getStages,
   (currentStep, stages) => currentStep === stages.length - 1,
 );
 
-const getStageCount = createSelector(
-  getProtocolStages,
-  (stages) => stages.length,
-);
+const getStageCount = createSelector(getStages, (stages) => stages.length);
 
 const getSessionProgress = createSelector(
   getStageIndex,
@@ -176,7 +186,7 @@ export const getNetwork = createSelector(
 );
 
 const getPropStageFilter = (_: unknown, props: { stage: Stage }) =>
-  props?.stage?.filter ?? null;
+  props.stage.filter ?? null;
 
 type FilterFunction = (network: NcNetwork) => NcNetwork;
 
@@ -184,12 +194,12 @@ type FilterFunction = (network: NcNetwork) => NcNetwork;
 const getFilteredNetwork = createSelector(
   getNetwork,
   getPropStageFilter,
-  (network, nodeFilter: FilterDefinition | null) => {
+  (network, nodeFilter) => {
     if (!network) {
       return null;
     }
 
-    if (nodeFilter && typeof nodeFilter !== 'function') {
+    if (nodeFilter) {
       const filterFunction: FilterFunction = customFilter(nodeFilter);
       return filterFunction(network);
     }
@@ -219,16 +229,20 @@ export const getNetworkEdges = createSelector(
 );
 
 export const getNodeTypeDefinition = createSelector(
-  getProtocolCodebook,
+  getCodebook,
   getStageSubject,
-  (codebook: Codebook, { type }: StageSubject) => {
-    return codebook.node?.[type] ?? null;
+  (codebook, subject: StageSubject) => {
+    if (!subject || subject.entity === 'ego') {
+      return null;
+    }
+
+    return codebook.node?.[subject.type] ?? null;
   },
 );
 
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (
-  codebookForNodeType: NodeTypeDefinition,
+  codebookForNodeType: NodeDefinition,
   nodeAttributes: Record<string, unknown>,
 ): string => {
   // 1. In the codebook for the stage's subject, look for a variable with a name
@@ -253,7 +267,8 @@ export const labelLogic = (
 
   if (nodeVariableCalledName) {
     // cast to string
-    return toString(nodeVariableCalledName);
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    return String(nodeVariableCalledName);
   }
 
   // 3. Last resort!
@@ -262,7 +277,7 @@ export const labelLogic = (
 
 export const getNodeLabel = createSelector(
   getNodeTypeDefinition,
-  (nodeTypeDefinition: NodeTypeDefinition | null) => (node: NcNode) => {
+  (nodeTypeDefinition: NodeDefinition | null) => (node: NcNode) => {
     if (!nodeTypeDefinition) {
       return 'Node';
     }
@@ -277,9 +292,9 @@ const getType = (_: unknown, props: Record<string, string>) =>
   props.type ?? null;
 
 const getNodeColorSelector = createSelector(
-  getProtocolCodebook,
+  getCodebook,
   getType,
-  (codebook: Codebook, nodeType: string | null) => {
+  (codebook, nodeType) => {
     if (!nodeType) {
       return 'node-color-seq-1';
     }
@@ -293,13 +308,13 @@ export const getNodeColor = (nodeType: string) => (state: RootState) =>
   getNodeColorSelector(state, { type: nodeType });
 
 export const getNodeTypeLabel = (nodeType: string) => (state: RootState) => {
-  const codebook = getProtocolCodebook(state) as unknown as Codebook;
+  const codebook = getCodebook(state) as unknown as Codebook;
   return codebook.node?.[nodeType]?.name ?? '';
 };
 
 export const makeGetEdgeLabel = () =>
   createSelector(
-    getProtocolCodebook,
+    getCodebook,
     (_, props: Record<string, string>) => props.type ?? null,
     (codebook, edgeType: string | null) => {
       if (!edgeType) {
@@ -311,7 +326,7 @@ export const makeGetEdgeLabel = () =>
   );
 
 export const getEdgeColor = createSelector(
-  getProtocolCodebook,
+  getCodebook,
   (_, props: Record<string, string>) => props.type ?? null,
   (codebook, edgeType: string | null) => {
     if (!edgeType) {
@@ -327,8 +342,8 @@ export const getEdgeColor = createSelector(
 export const makeGetEdgeColor = () => getEdgeColor;
 
 export const makeGetNodeAttributeLabel = () =>
-  createDeepEqualSelector(
-    getProtocolCodebook,
+  createSelector(
+    getCodebook,
     getSubjectType,
     (_, props: Record<string, string>) => props.variableId ?? null,
     (codebook, subjectType: string | null, variableId: string | null) => {
@@ -344,7 +359,7 @@ export const makeGetNodeAttributeLabel = () =>
   );
 
 export const getCategoricalOptions = createSelector(
-  getProtocolCodebook,
+  getCodebook,
   getSubjectType,
   (_, props: Record<string, string>) => props.variableId ?? null,
   (codebook, subjectType: string | null, variableId: string | null) => {
@@ -352,10 +367,10 @@ export const getCategoricalOptions = createSelector(
       return [];
     }
 
-    return (
-      (codebook as Codebook).node?.[subjectType]?.variables?.[variableId]
-        ?.options ?? []
-    );
+    const variable = (codebook as Codebook).node?.[subjectType]?.variables?.[
+      variableId
+    ];
+    return variable && 'options' in variable ? variable.options : [];
   },
 );
 
@@ -369,7 +384,17 @@ export const makeGetCategoricalOptions = () => getCategoricalOptions;
 const getNetworkEdgesForType = createSelector(
   getNetworkEdges,
   getStageSubject,
-  (edges, subject) => filter(edges, ['type', subject.type]),
+  (edges, subject: StageSubject) => {
+    if (!subject || !edges) {
+      return [];
+    }
+
+    if (subject.entity === 'ego') {
+      return [];
+    }
+
+    filter(edges, ['type', subject.type]);
+  },
 );
 
 export const makeNetworkEdgesForType = () => getNetworkEdgesForType;
@@ -381,7 +406,7 @@ export const makeNetworkEdgesForType = () => getNetworkEdgesForType;
 export const getNetworkEntitiesForType = createSelector(
   getNetwork,
   getStageSubject,
-  (network, subject) => {
+  (network, subject: StageSubject) => {
     if (!subject || !network) {
       return [];
     }
@@ -398,7 +423,17 @@ export const getNetworkEntitiesForType = createSelector(
 export const getNetworkNodesForType = createSelector(
   getNetworkNodes,
   getStageSubject,
-  (nodes, subject) => filter(nodes, ['type', subject.type]),
+  (nodes, subject: StageSubject) => {
+    if (!subject || !nodes) {
+      return [];
+    }
+
+    if (subject.entity === 'ego') {
+      return [];
+    }
+
+    return filter(nodes, ['type', subject.type]);
+  },
 );
 
 export const makeNetworkNodesForType = () => getNetworkNodesForType;
@@ -406,19 +441,21 @@ export const makeNetworkNodesForType = () => getNetworkNodesForType;
 export const getStageNodeCount = createSelector(
   getNetworkNodesForType,
   stagePromptIds,
-  (nodes, promptIds) =>
-    filter(nodes, (node) => intersection(node.promptIDs, promptIds).length > 0)
-      .length,
+  (nodes, promptIds: string[]) =>
+    filter(
+      nodes,
+      (node) => intersection(node.promptIDs ?? [], promptIds).length > 0,
+    ).length,
 );
 
 export const makeGetStageNodeCount = () => {
   return createSelector(
     getNetworkNodesForType,
     stagePromptIds,
-    (nodes, promptIds) =>
+    (nodes, promptIds: string[]) =>
       filter(
         nodes,
-        (node) => intersection(node.promptIDs, promptIds).length > 0,
+        (node) => intersection(node.promptIDs ?? [], promptIds).length > 0,
       ).length,
   );
 };
@@ -431,7 +468,7 @@ export const getPromptId = createSelector(
       return null;
     }
 
-    return prompts[promptIndex].id ?? null;
+    return prompts[promptIndex]?.id ?? null;
   },
 );
 
@@ -439,7 +476,7 @@ export const getNetworkNodesForPrompt = createSelector(
   getNetworkNodesForType,
   getPromptId,
   (nodes, promptId) =>
-    filter(nodes, (node) => includes(node.promptIDs, promptId)),
+    filter(nodes, (node) => includes(node.promptIDs ?? [], promptId)),
 );
 
 /**
@@ -453,5 +490,5 @@ export const getNetworkNodesForOtherPrompts = createSelector(
   getNetworkNodesForType,
   getPromptId,
   (nodes, promptId) =>
-    filter(nodes, (node) => !includes(node.promptIDs, promptId)),
+    filter(nodes, (node) => !includes(node.promptIDs ?? [], promptId)),
 );

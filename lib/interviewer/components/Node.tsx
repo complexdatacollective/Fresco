@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/only-throw-error */
+import { type NcNode } from '@codaco/shared-consts';
 import { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColor } from '~/lib/interviewer/selectors/session';
-import { type NcNode } from '~/lib/shared-consts';
 import UINode from '~/lib/ui/components/Node';
 import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
 

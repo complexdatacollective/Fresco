@@ -1,4 +1,10 @@
 import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcNode,
+  type StageSubject,
+} from '@codaco/shared-consts';
+import {
   AnimatePresence,
   LayoutGroup,
   motion,
@@ -7,12 +13,6 @@ import {
 import { useEffect, useState } from 'react';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
-  type StageSubject,
-} from '~/lib/shared-consts';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { edgeExists, toggleEdge } from '../../ducks/modules/session';

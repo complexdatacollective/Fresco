@@ -1,7 +1,7 @@
+import { NcNetworkSchema } from '@codaco/shared-consts';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
-import { NcNetworkSchema } from '~/lib/shared-consts';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 

@@ -1,9 +1,9 @@
-import { v4 as uuid } from 'uuid';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcNetwork,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
+import { v4 as uuid } from 'uuid';
 
 // Initial network model structure
 export const initialState: NcNetwork = {

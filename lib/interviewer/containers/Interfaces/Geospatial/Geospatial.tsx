@@ -1,4 +1,5 @@
-import type { Protocol } from '@codaco/protocol-validation';
+import type { Protocol, Stage } from '@codaco/protocol-validation';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -15,11 +16,6 @@ import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
-import {
-  entityPrimaryKeyProperty,
-  type NcNode,
-  type Stage,
-} from '~/lib/shared-consts';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
 import Markdown from '~/lib/ui/components/Fields/Markdown';

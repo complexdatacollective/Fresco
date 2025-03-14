@@ -1,4 +1,8 @@
-import { type EntityAttributesProperty, type EntityTypeDefinition, type NcEntity } from "~/lib/shared-consts";
+import {
+  type EntityAttributesProperty,
+  type EntityTypeDefinition,
+  type NcEntity,
+} from '@codaco/shared-consts';
 
 /**
  * This function generates default values for all variables in the variable registry for this node

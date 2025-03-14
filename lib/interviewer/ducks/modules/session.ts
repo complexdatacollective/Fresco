@@ -1,12 +1,4 @@
 import {
-  createAction,
-  createAsyncThunk,
-  createReducer,
-} from '@reduxjs/toolkit';
-import { find, get, invariant } from 'es-toolkit/compat';
-import { v4 as uuid, v4 } from 'uuid';
-import { z } from 'zod';
-import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   entitySecureAttributesMeta,
@@ -15,7 +7,15 @@ import {
   type NcEdge,
   type NcNetwork,
   type NcNode,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
+import {
+  createAction,
+  createAsyncThunk,
+  createReducer,
+} from '@reduxjs/toolkit';
+import { find, get, invariant } from 'es-toolkit/compat';
+import { v4 as uuid, v4 } from 'uuid';
+import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
@@ -207,7 +207,7 @@ export const updateStage = createAction<number>(actionTypes.updateStage);
 
 export const toggleEdge = createAsyncThunk(
   actionTypes.toggleEdge,
-  (
+  async (
     props: {
       modelData: {
         from: NcNode[EntityPrimaryKey];

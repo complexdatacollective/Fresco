@@ -6,7 +6,7 @@ import {
   ncSourceUUID,
   ncTargetUUID,
   nodeExportIDProperty,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
 import type {
   SessionWithNetworkEgo,
   SessionWithResequencedIDs,

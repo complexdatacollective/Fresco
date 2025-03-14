@@ -1,6 +1,6 @@
+import type { NcNetwork, SkipDefinition, Stage } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import getQuery from '~/lib/network-query/query';
-import type { NcNetwork, SkipDefinition, Stage } from '~/lib/shared-consts';
 import { SkipLogicAction } from '../protocol-consts';
 import { getProtocolStages } from './protocol';
 import { getNetwork, getStageIndex } from './session';

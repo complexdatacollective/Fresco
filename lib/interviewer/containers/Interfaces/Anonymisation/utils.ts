@@ -3,7 +3,7 @@ import {
   type EntitySecureAttributesMeta,
   type NcNode,
   type VariableDefinition,
-} from '~/lib/shared-consts';
+} from '@codaco/shared-consts';
 
 export const SESSION_STORAGE_KEY = 'passphrase';
 
