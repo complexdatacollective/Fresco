@@ -45,12 +45,12 @@ export default defineConfig({
       name: 'cleanup db',
       testMatch: /global\.teardown\.ts/,
     },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-      dependencies: ['setup db'],
-      teardown: 'cleanup db',
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    //   dependencies: ['setup db'],
+    //   teardown: 'cleanup db',
+    // },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },

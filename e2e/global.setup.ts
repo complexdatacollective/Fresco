@@ -4,7 +4,9 @@
 import { expect, test } from '@playwright/test';
 import { execSync } from 'child_process';
 
-test('create test database and setup app', async ({ page }) => {
+test('create test database and setup app', async ({ playwright, page, baseURL }) => {
+  console.log('🚀 Starting setup test', baseURL);
+
   test.slow(); // triple the default timeout
 
   // Stop any existing test db to ensure clean state
@@ -27,7 +29,20 @@ test('create test database and setup app', async ({ page }) => {
     execSync('pnpm exec dotenv -e .env.test.local node ./setup-database.js && pnpm exec dotenv -e .env.test.local node ./initialize.js', { stdio: 'inherit' });
   } else {
     console.log('CI environment detected');
-    // we are in CI uiing the preview deployment
+    console.log('🚮 Clearing cache');
+    const requestContext = await playwright.request.newContext({
+      baseURL,
+    });
+    // Call the reset endpoint
+    try {
+      await requestContext.get('/reset');
+      console.log('✅ Application cache cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+    }
+
+    await requestContext.dispose();
+    // we are in CI using the preview deployment
     // sign in and reset database
     await page.goto("/");  // base url is set in playwright.config.ts
     await expect(page).toHaveURL(/\/signin/);
