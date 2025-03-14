@@ -16,10 +16,25 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run tests
+        id: run_playwright_tests
+        continue-on-error: true
         run: pnpm run test:e2e-ci
         env:
           UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
+      - name: Extract branch name
+        if: steps.run_playwright_tests.outcome == 'failure'
+        id: extract_branch
+        run: |
+          # Extract branch name from the deployment environment
+          # Assuming environment name format: preview-branchname
+          BRANCH_NAME=$(echo ${{ github.event.deployment_status.environment }} | sed 's/preview-//')
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+      - name: Delete Neon branch if tests fail
+        if: steps.run_playwright_tests.outcome == 'failure'
+        run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
