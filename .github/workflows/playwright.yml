@@ -26,13 +26,16 @@ jobs:
         if: steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
         run: |
-          # Extract branch name from the deployment environment
-          # Assuming environment name format: preview-branchname
-          BRANCH_NAME=$(echo ${{ github.event.deployment_status.environment }} | sed 's/preview-//')
+          # Get the branch name directly from GitHub context
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Install Neon CLI
+        if: steps.run_playwright_tests.outcome == 'failure'
+        run: npm i -g neonctl@latest
       - name: Delete Neon branch if tests fail
         if: steps.run_playwright_tests.outcome == 'failure'
-        run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
+        run: neonctl branches delete feature/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
       - uses: actions/upload-artifact@v4
