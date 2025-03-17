@@ -26,8 +26,7 @@ jobs:
         if: steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
         run: |
-          # Get the branch name directly from GitHub context
-          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          BRANCH_NAME="${{ github.event.deployment.ref }}"
           echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Install Neon CLI
