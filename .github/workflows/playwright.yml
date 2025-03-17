@@ -22,17 +22,25 @@ jobs:
         env:
           UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
-      - name: Debug deployment info
-        if: steps.run_playwright_tests.outcome == 'failure'
-        run: |
-          echo "Ref: ${{ github.ref }}"
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       - name: Extract branch name
         if: steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
         run: |
-          BRANCH_NAME="${{ github.event.deployment.ref }}"
-          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          COMMIT_SHA="${{ github.event.deployment.ref }}"
+          # Extract branch name that contains this commit
+          # This gets the branch name without 'origin/' prefix
+          BRANCH_NAME=$(git branch -r --contains ${COMMIT_SHA} | grep -v HEAD | head -n 1 | sed 's/origin\///' | xargs)
+
+          # If branch name contains special characters, clean it up for Neon
+          CLEAN_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')
+
+          # Debug output
+          echo "Commit SHA: ${COMMIT_SHA}"
+          echo "Found branch: ${BRANCH_NAME}"
+          echo "Clean branch name: ${CLEAN_BRANCH_NAME}"
+
+          # Set the output
+          echo "branch=${CLEAN_BRANCH_NAME}" >> $GITHUB_OUTPUT
 
       - name: Install Neon CLI
         if: steps.run_playwright_tests.outcome == 'failure'
