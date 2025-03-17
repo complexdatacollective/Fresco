@@ -15,7 +15,6 @@ const baseURL = CI
   ? process.env.BASE_URL
   : `http://localhost:${PORT}`;
 
-
 const webServer = CI ?
 undefined : {
   command: `NODE_ENV=test next start -p ${PORT}`,
