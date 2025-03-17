@@ -55,7 +55,7 @@
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "cmdk": "^1.0.4",
-    "color": "^2.0.1",
+    "color": "^5.0.0",
     "concaveman": "^1.2.1",
     "csvtojson": "^2.0.10",
     "d3-interpolate-path": "^2.3.0",
