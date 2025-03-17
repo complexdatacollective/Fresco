@@ -8,6 +8,8 @@ jobs:
     if: ${{ github.event_name == 'deployment_status' && startsWith(github.event.deployment_status.environment, 'preview') && github.event.deployment_status.state == 'success' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -27,17 +29,13 @@ jobs:
         id: extract_branch
         run: |
           COMMIT_SHA="${{ github.event.deployment.ref }}"
-          # Extract branch name that contains this commit
-          # This gets the branch name without 'origin/' prefix
-          BRANCH_NAME=$(git branch -r --contains ${COMMIT_SHA} | grep -v HEAD | head -n 1 | sed 's/origin\///' | xargs)
+          git fetch --all
 
-          # If branch name contains special characters, clean it up for Neon
-          CLEAN_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          BRANCH_NAME=$(git branch -r --contains ${COMMIT_SHA} | grep -v HEAD | head -n 1 | sed 's/origin\///' | xargs)
 
           # Debug output
           echo "Commit SHA: ${COMMIT_SHA}"
           echo "Found branch: ${BRANCH_NAME}"
-          echo "Clean branch name: ${CLEAN_BRANCH_NAME}"
 
           # Set the output
           echo "branch=${CLEAN_BRANCH_NAME}" >> $GITHUB_OUTPUT
@@ -47,7 +45,7 @@ jobs:
         run: npm i -g neonctl@latest
       - name: Delete Neon branch if tests fail
         if: steps.run_playwright_tests.outcome == 'failure'
-        run: neonctl branches delete feature/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
+        run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
       - uses: actions/upload-artifact@v4
