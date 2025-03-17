@@ -26,7 +26,7 @@ jobs:
         if: steps.run_playwright_tests.outcome == 'failure'
         run: |
           echo "Ref: ${{ github.ref }}"
-          run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       - name: Extract branch name
         if: steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
