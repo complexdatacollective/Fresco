@@ -25,13 +25,8 @@ jobs:
       - name: Debug deployment info
         if: steps.run_playwright_tests.outcome == 'failure'
         run: |
-          echo "Deployment Environment: ${{ github.event.deployment_status.environment }}"
-          echo "Deployment URL: ${{ github.event.deployment_status.environment_url }}"
-          echo "Deployment Ref: ${{ github.event.deployment.ref }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Event Name: ${{ github.event_name }}"
-          echo "Full Event:"
-          echo '${{ toJSON(github.event) }}'
+          echo "Ref: ${{ github.ref }}"
+          run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       - name: Extract branch name
         if: steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
