@@ -32,13 +32,7 @@ jobs:
           git fetch --all
 
           BRANCH_NAME=$(git branch -r --contains ${COMMIT_SHA} | grep -v HEAD | head -n 1 | sed 's/origin\///' | xargs)
-
-          # Debug output
-          echo "Commit SHA: ${COMMIT_SHA}"
-          echo "Found branch: ${BRANCH_NAME}"
-
-          # Set the output
-          echo "branch=${CLEAN_BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
       - name: Install Neon CLI
         if: steps.run_playwright_tests.outcome == 'failure'
