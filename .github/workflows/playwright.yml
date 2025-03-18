@@ -5,7 +5,6 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    continue-on-error: true
     if: ${{ github.event_name == 'deployment_status' && startsWith(github.event.deployment_status.environment, 'preview') && github.event.deployment_status.state == 'success' }}
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +24,7 @@ jobs:
           UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
       - name: Extract branch name
-        if: steps.run_playwright_tests.outcome == 'failure'
+        if: always() && steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
         run: |
           COMMIT_SHA="${{ github.event.deployment.ref }}"
@@ -35,7 +34,7 @@ jobs:
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
       - name: Install Neon CLI
-        if: steps.run_playwright_tests.outcome == 'failure'
+        if: always() && steps.run_playwright_tests.outcome == 'failure'
         run: npm i -g neonctl@latest
       - name: Delete Neon branch if tests fail
         if: steps.run_playwright_tests.outcome == 'failure'
