@@ -37,7 +37,7 @@ jobs:
         if: always() && steps.run_playwright_tests.outcome == 'failure'
         run: npm i -g neonctl@latest
       - name: Delete Neon branch if tests fail
-        if: steps.run_playwright_tests.outcome == 'failure'
+        if: always() && steps.run_playwright_tests.outcome == 'failure'
         run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
