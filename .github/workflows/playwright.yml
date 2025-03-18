@@ -5,6 +5,7 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: ${{ github.event_name == 'deployment_status' && startsWith(github.event.deployment_status.environment, 'preview') && github.event.deployment_status.state == 'success' }}
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +20,6 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run tests
         id: run_playwright_tests
-        continue-on-error: true
         run: pnpm run test:e2e-ci
         env:
           UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
