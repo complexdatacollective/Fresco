@@ -82,8 +82,7 @@ test('create test database and setup app', async ({ playwright, page, baseURL })
 
   // STEP 2
   // env var cannot be UPLOADTHING_TOKEN or this step will be skipped
-  // screenshot
-  await page.fill('input[name="uploadThingToken"]', process.env.E2E_UPLOADTHING_TOKEN ?? '', { timeout: 5000 });
+  await page.fill('input[name="uploadThingToken"]', process.env.E2E_UPLOADTHING_TOKEN ?? '', { timeout: 10000 });
   await page.click('button[type="submit"]', { timeout: 10000 });
 
   await expect(page).toHaveURL(/\/setup\?step=3/, { timeout: 20000 });

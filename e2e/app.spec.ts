@@ -1,25 +1,20 @@
 
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './fixtures/signIn';
 
+test('should visit protocols page ', async ({ page }) => {
 
-// app should be setup before this is run
-
-test('should sign in', async ({ page }) => {
-
-  await page.goto("/");  // base url is set in playwright.config.ts
-  await expect(page).toHaveURL(/\/signin/);
-
-  // sign in using credentials
-  await page.fill('input[name="username"]', 'admin');
-  await page.fill('input[name="password"]', 'Administrator1!');
-  await page.click('button[type="submit"]', { timeout: 10000 });
-
+  await page.goto("/");
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
-  // check for ui issues
-  // await expect(page).toHaveScreenshot();
+  // click "protocols" in the top navigation
+  await page.click('text=Protocols');
+  await expect(page).toHaveURL(/\/dashboard\/protocols/, { timeout: 10000 });
 
-  // eslint-disable-next-line no-console
-  console.log('✅ Signed in successfully after setup');
+  // check that our uploaded protocol is visible
+  await expect(page.locator('text=SampleProtocol.netcanvas')).toHaveText('SampleProtocol.netcanvas');
+
+  // validate screenshot
+  await expect(page).toHaveScreenshot('protocols-page.png');
 });
 
