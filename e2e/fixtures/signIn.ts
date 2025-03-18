@@ -34,6 +34,3 @@ export const test = base.extend<{ signIn: void }>({
     await use();
   }, { auto: true }],
 });
-
-export { expect };
-
