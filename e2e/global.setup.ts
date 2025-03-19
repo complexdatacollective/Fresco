@@ -3,7 +3,12 @@
 
 import { expect, test } from '@playwright/test';
 import { execSync } from 'child_process';
+import path from 'path';
 
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const authFile = path.join(__dirname, '../e2e/.auth/user.json');
 test('create test database and setup app', async ({ playwright, page, baseURL }) => {
   console.log('🚀 Starting setup test', baseURL);
 
@@ -132,4 +137,7 @@ test('create test database and setup app', async ({ playwright, page, baseURL })
   await page.getByRole('button', { name: 'Go to the dashboard!' }).click({ timeout: 10000 });
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
   console.log('✅ Setup completed: dashboard reached');
+
+  // save auth state for usage in other tests
+  await page.context().storageState({ path: authFile });
 });

@@ -25,9 +25,6 @@ undefined : {
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  // forbidOnly: !!process.env.CI,
-  // retries: process.env.CI ? 2 : 0,
-  // workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   
   use: {
@@ -52,13 +49,19 @@ export default defineConfig({
     // },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json',
+       },
       dependencies: ['setup db'],
       teardown: 'cleanup db',
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: 'e2e/.auth/user.json',
+      },
       dependencies: ['setup db'],
       teardown: 'cleanup db',
     },

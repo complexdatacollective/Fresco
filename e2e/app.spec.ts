@@ -1,5 +1,4 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures/signIn';
+import { expect, test } from '@playwright/test';
 
 // general app navigation tests
 test('should navigate to protocols page ', async ({ page }) => {
