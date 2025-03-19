@@ -1,8 +1,8 @@
+/* eslint-disable no-process-env */
 import { defineConfig, devices } from '@playwright/test';
 
 // Load environment variables
 import dotenv from 'dotenv';
-// eslint-disable-next-line no-process-env
 const CI = process.env.CI;
 dotenv.config({
   path: CI ? './.env' : './.env.test.local'
@@ -11,7 +11,6 @@ dotenv.config({
 const PORT = 3001; // run on port 3001 to avoid conflicts with dev
 
 const baseURL = CI
-  // eslint-disable-next-line no-process-env
   ? process.env.BASE_URL
   : `http://localhost:${PORT}`;
 
@@ -25,7 +24,7 @@ undefined : {
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  reporter: 'html',
+  reporter: process.env.CI ? 'github' : 'html',
   
   use: {
     baseURL,
