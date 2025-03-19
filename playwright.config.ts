@@ -45,15 +45,15 @@ export default defineConfig({
     //   dependencies: ['setup db'],
     //   teardown: 'cleanup db',
     // },
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/user.json',
-      },
-      dependencies: ['setup db'],
-      teardown: 'cleanup db',
-    },
+    // {
+    //   name: 'chromium',
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //     storageState: 'e2e/.auth/user.json',
+    //   },
+    //   dependencies: ['setup db'],
+    //   teardown: 'cleanup db',
+    // },
     {
       name: 'firefox',
       use: {
