@@ -1,0 +1,15 @@
+name: Clean up branched databases
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+      - run: npm i -g neonctl@latest
+      - name: Delete Neon Branch
+        run: neonctl branches delete preview/${{ github.event.pull_request.head.ref }} --project-id ${{ secrets.NEON_PROJECT_ID }}
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}

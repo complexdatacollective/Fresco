@@ -1,5 +1,4 @@
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { safeRevalidateTag } from '~/lib/cache';
 
 /**
@@ -16,12 +15,14 @@ import { safeRevalidateTag } from '~/lib/cache';
  * to the root of the app.
  */
 export function GET() {
-  revalidatePath('/');
+  revalidatePath('/', 'layout');
   safeRevalidateTag('appSettings');
   safeRevalidateTag('getInterviews');
   safeRevalidateTag('getParticipants');
   safeRevalidateTag('getProtocols');
   safeRevalidateTag('activityFeed');
 
-  redirect('/');
+  return new Response('All caches cleared successfully', {
+    status: 200,
+  });
 }
