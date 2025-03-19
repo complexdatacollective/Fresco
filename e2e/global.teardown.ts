@@ -4,8 +4,7 @@ import { test as teardown } from '@playwright/test';
 import { execSync } from 'child_process';
 import { UTApi } from 'uploadthing/server';
 
-teardown('delete test database', async ({playwright, baseURL}) => {
-
+teardown('delete test database', async ({ playwright, baseURL }) => {
   if (!process.env.CI) {
     // remove uploaded files from uploadthing
     // eslint-disable-next-line no-console
@@ -22,19 +21,21 @@ teardown('delete test database', async ({playwright, baseURL}) => {
     });
 
     // Stop and remove test db
-    execSync('docker compose -f docker-compose.test.yml down -v', { stdio: 'inherit' });
+    execSync('docker compose -f docker-compose.test.yml down -v', {
+      stdio: 'inherit',
+    });
   } else {
-      console.log('🚮 Clearing cache');
-      const requestContext = await playwright.request.newContext({
-        baseURL,
-      });
-      try {
-        await requestContext.get('/reset');
-        console.log('✅ Application cache cleared successfully');
-      } catch (error) {
-        console.error('Failed to clear cache:', error);
-      }
+    console.log('🚮 Clearing cache');
+    const requestContext = await playwright.request.newContext({
+      baseURL,
+    });
+    try {
+      await requestContext.get('/reset');
+      console.log('✅ Application cache cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+    }
 
-      await requestContext.dispose();
+    await requestContext.dispose();
   }
 });

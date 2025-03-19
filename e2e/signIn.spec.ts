@@ -4,12 +4,12 @@ import { expect, test } from '@playwright/test';
 // allows us to test the sign in page
 test.use({ storageState: { cookies: [], origins: [] } });
 test('should navigate to signin page ', async ({ page }) => {
-  await page.goto("/");
+  await page.goto('/');
   await expect(page).toHaveURL(/\/signin/, { timeout: 10000 });
 });
 
 test('should sign in and navigate to dashboard ', async ({ page }) => {
-  await page.goto("/");
+  await page.goto('/');
   await expect(page).toHaveURL(/\/signin/, { timeout: 10000 });
 
   await page.fill('input[name="username"]', 'admin');
