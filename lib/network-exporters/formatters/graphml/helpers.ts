@@ -149,26 +149,66 @@ export const sha1 = (text: string) => {
  * @param {*} data
  * @param {*} key
  */
-export const getGraphMLTypeForKey = (data: NcNode[] | NcEdge[], key: string) =>
-  data.reduce((result, value) => {
+
+type GraphMLKeyType =
+  | 'boolean'
+  | 'int'
+  | 'long'
+  | 'float'
+  | 'double'
+  | 'string';
+
+export const getGraphMLTypeForKey = (
+  data: NodeWithResequencedID[] | EdgeWithResequencedID[] | NcEgo[],
+  key: string,
+): GraphMLKeyType =>
+  data.reduce<GraphMLKeyType | null>((result, value) => {
     const attrs = getEntityAttributes(value);
     if (isNil(attrs[key])) return result;
-    let currentType = typeof attrs[key];
-    if (currentType === 'number') {
+
+    let currentType: GraphMLKeyType;
+
+    // Determine the type of the attribute value
+    if (typeof attrs[key] === 'boolean') {
+      currentType = 'boolean';
+    } else if (typeof attrs[key] === 'number') {
+      // For numbers, check if integer or floating point
       currentType = Number.isInteger(attrs[key]) ? 'int' : 'double';
-      if (result && currentType !== result) return 'double';
+      // If we already have double, keep it (can't downgrade)
+      if (result === 'double' && currentType === 'int') return 'double';
+    } else {
+      // Handle string representation of numbers
+      // Handle potential object values before stringifying
+      const attrVal = attrs[key];
+      const attrStr =
+        typeof attrVal === 'object' && attrVal !== null
+          ? JSON.stringify(attrVal)
+          : String(attrVal);
+      if (/^-?\d+$/.exec(attrStr)) {
+        // Integer pattern
+        currentType = 'int';
+        // If we already have double, keep it
+        if (result === 'double') return 'double';
+      } else if (/^-?\d+\.\d+$/.exec(attrStr)) {
+        // Float pattern
+        currentType = 'double';
+        // If we already have int, upgrade to double
+        if (result === 'int') return 'double';
+      } else {
+        // Default to string for everything else
+        currentType = 'string';
+      }
     }
-    if (String(Number.parseInt(attrs[key], 10)) === attrs[key]) {
-      currentType = 'int';
-      if (result === 'double') return 'double';
-    } else if (String(Number.parseFloat(attrs[key], 10)) === attrs[key]) {
-      currentType = 'double';
-      if (result === 'int') return 'double';
-    }
-    if (isNil(currentType)) return result;
-    if (currentType === result || result === '') return currentType;
+
+    // If result is null, return the current type
+    if (result === null) return currentType;
+
+    // If types match, keep that type
+    if (currentType === result) return currentType;
+
+    // Default to string when types don't match
     return 'string';
-  }, '');
+  }, null) ?? 'string'; // Default to string if no values are processed
 
 export const createDataElement = (
   attributes: Record<string, string>,

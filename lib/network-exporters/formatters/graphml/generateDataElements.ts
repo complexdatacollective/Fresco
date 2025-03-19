@@ -38,7 +38,6 @@ export default function getDataElementGenerator(
   return (
     entities: NodeWithResequencedID[] | EdgeWithResequencedID[] | NcEgo,
   ): DocumentFragment => {
-    const dom = new DOMImplementation().createDocument(null, 'root', null);
     const fragment = createDocumentFragment();
 
     const entityType = deriveEntityType(entities);
@@ -56,7 +55,6 @@ export default function getDataElementGenerator(
       entities.forEach((entity) => {
         const entityDataElements = generateDataElementsForEntity(
           entity,
-          entityType,
           codebook,
           exportOptions,
         );
