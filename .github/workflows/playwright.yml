@@ -21,7 +21,7 @@ jobs:
         id: run_playwright_tests
         run: pnpm run test:e2e-ci
         env:
-          UPLOADTHING_TOKEN: ${{ secrets.UPLOADTHING_TOKEN }}
+          E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
       - name: Extract branch name
         if: always() && steps.run_playwright_tests.outcome == 'failure'
