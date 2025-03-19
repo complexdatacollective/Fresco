@@ -1,11 +1,21 @@
 import type {
   Codebook,
-  VariablePropertyKey,
-  VariablePropertyValue,
+  EdgeDefinitionKeys,
+  EgoDefinitionKeys,
+  NodeDefinitionKeys,
 } from '@codaco/protocol-validation';
-import { caseProperty, sessionProperty } from '@codaco/shared-consts';
+import {
+  caseProperty,
+  entityAttributesProperty,
+  type NcEntity,
+  sessionProperty,
+} from '@codaco/shared-consts';
+import { get } from 'es-toolkit/compat';
 import sanitizeFilename from 'sanitize-filename';
 import type { ExportFormat, SessionWithResequencedIDs } from './types';
+
+export const getEntityAttributes = (entity: NcEntity) =>
+  entity?.[entityAttributesProperty] || {};
 
 const escapeFilePart = (part: string) => part.replace(/\W/g, '');
 
@@ -66,36 +76,37 @@ export const getFilePrefix = (session: SessionWithResequencedIDs) =>
  * @param {*} variableAttribute property of key to return
  */
 
-type BaseParams = {
-  codebook: Codebook;
-  key: string;
-  attributeProperty: VariablePropertyKey;
-};
-
-type NodeOrEdgeParams = BaseParams & {
-  entity: 'node' | 'edge';
-  type: string;
-};
-
-type EgoParams = BaseParams & {
-  entity: 'ego';
-  type?: never;
-};
-
 // Combined params type using a union
-type GetAttributeParams = NodeOrEdgeParams | EgoParams;
+type GetAttributeParams = {
+  codebook: Codebook;
+  entityType: 'node' | 'edge' | 'ego';
+  entityName?: string;
+  property?: NodeDefinitionKeys | EdgeDefinitionKeys | EgoDefinitionKeys;
+};
 
-export function getAttributePropertyFromCodebook(
-  params: GetAttributeParams,
-): VariablePropertyValue {
-  const { codebook, entity, key, attributeProperty } = params;
+export function getAttributePropertyFromCodebook(params: GetAttributeParams) {
+  const { codebook, entityType, property } = params;
 
-  if (entity === 'ego') {
-    const variable = codebook.ego?.variables?.[key];
-    return variable?.[attributeProperty as keyof typeof variable];
+  if (entityType === 'ego') {
+    if (!property) {
+      return codebook.ego;
+    }
+
+    return get(codebook.ego, property);
   }
 
-  const type = params.type;
-  const variable = codebook[entity]?.[type]?.variables?.[key];
-  return variable?.[attributeProperty as keyof typeof variable];
+  const { entityName } = params;
+
+  if (!entityName) {
+    throw new Error('Entity name is required for node or edge');
+  }
+
+  const entityDefinitions = get(codebook, entityType);
+  const thisEntity = get(entityDefinitions, entityName);
+
+  if (!property) {
+    return thisEntity;
+  }
+
+  return get(thisEntity, property);
 }

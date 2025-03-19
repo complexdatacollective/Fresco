@@ -1,37 +1,46 @@
-import type { Codebook } from '@codaco/protocol-validation';
+import { VariableTypes, type Codebook } from '@codaco/protocol-validation';
 import {
-  type NcEgo,
-  type NcNetwork,
+  entityAttributesProperty,
   ncSourceUUID,
   ncTargetUUID,
   ncTypeProperty,
   ncUUIDProperty,
+  type NcEgo,
 } from '@codaco/shared-consts';
-import { type Document } from '@xmldom/xmldom';
+import { DOMImplementation, type DocumentFragment } from '@xmldom/xmldom';
+import { get } from 'es-toolkit/compat';
 import {
-  getCodebookEntityVariableProperty,
-  getEntityAttributes,
-} from '../../utils/general';
-import { type ExportOptions } from '../../utils/types';
-import { getGraphMLTypeForKey, sha1 } from './helpers';
+  type EdgeWithResequencedID,
+  type ExportOptions,
+  type NodeWithResequencedID,
+} from '../../utils/types';
+import {
+  createDocumentFragment,
+  deriveEntityType,
+  getCodebookVariablesForEntity,
+  getGraphMLTypeForKey,
+  sha1,
+} from './helpers';
 
 // <key> elements provide the type definitions for GraphML data elements
 export default function getKeyElementGenerator(
-  document: Document,
   codebook: Codebook,
   exportOptions: ExportOptions,
 ) {
   return (
-    entities: NcNetwork['nodes'] | NcNetwork['edges'] | NcEgo[],
-    entityType: 'node' | 'edge' | 'ego',
-  ) => {
-    const fragment = document.createDocumentFragment();
+    entities: NodeWithResequencedID[] | EdgeWithResequencedID[] | NcEgo,
+  ): DocumentFragment => {
+    // Important to create the fragment on each invocation
+    const fragment = createDocumentFragment();
+    const dom = new DOMImplementation().createDocument(null, 'root', null);
 
-    // track variables we have already created <key>s for
-    const done = new Set();
+    // track variables we have already created <key>s for, so we don't duplicate
+    const done = new Set<string>();
 
-    if (entityType === 'node' && done.has('type') === false) {
-      const typeDataElement = document.createElement('key');
+    const entityType = deriveEntityType(entities);
+
+    if (entityType === 'node' && !done.has('type')) {
+      const typeDataElement = dom.createElement('key');
       typeDataElement.setAttribute('id', ncTypeProperty);
       typeDataElement.setAttribute('attr.name', ncTypeProperty);
       typeDataElement.setAttribute('attr.type', 'string');
@@ -41,8 +50,8 @@ export default function getKeyElementGenerator(
     }
 
     // Create a <key> for network canvas UUID.
-    if (entityType === 'node' && done.has('uuid') === false) {
-      const typeDataElement = document.createElement('key');
+    if (entityType === 'node' && !done.has('uuid')) {
+      const typeDataElement = dom.createElement('key');
       typeDataElement.setAttribute('id', ncUUIDProperty);
       typeDataElement.setAttribute('attr.name', ncUUIDProperty);
       typeDataElement.setAttribute('attr.type', 'string');
@@ -52,16 +61,16 @@ export default function getKeyElementGenerator(
     }
 
     // Create a <key> for `from` and `to` properties that reference network canvas UUIDs.
-    if (entityType === 'edge' && done.has('originalEdgeSource') === false) {
+    if (entityType === 'edge' && !done.has('originalEdgeSource')) {
       // Create <key> for type
-      const targetDataElement = document.createElement('key');
+      const targetDataElement = dom.createElement('key');
       targetDataElement.setAttribute('id', ncTargetUUID);
       targetDataElement.setAttribute('attr.name', ncTargetUUID);
       targetDataElement.setAttribute('attr.type', 'string');
       targetDataElement.setAttribute('for', 'edge');
       fragment.appendChild(targetDataElement);
 
-      const sourceDataElement = document.createElement('key');
+      const sourceDataElement = dom.createElement('key');
       sourceDataElement.setAttribute('id', ncSourceUUID);
       sourceDataElement.setAttribute('attr.name', ncSourceUUID);
       sourceDataElement.setAttribute('attr.type', 'string');
@@ -71,177 +80,193 @@ export default function getKeyElementGenerator(
       done.add('originalEdgeSource');
     }
 
-    // Main loop over entities
-    entities.forEach((entity) => {
-      const elementAttributes = getEntityAttributes(entity);
+    // Single item means ego
+    if (!Array.isArray(entities)) {
+      const entityKeys = generateKeysForEntity(
+        entities,
+        codebook,
+        exportOptions,
+        done,
+      );
 
-      // nodes and edges have for="node|edge" but ego has for="graph"
-      const keyTarget = entityType === 'ego' ? 'graph' : entityType;
+      fragment.appendChild(entityKeys);
+    } else {
+      // Main loop over entities
+      entities.forEach((entity) => {
+        const entityKeys = generateKeysForEntity(
+          entity,
+          codebook,
+          exportOptions,
+          done,
+        );
 
-      // Loop over attributes for this entity
-      Object.keys(elementAttributes).forEach((key) => {
-        // transpose ids to names based on codebook; fall back to the raw key
-        const keyName =
-          getCodebookEntityVariableProperty({
-            codebook,
-            entity: entityType,
-            type: entity.type,
-            key,
-            attributeProperty: 'name',
-          }) ?? key;
-
-        // Test if we have already created a key for this variable, and that it
-        // isn't on our exclude list.
-        if (done.has(key) === false) {
-          const keyElement = document.createElement('key');
-
-          // Determine variable type to decide how to encode it
-          const variableType = getCodebookEntityVariableProperty({
-            codebook,
-            entity: entityType,
-            type: entity.type,
-            key,
-            attributeProperty: 'type',
-          });
-
-          // <key> id must be xs:NMTOKEN: http://books.xmlschemata.org/relaxng/ch19-77231.html
-          // do not be tempted to change this to use the variable's name for this reason, as name
-          // is not validated against xs:NMTOKEN.
-          if (variableType) {
-            keyElement.setAttribute('id', key);
-          } else {
-            // If variableType is undefined, variable wasn't in the codebook (could be external data).
-            // This means that key might not be a UUID, so update the key ID to be SHA1 of variable
-            // name to ensure it is xs:NMTOKEN compliant
-            const hashedKeyName = sha1(key);
-            keyElement.setAttribute('id', hashedKeyName);
-          }
-
-          // Use human readable variable name for the attr.name attribute
-          keyElement.setAttribute('attr.name', keyName);
-
-          switch (variableType) {
-            case VariableType.boolean:
-              keyElement.setAttribute('attr.type', variableType);
-              break;
-            case VariableType.ordinal:
-            case VariableType.number: {
-              const keyType = getGraphMLTypeForKey(entities, key);
-              keyElement.setAttribute('attr.type', keyType || 'string');
-              break;
-            }
-            case VariableType.layout: {
-              // special handling for layout variables: split the variable into
-              // two <key> elements - one for X and one for Y.
-              keyElement.setAttribute('attr.name', `${keyName}_Y`);
-              keyElement.setAttribute('id', `${key}_Y`);
-              keyElement.setAttribute('attr.type', 'double');
-
-              // Create a second element to model the <key> for
-              // the X value
-              const keyElement2 = document.createElement('key');
-              keyElement2.setAttribute('id', `${key}_X`);
-              keyElement2.setAttribute('attr.name', `${keyName}_X`);
-              keyElement2.setAttribute('attr.type', 'double');
-              keyElement2.setAttribute('for', keyTarget);
-              fragment.appendChild(keyElement2);
-
-              if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
-                // Create a third element to model the <key> for
-                // the screen space Y value
-                const keyElement3 = document.createElement('key');
-                keyElement3.setAttribute('id', `${key}_screenSpaceY`);
-                keyElement3.setAttribute(
-                  'attr.name',
-                  `${keyName}_screenSpaceY`,
-                );
-                keyElement3.setAttribute('attr.type', 'double');
-                keyElement3.setAttribute('for', keyTarget);
-                fragment.appendChild(keyElement3);
-
-                // Create a fourth element to model the <key> for
-                // the screen space X value
-                const keyElement4 = document.createElement('key');
-                keyElement4.setAttribute('id', `${key}_screenSpaceX`);
-                keyElement4.setAttribute(
-                  'attr.name',
-                  `${keyName}_screenSpaceX`,
-                );
-                keyElement4.setAttribute('attr.type', 'double');
-                keyElement4.setAttribute('for', keyTarget);
-                fragment.appendChild(keyElement4);
-              }
-
-              break;
-            }
-            case VariableType.categorical: {
-              /*
-               * Special handling for categorical variables:
-               * Because categorical variables can have multiple membership, we
-               * split them out into several boolean variables
-               *
-               * Because key id must be an xs:NMTOKEN, we hash the option value.
-               */
-
-              // fetch options property for this variable
-              const options = getCodebookEntityVariableProperty<
-                {
-                  value: string;
-                  label: string;
-                }[]
-              >({
-                codebook,
-                entity: entityType,
-                type: entity.type,
-                key,
-                attributeProperty: 'options',
-              });
-
-              // If there are no options, we can't create keys for this variable
-              if (!options) {
-                return;
-              }
-
-              options.forEach((option, index) => {
-                // Hash the value to ensure that it is NKTOKEN compliant
-                const hashedOptionValue = sha1(option.value);
-
-                if (index === options.length - 1) {
-                  keyElement.setAttribute('id', `${key}_${hashedOptionValue}`);
-                  keyElement.setAttribute(
-                    'attr.name',
-                    `${keyName}_${option.value}`,
-                  );
-                  keyElement.setAttribute('attr.type', 'boolean');
-                } else {
-                  const keyElement2 = document.createElement('key');
-                  keyElement2.setAttribute('id', `${key}_${hashedOptionValue}`);
-                  keyElement2.setAttribute(
-                    'attr.name',
-                    `${keyName}_${option.value}`,
-                  );
-                  keyElement2.setAttribute('attr.type', 'boolean');
-                  keyElement2.setAttribute('for', keyTarget);
-                  fragment.appendChild(keyElement2);
-                }
-              });
-              break;
-            }
-            case VariableType.scalar:
-              keyElement.setAttribute('attr.type', 'float');
-              break;
-            case VariableType.text:
-            case VariableType.datetime:
-            default:
-              keyElement.setAttribute('attr.type', 'string');
-          }
-
-          keyElement.setAttribute('for', keyTarget);
-          fragment.appendChild(keyElement);
-          done.add(key);
-        }
+        fragment.appendChild(entityKeys);
       });
-    });
+    }
     return fragment;
   };
+}
+
+function generateKeysForEntity(
+  entity: NodeWithResequencedID | EdgeWithResequencedID | NcEgo,
+  codebook: Codebook,
+  exportOptions: ExportOptions,
+  done: Set<string>,
+): DocumentFragment {
+  const fragment = createDocumentFragment();
+  const dom = new DOMImplementation().createDocument(null, 'root', null);
+  const entityType = deriveEntityType(entity);
+
+  // nodes and edges have for="node|edge" but ego has for="graph"
+  const keyTarget = entityType === 'ego' ? 'graph' : entityType;
+
+  const elementAttributes = entity[entityAttributesProperty];
+
+  const codebookVariables = getCodebookVariablesForEntity(entity, codebook);
+
+  // Loop over attributes for this entity
+  Object.keys(elementAttributes).forEach((variableId) => {
+    const codebookVariable = codebookVariables[variableId];
+
+    // Test if we have already created a key for this variable, and that it
+    // isn't on our exclude list.
+    if (done.has(variableId) === false) {
+      const keyElement = dom.createElement('key');
+
+      // Determine variable type to decide how to encode it
+      const variableType = get(codebookVariable, 'type');
+
+      if (variableType) {
+        // <key> id must be xs:NMTOKEN: http://books.xmlschemata.org/relaxng/ch19-77231.html
+        // do not be tempted to change this to use the variable's name for this reason, as name
+        // is not validated against xs:NMTOKEN.
+        keyElement.setAttribute('id', variableId);
+      } else {
+        // If variableType is undefined, variable wasn't in the codebook (could be external data).
+        // This means that key might not be a UUID, so update the key ID to be SHA1 of variable
+        // name to ensure it is xs:NMTOKEN compliant
+        const hashedKeyName = sha1(variableId);
+        keyElement.setAttribute('id', hashedKeyName);
+      }
+
+      // transpose ids to names based on codebook; fall back to the raw key
+      const keyName = get(codebookVariable, 'name', variableId);
+      // Use human readable variable name for the attr.name attribute
+      keyElement.setAttribute('attr.name', keyName);
+
+      switch (variableType) {
+        case VariableTypes.boolean:
+          keyElement.setAttribute('attr.type', variableType);
+          break;
+        case VariableTypes.ordinal:
+        case VariableTypes.number: {
+          const keyType = getGraphMLTypeForKey(entities, variableId);
+          keyElement.setAttribute('attr.type', keyType || 'string');
+          break;
+        }
+        case VariableTypes.layout: {
+          // special handling for layout variables: split the variable into
+          // two <key> elements - one for X and one for Y.
+          keyElement.setAttribute('attr.name', `${keyName}_Y`);
+          keyElement.setAttribute('id', `${variableId}_Y`);
+          keyElement.setAttribute('attr.type', 'double');
+
+          // Create a second element to model the <key> for
+          // the X value
+          const keyElement2 = dom.createElement('key');
+          keyElement2.setAttribute('id', `${variableId}_X`);
+          keyElement2.setAttribute('attr.name', `${keyName}_X`);
+          keyElement2.setAttribute('attr.type', 'double');
+          keyElement2.setAttribute('for', keyTarget);
+          fragment.appendChild(keyElement2);
+
+          if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
+            // Create a third element to model the <key> for
+            // the screen space Y value
+            const keyElement3 = dom.createElement('key');
+            keyElement3.setAttribute('id', `${variableId}_screenSpaceY`);
+            keyElement3.setAttribute('attr.name', `${keyName}_screenSpaceY`);
+            keyElement3.setAttribute('attr.type', 'double');
+            keyElement3.setAttribute('for', keyTarget);
+            fragment.appendChild(keyElement3);
+
+            // Create a fourth element to model the <key> for
+            // the screen space X value
+            const keyElement4 = dom.createElement('key');
+            keyElement4.setAttribute('id', `${variableId}_screenSpaceX`);
+            keyElement4.setAttribute('attr.name', `${keyName}_screenSpaceX`);
+            keyElement4.setAttribute('attr.type', 'double');
+            keyElement4.setAttribute('for', keyTarget);
+            fragment.appendChild(keyElement4);
+          }
+
+          break;
+        }
+        case VariableTypes.categorical: {
+          /*
+           * Special handling for categorical variables:
+           * Because categorical variables can have multiple membership, we
+           * split them out into several boolean variables
+           *
+           * Because key id must be an xs:NMTOKEN, we hash the option value.
+           */
+
+          // fetch options property for this variable
+          const options = get(codebookVariable, 'options')! as {
+            value: string;
+            label: string;
+          }[];
+
+          // If there are no options, we can't create keys for this variable
+          if (!options) {
+            return;
+          }
+
+          options.forEach((option, index) => {
+            // Hash the value to ensure that it is NKTOKEN compliant
+            const hashedOptionValue = sha1(option.value);
+
+            if (index === options.length - 1) {
+              keyElement.setAttribute(
+                'id',
+                `${variableId}_${hashedOptionValue}`,
+              );
+              keyElement.setAttribute(
+                'attr.name',
+                `${keyName}_${option.value}`,
+              );
+              keyElement.setAttribute('attr.type', 'boolean');
+            } else {
+              const keyElement2 = dom.createElement('key');
+              keyElement2.setAttribute(
+                'id',
+                `${variableId}_${hashedOptionValue}`,
+              );
+              keyElement2.setAttribute(
+                'attr.name',
+                `${keyName}_${option.value}`,
+              );
+              keyElement2.setAttribute('attr.type', 'boolean');
+              keyElement2.setAttribute('for', keyTarget);
+              fragment.appendChild(keyElement2);
+            }
+          });
+          break;
+        }
+        case VariableTypes.scalar:
+          keyElement.setAttribute('attr.type', 'float');
+          break;
+        case VariableTypes.text:
+        case VariableTypes.datetime:
+        default:
+          keyElement.setAttribute('attr.type', 'string');
+      }
+
+      keyElement.setAttribute('for', keyTarget);
+      fragment.appendChild(keyElement);
+      done.add(variableId);
+    }
+  });
+
+  return fragment;
 }
