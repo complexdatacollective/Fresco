@@ -17,17 +17,19 @@ export const getAllVariableUUIDsByEntity = createSelector(
     >;
 
     // Nodes
-    Object.entries(nodeTypes).forEach(([nodeTypeIndex, nodeTypeDefinition]) => {
-      const nodeVariables = get(nodeTypeDefinition, 'variables', {});
+    Object.entries(nodeTypes ?? {}).forEach(
+      ([nodeTypeIndex, nodeTypeDefinition]) => {
+        const nodeVariables = get(nodeTypeDefinition, 'variables', {});
 
-      Object.entries(nodeVariables).forEach(([variableIndex, definition]) => {
-        variables[variableIndex] = {
-          entity: 'node',
-          entityType: nodeTypeIndex,
-          ...definition,
-        };
-      });
-    });
+        Object.entries(nodeVariables).forEach(([variableIndex, definition]) => {
+          variables[variableIndex] = {
+            entity: 'node',
+            entityType: nodeTypeIndex,
+            ...definition,
+          };
+        });
+      },
+    );
 
     // Edges
     Object.entries(edgeTypes ?? {}).forEach(
@@ -62,11 +64,19 @@ export const getAllVariableUUIDsByEntity = createSelector(
 export const getCodebookVariablesForSubjectType = createSelector(
   getCodebook,
   getStageSubject,
-  (codebook, subject: StageSubject | undefined) =>
-    subject
-      ? (codebook[subject.entity as 'node' | 'edge']?.[subject.type]
-          ?.variables ?? {})
-      : codebook,
+  (codebook, subject: StageSubject | undefined) => {
+    if (subject === undefined) {
+      return {};
+    }
+
+    const { entity } = subject;
+
+    if (entity === 'ego') {
+      return codebook.ego?.variables ?? {};
+    }
+
+    return codebook[entity]?.[subject.type]?.variables ?? {};
+  },
 );
 
 export const getCodebookVariablesForNodeType = (type: string) =>

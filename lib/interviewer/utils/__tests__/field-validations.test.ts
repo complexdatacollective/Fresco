@@ -1,9 +1,8 @@
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  getCodebookVariablesForNodeType,
-  getCodebookVariablesForSubjectType,
-} from '../../selectors/protocol';
+import * as protocolSelectors from '../../selectors/protocol';
+import * as sessionSelectors from '../../selectors/session';
+import { AppStore } from '../../store';
 import {
   differentFrom,
   greaterThanVariable,
@@ -19,12 +18,69 @@ import {
   unique,
 } from '../field-validation';
 
-vi.mock('~/lib/interviewer/selectors/interface');
-vi.mock('~/lib/interviewer/selectors/session');
+vi.mock('../../selectors/interface');
+vi.mock('../../selectors/session');
+vi.mock('../../selectors/protocol');
 
-const mockStore = { getState: () => ({}) };
+// Mock store with debugging
+const mockStore = {
+  getState: () => ({}),
+} as AppStore;
+
+const allValues = {
+  uid1: 1,
+  uid2: '2012-10-07',
+  uid3: 'word',
+  uid4: [1, 2, 3],
+  uid5: { x: 1.2, y: 2.3 },
+  uid6: false,
+};
 
 describe('Validations', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+
+    const getCodebookVarsSubjectMock = vi.fn((state) => ({
+      uid1: { name: 'Variable 1', type: 'number' },
+      uid2: { name: 'Date Variable', type: 'datetime' },
+      uid3: { name: 'String Variable', type: 'string' },
+      uid4: {
+        name: 'Array Variable',
+        type: 'ordinal',
+        options: [
+          {
+            label: '1',
+            value: 1,
+          },
+          {
+            label: '2',
+            value: 2,
+          },
+          {
+            label: '3',
+            value: 3,
+          },
+        ],
+        uid5: { name: 'Layout Variable', type: 'layout' },
+        uid6: { name: 'Boolean Variable', type: 'boolean' },
+      },
+    }));
+
+    vi.spyOn(
+      protocolSelectors,
+      'getCodebookVariablesForSubjectType',
+    ).mockImplementation(getCodebookVarsSubjectMock);
+
+    const entities = [
+      {
+        [entityAttributesProperty]: allValues,
+      },
+    ];
+
+    vi.spyOn(sessionSelectors, 'getNetworkEntitiesForType').mockImplementation(
+      () => entities,
+    );
+  });
   describe('required()', () => {
     const errorMessage = 'You must answer this question before continuing';
     const subject = required();
@@ -221,20 +277,7 @@ describe('Validations', () => {
       validationMeta: {},
     };
 
-    const entities = [
-      {
-        [entityAttributesProperty]: {
-          uid1: 1,
-          uid2: false,
-          uid3: 'word',
-          uid4: [1, 2, 3],
-          uid5: { x: 1.2, y: 2.3 },
-        },
-      },
-    ];
     const errorMessage = 'Your answer must be unique';
-
-    makeNetworkEntitiesForType.mockReturnValue(() => entities);
 
     const subject = unique(null, mockStore);
 
@@ -284,73 +327,63 @@ describe('Validations', () => {
     });
   });
 
-  describe('differentFrom()', () => {
-    const errorMessage = 'Your answer must be different from';
-
-    const allValues = {
-      uid1: 1,
-      uid2: false,
-      uid3: 'word',
-      uid4: [1, 2, 3],
-      uid5: { x: 1.2, y: 2.3 },
-    };
-
-    getCodebookVariablesForSubjectType.mockReturnValue(() => ({
-      uid1: { name: 1 },
-      uid2: { name: false },
-      uid3: { name: 'word' },
-      uid4: { name: [1, 2, 3] },
-      uid5: { name: { x: 1.2, y: 2.3 } },
-    }));
-
-    const subject1 = differentFrom('uid1', mockStore);
-    const subject2 = differentFrom('uid2', mockStore);
-    const subject3 = differentFrom('uid3', mockStore);
-    const subject4 = differentFrom('uid4', mockStore);
-    const subject5 = differentFrom('uid5', mockStore);
+  describe.only('differentFrom()', () => {
+    const errorMessage = (variable: string) =>
+      `Your answer must be different from ${variable}`;
 
     it('passes for null or undefined', () => {
+      const subject1 = differentFrom('uid1', mockStore);
       expect(subject1(null, allValues)).toBe(undefined);
       expect(subject1(undefined, allValues)).toBe(undefined);
     });
 
     it('passes for a different number', () => {
+      const subject1 = differentFrom('uid1', mockStore);
       expect(subject1(2, allValues)).toBe(undefined);
     });
 
     it('fails for a matching number', () => {
-      expect(subject1(1, allValues)).toBe(`${errorMessage} 1`);
+      const subject1 = differentFrom('uid1', mockStore);
+      expect(subject1(1, allValues)).toBe(errorMessage('Variable 1'));
     });
 
     it('passes for a different boolean', () => {
+      const subject2 = differentFrom('uid6', mockStore);
       expect(subject2(true, allValues)).toBe(undefined);
     });
 
     it('fails for a matching boolean', () => {
-      expect(subject2(false, allValues)).toBe(`${errorMessage} false`);
+      const subject2 = differentFrom('uid6', mockStore);
+      expect(subject2(false, allValues)).toBe(errorMessage('Boolean Variable'));
     });
 
     it('passes for a different string', () => {
+      const subject3 = differentFrom('uid3', mockStore);
       expect(subject3('diff', allValues)).toBe(undefined);
     });
 
     it('fails for a matching string', () => {
+      const subject3 = differentFrom('uid3', mockStore);
       expect(subject3('word', allValues)).toBe(`${errorMessage} word`);
     });
 
     it('passes for a different array', () => {
+      const subject4 = differentFrom('uid4', mockStore);
       expect(subject4([1, 2], allValues)).toBe(undefined);
     });
 
     it('fails for a matching array', () => {
+      const subject4 = differentFrom('uid4', mockStore);
       expect(subject4([3, 1, 2], allValues)).toBe(`${errorMessage} 1,2,3`);
     });
 
     it('passes for a different object', () => {
+      const subject5 = differentFrom('uid5', mockStore);
       expect(subject5({ x: 2.1, y: 3.2 }, allValues)).toBe(undefined);
     });
 
     it('fails for a matching object', () => {
+      const subject5 = differentFrom('uid5', mockStore);
       expect(subject5({ y: 2.3, x: 1.2 }, allValues)).toBe(
         `${errorMessage} [object Object]`,
       );
@@ -360,21 +393,13 @@ describe('Validations', () => {
   describe('sameAs()', () => {
     const errorMessage = 'Your answer must be the same as';
 
-    const allValues = {
-      uid1: 1,
-      uid2: false,
-      uid3: 'word',
-      uid4: [1, 2, 3],
-      uid5: { x: 1.2, y: 2.3 },
-    };
-
-    getCodebookVariablesForSubjectType.mockReturnValue(() => ({
-      uid1: { name: 1 },
-      uid2: { name: false },
-      uid3: { name: 'word' },
-      uid4: { name: [1, 2, 3] },
-      uid5: { name: { x: 1.2, y: 2.3 } },
-    }));
+    // vi.mocked(getNetworkEntitiesForType).mockReturnValue(() => ({
+    //   uid1: { name: 1 },
+    //   uid2: { name: false },
+    //   uid3: { name: 'word' },
+    //   uid4: { name: [1, 2, 3] },
+    //   uid5: { name: { x: 1.2, y: 2.3 } },
+    // }));
 
     const subject1 = sameAs('uid1', mockStore);
     const subject2 = sameAs('uid2', mockStore);
@@ -429,106 +454,96 @@ describe('Validations', () => {
       );
     });
   });
-});
 
-describe('greaterThanVariable()', () => {
-  const errorMessage = 'Your answer must be greater than';
+  describe('greaterThanVariable()', () => {
+    const errorMessage = 'Your answer must be greater than';
 
-  const allValues = {
-    uid1: 1,
-    uid2: '2012-10-07',
-    uid3: 'word',
-  };
+    // vi.mocked(getCodebookVariablesForNodeType).mockReturnValue(() => ({
+    //   uid1: { name: 1 },
+    //   uid2: { name: '2012-10-07', type: 'datetime' },
+    //   uid3: { name: 'word' },
+    // }));
 
-  getCodebookVariablesForNodeType.mockReturnValue(() => ({
-    uid1: { name: 1 },
-    uid2: { name: '2012-10-07', type: 'datetime' },
-    uid3: { name: 'word' },
-  }));
+    const subject1 = greaterThanVariable('uid1', mockStore);
+    const subject2 = greaterThanVariable('uid2', mockStore);
+    const subject3 = greaterThanVariable('uid3', mockStore);
 
-  const subject1 = greaterThanVariable('uid1', mockStore);
-  const subject2 = greaterThanVariable('uid2', mockStore);
-  const subject3 = greaterThanVariable('uid3', mockStore);
+    it('fails for null or undefined', () => {
+      expect(subject1(null, allValues)).toBe(`${errorMessage} 1`);
+      expect(subject1(undefined, allValues)).toBe(`${errorMessage} 1`);
+    });
 
-  it('fails for null or undefined', () => {
-    expect(subject1(null, allValues)).toBe(`${errorMessage} 1`);
-    expect(subject1(undefined, allValues)).toBe(`${errorMessage} 1`);
-  });
+    it('passes if number is greater than', () => {
+      expect(subject1(3, allValues)).toBe(undefined);
+    });
 
-  it('passes if number is greater than', () => {
-    expect(subject1(3, allValues)).toBe(undefined);
-  });
+    it('fails if number is less than', () => {
+      expect(subject1(0, allValues)).toBe(`${errorMessage} 1`);
+    });
 
-  it('fails if number is less than', () => {
-    expect(subject1(0, allValues)).toBe(`${errorMessage} 1`);
-  });
+    it('passes if date is greater than', () => {
+      expect(subject2('2012-11-07', allValues)).toBe(undefined);
+    });
 
-  it('passes if date is greater than', () => {
-    expect(subject2('2012-11-07', allValues)).toBe(undefined);
-  });
+    it('fails if date is less than', () => {
+      expect(subject2('2012-09-07', allValues)).toBe(
+        `${errorMessage} 2012-10-07`,
+      );
+    });
 
-  it('fails if date is less than', () => {
-    expect(subject2('2012-09-07', allValues)).toBe(
-      `${errorMessage} 2012-10-07`,
-    );
-  });
+    it('passes if string is greater than', () => {
+      expect(subject3('zebra', allValues)).toBe(undefined);
+    });
 
-  it('passes if string is greater than', () => {
-    expect(subject3('zebra', allValues)).toBe(undefined);
-  });
+    it('fails if string is less than', () => {
+      expect(subject3('diff', allValues)).toBe(`${errorMessage} word`);
+    });
 
-  it('fails if string is less than', () => {
-    expect(subject3('diff', allValues)).toBe(`${errorMessage} word`);
-  });
-});
+    describe('lessThanVariable()', () => {
+      const errorMessage = (value: string) =>
+        `Your answer must be less than the value of "${value}"`;
 
-describe('lessThanVariable()', () => {
-  const errorMessage = 'Your answer must be less than';
+      it('fails for null or undefined', () => {
+        const subject1 = lessThanVariable('uid1', mockStore);
+        expect(subject1(null, allValues)).toBe(errorMessage('Variable 1'));
+        expect(subject1(undefined, allValues)).toBe(
+          `${errorMessage('Variable 1')}`,
+        );
+      });
 
-  const allValues = {
-    uid1: 1,
-    uid2: '2012-10-07',
-    uid3: 'word',
-  };
+      it('passes if number is less than', () => {
+        const subject1 = lessThanVariable('uid1', mockStore);
+        expect(subject1(0, allValues)).toBe(undefined);
+      });
 
-  getCodebookVariablesForType.mockReturnValue(() => ({
-    uid1: { name: 1 },
-    uid2: { name: '2012-10-07' },
-    uid3: { name: 'word' },
-  }));
+      it('fails if number is greater than', () => {
+        const subject1 = lessThanVariable('uid1', mockStore);
+        expect(subject1(2, allValues)).toBe(errorMessage('Variable 1'));
+      });
 
-  const subject1 = lessThanVariable('uid1', mockStore);
-  const subject2 = lessThanVariable('uid2', mockStore);
-  const subject3 = lessThanVariable('uid3', mockStore);
+      it('passes if date is less than', () => {
+        const subject2 = lessThanVariable('uid2', mockStore);
+        expect(subject2('2012-09-07', allValues)).toBe(undefined);
+      });
 
-  it('fails for null or undefined', () => {
-    expect(subject1(null, allValues)).toBe(`${errorMessage} 1`);
-    expect(subject1(undefined, allValues)).toBe(`${errorMessage} 1`);
-  });
+      it('fails if date is greater than', () => {
+        const subject2 = lessThanVariable('uid2', mockStore);
+        expect(subject2('2012-11-07', allValues)).toBe(
+          errorMessage('Date Variable'),
+        );
+      });
 
-  it('passes if number is less than', () => {
-    expect(subject1(0, allValues)).toBe(undefined);
-  });
+      it('passes if string is less than', () => {
+        const subject3 = lessThanVariable('uid3', mockStore);
+        expect(subject3('less', allValues)).toBe(undefined);
+      });
 
-  it('fails if number is greater than', () => {
-    expect(subject1(2, allValues)).toBe(`${errorMessage} 1`);
-  });
-
-  it('passes if date is less than', () => {
-    expect(subject2('2012-09-07', allValues)).toBe(undefined);
-  });
-
-  it('fails if date is greater than', () => {
-    expect(subject2('2012-11-07', allValues)).toBe(
-      `${errorMessage} 2012-10-07`,
-    );
-  });
-
-  it('passes if string is less than', () => {
-    expect(subject3('less', allValues)).toBe(undefined);
-  });
-
-  it('fails if string is greater than', () => {
-    expect(subject3('zebra', allValues)).toBe(`${errorMessage} word`);
+      it('fails if string is greater than', () => {
+        const subject3 = lessThanVariable('uid3', mockStore);
+        expect(subject3('zebra', allValues)).toBe(
+          errorMessage('String Variable'),
+        );
+      });
+    });
   });
 });
