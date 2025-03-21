@@ -8,7 +8,6 @@ import {
   Element,
   LiveNodeList,
   MIME_TYPE,
-  XMLSerializer,
 } from '@xmldom/xmldom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ExportOptions } from '~/lib/network-exporters/utils/types';
@@ -157,11 +156,6 @@ describe('buildGraphML', () => {
     const falseValue = getDataElementByKey(
       Array.from(carl.getElementsByTagName('data')),
       'mock-uuid-4',
-    );
-
-    // Parse 'carl' back into xml and log to the console
-    console.log(
-      new XMLSerializer().serializeToString(xml).replace(/></g, '>\n<'),
     );
 
     expect(zeroValue?.textContent).toEqual('0');
