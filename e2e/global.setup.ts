@@ -21,18 +21,18 @@ test('create test database and setup app', async ({
   // Stop any existing test db to ensure clean state
   if (!process.env.CI) {
     console.log('Local environment detected');
-    try {
-      execSync('docker compose -f docker-compose.test.yml down -v', {
-        stdio: 'inherit',
-      });
-    } catch (error) {
-      // Ignore errors if no existing container
-    }
+    // try {
+    //   execSync('docker compose -f docker-compose.test.yml down -v', {
+    //     stdio: 'inherit',
+    //   });
+    // } catch (error) {
+    //   // Ignore errors if no existing container
+    // }
 
-    // Start test db
-    execSync('docker compose -f docker-compose.test.yml up -d', {
-      stdio: 'inherit',
-    });
+    // // Start test db
+    // execSync('docker compose -f docker-compose.test.yml up -d', {
+    //   stdio: 'inherit',
+    // });
 
     // Optional: Wait for database to be ready
     console.log('Waiting for database to be ready');

@@ -1,0 +1,49 @@
+# docker-compose.playwright.yml
+version: '3'
+
+services:
+  postgres-test:
+    container_name: fresco-test-postgres
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - 5433:5432 # Avoid conflicts with dev
+    environment:
+      - POSTGRES_PASSWORD=test_postgres_password
+      - POSTGRES_USER=test_user
+      - POSTGRES_DB=test_db
+    volumes:
+      - test-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'test_user']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - test-network
+
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile.playwright
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://test_user:test_postgres_password@postgres-test:5432/test_db
+      NODE_ENV: test
+    volumes:
+      # Mount test results directory to access reports
+      - ./test-results:/app/test-results
+      # Mount auth state
+      - ./e2e/.auth:/app/e2e/.auth
+    networks:
+      - test-network
+
+volumes:
+  test-postgres:
+    name: fresco-test-db-volume
+
+networks:
+  test-network:
+    name: fresco-test-network

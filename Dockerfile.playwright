@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/playwright:v1.50.1-noble
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+RUN npx playwright install --with-deps
+
+COPY . .
+
+RUN pnpm install
+
+# Set the entrypoint
+ENTRYPOINT ["npx", "playwright", "test"]

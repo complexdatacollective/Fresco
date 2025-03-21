@@ -16,7 +16,7 @@
     "knip": "knip",
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
-    "test:e2e-dev": "rm -rf .next && NODE_ENV='test' next build && playwright test --trace on --reporter=list",
+    "test:e2e-dev": "rm -rf .next && NODE_ENV='test' next build && docker-compose -f docker-compose.playwright.yml up -d && docker run playwright-tests --debug",
     "test:e2e-ci": "playwright test --trace on --reporter=list"
   },
   "pnpm": {
