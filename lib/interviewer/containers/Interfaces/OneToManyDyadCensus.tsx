@@ -1,8 +1,8 @@
+import { type StageSubject } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcNode,
-  type StageSubject,
 } from '@codaco/shared-consts';
 import {
   AnimatePresence,

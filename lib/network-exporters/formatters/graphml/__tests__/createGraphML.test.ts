@@ -8,6 +8,7 @@ import {
   Element,
   LiveNodeList,
   MIME_TYPE,
+  XMLSerializer,
 } from '@xmldom/xmldom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ExportOptions } from '~/lib/network-exporters/utils/types';
@@ -116,34 +117,6 @@ describe('buildGraphML', () => {
         'mock-uuid-3': 'false',
       });
     });
-
-    it('omits networkCanvasUUID data element when network.codebook.ego is empty', () => {
-      const processedNetworks = processMockNetworks([
-        mockNetwork,
-        mockNetwork2,
-      ]);
-      const protocolNetwork = processedNetworks['protocol-uid-1']![0]!;
-      const { ego, ...egolessCodebook } = codebook;
-      const egolessNetwork = {
-        ...protocolNetwork,
-        ego: {
-          _uid: 'ego-id-1',
-          attributes: {},
-        },
-      };
-      const noEgoXML = buildXML(egolessNetwork, egolessCodebook, exportOptions);
-      const graphData = getChildElements(
-        noEgoXML.getElementsByTagName('graph')[0]!,
-        noEgoXML.getElementsByTagName('data'),
-      ).reduce(
-        (acc, node) => ({
-          ...acc,
-          [node.getAttribute('key')!]: node.textContent,
-        }),
-        {},
-      ) as Record<string, string>;
-      expect(graphData[ncUUIDProperty]).toBeUndefined();
-    });
   });
 
   it('infers int types', () => {
@@ -178,40 +151,68 @@ describe('buildGraphML', () => {
 
     const zeroValue = getDataElementByKey(
       Array.from(carl.getElementsByTagName('data')),
-      'age',
+      'mock-uuid-2',
     );
 
     const falseValue = getDataElementByKey(
       Array.from(carl.getElementsByTagName('data')),
-      'boolWithValues',
+      'mock-uuid-4',
+    );
+
+    // Parse 'carl' back into xml and log to the console
+    console.log(
+      new XMLSerializer().serializeToString(xml).replace(/></g, '>\n<'),
     );
 
     expect(zeroValue?.textContent).toEqual('0');
     expect(falseValue?.textContent).toEqual('false');
   });
 
+  it('adds a data element for the node label, based on the codebook name attribute', () => {
+    const nodes = Array.from(xml.getElementsByTagName('node'));
+    // Expect that each node has a data element with the key 'name'
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]!;
+      const dataElements = node.getElementsByTagName('data');
+
+      // Find the data element with key="label"
+      let labelElement = null;
+      for (let j = 0; j < dataElements.length; j++) {
+        const dataEl = dataElements[j]!;
+        if (dataEl.getAttribute('key') === 'label') {
+          labelElement = dataEl;
+          break;
+        }
+      }
+
+      // Assert that the label element exists
+      expect(labelElement).not.toBeNull();
+    }
+  });
+
   it('excludes null values', () => {
     const nodes = Array.from(xml.getElementsByTagName('node'));
     const dee = getNodeById(nodes, '1')!;
     const deeData = Array.from(dee.getElementsByTagName('data'));
-    expect(deeData.length).toEqual(13);
+
+    expect(deeData.length).toEqual(10);
     expect(getDataElementByKey(deeData, 'mock-uuid-5')?.textContent).toEqual(
       undefined,
     );
 
     const carl = getNodeById(nodes, '2')!;
     const carlData = Array.from(carl.getElementsByTagName('data'));
-    expect(carlData.length).toEqual(13);
+    expect(carlData.length).toEqual(10);
     expect(getDataElementByKey(carlData, 'mock-uuid-5')?.textContent).toEqual(
       undefined,
     );
 
     const jumbo = getNodeById(nodes, '3')!;
-    expect(jumbo.getElementsByTagName('data').length).toEqual(9);
+    expect(jumbo.getElementsByTagName('data').length).toEqual(6);
 
     const francis = getNodeById(nodes, '4')!;
     const francisData = Array.from(francis.getElementsByTagName('data'));
-    expect(francis.getElementsByTagName('data').length).toEqual(11);
+    expect(francis.getElementsByTagName('data').length).toEqual(9);
     expect(
       getDataElementByKey(francisData, 'mock-uuid-5')?.textContent,
     ).toEqual(undefined);

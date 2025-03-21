@@ -1,6 +1,5 @@
-import { VariableTypes, type Codebook } from '@codaco/protocol-validation';
+import { type Codebook } from '@codaco/protocol-validation';
 import {
-  entityAttributesProperty,
   ncSourceUUID,
   ncTargetUUID,
   ncTypeProperty,
@@ -9,6 +8,7 @@ import {
 } from '@codaco/shared-consts';
 import { DOMImplementation, type DocumentFragment } from '@xmldom/xmldom';
 import { get } from 'es-toolkit/compat';
+import { getEntityAttributes } from '../../utils/general';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -115,7 +115,7 @@ function generateKeysForEntities(
 
   // Loop over entities
   entities.forEach((entity) => {
-    const elementAttributes = entity[entityAttributesProperty];
+    const elementAttributes = getEntityAttributes(entity);
 
     const codebookVariables = getCodebookVariablesForEntity(entity, codebook);
 
@@ -150,16 +150,16 @@ function generateKeysForEntities(
         keyElement.setAttribute('attr.name', keyName);
 
         switch (variableType) {
-          case VariableTypes.boolean:
+          case 'boolean':
             keyElement.setAttribute('attr.type', variableType);
             break;
-          case VariableTypes.ordinal:
-          case VariableTypes.number: {
+          case 'ordinal':
+          case 'number': {
             const keyType = getGraphMLTypeForKey(entities, variableId);
             keyElement.setAttribute('attr.type', keyType);
             break;
           }
-          case VariableTypes.layout: {
+          case 'layout': {
             // special handling for layout variables: split the variable into
             // two <key> elements - one for X and one for Y.
             keyElement.setAttribute('attr.name', `${keyName}_Y`);
@@ -197,7 +197,7 @@ function generateKeysForEntities(
 
             break;
           }
-          case VariableTypes.categorical: {
+          case 'categorical': {
             /*
              * Special handling for categorical variables:
              * Because categorical variables can have multiple membership, we
@@ -248,11 +248,11 @@ function generateKeysForEntities(
             });
             break;
           }
-          case VariableTypes.scalar:
+          case 'scalar':
             keyElement.setAttribute('attr.type', 'float');
             break;
-          case VariableTypes.text:
-          case VariableTypes.datetime:
+          case 'text':
+          case 'datetime':
           default:
             keyElement.setAttribute('attr.type', 'string');
         }

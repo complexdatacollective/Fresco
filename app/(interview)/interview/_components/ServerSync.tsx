@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use client';
 
 import { debounce, isEqual } from 'es-toolkit';
@@ -17,7 +18,7 @@ const ServerSync = () => {
   const params = useParams<{ interviewId: string }>();
   const currentSession = useSelector(getActiveSession);
   const prevCurrentSession = usePrevious(currentSession);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const { toast } = useToast();
 
   const syncSession = async (data) => {

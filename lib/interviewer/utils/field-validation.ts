@@ -1,4 +1,4 @@
-import { type VariableType } from '@codaco/protocol-validation';
+import { type Variable } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type VariableValue,
@@ -11,6 +11,8 @@ import { type AppStore } from '../store';
 
 export type FieldValue = VariableValue | undefined;
 
+// Approximated from the description in the redux-form documentation
+// https://redux-form.com/8.3.0/docs/api/field.md/#input-props
 export type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
@@ -134,7 +136,7 @@ const getVariableType = (variableId: string, store: AppStore) => {
     store.getState(),
   );
   return get(codebookVariablesForType, [variableId, 'type']) as
-    | VariableType
+    | Variable
     | undefined;
 };
 
@@ -157,7 +159,7 @@ export const sameAs = (variableId: string, store: AppStore) => {
 const compareVariables = (
   value1: FieldValue,
   value2: FieldValue,
-  type: VariableType,
+  type: Variable,
 ) => {
   // check for null values
   if (isNil(value1) && isNil(value2)) {

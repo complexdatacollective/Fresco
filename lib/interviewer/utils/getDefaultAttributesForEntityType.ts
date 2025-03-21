@@ -1,6 +1,6 @@
+import { type EntityDefinition } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
-  type EntityTypeDefinition,
   type NcEntity,
 } from '@codaco/shared-consts';
 
@@ -12,7 +12,7 @@ import {
  *                                   node type.
  */
 export const getDefaultAttributesForEntityType = (
-  variablesForType: EntityTypeDefinition['variables'] = {},
+  variablesForType: EntityDefinition['variables'] = {},
 ) => {
   const defaultAttributesObject = {} as NcEntity[EntityAttributesProperty];
 

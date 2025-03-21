@@ -5,6 +5,7 @@ import type {
   StageSubject,
 } from '@codaco/protocol-validation';
 import {
+  type EntityAttributesProperty,
   entityAttributesProperty,
   type NcNetwork,
   type NcNode,
@@ -12,8 +13,8 @@ import {
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection } from 'es-toolkit';
 import { filter, findKey, includes } from 'es-toolkit/compat';
+import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import customFilter from '~/lib/network-query/filter';
-import { getEntityAttributes } from '~/utils/general';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
 import { getStageSubject, getSubjectType, stagePromptIds } from './prop';
@@ -243,7 +244,7 @@ export const getNodeTypeDefinition = createSelector(
 // See: https://github.com/complexdatacollective/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (
   codebookForNodeType: NodeDefinition,
-  nodeAttributes: Record<string, unknown>,
+  nodeAttributes: NcNode[EntityAttributesProperty],
 ): string => {
   // 1. In the codebook for the stage's subject, look for a variable with a name
   // property of "name", and try to retrieve this value by key in the node's
@@ -271,8 +272,20 @@ export const labelLogic = (
     return String(nodeVariableCalledName);
   }
 
+  // 3. Collect all the codebook variables of type text, and iterate over them on the
+  // node, returning the first one that has a value assigned.
+  const textVariables = Object.entries(
+    codebookForNodeType?.variables ?? {},
+  ).filter(([_, variable]) => variable.type === 'text');
+
+  for (const [variableKey] of textVariables) {
+    if (nodeAttributes[variableKey]) {
+      return nodeAttributes[variableKey] as string;
+    }
+  }
+
   // 3. Last resort!
-  return "No 'name' variable!";
+  return `${codebookForNodeType.name}`;
 };
 
 export const getNodeLabel = createSelector(

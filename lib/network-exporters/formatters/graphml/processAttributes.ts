@@ -1,6 +1,7 @@
 import { type Codebook } from '@codaco/protocol-validation';
-import { entityAttributesProperty, type NcEgo } from '@codaco/shared-consts';
+import { type NcEgo } from '@codaco/shared-consts';
 import { type DocumentFragment } from '@xmldom/xmldom';
+import { getEntityAttributes } from '../../utils/general';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -29,9 +30,8 @@ function processAttributes(
     fragment.appendChild(dataElement);
   };
 
-  // Typescript is so fucking stupid sometimes.
   const variables = getCodebookVariablesForEntity(entity, codebook);
-  const entityAttributes = entity[entityAttributesProperty];
+  const entityAttributes = getEntityAttributes(entity);
 
   Object.entries(entityAttributes).forEach(([key, value]) => {
     // Don't process empty values.
@@ -40,8 +40,6 @@ function processAttributes(
     }
 
     const codebookEntry = variables?.[key];
-
-    const attributeCodebookName = codebookEntry?.name ?? sha1(key); // Attribute might not exist in codebook if it is from external data source
 
     if (codebookEntry?.type === 'categorical') {
       const options = codebookEntry.options;
@@ -82,7 +80,7 @@ function processAttributes(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    createDomDataElement(attributeCodebookName, String(entityAttributes[key]));
+    createDomDataElement(key, String(entityAttributes[key]));
   });
 
   return fragment;

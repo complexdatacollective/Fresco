@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/only-throw-error */
 import { type NcNode } from '@codaco/shared-consts';
 import { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';

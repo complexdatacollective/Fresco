@@ -15,7 +15,7 @@ import {
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
 import { type DocumentFragment, DOMImplementation } from '@xmldom/xmldom';
-import { findKey } from 'es-toolkit/compat';
+import { labelLogic } from '~/lib/interviewer/selectors/session';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -39,8 +39,6 @@ export default function getDataElementGenerator(
     entities: NodeWithResequencedID[] | EdgeWithResequencedID[] | NcEgo,
   ): DocumentFragment => {
     const fragment = createDocumentFragment();
-
-    const entityType = deriveEntityType(entities);
 
     // If the entity is an object (not an array) it is an ego
     if (!Array.isArray(entities)) {
@@ -76,6 +74,8 @@ function generateDataElementsForEntity(
   const entityType = deriveEntityType(entity);
 
   if (entityType === 'ego') {
+    // If there's
+
     const keyDataElement = createDataElement(
       {
         key: ncUUIDProperty,
@@ -103,7 +103,7 @@ function generateDataElementsForEntity(
       : (entity as EdgeWithResequencedID)[edgeExportIDProperty].toString(),
   );
 
-  // Create data element for entity UUID
+  // Create data element for entity UUID [networkCanvasUUID]
   domElement.appendChild(
     createDataElement(
       { key: ncUUIDProperty },
@@ -111,7 +111,7 @@ function generateDataElementsForEntity(
     ),
   );
 
-  // Create data element for entity type
+  // Create data element for entity type [networkCanvasType]
   const type = (entity as NcNode | NcEdge).type;
   const entityTypeName = codebook[entityType]?.[type]?.name ?? type;
   domElement.appendChild(
@@ -147,25 +147,10 @@ function generateDataElementsForEntity(
       ),
     );
   } else {
-    // For nodes, add a <data> element for the label using the name property
-    const entityLabel = () => {
-      const variableCalledName = findKey(
-        codebook[entityType]?.[type]?.variables ?? {},
-        (variable) => variable.name.toLowerCase() === 'name',
-      );
-
-      if (
-        variableCalledName &&
-        entity[entityAttributesProperty][variableCalledName]
-      ) {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        return String(entity[entityAttributesProperty][variableCalledName]);
-      }
-
-      return 'Node';
-    };
-
-    domElement.appendChild(createDataElement({ key: 'label' }, entityLabel()));
+    const thing = entity as NodeWithResequencedID;
+    const type = codebook.node?.[thing.type];
+    const label = labelLogic(type!, thing[entityAttributesProperty]);
+    domElement.appendChild(createDataElement({ key: 'label' }, label));
   }
 
   const dataElements = processAttributes(entity, codebook, exportOptions);

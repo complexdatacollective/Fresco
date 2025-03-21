@@ -170,7 +170,7 @@ export const addEdge = createAsyncThunk(
       modelData: { type },
       attributeData,
     } = props;
-    const state = getState();
+    const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
 
     const variablesForType = getCodebookVariablesForNodeType(type)(state);

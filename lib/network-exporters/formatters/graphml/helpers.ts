@@ -12,6 +12,7 @@ import {
   type NcEdge,
   type NcEgo,
   type NcNode,
+  type VariableValue,
 } from '@codaco/shared-consts';
 import { DOMImplementation } from '@xmldom/xmldom';
 import { createHash } from 'crypto';
@@ -95,7 +96,7 @@ export const setUpXml = (
   labelDataElement.setAttribute('attr.name', 'label');
   labelDataElement.setAttribute('attr.type', 'string');
   labelDataElement.setAttribute('for', 'all');
-  doc.appendChild(labelDataElement);
+  root.appendChild(labelDataElement);
 
   // Create the graph element
   const graph = doc.createElement('graph');
@@ -164,51 +165,57 @@ export const getGraphMLTypeForKey = (
 ): GraphMLKeyType =>
   data.reduce<GraphMLKeyType | null>((result, value) => {
     const attrs = getEntityAttributes(value);
+
+    // If the attribute is not present, return the current result
     if (isNil(attrs[key])) return result;
 
-    let currentType: GraphMLKeyType;
+    const currentType = getAttributeType(attrs[key]);
 
-    // Determine the type of the attribute value
-    if (typeof attrs[key] === 'boolean') {
-      currentType = 'boolean';
-    } else if (typeof attrs[key] === 'number') {
-      // For numbers, check if integer or floating point
-      currentType = Number.isInteger(attrs[key]) ? 'int' : 'double';
-      // If we already have double, keep it (can't downgrade)
-      if (result === 'double' && currentType === 'int') return 'double';
-    } else {
-      // Handle string representation of numbers
-      // Handle potential object values before stringifying
-      const attrVal = attrs[key];
-      const attrStr =
-        typeof attrVal === 'object' && attrVal !== null
-          ? JSON.stringify(attrVal)
-          : String(attrVal);
-      if (/^-?\d+$/.exec(attrStr)) {
-        // Integer pattern
-        currentType = 'int';
-        // If we already have double, keep it
-        if (result === 'double') return 'double';
-      } else if (/^-?\d+\.\d+$/.exec(attrStr)) {
-        // Float pattern
-        currentType = 'double';
-        // If we already have int, upgrade to double
-        if (result === 'int') return 'double';
-      } else {
-        // Default to string for everything else
-        currentType = 'string';
-      }
-    }
-
-    // If result is null, return the current type
+    // If we haven't yet set a type, set it to whatever we detected the type as
     if (result === null) return currentType;
 
     // If types match, keep that type
     if (currentType === result) return currentType;
 
+    // Always upgrade to a higher precision number type - never downgrade
+    if (currentType === 'double' && result === 'int') return 'double';
+    if (currentType === 'int' && result === 'double') return 'double';
+
     // Default to string when types don't match
     return 'string';
   }, null) ?? 'string'; // Default to string if no values are processed
+
+function getAttributeType(attribute: VariableValue): GraphMLKeyType {
+  // Determine the type of the attribute value
+  if (typeof attribute === 'boolean') {
+    return 'boolean';
+  }
+
+  if (typeof attribute === 'number') {
+    // For numbers, check if integer or floating point
+    return Number.isInteger(attribute) ? 'int' : 'double';
+  }
+
+  // Handle string representation of numbers
+  // Handle potential object values before stringifying
+  const attrVal = attribute;
+  const attrStr =
+    typeof attrVal === 'object' && attrVal !== null
+      ? JSON.stringify(attrVal)
+      : String(attrVal);
+
+  // Integer pattern
+  if (/^-?\d+$/.exec(attrStr)) {
+    return 'int';
+  }
+
+  // Float pattern
+  if (/^-?\d+\.\d+$/.exec(attrStr)) {
+    return 'double';
+  }
+
+  return 'string';
+}
 
 export const createDataElement = (
   attributes: Record<string, string>,
