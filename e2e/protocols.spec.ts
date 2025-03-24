@@ -12,7 +12,7 @@ test.describe('Protocols page', () => {
     );
   });
 
-  test.fixme('should match visual snapshot', async ({ page }) => {
+  test('should match visual snapshot', async ({ page }) => {
     // validate screenshot
     await expect(page).toHaveScreenshot('protocols-page.png');
   });

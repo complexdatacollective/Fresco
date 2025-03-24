@@ -13,7 +13,7 @@ test.describe('Participants page', () => {
     await expect(page.locator('text=Emily Brown')).toHaveText('Emily Brown');
   });
 
-  test.fixme('should match visual snapshot', async ({ page }) => {
+  test('should match visual snapshot', async ({ page }) => {
     // validate screenshot
     await expect(page).toHaveScreenshot('participants-page.png');
   });
