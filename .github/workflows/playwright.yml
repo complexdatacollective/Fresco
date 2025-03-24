@@ -35,7 +35,8 @@ jobs:
         env:
           E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
-      - uses: actions/github-script@v7
+      - name: Get PR data
+        uses: actions/github-script@v7
         if: always() && steps.run_playwright_tests.outcome == 'failure'
         id: get_pr_data
         with:
@@ -47,12 +48,6 @@ jobs:
                 repo: context.repo.repo,
               })
             ).data[0];
-      - name: Pull Request data
-        if: always() && steps.run_playwright_tests.outcome == 'failure'
-        run: |
-          echo '${{ fromJson(steps.get_pr_data.outputs.result).number }}'
-          echo '${{ fromJson(steps.get_pr_data.outputs.result).branch }}'
-          echo '${{ fromJson(steps.get_pr_data.outputs.result).title }}'
       - name: Extract branch name
         if: always() && steps.run_playwright_tests.outcome == 'failure'
         id: extract_branch
