@@ -23,7 +23,7 @@ const webServer = CI
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  reporter: process.env.CI ? 'github' : 'html',
+  reporter: process.env.CI ? [['github'], ['html']] : 'html',
 
   use: {
     baseURL,
