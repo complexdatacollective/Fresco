@@ -36,6 +36,7 @@ jobs:
           E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
       - uses: actions/github-script@v7
+        if: always() && steps.run_playwright_tests.outcome == 'failure'
         id: get_pr_data
         with:
           script: |
@@ -47,6 +48,7 @@ jobs:
               })
             ).data[0];
       - name: Pull Request data
+        if: always() && steps.run_playwright_tests.outcome == 'failure'
         run: |
           echo '${{ fromJson(steps.get_pr_data.outputs.result).number }}'
           echo '${{ fromJson(steps.get_pr_data.outputs.result).title }}'
@@ -76,7 +78,7 @@ jobs:
           retention-days: 30
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@v3
-        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true' && steps.find_pr.outputs.pr_number != '' }}
+        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true' && fromJson(steps.get_pr_data.outputs.result).number != '' }}
         with:
           message: |
             ### Playwright visual snapshot differences were detected.
