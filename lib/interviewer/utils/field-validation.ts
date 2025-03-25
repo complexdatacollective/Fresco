@@ -1,9 +1,9 @@
-import { type VariableType } from '@codaco/protocol-validation';
+import { type Variable } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { isEqual, isNil, isString } from 'es-toolkit';
+import { isNil, isString } from 'es-toolkit';
 import { filter, get, isNumber, some } from 'es-toolkit/compat';
 import { getCodebookVariablesForSubjectType } from '../selectors/protocol';
 import { getNetworkEntitiesForType } from '../selectors/session';
@@ -11,6 +11,8 @@ import { type AppStore } from '../store';
 
 export type FieldValue = VariableValue | undefined;
 
+// Approximated from the description in the redux-form documentation
+// https://redux-form.com/8.3.0/docs/api/field.md/#input-props
 export type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
@@ -77,21 +79,94 @@ export const maxSelected = (max: number) => (value: FieldValue) =>
     ? `You must choose a maximum of ${max} option(s)`
     : undefined;
 
+/**
+ * Compares two FieldValue types to determine if they match.
+ * Handles various types including primitives, arrays, objects, coordinates, and null/undefined.
+ *
+ * @param submittedValue - The value being submitted or compared
+ * @param existingValue - The value to compare against
+ * @returns true if the values match, false otherwise
+ */
 export const isMatchingValue = (
-  submittedValue: unknown[],
-  existingValue: unknown,
-) => {
-  if (submittedValue && existingValue && existingValue instanceof Array) {
-    return isEqual(submittedValue.sort(), existingValue.sort());
+  submittedValue: FieldValue,
+  existingValue: FieldValue,
+): boolean => {
+  // If both values are strictly equal, they match
+  if (submittedValue === existingValue) {
+    return true;
   }
-  if (submittedValue && existingValue && existingValue instanceof Object) {
-    return isEqual(submittedValue, existingValue);
+
+  // Handle null and undefined cases
+  if (
+    submittedValue === null ||
+    submittedValue === undefined ||
+    existingValue === null ||
+    existingValue === undefined
+  ) {
+    return submittedValue === existingValue;
   }
+
+  // Handle arrays
+  if (Array.isArray(submittedValue) && Array.isArray(existingValue)) {
+    // Different length arrays don't match
+    if (submittedValue.length !== existingValue.length) {
+      return false;
+    }
+
+    // Check if every element matches
+    return submittedValue.every((val, index) => {
+      return isMatchingValue(val, existingValue[index]);
+    });
+  }
+
+  // Handle coordinate objects {x, y}
+  if (
+    typeof submittedValue === 'object' &&
+    typeof existingValue === 'object' &&
+    'x' in submittedValue &&
+    'y' in submittedValue &&
+    'x' in existingValue &&
+    'y' in existingValue
+  ) {
+    return (
+      submittedValue.x === existingValue.x &&
+      submittedValue.y === existingValue.y
+    );
+  }
+
+  // Handle record objects
+  if (
+    typeof submittedValue === 'object' &&
+    typeof existingValue === 'object' &&
+    !Array.isArray(submittedValue) &&
+    !Array.isArray(existingValue)
+  ) {
+    const submittedKeys = Object.keys(submittedValue);
+    const existingKeys = Object.keys(existingValue);
+
+    // Different number of keys means they don't match
+    if (submittedKeys.length !== existingKeys.length) {
+      return false;
+    }
+
+    // Check if all keys exist in both objects and have matching values
+    return submittedKeys.every((key) => {
+      return (
+        key in existingValue &&
+        isMatchingValue(
+          (submittedValue as Record<string, FieldValue>)[key],
+          (existingValue as Record<string, FieldValue>)[key],
+        )
+      );
+    });
+  }
+
+  // For primitives and other cases, use strict equality
   return submittedValue === existingValue;
 };
 
 export const isSomeValueMatching = (
-  value: unknown,
+  value: FieldValue,
   otherNetworkEntities,
   name: string,
 ) =>
@@ -108,7 +183,16 @@ export const getOtherNetworkEntities = (entities, entityId: string) =>
   );
 
 export const unique = (_: unknown, store: AppStore) => {
-  return (value: unknown, __: unknown, { validationMeta }, name: string) => {
+  return (
+    value: FieldValue,
+    __: Record<string, FieldValue>,
+    {
+      validationMeta,
+    }: {
+      validationMeta: { entityId: string };
+    },
+    name: string,
+  ) => {
     const otherNetworkEntities = getOtherNetworkEntities(
       getNetworkEntitiesForType(store.getState()),
       validationMeta?.entityId,
@@ -120,27 +204,39 @@ export const unique = (_: unknown, store: AppStore) => {
   };
 };
 
+const getVariable = (variableId: string, store: AppStore) => {
+  const codebookVariablesForType = getCodebookVariablesForSubjectType(
+    store.getState(),
+  );
+
+  return get(codebookVariablesForType, [variableId]);
+};
+
 const getVariableName = (variableId: string, store: AppStore) => {
   const codebookVariablesForType = getCodebookVariablesForSubjectType(
     store.getState(),
   );
-  return get(codebookVariablesForType, [variableId, 'name'], undefined) as
-    | string
-    | undefined;
+
+  return get(codebookVariablesForType, [variableId, 'name'], undefined);
 };
 
 const getVariableType = (variableId: string, store: AppStore) => {
   const codebookVariablesForType = getCodebookVariablesForSubjectType(
     store.getState(),
   );
-  return get(codebookVariablesForType, [variableId, 'type']) as
-    | VariableType
-    | undefined;
+  return get(codebookVariablesForType, [variableId, 'type']);
 };
 
 export const differentFrom = (variableId: string, store: AppStore) => {
-  const variableName = getVariableName(variableId, store);
-  return (value: unknown, allValues: Record<string, unknown>) =>
+  const variable = getVariable(variableId, store);
+
+  if (!variable) {
+    return () => 'Variable not found in codebook';
+  }
+
+  const { name: variableName } = variable;
+
+  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     isMatchingValue(value, allValues[variableId])
       ? `Your answer must be different from ${variableName}`
       : undefined;
@@ -148,16 +244,16 @@ export const differentFrom = (variableId: string, store: AppStore) => {
 
 export const sameAs = (variableId: string, store: AppStore) => {
   const variableName = getVariableName(variableId, store);
-  return (value: unknown, allValues: Record<string, unknown>) =>
+  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     !isMatchingValue(value, allValues[variableId])
-      ? `Your answer must be the same as ${variableName}`
+      ? `Your answer must be the same as the value of "${variableName}"`
       : undefined;
 };
 
 const compareVariables = (
   value1: FieldValue,
   value2: FieldValue,
-  type: VariableType,
+  type: Variable['type'],
 ) => {
   // check for null values
   if (isNil(value1) && isNil(value2)) {
@@ -207,32 +303,43 @@ const compareVariables = (
 };
 
 export const greaterThanVariable = (variableId: string, store: AppStore) => {
-  const variableName = getVariableName(variableId, store);
-  const variableType = getVariableType(variableId, store);
+  const variable = getVariable(variableId, store);
+
+  if (!variable) {
+    return () => 'Variable not found in codebook';
+  }
+
+  const { name: variableName, type: variableType } = variable;
 
   if (!variableName || !variableType) {
-    return () => 'Variable not found';
+    return () => 'Variable not found in codebook';
   }
 
   return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     isNil(value) ||
     compareVariables(value, allValues[variableId], variableType) <= 0
-      ? `Your answer must be greater than ${variableName}`
+      ? `Your answer must be greater than the value of "${variableName}"`
       : undefined;
 };
 
+// Note: variableId is the variable being _compared_ to!
 export const lessThanVariable = (variableId: string, store: AppStore) => {
-  const variableName = getVariableName(variableId, store);
-  const variableType = getVariableType(variableId, store);
+  const variable = getVariable(variableId, store);
+
+  if (!variable) {
+    return () => 'Variable not found in codebook';
+  }
+
+  const { name: variableName, type: variableType } = variable;
 
   if (!variableName || !variableType) {
-    return () => 'Variable not found';
+    return () => 'Variable not found in codebook';
   }
 
   return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     isNil(value) ||
     compareVariables(value, allValues[variableId], variableType) >= 0
-      ? `Your answer must be less than ${variableName}`
+      ? `Your answer must be less than the value of "${variableName}"`
       : undefined;
 };
 
