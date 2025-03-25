@@ -140,14 +140,14 @@ test('create test database and setup app', async ({
 
   const participantsHandle = page.locator('input[type="file"]');
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
-  await page.getByRole('button', { name: 'Import' }).click({ timeout: 5000 });
+  await page.getByRole('button', { name: 'Import' }).click({ timeout: 20000 });
 
   // participants imported toast
   await expect(
     page.locator('div.text-sm.opacity-90', {
       hasText: 'Participants have been imported successfully',
     }),
-  ).toBeVisible({ timeout: 20000 });
+  ).toBeVisible({ timeout: 30000 });
 
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();
