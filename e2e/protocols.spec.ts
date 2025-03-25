@@ -14,7 +14,7 @@ test.describe('Protocols page', () => {
 
   test('should match visual snapshot', async ({ page }) => {
     // validate screenshot
-    await expect(page).toHaveScreenshot('protocols-page.png');
+    await expect.soft(page).toHaveScreenshot('protocols-page.png');
   });
 
   test('should upload new protocol', async ({ page }) => {

@@ -15,7 +15,7 @@ test.describe('Participants page', () => {
 
   test('should match visual snapshot', async ({ page }) => {
     // validate screenshot
-    await expect(page).toHaveScreenshot('participants-page.png');
+    await expect.soft(page).toHaveScreenshot('participants-page.png');
   });
 
   test('should add new participant', async ({ page }) => {
