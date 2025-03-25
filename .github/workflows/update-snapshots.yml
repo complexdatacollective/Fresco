@@ -18,6 +18,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.comment-branch.outputs.head_ref }}
+      - name: Extract URL from comment
+        id: extract-url
+        run: |
+          COMMENT="${{ github.event.comment.body }}"
+          URL=$(echo "$COMMENT" | grep -o 'https://[^ ]*' | head -1)
+          echo "preview_url=$URL" >> $GITHUB_OUTPUT
       - name: Comment action started
         uses: thollander/actions-comment-pull-request@v3
         with:
@@ -32,6 +38,9 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: Run Playwright update snapshots
         run: pnpm exec playwright test --update-snapshots
+        env:
+          E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
+          BASE_URL: ${{ steps.extract-url.outputs.preview_url }}
       - name: Commit and push updated snapshots
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
