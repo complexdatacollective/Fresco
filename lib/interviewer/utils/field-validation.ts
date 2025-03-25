@@ -182,10 +182,10 @@ export const getOtherNetworkEntities = (entities, entityId: string) =>
     (node) => !entityId || node[entityPrimaryKeyProperty] !== entityId,
   );
 
-export const unique = (_: never, store: AppStore) => {
+export const unique = (_: unknown, store: AppStore) => {
   return (
     value: FieldValue,
-    __: never,
+    __: Record<string, FieldValue>,
     {
       validationMeta,
     }: {
@@ -246,7 +246,7 @@ export const sameAs = (variableId: string, store: AppStore) => {
   const variableName = getVariableName(variableId, store);
   return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     !isMatchingValue(value, allValues[variableId])
-      ? `Your answer must be the same as ${variableName}`
+      ? `Your answer must be the same as the value of "${variableName}"`
       : undefined;
 };
 
@@ -318,7 +318,7 @@ export const greaterThanVariable = (variableId: string, store: AppStore) => {
   return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     isNil(value) ||
     compareVariables(value, allValues[variableId], variableType) <= 0
-      ? `Your answer must be greater than ${variableName}`
+      ? `Your answer must be greater than the value of "${variableName}"`
       : undefined;
 };
 
