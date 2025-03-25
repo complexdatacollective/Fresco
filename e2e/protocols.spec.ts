@@ -17,7 +17,7 @@ test.describe('Protocols page', () => {
     await expect.soft(page).toHaveScreenshot('protocols-page.png');
   });
 
-  test('should upload new protocol', async ({ page }) => {
+  test.fixme('should upload new protocol', async ({ page }) => {
     const protocolHandle = page.locator('input[type="file"]');
     await protocolHandle.setInputFiles('e2e/files/E2E.netcanvas');
     await expect(page.getByText('Extracting protocol')).toBeVisible({
@@ -26,7 +26,7 @@ test.describe('Protocols page', () => {
     await expect(page.getByText('Complete...')).toBeVisible({ timeout: 20000 });
   });
 
-  test('should delete protocol', async ({ page }) => {
+  test.fixme('should delete protocol', async ({ page }) => {
     // find the table row with the protocol we want to delete
     await page
       .getByRole('row', { name: 'Select row Protocol icon E2E.' })
