@@ -20,8 +20,9 @@ jobs:
           ref: ${{ steps.comment-branch.outputs.head_ref }}
       - name: Extract URL from comment
         id: extract-url
+        env:
+          COMMENT: ${{ github.event.comment.body }}
         run: |
-          COMMENT="${{ github.event.comment.body }}"
           URL=$(echo "$COMMENT" | grep -o 'https://[^ ]*' | head -1)
           echo "preview_url=$URL" >> $GITHUB_OUTPUT
       - name: Comment action started
