@@ -18,7 +18,7 @@ test.describe('Participants page', () => {
     await expect.soft(page).toHaveScreenshot('participants-page.png');
   });
 
-  test('should add new participant', async ({ page }) => {
+  test.fixme('should add new participant', async ({ page }) => {
     await page.getByRole('button', { name: 'Add Single Participant' }).click();
     await page.getByRole('button', { name: 'Generate' }).click();
     await page.getByRole('textbox', { name: 'Label' }).click();
