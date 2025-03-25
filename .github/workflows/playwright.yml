@@ -24,11 +24,13 @@ jobs:
         id: run_playwright_tests
         run: |
           pnpm run test:e2e-ci | tee output.log
-          if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" output.log; then
+          SNAPSHOT_ERROR=$(grep -c -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" output.log)
+          FAILED_ERROR=$(grep -c "failed" output.log)
+          if [ "$SNAPSHOT_ERROR" -gt 0 ] && [ "$SNAPSHOT_ERROR" -eq "$FAILED_ERROR" ]; then
             echo "Playwright tests failed due to a snapshot issue."
             echo "SNAPSHOT_DIFFERENCES=true" >> $GITHUB_ENV
             exit 1
-          elif grep -q "failed" output.log; then
+          elif [ "$FAILED_ERROR" -gt 0 ]; then
             echo "Playwright tests failed due to a non-snapshot issue."
             exit 1
           fi
