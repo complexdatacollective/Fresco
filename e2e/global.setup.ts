@@ -68,7 +68,7 @@ test('create test database and setup app', async ({
     await page.fill('input[name="password"]', 'Administrator1!');
     await page.click('button[type="submit"]');
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
     console.log('✅ Signed in successfully');
 
     // go to /settings
@@ -77,7 +77,7 @@ test('create test database and setup app', async ({
     const resetButton = page.getByRole('button', {
       name: 'Reset all app data',
     });
-    await resetButton.click({ timeout: 10000 });
+    await resetButton.click({ timeout: 10_000 });
     const confirmButton = page.getByRole('button', { name: 'Delete all data' });
     await confirmButton.click({ timeout: 10000 });
 
@@ -151,8 +151,8 @@ test('create test database and setup app', async ({
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();
   const limitInterviewsSwitch = page.getByRole('switch').last();
-  await anonymousRecruitmentSwitch.click({ timeout: 10000 });
-  await limitInterviewsSwitch.click({ timeout: 10000 });
+  await anonymousRecruitmentSwitch.click({ timeout: 10_000 });
+  await limitInterviewsSwitch.click({ timeout: 10_000 });
 
   await expect(anonymousRecruitmentSwitch).toBeChecked();
   await expect(limitInterviewsSwitch).toBeChecked();
