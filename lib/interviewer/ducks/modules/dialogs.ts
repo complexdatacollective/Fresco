@@ -1,22 +1,10 @@
-import { type Dispatch } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 import { type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
-
-const OPEN_DIALOG = Symbol('PROTOCOL/OPEN_DIALOG');
-const CLOSE_DIALOG = Symbol('PROTOCOL/CLOSE_DIALOG');
-
-type OpenDialogAction = {
-  type: typeof OPEN_DIALOG;
-  id: string;
-  dialog: Omit<Dialog, 'id'>;
-};
-
-type CloseDialogAction = {
-  type: typeof CLOSE_DIALOG;
-  id: Dialog['id'];
-};
-
-type Action = OpenDialogAction | CloseDialogAction;
 
 export type Dialog = {
   id: string;
@@ -27,7 +15,7 @@ export type Dialog = {
   onCancel?: () => void;
 };
 
-const initialState = [
+const initialState: Dialog[] = [
   // {
   //   id: '1234-1234-1',
   //   type: 'Confirm',
@@ -58,56 +46,63 @@ const initialState = [
   //   onConfirm: () => {},
   //   onCancel: () => {},
   // },
-] as Dialog[];
+];
 
-const openDialog = (dialog: Dialog) => (dispatch: Dispatch) =>
-  new Promise((resolve) => {
-    const onConfirm = () => {
-      if (dialog.onConfirm) {
-        dialog.onConfirm();
-      }
-      resolve(true);
-    };
+// Async thunk for opening dialog with Promise resolution
+export const openDialog = createAsyncThunk(
+  'dialogs/open',
+  async (dialog: Omit<Dialog, 'id'>, { dispatch }) => {
+    return new Promise<boolean>((resolve) => {
+      const id = uuid();
 
-    const onCancel = () => {
-      if (dialog.onCancel) {
-        dialog.onCancel();
-      }
-      resolve(false);
-    };
+      const onConfirm = () => {
+        if (dialog.onConfirm) {
+          dialog.onConfirm();
+        }
+        dispatch(closeDialog(id));
+        resolve(true);
+      };
 
-    dispatch<OpenDialogAction>({
-      id: uuid(),
-      type: OPEN_DIALOG,
-      dialog: {
-        ...dialog,
-        onConfirm,
-        onCancel,
-      },
+      const onCancel = () => {
+        if (dialog.onCancel) {
+          dialog.onCancel();
+        }
+        dispatch(closeDialog(id));
+        resolve(false);
+      };
+
+      // Add the dialog to state
+      dispatch(
+        dialogsSlice.actions.addDialog({
+          id,
+          ...dialog,
+          onConfirm,
+          onCancel,
+        }),
+      );
+
+      return id; // Return ID for potential later reference
     });
-  });
+  },
+);
 
-const closeDialog = (id: Dialog['id']) => ({
-  type: CLOSE_DIALOG,
-  id,
+const dialogsSlice = createSlice({
+  name: 'dialogs',
+  initialState,
+  reducers: {
+    addDialog: (state, action: PayloadAction<Dialog>) => {
+      // Redux Toolkit uses Immer under the hood, so we can "mutate" state
+      state.push(action.payload);
+    },
+    closeDialog: (state, action: PayloadAction<string>) => {
+      // Return an array without the dialog with the specified ID
+      return state.filter((dialog) => dialog.id !== action.payload);
+    },
+  },
 });
 
-function reducer(state = initialState, action: Action): Dialog[] {
-  switch (action.type) {
-    case OPEN_DIALOG:
-      return [...state, { id: action.id, ...action.dialog }];
-    case CLOSE_DIALOG:
-      return [...state.filter((dialog) => dialog.id !== action.id)];
-    default:
-      return state;
-  }
-}
+// Export the action creator separately for direct use
+export const { closeDialog } = dialogsSlice.actions;
 
-const actionCreators = {
-  openDialog,
-  closeDialog,
-};
-
-export { actionCreators };
-
-export default reducer;
+// Export the reducer
+export default dialogsSlice.reducer;

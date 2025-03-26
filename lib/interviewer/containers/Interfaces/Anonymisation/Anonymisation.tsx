@@ -1,11 +1,10 @@
-import type { Stage, Validation } from '@codaco/protocol-validation';
-import { Check } from 'lucide-react';
+import type { Stage } from '@codaco/protocol-validation';
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { Button } from '~/lib/ui/components';
-import { Markdown, Text } from '~/lib/ui/components/Fields';
+import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
+import Form from '../../Form';
 import type { BeforeNextFunction } from '../../ProtocolScreen';
 import type { StageProps } from '../../Stage';
 import { usePassphrase } from './usePassphrase';
@@ -14,31 +13,11 @@ type AnonymisationProps = StageProps & {
   stage: Extract<Stage, { type: 'Anonymisation' }>;
 };
 
-type InputState = {
-  touched: boolean;
-  error: string | null;
-  isValid: boolean;
-  value: string;
-};
-
 export default function Anonymisation(props: AnonymisationProps) {
-  const [input1, setInput1] = useState<InputState>({
-    touched: false,
-    error: null,
-    isValid: false,
-    value: '',
-  });
-  const [input2, setInput2] = useState<InputState>({
-    touched: false,
-    error: null,
-    isValid: false,
-    value: '',
-  });
-
   const { updateReady } = useReadyForNextStage();
   const {
     registerBeforeNext,
-    stage: { introductionPanel, validation },
+    stage: { explanationText, validation: passphraseValidation },
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
@@ -62,30 +41,12 @@ export default function Anonymisation(props: AnonymisationProps) {
     registerBeforeNext(preventNavigationWithoutPassphrase);
   }, [registerBeforeNext, preventNavigationWithoutPassphrase]);
 
-  const handleSetPassphrase = useCallback(() => {
-    if (input1.value === input2.value) {
-      setPassphrase(input1.value);
+  const handleSetPassphrase = useCallback(
+    (fields: { passphrase: string }) => {
+      setPassphrase(fields.passphrase);
       updateReady(true);
-    }
-  }, [input1, input2, setPassphrase, updateReady]);
-
-  /**
-   * Function for validating the passphrase.
-   *
-   * Passphrase is always required, and may optionally have a min and max length
-   * specified in the protocol.
-   */
-  const validate = useCallback(
-    (value: string) => {
-      const stuff: Validation = {
-        required: true,
-        ...validation,
-      };
-
-      // TODO
-      return false;
     },
-    [validation],
+    [setPassphrase, updateReady],
   );
 
   return (
@@ -110,9 +71,9 @@ export default function Anonymisation(props: AnonymisationProps) {
           }}
         >
           <h1 className="mb-8 text-center text-balance">
-            {introductionPanel.title}
+            {explanationText.title}
           </h1>
-          <Markdown label={introductionPanel.text} />
+          <Markdown label={explanationText.body} />
           <div className="mt-8 text-center">
             {passphrase && (
               <p className="my-10 text-xl font-bold">
@@ -121,91 +82,35 @@ export default function Anonymisation(props: AnonymisationProps) {
             )}
             {!passphrase && (
               <div>
-                <Text
+                <Form
+                  form="passphrase"
+                  onSubmit={handleSetPassphrase}
+                  subject={{ entity: 'ego' }}
                   autoFocus
-                  type="password"
-                  input={{
-                    name: 'passphrase-1',
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                      const isValid = validate(e.target.value);
-                      setInput1({
-                        ...input1,
-                        value: e.target.value,
-                        error: isValid ?? '',
-                        isValid: !isValid,
-                      });
+                  fields={[
+                    {
+                      label: null,
+                      name: 'passphrase',
+                      component: 'Text',
+                      placeholder: 'Enter your passphrase...',
+                      validation: {
+                        required: true,
+                        ...passphraseValidation,
+                      },
                     },
-                    onBlur: () => {
-                      setInput1({
-                        ...input1,
-                        touched: true,
-                      });
-                    },
-                    value: input1.value,
-                  }}
-                  meta={{
-                    error: input1.error,
-                    invalid: !input1.isValid,
-                    touched: input1.touched,
-                  }}
-                  placeholder="Enter a passphrase..."
-                  adornmentRight={
-                    input1.isValid && <Check className="text-success" />
-                  }
-                />
-                {input1.isValid && input1.value.length > 0 && (
-                  <Text
-                    type="password"
-                    input={{
+                    {
+                      label: null,
                       name: 'passphrase-2',
-                      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        const isValid = validate(e.target.value);
-
-                        if (input1.value !== e.target.value) {
-                          setInput2({
-                            ...input2,
-                            value: e.target.value,
-                            error: 'Passphrases do not match',
-                            isValid: false,
-                          });
-
-                          return;
-                        }
-
-                        setInput2({
-                          ...input2,
-                          value: e.target.value,
-                          error: isValid ?? '',
-                          isValid: !isValid,
-                        });
+                      component: 'Text',
+                      placeholder: 'Re-enter your passphrase...',
+                      validation: {
+                        required: true,
+                        sameAs: 'passphrase',
+                        ...passphraseValidation,
                       },
-                      onBlur: () => {
-                        setInput2({
-                          ...input2,
-                          touched: true,
-                        });
-                      },
-                      value: input2.value,
-                    }}
-                    meta={{
-                      error: input2.error,
-                      invalid: !input2.isValid,
-                      touched: input2.touched,
-                    }}
-                    placeholder="Enter a passphrase..."
-                    adornmentRight={
-                      input2.isValid && <Check className="text-success" />
-                    }
-                  />
-                )}
-                <div className="w-full text-right">
-                  <Button
-                    onClick={handleSetPassphrase}
-                    disabled={!input1.isValid || !input2.isValid}
-                  >
-                    Set Passphrase
-                  </Button>
-                </div>
+                    },
+                  ]}
+                />
               </div>
             )}
           </div>

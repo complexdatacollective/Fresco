@@ -1,5 +1,5 @@
 import type { Protocol, Stage } from '@codaco/protocol-validation';
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -86,7 +86,7 @@ export default function GeospatialInterface({
 
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
-  }) as NcNode[];
+  });
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
@@ -301,11 +301,9 @@ export default function GeospatialInterface({
               initial="initial"
               animate="animate"
               exit="exit"
+              className="[--base-node-size:calc(var(--nc-base-font-size)*6.6)]"
             >
-              <Node
-                {...stageNodes[navState.activeIndex]}
-                style={{ fontSize: `calc(var(--nc-base-font-size) * 8)` }}
-              />
+              <Node {...stageNodes[navState.activeIndex]!} />
             </motion.div>
             <Button
               size="small"

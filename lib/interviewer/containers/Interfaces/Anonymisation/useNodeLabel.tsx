@@ -1,11 +1,12 @@
 import { type NcNode } from '@codaco/shared-consts';
 import { useEffect, useState } from 'react';
-import { getEntityAttributes } from '~/utils/general';
+import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';
 
 export function useNodeLabel(node: NcNode) {
   const [label, setLabel] = useState<string | undefined>(undefined);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { getByName } = useNodeAttributes(node);
 
   useEffect(() => {

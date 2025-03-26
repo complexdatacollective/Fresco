@@ -5,6 +5,7 @@ import {
   type EntityAttributesProperty,
   type EntityPrimaryKey,
   type NcEdge,
+  type NcEntity,
   type NcNetwork,
   type NcNode,
 } from '@codaco/shared-consts';
@@ -372,6 +373,46 @@ const sessionReducer = createReducer(initialState, (builder) => {
       },
     };
   });
+
+  builder.addCase(updateEdge, (state, action) => {
+    const { edgeId, newModelData, newAttributeData } = action.payload;
+    const { network } = state;
+    const { edges } = network;
+
+    return {
+      ...state,
+      lastUpdated: new Date().toISOString(),
+      network: {
+        ...network,
+        edges: edges.map((edge) => {
+          if (edge[entityPrimaryKeyProperty] !== edgeId) {
+            return edge;
+          }
+
+          return {
+            ...edge,
+            ...newModelData,
+            [entityAttributesProperty]: {
+              ...edge[entityAttributesProperty],
+              ...newAttributeData,
+            },
+          };
+        }),
+      } as NcNetwork,
+    };
+  });
+
+  builder.addCase(updateStageMetadata, (state, action) => {
+    const stageMetadata = action.payload;
+    const currentStep = state.currentStep;
+    return {
+      ...state,
+      stageMetadata: {
+        ...state.stageMetadata,
+        [currentStep]: stageMetadata,
+      },
+    };
+  });
 });
 
 // const getReducer =
@@ -446,7 +487,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
 //     }
 //   };
 
-const getSessionMeta = (state) => {
+const getSessionMeta = (state: RootState) => {
   const promptId = getPromptId(state);
   const stageId = getCurrentStageId(state);
 
@@ -466,7 +507,7 @@ export const addNodeToPrompt = createAsyncThunk(
     { getState },
   ) => {
     const { nodeId, promptAttributes } = props;
-    const state = getState();
+    const state = getState() as RootState;
     const promptId = getPromptId(state);
 
     return {
@@ -498,7 +539,7 @@ export const updateEgo = createAsyncThunk(
     { getState },
   ) => {
     const { modelData, attributeData } = props;
-    const state = getState();
+    const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
 
     return {
@@ -510,12 +551,12 @@ export const updateEgo = createAsyncThunk(
 );
 
 export const updateEdge = createAction<{
-  edgeId: EntityPrimaryKey;
-  newModelData: Record<string, unknown>;
-  newAttributeData: Record<string, unknown>;
+  edgeId: NcEntity[EntityPrimaryKey];
+  newModelData?: Record<string, unknown>;
+  newAttributeData?: Record<string, unknown>;
 }>(actionTypes.updateEdge);
 
-export const updateStageMetadata = createAction<StageMetadata>(
+export const updateStageMetadata = createAction<StageMetadataEntry[]>(
   actionTypes.updateStageMetadata,
 );
 export const setSessionFinished = createAction<string>(

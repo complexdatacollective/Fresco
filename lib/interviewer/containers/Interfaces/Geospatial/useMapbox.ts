@@ -14,7 +14,7 @@ const MAP_CONSTS = {
 
 type UseMapboxProps = {
   mapOptions: MapOptions;
-  getAssetUrl: (url: string) => string;
+  getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
   show: boolean;

@@ -1,12 +1,15 @@
 import { type NcNode } from '@codaco/shared-consts';
-import { forwardRef, memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColor } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/Node';
 import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
 
 const Node = memo(
-  forwardRef<React.ElementRef<typeof UINode>, NcNode>((props: NcNode, ref) => {
+  forwardRef<
+    React.ElementRef<typeof UINode>,
+    NcNode & React.ComponentProps<typeof UINode>
+  >((props: NcNode & React.ComponentProps<typeof UINode>, ref) => {
     // const [label, setLabel] = useState<string | undefined>(undefined);
     // const [loading, setLoading] = useState(true);
     const { type } = props;

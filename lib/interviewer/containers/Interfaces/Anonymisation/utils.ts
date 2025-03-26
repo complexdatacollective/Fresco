@@ -1,8 +1,8 @@
+import { type Variable } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
   type EntitySecureAttributesMeta,
   type NcNode,
-  type VariableDefinition,
 } from '@codaco/shared-consts';
 
 export const SESSION_STORAGE_KEY = 'passphrase';
@@ -83,7 +83,7 @@ export async function decryptData(
 
 export async function generateSecureAttributes(
   attributes: NcNode[EntityAttributesProperty],
-  codebookVariables: Record<string, VariableDefinition>,
+  codebookVariables: Record<string, Variable>,
   passphrase: string,
 ): Promise<{
   secureAttributes: NcNode[EntitySecureAttributesMeta];

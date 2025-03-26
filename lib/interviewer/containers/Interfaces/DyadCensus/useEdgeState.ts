@@ -13,7 +13,6 @@ import {
   edgeExists,
   updateEdge,
   updateStageMetadata,
-  type StageMetadata,
   type StageMetadataEntry,
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
@@ -25,17 +24,17 @@ const matchEntry =
     (p === promptIndex && b === pair[0] && a === pair[1]);
 
 const getStageMetadataResponse = (
-  state: StageMetadata | undefined,
+  state: StageMetadataEntry[] | undefined,
   promptIndex: number,
   pair: Pair,
 ) => {
-  // If the state is not an array or the pair is not a pair, return false
+  // If the state is not an array or the pair is not a pair, return null
   if (!Array.isArray(state) || pair.length !== 2) {
-    return null;
+    return false;
   }
 
   const answer = state.find(matchEntry(promptIndex, pair));
-  return answer ? answer[3] : null;
+  return answer ? answer[3] : false;
 };
 
 type Pair = [string, string];
@@ -96,6 +95,8 @@ export default function useEdgeState(
   // If value is boolean we are creating or deleting the edge.
   // If value is string, we are creating an edge with a variable value,
   // or updating the edge variable value.
+  //
+  // Fucking stupid design.
   const setEdge = (value: boolean | string | number) => {
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
@@ -104,12 +105,15 @@ export default function useEdgeState(
       return;
     }
 
+    // Creating an edge
     if (value === true) {
       dispatch(
         addEdge({
-          from: pair[0],
-          to: pair[1],
-          type: edgeType,
+          modelData: {
+            from: pair[0],
+            to: pair[1],
+            type: edgeType,
+          },
         }) as unknown as AnyAction,
       );
 
@@ -117,7 +121,7 @@ export default function useEdgeState(
         ...(stageMetadata?.filter(
           (item) => !matchEntry(promptIndex, pair)(item),
         ) ?? []),
-      ];
+      ] as StageMetadataEntry[];
 
       dispatch(updateStageMetadata(newStageMetadata) as unknown as AnyAction);
     }
@@ -128,42 +132,42 @@ export default function useEdgeState(
       }
 
       // Construct new stage metadata from scratch
-      // if (!stageMetadata) {}
-
       const newStageMetadata = [
         ...(stageMetadata?.filter(
           (item) => !matchEntry(promptIndex, pair)(item),
         ) ?? []),
         [promptIndex, ...pair, value],
-      ];
+      ] as StageMetadataEntry[];
 
-      dispatch(updateStageMetadata(newStageMetadata) as unknown as AnyAction);
+      const action = updateStageMetadata(
+        newStageMetadata,
+      ) as unknown as AnyAction;
+
+      dispatch(action);
     }
 
     if (typeof value === 'string' || typeof value === 'number') {
       if (existingEdgeId) {
-        dispatch(
-          updateEdge(
-            existingEdgeId,
-            {},
-            {
-              [edgeVariable!]: value,
-            },
-          ) as unknown as AnyAction,
-        );
+        const action = updateEdge({
+          edgeId: existingEdgeId,
+          newAttributeData: {
+            [edgeVariable!]: value,
+          },
+        });
+
+        dispatch(action);
       } else {
-        dispatch(
-          addEdge(
-            {
-              from: pair[0],
-              to: pair[1],
-              type: edgeType,
-            },
-            {
-              [edgeVariable!]: value,
-            },
-          ) as unknown as AnyAction,
-        );
+        const action = addEdge({
+          modelData: {
+            from: pair[0],
+            to: pair[1],
+            type: edgeType,
+          },
+          attributeData: {
+            [edgeVariable!]: value,
+          },
+        }) as unknown as AnyAction;
+        dispatch(action);
       }
     }
   };

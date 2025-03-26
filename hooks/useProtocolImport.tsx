@@ -17,15 +17,32 @@ import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
-import { formatNumberList } from '~/utils/general';
 import {
   fileAsArrayBuffer,
   getProtocolAssets,
   getProtocolJson,
 } from '~/utils/protocolImport';
 
-// Utility helper for adding artificial delay to async functions
-// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+/**
+ * Formats a list of numbers into a human-readable string.
+ */
+export function formatNumberList(numbers: number[]): string {
+  // "1"
+  if (numbers.length === 1) {
+    return numbers[0]!.toString();
+  }
+
+  // "1 and 2"
+  if (numbers.length === 2) {
+    return numbers.join(' and ');
+  }
+
+  // "1, 2, and 3"
+  const lastNumber = numbers.pop();
+  const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
+
+  return formattedList;
+}
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);

@@ -1,4 +1,9 @@
-import { entityAttributesProperty } from '@codaco/shared-consts';
+import { Variables } from '@codaco/protocol-validation';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  VariableValue,
+} from '@codaco/shared-consts';
 import { describe, expect, it, vi } from 'vitest';
 import * as protocolSelectors from '../../selectors/protocol';
 import * as sessionSelectors from '../../selectors/session';
@@ -27,7 +32,7 @@ const mockStore = {
   getState: () => ({}),
 } as AppStore;
 
-const mockOtherFormValues = {
+const mockOtherFormValues: Record<string, VariableValue> = {
   uid1: 1,
   uid2: '2012-10-07',
   uid3: 'word',
@@ -36,35 +41,37 @@ const mockOtherFormValues = {
   uid6: false,
 };
 
+const mockCodebookVariables: Variables = {
+  uid1: { name: 'Variable 1', type: 'number' },
+  uid2: { name: 'Date Variable', type: 'datetime' },
+  uid3: { name: 'String Variable', type: 'text' },
+  uid4: {
+    name: 'Array Variable',
+    type: 'ordinal',
+    options: [
+      {
+        label: '1',
+        value: 1,
+      },
+      {
+        label: '2',
+        value: 2,
+      },
+      {
+        label: '3',
+        value: 3,
+      },
+    ],
+  },
+  uid5: { name: 'Layout Variable', type: 'layout' },
+  uid6: { name: 'Boolean Variable', type: 'boolean' },
+};
+
 describe('Validations', () => {
   beforeEach(() => {
     vi.resetAllMocks();
 
-    const getCodebookVarsSubjectMock = vi.fn((state) => ({
-      uid1: { name: 'Variable 1', type: 'number' },
-      uid2: { name: 'Date Variable', type: 'datetime' },
-      uid3: { name: 'String Variable', type: 'string' },
-      uid4: {
-        name: 'Array Variable',
-        type: 'ordinal',
-        options: [
-          {
-            label: '1',
-            value: 1,
-          },
-          {
-            label: '2',
-            value: 2,
-          },
-          {
-            label: '3',
-            value: 3,
-          },
-        ],
-      },
-      uid5: { name: 'Layout Variable', type: 'layout' },
-      uid6: { name: 'Boolean Variable', type: 'boolean' },
-    }));
+    const getCodebookVarsSubjectMock = vi.fn((_state) => mockCodebookVariables);
 
     vi.spyOn(
       protocolSelectors,
@@ -73,6 +80,7 @@ describe('Validations', () => {
 
     const entities = [
       {
+        [entityPrimaryKeyProperty]: 'uid1',
         [entityAttributesProperty]: mockOtherFormValues,
       },
     ];
@@ -281,60 +289,60 @@ describe('Validations', () => {
 
     it('passes for null or undefined', () => {
       const subject = unique(null, mockStore);
-      expect(subject(null, '', props, 'uid1')).toBe(undefined);
-      expect(subject(undefined, '', props, 'uid1')).toBe(undefined);
+      expect(subject(null, {}, props, 'uid1')).toBe(undefined);
+      expect(subject(undefined, {}, props, 'uid1')).toBe(undefined);
     });
 
     it('passes for a unique number', () => {
       const subject = unique(null, mockStore);
-      expect(subject(2, '', props, 'uid1')).toBe(undefined);
+      expect(subject(2, {}, props, 'uid1')).toBe(undefined);
     });
 
     it('fails for a matching number', () => {
       const subject = unique(null, mockStore);
-      expect(subject(1, '', props, 'uid1')).toBe(errorMessage);
+      expect(subject(1, {}, props, 'uid1')).toBe(errorMessage);
     });
 
     it('passes for a unique string', () => {
       const subject = unique(null, mockStore);
-      expect(subject('diff', '', props, 'uid3')).toBe(undefined);
+      expect(subject('diff', {}, props, 'uid3')).toBe(undefined);
     });
 
     it('fails for a matching string', () => {
       const subject = unique(null, mockStore);
-      expect(subject('word', '', props, 'uid3')).toBe(errorMessage);
+      expect(subject('word', {}, props, 'uid3')).toBe(errorMessage);
     });
 
     it('passes for a unique array', () => {
       const subject = unique(null, mockStore);
-      expect(subject([3, 1], '', props, 'uid4')).toBe(undefined);
+      expect(subject([3, 1], {}, props, 'uid4')).toBe(undefined);
     });
 
     it('fails for a matching array', () => {
       const subject = unique(null, mockStore);
-      expect(subject(mockOtherFormValues.uid4, '', props, 'uid4')).toBe(
+      expect(subject(mockOtherFormValues.uid4, {}, props, 'uid4')).toBe(
         errorMessage,
       );
     });
 
     it('passes for a unique boolean', () => {
       const subject = unique(null, mockStore);
-      expect(subject(true, '', props, 'uid6')).toBe(undefined);
+      expect(subject(true, {}, props, 'uid6')).toBe(undefined);
     });
 
     it('fails for a matching boolean', () => {
       const subject = unique(null, mockStore);
-      expect(subject(false, '', props, 'uid6')).toBe(errorMessage);
+      expect(subject(false, {}, props, 'uid6')).toBe(errorMessage);
     });
 
     it('passes for a unique object', () => {
       const subject = unique(null, mockStore);
-      expect(subject({ x: 2.1, y: 3.2 }, '', props, 'uid5')).toBe(undefined);
+      expect(subject({ x: 2.1, y: 3.2 }, {}, props, 'uid5')).toBe(undefined);
     });
 
     it('fails for a matching object', () => {
       const subject = unique(null, mockStore);
-      expect(subject({ y: 2.3, x: 1.2 }, '', props, 'uid5')).toBe(errorMessage);
+      expect(subject({ y: 2.3, x: 1.2 }, {}, props, 'uid5')).toBe(errorMessage);
     });
   });
 

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 'use client';
 
+import { type NcNetwork } from '@codaco/shared-consts';
 import { debounce, isEqual } from 'es-toolkit';
 import { omit } from 'es-toolkit/compat';
 import { useParams } from 'next/navigation';
@@ -8,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useToast } from '~/components/ui/use-toast';
 import usePrevious from '~/hooks/usePrevious';
+import { type StageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { ensureError } from '~/utils/ensureError';
 
@@ -21,7 +23,13 @@ const ServerSync = () => {
   const [, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const syncSession = async (data) => {
+  const syncSession = async (data: {
+    id: string;
+    network: NcNetwork;
+    currentStep: number;
+    stageMetadata: StageMetadata | undefined;
+    lastUpdated: string;
+  }) => {
     setLoading(true);
 
     try {

@@ -1,7 +1,7 @@
 import type { StageSubject, Variable } from '@codaco/protocol-validation';
 import { createSelector } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
-import { getCodebook } from '../ducks/modules/protocol';
+import { getAssetManifest, getCodebook } from '../ducks/modules/protocol';
 import { getStageSubject } from './prop';
 
 // Get all variables for all subjects in the codebook, adding the entity and type
@@ -84,3 +84,9 @@ export const getCodebookVariablesForNodeType = (type: string) =>
     getCodebook,
     (codebook) => codebook.node?.[type]?.variables ?? {},
   );
+
+export const makeGetApiKeyAssetValue = (key: string) =>
+  createSelector(getAssetManifest, (manifest) => {
+    const value = manifest[key]?.value;
+    return value;
+  });

@@ -7,7 +7,7 @@ import { invariant } from 'es-toolkit';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { getCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
-import { getEntityAttributes } from '~/utils/general';
+import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { usePassphrase } from './usePassphrase';
 import { decryptData, UnauthorizedError } from './utils';
 
@@ -62,7 +62,7 @@ export const useNodeAttributes = (
               iv: secureAttributes.iv,
               salt: secureAttributes.salt,
             },
-            data: nodeAttributes[attributeId],
+            data: nodeAttributes[attributeId] as number[],
           },
           passphrase,
         );
@@ -82,7 +82,7 @@ export const useNodeAttributes = (
 
         // eslint-disable-next-line no-console
         console.error(e);
-        return '⚠️';
+        return '⚠️' as unknown as T;
       }
     },
     [

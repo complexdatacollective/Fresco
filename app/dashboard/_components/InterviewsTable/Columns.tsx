@@ -1,6 +1,6 @@
 'use client';
 
-import type { Stage } from '@codaco/shared-consts';
+import type { Stage } from '@codaco/protocol-validation';
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';

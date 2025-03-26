@@ -1,6 +1,10 @@
 import { type Variable } from '@codaco/protocol-validation';
 import {
+  entityAttributesProperty,
   entityPrimaryKeyProperty,
+  type NcEdge,
+  type NcEgo,
+  type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
 import { isNil, isString } from 'es-toolkit';
@@ -167,16 +171,20 @@ export const isMatchingValue = (
 
 export const isSomeValueMatching = (
   value: FieldValue,
-  otherNetworkEntities,
+  otherNetworkEntities: NcNode[] | NcEdge[] | NcEgo[],
   name: string,
 ) =>
   some(
     otherNetworkEntities,
     (entity) =>
-      entity.attributes && isMatchingValue(value, entity.attributes[name]),
+      entity[entityAttributesProperty] &&
+      isMatchingValue(value, entity[entityAttributesProperty][name]),
   );
 
-export const getOtherNetworkEntities = (entities, entityId: string) =>
+export const getOtherNetworkEntities = (
+  entities: NcNode[] | NcEdge[] | NcEgo[],
+  entityId?: string,
+) =>
   filter(
     entities,
     (node) => !entityId || node[entityPrimaryKeyProperty] !== entityId,
@@ -189,7 +197,7 @@ export const unique = (_: unknown, store: AppStore) => {
     {
       validationMeta,
     }: {
-      validationMeta: { entityId: string };
+      validationMeta: { entityId?: string };
     },
     name: string,
   ) => {
@@ -218,13 +226,6 @@ const getVariableName = (variableId: string, store: AppStore) => {
   );
 
   return get(codebookVariablesForType, [variableId, 'name'], undefined);
-};
-
-const getVariableType = (variableId: string, store: AppStore) => {
-  const codebookVariablesForType = getCodebookVariablesForSubjectType(
-    store.getState(),
-  );
-  return get(codebookVariablesForType, [variableId, 'type']);
 };
 
 export const differentFrom = (variableId: string, store: AppStore) => {
@@ -343,6 +344,9 @@ export const lessThanVariable = (variableId: string, store: AppStore) => {
       : undefined;
 };
 
+// Type representing a variable with a validation object
+type VariableWithValidation = Extract<Variable, { validation?: unknown }>;
+
 /**
  *
  * Takes a validation array/function, and injects the store (needed)
@@ -353,19 +357,23 @@ export const lessThanVariable = (variableId: string, store: AppStore) => {
  * @returns {function} The validation function
  */
 export const getValidation = (
-  validation: ReduxFormValidation,
+  validation: NonNullable<VariableWithValidation['validation']>,
   store: AppStore,
 ) => {
-  const entries = Object.entries(validation) as [
-    keyof typeof validations,
-    unknown,
-  ][];
+  const entries = Object.entries(validation);
 
-  entries.map(([type, options]) =>
-    Object.hasOwnProperty.call(validations, type)
-      ? validations[type](options, store)
-      : () => `Validation "${type}" not found`,
-  );
+  return entries.map(([type, options]) => {
+    if (type in validations) {
+      const fn = validations[type as keyof typeof validations];
+      // Cast the function to accept any type for options since we know it's from our validations
+      return (fn as (options: unknown, store: AppStore) => ValidationFunction)(
+        options,
+        store,
+      );
+    }
+
+    return () => `Validation "${type}" not found`;
+  });
 };
 
 const validations = {

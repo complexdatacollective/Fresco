@@ -1,7 +1,8 @@
+/* eslint-disable react/display-name */
+import { type StageType } from '@codaco/protocol-validation';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Icon from '~/lib/ui/components/Icon';
-import { StageType } from '../../protocol-consts';
 
 const StageLoading = () => (
   <div className="flex h-full w-full items-center justify-center">
@@ -72,44 +73,45 @@ const NotFoundInterface = ({ interfaceType }: { interfaceType: string }) => (
   </div>
 );
 
-const getInterface = (interfaceType: string) => {
+type InterfaceType = StageType | 'FinishSession';
+
+const getInterface = (interfaceType: InterfaceType) => {
   switch (interfaceType) {
-    case StageType.NameGenerator:
+    case 'NameGenerator':
       return NameGenerator;
-    case StageType.NameGeneratorQuickAdd:
+    case 'NameGeneratorQuickAdd':
       return NameGeneratorQuickAdd;
-    case StageType.NameGeneratorRoster:
+    case 'NameGeneratorRoster':
       return NameGeneratorRoster;
-    case StageType.Sociogram:
+    case 'Sociogram':
       return Sociogram;
-    case StageType.Information:
+    case 'Information':
       return Information;
-    case StageType.OrdinalBin:
+    case 'OrdinalBin':
       return OrdinalBin;
-    case StageType.CategoricalBin:
+    case 'CategoricalBin':
       return CategoricalBin;
-    case StageType.Narrative:
+    case 'Narrative':
       return Narrative;
-    case StageType.AlterForm:
+    case 'AlterForm':
       return AlterForm;
-    case StageType.EgoForm:
+    case 'EgoForm':
       return EgoForm;
-    case StageType.AlterEdgeForm:
+    case 'AlterEdgeForm':
       return AlterEdgeForm;
-    case StageType.DyadCensus:
+    case 'DyadCensus':
       return DyadCensus;
-    case StageType.TieStrengthCensus:
+    case 'TieStrengthCensus':
       return TieStrengthCensus;
-    case StageType.Anonymisation:
+    case 'Anonymisation':
       return Anonymisation;
-    case StageType.OneToManyDyadCensus:
+    case 'OneToManyDyadCensus':
       return OneToManyDyadCensus;
-    case StageType.Geospatial:
+    case 'Geospatial':
       return Geospatial;
     case 'FinishSession':
       return FinishSession;
     default:
-      // eslint-disable-next-line react/display-name
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }
 };

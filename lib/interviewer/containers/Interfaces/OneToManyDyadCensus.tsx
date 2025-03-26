@@ -1,9 +1,10 @@
-import { type StageSubject } from '@codaco/protocol-validation';
+import { type Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
+import { type UnknownAction } from '@reduxjs/toolkit';
 import {
   AnimatePresence,
   LayoutGroup,
@@ -11,12 +12,12 @@ import {
   type Variants,
 } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { edgeExists, toggleEdge } from '../../ducks/modules/session';
-import { useAppDispatch } from '../../hooks/redux';
 import {
   getNetworkEdges,
   getNetworkNodesForType,
@@ -30,12 +31,8 @@ const cardvariants: Variants = {
   show: { scale: 1, opacity: 1 },
 };
 
-type OneToManyDyadCensusProps = Omit<StageProps, 'stage'> & {
-  stage: {
-    subject: StageSubject;
-  };
-
-  // add any additional props here
+type OneToManyDyadCensusProps = StageProps & {
+  stage: Extract<Stage, { type: 'OneToManyDyadCensus' }>;
 };
 
 export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
@@ -87,7 +84,7 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     promptIndex,
   } = usePrompts();
 
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   // Reset the step when the prompt changes
   useEffect(() => {
@@ -95,15 +92,15 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   }, [promptIndex]);
 
   const handleNodeClick = (node: NcNode) => () => {
-    dispatch(
-      toggleEdge({
-        modelData: {
-          from: source![entityPrimaryKeyProperty],
-          to: node[entityPrimaryKeyProperty],
-          type: createEdge!,
-        },
-      }),
-    );
+    const edgeAction = toggleEdge({
+      modelData: {
+        from: source![entityPrimaryKeyProperty],
+        to: node[entityPrimaryKeyProperty],
+        type: createEdge!,
+      },
+    }) as unknown as UnknownAction;
+
+    dispatch(edgeAction);
   };
 
   return (
@@ -136,7 +133,7 @@ export default function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                   edges,
                   node[entityPrimaryKeyProperty],
                   source![entityPrimaryKeyProperty],
-                  createEdge,
+                  createEdge!,
                 );
 
                 return (
