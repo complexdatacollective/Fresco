@@ -24,14 +24,16 @@ jobs:
         id: run_playwright_tests
         run: |
           pnpm run test:e2e-ci | tee output.log
-          SNAPSHOT_ERROR=$(grep -c -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" output.log)
-          FAILED_ERROR=$(grep -c "failed" output.log)
-          if [ "$SNAPSHOT_ERROR" -gt 0 ] && [ "$SNAPSHOT_ERROR" -eq "$FAILED_ERROR" ]; then
+          if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" output.log; then
             echo "Playwright tests failed due to a snapshot issue."
             echo "SNAPSHOT_DIFFERENCES=true" >> $GITHUB_ENV
             exit 1
-          elif [ "$FAILED_ERROR" -gt 0 ]; then
+          elif grep -q "failed" output.log; then
             echo "Playwright tests failed due to a non-snapshot issue."
+            exit 1
+          elif grep -q "e2e/global.setup.ts" output.log; then
+            echo "Playwright tests failed during global setup."
+            echo "SETUP_ERROR=true" >> $GITHUB_ENV
             exit 1
           fi
         env:
@@ -60,10 +62,10 @@ jobs:
           BRANCH_NAME=$(git branch -r --contains ${COMMIT_SHA} | grep -v HEAD | head -n 1 | sed 's/origin\///' | xargs)
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
       - name: Install Neon CLI
-        if: always() && steps.run_playwright_tests.outcome == 'failure'
+        if: always() && env.SETUP_ERROR == 'true'
         run: npm i -g neonctl@latest
       - name: Delete Neon branch if tests fail
-        if: always() && steps.run_playwright_tests.outcome == 'failure'
+        if: always() && env.SETUP_ERROR == 'true'
         run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
