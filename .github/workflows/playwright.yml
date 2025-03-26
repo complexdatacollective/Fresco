@@ -24,11 +24,11 @@ jobs:
         id: run_playwright_tests
         run: |
           pnpm run test:e2e-ci | tee output.log
-          if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" output.log; then
+          if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" -e "should match visual snapshot" output.log; then
             echo "Playwright tests failed due to a snapshot issue."
             echo "SNAPSHOT_DIFFERENCES=true" >> $GITHUB_ENV
             exit 1
-          elif grep -q "failed" output.log && grep -q "e2e/global.setup.ts" output.log; then
+          elif grep -q "failed" output.log && grep -q "e2e/global.setup.ts" output.log && ! grep -q "Warning: \[setup db\] › e2e/global.setup.ts took" output.log; then
             echo "Playwright tests failed during global setup."
             echo "SETUP_ERROR=true" >> $GITHUB_ENV
             exit 1
