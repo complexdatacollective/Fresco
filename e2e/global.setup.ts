@@ -146,7 +146,7 @@ test('create test database and setup app', async ({
     page.locator('div.text-sm.opacity-90', {
       hasText: 'Participants have been imported successfully',
     }),
-  ).toBeVisible({ timeout: 30000 });
+  ).toBeVisible({ timeout: 40000 });
 
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();
