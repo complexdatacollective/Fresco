@@ -28,7 +28,7 @@ jobs:
             echo "Playwright tests failed due to a snapshot issue."
             echo "SNAPSHOT_DIFFERENCES=true" >> $GITHUB_ENV
             exit 1
-          elif grep -q "e2e/global.setup.ts" output.log; then
+          elif grep -q "failed" output.log && grep -q "e2e/global.setup.ts" output.log; then
             echo "Playwright tests failed during global setup."
             echo "SETUP_ERROR=true" >> $GITHUB_ENV
             exit 1
