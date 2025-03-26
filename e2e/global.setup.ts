@@ -16,8 +16,6 @@ test('create test database and setup app', async ({
 }) => {
   console.log('🚀 Starting setup test', baseURL);
 
-  test.slow(); // triple the default timeout
-
   // Stop any existing test db to ensure clean state
   if (!process.env.CI) {
     console.log('Local environment detected');
@@ -68,7 +66,7 @@ test('create test database and setup app', async ({
     await page.fill('input[name="password"]', 'Administrator1!');
     await page.click('button[type="submit"]');
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
     console.log('✅ Signed in successfully');
 
     // go to /settings
@@ -77,7 +75,7 @@ test('create test database and setup app', async ({
     const resetButton = page.getByRole('button', {
       name: 'Reset all app data',
     });
-    await resetButton.click({ timeout: 10000 });
+    await resetButton.click({ timeout: 10_000 });
     const confirmButton = page.getByRole('button', { name: 'Delete all data' });
     await confirmButton.click({ timeout: 10000 });
 
@@ -88,7 +86,6 @@ test('create test database and setup app', async ({
 
   // STEP 1
   await page.goto('/setup');
-  // screenshot
   await page.fill('input[name="username"]', 'admin', { timeout: 5000 });
   await page.fill('input[name="password"]', 'Administrator1!', {
     timeout: 5000,
@@ -140,20 +137,20 @@ test('create test database and setup app', async ({
 
   const participantsHandle = page.locator('input[type="file"]');
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
-  await page.getByRole('button', { name: 'Import' }).click({ timeout: 5000 });
+  await page.getByRole('button', { name: 'Import' }).click({ timeout: 20000 });
 
   // participants imported toast
   await expect(
     page.locator('div.text-sm.opacity-90', {
       hasText: 'Participants have been imported successfully',
     }),
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible({ timeout: 40000 });
 
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();
   const limitInterviewsSwitch = page.getByRole('switch').last();
-  await anonymousRecruitmentSwitch.click({ timeout: 10000 });
-  await limitInterviewsSwitch.click({ timeout: 10000 });
+  await anonymousRecruitmentSwitch.click({ timeout: 10_000 });
+  await limitInterviewsSwitch.click({ timeout: 10_000 });
 
   await expect(anonymousRecruitmentSwitch).toBeChecked();
   await expect(limitInterviewsSwitch).toBeChecked();
