@@ -63,16 +63,22 @@ export const getInterviewById = (interviewId: string) =>
         },
       });
 
+      if (!interview) {
+        return null;
+      }
+
       return {
         ...interview,
         protocol: {
-          ...interview!.protocol,
-          codebook: interview!.protocol.codebook as Codebook,
-          stages: interview!.protocol.stages as Stage[],
+          ...interview.protocol,
+          codebook: interview.protocol.codebook as Codebook,
+          stages: interview.protocol.stages as Stage[],
         },
       };
     },
     [`getInterviewById-${interviewId}`, 'getInterviewById'],
   )(interviewId);
 
-export type GetInterviewByIdReturnType = ReturnType<typeof getInterviewById>;
+export type GetInterviewByIdReturnType = Awaited<
+  ReturnType<typeof getInterviewById>
+>;

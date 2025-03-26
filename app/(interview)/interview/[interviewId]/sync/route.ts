@@ -20,7 +20,6 @@ const routeHandler = async (
   request: NextRequest,
   { params }: { params: { interviewId: string } },
 ) => {
-  console.log('ROUTE HANDLER');
   const interviewId = params.interviewId;
 
   const rawRequest = await request.json();

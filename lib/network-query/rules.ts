@@ -1,12 +1,17 @@
+import { type FilterRule } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
+  type NcEdge,
+  type NcEgo,
+  type NcNetwork,
+  type NcNode,
 } from '@codaco/shared-consts';
 import predicate, { operators } from './predicate';
 
 const singleEdgeRule =
-  ({ type, attribute, operator, value: other }) =>
-  (node, edges) => {
+  ({ type, attribute, operator, value: other }: FilterRule['options']) =>
+  (node: NcNode, edges: NcEdge[]) => {
     const nodeEdges = edges.filter(
       (edge) =>
         edge.from === node[entityPrimaryKeyProperty] ||
@@ -38,9 +43,11 @@ const singleEdgeRule =
     return nodeHasEdgeWithAttribute;
   };
 
+export type SingleEdgeRule = typeof singleEdgeRule;
+
 const singleNodeRule =
-  ({ type, attribute, operator, value: other }) =>
-  (node) => {
+  ({ type, attribute, operator, value: other }: FilterRule['options']) =>
+  (node: NcNode) => {
     if (!attribute) {
       switch (operator) {
         case operators.EXISTS:
@@ -59,11 +66,13 @@ const singleNodeRule =
     );
   };
 
+export type SingleNodeRule = typeof singleNodeRule;
+
 // Reduce edges to any that match the rule
 // Filter nodes by the resulting edges
 const edgeRule =
-  ({ attribute, operator, type, value: other }) =>
-  (nodes, edges) => {
+  ({ attribute, operator, type, value: other }: FilterRule['options']) =>
+  (nodes: NcNetwork['nodes'], edges: NcNetwork['edges']) => {
     let filteredEdges;
     // If there is no attribute, we just care about filtering by type
     if (!attribute) {
@@ -98,6 +107,8 @@ const edgeRule =
     };
   };
 
+export type EdgeRule = typeof edgeRule;
+
 /**
  * Creates an alter rule, which can be called with `rule(node)`
  *
@@ -126,14 +137,14 @@ const edgeRule =
  * ```
  */
 const nodeRule =
-  ({ attribute, operator, type, value: other }) =>
-  (nodes = [], edges = []) => {
-    let filteredNodes;
+  ({ attribute, operator, type, value: other }: FilterRule['options']) =>
+  (nodes: NcNetwork['nodes'] = [], edges: NcNetwork['edges'] = []) => {
+    let filteredNodes: NcNode[] = [];
     // If there is no attribute, we just care about filtering by type
     if (!attribute) {
       switch (operator) {
         case operators.EXISTS:
-          filteredNodes = nodes.filter((node) => node.type === type);
+          filteredNodes = nodes.filter((node) => node.type === type!);
           break;
         default:
           filteredNodes = nodes.filter((node) => node.type !== type);
@@ -162,6 +173,8 @@ const nodeRule =
     };
   };
 
+export type NodeRule = typeof nodeRule;
+
 /**
  * Creates an ego rule, which can be called with `rule(ego)`
  *
@@ -171,20 +184,35 @@ const nodeRule =
  * @param {string} options.value Value to compare the ego attribute with
  */
 const egoRule =
-  ({ attribute, operator, value: other }) =>
-  (ego) =>
+  ({ attribute, operator, value: other }: FilterRule['options']) =>
+  (ego: NcEgo) =>
     predicate(operator)({
-      value: ego[entityAttributesProperty][attribute],
+      value: ego[entityAttributesProperty][attribute!],
       other,
     });
 
-/**
- * Adds type parameter to rule function
- * @param {string} type rule type
- * @param {function} f rule method
- */
-const createRule = (type, options, f) => {
-  const rule = f(options);
+export type EgoRule = typeof egoRule;
+
+type RuleWithMetadata = {
+  type: FilterRule['type'];
+  options: FilterRule['options'];
+};
+
+type RuleFunction =
+  | EgoRule
+  | NodeRule
+  | EdgeRule
+  | SingleNodeRule
+  | SingleEdgeRule;
+
+export type RuleFunctionWithMetadata = RuleFunction & RuleWithMetadata;
+
+const createRule = (
+  type: FilterRule['type'],
+  options: FilterRule['options'],
+  f: RuleFunction,
+) => {
+  const rule = f(options) as unknown as RuleFunctionWithMetadata;
   rule.type = type;
   rule.options = options;
   return rule;
@@ -203,7 +231,7 @@ const createRule = (type, options, f) => {
  * const result = rule(node, edges); // returns boolean
  * ```
  */
-export const getRule = ({ type, options }) => {
+export const getRuleFunction = ({ type, options }: FilterRule) => {
   switch (type) {
     case 'alter':
       return createRule('alter', options, nodeRule);
@@ -211,13 +239,11 @@ export const getRule = ({ type, options }) => {
       return createRule('edge', options, edgeRule);
     case 'ego':
       return createRule('ego', options, egoRule);
-    default:
-      return () => false;
   }
 };
 
 // As above, but for rules matching single array or edge
-export const getSingleRule = ({ type, options }) => {
+export const getSingleRuleFunction = ({ type, options }: FilterRule) => {
   switch (type) {
     case 'alter':
       return createRule('alter', options, singleNodeRule);
@@ -225,7 +251,5 @@ export const getSingleRule = ({ type, options }) => {
       return createRule('edge', options, singleEdgeRule);
     case 'ego':
       return createRule('ego', options, egoRule);
-    default:
-      return () => false;
   }
 };

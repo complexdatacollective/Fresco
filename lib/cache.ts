@@ -13,7 +13,8 @@ type StaticTag =
   | 'getExistingAssetIds'
   | 'interviewCount'
   | 'protocolCount'
-  | 'participantCount';
+  | 'participantCount'
+  | 'getNewAssetIds';
 
 type DynamicTag = `${StaticTag}-${string}`;
 

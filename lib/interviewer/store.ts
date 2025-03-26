@@ -1,3 +1,4 @@
+import { type NcNetwork } from '@codaco/shared-consts';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
@@ -7,7 +8,6 @@ import session, {
 } from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import { type GetInterviewByIdReturnType } from '~/queries/interviews';
-import { type NcNetwork } from '../shared-consts';
 import logger from './ducks/middleware/logger';
 
 const rootReducer = combineReducers({
@@ -28,6 +28,10 @@ export const store = ({
     preloadedState: {
       session: {
         ...session,
+        startTime: session.startTime.toISOString(),
+        finishTime: session.finishTime?.toISOString() ?? null,
+        exportTime: session.exportTime?.toISOString() ?? null,
+        lastUpdated: session.lastUpdated.toISOString(),
         network: session.network as NcNetwork,
         stageMetadata: session.stageMetadata as StageMetadata,
       },

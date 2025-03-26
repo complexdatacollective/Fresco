@@ -19,6 +19,8 @@ async function fetchInterview(interviewId: string) {
   return interview;
 }
 
+export type FetchInterviewReturnType = ReturnType<typeof fetchInterview>;
+
 export default async function Page({
   params,
 }: {
@@ -30,14 +32,14 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const { result: interview } = await fetchInterview(interviewId);
-
-  const session = await getServerSession();
+  const interview = await fetchInterview(interviewId);
 
   // If the interview is not found, redirect to the 404 page
   if (!interview) {
     notFound();
   }
+
+  const session = await getServerSession();
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol

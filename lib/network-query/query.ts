@@ -1,40 +1,32 @@
-import { getSingleRule } from './rules';
+import { type FilterRule, type SkipLogic } from '@codaco/protocol-validation';
+import { type NcNetwork } from '@codaco/shared-consts';
+import {
+  type EgoRule,
+  getSingleRuleFunction,
+  type RuleFunctionWithMetadata,
+  type SingleEdgeRule,
+} from './rules';
 
-const getGroup = (rule) => {
+type FilterTypeNotExists = 'alter_not_exists' | 'edge_not_exists';
+
+const getGroup = (
+  rule: RuleFunctionWithMetadata,
+): FilterRule['type'] | FilterTypeNotExists => {
   const { type, options } = rule;
   if (type === 'ego') {
-    return 'ego';
+    return 'ego' as const;
   }
 
   if (options.operator === 'NOT_EXISTS' && !options.attribute) {
-    return `${type}_not_exists`;
+    return `${type}_not_exists` as const;
   }
 
-  return type;
-};
-
-const groupByType = (acc, rule) => {
-  const mappedType = getGroup(rule);
-
-  const typeRules = (acc[mappedType] || []).concat([rule]);
-
-  return {
-    ...acc,
-    [mappedType]: typeRules,
-  };
+  return type as FilterRule['type'];
 };
 
 /**
  * Returns a method which can query the network.
  * The returned method takes a network object as an argument and returns a boolean.
- *
- * @param query
- * @param {Object[]} query.rules An array of rule options
- * @param {('ego'|'alter','edge')} query.rules[].type What the rule will act on
- * @param {Object} query.rules[].options The parameters of the rule
- * @param {Object} query.rules[].count The parameters used to assess the rule outcome
- *                                     (unless type is 'ego')
- * @param {('AND'|'OR')} query.join The method used to combine rule outcomes
  *
  * Example usage:
  *
@@ -58,26 +50,42 @@ const groupByType = (acc, rule) => {
  * const query = getQuery(config);
  * const result = query(network);
  */
-const getQuery = ({ rules, join }) => {
-  const ruleRunners = rules.map(getSingleRule).reduce(groupByType, {});
+const getQuery = ({ rules, join }: SkipLogic['filter']) => {
+  const ruleRunners = rules.map(getSingleRuleFunction).reduce(
+    (acc, rule) => {
+      const mappedType = getGroup(rule);
+
+      const typeRules = (acc[mappedType] ?? []).concat([rule]);
+
+      return {
+        ...acc,
+        [mappedType]: typeRules,
+      };
+    },
+    {} as Record<string, RuleFunctionWithMetadata[]>,
+  );
 
   // use the built-in array methods
   const ruleIterator =
     join === 'AND' ? Array.prototype.every : Array.prototype.some;
 
   // Array.every(rule([type, typeRules]))
-  return (network) =>
+  return (network: NcNetwork) =>
     ruleIterator.call(Object.entries(ruleRunners), ([type, typeRules]) => {
       // 'ego' type rules run on a single node
       if (type === 'ego') {
-        return ruleIterator.call(typeRules, (rule) => rule(network.ego));
+        return ruleIterator.call(typeRules, (rule: ReturnType<EgoRule>) =>
+          rule(network.ego),
+        );
       }
 
       // alter or edge not existing is a special case because the
       // whole network must be evaluated
       if (type === 'alter_not_exists' || type === 'edge_not_exists') {
-        return ruleIterator.call(typeRules, (rule) =>
-          network.nodes.every((nodes) => rule(nodes, network.edges)),
+        return ruleIterator.call(
+          typeRules,
+          (rule: ReturnType<SingleEdgeRule>) =>
+            network.nodes.every((node) => rule(node, network.edges)),
         );
       }
 
@@ -86,7 +94,9 @@ const getQuery = ({ rules, join }) => {
        * If any of the nodes match, this rule passes.
        */
       return network.nodes.some((node) =>
-        ruleIterator.call(typeRules, (rule) => rule(node, network.edges)),
+        ruleIterator.call(typeRules, (rule: ReturnType<SingleEdgeRule>) =>
+          rule(node, network.edges),
+        ),
       );
     });
 };
