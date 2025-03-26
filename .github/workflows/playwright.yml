@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install firefox --with-deps
       - name: Run tests
         id: run_playwright_tests
         run: |

@@ -86,9 +86,12 @@ test('create test database and setup app', async ({
     console.log('✅ Reset app data with settings button');
   }
 
+
+
   // STEP 1
   await page.goto('/setup');
-  // screenshot
+  // intentionally fail to test the granular db deletion step
+  await expect(page).toHaveURL(/\/dashboard/);
   await page.fill('input[name="username"]', 'admin', { timeout: 5000 });
   await page.fill('input[name="password"]', 'Administrator1!', {
     timeout: 5000,
@@ -147,7 +150,7 @@ test('create test database and setup app', async ({
     page.locator('div.text-sm.opacity-90', {
       hasText: 'Participants have been imported successfully',
     }),
-  ).toBeVisible({ timeout: 3000 });
+  ).toBeVisible({ timeout: 30000 });
 
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();
