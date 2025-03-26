@@ -1,11 +1,25 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { syncInterview } from '~/actions/interviews';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewById } from '~/queries/interviews';
+import { type GetInterviewByIdReturnType } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
+import { getBaseUrl } from '~/utils/getBaseUrl';
 import InterviewShell from '../_components/InterviewShell';
+
+export const dynamic = 'force-dynamic';
+
+async function fetchInterview(interviewId: string) {
+  const result = await fetch(`${getBaseUrl()}/interview/${interviewId}/fetch`, {
+    cache: 'no-store',
+  });
+
+  const interview = (await result.json()) as GetInterviewByIdReturnType;
+
+  return interview;
+}
+
+export type FetchInterviewReturnType = ReturnType<typeof fetchInterview>;
 
 export default async function Page({
   params,
@@ -18,13 +32,14 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const interview = await getInterviewById(interviewId);
-  const session = await getServerSession();
+  const interview = await fetchInterview(interviewId);
 
   // If the interview is not found, redirect to the 404 page
   if (!interview) {
     notFound();
   }
+
+  const session = await getServerSession();
 
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
@@ -43,7 +58,7 @@ export default async function Page({
   return (
     <>
       {session && <FeedbackBanner />}
-      <InterviewShell interview={interview} syncInterview={syncInterview} />
+      <InterviewShell serverPayload={interview} />
     </>
   );
 }

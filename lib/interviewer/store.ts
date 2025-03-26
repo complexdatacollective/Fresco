@@ -1,67 +1,44 @@
-import type { Protocol } from '@prisma/client';
-import { configureStore } from '@reduxjs/toolkit';
+import { type NcNetwork } from '@codaco/shared-consts';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
-import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
-import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
-import sessions from '~/lib/interviewer/ducks/modules/session';
+import protocolSlice from '~/lib/interviewer/ducks/modules/protocol';
+import session, {
+  type StageMetadata,
+} from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
-import type { NcNetwork } from '~/schemas/network-canvas';
+import { type GetInterviewByIdReturnType } from '~/queries/interviews';
 import logger from './ducks/middleware/logger';
-import sound from './ducks/middleware/sound';
 
-export const store = configureStore({
-  reducer: {
-    form,
-    activeSessionId,
-    sessions,
-    installedProtocols,
-    dialogs,
-    ui,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(logger, sound),
+const rootReducer = combineReducers({
+  form,
+  session,
+  protocol: protocolSlice.reducer,
+  dialogs,
+  ui, // don't do it - this is used for FORM_IS_READY
 });
 
-export type StageMetadataEntry = [number, string, string, boolean];
-export type StageMetadata = StageMetadataEntry[];
+export const store = ({
+  protocol,
+  ...session
+}: NonNullable<GetInterviewByIdReturnType>) =>
+  configureStore({
+    reducer: rootReducer,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
+    preloadedState: {
+      session: {
+        ...session,
+        startTime: session.startTime.toISOString(),
+        finishTime: session.finishTime?.toISOString() ?? null,
+        exportTime: session.exportTime?.toISOString() ?? null,
+        lastUpdated: session.lastUpdated.toISOString(),
+        network: session.network as NcNetwork,
+        stageMetadata: session.stageMetadata as StageMetadata,
+      },
+      protocol: protocol,
+    },
+  });
 
-type Session = {
-  id: string;
-  protocolUid: string;
-  promptIndex: number;
-  currentStep: number;
-  caseId: string;
-  network: NcNetwork;
-  startedAt: Date;
-  lastUpdated: Date;
-  finishedAt: Date;
-  exportedAt: Date;
-  stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
-};
-
-type SessionsState = Record<string, Session>;
-
-export type InstalledProtocols = Record<string, Protocol>;
-
-type Dialog = {
-  id: string;
-  title: string;
-  type: string;
-  confirmLabel?: string;
-  message: string;
-};
-
-type Dialogs = {
-  dialogs: Dialog[];
-};
-
-export type RootState = {
-  form: Record<string, unknown>;
-  activeSessionId: keyof SessionsState;
-  sessions: SessionsState;
-  installedProtocols: InstalledProtocols;
-  deviceSettings: Record<string, unknown>;
-  dialogs: Dialogs;
-  ui: Record<string, unknown>;
-};
+export type RootState = ReturnType<typeof rootReducer>;
+export type AppDispatch = typeof store;
+export type AppStore = ReturnType<typeof store>;

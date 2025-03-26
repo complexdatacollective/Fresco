@@ -61,19 +61,21 @@ export const DeleteParticipantsDialog = ({
     }
 
     return (
-      <Alert className="p-4">
+      <Alert variant="info">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
         <AlertDescription>
           {participantCount > 1 ? (
             <>
               One or more of the selected participants have interview data that
-              will also be deleted.
+              will also be deleted. This data is marked as having been exported,
+              but you may wish to confirm this before proceeding.
             </>
           ) : (
             <>
               The selected participant has interview data that will also be
-              deleted.
+              deleted. This data is marked as having been exported, but you may
+              wish to confirm this before proceeding.
             </>
           )}
         </AlertDescription>
