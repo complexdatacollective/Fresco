@@ -16,8 +16,6 @@ test('create test database and setup app', async ({
 }) => {
   console.log('🚀 Starting setup test', baseURL);
 
-  test.slow(); // triple the default timeout
-
   // Stop any existing test db to ensure clean state
   if (!process.env.CI) {
     console.log('Local environment detected');
