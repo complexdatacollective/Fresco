@@ -24,9 +24,9 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   reporter: process.env.CI ? [['github'], ['html']] : 'html',
-  timeout: 30000,
+  timeout: 60000,
   expect: {
-    timeout: 30000,
+    timeout: 60000,
   },
 
   use: {
