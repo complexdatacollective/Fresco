@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { expect, test } from '@playwright/test';
 
 let interviewURL: string;
@@ -63,9 +64,22 @@ test.describe('Navigate through interview', () => {
     // eslint-disable-next-line no-console
     console.log('interviewURL', interviewURL);
     await page.goto(interviewURL);
+    await page.setViewportSize({ width: 1280, height: 720 });
   });
 
   test('navigate through stages', async ({ page }) => {
+    const viewport = page.viewportSize();
+    console.log('Viewport dimensions:', viewport);
+    const overlay = page.locator('[class*="lg:hidden"]');
+    const isVisible = await overlay.isVisible();
+    console.log('Overlay visibility:', isVisible);
+
+    // Additional check
+    const computedStyle = await overlay.evaluate((el) => {
+      return window.getComputedStyle(el).display;
+    });
+    console.log('Computed display style:', computedStyle);
+
     await page.getByRole('button').nth(4).click();
     await page.getByRole('button').nth(4).click();
     await page.getByRole('button').nth(4).click();

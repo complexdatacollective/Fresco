@@ -29,11 +29,11 @@ export default defineConfig({
     timeout: 60000,
   },
   workers: 1,
+  retries: 3,
 
   use: {
     baseURL,
     trace: 'on-first-retry',
-    viewport: { width: 1280, height: 720 }, // larger to prevent SmallScreenOverlay
   },
 
   projects: [
@@ -65,6 +65,11 @@ export default defineConfig({
       use: {
         ...devices['Desktop Firefox'],
         storageState: 'e2e/.auth/user.json',
+        deviceScaleFactor: undefined,
+        viewport: null,
+        launchOptions: {
+          args: ['--start-maximized'],
+        },
       },
       dependencies: ['setup db'],
       teardown: 'cleanup db',
