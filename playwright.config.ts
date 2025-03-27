@@ -28,10 +28,12 @@ export default defineConfig({
   expect: {
     timeout: 60000,
   },
+  workers: 1,
 
   use: {
     baseURL,
     trace: 'on-first-retry',
+    viewport: { width: 1280, height: 720 }, // larger to prevent SmallScreenOverlay
   },
 
   projects: [

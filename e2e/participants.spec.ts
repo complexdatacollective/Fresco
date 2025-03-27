@@ -18,7 +18,7 @@ test.describe('Participants page', () => {
     await expect.soft(page).toHaveScreenshot('participants-page.png');
   });
 
-  test.fixme('should add new participant', async ({ page }) => {
+  test('should add new participant', async ({ page }) => {
     await page.getByRole('button', { name: 'Add Single Participant' }).click();
     await page.getByRole('button', { name: 'Generate' }).click();
     await page.getByRole('textbox', { name: 'Label' }).click();
@@ -26,8 +26,7 @@ test.describe('Participants page', () => {
     await page.getByRole('button', { name: 'Submit' }).click();
   });
 
-  test.fixme('should edit participant', async ({ page }) => {
-    test.setTimeout(30000);
+  test('should edit participant', async ({ page }) => {
     await page.getByRole('button', { name: 'Open menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit' }).click();
     await page.getByRole('textbox', { name: 'Label' }).click();
@@ -38,10 +37,14 @@ test.describe('Participants page', () => {
   });
 
   test.fixme('should copy unique URL', async ({ page }) => {
-    test.setTimeout(30000);
     await page.getByRole('button', { name: 'Copy Unique URL' }).first().click();
     await page.getByRole('combobox').click();
     await page.getByRole('option', { name: 'Sample Protocol' }).click();
     await page.getByText('Sample Protocol.netcanvas').click();
+
+    // console.log url that was copied to clipboard
+    const copiedUrl = await page.evaluate(() => navigator.clipboard.readText());
+    // eslint-disable-next-line no-console
+    console.log('Copied URL:', copiedUrl);
   });
 });

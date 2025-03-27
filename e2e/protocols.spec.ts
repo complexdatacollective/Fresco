@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+let interviewURL: string;
+
 test.describe('Protocols page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard/protocols');
@@ -17,16 +19,14 @@ test.describe('Protocols page', () => {
     await expect.soft(page).toHaveScreenshot('protocols-page.png');
   });
 
-  test.fixme('should upload new protocol', async ({ page }) => {
+  test('should upload new protocol', async ({ page }) => {
     const protocolHandle = page.locator('input[type="file"]');
     await protocolHandle.setInputFiles('e2e/files/E2E.netcanvas');
-    await expect(page.getByText('Extracting protocol')).toBeVisible({
-      timeout: 10000,
-    });
-    await expect(page.getByText('Complete...')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText('Extracting protocol')).toBeVisible();
+    await expect(page.getByText('Complete...')).toBeVisible();
   });
 
-  test.fixme('should delete protocol', async ({ page }) => {
+  test('should delete protocol', async ({ page }) => {
     // find the table row with the protocol we want to delete
     await page
       .getByRole('row', { name: 'Select row Protocol icon E2E.' })
@@ -37,8 +37,41 @@ test.describe('Protocols page', () => {
     await page.getByRole('button', { name: 'Permanently Delete' }).click();
 
     // Verify the protocol is no longer in the table
-    await expect(page.locator('text=E2E.netcanvas')).not.toBeVisible({
-      timeout: 5000,
-    });
+    await expect(page.locator('text=E2E.netcanvas')).not.toBeVisible();
+  });
+
+  test('should copy anonymous participation url and navigate to it', async ({
+    page,
+    baseURL,
+  }) => {
+    await page.getByRole('button', { name: `${baseURL}/onboard` }).click();
+    const copiedUrl = await page.evaluate(() => navigator.clipboard.readText());
+    // eslint-disable-next-line no-console
+    console.log('Copied URL:', copiedUrl);
+    await page.goto(copiedUrl);
+    await expect(page).toHaveURL(/\/interview/);
+    // get the current url
+    interviewURL = page.url();
+    await expect(
+      page.getByText('Welcome to the Sample Protocol'),
+    ).toBeVisible();
+  });
+});
+
+test.describe('Navigate through interview', () => {
+  test.beforeEach(async ({ page }) => {
+    // eslint-disable-next-line no-console
+    console.log('interviewURL', interviewURL);
+    await page.goto(interviewURL);
+  });
+
+  test('navigate through stages', async ({ page }) => {
+    await page.getByRole('button').nth(4).click();
+    await page.getByRole('button').nth(4).click();
+    await page.getByRole('button').nth(4).click();
+    await page.locator('#stage').getByRole('img').first().click();
+    await page.getByText('Reset answer').click();
+    await page.locator('#stage').getByRole('img').first().click();
+    await page.getByRole('button').nth(4).click();
   });
 });
