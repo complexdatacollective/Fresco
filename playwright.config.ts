@@ -24,12 +24,12 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   reporter: process.env.CI ? [['github'], ['html']] : 'html',
-  timeout: 60000,
+  timeout: 60_000,
   expect: {
-    timeout: 60000,
+    timeout: 60_000,
   },
   workers: 1,
-  retries: 3,
+  retries: 0,
 
   use: {
     baseURL,
@@ -65,11 +65,6 @@ export default defineConfig({
       use: {
         ...devices['Desktop Firefox'],
         storageState: 'e2e/.auth/user.json',
-        deviceScaleFactor: undefined,
-        viewport: null,
-        launchOptions: {
-          args: ['--start-maximized'],
-        },
       },
       dependencies: ['setup db'],
       teardown: 'cleanup db',
