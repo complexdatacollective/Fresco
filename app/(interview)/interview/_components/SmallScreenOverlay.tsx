@@ -4,12 +4,16 @@ import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 
 const SmallScreenOverlay = () => {
-  if (env.NODE_ENV === 'development') {
+  if (
+    env.NODE_ENV === 'development' ||
+    env.NODE_ENV === 'test' ||
+    process.env.CI
+  ) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-(--nc-background)  lg:hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--nc-background) lg:hidden">
       <div className="flex max-w-[72ch] flex-col items-center justify-center p-6 text-center">
         <Image
           src="/images/too-small.svg"
