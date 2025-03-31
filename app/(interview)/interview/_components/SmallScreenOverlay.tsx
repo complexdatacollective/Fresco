@@ -7,6 +7,7 @@ const SmallScreenOverlay = () => {
   if (
     env.NODE_ENV === 'development' ||
     env.NODE_ENV === 'test' ||
+    // eslint-disable-next-line no-process-env
     process.env.CI
   ) {
     return null;
