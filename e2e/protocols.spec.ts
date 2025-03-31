@@ -133,22 +133,23 @@ test.describe('Complete Sample Protocol interview', () => {
     await page.getByRole('button', { name: 'Menu - New Session' }).click();
     await page
       .getByRole('textbox', { name: 'Type a label and press enter' })
-      .fill('A');
+      .fill('Alex');
     await page
       .getByRole('textbox', { name: 'Type a label and press enter' })
       .press('Enter');
     await page
       .getByRole('textbox', { name: 'Type a label and press enter' })
-      .fill('B');
+      .fill('Burt');
     await page
       .getByRole('textbox', { name: 'Type a label and press enter' })
       .press('Enter');
     await page
       .getByRole('textbox', { name: 'Type a label and press enter' })
-      .fill('C');
+      .fill('Carrie');
     await page
       .getByRole('textbox', { name: 'Type a label and press enter' })
       .press('Enter');
+    await page.screenshot({ path: 'namegen.png' });
   });
 
   test('Name Generator - side panel', async ({ page }) => {
@@ -156,10 +157,10 @@ test.describe('Complete Sample Protocol interview', () => {
 
     await expect(page.getByText('Within the past 6 months')).toBeVisible();
     // check that nodes are in the side panel
-    await expect(page.getByText('ABC')).toBeVisible();
+    await expect(page.getByText('Carrie')).toBeVisible();
 
     // d&d A
-    const nodeA = page.locator('div').filter({ hasText: /^A$/ }).nth(3);
+    const nodeA = page.locator('.draggable').first(); // Alex
     await nodeA.dragTo(
       page.locator(
         '.name-generator-interface__nodes > .scrollable > .node-list',
@@ -168,7 +169,7 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page
         .locator('.name-generator-interface__nodes > .scrollable > .node-list')
-        .getByText('A'),
+        .getByText('Alex'),
     ).toBeVisible();
   });
 
@@ -197,53 +198,151 @@ test.describe('Complete Sample Protocol interview', () => {
   test('Name Generator - Roster', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=12`);
     await expect(page.getByText('Please select any members')).toBeVisible();
-    // todo: loading external data...
-    // check that roster people are there (Adelaide)
+    // check that roster people are there (Adelaide will be first)
+    await expect(page.getByRole('heading', { name: 'Adelaide' })).toBeVisible();
     // sort first name ascending
-    //check that "Vonny" is the first name in the list
+    await page.getByRole('button', { name: 'FIRST NAME' }).click();
+    await expect(page.getByRole('heading', { name: 'Vonny' })).toBeVisible();
     // sort by last name descending
-    // check "vasilis" is the first name in the list
+    await page.getByRole('button', { name: 'LAST NAME' }).click();
+    await expect(page.getByRole('heading', { name: 'Vasilis' })).toBeVisible();
     // sort by last name ascending
-    // leia is first
+    await page.getByRole('button', { name: 'LAST NAME' }).click();
+    await expect(page.getByRole('heading', { name: 'Leia' })).toBeVisible();
     // search for "Teador"
+    await page
+      .locator('input[placeholder="Enter a search term..."]')
+      .fill('Teador');
+
+    await expect(page.getByRole('heading', { name: 'Teador' })).toBeVisible();
+    await page
+      .locator('input[placeholder="Enter a search term..."]')
+      .fill('Beech');
+    await expect(page.getByRole('heading', { name: 'Delmor' })).toBeVisible();
     // search for "Beech" -> "Delmor Beech" should show up
-    // d&d Delmor into network
+    // d&d a couple nodes into network
+    await page
+      .getByRole('heading', { name: 'Delmor' })
+      .dragTo(
+        page.locator('.name-generator-roster-interface__node-list').first(),
+      );
+    await page
+      .getByRole('heading', { name: 'Rebecka' })
+      .dragTo(
+        page.locator('.name-generator-roster-interface__node-list').first(),
+      );
+    await page
+      .getByRole('heading', { name: 'Butch' })
+      .dragTo(
+        page.locator('.name-generator-roster-interface__node-list').first(),
+      );
   });
+
   test('Sociogram', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=16`);
     await expect(page.getByText('Please position the people')).toBeVisible();
-    // d&d A, B, C into the sociogram
-    // use manual dragging so they're not just stacked...
-    const nodeA = page.getByText('A', { exact: true });
-    await nodeA.hover();
-    await page.mouse.down();
-    await page.mouse.move(-200, -200);
-    await page.mouse.up();
-    const nodeB = page.getByText('B', { exact: true });
+    await expect(page.getByText('Alex')).toBeVisible();
+    // d&d Alex, Burt, Carrie into the sociogram
+    const nodeA = page.getByText('Alex', { exact: true });
+    await nodeA.dragTo(page.locator('.node-layout'));
+
+    // verify that node A is visible in the new position
+    await expect(nodeA).toBeVisible();
+
+    await page.screenshot({ path: 'sociogram3.png' });
+
+    const nodeB = page.getByText('Burt', { exact: true });
     await nodeB.hover();
     await page.mouse.down();
-    await page.mouse.move(0, -400);
-    await page.mouse.up();
-    const nodeC = page.getByText('C', { exact: true });
-    await nodeC.hover();
-    await page.mouse.down();
-    await page.mouse.move(200, -200); // move to the right and up
+    await page.mouse.move(200, 100);
     await page.mouse.up();
 
-    await expect(page.locator('.node-layout').getByText('A')).toBeVisible();
-    await expect(page.locator('.node-layout').getByText('B')).toBeVisible();
-    await expect(page.locator('.node-layout').getByText('C')).toBeVisible();
+    await expect(page.getByText('Carrie', { exact: true })).toBeVisible(); // Ensure Carrie is visible
+    const nodeC = page.getByText('Carrie', { exact: true });
+    await nodeC.hover();
+    await page.mouse.down();
+    await page.mouse.move(400, 400);
+    await page.mouse.up();
+
+    // Verify that nodes are visible in their new positions
+    await expect(page.locator('.node-layout').getByText('Alex')).toBeVisible();
+    await expect(page.locator('.node-layout').getByText('Burt')).toBeVisible();
+    await expect(
+      page.locator('.node-layout').getByText('Carrie'),
+    ).toBeVisible();
+
+    // Proceed to the next step
     await page.goto(`${baseInterviewURL}?step=19`);
     await expect(page.getByText('Please connect any')).toBeVisible();
-    // connect A & B
+
+    // Connect A & B
     await nodeA.click();
     await nodeB.click();
-    // connect A & C
+
+    // Connect A & C
+    await nodeA.click();
+    await nodeC.click();
+
+    // Remove connection between A & B
     await nodeA.click();
     await nodeB.click();
-    // remove connection
-    await nodeA.click();
-    await nodeB.click();
-    // todo: verify connections
+
+    // TODO: Verify connections visually or programmatically if possible
+  });
+
+  test('dyad census', async ({ page }) => {
+    await page.goto(`${baseInterviewURL}?step=20`);
+    await expect(
+      page.getByRole('heading', { name: 'Dyad Census' }),
+    ).toBeVisible();
+    await page.getByRole('button').nth(4).click();
+    await expect(page.getByText('To the best of your knowledge')).toBeVisible();
+    await expect(page.getByText('Delmor')).toBeVisible();
+    await expect(page.getByText('Rebecka')).toBeVisible();
+    await page.getByText('Yes').click();
+    await expect(page.getByText('Butch')).toBeVisible();
+  });
+
+  test('ordinal bins', async ({ page }) => {
+    await page.goto(`${baseInterviewURL}?step=24`);
+    await expect(page.getByText('When was the last time')).toBeVisible();
+    await page
+      .locator('div.draggable')
+      .first()
+      .dragTo(page.locator('.ordinal-bin--content').first());
+    await page
+      .locator('div.draggable')
+      .first()
+      .dragTo(page.locator('.ordinal-bin--content').nth(2));
+  });
+
+  test('categorical bins', async ({ page }) => {
+    await page.goto(`${baseInterviewURL}?step=25`);
+    await expect(page.getByText('Which of these options')).toBeVisible();
+    await page
+      .locator('div.draggable')
+      .first()
+      .dragTo(page.locator('.categorical-list__item').first());
+    await page
+      .locator('div.draggable')
+      .first()
+      .dragTo(page.locator('.categorical-list__item').nth(4));
+    await expect(
+      page.getByText('Which context best describes how you know this person'),
+    ).toBeVisible();
+    await page
+      .locator('input[placeholder="Enter your response here..."]')
+      .fill('Roommate');
+    await page.click('button[type="submit"]');
+  });
+  test('narrative', async ({ page }) => {
+    await page.goto(`${baseInterviewURL}?step=29`);
+    await page.getByText('Sample Preset').click();
+    // attributes, links, groups should be visible
+    await expect(page.getByText('provides_advice')).toBeVisible();
+    await expect(page.getByText('know')).toBeVisible();
+    await expect(page.getByText('Family Member')).toBeVisible();
+
+    // todo: select attributes, links, groups and verify that they are applied.
   });
 });
