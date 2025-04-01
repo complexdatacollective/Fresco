@@ -94,6 +94,13 @@ test.describe('Complete Sample Protocol interview', () => {
         name: 'Conventional Ego Data Collection Example',
       }),
     ).toBeVisible();
+    await page.getByRole('button').nth(4).click();
+    // required fields
+    expect(
+      await page
+        .getByText('You must answer this question before continuing')
+        .count(),
+    ).toBe(2);
     await page
       .locator('div')
       .filter({ hasText: /^What is your first name\?$/ })
@@ -110,6 +117,10 @@ test.describe('Complete Sample Protocol interview', () => {
     await page
       .locator('input[name="\\33 b5197a9-d024-421c-8663-1e06e0587999"]')
       .fill('Doe');
+    await page.getByText('Year').click();
+    await page.getByText('1991').click();
+    await page.getByText('April').click();
+    await page.getByText('24').click();
     await page.locator('label').filter({ hasText: 'Very Satisfied' }).click();
     await page.getByText('Somewhat Satisfied').nth(1).click();
     await page
@@ -408,6 +419,22 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
     ).not.toBeVisible();
+
+    // draw on the canvas
+    await page.mouse.move(200, 200);
+    await page.mouse.down();
+    await page.mouse.move(200, 300);
+    await page.mouse.move(300, 300);
+    await page.mouse.move(300, 200);
+    await page.mouse.up();
+    // check for the line
+    await expect(page.locator('path.annotations__path')).toBeVisible();
+    // reset
+    await page.click(
+      '.preset-switcher__reset-button.preset-switcher__reset-button--show',
+    );
+    await expect(page.locator('path.annotations__path')).not.toBeVisible();
+
     console.log('☑️ Narrative');
   });
 });
