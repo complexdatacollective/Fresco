@@ -5,14 +5,6 @@ import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
 
-const Schema = z.object({
-  id: z.string(),
-  network: NcNetworkSchema,
-  currentStep: z.number(),
-  stageMetadata: StageMetadataSchema.nullable(),
-  lastUpdated: z.string(),
-});
-
 /**
  * Handle post requests from the client to store the current interview state.
  */
@@ -23,6 +15,14 @@ const routeHandler = async (
   const interviewId = params.interviewId;
 
   const rawRequest = await request.json();
+
+  const Schema = z.object({
+    id: z.string(),
+    network: NcNetworkSchema,
+    currentStep: z.number(),
+    stageMetadata: StageMetadataSchema.nullable(),
+    lastUpdated: z.string(),
+  });
 
   const validatedRequest = Schema.safeParse(rawRequest);
 

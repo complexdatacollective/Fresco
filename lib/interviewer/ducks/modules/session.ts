@@ -237,6 +237,82 @@ export const toggleEdge = createAsyncThunk(
   },
 );
 
+const getSessionMeta = (state: RootState) => {
+  const promptId = getPromptId(state);
+  const stageId = getCurrentStageId(state);
+
+  return {
+    promptId,
+    stageId,
+  };
+};
+
+export const addNodeToPrompt = createAsyncThunk(
+  actionTypes.addNodeToPrompt,
+  (
+    props: {
+      nodeId: EntityPrimaryKey;
+      promptAttributes: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const { nodeId, promptAttributes } = props;
+    const state = getState() as RootState;
+    const promptId = getPromptId(state);
+
+    return {
+      nodeId,
+      promptId,
+      promptAttributes,
+    };
+  },
+);
+
+export const toggleNodeAttributes = createAction<{
+  uid: EntityPrimaryKey;
+  attributes: Record<string, unknown>;
+}>(actionTypes.toggleNodeAttributes);
+
+export const removeNodeFromPrompt = createAction<{
+  nodeId: EntityPrimaryKey;
+  promptId: string;
+  promptAttributes: Record<string, unknown>;
+}>(actionTypes.removeNodeFromPrompt);
+
+export const updateEgo = createAsyncThunk(
+  actionTypes.updateEgo,
+  (
+    props: {
+      modelData: Record<string, unknown>;
+      attributeData: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const { modelData, attributeData } = props;
+    const state = getState() as RootState;
+    const sessionMeta = getSessionMeta(state);
+
+    return {
+      sessionMeta,
+      modelData,
+      attributeData,
+    };
+  },
+);
+
+export const updateEdge = createAction<{
+  edgeId: NcEntity[EntityPrimaryKey];
+  newModelData?: Record<string, unknown>;
+  newAttributeData?: Record<string, unknown>;
+}>(actionTypes.updateEdge);
+
+export const updateStageMetadata = createAction<StageMetadataEntry[]>(
+  actionTypes.updateStageMetadata,
+);
+export const setSessionFinished = createAction<string>(
+  actionTypes.setSessionFinished,
+);
+
 const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes } = action.payload;
@@ -486,81 +562,5 @@ const sessionReducer = createReducer(initialState, (builder) => {
 //         return state;
 //     }
 //   };
-
-const getSessionMeta = (state: RootState) => {
-  const promptId = getPromptId(state);
-  const stageId = getCurrentStageId(state);
-
-  return {
-    promptId,
-    stageId,
-  };
-};
-
-export const addNodeToPrompt = createAsyncThunk(
-  actionTypes.addNodeToPrompt,
-  (
-    props: {
-      nodeId: EntityPrimaryKey;
-      promptAttributes: Record<string, unknown>;
-    },
-    { getState },
-  ) => {
-    const { nodeId, promptAttributes } = props;
-    const state = getState() as RootState;
-    const promptId = getPromptId(state);
-
-    return {
-      nodeId,
-      promptId,
-      promptAttributes,
-    };
-  },
-);
-
-export const toggleNodeAttributes = createAction<{
-  uid: EntityPrimaryKey;
-  attributes: Record<string, unknown>;
-}>(actionTypes.toggleNodeAttributes);
-
-export const removeNodeFromPrompt = createAction<{
-  nodeId: EntityPrimaryKey;
-  promptId: string;
-  promptAttributes: Record<string, unknown>;
-}>(actionTypes.removeNodeFromPrompt);
-
-export const updateEgo = createAsyncThunk(
-  actionTypes.updateEgo,
-  (
-    props: {
-      modelData: Record<string, unknown>;
-      attributeData: Record<string, unknown>;
-    },
-    { getState },
-  ) => {
-    const { modelData, attributeData } = props;
-    const state = getState() as RootState;
-    const sessionMeta = getSessionMeta(state);
-
-    return {
-      sessionMeta,
-      modelData,
-      attributeData,
-    };
-  },
-);
-
-export const updateEdge = createAction<{
-  edgeId: NcEntity[EntityPrimaryKey];
-  newModelData?: Record<string, unknown>;
-  newAttributeData?: Record<string, unknown>;
-}>(actionTypes.updateEdge);
-
-export const updateStageMetadata = createAction<StageMetadataEntry[]>(
-  actionTypes.updateStageMetadata,
-);
-export const setSessionFinished = createAction<string>(
-  actionTypes.setSessionFinished,
-);
 
 export default sessionReducer;
