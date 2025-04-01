@@ -245,11 +245,8 @@ test.describe('Complete Sample Protocol interview', () => {
     // d&d Alex, Burt, Carrie into the sociogram
     const nodeA = page.getByText('Alex', { exact: true });
     await nodeA.dragTo(page.locator('.node-layout'));
-
     // verify that node A is visible in the new position
     await expect(nodeA).toBeVisible();
-
-    await page.screenshot({ path: 'sociogram3.png' });
 
     const nodeB = page.getByText('Burt', { exact: true });
     await nodeB.hover();
@@ -287,7 +284,22 @@ test.describe('Complete Sample Protocol interview', () => {
     await nodeA.click();
     await nodeB.click();
 
-    // TODO: Verify connections visually or programmatically if possible
+    // there should be only one line. if this is the case, this will pass.
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
+    ).toBeVisible();
+
+    // go to next prompt
+    await page.getByRole('button').nth(4).click();
+    await nodeA.click();
+    await nodeB.click();
+    // different color line
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
+    ).toBeVisible();
+
+    // take a screenshot
+    await page.screenshot({ path: 'sociogram.png' });
   });
 
   test('dyad census', async ({ page }) => {
@@ -301,6 +313,22 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(page.getByText('Rebecka')).toBeVisible();
     await page.getByText('Yes').click();
     await expect(page.getByText('Butch')).toBeVisible();
+  });
+
+  test('sociogram - select', async ({ page }) => {
+    await page.goto(`${baseInterviewURL}?step=23`);
+    await page.getByText('Alex', { exact: true }).click();
+    await page.getByText('Burt', { exact: true }).click();
+
+    // check for two selected nodes
+    expect(await page.locator('.node--selected').count()).toBe(2);
+    // next prompt
+    await page.getByRole('button').nth(4).click();
+    // check for no selected nodes
+    expect(await page.locator('.node--selected').count()).toBe(0);
+
+    await page.getByText('Carrie', { exact: true }).click();
+    expect(await page.locator('.node--selected').count()).toBe(1);
   });
 
   test('ordinal bins', async ({ page }) => {
@@ -334,15 +362,41 @@ test.describe('Complete Sample Protocol interview', () => {
       .locator('input[placeholder="Enter your response here..."]')
       .fill('Roommate');
     await page.click('button[type="submit"]');
+    // put third node in first bin (family)
+    await page
+      .locator('div.draggable')
+      .first()
+      .dragTo(page.locator('.categorical-list__item').first());
   });
   test('narrative', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=29`);
     await page.getByText('Sample Preset').click();
     // attributes, links, groups should be visible
     await expect(page.getByText('provides_advice')).toBeVisible();
+    expect(await page.locator('.node--selected').count()).toBe(2);
+    await page.getByText('provides_material_support').click();
+    expect(await page.locator('.node--selected').count()).toBe(1);
+    await page.getByText('ATTRIBUTES').click();
+    expect(await page.locator('.node--selected').count()).toBe(0);
     await expect(page.getByText('know')).toBeVisible();
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
+    ).toBeVisible();
+    await page.getByText('LINKS').click();
+    // the lines should not be visible
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
+    ).not.toBeVisible();
     await expect(page.getByText('Family Member')).toBeVisible();
-
-    // todo: select attributes, links, groups and verify that they are applied.
+    await expect(
+      page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
+    ).toBeVisible();
+    await page.getByText('GROUPS').click();
+    await expect(
+      page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
+    ).not.toBeVisible();
   });
 });
