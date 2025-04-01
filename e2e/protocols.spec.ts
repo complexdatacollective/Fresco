@@ -73,8 +73,8 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.getByRole('heading', { name: 'Information Interface' }),
     ).toBeVisible();
+    console.log('☑️ Information interface');
   });
-  console.log('☑️ Information interface');
 
   test('Ego form - consent', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=3`);
@@ -84,9 +84,8 @@ test.describe('Complete Sample Protocol interview', () => {
     await page.locator('.boolean-option').first().click();
     await page.getByText('Reset answer').click();
     await page.locator('.boolean-option').first().click();
+    console.log('☑️ Ego form - consent');
   });
-
-  console.log('☑️ Ego form - consent');
 
   test('Ego form', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=4`);
@@ -129,8 +128,8 @@ test.describe('Complete Sample Protocol interview', () => {
     await page
       .getByRole('textbox', { name: 'Is there any other' })
       .fill('Additional Information');
+    console.log('☑️ Ego form');
   });
-  console.log('☑️ Ego form');
 
   test('Name Generator - Quick Add', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=6`);
@@ -155,9 +154,8 @@ test.describe('Complete Sample Protocol interview', () => {
       .getByRole('textbox', { name: 'Type a label and press enter' })
       .press('Enter');
     await page.screenshot({ path: 'namegen.png' });
+    console.log('☑️ Name Generator - Quick Add');
   });
-
-  console.log('☑️ Name Generator - Quick Add');
 
   test('Name Generator - side panel', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=8`);
@@ -178,9 +176,8 @@ test.describe('Complete Sample Protocol interview', () => {
         .locator('.name-generator-interface__nodes > .scrollable > .node-list')
         .getByText('Alex'),
     ).toBeVisible();
+    console.log('☑️ Name Generator - side panel');
   });
-
-  console.log('☑️ Name Generator - side panel');
 
   test('Name Generator - Form', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=10`);
@@ -202,9 +199,8 @@ test.describe('Complete Sample Protocol interview', () => {
     // select again to open editing
     await page.getByText('My Hospital').click();
     await page.getByRole('img', { name: 'Close' }).click(); // close the dialog
+    console.log('☑️ Name Generator - Form');
   });
-
-  console.log('☑️ Name Generator - Form');
 
   test('Name Generator - Roster', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=12`);
@@ -247,9 +243,8 @@ test.describe('Complete Sample Protocol interview', () => {
       .dragTo(
         page.locator('.name-generator-roster-interface__node-list').first(),
       );
+    console.log('☑️ Name Generator - Roster');
   });
-
-  console.log('☑️ Name Generator - Roster');
 
   test('Sociogram', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=16`);
@@ -310,8 +305,8 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
     ).toBeVisible();
+    console.log('☑️ Sociogram');
   });
-  console.log('☑️ Sociogram');
 
   test('dyad census', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=20`);
@@ -324,8 +319,8 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(page.getByText('Rebecka')).toBeVisible();
     await page.getByText('Yes').click();
     await expect(page.getByText('Butch')).toBeVisible();
+    console.log('☑️ Dyad census');
   });
-  console.log('☑️ Dyad census');
 
   test('sociogram - select', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=23`);
@@ -341,8 +336,8 @@ test.describe('Complete Sample Protocol interview', () => {
 
     await page.getByText('Carrie', { exact: true }).click();
     expect(await page.locator('.node--selected').count()).toBe(1);
+    console.log('☑️ Sociogram - select');
   });
-  console.log('☑️ Sociogram - select');
 
   test('ordinal bins', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=24`);
@@ -355,8 +350,8 @@ test.describe('Complete Sample Protocol interview', () => {
       .locator('div.draggable')
       .first()
       .dragTo(page.locator('.ordinal-bin--content').nth(2));
+    console.log('☑️ Ordinal bins');
   });
-  console.log('☑️ Ordinal bins');
 
   test('categorical bins', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=25`);
@@ -381,8 +376,8 @@ test.describe('Complete Sample Protocol interview', () => {
       .locator('div.draggable')
       .first()
       .dragTo(page.locator('.categorical-list__item').first());
+    console.log('☑️ Categorical bins');
   });
-  console.log('☑️ Categorical bins');
   test('narrative', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=29`);
     await page.getByText('Sample Preset').click();
@@ -413,6 +408,6 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
     ).not.toBeVisible();
+    console.log('☑️ Narrative');
   });
-  console.log('☑️ Narrative');
 });
