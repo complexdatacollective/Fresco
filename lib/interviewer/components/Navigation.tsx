@@ -1,7 +1,7 @@
-import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '~/utils/shadcn';
 import { useSelector } from 'react-redux';
+import ProgressBar from '~/lib/ui/components/ProgressBar';
+import { cn } from '~/utils/shadcn';
 import { getNavigationInfo } from '../selectors/session';
 
 const NavigationButton = ({
@@ -26,6 +26,7 @@ const NavigationButton = ({
       role="button"
       tabIndex={0}
       onClick={!disabled ? onClick : undefined}
+      data-testid="navigation-button"
     >
       {children}
     </div>
@@ -67,7 +68,7 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'animate-pulse bg-success',
+          pulseNext && 'bg-success animate-pulse',
         )}
         onClick={moveForward}
         disabled={disabled || !canMoveForward}
