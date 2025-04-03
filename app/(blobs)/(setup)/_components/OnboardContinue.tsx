@@ -10,6 +10,11 @@ export default function OnboardContinue() {
   );
 
   return (
-    <Button onClick={() => setCurrentStep(currentStep + 1)}>Continue</Button>
+    <Button
+      onClick={() => setCurrentStep(currentStep + 1)}
+      data-testid="onboard-continue-button"
+    >
+      Continue
+    </Button>
   );
 }

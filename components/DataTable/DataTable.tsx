@@ -258,6 +258,7 @@ export function DataTable<TData, TValue>({
             variant="destructive"
             size="sm"
             disabled={isDeleting}
+            data-testid="delete-selected-button"
           >
             {isDeleting ? (
               <span className="flex items-center gap-2">

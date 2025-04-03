@@ -123,6 +123,7 @@ export const DeleteProtocolsDialog = ({
             disabled={isDeleting}
             onClick={() => void handleConfirm()}
             variant="destructive"
+            data-testid="confirm-delete-protocols-button"
           >
             {isDeleting ? (
               <>

@@ -23,6 +23,7 @@ const ResetButton = () => {
         type="submit"
         variant="destructive"
         onClick={() => setShowConfirmDialog(true)}
+        data-testid="reset-app-button"
       >
         Reset all app data
       </Button>
@@ -61,6 +62,7 @@ const ResetButton = () => {
                 }
               }}
               variant="destructive"
+              data-testid="confirm-reset-app-button"
             >
               {isResetting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
               {isResetting ? 'Resetting...' : 'Delete all data'}

@@ -7,10 +7,8 @@ test.describe('Participants page', () => {
 
   test('should display imported participants', async ({ page }) => {
     // check that our imported participants are visible
-    await expect(page.locator('text=Christopher Lee')).toHaveText(
-      'Christopher Lee',
-    );
-    await expect(page.locator('text=Emily Brown')).toHaveText('Emily Brown');
+    await expect(page.getByText('Christopher Lee')).toBeVisible();
+    await expect(page.getByText('Emily Brown')).toBeVisible();
   });
 
   test('should match visual snapshot', async ({ page }) => {
@@ -19,25 +17,21 @@ test.describe('Participants page', () => {
   });
 
   test('should add new participant', async ({ page }) => {
-    await page.getByRole('button', { name: 'Add Single Participant' }).click();
-    await page.getByRole('button', { name: 'Generate' }).click();
-    await page.getByRole('textbox', { name: 'Label' }).click();
-    await page.getByRole('textbox', { name: 'Label' }).fill('New Participant');
-    await page.getByRole('button', { name: 'Submit' }).click();
+    await page.getByTestId('add-participant-button').click();
+    await page.getByTestId('generate-participant-id-button').click();
+    await page.getByRole('textbox').nth(1).fill('New Participant');
+    await page.getByTestId('submit-participant').click();
   });
 
   test('should edit participant', async ({ page }) => {
-    await page.getByRole('button', { name: 'Open menu' }).first().click();
-    await page.getByRole('menuitem', { name: 'Edit' }).click();
-    await page.getByRole('textbox', { name: 'Label' }).click();
-    await page
-      .getByRole('textbox', { name: 'Label' })
-      .fill('New Participant Edit');
-    await page.getByRole('button', { name: 'Update' }).click();
+    await page.getByTestId('actions-dropdown-participants').first().click();
+    await page.getByRole('menuitem').nth(0).click();
+    await page.getByRole('textbox').nth(1).fill('New Participant Edited');
+    await page.getByTestId('submit-participant').click();
   });
 
   test.fixme('should copy unique URL', async ({ page }) => {
-    await page.getByRole('button', { name: 'Copy Unique URL' }).first().click();
+    await page.getByTestId('copy-url-button').click();
     await page.getByRole('combobox').click();
     await page.getByRole('option', { name: 'Sample Protocol' }).click();
     await page.getByText('Sample Protocol.netcanvas').click();

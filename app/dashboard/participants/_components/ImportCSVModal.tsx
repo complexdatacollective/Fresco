@@ -104,7 +104,7 @@ const ImportCSVModal = ({
     <>
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
         <DialogTrigger asChild>
-          <Button className="w-full">
+          <Button className="w-full" data-testid="import-participants-button">
             <FileDown className="mr-2 h-4 w-4" />
             Import participants
           </Button>
@@ -162,6 +162,7 @@ const ImportCSVModal = ({
               disabled={isSubmitting || !isValid}
               form="uploadFile"
               type="submit"
+              data-testid="import-participants-submit"
             >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

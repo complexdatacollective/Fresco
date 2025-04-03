@@ -79,7 +79,9 @@ function Documentation() {
 
       <div className="flex justify-end pt-12">
         <form action={handleAppConfigured}>
-          <SubmitButton variant="default">Go to the dashboard!</SubmitButton>
+          <SubmitButton variant="default" data-testid="go-to-dashboard-button">
+            Go to the dashboard!
+          </SubmitButton>
         </form>
       </div>
     </div>

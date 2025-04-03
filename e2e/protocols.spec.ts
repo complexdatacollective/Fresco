@@ -23,22 +23,20 @@ test.describe('Protocols page', () => {
   test('should upload new protocol', async ({ page }) => {
     const protocolHandle = page.locator('input[type="file"]');
     await protocolHandle.setInputFiles('e2e/files/E2E.netcanvas');
-    await expect(page.getByText('Extracting protocol')).toBeVisible();
-    await expect(page.getByText('Complete...')).toBeVisible();
+    await expect(
+      page.getByTestId('job-card-Extracting protocol'),
+    ).toBeVisible();
+    await expect(page.getByTestId('job-card-Complete')).toBeVisible();
   });
 
   test('should delete protocol', async ({ page }) => {
     // find the table row with the protocol we want to delete
-    await page
-      .getByRole('row', { name: 'Select row Protocol icon E2E.' })
-      .first()
-      .getByLabel('Select row')
-      .click();
-    await page.getByRole('button', { name: 'Delete Selected' }).click();
-    await page.getByRole('button', { name: 'Permanently Delete' }).click();
+    await page.getByTestId('actions-dropdown-protocols').first().click();
+    await page.getByRole('menuitem').nth(1).click();
+    await page.getByTestId('confirm-delete-protocols-button').click();
 
     // Verify the protocol is no longer in the table
-    await expect(page.locator('text=E2E.netcanvas')).not.toBeVisible();
+    await expect(page.getByText('E2E.netcanvas')).not.toBeVisible();
   });
 
   test('should copy anonymous participation url and navigate to it', async ({
@@ -54,9 +52,7 @@ test.describe('Protocols page', () => {
     // Get the current URL and remove the step parameter
     const currentUrl = page.url();
     baseInterviewURL = currentUrl.split('?')[0] ?? '';
-    await expect(
-      page.getByText('Welcome to the Sample Protocol'),
-    ).toBeVisible();
+    await expect(page.getByTestId('information-interface-title')).toBeVisible();
   });
 });
 
@@ -292,9 +288,7 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.getByText('Which context best describes how you know this person'),
     ).toBeVisible();
-    await page
-      .locator('input[placeholder="Enter your response here..."]')
-      .fill('Roommate');
+    await page.getByTestId('form-field-text-input').fill('Roommate');
     await page.click('button[type="submit"]');
     // put third node in first bin (family)
     await page
@@ -307,10 +301,13 @@ test.describe('Complete Sample Protocol interview', () => {
     await page.goto(`${baseInterviewURL}?step=29`);
     await page.getByTestId('preset-switcher-label').click();
     // attributes, links, groups should be visible
-    await expect(page.getByTestId('attribute-item-0')).toBeVisible(); //todo: fix radio intercepts issue
     expect(await page.locator('.node--selected').count()).toBe(2);
-    await page.getByTestId('attribute-item-1').click();
+    await page.getByTestId('form-field-radio-input').nth(1).click();
     expect(await page.locator('.node--selected').count()).toBe(1);
+    // screenshot
+    await page.screenshot({
+      path: 'e2e/screenshots/narrative.png',
+    });
     await page.getByTestId('attributes-accordion').click();
     expect(await page.locator('.node--selected').count()).toBe(0);
     await expect(page.getByTestId('link-label-0')).toBeVisible();

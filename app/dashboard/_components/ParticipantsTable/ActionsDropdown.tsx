@@ -1,4 +1,8 @@
+import type { Participant } from '@prisma/client';
+import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -7,11 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import type { Row } from '@tanstack/react-table';
-import { useState } from 'react';
-import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import type { ParticipantWithInterviews } from '~/types/types';
-import type { Participant } from '@prisma/client';
 
 export const ActionsDropdown = ({
   row,
@@ -42,7 +42,11 @@ export const ActionsDropdown = ({
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            data-testid="actions-dropdown-participants"
+          >
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>

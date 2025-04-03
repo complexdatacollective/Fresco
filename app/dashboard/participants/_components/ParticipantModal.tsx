@@ -185,6 +185,7 @@ function ParticipantModal({
                 onClick={() => {
                   setValue('identifier', `p-${createId()}`);
                 }}
+                data-testid="generate-participant-id-button"
               >
                 Generate
               </Button>
@@ -202,7 +203,12 @@ function ParticipantModal({
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
-          <Button form="participant-form" type="submit" disabled={working}>
+          <Button
+            form="participant-form"
+            type="submit"
+            disabled={working}
+            data-testid="submit-participant"
+          >
             {working && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {editingParticipant ? 'Update' : 'Submit'}
           </Button>

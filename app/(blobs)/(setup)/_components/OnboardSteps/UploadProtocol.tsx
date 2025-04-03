@@ -35,7 +35,12 @@ function ConfigureStudy() {
         />
       </div>
       <div className="flex justify-end">
-        <Button onClick={handleNextStep}>Continue</Button>
+        <Button
+          onClick={handleNextStep}
+          data-testid="upload-protocol-continue-button"
+        >
+          Continue
+        </Button>
       </div>
     </div>
   );

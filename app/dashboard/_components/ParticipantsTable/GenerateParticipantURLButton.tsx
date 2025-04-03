@@ -56,7 +56,12 @@ export const GenerateParticipationURLButton = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="xs" ref={ref} variant="accent">
+        <Button
+          size="xs"
+          ref={ref}
+          variant="accent"
+          data-test-id="copy-url-button"
+        >
           <Copy className="mr-2 h-4 w-4" />
           Copy Unique URL
         </Button>

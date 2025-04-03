@@ -72,13 +72,8 @@ test('create test database and setup app', async ({
     // go to /settings
     await page.goto('/dashboard/settings');
     // click "reset all app data" button
-    const resetButton = page.getByRole('button', {
-      name: 'Reset all app data',
-    });
-    await resetButton.click();
-    const confirmButton = page.getByRole('button', { name: 'Delete all data' });
-    await confirmButton.click();
-
+    await page.getByTestId('reset-app-button').click();
+    await page.getByTestId('confirm-reset-app-button').click();
     await expect(page).toHaveURL(/\/setup/);
 
     console.log('✅ Reset app data with settings button');
@@ -109,24 +104,24 @@ test('create test database and setup app', async ({
   const protocolHandle = page.locator('input[type="file"]');
   await protocolHandle.setInputFiles('e2e/files/SampleProtocol.netcanvas');
   // check for uploading assets toast
-  await expect(page.getByText('Uploading assets...')).toBeVisible();
-  await expect(page.getByText('Uploading assets...')).not.toBeVisible(); // long process if assets are large
-  await expect(page.getByText('Complete...')).toBeVisible();
+  await expect(page.getByTestId('job-card-Uploading assets')).toBeVisible();
+  await expect(page.getByTestId('job-card-Uploading assets')).not.toBeVisible();
+  await expect(page.getByTestId('job-card-Complete')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByTestId('upload-protocol-continue-button').click();
   await expect(page).toHaveURL(/\/setup\?step=4/);
   console.log('✅ Step 3 completed: protocol uploaded');
 
   // STEP 4
   // import participants
-  await page.getByRole('button', { name: 'Import participants' }).click();
+  await page.getByTestId('import-participants-button').click();
 
   // dialog should be visible
   await expect(page.getByRole('dialog')).toBeVisible();
 
   const participantsHandle = page.locator('input[type="file"]');
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
-  await page.getByRole('button', { name: 'Import' }).click();
+  await page.getByTestId('import-participants-submit').click();
 
   // participants imported toast
   await expect(
@@ -144,14 +139,14 @@ test('create test database and setup app', async ({
   await expect(anonymousRecruitmentSwitch).toBeChecked();
   await expect(limitInterviewsSwitch).toBeChecked();
 
-  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByTestId('onboard-continue-button').click();
   await expect(page).toHaveURL(/\/setup\?step=5/);
   console.log(
     '✅ Step 4 completed: participants imported and settings toggled',
   );
 
   // STEP 5 - documentation
-  await page.getByRole('button', { name: 'Go to the dashboard!' }).click();
+  await page.getByTestId('go-to-dashboard-button').click();
   await expect(page).toHaveURL(/\/dashboard/);
   console.log('✅ Setup completed: dashboard reached');
 
