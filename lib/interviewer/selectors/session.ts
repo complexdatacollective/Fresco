@@ -186,8 +186,8 @@ export const getNetwork = createSelector(
   (session) => session?.network,
 );
 
-const getPropStageFilter = (_: unknown, props: { stage: Stage }) =>
-  props.stage.filter ?? null;
+const getPropStageFilter = (_: unknown, props?: { stage: Stage }) =>
+  props?.stage.filter ?? null;
 
 type FilterFunction = (network: NcNetwork) => NcNetwork;
 

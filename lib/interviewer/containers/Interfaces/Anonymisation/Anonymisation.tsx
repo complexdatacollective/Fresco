@@ -2,12 +2,16 @@ import type { Stage } from '@codaco/protocol-validation';
 import { motion } from 'motion/react';
 import { useCallback, useEffect } from 'react';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
+import { Button } from '~/lib/ui/components';
 import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../../components/EncryptedBackground';
 import Form from '../../Form';
 import type { BeforeNextFunction } from '../../ProtocolScreen';
 import type { StageProps } from '../../Stage';
 import { usePassphrase } from './usePassphrase';
+
+const FORM_NAME = 'passphrase-form';
 
 type AnonymisationProps = StageProps & {
   stage: Extract<Stage, { type: 'Anonymisation' }>;
@@ -83,7 +87,18 @@ export default function Anonymisation(props: AnonymisationProps) {
             {!passphrase && (
               <div>
                 <Form
-                  form="passphrase"
+                  form={FORM_NAME}
+                  submitButton={
+                    <Button
+                      key="submit"
+                      aria-label="Submit"
+                      type="submit"
+                      icon="arrow-right"
+                      iconPosition="right"
+                    >
+                      Continue
+                    </Button>
+                  }
                   onSubmit={handleSetPassphrase}
                   subject={{ entity: 'ego' }}
                   autoFocus
@@ -94,7 +109,7 @@ export default function Anonymisation(props: AnonymisationProps) {
                       component: 'Text',
                       placeholder: 'Enter your passphrase...',
                       validation: {
-                        required: true,
+                        required: 'You must enter a passphrase',
                         ...passphraseValidation,
                       },
                     },
@@ -104,9 +119,18 @@ export default function Anonymisation(props: AnonymisationProps) {
                       component: 'Text',
                       placeholder: 'Re-enter your passphrase...',
                       validation: {
-                        required: true,
-                        sameAs: 'passphrase',
+                        required: 'You must re-enter your passphrase',
                         ...passphraseValidation,
+                        validate: (
+                          value: FieldValue,
+                          values: Record<string, FieldValue>,
+                        ) => {
+                          if (value !== values.passphrase) {
+                            return 'Passphrases do not match';
+                          }
+
+                          return undefined;
+                        },
                       },
                     },
                   ]}

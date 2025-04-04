@@ -1,3 +1,5 @@
+// @ts-check
+
 import('./env.js');
 import ChildProcess from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
@@ -9,8 +11,16 @@ try {
     .toString()
     .trim();
 } catch (error) {
-  // eslint-disable-next-line no-console
-  console.info('Error getting commit hash:', error.message ?? 'Unknown error');
+  if (error instanceof Error) {
+    // eslint-disable-next-line no-console
+    console.info(
+      'Error getting commit hash:',
+      error.message ?? 'Unknown error',
+    );
+  } else {
+    // eslint-disable-next-line no-console
+    console.info('Error getting commit hash:', error);
+  }
 }
 
 /** @type {import("next").NextConfig} */

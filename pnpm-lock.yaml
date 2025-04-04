@@ -15,11 +15,11 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.85.1))
       '@codaco/protocol-validation':
-        specifier: 4.0.0-alpha.4
-        version: 4.0.0-alpha.4
+        specifier: 4.0.0-alpha.5
+        version: 4.0.0-alpha.5
       '@codaco/shared-consts':
-        specifier: 1.0.0-alpha.1
-        version: 1.0.0-alpha.1
+        specifier: 1.0.0-alpha.2
+        version: 1.0.0-alpha.2
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.54.2(react@18.3.1))
@@ -236,6 +236,9 @@ importers:
       strip-markdown:
         specifier: ^6.0.0
         version: 6.0.0
+      superjson:
+        specifier: ^2.2.2
+        version: 2.2.2
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
@@ -653,12 +656,12 @@ packages:
     peerDependencies:
       next: 13 || 14 || 15
 
-  '@codaco/protocol-validation@4.0.0-alpha.4':
-    resolution: {integrity: sha512-wEvF4AcjDlkc0q8yIBMLNKInnicnkQw0v378eY2+cid3EkNySNTbGxXOPKZXFoFd7C5wz+t+R+cfwOm9kHFPpw==}
+  '@codaco/protocol-validation@4.0.0-alpha.5':
+    resolution: {integrity: sha512-DaIcpVU/3oW8YYaB+a2YqseOgN4dcwfd/31OF5/eP+y9mQpYQLM427VfBGwpdfikEqDwT2CiKm73SYDie+wGgw==}
     hasBin: true
 
-  '@codaco/shared-consts@1.0.0-alpha.1':
-    resolution: {integrity: sha512-/4QcMutJbxu3S4QX5asNXXOLfQDgcxDvO22rZyScyZsXLXQwFjCMWai7ia1iB9Zkwokd1cycqcrUe9KhDaBvMw==}
+  '@codaco/shared-consts@1.0.0-alpha.2':
+    resolution: {integrity: sha512-22s9eFQpQvbH+RlpgqUbCeEhxgkFiC6K5EIXNxXqj3rkctp7hIZHYug4YrviBzMn2ON181dgiQf18iFnnnRJ9A==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -2899,6 +2902,10 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
+  copy-anything@3.0.5:
+    resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
+    engines: {node: '>=12.13'}
+
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
@@ -3862,6 +3869,10 @@ packages:
   is-weakset@2.0.4:
     resolution: {integrity: sha512-mfcwb6IzQyOKTs84CQMrOwW4gQcaTOAWJ0zzJCl2WSPDrWk/OzDaImWFH3djXhb24g4eudZfLRozAvPGw4d9hQ==}
     engines: {node: '>= 0.4'}
+
+  is-what@4.1.16:
+    resolution: {integrity: sha512-ZhMwEosbFJkA0YhFnNDgTM4ZxDRsS6HqTo7qsZM08fehyRYIYa0yHu5R6mgo1n/8MgaPBXiPimPD77baVFYg+A==}
+    engines: {node: '>=12.13'}
 
   isarray@1.0.0:
     resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
@@ -5416,6 +5427,10 @@ packages:
   supercluster@8.0.1:
     resolution: {integrity: sha512-IiOea5kJ9iqzD2t7QJq/cREyLHTtSmUT6gQsweojg9WH2sYJqZK9SswTu6jrscO6D1G5v5vYZ9ru/eq85lXeZQ==}
 
+  superjson@2.2.2:
+    resolution: {integrity: sha512-5JRxVqC8I8NuOUjzBbvVJAKNM8qoVuH0O77h4WInc/qC2q5IreqKxYwgkga3PfA22OayK2ikceb/B26dztPl+Q==}
+    engines: {node: '>=16'}
+
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
     engines: {node: '>=4'}
@@ -6293,12 +6308,12 @@ snapshots:
       next: 14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.85.1)
       zod: 3.24.2
 
-  '@codaco/protocol-validation@4.0.0-alpha.4':
+  '@codaco/protocol-validation@4.0.0-alpha.5':
     dependencies:
       ajv: 8.17.1
       zod: 3.24.2
 
-  '@codaco/shared-consts@1.0.0-alpha.1':
+  '@codaco/shared-consts@1.0.0-alpha.2':
     dependencies:
       zod: 3.24.2
 
@@ -8463,6 +8478,10 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
+  copy-anything@3.0.5:
+    dependencies:
+      is-what: 4.1.16
+
   core-util-is@1.0.3: {}
 
   crc-32@1.2.2: {}
@@ -9629,6 +9648,8 @@ snapshots:
     dependencies:
       call-bound: 1.0.3
       get-intrinsic: 1.2.7
+
+  is-what@4.1.16: {}
 
   isarray@1.0.0: {}
 
@@ -11670,6 +11691,10 @@ snapshots:
   supercluster@8.0.1:
     dependencies:
       kdbush: 4.0.2
+
+  superjson@2.2.2:
+    dependencies:
+      copy-anything: 3.0.5
 
   supports-color@5.5.0:
     dependencies:

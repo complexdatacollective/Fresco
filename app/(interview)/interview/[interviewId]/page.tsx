@@ -1,25 +1,16 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
+import SuperJSON from 'superjson';
 import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
-import { type GetInterviewByIdReturnType } from '~/queries/interviews';
+import {
+  getInterviewById,
+  type GetInterviewByIdQuery,
+} from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
-import { getBaseUrl } from '~/utils/getBaseUrl';
 import InterviewShell from '../_components/InterviewShell';
 
 export const dynamic = 'force-dynamic';
-
-async function fetchInterview(interviewId: string) {
-  const result = await fetch(`${getBaseUrl()}/interview/${interviewId}/fetch`, {
-    cache: 'no-store',
-  });
-
-  const interview = (await result.json()) as GetInterviewByIdReturnType;
-
-  return interview;
-}
-
-export type FetchInterviewReturnType = ReturnType<typeof fetchInterview>;
 
 export default async function Page({
   params,
@@ -32,13 +23,15 @@ export default async function Page({
     return 'No interview id found';
   }
 
-  const interview = await fetchInterview(interviewId);
+  const rawInterview = await getInterviewById(interviewId);
 
   // If the interview is not found, redirect to the 404 page
-  if (!interview) {
+  if (!rawInterview) {
     notFound();
   }
 
+  const interview =
+    SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(rawInterview);
   const session = await getServerSession();
 
   // if limitInterviews is enabled
@@ -46,19 +39,20 @@ export default async function Page({
   // and redirect to finished page
   const limitInterviews = await getAppSetting('limitInterviews');
 
-  if (limitInterviews && cookies().get(interview?.protocol?.id ?? '')) {
+  if (limitInterviews && cookies().get(interview.protocol.id)) {
     redirect('/interview/finished');
   }
 
-  // If the interview is finished, redirect to the finish page
-  if (interview?.finishTime) {
+  // If the interview is finished, redirect to the finish page, unless we are
+  // logged in as an admin
+  if (!session && interview?.finishTime) {
     redirect('/interview/finished');
   }
 
   return (
     <>
       {session && <FeedbackBanner />}
-      <InterviewShell serverPayload={interview} />
+      <InterviewShell rawPayload={rawInterview} />
     </>
   );
 }

@@ -1,5 +1,5 @@
-import type { Codebook, Stage } from '@codaco/protocol-validation';
 import 'server-only';
+import superjson from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
@@ -29,16 +29,7 @@ export const getInterviewsForExport = createCachedFunction(
       },
     });
 
-    const processedInterviews = interviews.map((interview) => ({
-      ...interview,
-      protocol: {
-        ...interview.protocol,
-        codebook: interview.protocol.codebook as Codebook,
-        stages: interview.protocol.stages as Stage[],
-      },
-    }));
-
-    return processedInterviews;
+    return interviews;
   },
   ['getInterviewsForExport', 'getInterviews'],
 );
@@ -47,38 +38,47 @@ export type GetInterviewsForExportReturnType = ReturnType<
   typeof getInterviewsForExport
 >;
 
+/**
+ * Because we use a client extension to parse the JSON fields, we can't use the
+ * automatically generated types from the Prisma client (Prisma.InterviewGetPayload).
+ *
+ * Instead, we have to infer the type from the return value.
+ */
+async function prisma_getInterviewById(interviewId: string) {
+  return prisma.interview.findUnique({
+    where: { id: interviewId },
+    include: {
+      protocol: {
+        include: { assets: true },
+        omit: {
+          importedAt: true,
+          lastModified: true,
+          hash: true,
+        },
+      },
+    },
+  });
+}
+export type GetInterviewByIdQuery = Awaited<
+  ReturnType<typeof prisma_getInterviewById>
+>;
+
 export const getInterviewById = (interviewId: string) =>
   createCachedFunction(
     async (interviewId: string) => {
-      const interview = await prisma.interview.findUnique({
-        where: {
-          id: interviewId,
-        },
-        include: {
-          protocol: {
-            include: {
-              assets: true,
-            },
-          },
-        },
-      });
+      const interview = await prisma_getInterviewById(interviewId);
 
       if (!interview) {
         return null;
       }
 
-      return {
-        ...interview,
-        protocol: {
-          ...interview.protocol,
-          codebook: interview.protocol.codebook as Codebook,
-          stages: interview.protocol.stages as Stage[],
-        },
-      };
+      // We need to superjsonify the result, because we pass it to the client
+      // and it contains a Date object. We should look into if this could be
+      // implemented in the Prisma client instead, or the createCachedFunction
+      // helper (could be generalised to `createServerFunction`).
+      const safeInterview = superjson.stringify(interview);
+
+      return safeInterview;
     },
     [`getInterviewById-${interviewId}`, 'getInterviewById'],
   )(interviewId);
-
-export type GetInterviewByIdReturnType = Awaited<
-  ReturnType<typeof getInterviewById>
->;

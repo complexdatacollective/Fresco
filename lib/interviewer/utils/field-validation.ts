@@ -20,6 +20,8 @@ export type FieldValue = VariableValue | undefined;
 export type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
+  props: Record<string, unknown>,
+  name: string,
 ) => string | undefined;
 
 export type ReduxFormValidation = ValidationFunction | ValidationFunction[];
@@ -37,11 +39,17 @@ const coerceArray = (value: FieldValue) => {
   return [];
 };
 
-export const required = (message?: string) => (value: FieldValue) => {
+// TODO: This one is awkward because the protocol spec uses true, but we need
+// to be able to specify a string for the message in some cases. A better
+// design would probably be to have a separate validation function for
+// required that takes a message.
+export const required = (message?: string | boolean) => (value: FieldValue) => {
   const isEmptyString = isString(value) && value.length === 0;
 
   if (isNil(value) || isEmptyString) {
-    return message ?? 'You must answer this question before continuing';
+    return typeof message === 'boolean' && message === true
+      ? 'You must answer this question before continuing'
+      : message;
   }
 
   return undefined;
@@ -357,7 +365,8 @@ type VariableWithValidation = Extract<Variable, { validation?: unknown }>;
  * @returns {function} The validation function
  */
 export const getValidation = (
-  validation: NonNullable<VariableWithValidation['validation']>,
+  validation: NonNullable<VariableWithValidation['validation']> &
+    Record<string, ValidationFunction>,
   store: AppStore,
 ) => {
   const entries = Object.entries(validation);
@@ -370,6 +379,11 @@ export const getValidation = (
         options,
         store,
       );
+    }
+
+    // Allow custom validations by specifying a function
+    if (typeof options === 'function') {
+      return options;
     }
 
     return () => `Validation "${type}" not found`;

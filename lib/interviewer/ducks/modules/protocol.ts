@@ -1,10 +1,15 @@
-import { type Stage } from '@codaco/protocol-validation';
+import { type Codebook, type Stage } from '@codaco/protocol-validation';
 import { type Asset } from '@prisma/client';
 import { createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
-import { type ProtocolWithAssets } from '~/actions/interviews';
 
-const initialState = {} as ProtocolWithAssets;
+const initialState = {} as {
+  id: string;
+  name: string;
+  codebook: Codebook;
+  stages: Stage[];
+  assets: Asset[];
+};
 
 const DefaultFinishStage = {
   // `id` is used as component key; must be unique from user input

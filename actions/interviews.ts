@@ -21,7 +21,6 @@ import type {
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewsForExport,
-  type GetInterviewByIdReturnType,
   type GetInterviewsForExportReturnType,
 } from '~/queries/interviews';
 import type {
@@ -89,11 +88,6 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
     return { error: 'Failed to update interviews', interview: null };
   }
 };
-
-export type ProtocolWithAssets = Omit<
-  NonNullable<Awaited<GetInterviewByIdReturnType>>['protocol'],
-  'id'
->;
 
 export type ExportedProtocol =
   Awaited<GetInterviewsForExportReturnType>[number]['protocol'];
