@@ -73,18 +73,6 @@ export default function ProtocolScreen() {
   const { nextValidStageIndex, previousValidStageIndex, isCurrentStepValid } =
     useSelector(getNavigableStages);
 
-  const nextValidStageIndexRef = useRef(nextValidStageIndex);
-  const previousValidStageIndexRef = useRef(previousValidStageIndex);
-
-  // update the refs
-  useEffect(() => {
-    nextValidStageIndexRef.current = nextValidStageIndex;
-  }, [nextValidStageIndex]);
-
-  useEffect(() => {
-    previousValidStageIndexRef.current = previousValidStageIndex;
-  }, [previousValidStageIndex]);
-
   const [progress, setProgress] = useState(
     makeFakeSessionProgress(currentStep, promptIndex),
   );
@@ -133,9 +121,6 @@ export default function ProtocolScreen() {
         return;
       }
 
-      // use the latest value
-      const updatedNextValidStageIndex = nextValidStageIndexRef.current;
-
       // Advance the prompt if we're not at the last one.
       if (stageAllowsNavigation !== 'FORCE' && !isLastPrompt) {
         dispatch(
@@ -145,26 +130,23 @@ export default function ProtocolScreen() {
       }
 
       // from this point on we are definitely navigating, so set up the animation
-      setProgress(makeFakeSessionProgress(updatedNextValidStageIndex, 0));
+      setProgress(makeFakeSessionProgress(nextValidStageIndex, 0));
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
-      dispatch(
-        sessionActions.updateStage(
-          updatedNextValidStageIndex,
-        ) as unknown as AnyAction,
-      );
+      dispatch(sessionActions.updateStage('forward') as unknown as AnyAction);
     })();
 
     setForceNavigationDisabled(false);
   }, [
-    animate,
-    dispatch,
     isLastPrompt,
-    promptIndex,
-    registerBeforeNext,
-    scope,
     makeFakeSessionProgress,
+    nextValidStageIndex,
+    animate,
+    scope,
+    registerBeforeNext,
+    dispatch,
+    promptIndex,
   ]);
 
   const moveBackward = useCallback(async () => {
@@ -172,11 +154,6 @@ export default function ProtocolScreen() {
 
     await (async () => {
       const stageAllowsNavigation = await canNavigate('backwards');
-
-      // use the latest value
-      const updatedPreviousValidStageIndex = previousValidStageIndexRef.current;
-
-      console.log('updatedNextValidStageIndex', updatedPreviousValidStageIndex);
 
       if (!stageAllowsNavigation) {
         return;
@@ -190,27 +167,24 @@ export default function ProtocolScreen() {
         return;
       }
 
-      setProgress(makeFakeSessionProgress(updatedPreviousValidStageIndex, 0));
+      setProgress(makeFakeSessionProgress(previousValidStageIndex, 0));
 
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
-      dispatch(
-        sessionActions.updateStage(
-          updatedPreviousValidStageIndex,
-        ) as unknown as AnyAction,
-      );
+      dispatch(sessionActions.updateStage('backward') as unknown as AnyAction);
     })();
 
     setForceNavigationDisabled(false);
   }, [
-    animate,
-    dispatch,
     isFirstPrompt,
-    promptIndex,
-    registerBeforeNext,
-    scope,
     makeFakeSessionProgress,
+    previousValidStageIndex,
+    animate,
+    scope,
+    registerBeforeNext,
+    dispatch,
+    promptIndex,
   ]);
 
   const getNavigationHelpers = useCallback(
@@ -238,11 +212,7 @@ export default function ProtocolScreen() {
       );
       // This should always return a valid stage, because we know that the
       // first stage is always valid.
-      dispatch(
-        sessionActions.updateStage(
-          previousValidStageIndex,
-        ) as unknown as AnyAction,
-      );
+      dispatch(sessionActions.updateStage('backward') as unknown as AnyAction);
     }
   }, [dispatch, isCurrentStepValid, previousValidStageIndex]);
 
