@@ -29,7 +29,7 @@ import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
-    <div className="fixed inset-0 z-99 flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
+    <div className="bg-background/80 text-primary fixed inset-0 z-99 flex flex-col items-center justify-center gap-3">
       <div
         className={cn(
           cardClasses,

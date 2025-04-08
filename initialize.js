@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-/** 
+/**
  * We set the the initializedAt key here, because this script is run when the
  * app is first deployed.
-**/
+ **/
 async function setInitializedAt() {
   // Check if app is already initialized
   const initializedAt = await prisma.appSettings.findUnique({
     where: {
-      key: 'initializedAt'
-    }
+      key: 'initializedAt',
+    },
   });
 
   if (initializedAt) {
@@ -32,8 +32,8 @@ async function setInitializedAt() {
     update: {},
     create: {
       key: 'initializedAt',
-      value: now
-    }
+      value: now,
+    },
   });
 }
 
