@@ -18,6 +18,7 @@ import customFilter from '~/lib/network-query/filter';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
 import { getStageSubject, getSubjectType, stagePromptIds } from './prop';
+import { calculateProgress } from './utils';
 
 export const getActiveSession = (state: RootState) => {
   return state.session;
@@ -25,7 +26,6 @@ export const getActiveSession = (state: RootState) => {
 
 export const getStageIndex = (state: RootState) => state.session.currentStep;
 
-// Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
 export const getStageMetadata = createSelector(
   getActiveSession,
   getStageIndex,
@@ -75,7 +75,7 @@ export const getPrompts = createSelector(getCurrentStage, (stage) => {
   return null;
 });
 
-const getPromptCount = createSelector(
+export const getPromptCount = createSelector(
   getPrompts,
   (prompts) => prompts?.length ?? 1, // If there are no prompts we have "1" prompt
 );
@@ -102,52 +102,14 @@ const getIsLastStage = createSelector(
   (currentStep, stages) => currentStep === stages.length - 1,
 );
 
-const getStageCount = createSelector(getStages, (stages) => stages.length);
+export const getStageCount = createSelector(getStages, (stages) => stages.length);
 
 const getSessionProgress = createSelector(
   getStageIndex,
   getStageCount,
   getPromptIndex,
   getPromptCount,
-  (currentStep, stageCount, promptIndex, promptCount) => {
-    // Don't subtract 1 because we have a finish stage automatically added that isn't accounted for.
-    const stageProgress = currentStep / stageCount;
-
-    const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
-
-    const promptProgress = promptCount === 1 ? 1 : promptIndex / promptCount; // 1 when finished
-
-    const promptWorth = promptProgress * stageWorth;
-
-    const percentProgress = (stageProgress + promptWorth) * 100;
-
-    return percentProgress;
-  },
-);
-
-// Used to calculate what the progress _will be_ once the next stage is loaded. Can update the
-// progress bar with this.
-export const makeGetFakeSessionProgress = createSelector(
-  getStageCount,
-  getPromptCount,
-  (stageCount, promptCount) => {
-    return (currentStep: number, promptIndex: number) => {
-      if (currentStep === null) return 0;
-
-      // Don't subtract 1 because we have a finish stage automatically added that isn't accounted for.
-      const stageProgress = currentStep / stageCount;
-
-      const stageWorth = 1 / stageCount; // The amount of progress each stage is worth
-
-      const promptProgress = promptCount === 1 ? 1 : promptIndex / promptCount; // 1 when finished
-
-      const promptWorth = promptProgress * stageWorth;
-
-      const percentProgress = (stageProgress + promptWorth) * 100;
-
-      return percentProgress;
-    };
-  },
+  calculateProgress,
 );
 
 export const getNavigationInfo = createSelector(

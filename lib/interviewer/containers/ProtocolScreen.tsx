@@ -15,9 +15,11 @@ import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
   getCurrentStage,
   getNavigationInfo,
-  makeGetFakeSessionProgress,
+  getPromptCount,
+  getStageCount,
 } from '../selectors/session';
 import { getNavigableStages } from '../selectors/skip-logic';
+import { calculateProgress } from '../selectors/utils';
 import Stage from './Stage';
 
 type direction = 'forwards' | 'backwards';
@@ -61,7 +63,6 @@ export default function ProtocolScreen() {
   // State
   const [queryStep, setQueryStep] = useQueryState('step', parseAsInteger);
   const [forceNavigationDisabled, setForceNavigationDisabled] = useState(false);
-  const makeFakeSessionProgress = useSelector(makeGetFakeSessionProgress);
 
   // Selectors
   const stage = useSelector(getCurrentStage); // null = loading, undefined = not found
@@ -71,10 +72,31 @@ export default function ProtocolScreen() {
   const prevCurrentStep = usePrevious(currentStep);
   const { nextValidStageIndex, previousValidStageIndex, isCurrentStepValid } =
     useSelector(getNavigableStages);
+  const stageCount = useSelector(getStageCount);
+  const promptCount = useSelector(getPromptCount);
+
+  // Refs
+  const nextValidStageIndexRef = useRef(nextValidStageIndex);
+  const previousValidStageIndexRef = useRef(previousValidStageIndex);
+
+  // update the ref when the value from the selector changes
+  useEffect(() => {
+    nextValidStageIndexRef.current = nextValidStageIndex;
+  }, [nextValidStageIndex]);
+
+  useEffect(() => {
+    previousValidStageIndexRef.current = previousValidStageIndex;
+  }, [previousValidStageIndex]);
 
   const [progress, setProgress] = useState(
-    makeFakeSessionProgress(currentStep, promptIndex),
+    calculateProgress(currentStep, stageCount, promptIndex, promptCount),
   );
+
+  useEffect(() => {
+    setProgress(
+      calculateProgress(currentStep, stageCount, promptIndex, promptCount),
+    );
+  }, [currentStep, stageCount, promptIndex, promptCount]);
 
   // Refs
   const beforeNextFunction = useRef<BeforeNextFunction | null>(null);
@@ -126,12 +148,18 @@ export default function ProtocolScreen() {
       }
 
       // from this point on we are definitely navigating, so set up the animation
-      setProgress(makeFakeSessionProgress(nextValidStageIndex, 0));
+      const fakeProgress = calculateProgress(
+        nextValidStageIndexRef.current,
+        stageCount,
+        0,
+        promptCount,
+      );
+      setProgress(fakeProgress);
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
-      // dispatch(updateStage(nextValidStageIndex));
-      void setQueryStep(nextValidStageIndex);
+
+      void setQueryStep(nextValidStageIndexRef.current);
     })();
 
     setForceNavigationDisabled(false);
@@ -139,11 +167,11 @@ export default function ProtocolScreen() {
     animate,
     dispatch,
     isLastPrompt,
-    nextValidStageIndex,
     promptIndex,
     registerBeforeNext,
     scope,
-    makeFakeSessionProgress,
+    stageCount,
+    promptCount,
     setQueryStep,
   ]);
 
@@ -163,13 +191,18 @@ export default function ProtocolScreen() {
         return;
       }
 
-      setProgress(makeFakeSessionProgress(previousValidStageIndex, 0));
+      const fakeProgress = calculateProgress(
+        previousValidStageIndexRef.current,
+        stageCount,
+        0,
+        promptCount,
+      );
+      setProgress(fakeProgress);
 
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
-      // dispatch(updateStage(previousValidStageIndex));
-      void setQueryStep(previousValidStageIndex);
+      void setQueryStep(previousValidStageIndexRef.current);
     })();
 
     setForceNavigationDisabled(false);
@@ -178,11 +211,11 @@ export default function ProtocolScreen() {
     setQueryStep,
     dispatch,
     isFirstPrompt,
-    previousValidStageIndex,
     promptIndex,
     registerBeforeNext,
     scope,
-    makeFakeSessionProgress,
+    stageCount,
+    promptCount,
   ]);
 
   const getNavigationHelpers = useCallback(

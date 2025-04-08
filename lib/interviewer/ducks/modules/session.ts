@@ -5,6 +5,7 @@ import {
   type EntityAttributesProperty,
   type EntityPrimaryKey,
   type NcEdge,
+  type NcEgo,
   type NcEntity,
   type NcNetwork,
   type NcNode,
@@ -27,6 +28,13 @@ import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttribu
 function flipEdge(edge: Partial<NcEdge>) {
   return { from: edge.to, to: edge.from, type: edge.type };
 }
+
+function withLastUpdated<T>(state: T) {
+  return {
+    ...state,
+    lastUpdated: new Date().toISOString(),
+  };
+};
 
 /**
  * Check if an edge exists in the network
@@ -200,7 +208,7 @@ export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
 export const updateNode = createAction<{
   nodeId: NcNode[EntityPrimaryKey];
   newModelData: Record<string, unknown>;
-  newAttributeData: Record<string, unknown>;
+  newAttributeData: NcNode[EntityAttributesProperty];
 }>(actionTypes.updateNode);
 
 export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
@@ -284,13 +292,19 @@ export const updateEgo = createAsyncThunk(
   (
     props: {
       modelData: Record<string, unknown>;
-      attributeData: Record<string, unknown>;
+      attributeData: NcEgo[EntityAttributesProperty];
     },
     { getState },
   ) => {
     const { modelData, attributeData } = props;
     const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
+
+    console.log('updateEgo', {
+      sessionMeta,
+      modelData,
+      attributeData,
+    });
 
     return {
       sessionMeta,
@@ -303,7 +317,7 @@ export const updateEgo = createAsyncThunk(
 export const updateEdge = createAction<{
   edgeId: NcEntity[EntityPrimaryKey];
   newModelData?: Record<string, unknown>;
-  newAttributeData?: Record<string, unknown>;
+  newAttributeData?: NcEdge[EntityAttributesProperty];
 }>(actionTypes.updateEdge);
 
 export const updateStageMetadata = createAction<StageMetadataEntry[]>(
@@ -333,23 +347,21 @@ const sessionReducer = createReducer(initialState, (builder) => {
       stageId: stageId,
     };
 
-    return {
+    return withLastUpdated({
       ...state,
-      lastUpdated: new Date().toISOString(),
       network: {
         ...state.network,
         nodes: [...state.network.nodes, newNode],
       },
-    };
+    });
   });
 
   builder.addCase(deleteNode, (state, action) => {
     const { network } = state;
     const { nodes } = network;
 
-    return {
+    return withLastUpdated({
       ...state,
-      lastUpdated: new Date().toISOString(),
       network: {
         ...network,
         nodes: nodes.filter(
@@ -359,7 +371,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
           (edge) => edge.from !== action.payload && edge.to !== action.payload,
         ),
       },
-    };
+    });
   });
 
   builder.addCase(updatePrompt, (state, action) => {
@@ -370,11 +382,11 @@ const sessionReducer = createReducer(initialState, (builder) => {
   });
 
   builder.addCase(updateStage, (state, action) => {
-    return {
+    return withLastUpdated({
       ...state,
       currentStep: action.payload,
       promptIndex: 0,
-    };
+    });
   });
 
   builder.addCase(updateNode, (state, action) => {
@@ -382,9 +394,8 @@ const sessionReducer = createReducer(initialState, (builder) => {
     const { network } = state;
     const { nodes } = network;
 
-    return {
+    return withLastUpdated({
       ...state,
-      lastUpdated: new Date().toISOString(),
       network: {
         ...network,
         nodes: nodes.map((node) => {
@@ -407,8 +418,8 @@ const sessionReducer = createReducer(initialState, (builder) => {
             },
           };
         }),
-      } as NcNetwork,
-    };
+      },
+    });
   });
 
   builder.addCase(addEdge.fulfilled, (state, action) => {
@@ -424,30 +435,28 @@ const sessionReducer = createReducer(initialState, (builder) => {
       [entityAttributesProperty]: attributeData,
     };
 
-    return {
+    return withLastUpdated({
       ...state,
-      lastUpdated: new Date().toISOString(),
       network: {
         ...state.network,
         edges: [...state.network.edges, newEdge],
       } as NcNetwork,
-    };
+    });
   });
 
   builder.addCase(deleteEdge, (state, action) => {
     const { network } = state;
     const { edges } = network;
 
-    return {
+    return withLastUpdated({
       ...state,
-      lastUpdated: new Date().toISOString(),
       network: {
         ...network,
         edges: edges.filter(
           (edge) => edge[entityPrimaryKeyProperty] !== action.payload,
         ),
       },
-    };
+    });
   });
 
   builder.addCase(updateEdge, (state, action) => {
@@ -455,9 +464,8 @@ const sessionReducer = createReducer(initialState, (builder) => {
     const { network } = state;
     const { edges } = network;
 
-    return {
+    return withLastUpdated({
       ...state,
-      lastUpdated: new Date().toISOString(),
       network: {
         ...network,
         edges: edges.map((edge) => {
@@ -474,20 +482,40 @@ const sessionReducer = createReducer(initialState, (builder) => {
             },
           };
         }),
-      } as NcNetwork,
-    };
+      },
+    });
   });
 
   builder.addCase(updateStageMetadata, (state, action) => {
     const stageMetadata = action.payload;
     const currentStep = state.currentStep;
-    return {
+    return withLastUpdated({
       ...state,
       stageMetadata: {
         ...state.stageMetadata,
         [currentStep]: stageMetadata,
       },
-    };
+    });
+  });
+
+  builder.addCase(updateEgo.fulfilled, (state, action) => {
+    const { modelData, attributeData } = action.payload;
+    const { network } = state;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        ego: {
+          ...network.ego,
+          ...modelData,
+          [entityAttributesProperty]: {
+            ...network.ego[entityAttributesProperty],
+            ...attributeData,
+          },
+        },
+      },
+    });
   });
 });
 
