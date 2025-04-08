@@ -1,11 +1,7 @@
 import type { Stage } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { getProtocolStages } from './protocol';
-import { getActiveSession } from './shared';
-
-export const getStageIndex = createSelector(getActiveSession, (session) => {
-  return session.currentStep;
-});
+import { getActiveSession, getStageIndex } from './shared';
 
 // Stage stage is temporary storage for stages used by TieStrengthCensus and DyadCensus
 export const getStageMetadata = createSelector(
