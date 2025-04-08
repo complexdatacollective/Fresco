@@ -36,7 +36,7 @@ function UploadThingModal() {
               Updating the key should take a matter of minutes, and can be
               completed using the following steps:
             </Paragraph>
-            <ol className="ml-4 mt-6 list-inside list-decimal">
+            <ol className="mt-6 ml-4 list-inside list-decimal">
               <li>
                 Visit the{' '}
                 <Link href="https://uploadthing.com/dashboard/" target="_blank">

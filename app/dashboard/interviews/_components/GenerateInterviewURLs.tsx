@@ -81,7 +81,7 @@ export const GenerateInterviewURLs = ({
           </DialogHeader>
           <div className="flex flex-col items-center justify-end gap-4">
             {!protocols ? (
-              <Skeleton className="h-10 w-full rounded-input" />
+              <Skeleton className="rounded-input h-10 w-full" />
             ) : (
               <Select
                 onValueChange={(value) => {

@@ -41,9 +41,9 @@ export function DataTableColumnHeader<TData, TValue>({
           <Button variant="tableHeader" size="sm">
             <span>{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4 text-success" />
+              <ArrowDown className="text-success ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4 text-success" />
+              <ArrowUp className="text-success ml-2 h-4 w-4" />
             ) : (
               <ArrowUpDown className="w-4t ml-2 h-4" />
             )}
@@ -54,14 +54,14 @@ export function DataTableColumnHeader<TData, TValue>({
             aria-label="Sort ascending"
             onClick={() => column.toggleSorting(false)}
           >
-            <ArrowUp className="mr-2 h-3.5 w-3.5 text-foreground/70" />
+            <ArrowUp className="text-foreground/70 mr-2 h-3.5 w-3.5" />
             Asc
           </DropdownMenuItem>
           <DropdownMenuItem
             aria-label="Sort descending"
             onClick={() => column.toggleSorting(true)}
           >
-            <ArrowDown className="mr-2 h-3.5 w-3.5 text-foreground/70" />
+            <ArrowDown className="text-foreground/70 mr-2 h-3.5 w-3.5" />
             Desc
           </DropdownMenuItem>
           {/* <DropdownMenuItem

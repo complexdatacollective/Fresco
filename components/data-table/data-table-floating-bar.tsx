@@ -8,7 +8,7 @@ import { CrossIcon } from 'lucide-react';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
-} & React.HTMLAttributes<HTMLElement>
+} & React.HTMLAttributes<HTMLElement>;
 
 export function DataTableFloatingBar<TData>({
   table,
@@ -21,7 +21,7 @@ export function DataTableFloatingBar<TData>({
   return (
     <div
       className={cn(
-        'bg-zinc-900 text-white mx-auto flex w-fit items-center gap-2 rounded-md px-4 py-2',
+        'mx-auto flex w-fit items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-white',
         className,
       )}
       {...props}
@@ -29,7 +29,7 @@ export function DataTableFloatingBar<TData>({
       <Button
         aria-label="Clear selection"
         title="Clear"
-        className="bg-transparent text-white hover:bg-zinc-700 h-auto p-1"
+        className="h-auto bg-transparent p-1 text-white hover:bg-zinc-700"
         onClick={() => table.toggleAllRowsSelected(false)}
       >
         <CrossIcon className="size-4" aria-hidden="true" />

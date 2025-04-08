@@ -16,12 +16,13 @@
 
   @include modifier(indeterminate) {
     .progress-bar__filler {
-      animation: progress-bar-animation var(--progress-indeterminate-animation-duration) linear infinite;
+      animation: progress-bar-animation
+        var(--progress-indeterminate-animation-duration) linear infinite;
       background-image: linear-gradient(
         0.25turn,
         var(--progress-indeterminate-background-color),
         var(--progress-indeterminate-highlight-color),
-        var(--progress-indeterminate-background-color),
+        var(--progress-indeterminate-background-color)
       );
       background-size: var(--progress-indeterminate-gradient-width);
     }
@@ -36,22 +37,23 @@
   overflow: hidden;
 
   &--vertical {
-    width: .7rem;
+    width: 0.7rem;
 
     .progress-bar__filler {
       width: 100%;
-      transition: height calc(var(--animation-duration-standard)*3) var(--animation-easing);
+      transition: height calc(var(--animation-duration-standard) * 3)
+        var(--animation-easing);
     }
   }
 
   &--horizontal {
-    height: .7rem;
+    height: 0.7rem;
 
     .progress-bar__filler {
       height: 100%;
-      transition: width calc(var(--animation-duration-standard)) var(--animation-easing);
+      transition: width calc(var(--animation-duration-standard))
+        var(--animation-easing);
     }
-
   }
 
   &__filler {
@@ -83,5 +85,3 @@
     }
   }
 }
-
-

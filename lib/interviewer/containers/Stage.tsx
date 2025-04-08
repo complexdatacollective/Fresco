@@ -24,7 +24,7 @@ function Stage(props: StageProps) {
 
   return (
     <div
-      className="flex-grow-1 relative flex h-full w-full basis-full overflow-hidden"
+      className="relative flex h-full w-full flex-grow-1 basis-full overflow-hidden"
       id="stage"
     >
       <StageErrorBoundary>

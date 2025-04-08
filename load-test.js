@@ -6,8 +6,8 @@ const HOST = 'host.docker.internal:3000';
 export let options = {
   stages: [
     { duration: '30s', target: 100 }, // Ramp-up to 150 users over 30 seconds.
-    { duration: '1m', target: 100 },  // Stay at 150 users for 1 minute.
-    { duration: '30s', target: 0 },  // Ramp down to 0 users over 10 seconds.
+    { duration: '1m', target: 100 }, // Stay at 150 users for 1 minute.
+    { duration: '30s', target: 0 }, // Ramp down to 0 users over 10 seconds.
   ],
 };
 
@@ -18,17 +18,24 @@ export default function () {
   });
 
   if (loginRes.status === 200) {
-
     let jar = new CookieJar();
-    jar.set(`http://${HOST}`, 'auth_session', loginRes.cookies['auth_session'][0].value);
+    jar.set(
+      `http://${HOST}`,
+      'auth_session',
+      loginRes.cookies['auth_session'][0].value,
+    );
 
     group('Authenticated requests', function () {
-      let res = http.get(`http://${HOST}/dashboard`, { cookies: jar.cookiesForURL(`http://${HOST}`) });
+      let res = http.get(`http://${HOST}/dashboard`, {
+        cookies: jar.cookiesForURL(`http://${HOST}`),
+      });
       check(res, {
         'is status 200': (r) => r.status === 200,
       });
 
-      let res2 = http.get(`http://${HOST}/dashboard/settings`, { cookies: jar.cookiesForURL(`http://${HOST}`) });
+      let res2 = http.get(`http://${HOST}/dashboard/settings`, {
+        cookies: jar.cookiesForURL(`http://${HOST}`),
+      });
       check(res2, {
         'is status 200': (r) => r.status === 200,
       });
@@ -39,7 +46,7 @@ export default function () {
 }
 
 function login() {
-  let payload = '[{"username":"admin","password":"Administrator1!"}]'
+  let payload = '[{"username":"admin","password":"Administrator1!"}]';
 
   let params = {
     headers: {

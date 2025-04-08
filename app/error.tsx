@@ -50,7 +50,7 @@ ${error.stack}`;
         baseSize="60%"
         className={cn(
           cardClasses,
-          'm-10 w-[30rem] p-10 shadow-xl shadow-platinum-dark',
+          'shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl',
         )}
       >
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
