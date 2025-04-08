@@ -145,7 +145,11 @@ export default function ProtocolScreen() {
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
-      dispatch(sessionActions.updateStage('forward') as unknown as AnyAction);
+      dispatch(
+        sessionActions.updateStage(
+          nextValidStageIndexRef.current,
+        ) as unknown as AnyAction,
+      );
     })();
 
     setForceNavigationDisabled(false);
@@ -185,7 +189,11 @@ export default function ProtocolScreen() {
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
-      dispatch(sessionActions.updateStage('backward') as unknown as AnyAction);
+      dispatch(
+        sessionActions.updateStage(
+          previousValidStageIndexRef.current,
+        ) as unknown as AnyAction,
+      );
     })();
 
     setForceNavigationDisabled(false);
@@ -225,7 +233,11 @@ export default function ProtocolScreen() {
       );
       // This should always return a valid stage, because we know that the
       // first stage is always valid.
-      dispatch(sessionActions.updateStage('backward') as unknown as AnyAction);
+      dispatch(
+        sessionActions.updateStage(
+          previousValidStageIndexRef.current,
+        ) as unknown as AnyAction,
+      );
     }
   }, [dispatch, isCurrentStepValid, previousValidStageIndex]);
 
