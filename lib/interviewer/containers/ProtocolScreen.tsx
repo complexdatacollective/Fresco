@@ -72,6 +72,17 @@ export default function ProtocolScreen() {
   const prevCurrentStep = usePrevious(currentStep);
   const { nextValidStageIndex, previousValidStageIndex, isCurrentStepValid } =
     useSelector(getNavigableStages);
+  const nextValidStageIndexRef = useRef(nextValidStageIndex);
+  const previousValidStageIndexRef = useRef(previousValidStageIndex);
+
+  // update the ref when the value from the selector changes
+  useEffect(() => {
+    nextValidStageIndexRef.current = nextValidStageIndex;
+  }, [nextValidStageIndex]);
+
+  useEffect(() => {
+    previousValidStageIndexRef.current = previousValidStageIndex;
+  }, [previousValidStageIndex]);
 
   const [progress, setProgress] = useState(
     makeFakeSessionProgress(currentStep, promptIndex),
@@ -130,7 +141,7 @@ export default function ProtocolScreen() {
       }
 
       // from this point on we are definitely navigating, so set up the animation
-      setProgress(makeFakeSessionProgress(nextValidStageIndex, 0));
+      setProgress(makeFakeSessionProgress(nextValidStageIndexRef.current, 0));
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
@@ -141,7 +152,7 @@ export default function ProtocolScreen() {
   }, [
     isLastPrompt,
     makeFakeSessionProgress,
-    nextValidStageIndex,
+    nextValidStageIndexRef,
     animate,
     scope,
     registerBeforeNext,
@@ -167,7 +178,9 @@ export default function ProtocolScreen() {
         return;
       }
 
-      setProgress(makeFakeSessionProgress(previousValidStageIndex, 0));
+      setProgress(
+        makeFakeSessionProgress(previousValidStageIndexRef.current, 0),
+      );
 
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
@@ -179,7 +192,7 @@ export default function ProtocolScreen() {
   }, [
     isFirstPrompt,
     makeFakeSessionProgress,
-    previousValidStageIndex,
+    previousValidStageIndexRef,
     animate,
     scope,
     registerBeforeNext,
