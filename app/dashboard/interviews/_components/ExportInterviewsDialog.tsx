@@ -29,7 +29,7 @@ import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
-    <div className="fixed inset-0 z-99 flex flex-col items-center justify-center gap-3 bg-background/80 text-primary">
+    <div className="bg-background/80 text-primary fixed inset-0 z-99 flex flex-col items-center justify-center gap-3">
       <div
         className={cn(
           cardClasses,
@@ -37,7 +37,7 @@ const ExportingStateAnimation = () => {
         )}
       >
         <Loader2 className="h-20 w-20 animate-spin" />
-        <Heading variant="h4">
+        <Heading variant="h4" data-testid="exporting-loading-dialog">
           Exporting and zipping files. Please wait...
         </Heading>
       </div>
@@ -176,7 +176,9 @@ export const ExportInterviewsDialog = ({
       <Dialog open={open} onOpenChange={handleCancel}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm File Export Options</DialogTitle>
+            <DialogTitle data-testid="confirm-export-dialog-title">
+              Confirm File Export Options
+            </DialogTitle>
             <DialogDescription>
               Before exporting, please confirm the export options that you wish
               to use. These options are identical to those found in Interviewer.
@@ -190,7 +192,7 @@ export const ExportInterviewsDialog = ({
             <Button onClick={handleCancel} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleConfirm}>
+            <Button onClick={handleConfirm} data-testid="start-export-button">
               {isExporting ? 'Exporting...' : 'Start export process'}
             </Button>
           </DialogFooter>

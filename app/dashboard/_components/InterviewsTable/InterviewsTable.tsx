@@ -86,13 +86,19 @@ export const InterviewsTable = ({
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button disabled={interviews.length === 0}>
+                <Button
+                  disabled={interviews.length === 0}
+                  data-testid="export-interviews-button"
+                >
                   <HardDriveUpload className="mr-2 inline-block h-4 w-4" />
                   Export Interview Data
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleExportAll}>
+                <DropdownMenuItem
+                  onClick={handleExportAll}
+                  data-testid="export-all-button"
+                >
                   Export all interviews
                 </DropdownMenuItem>
                 <DropdownMenuItem

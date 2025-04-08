@@ -85,6 +85,7 @@ const ExportOptionsView = ({
         </div>
         <div>
           <Switch
+            data-testid="export-graphml-switch"
             checked={exportOptions.exportGraphML}
             onCheckedChange={handleGraphMLSwitch}
           />
@@ -104,6 +105,7 @@ const ExportOptionsView = ({
         </div>
         <div>
           <Switch
+            data-testid="export-csv-switch"
             checked={exportOptions.exportCSV}
             onCheckedChange={handleCSVSwitch}
           />
@@ -121,6 +123,7 @@ const ExportOptionsView = ({
         </div>
         <div>
           <Switch
+            data-testid="export-screen-layout-coordinates-switch"
             checked={exportOptions.globalOptions.useScreenLayoutCoordinates}
             onCheckedChange={handleScreenLayoutCoordinatesSwitch}
           />
