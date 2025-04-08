@@ -33,7 +33,7 @@ export const store = ({
         // reducer, otherwise it will complain about items that aren't able to
         // be serialised.
         id: session.id,
-        currentStep: 1,
+        currentStep: session.currentStep,
         startTime: session.startTime.toISOString(),
         finishTime: session.finishTime?.toISOString() ?? null,
         exportTime: session.exportTime?.toISOString() ?? null,
