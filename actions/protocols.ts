@@ -1,6 +1,6 @@
 'use server';
 
-import { type Protocol } from '@codaco/shared-consts';
+import { type Protocol } from '@codaco/protocol-validation';
 import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
@@ -140,7 +140,7 @@ export async function insertProtocol(
     await prisma.protocol.create({
       data: {
         hash: protocolHash,
-        lastModified: protocol.lastModified,
+        lastModified: protocol.lastModified ?? new Date(),
         name: protocolName,
         schemaVersion: protocol.schemaVersion,
         stages: protocol.stages as unknown as Prisma.JsonArray, // The Stage interface needs to be changed to be a type: https://www.totaltypescript.com/type-vs-interface-which-should-you-use#index-signatures-in-types-vs-interfaces
