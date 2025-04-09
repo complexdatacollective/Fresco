@@ -14,6 +14,7 @@ import {
   createAction,
   createAsyncThunk,
   createReducer,
+  createSelector,
 } from '@reduxjs/toolkit';
 import { find, get, invariant } from 'es-toolkit/compat';
 import { v4 as uuid, v4 } from 'uuid';
@@ -34,7 +35,7 @@ function withLastUpdated<T>(state: T) {
     ...state,
     lastUpdated: new Date().toISOString(),
   };
-};
+}
 
 /**
  * Check if an edge exists in the network
@@ -123,15 +124,18 @@ const initialState = {} as SessionState;
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
   async (
-    props: {
+    args: {
       type: NcNode['type'];
+      modelData: {
+        [entityPrimaryKeyProperty]?: NcNode[EntityPrimaryKey];
+      };
       attributeData: NcNode[EntityAttributesProperty];
     },
     { getState },
   ) => {
-    const { type, attributeData } = props;
+    const { type, attributeData } = args;
     const state = getState() as RootState;
-    const sessionMeta = getSessionMeta(state);
+
     const variablesForType = getCodebookVariablesForNodeType(type)(state);
 
     const mergedAttributes = {
@@ -153,11 +157,14 @@ export const addNode = createAsyncThunk(
         passphrase,
       );
 
+    const sessionMeta = getSessionMeta(state);
+
     return {
-      sessionMeta,
       type,
       attributeData: encryptedAttributes,
+      modelData: args.modelData,
       secureAttributes,
+      sessionMeta,
     };
   },
 );
@@ -214,6 +221,10 @@ export const updateNode = createAction<{
 export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
 export const updateStage = createAction<number>(actionTypes.updateStage);
 
+export const updateEgo = createAction<{
+  newAttributeData: NcEgo[EntityAttributesProperty];
+}>(actionTypes.updateEgo);
+
 export const toggleEdge = createAsyncThunk(
   actionTypes.toggleEdge,
   async (
@@ -245,15 +256,11 @@ export const toggleEdge = createAsyncThunk(
   },
 );
 
-const getSessionMeta = (state: RootState) => {
-  const promptId = getPromptId(state);
-  const stageId = getCurrentStageId(state);
-
-  return {
-    promptId,
-    stageId,
-  };
-};
+const getSessionMeta = createSelector(
+  getPromptId,
+  getCurrentStageId,
+  (promptId, stageId) => ({ promptId, stageId }),
+);
 
 export const addNodeToPrompt = createAsyncThunk(
   actionTypes.addNodeToPrompt,
@@ -287,33 +294,6 @@ export const removeNodeFromPrompt = createAction<{
   promptAttributes: Record<string, unknown>;
 }>(actionTypes.removeNodeFromPrompt);
 
-export const updateEgo = createAsyncThunk(
-  actionTypes.updateEgo,
-  (
-    props: {
-      modelData: Record<string, unknown>;
-      attributeData: NcEgo[EntityAttributesProperty];
-    },
-    { getState },
-  ) => {
-    const { modelData, attributeData } = props;
-    const state = getState() as RootState;
-    const sessionMeta = getSessionMeta(state);
-
-    console.log('updateEgo', {
-      sessionMeta,
-      modelData,
-      attributeData,
-    });
-
-    return {
-      sessionMeta,
-      modelData,
-      attributeData,
-    };
-  },
-);
-
 export const updateEdge = createAction<{
   edgeId: NcEntity[EntityPrimaryKey];
   newModelData?: Record<string, unknown>;
@@ -329,8 +309,8 @@ export const setSessionFinished = createAction<string>(
 
 const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
-    const { secureAttributes } = action.payload;
-    const { promptId, stageId } = action.payload.sessionMeta;
+    const { secureAttributes, sessionMeta, modelData } = action.payload;
+    const { promptId, stageId } = sessionMeta;
     invariant(promptId, 'Prompt ID is required to add a node');
     invariant(stageId, 'Stage ID is required to add a node');
 
@@ -338,8 +318,8 @@ const sessionReducer = createReducer(initialState, (builder) => {
       payload: { type, attributeData },
     } = action;
 
-    const newNode = {
-      [entityPrimaryKeyProperty]: uuid(),
+    const newNode: NcNode = {
+      [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] ?? uuid(),
       type,
       [entityAttributesProperty]: attributeData,
       [entitySecureAttributesMeta]: secureAttributes,
@@ -403,10 +383,15 @@ const sessionReducer = createReducer(initialState, (builder) => {
             return node;
           }
 
-          const mergedPromptIDs = new Set([
-            ...(node.promptIDs ?? []),
-            newModelData.promptId ?? [],
-          ]);
+          const mergedPromptIDs = new Set<string>([]);
+
+          if (node.promptIDs) {
+            node.promptIDs.forEach((id) => mergedPromptIDs.add(id));
+          }
+          if ('promptId' in newModelData) {
+            const newId = newModelData.promptId as string;
+            mergedPromptIDs.add(newId);
+          }
 
           return {
             ...node,
@@ -498,8 +483,8 @@ const sessionReducer = createReducer(initialState, (builder) => {
     });
   });
 
-  builder.addCase(updateEgo.fulfilled, (state, action) => {
-    const { modelData, attributeData } = action.payload;
+  builder.addCase(updateEgo, (state, action) => {
+    const { newAttributeData } = action.payload;
     const { network } = state;
 
     return withLastUpdated({
@@ -508,87 +493,21 @@ const sessionReducer = createReducer(initialState, (builder) => {
         ...network,
         ego: {
           ...network.ego,
-          ...modelData,
           [entityAttributesProperty]: {
             ...network.ego[entityAttributesProperty],
-            ...attributeData,
+            ...newAttributeData,
           },
         },
       },
     });
   });
+
+  builder.addCase(setSessionFinished, (state) => {
+    return withLastUpdated({
+      ...state,
+      finishTime: new Date().toISOString(),
+    });
+  });
 });
-
-// const getReducer =
-//   (network: typeof networkReducer) =>
-//   (state = initialState, action: Action): Session => {
-//     switch (action.type) {
-//       // Whenever a network action occurs, pass the action through to the network reducer
-//       case networkActionTypes.addNode:
-//       case networkActionTypes.deleteNode: {
-//         // case networkActionTypes.updateEgo: // case networkActionTypes.removeEdge: // case networkActionTypes.toggleEdge: // case networkActionTypes.updateEdge: // case networkActionTypes.addEdge: // case networkActionTypes.addNodeToPrompt: // case networkActionTypes.removeNodeFromPrompt: // case networkActionTypes.updateNode: // case networkActionTypes.toggleNodeAttributes:
-//         const session = state[action.sessionMeta.sessionId];
-//         invariant(session, 'Session does not exist');
-
-//         return {
-//           ...state,
-//           [action.sessionMeta.sessionId]: withTimestamp({
-//             ...session,
-//             // Reset finished and exported state if network changes
-//             finishTime: null,
-//             exportTime: null,
-//             network: network(session.network, action),
-//           }),
-//         };
-//       }
-//       case actionCreators.setSessionFinished: {
-//         invariant(state[action.sessionId], 'Session does not exist');
-//         return {
-//           ...state,
-//           [action.sessionId]: withTimestamp({
-//             ...state[action.sessionId],
-//             finishTime: new Date(),
-//           }),
-//         };
-//       }
-//       case actionTypes.updatePrompt: {
-//         invariant(state[action.sessionId], 'Session does not exist');
-//         return {
-//           ...state,
-//           [action.sessionId]: withTimestamp({
-//             ...state[action.sessionId],
-//             promptIndex: action.promptIndex,
-//           }),
-//         };
-//       }
-//       case actionTypes.updateStage: {
-//         invariant(state[action.sessionId], 'Session does not exist');
-//         return {
-//           ...state,
-//           [action.sessionId]: withTimestamp({
-//             ...state[action.sessionId],
-//             currentStep: action.currentStep,
-//             promptIndex: 0,
-//           }),
-//         };
-//       }
-//       case actionTypes.updateStageMetadata: {
-//         const session = state[action.sessionId];
-//         invariant(session, 'Session does not exist');
-//         return {
-//           ...state,
-//           [action.sessionId]: withTimestamp({
-//             ...session,
-//             stageMetadata: {
-//               ...session.stageMetadata,
-//               [action.currentStep]: action.state,
-//             },
-//           }),
-//         };
-//       }
-//       default:
-//         return state;
-//     }
-//   };
 
 export default sessionReducer;

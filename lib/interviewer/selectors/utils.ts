@@ -1,5 +1,8 @@
+import {
+  createSelectorCreator,
+  lruMemoize as defaultMemoize,
+} from '@reduxjs/toolkit';
 import { isEqual } from 'es-toolkit';
-import { createSelectorCreator, defaultMemoize } from 'reselect';
 
 // create a "selector creator" that uses lodash.isEqual instead of ===
 export const createDeepEqualSelector = createSelectorCreator(
@@ -28,12 +31,5 @@ export function calculateProgress(
 
   const percentProgress = (stageProgress + promptWorth) * 100;
 
-  console.log('calculate progress', {
-    currentStep,
-    totalSteps,
-    currentPrompt,
-    totalPrompts,
-    percentProgress,
-  });
   return percentProgress;
 }
