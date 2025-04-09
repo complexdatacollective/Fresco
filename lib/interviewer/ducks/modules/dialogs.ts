@@ -13,6 +13,7 @@ export type Dialog = {
   message: ReactNode;
   onConfirm?: () => void;
   onCancel?: () => void;
+  confirmLabel?: string;
 };
 
 const initialState: Dialog[] = [

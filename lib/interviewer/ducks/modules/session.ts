@@ -221,9 +221,9 @@ export const updateNode = createAction<{
 export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
 export const updateStage = createAction<number>(actionTypes.updateStage);
 
-export const updateEgo = createAction<{
-  newAttributeData: NcEgo[EntityAttributesProperty];
-}>(actionTypes.updateEgo);
+export const updateEgo = createAction<NcEgo[EntityAttributesProperty]>(
+  actionTypes.updateEgo,
+);
 
 export const toggleEdge = createAsyncThunk(
   actionTypes.toggleEdge,
@@ -484,7 +484,6 @@ const sessionReducer = createReducer(initialState, (builder) => {
   });
 
   builder.addCase(updateEgo, (state, action) => {
-    const { newAttributeData } = action.payload;
     const { network } = state;
 
     return withLastUpdated({
@@ -495,7 +494,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
           ...network.ego,
           [entityAttributesProperty]: {
             ...network.ego[entityAttributesProperty],
-            ...newAttributeData,
+            ...action.payload,
           },
         },
       },

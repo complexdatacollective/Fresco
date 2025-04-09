@@ -1,6 +1,6 @@
 import { type Codebook, type Stage } from '@codaco/protocol-validation';
 import { type Asset } from '@prisma/client';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
 
 const initialState = {} as {
@@ -25,16 +25,21 @@ const protocolSlice = createSlice({
   selectors: {
     getProtocol: (state) => state,
     getCodebook: (state) => state.codebook,
-    getStages: (state) =>
-      [...(state.stages ?? []), DefaultFinishStage] as Stage[],
-    getAssetManifest: (state) =>
-      state.assets.reduce(
-        (manifest, asset) => {
-          manifest[asset.assetId] = asset;
-          return manifest;
-        },
-        {} as Record<string, Asset>,
-      ) ?? {},
+    getStages: createSelector(
+      [(state: typeof initialState) => state.stages, () => DefaultFinishStage],
+      (stages, finishStage) => [...(stages ?? []), finishStage] as Stage[],
+    ),
+    getAssetManifest: createSelector(
+      [(state: typeof initialState) => state.assets],
+      (assets) =>
+        assets.reduce(
+          (manifest, asset) => {
+            manifest[asset.assetId] = asset;
+            return manifest;
+          },
+          {} as Record<string, Asset>,
+        ) ?? {},
+    ),
     getAssetUrlFromId: (state) => (id: string) => {
       const manifest = protocolSlice.selectors.getAssetManifest({
         protocol: state,
