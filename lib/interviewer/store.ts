@@ -52,5 +52,5 @@ export const store = ({
   });
 
 export type RootState = ReturnType<typeof rootReducer>;
-export type AppDispatch = typeof store;
+export type AppDispatch = ReturnType<typeof store>['dispatch'];
 export type AppStore = ReturnType<typeof store>;

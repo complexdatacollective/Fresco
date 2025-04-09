@@ -6,7 +6,7 @@ const useReadyForNextStage = () => {
   const isReady = useSelector(formIsReady);
   const dispatch = useDispatch();
   const isReadyRef = useRef(isReady);
-  
+
   useEffect(() => {
     isReadyRef.current = isReady;
   }, [isReady]);

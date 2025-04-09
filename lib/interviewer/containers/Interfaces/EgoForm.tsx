@@ -1,26 +1,38 @@
+import { type Stage } from '@codaco/protocol-validation';
+import { type VariableValue } from '@codaco/shared-consts';
+import { type UnknownAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
 import Markdown from '~/lib/ui/components/Fields/Markdown';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';
-import { openDialog as openDialogAction } from '../../ducks/modules/dialogs';
+import {
+  type Dialog,
+  openDialog as openDialogAction,
+} from '../../ducks/modules/dialogs';
 import { updateEgo } from '../../ducks/modules/session';
 import useFlipflop from '../../hooks/useFlipflop';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../../selectors/session';
 import Form from '../Form';
+import { type BeforeNextFunction } from '../ProtocolScreen';
+import { type StageProps } from '../Stage';
 
 const elementHasOverflow = ({
   clientWidth,
   clientHeight,
   scrollWidth,
   scrollHeight,
+}: {
+  clientWidth: number;
+  clientHeight: number;
+  scrollWidth: number;
+  scrollHeight: number;
 }) => scrollHeight > clientHeight || scrollWidth > clientWidth;
 
-const confirmDialog = {
+const confirmDialog: Omit<Dialog, 'id'> = {
   type: 'Confirm',
   title: 'Discard changes?',
   message:
@@ -28,20 +40,26 @@ const confirmDialog = {
   confirmLabel: 'Discard changes',
 };
 
-const getFormName = (index) => `EGO_FORM_${index}`;
+const getFormName = (index: string) => `EGO_FORM_${index}`;
 
-const EgoForm = (props) => {
+type EgoFormProps = StageProps & {
+  stage: Extract<Stage, { type: 'EgoForm' }>;
+};
+
+const EgoForm = (props: EgoFormProps) => {
   const { registerBeforeNext, stage } = props;
 
   const { form, introductionPanel } = stage;
 
   const dispatch = useDispatch();
   const openDialog = useCallback(
-    (dialog) => dispatch(openDialogAction(dialog)),
+    (dialog: Omit<Dialog, 'id'>) =>
+      dispatch(openDialogAction(dialog) as unknown as UnknownAction),
     [dispatch],
   );
   const submitFormRedux = useCallback(
-    (formName) => dispatch(submit(formName)),
+    (formName: string) =>
+      dispatch(submit(formName) as unknown as UnknownAction),
     [dispatch],
   );
 
@@ -56,8 +74,8 @@ const EgoForm = (props) => {
   const egoAttributes = useSelector(getEgoAttributes);
 
   const formName = getFormName(props.stage.id);
-  const isFormValid = useSelector((state) => isValid(formName)(state));
-  const isFormDirty = useSelector((state) => isDirty(formName)(state));
+  const isFormValid = useSelector(isValid(formName));
+  const isFormDirty = useSelector(isDirty(formName));
 
   // Detect if the scrollable element has overflowing content
   useEffect(() => {
@@ -75,23 +93,28 @@ const EgoForm = (props) => {
     return openDialog(confirmDialog);
   }, [openDialog]);
 
-  const beforeNext = async (direction) => {
+  const beforeNext: BeforeNextFunction = async (direction) => {
     // If direction is backwards, and the form is invalid, check if the user
     // wants to proceed anyway (causing the form to be reset)
     if (direction === 'backwards') {
       if (isFormDirty && !isFormValid) {
-        return checkShouldProceed();
+        const result =
+          // eslint-disable-next-line @typescript-eslint/await-thenable
+          (await checkShouldProceed()) as unknown as Promise<boolean>;
+        return result;
       }
 
       // if form is valid submit the form and proceed backwards
-      if (isFormValid) {
+      if (isFormDirty && isFormValid) {
         submitFormRedux(formName);
       }
 
       return true;
     }
 
-    submitFormRedux(formName); // Submit the form to validate it
+    if (isFormDirty) {
+      submitFormRedux(formName);
+    }
 
     // If the form is valid, proceed to the next stage
     if (isFormValid) {
@@ -105,14 +128,14 @@ const EgoForm = (props) => {
   registerBeforeNext(beforeNext);
 
   const handleSubmitForm = useCallback(
-    (formData) => {
-      dispatch(updateEgo({ attributeData: formData }));
+    (formData: Record<string, VariableValue>) => {
+      dispatch(updateEgo(formData));
     },
     [dispatch],
   );
 
   const handleScroll = useCallback(
-    (_, progress) => {
+    (_: number, progress: number) => {
       setShowScrollStatus(false);
       setScrollProgress(progress);
     },
@@ -121,14 +144,12 @@ const EgoForm = (props) => {
 
   useEffect(() => {
     if (!isFormValid) {
-        setIsReadyForNext(false);
+      setIsReadyForNext(false);
       return;
     }
 
     setIsReadyForNext(true);
-
   }, [isFormValid, setIsReadyForNext]);
-
 
   const showScrollNudge = useMemo(
     () => scrollProgress !== 1 && showScrollStatus && isOverflowing,
@@ -143,8 +164,8 @@ const EgoForm = (props) => {
           onScroll={handleScroll}
         >
           <div className="ego-form__introduction">
-            <h1>{introductionPanel.title}</h1>
-            <Markdown label={introductionPanel.text} />
+            <h1>{introductionPanel!.title}</h1>
+            <Markdown label={introductionPanel!.text} />
           </div>
           <Form
             {...form}
@@ -185,17 +206,6 @@ const EgoForm = (props) => {
       </AnimatePresence>
     </div>
   );
-};
-
-EgoForm.propTypes = {
-  stage: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    form: PropTypes.object.isRequired,
-    introductionPanel: PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      text: PropTypes.string.isRequired,
-    }).isRequired,
-  }).isRequired,
 };
 
 export default EgoForm;

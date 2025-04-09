@@ -102,7 +102,10 @@ const getIsLastStage = createSelector(
   (currentStep, stages) => currentStep === stages.length - 1,
 );
 
-export const getStageCount = createSelector(getStages, (stages) => stages.length);
+export const getStageCount = createSelector(
+  getStages,
+  (stages) => stages.length,
+);
 
 const getSessionProgress = createSelector(
   getStageIndex,

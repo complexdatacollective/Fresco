@@ -66,6 +66,7 @@ export default function ProtocolScreen() {
 
   // Selectors
   const stage = useSelector(getCurrentStage); // null = loading, undefined = not found
+
   const { isReady: isReadyForNextStage } = useReadyForNextStage();
   const { currentStep, isLastPrompt, isFirstPrompt, promptIndex } =
     useSelector(getNavigationInfo);
