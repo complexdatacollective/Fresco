@@ -5,7 +5,7 @@ import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { SyncInterviewType } from '~/actions/interviews';
 import usePrevious from '~/hooks/usePrevious';
-import { getActiveSession } from '~/lib/interviewer/selectors/session';
+import { getActiveSession } from '~/lib/interviewer/selectors/shared';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.

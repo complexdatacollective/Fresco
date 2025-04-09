@@ -16,7 +16,7 @@ import customFilter from '~/lib/network-query/filter';
 import type { RootState } from '../store';
 import { getStageSubject, getSubjectType } from './prop';
 import { getProtocolCodebook } from './protocol';
-import { getActiveSession } from './session';
+import { getActiveSession } from './shared';
 import { createDeepEqualSelector } from './utils';
 
 export const getNetwork = createSelector(

@@ -2,9 +2,9 @@
 
 import type { AnyAction } from '@reduxjs/toolkit';
 import {
-    motion,
-    useAnimate,
-    type ValueAnimationTransition,
+  motion,
+  useAnimate,
+  type ValueAnimationTransition,
 } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -14,9 +14,9 @@ import Navigation from '../components/Navigation';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
-    getCurrentStage,
-    getNavigationInfo,
-    makeGetFakeSessionProgress,
+  getCurrentStage,
+  getNavigationInfo,
+  makeGetFakeSessionProgress,
 } from '../selectors/session';
 import { getNavigableStages } from '../selectors/skip-logic';
 import Stage from './Stage';
@@ -72,6 +72,16 @@ export default function ProtocolScreen() {
   const prevCurrentStep = usePrevious(currentStep);
   const { nextValidStageIndex, previousValidStageIndex, isCurrentStepValid } =
     useSelector(getNavigableStages);
+  const nextValidStageIndexRef = useRef(nextValidStageIndex);
+  const previousValidStageIndexRef = useRef(previousValidStageIndex);
+
+  useEffect(() => {
+    nextValidStageIndexRef.current = nextValidStageIndex;
+  }, [nextValidStageIndex]);
+
+  useEffect(() => {
+    previousValidStageIndexRef.current = previousValidStageIndex;
+  }, [previousValidStageIndex]);
 
   const [progress, setProgress] = useState(
     makeFakeSessionProgress(currentStep, promptIndex),
@@ -130,12 +140,14 @@ export default function ProtocolScreen() {
       }
 
       // from this point on we are definitely navigating, so set up the animation
-      setProgress(makeFakeSessionProgress(nextValidStageIndex, 0));
+      setProgress(makeFakeSessionProgress(nextValidStageIndexRef.current, 0));
       await animate(scope.current, { y: '-100vh' }, animationOptions);
       // If the result is true or 'FORCE' we can reset the function here:
       registerBeforeNext(null);
       dispatch(
-        sessionActions.updateStage(nextValidStageIndex) as unknown as AnyAction,
+        sessionActions.updateStage(
+          nextValidStageIndexRef.current,
+        ) as unknown as AnyAction,
       );
     })();
 
@@ -144,7 +156,6 @@ export default function ProtocolScreen() {
     animate,
     dispatch,
     isLastPrompt,
-    nextValidStageIndex,
     promptIndex,
     registerBeforeNext,
     scope,
@@ -169,14 +180,16 @@ export default function ProtocolScreen() {
         return;
       }
 
-      setProgress(makeFakeSessionProgress(previousValidStageIndex, 0));
+      setProgress(
+        makeFakeSessionProgress(previousValidStageIndexRef.current, 0),
+      );
 
       // from this point on we are definitely navigating, so set up the animation
       await animate(scope.current, { y: '100vh' }, animationOptions);
       registerBeforeNext(null);
       dispatch(
         sessionActions.updateStage(
-          previousValidStageIndex,
+          previousValidStageIndexRef.current,
         ) as unknown as AnyAction,
       );
     })();
@@ -186,7 +199,6 @@ export default function ProtocolScreen() {
     animate,
     dispatch,
     isFirstPrompt,
-    previousValidStageIndex,
     promptIndex,
     registerBeforeNext,
     scope,
@@ -220,7 +232,7 @@ export default function ProtocolScreen() {
       // first stage is always valid.
       dispatch(
         sessionActions.updateStage(
-          previousValidStageIndex,
+          previousValidStageIndexRef.current,
         ) as unknown as AnyAction,
       );
     }
