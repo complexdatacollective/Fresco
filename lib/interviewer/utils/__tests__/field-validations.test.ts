@@ -91,7 +91,19 @@ describe('Validations', () => {
   });
   describe('required()', () => {
     const errorMessage = 'You must answer this question before continuing';
-    const subject = required();
+    const subject = required(true);
+
+    it('handles initialisation with boolean or string to determine message', () => {
+      const withBooleanMessage = required(true);
+      const withStringMessage = required('Custom message');
+
+      expect(withBooleanMessage('')).toBe(
+        'You must answer this question before continuing',
+      );
+      expect(withStringMessage('')).toBe('Custom message');
+      expect(withStringMessage('hello')).toBe(undefined);
+      expect(withBooleanMessage('hello')).toBe(undefined);
+    });
 
     it('passes for a string', () => {
       expect(subject('hello world')).toBe(undefined);

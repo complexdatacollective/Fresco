@@ -43,13 +43,19 @@ const coerceArray = (value: FieldValue) => {
 // to be able to specify a string for the message in some cases. A better
 // design would probably be to have a separate validation function for
 // required that takes a message.
-export const required = (message?: string | boolean) => (value: FieldValue) => {
+export const required = (message: string | true) => (value: FieldValue) => {
   const isEmptyString = isString(value) && value.length === 0;
 
   if (isNil(value) || isEmptyString) {
-    return typeof message === 'boolean' && message === true
-      ? 'You must answer this question before continuing'
-      : message;
+    // If initialised with a string, assume required is true
+    // and return the string as the message
+    if (typeof message === 'string') {
+      return message;
+    }
+
+    // Otherwise, return the default message. Note: 'false' is not handled because
+    // we have never used it.
+    return 'You must answer this question before continuing';
   }
 
   return undefined;
