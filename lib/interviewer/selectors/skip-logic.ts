@@ -1,10 +1,10 @@
-import getQuery from '~/lib/network-query/query';
-import { getProtocolStages } from './protocol';
-import { getNetwork } from './network';
-import { SkipLogicAction } from '../protocol-consts';
-import { createSelector } from '@reduxjs/toolkit';
 import type { NcNetwork, SkipDefinition, Stage } from '@codaco/shared-consts';
-import { getStageIndex } from './session';
+import { createSelector } from '@reduxjs/toolkit';
+import getQuery from '~/lib/network-query/query';
+import { SkipLogicAction } from '../protocol-consts';
+import { getNetwork } from './network';
+import { getProtocolStages } from './protocol';
+import { getStageIndex } from './shared';
 
 const formatQueryParameters = (params: Record<string, unknown>) => ({
   rules: [],
