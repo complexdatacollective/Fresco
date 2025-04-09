@@ -67,6 +67,7 @@ function ExportCSVInterviewURLs({
       disabled={!protocol || isExporting}
       onClick={handleExport}
       className="w-full"
+      data-testid="confirm-export-incomplete-urls-button"
     >
       <Download className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Incomplete Interview URLs'}

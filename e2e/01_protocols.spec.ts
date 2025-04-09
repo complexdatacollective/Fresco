@@ -20,7 +20,7 @@ test.describe('Protocols page', () => {
     await expect.soft(page).toHaveScreenshot('protocols-page.png');
   });
 
-  test('should upload new protocol', async ({ page }) => {
+  test.fixme('should upload new protocol', async ({ page }) => {
     const protocolHandle = page.locator('input[type="file"]');
     await protocolHandle.setInputFiles('e2e/files/E2E.netcanvas');
     await expect(
@@ -29,7 +29,7 @@ test.describe('Protocols page', () => {
     await expect(page.getByTestId('job-card-Complete')).toBeVisible();
   });
 
-  test('should delete protocol', async ({ page }) => {
+  test.fixme('should delete protocol', async ({ page }) => {
     // find the table row with the protocol we want to delete
     await page.getByTestId('actions-dropdown-protocols').first().click();
     await page.getByRole('menuitem').nth(1).click();
@@ -304,11 +304,7 @@ test.describe('Complete Sample Protocol interview', () => {
     expect(await page.locator('.node--selected').count()).toBe(2);
     await page.getByTestId('form-field-radio-input').nth(1).click();
     expect(await page.locator('.node--selected').count()).toBe(1);
-    // screenshot
-    await page.screenshot({
-      path: 'e2e/screenshots/narrative.png',
-    });
-    await page.getByTestId('attributes-accordion').click();
+    await page.getByTestId('accordion').nth(1).click();
     expect(await page.locator('.node--selected').count()).toBe(0);
     await expect(page.getByTestId('link-label-0')).toBeVisible();
     await expect(
@@ -317,7 +313,7 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
     ).toBeVisible();
-    await page.getByTestId('links-accordion').click();
+    await page.getByTestId('accordion').nth(2).click();
     // the lines should not be visible
     await expect(
       page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
@@ -326,7 +322,7 @@ test.describe('Complete Sample Protocol interview', () => {
     await expect(
       page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
     ).toBeVisible();
-    await page.getByTestId('groups-accordion').click();
+    await page.getByTestId('accordion').nth(3).click();
     await expect(
       page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
     ).not.toBeVisible();

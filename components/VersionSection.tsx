@@ -72,7 +72,6 @@ async function checkForUpdate() {
 export default async function VersionSection() {
   const { error, updateType, latestVersion, releaseNotes, releaseUrl } =
     await checkForUpdate();
-
   return (
     <SettingsSection heading="App Version">
       <Paragraph>

@@ -64,6 +64,7 @@ export const GenerateInterviewURLs = ({
         disabled={interviews?.length === 0}
         onClick={handleOpenChange}
         variant="outline"
+        data-testid="export-incomplete-interview-urls-button"
       >
         <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Incomplete Interview URLs
@@ -81,7 +82,7 @@ export const GenerateInterviewURLs = ({
           </DialogHeader>
           <div className="flex flex-col items-center justify-end gap-4">
             {!protocols ? (
-              <Skeleton className="h-10 w-full rounded-input" />
+              <Skeleton className="rounded-input h-10 w-full" />
             ) : (
               <Select
                 onValueChange={(value) => {
@@ -94,11 +95,18 @@ export const GenerateInterviewURLs = ({
                 value={selectedProtocol?.id}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Protocol..." />
+                  <SelectValue
+                    placeholder="Select a Protocol..."
+                    data-testid="select-protocol"
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {protocols?.map((protocol) => (
-                    <SelectItem key={protocol.id} value={protocol.id}>
+                    <SelectItem
+                      key={protocol.id}
+                      value={protocol.id}
+                      data-testid="select-protocol-item"
+                    >
                       {protocol.name}
                     </SelectItem>
                   ))}
