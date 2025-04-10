@@ -2,7 +2,10 @@ import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
 import { useCallback, useReducer, useRef } from 'react';
-import { insertProtocol } from '~/actions/protocols';
+import {
+  deleteFilesFromUploadThing,
+  insertProtocol,
+} from '~/actions/protocols';
 import { ErrorDetails } from '~/components/ErrorDetails';
 import Link from '~/components/Link';
 import {
@@ -35,6 +38,7 @@ export const useProtocolImport = () => {
    * status as it goes.
    */
   const processJob = async (file: File) => {
+    let newFiles: File[] = [];
     try {
       const fileName = file.name;
 
@@ -227,10 +231,28 @@ export const useProtocolImport = () => {
 
         const currentBytesUploaded: Record<string, number> = {};
 
-        const files = newAssets.map((asset) => asset.file);
+        newFiles = newAssets.map((asset) => {
+          const fileWithCustomId = new File([asset.file], asset.file.name, {
+            type: asset.file.type,
+            lastModified: asset.file.lastModified,
+          });
 
+          Object.defineProperty(fileWithCustomId, 'customId', {
+            value: asset.name,
+            writable: false,
+            enumerable: true,
+            configurable: false,
+          });
+
+          return fileWithCustomId;
+        });
+
+        console.log(newFiles);
         const uploadedFiles = await uploadFiles('assetRouter', {
-          files,
+          files: newFiles,
+          onUploadBegin: (file) => {
+            console.log('🆕Upload started', file);
+          },
           onUploadProgress({ progress, file }) {
             const thisFileSize = newAssets.find(
               (asset) => asset.name === file.name,
@@ -345,6 +367,14 @@ export const useProtocolImport = () => {
           },
         });
       } else {
+        console.log(
+          '🚨Deleting files from uploadthing',
+          newFiles.map((file) => file.name),
+        );
+        await deleteFilesFromUploadThing(
+          newFiles.map((file) => file.name),
+          'customId',
+        );
         dispatch({
           type: 'UPDATE_ERROR',
           payload: {

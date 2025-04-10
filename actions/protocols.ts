@@ -100,7 +100,10 @@ export async function deleteProtocols(hashes: string[]) {
   }
 }
 
-async function deleteFilesFromUploadThing(fileKey: string | string[]) {
+export async function deleteFilesFromUploadThing(
+  fileKey: string | string[],
+  keyType?: 'fileKey' | 'customId',
+) {
   await requireApiAuth();
 
   if (fileKey.length === 0) {
@@ -111,7 +114,9 @@ async function deleteFilesFromUploadThing(fileKey: string | string[]) {
 
   const utapi = await getUTApi();
 
-  const response = await utapi.deleteFiles(fileKey);
+  const response = await utapi.deleteFiles(fileKey, {
+    keyType: keyType ?? 'fileKey',
+  });
 
   if (!response.success) {
     throw new Error('Failed to delete files from uploadthing');
