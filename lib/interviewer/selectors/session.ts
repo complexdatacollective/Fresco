@@ -2,7 +2,6 @@ import type {
   Codebook,
   NodeDefinition,
   Stage,
-  StageSubject,
 } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
@@ -17,7 +16,6 @@ import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
-import { getStageSubject, getSubjectType, stagePromptIds } from './prop';
 import { calculateProgress } from './utils';
 
 export const getActiveSession = (state: RootState) => {
@@ -50,6 +48,30 @@ export const getCurrentStage = createSelector(
   },
 );
 
+export const getStageSubject = createSelector(getCurrentStage, (stage) => {
+  if (!stage) {
+    return null;
+  }
+
+  if ('subject' in stage) {
+    return stage.subject;
+  }
+
+  return null;
+});
+
+export const getSubjectType = createSelector(getStageSubject, (subject) => {
+  if (!subject) {
+    return null;
+  }
+
+  if (subject.entity === 'ego') {
+    return null;
+  }
+
+  return subject.type;
+});
+
 export const getCurrentStageId = createSelector(
   getCurrentStage,
   (currentStage) => {
@@ -74,6 +96,25 @@ export const getPrompts = createSelector(getCurrentStage, (stage) => {
 
   return null;
 });
+
+export const stagePromptIds = createSelector(getPrompts, (prompts) => {
+  if (!prompts) {
+    return [];
+  }
+  return prompts.map((prompt) => prompt.id);
+});
+
+export const getCurrentPrompt = createSelector(
+  getPrompts,
+  getPromptIndex,
+  (prompts, promptIndex) => {
+    if (!prompts) {
+      return null;
+    }
+
+    return prompts[promptIndex];
+  },
+);
 
 export const getPromptCount = createSelector(
   getPrompts,
@@ -197,7 +238,7 @@ export const getNetworkEdges = createSelector(
 export const getNodeTypeDefinition = createSelector(
   getCodebook,
   getStageSubject,
-  (codebook, subject: StageSubject) => {
+  (codebook, subject) => {
     if (!subject || subject.entity === 'ego') {
       return null;
     }
@@ -362,7 +403,7 @@ export const makeGetCategoricalOptions = () => getCategoricalOptions;
 const getNetworkEdgesForType = createSelector(
   getNetworkEdges,
   getStageSubject,
-  (edges, subject: StageSubject) => {
+  (edges, subject) => {
     if (!subject || !edges) {
       return [];
     }
@@ -384,7 +425,7 @@ export const makeNetworkEdgesForType = () => getNetworkEdgesForType;
 export const getNetworkEntitiesForType = createSelector(
   getNetwork,
   getStageSubject,
-  (network, subject: StageSubject) => {
+  (network, subject) => {
     if (!subject || !network) {
       return [];
     }
@@ -401,7 +442,7 @@ export const getNetworkEntitiesForType = createSelector(
 export const getNetworkNodesForType = createSelector(
   getNetworkNodes,
   getStageSubject,
-  (nodes, subject: StageSubject) => {
+  (nodes, subject) => {
     if (!subject || !nodes) {
       return [];
     }

@@ -1,8 +1,8 @@
-import type { StageSubject, Variable } from '@codaco/protocol-validation';
+import type { Variable } from '@codaco/protocol-validation';
 import { createSelector } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
 import { getAssetManifest, getCodebook } from '../ducks/modules/protocol';
-import { getStageSubject } from './prop';
+import { getStageSubject } from './session';
 
 // Get all variables for all subjects in the codebook, adding the entity and type
 export const getAllVariableUUIDsByEntity = createSelector(
@@ -64,9 +64,10 @@ export const getAllVariableUUIDsByEntity = createSelector(
 export const getCodebookVariablesForSubjectType = createSelector(
   getCodebook,
   getStageSubject,
-  (codebook, subject: StageSubject | undefined) => {
-    if (subject === undefined) {
-      return {};
+  (codebook, subject) => {
+    // If subject is null, assume ego
+    if (!subject) {
+      return codebook.ego?.variables ?? {};
     }
 
     const { entity } = subject;
