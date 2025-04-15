@@ -1,9 +1,5 @@
-import type { Protocol } from '@codaco/protocol-validation';
-import {
-  entityPrimaryKeyProperty,
-  type NcNode,
-  type Stage,
-} from '@codaco/shared-consts';
+import type { Protocol, Stage } from '@codaco/protocol-validation';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -14,11 +10,11 @@ import { type ThunkDispatch } from 'redux-thunk';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
-import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
+import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
+import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { getNetworkNodesForType } from '~/lib/interviewer/selectors/interface';
-import { getAssetUrlFromId } from '~/lib/interviewer/selectors/protocol';
+import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
@@ -90,7 +86,7 @@ export default function GeospatialInterface({
 
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
-  }) as NcNode[];
+  });
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
@@ -98,9 +94,8 @@ export default function GeospatialInterface({
     (
       nodeId: string,
       newModelData: Record<string, unknown>,
-      newAttributes: Record<string, unknown>,
-    ) =>
-      dispatch(sessionActions.updateNode(nodeId, newModelData, newAttributes)),
+      newAttributeData: Record<string, unknown>,
+    ) => dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
     [dispatch],
   );
 
@@ -306,11 +301,9 @@ export default function GeospatialInterface({
               initial="initial"
               animate="animate"
               exit="exit"
+              className="[--base-node-size:calc(var(--nc-base-font-size)*6.6)]"
             >
-              <Node
-                {...stageNodes[navState.activeIndex]}
-                style={{ fontSize: `calc(var(--nc-base-font-size) * 8)` }}
-              />
+              <Node {...stageNodes[navState.activeIndex]!} />
             </motion.div>
             <Button
               size="small"

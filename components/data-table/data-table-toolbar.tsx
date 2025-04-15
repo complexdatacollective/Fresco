@@ -6,12 +6,12 @@ import Link from 'next/link';
 import * as React from 'react';
 import { type UrlObject } from 'url';
 import { DataTableFacetedFilter } from '~/components/data-table/data-table-faceted-filter';
-import { Button, buttonVariants } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-} from '~/lib/data-table/types';
+} from '~/components/DataTable/types';
+import { Button, buttonVariants } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
 import { cn } from '~/utils/shadcn';
 
 type DataTableToolbarProps<TData> = {

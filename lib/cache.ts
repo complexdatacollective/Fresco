@@ -10,10 +10,11 @@ type StaticTag =
   | 'getProtocols'
   | 'getInterviewsForExport'
   | 'getProtocolsByHash'
-  | 'getNewAssetIds'
+  | 'getExistingAssetIds'
   | 'interviewCount'
   | 'protocolCount'
-  | 'participantCount';
+  | 'participantCount'
+  | 'getNewAssetIds';
 
 type DynamicTag = `${StaticTag}-${string}`;
 

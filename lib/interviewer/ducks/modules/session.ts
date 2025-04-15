@@ -1,0 +1,512 @@
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  entitySecureAttributesMeta,
+  type EntityAttributesProperty,
+  type EntityPrimaryKey,
+  type NcEdge,
+  type NcEgo,
+  type NcEntity,
+  type NcNetwork,
+  type NcNode,
+} from '@codaco/shared-consts';
+import {
+  createAction,
+  createAsyncThunk,
+  createReducer,
+  createSelector,
+} from '@reduxjs/toolkit';
+import { find, get, invariant } from 'es-toolkit/compat';
+import { v4 as uuid, v4 } from 'uuid';
+import { z } from 'zod';
+import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
+import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
+import { getCurrentStageId, getPromptId } from '../../selectors/session';
+import { type RootState } from '../../store';
+import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
+
+// reducer helpers:
+function flipEdge(edge: Partial<NcEdge>) {
+  return { from: edge.to, to: edge.from, type: edge.type };
+}
+
+function withLastUpdated<T>(state: T) {
+  return {
+    ...state,
+    lastUpdated: new Date().toISOString(),
+  };
+}
+
+/**
+ * Check if an edge exists in the network
+ * @param {Array} edges - Array of edges
+ * @param {string} from - UID of the source node
+ * @param {string} to - UID of the target node
+ * @param {string} type - Type of edge
+ * @returns {string|boolean} - Returns the UID of the edge if it exists, otherwise false
+ * @example
+ * const edgeExists = edgeExists(edges, 'a', 'b', 'friend');
+ *
+ */
+export function edgeExists(
+  edges: NcEdge[],
+  from: NcEdge['from'],
+  to: NcEdge['to'],
+  type: NcEdge['type'],
+): NcEdge[EntityPrimaryKey] | false {
+  const forwardsEdge = find(edges, { from, to, type });
+  const reverseEdge = find(edges, flipEdge({ from, to, type }));
+
+  if (forwardsEdge ?? reverseEdge) {
+    const foundEdge = (forwardsEdge ?? reverseEdge)!;
+    return get(foundEdge, entityPrimaryKeyProperty);
+  }
+
+  return false;
+}
+
+const StageMetadataEntrySchema = z.tuple([
+  z.number(),
+  z.string(),
+  z.string(),
+  z.boolean(),
+]);
+
+export const StageMetadataSchema = z.record(
+  z.number(),
+  z.array(StageMetadataEntrySchema),
+);
+
+export type StageMetadataEntry = [number, string, string, boolean];
+export type StageMetadata = Record<number, StageMetadataEntry[]>;
+
+export type SessionState = {
+  id: string;
+  startTime: string;
+  finishTime: string | null;
+  exportTime: string | null;
+  lastUpdated: string;
+  network: NcNetwork;
+  currentStep: number;
+  promptIndex?: number;
+  stageMetadata?: StageMetadata; // Used as temporary storage by DyadCensus/TieStrengthCensus
+};
+
+const actionTypes = {
+  setSessionFinished: 'SESSION/SET_SESSION_FINISHED',
+  updatePrompt: 'SESSION/UPDATE_PROMPT',
+  updateStage: 'SESSION/UPDATE_STAGE',
+  updateStageMetadata: 'SESSION/UPDATE_STAGE_METADATA',
+  addNode: 'NETWORK/ADD_NODE' as const,
+  deleteNode: 'NETWORK/DELETE_NODE' as const,
+  updateNode: 'NETWORK/UPDATE_NODE' as const,
+  toggleNodeAttributes: 'NETWORK/TOGGLE_NODE_ATTRIBUTES' as const,
+  addNodeToPrompt: 'NETWORK/ADD_NODE_TO_PROMPT' as const,
+  removeNodeFromPrompt: 'NETWORK/REMOVE_NODE_FROM_PROMPT' as const,
+  addEdge: 'NETWORK/ADD_EDGE' as const,
+  updateEdge: 'NETWORK/UPDATE_EDGE' as const,
+  toggleEdge: 'NETWORK/TOGGLE_EDGE' as const,
+  deleteEdge: 'NETWORK/DELETE_EDGE' as const,
+  updateEgo: 'NETWORK/UPDATE_EGO' as const,
+};
+
+export const initialNetwork: NcNetwork = {
+  ego: {
+    [entityPrimaryKeyProperty]: v4(),
+    [entityAttributesProperty]: {},
+  },
+  nodes: [],
+  edges: [],
+};
+
+const initialState = {} as SessionState;
+
+export const addNode = createAsyncThunk(
+  actionTypes.addNode,
+  async (
+    args: {
+      type: NcNode['type'];
+      modelData: {
+        [entityPrimaryKeyProperty]?: NcNode[EntityPrimaryKey];
+      };
+      attributeData: NcNode[EntityAttributesProperty];
+    },
+    { getState },
+  ) => {
+    const { type, attributeData } = args;
+    const state = getState() as RootState;
+
+    const variablesForType = getCodebookVariablesForNodeType(type)(state);
+
+    const mergedAttributes = {
+      ...getDefaultAttributesForEntityType(variablesForType),
+      ...attributeData,
+    };
+
+    const { passphrase } = state.ui;
+
+    invariant(
+      passphrase,
+      'Passphrase is required to add a node when encryption is enabled',
+    );
+
+    const { secureAttributes, encryptedAttributes } =
+      await generateSecureAttributes(
+        mergedAttributes,
+        variablesForType,
+        passphrase,
+      );
+
+    const sessionMeta = getSessionMeta(state);
+
+    return {
+      type,
+      attributeData: encryptedAttributes,
+      modelData: args.modelData,
+      secureAttributes,
+      sessionMeta,
+    };
+  },
+);
+
+export const addEdge = createAsyncThunk(
+  actionTypes.addEdge,
+  (
+    props: {
+      modelData: {
+        from: NcNode[EntityPrimaryKey];
+        to: NcNode[EntityPrimaryKey];
+        type: NcNode['type'];
+      };
+      attributeData?: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const {
+      modelData: { type },
+      attributeData,
+    } = props;
+    const state = getState() as RootState;
+    const sessionMeta = getSessionMeta(state);
+
+    const variablesForType = getCodebookVariablesForNodeType(type)(state);
+
+    const mergedAttributes = {
+      ...getDefaultAttributesForEntityType(variablesForType),
+      ...attributeData,
+    };
+
+    return {
+      sessionMeta,
+      modelData: props.modelData,
+      attributeData: mergedAttributes,
+    };
+  },
+);
+
+export const deleteNode = createAction<NcNode[EntityPrimaryKey]>(
+  actionTypes.deleteNode,
+);
+
+export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
+  actionTypes.deleteEdge,
+);
+
+export const updateNode = createAction<{
+  nodeId: NcNode[EntityPrimaryKey];
+  newModelData: Record<string, unknown>;
+  newAttributeData: NcNode[EntityAttributesProperty];
+}>(actionTypes.updateNode);
+
+export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
+export const updateStage = createAction<number>(actionTypes.updateStage);
+
+export const updateEgo = createAction<NcEgo[EntityAttributesProperty]>(
+  actionTypes.updateEgo,
+);
+
+export const toggleEdge = createAsyncThunk(
+  actionTypes.toggleEdge,
+  async (
+    props: {
+      modelData: {
+        from: NcNode[EntityPrimaryKey];
+        to: NcNode[EntityPrimaryKey];
+        type: NcNode['type'];
+      };
+      attributeData?: Record<string, unknown>;
+    },
+    { getState, dispatch },
+  ) => {
+    const { modelData, attributeData } = props;
+    const state = getState() as RootState;
+
+    const existingEdge = edgeExists(
+      state.session.network.edges,
+      modelData.from,
+      modelData.to,
+      modelData.type,
+    );
+
+    if (existingEdge) {
+      return dispatch(deleteEdge(existingEdge));
+    }
+
+    return dispatch(addEdge({ modelData, attributeData }));
+  },
+);
+
+const getSessionMeta = createSelector(
+  getPromptId,
+  getCurrentStageId,
+  (promptId, stageId) => ({ promptId, stageId }),
+);
+
+export const addNodeToPrompt = createAsyncThunk(
+  actionTypes.addNodeToPrompt,
+  (
+    props: {
+      nodeId: EntityPrimaryKey;
+      promptAttributes: Record<string, unknown>;
+    },
+    { getState },
+  ) => {
+    const { nodeId, promptAttributes } = props;
+    const state = getState() as RootState;
+    const promptId = getPromptId(state);
+
+    return {
+      nodeId,
+      promptId,
+      promptAttributes,
+    };
+  },
+);
+
+export const toggleNodeAttributes = createAction<{
+  uid: EntityPrimaryKey;
+  attributes: Record<string, unknown>;
+}>(actionTypes.toggleNodeAttributes);
+
+export const removeNodeFromPrompt = createAction<{
+  nodeId: EntityPrimaryKey;
+  promptId: string;
+  promptAttributes: Record<string, unknown>;
+}>(actionTypes.removeNodeFromPrompt);
+
+export const updateEdge = createAction<{
+  edgeId: NcEntity[EntityPrimaryKey];
+  newModelData?: Record<string, unknown>;
+  newAttributeData?: NcEdge[EntityAttributesProperty];
+}>(actionTypes.updateEdge);
+
+export const updateStageMetadata = createAction<StageMetadataEntry[]>(
+  actionTypes.updateStageMetadata,
+);
+export const setSessionFinished = createAction<string>(
+  actionTypes.setSessionFinished,
+);
+
+const sessionReducer = createReducer(initialState, (builder) => {
+  builder.addCase(addNode.fulfilled, (state, action) => {
+    const { secureAttributes, sessionMeta, modelData } = action.payload;
+    const { promptId, stageId } = sessionMeta;
+    invariant(promptId, 'Prompt ID is required to add a node');
+    invariant(stageId, 'Stage ID is required to add a node');
+
+    const {
+      payload: { type, attributeData },
+    } = action;
+
+    const newNode: NcNode = {
+      [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] ?? uuid(),
+      type,
+      [entityAttributesProperty]: attributeData,
+      [entitySecureAttributesMeta]: secureAttributes,
+      promptIDs: [promptId],
+      stageId: stageId,
+    };
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...state.network,
+        nodes: [...state.network.nodes, newNode],
+      },
+    });
+  });
+
+  builder.addCase(deleteNode, (state, action) => {
+    const { network } = state;
+    const { nodes } = network;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        nodes: nodes.filter(
+          (node) => node[entityPrimaryKeyProperty] !== action.payload,
+        ),
+        edges: network.edges.filter(
+          (edge) => edge.from !== action.payload && edge.to !== action.payload,
+        ),
+      },
+    });
+  });
+
+  builder.addCase(updatePrompt, (state, action) => {
+    return {
+      ...state,
+      promptIndex: action.payload,
+    };
+  });
+
+  builder.addCase(updateStage, (state, action) => {
+    return withLastUpdated({
+      ...state,
+      currentStep: action.payload,
+      promptIndex: 0,
+    });
+  });
+
+  builder.addCase(updateNode, (state, action) => {
+    const { nodeId, newModelData, newAttributeData } = action.payload;
+    const { network } = state;
+    const { nodes } = network;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        nodes: nodes.map((node) => {
+          if (node[entityPrimaryKeyProperty] !== nodeId) {
+            return node;
+          }
+
+          const mergedPromptIDs = new Set<string>([]);
+
+          if (node.promptIDs) {
+            node.promptIDs.forEach((id) => mergedPromptIDs.add(id));
+          }
+          if ('promptId' in newModelData) {
+            const newId = newModelData.promptId as string;
+            mergedPromptIDs.add(newId);
+          }
+
+          return {
+            ...node,
+            ...newModelData,
+            promptIDs: Array.from(mergedPromptIDs),
+            [entityAttributesProperty]: {
+              ...node[entityAttributesProperty],
+              ...newAttributeData,
+            },
+          };
+        }),
+      },
+    });
+  });
+
+  builder.addCase(addEdge.fulfilled, (state, action) => {
+    const {
+      payload: { modelData, attributeData },
+    } = action;
+
+    const newEdge = {
+      [entityPrimaryKeyProperty]: uuid(),
+      from: modelData.from,
+      to: modelData.to,
+      type: modelData.type,
+      [entityAttributesProperty]: attributeData,
+    };
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...state.network,
+        edges: [...state.network.edges, newEdge],
+      } as NcNetwork,
+    });
+  });
+
+  builder.addCase(deleteEdge, (state, action) => {
+    const { network } = state;
+    const { edges } = network;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        edges: edges.filter(
+          (edge) => edge[entityPrimaryKeyProperty] !== action.payload,
+        ),
+      },
+    });
+  });
+
+  builder.addCase(updateEdge, (state, action) => {
+    const { edgeId, newModelData, newAttributeData } = action.payload;
+    const { network } = state;
+    const { edges } = network;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        edges: edges.map((edge) => {
+          if (edge[entityPrimaryKeyProperty] !== edgeId) {
+            return edge;
+          }
+
+          return {
+            ...edge,
+            ...newModelData,
+            [entityAttributesProperty]: {
+              ...edge[entityAttributesProperty],
+              ...newAttributeData,
+            },
+          };
+        }),
+      },
+    });
+  });
+
+  builder.addCase(updateStageMetadata, (state, action) => {
+    const stageMetadata = action.payload;
+    const currentStep = state.currentStep;
+    return withLastUpdated({
+      ...state,
+      stageMetadata: {
+        ...state.stageMetadata,
+        [currentStep]: stageMetadata,
+      },
+    });
+  });
+
+  builder.addCase(updateEgo, (state, action) => {
+    const { network } = state;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        ego: {
+          ...network.ego,
+          [entityAttributesProperty]: {
+            ...network.ego[entityAttributesProperty],
+            ...action.payload,
+          },
+        },
+      },
+    });
+  });
+
+  builder.addCase(setSessionFinished, (state) => {
+    return withLastUpdated({
+      ...state,
+      finishTime: new Date().toISOString(),
+    });
+  });
+});
+
+export default sessionReducer;

@@ -1,6 +1,6 @@
+import { type NcNetwork } from '@codaco/shared-consts';
 import { type Participant, type Protocol } from '@prisma/client';
 import { z } from 'zod';
-import { type ZNcNetwork } from './network-canvas';
 
 export type DeleteInterviews = {
   id: string;
@@ -16,7 +16,8 @@ type NumberStringBoolean = z.infer<typeof NumberStringBoolean>;
 
 export type SyncInterview = {
   id: string;
-  network: z.infer<typeof ZNcNetwork>;
+  network: NcNetwork;
   currentStep: number;
   stageMetadata?: Record<string, NumberStringBoolean[][]>;
+  lastUpdated: string;
 };
