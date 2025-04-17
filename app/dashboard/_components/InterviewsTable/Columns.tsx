@@ -153,6 +153,12 @@ export const InterviewColumns = (): ColumnDef<
   },
   {
     id: 'network',
+    accessorFn: (row) => {
+      const network = row.network as NcNetwork;
+      const nodeCount = network?.nodes?.length ?? 0;
+      const edgeCount = network?.edges?.length ?? 0;
+      return nodeCount + edgeCount;
+    },
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Network" />;
     },
