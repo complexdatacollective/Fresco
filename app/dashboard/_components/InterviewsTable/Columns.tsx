@@ -1,13 +1,15 @@
 'use client';
 
+import type { Codebook, NcNetwork, Stage } from '@codaco/shared-consts';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Progress } from '~/components/ui/progress';
-import type { Stage } from '@codaco/shared-consts';
-import { Badge } from '~/components/ui/badge';
-import TimeAgo from '~/components/ui/TimeAgo';
 import Image from 'next/image';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { Badge } from '~/components/ui/badge';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Progress } from '~/components/ui/progress';
+import TimeAgo from '~/components/ui/TimeAgo';
+import { Node } from '~/lib/ui/components';
+import Icon from '~/lib/ui/components/Icon';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 
 export const InterviewColumns = (): ColumnDef<
@@ -32,30 +34,24 @@ export const InterviewColumns = (): ColumnDef<
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   accessorKey: 'id',
-  //   header: ({ column }) => {
-  //     return <DataTableColumnHeader column={column} title="Interview ID" />;
-  //   },
-  // },
-  // {
-  //   accessorKey: 'finishTime',
-  //   header: 'Finish Time',
-  //   cell: ({ row }) => {
-  //     // finishTime is optional
-  //     if (!row.original.finishTime) {
-  //       return 'Not completed';
-  //     }
-  //     const date = new Date(row.original.finishTime);
-  //     return date.toLocaleString();
-  //   },
-  // },
   {
     id: 'identifier',
     accessorKey: 'participant.identifier',
     header: ({ column }) => {
       return (
-        <DataTableColumnHeader column={column} title="Participant Identifier" />
+        <div className="flex items-center gap-2">
+          <Image
+            src="/images/participant.svg"
+            alt="Protocol icon"
+            className="max-w-none"
+            width={24}
+            height={24}
+          />
+          <DataTableColumnHeader
+            column={column}
+            title="Participant Identifier"
+          />
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -64,13 +60,6 @@ export const InterviewColumns = (): ColumnDef<
           className="flex items-center gap-2"
           title={row.original.participant.identifier}
         >
-          <Image
-            src="/images/participant.svg"
-            alt="Protocol icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
           <Badge variant={'outline'}>
             <span className="max-w-56 truncate">
               {row.original.participant.identifier}
@@ -83,31 +72,44 @@ export const InterviewColumns = (): ColumnDef<
   {
     accessorKey: 'protocol.name',
     header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Protocol Name" />;
+      return (
+        <div className="flex items-center gap-2">
+          <Image
+            src="/images/protocol-icon.png"
+            alt="Protocol icon"
+            className="max-w-none"
+            width={24}
+            height={24}
+          />
+          <DataTableColumnHeader column={column} title="Protocol Name" />
+        </div>
+      );
     },
     cell: ({ row }) => {
+      const protocolFileName = row.original.protocol.name;
+      const protocolName = protocolFileName.replace(/\.netcanvas/g, '');
       return (
         <div
           className="flex w-full max-w-72 items-center gap-2"
           title={row.original.protocol.name}
         >
-          <Image
-            src="/images/protocol-icon.png"
-            alt="Protocol icon"
-            width={32}
-            height={24}
-          />
-          <span className="truncate">{row.original.protocol.name}</span>
+          <span className="truncate">{protocolName}</span>
         </div>
       );
     },
   },
   {
     accessorKey: 'startTime',
-    header: 'Started',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Started" />;
+    },
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      return <TimeAgo date={date} />;
+      return (
+        <div className="text-xs">
+          <TimeAgo date={date} />
+        </div>
+      );
     },
   },
   {
@@ -117,7 +119,11 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return <TimeAgo date={date} />;
+      return (
+        <div className="text-xs">
+          <TimeAgo date={date} />
+        </div>
+      );
     },
   },
   {
@@ -137,6 +143,72 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
+    accessorKey: 'network',
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Network" />;
+    },
+    cell: ({ row }) => {
+      const network = row.original.network as NcNetwork;
+      const codebook = row.original.protocol.codebook as Codebook;
+
+      if (!network || !codebook) {
+        return <div>No network data</div>;
+      }
+
+      // group nodes by type
+      const nodeTypeCount: Record<string, number> = {};
+      network.nodes?.forEach((node) => {
+        nodeTypeCount[node.type] = (nodeTypeCount[node.type] ?? 0) + 1;
+      });
+
+      // group edges by type
+      const edgeTypeCount: Record<string, number> = {};
+      network.edges.forEach((edge) => {
+        edgeTypeCount[edge.type] = (edgeTypeCount[edge.type] ?? 0) + 1;
+      });
+
+      return (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-3 gap-12">
+            {Object.entries(nodeTypeCount).map(([nodeType, count]) => {
+              const nodeInfo = codebook.node?.[nodeType] ?? {
+                color: 'node-color-seq-1',
+                name: 'Node',
+              };
+              return (
+                <div key={nodeType} className="flex flex-col items-center">
+                  <div className="h-8 w-8">
+                    <Node color={nodeInfo.color} label={count.toString()} />
+                  </div>
+                  <span className="pt-1 text-xs">{nodeInfo.name}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-3 gap-12">
+            {Object.entries(edgeTypeCount).map(([edgeType, count]) => {
+              const edgeInfo = codebook.edge?.[edgeType] ?? {
+                color: 'edge-color-seq-1',
+                name: 'Edge',
+              };
+              return (
+                <div key={edgeType} className="flex flex-col items-center">
+                  <div className="flex h-6 w-6 items-center justify-center">
+                    <Icon color={edgeInfo.color} name="links" />
+                  </div>
+                  <span className="pt-1 text-xs">
+                    {edgeInfo.name} ({count})
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: 'exportTime',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Export Status" />;
@@ -146,7 +218,11 @@ export const InterviewColumns = (): ColumnDef<
         return <Badge variant="secondary">Not exported</Badge>;
       }
 
-      return <TimeAgo date={row.original.exportTime} />;
+      return (
+        <div className="text-xs">
+          <TimeAgo date={row.original.exportTime} />
+        </div>
+      );
     },
   },
 ];
