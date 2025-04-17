@@ -167,7 +167,7 @@ export const InterviewColumns = (): ColumnDef<
       const codebook = row.original.protocol.codebook as Codebook;
 
       if (!network || !codebook) {
-        return <div>No network data</div>;
+        return <div className="text-xs">No network data</div>;
       }
 
       // group nodes by type
@@ -181,6 +181,13 @@ export const InterviewColumns = (): ColumnDef<
       network.edges.forEach((edge) => {
         edgeTypeCount[edge.type] = (edgeTypeCount[edge.type] ?? 0) + 1;
       });
+
+      if (
+        Object.keys(nodeTypeCount).length == 0 &&
+        Object.keys(edgeTypeCount).length == 0
+      ) {
+        return <div className="text-xs">No nodes or edges</div>;
+      }
 
       return (
         <div className="flex flex-col gap-4">
