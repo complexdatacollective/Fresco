@@ -70,6 +70,7 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
+    id: 'protocolName',
     accessorKey: 'protocol.name',
     header: ({ column }) => {
       return (
@@ -99,6 +100,7 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
+    id: 'startTime',
     accessorKey: 'startTime',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Started" />;
@@ -113,6 +115,7 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
+    id: 'lastUpdated',
     accessorKey: 'lastUpdated',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Updated" />;
@@ -128,6 +131,12 @@ export const InterviewColumns = (): ColumnDef<
   },
   {
     id: 'progress',
+    accessorFn: (row) => {
+      const stages = row.protocol.stages;
+      return Array.isArray(stages)
+        ? (row.currentStep / stages.length) * 100
+        : 0;
+    },
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Progress" />;
     },
@@ -143,7 +152,7 @@ export const InterviewColumns = (): ColumnDef<
     },
   },
   {
-    accessorKey: 'network',
+    id: 'network',
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Network" />;
     },
