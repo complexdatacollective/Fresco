@@ -195,21 +195,28 @@ export const InterviewColumns = (): ColumnDef<
                 color: 'node-color-seq-1',
                 name: 'Node',
               };
+              const color = codebook.node?.[nodeType]?.color;
+              const nodeColor = `var(--${color})`;
+              const nodeColorDark = `var(--${color}-dark)`;
+
+              console.log('node colors:', nodeColor, nodeColorDark);
               return (
                 <div key={nodeType} className="flex flex-col items-center">
                   <div
                     className="flex h-8 w-8 items-center justify-center rounded-full"
                     style={{
                       background: `repeating-linear-gradient(
-                        145deg,
-                        #E2215B,
-                        #E2215B 50%,
-                        #CE1C54 50%,
-                        #CE1C54 100%
+                      145deg,
+                      var(--node-color-seq-1) 0%,
+                      var(--node-color-seq-1) 50%,
+                      var(--node-color-seq-1-dark) 50%,
+                      var(--node-color-seq-1-dark) 100%
                       )`,
                     }}
                   >
-                    <span className="text-xs text-white">{count}</span>
+                    <span className="text-xs font-semibold text-white">
+                      {count}
+                    </span>
                   </div>
                   <span className="pt-1 text-xs">{nodeInfo.name}</span>
                 </div>
@@ -223,6 +230,11 @@ export const InterviewColumns = (): ColumnDef<
                 color: 'edge-color-seq-1',
                 name: 'Edge',
               };
+              const edgeColor = `var(--${edgeInfo.color})`;
+              const edgeColorDark = `var(--${edgeInfo.color}-dark)`;
+
+              console.log(edgeColor, edgeColorDark);
+
               return (
                 <div key={edgeType} className="flex flex-col items-center">
                   <div className="flex items-center justify-center">
@@ -233,16 +245,31 @@ export const InterviewColumns = (): ColumnDef<
                       height="24"
                     >
                       <g id="Links">
-                        <circle cx="49" cy="11" r="11" fill="#DBA500" />
-                        <circle cx="49" cy="49" r="11" fill="#DBA500" />
-                        <circle cx="11" cy="30" r="11" fill="#DBA500" />
+                        <circle
+                          cx="49"
+                          cy="11"
+                          r="11"
+                          fill="var(--edge-color-seq-1-dark)"
+                        />
+                        <circle
+                          cx="49"
+                          cy="49"
+                          r="11"
+                          fill="var(--edge-color-seq-1-dark)"
+                        />
+                        <circle
+                          cx="11"
+                          cy="30"
+                          r="11"
+                          fill="var(--edge-color-seq-1-dark)"
+                        />
                         <rect
                           x="25.3"
                           y="20.59"
                           width="4"
                           height="37.64"
                           transform="translate(-20.48 43.35) rotate(-60)"
-                          fill="#DBA500"
+                          fill="var(--edge-color-seq-1-dark)"
                         />
                         <rect
                           x="8.48"
@@ -250,19 +277,19 @@ export const InterviewColumns = (): ColumnDef<
                           width="37.64"
                           height="4"
                           transform="translate(-6.64 16.41) rotate(-29.99)"
-                          fill="#DBA500"
+                          fill="var(--edge-color-seq-1)"
                         />
                         <path
                           d="M3.22,22.22,18.78,37.78A11,11,0,1,1,3.22,22.22Z"
-                          fill="#F2B700"
+                          fill="var(--edge-color-seq-1)"
                         />
                         <path
                           d="M41.22,3.22,56.78,18.78A11,11,0,1,1,41.22,3.22Z"
-                          fill="#F2B700"
+                          fill="var(--edge-color-seq-1)"
                         />
                         <path
                           d="M41.22,41.22,56.78,56.78A11,11,0,1,1,41.22,41.22Z"
-                          fill="#F2B700"
+                          fill="var(--edge-color-seq-1)"
                         />
                       </g>
                     </svg>
