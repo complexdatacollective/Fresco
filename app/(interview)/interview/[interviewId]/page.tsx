@@ -35,8 +35,8 @@ export default async function Page({
     redirect('/interview/finished');
   }
 
-  // If the interview is finished, redirect to the finish page
-  if (interview?.finishTime) {
+  // If the interview is finished and there is no session, redirect to the finish page
+  if (interview?.finishTime && !session) {
     redirect('/interview/finished');
   }
 
