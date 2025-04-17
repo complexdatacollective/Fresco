@@ -42,7 +42,7 @@ export const InterviewColumns = (): ColumnDef<
         <div className="flex items-center gap-2">
           <Image
             src="/images/participant.svg"
-            alt="Protocol icon"
+            alt="Participant icon"
             className="max-w-none"
             width={24}
             height={24}
