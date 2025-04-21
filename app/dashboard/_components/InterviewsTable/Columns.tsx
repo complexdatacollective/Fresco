@@ -87,7 +87,7 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const protocolFileName = row.original.protocol.name;
-      const protocolName = protocolFileName.replace(/\.netcanvas/g, '');
+      const protocolName = protocolFileName.replace(/\.netcanvas$/, '');
       return (
         <div
           className="flex w-full max-w-72 items-center gap-2"
