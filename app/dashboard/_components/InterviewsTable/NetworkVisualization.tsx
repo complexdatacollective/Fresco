@@ -1,5 +1,11 @@
 import type { Codebook, NcNetwork } from '@codaco/shared-consts';
+import { useEffect, useState } from 'react';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
+
+const NODE_COLOR_FALLBACK = 'hsl(342, 76.9%, 50.8%)'; // neon coral
+const NODE_COLOR_DARK_FALLBACK = 'hsl(342, 76.9%, 45.8%)'; // neon coral dark
+const EDGE_COLOR_FALLBACK = 'hsl(46, 100%, 47%)'; // mustard
+const EDGE_COLOR_DARK_FALLBACK = 'hsl(46, 100%, 42%)'; // mustard dark
 
 const NetworkVisualization = ({
   network,
@@ -8,6 +14,43 @@ const NetworkVisualization = ({
   network: NcNetwork | null;
   codebook: Codebook | null;
 }) => {
+  const [colors, setColors] = useState<
+    Record<string, { color: string; colorDark: string }>
+  >({});
+
+  useEffect(() => {
+    if (network && codebook) {
+      const newColors: Record<string, { color: string; colorDark: string }> =
+        {};
+
+      Object.keys(codebook.node ?? {}).forEach((nodeType) => {
+        const color =
+          getCSSVariableAsString(
+            `--${codebook.node?.[nodeType]?.color ?? 'node-color-seq-1'}`,
+          ) ?? NODE_COLOR_FALLBACK;
+        const colorDark =
+          getCSSVariableAsString(
+            `--${codebook.node?.[nodeType]?.color ?? 'node-color-seq-1'}-dark`,
+          ) ?? NODE_COLOR_DARK_FALLBACK;
+        newColors[nodeType] = { color, colorDark };
+      });
+
+      Object.keys(codebook.edge ?? {}).forEach((edgeType) => {
+        const color =
+          getCSSVariableAsString(
+            `--${codebook.edge?.[edgeType]?.color ?? 'edge-color-seq-1'}`,
+          ) ?? EDGE_COLOR_FALLBACK;
+        const colorDark =
+          getCSSVariableAsString(
+            `--${codebook.edge?.[edgeType]?.color ?? 'edge-color-seq-1'}-dark`,
+          ) ?? EDGE_COLOR_DARK_FALLBACK;
+        newColors[edgeType] = { color, colorDark };
+      });
+
+      setColors(newColors);
+    }
+  }, [network, codebook]);
+
   if (!network || !codebook) {
     return <div className="text-xs">No interview data</div>;
   }
@@ -33,12 +76,10 @@ const NetworkVisualization = ({
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-3 gap-8">
         {Object.entries(nodeTypeCount).map(([nodeType, count]) => {
-          const color = getCSSVariableAsString(
-            `--${codebook.node?.[nodeType]?.color ?? 'node-color-seq-1'}`,
-          );
-          const colorDark = getCSSVariableAsString(
-            `--${codebook.node?.[nodeType]?.color ?? 'node-color-seq-1'}-dark`,
-          );
+          const { color, colorDark } = colors[nodeType] ?? {
+            color: NODE_COLOR_FALLBACK,
+            colorDark: NODE_COLOR_DARK_FALLBACK,
+          };
           const nodeInfo = codebook.node?.[nodeType] ?? { name: 'Node' };
 
           return (
@@ -67,14 +108,10 @@ const NetworkVisualization = ({
 
       <div className="grid grid-cols-3 gap-12">
         {Object.entries(edgeTypeCount).map(([edgeType, count]) => {
-          const color =
-            getCSSVariableAsString(
-              `--${codebook.edge?.[edgeType]?.color ?? 'edge-color-seq-1'}`,
-            ) ?? '#E1B100';
-          const colorDark =
-            getCSSVariableAsString(
-              `--${codebook.edge?.[edgeType]?.color ?? 'edge-color-seq-1'}-dark`,
-            ) ?? '#A98600';
+          const { color, colorDark } = colors[edgeType] ?? {
+            color: EDGE_COLOR_FALLBACK,
+            colorDark: EDGE_COLOR_DARK_FALLBACK,
+          };
           const edgeInfo = codebook.edge?.[edgeType] ?? { name: 'Edge' };
 
           return (
