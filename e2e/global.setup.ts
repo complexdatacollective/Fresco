@@ -102,7 +102,7 @@ test('create test database and setup app', async ({
 
   // STEP 3
   const protocolHandle = page.locator('input[type="file"]');
-  await protocolHandle.setInputFiles('e2e/files/SampleProtocol.netcanvas');
+  await protocolHandle.setInputFiles('e2e/files/E2EProtocol.netcanvas');
   // check for uploading assets toast
   await expect(page.getByTestId('job-card-Uploading assets')).toBeVisible();
   await expect(page.getByTestId('job-card-Uploading assets')).not.toBeVisible();

@@ -8,7 +8,7 @@ test.describe('Interviews page', () => {
 
   test('should display completed interview', async ({ page }) => {
     // check that our completed interview is visible
-    await expect(page.getByText('SampleProtocol.netcanvas')).toBeVisible();
+    await expect(page.getByText('E2EProtocol.netcanvas')).toBeVisible();
   });
 
   // export interview data
