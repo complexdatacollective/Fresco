@@ -233,6 +233,11 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(
       page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
     ).toBeVisible();
+
+    // hard wait so that the redux store is updated before proceeding
+    await page.waitForTimeout(2000);
+    await page.getByTestId('navigation-button').nth(1).click();
+
     console.log('☑️ Sociogram');
   });
 
@@ -348,17 +353,17 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
     expect(await page.locator('.node--selected').count()).toBe(0);
     await expect(page.getByTestId('edge-label-0')).toBeVisible();
-    // await expect(
-    //   page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
-    // ).toBeVisible();
-    // await expect(
-    //   page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
-    // ).toBeVisible();
-    // await page.getByTestId('accordion').nth(1).click();
-    // // the lines should not be visible
-    // await expect(
-    //   page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
-    // ).not.toBeVisible();
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-6)"]'),
+    ).toBeVisible();
+    await page.getByTestId('accordion').nth(1).click();
+    // the lines should not be visible
+    await expect(
+      page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
+    ).not.toBeVisible();
     await expect(page.getByTestId('group-label-0')).toBeVisible();
     await expect(
       page.locator('.convex-hull.convex-hull__cat-color-seq-1'),
