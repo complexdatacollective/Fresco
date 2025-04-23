@@ -33,7 +33,7 @@ export const env = createEnv({
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: strictBooleanSchema,
     NODE_ENV: z
-      .enum(['development', 'test', 'production'])
+      .enum(['development', 'test', 'production', 'CI'])
       .default('development'),
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),

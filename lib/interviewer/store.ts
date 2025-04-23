@@ -42,7 +42,7 @@ type Session = {
   stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
 };
 
-type SessionsState = Record<string, Session>;
+export type SessionsState = Record<string, Session>;
 
 export type InstalledProtocols = Record<string, Protocol>;
 
@@ -67,3 +67,20 @@ export type RootState = {
   dialogs: Dialogs;
   ui: Record<string, unknown>;
 };
+
+export type ReduxStore = typeof store;
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Window {
+    REDUX_STORE?: ReduxStore;
+    IS_PLAYWRIGHT?: boolean;
+  }
+}
+
+// TODO: conditionally add this to the window object just in CI & test
+// should be able to do something like env.NODE_ENV === 'test' || env.NODE_ENV === 'CI'
+// or inject IS_PLAYWRIGHT in the test runner
+if (typeof window !== 'undefined') {
+  window.REDUX_STORE = store;
+}

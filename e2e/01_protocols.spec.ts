@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { expect, test } from '@playwright/test';
+import { testWithStore } from './fixtures';
 
 let baseInterviewURL: string;
 
@@ -173,8 +174,9 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.getByText('2')).toBeVisible();
   });
 
-  test('Sociogram', async ({ page }) => {
+  testWithStore('Sociogram', async ({ page, getSessionEdges }) => {
     await page.goto(`${baseInterviewURL}?step=7`);
+
     await expect(page.getByTestId('node')).toBeVisible();
     // d&d Alex, Burt, Carrie into the sociogram
     const nodeA = page.getByText('Alex', { exact: true });
@@ -236,8 +238,9 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
     // hard wait so that the redux store is updated before proceeding
     await page.waitForTimeout(2000);
-    await page.getByTestId('navigation-button').nth(1).click();
 
+    const edges = await getSessionEdges(page);
+    expect(edges.length).toBe(2);
     console.log('☑️ Sociogram');
   });
 
