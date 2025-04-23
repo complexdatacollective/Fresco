@@ -174,7 +174,10 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.getByText('2')).toBeVisible();
   });
 
-  testWithStore('Sociogram', async ({ page, getSessionEdges }) => {
+  testWithStore('Sociogram', async ({ page, context, getSessionEdges }) => {
+    // todo: put this in the fixture
+    await context.addInitScript('window.IS_PLAYWRIGHT = true;');
+
     await page.goto(`${baseInterviewURL}?step=7`);
 
     await expect(page.getByTestId('node')).toBeVisible();

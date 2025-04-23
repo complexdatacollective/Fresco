@@ -78,9 +78,6 @@ declare global {
   }
 }
 
-// TODO: conditionally add this to the window object just in CI & test
-// should be able to do something like env.NODE_ENV === 'test' || env.NODE_ENV === 'CI'
-// or inject IS_PLAYWRIGHT in the test runner
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && window.IS_PLAYWRIGHT) {
   window.REDUX_STORE = store;
 }
