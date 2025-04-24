@@ -6,7 +6,6 @@ import type {
   SessionsState,
 } from '../lib/interviewer/store';
 
-// Define the structure for the fixture
 type ReduxFixtures = {
   getReduxState: (page: Page) => Promise<ReduxStore | undefined>;
   getSessionState: (page: Page) => Promise<SessionsState | undefined>;
@@ -19,8 +18,10 @@ type ReduxStore = {
 } & OriginalReduxStore;
 
 export const testWithStore = base.extend<ReduxFixtures>({
-  // eslint-disable-next-line no-empty-pattern
-  getReduxState: async ({}, playwrightUse) => {
+  getReduxState: async ({ context }, playwrightUse) => {
+    // set flag to add redux store to window
+    await context.addInitScript('window.IS_PLAYWRIGHT = true;');
+
     await playwrightUse(async (page: Page) => {
       return page.evaluate(() => {
         return window.REDUX_STORE?.getState() as ReduxStore | undefined;
