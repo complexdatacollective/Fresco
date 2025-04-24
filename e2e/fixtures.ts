@@ -10,10 +10,7 @@ type ReduxFixtures = {
 };
 
 export const testWithStore = base.extend<ReduxFixtures>({
-  getSessionState: async ({ context }, playwrightUse) => {
-    // set flag to add redux store to window
-    await context.addInitScript('window.IS_PLAYWRIGHT = true;');
-
+  getSessionState: async (_, playwrightUse) => {
     await playwrightUse(async (page: Page) => {
       const state = await page.evaluate(() => {
         return window.REDUX_STORE?.getState();

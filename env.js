@@ -29,11 +29,12 @@ export const env = createEnv({
    */
   client: {},
   shared: {
+    NEXT_PUBLIC_PLAYWRIGHT: strictBooleanSchema,
     PUBLIC_URL: z.string().url().optional(),
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: strictBooleanSchema,
     NODE_ENV: z
-      .enum(['development', 'test', 'production', 'CI'])
+      .enum(['development', 'test', 'production'])
       .default('development'),
     SANDBOX_MODE: strictBooleanSchema,
     APP_VERSION: z.string().optional(),
@@ -53,6 +54,7 @@ export const env = createEnv({
     SANDBOX_MODE: process.env.SANDBOX_MODE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
+    NEXT_PUBLIC_PLAYWRIGHT: process.env.NEXT_PUBLIC_PLAYWRIGHT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

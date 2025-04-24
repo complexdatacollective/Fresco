@@ -2,6 +2,7 @@ import type { Protocol } from '@prisma/client';
 import { configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
 import thunk from 'redux-thunk';
+import { env } from '~/env';
 import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
 import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
@@ -78,6 +79,10 @@ declare global {
   }
 }
 
-if (typeof window !== 'undefined' && window.IS_PLAYWRIGHT) {
+if (
+  typeof window !== 'undefined' &&
+  // eslint-disable-next-line no-process-env
+  (env.NEXT_PUBLIC_PLAYWRIGHT || process.env.CI)
+) {
   window.REDUX_STORE = store;
 }
