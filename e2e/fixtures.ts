@@ -1,45 +1,33 @@
-// fixtures.ts
-import type { NcEdge } from '@codaco/shared-consts';
+import type { NcEdge, NcNetwork, NcNode } from '@codaco/shared-consts';
 import { test as base, type Page } from '@playwright/test';
-import type {
-  ReduxStore as OriginalReduxStore,
-  SessionsState,
-} from '../lib/interviewer/store';
+import type { SessionsState } from '../lib/interviewer/store';
 
 type ReduxFixtures = {
-  getReduxState: (page: Page) => Promise<ReduxStore | undefined>;
   getSessionState: (page: Page) => Promise<SessionsState | undefined>;
+  getSessionNetwork: (page: Page) => Promise<NcNetwork>;
   getSessionEdges: (page: Page) => Promise<NcEdge[]>;
+  getSessionNodes: (page: Page) => Promise<NcNode[]>;
 };
 
-// todo: this shouldn't be necessary
-type ReduxStore = {
-  sessions: SessionsState;
-} & OriginalReduxStore;
-
 export const testWithStore = base.extend<ReduxFixtures>({
-  getReduxState: async ({ context }, playwrightUse) => {
+  getSessionState: async ({ context }, playwrightUse) => {
     // set flag to add redux store to window
     await context.addInitScript('window.IS_PLAYWRIGHT = true;');
 
     await playwrightUse(async (page: Page) => {
-      return page.evaluate(() => {
-        return window.REDUX_STORE?.getState() as ReduxStore | undefined;
+      const state = await page.evaluate(() => {
+        return window.REDUX_STORE?.getState();
       });
-    });
-  },
 
-  getSessionState: async ({ getReduxState }, playwrightUse) => {
-    await playwrightUse(async (page: Page) => {
-      const state = await getReduxState(page);
       if (!state) {
         throw new Error('Redux state is undefined');
       }
-      return state?.sessions as SessionsState | undefined;
+
+      return state.sessions as SessionsState | undefined;
     });
   },
 
-  getSessionEdges: async ({ getSessionState }, playwrightUse) => {
+  getSessionNetwork: async ({ getSessionState }, playwrightUse) => {
     await playwrightUse(async (page: Page) => {
       const sessions = await getSessionState(page);
 
@@ -53,7 +41,36 @@ export const testWithStore = base.extend<ReduxFixtures>({
       }
 
       const session = sessions[sessionKey];
-      return session?.network?.edges ?? [];
+      if (!session?.network) {
+        throw new Error('Network is undefined');
+      }
+      return session.network as NcNetwork;
+    });
+  },
+
+  getSessionEdges: async ({ getSessionNetwork }, playwrightUse) => {
+    await playwrightUse(async (page: Page) => {
+      const network = await getSessionNetwork(page);
+      const edges = network?.edges;
+
+      if (!edges) {
+        throw new Error('No session edges found');
+      }
+
+      return edges;
+    });
+  },
+
+  getSessionNodes: async ({ getSessionNetwork }, playwrightUse) => {
+    await playwrightUse(async (page: Page) => {
+      const network = await getSessionNetwork(page);
+      const nodes = network?.nodes;
+
+      if (!nodes) {
+        throw new Error('No session nodes found');
+      }
+
+      return nodes;
     });
   },
 });

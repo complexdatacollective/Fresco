@@ -90,32 +90,47 @@ test.describe('Complete E2E Test Protocol interview', () => {
     console.log('☑️ Ego form');
   });
 
-  test('Name Generator - Quick Add', async ({ page }) => {
-    await page.goto(`${baseInterviewURL}?step=2`);
-    await expect(page.getByTestId('prompt')).toBeVisible();
-    await page.getByTestId('action-button').click();
-    await page.getByTestId('quick-node-form-input').fill('Alex');
-    await page.getByTestId('quick-node-form-input').press('Enter');
-    await page.getByTestId('quick-node-form-input').fill('Burt');
-    await page.getByTestId('quick-node-form-input').press('Enter');
-    await page.getByTestId('quick-node-form-input').fill('Carrie');
-    await page.getByTestId('quick-node-form-input').press('Enter');
-    console.log('☑️ Name Generator - Quick Add');
-  });
+  testWithStore(
+    'Name Generator - Quick Add',
+    async ({ page, getSessionNodes }) => {
+      await page.goto(`${baseInterviewURL}?step=2`);
+      await expect(page.getByTestId('prompt')).toBeVisible();
+      await page.getByTestId('action-button').click();
+      await page.getByTestId('quick-node-form-input').fill('Alex');
+      await page.getByTestId('quick-node-form-input').press('Enter');
+      await page.getByTestId('quick-node-form-input').fill('Burt');
+      await page.getByTestId('quick-node-form-input').press('Enter');
+      await page.getByTestId('quick-node-form-input').fill('Carrie');
+      await page.getByTestId('quick-node-form-input').press('Enter');
 
-  test('Name Generator - side panel', async ({ page }) => {
-    await page.goto(`${baseInterviewURL}?step=3`);
-    await expect(page.getByTestId('prompt')).toBeVisible();
-    // d&d a node into the network
-    const nodeB = page.getByTestId('node').nth(1);
-    await nodeB.dragTo(page.getByTestId('node-list').nth(1));
-    await expect(
-      page.getByTestId('node-list').nth(1).getByText('Burt'),
-    ).toBeVisible();
-    console.log('☑️ Name Generator - side panel');
-  });
+      const nodes = await getSessionNodes(page);
+      expect(nodes.length).toBe(3);
+      console.log('☑️ Name Generator - Quick Add');
+    },
+  );
 
-  test('Name Generator - Form', async ({ page }) => {
+  testWithStore(
+    'Name Generator - side panel',
+    async ({ page, getSessionNodes }) => {
+      await page.goto(`${baseInterviewURL}?step=3`);
+      await expect(page.getByTestId('prompt')).toBeVisible();
+      // d&d a node into the network
+      const nodeB = page.getByTestId('node').nth(1);
+      await nodeB.dragTo(page.getByTestId('node-list').nth(1));
+      await expect(
+        page.getByTestId('node-list').nth(1).getByText('Burt'),
+      ).toBeVisible();
+      const nodes = await getSessionNodes(page);
+      expect(nodes[1]?.promptIDs).toEqual([
+        'ef3a3de1-b986-472a-a074-1b42634680dd',
+        'f98a377f-314a-4313-a4f3-fa7aa921333b',
+      ]);
+
+      console.log('☑️ Name Generator - side panel');
+    },
+  );
+
+  testWithStore('Name Generator - Form', async ({ page, getSessionNodes }) => {
     await page.goto(`${baseInterviewURL}?step=4`);
     await expect(page.getByTestId('prompt')).toBeVisible();
     await page.getByTestId('action-button').click();
@@ -127,41 +142,52 @@ test.describe('Complete E2E Test Protocol interview', () => {
     // select again to open editing
     await page.getByTestId('node').click();
     await page.getByTestId('close-button').click();
+    const nodes = await getSessionNodes(page);
+    expect(nodes.length).toBe(4);
     console.log('☑️ Name Generator - Form');
   });
 
-  test('Name Generator - Roster', async ({ page }) => {
-    await page.goto(`${baseInterviewURL}?step=5`);
-    // check that roster people are there (Adelaide will be first)
-    await expect(page.getByRole('heading', { name: 'Adelaide' })).toBeVisible();
-    // sort first name ascending
-    await page.getByTestId('filter-button').first().click();
-    await expect(page.getByRole('heading', { name: 'Vonny' })).toBeVisible();
-    // sort by last name descending
-    await page.getByTestId('filter-button').nth(1).click();
-    await expect(page.getByRole('heading', { name: 'Vasilis' })).toBeVisible();
-    // sort by last name ascending
-    await page.getByTestId('filter-button').nth(1).click();
-    await expect(page.getByRole('heading', { name: 'Leia' })).toBeVisible();
-    // search for "Teador"
-    await page.getByTestId('form-field-text-input').fill('Teador');
+  testWithStore(
+    'Name Generator - Roster',
+    async ({ page, getSessionNodes }) => {
+      await page.goto(`${baseInterviewURL}?step=5`);
+      // check that roster people are there (Adelaide will be first)
+      await expect(
+        page.getByRole('heading', { name: 'Adelaide' }),
+      ).toBeVisible();
+      // sort first name ascending
+      await page.getByTestId('filter-button').first().click();
+      await expect(page.getByRole('heading', { name: 'Vonny' })).toBeVisible();
+      // sort by last name descending
+      await page.getByTestId('filter-button').nth(1).click();
+      await expect(
+        page.getByRole('heading', { name: 'Vasilis' }),
+      ).toBeVisible();
+      // sort by last name ascending
+      await page.getByTestId('filter-button').nth(1).click();
+      await expect(page.getByRole('heading', { name: 'Leia' })).toBeVisible();
+      // search for "Teador"
+      await page.getByTestId('form-field-text-input').fill('Teador');
 
-    await expect(page.getByRole('heading', { name: 'Teador' })).toBeVisible();
-    // search for "Beech" -> "Delmor Beech" should show up
-    await page.getByTestId('form-field-text-input').fill('Beech');
-    await expect(page.getByRole('heading', { name: 'Delmor' })).toBeVisible();
-    // d&d a couple nodes into network
-    await page
-      .getByRole('heading', { name: 'Delmor' })
-      .dragTo(page.getByTestId('name-generator-roster-node-list'));
-    await page
-      .getByRole('heading', { name: 'Rebecka' })
-      .dragTo(page.getByTestId('name-generator-roster-node-list'));
-    await page
-      .getByRole('heading', { name: 'Butch' })
-      .dragTo(page.getByTestId('name-generator-roster-node-list'));
-    console.log('☑️ Name Generator - Roster');
-  });
+      await expect(page.getByRole('heading', { name: 'Teador' })).toBeVisible();
+      // search for "Beech" -> "Delmor Beech" should show up
+      await page.getByTestId('form-field-text-input').fill('Beech');
+      await expect(page.getByRole('heading', { name: 'Delmor' })).toBeVisible();
+      // d&d a couple nodes into network
+      await page
+        .getByRole('heading', { name: 'Delmor' })
+        .dragTo(page.getByTestId('name-generator-roster-node-list'));
+      await page
+        .getByRole('heading', { name: 'Rebecka' })
+        .dragTo(page.getByTestId('name-generator-roster-node-list'));
+      await page
+        .getByRole('heading', { name: 'Butch' })
+        .dragTo(page.getByTestId('name-generator-roster-node-list'));
+      const nodes = await getSessionNodes(page);
+      expect(nodes.length).toBe(7);
+      console.log('☑️ Name Generator - Roster');
+    },
+  );
 
   test('Per alter form', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=6`);
@@ -244,7 +270,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     console.log('☑️ Sociogram');
   });
 
-  test('dyad census', async ({ page }) => {
+  testWithStore('dyad census', async ({ page, getSessionEdges }) => {
     await page.goto(`${baseInterviewURL}?step=9`);
     await expect(page.getByTestId('dyad-introduction-heading')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
@@ -254,6 +280,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('dyad-yes').click();
     await expect(page.getByText('Butch')).toBeVisible();
     await page.getByTestId('dyad-no').click();
+    const edges = await getSessionEdges(page);
+    expect(edges.length).toBe(3);
     console.log('☑️ Dyad census');
   });
 
@@ -334,7 +362,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
     console.log('☑️ Categorical bins');
   });
 
-  // todo: skip logic/network filtering (15)
   test('Skip logic/network filtering', async ({ page }) => {
     // this should show because we added 'Burt'
     // other nodes should not be visible

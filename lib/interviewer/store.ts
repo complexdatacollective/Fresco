@@ -68,7 +68,7 @@ export type RootState = {
   ui: Record<string, unknown>;
 };
 
-export type ReduxStore = typeof store;
+type ReduxStore = typeof store;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
