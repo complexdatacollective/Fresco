@@ -10,7 +10,8 @@ type ReduxFixtures = {
 };
 
 export const testWithStore = base.extend<ReduxFixtures>({
-  getSessionState: async (_, playwrightUse) => {
+  // eslint-disable-next-line no-empty-pattern
+  getSessionState: async ({}, playwrightUse) => {
     await playwrightUse(async (page: Page) => {
       const state = await page.evaluate(() => {
         return window.REDUX_STORE?.getState();

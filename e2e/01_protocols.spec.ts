@@ -298,7 +298,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     console.log('☑️ tie strength census');
   });
 
-  test('per alter edge form', async ({ page }) => {
+  testWithStore('per alter edge form', async ({ page, getSessionEdges }) => {
     await page.goto(`${baseInterviewURL}?step=11`);
     await expect(page.getByTestId('slidesform-intro')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
@@ -308,6 +308,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('navigation-button').nth(1).click();
     await expect(page.getByText('Carrie')).toBeVisible();
     await page.getByTestId('form-field-radio-input').nth(0).click();
+    const edges = await getSessionEdges(page);
+    expect(edges.length).toBe(5);
     console.log('☑️ tie strength census');
   });
 
