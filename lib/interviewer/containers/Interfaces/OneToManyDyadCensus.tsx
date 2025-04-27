@@ -6,7 +6,7 @@ import {
 } from '@codaco/shared-consts';
 import { type UnknownAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -66,9 +66,19 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   registerBeforeNext(async (direction) => {
+    // disable overflow
+    if (containerRef.current) {
+      containerRef.current.style.overflowY = 'visible';
+    }
+
     if (direction === 'forwards') {
       if (currentStep < nodes.length - 1) {
         setCurrentStep((prev) => prev + 1);
+        setTimeout(() => {
+          if (containerRef.current) {
+            containerRef.current.style.overflowY = 'auto';
+          }
+        }, 500);
         return false;
       }
 
@@ -78,6 +88,11 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     if (direction === 'backwards') {
       if (currentStep > 0) {
         setCurrentStep((prev) => prev - 1);
+        setTimeout(() => {
+          if (containerRef.current) {
+            containerRef.current.style.overflowY = 'auto';
+          }
+        }, 500);
         return false;
       }
 
@@ -104,6 +119,8 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     dispatch(edgeAction);
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="one-to-many-dyad-census flex h-full w-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
       <div className="flex flex-col items-center">
@@ -128,19 +145,23 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
         </AnimatePresence>
       </div>
 
-      <motion.div className="flex grow flex-col overflow-visible rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
+      <motion.div className="flex grow flex-col rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) p-4">
         <div className="mb-4 flex w-full items-center justify-center">
           <h4>Click/tap all that apply:</h4>
         </div>
         <AnimatePresence mode="wait">
           <motion.div
-            layoutScroll
-            className="flex w-full grow gap-2 [--base-node-size:calc(var(--nc-base-font-size)*8)]"
+            className="flex h-0 grow flex-wrap gap-2 [--base-node-size:calc(var(--nc-base-font-size)*8)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ when: 'beforeChildren' }}
             key={promptIndex}
+            layoutScroll
+            ref={containerRef}
+            style={{
+              overflowY: 'auto',
+            }}
           >
             {source &&
               sortedTargets.map((node) => {
