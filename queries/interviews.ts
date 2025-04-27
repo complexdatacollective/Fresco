@@ -51,7 +51,7 @@ async function prisma_getInterviewById(interviewId: string) {
       protocol: {
         include: { assets: true },
         omit: {
-          importedAt: true,
+          // importedAt: true,
           lastModified: true,
           hash: true,
         },
@@ -67,6 +67,7 @@ export const getInterviewById = (interviewId: string) =>
   createCachedFunction(
     async (interviewId: string) => {
       const interview = await prisma_getInterviewById(interviewId);
+      console.log('interview', interview);
 
       if (!interview) {
         return null;

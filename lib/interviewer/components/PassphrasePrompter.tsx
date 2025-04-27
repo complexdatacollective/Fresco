@@ -79,7 +79,7 @@ export default function PassphrasePrompter() {
               >
                 <div>
                   {passphraseInvalid
-                    ? 'There was a problem decrypting the data. Please reenter your passphrase.'
+                    ? 'There was a problem decrypting the data. Please re-enter your passphrase.'
                     : 'Your passphrase is needed to show data on this screen. Click here to enter it.'}
                 </div>
                 <Tooltip.Arrow className="fill-panel" height={10} width={20} />

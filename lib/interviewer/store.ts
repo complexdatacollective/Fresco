@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { reducer as form } from 'redux-form';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
-import protocolSlice from '~/lib/interviewer/ducks/modules/protocol';
+import protocol from '~/lib/interviewer/ducks/modules/protocol';
 import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
@@ -10,7 +10,7 @@ import logger from './ducks/middleware/logger';
 const rootReducer = combineReducers({
   form,
   session,
-  protocol: protocolSlice.reducer,
+  protocol,
   dialogs,
   ui, // don't do it - this is used for FORM_IS_READY
 });
@@ -43,10 +43,10 @@ export const store = ({
       },
       protocol: {
         id: protocol.id,
-        name: protocol.name,
         stages: protocol.stages,
         codebook: protocol.codebook,
         assets: protocol.assets,
+        experiments: protocol.experiments ?? undefined,
       },
     },
   });

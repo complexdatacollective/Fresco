@@ -360,6 +360,9 @@ export const getEdgeColor = createSelector(
 
 export const makeGetEdgeColor = () => getEdgeColor;
 
+export const getEdgeColorForType = (type: string) => (state: RootState) =>
+  getEdgeColor(state, { type });
+
 export const makeGetNodeAttributeLabel = () =>
   createSelector(
     getCodebook,

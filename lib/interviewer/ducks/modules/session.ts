@@ -24,6 +24,7 @@ import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
 import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
+import { getShouldEncryptNames } from './protocol';
 
 // reducer helpers:
 function flipEdge(edge: Partial<NcEdge>) {
@@ -121,20 +122,19 @@ export const initialNetwork: NcNetwork = {
 
 const initialState = {} as SessionState;
 
+type AddNodeArgs = {
+  type: NcNode['type'];
+  attributeData?: NcNode[EntityAttributesProperty];
+  modelData?: {
+    [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
+  };
+};
+
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
-  async (
-    args: {
-      type: NcNode['type'];
-      modelData: {
-        [entityPrimaryKeyProperty]?: NcNode[EntityPrimaryKey];
-      };
-      attributeData: NcNode[EntityAttributesProperty];
-    },
-    { getState },
-  ) => {
-    const { type, attributeData } = args;
-    const state = getState() as RootState;
+  async (stuff: AddNodeArgs, thunkApi) => {
+    const { type, attributeData, modelData } = stuff;
+    const state = thunkApi.getState() as RootState;
 
     const variablesForType = getCodebookVariablesForNodeType(type)(state);
 
@@ -142,6 +142,19 @@ export const addNode = createAsyncThunk(
       ...getDefaultAttributesForEntityType(variablesForType),
       ...attributeData,
     };
+
+    const sessionMeta = getSessionMeta(state);
+
+    const useEncryption = getShouldEncryptNames(state);
+
+    if (!useEncryption) {
+      return {
+        type,
+        attributeData: mergedAttributes,
+        modelData,
+        sessionMeta,
+      };
+    }
 
     const { passphrase } = state.ui;
 
@@ -157,12 +170,10 @@ export const addNode = createAsyncThunk(
         passphrase,
       );
 
-    const sessionMeta = getSessionMeta(state);
-
     return {
       type,
       attributeData: encryptedAttributes,
-      modelData: args.modelData,
+      modelData,
       secureAttributes,
       sessionMeta,
     };
@@ -308,6 +319,7 @@ export const setSessionFinished = createAction<string>(
 );
 
 const sessionReducer = createReducer(initialState, (builder) => {
+  console.log('sessionReducer', initialState);
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
     const { promptId, stageId } = sessionMeta;
@@ -319,7 +331,8 @@ const sessionReducer = createReducer(initialState, (builder) => {
     } = action;
 
     const newNode: NcNode = {
-      [entityPrimaryKeyProperty]: modelData[entityPrimaryKeyProperty] ?? uuid(),
+      [entityPrimaryKeyProperty]:
+        modelData?.[entityPrimaryKeyProperty] ?? uuid(),
       type,
       [entityAttributesProperty]: attributeData,
       [entitySecureAttributesMeta]: secureAttributes,
@@ -388,6 +401,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
           if (node.promptIDs) {
             node.promptIDs.forEach((id) => mergedPromptIDs.add(id));
           }
+
           if ('promptId' in newModelData) {
             const newId = newModelData.promptId as string;
             mergedPromptIDs.add(newId);

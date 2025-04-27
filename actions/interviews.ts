@@ -23,11 +23,7 @@ import {
   getInterviewsForExport,
   type GetInterviewsForExportReturnType,
 } from '~/queries/interviews';
-import type {
-  CreateInterview,
-  DeleteInterviews,
-  SyncInterview as SyncInterviewType,
-} from '~/schemas/interviews';
+import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
@@ -253,33 +249,6 @@ export async function createInterview(data: CreateInterview) {
     };
   }
 }
-
-export async function syncInterview(data: SyncInterviewType) {
-  const { id, network, currentStep, stageMetadata, lastUpdated } = data;
-
-  try {
-    await prisma.interview.update({
-      where: {
-        id,
-      },
-      data: {
-        network,
-        currentStep,
-        stageMetadata,
-        lastUpdated: new Date(lastUpdated),
-      },
-    });
-
-    // eslint-disable-next-line no-console
-    console.log(`🚀 Interview synced with server! (${id})`);
-    return { success: true };
-  } catch (error) {
-    const message = ensureError(error).message;
-    return { success: false, error: message };
-  }
-}
-
-export type SyncInterview = typeof syncInterview;
 
 export async function finishInterview(interviewId: Interview['id']) {
   try {

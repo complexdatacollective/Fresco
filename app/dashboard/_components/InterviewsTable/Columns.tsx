@@ -1,6 +1,5 @@
 'use client';
 
-import type { Stage } from '@codaco/protocol-validation';
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -126,7 +125,7 @@ export const InterviewColumns = (): ColumnDef<
       return <DataTableColumnHeader column={column} title="Progress" />;
     },
     cell: ({ row }) => {
-      const stages = row.original.protocol.stages! as unknown as Stage[];
+      const stages = row.original.protocol.stages;
       const progress = (row.original.currentStep / stages.length) * 100;
       return (
         <div className="flex whitespace-nowrap">

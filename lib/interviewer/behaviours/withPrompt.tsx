@@ -1,4 +1,7 @@
-import { get } from 'es-toolkit/compat';
+import {
+  type EntityDefinition,
+  type Prompt,
+} from '@codaco/protocol-validation';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePrompt } from '../ducks/modules/session';
@@ -13,16 +16,59 @@ import { processProtocolSortRule } from '../utils/createSorter';
  * @returns {Array}
  * @private
  */
-const processSortRules = (prompts = [], codebookVariables) => {
-  const sortProperties = ['bucketSortOrder', 'binSortOrder'];
+
+type MaybePrompt = Prompt & {
+  bucketSortOrder?: {
+    property: string;
+    direction?: 'asc' | 'desc';
+    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+  }[];
+  binSortOrder?: {
+    property: string;
+    direction?: 'asc' | 'desc';
+    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+  }[];
+};
+
+const processSortRules = (
+  prompts: MaybePrompt[] = [],
+  codebookVariables: EntityDefinition,
+) => {
+  const sortProperties = ['bucketSortOrder', 'binSortOrder'] as const;
+
+  const ruleProcessor = processProtocolSortRule(codebookVariables) as (rule: {
+    property: string;
+    direction?: 'asc' | 'desc';
+    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+  }) => {
+    property: string;
+    direction?: 'asc' | 'desc';
+    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+  } & Record<string, unknown>;
 
   return prompts.map((prompt) => {
-    const sortOptions = {};
+    const sortOptions = {} as {
+      bucketSortOrder?: {
+        property: string;
+        direction?: 'asc' | 'desc';
+        type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+      }[];
+      binSortOrder?: {
+        property: string;
+        direction?: 'asc' | 'desc';
+        type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+      }[];
+    };
+
     sortProperties.forEach((property) => {
-      const sortRules = get(prompt, property, []);
-      sortOptions[property] = sortRules.map(
-        processProtocolSortRule(codebookVariables),
-      );
+      if (property in prompt) {
+        const sortRules = prompt[property] as unknown as {
+          property: string;
+          direction?: 'asc' | 'desc';
+          type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+        }[]; // todo: replace with sortOrder schema from protocol-validation
+        sortOptions[property] = sortRules.map(ruleProcessor);
+      }
     });
     return {
       ...prompt,
@@ -68,17 +114,17 @@ const processSortRules = (prompts = [], codebookVariables) => {
  * updatePrompt,
  * } = usePrompts();
  */
-export const usePrompts = () => {
+export const usePrompts = <T extends object = object>() => {
   const dispatch = useDispatch();
   const setPrompt = useCallback(
-    (promptIndex) => dispatch(updatePrompt(promptIndex)),
+    (promptIndex: number) => dispatch(updatePrompt(promptIndex)),
     [dispatch],
   );
 
   const codebookVariables = useSelector(getAllVariableUUIDsByEntity);
-  const prompts = useSelector(getPrompts);
+  const prompts = useSelector(getPrompts) as (MaybePrompt & T)[];
 
-  const processedPrompts = processSortRules(prompts, codebookVariables);
+  const processedPrompts = processSortRules(prompts, codebookVariables) as T[];
 
   const promptIndex = useSelector(getPromptIndex);
   const isFirstPrompt = prompts.length === 0;
@@ -95,7 +141,7 @@ export const usePrompts = () => {
   };
 
   const currentPrompt = () => {
-    return processedPrompts[promptIndex] ?? { id: null };
+    return processedPrompts[promptIndex] ?? ({ id: null } as MaybePrompt & T);
   };
 
   return {
@@ -111,8 +157,10 @@ export const usePrompts = () => {
   };
 };
 
-const withPrompt = (WrappedComponent) => {
-  const WithPrompt = (props) => {
+const withPrompt = <P extends object>(
+  WrappedComponent: React.ComponentType<P & ReturnType<typeof usePrompts>>,
+) => {
+  const WithPrompt = (props: P) => {
     const prompts = usePrompts();
 
     return <WrappedComponent {...prompts} {...props} />;

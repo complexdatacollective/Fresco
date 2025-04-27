@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import cx from 'classnames';
 import React, { useId } from 'react';
@@ -12,7 +12,7 @@ type InputProps = {
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
   [key: string]: any; // For any other input props
-}
+};
 
 type RadioProps = {
   label?: React.ReactNode;
@@ -21,7 +21,7 @@ type RadioProps = {
   disabled?: boolean;
   input: InputProps;
   [key: string]: any; // For rest props
-}
+};
 
 const Radio = ({
   label,
@@ -33,7 +33,7 @@ const Radio = ({
 }: RadioProps) => {
   // Use React's useId hook to generate a stable ID
   const id = useId();
-  
+
   const componentClasses = cx('form-field-radio', className, {
     'form-field-radio--disabled': disabled,
   });

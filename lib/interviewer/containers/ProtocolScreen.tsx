@@ -43,15 +43,20 @@ const variants = {
     current: number;
     previous: number | undefined;
   }) => {
-    if (!previous) {
-      return { opacity: 0, y: 0 };
+    if (previous) {
+      return current > previous
+        ? { opacity: 1, y: '100%' }
+        : { opacity: 1, y: '-100%' };
     }
 
-    return current > previous ? { y: '100vh' } : { y: '-100vh' };
+    return {
+      opacity: 0,
+      y: '100%',
+    };
   },
   animate: {
     opacity: 1,
-    y: 0,
+    y: '0',
     transition: { when: 'beforeChildren', ...animationOptions },
   },
 };

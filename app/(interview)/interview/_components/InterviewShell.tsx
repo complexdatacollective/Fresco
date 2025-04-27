@@ -17,6 +17,9 @@ const InterviewShell = (props: {
   const decodedPayload = SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(
     props.rawPayload,
   );
+
+  console.log('🚀 InterviewShell decoded payload:', decodedPayload);
+
   return (
     <Provider store={store(decodedPayload)}>
       <ServerSync />

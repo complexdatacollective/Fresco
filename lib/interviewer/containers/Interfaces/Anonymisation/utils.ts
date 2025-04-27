@@ -90,7 +90,7 @@ export async function generateSecureAttributes(
   encryptedAttributes: NcNode[EntityAttributesProperty];
 }> {
   const secureAttributes: NcNode[EntitySecureAttributesMeta] = {};
-  const encryptedAttributes: NcNode[EntityAttributesProperty] = {};
+  const encryptedAttributes: NcNode[EntityAttributesProperty] = attributes;
 
   for (const [key, value] of Object.entries(attributes)) {
     // If this attribute is not encrypted, we can skip it

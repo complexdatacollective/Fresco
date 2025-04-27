@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getShouldEncryptNames } from '~/lib/interviewer/ducks/modules/protocol';
 import {
   getPassphrase,
   getPassphraseInvalid,
@@ -19,8 +20,7 @@ export class UnauthorizedError extends Error {
 export const usePassphrase = () => {
   const dispatch = useDispatch();
 
-  // Todo: this should be set at the protocol level somehow
-  const isEnabled = true;
+  const isEnabled = useSelector(getShouldEncryptNames);
 
   const passphrase = useSelector(getPassphrase);
   const passphraseInvalid = useSelector(getPassphraseInvalid);

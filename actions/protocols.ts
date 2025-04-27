@@ -1,6 +1,5 @@
 'use server';
 
-import { type Protocol } from '@codaco/protocol-validation';
 import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
@@ -125,14 +124,8 @@ export async function insertProtocol(
 ) {
   await requireApiAuth();
 
-  const {
-    protocol: inputProtocol,
-    protocolName,
-    newAssets,
-    existingAssetIds,
-  } = protocolInsertSchema.parse(input);
-
-  const protocol = inputProtocol as Protocol;
+  const { protocol, protocolName, newAssets, existingAssetIds } =
+    protocolInsertSchema.parse(input);
 
   try {
     const protocolHash = hash(protocol);
@@ -143,13 +136,14 @@ export async function insertProtocol(
         lastModified: protocol.lastModified ?? new Date(),
         name: protocolName,
         schemaVersion: protocol.schemaVersion,
-        stages: protocol.stages as unknown as Prisma.JsonArray, // The Stage interface needs to be changed to be a type: https://www.totaltypescript.com/type-vs-interface-which-should-you-use#index-signatures-in-types-vs-interfaces
+        stages: protocol.stages,
         codebook: protocol.codebook,
         description: protocol.description,
         assets: {
           create: newAssets,
           connect: existingAssetIds.map((assetId) => ({ assetId })),
         },
+        experiments: protocol.experiments ?? Prisma.JsonNull,
       },
     });
 

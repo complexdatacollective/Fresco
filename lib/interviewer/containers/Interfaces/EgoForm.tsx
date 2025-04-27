@@ -47,7 +47,6 @@ type EgoFormProps = StageProps & {
 };
 
 const EgoForm = (props: EgoFormProps) => {
-  console.log('EgoForm', props);
   const { registerBeforeNext, stage } = props;
 
   const { form, introductionPanel } = stage;

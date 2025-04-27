@@ -1,6 +1,7 @@
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
+import { safeRevalidateTag } from '~/lib/cache';
 import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
@@ -20,7 +21,7 @@ const routeHandler = async (
     id: z.string(),
     network: NcNetworkSchema,
     currentStep: z.number(),
-    stageMetadata: StageMetadataSchema.nullable(),
+    stageMetadata: StageMetadataSchema.optional(),
     lastUpdated: z.string(),
   });
 
@@ -50,6 +51,8 @@ const routeHandler = async (
         lastUpdated: new Date(lastUpdated),
       },
     });
+
+    safeRevalidateTag(`getInterviewById-${interviewId}`);
 
     // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${interviewId})`);

@@ -58,6 +58,7 @@ const ServerSync = () => {
       }
 
       console.log('🚀 Interview synced with server!');
+      console.log(data);
     } catch (err) {
       const error = ensureError(err).message;
       console.log(error);

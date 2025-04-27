@@ -1,4 +1,8 @@
-import { CodebookSchema, stageSchema } from '@codaco/protocol-validation';
+import {
+  CodebookSchema,
+  ProtocolSchema,
+  stageSchema,
+} from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaClient } from '@prisma/client';
 import { env } from '~/env';
@@ -56,6 +60,17 @@ const createPrismaClient = () =>
           },
           compute: ({ codebook }) => {
             return CodebookSchema.parse(codebook);
+          },
+        },
+        experiments: {
+          needs: {
+            experiments: true,
+          },
+          compute: ({ experiments }) => {
+            if (!experiments) {
+              return null;
+            }
+            return ProtocolSchema.shape.experiments.parse(experiments);
           },
         },
       },

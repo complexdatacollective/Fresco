@@ -24,6 +24,7 @@ function Stage(props: StageProps) {
     <div
       className="relative flex h-full w-full flex-grow-1 basis-full overflow-hidden"
       id="stage"
+      key={stage.id}
     >
       <StageErrorBoundary>
         {CurrentInterface && (

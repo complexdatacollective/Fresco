@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import cx from 'classnames';
 import React, { useEffect, useId } from 'react';
@@ -13,14 +13,14 @@ type InputProps = {
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
   [key: string]: any; // For any other input props
-}
+};
 
 type MetaProps = {
   error?: string;
   invalid?: boolean;
   touched?: boolean;
   [key: string]: any; // For any other meta props
-}
+};
 
 type ToggleProps = {
   label?: string;
@@ -31,7 +31,7 @@ type ToggleProps = {
   title?: string;
   meta: MetaProps;
   [key: string]: any; // For rest props
-}
+};
 
 const Toggle = ({
   label,
@@ -45,7 +45,7 @@ const Toggle = ({
 }: ToggleProps) => {
   // Use React's useId hook to generate a stable ID
   const id = useId();
-  
+
   // Handle the initial value setup
   useEffect(() => {
     // Because redux forms will just not pass on this
