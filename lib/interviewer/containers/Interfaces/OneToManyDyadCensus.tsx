@@ -5,7 +5,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { type UnknownAction } from '@reduxjs/toolkit';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
@@ -73,7 +73,21 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const {
     prompt: { createEdge },
     promptIndex,
-  } = usePrompts<{ createEdge: string }>();
+  } = usePrompts<{
+    createEdge: string;
+    bucketSortOrder?: {
+      property: string;
+      direction: 'asc' | 'desc';
+      type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+      hierarchy?: Array<string | number | boolean>;
+    }[];
+    binSortOrder?: {
+      property: string;
+      direction: 'asc' | 'desc';
+      type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
+      hierarchy?: Array<string | number | boolean>;
+    };
+  }>();
 
   const dispatch = useDispatch();
 
@@ -96,43 +110,65 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   return (
     <div className="one-to-many-dyad-census flex h-full w-full flex-col px-[2.4rem] py-[1.2rem]">
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center overflow-visible">
         <Prompts />
-        {source && (
-          <MotionNode
-            {...source}
-            layoutId={source[entityPrimaryKeyProperty]}
-            key={source[entityPrimaryKeyProperty]}
-            // variants={cardvariants}
-          />
-        )}
-        {!source && <div>No nodes available to display.</div>}
+        <AnimatePresence mode="wait">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key={promptIndex}
+          >
+            {source && (
+              <MotionNode
+                {...source}
+                layout
+                layoutId={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
+                key={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
+              />
+            )}
+            {!source && <div>No nodes available to display.</div>}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      <div className="grow rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
+      <motion.div className="flex grow flex-col overflow-visible rounded-(--nc-border-radius) border bg-(--nc-panel-bg-muted) p-4">
         <div className="mb-4 flex w-full items-center justify-center">
           <h4>Click/tap all that apply:</h4>
         </div>
-        {source &&
-          targets.map((node) => {
-            const selected = !!edgeExists(
-              edges,
-              node[entityPrimaryKeyProperty],
-              source[entityPrimaryKeyProperty],
-              createEdge,
-            );
+        <AnimatePresence mode="wait">
+          <motion.div
+            layoutScroll
+            className="flex w-full grow"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ when: 'beforeChildren' }}
+            key={promptIndex}
+          >
+            {source &&
+              targets.map((node) => {
+                const selected = !!edgeExists(
+                  edges,
+                  node[entityPrimaryKeyProperty],
+                  source[entityPrimaryKeyProperty],
+                  createEdge,
+                );
 
-            return (
-              <MotionNode
-                {...node}
-                layoutId={node[entityPrimaryKeyProperty]}
-                key={node[entityPrimaryKeyProperty]}
-                selected={selected}
-                handleClick={handleNodeClick(source, node)}
-              />
-            );
-          })}
-      </div>
+                return (
+                  <MotionNode
+                    {...node}
+                    layout
+                    layoutId={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
+                    key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
+                    selected={selected}
+                    handleClick={handleNodeClick(source, node)}
+                  />
+                );
+              })}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }

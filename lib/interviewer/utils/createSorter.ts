@@ -1,3 +1,4 @@
+import { EntityDefinition } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 
@@ -11,26 +12,28 @@ import { get } from 'es-toolkit/compat';
 const collator = new Intl.Collator();
 
 /* Maps a `_createdIndex` index value to all items in an array */
-const withCreatedIndex = (items) =>
+const withCreatedIndex = (items: Item[]) =>
   items.map((item, _createdIndex) => ({ ...item, _createdIndex }));
 
 /* all items without the '_createdIndex' prop */
-const withoutCreatedIndex = (items) =>
+const withoutCreatedIndex = (items: Item[]) =>
   items.map(({ _createdIndex, ...originalItem }) => originalItem);
+
+type PropertyGetter = (item: Item) => unknown;
 
 /**
  * Helper that returns a function compatible with Array.sort that uses an
  * arbitrary `propertyGetter` function to fetch values for comparison.
  */
-const asc = (propertyGetter) => (a, b) => {
+const asc = (propertyGetter: PropertyGetter) => (a: Item, b: Item) => {
   const firstValue = propertyGetter(a);
   const secondValue = propertyGetter(b);
 
-  if (firstValue === null) {
+  if (firstValue === null || firstValue === undefined) {
     return 1;
   }
 
-  if (secondValue === null) {
+  if (secondValue === null || secondValue === undefined) {
     return -1;
   }
 
@@ -38,7 +41,10 @@ const asc = (propertyGetter) => (a, b) => {
 };
 
 /* As above, but with the items reversed (thereby reversing the sort order) */
-const desc = (propertyGetter) => (a, b) => asc(propertyGetter)(b, a);
+const desc = (propertyGetter: PropertyGetter) => (a: Item, b: Item) =>
+  asc(propertyGetter)(b, a);
+
+type SortFns = (a: Item, b: Item) => number;
 
 /**
  * Helper function that executes a series of functions in order, passing util
@@ -47,8 +53,8 @@ const desc = (propertyGetter) => (a, b) => asc(propertyGetter)(b, a);
  * Used to chain together multiple sort functions.
  */
 const chain =
-  (...fns) =>
-  (a, b) =>
+  (...fns: SortFns[]) =>
+  (a: unknown, b: unknown) =>
     fns.reduce((diff, fn) => diff || fn(a, b), 0);
 
 /**
@@ -58,8 +64,8 @@ const chain =
  * Also places non-strings at the end of the sorting order.
  */
 const stringFunction =
-  ({ property, direction }) =>
-  (a, b) => {
+  ({ property, direction }: ProcessedSortRule) =>
+  (a: Item, b: Item) => {
     const firstValue = get(a, property, null);
     const secondValue = get(b, property, null);
 
@@ -79,8 +85,8 @@ const stringFunction =
   };
 
 const categoricalFunction =
-  ({ property, direction, hierarchy = [] }) =>
-  (a, b) => {
+  ({ property, direction, hierarchy = [] }: ProcessedSortRule) =>
+  (a: Item, b: Item) => {
     // hierarchy is whatever order the variables were specified in the variable definition
     const firstValues = get(a, property, []);
     const secondValues = get(b, property, []);
@@ -120,8 +126,8 @@ const categoricalFunction =
  * property value in a hierarchy array.
  */
 const hierarchyFunction =
-  ({ property, direction = 'desc', hierarchy = [] }) =>
-  (a, b) => {
+  ({ property, direction = 'desc', hierarchy = [] }: ProcessedSortRule) =>
+  (a: Item, b: Item) => {
     const firstValue = get(a, property);
     const secondValue = get(b, property);
 
@@ -157,8 +163,8 @@ const hierarchyFunction =
   };
 
 const dateFunction =
-  ({ property, direction }) =>
-  (a, b) => {
+  ({ property, direction }: ProcessedSortRule) =>
+  (a: Item, b: Item) => {
     const firstValueString = get(a, property, null);
     const secondValueString = get(b, property, null);
 
@@ -185,6 +191,8 @@ const dateFunction =
     );
   };
 
+type Item = Record<string, unknown>;
+
 /**
  * Transforms sort rules into sort functions compatible with Array.sort.
  *
@@ -193,7 +201,7 @@ const dateFunction =
  *
  * Returns -1 if a < b, 0 if a === b, and 1 if a > b.
  */
-const getSortFunction = (rule) => {
+const getSortFunction = (rule: ProcessedSortRule) => {
   const {
     property,
     direction = 'asc',
@@ -203,7 +211,7 @@ const getSortFunction = (rule) => {
   // LIFO/FIFO rule sorted by _createdIndex
   if (property === '*') {
     return direction === 'asc'
-      ? asc((item) => get(item, '_createdIndex'))
+      ? asc((item: Item) => get(item, '_createdIndex'))
       : desc((item) => get(item, '_createdIndex'));
   }
 
@@ -252,9 +260,21 @@ const getSortFunction = (rule) => {
  */
 const createSorter = (sortRules = []) => {
   const sortFunctions = sortRules.map(getSortFunction);
-  return (items) =>
+  return (items: Item[]) =>
     withoutCreatedIndex(withCreatedIndex(items).sort(chain(...sortFunctions)));
 };
+
+type VariableType =
+  | 'boolean'
+  | 'text'
+  | 'number'
+  | 'datetime'
+  | 'ordinal'
+  | 'scalar'
+  | 'categorical'
+  | 'layout'
+  | 'location';
+type VariableTypeWithWildcard = VariableType | '*';
 
 /**
  * Utility helper to map NC variable types to the types supported by the
@@ -279,32 +299,32 @@ const createSorter = (sortRules = []) => {
  * - "layout",
  * - "location"
  */
-export const mapNCType = (type) => {
+export const mapNCType = (type: VariableTypeWithWildcard) => {
   switch (type) {
     case 'text':
     case 'layout':
-      return 'string';
+      return 'string' as const;
     case 'number':
     case 'boolean':
     case '*':
       return type;
     case 'datetime':
-      return 'date';
+      return 'date' as const;
     case 'ordinal':
-      return 'hierarchy';
+      return 'hierarchy' as const;
     case 'categorical':
-      return 'categorical';
+      return 'categorical' as const;
     case 'scalar':
-      return 'number';
+      return 'number' as const;
     default:
-      return 'string';
+      return 'string' as const;
   }
 };
 
 /**
  * Add the entity attributes property to the property path of a sort rule.
  */
-const propertyWithAttributePath = (rule) => {
+const propertyWithAttributePath = (rule: ProtocolSortRule) => {
   // 'type' rules are a special case - they exist in the protocol, but do not
   // refer to an entity attribute (they refer to a model property)
   if (rule.property === 'type') {
@@ -312,6 +332,11 @@ const propertyWithAttributePath = (rule) => {
   }
 
   return [entityAttributesProperty, rule.property];
+};
+
+type ProtocolSortRule = {
+  property: string;
+  direction?: 'asc' | 'desc';
 };
 
 /**
@@ -327,29 +352,38 @@ const propertyWithAttributePath = (rule) => {
  * variable type to the new type by looking up the variable definition in the
  * codebook.
  */
-export const processProtocolSortRule = (codebookVariables) => (sortRule) => {
-  const variableDefinition = get(codebookVariables, sortRule.property, null);
+export const processProtocolSortRule =
+  (codebookVariables: EntityDefinition['variables']) =>
+  (sortRule: ProtocolSortRule) => {
+    const variableDefinition = get(codebookVariables, sortRule.property, null);
 
-  // Don't modify the rule if there is no variable definition matching the
-  // property.
-  if (variableDefinition === null) {
-    return sortRule;
-  }
+    // Don't modify the rule if there is no variable definition matching the
+    // property.
+    if (variableDefinition === null) {
+      return sortRule as ProcessedSortRule;
+    }
 
-  const { type } = variableDefinition;
+    const { type } = variableDefinition;
 
-  return {
-    ...sortRule,
-    property: propertyWithAttributePath(sortRule),
-    type: mapNCType(type),
-    // Generate a hierarchy if the variable is ordinal based on the ordinal options
-    ...(type === 'ordinal' && {
-      hierarchy: variableDefinition.options.map((option) => option.value),
-    }),
-    ...(type === 'categorical' && {
-      hierarchy: variableDefinition.options.map((option) => option.value),
-    }),
+    return {
+      ...sortRule,
+      property: propertyWithAttributePath(sortRule),
+      type: mapNCType(type),
+      // Generate a hierarchy if the variable is ordinal based on the ordinal options
+      ...(type === 'ordinal' && {
+        hierarchy: variableDefinition.options.map((option) => option.value),
+      }),
+      ...(type === 'categorical' && {
+        hierarchy: variableDefinition.options.map((option) => option.value),
+      }),
+    };
   };
+
+type ProcessedSortRule = {
+  property: string | string[];
+  direction?: 'asc' | 'desc';
+  type: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy' | 'categorical'; // Note: this is *not* the same as NC variable types. See createSorter.
+  hierarchy?: Array<string | number | boolean>;
 };
 
 export default createSorter;
