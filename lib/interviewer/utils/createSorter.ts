@@ -37,7 +37,7 @@ const asc = (propertyGetter: PropertyGetter) => (a: Item, b: Item) => {
     return -1;
   }
 
-  return -(firstValue < secondValue) || +(firstValue > secondValue);
+  return -Number(firstValue < secondValue) || +Number(firstValue > secondValue);
 };
 
 /* As above, but with the items reversed (thereby reversing the sort order) */
@@ -54,7 +54,7 @@ type SortFns = (a: Item, b: Item) => number;
  */
 const chain =
   (...fns: SortFns[]) =>
-  (a: unknown, b: unknown) =>
+  (a: Item, b: Item) =>
     fns.reduce((diff, fn) => diff || fn(a, b), 0);
 
 /**
@@ -88,8 +88,8 @@ const categoricalFunction =
   ({ property, direction, hierarchy = [] }: ProcessedSortRule) =>
   (a: Item, b: Item) => {
     // hierarchy is whatever order the variables were specified in the variable definition
-    const firstValues = get(a, property, []);
-    const secondValues = get(b, property, []);
+    const firstValues = get(a, property, []) as (string | number | boolean)[];
+    const secondValues = get(b, property, []) as (string | number | boolean)[];
 
     for (
       let i = 0;
@@ -99,26 +99,38 @@ const categoricalFunction =
       const firstValue = i < firstValues.length ? firstValues[i] : null;
       const secondValue = i < secondValues.length ? secondValues[i] : null;
 
-      if (firstValue !== secondValue) {
-        // If one of the values is not in the hierarchy, it is sorted to the end of the list
-        const firstIndex = hierarchy.indexOf(firstValue);
-        const secondIndex = hierarchy.indexOf(secondValue);
-
-        if (firstIndex === -1) {
-          return 1;
-        }
-        if (secondIndex === -1) {
-          return -1;
-        }
-
-        if (direction === 'asc') {
-          return firstIndex - secondIndex;
-        }
-        return secondIndex - firstIndex; // desc
+      if (firstValue === secondValue) {
+        return 0;
       }
-    }
 
-    return 0;
+      if (!firstValue && !secondValue) {
+        return 0;
+      }
+
+      if (!firstValue) {
+        return 1;
+      }
+
+      if (!secondValue) {
+        return -1;
+      }
+
+      // If one of the values is not in the hierarchy, it is sorted to the end of the list
+      const firstIndex = hierarchy.indexOf(firstValue);
+      const secondIndex = hierarchy.indexOf(secondValue);
+
+      if (firstIndex === -1) {
+        return 1;
+      }
+      if (secondIndex === -1) {
+        return -1;
+      }
+
+      if (direction === 'asc') {
+        return firstIndex - secondIndex;
+      }
+      return secondIndex - firstIndex; // desc
+    }
   };
 
 /**
@@ -128,8 +140,22 @@ const categoricalFunction =
 const hierarchyFunction =
   ({ property, direction = 'desc', hierarchy = [] }: ProcessedSortRule) =>
   (a: Item, b: Item) => {
-    const firstValue = get(a, property);
-    const secondValue = get(b, property);
+    const firstValue = get(a, property, null) as
+      | string
+      | number
+      | boolean
+      | null;
+    const secondValue = get(b, property, null) as
+      | string
+      | number
+      | boolean
+      | null;
+    if (!firstValue) {
+      return 1;
+    }
+    if (!secondValue) {
+      return -1;
+    }
 
     const firstIndex = hierarchy.indexOf(firstValue);
     const secondIndex = hierarchy.indexOf(secondValue);
@@ -165,10 +191,12 @@ const hierarchyFunction =
 const dateFunction =
   ({ property, direction }: ProcessedSortRule) =>
   (a: Item, b: Item) => {
-    const firstValueString = get(a, property, null);
-    const secondValueString = get(b, property, null);
+    const firstValueString = get(a, property, null) as string | null;
+    const secondValueString = get(b, property, null) as string | null;
 
+    // @ts-expect-error We handle null values in the next line
     const firstValueDate = Date.parse(firstValueString);
+    // @ts-expect-error We handle null values in the next line
     const secondValueDate = Date.parse(secondValueString);
 
     if (Number.isNaN(firstValueDate)) {
@@ -181,13 +209,14 @@ const dateFunction =
 
     if (direction === 'asc') {
       return (
-        -(firstValueDate < secondValueDate) ||
-        +(firstValueDate > secondValueDate)
+        -Number(firstValueDate < secondValueDate) ||
+        +Number(firstValueDate > secondValueDate)
       );
     }
 
     return (
-      -(firstValueDate > secondValueDate) || +(firstValueDate < secondValueDate)
+      -Number(firstValueDate > secondValueDate) ||
+      +Number(firstValueDate < secondValueDate)
     );
   };
 
@@ -381,7 +410,7 @@ export const processProtocolSortRule =
   };
 
 export type ProcessedSortRule = {
-  property: string | string[];
+  property: string;
   direction?: 'asc' | 'desc';
   type:
     | 'string'
