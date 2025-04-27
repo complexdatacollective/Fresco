@@ -7,7 +7,18 @@ import { getStageSubject } from './session';
 // Get all variables for all subjects in the codebook, adding the entity and type
 export const getAllVariableUUIDsByEntity = createSelector(
   getCodebook,
-  ({ node: nodeTypes, edge: edgeTypes, ego }) => {
+  (codebook) => {
+    if (!codebook) {
+      return {} as Record<
+        string,
+        Variable & {
+          entity: 'node' | 'edge' | 'ego';
+          entityType: string | null;
+        }
+      >;
+    }
+
+    const { node: nodeTypes, edge: edgeTypes, ego } = codebook;
     const variables = {} as Record<
       string,
       Variable & {

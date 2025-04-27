@@ -2,7 +2,6 @@ import { type Protocol, type Stage } from '@codaco/protocol-validation';
 import { type Asset } from '@prisma/client';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
-import { type RootState } from '../../store';
 
 type ProtocolState = Partial<Protocol> & {
   id: string;
@@ -23,14 +22,17 @@ const protocolSlice = createSlice({
   reducers: {},
   selectors: {
     getProtocol: (state) => state,
-    getProtocolExperiments: (state: ProtocolState) => state.experiments,
+    getProtocolExperiments: (state) => state.experiments,
+    getShouldEncryptNames: (state) => {
+      return state.experiments?.encryptNames ?? false;
+    },
     getCodebook: (state) => state.codebook,
     getStages: createSelector(
       [(state: ProtocolState) => state.stages, () => DefaultFinishStage],
       (stages, finishStage) => [...(stages ?? []), finishStage] as Stage[],
     ),
     getAssetManifest: createSelector(
-      [(state: typeof initialState) => state.assets],
+      [(state: ProtocolState) => state.assets],
       (assets) => {
         if (!assets) {
           return {};
@@ -58,18 +60,11 @@ const protocolSlice = createSlice({
   },
 });
 
-export const getShouldEncryptNames = createSelector(
-  [(state: RootState) => state.protocol.experiments],
-  (experiments) => {
-    console.log('getShouldEncryptNames', experiments);
-    return experiments?.encryptNames ?? false;
-  },
-);
-
 // export selectors
 export const {
   getProtocol,
   getProtocolExperiments,
+  getShouldEncryptNames,
   getCodebook,
   getStages,
   getAssetManifest,

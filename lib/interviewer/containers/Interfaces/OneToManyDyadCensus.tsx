@@ -7,17 +7,18 @@ import {
 import { type UnknownAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
-import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import Node from '../../components/Node';
 import Prompts from '../../components/Prompts';
 import { edgeExists, toggleEdge } from '../../ducks/modules/session';
+import useSortedNodeList from '../../hooks/useSortedNodeList';
 import {
   getNetworkEdges,
   getNetworkNodesForType,
 } from '../../selectors/session';
+import { type ProtocolSortRule } from '../../utils/createSorter';
 import { type StageProps } from '../Stage';
 
 const MotionNode = motion.create(Node);
@@ -29,16 +30,32 @@ type OneToManyDyadCensusProps = StageProps & {
 function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const { registerBeforeNext } = props;
   const [currentStep, setCurrentStep] = useState(0);
-  const nodes = usePropSelector(getNetworkNodesForType, props);
-  const edges = usePropSelector(getNetworkEdges, props);
 
-  const targets = nodes.filter(
-    (node) =>
-      node[entityAttributesProperty] !==
-      nodes[currentStep]?.[entityAttributesProperty],
+  const dispatch = useDispatch();
+
+  const {
+    prompt: { createEdge, bucketSortOrder, binSortOrder },
+    promptIndex,
+  } = usePrompts<{
+    createEdge: string;
+    bucketSortOrder?: ProtocolSortRule[];
+    binSortOrder?: ProtocolSortRule[];
+  }>();
+
+  const nodes = useSelector(getNetworkNodesForType);
+  const edges = useSelector(getNetworkEdges);
+
+  const sortedTargets = useSortedNodeList(
+    nodes.filter(
+      (node) =>
+        node[entityAttributesProperty] !==
+        nodes[currentStep]?.[entityAttributesProperty],
+    ),
+    bucketSortOrder,
   );
+  const sortedSource = useSortedNodeList(nodes, binSortOrder);
 
-  const source = nodes[currentStep];
+  const source = sortedSource[currentStep];
 
   /**
    * Hijack stage navigation:
@@ -70,27 +87,6 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     return true;
   });
 
-  const {
-    prompt: { createEdge },
-    promptIndex,
-  } = usePrompts<{
-    createEdge: string;
-    bucketSortOrder?: {
-      property: string;
-      direction: 'asc' | 'desc';
-      type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-      hierarchy?: Array<string | number | boolean>;
-    }[];
-    binSortOrder?: {
-      property: string;
-      direction: 'asc' | 'desc';
-      type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-      hierarchy?: Array<string | number | boolean>;
-    };
-  }>();
-
-  const dispatch = useDispatch();
-
   // Reset the step when the prompt changes
   useEffect(() => {
     setCurrentStep(0);
@@ -109,8 +105,8 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   };
 
   return (
-    <div className="one-to-many-dyad-census flex h-full w-full flex-col px-[2.4rem] py-[1.2rem]">
-      <div className="flex flex-col items-center overflow-visible">
+    <div className="one-to-many-dyad-census flex h-full w-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
+      <div className="flex flex-col items-center">
         <Prompts />
         <AnimatePresence mode="wait">
           <motion.div
@@ -139,7 +135,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
         <AnimatePresence mode="wait">
           <motion.div
             layoutScroll
-            className="flex w-full grow"
+            className="flex w-full grow gap-2 [--base-node-size:calc(var(--nc-base-font-size)*8)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -147,7 +143,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
             key={promptIndex}
           >
             {source &&
-              targets.map((node) => {
+              sortedTargets.map((node) => {
                 const selected = !!edgeExists(
                   edges,
                   node[entityPrimaryKeyProperty],

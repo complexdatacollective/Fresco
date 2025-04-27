@@ -1,4 +1,4 @@
-import { EntityDefinition } from '@codaco/protocol-validation';
+import { type EntityDefinition } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 
@@ -258,12 +258,13 @@ const getSortFunction = (rule: ProcessedSortRule) => {
  * https://stackoverflow.com/questions/6913512/how-to-sort-an-array-of-objects-by-multiple-fields/72649463#72649463
  *
  */
-const createSorter = (sortRules = []) => {
+const createSorter = (sortRules: ProcessedSortRule[] = []) => {
   const sortFunctions = sortRules.map(getSortFunction);
   return (items: Item[]) =>
     withoutCreatedIndex(withCreatedIndex(items).sort(chain(...sortFunctions)));
 };
 
+// TODO: replace with protocol-validation type when available
 type VariableType =
   | 'boolean'
   | 'text'
@@ -334,7 +335,7 @@ const propertyWithAttributePath = (rule: ProtocolSortRule) => {
   return [entityAttributesProperty, rule.property];
 };
 
-type ProtocolSortRule = {
+export type ProtocolSortRule = {
   property: string;
   direction?: 'asc' | 'desc';
 };
@@ -379,11 +380,18 @@ export const processProtocolSortRule =
     };
   };
 
-type ProcessedSortRule = {
+export type ProcessedSortRule = {
   property: string | string[];
   direction?: 'asc' | 'desc';
-  type: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy' | 'categorical'; // Note: this is *not* the same as NC variable types. See createSorter.
-  hierarchy?: Array<string | number | boolean>;
+  type:
+    | 'string'
+    | 'number'
+    | 'date'
+    | 'boolean'
+    | 'hierarchy'
+    | 'categorical'
+    | '*'; // Note: this is *not* the same as NC variable types. See createSorter.
+  hierarchy?: (string | number | boolean)[];
 };
 
 export default createSorter;
