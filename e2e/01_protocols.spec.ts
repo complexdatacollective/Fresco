@@ -104,6 +104,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
       const nodes = await getSessionNodes(page);
       expect(nodes.length).toBe(3);
+
+      await page.waitForTimeout(5000);
       console.log('☑️ Name Generator - Quick Add');
     },
   );
