@@ -195,7 +195,7 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-[150px] flex-col gap-4">
       <div className="grid grid-cols-3 gap-8">{nodeSummaries}</div>
       <div className="grid grid-cols-3 gap-12">{edgeSummaries}</div>
     </div>
