@@ -9,7 +9,7 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { Progress } from '~/components/ui/progress';
 import TimeAgo from '~/components/ui/TimeAgo';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
-import NetworkVisualization from './NetworkVisualization';
+import NetworkSummary from './NetworkSummary';
 
 export const InterviewColumns = (): ColumnDef<
   Awaited<GetInterviewsReturnType>[0]
@@ -157,7 +157,7 @@ export const InterviewColumns = (): ColumnDef<
       const network = row.original.network as NcNetwork;
       const codebook = row.original.protocol.codebook as Codebook;
 
-      return <NetworkVisualization network={network} codebook={codebook} />;
+      return <NetworkSummary network={network} codebook={codebook} />;
     },
   },
   {
