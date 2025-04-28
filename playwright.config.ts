@@ -30,6 +30,7 @@ export default defineConfig({
   },
   workers: 1,
   retries: 0,
+  maxFailures: 1,
 
   use: {
     baseURL,
