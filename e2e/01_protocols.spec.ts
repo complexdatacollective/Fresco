@@ -196,9 +196,9 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('navigation-button').nth(1).click();
     await expect(page.getByTestId('node')).toBeVisible();
     await expect(page.getByTestId('slidesform-progress')).toBeVisible();
-    await expect(page.getByText('1')).toBeVisible();
+    await expect(page.getByText('Delmor')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
-    await expect(page.getByText('2')).toBeVisible();
+    await expect(page.getByText('Rebecka')).toBeVisible();
   });
 
   testWithStore('Sociogram', async ({ page, getSessionEdges }) => {
