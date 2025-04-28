@@ -15,6 +15,7 @@ test('create test database and setup app', async ({
   baseURL,
 }) => {
   console.log('🚀 Starting setup test', baseURL);
+  test.setTimeout(60_000);
 
   // Stop any existing test db to ensure clean state
   if (!process.env.CI) {
