@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Select,
@@ -9,8 +9,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 
-import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
-import FancyBox from '~/components/ui/FancyBox';
+import { FileUp } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -20,9 +19,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { FileUp } from 'lucide-react';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import FancyBox from '~/components/ui/FancyBox';
 import type { GetParticipantsReturnType } from '~/queries/participants';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
+import ExportCSVParticipantURLs from './ExportCSVParticipantURLs';
 
 export const GenerateParticipantURLs = ({
   protocols,
@@ -57,6 +57,7 @@ export const GenerateParticipantURLs = ({
         disabled={participants?.length === 0}
         onClick={handleOpenChange}
         variant="outline"
+        data-testid="generate-participant-urls"
       >
         <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Participation URLs

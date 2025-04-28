@@ -66,6 +66,7 @@ function ExportCSVParticipantURLs({
       disabled={!protocol || participants?.length === 0 || isExporting}
       onClick={handleExport}
       className="w-full"
+      data-testid="export-participation-urls-button"
     >
       <Download className="mr-2 h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export Participation URLs'}

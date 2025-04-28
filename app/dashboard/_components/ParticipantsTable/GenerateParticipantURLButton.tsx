@@ -60,7 +60,7 @@ export const GenerateParticipationURLButton = ({
           size="xs"
           ref={ref}
           variant="accent"
-          data-test-id="copy-url-button"
+          data-testid="copy-url-button"
         >
           <Copy className="mr-2 h-4 w-4" />
           Copy Unique URL

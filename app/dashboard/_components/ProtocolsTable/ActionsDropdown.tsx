@@ -48,7 +48,10 @@ export const ActionsDropdown = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+          <DropdownMenuItem
+            onClick={() => handleDelete(row.original)}
+            data-testid="delete-protocol"
+          >
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

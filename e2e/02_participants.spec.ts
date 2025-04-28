@@ -30,15 +30,25 @@ test.describe('Participants page', () => {
     await page.getByTestId('submit-participant').click();
   });
 
-  test.fixme('should copy unique URL', async ({ page }) => {
-    await page.getByTestId('copy-url-button').click();
+  test('should copy unique URL', async ({ page, baseURL }) => {
+    await page.getByTestId('copy-url-button').first().click();
     await page.getByRole('combobox').click();
-    await page.getByRole('option', { name: 'Sample Protocol' }).click();
-    await page.getByText('Sample Protocol.netcanvas').click();
-
-    // console.log url that was copied to clipboard
+    await page.getByRole('option', { name: 'E2EProtocol.netcanvas' }).click();
     const copiedUrl = await page.evaluate(() => navigator.clipboard.readText());
-    // eslint-disable-next-line no-console
-    console.log('Copied URL:', copiedUrl);
+    expect(copiedUrl).toContain(`${baseURL}/onboard/`);
+    await expect(page.getByTestId('toast-success')).toBeVisible();
+  });
+
+  test('export participation urls', async ({ page }) => {
+    await page.getByTestId('generate-participant-urls').click();
+    await page.getByRole('combobox').first().click();
+    await page.getByRole('option', { name: 'E2EProtocol.netcanvas' }).click();
+    await page.getByTestId('export-participation-urls-button').click();
+    await expect(page.getByTestId('toast-success')).toBeVisible();
+  });
+
+  test('export participant list', async ({ page }) => {
+    await page.getByTestId('export-participant-list').click();
+    await expect(page.getByTestId('toast-success')).toBeVisible();
   });
 });

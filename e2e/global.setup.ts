@@ -123,12 +123,7 @@ test('create test database and setup app', async ({
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
   await page.getByTestId('import-participants-submit').click();
 
-  // participants imported toast
-  await expect(
-    page.locator('div.text-sm.opacity-90', {
-      hasText: 'Participants have been imported successfully',
-    }),
-  ).toBeVisible();
+  await expect(page.getByTestId('toast-success')).toBeVisible();
 
   // toggle switches
   const anonymousRecruitmentSwitch = page.getByRole('switch').first();

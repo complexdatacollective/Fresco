@@ -31,9 +31,8 @@ test.describe('Protocols page', () => {
   });
 
   test.fixme('should delete protocol', async ({ page }) => {
-    // find the table row with the protocol we want to delete
     await page.getByTestId('actions-dropdown-protocols').first().click();
-    await page.getByRole('menuitem').nth(1).click();
+    await page.getByTestId('delete-protocol').click();
     await page.getByTestId('confirm-delete-protocols-button').click();
 
     // Verify the protocol is no longer in the table
