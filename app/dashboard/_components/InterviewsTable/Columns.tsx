@@ -106,11 +106,7 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      return (
-        <div className="text-xs">
-          <TimeAgo date={date} />
-        </div>
-      );
+      return <TimeAgo date={date} className="text-xs" />;
     },
   },
   {
@@ -121,11 +117,7 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return (
-        <div className="text-xs">
-          <TimeAgo date={date} />
-        </div>
-      );
+      return <TimeAgo date={date} className="text-xs" />;
     },
   },
   {
