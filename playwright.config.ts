@@ -39,36 +39,22 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'setup db',
+      name: 'setup',
       testMatch: /global\.setup\.ts/,
+      teardown: 'teardown',
     },
     {
-      name: 'cleanup db',
-      testMatch: /global\.teardown\.ts/,
-    },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    //   dependencies: ['setup db'],
-    //   teardown: 'cleanup db',
-    // },
-    // {
-    //   name: 'chromium',
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //     storageState: 'e2e/.auth/user.json',
-    //   },
-    //   dependencies: ['setup db'],
-    //   teardown: 'cleanup db',
-    // },
-    {
-      name: 'firefox',
+      name: 'e2e tests',
       use: {
         ...devices['Desktop Firefox'],
         storageState: 'e2e/.auth/user.json',
       },
       dependencies: ['setup db'],
       teardown: 'cleanup db',
+    },
+    {
+      name: 'teardown',
+      testMatch: /global\.teardown\.ts/,
     },
   ],
 
