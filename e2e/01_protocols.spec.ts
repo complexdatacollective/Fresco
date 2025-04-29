@@ -321,6 +321,9 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByText('Alex', { exact: true }).click();
     await page.getByText('Burt', { exact: true }).click();
 
+    // hard wait
+    await page.waitForTimeout(2000);
+
     // check for two selected nodes
     expect(await page.locator('.node--selected').count()).toBe(2);
     // next prompt
