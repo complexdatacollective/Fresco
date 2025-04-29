@@ -1,6 +1,8 @@
 import { revalidatePath } from 'next/cache';
 import { safeRevalidateTag } from '~/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 /**
  *
  * This is an emergency bailout for if the server ends up with stale
