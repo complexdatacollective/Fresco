@@ -49,8 +49,8 @@ export default defineConfig({
         ...devices['Desktop Firefox'],
         storageState: 'e2e/.auth/user.json',
       },
-      dependencies: ['setup db'],
-      teardown: 'cleanup db',
+      dependencies: ['setup'],
+      teardown: 'teardown',
     },
     {
       name: 'teardown',
