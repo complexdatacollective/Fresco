@@ -420,4 +420,12 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.getByTestId('annotation-path')).not.toBeVisible();
     console.log('☑️ Narrative');
   });
+
+  test('Finish interview', async ({ page }) => {
+    await page.goto(`${baseInterviewURL}?step=17`);
+    await page.getByTestId('finish-interview-button').click();
+    await page.getByTestId('confirm-dialog-button').click();
+    await expect(page.getByTestId('interview-completed')).toBeVisible();
+    console.log('☑️ Finish interview');
+  });
 });

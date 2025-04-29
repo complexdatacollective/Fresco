@@ -1,17 +1,17 @@
 'use client';
 
+import type { Events } from '@prisma/client';
 import { type ColumnDef } from '@tanstack/react-table';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
+import TimeAgo from '~/components/ui/TimeAgo';
 import {
+  type Activity,
   type ActivityType,
+  activityTypes,
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-  type Activity,
-  activityTypes,
 } from '~/lib/data-table/types';
-import type { Events } from '@prisma/client';
-import TimeAgo from '~/components/ui/TimeAgo';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): ColumnDef<
@@ -43,7 +43,12 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
         const color = getBadgeColorsForActivityType(activityType);
         return (
           <div className="flex min-w-[140px] space-x-2">
-            <Badge className={color}>{activityType}</Badge>
+            <Badge
+              className={color}
+              data-testid={`activity-${activityType.replace(/\s+/g, '')}`}
+            >
+              {activityType}
+            </Badge>
           </div>
         );
       },
