@@ -30,7 +30,7 @@ export default defineConfig({
   },
   workers: 1,
   retries: 0,
-  maxFailures: 1,
+  maxFailures: process.env.CI ? 1 : 0,
 
   use: {
     baseURL,
