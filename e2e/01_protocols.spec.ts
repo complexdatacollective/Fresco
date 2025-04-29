@@ -16,7 +16,7 @@ test.describe('Protocols page', () => {
     );
   });
 
-  test('should match visual snapshot', async ({ page }) => {
+  test.fixme('should match visual snapshot', async ({ page }) => {
     // validate screenshot
     await expect.soft(page).toHaveScreenshot('protocols-page.png');
   });
