@@ -23,6 +23,7 @@ const FeedbackModal = ({ open, setOpen }: FeedbackModalProps) => {
           className="h-[100dvh] w-full"
           title="Feedback form"
           src="https://forms.clickup.com/3464225/f/39q11-6131/OIJSIULQV2EUZFLUOA"
+          data-testid="feedback-form"
         ></iframe>
       </SheetContent>
     </Sheet>
