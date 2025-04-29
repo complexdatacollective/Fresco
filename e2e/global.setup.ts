@@ -122,6 +122,8 @@ test('create test database and setup app', async ({
 
   const participantsHandle = page.locator('input[type="file"]');
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
+  await page.waitForTimeout(2000);
+
   await page.getByTestId('import-participants-submit').click();
 
   await expect(page.getByTestId('toast-success')).toBeVisible();
