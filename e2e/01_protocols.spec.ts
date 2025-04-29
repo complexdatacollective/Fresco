@@ -186,6 +186,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
         .dragTo(page.getByTestId('name-generator-roster-node-list'));
       const nodes = await getSessionNodes(page);
       expect(nodes.length).toBe(7);
+      // hard wait
+      await page.waitForTimeout(2000);
       console.log('☑️ Name Generator - Roster');
     },
   );
