@@ -61,6 +61,10 @@ jobs:
 
           BRANCH_NAME=$(git branch -r --contains ${COMMIT_SHA} | grep -v HEAD | head -n 1 | sed 's/origin\///' | xargs)
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+      - name: Clear app cache
+        if: always()
+        run: |
+          curl -i "${{ github.event.deployment_status.environment_url }}/reset"
       - name: Install Neon CLI
         if: always() && env.SETUP_ERROR == 'true'
         run: npm i -g neonctl@latest
@@ -69,10 +73,6 @@ jobs:
         run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-      - name: Clear app cache
-        if: always()
-        run: |
-          curl -i "${{ github.event.deployment_status.environment_url }}/reset"
       - uses: actions/upload-artifact@v4
         id: artifact-upload
         if: always()
