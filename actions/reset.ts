@@ -42,10 +42,13 @@ export const resetAppSettings = async () => {
     const utapi = await getUTApi();
 
     // Remove all files from UploadThing:
-    await utapi.listFiles({}).then(({ files }) => {
-      const keys = files.map((file) => file.key);
-      return utapi.deleteFiles(keys);
-    });
+
+    if (!env.CI) {
+      await utapi.listFiles({}).then(({ files }) => {
+        const keys = files.map((file) => file.key);
+        return utapi.deleteFiles(keys);
+      });
+    }
 
     return { error: null, appSettings: null };
   } catch (error) {
