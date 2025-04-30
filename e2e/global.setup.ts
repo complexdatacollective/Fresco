@@ -50,7 +50,7 @@ test('create test database and setup app', async ({
     });
     // Call the reset endpoint
     try {
-      await requestContext.get('/reset');
+      await requestContext.post('/reset');
       console.log('✅ Application cache cleared successfully');
     } catch (error) {
       console.error('Failed to clear cache:', error);
