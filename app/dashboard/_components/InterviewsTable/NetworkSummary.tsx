@@ -159,10 +159,8 @@ const NetworkSummary = ({
       return acc;
     }, {}) ?? {},
   ).map(([nodeType, count]) => {
-    const nodeInfo = codebook.node?.[nodeType] ?? {
-      name: 'Node',
-      color: 'node-color-seq-1',
-    };
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const nodeInfo = codebook.node?.[nodeType]!;
     return (
       <NodeSummary
         key={nodeType}
@@ -179,11 +177,8 @@ const NetworkSummary = ({
       return acc;
     }, {}) ?? {},
   ).map(([edgeType, count]) => {
-    const edgeInfo = codebook.edge?.[edgeType] ?? {
-      name: 'Edge',
-      color: 'edge-color-seq-1',
-    };
-
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const edgeInfo = codebook.edge?.[edgeType]!;
     return (
       <EdgeSummary
         key={edgeType}
