@@ -33,11 +33,11 @@ type EdgeSummaryProps = {
   count: number;
   typeName: string;
 };
-
 function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
   const classes = cn(
     'flex items-center h-8 w-8 justify-center rounded-full',
     'bg-linear-145 from-50% to-50%',
+    'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
     color === 'node-color-seq-1' &&
       'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
     color === 'node-color-seq-2' &&
@@ -67,6 +67,7 @@ function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
 }
 function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
   const lightColorClass = cn(
+    'fill-[var(--edge-color-seq-1)]',
     color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1)]',
     color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2)]',
     color === 'edge-color-seq-3' && 'fill-[var(--edge-color-seq-3)]',
@@ -75,9 +76,11 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
     color === 'edge-color-seq-6' && 'fill-[var(--edge-color-seq-6)]',
     color === 'edge-color-seq-7' && 'fill-[var(--edge-color-seq-7)]',
     color === 'edge-color-seq-8' && 'fill-[var(--edge-color-seq-8)]',
+    color === 'edge-color-seq-9' && 'fill-[var(--edge-color-seq-9)]',
   );
 
   const darkColorClass = cn(
+    'fill-[var(--edge-color-seq-1-dark)]',
     color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1-dark)]',
     color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2-dark)]',
     color === 'edge-color-seq-3' && 'fill-[var(--edge-color-seq-3-dark)]',
@@ -86,6 +89,7 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
     color === 'edge-color-seq-6' && 'fill-[var(--edge-color-seq-6-dark)]',
     color === 'edge-color-seq-7' && 'fill-[var(--edge-color-seq-7-dark)]',
     color === 'edge-color-seq-8' && 'fill-[var(--edge-color-seq-8-dark)]',
+    color === 'edge-color-seq-9' && 'fill-[var(--edge-color-seq-9-dark)]',
   );
 
   return (
