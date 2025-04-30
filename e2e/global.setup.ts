@@ -120,9 +120,8 @@ test('create test database and setup app', async ({
   // dialog should be visible
   await expect(page.getByRole('dialog')).toBeVisible();
 
-  const participantsHandle = page.locator('input[type="file"]');
+  const participantsHandle = await page.waitForSelector('input[type="file"]');
   await participantsHandle.setInputFiles('e2e/files/participants.csv');
-  await page.waitForTimeout(2000);
 
   await page.getByTestId('import-participants-submit').click();
 
