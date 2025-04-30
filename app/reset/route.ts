@@ -14,7 +14,7 @@ import { safeRevalidateTag } from '~/lib/cache';
  * Visiting this route handler should clear all caches and redirect the user
  * to the root of the app.
  */
-export function POST() {
+export function POST(_request: Request) {
   revalidatePath('/', 'layout');
   safeRevalidateTag('appSettings');
   safeRevalidateTag('getInterviews');
