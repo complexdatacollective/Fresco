@@ -41,6 +41,7 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /global\.setup\.ts/,
+      teardown: 'teardown',
     },
     {
       name: 'e2e tests',
@@ -49,9 +50,13 @@ export default defineConfig({
         storageState: 'e2e/.auth/user.json',
       },
       dependencies: ['setup'],
+      teardown: 'teardown',
+    },
+    {
+      name: 'teardown',
+      testMatch: /global\.teardown\.ts/,
     },
   ],
 
   webServer,
-  globalTeardown: './e2e/global.teardown.ts',
 });

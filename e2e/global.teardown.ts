@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 /* eslint-disable no-process-env */
+import { test as teardown } from '@playwright/test';
 import { execSync } from 'child_process';
 import { UTApi } from 'uploadthing/server';
 
-export default async function globalTeardown() {
+teardown('delete test database', async () => {
   if (!process.env.CI) {
     // remove uploaded files from uploadthing
+    // eslint-disable-next-line no-console
     console.log('🗑️ Deleting uploaded files from uploadthing');
 
     const utapi = new UTApi({
@@ -23,4 +25,4 @@ export default async function globalTeardown() {
       stdio: 'inherit',
     });
   }
-}
+});
