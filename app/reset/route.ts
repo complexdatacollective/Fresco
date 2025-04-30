@@ -1,8 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { safeRevalidateTag } from '~/lib/cache';
 
-export const dynamic = 'force-dynamic';
-
 /**
  *
  * This is an emergency bailout for if the server ends up with stale
@@ -16,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * Visiting this route handler should clear all caches and redirect the user
  * to the root of the app.
  */
-export function GET() {
+export function POST() {
   revalidatePath('/', 'layout');
   safeRevalidateTag('appSettings');
   safeRevalidateTag('getInterviews');
