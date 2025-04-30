@@ -1,4 +1,6 @@
+/* eslint-disable no-process-env */
 import { revalidateTag, unstable_cache } from 'next/cache';
+import { env } from '~/env.js';
 
 type StaticTag =
   | 'activityFeed'
@@ -33,13 +35,15 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
     revalidate?: number | false;
   },
 ): T {
-  // eslint-disable-next-line no-process-env
-  const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
-  // eslint-disable-next-line no-console
-  console.log('VERCEL_DEPLOYMENT_ID', VERCEL_DEPLOYMENT_ID);
-  const keyParts = options?.keyParts?.concat(
-    VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
-  );
+  const VERCEL_DEPLOYMENT_ID = env.VERCEL_DEPLOYMENT_ID;
+  const VERCEL_ENV = env.VERCEL_ENV;
+
+  const keyParts =
+    VERCEL_ENV === 'preview'
+      ? options?.keyParts?.concat(
+          VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
+        )
+      : options?.keyParts;
 
   return unstable_cache(func, keyParts, {
     tags,
