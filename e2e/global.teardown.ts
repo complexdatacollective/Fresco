@@ -5,6 +5,7 @@ import { execSync } from 'child_process';
 import { UTApi } from 'uploadthing/server';
 
 teardown('delete test database', async () => {
+  console.log('process.env.CI', process.env.CI);
   if (!process.env.CI) {
     // remove uploaded files from uploadthing
     // eslint-disable-next-line no-console
