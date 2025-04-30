@@ -39,7 +39,15 @@ export function createCachedFunction<T extends UnstableCacheParams[0]>(
     revalidate?: number | false;
   },
 ): T {
-  return unstable_cache(func, options?.keyParts, {
+  // eslint-disable-next-line no-process-env
+  const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
+  // eslint-disable-next-line no-console
+  console.log('VERCEL_DEPLOYMENT_ID', VERCEL_DEPLOYMENT_ID);
+  const keyParts = options?.keyParts?.concat(
+    VERCEL_DEPLOYMENT_ID ? [VERCEL_DEPLOYMENT_ID] : [],
+  );
+
+  return unstable_cache(func, keyParts, {
     tags,
     revalidate: options?.revalidate,
   });
