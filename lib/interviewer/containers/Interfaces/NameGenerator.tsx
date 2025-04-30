@@ -1,9 +1,16 @@
 import {
+  type Form,
+  type Stage,
+  type StageSubject,
+} from '@codaco/protocol-validation';
+import {
+  type EntityAttributesProperty,
   entityAttributesProperty,
+  type EntityPrimaryKey,
   entityPrimaryKeyProperty,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { get, has } from 'es-toolkit/compat';
-import PropTypes from 'prop-types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,9 +35,12 @@ import {
   getNodeTypeLabel,
   getStageNodeCount,
 } from '../../selectors/session';
+import { useAppDispatch } from '../../store';
 import NodeForm from '../NodeForm';
 import NodePanels from '../NodePanels';
+import { type Direction } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
+import { type StageProps } from '../Stage';
 import { usePassphrase } from './Anonymisation/usePassphrase';
 import {
   MaxNodesMet,
@@ -40,8 +50,13 @@ import {
 } from './utils/StageLevelValidation';
 
 export const nameGeneratorHandleBeforeLeaving =
-  (isLastPrompt, stageNodeCount, minNodes, setShowMinWarning) =>
-  (direction) => {
+  (
+    isLastPrompt: boolean,
+    stageNodeCount: number,
+    minNodes: number,
+    setShowMinWarning: (state: boolean) => void,
+  ) =>
+  (direction: Direction) => {
     if (isLastPrompt && direction === 'forwards' && stageNodeCount < minNodes) {
       setShowMinWarning(true);
       return false;
@@ -50,24 +65,41 @@ export const nameGeneratorHandleBeforeLeaving =
     return true;
   };
 
-const NameGenerator = (props) => {
+type NameGeneratorProps = StageProps & {
+  stage: Extract<Stage, { type: 'NameGeneratorQuickAdd' | 'NameGenerator' }>;
+};
+
+const NameGenerator = (props: NameGeneratorProps) => {
   const { registerBeforeNext, stage } = props;
 
-  const { form, quickAdd, behaviours, subject } = stage;
+  const { behaviours, type } = stage;
+
+  const subject = stage.subject as Extract<
+    StageSubject,
+    { entity: 'node' | 'edge' }
+  >; // TODO: shouldn't need node | edge
+
+  let quickAdd: string | null = null;
+  let form: Form | null = null;
+
+  if (type === 'NameGeneratorQuickAdd') {
+    quickAdd = stage.quickAdd;
+  }
+
+  if (type === 'NameGenerator') {
+    form = stage.form;
+  }
 
   const interfaceRef = useRef(null);
 
   const { prompt, isLastPrompt, promptIndex } = usePrompts();
-  const {
-    requirePassphrase,
-    passphrase
-  } = usePassphrase();
+  const { requirePassphrase, passphrase } = usePassphrase();
 
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
   const [showMinWarning, setShowMinWarning] = useState(false);
 
-  const minNodes = minNodesWithDefault(behaviours?.minNodes);
-  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes);
+  const minNodes = minNodesWithDefault(behaviours?.minNodes) as number;
+  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes) as number;
 
   const stageNodeCount = usePropSelector(getStageNodeCount, props); // 1
   const newNodeAttributes = usePropSelector(getAdditionalAttributesSelector, {
@@ -76,13 +108,14 @@ const NameGenerator = (props) => {
   }); // 2
 
   const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props); // 4
-  const nodeIconName = usePropSelector(getNodeIconName, props);
-  const nodeType = useSelector(getNodeTypeLabel(subject?.type));
-  const nodeColor = useSelector(getNodeColor(subject?.type));
+  const nodeIconName = useSelector(getNodeIconName);
+  const nodeType = useSelector(getNodeTypeLabel(subject.type));
+  const nodeColor = useSelector(getNodeColor(subject.type));
 
   const useEncryption = useSelector(getShouldEncryptNames);
 
   const dispatch = useDispatch();
+  const appDispatch = useAppDispatch();
 
   useEffect(() => {
     if (useEncryption) {
@@ -91,31 +124,41 @@ const NameGenerator = (props) => {
   }, [useEncryption, requirePassphrase]);
 
   const addNode = useCallback(
-    (attributes) => {
-      console.log('addNode', attributes);
-    
-      dispatch(
+    (attributes: NcNode[EntityAttributesProperty]) =>
+      appDispatch(
         addNodeAction({
           type: subject.type,
           attributeData: attributes,
         }),
-      );
-    },
-    [dispatch, subject],
+      ),
+    [appDispatch, subject],
   );
 
   const updateNode = useCallback(
-    (...properties) => dispatch(updateNodeAction(...properties)),
+    (payload: {
+      nodeId: NcNode[EntityPrimaryKey];
+      newModelData?: Record<string, unknown>;
+      newAttributeData: NcNode[EntityAttributesProperty];
+    }) => dispatch(updateNodeAction(payload)),
     [dispatch],
   );
 
   const addNodeToPrompt = useCallback(
-    (...properties) => dispatch(addNodeToPromptAction(...properties)),
-    [dispatch],
+    (
+      nodeId: NcNode[EntityPrimaryKey],
+      promptAttributes: Record<string, boolean> = {},
+    ) =>
+      appDispatch(
+        addNodeToPromptAction({
+          nodeId,
+          promptAttributes,
+        }),
+      ),
+    [appDispatch],
   );
 
   const deleteNode = useCallback(
-    (uid) => {
+    (uid: NcNode[EntityPrimaryKey]) => {
       dispatch(deleteNodeAction(uid));
     },
     [dispatch],
@@ -141,21 +184,19 @@ const NameGenerator = (props) => {
   /**
    * Drop node handler
    * Adds prompt attributes to existing nodes, or adds new nodes to the network.
-   * @param {object} item - key/value object containing node object from the network store
    */
-  const handleDropNode = (item) => {
+  const handleDropNode = (item: { meta: NcNode; target: NcNode }) => {
     const node = { ...item.meta };
     // Test if we are updating an existing network node, or adding it to the network
     if (has(node, 'promptIDs')) {
-      addNodeToPrompt(node[entityPrimaryKeyProperty], newNodeAttributes);
+      void addNodeToPrompt(node[entityPrimaryKeyProperty], newNodeAttributes);
     } else {
-      const droppedAttributeData = node[entityAttributesProperty];
-      addNode({ ...droppedAttributeData, ...newNodeAttributes });
+      void addNode({ ...node[entityAttributesProperty], ...newNodeAttributes });
     }
   };
 
   // When a node is tapped, trigger editing.
-  const handleSelectNode = (node) => {
+  const handleSelectNode = (node: NcNode) => {
     if (!form) {
       return;
     }
@@ -181,7 +222,9 @@ const NameGenerator = (props) => {
             stage={stage}
             listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
             id="MAIN_NODE_LIST"
-            accepts={({ meta }) => get(meta, 'itemType', null) === 'NEW_NODE'}
+            accepts={({ meta }: { meta: NcNode }) =>
+              get(meta, 'itemType', null) === 'EXISTING_NODE'
+            }
             itemType="EXISTING_NODE"
             onDrop={handleDropNode}
             onItemClick={handleSelectNode}
@@ -189,13 +232,17 @@ const NameGenerator = (props) => {
         </div>
       </div>
       <NodeBin
-        accepts={(meta) => meta.itemType === 'EXISTING_NODE'}
-        dropHandler={(meta) => deleteNode(meta[entityPrimaryKeyProperty])}
+        accepts={(meta: { itemType: string }) =>
+          meta.itemType === 'EXISTING_NODE'
+        }
+        dropHandler={(meta: NcNode) =>
+          deleteNode(meta[entityPrimaryKeyProperty])
+        }
         id="NODE_BIN"
       />
       {createPortal(
         <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
-        document.getElementById('stage'),
+        document.getElementById('stage')!,
       )}
       {createPortal(
         <MinNodesNotMet
@@ -203,7 +250,7 @@ const NameGenerator = (props) => {
           minNodes={minNodes}
           onHideCallback={() => setShowMinWarning(false)}
         />,
-        document.getElementById('stage'),
+        document.getElementById('stage')!,
       )}
       {form && (
         <NodeForm
@@ -221,7 +268,6 @@ const NameGenerator = (props) => {
       )}
       {!form && (
         <QuickNodeForm
-          target={interfaceRef.current}
           disabled={maxNodesReached}
           icon={nodeIconName}
           nodeColor={nodeColor}
@@ -237,7 +283,3 @@ const NameGenerator = (props) => {
 };
 
 export default withNoSSRWrapper(NameGenerator);
-
-NameGenerator.propTypes = {
-  stage: PropTypes.object.isRequired,
-};

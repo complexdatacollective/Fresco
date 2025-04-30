@@ -15,11 +15,11 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.85.1))
       '@codaco/protocol-validation':
-        specifier: 4.0.0-alpha.5
-        version: 4.0.0-alpha.5
+        specifier: 4.0.0-alpha.6
+        version: 4.0.0-alpha.6
       '@codaco/shared-consts':
-        specifier: 1.0.0-alpha.2
-        version: 1.0.0-alpha.2
+        specifier: 1.0.0-alpha.3
+        version: 1.0.0-alpha.3
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.54.2(react@18.3.1))
@@ -656,12 +656,12 @@ packages:
     peerDependencies:
       next: 13 || 14 || 15
 
-  '@codaco/protocol-validation@4.0.0-alpha.5':
-    resolution: {integrity: sha512-DaIcpVU/3oW8YYaB+a2YqseOgN4dcwfd/31OF5/eP+y9mQpYQLM427VfBGwpdfikEqDwT2CiKm73SYDie+wGgw==}
+  '@codaco/protocol-validation@4.0.0-alpha.6':
+    resolution: {integrity: sha512-To3BbXB5e7wtS9iKCAIM0AKf4AfCDNAK5mkJpjWKG1C6E4eDOJpMd5s5qhW7MPhCBehH3P2BiSy0r80gptonUg==}
     hasBin: true
 
-  '@codaco/shared-consts@1.0.0-alpha.2':
-    resolution: {integrity: sha512-22s9eFQpQvbH+RlpgqUbCeEhxgkFiC6K5EIXNxXqj3rkctp7hIZHYug4YrviBzMn2ON181dgiQf18iFnnnRJ9A==}
+  '@codaco/shared-consts@1.0.0-alpha.3':
+    resolution: {integrity: sha512-5jkezcBmyWUBi1RC2wt24hSc1xOtyrZa2mGSrmM9A1ZslqmyUhGd+OSwZQf1oTKLYOozlPgY3/LlArTF+Z0Sng==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -6308,12 +6308,12 @@ snapshots:
       next: 14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.85.1)
       zod: 3.24.2
 
-  '@codaco/protocol-validation@4.0.0-alpha.5':
+  '@codaco/protocol-validation@4.0.0-alpha.6':
     dependencies:
       ajv: 8.17.1
       zod: 3.24.2
 
-  '@codaco/shared-consts@1.0.0-alpha.2':
+  '@codaco/shared-consts@1.0.0-alpha.3':
     dependencies:
       zod: 3.24.2
 

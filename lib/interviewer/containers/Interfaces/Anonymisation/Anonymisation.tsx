@@ -1,6 +1,9 @@
 import type { Stage } from '@codaco/protocol-validation';
+import { type UnknownAction } from '@reduxjs/toolkit';
 import { motion } from 'motion/react';
 import { useCallback, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { isDirty, isValid, submit } from 'redux-form';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { Button } from '~/lib/ui/components';
@@ -25,6 +28,15 @@ export default function Anonymisation(props: AnonymisationProps) {
   } = props;
   const { passphrase, setPassphrase } = usePassphrase();
 
+  const dispatch = useDispatch();
+  const isFormValid = useSelector(isValid(FORM_NAME));
+  const isFormDirty = useSelector(isDirty(FORM_NAME));
+
+  const submitFormRedux = useCallback(
+    () => dispatch(submit(FORM_NAME) as unknown as UnknownAction),
+    [dispatch],
+  );
+
   const preventNavigationWithoutPassphrase: BeforeNextFunction = useCallback(
     (direction) => {
       // Allow backwards navigation always
@@ -32,13 +44,16 @@ export default function Anonymisation(props: AnonymisationProps) {
         return true;
       }
 
-      if (!passphrase) {
+      // Submit the form, to trigger validation
+      submitFormRedux();
+
+      if (!isFormValid) {
         return false;
       }
 
       return true;
     },
-    [passphrase],
+    [submitFormRedux, isFormValid],
   );
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import { reducer as form } from 'redux-form';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
 import protocol from '~/lib/interviewer/ducks/modules/protocol';
@@ -53,4 +54,5 @@ export const store = ({
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = ReturnType<typeof store>['dispatch'];
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export type AppStore = ReturnType<typeof store>;

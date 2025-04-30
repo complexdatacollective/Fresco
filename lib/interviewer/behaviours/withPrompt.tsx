@@ -114,7 +114,7 @@ const processSortRules = (
  * updatePrompt,
  * } = usePrompts();
  */
-export const usePrompts = <T extends object = object>() => {
+export const usePrompts = <T extends object = MaybePrompt>() => {
   const dispatch = useDispatch();
   const setPrompt = useCallback(
     (promptIndex: number) => dispatch(updatePrompt(promptIndex)),

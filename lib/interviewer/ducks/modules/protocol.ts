@@ -3,7 +3,7 @@ import { type Asset } from '@prisma/client';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
 
-type ProtocolState = Partial<Protocol> & {
+type ProtocolState = Pick<Protocol, 'codebook' | 'experiments' | 'stages'> & {
   id: string;
   assets?: Asset[];
 };
@@ -24,7 +24,7 @@ const protocolSlice = createSlice({
     getProtocol: (state) => state,
     getProtocolExperiments: (state) => state.experiments,
     getShouldEncryptNames: (state) => {
-      return state.experiments?.encryptNames ?? false;
+      return state.experiments?.encryptedVariables ?? false;
     },
     getCodebook: (state) => state.codebook,
     getStages: createSelector(

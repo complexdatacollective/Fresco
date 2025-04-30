@@ -22,10 +22,10 @@ import { getNavigableStages } from '../selectors/skip-logic';
 import { calculateProgress } from '../selectors/utils';
 import Stage from './Stage';
 
-type direction = 'forwards' | 'backwards';
+export type Direction = 'forwards' | 'backwards';
 
 export type BeforeNextFunction = (
-  direction: direction,
+  direction: Direction,
 ) => Promise<boolean | 'FORCE'> | boolean | 'FORCE';
 
 const animationOptions: ValueAnimationTransition = {
@@ -116,7 +116,7 @@ export default function ProtocolScreen() {
    * navigation continues. This allows stages to 'hijack' the navigation
    * process and prevent navigation if necessary.
    */
-  const canNavigate = async (direction: direction) => {
+  const canNavigate = async (direction: Direction) => {
     if (!beforeNextFunction.current) {
       return true;
     }

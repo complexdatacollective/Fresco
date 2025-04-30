@@ -147,6 +147,8 @@ export const addNode = createAsyncThunk(
 
     const useEncryption = getShouldEncryptNames(state);
 
+    console.log('useEncryption', useEncryption);
+
     if (!useEncryption) {
       return {
         type,
@@ -277,8 +279,8 @@ export const addNodeToPrompt = createAsyncThunk(
   actionTypes.addNodeToPrompt,
   (
     props: {
-      nodeId: EntityPrimaryKey;
-      promptAttributes: Record<string, unknown>;
+      nodeId: NcNode[EntityPrimaryKey];
+      promptAttributes: Record<string, boolean>;
     },
     { getState },
   ) => {
@@ -319,7 +321,6 @@ export const setSessionFinished = createAction<string>(
 );
 
 const sessionReducer = createReducer(initialState, (builder) => {
-  console.log('sessionReducer', initialState);
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
     const { promptId, stageId } = sessionMeta;
@@ -345,6 +346,35 @@ const sessionReducer = createReducer(initialState, (builder) => {
       network: {
         ...state.network,
         nodes: [...state.network.nodes, newNode],
+      },
+    });
+  });
+
+  builder.addCase(addNodeToPrompt.fulfilled, (state, action) => {
+    const { nodeId, promptId, promptAttributes } = action.payload;
+    const { network } = state;
+    const { nodes } = network;
+
+    invariant(promptId, 'Prompt ID is required to add a node to a prompt');
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        nodes: nodes.map((node) => {
+          if (node[entityPrimaryKeyProperty] !== nodeId) {
+            return node;
+          }
+
+          return {
+            ...node,
+            promptIDs: [...(node.promptIDs ?? []), promptId],
+            [entityAttributesProperty]: {
+              ...node[entityAttributesProperty],
+              ...promptAttributes,
+            },
+          };
+        }),
       },
     });
   });
