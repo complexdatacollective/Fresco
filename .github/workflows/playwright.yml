@@ -69,6 +69,10 @@ jobs:
         run: neonctl branches delete preview/${{ steps.extract_branch.outputs.branch }} --project-id ${{ secrets.NEON_PROJECT_ID }}
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      - name: Clear app cache
+        if: always()
+        run: |
+          curl -i "${{ github.event.deployment_status.environment_url }}/reset"
       - uses: actions/upload-artifact@v4
         id: artifact-upload
         if: always()
