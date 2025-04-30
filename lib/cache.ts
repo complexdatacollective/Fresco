@@ -1,4 +1,3 @@
-/* eslint-disable no-process-env */
 import { revalidateTag, unstable_cache } from 'next/cache';
 import { env } from '~/env.js';
 

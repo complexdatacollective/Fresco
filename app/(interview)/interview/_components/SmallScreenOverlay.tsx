@@ -1,15 +1,10 @@
 import Image from 'next/image';
-import { env } from 'node:process';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { env } from '~/env.js';
 
 const SmallScreenOverlay = () => {
-  if (
-    env.NODE_ENV === 'development' ||
-    env.NODE_ENV === 'test' ||
-    // eslint-disable-next-line no-process-env
-    process.env.CI
-  ) {
+  if (env.NODE_ENV === 'development' || env.NODE_ENV === 'test' || env.CI) {
     return null;
   }
 

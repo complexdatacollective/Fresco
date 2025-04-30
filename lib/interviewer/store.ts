@@ -79,10 +79,6 @@ declare global {
   }
 }
 
-if (
-  typeof window !== 'undefined' &&
-  // eslint-disable-next-line no-process-env
-  (env.NEXT_PUBLIC_PLAYWRIGHT || process.env.CI)
-) {
+if (typeof window !== 'undefined' && (env.NEXT_PUBLIC_PLAYWRIGHT || env.CI)) {
   window.REDUX_STORE = store;
 }

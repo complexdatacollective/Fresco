@@ -41,6 +41,8 @@ export const env = createEnv({
     COMMIT_HASH: z.string().optional(),
     VERCEL_ENV: z.enum(['development', 'production', 'preview']).optional(),
     VERCEL_DEPLOYMENT_ID: z.string().optional(),
+    CI: strictBooleanSchema.optional(),
+    E2E_UPLOADTHING_TOKEN: z.string().optional(),
   },
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -59,6 +61,8 @@ export const env = createEnv({
     NEXT_PUBLIC_PLAYWRIGHT: process.env.NEXT_PUBLIC_PLAYWRIGHT,
     VERCEL_ENV: process.env.VERCEL_ENV,
     VERCEL_DEPLOYMENT_ID: process.env.VERCEL_DEPLOYMENT_ID,
+    CI: process.env.CI,
+    E2E_UPLOADTHING_TOKEN: process.env.E2E_UPLOADTHING_TOKEN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
-/* eslint-disable no-process-env */
 import { test as teardown } from '@playwright/test';
 import { execSync } from 'child_process';
 import { UTApi } from 'uploadthing/server';
+import { env } from '~/env.js';
 
 teardown('delete test database', async () => {
-  if (!process.env.CI) {
+  if (!env.CI) {
     // remove uploaded files from uploadthing
     // eslint-disable-next-line no-console
     console.log('🗑️ Deleting uploaded files from uploadthing');
 
     const utapi = new UTApi({
       // TODO: figure out why we cannot use getUTApi here
-      token: process.env.E2E_UPLOADTHING_TOKEN,
+      token: env.E2E_UPLOADTHING_TOKEN,
     });
 
     await utapi.listFiles({}).then(({ files }) => {
