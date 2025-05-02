@@ -25,7 +25,8 @@ export const GenerateParticipationURLButton = ({
   participant: Participant;
   protocols: Awaited<GetProtocolsReturnType>;
 }) => {
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>();
+  const [selectedProtocol, setSelectedProtocol] =
+    useState<Partial<Protocol> | null>();
 
   const { toast } = useToast();
 

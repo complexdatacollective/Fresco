@@ -9,8 +9,6 @@
     "dev": "docker-compose -f docker-compose.dev.yml up -d && node ./initialize.js && next dev",
     "postinstall": "node postinstall.js",
     "lint": "SKIP_ENV_VALIDATION=true pnpm typecheck && eslint . --ext .ts,.tsx,.js,.jsx --ignore-path .gitignore",
-    "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
-    "ts-lint:watch": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",

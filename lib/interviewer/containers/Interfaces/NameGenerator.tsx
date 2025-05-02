@@ -236,7 +236,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
       )}
       {form && (
         <NodeForm
-          subject={subject}
+          subject={stage.subject}
           selectedNode={selectedNode}
           form={form}
           disabled={maxNodesReached || (useEncryption && !passphrase)}
