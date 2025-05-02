@@ -4,8 +4,9 @@ on:
   pull_request:
     branches:
       - '*'
+
 jobs:
-  setup:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,12 +22,10 @@ jobs:
 
       - name: Get pnpm store directory
         id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -36,44 +35,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Upload workspace for other jobs to use
-      - name: Upload workspace
-        uses: actions/upload-artifact@v4
-        with:
-          name: workspace
-          path: .
-          retention-days: 1
-
-  lint:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
       - name: Lint
         run: pnpm lint
 
   typecheck:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -82,20 +51,30 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
-          run_install: false
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Type check
         run: pnpm typecheck
 
   test:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -103,21 +82,31 @@ jobs:
           node-version: '22'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
-          run_install: false
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test
 
   knip:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -125,9 +114,22 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
-          version: 8
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run knip
         run: pnpm knip
