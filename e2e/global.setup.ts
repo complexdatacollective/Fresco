@@ -1,9 +1,9 @@
+/* eslint-disable no-process-env */
 /* eslint-disable no-console */
 
 import { expect, test } from '@playwright/test';
 import { execSync } from 'child_process';
 import path from 'path';
-import { env } from '~/env.js';
 
 import { fileURLToPath } from 'url';
 
@@ -18,7 +18,7 @@ test('create test database and setup app', async ({
   test.setTimeout(60_000);
 
   // Stop any existing test db to ensure clean state
-  if (!env.CI) {
+  if (!process.env.CI) {
     console.log('Local environment detected');
     try {
       execSync('docker compose -f docker-compose.test.yml down -v', {
@@ -103,7 +103,7 @@ test('create test database and setup app', async ({
   // env var cannot be UPLOADTHING_TOKEN or this step will be skipped
   await page.fill(
     'input[name="uploadThingToken"]',
-    env.E2E_UPLOADTHING_TOKEN ?? '',
+    process.env.E2E_UPLOADTHING_TOKEN ?? '',
   );
   await page.click('button[type="submit"]');
 

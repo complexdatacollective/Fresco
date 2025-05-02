@@ -5,10 +5,11 @@ import { z } from 'zod';
 // this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
 // z.coerce.boolean() doesn't work as expected
 const strictBooleanSchema = z
-  .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
+  .enum(['true', 'false', 'True', 'False', 'TRUE', 'FALSE', '0', '1'])
   .default('false')
   .transform(
-    (value) => value === 'true' || value === 'True' || value === 'TRUE',
+    (value) =>
+      value === 'true' || value === 'True' || value === 'TRUE' || value === '1',
   );
 
 export const env = createEnv({
@@ -41,7 +42,7 @@ export const env = createEnv({
     COMMIT_HASH: z.string().optional(),
     VERCEL_ENV: z.enum(['development', 'production', 'preview']).optional(),
     VERCEL_DEPLOYMENT_ID: z.string().optional(),
-    CI: z.enum(['0', '1']).default('0'), // todo, add this to strictBooleanSchema
+    CI: strictBooleanSchema,
     E2E_UPLOADTHING_TOKEN: z.string().optional(),
   },
   /**

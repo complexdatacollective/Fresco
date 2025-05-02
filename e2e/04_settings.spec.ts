@@ -1,5 +1,5 @@
+/* eslint-disable no-process-env */
 import { expect, test } from '@playwright/test';
-import { env } from '~/env.js';
 
 test.describe('Settings page', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +10,7 @@ test.describe('Settings page', () => {
     const anonymousRecruitmentSwitch = page.getByRole('switch').first();
     const limitInterviewsSwitch = page.getByRole('switch').nth(1);
     const disableAnalyticsSwitch = page.getByRole('switch').nth(2);
-    if (env.CI) {
+    if (process.env.CI) {
       await expect(disableAnalyticsSwitch).not.toBeChecked();
     } else {
       await expect(disableAnalyticsSwitch).toBeChecked();
