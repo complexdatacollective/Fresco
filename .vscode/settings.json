@@ -1,15 +1,17 @@
 {
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "css.customData": ["./.vscode/css-data.json"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "WillLuke.nextjs.addTypesOnSave": true,
-  "WillLuke.nextjs.hasPrompted": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always",
     "source.fixAll": "always"
   },
-  "[javascript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ]
 }

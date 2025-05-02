@@ -103,6 +103,8 @@ jobs:
         run: pnpm test
 
   knip:
+    env:
+      SKIP_ENV_VALIDATION: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

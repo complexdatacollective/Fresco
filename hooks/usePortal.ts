@@ -9,7 +9,7 @@ const usePortal = (customTarget?: HTMLElement) => {
 
   useEffect(() => {
     setMounted(true);
-    setTargetElement(customTarget || document.body);
+    setTargetElement(customTarget ?? document.body);
 
     return () => setMounted(false);
   }, [customTarget]);
