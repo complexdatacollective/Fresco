@@ -49,10 +49,37 @@ const protocolSlice = createSlice({
         );
       },
     ),
-    getAssetUrlFromId: (state) => (id: string) => {
-      const manifest = protocolSlice.selectors.getAssetManifest(state);
-      return manifest[id]?.url;
-    },
+    getAssetUrlFromId: createSelector(
+      (state: ProtocolState) => state.assets,
+      (manifest) => {
+        return (id: string) => {
+          if (!id) {
+            return undefined;
+          }
+          const asset = manifest?.find((asset) => asset.assetId === id);
+          if (!asset) {
+            return undefined;
+          }
+          const { url, type } = asset;
+          if (type === 'image') {
+            return url;
+          }
+          if (type === 'video') {
+            return url;
+          }
+          if (type === 'audio') {
+            return url;
+          }
+          if (type === 'document') {
+            return url;
+          }
+          if (type === 'other') {
+            return url;
+          }
+          return undefined;
+        };
+      },
+    ),
     getApiKeyAssetValue: (state) => (key: string) => {
       const manifest = protocolSlice.selectors.getAssetManifest(state);
       return manifest[key]?.value;

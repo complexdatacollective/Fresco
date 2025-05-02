@@ -3,9 +3,8 @@ import {
   entityPrimaryKeyProperty,
   type NcEdge,
 } from '@codaco/shared-consts';
-import { type AnyAction } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import {
   addEdge,
@@ -16,6 +15,7 @@ import {
   type StageMetadataEntry,
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 
 const matchEntry =
   (promptIndex: number, pair: Pair) =>
@@ -47,12 +47,15 @@ export default function useEdgeState(
   edges: NcEdgeWithId[],
   deps: string,
 ) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
   const [isTouched, setIsTouched] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
-  const { prompt, promptIndex } = usePrompts();
-  const edgeType = prompt.createEdge!;
+  const { prompt, promptIndex } = usePrompts<{
+    createEdge: string;
+    edgeVariable?: string;
+  }>();
+  const edgeType = prompt.createEdge;
   const edgeVariable = prompt.edgeVariable;
 
   const existingEdgeId =
@@ -107,14 +110,12 @@ export default function useEdgeState(
 
     // Creating an edge
     if (value === true) {
-      dispatch(
+      void dispatch(
         addEdge({
-          modelData: {
-            from: pair[0],
-            to: pair[1],
-            type: edgeType,
-          },
-        }) as unknown as AnyAction,
+          from: pair[0],
+          to: pair[1],
+          type: edgeType,
+        }),
       );
 
       const newStageMetadata = [
@@ -123,12 +124,12 @@ export default function useEdgeState(
         ) ?? []),
       ] as StageMetadataEntry[];
 
-      dispatch(updateStageMetadata(newStageMetadata) as unknown as AnyAction);
+      dispatch(updateStageMetadata(newStageMetadata));
     }
 
     if (value === false) {
       if (existingEdgeId) {
-        dispatch(deleteEdge(existingEdgeId) as unknown as AnyAction);
+        dispatch(deleteEdge(existingEdgeId));
       }
 
       // Construct new stage metadata from scratch
@@ -139,9 +140,7 @@ export default function useEdgeState(
         [promptIndex, ...pair, value],
       ] as StageMetadataEntry[];
 
-      const action = updateStageMetadata(
-        newStageMetadata,
-      ) as unknown as AnyAction;
+      const action = updateStageMetadata(newStageMetadata);
 
       dispatch(action);
     }
@@ -158,16 +157,14 @@ export default function useEdgeState(
         dispatch(action);
       } else {
         const action = addEdge({
-          modelData: {
-            from: pair[0],
-            to: pair[1],
-            type: edgeType,
-          },
+          from: pair[0],
+          to: pair[1],
+          type: edgeType,
           attributeData: {
             [edgeVariable!]: value,
           },
-        }) as unknown as AnyAction;
-        dispatch(action);
+        });
+        void dispatch(action);
       }
     }
   };

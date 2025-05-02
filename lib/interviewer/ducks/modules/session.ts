@@ -185,19 +185,14 @@ export const addEdge = createAsyncThunk(
   actionTypes.addEdge,
   (
     props: {
-      modelData: {
-        from: NcNode[EntityPrimaryKey];
-        to: NcNode[EntityPrimaryKey];
-        type: NcNode['type'];
-      };
+      from: NcNode[EntityPrimaryKey];
+      to: NcNode[EntityPrimaryKey];
+      type: NcNode['type'];
       attributeData?: Record<string, unknown>;
     },
     { getState },
   ) => {
-    const {
-      modelData: { type },
-      attributeData,
-    } = props;
+    const { from, to, type, attributeData } = props;
     const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
 
@@ -210,7 +205,9 @@ export const addEdge = createAsyncThunk(
 
     return {
       sessionMeta,
-      modelData: props.modelData,
+      from,
+      to,
+      type,
       attributeData: mergedAttributes,
     };
   },
@@ -241,30 +238,28 @@ export const toggleEdge = createAsyncThunk(
   actionTypes.toggleEdge,
   async (
     props: {
-      modelData: {
-        from: NcNode[EntityPrimaryKey];
-        to: NcNode[EntityPrimaryKey];
-        type: NcNode['type'];
-      };
+      from: NcNode[EntityPrimaryKey];
+      to: NcNode[EntityPrimaryKey];
+      type: NcNode['type'];
       attributeData?: Record<string, unknown>;
     },
     { getState, dispatch },
   ) => {
-    const { modelData, attributeData } = props;
+    const { from, to, type, attributeData } = props;
     const state = getState() as RootState;
 
     const existingEdge = edgeExists(
       state.session.network.edges,
-      modelData.from,
-      modelData.to,
-      modelData.type,
+      from,
+      to,
+      type,
     );
 
     if (existingEdge) {
       return dispatch(deleteEdge(existingEdge));
     }
 
-    return dispatch(addEdge({ modelData, attributeData }));
+    return dispatch(addEdge({ from, to, type, attributeData }));
   },
 );
 
@@ -476,7 +471,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
             node.promptIDs.forEach((id) => mergedPromptIDs.add(id));
           }
 
-          if ('promptId' in newModelData) {
+          if (newModelData && 'promptId' in newModelData) {
             const newId = newModelData.promptId as string;
             mergedPromptIDs.add(newId);
           }
@@ -497,14 +492,14 @@ const sessionReducer = createReducer(initialState, (builder) => {
 
   builder.addCase(addEdge.fulfilled, (state, action) => {
     const {
-      payload: { modelData, attributeData },
+      payload: { from, to, type, attributeData },
     } = action;
 
     const newEdge = {
       [entityPrimaryKeyProperty]: uuid(),
-      from: modelData.from,
-      to: modelData.to,
-      type: modelData.type,
+      from,
+      to,
+      type,
       [entityAttributesProperty]: attributeData,
     };
 

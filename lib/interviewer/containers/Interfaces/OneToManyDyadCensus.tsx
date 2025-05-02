@@ -4,10 +4,9 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { type UnknownAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import Node from '../../components/Node';
@@ -18,6 +17,7 @@ import {
   getNetworkEdges,
   getNetworkNodesForType,
 } from '../../selectors/session';
+import { useAppDispatch } from '../../store';
 import { type ProtocolSortRule } from '../../utils/createSorter';
 import { type StageProps } from '../Stage';
 
@@ -31,7 +31,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const { registerBeforeNext } = props;
   const [currentStep, setCurrentStep] = useState(0);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const {
     prompt: { createEdge, bucketSortOrder, binSortOrder },
@@ -109,14 +109,12 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   const handleNodeClick = (source: NcNode, target: NcNode) => () => {
     const edgeAction = toggleEdge({
-      modelData: {
-        from: source[entityPrimaryKeyProperty],
-        to: target[entityPrimaryKeyProperty],
-        type: createEdge,
-      },
-    }) as unknown as UnknownAction;
+      from: source[entityPrimaryKeyProperty],
+      to: target[entityPrimaryKeyProperty],
+      type: createEdge,
+    });
 
-    dispatch(edgeAction);
+    void dispatch(edgeAction);
   };
 
   const containerRef = useRef<HTMLDivElement>(null);
