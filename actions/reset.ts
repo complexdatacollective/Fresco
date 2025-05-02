@@ -11,9 +11,6 @@ import { prisma } from '~/utils/db';
 export const resetAppSettings = async () => {
   const isPlaywrightTest = headers().get('x-playwright-test') === 'true';
 
-  // eslint-disable-next-line no-console
-  console.log('🎭 Playwright test header🎭', isPlaywrightTest);
-
   if (env.NODE_ENV !== 'development') {
     await requireApiAuth();
   }
