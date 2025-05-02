@@ -133,8 +133,8 @@ type AddNodeArgs = {
 
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
-  async (stuff: AddNodeArgs, thunkApi) => {
-    const { type, attributeData, modelData } = stuff;
+  async (args: AddNodeArgs, thunkApi) => {
+    const { type, attributeData, modelData } = args;
     const state = thunkApi.getState() as RootState;
 
     const variablesForType = getCodebookVariablesForNodeType(type)(state);
@@ -147,8 +147,6 @@ export const addNode = createAsyncThunk(
     const sessionMeta = getSessionMeta(state);
 
     const useEncryption = getShouldEncryptNames(state);
-
-    console.log('useEncryption', useEncryption);
 
     if (!useEncryption) {
       return {

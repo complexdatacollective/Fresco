@@ -1,5 +1,8 @@
 import type { Protocol, Stage } from '@codaco/protocol-validation';
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import {
+  entityPrimaryKeyProperty,
+  type VariableValue,
+} from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -91,22 +94,26 @@ export default function GeospatialInterface({
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
   const updateNode = useCallback(
-    (
-      nodeId: string,
-      newModelData: Record<string, unknown>,
-      newAttributeData: Record<string, unknown>,
-    ) => dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
+    ({
+      nodeId,
+      newModelData,
+      newAttributeData,
+    }: {
+      nodeId: string;
+      newModelData: Record<string, unknown>;
+      newAttributeData: Record<string, VariableValue>;
+    }) =>
+      dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
     [dispatch],
   );
 
   const setLocationValue = (value: string | null) => {
-    updateNode(
-      stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
-      {},
-      {
+    updateNode({
+      nodeId: stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty],
+      newNodeAttributes: {
         [currentPrompt.variable!]: value,
       },
-    );
+    });
   };
 
   const initialSelectionValue: string | undefined =
