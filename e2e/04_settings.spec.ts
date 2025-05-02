@@ -10,6 +10,8 @@ test.describe('Settings page', () => {
     const anonymousRecruitmentSwitch = page.getByRole('switch').first();
     const limitInterviewsSwitch = page.getByRole('switch').nth(1);
     const disableAnalyticsSwitch = page.getByRole('switch').nth(2);
+    // eslint-disable-next-line no-console
+    console.log('CI:', process.env.CI);
     if (process.env.CI) {
       await expect(disableAnalyticsSwitch).not.toBeChecked();
     } else {
