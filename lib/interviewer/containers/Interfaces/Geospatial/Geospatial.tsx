@@ -241,7 +241,7 @@ export default function GeospatialInterface({
         exit="exit"
         key="introduction"
       >
-        <div className="max-w-3xl rounded-lg bg-[var(--nc-light-background)] p-8">
+        <div className="max-w-3xl rounded-lg bg-[var(--nc-panel-bg-muted)] p-8">
           <h1 className="text-center">{introductionPanel?.title}</h1>
           <Markdown label={introductionPanel?.text} />
         </div>

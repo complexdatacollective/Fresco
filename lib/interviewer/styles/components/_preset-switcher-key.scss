@@ -10,7 +10,7 @@
   color: var(--nc-text);
 
   &__content {
-    background-color: var(--nc-light-background);
+    background-color: var(--nc-panel-bg-muted);
     width: 100%;
     transition: opacity var(--animation-duration-fast) var(--animation-easing);
     opacity: 1;

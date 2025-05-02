@@ -11,7 +11,7 @@
   &__introduction {
     width: 100%;
     border-radius: var(--nc-border-radius);
-    background: var(--form-intro-panel-background);
+    background: var(--nc-panel-bg-muted);
     padding: units.unit(2) units.unit(4);
     flex-direction: column;
     margin-bottom: units.unit(4);
