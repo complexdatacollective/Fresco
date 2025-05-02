@@ -1,4 +1,9 @@
 import {
+  type EntityPrimaryKey,
+  entityPrimaryKeyProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
+import {
   createSelectorCreator,
   lruMemoize as defaultMemoize,
 } from '@reduxjs/toolkit';
@@ -33,3 +38,7 @@ export function calculateProgress(
 
   return percentProgress;
 }
+
+export const notInSet =
+  (set: Set<NcNode[EntityPrimaryKey]>) => (node: NcNode) =>
+    !set.has(node[entityPrimaryKeyProperty]);

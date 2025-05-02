@@ -130,8 +130,6 @@ export async function insertProtocol(
   try {
     const protocolHash = hash(protocol);
 
-    console.log('inserting protocol', protocol.experiments);
-
     await prisma.protocol.create({
       data: {
         hash: protocolHash,

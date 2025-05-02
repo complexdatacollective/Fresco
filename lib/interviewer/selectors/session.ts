@@ -11,7 +11,7 @@ import {
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection } from 'es-toolkit';
-import { filter, findKey, includes } from 'es-toolkit/compat';
+import { filter, findKey, includes, invariant } from 'es-toolkit/compat';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
@@ -37,12 +37,9 @@ export const getCurrentStage = createSelector(
   getStages,
   getStageIndex,
   (stages, currentStep) => {
-    if (currentStep === null) return null;
     const result = stages[currentStep];
 
-    if (!result) {
-      return null;
-    }
+    invariant(result, 'getCurrentStage: No stage found');
 
     return result;
   },
@@ -65,17 +62,12 @@ export const getSubjectType = createSelector(getStageSubject, (subject) => {
     return null;
   }
 
-  if (subject.entity === 'ego') {
-    return null;
-  }
-
   return subject.type;
 });
 
 export const getCurrentStageId = createSelector(
   getCurrentStage,
   (currentStage) => {
-    if (!currentStage) return null;
     return currentStage.id;
   },
 );

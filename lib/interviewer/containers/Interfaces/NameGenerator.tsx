@@ -1,8 +1,4 @@
-import {
-  type Form,
-  type Stage,
-  type StageSubject,
-} from '@codaco/protocol-validation';
+import { type Form, type Stage } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
   entityAttributesProperty,
@@ -13,7 +9,7 @@ import {
 import { get, has } from 'es-toolkit/compat';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -74,11 +70,6 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const { behaviours, type } = stage;
 
-  const subject = stage.subject as Extract<
-    StageSubject,
-    { entity: 'node' | 'edge' }
-  >; // TODO: shouldn't need node | edge
-
   let quickAdd: string | null = null;
   let form: Form | null = null;
 
@@ -92,7 +83,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const interfaceRef = useRef(null);
 
-  const { prompt, isLastPrompt, promptIndex } = usePrompts();
+  const { isLastPrompt, promptIndex } = usePrompts();
   const { requirePassphrase, passphrase } = usePassphrase();
 
   const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
@@ -102,19 +93,15 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const maxNodes = maxNodesWithDefault(behaviours?.maxNodes) as number;
 
   const stageNodeCount = usePropSelector(getStageNodeCount, props); // 1
-  const newNodeAttributes = usePropSelector(getAdditionalAttributesSelector, {
-    prompt,
-    ...props,
-  }); // 2
+  const newNodeAttributes = useSelector(getAdditionalAttributesSelector); // 2
 
   const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props); // 4
   const nodeIconName = useSelector(getNodeIconName);
-  const nodeType = useSelector(getNodeTypeLabel(subject.type));
-  const nodeColor = useSelector(getNodeColor(subject.type));
+  const nodeType = useSelector(getNodeTypeLabel(stage.subject.type));
+  const nodeColor = useSelector(getNodeColor(stage.subject.type));
 
   const useEncryption = useSelector(getShouldEncryptNames);
 
-  const dispatch = useDispatch();
   const appDispatch = useAppDispatch();
 
   useEffect(() => {
@@ -127,11 +114,11 @@ const NameGenerator = (props: NameGeneratorProps) => {
     (attributes: NcNode[EntityAttributesProperty]) =>
       appDispatch(
         addNodeAction({
-          type: subject.type,
+          type: stage.subject.type,
           attributeData: attributes,
         }),
       ),
-    [appDispatch, subject],
+    [appDispatch, stage.subject],
   );
 
   const updateNode = useCallback(
@@ -139,8 +126,8 @@ const NameGenerator = (props: NameGeneratorProps) => {
       nodeId: NcNode[EntityPrimaryKey];
       newModelData?: Record<string, unknown>;
       newAttributeData: NcNode[EntityAttributesProperty];
-    }) => dispatch(updateNodeAction(payload)),
-    [dispatch],
+    }) => appDispatch(updateNodeAction(payload)),
+    [appDispatch],
   );
 
   const addNodeToPrompt = useCallback(
@@ -159,9 +146,9 @@ const NameGenerator = (props: NameGeneratorProps) => {
 
   const deleteNode = useCallback(
     (uid: NcNode[EntityPrimaryKey]) => {
-      dispatch(deleteNodeAction(uid));
+      appDispatch(deleteNodeAction(uid));
     },
-    [dispatch],
+    [appDispatch],
   );
 
   const maxNodesReached = stageNodeCount >= maxNodes;
@@ -210,20 +197,15 @@ const NameGenerator = (props: NameGeneratorProps) => {
       </div>
       <div className="name-generator-interface__main">
         <div className="name-generator-interface__panels">
-          <NodePanels
-            stage={stage}
-            prompt={prompt}
-            disableAddNew={maxNodesReached}
-          />
+          <NodePanels disableAddNew={maxNodesReached} />
         </div>
         <div className="name-generator-interface__nodes">
           <NodeList
             items={nodesForPrompt}
-            stage={stage}
             listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
             id="MAIN_NODE_LIST"
-            accepts={({ meta }: { meta: NcNode }) =>
-              get(meta, 'itemType', null) === 'EXISTING_NODE'
+            accepts={({ meta }: { meta: { itemType: string | null } }) =>
+              get(meta, 'itemType', null) === 'NEW_NODE'
             }
             itemType="EXISTING_NODE"
             onDrop={handleDropNode}
@@ -268,7 +250,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
       )}
       {!form && (
         <QuickNodeForm
-          disabled={maxNodesReached}
+          disabled={maxNodesReached || (useEncryption && !passphrase)}
           icon={nodeIconName}
           nodeColor={nodeColor}
           nodeType={nodeType}

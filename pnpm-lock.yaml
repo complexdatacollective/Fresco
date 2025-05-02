@@ -15,8 +15,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.85.1))
       '@codaco/protocol-validation':
-        specifier: 4.0.0-alpha.6
-        version: 4.0.0-alpha.6
+        specifier: 4.0.0-alpha.8
+        version: 4.0.0-alpha.8
       '@codaco/shared-consts':
         specifier: 1.0.0-alpha.3
         version: 1.0.0-alpha.3
@@ -315,6 +315,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
+      '@types/recompose':
+        specifier: ^0.30.15
+        version: 0.30.15
       '@types/redux-form':
         specifier: ^8.3.11
         version: 8.3.11
@@ -656,8 +659,8 @@ packages:
     peerDependencies:
       next: 13 || 14 || 15
 
-  '@codaco/protocol-validation@4.0.0-alpha.6':
-    resolution: {integrity: sha512-To3BbXB5e7wtS9iKCAIM0AKf4AfCDNAK5mkJpjWKG1C6E4eDOJpMd5s5qhW7MPhCBehH3P2BiSy0r80gptonUg==}
+  '@codaco/protocol-validation@4.0.0-alpha.8':
+    resolution: {integrity: sha512-LfmsjFAwHFCK79UQ5vvDnmTTO86CtEtEwJitJxEQ8ERffoA6K52T4KQ9+8BNfdiKK0PHnWwi3sfLiJZSKTiHwQ==}
     hasBin: true
 
   '@codaco/shared-consts@1.0.0-alpha.3':
@@ -2348,6 +2351,9 @@ packages:
 
   '@types/readdir-glob@1.1.5':
     resolution: {integrity: sha512-raiuEPUYqXu+nvtY2Pe8s8FEmZ3x5yAH4VkLdihcPdalvsHltomrRC9BzuStrJ9yk06470hS0Crw0f1pXqD+Hg==}
+
+  '@types/recompose@0.30.15':
+    resolution: {integrity: sha512-glX9JbRTG4WSaWxDrsHlinoRC1YRb0vNr+ocPBgBTJgMawkYx8fqwuduahzy25XBSc3xfG/k9b5XPyW6FuHVkw==}
 
   '@types/redux-form@8.3.11':
     resolution: {integrity: sha512-aHZgvDt9rg6C/8IHVgooCABxrWzQxJlVP47b6draiMLXKfWbyhYOVf8AV8+UPujRTnVxp1mWb57kL+r/Rl3wNQ==}
@@ -6308,7 +6314,7 @@ snapshots:
       next: 14.2.23(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.85.1)
       zod: 3.24.2
 
-  '@codaco/protocol-validation@4.0.0-alpha.6':
+  '@codaco/protocol-validation@4.0.0-alpha.8':
     dependencies:
       ajv: 8.17.1
       zod: 3.24.2
@@ -7830,6 +7836,11 @@ snapshots:
   '@types/readdir-glob@1.1.5':
     dependencies:
       '@types/node': 22.13.9
+
+  '@types/recompose@0.30.15':
+    dependencies:
+      '@types/prop-types': 15.7.14
+      '@types/react': 18.3.18
 
   '@types/redux-form@8.3.11':
     dependencies:

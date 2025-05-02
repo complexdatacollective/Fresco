@@ -28,8 +28,8 @@ const protocolSlice = createSlice({
     },
     getCodebook: (state) => state.codebook,
     getStages: createSelector(
-      [(state: ProtocolState) => state.stages, () => DefaultFinishStage],
-      (stages, finishStage) => [...(stages ?? []), finishStage] as Stage[],
+      [(state: ProtocolState) => state.stages],
+      (stages) => [...(stages ?? []), DefaultFinishStage] as Stage[],
     ),
     getAssetManifest: createSelector(
       [(state: ProtocolState) => state.assets],

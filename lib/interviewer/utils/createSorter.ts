@@ -86,7 +86,7 @@ const stringFunction =
 
 const categoricalFunction =
   ({ property, direction, hierarchy = [] }: ProcessedSortRule) =>
-  (a: Item, b: Item) => {
+  (a: Item, b: Item): number => {
     // hierarchy is whatever order the variables were specified in the variable definition
     const firstValues = get(a, property, []) as (string | number | boolean)[];
     const secondValues = get(b, property, []) as (string | number | boolean)[];
@@ -131,6 +131,8 @@ const categoricalFunction =
       }
       return secondIndex - firstIndex; // desc
     }
+
+    return 0;
   };
 
 /**
@@ -410,7 +412,7 @@ export const processProtocolSortRule =
   };
 
 export type ProcessedSortRule = {
-  property: string;
+  property: string | string[];
   direction?: 'asc' | 'desc';
   type:
     | 'string'

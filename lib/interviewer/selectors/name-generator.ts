@@ -1,30 +1,25 @@
-import { type Stage } from '@codaco/protocol-validation';
-import { type NcNetwork } from '@codaco/shared-consts';
+import { type Panel, type Stage } from '@codaco/protocol-validation';
+import {
+  entityPrimaryKeyProperty,
+  type NcNetwork,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { has, invariant } from 'es-toolkit/compat';
+import customFilter from '~/lib/network-query/filter';
 import { getCodebook } from '../ducks/modules/protocol';
 import {
+  getCurrentStage,
+  getNetworkEdges,
+  getNetworkEgo,
+  getNetworkNodesForOtherPrompts,
+  getNetworkNodesForPrompt,
   getPromptId,
   getStageIndex,
   getStageSubject,
   getSubjectType,
 } from './session';
-
-// Selectors that are specific to the name generator
-
-/*
-These selectors assume the following props:
-  stage: which contains the protocol config for the stage
-  prompt: which contains the protocol config for the prompt
-*/
-
-const defaultPanelConfiguration = {
-  title: '',
-  dataSource: 'existing',
-  filter: (network: NcNetwork) => network,
-};
-
-// MemoedSelectors
+import { notInSet } from './utils';
 
 const stageCardOptions = (
   _: unknown,
@@ -32,13 +27,6 @@ const stageCardOptions = (
     stage: Extract<Stage, { type: 'NameGeneratorRoster' }>;
   },
 ) => props.stage.cardOptions;
-
-const propPanels = (
-  _: unknown,
-  props: {
-    stage: Extract<Stage, { type: 'NameGenerator' }>;
-  },
-) => props.stage.panels;
 
 const getIDs = createSelector(
   getStageIndex,
@@ -90,9 +78,66 @@ export const getNodeIconName = createSelector(
   },
 );
 
-export const makeGetPanelConfiguration = () =>
-  createSelector(propPanels, (panels) =>
-    panels
-      ? panels.map((panel) => ({ ...defaultPanelConfiguration, ...panel }))
-      : [],
+export const getPanelConfiguration = createSelector(
+  getCurrentStage,
+  (stage) => {
+    invariant(stage, 'Stage is required');
+    const stageWithPanels = stage as Extract<
+      Stage,
+      { type: 'NameGenerator' | 'NameGeneratorQuickAdd' }
+    >;
+
+    const panels = stageWithPanels.panels ?? ([] as Panel[]);
+
+    return panels;
+  },
+);
+
+export const makeGetPanelConfiguration = () => getPanelConfiguration;
+
+export const getPanelNodes = (
+  panelConfig: Panel,
+  externalData: NcNode[] | null,
+) =>
+  createSelector(
+    getNetworkNodesForPrompt,
+    getNetworkNodesForOtherPrompts,
+    getNetworkEdges,
+    getNetworkEgo,
+    (nodesForPrompt, nodesForOtherPrompts, networkEdges, networkEgo) => {
+      const nodeIds = {
+        prompt: nodesForPrompt.map((node) => node[entityPrimaryKeyProperty]),
+        other: nodesForOtherPrompts.map(
+          (node) => node[entityPrimaryKeyProperty],
+        ),
+      };
+
+      let nodes: NcNode[] = [];
+
+      // For current network nodes, we filter out any nodes that are already in the prompt
+      if (panelConfig.dataSource === 'existing') {
+        nodes = nodesForOtherPrompts.filter(notInSet(new Set(nodeIds.prompt)));
+      } else {
+        // For external data nodes, we filter out any nodes that are already in the prompt
+        nodes =
+          externalData?.filter(
+            notInSet(new Set([...nodeIds.prompt, ...nodeIds.other])),
+          ) ?? ([] as NcNode[]);
+      }
+
+      if (!panelConfig.filter) {
+        return nodes;
+      }
+
+      // If a filter is provided, we apply it to the nodes
+      const filterFunction = customFilter(panelConfig.filter);
+
+      const filteredNetwork = filterFunction({
+        nodes,
+        edges: panelConfig.dataSource === 'existing' ? networkEdges : [],
+        ego: panelConfig.dataSource === 'existing' ? networkEgo : undefined,
+      }) as NcNetwork;
+
+      return filteredNetwork.nodes;
+    },
   );

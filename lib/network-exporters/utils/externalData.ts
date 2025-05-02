@@ -2,13 +2,15 @@ import {
   VariableTypes,
   type Codebook,
   type StageSubject,
+  type VariableType,
 } from '@codaco/protocol-validation';
-import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  type EntityAttributesProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { get, includes, toNumber } from 'es-toolkit/compat';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
-
-// TODO: move to protocol validation
-type VariableType = (typeof VariableTypes)[keyof typeof VariableTypes];
 
 /**
  * Try to determine the type of an attribute based on data across all nodes
@@ -67,45 +69,54 @@ const getAttributeTypes = (
   nodeList: NcNode[],
   protocolCodebook: Codebook,
   stageSubject: StageSubject,
-) =>
-  uniqueAttributeKeys.reduce((derivedTypes, attributeKey) => {
-    const codebookDefinition = getCodebookDefinition(
-      protocolCodebook,
-      stageSubject,
-    );
+): Record<string, VariableType> => {
+  return uniqueAttributeKeys.reduce(
+    (acc, attributeKey) => {
+      const codebookDefinition = getCodebookDefinition(
+        protocolCodebook,
+        stageSubject,
+      )!;
+      const codebookType = codebookDefinition.variables?.[attributeKey]?.type;
 
-    let codebookType = get(
-      codebookDefinition,
-      `variables[${attributeKey}].type`,
-    ) as VariableType | undefined;
+      if (codebookType && includes(VariableTypes, codebookType)) {
+        return {
+          ...acc,
+          [attributeKey]: codebookType,
+        };
+      }
 
-    if (includes(VariableTypes, codebookType)) {
-      return { ...derivedTypes, [attributeKey]: codebookType };
-    }
-
-    // possible categorical or layout variable
-    if (attributeKey.includes('_')) {
-      const uuid = attributeKey.substring(0, attributeKey.indexOf('_'));
-      const option = attributeKey.substring(attributeKey.indexOf('_'));
-      codebookType = get(codebookDefinition, `variables[${uuid}].type`);
-      if (includes(VariableTypes, codebookType)) {
-        if (option === '_x' || option === '_y') {
+      // Handle possible categorical or layout variables
+      if (attributeKey.includes('_')) {
+        const uuid = attributeKey.substring(0, attributeKey.indexOf('_'));
+        const option = attributeKey.substring(attributeKey.indexOf('_'));
+        const codebookType = codebookDefinition.variables?.[uuid]?.type;
+        if (codebookType && includes(VariableTypes, codebookType)) {
+          if (option === '_x' || option === '_y') {
+            return {
+              ...acc,
+              [attributeKey]: `${codebookType}${option}` as VariableType,
+            };
+          }
           return {
-            ...derivedTypes,
-            [attributeKey]: `${codebookType}${option}`,
+            ...acc,
+            [attributeKey]: `${codebookType}_option` as VariableType,
           };
         }
-        return { ...derivedTypes, [attributeKey]: `${codebookType}_option` };
       }
-    }
 
-    // use type based on column data because the codebook type wasn't valid
-    codebookType = deriveAttributeTypeFromData(
-      attributeKey,
-      nodeList,
-    ) as VariableType;
-    return { ...derivedTypes, [attributeKey]: codebookType };
-  }, {});
+      const derivedType = deriveAttributeTypeFromData(
+        attributeKey,
+        nodeList,
+      ) as VariableType;
+
+      return {
+        ...acc,
+        [attributeKey]: derivedType,
+      };
+    },
+    {} as Record<string, VariableType>,
+  );
+};
 
 const getCodebookDefinition = (
   protocolCodebook: Codebook,
@@ -113,11 +124,11 @@ const getCodebookDefinition = (
 ) => {
   const entityType = stageSubject.entity;
   if (entityType === 'ego') {
-    return protocolCodebook[entityType] ?? {};
+    return protocolCodebook.ego;
   }
 
   const stageNodeType = stageSubject.type;
-  return protocolCodebook[entityType]?.[stageNodeType] ?? {};
+  return protocolCodebook[entityType]?.[stageNodeType];
 };
 
 // compile list of attributes from a nodelist that aren't already in the codebook
@@ -152,7 +163,9 @@ const getNodeListUsingTypes = (
       protocolCodebook,
       stageSubject,
     );
-    const attributes = Object.entries(node.attributes).reduce(
+    const attributes: NcNode[EntityAttributesProperty] = Object.entries(
+      node.attributes,
+    ).reduce<NcNode[EntityAttributesProperty]>(
       (consolidatedAttributes, [attributeKey, attributeValue]) => {
         if (
           attributeValue === null ||
@@ -162,11 +175,10 @@ const getNodeListUsingTypes = (
           return consolidatedAttributes;
         }
 
-        let codebookType: string | undefined =
-          codebookDefinition?.variables?.[attributeKey]?.type;
+        let codebookType = codebookDefinition?.variables?.[attributeKey]?.type;
 
         if (!Object.values(VariableTypes).includes(codebookType!)) {
-          codebookType = derivedAttributeTypes[attributeKey];
+          codebookType = derivedAttributeTypes[attributeKey] as VariableType;
         }
 
         switch (codebookType) {
@@ -234,16 +246,20 @@ const getNodeListUsingTypes = (
                 attributeKey.indexOf('_') + 1,
               );
               const previousOptions =
-                (consolidatedAttributes[uuid] as string[]) || [];
+                (consolidatedAttributes[uuid] as (string | number)[]) || [];
               try {
+                const parsedOption = JSON.parse(option);
                 return {
                   ...consolidatedAttributes,
-                  [uuid]: [...previousOptions, JSON.parse(option)],
+                  [uuid]: [...previousOptions, parsedOption] as (
+                    | string
+                    | number
+                  )[],
                 };
               } catch (e) {
                 return {
                   ...consolidatedAttributes,
-                  [uuid]: [...previousOptions, option],
+                  [uuid]: [...previousOptions, option] as (string | number)[],
                 };
               }
             }
@@ -258,7 +274,7 @@ const getNodeListUsingTypes = (
             };
         }
       },
-      {} as Record<string, unknown>,
+      {} as NcNode[EntityAttributesProperty],
     );
 
     return {

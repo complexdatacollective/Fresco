@@ -18,8 +18,6 @@ const InterviewShell = (props: {
     props.rawPayload,
   );
 
-  console.log('🚀 InterviewShell decoded payload:', decodedPayload);
-
   return (
     <Provider store={store(decodedPayload)}>
       <ServerSync />

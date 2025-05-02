@@ -20,6 +20,7 @@ import { find, get, invariant } from 'es-toolkit/compat';
 import { v4 as uuid, v4 } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
+import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
 import { type RootState } from '../../store';
@@ -227,7 +228,7 @@ export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
 
 export const updateNode = createAction<{
   nodeId: NcNode[EntityPrimaryKey];
-  newModelData: Record<string, unknown>;
+  newModelData?: Record<string, unknown>;
   newAttributeData: NcNode[EntityAttributesProperty];
 }>(actionTypes.updateNode);
 
@@ -301,11 +302,21 @@ export const toggleNodeAttributes = createAction<{
   attributes: Record<string, unknown>;
 }>(actionTypes.toggleNodeAttributes);
 
-export const removeNodeFromPrompt = createAction<{
-  nodeId: EntityPrimaryKey;
-  promptId: string;
-  promptAttributes: Record<string, unknown>;
-}>(actionTypes.removeNodeFromPrompt);
+export const removeNodeFromPrompt = createAsyncThunk(
+  actionTypes.removeNodeFromPrompt,
+  async (nodeId: NcNode[EntityPrimaryKey], { getState }) => {
+    const state = getState() as RootState;
+    const promptId = getPromptId(state);
+    invariant(promptId, 'Prompt ID is required to remove a node from a prompt');
+    const promptAttributes = getAdditionalAttributesSelector(state);
+
+    return {
+      nodeId,
+      promptId,
+      promptAttributes,
+    };
+  },
+);
 
 export const updateEdge = createAction<{
   edgeId: NcEntity[EntityPrimaryKey];
@@ -372,6 +383,41 @@ const sessionReducer = createReducer(initialState, (builder) => {
             [entityAttributesProperty]: {
               ...node[entityAttributesProperty],
               ...promptAttributes,
+            },
+          };
+        }),
+      },
+    });
+  });
+
+  builder.addCase(removeNodeFromPrompt.fulfilled, (state, action) => {
+    const { nodeId, promptId, promptAttributes } = action.payload;
+    const { network } = state;
+    const { nodes } = network;
+
+    const toggledPromptAttributes = Object.keys(promptAttributes).reduce(
+      (attributes, attrKey) => ({
+        ...attributes,
+        [attrKey]: !promptAttributes[attrKey],
+      }),
+      {} as Record<string, boolean>,
+    );
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        nodes: nodes.map((node) => {
+          if (node[entityPrimaryKeyProperty] !== nodeId) {
+            return node;
+          }
+
+          return {
+            ...node,
+            promptIDs: node.promptIDs?.filter((id) => id !== promptId),
+            [entityAttributesProperty]: {
+              ...node[entityAttributesProperty],
+              ...toggledPromptAttributes,
             },
           };
         }),
