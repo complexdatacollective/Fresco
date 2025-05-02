@@ -73,6 +73,15 @@ test('create test database and setup app', async ({
     // go to /settings
     await page.goto('/dashboard/settings');
     // click "reset all app data" button
+    await page.route('/dashboard/settings', async (route, request) => {
+      await route.continue({
+        headers: {
+          ...request.headers(),
+          'x-playwright-test': 'true',
+        },
+      });
+    });
+
     await page.getByTestId('reset-app-button').click();
     await page.getByTestId('confirm-reset-app-button').click();
     await expect(page).toHaveURL(/\/setup/);

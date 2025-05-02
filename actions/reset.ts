@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 import { env } from 'process';
 import { safeRevalidateTag } from '~/lib/cache';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
@@ -8,6 +9,11 @@ import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 export const resetAppSettings = async () => {
+  const isPlaywrightTest = headers().get('x-playwright-test') === 'true';
+
+  // eslint-disable-next-line no-console
+  console.log('🎭 Playwright test header🎭', isPlaywrightTest);
+
   if (env.NODE_ENV !== 'development') {
     await requireApiAuth();
   }
@@ -43,7 +49,7 @@ export const resetAppSettings = async () => {
 
     // Remove all files from UploadThing:
 
-    if (!env.CI) {
+    if (!isPlaywrightTest) {
       await utapi.listFiles({}).then(({ files }) => {
         const keys = files.map((file) => file.key);
         return utapi.deleteFiles(keys);
