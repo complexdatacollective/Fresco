@@ -75,12 +75,12 @@ const StageMetadataEntrySchema = z.tuple([
 ]);
 
 export const StageMetadataSchema = z.record(
-  z.number(),
+  z.string(),
   z.array(StageMetadataEntrySchema),
 );
 
-export type StageMetadataEntry = [number, string, string, boolean];
-export type StageMetadata = Record<number, StageMetadataEntry[]>;
+export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
+export type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
 export type SessionState = {
   id: string;

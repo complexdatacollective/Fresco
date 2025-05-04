@@ -2,6 +2,7 @@
 
 import { Provider } from 'react-redux';
 import SuperJSON from 'superjson';
+import { syncInterview } from '~/actions/interviews';
 import DialogManager from '~/lib/interviewer/components/DialogManager';
 import ProtocolScreen from '~/lib/interviewer/containers/ProtocolScreen';
 import { store } from '~/lib/interviewer/store';
@@ -20,7 +21,7 @@ const InterviewShell = (props: {
 
   return (
     <Provider store={store(decodedPayload)}>
-      <ServerSync />
+      <ServerSync syncInterview={syncInterview} />
       <ProtocolScreen />
       <DialogManager />
     </Provider>

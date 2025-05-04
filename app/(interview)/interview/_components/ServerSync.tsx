@@ -7,15 +7,19 @@ import { omit } from 'es-toolkit/compat';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { SyncInterview } from '~/actions/interviews';
 import { useToast } from '~/components/ui/use-toast';
 import usePrevious from '~/hooks/usePrevious';
-import { type StageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import {
+  StageMetadataSchema,
+  type StageMetadata,
+} from '~/lib/interviewer/ducks/modules/session';
 import { getActiveSession } from '~/lib/interviewer/selectors/session';
 import { ensureError } from '~/utils/ensureError';
 
 // The job of ServerSync is to listen to actions in the redux store, and to sync
 // data with the server.
-const ServerSync = () => {
+const ServerSync = ({ syncInterview }: { syncInterview: SyncInterview }) => {
   const [initialized, setInitialized] = useState(false);
   const params = useParams<{ interviewId: string }>();
   const currentSession = useSelector(getActiveSession);
@@ -33,18 +37,12 @@ const ServerSync = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`/interview/${params.interviewId}/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      console.log('d', data.stageMetadata);
+      StageMetadataSchema.optional().parse(data.stageMetadata);
+      const result = await syncInterview(params.interviewId, data);
 
-      if (!response.ok) {
-        // Try to get error message from response
-        const errorData = await response.json();
-        console.log(errorData);
+      if (result.error) {
+        console.log(result.message);
 
         toast({
           title: 'Sync Error',

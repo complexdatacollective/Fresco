@@ -28,13 +28,19 @@ const getStageMetadataResponse = (
   promptIndex: number,
   pair: Pair,
 ) => {
-  // If the state is not an array or the pair is not a pair, return null
+  // If the state is not an array or the pair is not a pair, return false
   if (!Array.isArray(state) || pair.length !== 2) {
-    return false;
+    return {
+      exists: false,
+      value: undefined,
+    };
   }
 
   const answer = state.find(matchEntry(promptIndex, pair));
-  return answer ? answer[3] : false;
+  return {
+    exists: !!answer,
+    value: !!answer ? answer[3] : undefined,
+  };
 };
 
 type Pair = [string, string];
@@ -60,6 +66,7 @@ export default function useEdgeState(
 
   const existingEdgeId =
     (pair && edgeExists(edges, pair[0], pair[1], edgeType)) ?? false;
+
   const getEdgeVariableValue = () => {
     if (!edgeVariable) {
       return undefined;
@@ -77,18 +84,25 @@ export default function useEdgeState(
       return false;
     }
 
-    const edgeExistsInMetadata = getStageMetadataResponse(
+    const { exists: edgeExistsInMetadata, value } = getStageMetadataResponse(
       stageMetadata,
       promptIndex,
       pair,
     );
+
+    console.log('hasEdge()', {
+      stageMetadata,
+      promptIndex,
+      edgeExistsInMetadata,
+      existingEdgeId,
+    });
 
     // If the edge exists in the network, return true
     if (existingEdgeId) {
       return true;
     }
 
-    if (edgeExistsInMetadata === null) {
+    if (!edgeExistsInMetadata) {
       return null;
     }
 
@@ -101,6 +115,7 @@ export default function useEdgeState(
   //
   // Fucking stupid design.
   const setEdge = (value: boolean | string | number) => {
+    console.log('setting edge', value);
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
 
@@ -124,7 +139,11 @@ export default function useEdgeState(
         ) ?? []),
       ] as StageMetadataEntry[];
 
+      console.log(newStageMetadata);
+
       dispatch(updateStageMetadata(newStageMetadata));
+
+      return;
     }
 
     if (value === false) {
@@ -140,9 +159,13 @@ export default function useEdgeState(
         [promptIndex, ...pair, value],
       ] as StageMetadataEntry[];
 
+      console.log(newStageMetadata);
+
       const action = updateStageMetadata(newStageMetadata);
 
       dispatch(action);
+
+      return;
     }
 
     if (typeof value === 'string' || typeof value === 'number') {
