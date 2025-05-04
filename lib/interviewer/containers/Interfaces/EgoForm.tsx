@@ -51,8 +51,6 @@ const EgoForm = (props: EgoFormProps) => {
 
   const { form, introductionPanel } = stage;
 
-  console.log(form);
-
   const dispatch = useAppDispatch();
   const openDialog = useCallback(
     (dialog: Omit<Dialog, 'id'>) => dispatch(openDialogAction(dialog)),
