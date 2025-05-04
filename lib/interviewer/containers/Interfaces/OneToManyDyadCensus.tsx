@@ -5,7 +5,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -28,7 +28,13 @@ type OneToManyDyadCensusProps = StageProps & {
 };
 
 function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
-  const { registerBeforeNext } = props;
+  const {
+    registerBeforeNext,
+    stage: {
+      behaviours: { removeAfterConsideration },
+    },
+  } = props;
+
   const [currentStep, setCurrentStep] = useState(0);
 
   const dispatch = useAppDispatch();
@@ -57,6 +63,14 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   const source = sortedSource[currentStep];
 
+  // Takes into account removeAfterConsideration
+  const numberOfSteps = useMemo(() => {
+    if (removeAfterConsideration) {
+      return nodes.length - currentStep + 1;
+    }
+    return nodes.length - 1;
+  }, [nodes.length, removeAfterConsideration, currentStep]);
+
   /**
    * Hijack stage navigation:
    * - If we are moving forward and not on the last step, increment the step
@@ -64,15 +78,14 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
    * - If we are moving backward, decrement the step until we reach 0
    * - If we are moving backward and on step 0, allow navigation
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  registerBeforeNext(async (direction) => {
+  registerBeforeNext((direction) => {
     // disable overflow
     if (containerRef.current) {
       containerRef.current.style.overflowY = 'visible';
     }
 
     if (direction === 'forwards') {
-      if (currentStep < nodes.length - 1) {
+      if (currentStep <= numberOfSteps) {
         setCurrentStep((prev) => prev + 1);
         setTimeout(() => {
           if (containerRef.current) {
@@ -162,7 +175,16 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
             }}
           >
             {source &&
-              sortedTargets.map((node) => {
+              sortedTargets.map((node, index) => {
+                /**
+                 * Remove after consideration behaviour:
+                 * Once a node has been 'considered' (has been the source), it should be
+                 * filtered out of the nodes list. We can calculate this by removing nodes
+                 * from the start of the nodes array based on the current step.
+                 */
+                if (removeAfterConsideration && index < currentStep) {
+                  return null;
+                }
                 const selected = !!edgeExists(
                   edges,
                   node[entityPrimaryKeyProperty],

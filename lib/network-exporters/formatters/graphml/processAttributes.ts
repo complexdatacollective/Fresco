@@ -41,46 +41,72 @@ function processAttributes(
 
     const codebookEntry = variables?.[key];
 
-    if (codebookEntry?.type === 'categorical') {
-      const options = codebookEntry.options;
-
-      options.forEach((option) => {
-        const hashedOptionValue = sha1(String(option.value));
-        const optionKey = `${key}_${hashedOptionValue}`;
-
-        const attributeValue = entityAttributes[key] as string[] | number[]; // type narrowed to this because these are valid categorical variable values
-        createDomDataElement(optionKey, String(attributeValue));
-      });
-
+    // If there's no codebook entry for type, treat it as a string
+    // TODO: try to detect the type from the value.
+    if (!codebookEntry) {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      createDomDataElement(key, String(value));
       return;
     }
 
-    if (codebookEntry?.type === 'layout') {
-      const { x: xCoord, y: yCoord } = entityAttributes[key] as {
-        x: number;
-        y: number;
-      };
+    if (codebookEntry.encrypted) {
+      // If the variable is encrypted, we don't want to export it.
+      createDomDataElement(key, 'ENCRYPTED');
+      return;
+    }
 
-      createDomDataElement(`${key}_X`, String(xCoord));
-      createDomDataElement(`${key}_Y`, String(yCoord));
+    switch (codebookEntry.type) {
+      case 'categorical': {
+        const options = codebookEntry.options;
 
-      if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
-        const { screenLayoutWidth, screenLayoutHeight } =
-          exportOptions.globalOptions;
-        const screenSpaceXCoord = (xCoord * screenLayoutWidth).toFixed(2);
-        const screenSpaceYCoord = ((1.0 - yCoord) * screenLayoutHeight).toFixed(
-          2,
-        );
+        options.forEach((option) => {
+          const hashedOptionValue = sha1(String(option.value));
+          const optionKey = `${key}_${hashedOptionValue}`;
 
-        createDomDataElement(`${key}_screenSpaceX`, screenSpaceXCoord);
-        createDomDataElement(`${key}_screenSpaceY`, screenSpaceYCoord);
+          const attributeValue = entityAttributes[key] as string[] | number[]; // type narrowed to this because these are valid categorical variable values
+          createDomDataElement(optionKey, String(attributeValue));
+        });
+
+        break;
+      }
+      case 'layout': {
+        const { x: xCoord, y: yCoord } = entityAttributes[key] as {
+          x: number;
+          y: number;
+        };
+
+        createDomDataElement(`${key}_X`, String(xCoord));
+        createDomDataElement(`${key}_Y`, String(yCoord));
+
+        if (exportOptions.globalOptions.useScreenLayoutCoordinates) {
+          const { screenLayoutWidth, screenLayoutHeight } =
+            exportOptions.globalOptions;
+          const screenSpaceXCoord = (xCoord * screenLayoutWidth).toFixed(2);
+          const screenSpaceYCoord = (
+            (1.0 - yCoord) *
+            screenLayoutHeight
+          ).toFixed(2);
+
+          createDomDataElement(`${key}_screenSpaceX`, screenSpaceXCoord);
+          createDomDataElement(`${key}_screenSpaceY`, screenSpaceYCoord);
+        }
+        break;
       }
 
-      return;
+      case 'boolean':
+      case 'number':
+      case 'text':
+      case 'datetime':
+      case 'location':
+      case 'ordinal':
+      case 'scalar': {
+        const rawValue = value as string | number | boolean | unknown[];
+        // Cooerce value to string
+        const coercedValue = String(rawValue);
+        createDomDataElement(key, coercedValue);
+        break;
+      }
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    createDomDataElement(key, String(entityAttributes[key]));
   });
 
   return fragment;

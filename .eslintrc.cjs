@@ -32,6 +32,7 @@ const config = {
     '.eslintrc.cjs',
   ],
   rules: {
+    "@typescript-eslint/switch-exhaustiveness-check": "error",
     '@next/next/no-img-element': 'off',
     'import/no-cycle': 'error',
     'import/no-anonymous-default-export': 'off',
