@@ -1,9 +1,8 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { type UnknownAction } from '@reduxjs/toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
 import Markdown from '~/lib/ui/components/Fields/Markdown';
 import Icon from '~/lib/ui/components/Icon';
@@ -16,6 +15,7 @@ import { updateEgo } from '../../ducks/modules/session';
 import useFlipflop from '../../hooks/useFlipflop';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../../selectors/session';
+import { useAppDispatch } from '../../store';
 import Form from '../Form';
 import { type BeforeNextFunction } from '../ProtocolScreen';
 import { type StageProps } from '../Stage';
@@ -51,15 +51,15 @@ const EgoForm = (props: EgoFormProps) => {
 
   const { form, introductionPanel } = stage;
 
-  const dispatch = useDispatch();
+  console.log(form);
+
+  const dispatch = useAppDispatch();
   const openDialog = useCallback(
-    (dialog: Omit<Dialog, 'id'>) =>
-      dispatch(openDialogAction(dialog) as unknown as UnknownAction),
+    (dialog: Omit<Dialog, 'id'>) => dispatch(openDialogAction(dialog)),
     [dispatch],
   );
   const submitFormRedux = useCallback(
-    (formName: string) =>
-      dispatch(submit(formName) as unknown as UnknownAction),
+    (formName: string) => dispatch(submit(formName)),
     [dispatch],
   );
 
@@ -112,9 +112,8 @@ const EgoForm = (props: EgoFormProps) => {
       return true;
     }
 
-    if (isFormDirty) {
-      submitFormRedux(formName);
-    }
+    // Submit the form to trigger validation
+    submitFormRedux(formName);
 
     // If the form is valid, proceed to the next stage
     if (isFormValid) {

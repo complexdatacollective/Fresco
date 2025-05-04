@@ -82,7 +82,7 @@ export const openDialog = createAsyncThunk(
         }),
       );
 
-      return id; // Return ID for potential later reference
+      // return id; // Return ID for potential later reference
     });
   },
 );
