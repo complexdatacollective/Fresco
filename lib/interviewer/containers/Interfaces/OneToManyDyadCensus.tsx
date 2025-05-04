@@ -1,15 +1,12 @@
 import { type Stage } from '@codaco/protocol-validation';
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
-} from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import Node from '../../components/Node';
+import { MotionNode } from '../../components/Node';
+import { nodeListVariants } from '../../components/NodeList';
 import Prompts from '../../components/Prompts';
 import { edgeExists, toggleEdge } from '../../ducks/modules/session';
 import useSortedNodeList from '../../hooks/useSortedNodeList';
@@ -20,8 +17,6 @@ import {
 import { useAppDispatch } from '../../store';
 import { type ProtocolSortRule } from '../../utils/createSorter';
 import { type StageProps } from '../Stage';
-
-const MotionNode = motion.create(Node);
 
 type OneToManyDyadCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'OneToManyDyadCensus' }>;
@@ -51,25 +46,27 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const nodes = useSelector(getNetworkNodesForType);
   const edges = useSelector(getNetworkEdges);
 
+  const sortedSource = useSortedNodeList(nodes, bucketSortOrder);
+
+  const source = sortedSource[currentStep]!;
+
   const sortedTargets = useSortedNodeList(
     nodes.filter(
       (node) =>
-        node[entityAttributesProperty] !==
-        nodes[currentStep]?.[entityAttributesProperty],
+        node[entityPrimaryKeyProperty] !== source[entityPrimaryKeyProperty],
     ),
-    bucketSortOrder,
+    binSortOrder,
   );
-  const sortedSource = useSortedNodeList(nodes, binSortOrder);
-
-  const source = sortedSource[currentStep];
 
   // Takes into account removeAfterConsideration
   const numberOfSteps = useMemo(() => {
     if (removeAfterConsideration) {
-      return nodes.length - currentStep + 1;
+      return sortedTargets.length - currentStep;
     }
-    return nodes.length - 1;
-  }, [nodes.length, removeAfterConsideration, currentStep]);
+    return sortedTargets.length;
+  }, [sortedTargets.length, removeAfterConsideration, currentStep]);
+
+  console.log('e', removeAfterConsideration);
 
   /**
    * Hijack stage navigation:
@@ -85,7 +82,8 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     }
 
     if (direction === 'forwards') {
-      if (currentStep <= numberOfSteps) {
+      console.log('fo', currentStep, numberOfSteps);
+      if (currentStep + 1 <= numberOfSteps) {
         setCurrentStep((prev) => prev + 1);
         setTimeout(() => {
           if (containerRef.current) {
@@ -132,57 +130,64 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  console.log('coni', {
+    currentStep,
+    numberOfSteps,
+    removeAfterConsideration,
+  });
+
   return (
     <div className="one-to-many-dyad-census flex h-full w-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
       <div className="flex flex-col items-center">
         <Prompts />
         <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            variants={nodeListVariants}
             exit={{ opacity: 0 }}
             key={promptIndex}
           >
             {source && (
               <MotionNode
                 {...source}
-                layout
-                layoutId={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
+                layoutId={source[entityPrimaryKeyProperty]}
                 key={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
               />
             )}
-            {!source && <div>No nodes available to display.</div>}
+            {!source && <div key="missing">No nodes available to display.</div>}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <motion.div className="flex grow flex-col rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) p-4">
+      <div className="flex grow flex-col rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) p-4">
         <div className="mb-4 flex w-full items-center justify-center">
           <h4>Click/tap all that apply:</h4>
         </div>
-        <AnimatePresence mode="wait">
-          <motion.div
-            className="flex h-0 grow flex-wrap gap-2 [--base-node-size:calc(var(--nc-base-font-size)*8)]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ when: 'beforeChildren' }}
-            key={promptIndex}
-            layoutScroll
-            ref={containerRef}
-            style={{
-              overflowY: 'auto',
-            }}
-          >
-            {source &&
-              sortedTargets.map((node, index) => {
+        {sortedTargets.length === 0 && (
+          <div className="flex h-full w-full items-center justify-center">
+            <h3>No nodes to display.</h3>
+          </div>
+        )}
+
+        <div className="flex min-h-full grow flex-wrap content-start justify-center overflow-visible [--base-node-size:calc(var(--nc-base-font-size)*8)]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              variants={nodeListVariants}
+              key={promptIndex}
+              exit={{ opacity: 0 }}
+            >
+              {sortedTargets.map((node, index) => {
                 /**
                  * Remove after consideration behaviour:
                  * Once a node has been 'considered' (has been the source), it should be
                  * filtered out of the nodes list. We can calculate this by removing nodes
                  * from the start of the nodes array based on the current step.
                  */
-                if (removeAfterConsideration && index < currentStep) {
+                const sortedIndex = sortedSource.findIndex(
+                  (s) =>
+                    s[entityPrimaryKeyProperty] ===
+                    node[entityPrimaryKeyProperty],
+                );
+                if (removeAfterConsideration && sortedIndex < currentStep) {
                   return null;
                 }
                 const selected = !!edgeExists(
@@ -195,17 +200,17 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                 return (
                   <MotionNode
                     {...node}
-                    layout
-                    layoutId={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
-                    key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
                     selected={selected}
                     handleClick={handleNodeClick(source, node)}
+                    layoutId={node[entityPrimaryKeyProperty]}
+                    key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
                   />
                 );
               })}
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }

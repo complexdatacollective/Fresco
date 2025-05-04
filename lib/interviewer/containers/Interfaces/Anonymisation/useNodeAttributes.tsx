@@ -26,18 +26,39 @@ export const useNodeAttributes = (
     attributeName: string;
     ignoreCase?: boolean;
   }): Promise<T | undefined>;
+  getByFuzzyMatch<T extends VariableValue>(
+    match: RegExp,
+  ): Promise<T | undefined>;
 } => {
   const codebookAttributes = useSelector(
     getCodebookVariablesForNodeType(node.type),
   );
   const nodeAttributes = getEntityAttributes(node);
-  const { requirePassphrase, setPassphraseInvalid } = usePassphrase();
+  const { requirePassphrase, setPassphraseInvalid, isEnabled } =
+    usePassphrase();
+
+  const getByFuzzyMatch = useCallback(
+    async <T extends VariableValue>(test: RegExp) => {
+      const match = Object.keys(nodeAttributes).find((attribute) =>
+        test.test(attribute),
+      );
+
+      if (match) {
+        console.log('found', match);
+        return getById<T>(match);
+      }
+
+      return undefined;
+    },
+    [nodeAttributes],
+  );
 
   const getById = useCallback(
     async <T extends VariableValue>(
       attributeId: string,
     ): Promise<T | undefined> => {
-      const isEncrypted = codebookAttributes[attributeId]?.encrypted;
+      const isEncrypted =
+        isEnabled && codebookAttributes[attributeId]?.encrypted;
 
       // If the attribute is not encrypted, we can return it directly
       if (!isEncrypted) {
@@ -46,7 +67,7 @@ export const useNodeAttributes = (
 
       const secureAttributes = node[entitySecureAttributesMeta]?.[attributeId];
 
-      invariant(secureAttributes, 'Node is missing secure attributes');
+      invariant(secureAttributes, 'Secure attributes missing!');
 
       try {
         const passphrase = requirePassphrase();
@@ -91,6 +112,7 @@ export const useNodeAttributes = (
       node,
       requirePassphrase,
       setPassphraseInvalid,
+      isEnabled,
     ],
   );
 
@@ -114,12 +136,13 @@ export const useNodeAttributes = (
         return undefined;
       }
 
-      return getById(attributeId);
+      return getById<T>(attributeId);
     },
     [getById, codebookAttributes],
   );
 
   return {
+    getByFuzzyMatch,
     getByName,
     getById,
   };

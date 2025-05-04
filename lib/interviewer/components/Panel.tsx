@@ -56,7 +56,7 @@ const Panel = ({
   return (
     <div className={panelClasses}>
       <div
-        className="flex shrink-0 grow-0 basis-[5rem] flex-col justify-center border-b-[0.1rem] border-[var(--nc-background)] p-2 text-center"
+        className="flex shrink-0 grow-0 basis-[5rem] flex-col justify-center border-b-[0.1rem] border-[var(--nc-background)] px-4 py-2 text-center"
         onClick={toggleCollapsed}
       >
         <h3 className="m-0">{title}</h3>

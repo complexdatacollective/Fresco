@@ -1,4 +1,5 @@
 import { type NcNode } from '@codaco/shared-consts';
+import { motion } from 'motion/react';
 import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColor } from '~/lib/interviewer/selectors/session';
@@ -10,26 +11,20 @@ const Node = memo(
     React.ElementRef<typeof UINode>,
     NcNode & React.ComponentProps<typeof UINode>
   >((props: NcNode & React.ComponentProps<typeof UINode>, ref) => {
-    // const [label, setLabel] = useState<string | undefined>(undefined);
-    // const [loading, setLoading] = useState(true);
     const { type } = props;
     const color = useSelector(getNodeColor(type));
     const label = useNodeLabel(props);
 
-    return (
-      <UINode
-        color={color}
-        {...props}
-        label={label}
-        ref={ref}
-        loading={!label}
-      />
-    );
+    return <UINode color={color} {...props} label={label} ref={ref} />;
   }),
   // (prevProps, nextProps) => {
+  //   // Return true to skip render
   //   return (
+  //     prevProps.color === nextProps.color &&
+  //     prevProps.linking === nextProps.linking &&
+  //     prevProps.selected === nextProps.selected &&
   //     objectHash(prevProps[entityAttributesProperty]) ===
-  //     objectHash(nextProps[entityAttributesProperty])
+  //       objectHash(nextProps[entityAttributesProperty])
   //   );
   // },
 );
@@ -37,3 +32,5 @@ const Node = memo(
 Node.displayName = 'Node';
 
 export default Node;
+
+export const MotionNode = motion.create(Node);

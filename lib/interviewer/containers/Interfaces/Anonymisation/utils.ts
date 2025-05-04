@@ -8,9 +8,10 @@ import {
 export const SESSION_STORAGE_KEY = 'passphrase';
 
 export class UnauthorizedError extends Error {
-  constructor() {
+  constructor(message?: string) {
     super('Unauthorized');
     this.name = 'UnauthorizedError';
+    this.message = message ?? 'Unauthorised';
   }
 }
 
