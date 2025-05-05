@@ -73,7 +73,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.getByTestId('ego-form-title')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
     // required fields
-    expect(await page.getByTestId('form-field-text-error').count()).toBe(2);
+    await expect(page.getByTestId('form-field-text-error')).toHaveCount(2);
     await page.getByTestId('form-field-text-input').first().fill('John');
     await page.getByTestId('form-field-text-input').nth(1).fill('Doe');
     await page.getByTestId('date-picker-preview').click();
@@ -325,14 +325,14 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.waitForTimeout(2000);
 
     // check for two selected nodes
-    expect(await page.locator('.node--selected').count()).toBe(2);
+    await expect(page.locator('.node--selected')).toHaveCount(2);
     // next prompt
     await page.getByTestId('navigation-button').nth(1).click();
     // check for no selected nodes
-    expect(await page.locator('.node--selected').count()).toBe(0);
+    await expect(page.locator('.node--selected')).toHaveCount(0);
 
     await page.getByText('Carrie', { exact: true }).click();
-    expect(await page.locator('.node--selected').count()).toBe(1);
+    await expect(page.locator('.node--selected')).toHaveCount(1);
     console.log('☑️ Sociogram - select');
   });
 
@@ -376,6 +376,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.goto(`${baseInterviewURL}?step=15`);
     await expect(page.getByText('Burt')).toBeVisible();
     await expect(page.getByTestId('prompt')).toBeVisible();
+    console.log('☑️ Skip logic/network filtering');
   });
 
   test('narrative', async ({ page }) => {
@@ -384,12 +385,13 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('preset-switcher-label').click();
 
     // attributes, links, groups should be visible
-    expect(await page.locator('.node--selected').count()).toBe(2);
+    await expect(page.locator('.node--selected')).toHaveCount(2);
     await page.getByTestId('form-field-radio-input').nth(1).click();
-    expect(await page.locator('.node--selected').count()).toBe(1);
+    // wait for nodes to be visible
+    await expect(page.locator('.node--selected')).toHaveCount(1);
     await page.getByTestId('accordion').nth(0).click();
 
-    expect(await page.locator('.node--selected').count()).toBe(0);
+    await expect(page.locator('.node--selected')).toHaveCount(0);
     await expect(page.getByTestId('edge-label-0')).toBeVisible();
     await expect(
       page.locator('line[stroke="var(--nc-edge-color-seq-1)"]'),
