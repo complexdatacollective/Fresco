@@ -31,6 +31,7 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   maxFailures: env.CI ? 3 : 0,
+  reportSlowTests: null,
 
   use: {
     baseURL,
