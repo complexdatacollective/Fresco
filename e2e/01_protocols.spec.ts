@@ -313,7 +313,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('form-field-radio-input').nth(0).click();
     const edges = await getSessionEdges(page);
     expect(edges.length).toBe(5);
-    console.log('☑️ tie strength census');
+    console.log('☑️ per alter edge form');
   });
 
   test('sociogram - select', async ({ page }) => {
