@@ -380,7 +380,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
   });
 
   testWithStore('narrative', async ({ page, getSessionNodes }) => {
-    console.log(getSessionNodes(page));
+    const nodes = await getSessionNodes(page);
+    console.log(nodes);
     await page.goto(`${baseInterviewURL}?step=16`);
 
     await page.getByTestId('preset-switcher-label').click();
