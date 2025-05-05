@@ -48,7 +48,7 @@ test('create test database and setup app', async ({
     const requestContext = await playwright.request.newContext({
       baseURL,
     });
-    const res = await requestContext.delete('/ci-only');
+    const res = await requestContext.delete('/api/ci-only');
     const text = await res.text();
     if (!res.ok()) {
       throw new Error(`Failed to reset database: ${res.status()} ${text}`);
