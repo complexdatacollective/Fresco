@@ -11,8 +11,7 @@ test.describe('Settings page', () => {
     const anonymousRecruitmentSwitch = page.getByRole('switch').first();
     const limitInterviewsSwitch = page.getByRole('switch').nth(1);
     const disableAnalyticsSwitch = page.getByRole('switch').nth(2);
-    // eslint-disable-next-line no-console
-    console.log('CI:', env.CI);
+
     if (env.CI) {
       await expect(disableAnalyticsSwitch).not.toBeChecked();
     } else {
@@ -20,7 +19,6 @@ test.describe('Settings page', () => {
     }
     await expect(anonymousRecruitmentSwitch).toBeChecked();
     await expect(limitInterviewsSwitch).toBeChecked();
-    await expect(disableAnalyticsSwitch).toBeChecked();
     await limitInterviewsSwitch.click();
     await expect(limitInterviewsSwitch).not.toBeChecked();
   });
