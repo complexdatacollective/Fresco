@@ -1,19 +1,27 @@
-'use server';
-
 import { revalidatePath } from 'next/cache';
 import { env } from 'process';
 import { safeRevalidateTag } from '~/lib/cache';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
-import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
-export const resetAppSettings = async () => {
-  if (env.NODE_ENV !== 'development') {
-    await requireApiAuth();
+/**
+ *
+ * This is a route called by the playwright CI tests to reset the db and clear the cache.
+ * Uses the NEXT_PUBLIC_PLAYWRIGHT env var to check if it is being called from the CI.
+ * It should NOT delete uploadthing files, as the uploadthing bucket is shared across preview deployments.
+ *
+ */
+
+export async function DELETE(_request: Request) {
+  if (!env.NEXT_PUBLIC_PLAYWRIGHT) {
+    return new Response(
+      'This endpoint is restricted to Playwright CI tests only',
+      {
+        status: 403,
+      },
+    );
   }
 
   try {
-    // Delete all data:
     await Promise.all([
       prisma.user.deleteMany(), // Deleting a user will cascade to Session and Key
       prisma.participant.deleteMany(),
@@ -31,25 +39,20 @@ export const resetAppSettings = async () => {
       },
     });
 
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     safeRevalidateTag('appSettings');
     safeRevalidateTag('activityFeed');
     safeRevalidateTag('summaryStatistics');
     safeRevalidateTag('getProtocols');
     safeRevalidateTag('getParticipants');
     safeRevalidateTag('getInterviews');
-
-    const utapi = await getUTApi();
-
-    // Remove all files from UploadThing:
-
-    await utapi.listFiles({}).then(({ files }) => {
-      const keys = files.map((file) => file.key);
-      return utapi.deleteFiles(keys);
-    });
-
-    return { error: null, appSettings: null };
   } catch (error) {
-    return { error: 'Failed to reset appSettings', appSettings: null };
+    return new Response('Failed to reset database and clear cache', {
+      status: 500,
+    });
   }
-};
+
+  return new Response('Database reset and all caches cleared successfully', {
+    status: 200,
+  });
+}

@@ -33,7 +33,7 @@ test('create test database and setup app', async ({
       stdio: 'inherit',
     });
 
-    // Optional: Wait for database to be ready
+    // Wait for database to be ready
     console.log('Waiting for database to be ready');
     execSync('sleep 5', { stdio: 'inherit' });
 
@@ -44,49 +44,16 @@ test('create test database and setup app', async ({
     );
   } else {
     console.log('CI environment detected');
-    console.log('🚮 Clearing cache');
+    console.log('🚮 Resetting db and clearing cache');
     const requestContext = await playwright.request.newContext({
       baseURL,
     });
-    // Call the reset endpoint
-    try {
-      await requestContext.post('/reset');
-      console.log('✅ Application cache cleared successfully');
-    } catch (error) {
-      console.error('Failed to clear cache:', error);
+    const res = await requestContext.delete('/ci-only');
+    const text = await res.text();
+    if (!res.ok()) {
+      throw new Error(`Failed to reset database: ${res.status()} ${text}`);
     }
-
-    await requestContext.dispose();
-    // we are in CI using the preview deployment
-    // sign in and reset database
-    await page.goto('/'); // base url is set in playwright.config.ts
-    await expect(page).toHaveURL(/\/signin/);
-
-    // sign in using credentials
-    await page.fill('input[name="username"]', 'admin');
-    await page.fill('input[name="password"]', 'Administrator1!');
-    await page.click('button[type="submit"]');
-
-    await expect(page).toHaveURL(/\/dashboard/);
-    console.log('✅ Signed in successfully');
-
-    // go to /settings
-    await page.goto('/dashboard/settings');
-    // click "reset all app data" button
-    await page.route('/dashboard/settings', async (route, request) => {
-      await route.continue({
-        headers: {
-          ...request.headers(),
-          'x-playwright-test': 'true',
-        },
-      });
-    });
-
-    await page.getByTestId('reset-app-button').click();
-    await page.getByTestId('confirm-reset-app-button').click();
-    await expect(page).toHaveURL(/\/setup/);
-
-    console.log('✅ Reset app data with settings button');
+    console.log('✅ Database reset and cache cleared successfully');
   }
 
   // STEP 1
