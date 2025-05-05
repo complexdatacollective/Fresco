@@ -379,7 +379,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
     console.log('☑️ Skip logic/network filtering');
   });
 
-  test('narrative', async ({ page }) => {
+  testWithStore('narrative', async ({ page, getSessionNodes }) => {
+    console.log(getSessionNodes(page));
     await page.goto(`${baseInterviewURL}?step=16`);
 
     await page.getByTestId('preset-switcher-label').click();
