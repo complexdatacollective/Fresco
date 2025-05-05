@@ -65,7 +65,8 @@ jobs:
       - name: Clear app cache
         if: always()
         run: |
-          curl -i -X POST "${{ github.event.deployment_status.environment_url }}/reset"
+          curl -i -X POST "${{ github.event.deployment_status.environment_url }}/reset" \
+          -H 'x-vercel-protection-bypass: ${{ env.VERCEL_AUTOMATION_BYPASS_SECRET }}'
       - name: Install Neon CLI
         if: always() && env.SETUP_ERROR == 'true'
         run: npm i -g neonctl@latest
