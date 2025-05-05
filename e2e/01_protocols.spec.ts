@@ -387,7 +387,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     // attributes, links, groups should be visible
     await expect(page.locator('.node--selected')).toHaveCount(2);
     await page.getByTestId('form-field-radio-input').nth(1).click();
-    // wait for nodes to be visible
+    await expect(page.getByTestId('node').first()).toBeVisible();
     await expect(page.locator('.node--selected')).toHaveCount(1);
     await page.getByTestId('accordion').nth(0).click();
 
