@@ -17,7 +17,8 @@ import {
   createReducer,
   createSelector,
 } from '@reduxjs/toolkit';
-import { find, get, invariant } from 'es-toolkit/compat';
+import { invariant } from 'es-toolkit';
+import { find, get } from 'es-toolkit/compat';
 import { v4 as uuid, v4 } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';

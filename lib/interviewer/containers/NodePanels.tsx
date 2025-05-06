@@ -1,7 +1,8 @@
 import { type Panel } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { compose } from '@reduxjs/toolkit';
-import { get, invariant } from 'es-toolkit/compat';
+import { invariant } from 'es-toolkit';
+import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';

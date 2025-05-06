@@ -5,7 +5,8 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import { has, invariant } from 'es-toolkit/compat';
+import { invariant } from 'es-toolkit';
+import { has } from 'es-toolkit/compat';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook } from '../ducks/modules/protocol';
 import {
