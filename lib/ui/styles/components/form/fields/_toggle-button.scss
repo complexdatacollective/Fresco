@@ -108,8 +108,8 @@ $component-name: form-field-togglebutton;
   }
 }
 
-@for $i from 1 through 20 {
-  $sequence-number: $i % 11;
+@for $i from 0 through 20 {
+  $sequence-number: $i % 10 + 1;
   .form-field-togglebutton-cat-color-seq-#{$i} {
     .form-field-togglebutton__checkbox {
       &::before {
