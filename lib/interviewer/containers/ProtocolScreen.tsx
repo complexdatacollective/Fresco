@@ -85,7 +85,6 @@ export default function ProtocolScreen() {
   const nextValidStageIndexRef = useRef(nextValidStageIndex);
   const previousValidStageIndexRef = useRef(previousValidStageIndex);
 
-  // update the ref when the value from the selector changes
   useEffect(() => {
     nextValidStageIndexRef.current = nextValidStageIndex;
   }, [nextValidStageIndex]);
