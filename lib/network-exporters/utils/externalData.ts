@@ -286,7 +286,7 @@ const getNodeListUsingTypes = (
   });
 
 // Cast types for data based on codebook and data, according to stage subject.
-export const withTypeReplacement = (
+const withTypeReplacement = (
   nodeList: NcNode[],
   protocolCodebook: Codebook,
   stageSubject: StageSubject,

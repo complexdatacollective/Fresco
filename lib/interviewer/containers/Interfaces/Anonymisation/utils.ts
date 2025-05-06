@@ -5,8 +5,6 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 
-export const SESSION_STORAGE_KEY = 'passphrase';
-
 export class UnauthorizedError extends Error {
   constructor(message?: string) {
     super('Unauthorized');
@@ -23,7 +21,7 @@ export class UnauthorizedError extends Error {
  * encryption more secure by adding a random salt. This ensures the same
  * passphrase results in a unique key each time.
  */
-export async function generateKey(passphrase: string, salt: Uint8Array) {
+async function generateKey(passphrase: string, salt: Uint8Array) {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -47,7 +45,7 @@ export async function generateKey(passphrase: string, salt: Uint8Array) {
   );
 }
 
-export type EncryptedData = {
+type EncryptedData = {
   secureAttributes: {
     iv: number[];
     salt: number[];

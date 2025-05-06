@@ -413,7 +413,7 @@ export const processProtocolSortRule =
     };
   };
 
-export type ProcessedSortRule = {
+type ProcessedSortRule = {
   property: string | string[];
   direction?: 'asc' | 'desc';
   type:

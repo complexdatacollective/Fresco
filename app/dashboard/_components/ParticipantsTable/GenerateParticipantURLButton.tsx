@@ -16,14 +16,14 @@ import { Button } from '~/components/ui/Button';
 import { Popover, PopoverContent } from '~/components/ui/popover';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { useToast } from '~/components/ui/use-toast';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import { type ProtocolsWithInterviews } from '../ProtocolsTable/ProtocolsTable';
 
 export const GenerateParticipationURLButton = ({
   participant,
   protocols,
 }: {
   participant: Participant;
-  protocols: Awaited<GetProtocolsReturnType>;
+  protocols: ProtocolsWithInterviews;
 }) => {
   const [selectedProtocol, setSelectedProtocol] =
     useState<Partial<Protocol> | null>();

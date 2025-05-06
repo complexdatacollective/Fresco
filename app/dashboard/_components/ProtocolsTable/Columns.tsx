@@ -11,13 +11,13 @@ import { Checkbox } from '~/components/ui/checkbox';
 import TimeAgo from '~/components/ui/TimeAgo';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { type GetProtocolsReturnType } from '~/queries/protocols';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
+import { type ProtocolsWithInterviews } from './ProtocolsTable';
 
 export const getProtocolColumns = (
   allowAnonRecruitment = false,
-): ColumnDef<Awaited<GetProtocolsReturnType>[0], unknown>[] => {
-  const columns: ColumnDef<Awaited<GetProtocolsReturnType>[0], unknown>[] = [
+): ColumnDef<ProtocolsWithInterviews[0], unknown>[] => {
+  const columns: ColumnDef<ProtocolsWithInterviews[0], unknown>[] = [
     {
       id: 'select',
       header: ({ table }) => (

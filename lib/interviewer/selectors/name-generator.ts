@@ -90,8 +90,6 @@ export const getPanelConfiguration = createSelector(
   },
 );
 
-export const makeGetPanelConfiguration = () => getPanelConfiguration;
-
 export const getPanelNodes = (
   panelConfig: Panel,
   externalData: NcNode[] | null,

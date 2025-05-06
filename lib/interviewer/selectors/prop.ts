@@ -22,9 +22,6 @@ export const getAdditionalAttributesSelector = createSelector(
   },
 );
 
-export const makeGetAdditionalAttributes = () =>
-  getAdditionalAttributesSelector;
-
 export const getPromptVariable = createSelector(getCurrentPrompt, (prompt) => {
   if (!prompt || !('variable' in prompt)) {
     return null;

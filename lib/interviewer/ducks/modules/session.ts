@@ -83,7 +83,7 @@ export const StageMetadataSchema = z.record(
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 export type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
-export type SessionState = {
+type SessionState = {
   id: string;
   startTime: string;
   finishTime: string | null;
@@ -96,7 +96,6 @@ export type SessionState = {
 };
 
 const actionTypes = {
-  setSessionFinished: 'SESSION/SET_SESSION_FINISHED',
   updatePrompt: 'SESSION/UPDATE_PROMPT',
   updateStage: 'SESSION/UPDATE_STAGE',
   updateStageMetadata: 'SESSION/UPDATE_STAGE_METADATA',
@@ -321,10 +320,6 @@ export const updateEdge = createAction<{
 export const updateStageMetadata = createAction<StageMetadataEntry[]>(
   actionTypes.updateStageMetadata,
 );
-export const setSessionFinished = createAction<string>(
-  actionTypes.setSessionFinished,
-);
-
 const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
@@ -607,13 +602,6 @@ const sessionReducer = createReducer(initialState, (builder) => {
           },
         },
       },
-    });
-  });
-
-  builder.addCase(setSessionFinished, (state) => {
-    return withLastUpdated({
-      ...state,
-      finishTime: new Date().toISOString(),
     });
   });
 });

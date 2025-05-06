@@ -26,7 +26,7 @@ import {
 /**
  * Formats a list of numbers into a human-readable string.
  */
-export function formatNumberList(numbers: number[]): string {
+function formatNumberList(numbers: number[]): string {
   // "1"
   if (numbers.length === 1) {
     return numbers[0]!.toString();

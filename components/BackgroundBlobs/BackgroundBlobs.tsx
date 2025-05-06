@@ -5,13 +5,13 @@ import { interpolatePath as interpolate } from 'd3-interpolate-path';
 import { memo, useMemo } from 'react';
 import Canvas from './Canvas';
 
-export const random = (a = 1, b = 0) => {
+const random = (a = 1, b = 0) => {
   const lower = Math.min(a, b);
   const upper = Math.max(a, b);
   return lower + Math.random() * (upper - lower);
 };
 
-export const randomInt = (a = 1, b = 0) => {
+const randomInt = (a = 1, b = 0) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
   return Math.floor(lower + Math.random() * (upper - lower + 1));

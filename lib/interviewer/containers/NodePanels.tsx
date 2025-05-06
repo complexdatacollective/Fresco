@@ -28,7 +28,7 @@ type NodePanelsProps = {
   isDragging: boolean;
 };
 
-export const NodePanelColors = [
+const NodePanelColors = [
   '--primary',
   '--nc-primary-color-seq-1',
   '--nc-primary-color-seq-2',

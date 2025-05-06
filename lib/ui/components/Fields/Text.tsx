@@ -3,7 +3,7 @@ import React, { type InputHTMLAttributes, memo, useId, useState } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-export type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
+type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
   input: {
     name: string;
     value: string;

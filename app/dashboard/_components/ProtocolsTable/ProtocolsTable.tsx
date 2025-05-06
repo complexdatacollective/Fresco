@@ -4,7 +4,7 @@ import { getAppSetting } from '~/queries/appSettings';
 import { getProtocols, type GetProtocolsReturnType } from '~/queries/protocols';
 import ProtocolsTableClient from './ProtocolsTableClient';
 
-export type GetProtocols = Awaited<GetProtocolsReturnType>;
+export type ProtocolsWithInterviews = Awaited<GetProtocolsReturnType>;
 
 async function getData() {
   return Promise.all([

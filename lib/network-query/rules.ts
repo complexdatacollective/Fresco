@@ -68,7 +68,7 @@ const singleNodeRule =
     );
   };
 
-export type SingleNodeRule = typeof singleNodeRule;
+type SingleNodeRule = typeof singleNodeRule;
 
 // Reduce edges to any that match the rule
 // Filter nodes by the resulting edges
@@ -110,7 +110,7 @@ const edgeRule =
     };
   };
 
-export type EdgeRule = typeof edgeRule;
+type EdgeRule = typeof edgeRule;
 
 /**
  * Creates an alter rule, which can be called with `rule(node)`
@@ -177,7 +177,7 @@ const nodeRule =
     };
   };
 
-export type NodeRule = typeof nodeRule;
+type NodeRule = typeof nodeRule;
 
 /**
  * Creates an ego rule, which can be called with `rule(ego)`

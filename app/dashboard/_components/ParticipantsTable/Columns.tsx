@@ -8,12 +8,12 @@ import { Badge } from '~/components/ui/badge';
 import { Checkbox } from '~/components/ui/checkbox';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import { type ProtocolsWithInterviews } from '../ProtocolsTable/ProtocolsTable';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import { type ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export function getParticipantColumns(
-  protocols: Awaited<GetProtocolsReturnType>,
+  protocols: ProtocolsWithInterviews,
 ): ColumnDef<ParticipantWithInterviews, unknown>[] {
   return [
     {

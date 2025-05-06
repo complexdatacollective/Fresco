@@ -10,13 +10,6 @@ import {
   showPassphrasePrompter,
 } from '~/lib/interviewer/ducks/modules/ui';
 
-export class UnauthorizedError extends Error {
-  constructor() {
-    super('Unauthorized: No passphrase provided');
-    this.name = 'UnauthorizedError';
-  }
-}
-
 export const usePassphrase = () => {
   const dispatch = useDispatch();
 

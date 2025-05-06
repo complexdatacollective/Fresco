@@ -28,10 +28,6 @@ const uiSlice = createSlice({
       passphraseInvalid: false,
       passphrase: action.payload,
     }),
-    clearPassphrase: (state) => ({
-      ...state,
-      passphrase: null,
-    }),
     setShowPassphrasePrompter: (state, action: PayloadAction<boolean>) => ({
       ...state,
       showPassphrasePrompter: action.payload,
@@ -64,7 +60,6 @@ export default uiSlice.reducer;
 export const {
   setFormIsReady,
   setPassphrase,
-  clearPassphrase,
   setShowPassphrasePrompter,
   setPassphraseInvalid,
 } = uiSlice.actions;

@@ -17,14 +17,12 @@ export type FieldValue = VariableValue | undefined;
 
 // Approximated from the description in the redux-form documentation
 // https://redux-form.com/8.3.0/docs/api/field.md/#input-props
-export type ValidationFunction = (
+type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
   props: Record<string, unknown>,
   name: string,
 ) => string | undefined;
-
-export type ReduxFormValidation = ValidationFunction | ValidationFunction[];
 
 // Return an array of values given either a collection, an array,
 // or a single value
@@ -61,14 +59,13 @@ export const required = (message: string | true) => (value: FieldValue) => {
   return undefined;
 };
 
-export const requiredAcceptsNull =
-  (message?: string) => (value: FieldValue) => {
-    if (isNil(value)) {
-      return message ?? 'You must answer this question before continuing';
-    }
+const requiredAcceptsNull = (message?: string) => (value: FieldValue) => {
+  if (isNil(value)) {
+    return message ?? 'You must answer this question before continuing';
+  }
 
-    return undefined;
-  };
+  return undefined;
+};
 
 export const maxLength = (max: number) => (value: string) =>
   value && value.length > max
@@ -105,7 +102,7 @@ export const maxSelected = (max: number) => (value: FieldValue) =>
  * @param existingValue - The value to compare against
  * @returns true if the values match, false otherwise
  */
-export const isMatchingValue = (
+const isMatchingValue = (
   submittedValue: FieldValue,
   existingValue: FieldValue,
 ): boolean => {
@@ -183,7 +180,7 @@ export const isMatchingValue = (
   return submittedValue === existingValue;
 };
 
-export const isSomeValueMatching = (
+const isSomeValueMatching = (
   value: FieldValue,
   otherNetworkEntities: NcNode[] | NcEdge[] | NcEgo[],
   name: string,
@@ -195,7 +192,7 @@ export const isSomeValueMatching = (
       isMatchingValue(value, entity[entityAttributesProperty][name]),
   );
 
-export const getOtherNetworkEntities = (
+const getOtherNetworkEntities = (
   entities: NcNode[] | NcEdge[] | NcEgo[],
   entityId?: string,
 ) =>
@@ -361,6 +358,22 @@ export const lessThanVariable = (variableId: string, store: AppStore) => {
 // Type representing a variable with a validation object
 type VariableWithValidation = Extract<Variable, { validation?: unknown }>;
 
+const validations = {
+  required,
+  requiredAcceptsNull,
+  minLength,
+  maxLength,
+  minValue,
+  maxValue,
+  minSelected,
+  maxSelected,
+  unique,
+  differentFrom,
+  sameAs,
+  greaterThanVariable,
+  lessThanVariable,
+};
+
 /**
  *
  * Takes a validation array/function, and injects the store (needed)
@@ -395,21 +408,3 @@ export const getValidation = (
     return () => `Validation "${type}" not found`;
   });
 };
-
-const validations = {
-  required,
-  requiredAcceptsNull,
-  minLength,
-  maxLength,
-  minValue,
-  maxValue,
-  minSelected,
-  maxSelected,
-  unique,
-  differentFrom,
-  sameAs,
-  greaterThanVariable,
-  lessThanVariable,
-};
-
-export default validations;

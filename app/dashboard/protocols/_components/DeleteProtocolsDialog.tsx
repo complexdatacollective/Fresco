@@ -13,12 +13,12 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
-import { type GetProtocolsReturnType } from '~/queries/protocols';
+import { type ProtocolsWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTable';
 
 type DeleteProtocolsDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  protocolsToDelete: Awaited<GetProtocolsReturnType>[0][];
+  protocolsToDelete: ProtocolsWithInterviews[number][];
 };
 
 export const DeleteProtocolsDialog = ({
