@@ -3,11 +3,10 @@
 import { use, useState } from 'react';
 import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { DataTable } from '~/components/DataTable/DataTable';
-import type { ProtocolWithInterviews } from '~/types/types';
 import ProtocolUploader from '../ProtocolUploader';
 import { ActionsDropdown } from './ActionsDropdown';
 import { getProtocolColumns } from './Columns';
-import { type GetData } from './ProtocolsTable';
+import { type GetData, type ProtocolsWithInterviews } from './ProtocolsTable';
 
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
   const [protocols, allowAnonymousRecruitment, hasUploadThingToken] =
@@ -15,9 +14,9 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [protocolsToDelete, setProtocolsToDelete] =
-    useState<ProtocolWithInterviews[]>();
+    useState<ProtocolsWithInterviews[0][]>();
 
-  const handleDelete = (data: ProtocolWithInterviews[]) => {
+  const handleDelete = (data: ProtocolsWithInterviews[0][]) => {
     setProtocolsToDelete(data);
     setShowAlertDialog(true);
   };

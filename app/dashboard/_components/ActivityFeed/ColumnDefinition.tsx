@@ -1,17 +1,17 @@
 'use client';
 
+import type { Events } from '@prisma/client';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Badge } from '~/components/ui/badge';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import {
+  type Activity,
   type ActivityType,
+  activityTypes,
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-  type Activity,
-  activityTypes,
-} from '~/lib/data-table/types';
-import type { Events } from '@prisma/client';
+} from '~/components/DataTable/types';
+import { Badge } from '~/components/ui/badge';
 import TimeAgo from '~/components/ui/TimeAgo';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): ColumnDef<

@@ -7,13 +7,13 @@ import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import { type ProtocolsWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTable';
 
 function ExportCSVInterviewURLs({
   protocol,
   interviews,
 }: {
-  protocol?: Awaited<GetProtocolsReturnType>[number];
+  protocol?: ProtocolsWithInterviews[number];
   interviews: Awaited<GetInterviewsReturnType>;
 }) {
   const download = useDownload();
