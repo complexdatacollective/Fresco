@@ -62,6 +62,7 @@
     "es-toolkit": "^1.37.2",
     "fuse.js": "^7.1.0",
     "jszip": "^3.10.1",
+    "luxon": "^3.6.1",
     "lucia": "^2.7.7",
     "lucide-react": "^0.477.0",
     "mapbox-gl": "^3.8.0",
