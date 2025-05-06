@@ -14,9 +14,10 @@ import { DataTable } from '~/components/DataTable/DataTable';
 import { Button } from '~/components/ui/Button';
 import type { GetParticipantsReturnType } from '~/queries/participants';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
-import type { ParticipantWithInterviews } from '~/types/types';
 import AddParticipantButton from '../../participants/_components/AddParticipantButton';
 import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
+
+export type ParticipantWithInterviews = Awaited<GetParticipantsReturnType>[0];
 
 export const ParticipantsTableClient = ({
   participantsPromise,

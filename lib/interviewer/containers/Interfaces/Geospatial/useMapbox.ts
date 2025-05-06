@@ -14,7 +14,7 @@ const MAP_CONSTS = {
 
 type UseMapboxProps = {
   mapOptions: MapOptions;
-  getAssetUrl: (url: string) => string;
+  getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
   show: boolean;
@@ -42,9 +42,7 @@ export const useMapbox = ({
   } = mapOptions;
 
   // get token value from asset manifest, using id
-  const accessToken = useSelector(
-    makeGetApiKeyAssetValue(tokenAssetId),
-  ) as string;
+  const accessToken = useSelector(makeGetApiKeyAssetValue(tokenAssetId));
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({

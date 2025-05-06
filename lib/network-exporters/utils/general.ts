@@ -1,10 +1,14 @@
+import type {
+  Codebook,
+  VariablePropertyKey,
+} from '@codaco/protocol-validation';
 import {
   caseProperty,
   entityAttributesProperty,
-  sessionProperty,
-  type Codebook,
+  type NcEdge,
   type NcEntity,
-  type StageSubject,
+  type NcNode,
+  sessionProperty,
 } from '@codaco/shared-consts';
 import sanitizeFilename from 'sanitize-filename';
 import type { ExportFormat, SessionWithResequencedIDs } from './types';
@@ -31,26 +35,25 @@ export const makeFilename = (
   return `${name}${extension}`;
 };
 
-const extensions = {
+const EXTENSIONS = {
   graphml: '.graphml',
   csv: '.csv',
-};
+} as const;
 
 /**
  * Provide the appropriate file extension for the export type
  * @param  {string} formatterType one of the `format`s
  * @return {string}
  */
-
 export const getFileExtension = (formatterType: ExportFormat) => {
   switch (formatterType) {
     case 'graphml':
-      return extensions.graphml;
+      return EXTENSIONS.graphml;
     case 'adjacencyMatrix':
     case 'edgeList':
     case 'attributeList':
     case 'ego':
-      return extensions.csv;
+      return EXTENSIONS.csv;
   }
 };
 
@@ -74,7 +77,7 @@ export const getFilePrefix = (session: SessionWithResequencedIDs) =>
 const getVariableInfo = (
   codebook: Codebook,
   type: 'node' | 'edge',
-  entity: StageSubject,
+  entity: NcNode | NcEdge,
   key: string,
 ) => codebook[type]?.[entity.type]?.variables?.[key];
 
@@ -98,15 +101,18 @@ const getEgoVariableInfo = (codebook: Codebook, key: string) =>
 export const getAttributePropertyFromCodebook = (
   codebook: Codebook,
   type: 'node' | 'edge' | 'ego',
-  element: StageSubject,
+  element: NcNode | NcEdge,
   key: string,
-  attributeProperty = 'type',
+  attributeProperty: VariablePropertyKey = 'type',
 ) => {
-  let variableInfo;
   if (type === 'ego') {
-    variableInfo = getEgoVariableInfo(codebook, key);
-  } else {
-    variableInfo = getVariableInfo(codebook, type, element, key);
+    const variableInfo = getEgoVariableInfo(codebook, key);
+    return variableInfo && attributeProperty in variableInfo
+      ? variableInfo[attributeProperty as keyof typeof variableInfo]
+      : undefined;
   }
-  return variableInfo?.[attributeProperty as keyof typeof variableInfo];
+  const variableInfo = getVariableInfo(codebook, type, element, key);
+  return variableInfo && attributeProperty in variableInfo
+    ? variableInfo[attributeProperty as keyof typeof variableInfo]
+    : undefined;
 };

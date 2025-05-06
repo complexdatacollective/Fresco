@@ -1,11 +1,15 @@
 import {
-    createSearchParamsCache,
-    parseAsArrayOf,
-    parseAsInteger,
-    parseAsJson,
-    parseAsStringLiteral,
+  createSearchParamsCache,
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsJson,
+  parseAsStringLiteral,
 } from 'nuqs/server';
-import { FilterParam, sortOrder, sortableFields } from '~/lib/data-table/types';
+import {
+  FilterParam,
+  sortOrder,
+  sortableFields,
+} from '~/components/DataTable/types';
 
 export const searchParamsParsers = {
   page: parseAsInteger.withDefault(1),

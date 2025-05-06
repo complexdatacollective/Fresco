@@ -1,17 +1,17 @@
 'use client';
 
-import * as React from 'react';
 import type { Table } from '@tanstack/react-table';
+import * as React from 'react';
 
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import { ChevronsUpDown, Plus } from 'lucide-react';
 import { DataTableAdvancedFilter } from '~/components/data-table/advanced/data-table-advanced-filter';
 import type {
   DataTableFilterOption,
   DataTableFilterableColumn,
   DataTableSearchableColumn,
-} from '~/lib/data-table/types';
-import { ChevronsUpDown, Plus } from 'lucide-react';
+} from '~/components/DataTable/types';
+import { Button } from '~/components/ui/Button';
+import { Input } from '~/components/ui/Input';
 
 type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;

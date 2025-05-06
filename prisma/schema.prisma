@@ -50,6 +50,7 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
+  experiments   Json?
 }
 
 model Asset {

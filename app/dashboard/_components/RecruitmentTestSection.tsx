@@ -27,7 +27,7 @@ export default function RecruitmentTestSection({
   const participants = use(participantsPromise);
   const allowAnonymousRecruitment = use(allowAnonymousRecruitmentPromise);
 
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>();
+  const [selectedProtocol, setSelectedProtocol] = useState<Partial<Protocol>>();
   const [selectedParticipant, setSelectedParticipant] = useState<Participant>();
 
   const router = useRouter();

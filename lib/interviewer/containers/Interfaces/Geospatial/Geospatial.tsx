@@ -1,8 +1,7 @@
-import type { Protocol } from '@codaco/protocol-validation';
+import type { Protocol, Stage } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
-  type NcNode,
-  type Stage,
+  type VariableValue,
 } from '@codaco/shared-consts';
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
@@ -14,11 +13,11 @@ import { type ThunkDispatch } from 'redux-thunk';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import CollapsablePrompts from '~/lib/interviewer/components/CollapsablePrompts';
 import Node from '~/lib/interviewer/components/Node';
-import { actionCreators as sessionActions } from '~/lib/interviewer/ducks/modules/session';
+import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
+import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { getNetworkNodesForType } from '~/lib/interviewer/selectors/interface';
-import { getAssetUrlFromId } from '~/lib/interviewer/selectors/protocol';
+import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { type RootState } from '~/lib/interviewer/store';
 import { ActionButton } from '~/lib/ui/components';
 import Button from '~/lib/ui/components/Button';
@@ -86,32 +85,37 @@ export default function GeospatialInterface({
   const [isIntroduction, setIsIntroduction] = useState(true);
 
   const { mapOptions, introductionPanel } = stage;
-  const { promptIndex, prompt: currentPrompt } = usePrompts();
+  const { promptIndex, prompt: currentPrompt } = usePrompts<{
+    variable?: string;
+  }>();
 
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
-  }) as NcNode[];
+  });
 
   const getAssetUrl = useSelector(getAssetUrlFromId);
 
   const updateNode = useCallback(
-    (
-      nodeId: string,
-      newModelData: Record<string, unknown>,
-      newAttributes: Record<string, unknown>,
-    ) =>
-      dispatch(sessionActions.updateNode(nodeId, newModelData, newAttributes)),
+    ({
+      nodeId,
+      newModelData,
+      newAttributeData,
+    }: {
+      nodeId: string;
+      newModelData?: Record<string, unknown>;
+      newAttributeData: Record<string, VariableValue>;
+    }) =>
+      dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
     [dispatch],
   );
 
   const setLocationValue = (value: string | null) => {
-    updateNode(
-      stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty] ?? '',
-      {},
-      {
+    updateNode({
+      nodeId: stageNodes[navState.activeIndex]![entityPrimaryKeyProperty],
+      newAttributeData: {
         [currentPrompt.variable!]: value,
       },
-    );
+    });
   };
 
   const initialSelectionValue: string | undefined =
@@ -239,7 +243,7 @@ export default function GeospatialInterface({
         exit="exit"
         key="introduction"
       >
-        <div className="max-w-3xl rounded-lg bg-[var(--nc-light-background)] p-8">
+        <div className="max-w-3xl rounded-lg bg-[var(--nc-panel-bg-muted)] p-8">
           <h1 className="text-center">{introductionPanel?.title}</h1>
           <Markdown label={introductionPanel?.text} />
         </div>
@@ -306,11 +310,9 @@ export default function GeospatialInterface({
               initial="initial"
               animate="animate"
               exit="exit"
+              className="[--base-node-size:calc(var(--nc-base-font-size)*6.6)]"
             >
-              <Node
-                {...stageNodes[navState.activeIndex]}
-                style={{ fontSize: `calc(var(--nc-base-font-size) * 8)` }}
-              />
+              <Node {...stageNodes[navState.activeIndex]!} />
             </motion.div>
             <Button
               size="small"
