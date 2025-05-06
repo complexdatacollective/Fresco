@@ -15,7 +15,6 @@ import NodeList from '~/lib/interviewer/components/NodeList';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { usePrompts } from '../../behaviours/withPrompt';
 import Prompts from '../../components/Prompts';
-import { getShouldEncryptNames } from '../../ducks/modules/protocol';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,
@@ -23,6 +22,7 @@ import {
 } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
+import { getStageUsesEncryption } from '../../selectors/protocol';
 import {
   getNetworkNodesForPrompt,
   getStageNodeCount,
@@ -92,7 +92,8 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props);
 
-  const useEncryption = useSelector(getShouldEncryptNames);
+  const useEncryption = useSelector(getStageUsesEncryption);
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {

@@ -10,6 +10,8 @@ import {
 import { getServerSession } from '~/utils/auth';
 import InterviewShell from '../_components/InterviewShell';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({
   params,
 }: {

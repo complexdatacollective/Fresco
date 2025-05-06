@@ -167,7 +167,13 @@ const QuickAddForm = ({
             animate={itemVariants.show}
             exit={itemVariants.hide}
           >
-            <form autoComplete="off" onSubmit={handleSubmit}>
+            <form
+              autoComplete="off"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
               <motion.div
                 key="tool-tip"
                 className="tool-tip"

@@ -1,8 +1,12 @@
 import type { Variable } from '@codaco/protocol-validation';
 import { createSelector } from '@reduxjs/toolkit';
 import { get } from 'es-toolkit/compat';
-import { getAssetManifest, getCodebook } from '../ducks/modules/protocol';
-import { getStageSubject } from './session';
+import {
+  getAssetManifest,
+  getCodebook,
+  getShouldEncryptNames,
+} from '../ducks/modules/protocol';
+import { getCurrentStage, getStageSubject } from './session';
 
 // Get all variables for all subjects in the codebook, adding the entity and type
 export const getAllVariableUUIDsByEntity = createSelector(
@@ -98,3 +102,27 @@ export const makeGetApiKeyAssetValue = (key: string) =>
     const value = manifest[key]?.value;
     return value;
   });
+
+export const getStageUsesEncryption = createSelector(
+  getShouldEncryptNames,
+  getCurrentStage,
+  getCodebookVariablesForSubjectType,
+  (shouldEncryptNames, stage, variables) => {
+    if (!shouldEncryptNames || !variables) {
+      return false;
+    }
+
+    // Check if the quickAdd variable or form has an encrypted variable
+    if (stage.type === 'NameGeneratorQuickAdd') {
+      return !!variables[stage.quickAdd]?.encrypted;
+    }
+
+    // Check if the form has any variables that are encrypted
+    if (stage.type === 'NameGenerator') {
+      const formVariables = stage.form.fields.map((field) => field.variable);
+      return formVariables.some((variable) => variables[variable]?.encrypted);
+    }
+
+    return false;
+  },
+);

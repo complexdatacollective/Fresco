@@ -7,6 +7,9 @@ import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
 import { type GetInterviewByIdQuery } from '~/queries/interviews';
 import logger from './ducks/middleware/logger';
+import { createSyncMiddleware } from './middleware/syncMiddleware';
+
+const syncMiddleware = createSyncMiddleware();
 
 const rootReducer = combineReducers({
   form,
@@ -31,7 +34,7 @@ export const store = ({
             'dialogs/open/pending', // Dialogs store callback functions
           ],
         },
-      }).concat(logger),
+      }).concat([logger, syncMiddleware]),
     preloadedState: {
       session: {
         // Important to manually pass only the required state items to the session

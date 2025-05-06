@@ -1,16 +1,12 @@
 'use server';
 
-import { NcNetworkSchema, type NcNetwork } from '@codaco/shared-consts';
+import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
 import { type Interview } from '@prisma/client';
 import { cookies } from 'next/headers';
-import { z } from 'zod';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
-import {
-  initialNetwork,
-  StageMetadataSchema,
-} from '~/lib/interviewer/ducks/modules/session';
+import { initialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -292,48 +288,3 @@ export async function finishInterview(interviewId: Interview['id']) {
     return { error: 'Failed to finish interview' };
   }
 }
-
-export async function syncInterview(interviewId: string, rawPayload: unknown) {
-  const Schema = z.object({
-    id: z.string(),
-    network: NcNetworkSchema,
-    currentStep: z.number(),
-    stageMetadata: StageMetadataSchema.optional(),
-    lastUpdated: z.string(),
-  });
-
-  const validatedRequest = Schema.safeParse(rawPayload);
-
-  if (!validatedRequest.success) {
-    // eslint-disable-next-line no-console
-    console.log(validatedRequest.error);
-    return { error: true, message: validatedRequest.error };
-  }
-
-  const { network, currentStep, stageMetadata, lastUpdated } =
-    validatedRequest.data;
-
-  try {
-    await prisma.interview.update({
-      where: {
-        id: interviewId,
-      },
-      data: {
-        network,
-        currentStep,
-        stageMetadata: stageMetadata ?? undefined,
-        lastUpdated: new Date(lastUpdated),
-      },
-    });
-
-    // eslint-disable-next-line no-console
-    console.log(`🚀 Interview synced with server! (${interviewId})`);
-
-    return { error: false };
-  } catch (e) {
-    const error = ensureError(e);
-    return { error: true, message: error.message };
-  }
-}
-
-export type SyncInterview = typeof syncInterview;

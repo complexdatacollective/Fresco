@@ -23,11 +23,13 @@ import { v4 as uuid, v4 } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
+import {
+  getCodebookVariablesForNodeType,
+  getStageUsesEncryption,
+} from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
 import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
-import { getShouldEncryptNames } from './protocol';
 
 // reducer helpers:
 function flipEdge(edge: Partial<NcEdge>) {
@@ -84,7 +86,7 @@ export const StageMetadataSchema = z.record(
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 export type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
-type SessionState = {
+export type SessionState = {
   id: string;
   startTime: string;
   finishTime: string | null;
@@ -147,7 +149,7 @@ export const addNode = createAsyncThunk(
 
     const sessionMeta = getSessionMeta(state);
 
-    const useEncryption = getShouldEncryptNames(state);
+    const useEncryption = getStageUsesEncryption(state);
 
     if (!useEncryption) {
       return {
