@@ -1,7 +1,7 @@
 .simulation-panel {
   position: absolute;
   z-index: var(--z-panel);
-  background: var(--nc-light-background);
+  background: var(--nc-panel-bg-muted);
   width: units.unit(26);
   height: units.unit(10);
   top: spacing(large);
@@ -38,7 +38,7 @@
     }
 
     &--disabled {
-      opacity: .5;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 

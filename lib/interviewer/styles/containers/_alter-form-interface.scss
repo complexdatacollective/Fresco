@@ -1,4 +1,4 @@
- .alter-form {
+.alter-form {
   @include interface-centering;
 
   display: flex;
@@ -19,7 +19,7 @@
     max-height: 75%;
     max-width: 80ch; // Same as ego form container with - for readability
     border-radius: var(--nc-border-radius);
-    background: var(--form-intro-panel-background);
+    background: var(--nc-panel-bg-muted);
     width: 100%;
     padding: units.unit(2) units.unit(4);
     left: 0;
@@ -41,7 +41,6 @@
     align-items: center;
     overflow: hidden;
   }
-
 
   .slide-wrapper {
     box-sizing: border-box;
@@ -76,10 +75,8 @@
       max-width: 65rem;
       padding: units.unit(1) units.unit(2) units.unit(2);
       border-radius: var(--nc-border-radius);
-      background: var(--nc-light-background);
+      background: var(--nc-panel-bg-muted);
       position: relative;
-
-
     }
   }
 
@@ -87,13 +84,13 @@
     position: absolute;
     top: calc(var(--base-node-size) * -0.5);
     left: calc(50% - (var(--base-node-size) / 2));
-    background: var(--nc-light-background);
+    background: var(--nc-panel-bg-muted);
     border-radius: 50%;
   }
 
   &__form-container {
     height: inherit;
-    margin-top: calc(var(--base-node-size) * .4);
+    margin-top: calc(var(--base-node-size) * 0.4);
     width: 100%;
   }
 
@@ -138,9 +135,7 @@
       width: 20rem;
       height: 1.5rem;
     }
-
   }
-
 }
 
 .alter-edge-form {
@@ -156,10 +151,11 @@
   .node {
     position: absolute;
     left: calc(8rem + 50% - var(--base-node-size) / 2);
-    background: var(--nc-light-background);
+    background: var(--nc-panel-bg-muted);
     border-radius: 50%;
 
-    > * { // Render first node on top of fake edge
+    > * {
+      // Render first node on top of fake edge
       z-index: 2;
     }
 
@@ -180,7 +176,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 units.unit(.5) units.unit(2) units.unit(1) rgb(0 0 0 / 25%); // sass-lint:disable-line no-color-literals
+  box-shadow: 0 units.unit(0.5) units.unit(2) units.unit(1) rgb(0 0 0 / 25%); // sass-lint:disable-line no-color-literals
   z-index: var(--z-dialog);
 
   h5 {

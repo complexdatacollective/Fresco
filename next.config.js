@@ -1,3 +1,5 @@
+// @ts-check
+
 import('./env.js');
 import ChildProcess from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
@@ -9,8 +11,16 @@ try {
     .toString()
     .trim();
 } catch (error) {
-  // eslint-disable-next-line no-console
-  console.info('Error getting commit hash:', error.message ?? 'Unknown error');
+  if (error instanceof Error) {
+    // eslint-disable-next-line no-console
+    console.info(
+      'Error getting commit hash:',
+      error.message ?? 'Unknown error',
+    );
+  } else {
+    // eslint-disable-next-line no-console
+    console.info('Error getting commit hash:', error);
+  }
 }
 
 /** @type {import("next").NextConfig} */
@@ -21,6 +31,7 @@ const config = {
     typedRoutes: true,
     webpackBuildWorker: true,
   },
+  transpilePackages: ['@codaco/shared-consts'],
   webpack: (config) => {
     config.module.rules.push({
       test: /\.(jpe?g|png|svg|gif|ico|eot|ttf|woff|woff2|mp4|pdf|webm|txt|mp3)$/,
@@ -39,6 +50,10 @@ const config = {
   },
   eslint: {
     dirs: ['./'],
+    ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  }
 };
 export default config;

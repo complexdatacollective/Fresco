@@ -1,4 +1,4 @@
-import { type ActivityType } from '~/lib/data-table/types';
+import { type ActivityType } from '~/components/DataTable/types';
 
 export const getBadgeColorsForActivityType = (type: ActivityType) => {
   switch (type.toLowerCase()) {

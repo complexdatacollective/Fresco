@@ -1,8 +1,9 @@
-import ProgressBar from '~/lib/ui/components/ProgressBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '~/utils/shadcn';
 import { useSelector } from 'react-redux';
+import ProgressBar from '~/lib/ui/components/ProgressBar';
+import { cn } from '~/utils/shadcn';
 import { getNavigationInfo } from '../selectors/session';
+import PassphrasePrompter from './PassphrasePrompter';
 
 const NavigationButton = ({
   disabled,
@@ -60,6 +61,7 @@ const Navigation = ({
       >
         <ChevronUp className="h-[2.4rem] w-[2.4rem]" strokeWidth="3px" />
       </NavigationButton>
+      <PassphrasePrompter />
       <div className="m-6 flex grow">
         <ProgressBar percentProgress={progress} />
       </div>
@@ -67,7 +69,7 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'animate-pulse bg-success',
+          pulseNext && 'bg-success animate-pulse',
         )}
         onClick={moveForward}
         disabled={disabled || !canMoveForward}

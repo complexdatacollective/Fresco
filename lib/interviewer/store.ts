@@ -1,69 +1,62 @@
-import type { Protocol } from '@prisma/client';
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import { reducer as form } from 'redux-form';
-import thunk from 'redux-thunk';
-import activeSessionId from '~/lib/interviewer/ducks/modules/activeSessionId';
-import deviceSettings from '~/lib/interviewer/ducks/modules/deviceSettings';
 import dialogs from '~/lib/interviewer/ducks/modules/dialogs';
-import installedProtocols from '~/lib/interviewer/ducks/modules/installedProtocols';
-import sessions from '~/lib/interviewer/ducks/modules/session';
+import protocol from '~/lib/interviewer/ducks/modules/protocol';
+import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
-import type { NcNetwork } from '~/schemas/network-canvas';
+import { type GetInterviewByIdQuery } from '~/queries/interviews';
 import logger from './ducks/middleware/logger';
-import sound from './ducks/middleware/sound';
 
-export const store = configureStore({
-  reducer: {
-    form,
-    activeSessionId,
-    sessions,
-    installedProtocols,
-    deviceSettings,
-    dialogs,
-    ui,
-  },
-  middleware: [thunk, logger, sound],
+const rootReducer = combineReducers({
+  form,
+  session,
+  protocol,
+  dialogs,
+  ui, // don't do it - this is used for FORM_IS_READY
 });
 
-export type StageMetadataEntry = [number, string, string, boolean];
-export type StageMetadata = StageMetadataEntry[];
+export const store = ({
+  protocol,
+  ...session
+}: NonNullable<GetInterviewByIdQuery>) =>
+  configureStore({
+    reducer: rootReducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [
+            '@@redux-form/INITIALIZE', // Redux form stores functions for validation in the store
+            'dialogs/addDialog', // Dialogs store callback functions
+            'dialogs/open/pending', // Dialogs store callback functions
+          ],
+        },
+      }).concat(logger),
+    preloadedState: {
+      session: {
+        // Important to manually pass only the required state items to the session
+        // reducer, otherwise it will complain about items that aren't able to
+        // be serialised.
+        id: session.id,
+        currentStep: session.currentStep,
+        startTime: session.startTime.toISOString(),
+        finishTime: session.finishTime?.toISOString() ?? null,
+        exportTime: session.exportTime?.toISOString() ?? null,
+        lastUpdated: session.lastUpdated.toISOString(),
+        network: session.network,
+        stageMetadata: session.stageMetadata ?? undefined,
+      },
+      protocol: {
+        id: protocol.id,
+        stages: protocol.stages,
+        codebook: protocol.codebook,
+        assets: protocol.assets,
+        experiments: protocol.experiments ?? undefined,
+      },
+    },
+  });
 
-type Session = {
-  id: string;
-  protocolUid: string;
-  promptIndex: number;
-  currentStep: number;
-  caseId: string;
-  network: NcNetwork;
-  startedAt: Date;
-  lastUpdated: Date;
-  finishedAt: Date;
-  exportedAt: Date;
-  stageMetadata?: Record<number, StageMetadata>; // Used as temporary storage by DyadCensus/TieStrengthCensus
-};
-
-type SessionsState = Record<string, Session>;
-
-export type InstalledProtocols = Record<string, Protocol>;
-
-type Dialog = {
-  id: string;
-  title: string;
-  type: string;
-  confirmLabel?: string;
-  message: string;
-};
-
-type Dialogs = {
-  dialogs: Dialog[];
-};
-
-export type RootState = {
-  form: Record<string, unknown>;
-  activeSessionId: keyof SessionsState;
-  sessions: SessionsState;
-  installedProtocols: InstalledProtocols;
-  deviceSettings: Record<string, unknown>;
-  dialogs: Dialogs;
-  ui: Record<string, unknown>;
-};
+export type RootState = ReturnType<typeof rootReducer>;
+type AppDispatch = ReturnType<typeof store>['dispatch'];
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export type AppStore = ReturnType<typeof store>;

@@ -1,23 +1,23 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import type { ProtocolWithInterviews } from '~/types/types';
-import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
-import TimeAgo from '~/components/ui/TimeAgo';
-import Image from 'next/image';
-import { buttonVariants } from '~/components/ui/Button';
-import InfoTooltip from '~/components/InfoTooltip';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import Heading from '~/components/ui/typography/Heading';
-import Link from '~/components/Link';
 import { InfoIcon } from 'lucide-react';
+import Image from 'next/image';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import InfoTooltip from '~/components/InfoTooltip';
+import Link from '~/components/Link';
+import { buttonVariants } from '~/components/ui/Button';
+import { Checkbox } from '~/components/ui/checkbox';
+import TimeAgo from '~/components/ui/TimeAgo';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
+import { type ProtocolsWithInterviews } from './ProtocolsTable';
 
 export const getProtocolColumns = (
   allowAnonRecruitment = false,
-): ColumnDef<ProtocolWithInterviews, unknown>[] => {
-  const columns: ColumnDef<ProtocolWithInterviews, unknown>[] = [
+): ColumnDef<ProtocolsWithInterviews[0], unknown>[] => {
+  const columns: ColumnDef<ProtocolsWithInterviews[0], unknown>[] = [
     {
       id: 'select',
       header: ({ table }) => (

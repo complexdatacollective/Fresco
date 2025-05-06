@@ -50,6 +50,7 @@ model Protocol {
   codebook      Json
   assets        Asset[]
   interviews    Interview[]
+  experiments   Json?
 }
 
 model Asset {
@@ -60,6 +61,7 @@ model Asset {
   url       String
   size      Int
   protocols Protocol[]
+  value     String?
 
   @@index(fields: [assetId, key])
 }
