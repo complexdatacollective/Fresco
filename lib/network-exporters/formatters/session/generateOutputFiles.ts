@@ -11,7 +11,7 @@ import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
 
 export const generateOutputFiles =
-  (protocol: Record<string, ExportedProtocol>, exportOptions: ExportOptions) =>
+  (protocols: Record<string, ExportedProtocol>, exportOptions: ExportOptions) =>
   async (unifiedSessions: Record<string, SessionWithResequencedIDs[]>) => {
     const exportFormats = [
       ...(exportOptions.exportGraphML ? ['graphml'] : []),
@@ -20,21 +20,22 @@ export const generateOutputFiles =
 
     const exportPromises: Promise<ExportResult>[] = [];
 
-    Object.entries(unifiedSessions).forEach(([, sessions]) => {
-      sessions.forEach((session) => {
-        // Skip if sessions don't have required sessionVariables
+    Object.entries(unifiedSessions).forEach(([protocolKey, sessions]) => {
+      const protocol = protocols[protocolKey];
+      if (!protocol) {
+        // eslint-disable-next-line no-console
+        console.warn(`No protocol found for key: ${protocolKey}`);
+        return;
+      }
 
+      const codebook = protocol.codebook as unknown as Codebook; // Needed due to prisma.Json type
+
+      sessions.forEach((session) => {
         const prefix = getFilePrefix(session);
 
         exportFormats.forEach((format) => {
-          const codebook = protocol.codebook as unknown as Codebook; // Needed due to prisma.Json type
-
           // Split each network into separate files based on format and entity type.
-          const partitionedNetworks = partitionByType(
-            codebook,
-            session,
-            format,
-          );
+          const partitionedNetworks = partitionByType(codebook, session, format);
 
           partitionedNetworks.forEach((partitionedNetwork) => {
             const exportPromise = exportFile({
