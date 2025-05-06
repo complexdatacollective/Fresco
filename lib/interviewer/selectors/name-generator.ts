@@ -44,9 +44,6 @@ export const getPromptModelData = createSelector(
   getIDs,
   (subject, { stageId, promptId }) => {
     invariant(subject, 'Subject is required');
-    if (subject.entity === 'ego') {
-      throw new Error('Ego subject is not supported');
-    }
 
     return {
       type: subject.type,

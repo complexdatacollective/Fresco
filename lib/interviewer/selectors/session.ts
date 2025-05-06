@@ -437,11 +437,7 @@ export const getNetworkNodesForType = createSelector(
       return [];
     }
 
-    if (subject.entity === 'ego') {
-      return [];
-    }
-
-    return filter(nodes, ['type', subject.type]);
+    return nodes.filter((node) => node.type === subject.type);
   },
 );
 

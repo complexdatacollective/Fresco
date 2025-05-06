@@ -83,10 +83,6 @@ export const getCodebookVariablesForSubjectType = createSelector(
 
     const { entity } = subject;
 
-    if (entity === 'ego') {
-      return codebook.ego?.variables ?? {};
-    }
-
     return codebook[entity]?.[subject.type]?.variables ?? {};
   },
 );

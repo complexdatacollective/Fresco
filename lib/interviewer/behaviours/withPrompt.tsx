@@ -32,7 +32,7 @@ type MaybePrompt = Prompt & {
 
 const processSortRules = (
   prompts: MaybePrompt[] = [],
-  codebookVariables: EntityDefinition,
+  codebookVariables: EntityDefinition['variables'],
 ) => {
   const sortProperties = ['bucketSortOrder', 'binSortOrder'] as const;
 

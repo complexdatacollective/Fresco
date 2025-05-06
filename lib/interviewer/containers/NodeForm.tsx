@@ -59,7 +59,7 @@ const NodeForm = (props: NodeFormProps) => {
 
   const updateNode = useCallback(
     (payload: {
-      uid: NcNode[EntityPrimaryKey];
+      nodeId: NcNode[EntityPrimaryKey];
       newModelData?: Record<string, unknown>;
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => dispatch(updateNodeAction(payload)),

@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "checkJs": false,
     "skipLibCheck": true,
@@ -23,9 +19,7 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "./*"
-      ]
+      "~/*": ["./*"]
     },
     "plugins": [
       {
@@ -45,9 +39,7 @@
     ".next/types/**/*.ts",
     "eslint-local-rules/index.js",
     "actions/auth.ts",
-    "env.js", 
+    "env.js"
   ],
-  "exclude": [
-    "node_modules",
-  ]
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

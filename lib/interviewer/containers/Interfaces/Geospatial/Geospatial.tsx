@@ -97,14 +97,15 @@ export default function GeospatialInterface({
 
   const updateNode = useCallback(
     ({
-      uid,
+      nodeId,
       newModelData,
       newAttributeData,
     }: {
-      uid: string;
+      nodeId: string;
       newModelData?: Record<string, unknown>;
       newAttributeData: Record<string, VariableValue>;
-    }) => dispatch(updateNodeAction({ uid, newModelData, newAttributeData })),
+    }) =>
+      dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
     [dispatch],
   );
 
