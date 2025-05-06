@@ -253,6 +253,8 @@ function generateKeysForEntities(
             break;
           case 'text':
           case 'datetime':
+          case 'location':
+          case undefined:
           default:
             keyElement.setAttribute('attr.type', 'string');
         }

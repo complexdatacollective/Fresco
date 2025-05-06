@@ -6,12 +6,11 @@ import MarkdownLabel from './MarkdownLabel';
 
 type InputProps = {
   name?: string;
-  value?: any;
+  value?: string | number | readonly string[] | undefined;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-  [key: string]: any; // For any other input props
 };
 
 type RadioProps = {
@@ -20,7 +19,6 @@ type RadioProps = {
   className?: string;
   disabled?: boolean;
   input: InputProps;
-  [key: string]: any; // For rest props
 };
 
 const Radio = ({
@@ -28,7 +26,6 @@ const Radio = ({
   className = '',
   input,
   disabled = false,
-  fieldLabel, // Included but not used
   ...rest
 }: RadioProps) => {
   // Use React's useId hook to generate a stable ID

@@ -267,6 +267,8 @@ const getNodeListUsingTypes = (
           }
           case VariableTypes.datetime:
           case VariableTypes.text:
+          case VariableTypes.location:
+          case undefined:
           default:
             return {
               ...consolidatedAttributes,

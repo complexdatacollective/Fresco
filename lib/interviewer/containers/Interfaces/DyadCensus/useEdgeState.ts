@@ -84,7 +84,7 @@ export default function useEdgeState(
       return false;
     }
 
-    const { exists: edgeExistsInMetadata, value } = getStageMetadataResponse(
+    const { exists: edgeExistsInMetadata } = getStageMetadataResponse(
       stageMetadata,
       promptIndex,
       pair,

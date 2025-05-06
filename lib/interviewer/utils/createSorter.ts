@@ -66,8 +66,8 @@ const chain =
 const stringFunction =
   ({ property, direction }: ProcessedSortRule) =>
   (a: Item, b: Item) => {
-    const firstValue = get(a, property, null);
-    const secondValue = get(b, property, null);
+    const firstValue = get(a, property, null) as string | null;
+    const secondValue = get(b, property, null) as string | null;
 
     if (firstValue === null || typeof firstValue !== 'string') {
       return 1;
@@ -335,6 +335,8 @@ export const mapNCType = (type: VariableTypeWithWildcard) => {
   switch (type) {
     case 'text':
     case 'layout':
+    case 'location':
+    case undefined:
       return 'string' as const;
     case 'number':
     case 'boolean':

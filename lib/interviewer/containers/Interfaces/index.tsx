@@ -111,6 +111,7 @@ const getInterface = (interfaceType: InterfaceType) => {
       return Geospatial;
     case 'FinishSession':
       return FinishSession;
+    case 'FamilyTreeCensus':
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import cx from 'classnames';
 import React, { useId } from 'react';
@@ -6,13 +6,12 @@ import MarkdownLabel from './MarkdownLabel';
 
 type InputProps = {
   name?: string;
-  value?: any;
+  value?: string | number | readonly string[] | undefined;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-  [key: string]: any; // For any other input props
-}
+};
 
 type ToggleButtonProps = {
   label: string;
@@ -21,8 +20,7 @@ type ToggleButtonProps = {
   disabled?: boolean;
   color?: string;
   fieldLabel?: string;
-  [key: string]: any; // For rest props
-}
+};
 
 const ToggleButton = ({
   label,
@@ -30,12 +28,13 @@ const ToggleButton = ({
   input,
   disabled = false,
   color = 'cat-color-seq-1',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fieldLabel, // Included but not used
   ...rest
 }: ToggleButtonProps) => {
   // Use React's useId hook to generate a stable ID
   const id = useId();
-  
+
   const componentClasses = cx(
     'form-field-togglebutton',
     `form-field-togglebutton-${color}`,

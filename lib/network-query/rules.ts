@@ -21,6 +21,7 @@ const singleEdgeRule =
     const nodeHasEdgeOfType = nodeEdges.some((edge) => edge.type === type);
 
     if (!attribute) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (operator) {
         case 'EXISTS':
           return nodeHasEdgeOfType;
@@ -49,6 +50,7 @@ const singleNodeRule =
   ({ type, attribute, operator, value: other }: FilterRule['options']) =>
   (node: NcNode) => {
     if (!attribute) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (operator) {
         case operators.EXISTS:
           return node.type === type;
@@ -76,6 +78,7 @@ const edgeRule =
     let filteredEdges;
     // If there is no attribute, we just care about filtering by type
     if (!attribute) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (operator) {
         case operators.EXISTS:
           filteredEdges = edges.filter((edge) => edge.type === type);
@@ -142,6 +145,7 @@ const nodeRule =
     let filteredNodes: NcNode[] = [];
     // If there is no attribute, we just care about filtering by type
     if (!attribute) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (operator) {
         case operators.EXISTS:
           filteredNodes = nodes.filter((node) => node.type === type!);

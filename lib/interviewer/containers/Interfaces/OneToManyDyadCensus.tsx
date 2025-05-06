@@ -66,8 +66,6 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     return sortedTargets.length;
   }, [sortedTargets.length, removeAfterConsideration, currentStep]);
 
-  console.log('e', removeAfterConsideration);
-
   /**
    * Hijack stage navigation:
    * - If we are moving forward and not on the last step, increment the step
@@ -82,7 +80,6 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
     }
 
     if (direction === 'forwards') {
-      console.log('fo', currentStep, numberOfSteps);
       if (currentStep + 1 <= numberOfSteps) {
         setCurrentStep((prev) => prev + 1);
         setTimeout(() => {
@@ -130,12 +127,6 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  console.log('coni', {
-    currentStep,
-    numberOfSteps,
-    removeAfterConsideration,
-  });
-
   return (
     <div className="one-to-many-dyad-census flex h-full w-full flex-col gap-4 px-[2.4rem] py-[1.2rem]">
       <div className="flex flex-col items-center">
@@ -175,7 +166,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
               key={promptIndex}
               exit={{ opacity: 0 }}
             >
-              {sortedTargets.map((node, index) => {
+              {sortedTargets.map((node) => {
                 /**
                  * Remove after consideration behaviour:
                  * Once a node has been 'considered' (has been the source), it should be

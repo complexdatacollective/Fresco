@@ -7,19 +7,17 @@ import MarkdownLabel from './MarkdownLabel';
 
 type InputProps = {
   name?: string;
-  value?: any;
-  onChange: (value: any) => void;
+  value?: string | number | readonly string[] | undefined;
+  onChange: (e: boolean) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-  [key: string]: any; // For any other input props
 };
 
 type MetaProps = {
   error?: string;
   invalid?: boolean;
   touched?: boolean;
-  [key: string]: any; // For any other meta props
 };
 
 type ToggleProps = {
@@ -30,7 +28,6 @@ type ToggleProps = {
   disabled?: boolean;
   title?: string;
   meta: MetaProps;
-  [key: string]: any; // For rest props
 };
 
 const Toggle = ({
@@ -72,12 +69,15 @@ const Toggle = ({
         <input
           className="form-field-toggle__input"
           id={id}
-          {...input}
-          {...rest}
+          name={input.name}
+          value={input.value}
           checked={!!input.value}
+          onChange={(e) => input.onChange(e.target.checked)}
+          onBlur={input.onBlur}
+          onFocus={input.onFocus}
           disabled={disabled}
           type="checkbox"
-          value="true"
+          {...rest}
         />
         <div className="form-field-toggle__toggle">
           <span className="form-field-toggle__button" />
