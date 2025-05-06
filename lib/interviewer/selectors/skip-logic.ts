@@ -4,7 +4,7 @@ import { getStages } from '../ducks/modules/protocol';
 import { getNetwork, getStageIndex } from './session';
 
 // Hacked together version of isStageSkipped that returns a map of all stages.
-// This is more convinient to use with useSelector.
+// This is more convenient to use with useSelector.
 const getSkipMap = createSelector(
   getStages,
   getNetwork,
