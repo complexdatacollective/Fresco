@@ -1,6 +1,5 @@
 'use client';
 
-import type { Codebook, NcNetwork, Stage } from '@codaco/shared-consts';
 import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -145,7 +144,7 @@ export const InterviewColumns = (): ColumnDef<
   {
     id: 'network',
     accessorFn: (row) => {
-      const network = row.network as NcNetwork;
+      const network = row.network;
       const nodeCount = network?.nodes?.length ?? 0;
       const edgeCount = network?.edges?.length ?? 0;
       return nodeCount + edgeCount;
@@ -154,8 +153,8 @@ export const InterviewColumns = (): ColumnDef<
       return <DataTableColumnHeader column={column} title="Network" />;
     },
     cell: ({ row }) => {
-      const network = row.original.network as NcNetwork;
-      const codebook = row.original.protocol.codebook as Codebook;
+      const network = row.original.network;
+      const codebook = row.original.protocol.codebook;
 
       return <NetworkSummary network={network} codebook={codebook} />;
     },

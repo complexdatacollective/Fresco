@@ -1,4 +1,6 @@
-import type { Codebook, NcNetwork } from '@codaco/shared-consts';
+import { type Codebook } from '@codaco/protocol-validation';
+import type { NcNetwork } from '@codaco/shared-consts';
+
 import { cn } from '~/utils/shadcn';
 
 type NodeColorSequence =
