@@ -289,10 +289,14 @@ const getSortFunction = (rule: ProcessedSortRule) => {
  * https://stackoverflow.com/questions/6913512/how-to-sort-an-array-of-objects-by-multiple-fields/72649463#72649463
  *
  */
-const createSorter = (sortRules: ProcessedSortRule[] = []) => {
+const createSorter = <T extends Item = Item>(
+  sortRules: ProcessedSortRule[] = [],
+) => {
   const sortFunctions = sortRules.map(getSortFunction);
-  return (items: Item[]) =>
-    withoutCreatedIndex(withCreatedIndex(items).sort(chain(...sortFunctions)));
+  return (items: T[]) =>
+    withoutCreatedIndex(
+      withCreatedIndex(items).sort(chain(...sortFunctions)),
+    ) as T[];
 };
 
 // TODO: replace with protocol-validation type when available
@@ -369,7 +373,7 @@ const propertyWithAttributePath = (rule: ProtocolSortRule) => {
 };
 
 export type ProtocolSortRule = {
-  property: string;
+  property: string | string[];
   direction?: 'asc' | 'desc';
 };
 
@@ -389,7 +393,11 @@ export type ProtocolSortRule = {
 export const processProtocolSortRule =
   (codebookVariables: EntityDefinition['variables']) =>
   (sortRule: ProtocolSortRule) => {
-    const variableDefinition = get(codebookVariables, sortRule.property, null);
+    const variableDefinition = get(
+      codebookVariables,
+      sortRule.property as string,
+      null,
+    );
 
     // Don't modify the rule if there is no variable definition matching the
     // property.
@@ -410,20 +418,12 @@ export const processProtocolSortRule =
       ...(type === 'categorical' && {
         hierarchy: variableDefinition.options.map((option) => option.value),
       }),
-    };
+    } as ProcessedSortRule;
   };
 
-type ProcessedSortRule = {
-  property: string | string[];
-  direction?: 'asc' | 'desc';
-  type:
-    | 'string'
-    | 'number'
-    | 'date'
-    | 'boolean'
-    | 'hierarchy'
-    | 'categorical'
-    | '*'; // Note: this is *not* the same as NC variable types. See createSorter.
+type ProcessedSortRule = ProtocolSortRule & {
+  type: // Note: this is *not* the same as NC variable types. See createSorter.
+  'string' | 'number' | 'date' | 'boolean' | 'hierarchy' | 'categorical';
   hierarchy?: (string | number | boolean)[];
 };
 

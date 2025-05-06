@@ -63,7 +63,7 @@ function NodePanel(props: NodePanelProps) {
   }, [nodes.length, onUpdate, fullNodeIndex]);
 
   const handleDrop = (item: { meta: NcNode; target: NcNode }) => {
-    return onDrop(item, panelConfig.dataSource!); // TODO: should always be defined fix in protocol-validation
+    return onDrop(item, panelConfig.dataSource);
   };
 
   return (
