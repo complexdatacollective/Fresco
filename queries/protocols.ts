@@ -26,18 +26,15 @@ export const getProtocolByHash = createCachedFunction(
   ['getProtocolsByHash', 'getProtocols'],
 );
 
-export const getNewAssetIds = createCachedFunction(
-  async (assetIds: string[]) => {
-    const assets = await prisma.asset.findMany({
-      where: {
-        assetId: {
-          in: assetIds,
-        },
+export const getNewAssetIds = async (assetIds: string[]) => {
+  const assets = await prisma.asset.findMany({
+    where: {
+      assetId: {
+        in: assetIds,
       },
-    });
-    const existingAssets = assets.map((asset) => asset.assetId);
-    // Return the assetIds that are not in the database
-    return assetIds.filter((assetId) => !existingAssets.includes(assetId));
-  },
-  ['getNewAssetIds', 'getProtocols'],
-);
+    },
+  });
+  const existingAssets = assets.map((asset) => asset.assetId);
+  // Return the assetIds that are not in the database
+  return assetIds.filter((assetId) => !existingAssets.includes(assetId));
+};

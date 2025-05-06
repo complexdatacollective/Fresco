@@ -80,10 +80,6 @@ const protocolSlice = createSlice({
         };
       },
     ),
-    getApiKeyAssetValue: (state) => (key: string) => {
-      const manifest = protocolSlice.selectors.getAssetManifest(state);
-      return manifest[key]?.value;
-    },
   },
 });
 
@@ -96,7 +92,6 @@ export const {
   getStages,
   getAssetManifest,
   getAssetUrlFromId,
-  getApiKeyAssetValue,
 } = protocolSlice.selectors;
 
 export default protocolSlice.reducer;

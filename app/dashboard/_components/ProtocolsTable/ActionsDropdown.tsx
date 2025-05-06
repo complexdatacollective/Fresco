@@ -1,6 +1,9 @@
 'use client';
 
+import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { Button } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -9,21 +12,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import type { Row } from '@tanstack/react-table';
-import { useState } from 'react';
-import type { ProtocolWithInterviews } from '~/types/types';
-import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
+import { type GetProtocolsReturnType } from '~/queries/protocols';
 
 export const ActionsDropdown = ({
   row,
 }: {
-  row: Row<ProtocolWithInterviews>;
+  row: Row<Awaited<GetProtocolsReturnType>[0]>;
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [protocolToDelete, setProtocolToDelete] =
-    useState<ProtocolWithInterviews[]>();
+    useState<Awaited<GetProtocolsReturnType>[0][]>();
 
-  const handleDelete = (data: ProtocolWithInterviews) => {
+  const handleDelete = (data: Awaited<GetProtocolsReturnType>[0]) => {
     setProtocolToDelete([data]);
     setShowDeleteModal(true);
   };

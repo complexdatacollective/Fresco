@@ -12,7 +12,6 @@ export const CacheTags = [
   'interviewCount',
   'protocolCount',
   'participantCount',
-  'getNewAssetIds',
 ] as const satisfies string[];
 
 type StaticTag = (typeof CacheTags)[number];
