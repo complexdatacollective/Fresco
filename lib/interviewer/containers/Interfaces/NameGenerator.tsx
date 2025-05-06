@@ -20,15 +20,11 @@ import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,
   deleteNode as deleteNodeAction,
-  updateNode as updateNodeAction,
 } from '../../ducks/modules/session';
 import usePropSelector from '../../hooks/usePropSelector';
-import { getNodeIconName } from '../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import {
   getNetworkNodesForPrompt,
-  getNodeColor,
-  getNodeTypeLabel,
   getStageNodeCount,
 } from '../../selectors/session';
 import { useAppDispatch } from '../../store';
@@ -92,17 +88,12 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const minNodes = minNodesWithDefault(behaviours?.minNodes) as number;
   const maxNodes = maxNodesWithDefault(behaviours?.maxNodes) as number;
 
-  const stageNodeCount = usePropSelector(getStageNodeCount, props); // 1
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector); // 2
-
-  const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props); // 4
-  const nodeIconName = useSelector(getNodeIconName);
-  const nodeType = useSelector(getNodeTypeLabel(stage.subject.type));
-  const nodeColor = useSelector(getNodeColor(stage.subject.type));
+  const stageNodeCount = usePropSelector(getStageNodeCount, props);
+  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props);
 
   const useEncryption = useSelector(getShouldEncryptNames);
-
-  const appDispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (useEncryption) {
@@ -110,45 +101,36 @@ const NameGenerator = (props: NameGeneratorProps) => {
     }
   }, [useEncryption, requirePassphrase]);
 
-  const addNode = useCallback(
-    (attributes: NcNode[EntityAttributesProperty]) =>
-      appDispatch(
-        addNodeAction({
-          type: stage.subject.type,
-          attributeData: attributes,
-        }),
-      ),
-    [appDispatch, stage.subject],
-  );
-
-  const updateNode = useCallback(
-    (payload: {
-      nodeId: NcNode[EntityPrimaryKey];
-      newModelData?: Record<string, unknown>;
-      newAttributeData: NcNode[EntityAttributesProperty];
-    }) => appDispatch(updateNodeAction(payload)),
-    [appDispatch],
-  );
-
   const addNodeToPrompt = useCallback(
     (
       nodeId: NcNode[EntityPrimaryKey],
       promptAttributes: Record<string, boolean> = {},
     ) =>
-      appDispatch(
+      dispatch(
         addNodeToPromptAction({
           nodeId,
           promptAttributes,
         }),
       ),
-    [appDispatch],
+    [dispatch],
   );
 
   const deleteNode = useCallback(
     (uid: NcNode[EntityPrimaryKey]) => {
-      appDispatch(deleteNodeAction(uid));
+      dispatch(deleteNodeAction(uid));
     },
-    [appDispatch],
+    [dispatch],
+  );
+
+  const addNode = useCallback(
+    (attributes: NcNode[EntityAttributesProperty]) =>
+      dispatch(
+        addNodeAction({
+          type: stage.subject.type,
+          attributeData: attributes,
+        }),
+      ),
+    [dispatch, stage.subject.type],
   );
 
   const maxNodesReached = stageNodeCount >= maxNodes;
@@ -236,28 +218,17 @@ const NameGenerator = (props: NameGeneratorProps) => {
       )}
       {form && (
         <NodeForm
-          subject={stage.subject}
           selectedNode={selectedNode}
           form={form}
           disabled={maxNodesReached || (useEncryption && !passphrase)}
-          icon={nodeIconName}
-          nodeType={nodeType}
-          newNodeAttributes={newNodeAttributes}
           onClose={() => setSelectedNode(null)}
-          addNode={addNode}
-          updateNode={updateNode}
         />
       )}
       {!form && (
         <QuickNodeForm
           disabled={maxNodesReached || (useEncryption && !passphrase)}
-          icon={nodeIconName}
-          nodeColor={nodeColor}
-          nodeType={nodeType}
-          newNodeAttributes={newNodeAttributes}
-          targetVariable={quickAdd}
+          targetVariable={quickAdd!}
           onShowForm={() => setShowMinWarning(false)}
-          addNode={addNode}
         />
       )}
     </div>

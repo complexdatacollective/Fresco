@@ -39,7 +39,7 @@ const getStageMetadataResponse = (
   const answer = state.find(matchEntry(promptIndex, pair));
   return {
     exists: !!answer,
-    value: !!answer ? answer[3] : undefined,
+    value: answer ? answer[3] : undefined,
   };
 };
 
@@ -90,13 +90,6 @@ export default function useEdgeState(
       pair,
     );
 
-    console.log('hasEdge()', {
-      stageMetadata,
-      promptIndex,
-      edgeExistsInMetadata,
-      existingEdgeId,
-    });
-
     // If the edge exists in the network, return true
     if (existingEdgeId) {
       return true;
@@ -115,7 +108,6 @@ export default function useEdgeState(
   //
   // Fucking stupid design.
   const setEdge = (value: boolean | string | number) => {
-    console.log('setting edge', value);
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
 
@@ -139,8 +131,6 @@ export default function useEdgeState(
         ) ?? []),
       ] as StageMetadataEntry[];
 
-      console.log(newStageMetadata);
-
       dispatch(updateStageMetadata(newStageMetadata));
 
       return;
@@ -158,8 +148,6 @@ export default function useEdgeState(
         ) ?? []),
         [promptIndex, ...pair, value],
       ] as StageMetadataEntry[];
-
-      console.log(newStageMetadata);
 
       const action = updateStageMetadata(newStageMetadata);
 

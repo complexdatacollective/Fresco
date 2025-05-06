@@ -1,26 +1,31 @@
 import { revalidateTag, unstable_cache } from 'next/cache';
 
-type StaticTag =
-  | 'activityFeed'
-  | 'appSettings'
-  | 'getInterviews'
-  | 'summaryStatistics'
-  | 'getParticipants'
-  | 'getInterviewById'
-  | 'getProtocols'
-  | 'getInterviewsForExport'
-  | 'getProtocolsByHash'
-  | 'getExistingAssetIds'
-  | 'interviewCount'
-  | 'protocolCount'
-  | 'participantCount'
-  | 'getNewAssetIds';
+export const CacheTags = [
+  'activityFeed',
+  'appSettings',
+  'getInterviews',
+  'summaryStatistics',
+  'getParticipants',
+  'getProtocols',
+  'getProtocolsByHash',
+  'getExistingAssetIds',
+  'interviewCount',
+  'protocolCount',
+  'participantCount',
+  'getNewAssetIds',
+] as const satisfies string[];
+
+type StaticTag = (typeof CacheTags)[number];
 
 type DynamicTag = `${StaticTag}-${string}`;
 
 type CacheTag = StaticTag | DynamicTag;
 
-export function safeRevalidateTag(tag: CacheTag) {
+export function safeRevalidateTag(tag: CacheTag | CacheTag[]) {
+  if (Array.isArray(tag)) {
+    tag.forEach((t) => revalidateTag(t));
+    return;
+  }
   revalidateTag(tag);
 }
 

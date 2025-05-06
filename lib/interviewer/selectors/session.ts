@@ -231,10 +231,9 @@ export const getNodeTypeDefinition = createSelector(
   getCodebook,
   getStageSubject,
   (codebook, subject) => {
-    if (!subject || subject.entity === 'ego') {
+    if (!subject) {
       return null;
     }
-
     return codebook.node?.[subject.type] ?? null;
   },
 );
@@ -395,19 +394,15 @@ export const makeGetCategoricalOptions = () => getCategoricalOptions;
  * Get the current prompt/stage subject, and filter the network by this edge type.
  */
 
-const getNetworkEdgesForType = createSelector(
+export const getNetworkEdgesForType = createSelector(
   getNetworkEdges,
   getStageSubject,
   (edges, subject) => {
-    if (!subject || !edges) {
+    if (!subject) {
       return [];
     }
 
-    if (subject.entity === 'ego') {
-      return [];
-    }
-
-    filter(edges, ['type', subject.type]);
+    return edges.filter((edge) => edge.type === subject.type);
   },
 );
 

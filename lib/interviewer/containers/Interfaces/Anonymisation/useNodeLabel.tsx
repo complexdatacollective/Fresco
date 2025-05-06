@@ -27,7 +27,6 @@ export function useNodeLabel(node: NcNode) {
 
         // 2. Use a fuzzy match to try and find a variable name that includes 'name' in the codebook
         const fuzzyName = await getByFuzzyMatch<string>(new RegExp('name'));
-        console.log('f', fuzzyName);
         if (fuzzyName) {
           setLabel(fuzzyName);
           return;
@@ -35,6 +34,7 @@ export function useNodeLabel(node: NcNode) {
       } catch (e) {
         const error = ensureError(e);
 
+        // eslint-disable-next-line no-console
         console.log(error.message);
         if (e instanceof UnauthorizedError) {
           setLabel('🔒');
@@ -52,7 +52,7 @@ export function useNodeLabel(node: NcNode) {
         }
       }
 
-      if (foundName) {
+      if (foundName && nodeAttributes[foundName]) {
         setLabel(nodeAttributes[foundName] as string);
         return;
       }

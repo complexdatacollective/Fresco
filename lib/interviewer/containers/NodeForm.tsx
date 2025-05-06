@@ -1,47 +1,77 @@
+import { type Form as TForm } from '@codaco/protocol-validation';
 import {
+  type EntityAttributesProperty,
   entityAttributesProperty,
+  type EntityPrimaryKey,
   entityPrimaryKeyProperty,
+  type NcNode,
+  type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { submit } from 'redux-form';
+import {
+  addNode as addNodeAction,
+  updateNode as updateNodeAction,
+} from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
+import { getNodeIconName } from '../selectors/name-generator';
+import { getAdditionalAttributesSelector } from '../selectors/prop';
+import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
+import { useAppDispatch } from '../store';
 import Form from './Form';
-import FormWizard from './FormWizard';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
 
 const reduxFormName = 'NODE_FORM';
 
-const NodeForm = (props) => {
-  const {
-    subject,
-    selectedNode,
-    form,
-    disabled,
-    icon,
-    nodeType,
-    newNodeAttributes,
-    onClose,
-    addNode,
-    updateNode,
-  } = props;
+type NodeFormProps = {
+  selectedNode: NcNode | null;
+  form: TForm;
+  disabled: boolean;
+  onClose: () => void;
+};
+
+const NodeForm = (props: NodeFormProps) => {
+  const { selectedNode, form, disabled, onClose } = props;
+
+  const subject = useSelector(getStageSubject)!;
+  const nodeType = useSelector(getNodeTypeLabel(subject.type));
+  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const icon = useSelector(getNodeIconName);
 
   const [show, setShow] = useState(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const submitForm = () => dispatch(submit(reduxFormName));
+
+  const addNode = useCallback(
+    (attributes: NcNode[EntityAttributesProperty]) =>
+      dispatch(
+        addNodeAction({
+          type: subject.type,
+          attributeData: attributes,
+        }),
+      ),
+    [dispatch, subject],
+  );
+
+  const updateNode = useCallback(
+    (payload: {
+      uid: NcNode[EntityPrimaryKey];
+      newModelData?: Record<string, unknown>;
+      newAttributeData: NcNode[EntityAttributesProperty];
+    }) => dispatch(updateNodeAction(payload)),
+    [dispatch],
+  );
 
   const useFullScreenForms = false;
 
   const handleSubmit = useCallback(
-    (formData) => {
+    (formData: Record<string, VariableValue>) => {
       if (!selectedNode) {
-        addNode({
-          type: subject.type,
-          attributeData: { ...newNodeAttributes, ...formData }
-        });
+        void addNode({ ...newNodeAttributes, ...formData });
       } else {
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
         updateNode({ nodeId: selectedUID, newAttributeData: formData });
@@ -50,7 +80,7 @@ const NodeForm = (props) => {
       setShow(false);
       onClose();
     },
-    [selectedNode, newNodeAttributes, onClose, addNode, updateNode, subject.type],
+    [selectedNode, newNodeAttributes, onClose, addNode, updateNode],
   );
 
   // When a selected node is passed in, we are editing an existing node.
@@ -60,20 +90,6 @@ const NodeForm = (props) => {
       setShow(true);
     }
   }, [selectedNode]);
-
-  const FormComponent = useMemo(() => {
-    if (useFullScreenForms) {
-      return FormWizard;
-    }
-
-    const DynamicForm = (formProps) => (
-      <Scroller>
-        <Form {...formProps} />
-      </Scroller>
-    );
-
-    return DynamicForm;
-  }, [useFullScreenForms]);
 
   const handleClose = useCallback(() => {
     setShow(false);
@@ -124,17 +140,19 @@ const NodeForm = (props) => {
         }
         allowMaximize={false}
       >
-        <FormComponent
-          {...form}
-          subject={subject}
-          initialValues={selectedNode?.[entityAttributesProperty]}
-          onSubmit={handleSubmit}
-          autoFocus
-          form={reduxFormName}
-          validationMeta={{
-            entityId: selectedNode?.[entityPrimaryKeyProperty],
-          }}
-        />
+        <Scroller>
+          <Form
+            {...form}
+            subject={subject}
+            initialValues={selectedNode?.[entityAttributesProperty]}
+            onSubmit={handleSubmit}
+            autoFocus
+            form={reduxFormName}
+            validationMeta={{
+              entityId: selectedNode?.[entityPrimaryKeyProperty],
+            }}
+          />
+        </Scroller>
       </Overlay>
     </>
   );

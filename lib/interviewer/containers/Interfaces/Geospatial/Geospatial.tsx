@@ -85,7 +85,9 @@ export default function GeospatialInterface({
   const [isIntroduction, setIsIntroduction] = useState(true);
 
   const { mapOptions, introductionPanel } = stage;
-  const { promptIndex, prompt: currentPrompt } = usePrompts();
+  const { promptIndex, prompt: currentPrompt } = usePrompts<{
+    variable?: string;
+  }>();
 
   const stageNodes = usePropSelector(getNetworkNodesForType, {
     stage,
@@ -95,22 +97,21 @@ export default function GeospatialInterface({
 
   const updateNode = useCallback(
     ({
-      nodeId,
+      uid,
       newModelData,
       newAttributeData,
     }: {
-      nodeId: string;
-      newModelData: Record<string, unknown>;
+      uid: string;
+      newModelData?: Record<string, unknown>;
       newAttributeData: Record<string, VariableValue>;
-    }) =>
-      dispatch(updateNodeAction({ nodeId, newModelData, newAttributeData })),
+    }) => dispatch(updateNodeAction({ uid, newModelData, newAttributeData })),
     [dispatch],
   );
 
   const setLocationValue = (value: string | null) => {
     updateNode({
-      nodeId: stageNodes[navState.activeIndex]?.[entityPrimaryKeyProperty],
-      newNodeAttributes: {
+      nodeId: stageNodes[navState.activeIndex]![entityPrimaryKeyProperty],
+      newAttributeData: {
         [currentPrompt.variable!]: value,
       },
     });

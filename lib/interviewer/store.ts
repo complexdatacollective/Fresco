@@ -25,7 +25,11 @@ export const store = ({
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          ignoredActions: ['@@redux-form/INITIALIZE'], // Redux form stores functions for validation in the store
+          ignoredActions: [
+            '@@redux-form/INITIALIZE', // Redux form stores functions for validation in the store
+            'dialogs/addDialog', // Dialogs store callback functions
+            'dialogs/open/pending', // Dialogs store callback functions
+          ],
         },
       }).concat(logger),
     preloadedState: {

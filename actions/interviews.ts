@@ -302,11 +302,10 @@ export async function syncInterview(interviewId: string, rawPayload: unknown) {
     lastUpdated: z.string(),
   });
 
-  console.log('r', rawPayload.stageMetadata);
-
   const validatedRequest = Schema.safeParse(rawPayload);
 
   if (!validatedRequest.success) {
+    // eslint-disable-next-line no-console
     console.log(validatedRequest.error);
     return { error: true, message: validatedRequest.error };
   }
@@ -326,8 +325,6 @@ export async function syncInterview(interviewId: string, rawPayload: unknown) {
         lastUpdated: new Date(lastUpdated),
       },
     });
-
-    safeRevalidateTag(`getInterviewById-${interviewId}`);
 
     // eslint-disable-next-line no-console
     console.log(`🚀 Interview synced with server! (${interviewId})`);

@@ -1,10 +1,24 @@
+import {
+  type EntityAttributesProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { addNode as addNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Node } from '~/lib/ui/components';
+import { getNodeIconName } from '../selectors/name-generator';
+import { getAdditionalAttributesSelector } from '../selectors/prop';
+import {
+  getNodeColor,
+  getNodeTypeLabel,
+  getStageSubject,
+} from '../selectors/session';
+import { useAppDispatch } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
 const containerVariants = {
-  animate: (wide) =>
+  animate: (wide: boolean) =>
     wide
       ? {
           width: 'var(--open-width)',
@@ -57,20 +71,40 @@ const inputVariants = {
   },
 };
 
+type QuickAddFormProps = {
+  disabled: boolean;
+  targetVariable: string;
+  onShowForm: () => void;
+};
+
 const QuickAddForm = ({
   disabled,
-  icon,
-  nodeColor,
-  nodeType,
-  newNodeAttributes,
   targetVariable,
   onShowForm,
-  addNode,
-}) => {
+}: QuickAddFormProps) => {
   const [showForm, setShowForm] = useState(false);
-  const tooltipTimer = useRef(null);
+  const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
   const [showTooltip, setShowTooltip] = useState(false);
   const [nodeLabel, setNodeLabel] = useState('');
+
+  const subject = useSelector(getStageSubject)!;
+  const nodeType = useSelector(getNodeTypeLabel(subject.type));
+  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
+  const nodeColor = useSelector(getNodeColor(subject.type));
+  const icon = useSelector(getNodeIconName);
+
+  const dispatch = useAppDispatch();
+
+  const addNode = useCallback(
+    (attributes: NcNode[EntityAttributesProperty]) =>
+      dispatch(
+        addNodeAction({
+          type: subject.type,
+          attributeData: attributes,
+        }),
+      ),
+    [dispatch, subject],
+  );
 
   const handleBlur = () => {
     setNodeLabel('');
@@ -83,6 +117,7 @@ const QuickAddForm = ({
     if (nodeLabel !== '') {
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
+
       tooltipTimer.current = setTimeout(() => {
         setShowTooltip(true);
       }, 5000);
@@ -94,11 +129,9 @@ const QuickAddForm = ({
 
   const isValid = useMemo(() => nodeLabel !== '', [nodeLabel]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
+  const handleSubmit = () => {
     if (isValid && !disabled) {
-      addNode({
+      void addNode({
         ...newNodeAttributes,
         [targetVariable]: nodeLabel,
       });
@@ -165,7 +198,7 @@ const QuickAddForm = ({
               label={nodeLabel}
               selected={isValid}
               color={nodeColor}
-              onClick={handleSubmit}
+              handleClick={handleSubmit}
             />
           </motion.div>
         )}

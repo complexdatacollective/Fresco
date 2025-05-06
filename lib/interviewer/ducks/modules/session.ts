@@ -9,6 +9,7 @@ import {
   type NcEntity,
   type NcNetwork,
   type NcNode,
+  type VariableValue,
 } from '@codaco/shared-consts';
 import {
   createAction,
@@ -291,13 +292,13 @@ export const addNodeToPrompt = createAsyncThunk(
 );
 
 export const toggleNodeAttributes = createAction<{
-  uid: EntityPrimaryKey;
-  attributes: Record<string, unknown>;
+  nodeId: NcNode[EntityPrimaryKey];
+  attributes: Record<string, VariableValue>;
 }>(actionTypes.toggleNodeAttributes);
 
 export const removeNodeFromPrompt = createAsyncThunk(
   actionTypes.removeNodeFromPrompt,
-  async (nodeId: NcNode[EntityPrimaryKey], { getState }) => {
+  (nodeId: NcNode[EntityPrimaryKey], { getState }) => {
     const state = getState() as RootState;
     const promptId = getPromptId(state);
     invariant(promptId, 'Prompt ID is required to remove a node from a prompt');
@@ -312,7 +313,7 @@ export const removeNodeFromPrompt = createAsyncThunk(
 );
 
 export const updateEdge = createAction<{
-  edgeId: NcEntity[EntityPrimaryKey];
+  edgeId: NcEntity[EntityPrimaryKey]; // Must be uid as this is shared between nodes and edges on slidesform
   newModelData?: Record<string, unknown>;
   newAttributeData?: NcEdge[EntityAttributesProperty];
 }>(actionTypes.updateEdge);
@@ -432,6 +433,31 @@ const sessionReducer = createReducer(initialState, (builder) => {
         edges: network.edges.filter(
           (edge) => edge.from !== action.payload && edge.to !== action.payload,
         ),
+      },
+    });
+  });
+
+  builder.addCase(toggleNodeAttributes, (state, action) => {
+    const { nodeId, attributes } = action.payload;
+    const { network } = state;
+
+    return withLastUpdated({
+      ...state,
+      network: {
+        ...network,
+        nodes: network.nodes.map((node) => {
+          if (node[entityPrimaryKeyProperty] !== nodeId) {
+            return node;
+          }
+
+          return {
+            ...node,
+            [entityAttributesProperty]: {
+              ...node[entityAttributesProperty],
+              ...attributes,
+            },
+          };
+        }),
       },
     });
   });

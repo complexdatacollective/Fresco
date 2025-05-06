@@ -7,7 +7,7 @@ import { omit } from 'es-toolkit/compat';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { SyncInterview } from '~/actions/interviews';
+import { type SyncInterview } from '~/actions/interviews';
 import { useToast } from '~/components/ui/use-toast';
 import usePrevious from '~/hooks/usePrevious';
 import {
@@ -27,22 +27,39 @@ const ServerSync = ({ syncInterview }: { syncInterview: SyncInterview }) => {
   const [, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const syncSession = async (data: {
-    id: string;
-    network: NcNetwork;
-    currentStep: number;
-    stageMetadata: StageMetadata | undefined;
-    lastUpdated: string;
-  }) => {
-    setLoading(true);
+  const syncSession = useCallback(
+    async (data: {
+      id: string;
+      network: NcNetwork;
+      currentStep: number;
+      stageMetadata: StageMetadata | undefined;
+      lastUpdated: string;
+    }) => {
+      console.log('⏱️ Syncing interview with server...');
+      setLoading(true);
 
-    try {
-      console.log('d', data.stageMetadata);
-      StageMetadataSchema.optional().parse(data.stageMetadata);
-      const result = await syncInterview(params.interviewId, data);
+      try {
+        StageMetadataSchema.optional().parse(data.stageMetadata);
+        const result = await syncInterview(params.interviewId, data);
 
-      if (result.error) {
-        console.log(result.message);
+        if (result.error) {
+          console.log(result.message);
+
+          toast({
+            title: 'Sync Error',
+            description:
+              'There was an error syncing your interview data with the server.',
+            variant: 'destructive',
+            duration: 3000,
+          });
+
+          return;
+        }
+
+        console.log('🚀 Interview synced with server!');
+      } catch (err) {
+        const error = ensureError(err).message;
+        console.log(error);
 
         toast({
           title: 'Sync Error',
@@ -51,27 +68,12 @@ const ServerSync = ({ syncInterview }: { syncInterview: SyncInterview }) => {
           variant: 'destructive',
           duration: 3000,
         });
-
-        return;
+      } finally {
+        setLoading(false);
       }
-
-      console.log('🚀 Interview synced with server!');
-      console.log(data);
-    } catch (err) {
-      const error = ensureError(err).message;
-      console.log(error);
-
-      toast({
-        title: 'Sync Error',
-        description:
-          'There was an error syncing your interview data with the server.',
-        variant: 'destructive',
-        duration: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [params.interviewId, syncInterview, toast],
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSessionSync = useCallback(
@@ -89,16 +91,22 @@ const ServerSync = ({ syncInterview }: { syncInterview: SyncInterview }) => {
 
     if (
       isEqual(
-        omit(currentSession, ['passphrase', 'encryptionEnabled']),
-        omit(prevCurrentSession, ['passphrase', 'encryptionEnabled']),
+        omit(currentSession, [
+          'promptIndex',
+          'passphrase',
+          'encryptionEnabled',
+        ]),
+        omit(prevCurrentSession, [
+          'promptIndex',
+          'passphrase',
+          'encryptionEnabled',
+        ]),
       ) ||
       !currentSession ||
       !prevCurrentSession
     ) {
       return;
     }
-
-    console.log('⏱️ Syncing interview with server...');
     void debouncedSessionSync({
       id: params.interviewId,
       network: currentSession.network,

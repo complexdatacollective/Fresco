@@ -37,22 +37,6 @@ export const useNodeAttributes = (
   const { requirePassphrase, setPassphraseInvalid, isEnabled } =
     usePassphrase();
 
-  const getByFuzzyMatch = useCallback(
-    async <T extends VariableValue>(test: RegExp) => {
-      const match = Object.keys(nodeAttributes).find((attribute) =>
-        test.test(attribute),
-      );
-
-      if (match) {
-        console.log('found', match);
-        return getById<T>(match);
-      }
-
-      return undefined;
-    },
-    [nodeAttributes],
-  );
-
   const getById = useCallback(
     async <T extends VariableValue>(
       attributeId: string,
@@ -114,6 +98,21 @@ export const useNodeAttributes = (
       setPassphraseInvalid,
       isEnabled,
     ],
+  );
+
+  const getByFuzzyMatch = useCallback(
+    async <T extends VariableValue>(test: RegExp) => {
+      const match = Object.keys(nodeAttributes).find((attribute) =>
+        test.test(attribute),
+      );
+
+      if (match) {
+        return getById<T>(match);
+      }
+
+      return undefined;
+    },
+    [nodeAttributes, getById],
   );
 
   const getByName = useCallback(
