@@ -153,13 +153,14 @@ export default function ProtocolScreen() {
 
     setForceNavigationDisabled(false);
   }, [
-    animate,
-    dispatch,
     isLastPrompt,
-    promptIndex,
-    registerBeforeNext,
-    scope,
     makeFakeSessionProgress,
+    nextValidStageIndexRef,
+    animate,
+    scope,
+    registerBeforeNext,
+    dispatch,
+    promptIndex,
   ]);
 
   const moveBackward = useCallback(async () => {
@@ -196,13 +197,14 @@ export default function ProtocolScreen() {
 
     setForceNavigationDisabled(false);
   }, [
-    animate,
-    dispatch,
     isFirstPrompt,
-    promptIndex,
-    registerBeforeNext,
-    scope,
     makeFakeSessionProgress,
+    previousValidStageIndexRef,
+    animate,
+    scope,
+    registerBeforeNext,
+    dispatch,
+    promptIndex,
   ]);
 
   const getNavigationHelpers = useCallback(
