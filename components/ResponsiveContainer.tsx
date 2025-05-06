@@ -10,6 +10,7 @@ const containerVariants = cva('mx-auto flex flex-col my-6 md:my-10 ', {
       '5xl': 'max-w-5xl',
       '6xl': 'max-w-6xl',
       '7xl': 'max-w-7xl',
+      '8xl': 'max-w-8xl',
     },
     baseSize: {
       '60%': 'w-[60%]',
