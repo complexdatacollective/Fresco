@@ -49,15 +49,22 @@ function processAttributes(
       return;
     }
 
-    if (codebookEntry.encrypted) {
-      // If the variable is encrypted, we don't want to export it.
-      createDomDataElement(key, 'ENCRYPTED');
-      return;
-    }
+    const variableIsEncrypted = codebookEntry.encrypted;
 
     switch (codebookEntry.type) {
       case 'categorical': {
         const options = codebookEntry.options;
+
+        if (variableIsEncrypted) {
+          // If the variable is encrypted, we don't want to export it.
+          options.forEach((option) => {
+            const hashedOptionValue = sha1(String(option.value));
+            const optionKey = `${key}_${hashedOptionValue}`;
+
+            createDomDataElement(optionKey, 'ENCRYPTED');
+          });
+          return;
+        }
 
         options.forEach((option) => {
           const hashedOptionValue = sha1(String(option.value));
@@ -70,6 +77,13 @@ function processAttributes(
         break;
       }
       case 'layout': {
+        if (variableIsEncrypted) {
+          // If the variable is encrypted, we don't want to export it.
+          createDomDataElement(`${key}_X`, 'ENCRYPTED');
+          createDomDataElement(`${key}_Y`, 'ENCRYPTED');
+          return;
+        }
+
         const { x: xCoord, y: yCoord } = entityAttributes[key] as {
           x: number;
           y: number;
@@ -100,6 +114,11 @@ function processAttributes(
       case 'location':
       case 'ordinal':
       case 'scalar': {
+        if (variableIsEncrypted) {
+          createDomDataElement(key, 'ENCRYPTED');
+          return;
+        }
+
         const rawValue = value as string | number | boolean | unknown[];
         // Cooerce value to string
         const coercedValue = String(rawValue);

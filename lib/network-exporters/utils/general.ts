@@ -1,13 +1,7 @@
-import type {
-  Codebook,
-  VariablePropertyKey,
-} from '@codaco/protocol-validation';
 import {
   caseProperty,
   entityAttributesProperty,
-  type NcEdge,
   type NcEntity,
-  type NcNode,
   sessionProperty,
 } from '@codaco/shared-consts';
 import sanitizeFilename from 'sanitize-filename';
@@ -65,54 +59,3 @@ export const getFilePrefix = (session: SessionWithResequencedIDs) =>
   sanitizeFilename(
     `${session.sessionVariables[caseProperty]}_${session.sessionVariables[sessionProperty]}`,
   );
-
-/**
- * Given a codebook, an entity type, an entity, and an attribute key:
- * retrieve the key value from the entity, via the codebook.
- * @param {*} codebook
- * @param {*} type
- * @param {*} entity
- * @param {*} key
- */
-const getVariableInfo = (
-  codebook: Codebook,
-  type: 'node' | 'edge',
-  entity: NcNode | NcEdge,
-  key: string,
-) => codebook[type]?.[entity.type]?.variables?.[key];
-
-/**
- * Ego version of getVariableInfo
- * @param {*} codebook
- * @param {*} type
- * @param {*} key
- */
-const getEgoVariableInfo = (codebook: Codebook, key: string) =>
-  codebook.ego?.variables?.[key];
-
-/**
- * Get the 'type' of a given variable from the codebook
- * @param {*} codebook
- * @param {*} type node, edge, or ego
- * @param {*} element entity 'type' (person, place, friend, etc.). not used for ego
- * @param {*} key key within element to select
- * @param {*} variableAttribute property of key to return
- */
-export const getAttributePropertyFromCodebook = (
-  codebook: Codebook,
-  type: 'node' | 'edge' | 'ego',
-  element: NcNode | NcEdge,
-  key: string,
-  attributeProperty: VariablePropertyKey = 'type',
-) => {
-  if (type === 'ego') {
-    const variableInfo = getEgoVariableInfo(codebook, key);
-    return variableInfo && attributeProperty in variableInfo
-      ? variableInfo[attributeProperty as keyof typeof variableInfo]
-      : undefined;
-  }
-  const variableInfo = getVariableInfo(codebook, type, element, key);
-  return variableInfo && attributeProperty in variableInfo
-    ? variableInfo[attributeProperty as keyof typeof variableInfo]
-    : undefined;
-};
