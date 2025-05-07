@@ -15,7 +15,9 @@ import { getEntityAttributes } from '../../utils/general';
 import { type ExportOptions } from '../../utils/types';
 
 // TODO: move to protocol validation
-type VariableDefinition = NonNullable<EntityDefinition['variables']>[string];
+export type VariableDefinition = NonNullable<
+  EntityDefinition['variables']
+>[string];
 
 /**
  *
@@ -59,7 +61,7 @@ const processEntityVariables = (
             ...accumulatedAttributes,
             ...attributeOptions.reduce((accumulatedOptions, optionName) => {
               return {
-                ...accumulatedAttributes,
+                ...accumulatedOptions,
                 [`${attributeName}_${optionName.value}`]: 'ENCRYPTED',
               };
             }, {}),
@@ -89,17 +91,21 @@ const processEntityVariables = (
 
         // Process screenLayoutCoordinates option
         const xCoord = (
-          attributeData as {
-            x: number;
-            y: number;
-          }
-        ).x;
+          attributeData as
+            | {
+                x: number;
+                y: number;
+              }
+            | undefined
+        )?.x;
         const yCoord = (
-          attributeData as {
-            x: number;
-            y: number;
-          }
-        ).y;
+          attributeData as
+            | {
+                x: number;
+                y: number;
+              }
+            | undefined
+        )?.y;
 
         const {
           screenLayoutWidth,
@@ -111,10 +117,10 @@ const processEntityVariables = (
           attributeData && useScreenLayoutCoordinates
             ? {
                 [`${attributeName}_screenSpaceX`]: (
-                  xCoord * screenLayoutWidth
+                  xCoord! * screenLayoutWidth
                 ).toFixed(2),
                 [`${attributeName}_screenSpaceY`]: (
-                  (1.0 - yCoord) *
+                  (1.0 - yCoord!) *
                   screenLayoutHeight
                 ).toFixed(2),
               }

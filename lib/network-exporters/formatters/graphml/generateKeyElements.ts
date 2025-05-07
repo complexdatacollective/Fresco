@@ -14,6 +14,7 @@ import {
   type ExportOptions,
   type NodeWithResequencedID,
 } from '../../utils/types';
+import { type VariableDefinition } from '../csv/processEntityVariables';
 import {
   createDocumentFragment,
   deriveEntityType,
@@ -116,7 +117,6 @@ function generateKeysForEntities(
   // Loop over entities
   entities.forEach((entity) => {
     const elementAttributes = getEntityAttributes(entity);
-
     const codebookVariables = getCodebookVariablesForEntity(entity, codebook);
 
     // Loop over attributes for this entity
@@ -207,10 +207,13 @@ function generateKeysForEntities(
              */
 
             // fetch options property for this variable
-            const options = get(codebookVariable, 'options')! as {
-              value: string;
-              label: string;
-            }[];
+            const options = get(
+              codebookVariable as Extract<
+                VariableDefinition,
+                { type: 'categorical' }
+              >,
+              'options',
+            );
 
             // If there are no options, we can't create keys for this variable
             if (!options) {
@@ -219,7 +222,7 @@ function generateKeysForEntities(
 
             options.forEach((option, index) => {
               // Hash the value to ensure that it is NKTOKEN compliant
-              const hashedOptionValue = sha1(option.value);
+              const hashedOptionValue = sha1(String(option.value));
 
               if (index === options.length - 1) {
                 keyElement.setAttribute(
