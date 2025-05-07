@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
 import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
 
@@ -27,7 +27,7 @@ export const GenerateInterviewURLs = ({
   interviews,
   protocolsPromise,
 }: {
-  interviews: Awaited<GetInterviewsReturnType>;
+  interviews: Awaited<GetInterviewsQuery>;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
   const protocols = use(protocolsPromise);

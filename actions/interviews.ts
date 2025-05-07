@@ -4,6 +4,7 @@ import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
 import { type Interview } from '@prisma/client';
 import { cookies } from 'next/headers';
+import superjson from 'superjson';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
 import { initialNetwork } from '~/lib/interviewer/ducks/modules/session';
@@ -102,12 +103,16 @@ export const prepareExportData = async (interviewIds: Interview['id'][]) => {
 
   const formattedSessions = formatExportableSessions(interviewsSessions);
 
-  return { formattedSessions, formattedProtocols };
+  return {
+    formattedSessions: superjson.stringify(formattedSessions),
+    formattedProtocols: superjson.stringify(formattedProtocols),
+  };
 };
+export type FormattedProtocols = Record<string, ExportedProtocol>;
 
 export const exportSessions = async (
   formattedSessions: FormattedSession[],
-  formattedProtocols: Record<string, ExportedProtocol>,
+  formattedProtocols: FormattedProtocols,
   interviewIds: Interview['id'][],
   exportOptions: ExportOptions,
 ): Promise<ExportReturn> => {

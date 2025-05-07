@@ -3,14 +3,26 @@ import superjson from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
-export const getInterviews = createCachedFunction(async () => {
-  const interviews = await prisma.interview.findMany({
+/**
+ * Define the Prisma query logic for fetching all interviews separately
+ * to infer the type from the return value.
+ */
+async function prisma_getInterviews() {
+  return prisma.interview.findMany({
     include: {
       protocol: true,
       participant: true,
     },
   });
-  return interviews;
+}
+export type GetInterviewsQuery = Awaited<
+  ReturnType<typeof prisma_getInterviews>
+>;
+
+export const getInterviews = createCachedFunction(async () => {
+  const interviews = await prisma_getInterviews();
+  const safeInterviews = superjson.stringify(interviews);
+  return safeInterviews;
 }, ['getInterviews']);
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;

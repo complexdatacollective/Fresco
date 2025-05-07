@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import { type ProtocolsWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTable';
 
 function ExportCSVInterviewURLs({
@@ -14,7 +14,7 @@ function ExportCSVInterviewURLs({
   interviews,
 }: {
   protocol?: ProtocolsWithInterviews[number];
-  interviews: Awaited<GetInterviewsReturnType>;
+  interviews: Awaited<GetInterviewsQuery>;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);

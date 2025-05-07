@@ -2,8 +2,10 @@ import type { Interview } from '@prisma/client';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { FileWarning, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import superjson from 'superjson';
 import {
   exportSessions,
+  type FormattedProtocols,
   prepareExportData,
   updateExportTime,
 } from '~/actions/interviews';
@@ -84,10 +86,15 @@ export const ExportInterviewsDialog = ({
       const { formattedSessions, formattedProtocols } =
         await prepareExportData(interviewIds);
 
+      const parsedFormattedSessions =
+        superjson.parse<FormattedSession[]>(formattedSessions);
+      const parsedFormattedProtocols =
+        superjson.parse<FormattedProtocols>(formattedProtocols);
+
       // export the data
       const { zipUrl, zipKey, status, error } = await exportSessions(
-        formattedSessions,
-        formattedProtocols,
+        parsedFormattedSessions,
+        parsedFormattedProtocols,
         interviewIds,
         exportOptions,
       );

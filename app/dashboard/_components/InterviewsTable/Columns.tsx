@@ -6,11 +6,11 @@ import { Badge } from '~/components/ui/badge';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Progress } from '~/components/ui/progress';
 import TimeAgo from '~/components/ui/TimeAgo';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
 export const InterviewColumns = (): ColumnDef<
-  Awaited<GetInterviewsReturnType>[0]
+  Awaited<GetInterviewsQuery>[0]
 >[] => [
   {
     id: 'select',
