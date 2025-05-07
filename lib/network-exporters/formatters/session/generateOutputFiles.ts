@@ -1,4 +1,4 @@
-import { type Codebook } from '@codaco/protocol-validation';
+import { invariant } from 'es-toolkit';
 import { type ExportedProtocol } from '~/actions/interviews';
 import { getFilePrefix } from '../../utils/general';
 import type {
@@ -21,21 +21,19 @@ export const generateOutputFiles =
     const exportPromises: Promise<ExportResult>[] = [];
 
     Object.entries(unifiedSessions).forEach(([protocolKey, sessions]) => {
-      const protocol = protocols[protocolKey];
-      if (!protocol) {
-        // eslint-disable-next-line no-console
-        console.warn(`No protocol found for key: ${protocolKey}`);
-        return;
-      }
-
-      const codebook = protocol.codebook as unknown as Codebook; // Needed due to prisma.Json type
+      const codebook = protocols[protocolKey]?.codebook;
+      invariant(codebook, `No protocol found for key: ${protocolKey}`);
 
       sessions.forEach((session) => {
         const prefix = getFilePrefix(session);
 
         exportFormats.forEach((format) => {
           // Split each network into separate files based on format and entity type.
-          const partitionedNetworks = partitionByType(codebook, session, format);
+          const partitionedNetworks = partitionByType(
+            codebook,
+            session,
+            format,
+          );
 
           partitionedNetworks.forEach((partitionedNetwork) => {
             const exportPromise = exportFile({
