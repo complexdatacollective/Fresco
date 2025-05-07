@@ -27,9 +27,10 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       cell: ({ row }) => {
         const timestamp: string = row.getValue('timestamp');
         return (
-          <div className="flex space-x-2 truncate font-medium">
-            <TimeAgo date={timestamp} />
-          </div>
+          <TimeAgo
+            date={timestamp}
+            className="flex space-x-2 truncate font-medium"
+          />
         );
       },
     },
@@ -41,11 +42,7 @@ export function fetchActivityFeedTableColumnDefs(): ColumnDef<
       cell: ({ row }) => {
         const activityType: ActivityType = row.getValue('type');
         const color = getBadgeColorsForActivityType(activityType);
-        return (
-          <div className="flex min-w-[140px] space-x-2">
-            <Badge className={color}>{activityType}</Badge>
-          </div>
-        );
+        return <Badge className={color}>{activityType}</Badge>;
       },
       enableSorting: false,
       enableHiding: false,

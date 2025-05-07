@@ -1,7 +1,6 @@
 'use client';
 
 import { type ColumnDef } from '@tanstack/react-table';
-import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
 import { Checkbox } from '~/components/ui/checkbox';
@@ -15,6 +14,9 @@ export const InterviewColumns = (): ColumnDef<
 >[] => [
   {
     id: 'select',
+    meta: {
+      className: 'sticky left-0',
+    },
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
@@ -37,19 +39,7 @@ export const InterviewColumns = (): ColumnDef<
     accessorKey: 'participant.identifier',
     header: ({ column }) => {
       return (
-        <div className="flex items-center gap-2">
-          <Image
-            src="/images/participant.svg"
-            alt="Participant icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
-          <DataTableColumnHeader
-            column={column}
-            title="Participant Identifier"
-          />
-        </div>
+        <DataTableColumnHeader column={column} title="Participant Identifier" />
       );
     },
     cell: ({ row }) => {
@@ -71,18 +61,7 @@ export const InterviewColumns = (): ColumnDef<
     id: 'protocolName',
     accessorKey: 'protocol.name',
     header: ({ column }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <Image
-            src="/images/protocol-icon.png"
-            alt="Protocol icon"
-            className="max-w-none"
-            width={24}
-            height={24}
-          />
-          <DataTableColumnHeader column={column} title="Protocol Name" />
-        </div>
-      );
+      return <DataTableColumnHeader column={column} title="Protocol Name" />;
     },
     cell: ({ row }) => {
       const protocolFileName = row.original.protocol.name;
@@ -104,8 +83,7 @@ export const InterviewColumns = (): ColumnDef<
       return <DataTableColumnHeader column={column} title="Started" />;
     },
     cell: ({ row }) => {
-      const date = new Date(row.original.startTime);
-      return <TimeAgo date={date} className="text-xs" />;
+      return <TimeAgo date={row.original.startTime} />;
     },
   },
   {
@@ -116,7 +94,7 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return <TimeAgo date={date} className="text-xs" />;
+      return <TimeAgo date={date} />;
     },
   },
   {
@@ -136,13 +114,14 @@ export const InterviewColumns = (): ColumnDef<
       return (
         <div className="flex whitespace-nowrap">
           <Progress value={progress} className="w-12" />
-          <div className="ml-2 text-center text-xs">{progress.toFixed(0)}%</div>
+          <div className="ml-2 text-center">{progress.toFixed(0)}%</div>
         </div>
       );
     },
   },
   {
     id: 'network',
+    enableSorting: false,
     accessorFn: (row) => {
       const network = row.network;
       const nodeCount = network?.nodes?.length ?? 0;
@@ -169,11 +148,7 @@ export const InterviewColumns = (): ColumnDef<
         return <Badge variant="secondary">Not exported</Badge>;
       }
 
-      return (
-        <div className="text-xs">
-          <TimeAgo date={row.original.exportTime} />
-        </div>
-      );
+      return <TimeAgo date={row.original.exportTime} />;
     },
   },
 ];

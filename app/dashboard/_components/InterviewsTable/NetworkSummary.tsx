@@ -95,13 +95,12 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
   );
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex items-center justify-center">
+    <div className="flex shrink-0 flex-col items-center">
+      <div className="flex h-8 w-8 shrink-0 grow-0 items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 60 60"
-          width="24"
-          height="24"
+          className="aspect-square h-full w-full"
         >
           <g id="Links">
             <circle cx="49" cy="11" r="11" className={darkColorClass} />
@@ -138,9 +137,9 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
           </g>
         </svg>
       </div>
-      <span className="pt-1 text-xs">
+      <div className="pt-1 text-xs">
         {typeName} ({count})
-      </span>
+      </div>
     </div>
   );
 }
@@ -196,9 +195,9 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex min-w-[150px] flex-col gap-4">
-      <div className="grid grid-cols-3 gap-8">{nodeSummaries}</div>
-      <div className="grid grid-cols-3 gap-12">{edgeSummaries}</div>
+    <div className="flex max-w-64 gap-2">
+      {nodeSummaries}
+      {edgeSummaries}
     </div>
   );
 };
