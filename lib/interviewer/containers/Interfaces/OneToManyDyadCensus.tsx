@@ -1,7 +1,7 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -59,12 +59,10 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   );
 
   // Takes into account removeAfterConsideration
-  const numberOfSteps = useMemo(() => {
-    if (removeAfterConsideration) {
-      return sortedTargets.length - currentStep;
-    }
-    return sortedTargets.length;
-  }, [sortedTargets.length, removeAfterConsideration, currentStep]);
+  // There is one less step if we are removing the source node from the list
+  const numberOfSteps = removeAfterConsideration
+    ? sortedTargets.length - 1
+    : sortedTargets.length;
 
   /**
    * Hijack stage navigation:
