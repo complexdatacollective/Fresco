@@ -48,9 +48,6 @@ export const getInterviewsForExport = async (interviewIds: string[]) => {
   const safeInterviews = superjson.stringify(interviews);
   return safeInterviews;
 };
-export type GetInterviewsForExportReturnType = ReturnType<
-  typeof getInterviewsForExport
->;
 
 /**
  * Because we use a client extension to parse the JSON fields, we can't use the
