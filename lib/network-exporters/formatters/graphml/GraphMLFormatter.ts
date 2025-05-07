@@ -37,6 +37,7 @@ class GraphMLFormatter {
     // method, and then write the string to the stream.
     const string = this.writeToString();
     outStream.write(string);
+    outStream.end();
   }
 }
 

@@ -20,7 +20,6 @@ function graphMLGenerator(
   const xmlDoc = setUpXml(network.sessionVariables);
 
   const generateKeyElements = getKeyElementGenerator(codebook, exportOptions);
-
   const generateDataElements = getDataElementGenerator(codebook, exportOptions);
 
   // <graphml /> is where <key /> elements are attached
