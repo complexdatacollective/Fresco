@@ -26,9 +26,8 @@ export const getInterviews = createCachedFunction(async () => {
 }, ['getInterviews']);
 
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
-
-export const getInterviewsForExport = async (interviewIds: string[]) => {
-  const interviews = await prisma.interview.findMany({
+async function prisma_getInterviewsForExport(interviewIds: string[]) {
+  return prisma.interview.findMany({
     where: {
       id: {
         in: interviewIds,
@@ -39,10 +38,16 @@ export const getInterviewsForExport = async (interviewIds: string[]) => {
       participant: true,
     },
   });
+}
+export type GetInterviewsForExportQuery = Awaited<
+  ReturnType<typeof prisma_getInterviewsForExport>
+>;
 
-  return interviews;
+export const getInterviewsForExport = async (interviewIds: string[]) => {
+  const interviews = await prisma_getInterviewsForExport(interviewIds);
+  const safeInterviews = superjson.stringify(interviews);
+  return safeInterviews;
 };
-
 export type GetInterviewsForExportReturnType = ReturnType<
   typeof getInterviewsForExport
 >;

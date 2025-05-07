@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { type ParticipantWithInterviews } from './ParticipantsTableClient';
+import type { ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export const ActionsDropdown = ({
   row,

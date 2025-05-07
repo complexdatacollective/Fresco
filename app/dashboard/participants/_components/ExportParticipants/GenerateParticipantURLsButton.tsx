@@ -10,8 +10,8 @@ import {
 } from '~/components/ui/select';
 
 import { FileUp } from 'lucide-react';
-import { type ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
-import { type ProtocolsWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTable';
+import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
+import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -28,7 +28,7 @@ export const GenerateParticipantURLs = ({
   protocols,
   participants,
 }: {
-  protocols: ProtocolsWithInterviews;
+  protocols: ProtocolWithInterviews[];
   participants: ParticipantWithInterviews[];
 }) => {
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
@@ -36,7 +36,7 @@ export const GenerateParticipantURLs = ({
   );
 
   const [selectedProtocol, setSelectedProtocol] =
-    useState<ProtocolsWithInterviews[number]>();
+    useState<ProtocolWithInterviews>();
 
   // Default to all participants selected
   useEffect(() => {

@@ -1,14 +1,23 @@
 'use server';
 
+import superjson from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
-export const getProtocols = createCachedFunction(async () => {
-  const protocols = await prisma.protocol.findMany({
-    include: { interviews: true },
+async function prisma_getProtocols() {
+  return prisma.protocol.findMany({
+    include: {
+      interviews: true,
+    },
   });
+}
 
-  return protocols;
+export type GetProtocolsQuery = Awaited<ReturnType<typeof prisma_getProtocols>>;
+
+export const getProtocols = createCachedFunction(async () => {
+  const protocols = await prisma_getProtocols();
+  const safeProtocols = superjson.stringify(protocols);
+  return safeProtocols;
 }, ['getProtocols']);
 
 export type GetProtocolsReturnType = ReturnType<typeof getProtocols>;

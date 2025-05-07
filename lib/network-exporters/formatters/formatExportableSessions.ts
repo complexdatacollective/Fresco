@@ -11,7 +11,7 @@ import {
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env';
-import type { getInterviewsForExport } from '~/queries/interviews';
+import type { GetInterviewsForExportQuery } from '~/queries/interviews';
 import { type SessionVariables } from '../utils/types';
 
 /**
@@ -20,7 +20,7 @@ import { type SessionVariables } from '../utils/types';
  */
 
 export const formatExportableSessions = (
-  sessions: Awaited<ReturnType<typeof getInterviewsForExport>>,
+  sessions: Awaited<GetInterviewsForExportQuery>,
 ) => {
   return sessions.map((session) => {
     const sessionProtocol = session.protocol;

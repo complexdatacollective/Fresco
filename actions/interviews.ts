@@ -22,7 +22,7 @@ import type {
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewsForExport,
-  type GetInterviewsForExportReturnType,
+  type GetInterviewsForExportQuery,
 } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { requireApiAuth } from '~/utils/auth';
@@ -87,12 +87,15 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
 };
 
 export type ExportedProtocol =
-  Awaited<GetInterviewsForExportReturnType>[number]['protocol'];
+  Awaited<GetInterviewsForExportQuery>[number]['protocol'];
 
 export const prepareExportData = async (interviewIds: Interview['id'][]) => {
   await requireApiAuth();
 
-  const interviewsSessions = await getInterviewsForExport(interviewIds);
+  const interviewsSessionsRaw = await getInterviewsForExport(interviewIds);
+  const interviewsSessions = superjson.parse<GetInterviewsForExportQuery>(
+    interviewsSessionsRaw,
+  );
 
   const protocolsMap = new Map<string, ExportedProtocol>();
   interviewsSessions.forEach((session) => {

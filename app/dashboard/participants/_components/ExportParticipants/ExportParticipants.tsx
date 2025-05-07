@@ -3,17 +3,22 @@
 import { Check, FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { use, useState } from 'react';
+import superjson from 'superjson';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetParticipantsReturnType } from '~/queries/participants';
+import type {
+  GetParticipantsQuery,
+  GetParticipantsReturnType,
+} from '~/queries/participants';
 
 function ExportParticipants({
   participantsPromise,
 }: {
   participantsPromise: GetParticipantsReturnType;
 }) {
-  const participants = use(participantsPromise);
+  const rawParticiapnts = use(participantsPromise);
+  const participants = superjson.parse<GetParticipantsQuery>(rawParticiapnts);
 
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);

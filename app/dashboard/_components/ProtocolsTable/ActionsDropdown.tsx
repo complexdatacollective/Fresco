@@ -12,18 +12,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { type ProtocolsWithInterviews } from './ProtocolsTable';
+import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
 export const ActionsDropdown = ({
   row,
 }: {
-  row: Row<ProtocolsWithInterviews[0]>;
+  row: Row<ProtocolWithInterviews>;
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [protocolToDelete, setProtocolToDelete] =
-    useState<ProtocolsWithInterviews[0][]>();
+    useState<ProtocolWithInterviews[]>();
 
-  const handleDelete = (data: ProtocolsWithInterviews[0]) => {
+  const handleDelete = (data: ProtocolWithInterviews) => {
     setProtocolToDelete([data]);
     setShowDeleteModal(true);
   };

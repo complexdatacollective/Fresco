@@ -12,12 +12,12 @@ import TimeAgo from '~/components/ui/TimeAgo';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
-import { type ProtocolsWithInterviews } from './ProtocolsTable';
+import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
 export const getProtocolColumns = (
   allowAnonRecruitment = false,
-): ColumnDef<ProtocolsWithInterviews[0], unknown>[] => {
-  const columns: ColumnDef<ProtocolsWithInterviews[0], unknown>[] = [
+): ColumnDef<ProtocolWithInterviews, unknown>[] => {
+  const columns: ColumnDef<ProtocolWithInterviews, unknown>[] = [
     {
       id: 'select',
       header: ({ table }) => (

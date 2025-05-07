@@ -4,7 +4,7 @@ import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { type ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
-import { type ProtocolsWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTable';
+import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/use-toast';
 import { useDownload } from '~/hooks/useDownload';
@@ -13,7 +13,7 @@ function ExportCSVParticipantURLs({
   protocol,
   participants,
 }: {
-  protocol?: ProtocolsWithInterviews[0];
+  protocol?: ProtocolWithInterviews;
   participants: ParticipantWithInterviews[];
 }) {
   const download = useDownload();

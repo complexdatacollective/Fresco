@@ -3,6 +3,7 @@ import type { Participant, Protocol } from '@prisma/client';
 import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
+import { SuperJSON } from 'superjson';
 import { Button } from '~/components/ui/Button';
 import {
   Select,
@@ -11,8 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import { type GetParticipantsReturnType } from '~/queries/participants';
-import { type GetProtocolsReturnType } from '~/queries/protocols';
+import {
+  type GetParticipantsQuery,
+  type GetParticipantsReturnType,
+} from '~/queries/participants';
+import {
+  type GetProtocolsQuery,
+  type GetProtocolsReturnType,
+} from '~/queries/protocols';
 
 export default function RecruitmentTestSection({
   protocolsPromise,
@@ -23,8 +30,10 @@ export default function RecruitmentTestSection({
   participantsPromise: GetParticipantsReturnType;
   allowAnonymousRecruitmentPromise: Promise<boolean>;
 }) {
-  const protocols = use(protocolsPromise);
-  const participants = use(participantsPromise);
+  const rawProtocols = use(protocolsPromise);
+  const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
+  const rawParticipants = use(participantsPromise);
+  const participants = SuperJSON.parse<GetParticipantsQuery>(rawParticipants);
   const allowAnonymousRecruitment = use(allowAnonymousRecruitmentPromise);
 
   const [selectedProtocol, setSelectedProtocol] = useState<Partial<Protocol>>();
