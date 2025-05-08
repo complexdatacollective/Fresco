@@ -3,6 +3,7 @@ const config = {
   overrides: [
     {
       extends: [
+        'plugin:import/recommended',
         'plugin:@typescript-eslint/stylistic-type-checked',
         'plugin:@typescript-eslint/recommended-type-checked',
         'next/core-web-vitals',
@@ -12,6 +13,17 @@ const config = {
       parserOptions: {
         project: true,
       },
+      settings: {
+    'import/resolver': {
+      typescript: {
+        "project": ".",
+        alwaysTryTypes: true,
+      },
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
+  },
     },
   ],
   parser: '@typescript-eslint/parser',
@@ -61,8 +73,13 @@ const config = {
   },
   settings: {
     'import/resolver': {
-      typescript: true,
-      node: true,
+      typescript: {
+        "project": ".",
+        alwaysTryTypes: true,
+      },
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
     },
   },
 };
