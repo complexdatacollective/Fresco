@@ -79,7 +79,7 @@ export default function DropzoneField<T>({
         </Label>
       )}
       {hint && (
-        <span className="text-sm leading-5 text-muted-foreground">{hint}</span>
+        <span className="text-muted-foreground text-sm leading-5">{hint}</span>
       )}
       <div
         ref={controller.field.ref}
@@ -109,7 +109,7 @@ export default function DropzoneField<T>({
         )}
       </div>
       {controller.fieldState.error && (
-        <span className="text-sm text-destructive">
+        <span className="text-destructive text-sm">
           {controller.fieldState.error.message}
         </span>
       )}

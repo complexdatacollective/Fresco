@@ -8,7 +8,6 @@
 $font-path: '~~/lib/ui/assets/fonts';
 $image-path: '~~/lib/ui/assets/images';
 
-
 // Remove touch and focus outlines
 * {
   outline-style: none;
@@ -19,7 +18,8 @@ $image-path: '~~/lib/ui/assets/images';
   }
 }
 
-body, html {
+body,
+html {
   overflow: hidden;
 }
 

@@ -25,7 +25,7 @@ const NavButton = ({
       <Link
         href={href}
         className={cn(
-          'text-sm font-semibold text-primary-foreground',
+          'text-primary-foreground text-sm font-semibold',
           !isActive && 'hover:text-sea-green',
         )}
       >
@@ -34,7 +34,7 @@ const NavButton = ({
       {isActive && (
         <motion.div
           layoutId="underline"
-          className="absolute left-0 right-0 top-[105%] h-[2px] rounded-full bg-primary-foreground"
+          className="bg-primary-foreground absolute top-[105%] right-0 left-0 h-[2px] rounded-full"
         />
       )}
     </motion.li>
@@ -45,7 +45,7 @@ export function NavigationBar() {
   const pathname = usePathname();
 
   return (
-    <motion.nav className="flex items-center justify-between gap-4 bg-cyber-grape px-4 py-3">
+    <motion.nav className="bg-cyber-grape flex items-center justify-between gap-4 px-4 py-3">
       <Link href="/" className="flex items-center space-x-2">
         <Image src="/favicon.png" alt="Fresco" width={50} height={50} />
         <Heading variant="h3" className="hidden text-white lg:block">

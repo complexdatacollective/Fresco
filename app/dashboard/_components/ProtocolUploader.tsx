@@ -58,8 +58,8 @@ function ProtocolUploader({
         className={cn(
           isActive &&
             cn(
-              'bg-linear-to-r from-cyber-grape via-neon-coral to-cyber-grape text-white',
-              'pointer-events-none animate-background-gradient cursor-wait bg-[length:400%]',
+              'from-cyber-grape via-neon-coral to-cyber-grape bg-linear-to-r text-white',
+              'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
             ),
           className,
         )}
@@ -80,7 +80,7 @@ function ProtocolUploader({
       <Portal>
         <motion.div
           layout
-          className="text-md fixed bottom-4 right-6 z-10 w-[400px]"
+          className="text-md fixed right-6 bottom-4 z-10 w-[400px]"
         >
           <motion.ul className="relative flex flex-col-reverse gap-2" layout>
             <AnimatePresence mode="popLayout">

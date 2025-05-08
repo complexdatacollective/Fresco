@@ -27,18 +27,13 @@ const config = {
     'next/core-web-vitals',
     'prettier',
   ],
-  ignorePatterns: [
-    'node_modules',
-    '*.stories.*',
-    'public',
-
-  ],
+  ignorePatterns: ['node_modules', '*.stories.*', 'public'],
   rules: {
-    "@typescript-eslint/switch-exhaustiveness-check": "error",
+    '@typescript-eslint/switch-exhaustiveness-check': 'error',
     '@next/next/no-img-element': 'off',
     'import/no-cycle': 'error',
     'import/no-anonymous-default-export': 'off',
-    
+
     'no-process-env': 'error',
     'no-console': 'error',
     '@typescript-eslint/consistent-type-imports': [
@@ -67,9 +62,9 @@ const config = {
   settings: {
     'import/resolver': {
       typescript: true,
-      node: true, 
-    }
-  }
+      node: true,
+    },
+  },
 };
 
 module.exports = config;

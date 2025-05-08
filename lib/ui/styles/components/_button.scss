@@ -8,9 +8,7 @@
   background: none;
 }
 
-@mixin button (
-  $button-class: 'button'
-) {
+@mixin button($button-class: 'button') {
   .#{$button-class} {
     @include reset-button;
     @include vcjc; // vertical center, justify center
@@ -48,7 +46,6 @@
     }
 
     &--has-icon {
-
       .#{$button-class}__content {
         margin-left: 0;
       }
@@ -64,7 +61,6 @@
           margin-right: -2rem;
         }
       }
-
     }
 
     &__content {

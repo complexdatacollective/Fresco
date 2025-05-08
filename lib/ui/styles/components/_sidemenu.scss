@@ -1,8 +1,6 @@
 // Sidemenu
 // =============================================================================
-@mixin sidemenu(
-  $sidemenu-class: 'sidemenu'
-) {
+@mixin sidemenu($sidemenu-class: 'sidemenu') {
   .#{$sidemenu-class} {
     max-height: 100vh;
     overflow-y: scroll;
@@ -39,13 +37,10 @@
   }
 }
 
-
 // include this mixin to the container that's next to the sidemenu
 // when it's visible
 // provide whatever class is added when the sidenav is visible as an arg
-@mixin sidemenu-visible(
-  $added-class: 'pushed'
-) {
+@mixin sidemenu-visible($added-class: 'pushed') {
   transition: transform var(--animation-duration-standard);
 
   &--#{$added-class} {
