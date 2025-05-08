@@ -237,7 +237,7 @@ class NCBlob {
   }
 }
 
-interface BackgroundBlobsProps {
+type BackgroundBlobsProps = {
   large?: number;
   medium?: number;
   small?: number;

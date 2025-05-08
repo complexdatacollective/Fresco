@@ -24,13 +24,13 @@ type EdgeColorSequence =
   | 'edge-color-seq-8'
   | 'edge-color-seq-9';
 
-interface NodeSummaryProps {
+type NodeSummaryProps = {
   color: NodeColorSequence;
   count: number;
   typeName: string;
 }
 
-interface EdgeSummaryProps {
+type EdgeSummaryProps = {
   color: EdgeColorSequence;
   count: number;
   typeName: string;

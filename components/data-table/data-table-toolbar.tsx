@@ -14,7 +14,7 @@ import { Button, buttonVariants } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { cn } from '~/utils/shadcn';
 
-interface DataTableToolbarProps<TData> {
+type DataTableToolbarProps<TData> = {
   table: Table<TData>;
   filterableColumns?: DataTableFilterableColumn<TData>[];
   searchableColumns?: DataTableSearchableColumn<TData>[];

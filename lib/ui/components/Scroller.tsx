@@ -2,7 +2,7 @@ import cx from 'classnames';
 import { clamp } from 'es-toolkit';
 import React, { forwardRef, useCallback, type ReactNode } from 'react';
 
-interface ScrollerProps {
+type ScrollerProps = {
   /** Content to be scrolled */
   children: ReactNode;
   /** Additional class names to apply to the scroller */

@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
 } from '../ui/AlertDialog';
 
-interface SignOutModalProps {
+type SignOutModalProps = {
   openSignOutModal: boolean;
   setOpenSignOutModal: Dispatch<SetStateAction<boolean>>;
 }

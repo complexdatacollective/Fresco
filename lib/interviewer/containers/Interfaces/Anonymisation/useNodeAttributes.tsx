@@ -1,4 +1,5 @@
 import {
+  entityAttributesProperty,
   entitySecureAttributesMeta,
   type NcNode,
   type VariableValue,
@@ -6,7 +7,10 @@ import {
 import { invariant } from 'es-toolkit';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { getCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
+import {
+  getCodebookVariablesForNodeType,
+  makeGetCodebookForNodeType,
+} from '~/lib/interviewer/selectors/protocol';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { usePassphrase } from './usePassphrase';
 import { decryptData, UnauthorizedError } from './utils';
@@ -146,3 +150,71 @@ export const useNodeAttributes = (
     getById,
   };
 };
+
+// As above, except that it returns a function that takes a node, and only implements getById
+export function useMakeNodeAttributes() {
+  const { requirePassphrase, setPassphraseInvalid, isEnabled } =
+    usePassphrase();
+  const getCodebookVariablesForNodeType = useSelector(
+    makeGetCodebookForNodeType,
+  );
+
+  return (node: NcNode) => {
+    const codebook = getCodebookVariablesForNodeType(node.type);
+    const codebookAttributes = codebook?.variables ?? {};
+    const nodeAttributes = node[entityAttributesProperty];
+
+    const getById = async <T extends VariableValue>(
+      attributeId: string,
+    ): Promise<T | undefined> => {
+      const isEncrypted =
+        isEnabled && codebookAttributes[attributeId]?.encrypted;
+
+      // If the attribute is not encrypted, we can return it directly
+      if (!isEncrypted) {
+        return nodeAttributes[attributeId] as T | undefined;
+      }
+
+      const secureAttributes = node[entitySecureAttributesMeta]?.[attributeId];
+
+      invariant(secureAttributes, 'Secure attributes missing!');
+
+      try {
+        const passphrase = requirePassphrase();
+
+        // This throw could ultimately be moved into requirePassphrase
+        if (!passphrase) {
+          throw new UnauthorizedError();
+        }
+
+        const result = await decryptData(
+          {
+            secureAttributes: {
+              iv: secureAttributes.iv,
+              salt: secureAttributes.salt,
+            },
+            data: nodeAttributes[attributeId] as number[],
+          },
+          passphrase,
+        );
+
+        return result as T;
+      } catch (e) {
+        // User cancelled
+        if (e instanceof UnauthorizedError) {
+          throw e;
+        }
+
+        // If we get here, the decryption failed. This is either because
+        // the passphrase was incorrect, or there was another kind of error.
+        // In either case the only thing we can do
+
+        setPassphraseInvalid(true);
+        // eslint-disable-next-line no-console
+        console.error(e);
+        return '⚠️' as unknown as T;
+      }
+    };
+    return getById;
+  };
+}

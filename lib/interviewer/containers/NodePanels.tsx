@@ -21,7 +21,7 @@ import NodePanel from './NodePanel';
  * Configures and renders `NodePanels` according to the protocol config
  */
 
-interface NodePanelsProps {
+type NodePanelsProps = {
   disableAddNew: boolean;
   meta: NcNode & {
     itemType: string;

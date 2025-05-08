@@ -1,69 +1,91 @@
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { useEffect, useState } from 'react';
-import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
-import { ensureError } from '~/utils/ensureError';
-import { useNodeAttributes } from './useNodeAttributes';
+import { useSelector } from 'react-redux';
+import {
+  getCodebookForNodeType,
+  makeGetCodebookForNodeType,
+} from '~/lib/interviewer/selectors/protocol';
+import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
+import { useMakeNodeAttributes, useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';
 
 export function useNodeLabel(node: NcNode) {
   const [label, setLabel] = useState<string | undefined>(undefined);
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { getByName, getByFuzzyMatch } = useNodeAttributes(node);
+  const { getById } = useNodeAttributes(node);
+  const codebook = useSelector(getCodebookForNodeType(node.type));
 
   useEffect(() => {
+    const labelAttributeId = getNodeLabelAttribute(
+      codebook?.variables ?? {},
+      node[entityAttributesProperty],
+    );
+
     const calculateLabel = async () => {
-      // 1. Look for a variable called 'name' in the codebook
-      try {
-        // This will throw an error if the variable is encrypted and the passphrase is not provided
-        const variableCalledName = await getByName<string>({
-          attributeName: 'name',
-          ignoreCase: true,
-        });
-
-        if (variableCalledName) {
-          setLabel(variableCalledName);
-          return;
-        }
-
-        // 2. Use a fuzzy match to try and find a variable name that includes 'name' in the codebook
-        const fuzzyName = await getByFuzzyMatch<string>(new RegExp('name'));
-        if (fuzzyName) {
-          setLabel(fuzzyName);
-          return;
-        }
-      } catch (e) {
-        const error = ensureError(e);
-
-        // eslint-disable-next-line no-console
-        console.log(error.message);
-        if (e instanceof UnauthorizedError) {
-          setLabel('🔒');
-          return;
+      if (labelAttributeId) {
+        try {
+          const labelValue = await getById(labelAttributeId);
+          if (
+            (labelValue && typeof labelValue === 'string') ||
+            typeof labelValue === 'number'
+          ) {
+            setLabel(String(labelValue));
+            return;
+          }
+        } catch (e) {
+          if (e instanceof UnauthorizedError) {
+            setLabel('🔒');
+            return;
+          }
         }
       }
 
-      // 3. Look for a property on the node with a key that includes 'name'
-      let foundName: string | null = null;
-
-      const nodeAttributes = getEntityAttributes(node);
-      for (const attribute of Object.keys(nodeAttributes)) {
-        if (attribute.toLowerCase().includes('name')) {
-          foundName = attribute;
-        }
-      }
-
-      if (foundName && nodeAttributes[foundName]) {
-        setLabel(nodeAttributes[foundName] as string);
-        return;
-      }
-
-      // 3. Last resort!
-      setLabel(node[entityPrimaryKeyProperty]);
+      // Use the codebook entity type name, and fall
+      const codebookTypeName = codebook?.name;
+      setLabel(codebookTypeName ?? node[entityPrimaryKeyProperty]);
       return;
     };
 
     void calculateLabel();
-  }, [node, getByName, getByFuzzyMatch]);
+  }, [codebook, getById, node]);
 
   return label;
+}
+
+// As above but returning a function that takes a node
+export function useNodeLabeller() {
+  const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
+  const getById = useMakeNodeAttributes();
+
+  const getNodeLabel = async (node: NcNode): Promise<string> => {
+    const codebook = getCodebookForNodeType(node.type);
+    const labelAttributeId = getNodeLabelAttribute(
+      codebook?.variables,
+      node[entityAttributesProperty],
+    );
+
+    if (labelAttributeId) {
+      try {
+        const labelValue = await getById(node)(labelAttributeId);
+        if (
+          (labelValue && typeof labelValue === 'string') ||
+          typeof labelValue === 'number'
+        ) {
+          return String(labelValue);
+        }
+      } catch (e) {
+        if (e instanceof UnauthorizedError) {
+          return '🔒';
+        }
+      }
+    }
+
+    return codebook?.name ?? node[entityPrimaryKeyProperty];
+  };
+
+  return getNodeLabel;
 }

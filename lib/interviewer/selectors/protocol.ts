@@ -91,6 +91,18 @@ export const getCodebookVariablesForSubjectType = createSelector(
   },
 );
 
+export const makeGetCodebookForNodeType = createSelector(
+  getCodebook,
+  (codebook) => (type: string) => {
+    return codebook.node?.[type];
+  },
+);
+
+export const getCodebookForNodeType = (type: string) =>
+  createSelector(getCodebook, (codebook) => {
+    return codebook.node?.[type];
+  });
+
 export const getCodebookVariablesForNodeType = (type: string) =>
   createSelector(
     getCodebook,

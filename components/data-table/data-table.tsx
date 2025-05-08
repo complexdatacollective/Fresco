@@ -23,7 +23,7 @@ import { DataTableFloatingBar } from './data-table-floating-bar';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   /**
    * The table instance returned from useDataTable hook with pagination, sorting, filtering, etc.
    * @type TanstackTable<TData>

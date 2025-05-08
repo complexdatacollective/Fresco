@@ -1,21 +1,14 @@
-import type {
-  Codebook,
-  NodeDefinition,
-  Stage,
-} from '@codaco/protocol-validation';
+import type { Codebook, Stage } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type NcNetwork,
-  type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection, invariant } from 'es-toolkit';
 import { filter, includes } from 'es-toolkit/compat';
-import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
-import { labelLogic } from '../utils/getNodeLabelAttribute';
 import { calculateProgress } from './utils';
 
 export const getActiveSession = (state: RootState) => {
@@ -235,19 +228,6 @@ export const getNodeTypeDefinition = createSelector(
       return null;
     }
     return codebook.node?.[subject.type] ?? null;
-  },
-);
-
-export const getNodeLabel = createSelector(
-  getNodeTypeDefinition,
-  (nodeTypeDefinition: NodeDefinition | null) => (node: NcNode) => {
-    if (!nodeTypeDefinition) {
-      return 'Node';
-    }
-
-    const nodeAttributes = getEntityAttributes(node);
-
-    return labelLogic(nodeTypeDefinition, nodeAttributes);
   },
 );
 

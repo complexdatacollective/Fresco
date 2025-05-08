@@ -1,4 +1,4 @@
-interface ErrorMessageProps {
+type ErrorMessageProps = {
   title: string;
   message: string;
 }

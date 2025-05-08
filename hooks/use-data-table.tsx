@@ -26,7 +26,7 @@ import type {
 import { debounce } from 'es-toolkit';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
-interface UseDataTableProps<TData, TValue> {
+type UseDataTableProps<TData, TValue> = {
   /**
    * The data for the table
    * @default []

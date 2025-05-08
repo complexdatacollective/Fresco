@@ -15,7 +15,7 @@ import {
 import { Button } from '~/components/ui/Button';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
-interface DeleteProtocolsDialogProps {
+type DeleteProtocolsDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   protocolsToDelete: ProtocolWithInterviews[];

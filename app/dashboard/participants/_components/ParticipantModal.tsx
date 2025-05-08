@@ -26,7 +26,7 @@ import {
   participantLabelSchema,
 } from '~/schemas/participant';
 
-interface ParticipantModalProps {
+type ParticipantModalProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   editingParticipant?: Participant | null;

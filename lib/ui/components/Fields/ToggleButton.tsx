@@ -4,23 +4,23 @@ import cx from 'classnames';
 import React, { useId } from 'react';
 import MarkdownLabel from './MarkdownLabel';
 
-interface InputProps {
+type InputProps = {
   name?: string;
   value?: string | number | readonly string[] | undefined;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-}
+};
 
-interface ToggleButtonProps {
+type ToggleButtonProps = {
   label: string;
   className?: string;
   input: InputProps;
   disabled?: boolean;
   color?: string;
   fieldLabel?: string;
-}
+};
 
 const ToggleButton = ({
   label,

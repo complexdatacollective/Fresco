@@ -1,37 +1,62 @@
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { compose } from '@reduxjs/toolkit';
+import { type SortOrder, type Stage } from '@codaco/protocol-validation';
+import {
+  type EntityAttributesProperty,
+  type EntityPrimaryKey,
+  entityPrimaryKeyProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { connect } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { type FormSubmitHandler } from 'redux-form';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import CategoricalItem from '../../components/CategoricalItem';
-import { updateNode } from '../../ducks/modules/session';
-import {
-  getNodeColor,
-  getNodeLabel,
-  getSubjectType,
-} from '../../selectors/session';
+import { updateNode as updateNodeAction } from '../../ducks/modules/session';
+import { getNodeColor, getSubjectType } from '../../selectors/session';
+import { useAppDispatch } from '../../store';
+import { useNodeLabeller } from '../Interfaces/Anonymisation/useNodeLabel';
 import Overlay from '../Overlay';
 import OtherVariableForm from './OtherVariableForm';
 
-const formatBinDetails = (nodes, getNodeLabel) => {
+const formatBinDetails = async (
+  nodes: NcNode[],
+  getNodeLabel: (n: NcNode) => Promise<string>,
+) => {
   if (nodes.length === 0) {
     return '';
   }
 
   // todo: the following should be updated to reflect the sort order of the bins
-  const name = getNodeLabel(nodes[0]);
+  const name = await getNodeLabel(nodes[0]!);
 
   return `${name}${nodes.length > 1 ? ` and ${nodes.length - 1} other${nodes.length > 2 ? 's' : ''}` : ''}`;
 };
 
 const otherVariableWindowInitialState = {
   show: false,
-  node: null,
 };
 
-const CategoricalListItem = (props) => {
+type Props = {
+  id: string;
+  size: number;
+  isExpanded: boolean;
+  accentColor: string;
+  activePromptVariable: string;
+  promptOtherVariable?: string | null;
+  bin: {
+    label: string;
+    nodes: NcNode[];
+    otherVariable?: string;
+    otherVariablePrompt?: string;
+    value: string;
+  };
+  index: number;
+  sortOrder?: SortOrder[];
+  onExpandBin: (index: number) => void;
+  stage: Extract<Stage, { type: 'CategoricalBin' }>;
+};
+
+const CategoricalListItem = (props: Props) => {
   const {
     id,
     size = 0,
@@ -42,26 +67,47 @@ const CategoricalListItem = (props) => {
     bin,
     index,
     sortOrder = [],
-    getNodeLabel,
-    nodeColor,
     onExpandBin,
-    updateNode,
     stage,
   } = props;
 
-  const isOtherVariable = !!bin.otherVariable;
-  const [otherVariableWindow, setOtherVariableWindow] = useState(
-    otherVariableWindowInitialState,
-  );
-  const binDetails = formatBinDetails(bin.nodes, getNodeLabel);
+  const dispatch = useAppDispatch();
+  const updateNode = (payload: {
+    nodeId: NcNode[EntityPrimaryKey];
+    newModelData?: Record<string, unknown>;
+    newAttributeData: NcNode[EntityAttributesProperty];
+  }) => dispatch(updateNodeAction(payload));
 
-  const openOtherVariableWindow = (node) => {
-    const otherVariable = get(getEntityAttributes(node), bin.otherVariable);
+  const type = useSelector(getSubjectType);
+  const nodeColor = useSelector(getNodeColor(type ?? ''));
+  const labelNode = useNodeLabeller();
+
+  const isOtherVariable = !!bin.otherVariable;
+  const [otherVariableWindow, setOtherVariableWindow] = useState<
+    Partial<{
+      show: boolean;
+      node: NcNode;
+      label: string;
+      color: string;
+      initialValues: {
+        otherVariable: string | null;
+      };
+    }>
+  >(otherVariableWindowInitialState);
+
+  const openOtherVariableWindow = async (node: NcNode) => {
+    const otherVariable = get(
+      getEntityAttributes(node),
+      bin.otherVariable!,
+      null,
+    ) as string | null;
+
+    const label = await labelNode(node);
 
     setOtherVariableWindow({
       show: true,
       node,
-      label: getNodeLabel(node),
+      label,
       color: nodeColor,
       initialValues: {
         otherVariable,
@@ -72,8 +118,8 @@ const CategoricalListItem = (props) => {
   const closeOtherVariableWindow = () =>
     setOtherVariableWindow(otherVariableWindowInitialState);
 
-  const setNodeCategory = (node, category) => {
-    const variable = bin.otherVariable || activePromptVariable;
+  const setNodeCategory = (node: NcNode, category: string) => {
+    const variable = bin.otherVariable ?? activePromptVariable;
 
     const resetVariable = bin.otherVariable
       ? activePromptVariable
@@ -96,37 +142,50 @@ const CategoricalListItem = (props) => {
     });
   };
 
-  const handleDrop = ({ meta: node }) => {
+  const handleDrop = (args: { meta: { node: NcNode } }) => {
+    const { node } = args.meta;
     const binValue = bin.value;
 
     if (isOtherVariable) {
-      openOtherVariableWindow(node);
+      void openOtherVariableWindow(node);
       return;
     }
 
     setNodeCategory(node, binValue);
   };
 
-  const handleClickItem = (node) => {
+  const handleClickItem = (node: NcNode) => {
     if (!isOtherVariable) {
       return;
     }
-    openOtherVariableWindow(node);
+    void openOtherVariableWindow(node);
   };
 
-  const handleSubmitOtherVariableForm = ({ otherVariable: value }) => {
+  const handleSubmitOtherVariableForm: FormSubmitHandler<{
+    otherVariable: string;
+  }> = ({ otherVariable: value }) => {
     const { node } = otherVariableWindow;
 
-    setNodeCategory(node, value);
+    setNodeCategory(node!, value);
     closeOtherVariableWindow();
   };
 
-  const handleExpandBin = (e) => {
+  const handleExpandBin = (e: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
     }
     onExpandBin(index);
   };
+
+  const [binDetails, setBinDetails] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBinDetails() {
+      const details = await formatBinDetails(bin.nodes, labelNode);
+      setBinDetails(details);
+    }
+    void fetchBinDetails();
+  }, [bin.nodes, labelNode]);
 
   return (
     <div
@@ -161,6 +220,7 @@ const CategoricalListItem = (props) => {
               label={otherVariableWindow.label}
               color={otherVariableWindow.color}
               otherVariablePrompt={bin.otherVariablePrompt}
+              // @ts-expect-error not sure how to type this correctly
               onSubmit={handleSubmitOtherVariableForm}
               onCancel={closeOtherVariableWindow}
               initialValues={otherVariableWindow.initialValues}
@@ -172,36 +232,4 @@ const CategoricalListItem = (props) => {
   );
 };
 
-CategoricalListItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  isExpanded: PropTypes.bool.isRequired,
-  activePromptVariable: PropTypes.string.isRequired,
-  promptOtherVariable: PropTypes.string,
-  bin: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  sortOrder: PropTypes.array,
-  onExpandBin: PropTypes.func.isRequired,
-  updateNode: PropTypes.func.isRequired,
-  accentColor: PropTypes.string,
-  size: PropTypes.number,
-};
-
-const makeMapStateToProps = () => {
-  return (state, props) => {
-    const type = getSubjectType(state, props);
-    const color = getNodeColor(type)(state, props);
-
-    return {
-      getNodeLabel: getNodeLabel(state, props),
-      nodeColor: color,
-    };
-  };
-};
-
-const mapDispatchToProps = {
-  updateNode,
-};
-
-export default compose(connect(makeMapStateToProps, mapDispatchToProps))(
-  CategoricalListItem,
-);
+export default CategoricalListItem;

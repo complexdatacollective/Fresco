@@ -45,7 +45,7 @@ async function generateKey(passphrase: string, salt: Uint8Array) {
   );
 }
 
-interface EncryptedData {
+type EncryptedData = {
   secureAttributes: {
     iv: number[];
     salt: number[];

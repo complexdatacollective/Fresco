@@ -22,11 +22,11 @@ const config = {
       settings: {
         'import/resolver': {
           alias: {
-        map: [
-          ['react', 'next/dist/compiled/react/cjs/react.development.js'],
-        ],
-        extensions: ['.js', '.jsx']
-      },
+            map: [
+              ['react', 'next/dist/compiled/react/cjs/react.development.js'],
+            ],
+            extensions: ['.js', '.jsx'],
+          },
           typescript: {
             project: './tsconfig.json',
             alwaysTryTypes: true,
@@ -47,7 +47,7 @@ const config = {
     '@next/next/no-img-element': 'off',
     'import/no-cycle': 'error',
     'import/no-anonymous-default-export': 'off',
-
+    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     'no-process-env': 'error',
     'no-console': 'error',
     '@typescript-eslint/consistent-type-imports': [
@@ -71,7 +71,6 @@ const config = {
       },
     ],
     'no-unreachable': 'error',
-    'import/no-named-as-default-member': 'off', // re-enable
   },
 };
 

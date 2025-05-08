@@ -15,7 +15,7 @@ import {
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
 import { type DocumentFragment, DOMImplementation } from '@xmldom/xmldom';
-import { labelLogic } from '~/lib/interviewer/utils/getNodeLabelAttribute';
+import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -145,12 +145,38 @@ function generateDataElementsForEntity(
       ),
     );
   } else {
-    const type = codebook.node?.[(entity as NodeWithResequencedID).type];
-    const label = labelLogic(type!, entity[entityAttributesProperty]);
+    const codebookDefinition =
+      codebook.node?.[(entity as NodeWithResequencedID).type];
+    const labelAttribute = getNodeLabelAttribute(
+      codebookDefinition!.variables,
+      entity[entityAttributesProperty],
+    );
 
-    // Add label property if attribute is not encrypted.
+    if (labelAttribute) {
+      // Add label property if attribute is not encrypted.
+      const isEncrypted =
+        codebookDefinition?.variables?.[labelAttribute]?.encrypted ?? false;
 
-    domElement.appendChild(createDataElement({ key: 'label' }, label));
+      if (isEncrypted) {
+        domElement.appendChild(
+          createDataElement({ key: 'label' }, 'Encrypted'),
+        );
+      } else {
+        domElement.appendChild(
+          createDataElement(
+            { key: 'label' },
+            entity[entityAttributesProperty][labelAttribute] as string,
+          ),
+        );
+      }
+    } else {
+      domElement.appendChild(
+        createDataElement(
+          { key: 'label' },
+          codebookDefinition?.name ?? entity[entityPrimaryKeyProperty],
+        ),
+      );
+    }
   }
 
   const dataElements = processAttributes(entity, codebook, exportOptions);

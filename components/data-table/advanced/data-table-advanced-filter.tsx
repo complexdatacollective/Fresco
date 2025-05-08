@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 
-interface DataTableAdvancedFilterProps<TData> {
+type DataTableAdvancedFilterProps<TData> = {
   options: DataTableFilterOption<TData>[];
   selectedOptions: DataTableFilterOption<TData>[];
   setSelectedOptions: React.Dispatch<

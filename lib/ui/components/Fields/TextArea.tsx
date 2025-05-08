@@ -5,7 +5,7 @@ import { useId } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-interface InputProps {
+type InputProps = {
   name?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -13,14 +13,14 @@ interface InputProps {
   onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 }
 
-interface MetaProps {
+type MetaProps = {
   active?: boolean;
   error?: string;
   invalid?: boolean;
   touched?: boolean;
 }
 
-interface TextAreaProps {
+type TextAreaProps = {
   meta: MetaProps;
   label?: string;
   placeholder?: string;

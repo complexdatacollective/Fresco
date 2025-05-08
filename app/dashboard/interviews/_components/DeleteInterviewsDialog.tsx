@@ -14,7 +14,7 @@ import {
 } from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
 
-interface DeleteInterviewsDialog {
+type DeleteInterviewsDialog = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   interviewsToDelete: Interview[];

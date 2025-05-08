@@ -13,7 +13,7 @@ import type {
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 
-interface DataTableAdvancedToolbarProps<TData> {
+type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;
   searchableColumns?: DataTableSearchableColumn<TData>[];
   filterableColumns?: DataTableFilterableColumn<TData>[];

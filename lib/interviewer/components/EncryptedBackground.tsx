@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-interface Stream {
+type Stream = {
   id: number;
   word: string;
   x: number;
@@ -180,7 +180,7 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
   };
 };
 
-interface EncryptionBackgroundProps {
+type EncryptionBackgroundProps = {
   thresholdPosition: number;
 }
 

@@ -4,7 +4,7 @@ import cx from 'classnames';
 import React, { useId } from 'react';
 import MarkdownLabel from './MarkdownLabel';
 
-interface InputProps {
+type InputProps = {
   name?: string;
   value?: string | number | readonly string[] | undefined;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -13,7 +13,7 @@ interface InputProps {
   checked?: boolean;
 }
 
-interface RadioProps {
+type RadioProps = {
   label?: React.ReactNode;
   fieldLabel?: string;
   className?: string;

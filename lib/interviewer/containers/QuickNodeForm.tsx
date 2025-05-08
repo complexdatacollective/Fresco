@@ -71,7 +71,7 @@ const inputVariants = {
   },
 };
 
-interface QuickAddFormProps {
+type QuickAddFormProps = {
   disabled: boolean;
   targetVariable: string;
   onShowForm: () => void;

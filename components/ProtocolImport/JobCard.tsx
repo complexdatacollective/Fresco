@@ -9,7 +9,7 @@ import Heading from '../ui/typography/Heading';
 import Paragraph from '../ui/typography/Paragraph';
 import { type ImportJob } from './JobReducer';
 
-interface JobCardProps {
+type JobCardProps = {
   job: ImportJob;
   onCancel: () => void;
 }

@@ -86,7 +86,7 @@ export const StageMetadataSchema = z.record(
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 export type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
-export interface SessionState {
+export type SessionState = {
   id: string;
   startTime: string;
   finishTime: string | null;
@@ -126,7 +126,7 @@ export const initialNetwork: NcNetwork = {
 
 const initialState = {} as SessionState;
 
-interface AddNodeArgs {
+type AddNodeArgs = {
   type: NcNode['type'];
   attributeData?: NcNode[EntityAttributesProperty];
   modelData?: {

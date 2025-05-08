@@ -6,7 +6,7 @@ import {
 import { type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
 
-export interface Dialog {
+export type Dialog = {
   id: string;
   type: 'Confirm' | 'Notice' | 'Warning' | 'Error';
   title: string;

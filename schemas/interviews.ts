@@ -4,7 +4,7 @@ export type DeleteInterviews = {
   id: string;
 }[];
 
-export interface CreateInterview {
+export type CreateInterview = {
   participantIdentifier?: Participant['identifier'];
   protocolId: Protocol['id'];
 }

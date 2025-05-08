@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '~/components/ui/table';
 
-interface DataTableSkeletonProps {
+type DataTableSkeletonProps = {
   columnCount: number;
   rowCount?: number;
   searchableColumnCount?: number;

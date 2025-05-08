@@ -33,7 +33,7 @@ const NavigationButton = ({
   );
 };
 
-interface NavigationProps {
+type NavigationProps = {
   moveBackward: () => void;
   moveForward: () => void;
   pulseNext: boolean;

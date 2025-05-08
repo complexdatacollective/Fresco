@@ -1,8 +1,8 @@
 import { type NodeDefinition } from '@codaco/protocol-validation';
 import { describe, expect, it } from 'vitest';
-import { labelLogic } from '../../utils/getNodeLabelAttribute';
+import { getNodeLabelAttribute } from '../getNodeLabelAttribute';
 
-describe('labelLogic', () => {
+describe('getNodeLabelAttribute', () => {
   it('should return value from variable named "name" in codebook', () => {
     // Setup
     const mockCodebook: NodeDefinition = {
@@ -20,10 +20,13 @@ describe('labelLogic', () => {
     };
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(
+      mockCodebook.variables,
+      mockNodeAttributes,
+    );
 
     // Verify
-    expect(result).toBe('John Doe');
+    expect(result).toBe('var-123');
   });
 
   it('should look for "name" in a case-insensitive way', () => {
@@ -41,10 +44,13 @@ describe('labelLogic', () => {
     };
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(
+      mockCodebook.variables,
+      mockNodeAttributes,
+    );
 
     // Verify
-    expect(result).toBe('Jane Doe');
+    expect(result).toBe('var-123');
   });
 
   it('should return value from attribute named "name" if codebook lookup fails', () => {
@@ -63,10 +69,13 @@ describe('labelLogic', () => {
     };
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(
+      mockCodebook.variables,
+      mockNodeAttributes,
+    );
 
     // Verify
-    expect(result).toBe('John Smith');
+    expect(result).toBe('name');
   });
 
   it('should handle case-insensitive attribute names', () => {
@@ -85,10 +94,13 @@ describe('labelLogic', () => {
     };
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(
+      mockCodebook.variables,
+      mockNodeAttributes,
+    );
 
     // Verify
-    expect(result).toBe('John Smith');
+    expect(result).toBe('NAME');
   });
 
   it('should return value from first text variable with a value if no name found', () => {
@@ -110,85 +122,26 @@ describe('labelLogic', () => {
     };
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(
+      mockCodebook.variables,
+      mockNodeAttributes,
+    );
 
     // Verify
-    expect(result).toBe('Smith');
-  });
-
-  it('should return node type name as last resort', () => {
-    // Setup
-    const mockCodebook: NodeDefinition = {
-      name: 'Person',
-      color: 'red',
-      variables: {
-        'var-123': { name: 'firstName', type: 'text' },
-        'var-456': { name: 'age', type: 'number' },
-      },
-    };
-
-    const mockNodeAttributes = {
-      'var-123': '', // Empty value
-      'var-456': 30,
-    };
-
-    // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
-
-    // Verify
-    expect(result).toBe('Person');
-  });
-
-  it('should handle undefined codebook', () => {
-    // @ts-expect-error test spec
-    const mockCodebook: NodeDefinition = undefined;
-    const mockNodeAttributes = {
-      name: 'John Smith',
-    };
-
-    // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
-
-    // Verify
-    expect(result).toBe('John Smith');
+    expect(result).toBe('var-456'); // Should return the first text variable with a value
   });
 
   it('should handle undefined codebook variables', () => {
-    // Setup
-    const mockCodebook: NodeDefinition = {
-      name: 'Person',
-      color: 'red',
-      // No variables property
-    };
-
+    const mockCodebook: NodeDefinition['variables'] = undefined;
     const mockNodeAttributes = {
       name: 'John Smith',
     };
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(mockCodebook, mockNodeAttributes);
 
     // Verify
-    expect(result).toBe('John Smith');
-  });
-
-  it('should handle non-string values in attributes', () => {
-    // Setup
-    const mockCodebook: NodeDefinition = {
-      name: 'Person',
-      color: 'red',
-      variables: {},
-    };
-
-    const mockNodeAttributes = {
-      name: 42, // Number instead of string
-    };
-
-    // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
-
-    // Verify
-    expect(result).toBe('42'); // Should convert to string
+    expect(result).toBe('name');
   });
 
   it('should handle empty node attributes', () => {
@@ -204,9 +157,12 @@ describe('labelLogic', () => {
     const mockNodeAttributes = {};
 
     // Execute
-    const result = labelLogic(mockCodebook, mockNodeAttributes);
+    const result = getNodeLabelAttribute(
+      mockCodebook.variables,
+      mockNodeAttributes,
+    );
 
     // Verify
-    expect(result).toBe('Person');
+    expect(result).toBe(null);
   });
 });

@@ -1,13 +1,13 @@
 import { type Prisma } from '@prisma/client';
 import * as z from 'zod';
 
-export interface Option {
+export type Option = {
   label: string;
   value: ActivityType;
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-export interface DataTableFilterOption<TData> {
+export type DataTableFilterOption<TData> = {
   id?: string;
   label: string;
   value: keyof TData | string;
@@ -15,7 +15,7 @@ export interface DataTableFilterOption<TData> {
   isMulti?: boolean;
 }
 
-export interface DataTableSearchableColumn<TData> {
+export type DataTableSearchableColumn<TData> = {
   id: keyof TData;
   title: string;
 }
@@ -67,7 +67,7 @@ export const FilterParam = z.object({
 });
 export type FilterParam = z.infer<typeof FilterParam>;
 
-export interface SearchParams {
+export type SearchParams = {
   page: number;
   perPage: number;
   sort: (typeof sortOrder)[number];

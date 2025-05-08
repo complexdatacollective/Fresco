@@ -8,13 +8,13 @@ type ImportStatus =
   | 'Writing to database'
   | 'Complete';
 
-interface ErrorState {
+type ErrorState = {
   title: string;
   description: React.ReactNode;
   additionalContent?: React.ReactNode;
 }
 
-export interface ImportJob {
+export type ImportJob = {
   id: string;
   file: File;
   status: ImportStatus;
@@ -25,25 +25,25 @@ export interface ImportJob {
 
 export const jobInitialState = [];
 
-interface ClearJobsAction {
+type ClearJobsAction = {
   type: 'CLEAR_JOBS';
 }
 
-interface AddJobAction {
+type AddJobAction = {
   type: 'ADD_JOB';
   payload: {
     file: File;
   };
 }
 
-interface RemoveJobAction {
+type RemoveJobAction = {
   type: 'REMOVE_JOB';
   payload: {
     id: string;
   };
 }
 
-interface UpdateJobStatusAction {
+type UpdateJobStatusAction = {
   type: 'UPDATE_STATUS';
   payload: {
     id: string;
@@ -52,7 +52,7 @@ interface UpdateJobStatusAction {
   };
 }
 
-interface UpdateErrorAction {
+type UpdateErrorAction = {
   type: 'UPDATE_ERROR';
   payload: {
     id: string;

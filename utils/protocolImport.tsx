@@ -28,7 +28,7 @@ type FetchedFileAsset = Omit<
   'value' | 'key' | 'size' | 'url'
 > & { file: File };
 
-interface ProtocolAssetsResult {
+type ProtocolAssetsResult = {
   fileAssets: FetchedFileAsset[];
   apikeyAssets: AssetInsertType[];
 }

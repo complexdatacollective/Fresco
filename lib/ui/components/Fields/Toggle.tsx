@@ -5,7 +5,7 @@ import React, { useEffect, useId } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-interface InputProps {
+type InputProps = {
   name?: string;
   value?: string | number | readonly string[] | undefined;
   onChange: (e: boolean) => void;
@@ -14,13 +14,13 @@ interface InputProps {
   checked?: boolean;
 }
 
-interface MetaProps {
+type MetaProps = {
   error?: string;
   invalid?: boolean;
   touched?: boolean;
 }
 
-interface ToggleProps {
+type ToggleProps = {
   label?: string;
   fieldLabel?: string;
   className?: string;

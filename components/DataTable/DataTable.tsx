@@ -34,7 +34,7 @@ type CustomTable<TData> = TTable<TData> & {
   };
 };
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;

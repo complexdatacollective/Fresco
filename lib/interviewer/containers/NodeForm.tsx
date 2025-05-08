@@ -26,7 +26,7 @@ import Overlay from './Overlay';
 
 const reduxFormName = 'NODE_FORM';
 
-interface NodeFormProps {
+type NodeFormProps = {
   selectedNode: NcNode | null;
   form: TForm;
   disabled: boolean;

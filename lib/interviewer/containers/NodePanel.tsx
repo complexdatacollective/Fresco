@@ -13,7 +13,7 @@ import { getPanelNodes } from '../selectors/name-generator';
 import { getStageSubject } from '../selectors/session';
 import { type HighlightColor } from './NodePanels';
 
-interface NodePanelProps {
+type NodePanelProps = {
   panelConfig: PanelType;
   disableDragging: boolean;
   accepts: () => boolean;

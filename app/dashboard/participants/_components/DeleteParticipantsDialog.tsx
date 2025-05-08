@@ -12,7 +12,7 @@ import {
 } from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
 
-interface DeleteParticipantsDialog {
+type DeleteParticipantsDialog = {
   open: boolean;
   participantCount: number;
   haveInterviews: boolean;

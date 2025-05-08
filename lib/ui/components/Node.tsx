@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Loader2 } from 'lucide-react';
 import { forwardRef } from 'react';
 
-interface UINodeProps {
+type UINodeProps = {
   color?: string;
   inactive?: boolean;
   label?: string;

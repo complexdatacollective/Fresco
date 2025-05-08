@@ -2,7 +2,7 @@ import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { type Dispatch, type SetStateAction } from 'react';
 import { Sheet, SheetContent, SheetTitle } from '~/components/ui/sheet';
 
-interface FeedbackModalProps {
+type FeedbackModalProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }

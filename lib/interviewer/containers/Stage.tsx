@@ -4,7 +4,7 @@ import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
 
-export interface StageProps {
+export type StageProps = {
   stage: TStage;
   registerBeforeNext: (fn: BeforeNextFunction | null) => void;
   getNavigationHelpers: () => {

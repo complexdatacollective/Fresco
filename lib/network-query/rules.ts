@@ -197,7 +197,7 @@ const egoRule =
 
 export type EgoRule = typeof egoRule;
 
-interface RuleWithMetadata {
+type RuleWithMetadata = {
   type: FilterRule['type'];
   options: FilterRule['options'];
 }

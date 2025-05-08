@@ -372,7 +372,7 @@ const propertyWithAttributePath = (rule: ProtocolSortRule) => {
   return [entityAttributesProperty, rule.property];
 };
 
-export interface ProtocolSortRule {
+export type ProtocolSortRule = {
   property: string | string[];
   direction?: 'asc' | 'desc';
 }
