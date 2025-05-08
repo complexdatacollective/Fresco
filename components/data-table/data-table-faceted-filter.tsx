@@ -21,12 +21,12 @@ import {
 import { Separator } from '~/components/ui/separator';
 import { cn } from '~/utils/shadcn';
 
-type DataTableFacetedFilter<TData, TValue> = {
+interface DataTableFacetedFilter<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
   options: Option[];
   variant?: 'popover' | 'command';
-};
+}
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,

@@ -2,7 +2,7 @@ import cx from 'classnames';
 import { clamp } from 'es-toolkit';
 import React, { forwardRef, useCallback, type ReactNode } from 'react';
 
-type ScrollerProps = {
+interface ScrollerProps {
   /** Content to be scrolled */
   children: ReactNode;
   /** Additional class names to apply to the scroller */
@@ -15,7 +15,7 @@ type ScrollerProps = {
   ) => void;
   /** Whether to use smooth scrolling behavior */
   useSmoothScrolling?: boolean;
-};
+}
 
 const Scroller = forwardRef<HTMLDivElement, ScrollerProps>(function Scroller(
   { className, children, useSmoothScrolling = true, onScroll },

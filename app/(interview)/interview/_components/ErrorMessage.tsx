@@ -1,7 +1,7 @@
-type ErrorMessageProps = {
+interface ErrorMessageProps {
   title: string;
   message: string;
-};
+}
 
 export const ErrorMessage = ({ title, message }: ErrorMessageProps) => {
   return (

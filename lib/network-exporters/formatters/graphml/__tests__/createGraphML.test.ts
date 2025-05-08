@@ -1,16 +1,16 @@
 /* eslint-env jest */
 
-import { Codebook } from '@codaco/protocol-validation';
+import { type Codebook } from '@codaco/protocol-validation';
 import { ncUUIDProperty } from '@codaco/shared-consts';
 import {
-  Document,
+  type Document,
   DOMParser,
-  Element,
-  LiveNodeList,
+  type Element,
+  type LiveNodeList,
   MIME_TYPE,
 } from '@xmldom/xmldom';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ExportOptions } from '~/lib/network-exporters/utils/types';
+import { type ExportOptions } from '~/lib/network-exporters/utils/types';
 import {
   mockCodebook,
   mockExportOptions,
@@ -32,7 +32,7 @@ const getChildElements = (parentEl: Element, elements: LiveNodeList<Element>) =>
   Array.from(elements).filter((el) => el.parentNode === parentEl);
 
 const buildXML = (...args: Parameters<typeof graphMLGenerator>) => {
-  let xmlString = graphMLGenerator(...args);
+  const xmlString = graphMLGenerator(...args);
 
   const parser = new DOMParser();
   const result = parser.parseFromString(xmlString, MIME_TYPE.XML_APPLICATION);

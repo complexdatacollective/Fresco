@@ -5,9 +5,9 @@ import { useState } from 'react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { Plus } from 'lucide-react';
 
-type AddParticipantButtonProps = {
+interface AddParticipantButtonProps {
   existingParticipants: Participant[];
-};
+}
 
 function AddParticipantButton({
   existingParticipants,

@@ -14,11 +14,11 @@ import {
 } from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
 
-type DeleteInterviewsDialog = {
+interface DeleteInterviewsDialog {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   interviewsToDelete: Interview[];
-};
+}
 
 export const DeleteInterviewsDialog = ({
   open,

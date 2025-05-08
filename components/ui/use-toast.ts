@@ -21,12 +21,12 @@ function genId() {
   return count.toString();
 }
 
-type ActionType = {
+interface ActionType {
   ADD_TOAST: 'ADD_TOAST';
   UPDATE_TOAST: 'UPDATE_TOAST';
   DISMISS_TOAST: 'DISMISS_TOAST';
   REMOVE_TOAST: 'REMOVE_TOAST';
-};
+}
 
 type Action =
   | {
@@ -46,9 +46,9 @@ type Action =
       toastId?: ToasterToast['id'];
     };
 
-type State = {
+interface State {
   toasts: ToasterToast[];
-};
+}
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 

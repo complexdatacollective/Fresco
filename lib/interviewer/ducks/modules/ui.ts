@@ -1,12 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { updateStage } from './session';
 
-type UIState = {
+interface UIState {
   FORM_IS_READY: boolean;
   passphrase: string | null;
   showPassphrasePrompter: boolean;
   passphraseInvalid: boolean;
-};
+}
 
 const initialState = {
   FORM_IS_READY: false,

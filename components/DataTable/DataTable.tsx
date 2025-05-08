@@ -34,7 +34,7 @@ type CustomTable<TData> = TTable<TData> & {
   };
 };
 
-type DataTableProps<TData, TValue> = {
+interface DataTableProps<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumnAccessorKey?: string;
@@ -49,7 +49,7 @@ type DataTableProps<TData, TValue> = {
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
   defaultSortBy?: SortingState[0];
-};
+}
 
 export function DataTable<TData, TValue>({
   columns = [],

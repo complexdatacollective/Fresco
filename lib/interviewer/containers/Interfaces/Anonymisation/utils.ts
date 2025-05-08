@@ -45,13 +45,13 @@ async function generateKey(passphrase: string, salt: Uint8Array) {
   );
 }
 
-type EncryptedData = {
+interface EncryptedData {
   secureAttributes: {
     iv: number[];
     salt: number[];
   };
   data: number[];
-};
+}
 
 export async function decryptData(
   encrypted: EncryptedData,

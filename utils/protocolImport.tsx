@@ -28,10 +28,10 @@ type FetchedFileAsset = Omit<
   'value' | 'key' | 'size' | 'url'
 > & { file: File };
 
-type ProtocolAssetsResult = {
+interface ProtocolAssetsResult {
   fileAssets: FetchedFileAsset[];
   apikeyAssets: AssetInsertType[];
-};
+}
 
 export const getProtocolAssets = async (
   protocolJson: Protocol,

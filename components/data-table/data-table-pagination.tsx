@@ -15,9 +15,9 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 
-type DataTablePaginationProps<TData> = {
+interface DataTablePaginationProps<TData> {
   table: Table<TData>;
-};
+}
 
 export function DataTablePagination<TData>({
   table,

@@ -26,7 +26,7 @@ import type {
 import { debounce } from 'es-toolkit';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
 
-type UseDataTableProps<TData, TValue> = {
+interface UseDataTableProps<TData, TValue> {
   /**
    * The data for the table
    * @default []
@@ -62,7 +62,7 @@ type UseDataTableProps<TData, TValue> = {
    * @example filterableColumns={[{ id: "status", title: "Status", options: ["todo", "in-progress", "done", "canceled"]}]}
    */
   filterableColumns?: DataTableFilterableColumn<TData>[];
-};
+}
 
 export function useDataTable<TData, TValue>({
   data,

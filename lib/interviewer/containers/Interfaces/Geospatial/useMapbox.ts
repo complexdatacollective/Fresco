@@ -12,13 +12,13 @@ const MAP_CONSTS = {
   LINE_WIDTH: 1,
 } as const;
 
-type UseMapboxProps = {
+interface UseMapboxProps {
   mapOptions: MapOptions;
   getAssetUrl: (url: string) => string | undefined;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
   show: boolean;
-};
+}
 
 export const useMapbox = ({
   mapOptions,

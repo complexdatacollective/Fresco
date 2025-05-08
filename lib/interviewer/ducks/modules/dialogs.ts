@@ -6,7 +6,7 @@ import {
 import { type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
 
-export type Dialog = {
+export interface Dialog {
   id: string;
   type: 'Confirm' | 'Notice' | 'Warning' | 'Error';
   title: string;
@@ -14,7 +14,7 @@ export type Dialog = {
   onConfirm?: () => void;
   onCancel?: () => void;
   confirmLabel?: string;
-};
+}
 
 const initialState: Dialog[] = [
   // {

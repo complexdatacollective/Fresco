@@ -86,7 +86,7 @@ export const StageMetadataSchema = z.record(
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 export type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
-export type SessionState = {
+export interface SessionState {
   id: string;
   startTime: string;
   finishTime: string | null;
@@ -96,7 +96,7 @@ export type SessionState = {
   currentStep: number;
   promptIndex?: number;
   stageMetadata?: StageMetadata; // Used as temporary storage by DyadCensus/TieStrengthCensus
-};
+}
 
 const actionTypes = {
   updatePrompt: 'SESSION/UPDATE_PROMPT',
@@ -126,13 +126,13 @@ export const initialNetwork: NcNetwork = {
 
 const initialState = {} as SessionState;
 
-type AddNodeArgs = {
+interface AddNodeArgs {
   type: NcNode['type'];
   attributeData?: NcNode[EntityAttributesProperty];
   modelData?: {
     [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
   };
-};
+}
 
 export const addNode = createAsyncThunk(
   actionTypes.addNode,

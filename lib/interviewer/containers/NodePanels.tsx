@@ -21,13 +21,13 @@ import NodePanel from './NodePanel';
  * Configures and renders `NodePanels` according to the protocol config
  */
 
-type NodePanelsProps = {
+interface NodePanelsProps {
   disableAddNew: boolean;
   meta: NcNode & {
     itemType: string;
   };
   isDragging: boolean;
-};
+}
 
 const NodePanelColors = [
   '--primary',

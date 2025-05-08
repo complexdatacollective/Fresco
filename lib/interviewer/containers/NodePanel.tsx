@@ -13,7 +13,7 @@ import { getPanelNodes } from '../selectors/name-generator';
 import { getStageSubject } from '../selectors/session';
 import { type HighlightColor } from './NodePanels';
 
-type NodePanelProps = {
+interface NodePanelProps {
   panelConfig: PanelType;
   disableDragging: boolean;
   accepts: () => boolean;
@@ -23,7 +23,7 @@ type NodePanelProps = {
   onUpdate: (nodeCount: number, nodeIndex: Set<string>) => void;
   id: string;
   listId: string;
-};
+}
 
 function NodePanel(props: NodePanelProps) {
   const {

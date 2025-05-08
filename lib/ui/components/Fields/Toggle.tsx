@@ -5,22 +5,22 @@ import React, { useEffect, useId } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-type InputProps = {
+interface InputProps {
   name?: string;
   value?: string | number | readonly string[] | undefined;
   onChange: (e: boolean) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-};
+}
 
-type MetaProps = {
+interface MetaProps {
   error?: string;
   invalid?: boolean;
   touched?: boolean;
-};
+}
 
-type ToggleProps = {
+interface ToggleProps {
   label?: string;
   fieldLabel?: string;
   className?: string;
@@ -28,7 +28,7 @@ type ToggleProps = {
   disabled?: boolean;
   title?: string;
   meta: MetaProps;
-};
+}
 
 const Toggle = ({
   label,

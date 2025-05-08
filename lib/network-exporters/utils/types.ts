@@ -28,7 +28,7 @@ type EdgeWithEgo = NcEdge & {
 
 export type SessionsByProtocol = Record<string, SessionWithNetworkEgo[]>;
 
-export type SessionVariables = {
+export interface SessionVariables {
   [caseProperty]: string;
   [sessionProperty]: string;
   [protocolProperty]: string;
@@ -39,7 +39,7 @@ export type SessionVariables = {
   [sessionFinishTimeProperty]: string | undefined;
   COMMIT_HASH: string;
   APP_VERSION: string;
-};
+}
 
 export type FormattedSession = NcNetwork & {
   sessionVariables: SessionVariables;
@@ -72,26 +72,26 @@ export type ExportFormat =
   | 'ego'
   | 'adjacencyMatrix';
 
-type ExportError = {
+interface ExportError {
   success: false;
   error: Error;
-};
+}
 
-type ExportSuccess = {
+interface ExportSuccess {
   success: true;
   filePath: string;
-};
+}
 
 export type ExportResult = ExportError | ExportSuccess;
 
-export type ExportReturn = {
+export interface ExportReturn {
   zipUrl?: string;
   zipKey?: string;
   status: 'success' | 'error' | 'cancelled' | 'partial';
   error: string | null;
   successfulExports?: ExportResult[];
   failedExports?: ExportResult[];
-};
+}
 
 export type NodeWithResequencedID = NodeWithEgo & {
   [nodeExportIDProperty]: number;
@@ -111,8 +111,8 @@ export type SessionWithResequencedIDs = Omit<
   edges: EdgeWithResequencedID[];
 };
 
-export type ArchiveResult = {
+export interface ArchiveResult {
   path: string;
   completed: ExportResult[];
   rejected: ExportResult[];
-};
+}

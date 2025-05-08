@@ -23,7 +23,7 @@ import { DataTableFloatingBar } from './data-table-floating-bar';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 
-type DataTableProps<TData, TValue> = {
+interface DataTableProps<TData, TValue> {
   /**
    * The table instance returned from useDataTable hook with pagination, sorting, filtering, etc.
    * @type TanstackTable<TData>
@@ -76,7 +76,7 @@ type DataTableProps<TData, TValue> = {
    * @example deleteRowsAction={(event) => deleteSelectedRows(dataTable, event)}
    */
   deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>;
-};
+}
 
 export function DataTable<TData, TValue>({
   dataTable,

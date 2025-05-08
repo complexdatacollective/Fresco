@@ -237,14 +237,14 @@ class NCBlob {
   }
 }
 
-type BackgroundBlobsProps = {
+interface BackgroundBlobsProps {
   large?: number;
   medium?: number;
   small?: number;
   speedFactor?: number;
   compositeOperation?: GlobalCompositeOperation;
   filter?: CanvasFilters['filter'];
-};
+}
 
 const BackgroundBlobs = memo(
   ({

@@ -9,10 +9,10 @@ import Heading from '../ui/typography/Heading';
 import Paragraph from '../ui/typography/Paragraph';
 import { type ImportJob } from './JobReducer';
 
-type JobCardProps = {
+interface JobCardProps {
   job: ImportJob;
   onCancel: () => void;
-};
+}
 
 const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
   ({ job, onCancel }, ref) => {

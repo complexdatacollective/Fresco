@@ -24,17 +24,17 @@ type EdgeColorSequence =
   | 'edge-color-seq-8'
   | 'edge-color-seq-9';
 
-type NodeSummaryProps = {
+interface NodeSummaryProps {
   color: NodeColorSequence;
   count: number;
   typeName: string;
-};
+}
 
-type EdgeSummaryProps = {
+interface EdgeSummaryProps {
   color: EdgeColorSequence;
   count: number;
   typeName: string;
-};
+}
 function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
   const classes = cn(
     'flex items-center h-8 w-8 justify-center rounded-full',

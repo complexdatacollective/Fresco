@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-type Stream = {
+interface Stream {
   id: number;
   word: string;
   x: number;
@@ -16,7 +16,7 @@ type Stream = {
     maxScrambles: number;
   }[];
   lastScrambleTime?: number;
-};
+}
 
 const names = [
   // European Origin
@@ -180,9 +180,9 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
   };
 };
 
-type EncryptionBackgroundProps = {
+interface EncryptionBackgroundProps {
   thresholdPosition: number;
-};
+}
 
 const EncryptionBackground = ({
   thresholdPosition,

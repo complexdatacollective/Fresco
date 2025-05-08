@@ -1,24 +1,24 @@
 import { type Prisma } from '@prisma/client';
 import * as z from 'zod';
 
-export type Option = {
+export interface Option {
   label: string;
   value: ActivityType;
   icon?: React.ComponentType<{ className?: string }>;
-};
+}
 
-export type DataTableFilterOption<TData> = {
+export interface DataTableFilterOption<TData> {
   id?: string;
   label: string;
   value: keyof TData | string;
   items: Option[];
   isMulti?: boolean;
-};
+}
 
-export type DataTableSearchableColumn<TData> = {
+export interface DataTableSearchableColumn<TData> {
   id: keyof TData;
   title: string;
-};
+}
 
 export type DataTableFilterableColumn<TData> = {
   options: Option[];
@@ -67,10 +67,10 @@ export const FilterParam = z.object({
 });
 export type FilterParam = z.infer<typeof FilterParam>;
 
-export type SearchParams = {
+export interface SearchParams {
   page: number;
   perPage: number;
   sort: (typeof sortOrder)[number];
   sortField: (typeof sortableFields)[number];
   filterParams: FilterParam[] | null;
-};
+}

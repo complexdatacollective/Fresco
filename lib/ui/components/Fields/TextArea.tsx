@@ -5,22 +5,22 @@ import { useId } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-type InputProps = {
+interface InputProps {
   name?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-};
+}
 
-type MetaProps = {
+interface MetaProps {
   active?: boolean;
   error?: string;
   invalid?: boolean;
   touched?: boolean;
-};
+}
 
-type TextAreaProps = {
+interface TextAreaProps {
   meta: MetaProps;
   label?: string;
   placeholder?: string;
@@ -29,7 +29,7 @@ type TextAreaProps = {
   autoFocus?: boolean;
   hidden?: boolean;
   input?: InputProps;
-};
+}
 
 const TextArea = ({
   meta = { active: false, error: '', invalid: false, touched: false },

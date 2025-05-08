@@ -4,14 +4,14 @@ import StageErrorBoundary from '../components/StageErrorBoundary';
 import getInterface from './Interfaces';
 import type { BeforeNextFunction } from './ProtocolScreen';
 
-export type StageProps = {
+export interface StageProps {
   stage: TStage;
   registerBeforeNext: (fn: BeforeNextFunction | null) => void;
   getNavigationHelpers: () => {
     moveForward: () => void;
     moveBackward: () => void;
   };
-};
+}
 
 function Stage(props: StageProps) {
   const { stage, registerBeforeNext, getNavigationHelpers } = props;

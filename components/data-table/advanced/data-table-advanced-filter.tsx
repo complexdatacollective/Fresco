@@ -18,14 +18,14 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 
-type DataTableAdvancedFilterProps<TData> = {
+interface DataTableAdvancedFilterProps<TData> {
   options: DataTableFilterOption<TData>[];
   selectedOptions: DataTableFilterOption<TData>[];
   setSelectedOptions: React.Dispatch<
     React.SetStateAction<DataTableFilterOption<TData>[]>
   >;
   children?: React.ReactNode;
-};
+}
 
 export function DataTableAdvancedFilter<TData>({
   options,

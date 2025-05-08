@@ -15,11 +15,11 @@ import {
 import { Button } from '~/components/ui/Button';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
-type DeleteProtocolsDialogProps = {
+interface DeleteProtocolsDialogProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   protocolsToDelete: ProtocolWithInterviews[];
-};
+}
 
 export const DeleteProtocolsDialog = ({
   open,

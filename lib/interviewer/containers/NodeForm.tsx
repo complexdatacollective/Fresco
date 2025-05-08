@@ -26,12 +26,12 @@ import Overlay from './Overlay';
 
 const reduxFormName = 'NODE_FORM';
 
-type NodeFormProps = {
+interface NodeFormProps {
   selectedNode: NcNode | null;
   form: TForm;
   disabled: boolean;
   onClose: () => void;
-};
+}
 
 const NodeForm = (props: NodeFormProps) => {
   const { selectedNode, form, disabled, onClose } = props;

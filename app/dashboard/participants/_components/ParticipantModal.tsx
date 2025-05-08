@@ -26,13 +26,13 @@ import {
   participantLabelSchema,
 } from '~/schemas/participant';
 
-type ParticipantModalProps = {
+interface ParticipantModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   editingParticipant?: Participant | null;
   setEditingParticipant?: Dispatch<SetStateAction<Participant | null>>;
   existingParticipants: Participant[];
-};
+}
 
 function ParticipantModal({
   open,

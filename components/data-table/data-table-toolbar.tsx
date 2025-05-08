@@ -14,13 +14,13 @@ import { Button, buttonVariants } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { cn } from '~/utils/shadcn';
 
-type DataTableToolbarProps<TData> = {
+interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   filterableColumns?: DataTableFilterableColumn<TData>[];
   searchableColumns?: DataTableSearchableColumn<TData>[];
   newRowLink?: UrlObject;
   deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>;
-};
+}
 
 export function DataTableToolbar<TData>({
   table,

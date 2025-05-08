@@ -12,14 +12,14 @@ import {
 } from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
 
-type DeleteParticipantsDialog = {
+interface DeleteParticipantsDialog {
   open: boolean;
   participantCount: number;
   haveInterviews: boolean;
   haveUnexportedInterviews: boolean;
   onConfirm: () => Promise<void>;
   onCancel: () => void;
-};
+}
 
 export const DeleteParticipantsDialog = ({
   open,
