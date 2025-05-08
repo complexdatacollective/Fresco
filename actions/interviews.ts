@@ -3,6 +3,7 @@
 import { type NcNetwork } from '@codaco/shared-consts';
 import { createId } from '@paralleldrive/cuid2';
 import { type Interview } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import superjson from 'superjson';
 import trackEvent from '~/lib/analytics';
@@ -290,6 +291,8 @@ export async function finishInterview(interviewId: Interview['id']) {
 
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('summaryStatistics');
+    safeRevalidateTag('activityFeed');
+    revalidatePath('/dashboard');
 
     return { error: null };
   } catch (error) {
