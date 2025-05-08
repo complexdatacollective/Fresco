@@ -1,13 +1,13 @@
-import { Variables } from '@codaco/protocol-validation';
+import { type Variables } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  VariableValue,
+  type VariableValue,
 } from '@codaco/shared-consts';
 import { describe, expect, it, vi } from 'vitest';
 import * as protocolSelectors from '../../selectors/protocol';
 import * as sessionSelectors from '../../selectors/session';
-import { AppStore } from '../../store';
+import { type AppStore } from '../../store';
 import {
   differentFrom,
   greaterThanVariable,

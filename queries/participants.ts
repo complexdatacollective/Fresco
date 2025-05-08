@@ -1,5 +1,5 @@
 import 'server-only';
-import SuperJSON from 'superjson';
+import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
@@ -20,7 +20,7 @@ export type GetParticipantsQuery = Awaited<
 
 export const getParticipants = createCachedFunction(async () => {
   const participants = await prisma_getParticipants();
-  const safeParticipants = SuperJSON.stringify(participants);
+  const safeParticipants = stringify(participants);
   return safeParticipants;
 }, ['getParticipants']);
 

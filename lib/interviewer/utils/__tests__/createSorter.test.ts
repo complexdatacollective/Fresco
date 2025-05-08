@@ -1,8 +1,8 @@
-import { EntityDefinition } from '@codaco/protocol-validation';
+import { type EntityDefinition } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import createSorter, {
   processProtocolSortRule,
-  ProtocolSortRule,
+  type ProtocolSortRule,
 } from '../createSorter';
 
 it('it does not change order when rules are empty', () => {

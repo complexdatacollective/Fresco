@@ -5,6 +5,8 @@ const config = {
       extends: [
         'plugin:@typescript-eslint/stylistic-type-checked',
         'plugin:@typescript-eslint/recommended-type-checked',
+        'next/core-web-vitals',
+        'prettier',
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
@@ -18,6 +20,7 @@ const config = {
   },
   plugins: ['@typescript-eslint'],
   extends: [
+    'plugin:import/recommended',
     'eslint:recommended',
     'plugin:@typescript-eslint/stylistic',
     'plugin:@typescript-eslint/recommended',
@@ -27,16 +30,15 @@ const config = {
   ignorePatterns: [
     'node_modules',
     '*.stories.*',
-    '*.test.*',
     'public',
-    '.eslintrc.cjs',
+
   ],
   rules: {
     "@typescript-eslint/switch-exhaustiveness-check": "error",
     '@next/next/no-img-element': 'off',
     'import/no-cycle': 'error',
     'import/no-anonymous-default-export': 'off',
-    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    
     'no-process-env': 'error',
     'no-console': 'error',
     '@typescript-eslint/consistent-type-imports': [
@@ -60,7 +62,14 @@ const config = {
       },
     ],
     'no-unreachable': 'error',
+    'import/no-named-as-default-member': 'off', // re-enable
   },
+  settings: {
+    'import/resolver': {
+      typescript: true,
+      node: true, 
+    }
+  }
 };
 
 module.exports = config;

@@ -1,5 +1,5 @@
 import 'server-only';
-import superjson from 'superjson';
+import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
@@ -21,7 +21,7 @@ export type GetInterviewsQuery = Awaited<
 
 export const getInterviews = createCachedFunction(async () => {
   const interviews = await prisma_getInterviews();
-  const safeInterviews = superjson.stringify(interviews);
+  const safeInterviews = stringify(interviews);
   return safeInterviews;
 }, ['getInterviews']);
 
@@ -45,7 +45,7 @@ export type GetInterviewsForExportQuery = Awaited<
 
 export const getInterviewsForExport = async (interviewIds: string[]) => {
   const interviews = await prisma_getInterviewsForExport(interviewIds);
-  const safeInterviews = superjson.stringify(interviews);
+  const safeInterviews = stringify(interviews);
   return safeInterviews;
 };
 
@@ -87,7 +87,7 @@ export const getInterviewById = async (interviewId: string) => {
   // and it contains a Date object. We should look into if this could be
   // implemented in the Prisma client instead, or the createCachedFunction
   // helper (could be generalised to `createServerFunction`).
-  const safeInterview = superjson.stringify(interview);
+  const safeInterview = stringify(interview);
 
   return safeInterview;
 };

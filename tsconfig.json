@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2024",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "checkJs": false,
@@ -28,7 +28,7 @@
     ]
   },
   "include": [
-    ".eslintrc.mjs",
+    ".eslintrc.cjs",
     "next-env.d.ts",
     "**/*.js",
     "**/*.ts",

@@ -1,4 +1,4 @@
-import { NodeDefinition } from '@codaco/protocol-validation';
+import { type NodeDefinition } from '@codaco/protocol-validation';
 import { describe, expect, it } from 'vitest';
 import { labelLogic } from '../session';
 

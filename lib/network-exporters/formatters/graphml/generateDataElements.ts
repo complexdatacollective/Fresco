@@ -15,7 +15,7 @@ import {
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
 import { type DocumentFragment, DOMImplementation } from '@xmldom/xmldom';
-import { labelLogic } from '~/lib/interviewer/selectors/session';
+import { labelLogic } from '~/lib/interviewer/utils/labelLogic';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
@@ -74,8 +74,6 @@ function generateDataElementsForEntity(
   const entityType = deriveEntityType(entity);
 
   if (entityType === 'ego') {
-    // If there's
-
     const keyDataElement = createDataElement(
       {
         key: ncUUIDProperty,
@@ -147,9 +145,11 @@ function generateDataElementsForEntity(
       ),
     );
   } else {
-    const thing = entity as NodeWithResequencedID;
-    const type = codebook.node?.[thing.type];
-    const label = labelLogic(type!, thing[entityAttributesProperty]);
+    const type = codebook.node?.[(entity as NodeWithResequencedID).type];
+    const label = labelLogic(type!, entity[entityAttributesProperty]);
+
+    // Add label property if attribute is not encrypted.
+
     domElement.appendChild(createDataElement({ key: 'label' }, label));
   }
 

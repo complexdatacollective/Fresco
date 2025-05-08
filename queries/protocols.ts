@@ -1,6 +1,6 @@
 'use server';
 
-import superjson from 'superjson';
+import { stringify } from 'superjson';
 import { createCachedFunction } from '~/lib/cache';
 import { prisma } from '~/utils/db';
 
@@ -16,7 +16,7 @@ export type GetProtocolsQuery = Awaited<ReturnType<typeof prisma_getProtocols>>;
 
 export const getProtocols = createCachedFunction(async () => {
   const protocols = await prisma_getProtocols();
-  const safeProtocols = superjson.stringify(protocols);
+  const safeProtocols = stringify(protocols);
   return safeProtocols;
 }, ['getProtocols']);
 
