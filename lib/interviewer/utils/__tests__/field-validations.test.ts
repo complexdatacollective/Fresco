@@ -129,9 +129,9 @@ describe('Validations', () => {
     const subject = minLength(5);
 
     it('fails for null or undefined', () => {
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(null)).toBe(errorMessage);
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(undefined)).toBe(errorMessage);
     });
 
@@ -153,9 +153,9 @@ describe('Validations', () => {
     const subject = maxLength(5);
 
     it('passes for null or undefined', () => {
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(null)).toBe(undefined);
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(undefined)).toBe(undefined);
     });
 
@@ -177,9 +177,9 @@ describe('Validations', () => {
     const subject = minValue(5);
 
     it('passes for null or undefined', () => {
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(null)).toBe(undefined);
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(undefined)).toBe(undefined);
     });
 
@@ -209,9 +209,9 @@ describe('Validations', () => {
     const subject = maxValue(5);
 
     it('passes for null or undefined', () => {
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(null)).toBe(undefined);
-      // @ts-expect-error
+      // @ts-expect-error test spec
       expect(subject(undefined)).toBe(undefined);
     });
 
@@ -474,8 +474,6 @@ describe('Validations', () => {
         errorMessage('String Variable'),
       );
     });
-
-    mockOtherFormValues;
 
     it('passes for a matching array', () => {
       const subject4 = sameAs('uid4', mockStore);

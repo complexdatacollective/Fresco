@@ -15,7 +15,7 @@ import {
   nodeExportIDProperty,
 } from '@codaco/shared-consts';
 import { type DocumentFragment, DOMImplementation } from '@xmldom/xmldom';
-import { labelLogic } from '~/lib/interviewer/utils/labelLogic';
+import { labelLogic } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,

@@ -165,14 +165,12 @@ describe('buildGraphML', () => {
   it('adds a data element for the node label, based on the codebook name attribute', () => {
     const nodes = Array.from(xml.getElementsByTagName('node'));
     // Expect that each node has a data element with the key 'name'
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i]!;
+    for (const node of nodes) {
       const dataElements = node.getElementsByTagName('data');
 
       // Find the data element with key="label"
       let labelElement = null;
-      for (let j = 0; j < dataElements.length; j++) {
-        const dataEl = dataElements[j]!;
+      for (const dataEl of Array.from(dataElements)) {
         if (dataEl.getAttribute('key') === 'label') {
           labelElement = dataEl;
           break;

@@ -3,27 +3,36 @@ const config = {
   overrides: [
     {
       extends: [
-        'plugin:import/recommended',
         'plugin:@typescript-eslint/stylistic-type-checked',
         'plugin:@typescript-eslint/recommended-type-checked',
-        'next/core-web-vitals',
-        'prettier',
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
         project: true,
       },
-      settings: {
-    'import/resolver': {
-      typescript: {
-        "project": ".",
-        alwaysTryTypes: true,
-      },
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
     },
-  },
+    {
+      files: ['*.js', '*.jsx'],
+      extends: [
+        'plugin:import/recommended',
+        'plugin:@typescript-eslint/stylistic',
+        'plugin:@typescript-eslint/recommended',
+        'prettier',
+      ],
+      settings: {
+        'import/resolver': {
+          alias: {
+        map: [
+          ['react', 'next/dist/compiled/react/cjs/react.development.js'],
+        ],
+        extensions: ['.js', '.jsx']
+      },
+          typescript: {
+            project: './tsconfig.json',
+            alwaysTryTypes: true,
+          },
+        },
+      },
     },
   ],
   parser: '@typescript-eslint/parser',
@@ -31,14 +40,7 @@ const config = {
     project: true,
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'plugin:import/recommended',
-    'eslint:recommended',
-    'plugin:@typescript-eslint/stylistic',
-    'plugin:@typescript-eslint/recommended',
-    'next/core-web-vitals',
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'next/core-web-vitals', 'prettier'],
   ignorePatterns: ['node_modules', '*.stories.*', 'public'],
   rules: {
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
@@ -70,17 +72,6 @@ const config = {
     ],
     'no-unreachable': 'error',
     'import/no-named-as-default-member': 'off', // re-enable
-  },
-  settings: {
-    'import/resolver': {
-      typescript: {
-        "project": ".",
-        alwaysTryTypes: true,
-      },
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    },
   },
 };
 

@@ -1,6 +1,6 @@
 import { type NodeDefinition } from '@codaco/protocol-validation';
 import { describe, expect, it } from 'vitest';
-import { labelLogic } from '../session';
+import { labelLogic } from '../../utils/getNodeLabelAttribute';
 
 describe('labelLogic', () => {
   it('should return value from variable named "name" in codebook', () => {
@@ -140,7 +140,7 @@ describe('labelLogic', () => {
   });
 
   it('should handle undefined codebook', () => {
-    // @ts-expect-error
+    // @ts-expect-error test spec
     const mockCodebook: NodeDefinition = undefined;
     const mockNodeAttributes = {
       name: 'John Smith',

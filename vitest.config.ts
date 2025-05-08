@@ -8,4 +8,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
   },
+  resolve: {
+    alias: {
+      // Reference the internal react package shipped in next.js
+      react: 'next/dist/compiled/react/cjs/react.development.js',
+    },
+  },
 });
