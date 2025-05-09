@@ -4,7 +4,7 @@ import { type HighlightColor } from '../containers/NodePanels';
 
 type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   title: string;
-  minimize: boolean;
+  minimize?: boolean;
   highlight?: HighlightColor | null;
   noCollapse?: boolean;
 };

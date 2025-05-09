@@ -387,15 +387,7 @@ export const getStageNodeCount = createSelector(
 );
 
 export const makeGetStageNodeCount = () => {
-  return createSelector(
-    getNetworkNodesForType,
-    stagePromptIds,
-    (nodes, promptIds: string[]) =>
-      filter(
-        nodes,
-        (node) => intersection(node.promptIDs ?? [], promptIds).length > 0,
-      ).length,
-  );
+  return getStageCount;
 };
 
 export const getPromptId = createSelector(

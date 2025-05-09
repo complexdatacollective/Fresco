@@ -1,4 +1,6 @@
+import { type Variable } from '@codaco/protocol-validation';
 import { createSelector } from '@reduxjs/toolkit';
+import { invariant } from 'es-toolkit';
 import { getCodebook } from '../ducks/modules/protocol';
 import { getPromptOtherVariable, getPromptVariable } from './prop';
 import { getSubjectType } from './session';
@@ -16,7 +18,10 @@ export const getNodeVariables = createSelector(
   getSubjectType,
   (codebook, nodeType) => {
     const nodeInfo = codebook.node;
-    return nodeInfo?.[nodeType]?.variables || {};
+
+    invariant(nodeType, 'No node type!');
+
+    return nodeInfo?.[nodeType]?.variables ?? {};
   },
 );
 
@@ -30,7 +35,15 @@ export const makeGetVariableOptions = (includeOtherVariable = false) =>
       promptVariable,
       [promptOtherVariable, promptOtherOptionLabel, promptOtherVariablePrompt],
     ) => {
-      const optionValues = nodeVariables[promptVariable]?.options || [];
+      if (!promptVariable) {
+        return [];
+      }
+
+      const variable = nodeVariables[promptVariable] as
+        | Extract<Variable, { type: 'categorical' | 'ordinal' }>
+        | undefined;
+
+      const optionValues = variable?.options ?? [];
       const otherValue = {
         label: promptOtherOptionLabel,
         value: null,

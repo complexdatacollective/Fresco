@@ -1,13 +1,15 @@
 import {
+  type EntityAttributesProperty,
   entityAttributesProperty,
+  type EntityPrimaryKey,
   entityPrimaryKeyProperty,
+  type NcEntity,
 } from '@codaco/shared-consts';
 import cx from 'classnames';
-import { get, isEmpty } from 'es-toolkit/compat';
+import { isEmpty } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import useDropMonitor from '~/lib/interviewer/behaviours/DragAndDrop/useDropMonitor';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import List from '~/lib/interviewer/components/List';
@@ -15,15 +17,15 @@ import Node from '~/lib/interviewer/components/Node';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
-import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import { getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import { getPromptModelData } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
   getNetworkNodesForPrompt,
   getNodeColor,
-  makeGetStageNodeCount,
+  getStageNodeCount,
 } from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { DataCard } from '~/lib/ui/components/Cards';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../SearchableList';
@@ -35,14 +37,15 @@ import {
   minNodesWithDefault,
 } from '../utils/StageLevelValidation';
 import DropOverlay from './DropOverlay';
-import { convertNamesToUUIDs } from './helpers';
+import { convertNamesToUUIDs, type NameGeneratorRosterProps } from './helpers';
 import useFuseOptions from './useFuseOptions';
 import useItems from './useItems';
 import useSortableProperties from './useSortableProperties';
 
-const countColumns = (width) => (width < 140 ? 1 : Math.floor(width / 450));
+const countColumns = (width: number) =>
+  width < 140 ? 1 : Math.floor(width / 450);
 
-const ErrorMessage = ({ error }) => (
+const ErrorMessage = (props: { error: Error }) => (
   <div
     style={{
       flex: 1,
@@ -55,7 +58,7 @@ const ErrorMessage = ({ error }) => (
     <h1>Something went wrong</h1>
     <p>External data could not be loaded.</p>
     <p>
-      <small>{error.toString()}</small>
+      <small>{props.error.message}</small>
     </p>
   </div>
 );
@@ -63,37 +66,30 @@ const ErrorMessage = ({ error }) => (
 /**
  * Name Generator (unified) Roster Interface
  */
-const NameGeneratorRoster = (props) => {
+const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const { stage, registerBeforeNext } = props;
 
   const { promptIndex, isLastPrompt } = usePrompts();
 
   const interfaceRef = useRef(null);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const newNodeAttributes = usePropSelector(
-    getAdditionalAttributesSelector,
-    props,
-  );
+  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
 
-  const newNodeModelData = usePropSelector(getPromptModelData, props);
-  const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props);
-  const nodeVariables = usePropSelector(getNodeVariables, props);
-  const nodeType = stage && stage.subject && stage.subject.type;
+  const newNodeModelData = useSelector(getPromptModelData);
+  const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
+  const nodeVariables = useSelector(getNodeVariables);
+  const nodeType = stage.subject.type;
   const dropNodeColor = useSelector(getNodeColor(nodeType));
 
-  const [itemsStatus, items, excludeItems] = useItems(props);
+  const { status: itemsStatus, items, excludeItems } = useItems(props);
 
   const sortOptions = useSortableProperties(nodeVariables, stage.sortOptions);
 
-  const stageNodeCount = usePropSelector(makeGetStageNodeCount, props, true);
-  const minNodes = minNodesWithDefault(
-    get(props, ['stage', 'behaviours', 'minNodes']),
-  );
-  const maxNodes = maxNodesWithDefault(
-    get(props, ['stage', 'behaviours', 'maxNodes']),
-  );
+  const stageNodeCount = useSelector(getStageNodeCount);
+  const minNodes = minNodesWithDefault(stage.behaviours?.minNodes);
+  const maxNodes = maxNodesWithDefault(stage.behaviours?.maxNodes);
 
   const [showMinWarning, setShowMinWarning] = useState(false);
 
@@ -119,14 +115,14 @@ const NameGeneratorRoster = (props) => {
       ...options,
       matchProperties: convertNamesToUUIDs(
         nodeVariables,
-        get(stage, 'searchOptions.matchProperties'),
+        stage.searchOptions?.matchProperties ?? [],
       ),
     };
   })(stage.searchOptions);
 
   const fallbackKeys = useMemo(
     () =>
-      Object.keys(get(items, [0, 'data', entityAttributesProperty], {})).map(
+      Object.keys(items?.[0]?.data[entityAttributesProperty] ?? {}).map(
         (attribute) => ['data', entityAttributesProperty, attribute],
       ),
     [items],
@@ -137,19 +133,28 @@ const NameGeneratorRoster = (props) => {
     threshold: 0.6,
   });
 
-  const { isOver, willAccept } = useDropMonitor('node-list') || {
+  const { isOver, willAccept } = useDropMonitor('node-list') ?? {
     isOver: false,
     willAccept: false,
   };
 
-  const handleAddNode = ({ meta }) => {
+  const handleAddNode = ({
+    meta,
+  }: {
+    meta: {
+      id: NcEntity[EntityPrimaryKey];
+      data: {
+        attributes: NcEntity[EntityAttributesProperty];
+      };
+    };
+  }) => {
     const { id, data } = meta;
     const attributeData = {
       ...newNodeAttributes,
       ...data.attributes,
     };
 
-    dispatch(
+    void dispatch(
       addNode({
         type: newNodeModelData.type,
         modelData: {
@@ -160,7 +165,16 @@ const NameGeneratorRoster = (props) => {
     );
   };
 
-  const handleRemoveNode = ({ meta: { id } }) => {
+  const handleRemoveNode = ({
+    meta: { id },
+  }: {
+    meta: {
+      id: NcEntity[EntityPrimaryKey];
+      data: {
+        attributes: NcEntity[EntityAttributesProperty];
+      };
+    };
+  }) => {
     dispatch(deleteNode(id));
   };
 
@@ -197,7 +211,7 @@ const NameGeneratorRoster = (props) => {
       >
         <div className="name-generator-roster-interface__search-panel">
           <SearchableList
-            key={disabled}
+            key={String(disabled)}
             loading={itemsStatus.isLoading}
             id="searchable-list"
             items={items}
@@ -209,23 +223,29 @@ const NameGeneratorRoster = (props) => {
             itemType="SOURCE_NODES" // drop type
             excludeItems={excludeItems}
             itemComponent={DataCard}
-            dragComponent={Node}
+            // dragComponent={Node}
             sortOptions={sortOptions}
             searchOptions={fuseOptions}
-            accepts={({ meta: { itemType } }) => itemType !== 'SOURCE_NODES'}
+            accepts={({ meta: { itemType } }: { meta: { itemType: string } }) =>
+              itemType !== 'SOURCE_NODES'
+            }
             onDrop={handleRemoveNode}
             dropNodeColor={dropNodeColor}
             disabled={disabled}
           />
         </div>
         <div className="name-generator-roster-interface__node-panel">
-          <Panel title="Added" noHighlight noCollapse>
+          <Panel title="Added" noCollapse>
             <div className="name-generator-roster-interface__node-list">
               <List
                 id="node-list"
                 className={nodeListClasses}
                 itemType="ADDED_NODES"
-                accepts={({ meta: { itemType } }) => itemType !== 'ADDED_NODES'}
+                accepts={({
+                  meta: { itemType },
+                }: {
+                  meta: { itemType: string };
+                }) => itemType !== 'ADDED_NODES'}
                 onDrop={handleAddNode}
                 items={nodesForPrompt.map((item) => ({
                   id: item._uid,
@@ -259,10 +279,6 @@ const NameGeneratorRoster = (props) => {
       )}
     </div>
   );
-};
-
-NameGeneratorRoster.propTypes = {
-  stage: PropTypes.object.isRequired,
 };
 
 export default withNoSSRWrapper(NameGeneratorRoster);

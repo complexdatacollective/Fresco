@@ -6,7 +6,6 @@ import {
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
-import { has } from 'es-toolkit/compat';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook } from '../ducks/modules/protocol';
 import {
@@ -22,12 +21,16 @@ import {
 } from './session';
 import { notInSet } from './utils';
 
-const stageCardOptions = (
-  _: unknown,
-  props: {
-    stage: Extract<Stage, { type: 'NameGeneratorRoster' }>;
-  },
-) => props.stage.cardOptions;
+export const getStageCardOptions = createSelector(getCurrentStage, (stage) => {
+  invariant(stage, 'Stage is required');
+
+  const stageWithCardOptions = stage as Extract<
+    Stage,
+    { type: 'NameGeneratorRoster' }
+  >;
+
+  return stageWithCardOptions.cardOptions ?? {};
+});
 
 const getIDs = createSelector(
   getStageIndex,
@@ -52,16 +55,6 @@ export const getPromptModelData = createSelector(
       promptId,
     };
   },
-);
-
-// Returns any additional properties to be displayed on cards.
-// Returns an empty array if no additional properties are specified in the protocol.
-export const getCardAdditionalProperties = createSelector(
-  stageCardOptions,
-  (cardOptions) =>
-    has(cardOptions, 'additionalProperties')
-      ? cardOptions!.additionalProperties // Todo: should correctly narrow the type based on stage type
-      : [],
 );
 
 export const getNodeIconName = createSelector(

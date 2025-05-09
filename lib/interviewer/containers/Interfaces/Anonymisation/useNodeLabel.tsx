@@ -37,10 +37,13 @@ export function useNodeLabel(node: NcNode) {
             return;
           }
         } catch (e) {
+          console.log('error', e);
           if (e instanceof UnauthorizedError) {
             setLabel('🔒');
             return;
           }
+
+          setLabel('⚠️');
         }
       }
 

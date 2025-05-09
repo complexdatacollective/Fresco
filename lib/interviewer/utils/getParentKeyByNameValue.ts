@@ -1,11 +1,18 @@
+import { type EntityDefinition } from '@codaco/protocol-validation';
 import { findKey } from 'es-toolkit';
 import { find, has, isEmpty } from 'es-toolkit/compat';
 
-const findCategoricalKey = (object, toFind) => {
+const findCategoricalKey = (
+  object: Record<
+    string,
+    Extract<NonNullable<O>[string], { type: 'categorical' }>
+  >,
+  toFind: string,
+) => {
   // make list of possible var_option pairs
   let previousIndex = 0;
-  const collection = [];
-  while (toFind.indexOf('_', previousIndex) !== -1) {
+  const collection = [] as { name: string; option: string }[];
+  while (toFind.includes('_', previousIndex)) {
     previousIndex = toFind.indexOf('_', previousIndex) + 1;
     const name = toFind.substr(0, previousIndex - 1);
     const option = toFind.substr(previousIndex, toFind.length);
@@ -13,25 +20,29 @@ const findCategoricalKey = (object, toFind) => {
       collection.push({ name, option });
     }
   }
-  let foundKey = '';
+
+  let foundKey;
   // check for a categorical variable with a valid option value
   const categoricalVariable = collection.find((pair) => {
     foundKey = findKey(
       object,
       (objectItem) => objectItem.name.toString() === pair.name.toString(),
     );
+
     return (
       foundKey &&
       has(object[foundKey], 'options') &&
       find(
-        object[foundKey].options,
+        object[foundKey]!.options,
         (option) => option.value.toString() === pair.option.toString(),
       )
     );
   });
-  if (has(categoricalVariable, 'option')) {
+
+  if (categoricalVariable && has(categoricalVariable, 'option')) {
     return `${foundKey}_${categoricalVariable.option}`;
   }
+
   return null;
 };
 
@@ -51,32 +62,39 @@ const findCategoricalKey = (object, toFind) => {
  * Finally, if neither approach finds a UUID, {toFind} is returned.
  */
 
-const getParentKeyByNameValue = (object = {}, toFind) => {
+type O = NonNullable<EntityDefinition['variables']> | undefined;
+
+const getParentKeyByNameValue = (object: O, toFind: string) => {
   if (isEmpty(object) || object[toFind]) {
     return toFind;
   }
 
   // Iterate object keys and return the key (itself )
-  let foundKey = findKey(object, (objectItem) => objectItem.name === toFind);
+  let foundKey =
+    findKey(object, (objectItem) => objectItem.name === toFind) ?? null;
 
   // check for special cases
   // possible location
   if (!foundKey && toFind && (toFind.endsWith('_x') || toFind.endsWith('_y'))) {
     const locationName = toFind.substring(0, toFind.length - 2);
-    foundKey = findKey(
-      object,
-      (objectItem) => objectItem.name === locationName,
-    );
+    foundKey =
+      findKey(object, (objectItem) => objectItem.name === locationName) ?? null;
     if (foundKey) {
       foundKey += toFind.substring(toFind.length - 2);
     }
   }
   // possible categorical
-  if (!foundKey && toFind && toFind.includes('_')) {
-    foundKey = findCategoricalKey(object, toFind);
+  if (!foundKey && toFind?.includes('_')) {
+    foundKey = findCategoricalKey(
+      object as Record<
+        string,
+        Extract<NonNullable<O>[string], { type: 'categorical' }>
+      >,
+      toFind,
+    );
   }
 
-  return foundKey || toFind;
+  return foundKey ?? toFind;
 };
 
 export default getParentKeyByNameValue;

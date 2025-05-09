@@ -33,21 +33,18 @@ export const getPromptVariable = createSelector(getCurrentPrompt, (prompt) => {
 export const getPromptOtherVariable = createSelector(
   getCurrentPrompt,
   (prompt) => {
-    let otherVariable = null;
-    if (prompt && 'otherVariable' in prompt) {
-      otherVariable = prompt.otherVariable;
+    if (
+      prompt &&
+      'otherVariable' in prompt &&
+      'otherOptionLabel' in prompt &&
+      'otherVariablePrompt' in prompt
+    ) {
+      const otherVariable = prompt.otherVariable as string;
+      const otherOptionLabel = prompt.otherOptionLabel as string;
+      const otherVariablePrompt = prompt.otherVariablePrompt as string;
+      return [otherVariable, otherOptionLabel, otherVariablePrompt];
     }
 
-    let otherOptionLabel = null;
-    if (prompt && 'otherOptionLabel' in prompt) {
-      otherOptionLabel = prompt.otherOptionLabel;
-    }
-
-    let otherVariablePrompt = null;
-    if (prompt && 'otherVariablePrompt' in prompt) {
-      otherVariablePrompt = prompt.otherVariablePrompt;
-    }
-
-    return [otherVariable, otherOptionLabel, otherVariablePrompt];
+    return [undefined, undefined, undefined];
   },
 );

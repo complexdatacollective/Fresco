@@ -81,12 +81,12 @@ export const makeVariableUUIDReplacer =
     const uuid = hash(node);
 
     const attributes = mapKeys(
-      node.attributes!,
+      node[entityAttributesProperty] ?? {},
       (_attributeValue, attributeKey) =>
         getParentKeyByNameValue(
-          codebookDefinition?.variables,
+          codebookDefinition?.variables ?? {},
           attributeKey,
-        ) as string,
+        ),
     );
 
     return {

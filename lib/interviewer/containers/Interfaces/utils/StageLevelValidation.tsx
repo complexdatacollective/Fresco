@@ -1,33 +1,50 @@
 import { defaultTo } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { v4 as uuid } from 'uuid';
+import {
+  Component,
+  type ComponentType,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import Icon from '~/lib/ui/components/Icon';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './constants';
 
 /**
  * Simple wrapper to add self-dismissing behaviour to a component
- * @param {*} Wrapped - Component to wrap
  * @param {*} show - Whether to show the component
- * @param {*} dontHide - Whether to hide the component after a timeout
  * @param {*} onHideCallback - Callback to run when the component is hidden
  * @param {*} timeoutDuration - How long to wait before hiding the component
- * @param {*} rest - Other props to pass to the component
  * @returns {Component} - Wrapped component
  */
 
-const SelfDismissingNote = (Wrapped) => {
+const SelfDismissingNote = <P extends object>(
+  Wrapped: ComponentType<P>,
+): ComponentType<
+  {
+    show?: boolean;
+    onHideCallback?: () => void;
+    timeoutDuration?: number;
+    key?: React.Key;
+  } & P
+> => {
   const SelfDismissingNoteInner = ({
     show,
     onHideCallback = () => undefined,
     timeoutDuration = 4000,
     ...rest
-  }) => {
+  }: {
+    show?: boolean;
+    onHideCallback?: () => void;
+    timeoutDuration?: number;
+  } & P) => {
     const [visible, setVisible] = useState(show);
     const [mouseOver, setMouseOver] = useState(false);
-    const timeout = useRef(null);
-    const key = useRef(uuid());
+    const timeout = useRef<NodeJS.Timeout>();
+    const key = useId();
 
     const handleHide = useCallback(() => {
       if (timeoutDuration > 0) {
@@ -68,7 +85,7 @@ const SelfDismissingNote = (Wrapped) => {
       }
 
       if (!visible) {
-        clearTimeout(timeout);
+        clearTimeout(timeout.current);
       }
 
       return () => {
@@ -93,7 +110,7 @@ const SelfDismissingNote = (Wrapped) => {
         onMouseLeave={() => setMouseOver(false)}
       >
         <AnimatePresence>
-          {visible && <Wrapped key={key} {...rest} />}
+          {visible && <Wrapped key={key} {...(rest as P)} />}
         </AnimatePresence>
       </div>
     );
@@ -137,31 +154,33 @@ const wrapperVariants = {
   },
 };
 
-export const MinNodesNotMet = SelfDismissingNote(({ minNodes }) => (
-  <motion.div
-    className="alter-limit-nudge"
-    variants={containerVariants}
-    initial="hide"
-    animate="show"
-    exit="hide"
-    key="min-nodes-not-met"
-  >
+export const MinNodesNotMet = SelfDismissingNote(
+  ({ minNodes }: { minNodes: number }) => (
     <motion.div
-      className="alter-limit-nudge__wrapper"
-      variants={wrapperVariants}
+      className="alter-limit-nudge"
+      variants={containerVariants}
+      initial="hide"
+      animate="show"
+      exit="hide"
+      key="min-nodes-not-met"
     >
-      <div className="alter-limit-nudge__icon">
-        <Icon name="error" />
-      </div>
-      <motion.div className="alter-limit-nudge__content">
-        <p>
-          You must create at least <strong>{minNodes}</strong>{' '}
-          {minNodes > 1 ? 'items' : 'item'} before you can continue.
-        </p>
+      <motion.div
+        className="alter-limit-nudge__wrapper"
+        variants={wrapperVariants}
+      >
+        <div className="alter-limit-nudge__icon">
+          <Icon name="error" />
+        </div>
+        <motion.div className="alter-limit-nudge__content">
+          <p>
+            You must create at least <strong>{minNodes}</strong>{' '}
+            {minNodes > 1 ? 'items' : 'item'} before you can continue.
+          </p>
+        </motion.div>
       </motion.div>
     </motion.div>
-  </motion.div>
-));
+  ),
+);
 
 export const MaxNodesMet = SelfDismissingNote(() => {
   const { updateReady } = useReadyForNextStage();
@@ -202,6 +221,7 @@ export const MaxNodesMet = SelfDismissingNote(() => {
   );
 });
 
-export const minNodesWithDefault = (stageValue) => defaultTo(stageValue, 0);
-export const maxNodesWithDefault = (stageValue) =>
+export const minNodesWithDefault = (stageValue?: number) =>
+  defaultTo(stageValue, 0);
+export const maxNodesWithDefault = (stageValue?: number) =>
   defaultTo(stageValue, Infinity);
