@@ -119,6 +119,7 @@ const CategoricalListItem = (props: Props) => {
     setOtherVariableWindow(otherVariableWindowInitialState);
 
   const setNodeCategory = (node: NcNode, category: string) => {
+    console.log('setNodeCategory', node, category);
     const variable = bin.otherVariable ?? activePromptVariable;
 
     const resetVariable = bin.otherVariable
@@ -142,8 +143,8 @@ const CategoricalListItem = (props: Props) => {
     });
   };
 
-  const handleDrop = (args: { meta: { node: NcNode } }) => {
-    const { node } = args.meta;
+  const handleDrop = (args: { meta: NcNode }) => {
+    const { meta: node } = args;
     const binValue = bin.value;
 
     if (isOtherVariable) {

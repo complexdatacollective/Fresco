@@ -18,7 +18,8 @@
   },
   "pnpm": {
     "overrides": {
-      "d3-force>d3-timer": "3.0.0"
+      "d3-force>d3-timer": "3.0.0",
+      "redux": "5.0.1"
     }
   },
   "dependencies": {
