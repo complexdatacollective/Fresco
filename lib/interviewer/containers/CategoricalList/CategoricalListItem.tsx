@@ -119,7 +119,6 @@ const CategoricalListItem = (props: Props) => {
     setOtherVariableWindow(otherVariableWindowInitialState);
 
   const setNodeCategory = (node: NcNode, category: string) => {
-    console.log('setNodeCategory', node, category);
     const variable = bin.otherVariable ?? activePromptVariable;
 
     const resetVariable = bin.otherVariable

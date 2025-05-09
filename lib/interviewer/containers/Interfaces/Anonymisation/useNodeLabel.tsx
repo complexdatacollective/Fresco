@@ -14,7 +14,7 @@ import { useMakeNodeAttributes, useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';
 
 export function useNodeLabel(node: NcNode) {
-  const [label, setLabel] = useState<string | undefined>(undefined);
+  const [label, setLabel] = useState<string>('');
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { getById } = useNodeAttributes(node);
   const codebook = useSelector(getCodebookForNodeType(node.type));
@@ -44,7 +44,7 @@ export function useNodeLabel(node: NcNode) {
         }
       }
 
-      // Use the codebook entity type name, and fall
+      // Use the codebook entity type name
       const codebookTypeName = codebook?.name;
       setLabel(codebookTypeName ?? node[entityPrimaryKeyProperty]);
       return;
