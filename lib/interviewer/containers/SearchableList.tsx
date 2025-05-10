@@ -1,10 +1,8 @@
+import { type Stage } from '@codaco/protocol-validation';
 import cx from 'classnames';
 import { isEqual } from 'es-toolkit';
-import { get } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
-import { useEffect, useMemo, useRef } from 'react';
-import { v4 as uuid } from 'uuid';
+import { useEffect, useId, useMemo } from 'react';
 import Search from '~/lib/ui/components/Fields/Search';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
 import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
@@ -14,6 +12,7 @@ import useSearch from '../hooks/useSearch';
 import useSort from '../hooks/useSort';
 import HyperList from './HyperList';
 import DropOverlay from './Interfaces/NameGeneratorRoster/DropOverlay';
+import { type UseItemElement } from './Interfaces/NameGeneratorRoster/useItems';
 
 const SortButton = ({
   handleClick,
@@ -53,14 +52,39 @@ const EmptyComponent = () => (
   </motion.div>
 );
 
+type RosterSortOptions = Extract<
+  Stage,
+  { type: 'NameGeneratorRoster' }
+>['sortOptions'];
+type RosterSearchOptions = Extract<
+  Stage,
+  { type: 'NameGeneratorRoster' }
+>['searchOptions'];
+
+type SearchableListProps = {
+  accepts: ({ meta: { itemType } }: { meta: { itemType: string } }) => boolean;
+  columns: number | ((width: number) => number);
+  title: string;
+  dynamicProperties?: Record<string, unknown>;
+  excludeItems?: string[];
+  itemComponent?: React.ElementType;
+  dragComponent?: React.ElementType;
+  items: UseItemElement[];
+  placeholder?: React.ReactNode;
+  itemType: string;
+  onDrop: ({ meta: { id } }: { meta: UseItemElement }) => void;
+  dropNodeColor?: string;
+  disabled?: boolean;
+  loading?: boolean;
+};
+
 /**
  * SearchableList
  *
  * This adds UI around the HyperList component which enables
  * sorting and searching.
  */
-
-const SearchableList = (props) => {
+const SearchableList = (props: SearchableListProps) => {
   const {
     accepts,
     columns,
@@ -69,24 +93,17 @@ const SearchableList = (props) => {
     excludeItems,
     itemComponent = null,
     dragComponent = null,
-    items = [],
+    items,
     placeholder = null,
     itemType,
     onDrop,
-    searchOptions,
-    sortOptions = {},
     dropNodeColor,
     disabled = false,
     loading = false,
   } = props;
 
-  const { initialSortOrder = {} } = sortOptions;
-
-  const id = useRef(uuid());
-  const [results, query, setQuery, isWaiting, hasQuery] = useSearch(
-    items,
-    searchOptions,
-  );
+  const id = useId();
+  const [results, query, setQuery, isWaiting, hasQuery] = useSearch(items);
 
   const [
     sortedResults,
@@ -95,8 +112,10 @@ const SearchableList = (props) => {
     setSortByProperty,
     setSortType,
     setSortDirection,
-  ] = useSort(results, initialSortOrder);
+    sortableProperties,
+  ] = useSort(results);
 
+  // When the user types a query, override the sort to sort by relevance
   useEffect(() => {
     if (hasQuery) {
       setSortByProperty(['relevance']);
@@ -106,8 +125,7 @@ const SearchableList = (props) => {
     }
 
     setSortByProperty();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasQuery, setSortDirection, setSortType]);
+  }, [hasQuery, setSortDirection, setSortType, setSortByProperty]);
 
   const filteredResults = useMemo(() => {
     if (!excludeItems || !sortedResults) {
@@ -116,15 +134,15 @@ const SearchableList = (props) => {
     return sortedResults.filter((item) => !excludeItems.includes(item.id));
   }, [sortedResults, excludeItems]);
 
-  const handleChangeSearch = (eventOrValue) => {
-    const value = get(eventOrValue, ['target', 'value'], eventOrValue);
+  const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
     setQuery(value);
   };
 
   const mode = items.length > 100 ? modes.LARGE : modes.SMALL;
 
   const hyperListPlaceholder =
-    placeholder ||
+    placeholder ??
     (isWaiting ? (
       <motion.div
         className="searchable-list__placeholder"
@@ -137,7 +155,7 @@ const SearchableList = (props) => {
     ) : null);
 
   const showTooMany = mode === modes.LARGE && !hasQuery;
-  const numberOfSortOptions = get(sortOptions, 'sortableProperties', []).length;
+  const numberOfSortOptions = sortableProperties?.length ?? 0;
   const canSort = numberOfSortOptions > 0;
 
   const animationDuration =
@@ -154,7 +172,7 @@ const SearchableList = (props) => {
     { 'searchable-list__list--too-many': showTooMany },
   );
 
-  const { willAccept, isOver } = useDropMonitor(`hyper-list-${id.current}`) || {
+  const { willAccept, isOver } = useDropMonitor(`hyper-list-${id.current}`) ?? {
     willAccept: false,
     isOver: false,
   };
@@ -189,7 +207,7 @@ const SearchableList = (props) => {
                   (sortDirection === 'asc' ? ' \u25B2' : ' \u25BC')}
               </div>
             )}
-            {sortOptions.sortableProperties.map(({ property, type, label }) => {
+            {sortableProperties?.map(({ property, type, label }) => {
               const isActive = isEqual(property, sortByProperty);
               const color = isActive ? 'primary' : 'platinum';
 
@@ -218,7 +236,7 @@ const SearchableList = (props) => {
               <Loading key="loading" message="Loading..." />
             ) : (
               <HyperList
-                id={`hyper-list-${id.current}`}
+                id={`hyper-list-${id}`}
                 items={filteredResults}
                 dynamicProperties={dynamicProperties}
                 itemComponent={itemComponent}
@@ -246,6 +264,7 @@ const SearchableList = (props) => {
           <Search
             placeholder="Enter a search term..."
             input={{
+              name: 'search',
               value: query,
               onChange: handleChangeSearch,
             }}
@@ -254,19 +273,6 @@ const SearchableList = (props) => {
       </Panel>
     </motion.div>
   );
-};
-
-SearchableList.propTypes = {
-  columns: PropTypes.oneOfType([PropTypes.number, PropTypes.func]),
-  itemComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  dragComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  items: PropTypes.array,
-  placeholder: PropTypes.node,
-  searchOptions: PropTypes.object,
-  dynamicProperties: PropTypes.object,
-  excludeItems: PropTypes.array,
-  dropNodeColor: PropTypes.string,
-  disabled: PropTypes.bool,
 };
 
 export default SearchableList;

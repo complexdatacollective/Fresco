@@ -1,5 +1,8 @@
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import Fuse from 'fuse.js';
+import { entityAttributesProperty } from '@codaco/shared-consts';
+import Fuse, { type Expression } from 'fuse.js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useFuseOptions from '../containers/Interfaces/NameGeneratorRoster/useFuseOptions';
+import { type UseItemElement } from '../containers/Interfaces/NameGeneratorRoster/useItems';
 
 const MIN_QUERY_LENGTH = 1;
 const DEBOUNCE_DELAY = 500;
@@ -53,23 +56,33 @@ const defaultFuseOptions = {
  *   hasQuery,
  * ] = useSearch(items, { keys: ['name'] });
  */
-const useSearch = (list, options, initialQuery = '') => {
-  const delayRef = useRef();
-  const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState(list);
+const useSearch = <T extends UseItemElement>(
+  list: T[],
+): [T[], string, (query: string) => void, boolean, boolean] => {
+  const delayRef = useRef<NodeJS.Timeout>();
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<T[]>(list);
   const [isWaiting, setIsWaiting] = useState(false);
 
   const hasQuery = useMemo(() => query.length >= MIN_QUERY_LENGTH, [query]);
   const isLargeList = useMemo(() => list.length > 100, [list]);
 
+  const options = useFuseOptions({
+    keys: Object.keys(list[0]?.data[entityAttributesProperty] ?? {}).map(
+      (attribute) => ['data', entityAttributesProperty, attribute],
+    ),
+    threshold: 0.6,
+  });
+
   const fuseOptions = useMemo(
     () => ({ ...defaultFuseOptions, ...options }),
     [options],
   );
+
   const fuse = useMemo(() => new Fuse(list, fuseOptions), [list, fuseOptions]);
 
   const search = useCallback(
-    (_query) => {
+    (_query: string | Expression) => {
       if (isLargeList) {
         clearTimeout(delayRef.current);
         setIsWaiting(true);
@@ -79,7 +92,7 @@ const useSearch = (list, options, initialQuery = '') => {
 
       const r = res.map(({ item, score }) => ({
         ...item,
-        relevance: 1 - score, // fuseJS relevance is reverse nomalized (0 is perfect match)
+        relevance: 1 - (score ?? 0), // fuseJS relevance is reverse normalized (0 is perfect match)
       }));
 
       if (isLargeList) {
@@ -102,7 +115,7 @@ const useSearch = (list, options, initialQuery = '') => {
     }
 
     search(query);
-  }, [query, hasQuery]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [query, hasQuery, search]);
 
   const returnResults = useMemo(
     () => (hasQuery ? results : list),

@@ -5,12 +5,8 @@ import { type StageProps } from '../../Stage';
 
 export const convertNamesToUUIDs = (
   variables: ReturnType<typeof getNodeVariables>,
-  nameOrNames: string[] | string,
+  nameOrNames: string[],
 ) => {
-  if (typeof nameOrNames === 'string') {
-    return getParentKeyByNameValue(variables, nameOrNames);
-  }
-
   return nameOrNames.map((name) => getParentKeyByNameValue(variables, name));
 };
 

@@ -1,6 +1,12 @@
-import { type EntityDefinition } from '@codaco/protocol-validation';
+import {
+  type EntityDefinition,
+  type SortOrder,
+  type VariableType,
+} from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
+
+type ProtocolSortRule = SortOrder[number];
 
 /**
  * Creating a collator that is reused by string comparison is significantly faster
@@ -299,18 +305,13 @@ const createSorter = <T extends Item = Item>(
     ) as T[];
 };
 
-// TODO: replace with protocol-validation type when available
-type VariableType =
-  | 'boolean'
-  | 'text'
+export type SortType =
+  | 'string'
   | 'number'
-  | 'datetime'
-  | 'ordinal'
-  | 'scalar'
-  | 'categorical'
-  | 'layout'
-  | 'location';
-type VariableTypeWithWildcard = VariableType | '*';
+  | 'date'
+  | 'boolean'
+  | 'hierarchy'
+  | 'categorical';
 
 /**
  * Utility helper to map NC variable types to the types supported by the
@@ -335,7 +336,7 @@ type VariableTypeWithWildcard = VariableType | '*';
  * - "layout",
  * - "location"
  */
-export const mapNCType = (type: VariableTypeWithWildcard) => {
+export const mapNCType = (type?: VariableType) => {
   switch (type) {
     case 'text':
     case 'layout':
@@ -344,8 +345,6 @@ export const mapNCType = (type: VariableTypeWithWildcard) => {
       return 'string' as const;
     case 'number':
     case 'boolean':
-    case '*':
-      return type;
     case 'datetime':
       return 'date' as const;
     case 'ordinal':
@@ -362,7 +361,9 @@ export const mapNCType = (type: VariableTypeWithWildcard) => {
 /**
  * Add the entity attributes property to the property path of a sort rule.
  */
-const propertyWithAttributePath = (rule: ProtocolSortRule) => {
+const propertyWithAttributePath = (
+  rule: SortOrder[number],
+): string[] | string => {
   // 'type' rules are a special case - they exist in the protocol, but do not
   // refer to an entity attribute (they refer to a model property)
   if (rule.property === 'type') {
@@ -371,11 +372,6 @@ const propertyWithAttributePath = (rule: ProtocolSortRule) => {
 
   return [entityAttributesProperty, rule.property];
 };
-
-export type ProtocolSortRule = {
-  property: string | string[];
-  direction?: 'asc' | 'desc';
-}
 
 /**
  * Function that provides a compatibility layer between the old and new sort
@@ -393,16 +389,15 @@ export type ProtocolSortRule = {
 export const processProtocolSortRule =
   (codebookVariables: EntityDefinition['variables']) =>
   (sortRule: ProtocolSortRule) => {
-    const variableDefinition = get(
-      codebookVariables,
-      sortRule.property as string,
-      null,
-    );
+    const variableDefinition = get(codebookVariables, sortRule.property, null);
 
     // Don't modify the rule if there is no variable definition matching the
-    // property.
+    // property. Assume string
     if (variableDefinition === null) {
-      return sortRule as ProcessedSortRule;
+      return {
+        ...sortRule,
+        type: 'string',
+      } as ProcessedSortRule;
     }
 
     const { type } = variableDefinition;
@@ -421,9 +416,12 @@ export const processProtocolSortRule =
     } as ProcessedSortRule;
   };
 
-type ProcessedSortRule = ProtocolSortRule & {
-  type: // Note: this is *not* the same as NC variable types. See createSorter.
-  'string' | 'number' | 'date' | 'boolean' | 'hierarchy' | 'categorical';
+export type Direction = 'asc' | 'desc';
+
+export type ProcessedSortRule = {
+  property: string | string[];
+  direction?: Direction;
+  type: SortType; // Note: this is *not* the same as NC variable types. See createSorter.
   hierarchy?: (string | number | boolean)[];
 };
 

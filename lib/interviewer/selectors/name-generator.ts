@@ -84,6 +84,25 @@ export const getPanelConfiguration = createSelector(
   },
 );
 
+export const getSearchOptions = createSelector(getCurrentStage, (stage) => {
+  invariant(stage, 'Stage is required');
+  const stageWithSearchOptions = stage as Extract<
+    Stage,
+    { type: 'NameGeneratorRoster' }
+  >;
+
+  return stageWithSearchOptions.searchOptions;
+});
+
+export const getSortOptions = createSelector(getCurrentStage, (stage) => {
+  invariant(stage, 'Stage is required');
+  const stageWithSortOptions = stage as Extract<
+    Stage,
+    { type: 'NameGeneratorRoster' }
+  >;
+  return stageWithSortOptions.sortOptions;
+});
+
 export const getPanelNodes = (
   panelConfig: Panel,
   externalData: NcNode[] | null,

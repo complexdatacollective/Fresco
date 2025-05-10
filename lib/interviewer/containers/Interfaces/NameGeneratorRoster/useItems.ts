@@ -1,6 +1,6 @@
 import {
-  type EntityAttributesProperty,
   entityAttributesProperty,
+  type EntityPrimaryKey,
   entityPrimaryKeyProperty,
   type NcEntity,
   type NcNode,
@@ -62,6 +62,15 @@ const detailsWithVariableUUIDs =
     );
   };
 
+export type UseItemElement = {
+  id: NcEntity[EntityPrimaryKey];
+  data: NcNode;
+  props: NameGeneratorRosterProps & {
+    label: string;
+    data: ReturnType<ReturnType<typeof detailsWithVariableUUIDs>>;
+  };
+};
+
 // Returns all nodes associated with external data
 const useItems = (props: NameGeneratorRosterProps) => {
   const nodeTypeDefinition = useSelector(getNodeTypeDefinition);
@@ -76,7 +85,8 @@ const useItems = (props: NameGeneratorRosterProps) => {
     (item) => item[entityPrimaryKeyProperty],
   );
 
-  // It is safe to ignore the encryption state here because this is external data.
+  // It is safe to ignore the encryption state here because this is external
+  // data, meaning we do not expect it to be encrypted.
   // TODO: this must be updated if we want rosters to support encrypted data.
   const getNodeLabel = useCallback((node: NcNode) => {
     const attribute = getNodeLabelAttribute(
@@ -95,15 +105,7 @@ const useItems = (props: NameGeneratorRosterProps) => {
 
   const items = useMemo(() => {
     if (!externalData) {
-      return [] as {
-        id: NcEntity[EntityAttributesProperty];
-        data: NcNode;
-        props: NameGeneratorRosterProps & {
-          label: string;
-          data: ReturnType<typeof detailsWithVariableUUIDs>;
-        };
-        nodeTypeDefinition: ReturnType<typeof getNodeTypeDefinition>;
-      }[];
+      return [] as UseItemElement[];
     }
 
     return externalData.map((item) => ({
@@ -117,7 +119,7 @@ const useItems = (props: NameGeneratorRosterProps) => {
           visibleSupplementaryFields: cardOptions.additionalProperties,
         })(item),
       },
-    }));
+    })) as UseItemElement[];
   }, [
     externalData,
     getNodeLabel,

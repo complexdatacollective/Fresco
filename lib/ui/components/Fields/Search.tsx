@@ -1,16 +1,18 @@
 import { noop } from 'es-toolkit';
 import { get, isEmpty } from 'es-toolkit/compat';
 import { X as ClearIcon, Search as SearchIcon } from 'lucide-react';
-import PropTypes from 'prop-types';
+import { type ComponentProps } from 'react';
 import { getCSSVariableAsString } from '../../utils/CSSVariables';
 import Text from './Text';
 
-const Search = (props) => {
+type SearchProps = ComponentProps<typeof Text>;
+
+const Search = (props: SearchProps) => {
   const color = getCSSVariableAsString('--nc-input-text');
 
   const hasValue = !isEmpty(get(props, ['input', 'value'], ''));
 
-  const onChange = get(props, ['input', 'onChange'], noop);
+  const onChange = props.input.onChange || noop;
 
   const handleClear = () => {
     onChange('');
@@ -32,14 +34,10 @@ const Search = (props) => {
     <Text
       adornmentLeft={adornmentLeft}
       adornmentRight={adornmentRight}
-      {...props} // eslint-disable-line react/jsx-props-no-spreading
+      {...props}
       type="search"
     />
   );
-};
-
-Search.propTypes = {
-  input: PropTypes.object,
 };
 
 export default Search;

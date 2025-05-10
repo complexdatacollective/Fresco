@@ -1,12 +1,10 @@
 import {
   type EntityAttributesProperty,
-  entityAttributesProperty,
   type EntityPrimaryKey,
   entityPrimaryKeyProperty,
   type NcEntity,
 } from '@codaco/shared-consts';
 import cx from 'classnames';
-import { isEmpty } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -17,7 +15,6 @@ import Node from '~/lib/interviewer/components/Node';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
-import { getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import { getPromptModelData } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
@@ -37,10 +34,8 @@ import {
   minNodesWithDefault,
 } from '../utils/StageLevelValidation';
 import DropOverlay from './DropOverlay';
-import { convertNamesToUUIDs, type NameGeneratorRosterProps } from './helpers';
-import useFuseOptions from './useFuseOptions';
-import useItems from './useItems';
-import useSortableProperties from './useSortableProperties';
+import { type NameGeneratorRosterProps } from './helpers';
+import useItems, { type UseItemElement } from './useItems';
 
 const countColumns = (width: number) =>
   width < 140 ? 1 : Math.floor(width / 450);
@@ -79,13 +74,11 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
 
   const newNodeModelData = useSelector(getPromptModelData);
   const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
-  const nodeVariables = useSelector(getNodeVariables);
+
   const nodeType = stage.subject.type;
   const dropNodeColor = useSelector(getNodeColor(nodeType));
 
   const { status: itemsStatus, items, excludeItems } = useItems(props);
-
-  const sortOptions = useSortableProperties(nodeVariables, stage.sortOptions);
 
   const stageNodeCount = useSelector(getStageNodeCount);
   const minNodes = minNodesWithDefault(stage.behaviours?.minNodes);
@@ -105,33 +98,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   useEffect(() => {
     setShowMinWarning(false);
   }, [stageNodeCount, promptIndex]);
-
-  const searchOptions = ((options) => {
-    if (!options || isEmpty(options)) {
-      return options;
-    }
-
-    return {
-      ...options,
-      matchProperties: convertNamesToUUIDs(
-        nodeVariables,
-        stage.searchOptions?.matchProperties ?? [],
-      ),
-    };
-  })(stage.searchOptions);
-
-  const fallbackKeys = useMemo(
-    () =>
-      Object.keys(items?.[0]?.data[entityAttributesProperty] ?? {}).map(
-        (attribute) => ['data', entityAttributesProperty, attribute],
-      ),
-    [items],
-  );
-
-  const fuseOptions = useFuseOptions(searchOptions, {
-    keys: fallbackKeys,
-    threshold: 0.6,
-  });
 
   const { isOver, willAccept } = useDropMonitor('node-list') ?? {
     isOver: false,
@@ -165,16 +131,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     );
   };
 
-  const handleRemoveNode = ({
-    meta: { id },
-  }: {
-    meta: {
-      id: NcEntity[EntityPrimaryKey];
-      data: {
-        attributes: NcEntity[EntityAttributesProperty];
-      };
-    };
-  }) => {
+  const handleRemoveNode = ({ meta: { id } }: { meta: UseItemElement }) => {
     dispatch(deleteNode(id));
   };
 
@@ -213,7 +170,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
           <SearchableList
             key={String(disabled)}
             loading={itemsStatus.isLoading}
-            id="searchable-list"
             items={items}
             title="Available to add"
             columns={countColumns}
@@ -223,9 +179,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
             itemType="SOURCE_NODES" // drop type
             excludeItems={excludeItems}
             itemComponent={DataCard}
-            // dragComponent={Node}
-            sortOptions={sortOptions}
-            searchOptions={fuseOptions}
+            dragComponent={Node}
             accepts={({ meta: { itemType } }: { meta: { itemType: string } }) =>
               itemType !== 'SOURCE_NODES'
             }
