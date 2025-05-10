@@ -40,20 +40,14 @@ const detailsWithVariableUUIDs =
       'Node type definition is required to format details',
     );
 
-    invariant(
-      visibleSupplementaryFields,
-      'Visible supplementary fields are required to format details',
-    );
-
     const nodeTypeVariables = nodeTypeDefinition.variables;
     const attrs = getEntityAttributes(node);
-    const fields = visibleSupplementaryFields;
-    const withUUIDReplacement = fields.map((field) => ({
+    const withUUIDReplacement = visibleSupplementaryFields?.map((field) => ({
       ...field,
       variable: getParentKeyByNameValue(nodeTypeVariables, field.variable),
     }));
 
-    return withUUIDReplacement.reduce(
+    return withUUIDReplacement?.reduce(
       (acc, field) => ({
         ...acc,
         [field.label]: attrs[field.variable],

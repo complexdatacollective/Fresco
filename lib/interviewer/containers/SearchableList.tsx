@@ -1,4 +1,3 @@
-import { type Stage } from '@codaco/protocol-validation';
 import cx from 'classnames';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
@@ -10,30 +9,36 @@ import Loading from '../components/Loading';
 import Panel from '../components/Panel';
 import useSearch from '../hooks/useSearch';
 import useSort from '../hooks/useSort';
+import { type Direction } from '../utils/createSorter';
 import HyperList from './HyperList';
 import DropOverlay from './Interfaces/NameGeneratorRoster/DropOverlay';
 import { type UseItemElement } from './Interfaces/NameGeneratorRoster/useItems';
 
 const SortButton = ({
-  handleClick,
-  variable,
+  key,
   color,
   label,
   isActive,
   sortDirection,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  key: string;
+  color: string;
+  isActive: boolean;
+  sortDirection: Direction;
+  label: string;
 }) => (
-  <div
+  <button
+    {...rest}
+    key={key}
     tabIndex={0}
-    role="button"
     className={`filter-button ${isActive ? 'filter-button--active' : ''}`}
-    onClick={handleClick}
-    key={variable}
     color={color}
   >
     {label}
 
     {isActive && (sortDirection === 'asc' ? ' \u25B2' : ' \u25BC')}
-  </div>
+  </button>
 );
 
 const modes = {
@@ -51,15 +56,6 @@ const EmptyComponent = () => (
     <h2>Nothing matched your search term.</h2>
   </motion.div>
 );
-
-type RosterSortOptions = Extract<
-  Stage,
-  { type: 'NameGeneratorRoster' }
->['sortOptions'];
-type RosterSearchOptions = Extract<
-  Stage,
-  { type: 'NameGeneratorRoster' }
->['searchOptions'];
 
 type SearchableListProps = {
   accepts: ({ meta: { itemType } }: { meta: { itemType: string } }) => boolean;
@@ -172,7 +168,7 @@ const SearchableList = (props: SearchableListProps) => {
     { 'searchable-list__list--too-many': showTooMany },
   );
 
-  const { willAccept, isOver } = useDropMonitor(`hyper-list-${id.current}`) ?? {
+  const { willAccept, isOver } = useDropMonitor(`hyper-list-${id}`) ?? {
     willAccept: false,
     isOver: false,
   };
@@ -218,9 +214,8 @@ const SearchableList = (props: SearchableListProps) => {
 
               return (
                 <SortButton
-                  key={property}
-                  variable={property}
-                  handleClick={handleSort}
+                  key={property.join('-')}
+                  onClick={handleSort}
                   color={color}
                   label={label}
                   isActive={isActive}

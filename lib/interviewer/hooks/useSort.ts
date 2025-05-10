@@ -50,14 +50,14 @@ const useSort = (
   (newProperty?: string | string[]) => void,
   (newType: SortType) => void,
   (newDirection: Direction) => void,
-  ReturnType<typeof enhancedSortableProperties>,
+  typeof sortableProperties,
 ] => {
   const nodeVariables = useSelector(getNodeVariables);
   const sortOptions = useSelector(getSortOptions);
-  const sortOrder = sortOptions?.sortOrder ?? [];
+  const sortOrder = useMemo(() => sortOptions?.sortOrder ?? [], [sortOptions]);
 
   // Enhance
-  const enhancedInitialSortOrder = () => {
+  const initialSortOrder = useMemo(() => {
     const initialProperty = sortOrder[0]?.property
       ? [sortOrder[0].property]
       : defaultSortOrder.property;
@@ -69,11 +69,9 @@ const useSort = (
       property: compact([...path, property]),
       type: mapNCType(type),
     };
-  };
+  }, [sortOrder, nodeVariables]);
 
-  const initialSortOrder = enhancedInitialSortOrder();
-
-  const enhancedSortableProperties = () => {
+  const sortableProperties = useMemo(() => {
     return sortOptions?.sortableProperties?.map(({ variable, label }) => {
       const uuid = convertNamesToUUIDs(nodeVariables, [variable])[0];
       const type = nodeVariables?.uuid?.type;
@@ -84,9 +82,7 @@ const useSort = (
         type: mapNCType(type),
       };
     });
-  };
-
-  const sortableProperties = enhancedSortableProperties();
+  }, [sortOptions, nodeVariables]);
 
   const [sortByProperty, setSortByProperty] = useState<
     string | string[] | undefined
