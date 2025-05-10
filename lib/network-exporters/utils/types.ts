@@ -3,6 +3,11 @@ import type {
   codebookHashProperty,
   edgeExportIDProperty,
   egoProperty,
+  NcEdge,
+  NcNetwork,
+  NcNode,
+  ncSourceUUID,
+  ncTargetUUID,
   nodeExportIDProperty,
   protocolName,
   protocolProperty,
@@ -12,13 +17,12 @@ import type {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { z } from 'zod';
-import type { NcNetwork, ZNcEdge, ZNcNode } from '~/schemas/network-canvas';
 
-type NodeWithEgo = z.infer<typeof ZNcNode> & {
+type NodeWithEgo = NcNode & {
   [egoProperty]: string;
 };
 
-type EdgeWithEgo = z.infer<typeof ZNcEdge> & {
+type EdgeWithEgo = NcEdge & {
   [egoProperty]: string;
 };
 
@@ -35,7 +39,7 @@ export type SessionVariables = {
   [sessionFinishTimeProperty]: string | undefined;
   COMMIT_HASH: string;
   APP_VERSION: string;
-};
+}
 
 export type FormattedSession = NcNetwork & {
   sessionVariables: SessionVariables;
@@ -71,12 +75,12 @@ export type ExportFormat =
 type ExportError = {
   success: false;
   error: Error;
-};
+}
 
 type ExportSuccess = {
   success: true;
   filePath: string;
-};
+}
 
 export type ExportResult = ExportError | ExportSuccess;
 
@@ -87,13 +91,15 @@ export type ExportReturn = {
   error: string | null;
   successfulExports?: ExportResult[];
   failedExports?: ExportResult[];
-};
+}
 
 export type NodeWithResequencedID = NodeWithEgo & {
   [nodeExportIDProperty]: number;
 };
 
 export type EdgeWithResequencedID = EdgeWithEgo & {
+  [ncSourceUUID]: string;
+  [ncTargetUUID]: string;
   [edgeExportIDProperty]: number;
 };
 
@@ -109,4 +115,4 @@ export type ArchiveResult = {
   path: string;
   completed: ExportResult[];
   rejected: ExportResult[];
-};
+}

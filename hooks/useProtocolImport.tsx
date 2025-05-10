@@ -1,3 +1,4 @@
+import { validateProtocol } from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -12,19 +13,36 @@ import {
 import { AlertDialogDescription } from '~/components/ui/AlertDialog';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { uploadFiles } from '~/lib/uploadthing-client-helpers';
-import { getExistingAssetIds, getProtocolByHash } from '~/queries/protocols';
+import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
-import { formatNumberList } from '~/utils/general';
 import {
   fileAsArrayBuffer,
   getProtocolAssets,
   getProtocolJson,
 } from '~/utils/protocolImport';
 
-// Utility helper for adding artificial delay to async functions
-// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+/**
+ * Formats a list of numbers into a human-readable string.
+ */
+function formatNumberList(numbers: number[]): string {
+  // "1"
+  if (numbers.length === 1) {
+    return numbers[0]!.toString();
+  }
+
+  // "1 and 2"
+  if (numbers.length === 2) {
+    return numbers.join(' and ');
+  }
+
+  // "1, 2, and 3"
+  const lastNumber = numbers.pop();
+  const formattedList = numbers.join(', ') + `, and ${lastNumber}`;
+
+  return formattedList;
+}
 
 export const useProtocolImport = () => {
   const [jobs, dispatch] = useReducer(jobReducer, jobInitialState);
@@ -86,8 +104,6 @@ export const useProtocolImport = () => {
 
         return;
       }
-
-      const { validateProtocol } = await import('@codaco/protocol-validation');
 
       const validationResult = await validateProtocol(protocolJson);
 
@@ -176,28 +192,42 @@ export const useProtocolImport = () => {
         return;
       }
 
-      const assets = await getProtocolAssets(protocolJson, zip);
+      const { fileAssets, apikeyAssets } = await getProtocolAssets(
+        protocolJson,
+        zip,
+      );
 
-      const newAssets: typeof assets = [];
-
+      const newAssets: typeof fileAssets = [];
       const existingAssetIds: string[] = [];
-
-      let newAssetsWithCombinedMetadata: AssetInsertType = [];
+      let newAssetsWithCombinedMetadata: AssetInsertType[] = [];
+      const newApikeyAssets: typeof apikeyAssets = [];
 
       // Check if the assets are already in the database.
       // If yes, add them to existingAssetIds to be connected to the protocol.
-      // If not, add them to newAssets to be uploaded.
-
+      // If not, add files to newAssets to be uploaded
+      // and add apikeys to newApikeyAssets to be created in the database with the protocol
       try {
-        const newAssetIds = await getExistingAssetIds(
-          assets.map((asset) => asset.assetId),
+        const newFileAssetIds = await getNewAssetIds(
+          fileAssets.map((asset) => asset.assetId),
         );
 
-        assets.forEach((asset) => {
-          if (newAssetIds.includes(asset.assetId)) {
+        fileAssets.forEach((asset) => {
+          if (newFileAssetIds.includes(asset.assetId)) {
             newAssets.push(asset);
           } else {
             existingAssetIds.push(asset.assetId);
+          }
+        });
+
+        const newApikeyAssetIds = await getNewAssetIds(
+          apikeyAssets.map((apiKey) => apiKey.assetId),
+        );
+
+        apikeyAssets.forEach((apiKey) => {
+          if (newApikeyAssetIds.includes(apiKey.assetId)) {
+            newApikeyAssets.push(apiKey);
+          } else {
+            existingAssetIds.push(apiKey.assetId);
           }
         });
       } catch (e) {
@@ -238,9 +268,7 @@ export const useProtocolImport = () => {
 
             const thisCompletedBytes = thisFileSize * (progress / 100);
 
-            if (!currentBytesUploaded[file.name]) {
-              currentBytesUploaded[file.name] = 0;
-            }
+            currentBytesUploaded[file.name] ??= 0;
 
             currentBytesUploaded[file.name] = thisCompletedBytes;
 
@@ -304,7 +332,7 @@ export const useProtocolImport = () => {
       const result = await insertProtocol({
         protocol: protocolJson,
         protocolName: fileName,
-        newAssets: newAssetsWithCombinedMetadata,
+        newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
       });
 

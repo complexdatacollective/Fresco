@@ -1,0 +1,58 @@
+import { type Variable } from '@codaco/protocol-validation';
+import { createSelector } from '@reduxjs/toolkit';
+import { invariant } from 'es-toolkit';
+import { getCodebook } from '../ducks/modules/protocol';
+import { getPromptOtherVariable, getPromptVariable } from './prop';
+import { getSubjectType } from './session';
+
+// Selectors that are generic between interfaces
+
+/*
+These selectors assume the following props:
+  stage: which contains the protocol config for the stage
+  prompt: which contains the protocol config for the prompt
+*/
+
+export const getNodeVariables = createSelector(
+  getCodebook,
+  getSubjectType,
+  (codebook, nodeType) => {
+    const nodeInfo = codebook.node;
+
+    invariant(nodeType, 'No node type!');
+
+    return nodeInfo?.[nodeType]?.variables ?? {};
+  },
+);
+
+export const makeGetVariableOptions = (includeOtherVariable = false) =>
+  createSelector(
+    getNodeVariables,
+    getPromptVariable,
+    getPromptOtherVariable,
+    (
+      nodeVariables,
+      promptVariable,
+      [promptOtherVariable, promptOtherOptionLabel, promptOtherVariablePrompt],
+    ) => {
+      if (!promptVariable) {
+        return [];
+      }
+
+      const variable = nodeVariables[promptVariable] as
+        | Extract<Variable, { type: 'categorical' | 'ordinal' }>
+        | undefined;
+
+      const optionValues = variable?.options ?? [];
+      const otherValue = {
+        label: promptOtherOptionLabel,
+        value: null,
+        otherVariablePrompt: promptOtherVariablePrompt,
+        otherVariable: promptOtherVariable,
+      };
+
+      return includeOtherVariable && promptOtherVariable
+        ? [...optionValues, otherValue]
+        : optionValues;
+    },
+  );

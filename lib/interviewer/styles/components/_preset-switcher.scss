@@ -1,3 +1,5 @@
+$width: 20rem;
+
 .preset-switcher {
   position: absolute;
   bottom: 0;
@@ -26,14 +28,15 @@
   }
 
   &__navigation {
-    background: var(--nc-light-background);
+    background: var(--nc-panel-bg-muted);
     width: 4rem;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 1;
     cursor: pointer;
-    transition: opacity var(--animation-duration-standard) var(--animation-duration-standard) var(--animation-easing);
+    transition: opacity var(--animation-duration-standard)
+      var(--animation-duration-standard) var(--animation-easing);
 
     .icon {
       height: 30px;
@@ -59,7 +62,9 @@
 
       .icon {
         .cls-2 {
-          fill: rgb(255 255 255 / 20%); // sass-lint:disable-line no-color-literals
+          fill: rgb(
+            255 255 255 / 20%
+          ); // sass-lint:disable-line no-color-literals
         }
       }
     }
@@ -68,7 +73,7 @@
   &__label {
     display: flex;
     align-items: center;
-    width: 18rem;
+    width: $width;
     margin: 0 0.1rem;
     flex-direction: column;
     cursor: pointer;
@@ -77,7 +82,7 @@
       margin: 0;
       padding: units.unit(3) units.unit(2);
       text-align: center;
-      background: var(--nc-light-background);
+      background: var(--nc-panel-bg-muted);
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
@@ -90,7 +95,7 @@
     justify-content: center;
     width: 5rem;
     cursor: pointer;
-    background: var(--nc-light-background);
+    background: var(--nc-panel-bg-muted);
     align-items: center;
 
     &--active {
@@ -99,6 +104,40 @@
 
     h1 {
       margin: 0;
+    }
+  }
+}
+
+.preset-switcher-key {
+  display: flex;
+  bottom: 7rem;
+  width: auto;
+  width: $width;
+  position: absolute;
+  right: 0;
+  margin-right: 6.1rem; // distance of preset-switcher from right side
+  max-height: 75%;
+  color: var(--nc-text);
+
+  &__content {
+    background-color: var(--nc-panel-bg-muted);
+    width: 100%;
+    transition: opacity var(--animation-duration-fast) var(--animation-easing);
+    opacity: 1;
+    overflow: hidden auto;
+  }
+
+  &__icon {
+    height: 1rem;
+  }
+
+  &:not(.preset-switcher-key--open) {
+    height: 0;
+    transition-delay: unset;
+    overflow: hidden;
+
+    .preset-switcher-key__content {
+      opacity: 0;
     }
   }
 }
