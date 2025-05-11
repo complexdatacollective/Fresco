@@ -344,15 +344,16 @@ export const mapNCType = (type?: VariableType) => {
     case undefined:
       return 'string' as const;
     case 'number':
+    case 'scalar':
+      return 'number' as const;
     case 'boolean':
+      return 'boolean' as const;
     case 'datetime':
       return 'date' as const;
     case 'ordinal':
       return 'hierarchy' as const;
     case 'categorical':
       return 'categorical' as const;
-    case 'scalar':
-      return 'number' as const;
     default:
       return 'string' as const;
   }
@@ -388,7 +389,7 @@ const propertyWithAttributePath = (
  */
 export const processProtocolSortRule =
   (codebookVariables: EntityDefinition['variables']) =>
-  (sortRule: ProtocolSortRule) => {
+  (sortRule: ProtocolSortRule): ProcessedSortRule => {
     const variableDefinition = get(codebookVariables, sortRule.property, null);
 
     // Don't modify the rule if there is no variable definition matching the
@@ -397,7 +398,7 @@ export const processProtocolSortRule =
       return {
         ...sortRule,
         type: 'string',
-      } as ProcessedSortRule;
+      };
     }
 
     const { type } = variableDefinition;
@@ -413,7 +414,7 @@ export const processProtocolSortRule =
       ...(type === 'categorical' && {
         hierarchy: variableDefinition.options.map((option) => option.value),
       }),
-    } as ProcessedSortRule;
+    };
   };
 
 export type Direction = 'asc' | 'desc';

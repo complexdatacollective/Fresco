@@ -1102,7 +1102,10 @@ describe('processProtocolSortRule', () => {
       property: 'name',
       direction: 'asc',
     } as ProtocolSortRule;
-    expect(processProtocolSortRule({})(rule)).toEqual(rule);
+    expect(processProtocolSortRule({})(rule)).toEqual({
+      ...rule,
+      type: 'string',
+    });
   });
 
   describe('manages property path', () => {
@@ -1176,7 +1179,10 @@ describe('processProtocolSortRule', () => {
         property: '*',
         direction: 'asc',
       } as ProtocolSortRule;
-      expect(processProtocolSortRule(codebookVariables)(rule)).toEqual(rule);
+      expect(processProtocolSortRule(codebookVariables)(rule)).toEqual({
+        ...rule,
+        type: 'string',
+      });
     });
 
     it('string', () => {
