@@ -86,7 +86,7 @@ export const makeVariableUUIDReplacer =
         getParentKeyByNameValue(
           codebookDefinition?.variables ?? {},
           attributeKey,
-        ),
+        ) ?? attributeKey,
     );
 
     return {

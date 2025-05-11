@@ -7,7 +7,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { get, has } from 'es-toolkit/compat';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
@@ -20,9 +20,8 @@ import {
   addNodeToPrompt as addNodeToPromptAction,
   deleteNode as deleteNodeAction,
 } from '../../ducks/modules/session';
-import usePropSelector from '../../hooks/usePropSelector';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { getStageUsesEncryption } from '../../selectors/protocol';
+import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
 import {
   getNetworkNodesForPrompt,
   getStageNodeCount,
@@ -85,16 +84,40 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const [selectedNode, setSelectedNode] = useState<NcNode | null>(null);
   const [showMinWarning, setShowMinWarning] = useState(false);
 
-  const minNodes = minNodesWithDefault(behaviours?.minNodes) as number;
-  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes) as number;
+  const minNodes = minNodesWithDefault(behaviours?.minNodes);
+  const maxNodes = maxNodesWithDefault(behaviours?.maxNodes);
 
-  const stageNodeCount = usePropSelector(getStageNodeCount, props);
+  const stageNodeCount = useSelector(getStageNodeCount);
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-  const nodesForPrompt = usePropSelector(getNetworkNodesForPrompt, props);
-
-  const useEncryption = useSelector(getStageUsesEncryption);
+  const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
+  const codebookForNodeType = useSelector(getCodebookVariablesForSubjectType);
 
   const dispatch = useAppDispatch();
+
+  const useEncryption = useMemo(() => {
+    if (
+      Object.keys(newNodeAttributes).some(
+        (variableId) => codebookForNodeType[variableId]?.encrypted,
+      )
+    ) {
+      return true;
+    }
+
+    // Check if the quickAdd variable or form has an encrypted variable
+    if (stage.type === 'NameGeneratorQuickAdd') {
+      return !!codebookForNodeType[stage.quickAdd]?.encrypted;
+    }
+
+    // Check if the form has any variables that are encrypted
+    if (stage.type === 'NameGenerator') {
+      const formVariables = stage.form.fields.map((field) => field.variable);
+      return formVariables.some(
+        (variable) => codebookForNodeType[variable]?.encrypted,
+      );
+    }
+
+    return false;
+  }, [stage, codebookForNodeType, newNodeAttributes]);
 
   useEffect(() => {
     if (useEncryption) {
@@ -129,9 +152,10 @@ const NameGenerator = (props: NameGeneratorProps) => {
         addNodeAction({
           type: stage.subject.type,
           attributeData: attributes,
+          useEncryption,
         }),
       ),
-    [dispatch, stage.subject.type],
+    [dispatch, stage.subject.type, useEncryption],
   );
 
   const maxNodesReached = stageNodeCount >= maxNodes;

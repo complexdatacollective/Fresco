@@ -65,36 +65,42 @@ const findCategoricalKey = (
 type O = NonNullable<EntityDefinition['variables']> | undefined;
 
 const getParentKeyByNameValue = (object: O, toFind: string) => {
-  if (isEmpty(object) || object[toFind]) {
+  if (isEmpty(object)) {
+    return undefined;
+  }
+
+  if (object[toFind]) {
     return toFind;
   }
 
   // Iterate object keys and return the key (itself )
   let foundKey =
-    findKey(object, (objectItem) => objectItem.name === toFind) ?? null;
+    findKey(object, (objectItem) => objectItem.name === toFind) ?? undefined;
 
   // check for special cases
   // possible location
   if (!foundKey && toFind && (toFind.endsWith('_x') || toFind.endsWith('_y'))) {
     const locationName = toFind.substring(0, toFind.length - 2);
     foundKey =
-      findKey(object, (objectItem) => objectItem.name === locationName) ?? null;
+      findKey(object, (objectItem) => objectItem.name === locationName) ??
+      undefined;
     if (foundKey) {
       foundKey += toFind.substring(toFind.length - 2);
     }
   }
   // possible categorical
   if (!foundKey && toFind?.includes('_')) {
-    foundKey = findCategoricalKey(
-      object as Record<
-        string,
-        Extract<NonNullable<O>[string], { type: 'categorical' }>
-      >,
-      toFind,
-    );
+    foundKey =
+      findCategoricalKey(
+        object as Record<
+          string,
+          Extract<NonNullable<O>[string], { type: 'categorical' }>
+        >,
+        toFind,
+      ) ?? undefined;
   }
 
-  return foundKey ?? toFind;
+  return foundKey;
 };
 
 export default getParentKeyByNameValue;

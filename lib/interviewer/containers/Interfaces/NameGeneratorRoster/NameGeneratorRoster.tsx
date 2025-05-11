@@ -1,8 +1,6 @@
 import {
-  type EntityAttributesProperty,
-  type EntityPrimaryKey,
+  entityAttributesProperty,
   entityPrimaryKeyProperty,
-  type NcEntity,
 } from '@codaco/shared-consts';
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'motion/react';
@@ -17,15 +15,18 @@ import Prompts from '~/lib/interviewer/components/Prompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import { getPromptModelData } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
+import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
   getNetworkNodesForPrompt,
   getNodeColor,
   getStageNodeCount,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
+import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
 import { DataCard } from '~/lib/ui/components/Cards';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../SearchableList';
+import { usePassphrase } from '../Anonymisation/usePassphrase';
 import { nameGeneratorHandleBeforeLeaving } from '../NameGenerator';
 import {
   MaxNodesMet,
@@ -66,12 +67,14 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
 
   const { promptIndex, isLastPrompt } = usePrompts();
 
+  const { requirePassphrase, passphrase } = usePassphrase();
+
   const interfaceRef = useRef(null);
 
   const dispatch = useAppDispatch();
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-
+  const codebookForNodeType = useSelector(getCodebookVariablesForSubjectType);
   const newNodeModelData = useSelector(getPromptModelData);
   const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
 
@@ -85,6 +88,60 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const maxNodes = maxNodesWithDefault(stage.behaviours?.maxNodes);
 
   const [showMinWarning, setShowMinWarning] = useState(false);
+
+  const useEncryption = useMemo(() => {
+    // Handle new node attributes, first since it is simpler
+    if (
+      Object.keys(newNodeAttributes).some(
+        (variableId) => codebookForNodeType[variableId]?.encrypted,
+      )
+    ) {
+      return true;
+    }
+
+    // To set this, we need to work out if addina a node based on the items
+    // will require encryption. This will be the case if any of the external
+    // data item keys match with the name property of any codebook variables
+    // for the node type (meaning that they will be transposed to the when
+    // the node is added to the interview
+    const itemAttributesWithCodebookMatches = items.reduce(
+      (codebookMatches, item) => {
+        const attributesWithCodebookMatches = Object.keys(
+          item.data[entityAttributesProperty],
+        ).reduce((acc, attribute) => {
+          const codebookKey = getParentKeyByNameValue(
+            codebookForNodeType,
+            attribute,
+          );
+
+          if (codebookKey) {
+            return [...acc, codebookKey];
+          }
+
+          return acc;
+        }, [] as string[]);
+
+        // Only add the codebook matches if they are not already in the list;
+        return [
+          ...codebookMatches,
+          ...attributesWithCodebookMatches.filter(
+            (codebookMatch) => !codebookMatches.includes(codebookMatch),
+          ),
+        ];
+      },
+      [] as string[],
+    );
+
+    return itemAttributesWithCodebookMatches.some(
+      (itemAttribute) => codebookForNodeType[itemAttribute]?.encrypted,
+    );
+  }, [items, codebookForNodeType, newNodeAttributes]);
+
+  useEffect(() => {
+    if (useEncryption) {
+      requirePassphrase();
+    }
+  }, [useEncryption, requirePassphrase]);
 
   registerBeforeNext(
     nameGeneratorHandleBeforeLeaving(
@@ -104,16 +161,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     willAccept: false,
   };
 
-  const handleAddNode = ({
-    meta,
-  }: {
-    meta: {
-      id: NcEntity[EntityPrimaryKey];
-      data: {
-        attributes: NcEntity[EntityAttributesProperty];
-      };
-    };
-  }) => {
+  const handleAddNode = ({ meta }: { meta: UseItemElement }) => {
     const { id, data } = meta;
     const attributeData = {
       ...newNodeAttributes,
@@ -127,6 +175,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
           [entityPrimaryKeyProperty]: id,
         },
         attributeData,
+        useEncryption,
       }),
     );
   };
@@ -147,10 +196,29 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
       nodesForPrompt.length === 0,
   });
 
-  const disabled = useMemo(
-    () => itemsStatus.isLoading || stageNodeCount >= maxNodes,
-    [stageNodeCount, maxNodes, itemsStatus.isLoading],
-  );
+  const disabled = useMemo(() => {
+    console.log('disabled', {
+      passphrase,
+      useEncryption,
+      itemsStatus,
+      stageNodeCount,
+      maxNodes,
+    });
+    if (!passphrase && useEncryption) {
+      return true;
+    }
+    if (itemsStatus.isLoading) {
+      return true;
+    }
+
+    if (stageNodeCount >= maxNodes) {
+      return true;
+    }
+
+    return false;
+  }, [stageNodeCount, maxNodes, itemsStatus, passphrase, useEncryption]);
+
+  console.log('disabled', disabled);
 
   return (
     <div className="name-generator-roster-interface" ref={interfaceRef}>

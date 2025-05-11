@@ -23,10 +23,7 @@ import { v4 as uuid, v4 } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import {
-  getCodebookVariablesForNodeType,
-  getStageUsesEncryption,
-} from '../../selectors/protocol';
+import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
 import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
@@ -96,7 +93,8 @@ export type SessionState = {
   currentStep: number;
   promptIndex?: number;
   stageMetadata?: StageMetadata; // Used as temporary storage by DyadCensus/TieStrengthCensus
-}
+  stageRequiresEncryption?: boolean; // Set to true by the stage if it detects that nodes it creates require encryption
+};
 
 const actionTypes = {
   updatePrompt: 'SESSION/UPDATE_PROMPT',
@@ -132,12 +130,13 @@ type AddNodeArgs = {
   modelData?: {
     [entityPrimaryKeyProperty]: NcNode[EntityPrimaryKey];
   };
-}
+  useEncryption?: boolean;
+};
 
 export const addNode = createAsyncThunk(
   actionTypes.addNode,
   async (args: AddNodeArgs, thunkApi) => {
-    const { type, attributeData, modelData } = args;
+    const { type, attributeData, modelData, useEncryption } = args;
     const state = thunkApi.getState() as RootState;
 
     const variablesForType = getCodebookVariablesForNodeType(type)(state);
@@ -148,8 +147,6 @@ export const addNode = createAsyncThunk(
     };
 
     const sessionMeta = getSessionMeta(state);
-
-    const useEncryption = getStageUsesEncryption(state);
 
     if (!useEncryption) {
       return {
@@ -472,6 +469,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
       ...state,
       currentStep: action.payload,
       promptIndex: 0,
+      stageRequiresEncryption: false,
     });
   });
 

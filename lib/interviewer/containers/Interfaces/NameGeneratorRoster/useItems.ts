@@ -44,7 +44,9 @@ const detailsWithVariableUUIDs =
     const attrs = getEntityAttributes(node);
     const withUUIDReplacement = visibleSupplementaryFields?.map((field) => ({
       ...field,
-      variable: getParentKeyByNameValue(nodeTypeVariables, field.variable),
+      variable:
+        getParentKeyByNameValue(nodeTypeVariables, field.variable) ??
+        field.variable,
     }));
 
     return withUUIDReplacement?.reduce(
@@ -61,7 +63,7 @@ export type UseItemElement = {
   data: NcNode;
   props: NameGeneratorRosterProps & {
     label: string;
-    data: ReturnType<ReturnType<typeof detailsWithVariableUUIDs>>;
+    data: ReturnType<ReturnType<typeof detailsWithVariableUUIDs>>; // used for card display only
   };
 };
 
