@@ -1,7 +1,7 @@
 import { noop } from 'es-toolkit';
 import { get, isEmpty } from 'es-toolkit/compat';
 import { X as ClearIcon, Search as SearchIcon } from 'lucide-react';
-import { type ComponentProps } from 'react';
+import React, { type ComponentProps } from 'react';
 import { getCSSVariableAsString } from '../../utils/CSSVariables';
 import Text from './Text';
 
@@ -14,8 +14,12 @@ const Search = (props: SearchProps) => {
 
   const onChange = props.input.onChange || noop;
 
+  // Call the change handler with an empty string
   const handleClear = () => {
-    onChange('');
+    const syntheticEvent = {
+      target: { value: '' },
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
   };
 
   const adornmentLeft = color && <SearchIcon style={{ color }} />;

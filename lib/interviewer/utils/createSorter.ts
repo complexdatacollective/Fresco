@@ -6,7 +6,7 @@ import {
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 
-type ProtocolSortRule = SortOrder[number];
+export type ProtocolSortRule = SortOrder[number];
 
 /**
  * Creating a collator that is reused by string comparison is significantly faster

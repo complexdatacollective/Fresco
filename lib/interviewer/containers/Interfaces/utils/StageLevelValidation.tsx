@@ -1,7 +1,6 @@
 import { defaultTo } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  Component,
   type ComponentType,
   useCallback,
   useEffect,

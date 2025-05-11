@@ -24,6 +24,7 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
 import { DataCard } from '~/lib/ui/components/Cards';
+import UINode from '~/lib/ui/components/Node';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import SearchableList from '../../SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
@@ -197,13 +198,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   });
 
   const disabled = useMemo(() => {
-    console.log('disabled', {
-      passphrase,
-      useEncryption,
-      itemsStatus,
-      stageNodeCount,
-      maxNodes,
-    });
     if (!passphrase && useEncryption) {
       return true;
     }
@@ -218,7 +212,18 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     return false;
   }, [stageNodeCount, maxNodes, itemsStatus, passphrase, useEncryption]);
 
-  console.log('disabled', disabled);
+  const DragPreviewNode = useMemo(
+    () =>
+      // eslint-disable-next-line react/display-name
+      ({
+        props,
+      }: {
+        props: {
+          label: string;
+        };
+      }) => <UINode color={dropNodeColor} label={props.label} />,
+    [dropNodeColor],
+  );
 
   return (
     <div className="name-generator-roster-interface" ref={interfaceRef}>
@@ -247,7 +252,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
             itemType="SOURCE_NODES" // drop type
             excludeItems={excludeItems}
             itemComponent={DataCard}
-            dragComponent={Node}
+            dragComponent={DragPreviewNode}
             accepts={({ meta: { itemType } }: { meta: { itemType: string } }) =>
               itemType !== 'SOURCE_NODES'
             }
