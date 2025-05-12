@@ -94,8 +94,12 @@ const categoricalFunction =
   ({ property, direction, hierarchy = [] }: ProcessedSortRule) =>
   (a: Item, b: Item): number => {
     // hierarchy is whatever order the variables were specified in the variable definition
-    const firstValues = get(a, property, []) as (string | number | boolean)[];
-    const secondValues = get(b, property, []) as (string | number | boolean)[];
+    const firstValues =
+      (get(a, property) as (string | number | boolean)[] | undefined) ??
+      ([] as (string | number | boolean)[]);
+    const secondValues =
+      (get(b, property) as (string | number | boolean)[] | undefined) ??
+      ([] as (string | number | boolean)[]);
 
     for (
       let i = 0;

@@ -46,6 +46,8 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const nodes = useSelector(getNetworkNodesForType);
   const edges = useSelector(getNetworkEdges);
 
+  console.log('nodes', nodes);
+
   const sortedSource = useSortedNodeList(nodes, bucketSortOrder);
 
   const source = sortedSource[currentStep]!;
@@ -142,7 +144,14 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                 key={`${source[entityPrimaryKeyProperty]}-${promptIndex}`}
               />
             )}
-            {!source && <div key="missing">No nodes available to display.</div>}
+            {!source && (
+              <div
+                key="missing"
+                className="flex h-24 items-center justify-center"
+              >
+                No nodes available to display.
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -151,54 +160,54 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
         <div className="mb-4 flex w-full items-center justify-center">
           <h4>Click/tap all that apply:</h4>
         </div>
-        {sortedTargets.length === 0 && (
-          <div className="flex h-full w-full items-center justify-center">
+        {sortedTargets.length === 0 ? (
+          <div className="flex h-full w-full grow items-center justify-center">
             <h3>No nodes to display.</h3>
           </div>
-        )}
-
-        <div className="flex min-h-full grow flex-wrap content-start justify-center overflow-visible [--base-node-size:calc(var(--nc-base-font-size)*8)]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              variants={nodeListVariants}
-              key={promptIndex}
-              exit={{ opacity: 0 }}
-            >
-              {sortedTargets.map((node) => {
-                /**
-                 * Remove after consideration behaviour:
-                 * Once a node has been 'considered' (has been the source), it should be
-                 * filtered out of the nodes list. We can calculate this by removing nodes
-                 * from the start of the nodes array based on the current step.
-                 */
-                const sortedIndex = sortedSource.findIndex(
-                  (s) =>
-                    s[entityPrimaryKeyProperty] ===
+        ) : (
+          <div className="flex min-h-full grow flex-wrap content-start justify-center overflow-visible [--base-node-size:calc(var(--nc-base-font-size)*8)]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                variants={nodeListVariants}
+                key={promptIndex}
+                exit={{ opacity: 0 }}
+              >
+                {sortedTargets.map((node) => {
+                  /**
+                   * Remove after consideration behaviour:
+                   * Once a node has been 'considered' (has been the source), it should be
+                   * filtered out of the nodes list. We can calculate this by removing nodes
+                   * from the start of the nodes array based on the current step.
+                   */
+                  const sortedIndex = sortedSource.findIndex(
+                    (s) =>
+                      s[entityPrimaryKeyProperty] ===
+                      node[entityPrimaryKeyProperty],
+                  );
+                  if (removeAfterConsideration && sortedIndex < currentStep) {
+                    return null;
+                  }
+                  const selected = !!edgeExists(
+                    edges,
                     node[entityPrimaryKeyProperty],
-                );
-                if (removeAfterConsideration && sortedIndex < currentStep) {
-                  return null;
-                }
-                const selected = !!edgeExists(
-                  edges,
-                  node[entityPrimaryKeyProperty],
-                  source[entityPrimaryKeyProperty],
-                  createEdge,
-                );
+                    source[entityPrimaryKeyProperty],
+                    createEdge,
+                  );
 
-                return (
-                  <MotionNode
-                    {...node}
-                    selected={selected}
-                    handleClick={handleNodeClick(source, node)}
-                    layoutId={node[entityPrimaryKeyProperty]}
-                    key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
-                  />
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+                  return (
+                    <MotionNode
+                      {...node}
+                      selected={selected}
+                      handleClick={handleNodeClick(source, node)}
+                      layoutId={node[entityPrimaryKeyProperty]}
+                      key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
+                    />
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );
