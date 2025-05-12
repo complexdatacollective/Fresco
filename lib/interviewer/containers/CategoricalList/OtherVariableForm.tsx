@@ -1,38 +1,50 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { reduxForm, initialize } from 'redux-form';
-import { useDispatch } from 'react-redux';
+import { type NcNode } from '@codaco/shared-consts';
+import { useEffect } from 'react';
+import { reduxForm, type InjectedFormProps } from 'redux-form';
 import Button from '~/lib/ui/components/Button';
-import Node from '~/lib/ui/components/Node';
 import { MarkdownLabel } from '~/lib/ui/components/Fields';
+import Node from '../../components/Node';
 import Field from '../Field';
 
-const stopClickPropagation = (e) => e.stopPropagation();
+type FormValues = {
+  otherVariable: string;
+};
+
+type OtherVariableFormOwnProps = {
+  node: NcNode;
+  prompt: string;
+  onCancel: () => void;
+  initialValues: FormValues;
+};
+
+type OtherVariableFormProps = OtherVariableFormOwnProps &
+  InjectedFormProps<FormValues, OtherVariableFormOwnProps>;
 
 const OtherVariableForm = ({
-  otherVariablePrompt,
+  node,
+  prompt,
   handleSubmit,
-  color,
-  label,
   onCancel,
   initialValues,
-}) => {
-  const dispatch = useDispatch();
-
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  initialize,
+}: OtherVariableFormProps) => {
   useEffect(() => {
-    dispatch(initialize('otherVariableForm', initialValues));
-  }, [dispatch, initialValues]);
+    initialize(initialValues);
+    // Causes infinite loop if deps are included
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="other-variable-form" onClick={stopClickPropagation}>
+    <div className="other-variable-form" onClick={(e) => e.stopPropagation()}>
       <form onSubmit={handleSubmit}>
         <div className="other-variable-form__content">
           <div className="other-variable-form__content-left">
-            <Node label={label} color={color} />
+            <Node {...node} />
           </div>
           <div className="other-variable-form__content-right">
             <h4>
-              <MarkdownLabel inline label={otherVariablePrompt} />
+              <MarkdownLabel inline label={prompt} />
             </h4>
             <Field
               label=""
@@ -56,12 +68,6 @@ const OtherVariableForm = ({
   );
 };
 
-OtherVariableForm.propTypes = {
-  otherVariablePrompt: PropTypes.string.isRequired,
-  handleSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-};
-
-export default reduxForm({ form: 'otherVariableForm' })(OtherVariableForm);
+export default reduxForm<FormValues, OtherVariableFormOwnProps>({
+  form: 'otherVariableForm',
+})(OtherVariableForm);

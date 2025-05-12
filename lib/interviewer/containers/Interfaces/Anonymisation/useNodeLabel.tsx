@@ -3,14 +3,11 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  getCodebookForNodeType,
-  makeGetCodebookForNodeType,
-} from '~/lib/interviewer/selectors/protocol';
+import { getCodebookForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
-import { useMakeNodeAttributes, useNodeAttributes } from './useNodeAttributes';
+import { useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';
 
 export function useNodeLabel(node: NcNode) {
@@ -54,41 +51,4 @@ export function useNodeLabel(node: NcNode) {
   }, [codebook, getById, node]);
 
   return label;
-}
-
-// As above but returning a function that takes a node
-export function useNodeLabeller() {
-  const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
-  const getById = useMakeNodeAttributes();
-
-  const getNodeLabel = useCallback(
-    async (node: NcNode): Promise<string> => {
-      const codebook = getCodebookForNodeType(node.type);
-      const labelAttributeId = getNodeLabelAttribute(
-        codebook?.variables,
-        node[entityAttributesProperty],
-      );
-
-      if (labelAttributeId) {
-        try {
-          const labelValue = await getById(node)(labelAttributeId);
-          if (
-            (labelValue && typeof labelValue === 'string') ||
-            typeof labelValue === 'number'
-          ) {
-            return String(labelValue);
-          }
-        } catch (e) {
-          if (e instanceof UnauthorizedError) {
-            return '🔒';
-          }
-        }
-      }
-
-      return codebook?.name ?? node[entityPrimaryKeyProperty];
-    },
-    [getCodebookForNodeType, getById],
-  );
-
-  return getNodeLabel;
 }

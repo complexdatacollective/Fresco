@@ -1,29 +1,30 @@
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { DragSource } from '../behaviours/DragAndDrop';
 import { NO_SCROLL } from '../behaviours/DragAndDrop/DragManager';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
-import createSorter from '../utils/createSorter';
+import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import Node from './Node';
 import { NodeTransition } from './NodeList';
 
 const EnhancedNode = DragSource(Node);
 
+type MultiNodeBucketProps = {
+  nodes: NcNode[];
+  itemType?: string;
+  listId: string;
+  sortOrder?: ProcessedSortRule[];
+};
+
 const MultiNodeBucket = memo(
-  (props) => {
-    const {
-      nodes = [],
-      sortOrder = [],
-      label = () => '',
-      itemType = 'NODE',
-    } = props;
+  (props: MultiNodeBucketProps) => {
+    const { nodes = [], sortOrder = [], itemType = 'NODE' } = props;
 
     const [stagger] = useState(true);
 
-    const sorter = createSorter(sortOrder); // Uses the new sortOrder via withPrompt
+    const sorter = useMemo(() => createSorter<NcNode>(sortOrder), [sortOrder]);
     const sortedNodes = sorter(nodes);
 
     // Set the ready to advance state when there are no items left in the bucket
@@ -52,7 +53,6 @@ const MultiNodeBucket = memo(
             >
               <EnhancedNode
                 allowDrag={index === 0}
-                label={`${label(node)}`}
                 meta={() => ({ ...node, itemType })}
                 scrollDirection={NO_SCROLL}
                 {...node}
@@ -72,14 +72,7 @@ const MultiNodeBucket = memo(
     return false;
   },
 );
-MultiNodeBucket.displayName = 'MultiNodeBucket';
 
-MultiNodeBucket.propTypes = {
-  nodes: PropTypes.array,
-  itemType: PropTypes.string,
-  label: PropTypes.func,
-  listId: PropTypes.string.isRequired,
-  sortOrder: PropTypes.array,
-};
+MultiNodeBucket.displayName = 'MultiNodeBucket';
 
 export default MultiNodeBucket;

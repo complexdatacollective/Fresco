@@ -1,14 +1,20 @@
+import {
+  type ComponentType,
+  ComponentTypes,
+} from '@codaco/protocol-validation';
 import { get } from 'es-toolkit/compat';
-import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 import { useStore } from 'react-redux';
 import { Field as ReduxFormField } from 'redux-form';
 import * as Fields from '~/lib/ui/components/Fields';
+import { type AppStore } from '../store';
+import {
+  getValidation,
+  type ValidationFunction,
+  type VariableValidation,
+} from '../utils/field-validation';
 
-import { ComponentTypes } from '@codaco/protocol-validation';
-import { getValidation } from '../utils/field-validation';
-
-const ComponentTypeNotFound = (componentType) => {
+const ComponentTypeNotFound = (componentType: string) => {
   const ComponentTypeNotFoundInner = () => (
     <div>Input component &quot;{componentType}&quot; not found.</div>
   );
@@ -21,7 +27,7 @@ const ComponentTypeNotFound = (componentType) => {
   or else it just returns a text input
   * @param {object} field The properties handed down from the protocol form
   */
-const getInputComponent = (componentType = 'Text') => {
+const getInputComponent = (componentType: ComponentType = 'Text') => {
   const def = get(ComponentTypes, componentType);
   return get(Fields, def, ComponentTypeNotFound(componentType));
 };
@@ -35,14 +41,29 @@ const getInputComponent = (componentType = 'Text') => {
  * @param {object} validation Validation methods
  */
 
-const Field = ({ label = '', name, validation = {}, ...rest }) => {
-  const store = useStore();
+type FieldProps = {
+  label?: string;
+  name: string;
+  component: ComponentType;
+  placeholder?: string;
+  validation?: VariableValidation;
+  validate?: ValidationFunction;
+};
+type FieldComponent = React.ComponentType<FieldProps>;
+
+const Field: FieldComponent = ({
+  label = '',
+  name,
+  validation = {},
+  ...rest
+}) => {
+  const store = useStore() as AppStore;
   const component = useMemo(
     () => getInputComponent(rest.component),
     [rest.component],
   );
   const validate = useMemo(
-    () => rest.validate || getValidation(validation, store),
+    () => rest.validate ?? getValidation(validation, store),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [store],
   );
@@ -56,14 +77,6 @@ const Field = ({ label = '', name, validation = {}, ...rest }) => {
       validate={validate}
     />
   );
-};
-
-Field.propTypes = {
-  label: PropTypes.string,
-  name: PropTypes.string.isRequired,
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
-  validation: PropTypes.object,
-  validate: PropTypes.array,
 };
 
 export default Field;

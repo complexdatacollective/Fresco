@@ -478,6 +478,10 @@ const sessionReducer = createReducer(initialState, (builder) => {
     const { network } = state;
     const { nodes } = network;
 
+    // TODO: must be updated to support encrypted attributes.
+    // Should have an additional parameter controlling this (see addNode)
+    // Stage should control this parameter, using the usePassphrase hook
+
     return withLastUpdated({
       ...state,
       network: {

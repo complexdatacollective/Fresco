@@ -24,7 +24,7 @@ export const getAdditionalAttributesSelector = createSelector(
 
 export const getPromptVariable = createSelector(getCurrentPrompt, (prompt) => {
   if (!prompt || !('variable' in prompt)) {
-    return null;
+    return undefined;
   }
 
   return prompt.variable;
@@ -34,17 +34,17 @@ export const getPromptOtherVariable = createSelector(
   getCurrentPrompt,
   (prompt) => {
     if (
-      prompt &&
-      'otherVariable' in prompt &&
-      'otherOptionLabel' in prompt &&
-      'otherVariablePrompt' in prompt
+      !prompt ||
+      !('otherVariable' in prompt) ||
+      !('otherOptionLabel' in prompt) ||
+      !('otherVariablePrompt' in prompt)
     ) {
-      const otherVariable = prompt.otherVariable as string;
-      const otherOptionLabel = prompt.otherOptionLabel as string;
-      const otherVariablePrompt = prompt.otherVariablePrompt as string;
-      return [otherVariable, otherOptionLabel, otherVariablePrompt];
+      return [undefined, undefined, undefined];
     }
 
-    return [undefined, undefined, undefined];
+    const otherVariable = prompt.otherVariable as string;
+    const otherOptionLabel = prompt.otherOptionLabel as string;
+    const otherVariablePrompt = prompt.otherVariablePrompt as string;
+    return [otherVariable, otherOptionLabel, otherVariablePrompt];
   },
 );

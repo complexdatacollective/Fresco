@@ -419,7 +419,7 @@ export const processProtocolSortRule =
 
 export type Direction = 'asc' | 'desc';
 
-type ProcessedSortRule = {
+export type ProcessedSortRule = {
   property: string | string[];
   direction?: Direction;
   type: SortType; // Note: this is *not* the same as NC variable types. See createSorter.

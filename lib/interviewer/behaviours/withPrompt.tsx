@@ -1,73 +1,46 @@
 import {
+  type Prompt as BasePrompt,
   type EntityDefinition,
-  type Prompt,
 } from '@codaco/protocol-validation';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePrompt } from '../ducks/modules/session';
 import { getAllVariableUUIDsByEntity } from '../selectors/protocol';
 import { getPromptIndex, getPrompts } from '../selectors/session';
-import { processProtocolSortRule } from '../utils/createSorter';
+import {
+  type ProcessedSortRule,
+  processProtocolSortRule,
+  type ProtocolSortRule,
+} from '../utils/createSorter';
 
-/**
- * Convert sort rules to new format. See `processProtocolSortRule` for details.
- * @param {Array} prompts
- * @param {Object} codebookVariables
- * @returns {Array}
- * @private
- */
-
-type MaybePrompt = Prompt & {
-  bucketSortOrder?: {
-    property: string;
-    direction?: 'asc' | 'desc';
-    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-  }[];
-  binSortOrder?: {
-    property: string;
-    direction?: 'asc' | 'desc';
-    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-  }[];
+// Extended Prompt type with sort properties
+type Prompt = BasePrompt & {
+  bucketSortOrder?: ProtocolSortRule[];
+  binSortOrder?: ProtocolSortRule[];
 };
 
 const processSortRules = (
-  prompts: MaybePrompt[] = [],
+  prompts: Prompt[],
   codebookVariables: EntityDefinition['variables'],
 ) => {
   const sortProperties = ['bucketSortOrder', 'binSortOrder'] as const;
 
-  const ruleProcessor = processProtocolSortRule(codebookVariables) as (rule: {
-    property: string;
-    direction?: 'asc' | 'desc';
-    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-  }) => {
-    property: string;
-    direction?: 'asc' | 'desc';
-    type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-  } & Record<string, unknown>;
+  const ruleProcessor = processProtocolSortRule(codebookVariables);
 
   return prompts.map((prompt) => {
-    const sortOptions = {} as {
-      bucketSortOrder?: {
-        property: string;
-        direction?: 'asc' | 'desc';
-        type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-      }[];
-      binSortOrder?: {
-        property: string;
-        direction?: 'asc' | 'desc';
-        type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-      }[];
-    };
+    const sortOptions = {} as Record<
+      (typeof sortProperties)[number],
+      ProcessedSortRule[]
+    >;
 
     sortProperties.forEach((property) => {
       if (property in prompt) {
-        const sortRules = prompt[property] as unknown as {
-          property: string;
-          direction?: 'asc' | 'desc';
-          type?: 'string' | 'number' | 'date' | 'boolean' | 'hierarchy';
-        }[]; // todo: replace with sortOrder schema from protocol-validation
-        sortOptions[property] = sortRules.map(ruleProcessor);
+        const sortRules = prompt[property as keyof Prompt] as
+          | ProtocolSortRule[]
+          | undefined;
+        if (sortRules) {
+          sortOptions[property] = sortRules.map(ruleProcessor);
+        }
       }
     });
     return {
@@ -114,7 +87,7 @@ const processSortRules = (
  * updatePrompt,
  * } = usePrompts();
  */
-export const usePrompts = <T extends object = MaybePrompt>() => {
+export const usePrompts = <T extends object = Prompt>() => {
   const dispatch = useDispatch();
   const setPrompt = useCallback(
     (promptIndex: number) => dispatch(updatePrompt(promptIndex)),
@@ -122,7 +95,7 @@ export const usePrompts = <T extends object = MaybePrompt>() => {
   );
 
   const codebookVariables = useSelector(getAllVariableUUIDsByEntity);
-  const prompts = useSelector(getPrompts) as (MaybePrompt & T)[];
+  const prompts = useSelector(getPrompts);
 
   const processedPrompts = processSortRules(prompts, codebookVariables) as T[];
 
@@ -141,7 +114,7 @@ export const usePrompts = <T extends object = MaybePrompt>() => {
   };
 
   const currentPrompt = () => {
-    return processedPrompts[promptIndex] ?? ({ id: null } as MaybePrompt & T);
+    return processedPrompts[promptIndex] ?? ({ id: null } as Prompt & T);
   };
 
   return {

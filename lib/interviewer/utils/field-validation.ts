@@ -17,7 +17,7 @@ export type FieldValue = VariableValue | undefined;
 
 // Approximated from the description in the redux-form documentation
 // https://redux-form.com/8.3.0/docs/api/field.md/#input-props
-type ValidationFunction = (
+export type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
   props: Record<string, unknown>,
@@ -357,6 +357,9 @@ export const lessThanVariable = (variableId: string, store: AppStore) => {
 
 // Type representing a variable with a validation object
 type VariableWithValidation = Extract<Variable, { validation?: unknown }>;
+export type VariableValidation = NonNullable<
+  VariableWithValidation['validation']
+>;
 
 const validations = {
   required,
@@ -384,13 +387,17 @@ const validations = {
  * @returns {function} The validation function
  */
 export const getValidation = (
-  validation: NonNullable<VariableWithValidation['validation']> &
-    Record<string, ValidationFunction>,
+  validation: VariableValidation | Record<string, ValidationFunction>,
   store: AppStore,
 ) => {
   const entries = Object.entries(validation);
 
   return entries.map(([type, options]) => {
+    // Allow custom validations by specifying a function
+    if (typeof options === 'function') {
+      return options as ValidationFunction;
+    }
+
     if (type in validations) {
       const fn = validations[type as keyof typeof validations];
       // Cast the function to accept any type for options since we know it's from our validations
@@ -398,11 +405,6 @@ export const getValidation = (
         options,
         store,
       );
-    }
-
-    // Allow custom validations by specifying a function
-    if (typeof options === 'function') {
-      return options;
     }
 
     return () => `Validation "${type}" not found`;

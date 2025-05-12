@@ -38,8 +38,12 @@ export const useNodeAttributes = (
     getCodebookVariablesForNodeType(node.type),
   );
   const nodeAttributes = getEntityAttributes(node);
-  const { requirePassphrase, setPassphraseInvalid, isEnabled } =
-    usePassphrase();
+  const {
+    requirePassphrase,
+    setPassphraseInvalid,
+    isEnabled,
+    passphraseInvalid,
+  } = usePassphrase();
 
   const getById = useCallback(
     async <T extends VariableValue>(
@@ -87,7 +91,9 @@ export const useNodeAttributes = (
         // the passphrase was incorrect, or there was another kind of error.
         // In either case the only thing we can do is to set the invalid passphrase
         // state so that the user can try again.
-        setPassphraseInvalid(true);
+        if (!passphraseInvalid) {
+          setPassphraseInvalid(true);
+        }
 
         // eslint-disable-next-line no-console
         console.error(e);
@@ -100,6 +106,7 @@ export const useNodeAttributes = (
       node,
       requirePassphrase,
       setPassphraseInvalid,
+      passphraseInvalid,
       isEnabled,
     ],
   );
@@ -153,8 +160,12 @@ export const useNodeAttributes = (
 
 // As above, except that it returns a function that takes a node, and only implements getById
 export function useMakeNodeAttributes() {
-  const { requirePassphrase, setPassphraseInvalid, isEnabled } =
-    usePassphrase();
+  const {
+    requirePassphrase,
+    setPassphraseInvalid,
+    isEnabled,
+    passphraseInvalid,
+  } = usePassphrase();
   const getCodebookVariablesForNodeType = useSelector(
     makeGetCodebookForNodeType,
   );
@@ -208,8 +219,9 @@ export function useMakeNodeAttributes() {
         // If we get here, the decryption failed. This is either because
         // the passphrase was incorrect, or there was another kind of error.
         // In either case the only thing we can do
-
-        setPassphraseInvalid(true);
+        if (!passphraseInvalid) {
+          setPassphraseInvalid(true);
+        }
         // eslint-disable-next-line no-console
         console.error(e);
         return '⚠️' as unknown as T;

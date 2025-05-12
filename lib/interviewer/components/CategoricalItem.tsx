@@ -1,19 +1,48 @@
+import { type Prompt } from '@codaco/protocol-validation';
+import { type NcNode } from '@codaco/shared-consts';
 import cx from 'classnames';
-import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 import { Flipped } from 'react-flip-toolkit';
-import { compose, withProps, withState } from 'recompose';
+import { compose, withProps } from 'recompose';
 import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import { DropTarget, MonitorDropTarget } from '../behaviours/DragAndDrop';
-import createSorter from '../utils/createSorter';
+import { usePrompts } from '../behaviours/withPrompt';
+import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
+import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import NodeList from './NodeList';
+
+const Details = ({ nodes }: { nodes: NcNode[] }) => {
+  const label = useNodeLabel(nodes[0]!);
+  const count = nodes.length - 1;
+  return (
+    <h5>
+      {label}
+      {count > 0 ? ` and ${count} other${count > 1 ? 's' : ''}` : ''}
+    </h5>
+  );
+};
+
+type CategoricalItemProps = {
+  id: string;
+  label: string;
+  accentColor: string;
+  onDrop: (props: { meta: NcNode }) => void;
+  onClick: () => void;
+  onClickItem: (node: NcNode) => void;
+  isExpanded: boolean;
+  nodes: NcNode[];
+};
+
+type InnerCategoricalProps = CategoricalItemProps & {
+  isOver?: boolean;
+  willAccept?: boolean;
+};
 
 /**
  * Renders a droppable CategoricalBin item
  */
 const CategoricalItem = ({
   accentColor = 'black',
-  details = '',
   id,
   isExpanded = false,
   isOver = false,
@@ -21,9 +50,12 @@ const CategoricalItem = ({
   nodes = [],
   onClick,
   onClickItem,
-  sortOrder = [],
   willAccept = false,
-}) => {
+}: InnerCategoricalProps) => {
+  const {
+    prompt: { sortOrder },
+  } = usePrompts<Prompt & { sortOrder: ProcessedSortRule[] }>();
+
   const classNames = cx(
     'categorical-item',
     { 'categorical-item--hover': willAccept && isOver },
@@ -32,14 +64,18 @@ const CategoricalItem = ({
 
   const sortedNodes = useMemo(
     () => createSorter(sortOrder)(nodes),
-    [nodes, sortOrder]
+    [nodes, sortOrder],
   );
   return (
     <Flipped flipId={id}>
       <div
         className={classNames}
+        // @ts-expect-error need to update CSS global types
         style={{ '--categorical-item-color': accentColor }}
-        onClick={onClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
       >
         <div className="categorical-item__disk" />
         <div className="categorical-item__inner">
@@ -48,11 +84,7 @@ const CategoricalItem = ({
               <h3>
                 <MarkdownLabel inline label={label} />
               </h3>
-              {!isExpanded && details && (
-                <h5>
-                  <MarkdownLabel inline label={details} />
-                </h5>
-              )}
+              {!isExpanded && nodes.length > 0 && <Details nodes={nodes} />}
             </div>
           </Flipped>
           {isExpanded && (
@@ -71,27 +103,11 @@ const CategoricalItem = ({
   );
 };
 
-CategoricalItem.propTypes = {
-  accentColor: PropTypes.string,
-  details: PropTypes.string,
-  id: PropTypes.string.isRequired,
-  isExpanded: PropTypes.bool,
-  isOver: PropTypes.bool,
-  label: PropTypes.string,
-  nodes: PropTypes.array,
-  onClick: PropTypes.func,
-  onClickItem: PropTypes.func,
-  sortOrder: PropTypes.array,
-  willAccept: PropTypes.bool,
-};
-
-export default compose(
-  withState('recentNode', 'setRecentNode', {}),
-  withProps((props) => ({
+export default compose<InnerCategoricalProps, CategoricalItemProps>(
+  withProps((props: CategoricalItemProps) => ({
     accepts: () => true,
-    onDrop: ({ meta }) => {
+    onDrop: ({ meta }: { meta: NcNode }) => {
       props.onDrop({ meta });
-      props.setRecentNode(meta);
     },
   })),
   DropTarget,
