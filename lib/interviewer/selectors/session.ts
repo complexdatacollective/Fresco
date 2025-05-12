@@ -79,11 +79,11 @@ const hasPrompts = (
 
 export const getPrompts = createSelector(getCurrentStage, (stage) => {
   if (!stage) {
-    return null;
+    return [];
   }
 
   if (!hasPrompts(stage)) {
-    return null;
+    return [];
   }
 
   return stage.prompts;
@@ -100,10 +100,9 @@ export const getCurrentPrompt = createSelector(
   getPrompts,
   getPromptIndex,
   (prompts, promptIndex) => {
-    invariant(
-      prompts[promptIndex],
-      'getCurrentPrompt: No prompt found for index',
-    );
+    if (!prompts) {
+      return null;
+    }
     return prompts[promptIndex];
   },
 );

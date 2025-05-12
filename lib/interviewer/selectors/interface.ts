@@ -1,9 +1,10 @@
 import { type Variable } from '@codaco/protocol-validation';
+import { entityAttributesProperty } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
 import { getCodebook } from '../ducks/modules/protocol';
 import { getPromptOtherVariable, getPromptVariable } from './prop';
-import { getSubjectType } from './session';
+import { getNetworkNodesForType, getSubjectType } from './session';
 
 // Selectors that are generic between interfaces
 
@@ -56,3 +57,20 @@ export const makeGetVariableOptions = (includeOtherVariable = false) =>
         : optionValues;
     },
   );
+
+export const getUncategorisedNodes = createSelector(
+  getPromptVariable,
+  getPromptOtherVariable,
+  getNetworkNodesForType,
+  (activePromptVariable, [promptOtherVariable], stageNodes) => {
+    if (!activePromptVariable || !promptOtherVariable) {
+      return stageNodes;
+    }
+
+    return stageNodes.filter(
+      (node) =>
+        !node[entityAttributesProperty][activePromptVariable] &&
+        !node[entityAttributesProperty][promptOtherVariable],
+    );
+  },
+);

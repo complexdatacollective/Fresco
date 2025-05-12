@@ -46,8 +46,6 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
   const nodes = useSelector(getNetworkNodesForType);
   const edges = useSelector(getNetworkEdges);
 
-  console.log('nodes', nodes);
-
   const sortedSource = useSortedNodeList(nodes, bucketSortOrder);
 
   const source = sortedSource[currentStep]!;
