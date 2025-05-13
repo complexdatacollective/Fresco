@@ -20,9 +20,13 @@ type Prompt = BasePrompt & {
 };
 
 const processSortRules = (
-  prompts: Prompt[],
+  prompts: Prompt[] | null,
   codebookVariables: EntityDefinition['variables'],
 ) => {
+  if (!prompts) {
+    return [];
+  }
+
   const sortProperties = ['bucketSortOrder', 'binSortOrder'] as const;
 
   const ruleProcessor = processProtocolSortRule(codebookVariables);
@@ -100,8 +104,8 @@ export const usePrompts = <T extends object = Prompt>() => {
   const processedPrompts = processSortRules(prompts, codebookVariables) as T[];
 
   const promptIndex = useSelector(getPromptIndex);
-  const isFirstPrompt = prompts.length === 0;
-  const isLastPrompt = promptIndex === prompts.length - 1;
+  const isFirstPrompt = processedPrompts.length === 0;
+  const isLastPrompt = promptIndex === processedPrompts.length - 1;
 
   const promptForward = () => {
     updatePrompt((promptIndex + 1) % processedPrompts.length);
