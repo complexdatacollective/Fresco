@@ -1,4 +1,4 @@
-import type { Codebook, Stage } from '@codaco/protocol-validation';
+import type { Codebook } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type NcNetwork,
@@ -70,23 +70,16 @@ export const getPromptIndex = createSelector(
   (session) => session?.promptIndex ?? 0,
 );
 
-// Define a type guard to narrow the stage type
-const hasPrompts = (
-  stage: Stage,
-): stage is Extract<Stage, { prompts: unknown }> => {
-  return 'prompts' in stage;
-};
-
 export const getPrompts = createSelector(getCurrentStage, (stage) => {
   if (!stage) {
-    return [];
+    return null;
   }
 
-  if (!hasPrompts(stage)) {
-    return [];
+  if ('prompts' in stage) {
+    return stage.prompts;
   }
 
-  return stage.prompts;
+  return null;
 });
 
 export const stagePromptIds = createSelector(getPrompts, (prompts) => {
@@ -103,6 +96,7 @@ export const getCurrentPrompt = createSelector(
     if (!prompts) {
       return null;
     }
+
     return prompts[promptIndex];
   },
 );
@@ -187,6 +181,7 @@ const getPropStageFilter = createSelector(getCurrentStage, (stage) => {
   if (!stage) {
     return null;
   }
+
   if ('filter' in stage) {
     return stage.filter;
   }
