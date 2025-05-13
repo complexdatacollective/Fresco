@@ -146,6 +146,8 @@ export const addNode = createAsyncThunk(
       ...attributeData,
     };
 
+    console.log('Merged attributes:', useEncryption);
+
     const sessionMeta = getSessionMeta(state);
 
     if (!useEncryption) {

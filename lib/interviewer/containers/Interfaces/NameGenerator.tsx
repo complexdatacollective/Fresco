@@ -147,14 +147,15 @@ const NameGenerator = (props: NameGeneratorProps) => {
   );
 
   const addNode = useCallback(
-    (attributes: NcNode[EntityAttributesProperty]) =>
-      dispatch(
+    (attributes: NcNode[EntityAttributesProperty]) => {
+      void dispatch(
         addNodeAction({
           type: stage.subject.type,
           attributeData: attributes,
           useEncryption,
         }),
-      ),
+      );
+    },
     [dispatch, stage.subject.type, useEncryption],
   );
 
@@ -247,6 +248,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
           form={form}
           disabled={maxNodesReached || (useEncryption && !passphrase)}
           onClose={() => setSelectedNode(null)}
+          addNode={addNode}
         />
       )}
       {!form && (
@@ -254,6 +256,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
           disabled={maxNodesReached || (useEncryption && !passphrase)}
           targetVariable={quickAdd!}
           onShowForm={() => setShowMinWarning(false)}
+          addNode={addNode}
         />
       )}
     </div>

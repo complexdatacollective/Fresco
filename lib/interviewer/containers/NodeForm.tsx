@@ -11,10 +11,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { submit } from 'redux-form';
-import {
-  addNode as addNodeAction,
-  updateNode as updateNodeAction,
-} from '~/lib/interviewer/ducks/modules/session';
+import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
@@ -31,10 +28,11 @@ type NodeFormProps = {
   form: TForm;
   disabled: boolean;
   onClose: () => void;
-}
+  addNode: (attributes: NcNode[EntityAttributesProperty]) => void;
+};
 
 const NodeForm = (props: NodeFormProps) => {
-  const { selectedNode, form, disabled, onClose } = props;
+  const { selectedNode, form, disabled, onClose, addNode } = props;
 
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
@@ -45,17 +43,6 @@ const NodeForm = (props: NodeFormProps) => {
 
   const dispatch = useAppDispatch();
   const submitForm = () => dispatch(submit(reduxFormName));
-
-  const addNode = useCallback(
-    (attributes: NcNode[EntityAttributesProperty]) =>
-      dispatch(
-        addNodeAction({
-          type: subject.type,
-          attributeData: attributes,
-        }),
-      ),
-    [dispatch, subject],
-  );
 
   const updateNode = useCallback(
     (payload: {
@@ -71,7 +58,7 @@ const NodeForm = (props: NodeFormProps) => {
   const handleSubmit = useCallback(
     (formData: Record<string, VariableValue>) => {
       if (!selectedNode) {
-        void addNode({ ...newNodeAttributes, ...formData });
+        addNode({ ...newNodeAttributes, ...formData });
       } else {
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
         updateNode({ nodeId: selectedUID, newAttributeData: formData });

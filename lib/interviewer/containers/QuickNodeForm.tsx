@@ -5,7 +5,6 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { addNode as addNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Node } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
@@ -14,7 +13,6 @@ import {
   getNodeTypeLabel,
   getStageSubject,
 } from '../selectors/session';
-import { useAppDispatch } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
 const containerVariants = {
@@ -75,12 +73,14 @@ type QuickAddFormProps = {
   disabled: boolean;
   targetVariable: string;
   onShowForm: () => void;
-}
+  addNode: (attributes: NcNode[EntityAttributesProperty]) => void;
+};
 
 const QuickAddForm = ({
   disabled,
   targetVariable,
   onShowForm,
+  addNode,
 }: QuickAddFormProps) => {
   const [showForm, setShowForm] = useState(false);
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -92,19 +92,6 @@ const QuickAddForm = ({
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const nodeColor = useSelector(getNodeColor(subject.type));
   const icon = useSelector(getNodeIconName);
-
-  const dispatch = useAppDispatch();
-
-  const addNode = useCallback(
-    (attributes: NcNode[EntityAttributesProperty]) =>
-      dispatch(
-        addNodeAction({
-          type: subject.type,
-          attributeData: attributes,
-        }),
-      ),
-    [dispatch, subject],
-  );
 
   const handleBlur = () => {
     setNodeLabel('');
