@@ -15,8 +15,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.28(@babel/core@7.27.1)(@playwright/test@1.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.88.0))
       '@codaco/protocol-validation':
-        specifier: 4.0.0-alpha.10
-        version: 4.0.0-alpha.10
+        specifier: 4.0.0-alpha.11
+        version: 4.0.0-alpha.11
       '@codaco/shared-consts':
         specifier: 1.0.0-alpha.3
         version: 1.0.0-alpha.3
@@ -589,8 +589,8 @@ packages:
     peerDependencies:
       next: 13 || 14 || 15
 
-  '@codaco/protocol-validation@4.0.0-alpha.10':
-    resolution: {integrity: sha512-9WQvX4JbC+WuYSgRqna5Cs/mxAgq3FAD3+AIsK1zpTuS70sdug5c4etXeJ4T4JuG0x5+LCkAgd44LB0H/ATmKg==}
+  '@codaco/protocol-validation@4.0.0-alpha.11':
+    resolution: {integrity: sha512-rCcqlHTh+p18fWFbxmeq/J3nkE3TXZkIvhtub+ZsvR5JRqmefQYIq5zWHC+ygu0Ke4bYUNSPvLXdozmFdbQ5kQ==}
     hasBin: true
 
   '@codaco/shared-consts@1.0.0-alpha.3':
@@ -5958,7 +5958,7 @@ snapshots:
       next: 14.2.28(@babel/core@7.27.1)(@playwright/test@1.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.88.0)
       zod: 3.24.4
 
-  '@codaco/protocol-validation@4.0.0-alpha.10':
+  '@codaco/protocol-validation@4.0.0-alpha.11':
     dependencies:
       ajv: 8.17.1
       zod: 3.24.4
