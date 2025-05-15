@@ -63,14 +63,15 @@ export const getUncategorisedNodes = createSelector(
   getPromptOtherVariable,
   getNetworkNodesForType,
   (activePromptVariable, [promptOtherVariable], stageNodes) => {
-    if (!activePromptVariable || !promptOtherVariable) {
+    if (!activePromptVariable) {
       return stageNodes;
     }
 
     return stageNodes.filter(
       (node) =>
-        !node[entityAttributesProperty][activePromptVariable] &&
-        !node[entityAttributesProperty][promptOtherVariable],
+        !node[entityAttributesProperty]?.[activePromptVariable] &&
+        (!promptOtherVariable ||
+          !node[entityAttributesProperty]?.[promptOtherVariable]),
     );
   },
 );
