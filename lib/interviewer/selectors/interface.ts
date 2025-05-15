@@ -1,7 +1,6 @@
 import { type Variable } from '@codaco/protocol-validation';
 import { entityAttributesProperty } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import { invariant } from 'es-toolkit';
 import { getCodebook } from '../ducks/modules/protocol';
 import { getPromptOtherVariable, getPromptVariable } from './prop';
 import { getNetworkNodesForType, getSubjectType } from './session';
@@ -20,9 +19,7 @@ export const getNodeVariables = createSelector(
   (codebook, nodeType) => {
     const nodeInfo = codebook.node;
 
-    invariant(nodeType, 'No node type!');
-
-    return nodeInfo?.[nodeType]?.variables ?? {};
+    return nodeType ? (nodeInfo?.[nodeType]?.variables ?? {}) : {};
   },
 );
 
