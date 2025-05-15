@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { makeGetCodebookForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { useNodeAttributes } from './useNodeAttributes';
+import { usePassphrase } from './usePassphrase';
 import { UnauthorizedError } from './utils';
 
 // Will speed up if the same node is rendered in multiple places.
@@ -16,6 +17,7 @@ const labelCache = new Map<string, string>();
 export function useNodeLabel(node: NcNode): string {
   const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
   const codebook = getCodebookForNodeType(node.type);
+  const { passphrase } = usePassphrase();
 
   const labelAttributeId = getNodeLabelAttribute(
     codebook?.variables ?? {},
@@ -53,7 +55,7 @@ export function useNodeLabel(node: NcNode): string {
         }
       }
     })();
-  }, [labelAttributeId, codebook, getById, node]);
+  }, [labelAttributeId, codebook, getById, node, passphrase]);
 
   return label;
 }
