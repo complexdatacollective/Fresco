@@ -3,8 +3,10 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { useEffect, useState } from 'react';
+import { objectHash } from 'ohash';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import usePrevious from '~/hooks/usePrevious';
 import { makeGetCodebookForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { useNodeAttributes } from './useNodeAttributes';
@@ -18,6 +20,9 @@ export function useNodeLabel(node: NcNode): string {
   const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
   const codebook = getCodebookForNodeType(node.type);
   const { passphrase } = usePassphrase();
+  const prevPassphrase = usePrevious(passphrase);
+
+  const cacheKey = useMemo(() => objectHash(node), [node]);
 
   const labelAttributeId = getNodeLabelAttribute(
     codebook?.variables ?? {},
@@ -30,15 +35,16 @@ export function useNodeLabel(node: NcNode): string {
   useEffect(() => {
     const fallback = codebook?.name ?? node[entityPrimaryKeyProperty];
 
-    if (!labelAttributeId) {
-      setLabel(fallback);
-      return;
+    // Only check the cache if the passphrase is the same, to allow revalidating
+    if (prevPassphrase === passphrase) {
+      if (labelCache.has(cacheKey)) {
+        setLabel(labelCache.get(cacheKey)!);
+        return;
+      }
     }
 
-    const cacheKey = `${node[entityPrimaryKeyProperty]}:${labelAttributeId}`;
-
-    if (labelCache.has(cacheKey)) {
-      setLabel(labelCache.get(cacheKey)!);
+    if (!labelAttributeId) {
+      setLabel(fallback);
       return;
     }
 
@@ -55,7 +61,15 @@ export function useNodeLabel(node: NcNode): string {
         }
       }
     })();
-  }, [labelAttributeId, codebook, getById, node, passphrase]);
+  }, [
+    labelAttributeId,
+    codebook,
+    node,
+    getById,
+    cacheKey,
+    passphrase,
+    prevPassphrase,
+  ]);
 
   return label;
 }

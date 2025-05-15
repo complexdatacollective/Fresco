@@ -36,9 +36,18 @@ export default function PassphrasePrompter() {
   );
 
   useEffect(() => {
-    setTimeout(() => {
-      setShowTooltip(true);
-    }, 1000);
+    let timeout: NodeJS.Timeout | null = null;
+    if (passphraseInvalid) {
+      timeout = setTimeout(() => {
+        setShowTooltip(true);
+      }, 500);
+    }
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [passphraseInvalid]);
 
   return (
