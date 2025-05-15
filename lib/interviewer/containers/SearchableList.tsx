@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useId, useMemo } from 'react';
 import Search from '~/lib/ui/components/Fields/Search';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
+import { cn } from '~/utils/shadcn';
 import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
 import Loading from '../components/Loading';
 import Panel from '../components/Panel';
@@ -19,17 +20,24 @@ const SortButton = ({
   label,
   isActive,
   sortDirection,
+  disabled,
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   color: string;
   isActive: boolean;
   sortDirection: Direction;
   label: string;
+  disabled?: boolean;
 }) => (
   <button
     {...rest}
     tabIndex={0}
-    className={`filter-button ${isActive ? 'filter-button--active' : ''}`}
+    disabled={disabled}
+    className={cn(
+      'filter-button',
+      isActive && 'filter-button--active',
+      disabled && 'pointer-events-none cursor-not-allowed opacity-50',
+    )}
     color={color}
   >
     {label}
@@ -195,12 +203,12 @@ const SearchableList = (props: SearchableListProps) => {
             {hasQuery && (
               <div
                 className={`filter-button ${
-                  isEqual(sortByProperty, ['relevance'])
+                  isEqual(sortByProperty, 'relevance')
                     ? 'filter-button--active'
                     : ''
                 }`}
                 onClick={() => {
-                  setSortByProperty(['relevance']);
+                  setSortByProperty('relevance');
                   setSortType('number');
                   setSortDirection('desc');
                 }}
@@ -208,8 +216,6 @@ const SearchableList = (props: SearchableListProps) => {
                 tabIndex={0}
               >
                 Relevance
-                {isEqual(sortByProperty, ['relevance']) &&
-                  (sortDirection === 'asc' ? ' \u25B2' : ' \u25BC')}
               </div>
             )}
             {sortableProperties?.map(({ property, type, label }) => {
@@ -229,6 +235,7 @@ const SearchableList = (props: SearchableListProps) => {
                   label={label}
                   isActive={isActive}
                   sortDirection={sortDirection}
+                  disabled={hasQuery}
                 />
               );
             })}

@@ -100,7 +100,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
       return true;
     }
 
-    // To set this, we need to work out if addina a node based on the items
+    // To set this, we need to work out if adding a node based on the items
     // will require encryption. This will be the case if any of the external
     // data item keys match with the name property of any codebook variables
     // for the node type (meaning that they will be transposed to the when

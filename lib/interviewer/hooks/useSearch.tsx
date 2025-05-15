@@ -1,8 +1,12 @@
 import { entityAttributesProperty } from '@codaco/shared-consts';
+import { compact, flatten } from 'es-toolkit';
 import Fuse, { type Expression } from 'fuse.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import useFuseOptions from '../containers/Interfaces/NameGeneratorRoster/useFuseOptions';
+import { useSelector } from 'react-redux';
+import { convertNamesToUUIDs } from '../containers/Interfaces/NameGeneratorRoster/helpers';
 import { type UseItemElement } from '../containers/Interfaces/NameGeneratorRoster/useItems';
+import { getNodeVariables } from '../selectors/interface';
+import { getSearchOptions } from '../selectors/name-generator';
 
 const MIN_QUERY_LENGTH = 1;
 const DEBOUNCE_DELAY = 500;
@@ -15,6 +19,8 @@ const defaultFuseOptions = {
   findAllMatches: true,
   useExtendedSearch: true,
 };
+
+const path = ['data', 'attributes'];
 
 // Variation of useState which includes a debounced value
 /**
@@ -59,6 +65,9 @@ const defaultFuseOptions = {
 const useSearch = <T extends UseItemElement>(
   list: T[],
 ): [T[], string, (query: string) => void, boolean, boolean] => {
+  const stageSearchOptions = useSelector(getSearchOptions);
+  const nodeVariables = useSelector(getNodeVariables);
+
   const delayRef = useRef<NodeJS.Timeout>();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<T[]>(list);
@@ -67,17 +76,30 @@ const useSearch = <T extends UseItemElement>(
   const hasQuery = useMemo(() => query.length >= MIN_QUERY_LENGTH, [query]);
   const isLargeList = useMemo(() => list.length > 100, [list]);
 
-  const options = useFuseOptions({
-    keys: Object.keys(list[0]?.data[entityAttributesProperty] ?? {}).map(
-      (attribute) => ['data', entityAttributesProperty, attribute],
-    ),
-    threshold: 0.6,
-  });
-
-  const fuseOptions = useMemo(
-    () => ({ ...defaultFuseOptions, ...options }),
-    [options],
+  const fallbackFuseOptions = useMemo(
+    () => ({
+      keys: Object.keys(list[0]?.data[entityAttributesProperty] ?? {}).map(
+        (attribute) => ['data', entityAttributesProperty, attribute],
+      ),
+      threshold: 0.6,
+    }),
+    [list],
   );
+
+  const fuseOptions = useMemo(() => {
+    if (!stageSearchOptions) {
+      return fallbackFuseOptions;
+    }
+
+    return {
+      ...defaultFuseOptions,
+      threshold: stageSearchOptions.fuzziness,
+      keys: convertNamesToUUIDs(
+        nodeVariables,
+        stageSearchOptions.matchProperties,
+      ).map((property) => flatten(compact([...path, property]))),
+    };
+  }, [stageSearchOptions, nodeVariables, fallbackFuseOptions]);
 
   const fuse = useMemo(() => new Fuse(list, fuseOptions), [list, fuseOptions]);
 
