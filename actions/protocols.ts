@@ -5,7 +5,7 @@ import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
-import { protocolInsertSchema } from '~/schemas/protocol';
+import { type protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { addEvent } from './activityFeed';
@@ -124,8 +124,7 @@ export async function insertProtocol(
 ) {
   await requireApiAuth();
 
-  const { protocol, protocolName, newAssets, existingAssetIds } =
-    protocolInsertSchema.parse(input);
+  const { protocol, protocolName, newAssets, existingAssetIds } = input;
 
   try {
     const protocolHash = hash(protocol);

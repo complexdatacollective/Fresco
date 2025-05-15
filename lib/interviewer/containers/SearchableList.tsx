@@ -15,14 +15,12 @@ import DropOverlay from './Interfaces/NameGeneratorRoster/DropOverlay';
 import { type UseItemElement } from './Interfaces/NameGeneratorRoster/useItems';
 
 const SortButton = ({
-  key,
   color,
   label,
   isActive,
   sortDirection,
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  key: string;
   color: string;
   isActive: boolean;
   sortDirection: Direction;
@@ -30,7 +28,6 @@ const SortButton = ({
 }) => (
   <button
     {...rest}
-    key={key}
     tabIndex={0}
     className={`filter-button ${isActive ? 'filter-button--active' : ''}`}
     color={color}
@@ -109,19 +106,31 @@ const SearchableList = (props: SearchableListProps) => {
     setSortType,
     setSortDirection,
     sortableProperties,
+    reset,
   ] = useSort(results);
 
   // When the user types a query, override the sort to sort by relevance
   useEffect(() => {
-    if (hasQuery) {
-      setSortByProperty(['relevance']);
+    if (hasQuery && !(sortByProperty === 'relevance')) {
+      setSortByProperty('relevance');
       setSortType('number');
       setSortDirection('desc');
       return;
     }
 
-    setSortByProperty();
-  }, [hasQuery, setSortDirection, setSortType, setSortByProperty]);
+    // If there's no query and the sortByProperty is relevance, reset to default
+    // sort order
+    if (!hasQuery && sortByProperty === 'relevance') {
+      reset();
+    }
+  }, [
+    hasQuery,
+    setSortByProperty,
+    setSortType,
+    setSortDirection,
+    reset,
+    sortByProperty,
+  ]);
 
   const filteredResults = useMemo(() => {
     if (!excludeItems || !sortedResults) {

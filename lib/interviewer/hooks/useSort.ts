@@ -1,5 +1,5 @@
-import { compact, isEqual } from 'es-toolkit';
-import { useMemo, useState } from 'react';
+import { compact, flatten, isEqual } from 'es-toolkit';
+import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { convertNamesToUUIDs } from '../containers/Interfaces/NameGeneratorRoster/helpers';
 import { type UseItemElement } from '../containers/Interfaces/NameGeneratorRoster/useItems';
@@ -50,39 +50,43 @@ const useSort = (
   (newProperty?: string | string[]) => void,
   (newType: SortType) => void,
   (newDirection: Direction) => void,
-  typeof sortableProperties,
+  { property: string[]; label: string; type: SortType }[] | undefined,
+  () => void,
 ] => {
   const nodeVariables = useSelector(getNodeVariables);
-  const sortOptions = useSelector(getSortOptions);
-  const sortOrder = useMemo(() => sortOptions?.sortOrder ?? [], [sortOptions]);
+  const stageSortOptions = useSelector(getSortOptions);
+  const stageSortOrder = useMemo(
+    () => stageSortOptions?.sortOrder ?? [],
+    [stageSortOptions],
+  );
 
   // Enhance
   const initialSortOrder = useMemo(() => {
-    const initialProperty = sortOrder[0]?.property
-      ? [sortOrder[0].property]
+    const initialProperty = stageSortOrder[0]?.property
+      ? [stageSortOrder[0].property]
       : defaultSortOrder.property;
     const property = convertNamesToUUIDs(nodeVariables, initialProperty)[0];
     const type = nodeVariables?.property?.type;
 
     return {
-      direction: sortOrder[0]?.direction ?? defaultSortOrder.direction,
+      direction: stageSortOrder[0]?.direction ?? defaultSortOrder.direction,
       property: compact([...path, property]),
       type: mapNCType(type),
     };
-  }, [sortOrder, nodeVariables]);
+  }, [stageSortOrder, nodeVariables]);
 
   const sortableProperties = useMemo(() => {
-    return sortOptions?.sortableProperties?.map(({ variable, label }) => {
-      const uuid = convertNamesToUUIDs(nodeVariables, [variable])[0];
+    return stageSortOptions?.sortableProperties?.map(({ variable, label }) => {
+      const uuid = convertNamesToUUIDs(nodeVariables, [variable]);
       const type = nodeVariables?.uuid?.type;
 
       return {
-        property: compact([...path, uuid]),
+        property: flatten(compact([...path, uuid])),
         label,
         type: mapNCType(type),
       };
     });
-  }, [sortOptions, nodeVariables]);
+  }, [stageSortOptions, nodeVariables]);
 
   const [sortByProperty, setSortByProperty] = useState<
     string | string[] | undefined
@@ -130,6 +134,12 @@ const useSort = (
     return sorter(list);
   }, [list, sortByProperty, sortDirection, sortType]);
 
+  const reset = useCallback(() => {
+    setSortByProperty(initialSortOrder.property);
+    setSortDirection(initialSortOrder.direction as Direction);
+    setSortType(initialSortOrder.type);
+  }, [initialSortOrder]);
+
   return [
     sortedList,
     sortByProperty,
@@ -138,6 +148,7 @@ const useSort = (
     setSortType,
     setSortDirection,
     sortableProperties,
+    reset,
   ];
 };
 

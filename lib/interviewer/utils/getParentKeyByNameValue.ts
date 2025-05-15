@@ -65,10 +65,12 @@ const findCategoricalKey = (
 type O = NonNullable<EntityDefinition['variables']> | undefined;
 
 const getParentKeyByNameValue = (object: O, toFind: string) => {
+  // No entity definition for this type
   if (isEmpty(object)) {
-    return undefined;
+    return toFind;
   }
 
+  // Immediate match
   if (object[toFind]) {
     return toFind;
   }
@@ -100,7 +102,7 @@ const getParentKeyByNameValue = (object: O, toFind: string) => {
       ) ?? undefined;
   }
 
-  return foundKey;
+  return foundKey ?? toFind;
 };
 
 export default getParentKeyByNameValue;
