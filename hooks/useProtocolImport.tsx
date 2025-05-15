@@ -1,4 +1,8 @@
-import { validateProtocol } from '@codaco/protocol-validation';
+import {
+  migrateProtocol,
+  type Protocol,
+  validateProtocol,
+} from '@codaco/protocol-validation';
 import { queue } from 'async';
 import { XCircle } from 'lucide-react';
 import { hash } from 'ohash';
@@ -104,8 +108,15 @@ export const useProtocolImport = () => {
 
         return;
       }
+      // Migrate if needed
+      const protocolToValidate =
+        protocolJson.schemaVersion < 8
+          ? migrateProtocol(protocolJson, 8)
+          : protocolJson;
 
-      const validationResult = await validateProtocol(protocolJson);
+      const validationResult = await validateProtocol(
+        protocolToValidate as Protocol,
+      );
 
       if (!validationResult.isValid) {
         const resultAsString = JSON.stringify(validationResult, null, 2);
