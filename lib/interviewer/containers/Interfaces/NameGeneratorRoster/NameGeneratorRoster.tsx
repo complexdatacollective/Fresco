@@ -3,13 +3,12 @@ import {
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import cx from 'classnames';
-import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import useDropMonitor from '~/lib/interviewer/behaviours/DragAndDrop/useDropMonitor';
 import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
-import List from '~/lib/interviewer/components/List';
 import Node from '~/lib/interviewer/components/Node';
+import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
@@ -35,7 +34,6 @@ import {
   MinNodesNotMet,
   minNodesWithDefault,
 } from '../utils/StageLevelValidation';
-import DropOverlay from './DropOverlay';
 import { type NameGeneratorRosterProps } from './helpers';
 import useItems, { type UseItemElement } from './useItems';
 
@@ -59,6 +57,13 @@ const ErrorMessage = (props: { error: Error }) => (
     </p>
   </div>
 );
+
+const variants = {
+  visible: {
+    opacity: 1,
+  },
+  hidden: { opacity: 0 },
+};
 
 /**
  * Name Generator (unified) Roster Interface
@@ -157,11 +162,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     setShowMinWarning(false);
   }, [stageNodeCount, promptIndex]);
 
-  const { isOver, willAccept } = useDropMonitor('node-list') ?? {
-    isOver: false,
-    willAccept: false,
-  };
-
   const handleAddNode = ({ meta }: { meta: UseItemElement }) => {
     const { id, data } = meta;
     const attributeData = {
@@ -181,16 +181,12 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     );
   };
 
-  const handleRemoveNode = ({ meta: { id } }: { meta: UseItemElement }) => {
-    dispatch(deleteNode(id));
-  };
-
-  const variants = {
-    visible: {
-      opacity: 1,
+  const handleRemoveNode = useCallback(
+    ({ meta: { _uid } }: { meta: { _uid: string } }) => {
+      dispatch(deleteNode(_uid));
     },
-    hidden: { opacity: 0 },
-  };
+    [dispatch],
+  );
 
   const nodeListClasses = cx('name-generator-roster-interface__node-list', {
     'name-generator-roster-interface__node-list--empty':
@@ -264,7 +260,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
         <div className="name-generator-roster-interface__node-panel">
           <Panel title="Added" noCollapse>
             <div className="name-generator-roster-interface__node-list">
-              <List
+              <NodeList
                 id="node-list"
                 className={nodeListClasses}
                 itemType="ADDED_NODES"
@@ -274,22 +270,9 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
                   meta: { itemType: string };
                 }) => itemType !== 'ADDED_NODES'}
                 onDrop={handleAddNode}
-                items={nodesForPrompt.map((item) => ({
-                  id: item._uid,
-                  data: item,
-                  props: item,
-                }))}
+                items={nodesForPrompt}
                 itemComponent={Node}
               />
-              <AnimatePresence>
-                {willAccept && (
-                  <DropOverlay
-                    isOver={isOver}
-                    nodeColor={dropNodeColor}
-                    message="Drop here to add"
-                  />
-                )}
-              </AnimatePresence>
             </div>
           </Panel>
         </div>

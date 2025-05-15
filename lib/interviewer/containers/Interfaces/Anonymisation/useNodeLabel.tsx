@@ -10,45 +10,49 @@ import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttri
 import { useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';
 
-export function useNodeLabel(node: NcNode) {
-  const [label, setLabel] = useState<string>('');
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { getById } = useNodeAttributes(node);
+// Will speed up if the same node is rendered in multiple places.
+const labelCache = new Map<string, string>();
+
+export function useNodeLabel(node: NcNode): string {
   const codebook = useSelector(getCodebookForNodeType(node.type));
 
-  useEffect(() => {
-    const labelAttributeId = getNodeLabelAttribute(
-      codebook?.variables ?? {},
-      node[entityAttributesProperty],
-    );
+  const labelAttributeId = getNodeLabelAttribute(
+    codebook?.variables ?? {},
+    node[entityAttributesProperty],
+  );
 
-    const calculateLabel = async () => {
-      if (labelAttributeId) {
-        try {
-          const labelValue = await getById(labelAttributeId);
-          if (
-            (labelValue && typeof labelValue === 'string') ||
-            typeof labelValue === 'number'
-          ) {
-            setLabel(String(labelValue));
-            return;
-          }
-        } catch (e) {
-          if (e instanceof UnauthorizedError) {
-            setLabel('🔒');
-            return;
-          }
+  const getById = useNodeAttributes(node);
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    const fallback = codebook?.name ?? node[entityPrimaryKeyProperty];
+
+    if (!labelAttributeId) {
+      setLabel(fallback);
+      return;
+    }
+
+    const cacheKey = `${node[entityPrimaryKeyProperty]}:${labelAttributeId}`;
+
+    if (labelCache.has(cacheKey)) {
+      setLabel(labelCache.get(cacheKey)!);
+      return;
+    }
+
+    void (async () => {
+      try {
+        const value = await getById<string | number>(labelAttributeId);
+        const stringValue = String(value ?? fallback);
+        labelCache.set(cacheKey, stringValue);
+        setLabel(stringValue);
+      } catch (e) {
+        if (e instanceof UnauthorizedError) {
+          setLabel('🔒');
+          return;
         }
       }
-
-      // Use the codebook entity type name
-      const codebookTypeName = codebook?.name;
-      setLabel(codebookTypeName ?? node[entityPrimaryKeyProperty]);
-      return;
-    };
-
-    void calculateLabel();
-  }, [codebook, getById, node]);
+    })();
+  }, [labelAttributeId, codebook, getById, node]);
 
   return label;
 }

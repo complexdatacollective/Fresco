@@ -6,7 +6,7 @@ import {
 import { invariant } from 'es-toolkit';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { getCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
+import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { usePassphrase } from './usePassphrase';
 import { decryptData, UnauthorizedError } from './utils';
@@ -15,23 +15,9 @@ import { decryptData, UnauthorizedError } from './utils';
  * Mechanism for accessing node attributes, which takes into account
  * whether the attribute is encrypted or not.
  */
-export const useNodeAttributes = (
-  node: NcNode,
-): {
-  getById<T extends VariableValue>(attributeId: string): Promise<T | undefined>;
-  getByName<T extends VariableValue>({
-    attributeName,
-    ignoreCase,
-  }: {
-    attributeName: string;
-    ignoreCase?: boolean;
-  }): Promise<T | undefined>;
-  getByFuzzyMatch<T extends VariableValue>(
-    match: RegExp,
-  ): Promise<T | undefined>;
-} => {
-  const codebookAttributes = useSelector(
-    getCodebookVariablesForNodeType(node.type),
+export const useNodeAttributes = (node: NcNode) => {
+  const getCodebookVariablesForNodeType = useSelector(
+    makeGetCodebookVariablesForNodeType,
   );
   const nodeAttributes = getEntityAttributes(node);
   const {
@@ -45,8 +31,10 @@ export const useNodeAttributes = (
     async <T extends VariableValue>(
       attributeId: string,
     ): Promise<T | undefined> => {
+      const codebookVariables = getCodebookVariablesForNodeType(node.type);
+
       const isEncrypted =
-        isEnabled && codebookAttributes[attributeId]?.encrypted;
+        isEnabled && codebookVariables[attributeId]?.encrypted;
 
       // If the attribute is not encrypted, we can return it directly
       if (!isEncrypted) {
@@ -97,7 +85,7 @@ export const useNodeAttributes = (
       }
     },
     [
-      codebookAttributes,
+      getCodebookVariablesForNodeType,
       nodeAttributes,
       node,
       requirePassphrase,
@@ -107,49 +95,5 @@ export const useNodeAttributes = (
     ],
   );
 
-  const getByFuzzyMatch = useCallback(
-    async <T extends VariableValue>(test: RegExp) => {
-      const match = Object.keys(nodeAttributes).find((attribute) =>
-        test.test(attribute),
-      );
-
-      if (match) {
-        return getById<T>(match);
-      }
-
-      return undefined;
-    },
-    [nodeAttributes, getById],
-  );
-
-  const getByName = useCallback(
-    async <T extends VariableValue>({
-      attributeName,
-      ignoreCase,
-    }: {
-      attributeName: string;
-      ignoreCase?: boolean;
-    }): Promise<T | undefined> => {
-      const attributeId = Object.keys(codebookAttributes).find((id) => {
-        const name = codebookAttributes[id]!.name;
-
-        return ignoreCase
-          ? name.toLowerCase() === attributeName.toLowerCase()
-          : name === attributeName;
-      });
-
-      if (!attributeId) {
-        return undefined;
-      }
-
-      return getById<T>(attributeId);
-    },
-    [getById, codebookAttributes],
-  );
-
-  return {
-    getByFuzzyMatch,
-    getByName,
-    getById,
-  };
+  return getById;
 };

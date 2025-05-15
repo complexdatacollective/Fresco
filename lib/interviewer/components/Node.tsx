@@ -17,16 +17,18 @@ const Node = memo(
 
     return <UINode color={color} {...props} label={label} ref={ref} />;
   }),
-  // (prevProps, nextProps) => {
-  //   // Return true to skip render
-  //   return (
-  //     prevProps.color === nextProps.color &&
-  //     prevProps.linking === nextProps.linking &&
-  //     prevProps.selected === nextProps.selected &&
-  //     objectHash(prevProps[entityAttributesProperty]) ===
-  //       objectHash(nextProps[entityAttributesProperty])
-  //   );
-  // },
+  (prevProps, nextProps) => {
+    // Skip rendering unless the node type or color changes
+    if (prevProps.type !== nextProps.type) {
+      return false;
+    }
+    // Skip rendering unless the node color changes
+    if (prevProps.color !== nextProps.color) {
+      return false;
+    }
+
+    return true;
+  },
 );
 
 Node.displayName = 'Node';
