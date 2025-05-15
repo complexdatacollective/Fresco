@@ -23,7 +23,7 @@ import { v4 as uuid, v4 } from 'uuid';
 import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
-import { getCodebookVariablesForNodeType } from '../../selectors/protocol';
+import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
 import { getCurrentStageId, getPromptId } from '../../selectors/session';
 import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
@@ -139,7 +139,10 @@ export const addNode = createAsyncThunk(
     const { type, attributeData, modelData, useEncryption } = args;
     const state = thunkApi.getState() as RootState;
 
-    const variablesForType = getCodebookVariablesForNodeType(type)(state);
+    const getCodebookVariablesForNodeType =
+      makeGetCodebookVariablesForNodeType(state);
+
+    const variablesForType = getCodebookVariablesForNodeType(type);
 
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),
@@ -196,7 +199,10 @@ export const addEdge = createAsyncThunk(
     const state = getState() as RootState;
     const sessionMeta = getSessionMeta(state);
 
-    const variablesForType = getCodebookVariablesForNodeType(type)(state);
+    const getCodebookVariablesForNodeType =
+      makeGetCodebookVariablesForNodeType(state);
+
+    const variablesForType = getCodebookVariablesForNodeType(type);
 
     const mergedAttributes = {
       ...getDefaultAttributesForEntityType(variablesForType),

@@ -5,7 +5,7 @@ import {
 } from '@codaco/shared-consts';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getCodebookForNodeType } from '~/lib/interviewer/selectors/protocol';
+import { makeGetCodebookForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { useNodeAttributes } from './useNodeAttributes';
 import { UnauthorizedError } from './utils';
@@ -14,7 +14,8 @@ import { UnauthorizedError } from './utils';
 const labelCache = new Map<string, string>();
 
 export function useNodeLabel(node: NcNode): string {
-  const codebook = useSelector(getCodebookForNodeType(node.type));
+  const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
+  const codebook = getCodebookForNodeType(node.type);
 
   const labelAttributeId = getNodeLabelAttribute(
     codebook?.variables ?? {},

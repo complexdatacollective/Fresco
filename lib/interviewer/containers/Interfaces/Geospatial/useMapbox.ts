@@ -1,7 +1,7 @@
 import { type MapOptions } from '@codaco/protocol-validation';
 import type { MapMouseEvent } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
@@ -18,7 +18,7 @@ type UseMapboxProps = {
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
   show: boolean;
-}
+};
 
 export const useMapbox = ({
   mapOptions,
@@ -42,7 +42,11 @@ export const useMapbox = ({
   } = mapOptions;
 
   // get token value from asset manifest, using id
-  const accessToken = useSelector(makeGetApiKeyAssetValue(tokenAssetId));
+  const getApiAssetKeyValue = useSelector(makeGetApiKeyAssetValue);
+  const accessToken = useMemo(
+    () => getApiAssetKeyValue(tokenAssetId),
+    [getApiAssetKeyValue, tokenAssetId],
+  );
 
   const handleResetMapZoom = useCallback(() => {
     mapRef.current?.flyTo({

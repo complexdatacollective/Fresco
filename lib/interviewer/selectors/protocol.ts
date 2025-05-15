@@ -101,19 +101,10 @@ export const makeGetCodebookVariablesForNodeType = createSelector(
   },
 );
 
-export const getCodebookForNodeType = (type: string) =>
-  createSelector(getCodebook, (codebook) => {
-    return codebook.node?.[type];
-  });
-
-export const getCodebookVariablesForNodeType = (type: string) =>
-  createSelector(
-    getCodebook,
-    (codebook) => codebook.node?.[type]?.variables ?? {},
-  );
-
-export const makeGetApiKeyAssetValue = (key: string) =>
-  createSelector(getAssetManifest, (manifest) => {
+export const makeGetApiKeyAssetValue = createSelector(
+  getAssetManifest,
+  (manifest) => (key: string) => {
     const value = manifest[key]?.value;
     return value;
-  });
+  },
+);
