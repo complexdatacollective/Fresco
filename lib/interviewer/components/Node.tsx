@@ -18,11 +18,22 @@ const Node = memo(
     return <UINode color={color} {...props} label={label} ref={ref} />;
   }),
   (prevProps, nextProps) => {
-    // Skip rendering unless the node type or color changes
+    if (prevProps.inactive !== nextProps.inactive) {
+      return false;
+    }
+
+    if (prevProps.selected !== nextProps.selected) {
+      return false;
+    }
+
+    if (prevProps.linking !== nextProps.linking) {
+      return false;
+    }
+
     if (prevProps.type !== nextProps.type) {
       return false;
     }
-    // Skip rendering unless the node color changes
+
     if (prevProps.color !== nextProps.color) {
       return false;
     }
