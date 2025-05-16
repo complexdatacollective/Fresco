@@ -1,6 +1,7 @@
 'use client';
 
 import { type Dispatch, type SetStateAction } from 'react';
+import { logout } from '~/actions/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,12 +12,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/AlertDialog';
-import { logout } from '~/actions/auth';
 
 type SignOutModalProps = {
   openSignOutModal: boolean;
   setOpenSignOutModal: Dispatch<SetStateAction<boolean>>;
-};
+}
 
 const SignOutModal = ({
   openSignOutModal,
@@ -39,7 +39,7 @@ const SignOutModal = ({
           <AlertDialogCancel onClick={() => setOpenSignOutModal(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={() => void logout()}>
+          <AlertDialogAction onClick={() => logout()}>
             Sign Out and Hide Banner
           </AlertDialogAction>
         </AlertDialogFooter>
