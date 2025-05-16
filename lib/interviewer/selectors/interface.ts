@@ -60,15 +60,21 @@ export const getUncategorisedNodes = createSelector(
   getPromptOtherVariable,
   getNetworkNodesForType,
   (activePromptVariable, [promptOtherVariable], stageNodes) => {
-    if (!activePromptVariable) {
+    if (!activePromptVariable && !promptOtherVariable) {
       return stageNodes;
     }
 
-    return stageNodes.filter(
-      (node) =>
-        !node[entityAttributesProperty]?.[activePromptVariable] &&
-        (!promptOtherVariable ||
-          !node[entityAttributesProperty]?.[promptOtherVariable]),
-    );
+    return stageNodes.filter((node) => {
+      const attributes = node[entityAttributesProperty];
+
+      const activeVarExists = activePromptVariable
+        ? !!attributes[activePromptVariable]
+        : false;
+      const otherVarExists = promptOtherVariable
+        ? !!attributes[promptOtherVariable]
+        : false;
+
+      return !activeVarExists && !otherVarExists;
+    });
   },
 );
