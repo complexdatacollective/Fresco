@@ -28,13 +28,13 @@ type NodeSummaryProps = {
   color: NodeColorSequence;
   count: number;
   typeName: string;
-}
+};
 
 type EdgeSummaryProps = {
   color: EdgeColorSequence;
   count: number;
   typeName: string;
-}
+};
 function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
   const classes = cn(
     'flex items-center h-8 w-8 justify-center rounded-full',
@@ -195,7 +195,7 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex max-w-64 gap-2">
+    <div className="flex max-w-64 flex-wrap gap-2">
       {nodeSummaries}
       {edgeSummaries}
     </div>
