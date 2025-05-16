@@ -1,4 +1,5 @@
 import { type NcNode } from '@codaco/shared-consts';
+import { isEqual } from 'es-toolkit';
 import { motion } from 'motion/react';
 import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
@@ -18,23 +19,7 @@ const Node = memo(
     return <UINode color={color} {...props} label={label} ref={ref} />;
   }),
   (prevProps, nextProps) => {
-    if (prevProps.inactive !== nextProps.inactive) {
-      return false;
-    }
-
-    if (prevProps.selected !== nextProps.selected) {
-      return false;
-    }
-
-    if (prevProps.linking !== nextProps.linking) {
-      return false;
-    }
-
-    if (prevProps.type !== nextProps.type) {
-      return false;
-    }
-
-    if (prevProps.color !== nextProps.color) {
+    if (!isEqual(prevProps, nextProps)) {
       return false;
     }
 

@@ -1,7 +1,10 @@
 import type { Codebook } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
+  type EntityPrimaryKey,
+  entityPrimaryKeyProperty,
   type NcNetwork,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection, invariant } from 'es-toolkit';
@@ -175,7 +178,7 @@ export const getNavigationInfo = createSelector(
 
 export const getNetwork = createSelector(
   getActiveSession,
-  (session) => session?.network,
+  (session) => session.network,
 );
 
 const getPropStageFilter = createSelector(getCurrentStage, (stage) => {
@@ -228,6 +231,20 @@ export const getEgoAttributes = createSelector(
 export const getNetworkEdges = createSelector(
   getFilteredNetwork,
   (network) => network?.edges ?? [],
+);
+
+export const makeGetNodeById = createSelector(
+  getNetworkNodes,
+  (nodes) => (nodeId: NcNode[EntityPrimaryKey]) => {
+    if (!nodes) {
+      return null;
+    }
+
+    const node = nodes.find(
+      (node) => node[entityPrimaryKeyProperty] === nodeId,
+    );
+    return node ?? null;
+  },
 );
 
 export const getNodeTypeDefinition = createSelector(

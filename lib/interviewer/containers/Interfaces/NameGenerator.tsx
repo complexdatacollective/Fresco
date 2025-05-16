@@ -4,6 +4,7 @@ import {
   entityAttributesProperty,
   type EntityPrimaryKey,
   entityPrimaryKeyProperty,
+  entitySecureAttributesMeta,
   type NcNode,
 } from '@codaco/shared-consts';
 import { get, has } from 'es-toolkit/compat';
@@ -33,6 +34,7 @@ import { type Direction } from '../ProtocolScreen';
 import QuickNodeForm from '../QuickNodeForm';
 import { type StageProps } from '../Stage';
 import { usePassphrase } from './Anonymisation/usePassphrase';
+import { decryptData } from './Anonymisation/utils';
 import {
   MaxNodesMet,
   maxNodesWithDefault,
@@ -191,12 +193,56 @@ const NameGenerator = (props: NameGeneratorProps) => {
   };
 
   // When a node is tapped, trigger editing.
-  const handleSelectNode = (node: NcNode) => {
-    if (!form) {
-      return;
-    }
-    setSelectedNode(node);
-  };
+  const handleSelectNode = useCallback(
+    async (node: NcNode) => {
+      if (!form || (useEncryption && !passphrase)) {
+        return;
+      }
+
+      // Decrypt node attributes if required.
+      if (useEncryption && passphrase) {
+        // Map the node's attributes, check the codebook encrypted property, and pass to decryptData if required.
+        const decryptedAttributes = await Promise.all(
+          Object.entries(node[entityAttributesProperty]).map(
+            async ([variableId, value]) => {
+              if (codebookForNodeType[variableId]?.encrypted) {
+                const secureAttributes = node[entitySecureAttributesMeta];
+                if (!secureAttributes?.[variableId]) {
+                  throw new Error(
+                    `Secure attributes missing for ${variableId} on node ${node[entityPrimaryKeyProperty]}`,
+                  );
+                }
+
+                const decrypted = await decryptData(
+                  {
+                    secureAttributes: secureAttributes[variableId],
+                    data: value as number[],
+                  },
+                  passphrase,
+                );
+
+                return [variableId, decrypted];
+              }
+              return [variableId, value];
+            },
+          ),
+        );
+
+        const decryptedNode: NcNode = {
+          ...node,
+          [entityAttributesProperty]: Object.fromEntries(
+            decryptedAttributes,
+          ) as NcNode[EntityAttributesProperty],
+        };
+
+        setSelectedNode(decryptedNode);
+        return;
+      } else {
+        setSelectedNode(node);
+      }
+    },
+    [form, passphrase, useEncryption, codebookForNodeType],
+  );
 
   return (
     <div className="name-generator-interface" ref={interfaceRef}>

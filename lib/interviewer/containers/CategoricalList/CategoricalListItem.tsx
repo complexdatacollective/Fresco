@@ -70,7 +70,7 @@ const CategoricalListItem = (props: Props) => {
       return;
     }
 
-    updateNode({
+    void updateNode({
       nodeId: node[entityPrimaryKeyProperty],
       newAttributeData: {
         [variable]: value,

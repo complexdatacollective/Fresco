@@ -24,9 +24,14 @@ import { z } from 'zod';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
-import { getCurrentStageId, getPromptId } from '../../selectors/session';
+import {
+  getCurrentStageId,
+  getPromptId,
+  makeGetNodeById,
+} from '../../selectors/session';
 import { type RootState } from '../../store';
 import { getDefaultAttributesForEntityType } from '../../utils/getDefaultAttributesForEntityType';
+import { getShouldEncryptNames } from './protocol';
 
 // reducer helpers:
 function flipEdge(edge: Partial<NcEdge>) {
@@ -219,6 +224,62 @@ export const addEdge = createAsyncThunk(
   },
 );
 
+export const updateNode = createAsyncThunk(
+  actionTypes.updateNode,
+  async (
+    args: {
+      nodeId: NcNode[EntityPrimaryKey];
+      newModelData?: Record<string, unknown>;
+      newAttributeData: NcNode[EntityAttributesProperty];
+    },
+    thunkApi,
+  ) => {
+    const { newAttributeData, newModelData, nodeId } = args;
+    const state = thunkApi.getState() as RootState;
+    const getNodeById = makeGetNodeById(state);
+    const node = getNodeById(nodeId);
+
+    invariant(node, 'Node not found');
+
+    const getCodebookVariablesForNodeType =
+      makeGetCodebookVariablesForNodeType(state);
+
+    const variablesForType = getCodebookVariablesForNodeType(node.type);
+
+    const useEncryption = getShouldEncryptNames(state);
+
+    if (!useEncryption) {
+      return {
+        nodeId,
+        newAttributeData,
+        newModelData,
+        newSecureAttributes: undefined,
+      };
+    }
+
+    const { passphrase } = state.ui;
+
+    invariant(
+      passphrase,
+      'Passphrase is required to add a node when encryption is enabled',
+    );
+
+    const { secureAttributes, encryptedAttributes } =
+      await generateSecureAttributes(
+        newAttributeData,
+        variablesForType,
+        passphrase,
+      );
+
+    return {
+      nodeId,
+      newAttributeData: encryptedAttributes,
+      newModelData: newModelData,
+      newSecureAttributes: secureAttributes,
+    };
+  },
+);
+
 export const deleteNode = createAction<NcNode[EntityPrimaryKey]>(
   actionTypes.deleteNode,
 );
@@ -226,12 +287,6 @@ export const deleteNode = createAction<NcNode[EntityPrimaryKey]>(
 export const deleteEdge = createAction<NcEdge[EntityPrimaryKey]>(
   actionTypes.deleteEdge,
 );
-
-export const updateNode = createAction<{
-  nodeId: NcNode[EntityPrimaryKey];
-  newModelData?: Record<string, unknown>;
-  newAttributeData: NcNode[EntityAttributesProperty];
-}>(actionTypes.updateNode);
 
 export const updatePrompt = createAction<number>(actionTypes.updatePrompt);
 export const updateStage = createAction<number>(actionTypes.updateStage);
@@ -363,6 +418,9 @@ const sessionReducer = createReducer(initialState, (builder) => {
 
     invariant(promptId, 'Prompt ID is required to add a node to a prompt');
 
+    // TODO: this should possibly encrypt prompt attributes. However, they are
+    // boolean values and so are unlikely to be sensitive.
+
     return withLastUpdated({
       ...state,
       network: {
@@ -479,8 +537,9 @@ const sessionReducer = createReducer(initialState, (builder) => {
     });
   });
 
-  builder.addCase(updateNode, (state, action) => {
-    const { nodeId, newModelData, newAttributeData } = action.payload;
+  builder.addCase(updateNode.fulfilled, (state, action) => {
+    const { nodeId, newAttributeData, newModelData, newSecureAttributes } =
+      action.payload;
     const { network } = state;
     const { nodes } = network;
 
@@ -515,6 +574,10 @@ const sessionReducer = createReducer(initialState, (builder) => {
             [entityAttributesProperty]: {
               ...node[entityAttributesProperty],
               ...newAttributeData,
+            },
+            [entitySecureAttributesMeta]: {
+              ...node[entitySecureAttributesMeta],
+              ...newSecureAttributes,
             },
           };
         }),

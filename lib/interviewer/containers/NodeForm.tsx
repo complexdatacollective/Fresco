@@ -56,12 +56,15 @@ const NodeForm = (props: NodeFormProps) => {
   const useFullScreenForms = false;
 
   const handleSubmit = useCallback(
-    (formData: Record<string, VariableValue>) => {
+    (rawFormData: Record<string, VariableValue>) => {
+      // This is needed because redux-form is passing its state directly, causing
+      // a mutation error.
+      const formData = structuredClone(rawFormData);
       if (!selectedNode) {
         addNode({ ...newNodeAttributes, ...formData });
       } else {
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        updateNode({ nodeId: selectedUID, newAttributeData: formData });
+        void updateNode({ nodeId: selectedUID, newAttributeData: formData });
       }
 
       setShow(false);

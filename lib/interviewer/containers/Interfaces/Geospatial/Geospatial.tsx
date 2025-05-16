@@ -110,7 +110,7 @@ export default function GeospatialInterface({
   );
 
   const setLocationValue = (value: string | null) => {
-    updateNode({
+    void updateNode({
       nodeId: stageNodes[navState.activeIndex]![entityPrimaryKeyProperty],
       newAttributeData: {
         [currentPrompt.variable!]: value,

@@ -21,6 +21,7 @@ export function useNodeLabel(node: NcNode): string {
   const codebook = getCodebookForNodeType(node.type);
   const { passphrase } = usePassphrase();
   const prevPassphrase = usePrevious(passphrase);
+  const prevNode = usePrevious(node);
 
   const cacheKey = useMemo(() => objectHash(node), [node]);
 
@@ -36,7 +37,8 @@ export function useNodeLabel(node: NcNode): string {
     const fallback = codebook?.name ?? node[entityPrimaryKeyProperty];
 
     // Only check the cache if the passphrase is the same, to allow revalidating
-    if (prevPassphrase === passphrase) {
+    // Also skip the cache if the node attributes changed
+    if (prevPassphrase === passphrase && prevNode === node) {
       if (labelCache.has(cacheKey)) {
         setLabel(labelCache.get(cacheKey)!);
         return;
@@ -69,6 +71,7 @@ export function useNodeLabel(node: NcNode): string {
     cacheKey,
     passphrase,
     prevPassphrase,
+    prevNode,
   ]);
 
   return label;
