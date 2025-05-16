@@ -1,11 +1,10 @@
-import { type Panel, type Stage } from '@codaco/protocol-validation';
+import { type Panel } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type NcNetwork,
   type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import { invariant } from 'es-toolkit';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook } from '../ducks/modules/protocol';
 import {
@@ -14,57 +13,25 @@ import {
   getNetworkEgo,
   getNetworkNodesForOtherPrompts,
   getNetworkNodesForPrompt,
-  getPromptId,
-  getStageIndex,
-  getStageSubject,
   getSubjectType,
 } from './session';
 import { notInSet } from './utils';
 
 export const getStageCardOptions = createSelector(getCurrentStage, (stage) => {
-  invariant(stage, 'Stage is required');
+  if (stage.type !== 'NameGeneratorRoster') {
+    return {};
+  }
 
-  const stageWithCardOptions = stage as Extract<
-    Stage,
-    { type: 'NameGeneratorRoster' }
-  >;
-
-  return stageWithCardOptions.cardOptions ?? {};
+  return stage.cardOptions ?? {};
 });
-
-const getIDs = createSelector(
-  getStageIndex,
-  getPromptId,
-  (stageId, promptId) => {
-    return {
-      stageId,
-      promptId,
-    };
-  },
-);
-
-export const getPromptModelData = createSelector(
-  getStageSubject,
-  getIDs,
-  (subject, { stageId, promptId }) => {
-    invariant(subject, 'Subject is required');
-
-    return {
-      type: subject.type,
-      stageId,
-      promptId,
-    };
-  },
-);
 
 export const getNodeIconName = createSelector(
   getCodebook,
   getSubjectType,
   (codebook, nodeType) => {
-    invariant(nodeType, 'Node type is required');
-
-    const nodeIcon = codebook.node?.[nodeType]?.iconVariant ?? 'add-a-person';
-
+    const nodeIcon = nodeType
+      ? (codebook?.node?.[nodeType]?.iconVariant ?? 'add-a-person')
+      : 'add-a-person';
     return nodeIcon;
   },
 );
@@ -72,35 +39,31 @@ export const getNodeIconName = createSelector(
 export const getPanelConfiguration = createSelector(
   getCurrentStage,
   (stage) => {
-    invariant(stage, 'Stage is required');
-    const stageWithPanels = stage as Extract<
-      Stage,
-      { type: 'NameGenerator' | 'NameGeneratorQuickAdd' }
-    >;
+    if (
+      stage.type !== 'NameGenerator' &&
+      stage.type !== 'NameGeneratorQuickAdd'
+    ) {
+      return undefined;
+    }
 
-    const panels = stageWithPanels.panels ?? ([] as Panel[]);
-
-    return panels;
+    return stage.panels;
   },
 );
 
 export const getSearchOptions = createSelector(getCurrentStage, (stage) => {
-  invariant(stage, 'Stage is required');
-  const stageWithSearchOptions = stage as Extract<
-    Stage,
-    { type: 'NameGeneratorRoster' }
-  >;
+  if (stage.type !== 'NameGeneratorRoster') {
+    return undefined;
+  }
 
-  return stageWithSearchOptions.searchOptions;
+  return stage.searchOptions;
 });
 
 export const getSortOptions = createSelector(getCurrentStage, (stage) => {
-  invariant(stage, 'Stage is required');
-  const stageWithSortOptions = stage as Extract<
-    Stage,
-    { type: 'NameGeneratorRoster' }
-  >;
-  return stageWithSortOptions.sortOptions;
+  if (stage.type !== 'NameGeneratorRoster') {
+    return undefined;
+  }
+
+  return stage.sortOptions;
 });
 
 export const getPanelNodes = (

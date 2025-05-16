@@ -27,7 +27,7 @@ type NodePanelsProps = {
     itemType: string;
   };
   isDragging: boolean;
-}
+};
 
 const NodePanelColors = [
   '--primary',
@@ -103,7 +103,7 @@ function NodePanels(props: NodePanelsProps) {
 
   const isPanelCompatible = useCallback(
     (index: number) => {
-      if (panelIndexes.length !== panels.length) {
+      if (panelIndexes.length !== panels?.length) {
         return false;
       }
 
@@ -141,7 +141,7 @@ function NodePanels(props: NodePanelsProps) {
   );
 
   const isAnyPanelOpen = useMemo(() => {
-    return panels.some((panel, index) => isPanelOpen(index));
+    return panels?.some((panel, index) => isPanelOpen(index)) ?? false;
   }, [isPanelOpen, panels]);
 
   const handlePanelUpdate = useCallback(
@@ -176,6 +176,10 @@ function NodePanels(props: NodePanelsProps) {
       />
     );
   };
+
+  if (!panels) {
+    return null;
+  }
 
   return (
     <Panels minimize={!isAnyPanelOpen}>{panels.map(renderNodePanel)}</Panels>

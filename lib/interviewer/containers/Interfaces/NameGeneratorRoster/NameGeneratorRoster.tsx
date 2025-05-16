@@ -12,7 +12,6 @@ import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
-import { getPromptModelData } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
@@ -81,7 +80,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const codebookForNodeType = useSelector(getCodebookVariablesForSubjectType);
-  const newNodeModelData = useSelector(getPromptModelData);
   const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
 
   const nodeType = stage.subject.type;
@@ -171,7 +169,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
 
     void dispatch(
       addNode({
-        type: newNodeModelData.type,
+        type: stage.subject.type,
         modelData: {
           [entityPrimaryKeyProperty]: id,
         },

@@ -32,6 +32,7 @@ export const getCurrentStage = createSelector(
   (stages, currentStep) => {
     const result = stages[currentStep];
 
+    // This use of invariant is okay, because this genuinely should never happen
     invariant(result, 'getCurrentStage: No stage found');
 
     return result;
