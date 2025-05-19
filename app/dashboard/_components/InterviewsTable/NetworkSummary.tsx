@@ -195,7 +195,7 @@ const NetworkSummary = ({
   }
 
   return (
-    <div className="flex max-w-64 flex-wrap gap-2">
+    <div className="flex gap-2">
       {nodeSummaries}
       {edgeSummaries}
     </div>
