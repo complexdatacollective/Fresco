@@ -25,7 +25,7 @@
     "@codaco/analytics": "7.0.0",
     "@codaco/protocol-validation": "4.0.0-alpha.11",
     "@codaco/shared-consts": "1.0.0-alpha.3",
-    "@hookform/resolvers": "^4.1.3",
+    "@hookform/resolvers": "^5.0.1",
     "@lucia-auth/adapter-prisma": "^3.0.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.11",
