@@ -1,13 +1,13 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '~/components/ui/checkbox';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Progress } from '~/components/ui/progress';
 import type { Stage } from '@codaco/shared-consts';
-import { Badge } from '~/components/ui/badge';
-import TimeAgo from '~/components/ui/TimeAgo';
+import { type ColumnDef } from '@tanstack/react-table';
 import Image from 'next/image';
+import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { Badge } from '~/components/ui/badge';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Progress } from '~/components/ui/progress';
+import TimeAgo from '~/components/ui/TimeAgo';
 import type { GetInterviewsReturnType } from '~/queries/interviews';
 
 export const InterviewColumns = (): ColumnDef<
@@ -107,7 +107,7 @@ export const InterviewColumns = (): ColumnDef<
     header: 'Started',
     cell: ({ row }) => {
       const date = new Date(row.original.startTime);
-      return <TimeAgo date={date} />;
+      return <TimeAgo data-testid="interviews-started-at" date={date} />;
     },
   },
   {
@@ -117,7 +117,7 @@ export const InterviewColumns = (): ColumnDef<
     },
     cell: ({ row }) => {
       const date = new Date(row.original.lastUpdated);
-      return <TimeAgo date={date} />;
+      return <TimeAgo data-testid="interviews-updated-at" date={date} />;
     },
   },
   {

@@ -27,6 +27,17 @@ test.describe('Interviews page', () => {
     await expect(page.getByTestId('exporting-loading-dialog')).toBeVisible();
   });
 
+  test('should match visual snapshot', async ({ page }) => {
+    await page.waitForTimeout(2000); // let table load
+
+    await expect.soft(page).toHaveScreenshot('interviews-page.png', {
+      mask: [
+        page.getByTestId('interviews-started-at'),
+        page.getByTestId('interviews-updated-at'),
+      ],
+    });
+  });
+
   test('should export incomplete interview urls', async ({ page }) => {
     await page.getByTestId('export-incomplete-interview-urls-button').click();
     await page.getByTestId('select-protocol').click();
