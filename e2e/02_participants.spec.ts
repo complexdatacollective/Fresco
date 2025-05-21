@@ -410,6 +410,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
       .getByTestId('node')
       .first()
       .dragTo(page.getByTestId('categorical-list-item-0'));
+    await page.waitForTimeout(2000);
     await expect.soft(page).toHaveScreenshot('categorical-bins.png');
 
     console.log('☑️ Categorical bins');
