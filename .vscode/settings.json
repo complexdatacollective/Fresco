@@ -4,10 +4,11 @@
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "WillLuke.nextjs.addTypesOnSave": true,
-  "WillLuke.nextjs.hasPrompted": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always",
     "source.fixAll": "always",
-  }
+    "source.fixAll.eslint": "always",
+    "source.fixAll.typescript": "always",
+  },
+  "editor.formatOnSave": true
 }

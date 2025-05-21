@@ -238,9 +238,7 @@ export const useProtocolImport = () => {
 
             const thisCompletedBytes = thisFileSize * (progress / 100);
 
-            if (!currentBytesUploaded[file.name]) {
-              currentBytesUploaded[file.name] = 0;
-            }
+            currentBytesUploaded[file.name] ??= 0;
 
             currentBytesUploaded[file.name] = thisCompletedBytes;
 
