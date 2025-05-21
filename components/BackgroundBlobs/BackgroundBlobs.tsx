@@ -78,9 +78,8 @@ class NCBlob {
   updatePosition(time: number) {
     const timeInSeconds = time / 1000;
 
-    if (!this.lastUpdate) {
-      this.lastUpdate = timeInSeconds;
-    }
+    this.lastUpdate ??= timeInSeconds;
+
     const timeDelta = timeInSeconds - this.lastUpdate || 1;
 
     this.lastUpdate = timeInSeconds;
