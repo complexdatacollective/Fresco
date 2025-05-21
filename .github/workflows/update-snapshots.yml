@@ -40,6 +40,7 @@ jobs:
       - name: Run Playwright update snapshots
         run: pnpm exec playwright test --update-snapshots
         env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           E2E_UPLOADTHING_TOKEN: ${{ secrets.E2E_UPLOADTHING_TOKEN }}
           BASE_URL: ${{ steps.extract-url.outputs.preview_url }}
       - name: Commit and push updated snapshots

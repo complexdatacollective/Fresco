@@ -90,6 +90,7 @@ class NCBlob {
     const timeInSeconds = time / 1000;
 
     this.lastUpdate ??= timeInSeconds;
+
     const timeDelta = timeInSeconds - this.lastUpdate || 1;
 
     this.lastUpdate = timeInSeconds;
@@ -244,7 +245,7 @@ type BackgroundBlobsProps = {
   speedFactor?: number;
   compositeOperation?: GlobalCompositeOperation;
   filter?: CanvasFilters['filter'];
-}
+};
 
 const BackgroundBlobs = memo(
   ({

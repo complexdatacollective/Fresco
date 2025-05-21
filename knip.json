@@ -10,7 +10,6 @@
     "load-test.js"
   ],
   "ignoreDependencies": [
-    "postcss",
     "sharp",
     "@tailwindcss/aspect-ratio",
     "@tailwindcss/container-queries",
