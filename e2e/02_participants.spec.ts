@@ -311,10 +311,11 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('dyad-yes').click();
     await expect(page.getByText('Butch')).toBeVisible();
     await page.getByTestId('dyad-no').click();
-    await expect.soft(page).toHaveScreenshot('dyad-census.png');
 
     const edges = await getSessionEdges(page);
     expect(edges.length).toBe(3);
+    await expect.soft(page).toHaveScreenshot('dyad-census.png');
+
     console.log('☑️ Dyad census');
   });
 
@@ -327,6 +328,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.getByText('Burt')).toBeVisible();
     await page.getByTestId('boolean-option').nth(1).click();
     await expect(page.getByText('Carrie')).toBeVisible();
+    await page.waitForTimeout(2000);
     await expect.soft(page).toHaveScreenshot('tie-strength-census.png');
 
     await page.getByTestId('boolean-option').nth(3).click();
@@ -368,6 +370,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
     await page.getByText('Carrie', { exact: true }).click();
     await expect(page.locator('.node--selected')).toHaveCount(1);
+
+    await expect(page.getByTestId('prompt')).toBeVisible();
     await expect.soft(page).toHaveScreenshot('sociogram-select.png');
 
     console.log('☑️ Sociogram - select');
