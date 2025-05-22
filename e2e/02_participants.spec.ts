@@ -378,6 +378,8 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByText('Carrie', { exact: true }).click();
     await expect(page.locator('.node--selected')).toHaveCount(1);
 
+    await page.waitForTimeout(5000); // let data update
+
     await expect(page.getByTestId('prompt')).toBeVisible();
     await expect.soft(page).toHaveScreenshot('sociogram-select.png');
 
