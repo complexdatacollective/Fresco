@@ -66,17 +66,17 @@ describe('App Settings Schema Validators', () => {
 
     it('should assign the default valid to invalid boolean fields', () => {
       expect(
-        appSettingPreprocessedSchema.shape['configured'].parse('Yes'),
+        appSettingPreprocessedSchema.shape.configured.parse('Yes'),
       ).toEqual(false);
 
       expect(
-        appSettingPreprocessedSchema.shape['allowAnonymousRecruitment'].parse(
+        appSettingPreprocessedSchema.shape.allowAnonymousRecruitment.parse(
           'No',
         ),
       ).toEqual(false);
 
       expect(
-        appSettingPreprocessedSchema.shape['disableAnalytics'].parse('Y'),
+        appSettingPreprocessedSchema.shape.disableAnalytics.parse('Y'),
       ).toEqual(false);
     });
 

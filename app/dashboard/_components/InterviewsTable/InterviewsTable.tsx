@@ -3,6 +3,7 @@
 import { HardDriveUpload } from 'lucide-react';
 import { objectHash } from 'ohash';
 import { use, useMemo, useState } from 'react';
+import superjson from 'superjson';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
@@ -16,7 +17,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
+import type {
+  GetInterviewsQuery,
+  GetInterviewsReturnType,
+} from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
 
 export const InterviewsTable = ({
@@ -26,7 +30,8 @@ export const InterviewsTable = ({
   interviewsPromise: GetInterviewsReturnType;
   protocolsPromise: GetProtocolsReturnType;
 }) => {
-  const interviews = use(interviewsPromise);
+  const serializedInterviews = use(interviewsPromise);
+  const interviews = superjson.parse<GetInterviewsQuery>(serializedInterviews);
 
   const [selectedInterviews, setSelectedInterviews] =
     useState<typeof interviews>();

@@ -32,7 +32,7 @@ type ParticipantModalProps = {
   editingParticipant?: Participant | null;
   setEditingParticipant?: Dispatch<SetStateAction<Participant | null>>;
   existingParticipants: Participant[];
-};
+}
 
 function ParticipantModal({
   open,

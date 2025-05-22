@@ -3,17 +3,19 @@ import {
   entityPrimaryKeyProperty,
   type NcEdge,
 } from '@codaco/shared-consts';
-import { useDispatch, useSelector } from 'react-redux';
-import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
-import { edgeExists } from '~/lib/interviewer/ducks/modules/network';
-import { getStageMetadata } from '~/lib/interviewer/selectors/session';
-import { actionCreators as sessionActions } from '../../../ducks/modules/session';
-import type {
-  StageMetadata,
-  StageMetadataEntry,
-} from '~/lib/interviewer/store';
-import { type AnyAction } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
+import {
+  addEdge,
+  deleteEdge,
+  edgeExists,
+  updateEdge,
+  updateStageMetadata,
+  type StageMetadataEntry,
+} from '~/lib/interviewer/ducks/modules/session';
+import { getStageMetadata } from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 
 const matchEntry =
   (promptIndex: number, pair: Pair) =>
@@ -22,17 +24,23 @@ const matchEntry =
     (p === promptIndex && b === pair[0] && a === pair[1]);
 
 const getStageMetadataResponse = (
-  state: StageMetadata | undefined,
+  state: StageMetadataEntry[] | undefined,
   promptIndex: number,
   pair: Pair,
 ) => {
   // If the state is not an array or the pair is not a pair, return false
   if (!Array.isArray(state) || pair.length !== 2) {
-    return null;
+    return {
+      exists: false,
+      value: undefined,
+    };
   }
 
   const answer = state.find(matchEntry(promptIndex, pair));
-  return answer ? answer[3] : null;
+  return {
+    exists: !!answer,
+    value: answer ? answer[3] : undefined,
+  };
 };
 
 type Pair = [string, string];
@@ -45,16 +53,20 @@ export default function useEdgeState(
   edges: NcEdgeWithId[],
   deps: string,
 ) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const stageMetadata = useSelector(getStageMetadata);
   const [isTouched, setIsTouched] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
-  const { prompt, promptIndex } = usePrompts();
-  const edgeType = prompt.createEdge!;
+  const { prompt, promptIndex } = usePrompts<{
+    createEdge: string;
+    edgeVariable?: string;
+  }>();
+  const edgeType = prompt.createEdge;
   const edgeVariable = prompt.edgeVariable;
 
   const existingEdgeId =
     (pair && edgeExists(edges, pair[0], pair[1], edgeType)) ?? false;
+
   const getEdgeVariableValue = () => {
     if (!edgeVariable) {
       return undefined;
@@ -72,7 +84,7 @@ export default function useEdgeState(
       return false;
     }
 
-    const edgeExistsInMetadata = getStageMetadataResponse(
+    const { exists: edgeExistsInMetadata } = getStageMetadataResponse(
       stageMetadata,
       promptIndex,
       pair,
@@ -83,7 +95,7 @@ export default function useEdgeState(
       return true;
     }
 
-    if (edgeExistsInMetadata === null) {
+    if (!edgeExistsInMetadata) {
       return null;
     }
 
@@ -93,6 +105,8 @@ export default function useEdgeState(
   // If value is boolean we are creating or deleting the edge.
   // If value is string, we are creating an edge with a variable value,
   // or updating the edge variable value.
+  //
+  // Fucking stupid design.
   const setEdge = (value: boolean | string | number) => {
     setIsChanged(hasEdge() !== value);
     setIsTouched(true);
@@ -101,76 +115,67 @@ export default function useEdgeState(
       return;
     }
 
+    // Creating an edge
     if (value === true) {
-      dispatch(
-        sessionActions.addEdge({
+      void dispatch(
+        addEdge({
           from: pair[0],
           to: pair[1],
           type: edgeType,
-        }) as unknown as AnyAction,
+        }),
       );
 
       const newStageMetadata = [
         ...(stageMetadata?.filter(
           (item) => !matchEntry(promptIndex, pair)(item),
         ) ?? []),
-      ];
+      ] as StageMetadataEntry[];
 
-      dispatch(
-        sessionActions.updateStageMetadata(
-          newStageMetadata,
-        ) as unknown as AnyAction,
-      );
+      dispatch(updateStageMetadata(newStageMetadata));
+
+      return;
     }
 
     if (value === false) {
       if (existingEdgeId) {
-        dispatch(
-          sessionActions.removeEdge(existingEdgeId) as unknown as AnyAction,
-        );
+        dispatch(deleteEdge(existingEdgeId));
       }
 
       // Construct new stage metadata from scratch
-      // if (!stageMetadata) {}
-
       const newStageMetadata = [
         ...(stageMetadata?.filter(
           (item) => !matchEntry(promptIndex, pair)(item),
         ) ?? []),
         [promptIndex, ...pair, value],
-      ];
+      ] as StageMetadataEntry[];
 
-      dispatch(
-        sessionActions.updateStageMetadata(
-          newStageMetadata,
-        ) as unknown as AnyAction,
-      );
+      const action = updateStageMetadata(newStageMetadata);
+
+      dispatch(action);
+
+      return;
     }
 
     if (typeof value === 'string' || typeof value === 'number') {
       if (existingEdgeId) {
-        dispatch(
-          sessionActions.updateEdge(
-            existingEdgeId,
-            {},
-            {
-              [edgeVariable!]: value,
-            },
-          ) as unknown as AnyAction,
-        );
+        const action = updateEdge({
+          edgeId: existingEdgeId,
+          newAttributeData: {
+            [edgeVariable!]: value,
+          },
+        });
+
+        dispatch(action);
       } else {
-        dispatch(
-          sessionActions.addEdge(
-            {
-              from: pair[0],
-              to: pair[1],
-              type: edgeType,
-            },
-            {
-              [edgeVariable!]: value,
-            },
-          ) as unknown as AnyAction,
-        );
+        const action = addEdge({
+          from: pair[0],
+          to: pair[1],
+          type: edgeType,
+          attributeData: {
+            [edgeVariable!]: value,
+          },
+        });
+        void dispatch(action);
       }
     }
   };
