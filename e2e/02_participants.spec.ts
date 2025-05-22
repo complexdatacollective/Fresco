@@ -68,6 +68,9 @@ test.describe('Participants page', () => {
 });
 
 test.describe('Complete E2E Test Protocol interview', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+  });
   test('Information interfaces and nav buttons', async ({ page }) => {
     console.log('Beginning Sample Protocol interview:', baseInterviewURL);
 
@@ -121,7 +124,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
       const nodes = await getSessionNodes(page);
       expect(nodes.length).toBe(3);
 
-      await page.waitForTimeout(5000);
       console.log('☑️ Name Generator - Quick Add');
     },
   );
@@ -209,8 +211,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
       const nodes = await getSessionNodes(page);
       expect(nodes.length).toBe(7);
-      // hard wait
-      await page.waitForTimeout(2000);
+
       console.log('☑️ Name Generator - Roster');
     },
   );
@@ -229,7 +230,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
   testWithStore('Sociogram', async ({ page, getSessionEdges }) => {
     await page.goto(`${baseInterviewURL}?step=7`);
-    await page.waitForTimeout(5000); // let interface load
 
     await expect(page.getByTestId('node')).toBeVisible();
     // d&d Alex, Burt, Carrie into the sociogram
@@ -263,8 +263,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
     // Proceed to the next step
     await page.getByTestId('navigation-button').nth(1).click();
-
-    await page.waitForTimeout(5000);
 
     // Connect A & B
     await nodeA.click();
@@ -304,7 +302,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
   testWithStore('dyad census', async ({ page, getSessionEdges }) => {
     await page.goto(`${baseInterviewURL}?step=9`);
-    await page.waitForTimeout(5000); // let interface load
     await expect(page.getByTestId('dyad-introduction-heading')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
     await expect(page.getByTestId('prompt')).toBeVisible();
@@ -324,7 +321,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
   test('tie strength census', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=10`);
-    await page.waitForTimeout(5000); // let interface load
     await expect(page.getByTestId('tiestrength-intro')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
     await expect(page.getByTestId('prompt')).toBeVisible();
@@ -332,7 +328,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.getByText('Burt')).toBeVisible();
     await page.getByTestId('boolean-option').nth(1).click();
     await expect(page.getByText('Carrie')).toBeVisible();
-    await page.waitForTimeout(5000);
     await expect.soft(page).toHaveScreenshot('tie-strength-census.png');
 
     await page.getByTestId('boolean-option').nth(3).click();
@@ -342,7 +337,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
   testWithStore('per alter edge form', async ({ page, getSessionEdges }) => {
     await page.goto(`${baseInterviewURL}?step=11`);
-    await page.waitForTimeout(5000); // let interface load
 
     await expect(page.getByTestId('slidesform-intro')).toBeVisible();
     await page.getByTestId('navigation-button').nth(1).click();
@@ -361,13 +355,9 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
   test('sociogram - select', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=12`);
-    await page.waitForTimeout(5000); // let interface load
 
     await page.getByText('Alex', { exact: true }).click();
     await page.getByText('Burt', { exact: true }).click();
-
-    // hard wait
-    await page.waitForTimeout(5000);
 
     // check for two selected nodes
     await expect(page.locator('.node--selected')).toHaveCount(2);
@@ -420,7 +410,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
       .getByTestId('node')
       .first()
       .dragTo(page.getByTestId('categorical-list-item-0'));
-    await page.waitForTimeout(2000);
     await expect.soft(page).toHaveScreenshot('categorical-bins.png');
 
     console.log('☑️ Categorical bins');
@@ -437,7 +426,6 @@ test.describe('Complete E2E Test Protocol interview', () => {
 
   test('narrative', async ({ page }) => {
     await page.goto(`${baseInterviewURL}?step=16`);
-    await page.waitForTimeout(5000); // let interface load
 
     await page.getByTestId('preset-switcher-label').click();
 
