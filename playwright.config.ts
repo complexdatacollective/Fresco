@@ -41,6 +41,9 @@ export default defineConfig({
       'x-vercel-set-bypass-cookie': 'true',
       'x-vercel-skip-toolbar': '1', // disable vercel toolbar
     },
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
   },
 
   projects: [

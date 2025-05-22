@@ -2,9 +2,9 @@
 
 import type { AnyAction } from '@reduxjs/toolkit';
 import {
-    motion,
-    useAnimate,
-    type ValueAnimationTransition,
+  motion,
+  useAnimate,
+  type ValueAnimationTransition,
 } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -14,9 +14,9 @@ import Navigation from '../components/Navigation';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import {
-    getCurrentStage,
-    getNavigationInfo,
-    makeGetFakeSessionProgress,
+  getCurrentStage,
+  getNavigationInfo,
+  makeGetFakeSessionProgress,
 } from '../selectors/session';
 import { getNavigableStages } from '../selectors/skip-logic';
 import Stage from './Stage';

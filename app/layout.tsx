@@ -1,3 +1,4 @@
+import { MotionConfig } from 'motion/react';
 import { Quicksand } from 'next/font/google';
 import { Toaster } from '~/components/ui/toaster';
 import '~/styles/globals.css';
@@ -17,8 +18,10 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${quicksand.className} antialiased`}>
-        {children}
-        <Toaster />
+        <MotionConfig reducedMotion="user">
+          {children}
+          <Toaster />
+        </MotionConfig>
       </body>
     </html>
   );
