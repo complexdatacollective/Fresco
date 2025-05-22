@@ -91,6 +91,7 @@ test('create test database and setup app', async ({
 
   // STEP 4
   // import participants
+  await page.waitForTimeout(2000); // wait for the page to load
   await page.getByTestId('import-participants-button').click();
 
   // dialog should be visible
