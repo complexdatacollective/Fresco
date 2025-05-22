@@ -442,6 +442,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await expect(page.locator('.node--selected')).toHaveCount(2);
     await page.getByTestId('form-field-radio-input').nth(1).click();
     await expect(page.getByTestId('node').first()).toBeVisible();
+    await page.waitForTimeout(5000); // load
     await expect(page.locator('.node--selected')).toHaveCount(1);
     await page.getByTestId('accordion').nth(0).click();
 
