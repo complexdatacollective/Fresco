@@ -313,6 +313,7 @@ test.describe('Complete E2E Test Protocol interview', () => {
     await page.getByTestId('dyad-yes').click();
     await expect(page.getByText('Butch')).toBeVisible();
     await page.getByTestId('dyad-no').click();
+    await page.waitForTimeout(2000); // wait for next pair
 
     const edges = await getSessionEdges(page);
     expect(edges.length).toBe(3);
