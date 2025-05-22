@@ -39,6 +39,7 @@ export default defineConfig({
     extraHTTPHeaders: {
       'x-vercel-protection-bypass': env.VERCEL_AUTOMATION_BYPASS_SECRET ?? '',
       'x-vercel-set-bypass-cookie': 'true',
+      'x-vercel-skip-toolbar': '1', // disable vercel toolbar
     },
   },
 
