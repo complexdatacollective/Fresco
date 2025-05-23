@@ -1,3 +1,4 @@
+/* eslint-disable no-empty-pattern */
 import type { NcEdge, NcNetwork, NcNode } from '@codaco/shared-consts';
 import { test as base, type Page } from '@playwright/test';
 import type { Session, SessionsState } from '~/lib/interviewer/store';
@@ -12,7 +13,7 @@ type ReduxFixtures = {
 };
 
 export const testWithStore = base.extend<ReduxFixtures>({
-  getSession: async (_, playwrightUse) => {
+  getSession: async ({}, playwrightUse) => {
     await playwrightUse(async (page: Page) => {
       const state = await page.evaluate(() => {
         return window.REDUX_STORE?.getState();
@@ -73,7 +74,7 @@ export const testWithStore = base.extend<ReduxFixtures>({
   },
 
   // Convenience method: Wait for specific node count
-  waitForNodeCount: async (_, playwrightUse) => {
+  waitForNodeCount: async ({}, playwrightUse) => {
     await playwrightUse(async (page: Page, expectedCount: number) => {
       await page.waitForFunction(
         (count) => {
@@ -95,7 +96,7 @@ export const testWithStore = base.extend<ReduxFixtures>({
   },
 
   // Convenience method: Wait for specific edge count
-  waitForEdgeCount: async (_, playwrightUse) => {
+  waitForEdgeCount: async ({}, playwrightUse) => {
     await playwrightUse(async (page: Page, expectedCount: number) => {
       await page.waitForFunction(
         (count) => {
