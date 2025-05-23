@@ -29,7 +29,7 @@ export const store = configureStore({
 export type StageMetadataEntry = [number, string, string, boolean];
 export type StageMetadata = StageMetadataEntry[];
 
-type Session = {
+export type Session = {
   id: string;
   protocolUid: string;
   promptIndex: number;
