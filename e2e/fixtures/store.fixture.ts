@@ -7,17 +7,12 @@ type ReduxFixtures = {
   getSessionNetwork: (page: Page) => Promise<NcNetwork>;
   getSessionEdges: (page: Page) => Promise<NcEdge[]>;
   getSessionNodes: (page: Page) => Promise<NcNode[]>;
-  waitForReduxState: (
-    page: Page,
-    predicate: (state: any) => boolean,
-    options?: { timeout?: number },
-  ) => Promise<void>;
   waitForNodeCount: (page: Page, count: number) => Promise<void>;
   waitForEdgeCount: (page: Page, count: number) => Promise<void>;
 };
 
 export const testWithStore = base.extend<ReduxFixtures>({
-  getSession: async ({}, playwrightUse) => {
+  getSession: async (_, playwrightUse) => {
     await playwrightUse(async (page: Page) => {
       const state = await page.evaluate(() => {
         return window.REDUX_STORE?.getState();
@@ -77,33 +72,8 @@ export const testWithStore = base.extend<ReduxFixtures>({
     });
   },
 
-  // New utility: Wait for Redux state to match a condition
-  waitForReduxState: async ({}, playwrightUse) => {
-    await playwrightUse(
-      async (page: Page, predicate: (state: any) => boolean, options = {}) => {
-        const { timeout = 10000 } = options;
-
-        await page.waitForFunction(
-          (predicateStr) => {
-            const state = window.REDUX_STORE?.getState();
-            if (!state) return false;
-
-            // Create and execute the predicate function
-            const fn = new Function('state', `return ${predicateStr}`);
-            return fn(state);
-          },
-          predicate
-            .toString()
-            .replace(/^.*?=>/, '')
-            .trim(),
-          { timeout },
-        );
-      },
-    );
-  },
-
   // Convenience method: Wait for specific node count
-  waitForNodeCount: async ({}, playwrightUse) => {
+  waitForNodeCount: async (_, playwrightUse) => {
     await playwrightUse(async (page: Page, expectedCount: number) => {
       await page.waitForFunction(
         (count) => {
@@ -125,7 +95,7 @@ export const testWithStore = base.extend<ReduxFixtures>({
   },
 
   // Convenience method: Wait for specific edge count
-  waitForEdgeCount: async ({}, playwrightUse) => {
+  waitForEdgeCount: async (_, playwrightUse) => {
     await playwrightUse(async (page: Page, expectedCount: number) => {
       await page.waitForFunction(
         (count) => {
