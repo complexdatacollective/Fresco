@@ -18,8 +18,8 @@ importers:
         specifier: 4.0.0-alpha.11
         version: 4.0.0-alpha.11
       '@codaco/shared-consts':
-        specifier: 1.0.0-alpha.3
-        version: 1.0.0-alpha.3
+        specifier: 2.0.0
+        version: 2.0.0
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.4(react@18.3.1))
@@ -698,8 +698,8 @@ packages:
     resolution: {integrity: sha512-rCcqlHTh+p18fWFbxmeq/J3nkE3TXZkIvhtub+ZsvR5JRqmefQYIq5zWHC+ygu0Ke4bYUNSPvLXdozmFdbQ5kQ==}
     hasBin: true
 
-  '@codaco/shared-consts@1.0.0-alpha.3':
-    resolution: {integrity: sha512-5jkezcBmyWUBi1RC2wt24hSc1xOtyrZa2mGSrmM9A1ZslqmyUhGd+OSwZQf1oTKLYOozlPgY3/LlArTF+Z0Sng==}
+  '@codaco/shared-consts@2.0.0':
+    resolution: {integrity: sha512-RwBLJzWmoZBWSxp8Sc+aH04KoEUTWnpCFS/mvSW2tWSjvTSgCVTUPB0BpqwRtXTwky1gsUSjPBlzGnddd32jBw==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -6477,9 +6477,7 @@ snapshots:
       ajv: 8.17.1
       zod: 3.25.16
 
-  '@codaco/shared-consts@1.0.0-alpha.3':
-    dependencies:
-      zod: 3.25.16
+  '@codaco/shared-consts@2.0.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:

@@ -24,7 +24,7 @@
   "dependencies": {
     "@codaco/analytics": "7.0.0",
     "@codaco/protocol-validation": "4.0.0-alpha.11",
-    "@codaco/shared-consts": "1.0.0-alpha.3",
+    "@codaco/shared-consts": "2.0.0",
     "@reduxjs/toolkit": "^2.5.0",
     "@xmldom/xmldom": "^0.9.8",
     "@hookform/resolvers": "^5.0.1",
