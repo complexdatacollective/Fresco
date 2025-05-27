@@ -1,8 +1,18 @@
 'use client';
 
-import { useForm, useStore, type AnyFieldApi } from '@tanstack/react-form';
+import {
+  formOptions,
+  mergeForm,
+  useForm,
+  useStore,
+  useTransform,
+  type AnyFieldApi,
+} from '@tanstack/react-form';
+import { initialFormState } from '@tanstack/react-form/nextjs';
+import { useFormState } from 'react-dom';
 import { z } from 'zod';
 import { Button } from '~/lib/ui/components';
+import updateData from './action';
 
 const FormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters long'),
@@ -22,10 +32,22 @@ type ToggleChoiceProps = {
   onChange: (value: string) => void;
   label: string;
   options: ToggleChoiceOption[];
+  name: string;
 };
+
+export const formOpts = formOptions({
+  defaultValues: {
+    name: '',
+    consent: {
+      signature: '',
+      age: '',
+    },
+  },
+});
 
 // placeholder for actual component demonstrating custom input controls
 const ToggleChoice = ({
+  name,
   value,
   onChange,
   label,
@@ -48,6 +70,7 @@ const ToggleChoice = ({
           </button>
         ))}
       </div>
+      <input type="hidden" name={name} value={value} />
     </div>
   );
 };
@@ -56,6 +79,7 @@ const FieldInfo = ({ field }: { field: AnyFieldApi }) => {
     <>
       {field.state.meta.isTouched && !field.state.meta.isValid ? (
         <div className="text-destructive">
+          Client validation:{' '}
           {field.state.meta.errors.map((err) => err.message).join(',')}
         </div>
       ) : null}
@@ -65,30 +89,32 @@ const FieldInfo = ({ field }: { field: AnyFieldApi }) => {
 };
 
 const FormTest = () => {
+  const [state, action] = useFormState(updateData, initialFormState);
+
   const form = useForm({
-    defaultValues: {
-      name: '',
-      consent: {
-        signature: '',
-        age: '',
-      },
-    },
-    onSubmit: async ({ value }) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      alert(`Form submitted with values: ${JSON.stringify(value, null, 2)}`);
-    },
+    ...formOpts,
+    transform: useTransform(
+      (baseForm) => mergeForm(baseForm, state ?? {}),
+      [state],
+    ),
     validators: {
       onChange: FormSchema,
     },
   });
 
   const validationErrors = useStore(form.store, (state) => state.errorMap);
+  const serverErrors = state.errors || [];
 
   return (
     <div className="max-w-md border-2 border-white p-6">
       <h2 className="text-xl">Simple Form</h2>
 
-      <div>
+      <form action={action as never} onSubmit={() => form.handleSubmit()}>
+        {serverErrors.map((error) => (
+          <div className="text-destructive">
+            <p>{JSON.stringify(error)}</p>
+          </div>
+        ))}
         <form.Field
           name="name"
           children={(field) => (
@@ -121,6 +147,7 @@ const FormTest = () => {
                     { value: 'yes', label: 'Yes' },
                     { value: 'no', label: 'No' },
                   ]}
+                  name="consent.signature"
                 />
               </div>
             )}
@@ -138,33 +165,28 @@ const FormTest = () => {
                     { value: 'over-18', label: '18+' },
                     { value: 'refuse', label: 'Refuse to answer' },
                   ]}
+                  name="consent.age"
                 />
               </div>
             )}
           />
         </div>
-      </div>
+        <form.Subscribe
+          selector={(state) => ({
+            isSubmitting: state.isSubmitting,
+            values: state.values,
+            canSubmit: state.canSubmit,
+          })}
+        >
+          {({ isSubmitting, canSubmit }) => (
+            <Button type="submit" disabled={!canSubmit}>
+              {isSubmitting ? 'Submitting...' : 'Submit Form'}
+            </Button>
+          )}
+        </form.Subscribe>
+      </form>
+      <h1> Reactivity demo:</h1>
 
-      <form.Subscribe
-        selector={(state) => ({
-          isSubmitting: state.isSubmitting,
-          values: state.values,
-          canSubmit: state.canSubmit,
-        })}
-      >
-        {({ isSubmitting, canSubmit }) => (
-          <Button
-            type="submit"
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.preventDefault();
-              form.handleSubmit();
-            }}
-            disabled={!canSubmit}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Form'}
-          </Button>
-        )}
-      </form.Subscribe>
       <div className="py-4">
         <form.Subscribe
           selector={(state) => ({
@@ -173,8 +195,8 @@ const FormTest = () => {
           })}
           children={({ signature, age }) => (
             <div className="flex flex-col gap-2">
-              Components reactive to form state values. Not connected to zod
-              validation:
+              Components reactive to form state values (form.Subscribe). Not
+              related to client validation
               {signature === 'yes' && age === 'over-18' && (
                 <div className="border-success rounded border-2 p-4">
                   ✅ All consent requirements met
@@ -194,19 +216,10 @@ const FormTest = () => {
           )}
         />
       </div>
-      <form.Subscribe
-        selector={(state) => state.values}
-        children={(values) => (
-          <div className="pt-4">
-            <div>Current values (reactive with form.Subscribe):</div>
-            <pre>{JSON.stringify(values, null, 2)}</pre>
-          </div>
-        )}
-      />
 
       <>
         <div className="pt-4">
-          <div>Validation errors (reactive with useStore hook):</div>
+          <div>Client validation errors (reactive with useStore hook):</div>
           <pre>{JSON.stringify(validationErrors.onChange, null, 2)}</pre>
         </div>
       </>
