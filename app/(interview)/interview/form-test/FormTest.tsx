@@ -1,6 +1,16 @@
 'use client';
 
-import { useForm } from '@tanstack/react-form';
+import { useForm, useStore, type AnyFieldApi } from '@tanstack/react-form';
+import { z } from 'zod';
+import { Button } from '~/lib/ui/components';
+
+const FormSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters long'),
+  consent: z.object({
+    signature: z.string(),
+    age: z.string(),
+  }),
+});
 
 type ToggleChoiceOption = {
   value: string;
@@ -41,6 +51,18 @@ const ToggleChoice = ({
     </div>
   );
 };
+const FieldInfo = ({ field }: { field: AnyFieldApi }) => {
+  return (
+    <>
+      {field.state.meta.isTouched && !field.state.meta.isValid ? (
+        <div className="text-destructive">
+          {field.state.meta.errors.map((err) => err.message).join(',')}
+        </div>
+      ) : null}
+      {field.state.meta.isValidating ? 'Validating...' : null}
+    </>
+  );
+};
 
 const FormTest = () => {
   const form = useForm({
@@ -52,10 +74,15 @@ const FormTest = () => {
       },
     },
     onSubmit: async ({ value }) => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       alert(`Form submitted with values: ${JSON.stringify(value, null, 2)}`);
     },
+    validators: {
+      onChange: FormSchema,
+    },
   });
+
+  const validationErrors = useStore(form.store, (state) => state.errorMap);
 
   return (
     <div className="max-w-md border-2 border-white p-6">
@@ -74,12 +101,13 @@ const FormTest = () => {
                 className="text-primary w-full border"
                 placeholder="Enter your name"
               />
+              <FieldInfo field={field} />
             </div>
           )}
         />
 
         <div className="border-t pt-4">
-          <h3 className="text-md">Nested Form</h3>
+          <h3>Nested Form</h3>
 
           <form.Field
             name="consent.signature"
@@ -117,7 +145,27 @@ const FormTest = () => {
         </div>
       </div>
 
-      <div className="pt-4">
+      <form.Subscribe
+        selector={(state) => ({
+          isSubmitting: state.isSubmitting,
+          values: state.values,
+          canSubmit: state.canSubmit,
+        })}
+      >
+        {({ isSubmitting, canSubmit }) => (
+          <Button
+            type="submit"
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            disabled={!canSubmit}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Form'}
+          </Button>
+        )}
+      </form.Subscribe>
+      <div className="py-4">
         <form.Subscribe
           selector={(state) => ({
             signature: state.values.consent.signature,
@@ -125,6 +173,8 @@ const FormTest = () => {
           })}
           children={({ signature, age }) => (
             <div className="flex flex-col gap-2">
+              Components reactive to form state values. Not connected to zod
+              validation:
               {signature === 'yes' && age === 'over-18' && (
                 <div className="border-success rounded border-2 p-4">
                   ✅ All consent requirements met
@@ -154,32 +204,12 @@ const FormTest = () => {
         )}
       />
 
-      <form.Subscribe
-        selector={(state) => ({
-          isSubmitting: state.isSubmitting,
-          values: state.values,
-        })}
-        children={({ isSubmitting, values }) => {
-          const isDisabled =
-            !values.name || !values.consent.signature || !values.consent.age;
-
-          return (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                form.handleSubmit();
-              }}
-              disabled={isDisabled}
-              className={`w-full rounded p-2 ${
-                isDisabled ? 'bg-muted cursor-not-allowed' : 'bg-accent'
-              }`}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Form'}
-            </button>
-          );
-        }}
-      />
+      <>
+        <div className="pt-4">
+          <div>Validation errors (reactive with useStore hook):</div>
+          <pre>{JSON.stringify(validationErrors.onChange, null, 2)}</pre>
+        </div>
+      </>
     </div>
   );
 };
