@@ -10,12 +10,7 @@ import { formOpts } from './FormTest';
 const serverValidate = createServerValidate({
   ...formOpts,
   onServerValidate: ({ value }) => {
-    if (value.consent.signature !== 'yes') {
-      return 'Server validation: You must sign to give consent.';
-    }
-    if (value.consent.age !== 'over-18') {
-      return 'Server validation: You must be 18+ to participate.';
-    }
+    console.log('Server validation triggered with value:', value);
   },
 });
 
