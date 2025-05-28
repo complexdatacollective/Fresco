@@ -2,6 +2,7 @@ import {
   type EntityAttributesProperty,
   type NcNode,
 } from '@codaco/shared-consts';
+import { useForm } from '@tanstack/react-form';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -139,6 +140,12 @@ const QuickAddForm = ({
     }
   }, [disabled]);
 
+  const form = useForm({
+    defaultValues: {
+      nodeLabel: '',
+    },
+  });
+
   return (
     <motion.div
       className="flip-form"
@@ -161,31 +168,37 @@ const QuickAddForm = ({
                 handleSubmit();
               }}
             >
-              <motion.div
-                key="tool-tip"
-                className="tool-tip"
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: showTooltip ? 1 : 0,
-                }}
-              >
-                <span>Press enter to add...</span>
-              </motion.div>
-              <motion.input
-                initial={inputVariants.hide}
-                animate={inputVariants.show}
-                exit={inputVariants.hide}
-                className="label-input"
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                onChange={(e) => setNodeLabel(e.target.value)}
-                onBlur={handleBlur}
-                placeholder="Type a label and press enter..."
-                value={nodeLabel}
-                type="text"
-              />
+              <form.Field name="nodeLabel">
+                {() => (
+                  <>
+                    <motion.div
+                      key="tool-tip"
+                      className="tool-tip"
+                      initial={{
+                        opacity: 0,
+                      }}
+                      animate={{
+                        opacity: showTooltip ? 1 : 0,
+                      }}
+                    >
+                      <span>Press enter to add...</span>
+                    </motion.div>
+                    <motion.input
+                      initial={inputVariants.hide}
+                      animate={inputVariants.show}
+                      exit={inputVariants.hide}
+                      className="label-input"
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
+                      onChange={(e) => setNodeLabel(e.target.value)}
+                      onBlur={handleBlur}
+                      placeholder="Type a label and press enter..."
+                      value={nodeLabel}
+                      type="text"
+                    />
+                  </>
+                )}
+              </form.Field>
             </form>
             <Node
               label={nodeLabel}
