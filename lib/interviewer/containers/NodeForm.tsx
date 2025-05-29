@@ -10,18 +10,17 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { submit } from 'redux-form';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
 import { useAppDispatch } from '../store';
-import Form from './Form';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
+import TanStackForm from './TanStackForms/Form';
 
-const reduxFormName = 'NODE_FORM';
+const FORM_NAME = 'node-form';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -42,7 +41,6 @@ const NodeForm = (props: NodeFormProps) => {
   const [show, setShow] = useState(false);
 
   const dispatch = useAppDispatch();
-  const submitForm = () => dispatch(submit(reduxFormName));
 
   const updateNode = useCallback(
     (payload: {
@@ -56,10 +54,7 @@ const NodeForm = (props: NodeFormProps) => {
   const useFullScreenForms = false;
 
   const handleSubmit = useCallback(
-    (rawFormData: Record<string, VariableValue>) => {
-      // This is needed because redux-form is passing its state directly, causing
-      // a mutation error.
-      const formData = structuredClone(rawFormData);
+    (formData: Record<string, VariableValue>) => {
       if (!selectedNode) {
         addNode({ ...newNodeAttributes, ...formData });
       } else {
@@ -122,7 +117,7 @@ const NodeForm = (props: NodeFormProps) => {
               key="submit"
               aria-label="Submit"
               type="submit"
-              onClick={submitForm}
+              form={FORM_NAME}
             >
               Finished
             </Button>
@@ -131,16 +126,13 @@ const NodeForm = (props: NodeFormProps) => {
         allowMaximize={false}
       >
         <Scroller>
-          <Form
-            {...form}
+          <TanStackForm
+            fields={form.fields}
             subject={subject}
-            initialValues={selectedNode?.[entityAttributesProperty]}
             onSubmit={handleSubmit}
+            initialValues={selectedNode?.[entityAttributesProperty]}
             autoFocus
-            form={reduxFormName}
-            validationMeta={{
-              entityId: selectedNode?.[entityPrimaryKeyProperty],
-            }}
+            id={FORM_NAME}
           />
         </Scroller>
       </Overlay>
