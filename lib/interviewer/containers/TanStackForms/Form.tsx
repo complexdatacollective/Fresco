@@ -40,7 +40,7 @@ const TanStackForm = ({
   subject?: { entity: string; type?: string };
   onSubmit: (formData: Record<string, VariableValue>) => void;
   submitButton?: React.ReactNode;
-  initialValues?: VariableValue[];
+  initialValues?: Record<string, VariableValue>;
   autoFocus?: boolean;
   id?: string;
 }) => {
@@ -49,7 +49,7 @@ const TanStackForm = ({
   const rehydratedFields = useSelector((state) => {
     const result = rehydrateFields(state, { fields, subject });
     return result;
-  }) as FieldType; // todo: type this
+  }) as FieldType[];
 
   const defaultValues = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};

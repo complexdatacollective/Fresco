@@ -1,13 +1,13 @@
 import {
-  type ComponentType,
   ComponentTypes,
+  type ComponentType,
   type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { type ReactFormExtendedApi } from '@tanstack/react-form';
+import { useStore, type ReactFormExtendedApi } from '@tanstack/react-form';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
-import { useStore } from 'react-redux';
+import { useStore as useReduxStore } from 'react-redux';
 import * as Fields from '~/lib/ui/components/Fields';
 import { type AppStore } from '../../store';
 import {
@@ -64,26 +64,30 @@ const Field = ({
   key?: string;
   form: ReactFormExtendedApi<
     Record<string, VariableValue>,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined
-  >; //todo fix type
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any
+  >; // todo: see if this can be simplified or made more specific
 
   autoFocus?: boolean;
 }) => {
   const { fieldLabel, name, component, validation, options, validate } =
     fieldProps;
-  const store = useStore() as AppStore;
+  const store = useReduxStore() as AppStore;
   const InputComponent = useMemo<React.ComponentType<any>>(
     () => getInputComponent(component),
     [component],
   );
+
+  const otherValues = useStore(form.store, (state) => state.values);
+  console.log('reactive values', otherValues);
+
   const validations = useMemo(
     () => validate ?? getValidation(validation ?? {}, store),
     [validate, validation, store],
@@ -114,21 +118,14 @@ const Field = ({
             onChange: (
               valueOrEvent: React.ChangeEvent<HTMLInputElement> | VariableValue,
             ) => {
-              if (
+              const value =
                 typeof valueOrEvent === 'object' &&
                 valueOrEvent !== null &&
-                'target' in valueOrEvent &&
-                (valueOrEvent as React.ChangeEvent<HTMLInputElement>).target !==
-                  undefined
-              ) {
-                field.handleChange(
-                  (valueOrEvent as React.ChangeEvent<HTMLInputElement>).target
-                    .value,
-                );
-              } else {
-                //  toggle buttons, radio groups, etc
-                field.handleChange(valueOrEvent as VariableValue);
-              }
+                'target' in valueOrEvent
+                  ? (valueOrEvent as React.ChangeEvent<HTMLInputElement>).target
+                      .value
+                  : valueOrEvent;
+              field.handleChange(value);
             },
           },
           meta: {
