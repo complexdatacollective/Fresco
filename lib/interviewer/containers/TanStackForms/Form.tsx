@@ -1,20 +1,30 @@
-import { type ComponentType } from '@codaco/protocol-validation';
+import {
+  type ComponentType,
+  type VariableType,
+} from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { useForm } from '@tanstack/react-form';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { makeRehydrateFields } from '../../selectors/forms';
+import type { VariableValidation } from '../../utils/field-validation';
 import Field from './Field';
 
-type FieldType = {
+type Field = {
+  prompt: string;
+  variable: string;
+};
+
+export type FieldType = {
   prompt: string;
   name: string;
   component: ComponentType;
   placeholder?: string;
   variable?: string;
-  value?: any;
+  value?: VariableValue;
   subject?: { entity: string; type?: string };
-  // validation?: any;
+  validation?: VariableValidation;
+  type: VariableType;
 };
 
 const TanStackForm = ({
@@ -26,7 +36,7 @@ const TanStackForm = ({
   autoFocus,
   id,
 }: {
-  fields: FieldType[];
+  fields: Field[];
   subject?: { entity: string; type?: string };
   onSubmit: (formData: Record<string, VariableValue>) => void;
   submitButton?: React.ReactNode;
@@ -39,7 +49,7 @@ const TanStackForm = ({
   const rehydratedFields = useSelector((state) => {
     const result = rehydrateFields(state, { fields, subject });
     return result;
-  }); // todo: type this
+  }) as FieldType; // todo: type this
 
   const defaultValues = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};
@@ -51,16 +61,19 @@ const TanStackForm = ({
 
   const form = useForm({
     defaultValues,
+    onSubmit: ({ value }) => {
+      // will only be called if validation passes
+      handleFormSubmit(value);
+    },
   });
 
   return (
     <div>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const formValues = form.state.values;
-          handleFormSubmit(formValues);
+          await form.handleSubmit();
         }}
         id={id}
       >

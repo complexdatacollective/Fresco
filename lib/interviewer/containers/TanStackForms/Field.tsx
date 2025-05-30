@@ -4,6 +4,7 @@ import {
   type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
+import { type ReactFormExtendedApi } from '@tanstack/react-form';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import { useStore } from 'react-redux';
@@ -11,7 +12,7 @@ import * as Fields from '~/lib/ui/components/Fields';
 import { type AppStore } from '../../store';
 import {
   getValidation,
-  ValidationFunction,
+  type ValidationFunction,
   type VariableValidation,
 } from '../../utils/field-validation';
 
@@ -50,7 +51,7 @@ type FieldProps = {
   validate?: ValidationFunction;
 
   type: VariableType;
-  value: VariableValue;
+  value?: VariableValue;
   options?: { label: string; value: VariableValue }[];
 };
 
@@ -61,48 +62,69 @@ const Field = ({
 }: {
   field: FieldProps;
   key?: string;
-  form: any; //todo: type this properly
+  form: ReactFormExtendedApi<
+    Record<string, VariableValue>,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined
+  >; //todo fix type
+
   autoFocus?: boolean;
 }) => {
   const { fieldLabel, name, component, validation, options, validate } =
     fieldProps;
-  console.log(validate);
   const store = useStore() as AppStore;
-  const InputComponent = useMemo(
+  const InputComponent = useMemo<React.ComponentType<any>>(
     () => getInputComponent(component),
     [component],
   );
   const validateFunction = useMemo(
     () => validate ?? getValidation(validation ?? {}, store),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
+    [validate, validation, store],
   );
 
-  console.log('validate funciton', validation, validateFunction);
+  const validators = validateFunction[0]
+    ? {
+        onChange: ({ value }: { value: VariableValue }) =>
+          validateFunction[0](value),
+      }
+    : {};
 
   return (
-    <form.Field
-      name={name}
-      validators={{
-        onBlur: ({ value }) => validateFunction(value),
-      }}
-      children={(field) => {
+    <form.Field name={name} validators={validators}>
+      {(field) => {
         const inputProps = {
           input: {
             name,
             value: field.state.value,
-            onChange: (valueOrEvent: any) => {
-              // event for text inputs, etc
-              if (valueOrEvent?.target !== undefined) {
-                field.handleChange(valueOrEvent.target.value);
+            onChange: (
+              valueOrEvent: React.ChangeEvent<HTMLInputElement> | VariableValue,
+            ) => {
+              if (
+                typeof valueOrEvent === 'object' &&
+                valueOrEvent !== null &&
+                'target' in valueOrEvent &&
+                (valueOrEvent as React.ChangeEvent<HTMLInputElement>).target !==
+                  undefined
+              ) {
+                field.handleChange(
+                  (valueOrEvent as React.ChangeEvent<HTMLInputElement>).target
+                    .value,
+                );
               } else {
                 //  toggle buttons, radio groups, etc
-                field.handleChange(valueOrEvent);
+                field.handleChange(valueOrEvent as VariableValue);
               }
             },
           },
           meta: {
-            error: field.state.meta.errors?.[0]?.message || null, // pass validation errors if invalid is true
+            error: field.state.meta.errors[0] ?? null, // todo: handle multiple errors
             invalid: !field.state.meta.isValid,
             touched: field.state.meta.isTouched,
           },
@@ -114,7 +136,7 @@ const Field = ({
 
         return <InputComponent {...inputProps} />;
       }}
-    />
+    </form.Field>
   );
 };
 
