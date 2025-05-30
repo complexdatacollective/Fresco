@@ -84,15 +84,23 @@ const Field = ({
     () => getInputComponent(component),
     [component],
   );
-  const validateFunction = useMemo(
+  const validations = useMemo(
     () => validate ?? getValidation(validation ?? {}, store),
     [validate, validation, store],
   );
 
-  const validators = validateFunction[0]
+  const validators = validations
     ? {
-        onChange: ({ value }: { value: VariableValue }) =>
-          validateFunction[0](value),
+        onChange: ({ value }: { value: VariableValue }) => {
+          const validationFunctions = Array.isArray(validations)
+            ? validations
+            : [validations];
+          return validationFunctions
+            .map((validationFunction) =>
+              validationFunction(value, form.store.state.values, {}, name),
+            )
+            .find(Boolean);
+        },
       }
     : {};
 
@@ -124,7 +132,7 @@ const Field = ({
             },
           },
           meta: {
-            error: field.state.meta.errors[0] ?? null, // todo: handle multiple errors
+            error: field.state.meta.errors[0] ?? null, // show first error only
             invalid: !field.state.meta.isValid,
             touched: field.state.meta.isTouched,
           },
