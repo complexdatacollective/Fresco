@@ -4,6 +4,7 @@ import { type AssetInsertType } from '~/schemas/protocol';
 
 // Fetch protocol.json as a parsed object from the protocol zip.
 export const getProtocolJson = async (protocolZip: Zip) => {
+  console.log(protocolZip.files);
   const protocolString = await protocolZip
     ?.file('protocol.json')
     ?.async('string');
@@ -31,7 +32,7 @@ type FetchedFileAsset = Omit<
 type ProtocolAssetsResult = {
   fileAssets: FetchedFileAsset[];
   apikeyAssets: AssetInsertType[];
-}
+};
 
 export const getProtocolAssets = async (
   protocolJson: Protocol,
