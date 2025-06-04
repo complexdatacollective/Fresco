@@ -4,17 +4,17 @@ import {
   type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { useStore, type ReactFormExtendedApi } from '@tanstack/react-form';
+import { type ReactFormExtendedApi } from '@tanstack/react-form';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import { useStore as useReduxStore } from 'react-redux';
-import * as Fields from '~/lib/ui/components/Fields';
-import { type AppStore } from '../../store';
+import { type AppStore } from '~/lib/interviewer/store';
 import {
   getValidation,
   type ValidationFunction,
   type VariableValidation,
-} from '../../utils/field-validation';
+} from '~/lib/interviewer/utils/field-validation';
+import * as Fields from '~/lib/ui/components/Fields';
 
 const ComponentTypeNotFound = (componentType: string) => {
   const ComponentTypeNotFoundInner = () => (
@@ -85,8 +85,10 @@ const Field = ({
     [component],
   );
 
-  const otherValues = useStore(form.store, (state) => state.values);
-  console.log('reactive values', otherValues);
+  let validationVariables;
+  if (typeof validation === 'object') {
+    validationVariables = Object.values(validation) as string[];
+  }
 
   const validations = useMemo(
     () => validate ?? getValidation(validation ?? {}, store),
@@ -95,6 +97,7 @@ const Field = ({
 
   const validators = validations
     ? {
+        onChangeListenTo: validationVariables,
         onChange: ({ value }: { value: VariableValue }) => {
           const validationFunctions = Array.isArray(validations)
             ? validations
