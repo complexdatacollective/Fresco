@@ -410,3 +410,43 @@ export const getValidation = (
     return () => `Validation "${type}" not found`;
   });
 };
+
+export const getTanStackFormValidators = (
+  validation: VariableValidation | Record<string, ValidationFunction>,
+  store: AppStore,
+  validate: ValidationFunction | undefined,
+  name: string,
+) => {
+  let listenToVariables;
+  if (typeof validation === 'object') {
+    listenToVariables = Object.values(validation).filter(
+      (value) => typeof value === 'string',
+    );
+  }
+
+  const validations: ValidationFunction[] =
+    (validate as unknown as ValidationFunction[]) ??
+    getValidation(validation ?? {}, store);
+
+  const validators = validations
+    ? {
+        onChangeListenTo: listenToVariables,
+        onBlurListenTo: listenToVariables,
+        onChange: ({ value, fieldApi }) => {
+          const currentValues = fieldApi.form.store.state.values;
+
+          const validationFunctions = Array.isArray(validations)
+            ? validations
+            : [validations];
+
+          return validationFunctions
+            .map((validationFunction) =>
+              validationFunction(value, currentValues, {}, name),
+            )
+            .find(Boolean);
+        },
+      }
+    : {};
+
+  return validators;
+};

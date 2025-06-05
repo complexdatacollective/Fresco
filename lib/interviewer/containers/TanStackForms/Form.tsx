@@ -4,11 +4,16 @@ import {
   type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { useForm, type ValidationErrorMap } from '@tanstack/react-form';
+import { type ValidationErrorMap } from '@tanstack/react-form';
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useStore as useReduxStore, useSelector } from 'react-redux';
+import { useAppForm } from '../../hooks/useTanStackForm';
 import { makeRehydrateFields } from '../../selectors/forms';
-import type { VariableValidation } from '../../utils/field-validation';
+import {
+  getTanStackFormValidators,
+  type ValidationFunction,
+  type VariableValidation,
+} from '../../utils/field-validation';
 import Field from './Field';
 
 const getScrollParent = (node: HTMLElement): Element => {
@@ -105,6 +110,7 @@ export type FieldType = {
   value?: VariableValue;
   subject?: { entity: string; type?: string };
   validation?: VariableValidation;
+  validate: ValidationFunction;
   type: VariableType;
 };
 
@@ -127,10 +133,10 @@ const TanStackForm = ({
 }) => {
   const rehydrateFields = useMemo(() => makeRehydrateFields(), []);
 
-  const rehydratedFields = useSelector((state) => {
-    const result = rehydrateFields(state, { fields, subject });
+  const rehydratedFields = useSelector((state): FieldType[] => {
+    const result = rehydrateFields(state, { fields, subject }) as FieldType[];
     return result;
-  }) as FieldType[];
+  });
 
   const defaultValues = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};
@@ -140,7 +146,7 @@ const TanStackForm = ({
     return defaults;
   }, [rehydratedFields, initialValues]);
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues,
     onSubmit: ({ value }) => {
       // will only be called if validation passes
@@ -152,6 +158,25 @@ const TanStackForm = ({
     },
   });
 
+  const store = useReduxStore();
+
+  const fieldsWithProps = useMemo(() => {
+    return rehydratedFields.map((field: FieldType, index: number) => {
+      const isFirst = autoFocus && index === 0;
+      const validators = getTanStackFormValidators(
+        field.validation ?? {},
+        store,
+        field.validate,
+        field.name,
+      );
+      return {
+        ...field,
+        isFirst,
+        validators,
+      };
+    });
+  }, [rehydratedFields, autoFocus, store]);
+
   return (
     <div>
       <form
@@ -162,17 +187,15 @@ const TanStackForm = ({
         }}
         id={id}
       >
-        {rehydratedFields.map((field: FieldType, index: number) => {
-          const isFirst = autoFocus && index === 0;
-          return (
-            <Field
-              field={field}
-              key={`${field.name} ${index}`}
-              form={form}
-              autoFocus={isFirst}
-            />
-          );
-        })}
+        {fieldsWithProps.map((field, index) => (
+          <form.AppField
+            name={field.name}
+            key={`${field.name} ${index}`}
+            validators={field.validators}
+          >
+            {() => <Field field={field} autoFocus={field.isFirst} />}
+          </form.AppField>
+        ))}
         {submitButton}
       </form>
     </div>
