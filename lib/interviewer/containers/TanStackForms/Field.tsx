@@ -49,6 +49,7 @@ type FieldProps = {
   type: VariableType;
   value?: VariableValue;
   options?: { label: string; value: VariableValue }[];
+  parameters: Record<string, unknown> | null;
 };
 
 const Field = ({
@@ -62,7 +63,7 @@ const Field = ({
 }) => {
   const field = useFieldContext<unknown>(); // todo: type this properly
 
-  const { fieldLabel, name, component, options } = fieldProps;
+  const { fieldLabel, name, component, options, type, parameters } = fieldProps;
   const InputComponent = useMemo<React.ComponentType<any>>(
     () => getInputComponent(component),
     [component],
@@ -83,6 +84,18 @@ const Field = ({
             : valueOrEvent;
         field.handleChange(value);
       },
+      onBlur: (value?: VariableValue) => {
+        // todo: come up with a better way to handle this
+        // need system for different input types
+        // this check is current workaround for issues with text inputs
+        if (type === 'number' || type === 'scalar' || type === 'ordinal') {
+          // sliders - value is passed directly to onBlur
+          if (value !== undefined) {
+            field.handleChange(value);
+          }
+          field.handleBlur();
+        }
+      },
     },
     meta: {
       error: field.state.meta.errors[0] ?? null, // show first error only
@@ -92,7 +105,9 @@ const Field = ({
     label: fieldLabel,
     fieldLabel,
     options,
+    parameters,
     autoFocus,
+    type,
   };
 
   return <InputComponent {...inputProps} />;
