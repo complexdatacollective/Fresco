@@ -69,8 +69,13 @@ const Field = ({
       onChange: (value: VariableValue) => {
         field.handleChange(value);
       },
-      onBlur: () => {
-        field.handleBlur();
+      onBlur: (value?: VariableValue) => {
+        if (type === 'number' || type === 'scalar' || type === 'ordinal') {
+          if (value !== undefined) {
+            field.handleChange(value);
+          }
+          field.handleBlur();
+        }
       },
     },
     meta: {
