@@ -42,6 +42,7 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
 
 type FieldProps = {
   fieldLabel?: string;
+  label?: string;
   name: string;
   component: ComponentType;
   validation?: VariableValidation;
@@ -63,7 +64,8 @@ const Field = ({
 }) => {
   const field = useFieldContext<unknown>(); // todo: type this properly
 
-  const { fieldLabel, name, component, options, type, parameters } = fieldProps;
+  const { fieldLabel, name, component, options, type, parameters, label } =
+    fieldProps;
   const InputComponent = useMemo<React.ComponentType<any>>(
     () => getInputComponent(component),
     [component],
@@ -102,7 +104,7 @@ const Field = ({
       invalid: !field.state.meta.isValid,
       touched: field.state.meta.isTouched,
     },
-    label: fieldLabel,
+    label,
     fieldLabel,
     options,
     parameters,
