@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useAppForm } from '../../hooks/useTanStackForm';
 import { makeRehydrateFields } from '../../selectors/forms';
+import { AppStore } from '../../store';
 import {
   getTanStackFormValidators,
   type ValidationFunction,
@@ -54,15 +55,7 @@ const getScrollParent = (node: HTMLElement): Element => {
   return scrollParent(node);
 };
 
-const scrollToFirstError = (
-  errors: Record<
-    string,
-    {
-      errors: ValidationError[];
-      errorMap: ValidationErrorMap;
-    }
-  >,
-) => {
+const scrollToFirstError = (errors: TanStackFormErrors) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check
   // vertical position to ensure it is actually the "first" in page order (topmost).
   if (!errors) {
@@ -101,17 +94,25 @@ type Field = {
   variable: string;
 };
 
+type TanStackFormErrors = Record<
+  string,
+  {
+    errors: ValidationError[];
+    errorMap: ValidationErrorMap;
+  }
+>;
+
 export type FieldType = {
-  prompt: string;
+  fieldLabel?: string;
+  label?: string;
   name: string;
   component: ComponentType;
-  placeholder?: string;
-  variable?: string;
-  value?: VariableValue;
-  subject?: { entity: string; type?: string };
   validation?: VariableValidation;
-  validate: ValidationFunction;
+  validate?: ValidationFunction;
   type: VariableType;
+  value?: VariableValue;
+  options?: { label: string; value: VariableValue }[];
+  parameters: Record<string, unknown> | null;
 };
 
 const TanStackForm = ({
@@ -153,12 +154,12 @@ const TanStackForm = ({
       handleFormSubmit(value);
     },
     onSubmitInvalid: ({ formApi }) => {
-      const errors = formApi.getAllErrors().fields;
+      const errors = formApi.getAllErrors().fields as TanStackFormErrors;
       scrollToFirstError(errors);
     },
   });
 
-  const store = useReduxStore();
+  const store = useReduxStore() as AppStore;
 
   const fieldsWithProps = useMemo(() => {
     return rehydratedFields.map((field: FieldType, index: number) => {

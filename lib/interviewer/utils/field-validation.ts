@@ -432,7 +432,15 @@ export const getTanStackFormValidators = (
     ? {
         onChangeListenTo: listenToVariables,
         onBlurListenTo: listenToVariables,
-        onChange: ({ value, fieldApi }) => {
+        onChange: ({
+          value,
+          fieldApi,
+        }: {
+          value: FieldValue;
+          fieldApi: {
+            form: { store: { state: { values: Record<string, FieldValue> } } };
+          };
+        }) => {
           const currentValues = fieldApi.form.store.state.values;
 
           const validationFunctions = Array.isArray(validations)

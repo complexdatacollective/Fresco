@@ -1,17 +1,13 @@
 import {
   ComponentTypes,
   type ComponentType,
-  type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
-import {
-  type ValidationFunction,
-  type VariableValidation,
-} from '~/lib/interviewer/utils/field-validation';
 import * as Fields from '~/lib/ui/components/Fields';
 import { useFieldContext } from '../../hooks/useTanStackForm';
+import { FieldType } from './Form';
 
 const ComponentTypeNotFound = (componentType: string) => {
   const ComponentTypeNotFoundInner = () => (
@@ -40,29 +36,16 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
  * @param {object} validation Validation methods
  */
 
-type FieldProps = {
-  fieldLabel?: string;
-  label?: string;
-  name: string;
-  component: ComponentType;
-  validation?: VariableValidation;
-  validate?: ValidationFunction;
-  type: VariableType;
-  value?: VariableValue;
-  options?: { label: string; value: VariableValue }[];
-  parameters: Record<string, unknown> | null;
-};
-
 const Field = ({
   field: fieldProps,
   autoFocus,
 }: {
-  field: FieldProps;
+  field: FieldType;
   key?: string;
 
   autoFocus?: boolean;
 }) => {
-  const field = useFieldContext<unknown>(); // todo: type this properly
+  const field = useFieldContext<any>();
 
   const { fieldLabel, name, component, options, type, parameters, label } =
     fieldProps;
