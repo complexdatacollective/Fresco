@@ -7,7 +7,7 @@ type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
   input: {
     name: string;
     value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (value: string) => void;
     onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
     onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   };
@@ -82,6 +82,7 @@ const TextInput = ({
           type={type}
           onBlur={handleBlur}
           onFocus={handleFocus}
+          onChange={(e) => input.onChange && input.onChange(e.target.value)}
         />
         {adornmentLeft && (
           <div className="form-field-text__adornment-left">{adornmentLeft}</div>

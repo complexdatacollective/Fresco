@@ -58,15 +58,7 @@ const Field = ({
     input: {
       name,
       value: field.state.value,
-      onChange: (
-        valueOrEvent: React.ChangeEvent<HTMLInputElement> | VariableValue,
-      ) => {
-        const value =
-          typeof valueOrEvent === 'object' &&
-          valueOrEvent !== null &&
-          'target' in valueOrEvent
-            ? (valueOrEvent as React.ChangeEvent<HTMLInputElement>).target.value
-            : valueOrEvent;
+      onChange: (value: VariableValue) => {
         field.handleChange(value);
       },
       onBlur: (value?: VariableValue) => {
