@@ -1,22 +1,14 @@
-import {
-  type ComponentType,
-  type ValidationError,
-  type VariableType,
-} from '@codaco/protocol-validation';
+import { type ValidationError } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { type ValidationErrorMap } from '@tanstack/react-form';
 import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useAppForm } from '../../hooks/useTanStackForm';
 import { makeRehydrateFields } from '../../selectors/forms';
-import { AppStore } from '../../store';
-import {
-  getTanStackFormValidators,
-  type ValidationFunction,
-  type VariableValidation,
-} from '../../utils/field-validation';
+import { type AppStore } from '../../store';
+import { getTanStackFormValidators } from '../../utils/field-validation';
+import type { FieldType } from './Field';
 import Field from './Field';
-
 const getScrollParent = (node: HTMLElement): Element => {
   const regex = /(auto|scroll)/;
   const parents = (_node: Element, ps: Element[]): Element[] => {
@@ -101,19 +93,6 @@ type TanStackFormErrors = Record<
     errorMap: ValidationErrorMap;
   }
 >;
-
-export type FieldType = {
-  fieldLabel?: string;
-  label?: string;
-  name: string;
-  component: ComponentType;
-  validation?: VariableValidation;
-  validate?: ValidationFunction;
-  type: VariableType;
-  value?: VariableValue;
-  options?: { label: string; value: VariableValue }[];
-  parameters: Record<string, unknown> | null;
-};
 
 const TanStackForm = ({
   fields,

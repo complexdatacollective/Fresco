@@ -1,13 +1,30 @@
 import {
-  ComponentTypes,
   type ComponentType,
+  ComponentTypes,
+  type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import * as Fields from '~/lib/ui/components/Fields';
 import { useFieldContext } from '../../hooks/useTanStackForm';
-import { FieldType } from './Form';
+import type {
+  ValidationFunction,
+  VariableValidation,
+} from '../../utils/field-validation';
+
+export type FieldType = {
+  fieldLabel?: string;
+  label?: string;
+  name: string;
+  component: ComponentType;
+  validation?: VariableValidation;
+  validate?: ValidationFunction;
+  type: VariableType;
+  value?: VariableValue;
+  options?: { label: string; value: VariableValue }[];
+  parameters: Record<string, unknown> | null;
+};
 
 const ComponentTypeNotFound = (componentType: string) => {
   const ComponentTypeNotFoundInner = () => (
@@ -26,15 +43,6 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
   const def = get(ComponentTypes, componentType);
   return get(Fields, def, ComponentTypeNotFound(componentType));
 };
-
-/**
- * Renders a tanstack form field in the style of our app.
- * @param {string} label Presentational label
- * @param {string} name Property name
- * @param {string} component Field component
- * @param {string} placeholder Presentational placeholder text
- * @param {object} validation Validation methods
- */
 
 const Field = ({
   field: fieldProps,
@@ -61,17 +69,8 @@ const Field = ({
       onChange: (value: VariableValue) => {
         field.handleChange(value);
       },
-      onBlur: (value?: VariableValue) => {
-        // todo: come up with a better way to handle this
-        // need system for different input types
-        // this check is current workaround for issues with text inputs
-        if (type === 'number' || type === 'scalar' || type === 'ordinal') {
-          // sliders - value is passed directly to onBlur
-          if (value !== undefined) {
-            field.handleChange(value);
-          }
-          field.handleBlur();
-        }
+      onBlur: () => {
+        field.handleBlur();
       },
     },
     meta: {
