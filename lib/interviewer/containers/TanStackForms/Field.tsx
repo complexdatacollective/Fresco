@@ -7,11 +7,11 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import * as Fields from '~/lib/ui/components/Fields';
-import { useFieldContext } from '../../hooks/useTanStackForm';
 import type {
   ValidationFunction,
   VariableValidation,
 } from '../../utils/field-validation';
+import { useFieldContext } from '../../utils/formContexts';
 
 export type FieldType = {
   fieldLabel?: string;

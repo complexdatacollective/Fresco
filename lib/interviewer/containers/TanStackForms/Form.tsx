@@ -3,7 +3,7 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { type ValidationErrorMap } from '@tanstack/react-form';
 import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
-import { useAppForm } from '../../hooks/useTanStackForm';
+import { useTanStackForm } from '../../hooks/useTanStackForm';
 import { makeRehydrateFields } from '../../selectors/forms';
 import { type AppStore } from '../../store';
 import { getTanStackFormValidators } from '../../utils/field-validation';
@@ -126,7 +126,7 @@ const TanStackForm = ({
     return defaults;
   }, [rehydratedFields, initialValues]);
 
-  const form = useAppForm({
+  const form = useTanStackForm({
     defaultValues,
     onSubmit: ({ value }) => {
       // will only be called if validation passes

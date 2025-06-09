@@ -1,11 +1,16 @@
-import { createFormHook, createFormHookContexts } from '@tanstack/react-form';
+import { createFormHook } from '@tanstack/react-form';
 import Field from '../containers/TanStackForms/Field';
-const { fieldContext, useFieldContext, formContext, useFormContext } =
-  createFormHookContexts();
+
+import {
+  fieldContext,
+  formContext,
+  useFieldContext,
+  useFormContext,
+} from '../utils/formContexts';
 
 export { fieldContext, formContext, useFieldContext, useFormContext };
 
-const { useAppForm } = createFormHook({
+const { useAppForm: useTanStackForm } = createFormHook({
   fieldComponents: {
     Field,
   },
@@ -14,4 +19,4 @@ const { useAppForm } = createFormHook({
   formContext,
 });
 
-export { useAppForm };
+export { useTanStackForm };
