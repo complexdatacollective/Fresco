@@ -1,14 +1,13 @@
-import { type ValidationError } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { type ValidationErrorMap } from '@tanstack/react-form';
 import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useTanStackForm } from '../../hooks/useTanStackForm';
 import { makeRehydrateFields } from '../../selectors/forms';
 import { type AppStore } from '../../store';
 import { getTanStackFormValidators } from '../../utils/field-validation';
-import type { FieldType } from './Field';
 import Field from './Field';
+import type { FieldType, FormProps, TanStackFormErrors } from './types';
+
 const getScrollParent = (node: HTMLElement): Element => {
   const regex = /(auto|scroll)/;
   const parents = (_node: Element, ps: Element[]): Element[] => {
@@ -50,9 +49,7 @@ const getScrollParent = (node: HTMLElement): Element => {
 const scrollToFirstError = (errors: TanStackFormErrors) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check
   // vertical position to ensure it is actually the "first" in page order (topmost).
-  if (!errors) {
-    return;
-  }
+  if (!errors) return;
 
   const firstError = Object.keys(errors)[0];
 
@@ -74,25 +71,10 @@ const scrollToFirstError = (errors: TanStackFormErrors) => {
 
   // Subtract 200 to put more of the input in view.
   const topPos = el.offsetTop - 200;
-
   // Assume forms are inside a scrollable
   const scroller = getScrollParent(el);
-
   scroller.scrollTop = topPos;
 };
-
-type Field = {
-  prompt: string;
-  variable: string;
-};
-
-type TanStackFormErrors = Record<
-  string,
-  {
-    errors: ValidationError[];
-    errorMap: ValidationErrorMap;
-  }
->;
 
 const TanStackForm = ({
   fields,
@@ -102,25 +84,18 @@ const TanStackForm = ({
   initialValues,
   autoFocus,
   id,
-}: {
-  fields: Field[];
-  subject?: { entity: string; type?: string };
-  onSubmit: (formData: Record<string, VariableValue>) => void;
-  submitButton?: React.ReactNode;
-  initialValues?: Record<string, VariableValue>;
-  autoFocus?: boolean;
-  id?: string;
-}) => {
+}: FormProps) => {
   const rehydrateFields = useMemo(() => makeRehydrateFields(), []);
+  const store = useReduxStore() as AppStore;
 
-  const rehydratedFields = useSelector((state): FieldType[] => {
-    const result = rehydrateFields(state, { fields, subject }) as FieldType[];
-    return result;
-  });
+  const rehydratedFields = useSelector(
+    (state): FieldType[] =>
+      rehydrateFields(state, { fields, subject }) as FieldType[],
+  );
 
   const defaultValues = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};
-    rehydratedFields.forEach((field: FieldType) => {
+    rehydratedFields.forEach((field) => {
       defaults[field.name] = initialValues?.[field.name] ?? field.value ?? '';
     });
     return defaults;
@@ -128,49 +103,41 @@ const TanStackForm = ({
 
   const form = useTanStackForm({
     defaultValues,
-    onSubmit: ({ value }) => {
-      // will only be called if validation passes
-      handleFormSubmit(value);
-    },
+    onSubmit: ({ value }) => handleFormSubmit(value),
     onSubmitInvalid: ({ formApi }) => {
       const errors = formApi.getAllErrors().fields as TanStackFormErrors;
       scrollToFirstError(errors);
     },
   });
 
-  const store = useReduxStore() as AppStore;
-
-  const fieldsWithProps = useMemo(() => {
-    return rehydratedFields.map((field: FieldType, index: number) => {
-      const isFirst = autoFocus && index === 0;
-      const validators = getTanStackFormValidators(
-        field.validation ?? {},
-        store,
-        field.validate,
-        field.name,
-      );
-      return {
+  const fieldsWithProps = useMemo(
+    () =>
+      rehydratedFields.map((field, index) => ({
         ...field,
-        isFirst,
-        validators,
-      };
-    });
-  }, [rehydratedFields, autoFocus, store]);
+        isFirst: autoFocus && index === 0,
+        validators: getTanStackFormValidators(
+          field.validation ?? {},
+          store,
+          field.validate,
+          field.name,
+        ),
+      })),
+    [rehydratedFields, autoFocus, store],
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await form.handleSubmit();
+  };
 
   return (
     <div>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await form.handleSubmit();
-        }}
-        id={id}
-      >
+      <form onSubmit={handleSubmit} id={id}>
         {fieldsWithProps.map((field, index) => (
           <form.AppField
             name={field.name}
-            key={`${field.name} ${index}`}
+            key={`${field.name}-${index}`}
             validators={field.validators}
           >
             {() => <Field field={field} autoFocus={field.isFirst} />}

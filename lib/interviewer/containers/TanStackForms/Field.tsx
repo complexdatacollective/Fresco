@@ -1,84 +1,59 @@
 import {
   type ComponentType,
   ComponentTypes,
-  type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
 import * as Fields from '~/lib/ui/components/Fields';
-import type {
-  ValidationFunction,
-  VariableValidation,
-} from '../../utils/field-validation';
 import { useFieldContext } from '../../utils/formContexts';
-
-export type FieldType = {
-  fieldLabel?: string;
-  label?: string;
-  name: string;
-  component: ComponentType;
-  validation?: VariableValidation;
-  validate?: ValidationFunction;
-  type: VariableType;
-  value?: VariableValue;
-  options?: { label: string; value: VariableValue }[];
-  parameters: Record<string, unknown> | null;
-};
+import type { FieldProps, InputComponentProps } from './types';
 
 const ComponentTypeNotFound = (componentType: string) => {
-  const ComponentTypeNotFoundInner = () => (
+  const NotFoundComponent = () => (
     <div>Input component &quot;{componentType}&quot; not found.</div>
   );
-
-  return ComponentTypeNotFoundInner;
+  NotFoundComponent.displayName = `ComponentTypeNotFound(${componentType})`;
+  return NotFoundComponent;
 };
 
 /*
-  * Returns the named field component, if no matching one is found
-  or else it just returns a text input
-  * @param {object} field The properties handed down from the protocol form
-  */
+* Returns the named field component, if no matching one is found
+or else it just returns a text input
+* @param {object} field The properties handed down from the protocol form
+*/
+
 const getInputComponent = (componentType: ComponentType = 'Text') => {
   const def = get(ComponentTypes, componentType);
   return get(Fields, def, ComponentTypeNotFound(componentType));
 };
 
-const Field = ({
-  field: fieldProps,
-  autoFocus,
-}: {
-  field: FieldType;
-  key?: string;
-
-  autoFocus?: boolean;
-}) => {
-  const field = useFieldContext<any>();
-
+const Field = ({ field, autoFocus }: FieldProps) => {
+  const fieldContext = useFieldContext();
   const { fieldLabel, name, component, options, type, parameters, label } =
-    fieldProps;
-  const InputComponent = useMemo<React.ComponentType<any>>(
-    () => getInputComponent(component),
+    field;
+
+  const InputComponent = useMemo<React.ComponentType<InputComponentProps>>(
+    () =>
+      getInputComponent(component) as React.ComponentType<InputComponentProps>,
     [component],
   );
 
-  const inputProps = {
+  const inputProps: InputComponentProps = {
     input: {
       name,
-      value: field.state.value,
-      onChange: (value: VariableValue) => {
-        field.handleChange(value);
-      },
+      value: fieldContext.state.value as VariableValue,
+      onChange: (value: VariableValue) => fieldContext.handleChange(value),
       onBlur: () => {
         if (component === 'Slider') {
-          field.handleBlur();
+          fieldContext.handleBlur();
         }
       },
     },
     meta: {
-      error: field.state.meta.errors[0] ?? null, // show first error only
-      invalid: !field.state.meta.isValid,
-      touched: field.state.meta.isTouched,
+      error: (fieldContext.state.meta.errors?.[0] as string) ?? null,
+      invalid: !fieldContext.state.meta.isValid,
+      touched: fieldContext.state.meta.isTouched,
     },
     label,
     fieldLabel,

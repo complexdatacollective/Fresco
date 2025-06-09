@@ -20,7 +20,6 @@ export type FieldValue = VariableValue | undefined;
 export type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
-  props: Record<string, unknown>,
   name: string,
 ) => string | undefined;
 
@@ -202,19 +201,9 @@ const getOtherNetworkEntities = (
   );
 
 export const unique = (_: unknown, store: AppStore) => {
-  return (
-    value: FieldValue,
-    __: Record<string, FieldValue>,
-    {
-      validationMeta,
-    }: {
-      validationMeta: { entityId?: string };
-    },
-    name: string,
-  ) => {
+  return (value: FieldValue, __: Record<string, FieldValue>, name: string) => {
     const otherNetworkEntities = getOtherNetworkEntities(
       getNetworkEntitiesForType(store.getState()),
-      validationMeta?.entityId,
     );
 
     return isSomeValueMatching(value, otherNetworkEntities, name)
@@ -449,7 +438,7 @@ export const getTanStackFormValidators = (
 
           return validationFunctions
             .map((validationFunction) =>
-              validationFunction(value, currentValues, {}, name),
+              validationFunction(value, currentValues, name),
             )
             .find(Boolean);
         },
