@@ -128,7 +128,6 @@ const NodeForm = (props: NodeFormProps) => {
         <Scroller>
           <TanStackForm
             fields={form.fields}
-            subject={subject}
             onSubmit={handleSubmit}
             initialValues={selectedNode?.[entityAttributesProperty]}
             autoFocus

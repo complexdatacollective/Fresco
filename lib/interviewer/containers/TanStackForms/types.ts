@@ -39,7 +39,6 @@ export type TanStackFormErrors = Record<
 export type FormProps = {
   fields: FormField[];
   onSubmit: (formData: Record<string, VariableValue>) => void;
-  subject?: { entity: string; type?: string };
   submitButton?: React.ReactNode;
   initialValues?: Record<string, VariableValue>;
   autoFocus?: boolean;

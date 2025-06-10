@@ -12,7 +12,6 @@ import { filter, get, isNumber, some } from 'es-toolkit/compat';
 import { getCodebookVariablesForSubjectType } from '../selectors/protocol';
 import { getNetworkEntitiesForType } from '../selectors/session';
 import { type AppStore } from '../store';
-
 export type FieldValue = VariableValue | undefined;
 
 // Approximated from the description in the redux-form documentation
@@ -367,13 +366,9 @@ const validations = {
 };
 
 /**
- *
- * Takes a validation array/function, and injects the store (needed)
+ * Takes a validation array/function, and injects the context (needed)
  * Returns the named validation function, if no matching one is found it returns a validation
  * which will always fail.
- * @param {object} validation The validation object
- * @param {object} store The redux store
- * @returns {function} The validation function
  */
 export const getValidation = (
   validation: VariableValidation | Record<string, ValidationFunction>,
@@ -402,8 +397,7 @@ export const getValidation = (
 
 export const getTanStackFormValidators = (
   validation: VariableValidation | Record<string, ValidationFunction>,
-  store: AppStore,
-  validate: ValidationFunction | undefined,
+  store: AppStore, // todo rm, inject codebook in context
   name: string,
 ) => {
   let listenToVariables;
@@ -413,14 +407,14 @@ export const getTanStackFormValidators = (
     );
   }
 
-  const validations: ValidationFunction[] =
-    (validate as unknown as ValidationFunction[]) ??
-    getValidation(validation ?? {}, store);
+  const validations: ValidationFunction[] = getValidation(
+    validation ?? {},
+    store,
+  );
 
   const validators = validations
     ? {
         onChangeListenTo: listenToVariables,
-        onBlurListenTo: listenToVariables,
         onChange: ({
           value,
           fieldApi,

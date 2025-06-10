@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useTanStackForm } from '../../hooks/useTanStackForm';
 import { makeRehydrateFields } from '../../selectors/forms';
+import { getStageSubject } from '../../selectors/session';
 import { type AppStore } from '../../store';
 import { getTanStackFormValidators } from '../../utils/field-validation';
 import Field from './Field';
@@ -78,7 +79,6 @@ const scrollToFirstError = (errors: TanStackFormErrors) => {
 
 const TanStackForm = ({
   fields,
-  subject,
   onSubmit: handleFormSubmit,
   submitButton = <button type="submit" key="submit" aria-label="Submit" />,
   initialValues,
@@ -87,19 +87,33 @@ const TanStackForm = ({
 }: FormProps) => {
   const rehydrateFields = useMemo(() => makeRehydrateFields(), []);
   const store = useReduxStore() as AppStore;
+  const subject = useSelector(getStageSubject);
 
   const rehydratedFields = useSelector(
     (state): FieldType[] =>
       rehydrateFields(state, { fields, subject }) as FieldType[],
   );
 
-  const defaultValues = useMemo(() => {
+  const { defaultValues, fieldsWithProps } = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};
-    rehydratedFields.forEach((field) => {
-      defaults[field.name] = initialValues?.[field.name] ?? field.value ?? '';
+    const processedFields = rehydratedFields.map((field, index) => {
+      // Build default values
+      defaults[field.name] = initialValues?.[field.name] ?? '';
+
+      // Return field with additional props
+      return {
+        ...field,
+        isFirst: autoFocus && index === 0,
+        validators: getTanStackFormValidators(
+          field.validation ?? {},
+          store,
+          field.name,
+        ),
+      };
     });
-    return defaults;
-  }, [rehydratedFields, initialValues]);
+
+    return { defaultValues: defaults, fieldsWithProps: processedFields };
+  }, [rehydratedFields, initialValues, autoFocus, store]);
 
   const form = useTanStackForm({
     defaultValues,
@@ -110,21 +124,7 @@ const TanStackForm = ({
     },
   });
 
-  const fieldsWithProps = useMemo(
-    () =>
-      rehydratedFields.map((field, index) => ({
-        ...field,
-        isFirst: autoFocus && index === 0,
-        validators: getTanStackFormValidators(
-          field.validation ?? {},
-          store,
-          field.validate,
-          field.name,
-        ),
-      })),
-    [rehydratedFields, autoFocus, store],
-  );
-
+  // define inline in <form>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
