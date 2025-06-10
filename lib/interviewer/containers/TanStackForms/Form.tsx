@@ -2,7 +2,7 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useTanStackForm } from '../../hooks/useTanStackForm';
-import { makeRehydrateFields } from '../../selectors/forms';
+import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
 import { getStageSubject } from '../../selectors/session';
 import { type AppStore } from '../../store';
 import { getTanStackFormValidators } from '../../utils/field-validation';
@@ -85,18 +85,17 @@ const TanStackForm = ({
   autoFocus,
   id,
 }: FormProps) => {
-  const rehydrateFields = useMemo(() => makeRehydrateFields(), []);
   const store = useReduxStore() as AppStore;
   const subject = useSelector(getStageSubject);
 
-  const rehydratedFields = useSelector(
+  const enrichedFields = useSelector(
     (state): FieldType[] =>
-      rehydrateFields(state, { fields, subject }) as FieldType[],
+      makeEnrichFieldsWithCodebookMetadata()(state, { fields, subject }) as FieldType[],
   );
 
   const { defaultValues, fieldsWithProps } = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};
-    const processedFields = rehydratedFields.map((field, index) => {
+    const processedFields = enrichedFields.map((field, index) => {
       // Build default values
       defaults[field.name] = initialValues?.[field.name] ?? '';
 
@@ -113,7 +112,7 @@ const TanStackForm = ({
     });
 
     return { defaultValues: defaults, fieldsWithProps: processedFields };
-  }, [rehydratedFields, initialValues, autoFocus, store]);
+  }, [enrichedFields, initialValues, autoFocus, store]);
 
   const form = useTanStackForm({
     defaultValues,
