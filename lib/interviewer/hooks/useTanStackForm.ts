@@ -6,9 +6,10 @@ import {
   formContext,
   useFieldContext,
   useFormContext,
+  type ValidationContext,
 } from '../utils/formContexts';
 
-export { fieldContext, formContext, useFieldContext, useFormContext };
+export { fieldContext, formContext, useFieldContext, useFormContext, type ValidationContext };
 
 const { useAppForm: useTanStackForm } = createFormHook({
   fieldComponents: {

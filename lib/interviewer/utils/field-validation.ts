@@ -9,9 +9,7 @@ import {
 } from '@codaco/shared-consts';
 import { isNil, isString } from 'es-toolkit';
 import { filter, get, isNumber, some } from 'es-toolkit/compat';
-import { getCodebookVariablesForSubjectType } from '../selectors/protocol';
-import { getNetworkEntitiesForType } from '../selectors/session';
-import { type AppStore } from '../store';
+import { type ValidationContext } from './formContexts';
 export type FieldValue = VariableValue | undefined;
 
 // Approximated from the description in the redux-form documentation
@@ -20,6 +18,7 @@ export type ValidationFunction = (
   value: FieldValue,
   allValues: Record<string, FieldValue>,
   name: string,
+  context?: ValidationContext,
 ) => string | undefined;
 
 // Return an array of values given either a collection, an array,
@@ -199,10 +198,19 @@ const getOtherNetworkEntities = (
     (node) => !entityId || node[entityPrimaryKeyProperty] !== entityId,
   );
 
-export const unique = (_: unknown, store: AppStore) => {
-  return (value: FieldValue, __: Record<string, FieldValue>, name: string) => {
+export const unique = (_: unknown) => {
+  return (
+    value: FieldValue,
+    __: Record<string, FieldValue>,
+    name: string,
+    context?: ValidationContext,
+  ) => {
+    if (!context) {
+      return 'Validation context not available';
+    }
+
     const otherNetworkEntities = getOtherNetworkEntities(
-      getNetworkEntitiesForType(store.getState()),
+      context.networkEntities,
     );
 
     return isSomeValueMatching(value, otherNetworkEntities, name)
@@ -211,43 +219,55 @@ export const unique = (_: unknown, store: AppStore) => {
   };
 };
 
-const getVariable = (variableId: string, store: AppStore) => {
-  const codebookVariablesForType = getCodebookVariablesForSubjectType(
-    store.getState(),
-  );
-
-  return get(codebookVariablesForType, [variableId]);
+const getVariable = (variableId: string, context: ValidationContext) => {
+  return get(context.codebookVariables, [variableId]);
 };
 
-const getVariableName = (variableId: string, store: AppStore) => {
-  const codebookVariablesForType = getCodebookVariablesForSubjectType(
-    store.getState(),
-  );
-
-  return get(codebookVariablesForType, [variableId, 'name'], undefined);
+const getVariableName = (variableId: string, context: ValidationContext) => {
+  return get(context.codebookVariables, [variableId, 'name'], undefined);
 };
 
-export const differentFrom = (variableId: string, store: AppStore) => {
-  const variable = getVariable(variableId, store);
+export const differentFrom = (variableId: string) => {
+  return (
+    value: FieldValue,
+    allValues: Record<string, FieldValue>,
+    name: string,
+    context?: ValidationContext,
+  ) => {
+    if (!context) {
+      return 'Validation context not available';
+    }
 
-  if (!variable) {
-    return () => 'Variable not found in codebook';
-  }
+    const variable = getVariable(variableId, context);
 
-  const { name: variableName } = variable;
+    if (!variable) {
+      return 'Variable not found in codebook';
+    }
 
-  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
-    isMatchingValue(value, allValues[variableId])
+    const { name: variableName } = variable;
+
+    return isMatchingValue(value, allValues[variableId])
       ? `Your answer must be different from ${variableName}`
       : undefined;
+  };
 };
 
-export const sameAs = (variableId: string, store: AppStore) => {
-  const variableName = getVariableName(variableId, store);
-  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
-    !isMatchingValue(value, allValues[variableId])
+export const sameAs = (variableId: string) => {
+  return (
+    value: FieldValue,
+    allValues: Record<string, FieldValue>,
+    name: string,
+    context?: ValidationContext,
+  ) => {
+    if (!context) {
+      return 'Validation context not available';
+    }
+
+    const variableName = getVariableName(variableId, context);
+    return !isMatchingValue(value, allValues[variableId])
       ? `Your answer must be the same as the value of "${variableName}"`
       : undefined;
+  };
 };
 
 const compareVariables = (
@@ -302,45 +322,65 @@ const compareVariables = (
   return 0;
 };
 
-export const greaterThanVariable = (variableId: string, store: AppStore) => {
-  const variable = getVariable(variableId, store);
+export const greaterThanVariable = (variableId: string) => {
+  return (
+    value: FieldValue,
+    allValues: Record<string, FieldValue>,
+    name: string,
+    context?: ValidationContext,
+  ) => {
+    if (!context) {
+      return 'Validation context not available';
+    }
 
-  if (!variable) {
-    return () => 'Variable not found in codebook';
-  }
+    const variable = getVariable(variableId, context);
 
-  const { name: variableName, type: variableType } = variable;
+    if (!variable) {
+      return 'Variable not found in codebook';
+    }
 
-  if (!variableName || !variableType) {
-    return () => 'Variable not found in codebook';
-  }
+    const { name: variableName, type: variableType } = variable;
 
-  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
-    isNil(value) ||
-    compareVariables(value, allValues[variableId], variableType) <= 0
-      ? `Your answer must be greater than the value of "${variableName}"`
-      : undefined;
+    if (!variableName || !variableType) {
+      return 'Variable not found in codebook';
+    }
+
+    return isNil(value) ||
+      compareVariables(value, allValues[variableId], variableType) <= 0
+        ? `Your answer must be greater than the value of "${variableName}"`
+        : undefined;
+  };
 };
 
 // Note: variableId is the variable being _compared_ to!
-export const lessThanVariable = (variableId: string, store: AppStore) => {
-  const variable = getVariable(variableId, store);
+export const lessThanVariable = (variableId: string) => {
+  return (
+    value: FieldValue,
+    allValues: Record<string, FieldValue>,
+    name: string,
+    context?: ValidationContext,
+  ) => {
+    if (!context) {
+      return 'Validation context not available';
+    }
 
-  if (!variable) {
-    return () => 'Variable not found in codebook';
-  }
+    const variable = getVariable(variableId, context);
 
-  const { name: variableName, type: variableType } = variable;
+    if (!variable) {
+      return 'Variable not found in codebook';
+    }
 
-  if (!variableName || !variableType) {
-    return () => 'Variable not found in codebook';
-  }
+    const { name: variableName, type: variableType } = variable;
 
-  return (value: FieldValue, allValues: Record<string, FieldValue>) =>
-    isNil(value) ||
-    compareVariables(value, allValues[variableId], variableType) >= 0
-      ? `Your answer must be less than the value of "${variableName}"`
-      : undefined;
+    if (!variableName || !variableType) {
+      return 'Variable not found in codebook';
+    }
+
+    return isNil(value) ||
+      compareVariables(value, allValues[variableId], variableType) >= 0
+        ? `Your answer must be less than the value of "${variableName}"`
+        : undefined;
+  };
 };
 
 // Type representing a variable with a validation object
@@ -372,7 +412,6 @@ const validations = {
  */
 export const getValidation = (
   validation: VariableValidation | Record<string, ValidationFunction>,
-  store: AppStore,
 ) => {
   const entries = Object.entries(validation);
 
@@ -385,10 +424,7 @@ export const getValidation = (
     if (type in validations) {
       const fn = validations[type as keyof typeof validations];
       // Cast the function to accept any type for options since we know it's from our validations
-      return (fn as (options: unknown, store: AppStore) => ValidationFunction)(
-        options,
-        store,
-      );
+      return (fn as (options: unknown) => ValidationFunction)(options);
     }
 
     return () => `Validation "${type}" not found`;
@@ -397,8 +433,8 @@ export const getValidation = (
 
 export const getTanStackFormValidators = (
   validation: VariableValidation | Record<string, ValidationFunction>,
-  store: AppStore, // todo rm, inject codebook in context
   name: string,
+  validationContext?: ValidationContext,
 ) => {
   let listenToVariables;
   if (typeof validation === 'object') {
@@ -407,10 +443,7 @@ export const getTanStackFormValidators = (
     );
   }
 
-  const validations: ValidationFunction[] = getValidation(
-    validation ?? {},
-    store,
-  );
+  const validations: ValidationFunction[] = getValidation(validation ?? {});
 
   const validators = validations
     ? {
@@ -432,7 +465,7 @@ export const getTanStackFormValidators = (
 
           return validationFunctions
             .map((validationFunction) =>
-              validationFunction(value, currentValues, name),
+              validationFunction(value, currentValues, name, validationContext),
             )
             .find(Boolean);
         },

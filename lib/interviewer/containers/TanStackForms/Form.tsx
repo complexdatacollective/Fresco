@@ -3,9 +3,11 @@ import { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useTanStackForm } from '../../hooks/useTanStackForm';
 import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
-import { getStageSubject } from '../../selectors/session';
+import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
+import { getNetworkEntitiesForType, getStageSubject } from '../../selectors/session';
 import { type AppStore } from '../../store';
 import { getTanStackFormValidators } from '../../utils/field-validation';
+import { type ValidationContext } from '../../utils/formContexts';
 import Field from './Field';
 import type { FieldType, FormProps, TanStackFormErrors } from './types';
 
@@ -87,6 +89,15 @@ const TanStackForm = ({
 }: FormProps) => {
   const store = useReduxStore() as AppStore;
   const subject = useSelector(getStageSubject);
+  
+  // Create validation context with memoized data
+  const validationContext = useMemo((): ValidationContext => {
+    const state = store.getState();
+    return {
+      codebookVariables: getCodebookVariablesForSubjectType(state),
+      networkEntities: getNetworkEntitiesForType(state),
+    };
+  }, [store]);
 
   const enrichedFields = useSelector(
     (state): FieldType[] =>
@@ -108,14 +119,14 @@ const TanStackForm = ({
         isFirst: autoFocus && index === 0,
         validators: getTanStackFormValidators(
           field.validation ?? {},
-          store,
           field.name,
+          validationContext,
         ),
       };
     });
 
     return { defaultValues: defaults, fieldsWithProps: processedFields };
-  }, [enrichedFields, initialValues, autoFocus, store]);
+  }, [enrichedFields, initialValues, autoFocus, validationContext]);
 
   const form = useTanStackForm({
     defaultValues,
