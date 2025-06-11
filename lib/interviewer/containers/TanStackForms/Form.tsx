@@ -79,7 +79,7 @@ const scrollToFirstError = (errors: TanStackFormErrors) => {
 
 const TanStackForm = ({
   fields,
-  onSubmit: handleFormSubmit,
+  handleFormSubmit,
   submitButton = <button type="submit" key="submit" aria-label="Submit" />,
   initialValues,
   autoFocus,
@@ -90,7 +90,10 @@ const TanStackForm = ({
 
   const enrichedFields = useSelector(
     (state): FieldType[] =>
-      makeEnrichFieldsWithCodebookMetadata()(state, { fields, subject }) as FieldType[],
+      makeEnrichFieldsWithCodebookMetadata()(state, {
+        fields,
+        subject,
+      }) as FieldType[],
   );
 
   const { defaultValues, fieldsWithProps } = useMemo(() => {
@@ -123,16 +126,13 @@ const TanStackForm = ({
     },
   });
 
-  // define inline in <form>
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    await form.handleSubmit();
-  };
-
   return (
     <div>
-      <form onSubmit={handleSubmit} id={id}>
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        await form.handleSubmit();
+      }} id={id}>
         {fieldsWithProps.map((field, index) => (
           <form.AppField
             name={field.name}
