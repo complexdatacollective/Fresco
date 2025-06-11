@@ -5,10 +5,7 @@ import {
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { type ValidationErrorMap } from '@tanstack/react-form';
-import type {
-  ValidationFunction,
-  VariableValidation,
-} from '../../utils/field-validation';
+import type { VariableValidation, TanStackValidator } from '../../utils/field-validation';
 
 export type FormField = {
   prompt: string;
@@ -25,7 +22,7 @@ export type FieldType = {
   options?: { label: string; value: VariableValue }[];
   parameters?: Record<string, unknown>;
   validation?: VariableValidation;
-  validate?: ValidationFunction;
+  validate?: TanStackValidator;
 };
 
 export type TanStackFormErrors = Record<

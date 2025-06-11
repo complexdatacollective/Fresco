@@ -3,7 +3,7 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { AnimatePresence, motion, useWillChange } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { required } from '~/lib/interviewer/utils/field-validation';
+// import { required } from '~/lib/interviewer/utils/field-validation';
 import { Button } from '~/lib/ui/components';
 import Form from '../containers/Form';
 import { usePassphrase } from '../containers/Interfaces/Anonymisation/usePassphrase';
@@ -125,7 +125,7 @@ const PassphraseOverlay = ({
         name: 'passphrase',
         component: 'Text',
         placeholder: 'Enter your passphrase...',
-        validate: [required('You must enter a value.')],
+        // validate: [required('You must enter a value.')],
       },
     ],
   };

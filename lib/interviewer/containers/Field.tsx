@@ -9,8 +9,8 @@ import { Field as ReduxFormField } from 'redux-form';
 import * as Fields from '~/lib/ui/components/Fields';
 import { type AppStore } from '../store';
 import {
-  getValidation,
-  type ValidationFunction,
+  // getValidation,
+  // type ValidationFunction,
   type VariableValidation,
 } from '../utils/field-validation';
 
@@ -47,14 +47,14 @@ type FieldProps = {
   component: ComponentType;
   placeholder?: string;
   validation?: VariableValidation;
-  validate?: ValidationFunction;
+  // validate?: ValidationFunction;
 };
 type FieldComponent = React.ComponentType<FieldProps>;
 
 const Field: FieldComponent = ({
   label = '',
   name,
-  validation = {},
+  // validation = {},
   ...rest
 }) => {
   const store = useStore() as AppStore;
@@ -62,11 +62,11 @@ const Field: FieldComponent = ({
     () => getInputComponent(rest.component),
     [rest.component],
   );
-  const validate = useMemo(
-    () => rest.validate ?? getValidation(validation, store),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
-  );
+  // const validate = useMemo(
+  //   () => rest.validate ?? getValidation(validation, store),
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [store],
+  // );
 
   return (
     <ReduxFormField
@@ -74,7 +74,7 @@ const Field: FieldComponent = ({
       name={name}
       label={label}
       component={component}
-      validate={validate}
+      // validate={validate}
     />
   );
 };

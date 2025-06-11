@@ -12,14 +12,6 @@ import { filter, get, isNumber, some } from 'es-toolkit/compat';
 import { type ValidationContext } from './formContexts';
 export type FieldValue = VariableValue | undefined;
 
-// Approximated from the description in the redux-form documentation
-// https://redux-form.com/8.3.0/docs/api/field.md/#input-props
-export type ValidationFunction = (
-  value: FieldValue,
-  allValues: Record<string, FieldValue>,
-  name: string,
-  context?: ValidationContext,
-) => string | undefined;
 
 // TanStack Form native validator types
 export type TanStackValidatorParams = {
@@ -33,10 +25,14 @@ export type TanStackValidatorParams = {
   validationContext: ValidationContext;
 };
 
-export type TanStackValidator = (params: TanStackValidatorParams) => string | undefined;
+export type TanStackValidator = (
+  params: TanStackValidatorParams,
+) => string | undefined;
 
 // Factory function type for creating validators with options
-export type TanStackValidatorFactory<T = unknown> = (options: T) => TanStackValidator;
+export type TanStackValidatorFactory<T = unknown> = (
+  options: T,
+) => TanStackValidator;
 
 // Return an array of values given either a collection, an array,
 // or a single value
@@ -50,63 +46,6 @@ const coerceArray = (value: FieldValue) => {
   }
   return [];
 };
-
-// TODO: This one is awkward because the protocol spec uses true, but we need
-// to be able to specify a string for the message in some cases. A better
-// design would probably be to have a separate validation function for
-// required that takes a message.
-export const required = (message: string | true) => (value: FieldValue) => {
-  const isEmptyString = isString(value) && value.length === 0;
-
-  if (isNil(value) || isEmptyString) {
-    // If initialised with a string, assume required is true
-    // and return the string as the message
-    if (typeof message === 'string') {
-      return message;
-    }
-
-    // Otherwise, return the default message. Note: 'false' is not handled because
-    // we have never used it.
-    return 'You must answer this question before continuing';
-  }
-
-  return undefined;
-};
-
-const requiredAcceptsNull = (message?: string) => (value: FieldValue) => {
-  if (isNil(value)) {
-    return message ?? 'You must answer this question before continuing';
-  }
-
-  return undefined;
-};
-
-export const maxLength = (max: number) => (value: string) =>
-  value && value.length > max
-    ? `Your answer must be ${max} characters or less`
-    : undefined;
-export const minLength = (min: number) => (value: string) =>
-  !value || value.length < min
-    ? `Your answer must be ${min} characters or more`
-    : undefined;
-export const minValue = (min: number) => (value: number) =>
-  isNumber(value) && value < min
-    ? `Your answer must be at least ${min}`
-    : undefined;
-export const maxValue = (max: number) => (value: number) =>
-  isNumber(value) && value > max
-    ? `Your answer must be less than ${max}`
-    : undefined;
-
-export const minSelected = (min: number) => (value: FieldValue) =>
-  !value || coerceArray(value).length < min
-    ? `You must choose a minimum of ${min} option(s)`
-    : undefined;
-
-export const maxSelected = (max: number) => (value: FieldValue) =>
-  value && coerceArray(value).length > max
-    ? `You must choose a maximum of ${max} option(s)`
-    : undefined;
 
 /**
  * Compares two FieldValue types to determine if they match.
@@ -215,76 +154,12 @@ const getOtherNetworkEntities = (
     (node) => !entityId || node[entityPrimaryKeyProperty] !== entityId,
   );
 
-export const unique = (_: unknown) => {
-  return (
-    value: FieldValue,
-    __: Record<string, FieldValue>,
-    name: string,
-    context?: ValidationContext,
-  ) => {
-    if (!context) {
-      return 'Validation context not available';
-    }
-
-    const otherNetworkEntities = getOtherNetworkEntities(
-      context.networkEntities,
-    );
-
-    return isSomeValueMatching(value, otherNetworkEntities, name)
-      ? 'Your answer must be unique'
-      : undefined;
-  };
-};
-
 const getVariable = (variableId: string, context: ValidationContext) => {
   return get(context.codebookVariables, [variableId]);
 };
 
 const getVariableName = (variableId: string, context: ValidationContext) => {
   return get(context.codebookVariables, [variableId, 'name'], undefined);
-};
-
-export const differentFrom = (variableId: string) => {
-  return (
-    value: FieldValue,
-    allValues: Record<string, FieldValue>,
-    name: string,
-    context?: ValidationContext,
-  ) => {
-    if (!context) {
-      return 'Validation context not available';
-    }
-
-    const variable = getVariable(variableId, context);
-
-    if (!variable) {
-      return 'Variable not found in codebook';
-    }
-
-    const { name: variableName } = variable;
-
-    return isMatchingValue(value, allValues[variableId])
-      ? `Your answer must be different from ${variableName}`
-      : undefined;
-  };
-};
-
-export const sameAs = (variableId: string) => {
-  return (
-    value: FieldValue,
-    allValues: Record<string, FieldValue>,
-    name: string,
-    context?: ValidationContext,
-  ) => {
-    if (!context) {
-      return 'Validation context not available';
-    }
-
-    const variableName = getVariableName(variableId, context);
-    return !isMatchingValue(value, allValues[variableId])
-      ? `Your answer must be the same as the value of "${variableName}"`
-      : undefined;
-  };
 };
 
 const compareVariables = (
@@ -339,67 +214,6 @@ const compareVariables = (
   return 0;
 };
 
-export const greaterThanVariable = (variableId: string) => {
-  return (
-    value: FieldValue,
-    allValues: Record<string, FieldValue>,
-    name: string,
-    context?: ValidationContext,
-  ) => {
-    if (!context) {
-      return 'Validation context not available';
-    }
-
-    const variable = getVariable(variableId, context);
-
-    if (!variable) {
-      return 'Variable not found in codebook';
-    }
-
-    const { name: variableName, type: variableType } = variable;
-
-    if (!variableName || !variableType) {
-      return 'Variable not found in codebook';
-    }
-
-    return isNil(value) ||
-      compareVariables(value, allValues[variableId], variableType) <= 0
-        ? `Your answer must be greater than the value of "${variableName}"`
-        : undefined;
-  };
-};
-
-// Note: variableId is the variable being _compared_ to!
-export const lessThanVariable = (variableId: string) => {
-  return (
-    value: FieldValue,
-    allValues: Record<string, FieldValue>,
-    name: string,
-    context?: ValidationContext,
-  ) => {
-    if (!context) {
-      return 'Validation context not available';
-    }
-
-    const variable = getVariable(variableId, context);
-
-    if (!variable) {
-      return 'Variable not found in codebook';
-    }
-
-    const { name: variableName, type: variableType } = variable;
-
-    if (!variableName || !variableType) {
-      return 'Variable not found in codebook';
-    }
-
-    return isNil(value) ||
-      compareVariables(value, allValues[variableId], variableType) >= 0
-        ? `Your answer must be less than the value of "${variableName}"`
-        : undefined;
-  };
-};
-
 // Type representing a variable with a validation object
 type VariableWithValidation = Extract<Variable, { validation?: unknown }>;
 export type VariableValidation = NonNullable<
@@ -408,7 +222,8 @@ export type VariableValidation = NonNullable<
 
 // TanStack-native validation functions
 export const tanStackValidations = {
-  required: (message: string | true): TanStackValidator => 
+  required:
+    (message: string | true): TanStackValidator =>
     ({ value }) => {
       const isEmptyString = isString(value) && value.length === 0;
 
@@ -422,7 +237,8 @@ export const tanStackValidations = {
       return undefined;
     },
 
-  requiredAcceptsNull: (message?: string): TanStackValidator =>
+  requiredAcceptsNull:
+    (message?: string): TanStackValidator =>
     ({ value }) => {
       if (isNil(value)) {
         return message ?? 'You must answer this question before continuing';
@@ -430,43 +246,50 @@ export const tanStackValidations = {
       return undefined;
     },
 
-  maxLength: (max: number): TanStackValidator =>
+  maxLength:
+    (max: number): TanStackValidator =>
     ({ value }) =>
       value && isString(value) && value.length > max
         ? `Your answer must be ${max} characters or less`
         : undefined,
 
-  minLength: (min: number): TanStackValidator =>
+  minLength:
+    (min: number): TanStackValidator =>
     ({ value }) =>
       !value || (isString(value) && value.length < min)
         ? `Your answer must be ${min} characters or more`
         : undefined,
 
-  minValue: (min: number): TanStackValidator =>
+  minValue:
+    (min: number): TanStackValidator =>
     ({ value }) =>
       isNumber(value) && value < min
         ? `Your answer must be at least ${min}`
         : undefined,
 
-  maxValue: (max: number): TanStackValidator =>
+  maxValue:
+    (max: number): TanStackValidator =>
     ({ value }) =>
       isNumber(value) && value > max
         ? `Your answer must be less than ${max}`
         : undefined,
 
-  minSelected: (min: number): TanStackValidator =>
+  minSelected:
+    (min: number): TanStackValidator =>
     ({ value }) =>
       !value || coerceArray(value).length < min
         ? `You must choose a minimum of ${min} option(s)`
         : undefined,
 
-  maxSelected: (max: number): TanStackValidator =>
+  maxSelected:
+    (max: number): TanStackValidator =>
     ({ value }) =>
       value && coerceArray(value).length > max
         ? `You must choose a maximum of ${max} option(s)`
         : undefined,
 
-  unique: (): TanStackValidator =>
+  unique:
+    (): TanStackValidator =>
     ({ value, fieldApi, validationContext }) => {
       const otherNetworkEntities = getOtherNetworkEntities(
         validationContext.networkEntities,
@@ -477,7 +300,8 @@ export const tanStackValidations = {
         : undefined;
     },
 
-  differentFrom: (variableId: string): TanStackValidator =>
+  differentFrom:
+    (variableId: string): TanStackValidator =>
     ({ value, fieldApi, validationContext }) => {
       const variable = getVariable(variableId, validationContext);
 
@@ -493,17 +317,19 @@ export const tanStackValidations = {
         : undefined;
     },
 
-  sameAs: (variableId: string): TanStackValidator =>
+  sameAs:
+    (variableId: string): TanStackValidator =>
     ({ value, fieldApi, validationContext }) => {
       const variableName = getVariableName(variableId, validationContext);
       const allValues = fieldApi.form.store.state.values;
-      
+
       return !isMatchingValue(value, allValues[variableId])
         ? `Your answer must be the same as the value of "${variableName}"`
         : undefined;
     },
 
-  greaterThanVariable: (variableId: string): TanStackValidator =>
+  greaterThanVariable:
+    (variableId: string): TanStackValidator =>
     ({ value, fieldApi, validationContext }) => {
       const variable = getVariable(variableId, validationContext);
 
@@ -521,11 +347,12 @@ export const tanStackValidations = {
 
       return isNil(value) ||
         compareVariables(value, allValues[variableId], variableType) <= 0
-          ? `Your answer must be greater than the value of "${variableName}"`
-          : undefined;
+        ? `Your answer must be greater than the value of "${variableName}"`
+        : undefined;
     },
 
-  lessThanVariable: (variableId: string): TanStackValidator =>
+  lessThanVariable:
+    (variableId: string): TanStackValidator =>
     ({ value, fieldApi, validationContext }) => {
       const variable = getVariable(variableId, validationContext);
 
@@ -543,114 +370,24 @@ export const tanStackValidations = {
 
       return isNil(value) ||
         compareVariables(value, allValues[variableId], variableType) >= 0
-          ? `Your answer must be less than the value of "${variableName}"`
-          : undefined;
+        ? `Your answer must be less than the value of "${variableName}"`
+        : undefined;
     },
 };
 
-const validations = {
-  required,
-  requiredAcceptsNull,
-  minLength,
-  maxLength,
-  minValue,
-  maxValue,
-  minSelected,
-  maxSelected,
-  unique,
-  differentFrom,
-  sameAs,
-  greaterThanVariable,
-  lessThanVariable,
-};
-
-/**
- * Takes a validation array/function, and injects the context (needed)
- * Returns the named validation function, if no matching one is found it returns a validation
- * which will always fail.
- */
-export const getValidation = (
-  validation: VariableValidation | Record<string, ValidationFunction>,
-) => {
-  const entries = Object.entries(validation);
-
-  return entries.map(([type, options]) => {
-    // Allow custom validations by specifying a function
-    if (typeof options === 'function') {
-      return options as ValidationFunction;
-    }
-
-    if (type in validations) {
-      const fn = validations[type as keyof typeof validations];
-      // Cast the function to accept any type for options since we know it's from our validations
-      return (fn as (options: unknown) => ValidationFunction)(options);
-    }
-
-    return () => `Validation "${type}" not found`;
-  });
-};
-
-export const getTanStackFormValidators = (
-  validation: VariableValidation | Record<string, ValidationFunction>,
-  name: string,
-  validationContext?: ValidationContext,
-) => {
-  let listenToVariables;
-  if (typeof validation === 'object') {
-    listenToVariables = Object.values(validation).filter(
-      (value) => typeof value === 'string',
-    );
-  }
-
-  const validations: ValidationFunction[] = getValidation(validation ?? {});
-
-  const validators = validations
-    ? {
-        onChangeListenTo: listenToVariables,
-        onChange: ({
-          value,
-          fieldApi,
-        }: {
-          value: FieldValue;
-          fieldApi: {
-            form: { store: { state: { values: Record<string, FieldValue> } } };
-          };
-        }) => {
-          const currentValues = fieldApi.form.store.state.values;
-
-          const validationFunctions = Array.isArray(validations)
-            ? validations
-            : [validations];
-
-          return validationFunctions
-            .map((validationFunction) =>
-              validationFunction(value, currentValues, name, validationContext),
-            )
-            .find(Boolean);
-        },
-      }
-    : {};
-
-  return validators;
-};
-
-// New TanStack-native validator function
+// TanStack-native validator function
 export const getTanStackNativeValidators = (
-  validation: VariableValidation | Record<string, ValidationFunction>,
+  validation: VariableValidation,
   validationContext: ValidationContext,
 ) => {
   const entries = Object.entries(validation ?? {});
-  
+
   const validators: TanStackValidator[] = entries.map(([type, options]) => {
-    // Allow custom validations by specifying a function
-    if (typeof options === 'function') {
-      // Wrap legacy validation function to provide TanStack-compatible interface
-      return ({ value, fieldApi }: TanStackValidatorParams) => 
-        (options as ValidationFunction)(value, fieldApi.form.store.state.values, fieldApi.name, validationContext);
-    }
 
     if (type in tanStackValidations) {
-      const validatorFactory = tanStackValidations[type as keyof typeof tanStackValidations] as TanStackValidatorFactory;
+      const validatorFactory = tanStackValidations[
+        type as keyof typeof tanStackValidations
+      ] as TanStackValidatorFactory;
       return validatorFactory(options);
     }
 
@@ -663,10 +400,17 @@ export const getTanStackNativeValidators = (
     .map(([, variableId]) => variableId as string);
 
   return {
-    onChangeListenTo: listenToVariables.length > 0 ? listenToVariables : undefined,
-    onChange: ({ value, fieldApi }: { value: FieldValue; fieldApi: TanStackValidatorParams['fieldApi'] }) => {
+    onChangeListenTo:
+      listenToVariables.length > 0 ? listenToVariables : undefined,
+    onChange: ({
+      value,
+      fieldApi,
+    }: {
+      value: FieldValue;
+      fieldApi: TanStackValidatorParams['fieldApi'];
+    }) => {
       return validators
-        .map(validator => validator({ value, fieldApi, validationContext }))
+        .map((validator) => validator({ value, fieldApi, validationContext }))
         .find(Boolean);
     },
   };
