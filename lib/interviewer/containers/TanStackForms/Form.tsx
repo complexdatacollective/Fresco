@@ -6,7 +6,7 @@ import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
 import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
 import { getNetworkEntitiesForType, getStageSubject } from '../../selectors/session';
 import { type AppStore } from '../../store';
-import { getTanStackFormValidators } from '../../utils/field-validation';
+import { getTanStackNativeValidators } from '../../utils/field-validation';
 import { type ValidationContext } from '../../utils/formContexts';
 import Field from './Field';
 import type { FieldType, FormProps, TanStackFormErrors } from './types';
@@ -117,9 +117,8 @@ const TanStackForm = ({
       return {
         ...field,
         isFirst: autoFocus && index === 0,
-        validators: getTanStackFormValidators(
+        validators: getTanStackNativeValidators(
           field.validation ?? {},
-          field.name,
           validationContext,
         ),
       };

@@ -7,6 +7,18 @@ export type ValidationContext = {
   networkEntities: (NcNode | NcEdge | NcEgo)[];
 };
 
+// Enhanced form context that includes validation context
+export type EnhancedFormContext = {
+  validationContext: ValidationContext;
+};
+
+// Enhanced field context for field-level validation needs
+export type EnhancedFieldContext = {
+  fieldName: string;
+  variable?: Variable;
+  validationContext: ValidationContext;
+};
+
 const { fieldContext, useFieldContext, formContext, useFormContext } =
   createFormHookContexts();
 
