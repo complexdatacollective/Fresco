@@ -1,18 +1,7 @@
-import { type VariableValue } from '@codaco/shared-consts';
-import { useMemo } from 'react';
-import { useStore as useReduxStore, useSelector } from 'react-redux';
-import { useTanStackForm } from '../../hooks/useTanStackForm';
-import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
-import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
-import {
-  getNetworkEntitiesForType,
-  getStageSubject,
-} from '../../selectors/session';
-import { type AppStore } from '../../store';
-import { getTanStackNativeValidators } from '../../utils/field-validation';
-import { type ValidationContext } from '../../utils/formContexts';
+import { useFormData } from '../../hooks/TanstackForm/useFormData';
+import { useTanStackForm } from '../../hooks/TanstackForm/useTanStackForm';
 import Field from './Field';
-import type { FieldType, FormProps, TanStackFormErrors } from './types';
+import type { FormProps, TanStackFormErrors } from './types';
 
 const getScrollParent = (node: HTMLElement): Element => {
   const regex = /(auto|scroll)/;
@@ -91,46 +80,12 @@ const TanStackForm = ({
   id,
   entityId,
 }: FormProps) => {
-  const store = useReduxStore() as AppStore;
-  const subject = useSelector(getStageSubject);
-
-  // Create validation context with memoized data
-  const validationContext = useMemo((): ValidationContext => {
-    const state = store.getState();
-    return {
-      codebookVariables: getCodebookVariablesForSubjectType(state),
-      networkEntities: getNetworkEntitiesForType(state),
-      currentEntityId: entityId,
-    };
-  }, [store, entityId]);
-
-  const enrichedFields = useSelector(
-    (state): FieldType[] =>
-      makeEnrichFieldsWithCodebookMetadata()(state, {
-        fields,
-        subject,
-      }) as FieldType[],
-  );
-
-  const { defaultValues, fieldsWithProps } = useMemo(() => {
-    const defaults: Record<string, VariableValue> = {};
-    const processedFields = enrichedFields.map((field, index) => {
-      // Build default values
-      defaults[field.name] = initialValues?.[field.name] ?? '';
-
-      // Return field with additional props
-      return {
-        ...field,
-        isFirst: autoFocus && index === 0,
-        validators: getTanStackNativeValidators(
-          field.validation ?? {},
-          validationContext,
-        ),
-      };
-    });
-
-    return { defaultValues: defaults, fieldsWithProps: processedFields };
-  }, [enrichedFields, initialValues, autoFocus, validationContext]);
+  const { defaultValues, fieldsWithProps } = useFormData({
+    fields,
+    entityId,
+    initialValues,
+    autoFocus,
+  });
 
   const form = useTanStackForm({
     defaultValues,

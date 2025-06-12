@@ -18,7 +18,7 @@ import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
 import { useAppDispatch } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
-import TanStackForm from './TanStackForms/Form';
+import TanStackForm from './TanStackForm/Form';
 
 const FORM_NAME = 'node-form';
 
