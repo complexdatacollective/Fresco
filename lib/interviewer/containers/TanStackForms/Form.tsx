@@ -4,7 +4,10 @@ import { useStore as useReduxStore, useSelector } from 'react-redux';
 import { useTanStackForm } from '../../hooks/useTanStackForm';
 import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
 import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
-import { getNetworkEntitiesForType, getStageSubject } from '../../selectors/session';
+import {
+  getNetworkEntitiesForType,
+  getStageSubject,
+} from '../../selectors/session';
 import { type AppStore } from '../../store';
 import { getTanStackNativeValidators } from '../../utils/field-validation';
 import { type ValidationContext } from '../../utils/formContexts';
@@ -86,18 +89,20 @@ const TanStackForm = ({
   initialValues,
   autoFocus,
   id,
+  entityId,
 }: FormProps) => {
   const store = useReduxStore() as AppStore;
   const subject = useSelector(getStageSubject);
-  
+
   // Create validation context with memoized data
   const validationContext = useMemo((): ValidationContext => {
     const state = store.getState();
     return {
       codebookVariables: getCodebookVariablesForSubjectType(state),
       networkEntities: getNetworkEntitiesForType(state),
+      currentEntityId: entityId,
     };
-  }, [store]);
+  }, [store, entityId]);
 
   const enrichedFields = useSelector(
     (state): FieldType[] =>
@@ -138,11 +143,14 @@ const TanStackForm = ({
 
   return (
     <div>
-      <form onSubmit={async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await form.handleSubmit();
-      }} id={id}>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await form.handleSubmit();
+        }}
+        id={id}
+      >
         {fieldsWithProps.map((field, index) => (
           <form.AppField
             name={field.name}

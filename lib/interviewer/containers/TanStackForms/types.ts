@@ -40,6 +40,7 @@ export type FormProps = {
   initialValues?: Record<string, VariableValue>;
   autoFocus?: boolean;
   id?: string;
+  entityId?: string;
 };
 
 export type FieldProps = {

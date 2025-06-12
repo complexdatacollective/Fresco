@@ -5,6 +5,7 @@ import { createFormHookContexts } from '@tanstack/react-form';
 export type ValidationContext = {
   codebookVariables: Record<string, Variable>;
   networkEntities: (NcNode | NcEdge | NcEgo)[];
+  currentEntityId?: string;
 };
 
 // Enhanced form context that includes validation context

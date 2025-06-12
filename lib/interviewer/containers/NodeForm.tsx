@@ -130,6 +130,7 @@ const NodeForm = (props: NodeFormProps) => {
             fields={form.fields}
             handleFormSubmit={handleSubmit}
             initialValues={selectedNode?.[entityAttributesProperty]}
+            entityId={selectedNode?.[entityPrimaryKeyProperty]}
             autoFocus
             id={FORM_NAME}
           />

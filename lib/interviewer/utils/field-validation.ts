@@ -293,6 +293,7 @@ export const tanStackValidations = {
     ({ value, fieldApi, validationContext }) => {
       const otherNetworkEntities = getOtherNetworkEntities(
         validationContext.networkEntities,
+        validationContext.currentEntityId,
       );
 
       return isSomeValueMatching(value, otherNetworkEntities, fieldApi.name)
