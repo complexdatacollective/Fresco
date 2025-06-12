@@ -15,7 +15,7 @@ export type FormField = {
 export type FieldType = {
   name: string;
   component: ComponentType;
-  type: VariableType;
+  type: VariableType;  
   label?: string;
   fieldLabel?: string;
   value?: VariableValue;
@@ -23,6 +23,7 @@ export type FieldType = {
   parameters?: Record<string, unknown>;
   validation?: VariableValidation;
   validate?: TanStackValidator;
+  Component?: React.ComponentType<InputComponentProps>;
 };
 
 export type TanStackFormErrors = Record<
