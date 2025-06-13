@@ -57,9 +57,11 @@ type UseFormDataOptions = {
 };
 
 /**
- * Custom hook that extracts and centralizes form data management logic.
- * This includes field enrichment, validation context creation, and default value computation.
- *
+ * Custom hook that prepares field data for use in a TanStack Form.
+ * - Enriches fields with metadata
+ * - Creates validation context
+ * - Prepares default values and input components
+ * - Creates Tanstack Form validators for each field
  */
 export const useFormData = ({
   fields,
@@ -70,56 +72,51 @@ export const useFormData = ({
   const store = useReduxStore() as AppStore;
   const subject = useSelector(getStageSubject);
 
-  // Create validation context with memoized data
-  const validationContext = useMemo((): ValidationContext => {
+  return useMemo(() => {
     const state = store.getState();
-    return {
+
+    // Create validation context
+    const validationContext: ValidationContext = {
       codebookVariables: getCodebookVariablesForSubjectType(state),
       networkEntities: getNetworkEntitiesForType(state),
       currentEntityId: entityId,
     };
-  }, [store, entityId]);
 
-  // Get enriched fields from Redux selector
-  const enrichedFields = useSelector(
-    (state): FieldType[] =>
-      makeEnrichFieldsWithCodebookMetadata()(state, {
-        fields,
-        subject,
-      }) as FieldType[],
-  );
+    // Enrich and process fields in single step
+    const enrichedFields = makeEnrichFieldsWithCodebookMetadata()(state, {
+      fields,
+      subject,
+    }) as FieldType[];
 
-  // Process fields and compute default values
-  const { defaultValues, fieldsWithProps } = useMemo(() => {
     const defaults: Record<string, VariableValue> = {};
-    const processedFields = enrichedFields.map((field, index) => {
+    const fieldsWithProps = enrichedFields.map((field, index) => {
       // Build default values
-      defaults[field.name] = initialValues?.[field.name] ?? '';
+      defaults[field.name] = initialValues?.[field.name] ?? field.value ?? '';
 
-      // Pre-resolve component to avoid runtime lookups
+      // Pre-resolve component
       const Component = getInputComponent(
         field.component,
       ) as React.ComponentType<InputComponentProps>;
 
-      // Return field with additional props
+      // Create validators
+      const validators = getTanStackNativeValidators(
+        field.validation ?? {},
+        validationContext,
+      );
+
       return {
         ...field,
         Component,
         isFirst: autoFocus && index === 0,
-        validators: getTanStackNativeValidators(
-          field.validation ?? {},
-          validationContext,
-        ),
+        validators,
       };
     });
 
-    return { defaultValues: defaults, fieldsWithProps: processedFields };
-  }, [enrichedFields, initialValues, autoFocus, validationContext]);
-
-  return {
-    enrichedFields,
-    validationContext,
-    defaultValues,
-    fieldsWithProps,
-  };
+    return {
+      enrichedFields,
+      validationContext,
+      defaultValues: defaults,
+      fieldsWithProps,
+    };
+  }, [fields, entityId, initialValues, autoFocus, store, subject]);
 };
