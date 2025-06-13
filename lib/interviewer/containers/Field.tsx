@@ -4,10 +4,8 @@ import {
 } from '@codaco/protocol-validation';
 import { get } from 'es-toolkit/compat';
 import { useMemo } from 'react';
-import { useStore } from 'react-redux';
 import { Field as ReduxFormField } from 'redux-form';
 import * as Fields from '~/lib/ui/components/Fields';
-import { type AppStore } from '../store';
 import {
   // getValidation,
   // type ValidationFunction,
@@ -57,7 +55,7 @@ const Field: FieldComponent = ({
   // validation = {},
   ...rest
 }) => {
-  const store = useStore() as AppStore;
+  // const store = useStore() as AppStore;
   const component = useMemo(
     () => getInputComponent(rest.component),
     [rest.component],
