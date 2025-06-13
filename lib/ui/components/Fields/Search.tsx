@@ -16,10 +16,7 @@ const Search = (props: SearchProps) => {
 
   // Call the change handler with an empty string
   const handleClear = () => {
-    const syntheticEvent = {
-      target: { value: '' },
-    } as React.ChangeEvent<HTMLInputElement>;
-    onChange(syntheticEvent);
+    onChange('');
   };
 
   const adornmentLeft = color && <SearchIcon style={{ color }} />;

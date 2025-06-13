@@ -12,13 +12,13 @@ type InputProps = {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-}
+};
 
 type MetaProps = {
   error?: string;
   invalid?: boolean;
   touched?: boolean;
-}
+};
 
 type ToggleProps = {
   label?: string;
@@ -28,7 +28,7 @@ type ToggleProps = {
   disabled?: boolean;
   title?: string;
   meta: MetaProps;
-}
+};
 
 const Toggle = ({
   label,
@@ -69,6 +69,7 @@ const Toggle = ({
         <input
           className="form-field-toggle__input"
           id={id}
+          {...rest}
           name={input.name}
           value={input.value}
           checked={!!input.value}
@@ -77,7 +78,6 @@ const Toggle = ({
           onFocus={input.onFocus}
           disabled={disabled}
           type="checkbox"
-          {...rest}
         />
         <div className="form-field-toggle__toggle">
           <span className="form-field-toggle__button" />

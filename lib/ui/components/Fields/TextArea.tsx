@@ -8,17 +8,17 @@ import MarkdownLabel from './MarkdownLabel';
 type InputProps = {
   name?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange?: (value: string) => void;
   onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-}
+};
 
 type MetaProps = {
   active?: boolean;
   error?: string;
   invalid?: boolean;
   touched?: boolean;
-}
+};
 
 type TextAreaProps = {
   meta: MetaProps;
@@ -29,7 +29,7 @@ type TextAreaProps = {
   autoFocus?: boolean;
   hidden?: boolean;
   input?: InputProps;
-}
+};
 
 const TextArea = ({
   meta = { active: false, error: '', invalid: false, touched: false },
@@ -61,10 +61,14 @@ const TextArea = ({
       <div className={seamlessClasses}>
         <textarea
           id={id}
+          name={input.name}
+          value={input.value}
           className="form-field form-field-text form-field-text--area form-field-text__input"
           placeholder={placeholder}
           autoFocus={autoFocus}
-          {...input}
+          onBlur={input.onBlur}
+          onFocus={input.onFocus}
+          onChange={(e) => input.onChange && input.onChange(e.target.value)}
         />
         {meta.invalid && meta.touched && (
           <div className="form-field-text__error">
