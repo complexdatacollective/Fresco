@@ -8,19 +8,6 @@ export type ValidationContext = {
   currentEntityId?: string;
 };
 
-// Enhanced form context that includes validation context
-export type EnhancedFormContext = {
-  validationContext: ValidationContext;
-};
+const { fieldContext, useFieldContext, formContext } = createFormHookContexts();
 
-// Enhanced field context for field-level validation needs
-export type EnhancedFieldContext = {
-  fieldName: string;
-  variable?: Variable;
-  validationContext: ValidationContext;
-};
-
-const { fieldContext, useFieldContext, formContext, useFormContext } =
-  createFormHookContexts();
-
-export { fieldContext, formContext, useFieldContext, useFormContext };
+export { fieldContext, formContext, useFieldContext };

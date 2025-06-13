@@ -7,7 +7,11 @@ import { get } from 'es-toolkit/compat';
 import React, { useMemo } from 'react';
 import { useStore as useReduxStore, useSelector } from 'react-redux';
 import * as Fields from '~/lib/ui/components/Fields';
-import type { FieldType, FormField, InputComponentProps } from '../../containers/TanStackForm/types';
+import type {
+  FieldType,
+  FormField,
+  InputComponentProps,
+} from '../../containers/TanStackForm/types';
 import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
 import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
 import {
@@ -20,7 +24,11 @@ import { type ValidationContext } from '../../utils/formContexts';
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
-    return React.createElement('div', {}, `Input component "${componentType}" not found.`);
+    return React.createElement(
+      'div',
+      {},
+      `Input component "${componentType}" not found.`,
+    );
   };
   NotFoundComponent.displayName = `ComponentTypeNotFound(${componentType})`;
   return NotFoundComponent;
@@ -31,7 +39,7 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
   return get(Fields, def, ComponentTypeNotFound(componentType));
 };
 
-export type UseFormDataReturn = {
+type UseFormDataReturn = {
   enrichedFields: FieldType[];
   validationContext: ValidationContext;
   defaultValues: Record<string, VariableValue>;
@@ -41,7 +49,7 @@ export type UseFormDataReturn = {
   })[];
 };
 
-export type UseFormDataOptions = {
+type UseFormDataOptions = {
   fields: FormField[];
   entityId?: string;
   initialValues?: Record<string, VariableValue>;
@@ -89,7 +97,9 @@ export const useFormData = ({
       defaults[field.name] = initialValues?.[field.name] ?? '';
 
       // Pre-resolve component to avoid runtime lookups
-      const Component = getInputComponent(field.component) as React.ComponentType<InputComponentProps>;
+      const Component = getInputComponent(
+        field.component,
+      ) as React.ComponentType<InputComponentProps>;
 
       // Return field with additional props
       return {

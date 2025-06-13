@@ -12,7 +12,6 @@ import { filter, get, isNumber, some } from 'es-toolkit/compat';
 import { type ValidationContext } from './formContexts';
 export type FieldValue = VariableValue | undefined;
 
-
 // TanStack Form native validator types
 export type TanStackValidatorParams = {
   value: FieldValue;
@@ -30,9 +29,7 @@ export type TanStackValidator = (
 ) => string | undefined;
 
 // Factory function type for creating validators with options
-export type TanStackValidatorFactory<T = unknown> = (
-  options: T,
-) => TanStackValidator;
+type TanStackValidatorFactory<T = unknown> = (options: T) => TanStackValidator;
 
 // Return an array of values given either a collection, an array,
 // or a single value
@@ -384,7 +381,6 @@ export const getTanStackNativeValidators = (
   const entries = Object.entries(validation ?? {});
 
   const validators: TanStackValidator[] = entries.map(([type, options]) => {
-
     if (type in tanStackValidations) {
       const validatorFactory = tanStackValidations[
         type as keyof typeof tanStackValidations

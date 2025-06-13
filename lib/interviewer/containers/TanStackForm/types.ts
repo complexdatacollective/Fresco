@@ -5,7 +5,10 @@ import {
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { type ValidationErrorMap } from '@tanstack/react-form';
-import type { VariableValidation, TanStackValidator } from '../../utils/field-validation';
+import type {
+  TanStackValidator,
+  VariableValidation,
+} from '../../utils/field-validation';
 
 export type FormField = {
   prompt: string;
@@ -15,7 +18,7 @@ export type FormField = {
 export type FieldType = {
   name: string;
   component: ComponentType;
-  type: VariableType;  
+  type: VariableType;
   label?: string;
   fieldLabel?: string;
   value?: VariableValue;
@@ -49,13 +52,13 @@ export type FieldProps = {
   autoFocus?: boolean;
 };
 
-export type InputMeta = {
+type InputMeta = {
   error: string | null;
   invalid: boolean;
   touched: boolean;
 };
 
-export type InputHandlers = {
+type InputHandlers = {
   name: string;
   value: VariableValue;
   onChange: (value: VariableValue) => void;
