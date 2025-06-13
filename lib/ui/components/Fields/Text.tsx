@@ -73,9 +73,9 @@ const TextInput = ({
       {anyLabel && <MarkdownLabel label={anyLabel} />}
       <div className={seamlessClasses}>
         <input
-          {...input}
           id={id}
           name={input.name}
+          value={input.value}
           className="form-field form-field-text__input"
           placeholder={placeholder}
           autoFocus={autoFocus}

@@ -61,10 +61,13 @@ const TextArea = ({
       <div className={seamlessClasses}>
         <textarea
           id={id}
+          name={input.name}
+          value={input.value}
           className="form-field form-field-text form-field-text--area form-field-text__input"
           placeholder={placeholder}
           autoFocus={autoFocus}
-          {...input}
+          onBlur={input.onBlur}
+          onFocus={input.onFocus}
           onChange={(e) => input.onChange && input.onChange(e.target.value)}
         />
         {meta.invalid && meta.touched && (

@@ -5,7 +5,7 @@ import {
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import React, { useMemo } from 'react';
-import { useStore as useReduxStore, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import * as Fields from '~/lib/ui/components/Fields';
 import type {
   FieldType,
@@ -18,7 +18,6 @@ import {
   getNetworkEntitiesForType,
   getStageSubject,
 } from '../../selectors/session';
-import { type AppStore } from '../../store';
 import { getTanStackNativeValidators } from '../../utils/field-validation';
 import { type ValidationContext } from '../../utils/formContexts';
 
@@ -69,24 +68,24 @@ export const useFormData = ({
   initialValues,
   autoFocus,
 }: UseFormDataOptions): UseFormDataReturn => {
-  const store = useReduxStore() as AppStore;
   const subject = useSelector(getStageSubject);
+  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
+  const networkEntities = useSelector(getNetworkEntitiesForType);
+  const enrichedFields = useSelector(
+    (state) =>
+      makeEnrichFieldsWithCodebookMetadata()(state, {
+        fields,
+        subject,
+      }) as FieldType[],
+  );
 
   return useMemo(() => {
-    const state = store.getState();
-
     // Create validation context
     const validationContext: ValidationContext = {
-      codebookVariables: getCodebookVariablesForSubjectType(state),
-      networkEntities: getNetworkEntitiesForType(state),
+      codebookVariables,
+      networkEntities,
       currentEntityId: entityId,
     };
-
-    // Enrich and process fields in single step
-    const enrichedFields = makeEnrichFieldsWithCodebookMetadata()(state, {
-      fields,
-      subject,
-    }) as FieldType[];
 
     const defaults: Record<string, VariableValue> = {};
     const fieldsWithProps = enrichedFields.map((field, index) => {
@@ -118,5 +117,12 @@ export const useFormData = ({
       defaultValues: defaults,
       fieldsWithProps,
     };
-  }, [fields, entityId, initialValues, autoFocus, store, subject]);
+  }, [
+    enrichedFields,
+    entityId,
+    initialValues,
+    autoFocus,
+    codebookVariables,
+    networkEntities,
+  ]);
 };
