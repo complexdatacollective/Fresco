@@ -67,9 +67,9 @@
     "luxon": "^3.6.1",
     "mapbox-gl": "^3.13.0",
     "motion": "^12.18.1",
-    "next": "^14.2.28",
+    "next": "^14.2.30",
     "nuqs": "^1.20.0",
-    "ohash": "^1.1.4",
+    "ohash": "^1.1.6",
     "papaparse": "^5.5.3",
     "prop-types": "^15.8.1",
     "react": "18.3.1",
@@ -78,7 +78,7 @@
     "react-dropzone": "^14.3.8",
     "react-flip-toolkit": "^7.2.4",
     "react-hook-form": "^7.58.1",
-    "react-markdown": "^9.0.3",
+    "react-markdown": "^9.1.0",
     "react-redux": "^9.2.0",
     "react-resize-aware": "^4.0.0",
     "react-transition-group": "^4.4.5",
@@ -151,6 +151,6 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.4"
   }
 }
