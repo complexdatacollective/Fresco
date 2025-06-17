@@ -1,5 +1,3 @@
-const path = require('path');
-
 /** @type {import("eslint").Linter.Config} */
 const config = {
   overrides: [
@@ -10,31 +8,44 @@ const config = {
       ],
       files: ['*.ts', '*.tsx'],
       parserOptions: {
-        project: path.join(__dirname, 'tsconfig.json'),
+        project: true,
+      },
+    },
+    {
+      files: ['*.js', '*.jsx'],
+      extends: [
+        'plugin:import/recommended',
+        'plugin:@typescript-eslint/stylistic',
+        'plugin:@typescript-eslint/recommended',
+        'prettier',
+      ],
+      settings: {
+        'import/resolver': {
+          alias: {
+            map: [
+              ['react', 'next/dist/compiled/react/cjs/react.development.js'],
+            ],
+            extensions: ['.js', '.jsx'],
+          },
+          typescript: {
+            project: './tsconfig.json',
+            alwaysTryTypes: true,
+          },
+        },
       },
     },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: path.join(__dirname, 'tsconfig.json'),
+    project: true,
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/stylistic',
-    'plugin:@typescript-eslint/recommended',
-    'next/core-web-vitals',
-    'prettier',
-  ],
-  ignorePatterns: [
-    'node_modules',
-    '*.stories.*',
-    '*.test.*',
-    'public',
-    '.eslintrc.cjs',
-  ],
+  extends: ['eslint:recommended', 'next/core-web-vitals', 'prettier'],
+  ignorePatterns: ['node_modules', '*.stories.*', 'public'],
   rules: {
+    '@typescript-eslint/switch-exhaustiveness-check': 'error',
     '@next/next/no-img-element': 'off',
+    'import/no-cycle': 'error',
     'import/no-anonymous-default-export': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     'no-process-env': 'error',

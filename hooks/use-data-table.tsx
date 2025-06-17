@@ -21,7 +21,7 @@ import type {
   DataTableSearchableColumn,
   FilterParam,
   SortableField,
-} from '~/lib/data-table/types';
+} from '~/components/DataTable/types';
 
 import { debounce } from 'es-toolkit';
 import { useTableStateFromSearchParams } from '~/app/dashboard/_components/ActivityFeed/useTableStateFromSearchParams';
@@ -62,7 +62,7 @@ type UseDataTableProps<TData, TValue> = {
    * @example filterableColumns={[{ id: "status", title: "Status", options: ["todo", "in-progress", "done", "canceled"]}]}
    */
   filterableColumns?: DataTableFilterableColumn<TData>[];
-};
+}
 
 export function useDataTable<TData, TValue>({
   data,

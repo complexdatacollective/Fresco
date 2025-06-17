@@ -227,7 +227,7 @@ describe('CSV Schema', () => {
         { identifier: 'abcd5678' },
         { identifier: 'abcd3456', label: 'Label2' },
         { identifier: undefined, label: 'Label3' },
-      ]
+      ],
     });
   });
 
