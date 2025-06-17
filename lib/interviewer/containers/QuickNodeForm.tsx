@@ -2,17 +2,22 @@ import {
   type EntityAttributesProperty,
   type NcNode,
 } from '@codaco/shared-consts';
+import { useForm, useStore } from '@tanstack/react-form';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ActionButton, Node } from '~/lib/ui/components';
+import QuickAdd from '~/lib/ui/components/Fields/QuickAdd';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
+import { getCodebookVariablesForSubjectType } from '../selectors/protocol';
 import {
+  getNetworkEntitiesForType,
   getNodeColor,
   getNodeTypeLabel,
   getStageSubject,
 } from '../selectors/session';
+import { getTanStackNativeValidators } from '../utils/field-validation';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
 const containerVariants = {
@@ -53,22 +58,6 @@ const itemVariants = {
   },
 };
 
-const inputVariants = {
-  show: {
-    opacity: 1,
-    x: '0px',
-    width: 'calc(var(--open-width) - 15rem)',
-    transition: {
-      delay: 0.2,
-    },
-  },
-  hide: {
-    opacity: 0,
-    x: '4rem',
-    width: 'calc(var(--open-width) - 20rem)',
-  },
-};
-
 type QuickAddFormProps = {
   disabled: boolean;
   targetVariable: string;
@@ -88,10 +77,26 @@ const QuickAddForm = ({
   const [nodeLabel, setNodeLabel] = useState('');
 
   const subject = useSelector(getStageSubject)!;
+  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
+  const variable = codebookVariables[targetVariable];
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const nodeColor = useSelector(getNodeColor(subject.type));
   const icon = useSelector(getNodeIconName);
+  const networkEntities = useSelector(getNetworkEntitiesForType);
+
+  const validators = getTanStackNativeValidators(variable?.validation ?? {}, {
+    codebookVariables,
+    networkEntities,
+    currentEntityId: undefined, // No current entity ID in this context
+  });
+
+  const form = useForm({
+    defaultValues: {
+      nodeLabel: '',
+    },
+    validators,
+  });
 
   const handleBlur = () => {
     setNodeLabel('');
@@ -114,7 +119,11 @@ const QuickAddForm = ({
     }
   }, [nodeLabel]);
 
-  const isValid = useMemo(() => nodeLabel !== '', [nodeLabel]);
+  const isValid =
+    useStore(form.store, (state) => state.isFormValid) && nodeLabel !== '';
+
+  const errors = useStore(form.store, (state) => state.errorMap);
+  console.log(errors, 'errors in QuickAddForm');
 
   const handleSubmit = () => {
     if (isValid && !disabled) {
@@ -161,31 +170,28 @@ const QuickAddForm = ({
                 handleSubmit();
               }}
             >
-              <motion.div
-                key="tool-tip"
-                className="tool-tip"
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: showTooltip ? 1 : 0,
-                }}
-              >
-                <span>Press enter to add...</span>
-              </motion.div>
-              <motion.input
-                initial={inputVariants.hide}
-                animate={inputVariants.show}
-                exit={inputVariants.hide}
-                className="label-input"
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                onChange={(e) => setNodeLabel(e.target.value)}
-                onBlur={handleBlur}
-                placeholder="Type a label and press enter..."
-                value={nodeLabel}
-                type="text"
-              />
+              <form.Field name="nodeLabel">
+                {(field) => (
+                  <QuickAdd
+                    input={{
+                      name: field.name,
+                      value: nodeLabel,
+                      onChange: (value: string) => setNodeLabel(value),
+                      onBlur: handleBlur,
+                    }}
+                    meta={{
+                      error: field.state.meta.errors?.[0] ?? null,
+                      invalid: field.state.meta.errors.length > 0,
+                      touched: field.state.meta.isTouched,
+                    }}
+                    targetVariable={targetVariable}
+                    disabled={disabled}
+                    onSubmit={handleSubmit}
+                    showTooltip={showTooltip}
+                    tooltipText={`Press enter to add ${nodeType}...`}
+                  />
+                )}
+              </form.Field>
             </form>
             <Node
               label={nodeLabel}
