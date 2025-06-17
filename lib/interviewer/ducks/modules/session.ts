@@ -86,7 +86,7 @@ export const StageMetadataSchema = z.record(
 );
 
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
-export type StageMetadata = z.infer<typeof StageMetadataSchema>;
+type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
 export type SessionState = {
   id: string;

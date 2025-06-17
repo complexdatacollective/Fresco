@@ -114,8 +114,6 @@ export const useProtocolImport = () => {
           ? migrateProtocol(protocolJson, 8)
           : protocolJson;
 
-      console.log('Validating protocol', protocolToValidate);
-
       const validationResult = await validateProtocol(
         protocolToValidate as Protocol,
       );
