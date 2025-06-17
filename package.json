@@ -13,6 +13,12 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:setup": "./scripts/test/setup-test-db.sh",
+    "test:e2e:teardown": "./scripts/test/teardown-test-db.sh",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "tsc --noEmit"
   },

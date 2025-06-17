@@ -1,0 +1,91 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: fresco_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+    
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+    
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+    
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    
+    - name: Install Playwright Browsers
+      run: pnpm exec playwright install --with-deps
+    
+    - name: Setup test environment
+      run: |
+        cp .env.test .env
+        echo "DATABASE_URL=postgresql://postgres:password@localhost:5433/fresco_test" >> .env
+    
+    - name: Run database migrations
+      run: pnpm exec prisma migrate deploy
+      env:
+        POSTGRES_PRISMA_URL: postgresql://postgres:password@localhost:5433/fresco_test?pgbouncer=true&connect_timeout=15
+        POSTGRES_URL_NON_POOLING: postgresql://postgres:password@localhost:5433/fresco_test?connect_timeout=15
+    
+    - name: Run Playwright tests
+      run: pnpm exec playwright test
+      env:
+        CI: true
+        POSTGRES_PRISMA_URL: postgresql://postgres:password@localhost:5433/fresco_test?pgbouncer=true&connect_timeout=15
+        POSTGRES_URL_NON_POOLING: postgresql://postgres:password@localhost:5433/fresco_test?connect_timeout=15
+        SKIP_ENV_VALIDATION: true
+    
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: tests/e2e/playwright-report/
+        retention-days: 30
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: tests/e2e/test-results/
+        retention-days: 30
