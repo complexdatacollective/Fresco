@@ -74,7 +74,6 @@ const QuickAddForm = ({
   const [showForm, setShowForm] = useState(false);
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [nodeLabel, setNodeLabel] = useState('');
 
   const subject = useSelector(getStageSubject)!;
   const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
@@ -90,23 +89,30 @@ const QuickAddForm = ({
     networkEntities,
     currentEntityId: undefined, // No current entity ID in this context
   });
+  
+  console.log('Variable validation config:', variable?.validation);
+  console.log('Generated validators:', validators);
 
   const form = useForm({
     defaultValues: {
       nodeLabel: '',
     },
-    validators,
   });
 
   const handleBlur = () => {
-    setNodeLabel('');
+    form.reset();
     setShowForm(false);
   };
 
   // Handle showing/hiding the tooltip based on the nodeLabel
   // Logic: wait 5 seconds after the user last typed something
+  const currentNodeLabel = useStore(
+    form.store,
+    (state) => state.values.nodeLabel,
+  );
+
   useEffect(() => {
-    if (nodeLabel !== '') {
+    if (currentNodeLabel !== '') {
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
 
@@ -117,22 +123,39 @@ const QuickAddForm = ({
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
     }
-  }, [nodeLabel]);
+  }, [currentNodeLabel]);
 
   const isValid =
-    useStore(form.store, (state) => state.isFormValid) && nodeLabel !== '';
+    useStore(form.store, (state) => state.isFormValid) &&
+    currentNodeLabel !== '';
 
-  const errors = useStore(form.store, (state) => state.errorMap);
-  console.log(errors, 'errors in QuickAddForm');
-
-  const handleSubmit = () => {
-    if (isValid && !disabled) {
-      void addNode({
-        ...newNodeAttributes,
-        [targetVariable]: nodeLabel,
+  const handleSubmit = async () => {
+    if (!disabled) {
+      // Validate the form first
+      await form.validateAllFields('submit');
+      
+      // Get the current form state after validation
+      const formState = form.state;
+      const fieldState = formState.fieldMeta.nodeLabel;
+      const hasErrors = fieldState?.errors && fieldState.errors.length > 0;
+      
+      console.log('Form validation state:', {
+        isFormValid: formState.isFormValid,
+        fieldErrors: fieldState?.errors,
+        hasErrors,
+        value: currentNodeLabel,
       });
-
-      setNodeLabel('');
+      
+      // Only submit if form is valid and has no errors
+      if (formState.isFormValid && !hasErrors) {
+        void addNode({
+          ...newNodeAttributes,
+          [targetVariable]: currentNodeLabel,
+        });
+        form.reset();
+      } else {
+        console.log('Submission blocked due to validation errors');
+      }
     }
   };
 
@@ -144,9 +167,9 @@ const QuickAddForm = ({
   useEffect(() => {
     if (disabled) {
       setShowForm(false);
-      setNodeLabel('');
+      form.reset();
     }
-  }, [disabled]);
+  }, [disabled, form]);
 
   return (
     <motion.div
@@ -167,17 +190,48 @@ const QuickAddForm = ({
               autoComplete="off"
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmit();
+                void handleSubmit();
               }}
             >
-              <form.Field name="nodeLabel">
+              <form.Field
+                name="nodeLabel"
+                validators={{
+                  onChange: ({ value }) => {
+                    console.log('Field onChange validator called with value:', value);
+                    const result = validators.onChange({
+                      value,
+                      fieldApi: {
+                        form: { store: { state: { values: form.state.values } } },
+                        name: 'nodeLabel',
+                      },
+                    });
+                    console.log('Validator result:', result);
+                    return result;
+                  },
+                  onSubmit: ({ value }) => {
+                    console.log('Field onSubmit validator called with value:', value);
+                    const result = validators.onChange({
+                      value,
+                      fieldApi: {
+                        form: { store: { state: { values: form.state.values } } },
+                        name: 'nodeLabel',
+                      },
+                    });
+                    console.log('Validator result:', result);
+                    return result;
+                  },
+                }}
+              >
                 {(field) => (
                   <QuickAdd
                     input={{
                       name: field.name,
-                      value: nodeLabel,
-                      onChange: (value: string) => setNodeLabel(value),
-                      onBlur: handleBlur,
+                      value: field.state.value,
+                      onChange: field.handleChange,
+                      onBlur: () => {
+                        field.handleBlur();
+                        handleBlur();
+                      },
                     }}
                     meta={{
                       error: field.state.meta.errors?.[0] ?? null,
@@ -186,7 +240,7 @@ const QuickAddForm = ({
                     }}
                     targetVariable={targetVariable}
                     disabled={disabled}
-                    onSubmit={handleSubmit}
+                    onSubmit={() => void handleSubmit()}
                     showTooltip={showTooltip}
                     tooltipText={`Press enter to add ${nodeType}...`}
                   />
@@ -194,7 +248,7 @@ const QuickAddForm = ({
               </form.Field>
             </form>
             <Node
-              label={nodeLabel}
+              label={currentNodeLabel}
               selected={isValid}
               color={nodeColor}
               handleClick={handleSubmit}

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import React, { memo } from 'react';
+import Icon from '../Icon';
 
 type QuickAddProps = {
   input: {
@@ -86,15 +87,10 @@ const QuickAdd = ({
         type="text"
       />
       {meta?.invalid && meta?.touched && meta?.error && (
-        <motion.div
-          key="error-message"
-          className="form-field-text__error"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-        >
-          <span>{meta.error}</span>
-        </motion.div>
+        <div className="form-field-text__error">
+          <Icon name="warning" />
+          {meta?.error}
+        </div>
       )}
     </>
   );
