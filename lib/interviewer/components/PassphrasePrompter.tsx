@@ -1,7 +1,12 @@
 'use client';
 
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { AnimatePresence, motion, useWillChange } from 'motion/react';
+import {
+  AnimatePresence,
+  motion,
+  type Transition,
+  useWillChange,
+} from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { required } from '~/lib/interviewer/utils/field-validation';
 import { Button } from '~/lib/ui/components';
@@ -9,7 +14,7 @@ import Form from '../containers/Form';
 import { usePassphrase } from '../containers/Interfaces/Anonymisation/usePassphrase';
 import Overlay from '../containers/Overlay';
 
-const transition = {
+const transition: Transition = {
   type: 'spring',
   stiffness: 400,
   damping: 30,

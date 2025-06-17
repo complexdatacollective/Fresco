@@ -2,7 +2,7 @@ import {
   type EntityAttributesProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ActionButton, Node } from '~/lib/ui/components';
@@ -15,7 +15,7 @@ import {
 } from '../selectors/session';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
-const containerVariants = {
+const containerVariants: Variants = {
   animate: (wide: boolean) =>
     wide
       ? {
@@ -37,7 +37,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   show: {
     opacity: 1,
     x: '0px',
@@ -53,7 +53,7 @@ const itemVariants = {
   },
 };
 
-const inputVariants = {
+const inputVariants: Variants = {
   show: {
     opacity: 1,
     x: '0px',
@@ -150,9 +150,10 @@ const QuickAddForm = ({
           <motion.div
             key="form-container"
             className="form-container"
-            initial={itemVariants.hide}
-            animate={itemVariants.show}
-            exit={itemVariants.hide}
+            variants={itemVariants}
+            initial="hide"
+            animate="show"
+            exit="hide"
           >
             <form
               autoComplete="off"
@@ -174,9 +175,10 @@ const QuickAddForm = ({
                 <span>Press enter to add...</span>
               </motion.div>
               <motion.input
-                initial={inputVariants.hide}
-                animate={inputVariants.show}
-                exit={inputVariants.hide}
+                variants={inputVariants}
+                initial="hide"
+                animate="show"
+                exit="hide"
                 className="label-input"
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
@@ -199,9 +201,10 @@ const QuickAddForm = ({
           <motion.div
             key="button-container"
             className="button-container"
-            initial={itemVariants.hide}
-            animate={itemVariants.show}
-            exit={itemVariants.hide}
+            variants={itemVariants}
+            initial="hide"
+            animate="show"
+            exit="hide"
           >
             <ActionButton
               disabled={disabled}

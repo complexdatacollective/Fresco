@@ -5,7 +5,7 @@ import type { Participant } from '@prisma/client';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
@@ -32,7 +32,7 @@ type ParticipantModalProps = {
   editingParticipant?: Participant | null;
   setEditingParticipant?: Dispatch<SetStateAction<Participant | null>>;
   existingParticipants: Participant[];
-}
+};
 
 function ParticipantModal({
   open,

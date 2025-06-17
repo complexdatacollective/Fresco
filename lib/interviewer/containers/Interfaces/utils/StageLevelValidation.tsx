@@ -1,5 +1,5 @@
 import { defaultTo } from 'es-toolkit/compat';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 import {
   type ComponentType,
   useCallback,
@@ -136,7 +136,7 @@ const containerVariants = {
   },
 };
 
-const wrapperVariants = {
+const wrapperVariants: Variants = {
   show: {
     width: '26rem',
     transition: {
@@ -148,7 +148,7 @@ const wrapperVariants = {
   hide: {
     width: '6rem',
     transition: {
-      type: 'easeIn',
+      ease: 'easeIn',
     },
   },
 };

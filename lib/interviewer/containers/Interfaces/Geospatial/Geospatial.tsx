@@ -6,7 +6,7 @@ import {
 import { type Action } from '@reduxjs/toolkit';
 import { Locate } from 'lucide-react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
@@ -36,7 +36,7 @@ const fadeVariants = {
   hide: { opacity: 0, transition: { duration: 0.5 } },
 };
 
-const nodeAnimationVariants = {
+const nodeAnimationVariants: Variants = {
   initial: (navDirection: NavDirection) => ({
     opacity: 0,
     y: navDirection === 'backwards' ? '-10%' : '10%',

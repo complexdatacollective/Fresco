@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import useZodForm from '~/hooks/useZodForm';

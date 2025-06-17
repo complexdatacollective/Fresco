@@ -3,7 +3,7 @@
 import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
-import { type z } from 'zod';
+import { type z } from 'zod/v3';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
