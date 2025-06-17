@@ -1,6 +1,6 @@
-import NextLink, { type LinkProps, type LinkRestProps } from 'next/link';
+import NextLink from 'next/link';
 
-export default function Link(props: LinkProps<LinkRestProps>) {
+export default function Link(props: React.ComponentProps<typeof NextLink>) {
   return (
     <NextLink
       className="text-link group font-semibold transition-all duration-300 ease-in-out"
