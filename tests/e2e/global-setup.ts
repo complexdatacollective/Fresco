@@ -1,34 +1,48 @@
-import { chromium, FullConfig } from '@playwright/test';
+import { type FullConfig } from '@playwright/test';
 import { execSync } from 'child_process';
-import dotenv from 'dotenv';
+import '~/envConfig.js';
+import { validateTestConfig } from '~/tests/e2e/utils/config';
+import { verifyDatabaseConnection } from '~/utils/db';
 
-// Load test environment variables
-dotenv.config({ path: '.env.test' });
-
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
+  // eslint-disable-next-line no-console
   console.log('🚀 Starting global test setup...');
 
+  // Validate configuration
+  // eslint-disable-next-line no-console
+  console.log('🔧 Validating test configuration...');
+  try {
+    validateTestConfig();
+    // eslint-disable-next-line no-console
+    console.log('✅ Test configuration valid');
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('❌ Test configuration invalid:', error);
+    throw error;
+  }
+
   // Setup test database
+  // eslint-disable-next-line no-console
   console.log('📊 Setting up test database...');
   try {
     execSync('./scripts/test/setup-test-db.sh', { stdio: 'inherit' });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('❌ Failed to setup test database:', error);
     throw error;
   }
 
-  // Wait a bit for the database to be fully ready
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  // Optional: Create a test user for authenticated tests
-  console.log('👤 Creating test user...');
-  try {
-    // This will be implemented in Phase 3
-    console.log('⏭️  Test user creation will be implemented in Phase 3');
-  } catch (error) {
-    console.error('⚠️  Test user creation failed (this is expected in Phase 1):', error);
+  // Verify database connection
+  // eslint-disable-next-line no-console
+  console.log('🔌 Verifying database connection...');
+  const isConnected = await verifyDatabaseConnection();
+  if (!isConnected) {
+    throw new Error('Failed to connect to test database');
   }
+  // eslint-disable-next-line no-console
+  console.log('✅ Database connection verified');
 
+  // eslint-disable-next-line no-console
   console.log('✅ Global test setup complete!');
 }
 

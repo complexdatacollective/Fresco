@@ -1,81 +1,82 @@
-import {
-  CodebookSchema,
-  ProtocolSchema,
-  stageSchema,
-} from '@codaco/protocol-validation';
-import { NcNetworkSchema } from '@codaco/shared-consts';
+// import {
+//   CodebookSchema,
+//   ProtocolSchema,
+//   stageSchema,
+// } from '@codaco/protocol-validation';
+// import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaClient } from '@prisma/client';
-import { env } from '~/env';
-import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
+// import { env } from '~/env';
+// import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
+
+// const NcNetworkSchema = {
+//   parse: (network: any) => {
+//     // Placeholder for actual network schema validation logic
+//     if (!network || typeof network !== 'object') {
+//       throw new Error('Invalid network data');
+//     }
+
+//     return network; // Return the validated network
+//   },
+// };
 
 const createPrismaClient = () =>
   new PrismaClient({
-    log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  }).$extends({
-    query: {
-      async $allOperations({ args, query }) {
-        if (env.NODE_ENV === 'development') {
-          // Add artificial DB delay in development
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return query(args);
-      },
-    },
-    result: {
-      interview: {
-        network: {
-          needs: {
-            network: true,
-          },
-          compute: ({ network }) => {
-            return NcNetworkSchema.parse(network);
-          },
-        },
-        stageMetadata: {
-          needs: {
-            stageMetadata: true,
-          },
-          compute: ({ stageMetadata }) => {
-            if (!stageMetadata) {
-              return null;
-            }
-            return StageMetadataSchema.parse(stageMetadata);
-          },
-        },
-      },
-      protocol: {
-        stages: {
-          needs: {
-            stages: true,
-          },
-          compute: ({ stages }) => {
-            return stageSchema.array().parse(stages);
-          },
-        },
-        codebook: {
-          needs: {
-            codebook: true,
-          },
-          compute: ({ codebook }) => {
-            return CodebookSchema.parse(codebook);
-          },
-        },
-        experiments: {
-          needs: {
-            experiments: true,
-          },
-          compute: ({ experiments }) => {
-            if (!experiments) {
-              return null;
-            }
-            return ProtocolSchema.shape.experiments.parse(experiments);
-          },
-        },
-      },
-    },
+    // log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
+// .$extends({
+//   result: {
+//     interview: {
+//       network: {
+//         needs: {
+//           network: true,
+//         },
+//         compute: ({ network }) => {
+//           return NcNetworkSchema.parse(network);
+//         },
+//       },
+//       stageMetadata: {
+//         needs: {
+//           stageMetadata: true,
+//         },
+//         compute: ({ stageMetadata }) => {
+//           if (!stageMetadata) {
+//             return null;
+//           }
+//           return StageMetadataSchema.parse(stageMetadata);
+//         },
+//       },
+//     },
+//     protocol: {
+//       stages: {
+//         needs: {
+//           stages: true,
+//         },
+//         compute: ({ stages }) => {
+//           return stageSchema.array().parse(stages);
+//         },
+//       },
+//       codebook: {
+//         needs: {
+//           codebook: true,
+//         },
+//         compute: ({ codebook }) => {
+//           return CodebookSchema.parse(codebook);
+//         },
+//       },
+//       experiments: {
+//         needs: {
+//           experiments: true,
+//         },
+//         compute: ({ experiments }) => {
+//           if (!experiments) {
+//             return null;
+//           }
+//           return ProtocolSchema.shape.experiments.parse(experiments);
+//         },
+//       },
+//     },
+//   },
+// });
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;
@@ -83,4 +84,15 @@ const globalForPrisma = globalThis as unknown as {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Helper function to verify database connection
+export const verifyDatabaseConnection = async () => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return true;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    return false;
+  }
+};

@@ -3,6 +3,7 @@
 This phase implements continuous integration, test automation, performance optimization, and maintenance strategies for the comprehensive Playwright testing suite.
 
 ## Prerequisites
+
 - Phase 1-7 completed successfully
 - Understanding of GitHub Actions workflows
 - Knowledge of CI/CD best practices for testing
@@ -15,20 +16,22 @@ This phase implements continuous integration, test automation, performance optim
 **Steps**:
 
 1. **Update the main CI workflow**:
+
    ```bash
    # Update .github/workflows/ci.yml
    ```
 
 2. **Enhanced CI workflow configuration**:
+
    ```yaml
    # .github/workflows/ci.yml - Enhanced version
    name: CI
 
    on:
      push:
-       branches: [ main, develop ]
+       branches: [main, develop]
      pull_request:
-       branches: [ main ]
+       branches: [main]
 
    jobs:
      test-setup:
@@ -53,7 +56,7 @@ This phase implements continuous integration, test automation, performance optim
            with:
              node-version: '20'
              cache: 'pnpm'
-         
+
          - name: Install dependencies
            run: pnpm install --frozen-lockfile
 
@@ -160,7 +163,7 @@ This phase implements continuous integration, test automation, performance optim
        steps:
          - uses: actions/checkout@v4
            with:
-             fetch-depth: 0  # Need full history for baseline comparison
+             fetch-depth: 0 # Need full history for baseline comparison
 
          - uses: pnpm/action-setup@v2
            with:
@@ -228,12 +231,14 @@ This phase implements continuous integration, test automation, performance optim
    ```
 
 3. **Create test matrix configuration**:
+
    ```bash
    mkdir -p .github
    touch .github/test-matrix.json
    ```
 
 4. **Add test matrix configuration**:
+
    ```json
    {
      "browsers": ["chromium", "firefox", "webkit"],
@@ -249,36 +254,38 @@ This phase implements continuous integration, test automation, performance optim
 **Steps**:
 
 1. **Create performance optimization utilities**:
+
    ```bash
    mkdir -p tests/e2e/utils/performance
    touch tests/e2e/utils/performance/index.ts
    ```
 
 2. **Add performance optimization utilities**:
+
    ```typescript
    // tests/e2e/utils/performance/index.ts
    import { Page, TestInfo } from '@playwright/test';
-   
+
    export interface PerformanceConfig {
      enableMetrics: boolean;
      enableTracing: boolean;
      slowTestThreshold: number;
      networkIdleTimeout: number;
    }
-   
+
    export class PerformanceOptimizer {
      private config: PerformanceConfig;
-     
+
      constructor(config: Partial<PerformanceConfig> = {}) {
        this.config = {
          enableMetrics: true,
          enableTracing: false,
          slowTestThreshold: 30000, // 30 seconds
          networkIdleTimeout: 2000,
-         ...config
+         ...config,
        };
      }
-   
+
      /**
       * Start performance monitoring for a test
       */
@@ -291,52 +298,61 @@ This phase implements continuous integration, test automation, performance optim
            window.performance.clearMarks();
          });
        }
-   
+
        if (this.config.enableTracing) {
          await page.context().tracing.start({
            screenshots: true,
            snapshots: true,
-           sources: true
+           sources: true,
          });
        }
      }
-   
+
      /**
       * Stop monitoring and collect performance data
       */
      async stopMonitoring(page: Page, testInfo: TestInfo) {
        const performanceData: any = {};
-   
+
        if (this.config.enableMetrics) {
          performanceData.metrics = await page.evaluate(() => {
-           const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+           const navigation = performance.getEntriesByType(
+             'navigation',
+           )[0] as PerformanceNavigationTiming;
            const paint = performance.getEntriesByType('paint');
-           
+
            return {
-             domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
+             domContentLoaded:
+               navigation.domContentLoadedEventEnd -
+               navigation.domContentLoadedEventStart,
              loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
-             firstPaint: paint.find(p => p.name === 'first-paint')?.startTime || 0,
-             firstContentfulPaint: paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
-             resources: performance.getEntriesByType('resource').length
+             firstPaint:
+               paint.find((p) => p.name === 'first-paint')?.startTime || 0,
+             firstContentfulPaint:
+               paint.find((p) => p.name === 'first-contentful-paint')
+                 ?.startTime || 0,
+             resources: performance.getEntriesByType('resource').length,
            };
          });
        }
-   
+
        if (this.config.enableTracing) {
          const tracePath = `test-results/${testInfo.title.replace(/\s+/g, '-')}-trace.zip`;
          await page.context().tracing.stop({ path: tracePath });
          performanceData.tracePath = tracePath;
        }
-   
+
        // Log slow tests
        const testDuration = Date.now() - testInfo.startTime.getTime();
        if (testDuration > this.config.slowTestThreshold) {
-         console.warn(`Slow test detected: ${testInfo.title} took ${testDuration}ms`);
+         console.warn(
+           `Slow test detected: ${testInfo.title} took ${testDuration}ms`,
+         );
        }
-   
+
        return performanceData;
      }
-   
+
      /**
       * Optimize page loading performance
       */
@@ -345,7 +361,7 @@ This phase implements continuous integration, test automation, performance optim
        await page.route('**/*', (route) => {
          const url = route.request().url();
          const resourceType = route.request().resourceType();
-   
+
          // Block non-essential resources
          if (resourceType === 'image' && !url.includes('essential')) {
            route.abort();
@@ -358,61 +374,63 @@ This phase implements continuous integration, test automation, performance optim
          }
        });
      }
-   
+
      /**
       * Wait for network to be idle with custom timeout
       */
      async waitForNetworkIdle(page: Page) {
-       await page.waitForLoadState('networkidle', { 
-         timeout: this.config.networkIdleTimeout 
+       await page.waitForLoadState('networkidle', {
+         timeout: this.config.networkIdleTimeout,
        });
      }
    }
    ```
 
 3. **Create parallel test configuration**:
+
    ```bash
    touch tests/e2e/utils/performance/parallel.ts
    ```
 
 4. **Add parallel test utilities**:
+
    ```typescript
    // tests/e2e/utils/performance/parallel.ts
    import { TestInfo } from '@playwright/test';
-   
+
    export interface ParallelTestConfig {
      maxWorkers: number;
      shardIndex: number;
      shardTotal: number;
      testGrouping: 'file' | 'suite' | 'test';
    }
-   
+
    export class ParallelTestManager {
      private config: ParallelTestConfig;
-     
+
      constructor(config: Partial<ParallelTestConfig> = {}) {
        this.config = {
          maxWorkers: 4,
          shardIndex: 0,
          shardTotal: 1,
          testGrouping: 'file',
-         ...config
+         ...config,
        };
      }
-   
+
      /**
       * Determine if a test should run in current shard
       */
      shouldRunTest(testInfo: TestInfo): boolean {
        if (this.config.shardTotal <= 1) return true;
-   
+
        const testId = this.getTestId(testInfo);
        const hash = this.simpleHash(testId);
        const shard = hash % this.config.shardTotal;
-       
+
        return shard === this.config.shardIndex;
      }
-   
+
      /**
       * Get unique test identifier based on grouping strategy
       */
@@ -428,7 +446,7 @@ This phase implements continuous integration, test automation, performance optim
            return testInfo.file;
        }
      }
-   
+
      /**
       * Simple hash function for consistent test distribution
       */
@@ -436,12 +454,12 @@ This phase implements continuous integration, test automation, performance optim
        let hash = 0;
        for (let i = 0; i < str.length; i++) {
          const char = str.charCodeAt(i);
-         hash = ((hash << 5) - hash) + char;
+         hash = (hash << 5) - hash + char;
          hash = hash & hash; // Convert to 32-bit integer
        }
        return Math.abs(hash);
      }
-   
+
      /**
       * Get worker pool configuration
       */
@@ -451,8 +469,8 @@ This phase implements continuous integration, test automation, performance optim
          retries: process.env.CI ? 2 : 0,
          timeout: 30000,
          expect: {
-           timeout: 10000
-         }
+           timeout: 10000,
+         },
        };
      }
    }
@@ -465,18 +483,20 @@ This phase implements continuous integration, test automation, performance optim
 **Steps**:
 
 1. **Create monitoring utilities**:
+
    ```bash
    mkdir -p tests/e2e/utils/monitoring
    touch tests/e2e/utils/monitoring/index.ts
    ```
 
 2. **Add test monitoring implementation**:
+
    ```typescript
    // tests/e2e/utils/monitoring/index.ts
    import { TestResult, TestCase } from '@playwright/test/reporter';
    import { writeFileSync, existsSync, mkdirSync } from 'fs';
    import { join } from 'path';
-   
+
    export interface TestMetrics {
      totalTests: number;
      passedTests: number;
@@ -486,11 +506,11 @@ This phase implements continuous integration, test automation, performance optim
      slowTests: TestCase[];
      flakiness: Map<string, number>;
    }
-   
+
    export class TestMonitor {
      private metrics: TestMetrics;
      private reportPath: string;
-   
+
      constructor(reportPath: string = 'test-results/monitoring') {
        this.reportPath = reportPath;
        this.metrics = {
@@ -500,25 +520,25 @@ This phase implements continuous integration, test automation, performance optim
          skippedTests: 0,
          duration: 0,
          slowTests: [],
-         flakiness: new Map()
+         flakiness: new Map(),
        };
-       
+
        this.ensureReportDirectory();
      }
-   
+
      private ensureReportDirectory() {
        if (!existsSync(this.reportPath)) {
          mkdirSync(this.reportPath, { recursive: true });
        }
      }
-   
+
      /**
       * Record test results
       */
      recordTestResult(test: TestCase, result: TestResult) {
        this.metrics.totalTests++;
        this.metrics.duration += result.duration;
-   
+
        switch (result.status) {
          case 'passed':
            this.metrics.passedTests++;
@@ -531,13 +551,13 @@ This phase implements continuous integration, test automation, performance optim
            this.metrics.skippedTests++;
            break;
        }
-   
+
        // Track slow tests (>10 seconds)
        if (result.duration > 10000) {
          this.metrics.slowTests.push(test);
        }
      }
-   
+
      /**
       * Track test flakiness
       */
@@ -546,7 +566,7 @@ This phase implements continuous integration, test automation, performance optim
        const current = this.metrics.flakiness.get(testId) || 0;
        this.metrics.flakiness.set(testId, current + 1);
      }
-   
+
      /**
       * Generate comprehensive test report
       */
@@ -558,36 +578,47 @@ This phase implements continuous integration, test automation, performance optim
            passed: this.metrics.passedTests,
            failed: this.metrics.failedTests,
            skipped: this.metrics.skippedTests,
-           passRate: this.metrics.totalTests > 0 ? 
-             (this.metrics.passedTests / this.metrics.totalTests * 100).toFixed(2) : '0',
+           passRate:
+             this.metrics.totalTests > 0
+               ? (
+                   (this.metrics.passedTests / this.metrics.totalTests) *
+                   100
+                 ).toFixed(2)
+               : '0',
            totalDuration: this.metrics.duration,
-           averageDuration: this.metrics.totalTests > 0 ? 
-             (this.metrics.duration / this.metrics.totalTests).toFixed(2) : '0'
+           averageDuration:
+             this.metrics.totalTests > 0
+               ? (this.metrics.duration / this.metrics.totalTests).toFixed(2)
+               : '0',
          },
          performance: {
-           slowTests: this.metrics.slowTests.map(test => ({
+           slowTests: this.metrics.slowTests.map((test) => ({
              title: test.title,
              file: test.location?.file,
-             line: test.location?.line
-           }))
+             line: test.location?.line,
+           })),
          },
-         flakiness: Array.from(this.metrics.flakiness.entries()).map(([test, count]) => ({
-           test,
-           failures: count,
-           flakinessRate: ((count / this.metrics.totalTests) * 100).toFixed(2)
-         }))
+         flakiness: Array.from(this.metrics.flakiness.entries()).map(
+           ([test, count]) => ({
+             test,
+             failures: count,
+             flakinessRate: ((count / this.metrics.totalTests) * 100).toFixed(
+               2,
+             ),
+           }),
+         ),
        };
-   
+
        // Write JSON report
        const jsonPath = join(this.reportPath, 'test-metrics.json');
        writeFileSync(jsonPath, JSON.stringify(report, null, 2));
-   
+
        // Write HTML report
        this.generateHtmlReport(report);
-   
+
        return report;
      }
-   
+
      /**
       * Generate HTML report
       */
@@ -623,39 +654,57 @@ This phase implements continuous integration, test automation, performance optim
            <div class="metric">Total Duration: <strong>${(report.summary.totalDuration / 1000).toFixed(2)}s</strong></div>
          </div>
    
-         ${report.performance.slowTests.length > 0 ? `
-         <h2>Slow Tests (>10s)</h2>
-         <table>
-           <tr><th>Test</th><th>File</th></tr>
-           ${report.performance.slowTests.map((test: any) => `
-             <tr><td>${test.title}</td><td>${test.file}:${test.line}</td></tr>
-           `).join('')}
-         </table>
-         ` : ''}
+         ${
+           report.performance.slowTests.length > 0
+             ? `
+      <h2>Slow Tests (>10s)</h2>
+      <table>
+        <tr><th>Test</th><th>File</th></tr>
+        ${report.performance.slowTests
+          .map(
+            (test: any) => `
+          <tr><td>${test.title}</td><td>${test.file}:${test.line}</td></tr>
+        `,
+          )
+          .join('')}
+      </table>
+      `
+             : ''
+         }
    
-         ${report.flakiness.length > 0 ? `
-         <h2>Flaky Tests</h2>
-         <table>
-           <tr><th>Test</th><th>Failures</th><th>Flakiness Rate</th></tr>
-           ${report.flakiness.map((flaky: any) => `
-             <tr><td>${flaky.test}</td><td>${flaky.failures}</td><td>${flaky.flakinessRate}%</td></tr>
-           `).join('')}
-         </table>
-         ` : ''}
+         ${
+           report.flakiness.length > 0
+             ? `
+      <h2>Flaky Tests</h2>
+      <table>
+        <tr><th>Test</th><th>Failures</th><th>Flakiness Rate</th></tr>
+        ${report.flakiness
+          .map(
+            (flaky: any) => `
+          <tr><td>${flaky.test}</td><td>${flaky.failures}</td><td>${flaky.flakinessRate}%</td></tr>
+        `,
+          )
+          .join('')}
+      </table>
+      `
+             : ''
+         }
        </body>
        </html>`;
-   
+
        const htmlPath = join(this.reportPath, 'test-report.html');
        writeFileSync(htmlPath, html);
      }
-   
+
      /**
       * Check if alerts should be sent
       */
      shouldAlert(): boolean {
-       const passRate = this.metrics.totalTests > 0 ? 
-         (this.metrics.passedTests / this.metrics.totalTests) : 0;
-       
+       const passRate =
+         this.metrics.totalTests > 0
+           ? this.metrics.passedTests / this.metrics.totalTests
+           : 0;
+
        // Alert if pass rate below 95% or more than 5 flaky tests
        return passRate < 0.95 || this.metrics.flakiness.size > 5;
      }
@@ -669,27 +718,29 @@ This phase implements continuous integration, test automation, performance optim
 **Steps**:
 
 1. **Create maintenance scripts directory**:
+
    ```bash
    mkdir -p scripts/test-maintenance
    touch scripts/test-maintenance/cleanup.ts
    ```
 
 2. **Add cleanup script**:
+
    ```typescript
    // scripts/test-maintenance/cleanup.ts
    import { rmSync, existsSync, readdirSync, statSync } from 'fs';
    import { join } from 'path';
-   import { testPrisma } from '../tests/e2e/utils/database/client';
-   
+   import { prisma } from '../tests/e2e/utils/database/client';
+
    interface CleanupConfig {
      retentionDays: number;
      cleanupPaths: string[];
      cleanupDatabase: boolean;
    }
-   
+
    class TestCleanup {
      private config: CleanupConfig;
-   
+
      constructor(config: Partial<CleanupConfig> = {}) {
        this.config = {
          retentionDays: 7,
@@ -697,46 +748,46 @@ This phase implements continuous integration, test automation, performance optim
            'test-results',
            'playwright-report',
            'visual-report',
-           'test-artifacts'
+           'test-artifacts',
          ],
          cleanupDatabase: true,
-         ...config
+         ...config,
        };
      }
-   
+
      /**
       * Run complete cleanup process
       */
      async runCleanup() {
        console.log('Starting test cleanup process...');
-       
+
        await this.cleanupOldFiles();
-       
+
        if (this.config.cleanupDatabase) {
          await this.cleanupTestDatabase();
        }
-       
+
        console.log('Cleanup process completed successfully');
      }
-   
+
      /**
       * Remove old test artifacts
       */
      private async cleanupOldFiles() {
        const now = Date.now();
        const retentionMs = this.config.retentionDays * 24 * 60 * 60 * 1000;
-   
+
        for (const path of this.config.cleanupPaths) {
          if (!existsSync(path)) continue;
-   
+
          console.log(`Cleaning up ${path}...`);
          const items = readdirSync(path);
-         
+
          for (const item of items) {
            const itemPath = join(path, item);
            const stats = statSync(itemPath);
            const age = now - stats.mtime.getTime();
-   
+
            if (age > retentionMs) {
              console.log(`Removing old file: ${itemPath}`);
              rmSync(itemPath, { recursive: true, force: true });
@@ -744,81 +795,89 @@ This phase implements continuous integration, test automation, performance optim
          }
        }
      }
-   
+
      /**
       * Clean up test database
       */
      private async cleanupTestDatabase() {
        try {
          console.log('Cleaning up test database...');
-         
+
          // Clean up old test data (keep only last 24 hours)
          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-         
-         await testPrisma.interview.deleteMany({
+
+         await prisma.interview.deleteMany({
            where: {
              createdAt: { lt: oneDayAgo },
              AND: [
-               { OR: [
-                 { identifier: { contains: 'test-' } },
-                 { identifier: { contains: 'e2e-' } }
-               ]}
-             ]
-           }
+               {
+                 OR: [
+                   { identifier: { contains: 'test-' } },
+                   { identifier: { contains: 'e2e-' } },
+                 ],
+               },
+             ],
+           },
          });
-         
-         await testPrisma.participant.deleteMany({
+
+         await prisma.participant.deleteMany({
            where: {
              createdAt: { lt: oneDayAgo },
              AND: [
-               { OR: [
-                 { identifier: { contains: 'test-' } },
-                 { identifier: { contains: 'e2e-' } }
-               ]}
-             ]
-           }
+               {
+                 OR: [
+                   { identifier: { contains: 'test-' } },
+                   { identifier: { contains: 'e2e-' } },
+                 ],
+               },
+             ],
+           },
          });
-         
-         await testPrisma.protocol.deleteMany({
+
+         await prisma.protocol.deleteMany({
            where: {
              createdAt: { lt: oneDayAgo },
              AND: [
-               { OR: [
-                 { name: { contains: 'test-' } },
-                 { name: { contains: 'e2e-' } }
-               ]}
-             ]
-           }
+               {
+                 OR: [
+                   { name: { contains: 'test-' } },
+                   { name: { contains: 'e2e-' } },
+                 ],
+               },
+             ],
+           },
          });
-         
+
          console.log('Database cleanup completed');
        } catch (error) {
          console.error('Database cleanup failed:', error);
        }
      }
    }
-   
+
    // Script execution
    if (require.main === module) {
      const cleanup = new TestCleanup();
      cleanup.runCleanup().catch(console.error);
    }
-   
+
    export { TestCleanup };
    ```
 
 3. **Create health check script**:
+
    ```bash
    touch scripts/test-maintenance/health-check.ts
    ```
 
 4. **Add health check implementation**:
+
    ```typescript
    // scripts/test-maintenance/health-check.ts
    import { execSync } from 'child_process';
    import { existsSync } from 'fs';
-   import { testPrisma } from '../tests/e2e/utils/database/client';
-   
+   import { prisma } from '../tests/e2e/utils/database/client';
+
    interface HealthCheckResult {
      status: 'healthy' | 'warning' | 'critical';
      checks: {
@@ -827,7 +886,7 @@ This phase implements continuous integration, test automation, performance optim
        message: string;
      }[];
    }
-   
+
    class TestHealthChecker {
      async runHealthCheck(): Promise<HealthCheckResult> {
        const checks = [
@@ -835,145 +894,154 @@ This phase implements continuous integration, test automation, performance optim
          await this.checkPlaywrightInstallation(),
          await this.checkTestFiles(),
          await this.checkDiskSpace(),
-         await this.checkDependencies()
+         await this.checkDependencies(),
        ];
-   
-       const failures = checks.filter(check => check.status === 'fail');
-       const status = failures.length === 0 ? 'healthy' : 
-                    failures.length <= 2 ? 'warning' : 'critical';
-   
+
+       const failures = checks.filter((check) => check.status === 'fail');
+       const status =
+         failures.length === 0
+           ? 'healthy'
+           : failures.length <= 2
+             ? 'warning'
+             : 'critical';
+
        return { status, checks };
      }
-   
+
      private async checkDatabaseConnection() {
        try {
-         await testPrisma.$queryRaw`SELECT 1`;
+         await prisma.$queryRaw`SELECT 1`;
          return {
            name: 'Database Connection',
            status: 'pass' as const,
-           message: 'Test database is accessible'
+           message: 'Test database is accessible',
          };
        } catch (error) {
          return {
            name: 'Database Connection',
            status: 'fail' as const,
-           message: `Database connection failed: ${error}`
+           message: `Database connection failed: ${error}`,
          };
        }
      }
-   
+
      private async checkPlaywrightInstallation() {
        try {
          execSync('npx playwright --version', { stdio: 'pipe' });
          return {
            name: 'Playwright Installation',
            status: 'pass' as const,
-           message: 'Playwright is properly installed'
+           message: 'Playwright is properly installed',
          };
        } catch (error) {
          return {
            name: 'Playwright Installation',
            status: 'fail' as const,
-           message: 'Playwright installation issue detected'
+           message: 'Playwright installation issue detected',
          };
        }
      }
-   
+
      private async checkTestFiles() {
        const requiredPaths = [
          'tests/e2e',
          'playwright.config.ts',
-         'tests/e2e/fixtures/index.ts'
+         'tests/e2e/fixtures/index.ts',
        ];
-   
-       const missingPaths = requiredPaths.filter(path => !existsSync(path));
-       
+
+       const missingPaths = requiredPaths.filter((path) => !existsSync(path));
+
        if (missingPaths.length === 0) {
          return {
            name: 'Test Files',
            status: 'pass' as const,
-           message: 'All required test files are present'
+           message: 'All required test files are present',
          };
        } else {
          return {
            name: 'Test Files',
            status: 'fail' as const,
-           message: `Missing required files: ${missingPaths.join(', ')}`
+           message: `Missing required files: ${missingPaths.join(', ')}`,
          };
        }
      }
-   
+
      private async checkDiskSpace() {
        try {
          const output = execSync('df -h .', { encoding: 'utf8' });
          const lines = output.split('\n');
          const data = lines[1].split(/\s+/);
          const usedPercent = parseInt(data[4].replace('%', ''));
-   
+
          if (usedPercent < 80) {
            return {
              name: 'Disk Space',
              status: 'pass' as const,
-             message: `Disk usage: ${usedPercent}%`
+             message: `Disk usage: ${usedPercent}%`,
            };
          } else {
            return {
              name: 'Disk Space',
              status: 'fail' as const,
-             message: `Low disk space: ${usedPercent}% used`
+             message: `Low disk space: ${usedPercent}% used`,
            };
          }
        } catch (error) {
          return {
            name: 'Disk Space',
            status: 'fail' as const,
-           message: 'Unable to check disk space'
+           message: 'Unable to check disk space',
          };
        }
      }
-   
+
      private async checkDependencies() {
        try {
          execSync('pnpm ls --depth=0', { stdio: 'pipe' });
          return {
            name: 'Dependencies',
            status: 'pass' as const,
-           message: 'All dependencies are installed'
+           message: 'All dependencies are installed',
          };
        } catch (error) {
          return {
            name: 'Dependencies',
            status: 'fail' as const,
-           message: 'Dependency issues detected'
+           message: 'Dependency issues detected',
          };
        }
      }
    }
-   
+
    // Script execution
    if (require.main === module) {
      const healthChecker = new TestHealthChecker();
-     healthChecker.runHealthCheck().then(result => {
-       console.log(`Health Check Status: ${result.status.toUpperCase()}`);
-       console.log('\nCheck Results:');
-       result.checks.forEach(check => {
-         const icon = check.status === 'pass' ? '✅' : '❌';
-         console.log(`${icon} ${check.name}: ${check.message}`);
-       });
-       
-       process.exit(result.status === 'critical' ? 1 : 0);
-     }).catch(console.error);
+     healthChecker
+       .runHealthCheck()
+       .then((result) => {
+         console.log(`Health Check Status: ${result.status.toUpperCase()}`);
+         console.log('\nCheck Results:');
+         result.checks.forEach((check) => {
+           const icon = check.status === 'pass' ? '✅' : '❌';
+           console.log(`${icon} ${check.name}: ${check.message}`);
+         });
+
+         process.exit(result.status === 'critical' ? 1 : 0);
+       })
+       .catch(console.error);
    }
-   
+
    export { TestHealthChecker };
    ```
 
 5. **Create package.json scripts for maintenance**:
+
    ```bash
    # Add these scripts to package.json
    ```
 
 6. **Update package.json with maintenance scripts**:
+
    ```json
    {
      "scripts": {
@@ -994,13 +1062,15 @@ This phase implements continuous integration, test automation, performance optim
 **Steps**:
 
 1. **Create testing documentation**:
+
    ```bash
    mkdir -p docs/testing
    touch docs/testing/README.md
    ```
 
 2. **Add comprehensive testing guide**:
-   ```markdown
+
+   ````markdown
    # E2E Testing Documentation
 
    This document provides comprehensive guidance for using the Playwright E2E testing suite in the Fresco application.
@@ -1023,6 +1093,7 @@ This phase implements continuous integration, test automation, performance optim
    # Run specific test file
    pnpm exec playwright test dashboard
    ```
+   ````
 
    ## Test Organization
 
@@ -1038,6 +1109,7 @@ This phase implements continuous integration, test automation, performance optim
    ## Writing Tests
 
    ### Test Structure
+
    ```typescript
    import { test, expect } from '../fixtures';
 
@@ -1053,6 +1125,7 @@ This phase implements continuous integration, test automation, performance optim
    ```
 
    ### Available Fixtures
+
    - `authenticatedPage`: Pre-authenticated page with user session
    - `dashboardPage`: Dashboard page object
    - `setupPage`: Setup page object
@@ -1088,14 +1161,17 @@ This phase implements continuous integration, test automation, performance optim
    ## CI/CD Integration
 
    Tests run automatically on:
+
    - Push to main/develop branches
    - Pull requests to main
    - Scheduled runs (daily)
 
    ### Parallel Execution
+
    Tests are split across 4 shards for faster execution in CI.
 
    ### Artifact Storage
+
    - Test results: 7 days retention
    - Screenshots: 30 days retention
    - Visual regression reports: 14 days retention
@@ -1112,53 +1188,69 @@ This phase implements continuous integration, test automation, performance optim
    # Update visual snapshots
    pnpm test:visual-update
    ```
+
+   ```
+
    ```
 
 3. **Create troubleshooting guide**:
+
    ```bash
    touch docs/testing/TROUBLESHOOTING.md
    ```
 
 4. **Add troubleshooting documentation**:
-   ```markdown
+
+   ````markdown
    # Testing Troubleshooting Guide
 
    ## Common Issues
 
    ### Database Connection Errors
+
    **Problem**: Tests fail with database connection errors
-   **Solution**: 
+   **Solution**:
+
    1. Ensure PostgreSQL is running: `docker ps`
    2. Check DATABASE_URL environment variable
    3. Run database migrations: `pnpm exec prisma migrate deploy`
 
    ### Playwright Browser Installation
+
    **Problem**: Browser not found errors
-   **Solution**: 
+   **Solution**:
+
    ```bash
    pnpm exec playwright install
    pnpm exec playwright install-deps
    ```
+   ````
 
    ### Flaky Tests
+
    **Problem**: Tests pass/fail inconsistently
    **Solutions**:
+
    1. Add proper wait conditions
    2. Use `page.waitForLoadState('networkidle')`
    3. Increase timeouts for slow operations
    4. Mock external dependencies
 
    ### Visual Regression Failures
+
    **Problem**: Screenshots don't match baselines
    **Solutions**:
+
    1. Update baselines: `pnpm test:visual-update`
    2. Check for animation/loading states
    3. Verify consistent viewport sizes
    4. Review threshold settings
 
    ### CI/CD Failures
+
    **Problem**: Tests pass locally but fail in CI
    **Solutions**:
+
    1. Check environment variables
    2. Verify Docker services are running
    3. Review artifact uploads
@@ -1167,14 +1259,18 @@ This phase implements continuous integration, test automation, performance optim
    ## Performance Issues
 
    ### Slow Test Execution
+
    **Solutions**:
+
    1. Enable parallel execution
    2. Use test sharding
    3. Mock external services
    4. Optimize page loading
 
    ### Memory Issues
+
    **Solutions**:
+
    1. Close pages after tests
    2. Clean up browser contexts
    3. Limit concurrent workers
@@ -1186,27 +1282,33 @@ This phase implements continuous integration, test automation, performance optim
    2. Review CI/CD logs
    3. Run health checks
    4. Consult the development team
+
+   ```
+
    ```
 
 ## Verification Steps
 
 1. **Verify CI/CD configuration is correct**:
+
    ```bash
    # Check workflow syntax
    pnpm exec playwright test --dry-run
    ```
 
 2. **Test performance optimizations**:
+
    ```bash
    # Run performance monitoring
    pnpm exec playwright test --reporter=json
    ```
 
 3. **Verify maintenance scripts**:
+
    ```bash
    # Test cleanup script
    pnpm test:cleanup
-   
+
    # Test health check
    pnpm test:health
    ```

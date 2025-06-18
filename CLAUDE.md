@@ -83,6 +83,8 @@ The project is being heavily development, with significant new features being ad
 - ESLint + Prettier configured
 - Uses absolute imports with path mapping
 - Server/Client component pattern with Next.js App Router
+- Always use path aliases from tsconfig for imports
+- ALWAYS use types instead of interfaces, unless absolutely necessary
 
 ### Database Patterns
 

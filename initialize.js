@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { PrismaClient } from '@prisma/client';
+import './envConfig.js';
 
 const prisma = new PrismaClient();
 
