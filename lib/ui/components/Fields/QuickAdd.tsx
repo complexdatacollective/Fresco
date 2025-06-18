@@ -1,5 +1,11 @@
 import { motion } from 'motion/react';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import {
+  getNodeColor,
+  getStageSubject,
+} from '~/lib/interviewer/selectors/session';
+import { Node } from '~/lib/ui/components';
 
 type QuickAddProps = {
   input: {
@@ -8,6 +14,7 @@ type QuickAddProps = {
     onChange: (value: string) => void;
     onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
     onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+    onSubmit: () => void;
   };
   meta?: {
     error: string | null;
@@ -45,6 +52,20 @@ const QuickAdd = ({
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [showTooltip, setShowTooltip] = useState(false);
+  const subject = useSelector(getStageSubject)!;
+
+  const nodeColor = useSelector(getNodeColor(subject.type));
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        void input.onSubmit();
+      }
+    },
+    [input],
+  );
+
   // Handle showing/hiding the tooltip based on the nodeLabel
   // Logic: wait 5 seconds after the user last typed something
   useEffect(() => {
@@ -62,37 +83,51 @@ const QuickAdd = ({
   }, [input.value]);
 
   return (
-    <>
-      <motion.div
-        key="tool-tip"
-        className="tool-tip"
-        initial={{
-          opacity: 0,
+    <div className="flex flex-row">
+      <div className="flex flex-col">
+        <motion.div
+          key="tool-tip"
+          className="tool-tip"
+          initial={{
+            opacity: 0,
+          }}
+          animate={{
+            opacity: showTooltip ? 1 : 0,
+          }}
+        >
+          <span>Press enter to add...</span>
+        </motion.div>
+        <motion.input
+          initial={inputVariants.hide}
+          animate={inputVariants.show}
+          exit={inputVariants.hide}
+          className={`label-input ${meta?.invalid && meta?.touched && meta?.error ? 'error' : ''}`}
+          autoFocus={autoFocus}
+          disabled={disabled}
+          onChange={(e) => input.onChange(e.target.value)}
+          onBlur={input.onBlur}
+          onFocus={input.onFocus}
+          placeholder={placeholder}
+          value={input.value}
+          type="text"
+          onKeyDown={handleKeyDown}
+        />
+        {meta?.invalid && meta?.touched && meta?.error && (
+          <div className="text-warning">{meta?.error}</div>
+        )}
+      </div>
+
+      <Node
+        label={input.value}
+        selected={!meta?.invalid}
+        color={nodeColor}
+        handleClick={() => {
+          if (input.value && !disabled) {
+            input.onSubmit?.();
+          }
         }}
-        animate={{
-          opacity: showTooltip ? 1 : 0,
-        }}
-      >
-        <span>Press enter to add...</span>
-      </motion.div>
-      <motion.input
-        initial={inputVariants.hide}
-        animate={inputVariants.show}
-        exit={inputVariants.hide}
-        className={`label-input ${meta?.invalid && meta?.touched && meta?.error ? 'error' : ''}`}
-        autoFocus={autoFocus}
-        disabled={disabled}
-        onChange={(e) => input.onChange(e.target.value)}
-        onBlur={input.onBlur}
-        onFocus={input.onFocus}
-        placeholder={placeholder}
-        value={input.value}
-        type="text"
       />
-      {meta?.invalid && meta?.touched && meta?.error && (
-        <div className="text-warning">{meta?.error}</div>
-      )}
-    </>
+    </div>
   );
 };
 

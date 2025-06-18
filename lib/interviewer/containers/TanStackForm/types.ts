@@ -38,10 +38,6 @@ export type TanStackFormErrors = Record<
   }
 >;
 
-export type TanStackFormInstance = {
-  handleSubmit: () => Promise<void> | void;
-};
-
 export type FormProps = {
   fields: FormField[];
   handleFormSubmit: (formData: Record<string, VariableValue>) => void;
@@ -50,8 +46,6 @@ export type FormProps = {
   autoFocus?: boolean;
   id?: string;
   entityId?: string;
-  onFormReady?: (formInstance: TanStackFormInstance) => void;
-  onKeyDown?: (e: React.KeyboardEvent) => void;
 };
 
 export type FieldProps = {
@@ -70,6 +64,7 @@ type InputHandlers = {
   value: VariableValue;
   onChange: (value: VariableValue) => void;
   onBlur: () => void;
+  onSubmit?: () => void;
 };
 
 export type InputComponentProps = {

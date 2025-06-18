@@ -18,6 +18,7 @@ const Field = ({ field, autoFocus }: FieldProps) => {
       value: fieldContext.state.value as VariableValue,
       onChange: (value: VariableValue) => fieldContext.handleChange(value),
       onBlur: fieldContext.handleBlur,
+      onSubmit: () => fieldContext.form.handleSubmit(),
     },
     meta: {
       error: (fieldContext.state.meta.errors?.[0] as string) ?? null,

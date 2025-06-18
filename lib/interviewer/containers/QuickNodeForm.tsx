@@ -7,14 +7,10 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { ActionButton, Node } from '~/lib/ui/components';
+import { ActionButton } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
-import {
-  getNodeColor,
-  getNodeTypeLabel,
-  getStageSubject,
-} from '../selectors/session';
+import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import TanStackForm from './TanStackForm/Form';
 
@@ -72,15 +68,10 @@ const QuickAddForm = ({
   addNode,
 }: QuickAddFormProps) => {
   const [showForm, setShowForm] = useState(false);
-  const [nodeLabel, setNodeLabel] = useState('');
-  const [formInstance, setFormInstance] = useState<{
-    handleSubmit: () => Promise<void> | void;
-  } | null>(null);
 
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-  const nodeColor = useSelector(getNodeColor(subject.type));
   const icon = useSelector(getNodeIconName);
 
   const handleSubmit = useCallback(
@@ -91,21 +82,10 @@ const QuickAddForm = ({
           ...formData,
         });
 
-        setNodeLabel('');
         setShowForm(false);
       }
     },
     [disabled, addNode, newNodeAttributes],
-  );
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && formInstance) {
-        e.preventDefault();
-        void formInstance.handleSubmit();
-      }
-    },
-    [formInstance],
   );
 
   const handleShowForm = useCallback(() => {
@@ -116,7 +96,6 @@ const QuickAddForm = ({
   useEffect(() => {
     if (disabled) {
       setShowForm(false);
-      setNodeLabel('');
     }
   }, [disabled]);
 
@@ -127,8 +106,6 @@ const QuickAddForm = ({
       component: 'QuickAdd' as ComponentType,
     },
   ];
-
-  const isValid = true; // TODO replace with actual validation logic
 
   return (
     <motion.div
@@ -145,27 +122,13 @@ const QuickAddForm = ({
             animate={itemVariants.show}
             exit={itemVariants.hide}
           >
-            <div onKeyDown={handleKeyDown}>
-              <TanStackForm
-                fields={fields}
-                handleFormSubmit={handleSubmit}
-                initialValues={{}}
-                entityId={undefined} // No entity ID in this context
-                autoFocus
-                id={FORM_NAME}
-                onFormReady={setFormInstance}
-              />
-            </div>
-
-            <Node
-              label={nodeLabel}
-              selected={isValid}
-              color={nodeColor}
-              handleClick={() => {
-                if (formInstance) {
-                  void formInstance.handleSubmit();
-                }
-              }}
+            <TanStackForm
+              fields={fields}
+              handleFormSubmit={handleSubmit}
+              initialValues={{}}
+              entityId={undefined} // No entity ID in this context
+              autoFocus
+              id={FORM_NAME}
             />
           </motion.div>
         )}
