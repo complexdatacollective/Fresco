@@ -14,9 +14,9 @@ export const createTestParticipant = async (
   options: CreateParticipantOptions = {},
 ): Promise<Participant> => {
   const identifier =
-    options.identifier ||
+    options.identifier ??
     `${faker.string.alphanumeric(8).toUpperCase()}-${Date.now()}`;
-  const label = options.label || faker.person.fullName();
+  const label = options.label ?? faker.person.fullName();
 
   return await prisma.participant.create({
     data: {

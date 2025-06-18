@@ -4,8 +4,8 @@ import { prisma } from '~/utils/db';
  * Call the cache invalidation API to clear Next.js cache
  */
 const invalidateCache = async (tags?: string[]) => {
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001';
-  
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001';
+
   try {
     const response = await fetch(`${baseURL}/api/test/database-reset`, {
       method: 'POST',
@@ -52,18 +52,17 @@ export const cleanDatabase = async () => {
     });
 
     // Invalidate caches after database cleanup
-    await invalidateCache([
-      'appSettings',
-      'getInterviews',
-      'summaryStatistics',
-      'getParticipants',
-      'getProtocols',
-      'getProtocolsByHash',
-      'getExistingAssetIds',
-      'interviewCount',
-      'protocolCount',
-      'participantCount',
-    ]);
+    await invalidateCache();
+
+    await prisma.appSettings.createMany({
+      data: [
+        { key: 'configured', value: 'true' },
+        { key: 'initializedAt', value: new Date().toISOString() },
+        { key: 'disableAnalytics', value: 'true' }, // Disable analytics in tests
+        { key: 'uploadThingToken', value: 'test-uploadthing-token' }, // Example token
+      ],
+      skipDuplicates: true,
+    });
 
     console.log('Database cleanup completed with cache invalidation');
   } catch (error) {
@@ -116,31 +115,6 @@ export const cleanTables = async (tableNames: string[]) => {
 export const resetDatabaseToInitialState = async () => {
   console.log('Resetting database to initial state...');
   await cleanDatabase();
-
-  // Add any default app settings that should always exist
-  try {
-    await prisma.appSettings.createMany({
-      data: [
-        { key: 'configured', value: 'true' },
-        { key: 'initializedAt', value: new Date().toISOString() },
-        { key: 'disableAnalytics', value: 'true' }, // Disable analytics in tests
-      ],
-      skipDuplicates: true,
-    });
-
-    // CRITICAL: Invalidate app settings cache after updating
-    await invalidateCache([
-      'appSettings',
-      'appSettings-configured',
-      'appSettings-initializedAt',
-      'appSettings-disableAnalytics',
-    ]);
-
-    console.log('Database reset completed with cache invalidation');
-  } catch (error) {
-    console.error('Failed to set initial app settings:', error);
-    throw error;
-  }
 };
 
 /**

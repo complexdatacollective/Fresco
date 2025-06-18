@@ -20,7 +20,6 @@ export const auth = lucia({
 });
 
 export type TestUser = {
-  id: string;
   username: string;
   password: string; // Plain text for testing
 };
@@ -37,9 +36,9 @@ export const createTestUser = async (
   options: CreateUserOptions = {},
 ): Promise<TestUser> => {
   const username =
-    options.username ||
+    options.username ??
     `${faker.internet.username().toLowerCase()}-${Date.now()}`;
-  const password = options.password || 'testPassword123!';
+  const password = options.password ?? 'testPassword123!';
 
   const user = await auth.createUser({
     key: {
