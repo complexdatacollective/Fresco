@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up test database..."
+echo "🚀 Starting test database container..."
 
 # Start test database container
 docker-compose -f docker-compose.test.yml up -d

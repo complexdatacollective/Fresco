@@ -18,7 +18,7 @@ export type BasicSeedData = {
  */
 export const seedBasicData = async (): Promise<BasicSeedData> => {
   console.log('Seeding basic test data...');
-  // Reset database to clean state
+  // Reset database to clean state (now includes cache invalidation)
   await resetDatabaseToInitialState();
 
   // Create test user

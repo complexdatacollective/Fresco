@@ -1,7 +1,37 @@
 import { prisma } from '~/utils/db';
 
 /**
- * Clean all data from the test database
+ * Call the cache invalidation API to clear Next.js cache
+ */
+const invalidateCache = async (tags?: string[]) => {
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001';
+  
+  try {
+    const response = await fetch(`${baseURL}/api/test/database-reset`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action: 'invalidateCache', tags }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.warn(`Cache invalidation failed: ${error.error}`);
+      return false;
+    }
+
+    const result = await response.json();
+    console.log('Cache invalidation:', result.message);
+    return true;
+  } catch (error) {
+    console.warn('Cache invalidation API failed:', error);
+    return false;
+  }
+};
+
+/**
+ * Clean all data from the test database with proper cache invalidation
  * This should be called before each test to ensure isolation
  */
 export const cleanDatabase = async () => {
@@ -17,8 +47,25 @@ export const cleanDatabase = async () => {
       await tx.key.deleteMany();
       await tx.user.deleteMany();
       await tx.events.deleteMany();
-      // Keep app settings for basic configuration
+      // Clean app settings to ensure fresh state
+      await tx.appSettings.deleteMany();
     });
+
+    // Invalidate caches after database cleanup
+    await invalidateCache([
+      'appSettings',
+      'getInterviews',
+      'summaryStatistics',
+      'getParticipants',
+      'getProtocols',
+      'getProtocolsByHash',
+      'getExistingAssetIds',
+      'interviewCount',
+      'protocolCount',
+      'participantCount',
+    ]);
+
+    console.log('Database cleanup completed with cache invalidation');
   } catch (error) {
     console.error('Database cleanup failed:', error);
 
@@ -30,9 +77,7 @@ export const cleanDatabase = async () => {
 
       const tables = tablenames
         .map(({ tablename }) => tablename)
-        .filter(
-          (name) => name !== '_prisma_migrations' && name !== 'AppSettings',
-        )
+        .filter((name) => name !== '_prisma_migrations')
         .map((name) => `"public"."${name}"`)
         .join(', ');
 
@@ -41,8 +86,13 @@ export const cleanDatabase = async () => {
           `TRUNCATE TABLE ${tables} RESTART IDENTITY CASCADE;`,
         );
       }
+
+      // Try to invalidate cache even after fallback
+      await invalidateCache();
+      console.log('TRUNCATE fallback completed with cache invalidation');
     } catch (fallbackError) {
-      console.error('Fallback cleanup also failed:', fallbackError);
+      console.error('All cleanup methods failed:', fallbackError);
+      throw fallbackError;
     }
   }
 };
@@ -61,7 +111,7 @@ export const cleanTables = async (tableNames: string[]) => {
 };
 
 /**
- * Reset database to initial state with basic app settings
+ * Reset database to initial state with basic app settings and proper cache invalidation
  */
 export const resetDatabaseToInitialState = async () => {
   console.log('Resetting database to initial state...');
@@ -77,8 +127,19 @@ export const resetDatabaseToInitialState = async () => {
       ],
       skipDuplicates: true,
     });
+
+    // CRITICAL: Invalidate app settings cache after updating
+    await invalidateCache([
+      'appSettings',
+      'appSettings-configured',
+      'appSettings-initializedAt',
+      'appSettings-disableAnalytics',
+    ]);
+
+    console.log('Database reset completed with cache invalidation');
   } catch (error) {
     console.error('Failed to set initial app settings:', error);
+    throw error;
   }
 };
 

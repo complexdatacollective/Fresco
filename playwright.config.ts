@@ -68,6 +68,9 @@ export default defineConfig({
     command: 'pnpm run dev:test',
     url: process.env.PLAYWRIGHT_BASE_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 300 * 1000, // Increased timeout to 5 minutes to wait for global setup
+    // Add retry configuration
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });
