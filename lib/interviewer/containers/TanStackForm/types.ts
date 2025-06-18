@@ -11,8 +11,9 @@ import type {
 } from '../../utils/field-validation';
 
 export type FormField = {
-  prompt: string;
+  prompt?: string;
   variable: string;
+  component?: ComponentType; // optional, used for quick node form
 };
 
 export type FieldType = {
@@ -37,6 +38,10 @@ export type TanStackFormErrors = Record<
   }
 >;
 
+export type TanStackFormInstance = {
+  handleSubmit: () => Promise<void> | void;
+};
+
 export type FormProps = {
   fields: FormField[];
   handleFormSubmit: (formData: Record<string, VariableValue>) => void;
@@ -45,6 +50,8 @@ export type FormProps = {
   autoFocus?: boolean;
   id?: string;
   entityId?: string;
+  onFormReady?: (formInstance: TanStackFormInstance) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 };
 
 export type FieldProps = {

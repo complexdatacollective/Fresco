@@ -1,24 +1,24 @@
+import type { ComponentType } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
   type NcNode,
+  type VariableValue,
 } from '@codaco/shared-consts';
-import { useForm, useStore } from '@tanstack/react-form';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ActionButton, Node } from '~/lib/ui/components';
-import QuickAdd from '~/lib/ui/components/Fields/QuickAdd';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
-import { getCodebookVariablesForSubjectType } from '../selectors/protocol';
 import {
-  getNetworkEntitiesForType,
   getNodeColor,
   getNodeTypeLabel,
   getStageSubject,
 } from '../selectors/session';
-import { getTanStackNativeValidators } from '../utils/field-validation';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
+import TanStackForm from './TanStackForm/Form';
+
+const FORM_NAME = 'quick-add-form';
 
 const containerVariants = {
   animate: (wide: boolean) =>
@@ -72,92 +72,41 @@ const QuickAddForm = ({
   addNode,
 }: QuickAddFormProps) => {
   const [showForm, setShowForm] = useState(false);
-  const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [nodeLabel, setNodeLabel] = useState('');
+  const [formInstance, setFormInstance] = useState<{
+    handleSubmit: () => Promise<void> | void;
+  } | null>(null);
 
   const subject = useSelector(getStageSubject)!;
-  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
-  const variable = codebookVariables[targetVariable];
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const nodeColor = useSelector(getNodeColor(subject.type));
   const icon = useSelector(getNodeIconName);
-  const networkEntities = useSelector(getNetworkEntitiesForType);
 
-  const validators = getTanStackNativeValidators(variable?.validation ?? {}, {
-    codebookVariables,
-    networkEntities,
-    currentEntityId: undefined, // No current entity ID in this context
-  });
-  
-  console.log('Variable validation config:', variable?.validation);
-  console.log('Generated validators:', validators);
-
-  const form = useForm({
-    defaultValues: {
-      nodeLabel: '',
-    },
-  });
-
-  const handleBlur = () => {
-    form.reset();
-    setShowForm(false);
-  };
-
-  // Handle showing/hiding the tooltip based on the nodeLabel
-  // Logic: wait 5 seconds after the user last typed something
-  const currentNodeLabel = useStore(
-    form.store,
-    (state) => state.values.nodeLabel,
-  );
-
-  useEffect(() => {
-    if (currentNodeLabel !== '') {
-      setShowTooltip(false);
-      clearTimeout(tooltipTimer.current);
-
-      tooltipTimer.current = setTimeout(() => {
-        setShowTooltip(true);
-      }, 5000);
-    } else {
-      setShowTooltip(false);
-      clearTimeout(tooltipTimer.current);
-    }
-  }, [currentNodeLabel]);
-
-  const isValid =
-    useStore(form.store, (state) => state.isFormValid) &&
-    currentNodeLabel !== '';
-
-  const handleSubmit = async () => {
-    if (!disabled) {
-      // Validate the form first
-      await form.validateAllFields('submit');
-      
-      // Get the current form state after validation
-      const formState = form.state;
-      const fieldState = formState.fieldMeta.nodeLabel;
-      const hasErrors = fieldState?.errors && fieldState.errors.length > 0;
-      
-      console.log('Form validation state:', {
-        isFormValid: formState.isFormValid,
-        fieldErrors: fieldState?.errors,
-        hasErrors,
-        value: currentNodeLabel,
-      });
-      
-      // Only submit if form is valid and has no errors
-      if (formState.isFormValid && !hasErrors) {
+  const handleSubmit = useCallback(
+    (formData: Record<string, VariableValue>) => {
+      if (!disabled) {
         void addNode({
           ...newNodeAttributes,
-          [targetVariable]: currentNodeLabel,
+          ...formData,
         });
-        form.reset();
-      } else {
-        console.log('Submission blocked due to validation errors');
+
+        setNodeLabel('');
+        setShowForm(false);
       }
-    }
-  };
+    },
+    [disabled, addNode, newNodeAttributes],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && formInstance) {
+        e.preventDefault();
+        void formInstance.handleSubmit();
+      }
+    },
+    [formInstance],
+  );
 
   const handleShowForm = useCallback(() => {
     setShowForm(true);
@@ -167,9 +116,19 @@ const QuickAddForm = ({
   useEffect(() => {
     if (disabled) {
       setShowForm(false);
-      form.reset();
+      setNodeLabel('');
     }
-  }, [disabled, form]);
+  }, [disabled]);
+
+  const fields = [
+    {
+      prompt: undefined,
+      variable: targetVariable,
+      component: 'QuickAdd' as ComponentType,
+    },
+  ];
+
+  const isValid = true; // TODO replace with actual validation logic
 
   return (
     <motion.div
@@ -186,72 +145,27 @@ const QuickAddForm = ({
             animate={itemVariants.show}
             exit={itemVariants.hide}
           >
-            <form
-              autoComplete="off"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void handleSubmit();
-              }}
-            >
-              <form.Field
-                name="nodeLabel"
-                validators={{
-                  onChange: ({ value }) => {
-                    console.log('Field onChange validator called with value:', value);
-                    const result = validators.onChange({
-                      value,
-                      fieldApi: {
-                        form: { store: { state: { values: form.state.values } } },
-                        name: 'nodeLabel',
-                      },
-                    });
-                    console.log('Validator result:', result);
-                    return result;
-                  },
-                  onSubmit: ({ value }) => {
-                    console.log('Field onSubmit validator called with value:', value);
-                    const result = validators.onChange({
-                      value,
-                      fieldApi: {
-                        form: { store: { state: { values: form.state.values } } },
-                        name: 'nodeLabel',
-                      },
-                    });
-                    console.log('Validator result:', result);
-                    return result;
-                  },
-                }}
-              >
-                {(field) => (
-                  <QuickAdd
-                    input={{
-                      name: field.name,
-                      value: field.state.value,
-                      onChange: field.handleChange,
-                      onBlur: () => {
-                        field.handleBlur();
-                        handleBlur();
-                      },
-                    }}
-                    meta={{
-                      error: field.state.meta.errors?.[0] ?? null,
-                      invalid: field.state.meta.errors.length > 0,
-                      touched: field.state.meta.isTouched,
-                    }}
-                    targetVariable={targetVariable}
-                    disabled={disabled}
-                    onSubmit={() => void handleSubmit()}
-                    showTooltip={showTooltip}
-                    tooltipText={`Press enter to add ${nodeType}...`}
-                  />
-                )}
-              </form.Field>
-            </form>
+            <div onKeyDown={handleKeyDown}>
+              <TanStackForm
+                fields={fields}
+                handleFormSubmit={handleSubmit}
+                initialValues={{}}
+                entityId={undefined} // No entity ID in this context
+                autoFocus
+                id={FORM_NAME}
+                onFormReady={setFormInstance}
+              />
+            </div>
+
             <Node
-              label={currentNodeLabel}
+              label={nodeLabel}
               selected={isValid}
               color={nodeColor}
-              handleClick={handleSubmit}
+              handleClick={() => {
+                if (formInstance) {
+                  void formInstance.handleSubmit();
+                }
+              }}
             />
           </motion.div>
         )}

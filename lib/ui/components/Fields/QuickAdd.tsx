@@ -1,6 +1,5 @@
 import { motion } from 'motion/react';
-import React, { memo } from 'react';
-import Icon from '../Icon';
+import React, { memo, useEffect, useRef, useState } from 'react';
 
 type QuickAddProps = {
   input: {
@@ -15,11 +14,7 @@ type QuickAddProps = {
     invalid: boolean;
     touched: boolean;
   };
-  targetVariable: string;
   disabled: boolean;
-  onSubmit: () => void;
-  showTooltip: boolean;
-  tooltipText: string;
   placeholder?: string;
   autoFocus?: boolean;
 };
@@ -44,18 +39,27 @@ const QuickAdd = ({
   input,
   meta,
   disabled,
-  onSubmit,
-  showTooltip,
-  tooltipText,
   placeholder = 'Type a label and press enter...',
   autoFocus = true,
 }: QuickAddProps) => {
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      onSubmit();
+  const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  const [showTooltip, setShowTooltip] = useState(false);
+  // Handle showing/hiding the tooltip based on the nodeLabel
+  // Logic: wait 5 seconds after the user last typed something
+  useEffect(() => {
+    if (input.value !== '') {
+      setShowTooltip(false);
+      clearTimeout(tooltipTimer.current);
+
+      tooltipTimer.current = setTimeout(() => {
+        setShowTooltip(true);
+      }, 5000);
+    } else {
+      setShowTooltip(false);
+      clearTimeout(tooltipTimer.current);
     }
-  };
+  }, [input.value]);
 
   return (
     <>
@@ -69,7 +73,7 @@ const QuickAdd = ({
           opacity: showTooltip ? 1 : 0,
         }}
       >
-        <span>{tooltipText}</span>
+        <span>Press enter to add...</span>
       </motion.div>
       <motion.input
         initial={inputVariants.hide}
@@ -81,16 +85,12 @@ const QuickAdd = ({
         onChange={(e) => input.onChange(e.target.value)}
         onBlur={input.onBlur}
         onFocus={input.onFocus}
-        onKeyPress={handleKeyPress}
         placeholder={placeholder}
         value={input.value}
         type="text"
       />
       {meta?.invalid && meta?.touched && meta?.error && (
-        <div className="form-field-text__error">
-          <Icon name="warning" />
-          {meta?.error}
-        </div>
+        <div className="text-warning">{meta?.error}</div>
       )}
     </>
   );

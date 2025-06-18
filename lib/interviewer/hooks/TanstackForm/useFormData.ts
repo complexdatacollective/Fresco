@@ -21,6 +21,12 @@ import {
 import { getTanStackNativeValidators } from '../../utils/field-validation';
 import { type ValidationContext } from '../../utils/formContexts';
 
+//TODO: this needs to be added to the actual protocol validation package
+const ComponentTypesWithQuickAdd = {
+  ...ComponentTypes,
+  QuickAdd: 'QuickAdd',
+};
+
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
     return React.createElement(
@@ -34,7 +40,7 @@ const ComponentTypeNotFound = (componentType: string) => {
 };
 
 const getInputComponent = (componentType: ComponentType = 'Text') => {
-  const def = get(ComponentTypes, componentType);
+  const def = get(ComponentTypesWithQuickAdd, componentType);
   return get(Fields, def, ComponentTypeNotFound(componentType));
 };
 
