@@ -32,7 +32,7 @@ This phase creates authentication helpers, page object models, and core testing 
    ```typescript
    // tests/e2e/utils/auth/session.ts
    import { Page, BrowserContext } from '@playwright/test';
-   import { prisma } from '../database/client';
+   import { prisma } from '~/utils/db';
    import { generateId } from 'lucia';
    import { hash } from '@node-rs/argon2';
 

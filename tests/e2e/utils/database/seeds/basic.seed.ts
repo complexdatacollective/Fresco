@@ -1,24 +1,28 @@
 import {
+  type Interview,
+  type Participant,
+  type Protocol,
+} from '@prisma/client';
+import {
   createTestInterviews,
   createTestParticipants,
   createTestProtocol,
   createTestUser,
+  type TestUser,
 } from '~/tests/e2e/test-data/factories';
 import { resetDatabaseToInitialState } from '~/tests/e2e/utils/database/cleanup';
 
 export type BasicSeedData = {
-  user: { id: string; username: string; password: string };
-  protocols: any[];
-  participants: any[];
-  interviews: any[];
+  user: TestUser;
+  protocols: Protocol[];
+  participants: Participant[];
+  interviews: Interview[];
 };
 
 /**
  * Seed database with basic test data
  */
 export const seedBasicData = async (): Promise<BasicSeedData> => {
-  console.log('Seeding basic test data...');
-  // Reset database to clean state (now includes cache invalidation)
   await resetDatabaseToInitialState();
 
   // Create test user

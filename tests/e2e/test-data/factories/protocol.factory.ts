@@ -13,8 +13,8 @@ export type CreateProtocolOptions = {
  */
 const generateBasicProtocol = (name: string, description?: string) => ({
   name,
-  description: description || faker.lorem.sentence(),
-  schemaVersion: 6,
+  description: description ?? faker.lorem.sentence(),
+  schemaVersion: 8,
   stages: [
     {
       id: 'stage1',
@@ -66,7 +66,7 @@ const generateBasicProtocol = (name: string, description?: string) => ({
 export const createTestProtocol = async (
   options: CreateProtocolOptions = {},
 ): Promise<Protocol> => {
-  const name = options.name || faker.company.name() + ' Study';
+  const name = options.name ?? faker.company.name() + ' Study';
   const protocolData = generateBasicProtocol(name, options.description);
 
   const protocol = await prisma.protocol.create({
