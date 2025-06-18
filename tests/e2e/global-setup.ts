@@ -1,10 +1,18 @@
 import { type FullConfig } from '@playwright/test';
 import { execSync } from 'child_process';
-import '~/envConfig.js';
-import { validateTestConfig } from '~/tests/e2e/utils/config';
-import { verifyDatabaseConnection } from '~/utils/db';
+import { verifyDatabaseConnection } from '../../utils/db';
+import '../envConfig.js';
+import { validateTestConfig } from './utils/config';
 
 async function globalSetup(_config: FullConfig) {
+  // Clean up any existing containers first
+  try {
+    execSync('docker stop myapp-test 2>/dev/null', { stdio: 'pipe' });
+    execSync('docker rm myapp-test 2>/dev/null', { stdio: 'pipe' });
+  } catch {
+    // Ignore errors if container doesn't exist
+  }
+
   // eslint-disable-next-line no-console
   console.log('🚀 Starting global test setup...');
 

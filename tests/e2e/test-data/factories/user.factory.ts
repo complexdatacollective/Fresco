@@ -1,6 +1,23 @@
 import { faker } from '@faker-js/faker';
-import { hash } from '@node-rs/argon2';
+import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
+import { type User } from '@prisma/client';
+import { lucia } from 'lucia';
+import { node } from 'lucia/middleware';
 import { prisma } from '~/utils/db';
+
+export const auth = lucia({
+  env: process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
+  middleware: node(),
+  sessionCookie: {
+    expires: false,
+  },
+  getUserAttributes: (data: User) => {
+    return {
+      username: data.username,
+    };
+  },
+  adapter: prismaAdapter(prisma),
+});
 
 export type TestUser = {
   id: string;
@@ -23,25 +40,19 @@ export const createTestUser = async (
     options.username ||
     `${faker.internet.username().toLowerCase()}-${Date.now()}`;
   const password = options.password || 'testPassword123!';
-  const hashedPassword = await hash(password);
 
-  const user = await prisma.user.create({
-    data: {
-      username,
-      key: {
-        create: {
-          id: `username:${username}`,
-          hashed_password: hashedPassword,
-        },
-      },
+  const user = await auth.createUser({
+    key: {
+      providerId: 'username', // auth method
+      providerUserId: username, // unique id when using "username" auth method
+      password, // hashed by Lucia
     },
-    include: {
-      key: true,
+    attributes: {
+      username,
     },
   });
 
   return {
-    id: user.id,
     username: user.username,
     password, // Return plain text password for testing
   };

@@ -49,6 +49,7 @@ export async function requireAppNotExpired(isSetupRoute = false) {
   }
 
   const isConfigured = await getAppSetting('configured');
+  console.log('IS CONFIGURED', isConfigured);
 
   if (!isConfigured) {
     redirect('/setup');
