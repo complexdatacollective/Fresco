@@ -60,17 +60,6 @@ export default defineConfig({
   ],
 
   // Global setup and teardown
-  globalSetup: './tests/e2e/global-setup.ts',
-  globalTeardown: './tests/e2e/global-teardown.ts',
-
-  // Run your local dev server before starting the tests
-  webServer: {
-    command: 'pnpm run dev:test',
-    url: process.env.PLAYWRIGHT_BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 300 * 1000, // Increased timeout to 5 minutes to wait for global setup
-    // Add retry configuration
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
+  globalSetup: './tests/e2e/global.setup.ts',
+  globalTeardown: './tests/e2e/global.teardown.ts',
 });

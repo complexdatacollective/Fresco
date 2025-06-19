@@ -1,5 +1,4 @@
 import { test as base } from '@playwright/test';
-import { cleanDatabase as cleanDatabaseUtil } from '~/tests/e2e/utils/database/cleanup';
 import {
   type DashboardSeedData,
   seedBasicData,
@@ -9,6 +8,7 @@ import {
 } from '~/tests/e2e/utils/database/seeds';
 import type { BasicSeedData } from '~/tests/e2e/utils/database/seeds/basic.seed';
 import { prisma } from '~/utils/db';
+import { cleanDatabase as cleanDatabaseUtil } from '../utils/database/cleanup';
 
 export type DatabaseFixtures = {
   cleanDatabase: () => Promise<void>;

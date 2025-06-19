@@ -1,10 +1,7 @@
 import { type FullConfig } from '@playwright/test';
-import { execSync } from 'child_process';
+import { exec, execSync } from 'child_process';
 
 async function globalSetup(_config: FullConfig) {
-  // eslint-disable-next-line no-console
-  console.log('🚀 GLOBAL SETUP STARTED - This should appear first!');
-  
   // Import environment config
   try {
     await import('../../envConfig.js');
@@ -72,16 +69,40 @@ async function globalSetup(_config: FullConfig) {
     throw error;
   }
 
+  // Launch nextjs test dev server
+  try {
+    exec('pnpm dev:test', (error, stdout, stderr) => {
+      if (error) {
+        // eslint-disable-next-line no-console
+        console.error('❌ Failed to launch Next.js test dev server:', error);
+        throw error;
+      }
+      if (stdout) {
+        // eslint-disable-next-line no-console
+        console.log(`Next.js dev server stdout: ${stdout}`);
+      }
+      if (stderr) {
+        // eslint-disable-next-line no-console
+        console.error(`Next.js dev server stderr: ${stderr}`);
+        throw new Error(`Next.js dev server error: ${stderr}`);
+      }
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('❌ Failed to launch Next.js test dev server:', error);
+    throw error;
+  }
+
   // CRITICAL: Invalidate all caches at the end of global setup
   // This ensures the webServer starts with fresh cache and doesn't use stale app settings
   // eslint-disable-next-line no-console
   console.log('🔄 Invalidating all caches to ensure fresh start...');
   try {
-    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001';
-    
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001';
+
     // Wait a moment for the webServer to be ready
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     const response = await fetch(`${baseURL}/api/test/database-reset`, {
       method: 'POST',
       headers: {
@@ -100,7 +121,10 @@ async function globalSetup(_config: FullConfig) {
     }
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn('⚠️ Cache invalidation API not available during global setup:', error);
+    console.warn(
+      '⚠️ Cache invalidation API not available during global setup:',
+      error,
+    );
   }
 
   // eslint-disable-next-line no-console

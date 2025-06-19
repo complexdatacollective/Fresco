@@ -1,4 +1,4 @@
-import { test, expect } from '~/tests/e2e/fixtures';
+import { expect, test } from '~/tests/e2e/fixtures';
 
 test.describe('Database Seeding Tests', () => {
   test('should seed basic data correctly', async ({ basicData, db }) => {
@@ -30,7 +30,10 @@ test.describe('Database Seeding Tests', () => {
     expect(interviewCount).toBe(5);
   });
 
-  test('should seed dashboard data correctly', async ({ dashboardData, db }) => {
+  test('should seed dashboard data correctly', async ({
+    dashboardData,
+    db,
+  }) => {
     // Verify comprehensive data was created
     expect(dashboardData.user.username).toBe('admin');
     expect(dashboardData.protocols.length).toBeGreaterThan(5);
@@ -44,7 +47,12 @@ test.describe('Database Seeding Tests', () => {
     expect(finishedInterviews).toBeGreaterThan(0);
   });
 
-  test('should handle clean database fixture', async ({ cleanDatabase: _cleanDatabase, db }) => {
+  test('should handle clean database fixture', async ({
+    cleanDatabase,
+    db,
+  }) => {
+    await cleanDatabase();
+
     // Database should be clean
     const userCount = await db.user.count();
     const protocolCount = await db.protocol.count();
@@ -61,7 +69,10 @@ test.describe('Database Seeding Tests', () => {
     expect(settingsCount).toBeGreaterThan(0);
   });
 
-  test('should isolate tests from each other', async ({ basicData: _basicData, db }) => {
+  test('should isolate tests from each other', async ({
+    basicData: _basicData,
+    db,
+  }) => {
     // This test should have fresh basicData, not affected by previous tests
     const protocolCount = await db.protocol.count();
     expect(protocolCount).toBe(2); // Only the protocols from basicData
