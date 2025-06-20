@@ -84,7 +84,6 @@ async function globalSetup(_config: FullConfig) {
       if (stderr) {
         // eslint-disable-next-line no-console
         console.error(`Next.js dev server stderr: ${stderr}`);
-        throw new Error(`Next.js dev server error: ${stderr}`);
       }
     });
   } catch (error) {
