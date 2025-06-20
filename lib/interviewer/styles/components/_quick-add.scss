@@ -49,11 +49,44 @@
       font-size: 1.2rem;
       font-weight: bold;
       font-family: var(--nc-body-font-family);
+
+      &.error {
+        border: 3px solid var(--nc-error);
+      }
     }
 
     &::placeholder {
       font-style: italic;
       font-weight: 300;
+    }
+
+    .quick-add-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .quick-add-form {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .tool-tip {
+      position: absolute;
+      top: -#{units.unit(3)};
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .error-text {
+      position: absolute;
+      bottom: -#{units.unit(3)};
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--nc-error);
+      white-space: nowrap;
     }
   }
 }

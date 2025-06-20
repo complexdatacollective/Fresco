@@ -69,7 +69,7 @@ const QuickAdd = ({
   // Handle showing/hiding the tooltip based on the nodeLabel
   // Logic: wait 5 seconds after the user last typed something
   useEffect(() => {
-    if (input.value !== '') {
+    if (input.value !== '' && !meta?.invalid) {
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
 
@@ -80,11 +80,11 @@ const QuickAdd = ({
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
     }
-  }, [input.value]);
+  }, [input.value, meta?.invalid]);
 
   return (
-    <div className="flex flex-row">
-      <div className="flex flex-col">
+    <div className="quick-add-container">
+      <div className="quick-add-form">
         <motion.div
           key="tool-tip"
           className="tool-tip"
@@ -113,7 +113,7 @@ const QuickAdd = ({
           onKeyDown={handleKeyDown}
         />
         {meta?.invalid && meta?.touched && meta?.error && (
-          <div className="text-warning">{meta?.error}</div>
+          <div className="error-text">{meta?.error}</div>
         )}
       </div>
 
