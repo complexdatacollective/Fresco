@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
-import type { Interview, Participant, Protocol } from '@prisma/client';
+import type { Interview, Participant } from '@prisma/client';
 import { prisma } from '~/utils/db';
+import { type Protocol } from './protocol.factory';
 
 export type CreateInterviewOptions = {
   protocolId?: string;
@@ -68,7 +69,7 @@ export const createTestInterview = async (
     data: {
       protocolId,
       participantId,
-      currentStep: options.currentStep || 0,
+      currentStep: options.currentStep ?? 0,
       network,
       finishTime: options.isFinished ? new Date() : null,
       stageMetadata: {},

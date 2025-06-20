@@ -59,7 +59,8 @@ const createPrismaClient = () =>
             if (!experiments) {
               return null;
             }
-            return ProtocolSchema.shape.experiments.parse(experiments);
+            const thing = ProtocolSchema.shape.experiments.parse(experiments);
+            return thing;
           },
         },
       },

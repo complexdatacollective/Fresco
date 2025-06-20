@@ -4,6 +4,7 @@ import { prisma } from '~/utils/db';
  * Call the cache invalidation API to clear Next.js cache
  */
 const invalidateCache = async (tags?: string[]) => {
+  // eslint-disable-next-line no-process-env
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001';
 
   try {
@@ -16,16 +17,20 @@ const invalidateCache = async (tags?: string[]) => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.warn(`Cache invalidation failed: ${error.error}`);
+      const error = (await response.json()) as { error?: string };
+      // eslint-disable-next-line no-console
+      console.warn(`Cache invalidation failed: ${error.error ?? 'Unknown error'}`);
       return false;
     }
 
-    const result = await response.json();
-    console.log('Cache invalidation:', result.message);
+    const result = (await response.json()) as { message?: string };
+    // eslint-disable-next-line no-console
+    console.log('Cache invalidation:', result.message ?? 'Success');
     return true;
   } catch (error) {
-    console.warn('Cache invalidation API failed:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    // eslint-disable-next-line no-console
+    console.warn('Cache invalidation API failed:', errorMessage);
     return false;
   }
 };
@@ -64,9 +69,12 @@ export const cleanDatabase = async () => {
       skipDuplicates: true,
     });
 
+    // eslint-disable-next-line no-console
     console.log('Database cleanup completed with cache invalidation');
   } catch (error) {
-    console.error('Database cleanup failed:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    // eslint-disable-next-line no-console
+    console.error('Database cleanup failed:', errorMessage);
 
     // Fallback to TRUNCATE if the transaction approach fails
     try {
@@ -88,9 +96,12 @@ export const cleanDatabase = async () => {
 
       // Try to invalidate cache even after fallback
       await invalidateCache();
+      // eslint-disable-next-line no-console
       console.log('TRUNCATE fallback completed with cache invalidation');
     } catch (fallbackError) {
-      console.error('All cleanup methods failed:', fallbackError);
+      const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      // eslint-disable-next-line no-console
+      console.error('All cleanup methods failed:', fallbackErrorMessage);
       throw fallbackError;
     }
   }
@@ -104,7 +115,9 @@ export const cleanTables = async (tableNames: string[]) => {
     try {
       await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tableName}" CASCADE;`);
     } catch (error) {
-      console.error(`Failed to clean table ${tableName}:`, error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      // eslint-disable-next-line no-console
+      console.error(`Failed to clean table ${tableName}:`, errorMessage);
     }
   }
 };
@@ -113,6 +126,7 @@ export const cleanTables = async (tableNames: string[]) => {
  * Reset database to initial state with basic app settings and proper cache invalidation
  */
 export const resetDatabaseToInitialState = async () => {
+  // eslint-disable-next-line no-console
   console.log('Resetting database to initial state...');
   await cleanDatabase();
 };

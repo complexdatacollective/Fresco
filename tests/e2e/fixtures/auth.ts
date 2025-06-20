@@ -7,7 +7,7 @@ export type AuthFixtures = {
 };
 
 export const test = dbTest.extend<AuthFixtures>({
-  authenticatedPage: async ({ page, basicData }, use) => {
+  authenticatedPage: async ({ page, basicData }, providePage) => {
     // Login with the test user from basicData
     await page.goto('/signin');
 
@@ -18,10 +18,10 @@ export const test = dbTest.extend<AuthFixtures>({
     // Wait for successful login (adjust selector based on your app)
     await page.waitForURL('/dashboard');
 
-    await use(page);
+    await providePage(page);
   },
 
-  loginAsUser: async ({ page }, use) => {
+  loginAsUser: async ({ page }, provideLoginFunction) => {
     const loginAsUser = async (username: string, password: string) => {
       await page.goto('/signin');
       await page.fill('[name="username"]', username);
@@ -30,7 +30,7 @@ export const test = dbTest.extend<AuthFixtures>({
       await page.waitForURL('/dashboard');
     };
 
-    await use(loginAsUser);
+    await provideLoginFunction(loginAsUser);
   },
 });
 

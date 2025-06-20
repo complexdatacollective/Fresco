@@ -97,6 +97,7 @@ async function globalSetup(_config: FullConfig) {
   // eslint-disable-next-line no-console
   console.log('🔄 Invalidating all caches to ensure fresh start...');
   try {
+    // eslint-disable-next-line no-process-env
     const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001';
 
     // Wait a moment for the webServer to be ready
@@ -111,9 +112,9 @@ async function globalSetup(_config: FullConfig) {
     });
 
     if (response.ok) {
-      const result = await response.json();
+      const result = (await response.json()) as { message?: string };
       // eslint-disable-next-line no-console
-      console.log('✅ Global cache invalidation:', result.message);
+      console.log('✅ Global cache invalidation:', result.message ?? 'Success');
     } else {
       // eslint-disable-next-line no-console
       console.warn('⚠️ Cache invalidation failed during global setup');

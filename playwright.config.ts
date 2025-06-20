@@ -12,9 +12,11 @@ export default defineConfig({
   fullyParallel: true,
 
   // Fail the build on CI if you accidentally left test.only in the source code
+  // eslint-disable-next-line no-process-env
   forbidOnly: !!process.env.CI,
 
   // Retry on CI only
+  // eslint-disable-next-line no-process-env
   retries: process.env.CI ? 2 : 0,
 
   // Opt out of parallel tests on CI and for database tests
@@ -29,6 +31,7 @@ export default defineConfig({
 
   // Shared settings for all the projects below
   use: {
+    // eslint-disable-next-line no-process-env
     baseURL: process.env.PLAYWRIGHT_BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',

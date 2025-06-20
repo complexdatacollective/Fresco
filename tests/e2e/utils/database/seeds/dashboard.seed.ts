@@ -1,14 +1,11 @@
-import {
-  type Interview,
-  type Participant,
-  type Protocol,
-} from '@prisma/client';
+import { type Interview, type Participant } from '@prisma/client';
 import {
   createComplexTestProtocol,
   createTestInterviews,
   createTestParticipants,
   createTestProtocols,
   createTestUser,
+  type Protocol,
   type TestUser,
 } from '~/tests/e2e/test-data/factories';
 import { resetDatabaseToInitialState } from '~/tests/e2e/utils/database/cleanup';
@@ -16,9 +13,9 @@ import { prisma } from '~/utils/db';
 
 export type DashboardSeedData = {
   user: TestUser;
-  protocols: Protocol[]; // Replace with actual Protocol type if available
-  participants: Participant[]; // Replace with actual Participant type if available
-  interviews: Interview[]; // Replace with actual Interview type if available
+  protocols: Protocol[];
+  participants: Participant[];
+  interviews: Interview[];
 };
 
 /**

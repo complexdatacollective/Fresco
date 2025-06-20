@@ -34,6 +34,13 @@ const config = {
         },
       },
     },
+    {
+      // Special rules for Playwright fixture files
+      files: ['tests/e2e/fixtures/*.ts'],
+      rules: {
+        'no-empty-pattern': 'off', // Allow empty object destructuring in fixtures
+      },
+    },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

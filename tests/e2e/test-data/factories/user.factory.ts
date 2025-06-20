@@ -6,6 +6,7 @@ import { node } from 'lucia/middleware';
 import { prisma } from '~/utils/db';
 
 export const auth = lucia({
+  // eslint-disable-next-line no-process-env
   env: process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
   middleware: node(),
   sessionCookie: {

@@ -1,5 +1,5 @@
+import type { Protocol as NcProtocol } from '@codaco/protocol-validation';
 import { faker } from '@faker-js/faker';
-import type { Protocol } from '@prisma/client';
 import { prisma } from '~/utils/db';
 
 export type CreateProtocolOptions = {
@@ -8,23 +8,32 @@ export type CreateProtocolOptions = {
   schemaVersion?: number;
 };
 
+// We use this rather than the type from the prisma client because this includes
+// our custom transformations in ~/utils/db
+export type Protocol = NonNullable<
+  Awaited<ReturnType<typeof prisma.protocol.findFirst>>
+>;
+
 /**
  * Generate a basic protocol structure for testing
  */
-const generateBasicProtocol = (name: string, description?: string) => ({
-  name,
+const generateBasicProtocol = (description?: string): NcProtocol => ({
   description: description ?? faker.lorem.sentence(),
   schemaVersion: 8,
   stages: [
     {
       id: 'stage1',
-      type: 'NameGenerator',
+      type: 'NameGeneratorQuickAdd',
+      subject: {
+        entity: 'node',
+        type: 'node',
+      },
+      quickAdd: 'name',
       label: 'Name Generator Stage',
       prompts: [
         {
           id: 'prompt1',
           text: 'Please name people you know',
-          variable: 'name',
         },
       ],
     },
@@ -35,6 +44,7 @@ const generateBasicProtocol = (name: string, description?: string) => ({
       items: [
         {
           id: 'info1',
+          type: 'text',
           content: 'Thank you for participating!',
         },
       ],
@@ -67,16 +77,17 @@ export const createTestProtocol = async (
   options: CreateProtocolOptions = {},
 ): Promise<Protocol> => {
   const name = options.name ?? faker.company.name() + ' Study';
-  const protocolData = generateBasicProtocol(name, options.description);
+  const protocolData = generateBasicProtocol(options.description);
 
   const protocol = await prisma.protocol.create({
     data: {
-      ...protocolData,
+      name,
+      description: protocolData.description,
       hash: faker.string.uuid(),
       lastModified: new Date(),
       stages: protocolData.stages,
       codebook: protocolData.codebook,
-      schemaVersion: options.schemaVersion || 6,
+      schemaVersion: options.schemaVersion ?? 8,
     },
   });
 
@@ -87,22 +98,24 @@ export const createTestProtocol = async (
  * Create a protocol with complex stages for testing different interfaces
  */
 export const createComplexTestProtocol = async (): Promise<Protocol> => {
-  const protocolData = {
-    name: 'Complex Test Protocol',
+  const protocolData: NcProtocol = {
     description:
       'A protocol with multiple interface types for comprehensive testing',
-    schemaVersion: 6,
+    schemaVersion: 8,
     stages: [
       {
         id: 'name_generator',
-        type: 'NameGenerator',
+        type: 'NameGeneratorQuickAdd',
+        quickAdd: 'name',
+        subject: {
+          entity: 'node',
+          type: 'person',
+        },
         label: 'Name Generator',
         prompts: [
           {
             id: 'friends_prompt',
             text: 'Please name people you consider friends',
-            variable: 'name',
-            nodeType: 'person',
           },
         ],
       },
@@ -110,11 +123,21 @@ export const createComplexTestProtocol = async (): Promise<Protocol> => {
         id: 'sociogram',
         type: 'Sociogram',
         label: 'Sociogram',
+        subject: {
+          entity: 'node',
+          type: 'person',
+        },
         prompts: [
           {
             id: 'friendship_ties',
             text: 'Draw connections between people who are friends',
-            edgeVariable: 'friendship',
+            edges: {
+              display: ['friendship'],
+              create: 'friendship',
+            },
+            layout: {
+              layoutVariable: 'layout',
+            },
           },
         ],
       },
@@ -127,13 +150,10 @@ export const createComplexTestProtocol = async (): Promise<Protocol> => {
             {
               variable: 'age',
               prompt: 'What is your age?',
-              type: 'number',
             },
             {
               variable: 'gender',
               prompt: 'What is your gender?',
-              type: 'categorical',
-              options: ['Male', 'Female', 'Non-binary', 'Prefer not to say'],
             },
           ],
         },
@@ -147,7 +167,28 @@ export const createComplexTestProtocol = async (): Promise<Protocol> => {
           variables: {
             name: { name: 'Name', type: 'text' },
             age: { name: 'Age', type: 'number' },
-            gender: { name: 'Gender', type: 'categorical' },
+            gender: {
+              name: 'Gender',
+              type: 'categorical',
+              options: [
+                {
+                  label: 'Male',
+                  value: 'male',
+                },
+                {
+                  label: 'Female',
+                  value: 'female',
+                },
+                {
+                  label: 'Non-binary',
+                  value: 'non-binary',
+                },
+                {
+                  label: 'Prefer not to say',
+                  value: 'prefer-not-to-say',
+                },
+              ],
+            },
           },
         },
       },
@@ -161,7 +202,28 @@ export const createComplexTestProtocol = async (): Promise<Protocol> => {
       ego: {
         variables: {
           age: { name: 'Age', type: 'number' },
-          gender: { name: 'Gender', type: 'categorical' },
+          gender: {
+            name: 'Gender',
+            type: 'categorical',
+            options: [
+              {
+                label: 'Male',
+                value: 'male',
+              },
+              {
+                label: 'Female',
+                value: 'female',
+              },
+              {
+                label: 'Non-binary',
+                value: 'non-binary',
+              },
+              {
+                label: 'Prefer not to say',
+                value: 'prefer-not-to-say',
+              },
+            ],
+          },
         },
       },
     },
@@ -169,11 +231,13 @@ export const createComplexTestProtocol = async (): Promise<Protocol> => {
 
   return await prisma.protocol.create({
     data: {
-      ...protocolData,
+      name: faker.company.name() + ' Complex Protocol',
+      description: protocolData.description,
       hash: faker.string.uuid(),
       lastModified: new Date(),
       stages: protocolData.stages,
       codebook: protocolData.codebook,
+      schemaVersion: protocolData.schemaVersion,
     },
   });
 };

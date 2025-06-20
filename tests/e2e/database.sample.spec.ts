@@ -8,7 +8,7 @@ test.describe('Database Seeding Tests', () => {
 
     // Verify protocols were created
     expect(basicData.protocols).toHaveLength(2);
-    expect(basicData.protocols[0].name).toBe('Test Protocol 1');
+    expect(basicData.protocols[0]?.name).toBe('Test Protocol 1');
 
     // Verify participants were created
     expect(basicData.participants).toHaveLength(5);

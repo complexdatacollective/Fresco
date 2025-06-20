@@ -1,13 +1,10 @@
-import {
-  type Interview,
-  type Participant,
-  type Protocol,
-} from '@prisma/client';
+import { type Interview, type Participant } from '@prisma/client';
 import {
   createTestInterviews,
   createTestParticipants,
   createTestProtocol,
   createTestUser,
+  type Protocol,
   type TestUser,
 } from '~/tests/e2e/test-data/factories';
 import { resetDatabaseToInitialState } from '~/tests/e2e/utils/database/cleanup';

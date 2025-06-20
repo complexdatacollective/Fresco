@@ -5,6 +5,11 @@ import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env';
 import { isAppExpired } from '~/queries/appSettings';
 
+const handleReset = async () => {
+  'use server';
+  await resetAppSettings();
+};
+
 export default async function Page() {
   const isExpired = await isAppExpired();
 
@@ -23,7 +28,7 @@ export default async function Page() {
         Please redeploy a new instance of Fresco to continue using the software.
       </p>
       {env.NODE_ENV === 'development' && (
-        <form action={resetAppSettings}>
+        <form action={handleReset}>
           <SubmitButton className="mt-6 max-w-[20rem]" type="submit">
             Dev mode: Reset Configuration
           </SubmitButton>

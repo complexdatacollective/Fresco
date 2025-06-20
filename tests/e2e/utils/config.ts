@@ -1,8 +1,9 @@
+/* eslint-disable no-process-env */
 import { faker } from '@faker-js/faker';
 import '~/envConfig.js';
 
 // Set consistent seed for faker to ensure reproducible test data
-faker.seed(parseInt(process.env.FAKER_SEED || '12345'));
+faker.seed(parseInt(process.env.FAKER_SEED ?? '12345'));
 
 export const testConfig = {
   database: {
@@ -11,14 +12,14 @@ export const testConfig = {
     isolation: process.env.TEST_DATABASE_ISOLATION === 'true',
   },
   auth: {
-    testUserPassword: process.env.TEST_USER_PASSWORD || 'testPassword123!',
-    testAdminPassword: process.env.TEST_ADMIN_PASSWORD || 'adminPassword123!',
+    testUserPassword: process.env.TEST_USER_PASSWORD ?? 'testPassword123!',
+    testAdminPassword: process.env.TEST_ADMIN_PASSWORD ?? 'adminPassword123!',
   },
   app: {
     baseUrl: process.env.PLAYWRIGHT_BASE_URL,
   },
   testing: {
-    parallelWorkers: parseInt(process.env.TEST_PARALLEL_WORKERS || '1'),
+    parallelWorkers: parseInt(process.env.TEST_PARALLEL_WORKERS ?? '1'),
     retryCount: process.env.CI ? 2 : 0,
   },
 };
