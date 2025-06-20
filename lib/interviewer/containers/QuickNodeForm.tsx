@@ -93,6 +93,10 @@ const QuickAddForm = ({
     onShowForm();
   }, [onShowForm]);
 
+  const handleBlur = useCallback(() => {
+    setShowForm(false);
+  }, []);
+
   useEffect(() => {
     if (disabled) {
       setShowForm(false);
@@ -104,6 +108,7 @@ const QuickAddForm = ({
       prompt: undefined,
       variable: targetVariable,
       component: 'QuickAdd' as ComponentType,
+      onBlur: handleBlur,
     },
   ];
 

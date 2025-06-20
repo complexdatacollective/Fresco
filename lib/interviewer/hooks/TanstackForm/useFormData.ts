@@ -114,6 +114,7 @@ export const useFormData = ({
         Component,
         isFirst: autoFocus && index === 0,
         validators,
+        onBlur: fields[index]?.onBlur, // Pass through custom onBlur handler
       };
     });
 
@@ -130,5 +131,6 @@ export const useFormData = ({
     autoFocus,
     codebookVariables,
     networkEntities,
+    fields,
   ]);
 };

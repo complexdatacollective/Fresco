@@ -4,7 +4,7 @@ import type { FieldProps, InputComponentProps } from './types';
 
 const Field = ({ field, autoFocus }: FieldProps) => {
   const fieldContext = useFieldContext();
-  const { fieldLabel, name, options, type, parameters, label, Component } =
+  const { fieldLabel, name, options, type, parameters, label, Component, onBlur } =
     field;
 
   // Use pre-resolved component if available, otherwise fallback to runtime resolution
@@ -17,7 +17,7 @@ const Field = ({ field, autoFocus }: FieldProps) => {
       name,
       value: fieldContext.state.value as VariableValue,
       onChange: (value: VariableValue) => fieldContext.handleChange(value),
-      onBlur: fieldContext.handleBlur,
+      onBlur: onBlur ?? fieldContext.handleBlur,
       onSubmit: () => fieldContext.form.handleSubmit(),
     },
     meta: {

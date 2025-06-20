@@ -14,6 +14,7 @@ export type FormField = {
   prompt?: string;
   variable: string;
   component?: ComponentType; // optional, used for quick node form
+  onBlur?: () => void; // optional, custom blur handler
 };
 
 export type FieldType = {
@@ -28,6 +29,7 @@ export type FieldType = {
   validation?: VariableValidation;
   validate?: TanStackValidator;
   Component?: React.ComponentType<InputComponentProps>;
+  onBlur?: () => void; // optional, custom blur handler
 };
 
 export type TanStackFormErrors = Record<
