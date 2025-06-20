@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import type { Participant } from '@prisma/client';
 import { prisma } from '~/utils/db';
 
-export type CreateParticipantOptions = {
+type CreateParticipantOptions = {
   identifier?: string;
   label?: string;
 };

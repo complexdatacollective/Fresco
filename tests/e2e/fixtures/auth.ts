@@ -1,7 +1,7 @@
 import { type Page } from '@playwright/test';
 import { test as dbTest } from './database';
 
-export type AuthFixtures = {
+type AuthFixtures = {
   authenticatedPage: Page;
   loginAsUser: (username: string, password: string) => Promise<void>;
 };
@@ -34,4 +34,3 @@ export const test = dbTest.extend<AuthFixtures>({
   },
 });
 
-export { expect } from '@playwright/test';

@@ -5,7 +5,7 @@ import { lucia } from 'lucia';
 import { node } from 'lucia/middleware';
 import { prisma } from '~/utils/db';
 
-export const auth = lucia({
+const auth = lucia({
   // eslint-disable-next-line no-process-env
   env: process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV',
   middleware: node(),
@@ -25,7 +25,7 @@ export type TestUser = {
   password: string; // Plain text for testing
 };
 
-export type CreateUserOptions = {
+type CreateUserOptions = {
   username?: string;
   password?: string;
 };
@@ -58,29 +58,3 @@ export const createTestUser = async (
   };
 };
 
-/**
- * Create multiple test users
- */
-export const createTestUsers = async (count: number): Promise<TestUser[]> => {
-  const users: TestUser[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const user = await createTestUser({
-      username: `testuser${i + 1}`,
-      password: 'testPassword123!',
-    });
-    users.push(user);
-  }
-
-  return users;
-};
-
-/**
- * Create an admin test user (if you have role-based permissions)
- */
-export const createAdminUser = async (): Promise<TestUser> => {
-  return createTestUser({
-    username: 'admin',
-    password: 'adminPassword123!',
-  });
-};

@@ -107,20 +107,6 @@ export const cleanDatabase = async () => {
   }
 };
 
-/**
- * Clean specific tables (useful for targeted cleanup)
- */
-export const cleanTables = async (tableNames: string[]) => {
-  for (const tableName of tableNames) {
-    try {
-      await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tableName}" CASCADE;`);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      // eslint-disable-next-line no-console
-      console.error(`Failed to clean table ${tableName}:`, errorMessage);
-    }
-  }
-};
 
 /**
  * Reset database to initial state with basic app settings and proper cache invalidation
@@ -131,28 +117,3 @@ export const resetDatabaseToInitialState = async () => {
   await cleanDatabase();
 };
 
-/**
- * Clean up specific entities by type
- */
-export const cleanupEntity = async (
-  entityType: 'users' | 'protocols' | 'interviews' | 'participants',
-) => {
-  switch (entityType) {
-    case 'users':
-      await prisma.session.deleteMany();
-      await prisma.key.deleteMany();
-      await prisma.user.deleteMany();
-      break;
-    case 'protocols':
-      await prisma.interview.deleteMany();
-      await prisma.protocol.deleteMany();
-      break;
-    case 'interviews':
-      await prisma.interview.deleteMany();
-      break;
-    case 'participants':
-      await prisma.interview.deleteMany();
-      await prisma.participant.deleteMany();
-      break;
-  }
-};

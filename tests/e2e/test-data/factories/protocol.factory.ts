@@ -2,7 +2,7 @@ import type { Protocol as NcProtocol } from '@codaco/protocol-validation';
 import { faker } from '@faker-js/faker';
 import { prisma } from '~/utils/db';
 
-export type CreateProtocolOptions = {
+type CreateProtocolOptions = {
   name?: string;
   description?: string;
   schemaVersion?: number;

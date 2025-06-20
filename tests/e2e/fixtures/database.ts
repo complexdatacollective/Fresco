@@ -10,7 +10,7 @@ import type { BasicSeedData } from '~/tests/e2e/utils/database/seeds/basic.seed'
 import { prisma } from '~/utils/db';
 import { cleanDatabase as cleanDatabaseUtil } from '../utils/database/cleanup';
 
-export type DatabaseFixtures = {
+type DatabaseFixtures = {
   cleanDatabase: () => Promise<void>;
   basicData: BasicSeedData;
   dashboardData: DashboardSeedData;
@@ -69,5 +69,3 @@ export const test = base.extend<DatabaseFixtures>({
   },
 });
 
-// Export expect from playwright/test
-export { expect } from '@playwright/test';

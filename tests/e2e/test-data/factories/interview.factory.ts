@@ -3,7 +3,7 @@ import type { Interview, Participant } from '@prisma/client';
 import { prisma } from '~/utils/db';
 import { type Protocol } from './protocol.factory';
 
-export type CreateInterviewOptions = {
+type CreateInterviewOptions = {
   protocolId?: string;
   participantId?: string;
   currentStep?: number;
@@ -41,7 +41,7 @@ const generateBasicNetwork = () => ({
 /**
  * Create a test interview
  */
-export const createTestInterview = async (
+const createTestInterview = async (
   options: CreateInterviewOptions = {},
 ): Promise<Interview> => {
   let protocolId = options.protocolId;
