@@ -2,7 +2,7 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { useFieldContext } from '../../utils/formContexts';
 import type { FieldProps, InputComponentProps } from './types';
 
-const Field = ({ field, autoFocus }: FieldProps) => {
+const Field = ({ field, autoFocus, disabled }: FieldProps) => {
   const fieldContext = useFieldContext();
   const { fieldLabel, name, options, type, parameters, label, Component, onBlur } =
     field;
@@ -30,6 +30,7 @@ const Field = ({ field, autoFocus }: FieldProps) => {
     options,
     parameters,
     autoFocus,
+    disabled,
     type,
   };
 

@@ -13,7 +13,7 @@ import type {
 export type FormField = {
   prompt?: string;
   variable: string;
-  component?: ComponentType; // optional, used for quick node form
+  Component?: React.ComponentType<InputComponentProps>; // optional pre-resolved component
   onBlur?: () => void; // optional, custom blur handler
 };
 
@@ -46,6 +46,7 @@ export type FormProps = {
   submitButton?: React.ReactNode;
   initialValues?: Record<string, VariableValue>;
   autoFocus?: boolean;
+  disabled?: boolean;
   id?: string;
   entityId?: string;
 };
@@ -53,6 +54,7 @@ export type FormProps = {
 export type FieldProps = {
   field: FieldType;
   autoFocus?: boolean;
+  disabled?: boolean;
 };
 
 type InputMeta = {
@@ -77,5 +79,6 @@ export type InputComponentProps = {
   options?: { label: string; value: VariableValue }[];
   parameters?: Record<string, unknown>;
   autoFocus?: boolean;
+  disabled?: boolean;
   type: VariableType;
 };

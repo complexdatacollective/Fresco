@@ -77,6 +77,7 @@ const TanStackForm = ({
   submitButton = <button type="submit" key="submit" aria-label="Submit" />,
   initialValues,
   autoFocus,
+  disabled,
   id,
   entityId,
 }: FormProps) => {
@@ -112,7 +113,7 @@ const TanStackForm = ({
             key={`${field.name}-${index}`}
             validators={field.validators}
           >
-            {() => <Field field={field} autoFocus={field.isFirst} />}
+            {() => <Field field={field} autoFocus={field.isFirst} disabled={disabled} />}
           </form.AppField>
         ))}
         {submitButton}

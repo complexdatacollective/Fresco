@@ -1,4 +1,3 @@
-import type { ComponentType } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
   type NcNode,
@@ -8,6 +7,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ActionButton } from '~/lib/ui/components';
+import { QuickAdd } from '~/lib/ui/components/Fields';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
@@ -107,7 +107,7 @@ const QuickAddForm = ({
     {
       prompt: undefined,
       variable: targetVariable,
-      component: 'QuickAdd' as ComponentType,
+      Component: QuickAdd,
       onBlur: handleBlur,
     },
   ];
@@ -133,6 +133,7 @@ const QuickAddForm = ({
               initialValues={{}}
               entityId={undefined} // No entity ID in this context
               autoFocus
+              disabled={disabled}
               id={FORM_NAME}
             />
           </motion.div>

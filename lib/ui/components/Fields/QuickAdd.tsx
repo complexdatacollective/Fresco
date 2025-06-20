@@ -1,30 +1,12 @@
 import { motion } from 'motion/react';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import type { InputComponentProps } from '~/lib/interviewer/containers/TanStackForm/types';
 import {
   getNodeColor,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
-
-type QuickAddProps = {
-  input: {
-    name: string;
-    value: string;
-    onChange: (value: string) => void;
-    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-    onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
-  };
-  meta?: {
-    error: string | null;
-    invalid: boolean;
-    touched: boolean;
-  };
-  disabled: boolean;
-  placeholder?: string;
-  autoFocus?: boolean;
-};
 
 const inputVariants = {
   show: {
@@ -45,10 +27,12 @@ const inputVariants = {
 const QuickAdd = ({
   input,
   meta,
-  disabled,
-  placeholder = 'Type a label and press enter...',
+  disabled = false,
   autoFocus = true,
-}: QuickAddProps) => {
+  parameters,
+}: InputComponentProps) => {
+  const placeholder =
+    (parameters?.placeholder as string) ?? 'Type a label and press enter...';
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [showTooltip, setShowTooltip] = useState(false);
@@ -60,7 +44,7 @@ const QuickAdd = ({
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        void input.onSubmit();
+        input.onSubmit?.();
       }
     },
     [input],
@@ -105,10 +89,9 @@ const QuickAdd = ({
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
-          onBlur={input.onBlur}
-          onFocus={input.onFocus}
+          onBlur={input.onBlur ? () => input.onBlur() : undefined}
           placeholder={placeholder}
-          value={input.value}
+          value={input.value as string}
           type="text"
           onKeyDown={handleKeyDown}
         />
@@ -118,7 +101,7 @@ const QuickAdd = ({
       </div>
 
       <Node
-        label={input.value}
+        label={input.value as string}
         selected={!meta?.invalid}
         color={nodeColor}
         handleClick={() => {
