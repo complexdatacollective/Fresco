@@ -13,6 +13,7 @@ export default function SummaryStatistics() {
     <ResponsiveContainer
       className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6"
       maxWidth="6xl"
+      data-testid="summary-statistics"
     >
       <Link href="/dashboard/protocols">
         <Suspense

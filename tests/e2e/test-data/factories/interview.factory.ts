@@ -1,3 +1,14 @@
+import { generateMock } from '@anatine/zod-mock';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+  NcEdgeSchema,
+  NcNetworkSchema,
+  type NcEdge,
+  type NcEgo,
+  type NcNetwork,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { faker } from '@faker-js/faker';
 import type { Interview, Participant } from '@prisma/client';
 import { prisma } from '~/utils/db';
@@ -9,34 +20,119 @@ type CreateInterviewOptions = {
   currentStep?: number;
   isFinished?: boolean;
   withNetwork?: boolean;
+  networkSize?: 'small' | 'medium' | 'large';
 };
 
 /**
- * Generate a basic network for an interview
+ * Generate a network using the proper NcEntity and NcEdge schemas
  */
-const generateBasicNetwork = () => ({
-  nodes: [
-    {
-      uid: faker.string.uuid(),
-      type: 'person',
-      attributes: {
-        name: faker.person.firstName(),
+const generateNetwork = (
+  size: 'small' | 'medium' | 'large' = 'small',
+): NcNetwork => {
+  const nodeCount = size === 'small' ? 2 : size === 'medium' ? 5 : 10;
+  const edgeCount = Math.min(
+    Math.floor(nodeCount / 2),
+    size === 'large' ? 8 : 3,
+  );
+
+  // Generate nodes using NcEntity schema (which is actually NcNode for nodes)
+  const nodes: NcNode[] = Array.from({ length: nodeCount }, () => {
+    const node = generateMock(NcNetworkSchema.shape.nodes.element, {
+      stringMap: {
+        [entityPrimaryKeyProperty]: () => faker.string.uuid(),
+        type: () =>
+          faker.helpers.arrayElement(['person', 'organization', 'place']),
+        stageId: () => faker.string.uuid(),
       },
-    },
-    {
-      uid: faker.string.uuid(),
-      type: 'person',
-      attributes: {
-        name: faker.person.firstName(),
+    });
+
+    // Override attributes with realistic data
+    node[entityAttributesProperty] = {
+      name: faker.person.fullName(),
+      age: faker.number.int({ min: 18, max: 80 }),
+      gender: faker.helpers.arrayElement(['male', 'female', 'other']),
+      layout: {
+        // Add positioning for sociogram visualizations
+        x: faker.number.float({ min: 0, max: 800 }),
+        y: faker.number.float({ min: 0, max: 600 }),
       },
+    };
+
+    return node;
+  });
+
+  // Generate edges using NcEdge schema
+  const edges: NcEdge[] = [];
+  if (nodes.length > 1) {
+    for (let i = 0; i < edgeCount; i++) {
+      const fromNode = faker.helpers.arrayElement(nodes);
+      const toNode = faker.helpers.arrayElement(
+        nodes.filter(
+          (n) =>
+            n[entityPrimaryKeyProperty] !== fromNode[entityPrimaryKeyProperty],
+        ),
+      );
+
+      if (toNode) {
+        const edge = generateMock(NcEdgeSchema, {
+          stringMap: {
+            [entityPrimaryKeyProperty]: () => faker.string.uuid(),
+            type: () =>
+              faker.helpers.arrayElement(['friendship', 'colleague', 'family']),
+            from: () => fromNode[entityPrimaryKeyProperty],
+            to: () => toNode[entityPrimaryKeyProperty],
+          },
+        });
+
+        // Override attributes with realistic data
+        edge[entityAttributesProperty] = {
+          strength: faker.number.int({ min: 1, max: 10 }),
+          duration: faker.number.int({ min: 1, max: 20 }),
+        };
+
+        edges.push(edge);
+      }
+    }
+  }
+
+  // Generate ego using NcEgo schema (which is BaseNcEntitySchema)
+  const ego: NcEgo = generateMock(NcNetworkSchema.shape.ego, {
+    stringMap: {
+      [entityPrimaryKeyProperty]: () => 'ego',
     },
-  ],
-  edges: [],
-  ego: {
-    uid: 'ego',
-    attributes: {},
-  },
-});
+  });
+
+  // Override ego attributes with realistic data
+  ego[entityAttributesProperty] = {
+    name: faker.person.fullName(),
+    age: faker.number.int({ min: 18, max: 80 }),
+  };
+
+  return {
+    nodes,
+    edges,
+    ego,
+  };
+};
+
+/**
+ * Generate an empty network
+ */
+const generateEmptyNetwork = (): NcNetwork => {
+  const ego = generateMock(NcNetworkSchema.shape.ego, {
+    stringMap: {
+      [entityPrimaryKeyProperty]: () => 'ego',
+    },
+  });
+
+  ego[entityAttributesProperty] = {};
+
+  return {
+    nodes: [],
+    edges: [],
+    ego,
+  };
+};
 
 /**
  * Create a test interview
@@ -62,8 +158,8 @@ const createTestInterview = async (
   }
 
   const network = options.withNetwork
-    ? generateBasicNetwork()
-    : { nodes: [], edges: [], ego: { uid: 'ego', attributes: {} } };
+    ? generateNetwork(options.networkSize ?? 'small')
+    : generateEmptyNetwork();
 
   return await prisma.interview.create({
     data: {

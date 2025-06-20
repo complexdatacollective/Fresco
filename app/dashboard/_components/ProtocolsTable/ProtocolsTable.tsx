@@ -19,7 +19,10 @@ export default function ProtocolsTable() {
     <Suspense
       fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={1} />}
     >
-      <ProtocolsTableClient dataPromise={getData()} />
+      <ProtocolsTableClient
+        dataPromise={getData()}
+        data-testid="protocols-table"
+      />
     </Suspense>
   );
 }

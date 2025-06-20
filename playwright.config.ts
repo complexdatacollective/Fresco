@@ -29,6 +29,20 @@ export default defineConfig({
     ['github'],
   ],
 
+  // Visual testing configuration
+  expect: {
+    // Global screenshot comparison threshold
+    toHaveScreenshot: {
+      threshold: 0.2, // 20% threshold for pixel differences
+      maxDiffPixels: 1000, // Maximum number of different pixels allowed
+      animations: 'disabled', // Disable animations for consistent screenshots
+    },
+    toMatchSnapshot: {
+      threshold: 0.2,
+      maxDiffPixels: 1000,
+    },
+  },
+
   // Shared settings for all the projects below
   use: {
     // eslint-disable-next-line no-process-env
@@ -36,6 +50,9 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+
+    // Ensure consistent screenshot timing
+    actionTimeout: 10000,
   },
 
   // Configure projects for major browsers
@@ -44,6 +61,36 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'chromium-visual',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 }, // Fixed viewport for consistency
+        deviceScaleFactor: 1, // Consistent pixel density
+        contextOptions: {
+          reducedMotion: 'reduce', // Prevent issues with animations
+        },
+      },
+      testMatch: '**/*.visual.spec.ts',
+    },
+    // {
+    //   name: 'firefox-visual',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     viewport: { width: 1280, height: 720 },
+    //     deviceScaleFactor: 1,
+    //   },
+    //   testMatch: '**/*.visual.spec.ts',
+    // },
+    // {
+    //   name: 'mobile-visual',
+    //   use: {
+    //     ...devices['iPhone 12'],
+    //     viewport: { width: 390, height: 844 },
+    //     deviceScaleFactor: 1,
+    //   },
+    //   testMatch: '**/*.mobile-visual.spec.ts',
+    // },
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },

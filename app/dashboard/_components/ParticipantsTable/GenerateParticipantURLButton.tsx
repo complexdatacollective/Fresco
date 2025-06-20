@@ -57,12 +57,20 @@ export const GenerateParticipationURLButton = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="xs" ref={ref} variant="accent">
+        <Button
+          size="xs"
+          ref={ref}
+          variant="accent"
+          data-testid="generate-participation-url-button"
+        >
           <Copy className="mr-2 h-4 w-4" />
           Copy Unique URL
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="flex flex-col gap-2">
+      <PopoverContent
+        className="flex flex-col gap-2"
+        generate-participation-url-modal
+      >
         <Paragraph variant="smallText">
           Select a protocol, and the URL will be copied to your clipboard.
         </Paragraph>

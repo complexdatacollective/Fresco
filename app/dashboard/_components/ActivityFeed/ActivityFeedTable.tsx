@@ -35,6 +35,7 @@ export default function ActivityFeedTable({
 
   return (
     <DataTable
+      data-testid="activity-feed"
       dataTable={dataTable}
       columns={columns}
       searchableColumns={searchableColumns}
