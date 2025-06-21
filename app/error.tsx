@@ -1,16 +1,16 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
+import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
+import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { Button } from '~/components/ui/Button';
 import { cardClasses } from '~/components/ui/card';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
-import { ClipboardCopy } from 'lucide-react';
 import { useToast } from '~/components/ui/use-toast';
-import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import { cn } from '~/utils/shadcn';
 
 export default function Error({
   error,
@@ -26,14 +26,14 @@ export default function Error({
     reset();
   };
 
-  const copyDebugInfoToClipboard = async () => {
-    const debugInfo = `
-Error: ${error.message}
-Path: ${window.location.pathname}
-User Agent: ${navigator.userAgent}
-Stack Trace:
-${error.stack}`;
+  const debugInfo = `
+  Error: ${error.message}
+  Path: ${window.location.pathname}
+  User Agent: ${navigator.userAgent}
+  Stack Trace:
+  ${error.stack}`;
 
+  const copyDebugInfoToClipboard = async () => {
     await navigator.clipboard.writeText(debugInfo);
     toast({
       title: 'Success',
@@ -84,6 +84,7 @@ ${error.stack}`;
             Try Again
           </Button>
         </div>
+        <div className="hidden">{debugInfo}</div>
       </ResponsiveContainer>
     </div>
   );

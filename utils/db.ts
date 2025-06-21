@@ -12,17 +12,6 @@ const createPrismaClient = () =>
   new PrismaClient({
     log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }).$extends({
-    query: {
-      async $allOperations({ args, query }) {
-        if (env.NODE_ENV === 'development') {
-          // Add artificial DB delay in development
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return query(args);
-      },
-    },
     result: {
       interview: {
         network: {
@@ -70,7 +59,8 @@ const createPrismaClient = () =>
             if (!experiments) {
               return null;
             }
-            return ProtocolSchema.shape.experiments.parse(experiments);
+            const thing = ProtocolSchema.shape.experiments.parse(experiments);
+            return thing;
           },
         },
       },
@@ -84,3 +74,13 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Helper function to verify database connection
+export const verifyDatabaseConnection = async () => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return true;
+  } catch (error) {
+    return false;
+  }
+};

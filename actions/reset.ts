@@ -8,7 +8,7 @@ import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
 export const resetAppSettings = async () => {
-  if (env.NODE_ENV !== 'development') {
+  if (env.NODE_ENV !== 'development' && env.NODE_ENV !== 'test') {
     await requireApiAuth();
   }
 

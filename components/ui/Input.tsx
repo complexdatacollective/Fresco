@@ -62,7 +62,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <span role="alert" className="text-destructive text-sm">
+          <span
+            role="alert"
+            className="text-destructive text-sm"
+            data-testid="form-error"
+          >
             {error}
           </span>
         )}

@@ -12,7 +12,7 @@ import { type ImportJob } from './JobReducer';
 type JobCardProps = {
   job: ImportJob;
   onCancel: () => void;
-}
+};
 
 const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
   ({ job, onCancel }, ref) => {
@@ -101,4 +101,4 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
 
 JobCard.displayName = 'JobCard';
 
-export default motion(JobCard);
+export default motion.create(JobCard);
