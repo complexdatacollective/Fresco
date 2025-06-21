@@ -8,6 +8,11 @@ export default defineConfig({
   testDir: './tests/e2e',
   outputDir: './tests/e2e/test-results',
 
+  // Store all visual snapshots in a flat directory structure
+  snapshotDir: './tests/e2e/visual/snapshots',
+  snapshotPathTemplate:
+    '{snapshotDir}/{testFileName}-{testName}-{platform}{ext}',
+
   // Run tests in files in parallel
   fullyParallel: true,
 

@@ -25,9 +25,6 @@ const invalidateCache = async (tags?: string[]) => {
       return false;
     }
 
-    const result = (await response.json()) as { message?: string };
-    // eslint-disable-next-line no-console
-    console.log('Cache invalidation:', result.message ?? 'Success');
     return true;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
