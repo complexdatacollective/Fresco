@@ -32,22 +32,28 @@ test.describe('Participants Page - Visual Tests', () => {
 
   test('should render add participant modal', async ({
     authenticatedPage,
-    screenshotModal,
+    screenshotComponent,
   }) => {
     await authenticatedPage.goto('/dashboard/participants');
 
     await authenticatedPage.click('[data-testid="add-participant-button"]');
-    await screenshotModal('add-participant');
+    await screenshotComponent(
+      '[data-testid="add-participant-modal"]',
+      'add-participant-modal',
+    );
   });
 
   test('should render import CSV modal', async ({
     authenticatedPage,
-    screenshotModal,
+    visualHelper,
   }) => {
     await authenticatedPage.goto('/dashboard/participants');
 
     await authenticatedPage.click('[data-testid="import-csv-button"]');
-    await screenshotModal('import-csv');
+    await visualHelper.screenshotElement(
+      '[data-testid="import-csv-modal"]',
+      'import-csv-modal',
+    );
   });
 
   test('should render participant URL generation modal', async ({
@@ -64,7 +70,7 @@ test.describe('Participants Page - Visual Tests', () => {
       '[data-testid="generate-participation-url-modal"]',
     ]);
     await visualHelper.screenshotElement(
-      '[data-testid="modal"]',
+      '[data-testid="generate-participation-url-modal"]',
       'participant-url-modal',
     );
   });

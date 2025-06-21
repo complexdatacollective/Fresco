@@ -1,6 +1,39 @@
 import { type FullConfig } from '@playwright/test';
 import { exec, execSync } from 'child_process';
 
+type PostgresConfig = {
+  containerName: string;
+  dbName: string;
+  user: string;
+  maxAttempts?: number;
+  delayMs?: number;
+};
+
+function waitForPostgres({
+  containerName,
+  dbName,
+  user,
+  maxAttempts = 30,
+  delayMs = 1000,
+}: PostgresConfig): void {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      execSync(
+        `docker exec ${containerName} pg_isready -d ${dbName} -U ${user}`,
+        { stdio: 'pipe' },
+      );
+      return;
+    } catch (error) {
+      if (i === maxAttempts - 1) {
+        throw new Error(
+          `PostgreSQL did not become ready after ${maxAttempts} attempts`,
+        );
+      }
+      execSync(`sleep ${delayMs / 1000}`);
+    }
+  }
+}
+
 async function globalSetup(_config: FullConfig) {
   // Import environment config
   try {
@@ -15,8 +48,8 @@ async function globalSetup(_config: FullConfig) {
 
   // Clean up any existing containers first
   try {
-    execSync('docker stop myapp-test 2>/dev/null', { stdio: 'pipe' });
-    execSync('docker rm myapp-test 2>/dev/null', { stdio: 'pipe' });
+    execSync('docker stop fresco-postgres-test 2>/dev/null', { stdio: 'pipe' });
+    execSync('docker rm fresco-postgres-test 2>/dev/null', { stdio: 'pipe' });
     // eslint-disable-next-line no-console
     console.log('✅ Cleaned up existing containers');
   } catch {
@@ -45,7 +78,26 @@ async function globalSetup(_config: FullConfig) {
   // eslint-disable-next-line no-console
   console.log('📊 Setting up test database...');
   try {
-    execSync('./scripts/test/setup-test-db.sh', { stdio: 'inherit' });
+    execSync('docker-compose -f docker-compose.test.yml up -d', {
+      stdio: 'inherit',
+    });
+
+    // eslint-disable-next-line no-console
+    console.log('⏳ Waiting for database to be ready...');
+    waitForPostgres({
+      containerName: 'fresco-postgres-test',
+      dbName: 'postgres',
+      user: 'postgres',
+    });
+
+    // eslint-disable-next-line no-console
+    console.log('📊 Running database migrations...');
+
+    // Run Prisma migrations
+    execSync('pnpm exec prisma migrate deploy', { stdio: 'inherit' });
+
+    //eslint-disable-next-line no-console
+    console.log('✅ Test database setup complete!');
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('❌ Failed to setup test database:', error);

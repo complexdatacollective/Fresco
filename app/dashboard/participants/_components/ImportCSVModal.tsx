@@ -109,7 +109,7 @@ const ImportCSVModal = ({
             Import participants
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl" data-testid="import-csv-modal">
           <DialogHeader>
             <DialogTitle>Import participants</DialogTitle>
             <DialogDescription>

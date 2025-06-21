@@ -16,11 +16,9 @@ test.describe('Data Table Component - Visual Tests', () => {
   });
 
   test('should render empty data table', async ({
-    cleanDatabase,
     authenticatedPage,
     visualHelper,
   }) => {
-    await cleanDatabase();
     await authenticatedPage.goto('/dashboard/protocols');
 
     await visualHelper.waitForElements(['[data-testid="empty-state"]']);

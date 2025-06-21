@@ -106,4 +106,8 @@ The project is being heavily development, with significant new features being ad
 - Supports protocol files, assets, and data exports
 - Integrated with database for asset management
 
+### Testing
+
+- When creating new tests, always add data attributes to components that are being tested
+
 This is a sophisticated research platform requiring careful handling of user data and interview state management.

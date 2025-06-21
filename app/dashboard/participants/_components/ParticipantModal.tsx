@@ -124,7 +124,11 @@ function ParticipantModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-[425px]"
+        data-testid="add-participant-modal"
+      >
         <DialogHeader>
           <DialogTitle>
             {editingParticipant ? 'Edit Participant' : 'Add Participant'}

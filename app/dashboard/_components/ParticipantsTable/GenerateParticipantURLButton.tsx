@@ -69,7 +69,7 @@ export const GenerateParticipationURLButton = ({
       </PopoverTrigger>
       <PopoverContent
         className="flex flex-col gap-2"
-        generate-participation-url-modal
+        data-testid="generate-participation-url-modal"
       >
         <Paragraph variant="smallText">
           Select a protocol, and the URL will be copied to your clipboard.

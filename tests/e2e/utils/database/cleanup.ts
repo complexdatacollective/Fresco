@@ -19,7 +19,9 @@ const invalidateCache = async (tags?: string[]) => {
     if (!response.ok) {
       const error = (await response.json()) as { error?: string };
       // eslint-disable-next-line no-console
-      console.warn(`Cache invalidation failed: ${error.error ?? 'Unknown error'}`);
+      console.warn(
+        `Cache invalidation failed: ${error.error ?? 'Unknown error'}`,
+      );
       return false;
     }
 
@@ -39,7 +41,9 @@ const invalidateCache = async (tags?: string[]) => {
  * Clean all data from the test database with proper cache invalidation
  * This should be called before each test to ensure isolation
  */
-export const cleanDatabase = async () => {
+export const cleanDatabase = async (
+  options: { seed: boolean } = { seed: true },
+) => {
   try {
     // Use transactions to avoid deadlocks and ensure atomicity
     await prisma.$transaction(async (tx) => {
@@ -59,15 +63,26 @@ export const cleanDatabase = async () => {
     // Invalidate caches after database cleanup
     await invalidateCache();
 
-    await prisma.appSettings.createMany({
-      data: [
-        { key: 'configured', value: 'true' },
-        { key: 'initializedAt', value: new Date().toISOString() },
-        { key: 'disableAnalytics', value: 'true' }, // Disable analytics in tests
-        { key: 'uploadThingToken', value: 'test-uploadthing-token' }, // Example token
-      ],
-      skipDuplicates: true,
-    });
+    if (options.seed) {
+      await prisma.appSettings.createMany({
+        data: [
+          { key: 'configured', value: 'true' },
+          { key: 'initializedAt', value: new Date().toISOString() },
+          { key: 'disableAnalytics', value: 'true' }, // Disable analytics in tests
+          { key: 'uploadThingToken', value: 'test-uploadthing-token' }, // Example token
+        ],
+        skipDuplicates: true,
+      });
+    } else {
+      // Even if we don't seed, we need to set initializedAt, since the production app
+      // has this set during deployment
+      await prisma.appSettings.create({
+        data: {
+          key: 'initializedAt',
+          value: new Date().toISOString(),
+        },
+      });
+    }
 
     // eslint-disable-next-line no-console
     console.log('Database cleanup completed with cache invalidation');
@@ -99,21 +114,13 @@ export const cleanDatabase = async () => {
       // eslint-disable-next-line no-console
       console.log('TRUNCATE fallback completed with cache invalidation');
     } catch (fallbackError) {
-      const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      const fallbackErrorMessage =
+        fallbackError instanceof Error
+          ? fallbackError.message
+          : String(fallbackError);
       // eslint-disable-next-line no-console
       console.error('All cleanup methods failed:', fallbackErrorMessage);
       throw fallbackError;
     }
   }
 };
-
-
-/**
- * Reset database to initial state with basic app settings and proper cache invalidation
- */
-export const resetDatabaseToInitialState = async () => {
-  // eslint-disable-next-line no-console
-  console.log('Resetting database to initial state...');
-  await cleanDatabase();
-};
-

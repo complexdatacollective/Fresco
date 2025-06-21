@@ -695,7 +695,7 @@ This phase implements comprehensive visual regression testing using Playwright's
        await dashboardPage.navigateToProtocols();
 
        await visualHelper.waitForElements([
-         '[data-testid="protocols-table"]',
+         '[data-testid="data-table"]',
          '[data-testid="add-protocol-button"]',
          '[data-testid="table-search"]',
        ]);
@@ -712,7 +712,7 @@ This phase implements comprehensive visual regression testing using Playwright's
 
        // Open actions dropdown for first protocol
        await authenticatedPage.click(
-         '[data-testid="protocols-table"] tbody tr:first-child [data-testid="actions-dropdown"]',
+         '[data-testid="data-table"] tbody tr:first-child [data-testid="actions-dropdown"]',
        );
 
        await visualHelper.waitForElements(['[data-testid="dropdown-menu"]']);
@@ -748,7 +748,7 @@ This phase implements comprehensive visual regression testing using Playwright's
        await authenticatedPage.waitForTimeout(500); // Wait for search debounce
 
        await visualHelper.screenshotElement(
-         '[data-testid="protocols-table"]',
+         '[data-testid="data-table"]',
          'protocols-table-search',
        );
      });
@@ -1465,7 +1465,7 @@ This phase implements comprehensive visual regression testing using Playwright's
 
        // Open actions dropdown and click delete
        await authenticatedPage.click(
-         '[data-testid="protocols-table"] tbody tr:first-child [data-testid="actions-dropdown"]',
+         '[data-testid="data-table"] tbody tr:first-child [data-testid="actions-dropdown"]',
        );
        await authenticatedPage.click('[data-testid="delete-action"]');
 

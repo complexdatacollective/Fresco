@@ -2247,7 +2247,7 @@ This phase creates authentication helpers, page object models, and core testing 
        );
 
        // Test table assertions
-       const tableSelector = '[data-testid="protocols-table"]';
+       const tableSelector = '[data-testid="data-table"]';
        await assertions.assertTableRowCount(
          authenticatedPage,
          tableSelector,

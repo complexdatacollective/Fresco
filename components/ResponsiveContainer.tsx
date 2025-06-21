@@ -36,8 +36,12 @@ const ResponsiveContainer = ({
   maxWidth,
   baseSize,
   className,
+  ...rest
 }: ContainerProps) => (
-  <div className={cn(containerVariants({ maxWidth, baseSize }), className)}>
+  <div
+    className={cn(containerVariants({ maxWidth, baseSize }), className)}
+    {...rest}
+  >
     {children}
   </div>
 );

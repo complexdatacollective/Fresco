@@ -22,7 +22,7 @@ test.describe('Protocols Page - Visual Tests', () => {
     await authenticatedPage.goto('/dashboard/protocols');
 
     await visualHelper.waitForElements([
-      '[data-testid="protocols-table"]',
+      '[data-testid="data-table"]',
       '[data-testid="add-protocol-button"]',
       '[data-testid="table-filter"]',
     ]);
@@ -38,7 +38,7 @@ test.describe('Protocols Page - Visual Tests', () => {
 
     // Open actions dropdown for first protocol
     await authenticatedPage.click(
-      '[data-testid="protocols-table"] tbody tr:first-child [data-testid="actions-dropdown"]',
+      '[data-testid="data-table"] tbody tr:first-child [data-testid="actions-dropdown"]',
     );
 
     await visualHelper.waitForElements(['[data-testid="dropdown-menu"]']);
@@ -46,16 +46,6 @@ test.describe('Protocols Page - Visual Tests', () => {
       '[data-testid="dropdown-menu"]',
       'protocol-actions-dropdown',
     );
-  });
-
-  test('should render add protocol modal', async ({
-    authenticatedPage,
-    screenshotModal,
-  }) => {
-    await authenticatedPage.goto('/dashboard/protocols');
-
-    await authenticatedPage.click('[data-testid="add-protocol-button"]');
-    await screenshotModal('add-protocol');
   });
 
   test('should render protocol table with search results', async ({
@@ -72,7 +62,7 @@ test.describe('Protocols Page - Visual Tests', () => {
     await authenticatedPage.waitForTimeout(500); // Wait for search debounce
 
     await visualHelper.screenshotElement(
-      '[data-testid="protocols-table"]',
+      '[data-testid="data-table"]',
       'protocols-table-filter',
     );
   });

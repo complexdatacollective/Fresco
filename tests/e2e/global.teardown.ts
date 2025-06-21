@@ -51,7 +51,12 @@ async function globalTeardown(_config: FullConfig) {
   // eslint-disable-next-line no-console
   console.log('📊 Removing test database container...');
   try {
-    execSync('./scripts/test/teardown-test-db.sh', { stdio: 'inherit' });
+    execSync('docker-compose -f docker-compose.test.yml down -v', {
+      stdio: 'inherit',
+    });
+
+    // eslint-disable-next-line no-console
+    console.log('✅ Test database cleanup complete!');
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('⚠️  Database cleanup failed:', error);

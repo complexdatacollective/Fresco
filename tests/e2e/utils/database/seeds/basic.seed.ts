@@ -7,7 +7,7 @@ import {
   type Protocol,
   type TestUser,
 } from '~/tests/e2e/test-data/factories';
-import { resetDatabaseToInitialState } from '~/tests/e2e/utils/database/cleanup';
+import { cleanDatabase } from '~/tests/e2e/utils/database/cleanup';
 
 export type BasicSeedData = {
   user: TestUser;
@@ -20,7 +20,7 @@ export type BasicSeedData = {
  * Seed database with basic test data
  */
 export const seedBasicData = async (): Promise<BasicSeedData> => {
-  await resetDatabaseToInitialState();
+  await cleanDatabase();
 
   // Create test user
   const user = await createTestUser({

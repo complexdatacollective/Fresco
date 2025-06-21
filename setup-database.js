@@ -4,6 +4,40 @@ import { execSync, spawnSync } from 'child_process';
 
 const prisma = new PrismaClient();
 
+/**
+ * We set the the initializedAt key here, because this script is run when the
+ * app is first deployed.
+ **/
+async function setInitializedAt() {
+  // Check if app is already initialized
+  const initializedAt = await prisma.appSettings.findUnique({
+    where: {
+      key: 'initializedAt',
+    },
+  });
+
+  if (initializedAt) {
+    console.log('App already initialized. Skipping.');
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  console.log(`Setting initializedAt to ${now}.`);
+
+  await prisma.appSettings.upsert({
+    where: {
+      key: 'initializedAt',
+    },
+    // No update emulates findOrCreate
+    update: {},
+    create: {
+      key: 'initializedAt',
+      value: now,
+    },
+  });
+}
+
 function checkForNeededMigrations() {
   const command = 'npx';
   const args = [
@@ -87,4 +121,5 @@ async function handleMigrations() {
 
 (async () => {
   await handleMigrations();
+  await setInitializedAt();
 })();

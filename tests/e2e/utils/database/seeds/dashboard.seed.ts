@@ -8,7 +8,7 @@ import {
   type Protocol,
   type TestUser,
 } from '~/tests/e2e/test-data/factories';
-import { resetDatabaseToInitialState } from '~/tests/e2e/utils/database/cleanup';
+import { cleanDatabase } from '~/tests/e2e/utils/database/cleanup';
 import { prisma } from '~/utils/db';
 
 export type DashboardSeedData = {
@@ -22,7 +22,7 @@ export type DashboardSeedData = {
  * Seed database with comprehensive data for dashboard testing
  */
 export const seedDashboardData = async () => {
-  await resetDatabaseToInitialState();
+  await cleanDatabase();
 
   // Create admin user
   const adminUser = await createTestUser({
