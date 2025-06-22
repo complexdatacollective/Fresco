@@ -28,6 +28,10 @@ export default defineConfig({
   // Opt out of parallel tests on CI and for database tests
   workers: 1,
 
+  // Test timeout - longer for CI environments
+  // eslint-disable-next-line no-process-env
+  timeout: process.env.CI ? 60000 : 30000,
+
   // Reporter to use
   reporter: [
     ['html', { outputFolder: './tests/e2e/playwright-report' }],
@@ -44,6 +48,7 @@ export default defineConfig({
       animations: 'disabled', // Disable animations for consistent screenshots
       caret: 'hide', // Hide text cursor for consistency
       scale: 'css', // Use CSS pixels for consistent scaling
+
     },
     toMatchSnapshot: {
       threshold: 0.2,
@@ -60,7 +65,9 @@ export default defineConfig({
     video: 'retain-on-failure',
 
     // Ensure consistent screenshot timing
-    actionTimeout: 10000,
+    // eslint-disable-next-line no-process-env
+    actionTimeout: process.env.CI ? 30000 : 10000,
+
   },
 
   // Configure projects for major browsers

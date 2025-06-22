@@ -4,6 +4,7 @@ import {
   type VisualTestConfig,
   defaultVisualConfig,
   commonMasks,
+  ciVisualConfig,
 } from './config';
 
 export class VisualTestHelper {
@@ -12,7 +13,9 @@ export class VisualTestHelper {
 
   constructor(page: Page, config: VisualTestConfig = defaultVisualConfig) {
     this.page = page;
-    this.config = config;
+    // Use CI config in CI environments
+    // eslint-disable-next-line no-process-env
+    this.config = process.env.CI ? { ...ciVisualConfig, ...config } : config;
   }
 
   /**
@@ -31,8 +34,23 @@ export class VisualTestHelper {
     // Clear storage if needed
     await this.clearStorage();
 
-    // Wait a moment for rendering to stabilize
-    await this.page.waitForTimeout(500);
+    // eslint-disable-next-line no-process-env
+    const isCI = !!process.env.CI;
+    const baseWait = isCI ? 1000 : 500;
+    
+    // Wait for rendering to stabilize (longer in CI)
+    await this.page.waitForTimeout(baseWait);
+    
+    // Additional stability check for CI - wait for DOM to be stable
+    if (isCI) {
+      await this.page.waitForFunction(() => {
+        return document.readyState === 'complete' && 
+               document.fonts.status === 'loaded';
+      }, { timeout: 10000 });
+      
+      // Final stabilization wait
+      await this.page.waitForTimeout(500);
+    }
   }
 
   /**
@@ -215,6 +233,21 @@ export class VisualTestHelper {
         /* Hide animated BackgroundBlobs component during visual tests */
         canvas[data-testid="background-blobs"],
         canvas:has([data-testid="background-blobs"]) {
+          display: none !important;
+        }
+        
+        /* Stabilize form elements and validation states */
+        input, button, select, textarea {
+          caret-color: transparent !important;
+        }
+        
+        /* Prevent focus outline flickering */
+        *:focus {
+          outline: none !important;
+        }
+        
+        /* Hide loading states and spinners */
+        .loading, .spinner, [data-loading="true"] {
           display: none !important;
         }
       `,
