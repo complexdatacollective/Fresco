@@ -75,27 +75,30 @@ async function globalSetup(_config: FullConfig) {
   }
 
   // Setup test database
-  // eslint-disable-next-line no-console
-  console.log('📊 Setting up test database...');
   try {
+    // eslint-disable-next-line no-console
+    console.log('📊 Setting up test database...');
     // In CI, database is started externally, so we skip this step
     // eslint-disable-next-line no-process-env
     if (!process.env.CI) {
+      // eslint-disable-next-line no-console
+      console.log('🐳 Starting container with docker-compose...');
+
       execSync('docker-compose -f docker-compose.test.yml up -d', {
         stdio: 'inherit',
+      });
+
+      // eslint-disable-next-line no-console
+      console.log('⏳ Waiting for database to be ready...');
+      waitForPostgres({
+        containerName: 'fresco-postgres-test',
+        dbName: 'postgres',
+        user: 'postgres',
       });
     }
 
     // eslint-disable-next-line no-console
-    console.log('⏳ Waiting for database to be ready...');
-    waitForPostgres({
-      containerName: 'fresco-postgres-test',
-      dbName: 'postgres',
-      user: 'postgres',
-    });
-
-    // eslint-disable-next-line no-console
-    console.log('📊 Running database migrations...');
+    console.log('📀 Running database migrations...');
 
     // Run Prisma migrations
     execSync('pnpm exec prisma migrate deploy', { stdio: 'inherit' });
