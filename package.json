@@ -68,6 +68,7 @@
     "csvtojson": "^2.0.10",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^16.5.0",
+    "dotenv-cli": "^8.0.0",
     "es-toolkit": "^1.39.3",
     "fuse.js": "^7.1.0",
     "jszip": "^3.10.1",
