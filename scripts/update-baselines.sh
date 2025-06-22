@@ -40,8 +40,12 @@ fi
 echo "📋 Pattern: $TEST_PATTERN"
 echo "🌐 Browser: $BROWSER"
 
+# delete existing snapshots
+echo "🗑️  Deleting existing snapshots..."
+rm -rf ./tests/e2e/visual/snapshots
+
 # Update snapshots
-echo "📸 Updating screenshots..."
+echo "📸 Updating snapshots..."
 pnpm exec playwright test "$TEST_PATTERN" --project="$BROWSER-visual" --update-snapshots
 
 # Show results

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import './envConfig.js';
+import { defaultViewport } from './tests/e2e/utils/visual/config';
 
 dotenv.config({ path: '.env.test' });
 
@@ -72,7 +73,7 @@ export default defineConfig({
       name: 'chromium-visual',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 }, // Fixed viewport for consistency
+        viewport: defaultViewport, // Override device viewport with shared configuration
         deviceScaleFactor: 1, // Consistent pixel density
         contextOptions: {
           reducedMotion: 'reduce', // Prevent issues with animations

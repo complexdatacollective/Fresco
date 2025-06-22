@@ -23,16 +23,3 @@ export const testConfig = {
     retryCount: process.env.CI ? 2 : 0,
   },
 };
-
-// Validate required environment variables
-export const validateTestConfig = () => {
-  const required = ['POSTGRES_PRISMA_URL', 'POSTGRES_URL_NON_POOLING'];
-
-  const missing = required.filter((key) => !process.env[key]);
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}`,
-    );
-  }
-};

@@ -50,9 +50,10 @@ export class VisualTestHelper {
       fullPage: config.fullPage,
       threshold: config.threshold,
       maxDiffPixels: config.maxDiffPixels,
-      mask: config.mask
-        ? config.mask.map((selector) => this.page.locator(selector))
-        : undefined,
+      mask: [
+        ...commonMasks.map((selector) => this.page.locator(selector)),
+        ...(config.mask ? config.mask.map((selector) => this.page.locator(selector)) : []),
+      ],
       clip: config.clip,
     });
   }
@@ -74,9 +75,10 @@ export class VisualTestHelper {
     await expect(element).toHaveScreenshot(`${name}.png`, {
       threshold: config.threshold,
       maxDiffPixels: config.maxDiffPixels,
-      mask: config.mask
-        ? config.mask.map((sel) => this.page.locator(sel))
-        : undefined,
+      mask: [
+        ...commonMasks.map((selector) => this.page.locator(selector)),
+        ...(config.mask ? config.mask.map((sel) => this.page.locator(sel)) : []),
+      ],
     });
   }
 
@@ -100,9 +102,10 @@ export class VisualTestHelper {
           fullPage: this.config.fullPage,
           threshold: this.config.threshold,
           maxDiffPixels: this.config.maxDiffPixels,
-          mask: this.config.mask
-            ? this.config.mask.map((selector) => this.page.locator(selector))
-            : undefined,
+          mask: [
+            ...commonMasks.map((selector) => this.page.locator(selector)),
+            ...(this.config.mask ? this.config.mask.map((selector) => this.page.locator(selector)) : []),
+          ],
         },
       );
     }
@@ -207,6 +210,12 @@ export class VisualTestHelper {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           font-variant-ligatures: none;
+        }
+        
+        /* Hide animated BackgroundBlobs component during visual tests */
+        canvas[data-testid="background-blobs"],
+        canvas:has([data-testid="background-blobs"]) {
+          display: none !important;
         }
       `,
     });

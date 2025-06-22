@@ -1,5 +1,3 @@
-// tests/e2e/utils/visual/config.ts
-
 export type VisualTestConfig = {
   threshold: number;
   maxDiffPixels: number;
@@ -44,12 +42,16 @@ export const commonMasks = [
   '[data-testid="loading-spinner"]',
   '.toaster',
   '[data-testid="activity-feed-timestamp"]',
+  'time', // Mask all time elements to handle dynamic timestamps
 ];
 
 // Viewport configurations for different test scenarios
 export const viewports = {
-  desktop: { width: 1280, height: 720 },
-  tablet: { width: 768, height: 1024 },
-  mobile: { width: 390, height: 844 },
-  wide: { width: 1920, height: 1080 },
+  androidTabletHorizontal: { width: 1280, height: 800 },
+  ipadHorizontal: { width: 1024, height: 768 },
+  hd: { width: 1920, height: 1080 },
+  qhd: { width: 2560, height: 1440 },
 } as const;
+
+// Default viewport for visual tests
+export const defaultViewport = viewports.hd;

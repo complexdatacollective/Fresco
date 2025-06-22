@@ -3,7 +3,7 @@ import {
   defaultVisualConfig,
   fullPageVisualConfig,
   strictVisualConfig,
-  viewports,
+  defaultViewport,
 } from '~/tests/e2e/utils/visual/config';
 import { VisualTestHelper } from '~/tests/e2e/utils/visual/helpers';
 import { test as pageTest } from './index';
@@ -50,7 +50,7 @@ export const test = pageTest.extend<VisualFixtures>({
   setupVisualTest: async ({ page }, provideSetup) => {
     const setup = async () => {
       // Set consistent viewport
-      await page.setViewportSize(viewports.desktop);
+      await page.setViewportSize(defaultViewport);
 
       // Set up visual test state
       const helper = new VisualTestHelper(page);

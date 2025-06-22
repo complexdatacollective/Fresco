@@ -3,6 +3,10 @@ import { test } from '~/tests/e2e/fixtures/visual';
 import { cleanDatabase } from '../../utils/database/cleanup';
 
 test.describe('Setup Onboarding - Visual Tests', () => {
+  test.beforeEach(async ({ setupVisualTest }) => {
+    await setupVisualTest();
+  });
+
   test('should render initial setup page', async ({ page, visualHelper }) => {
     await cleanDatabase({ seed: false });
     await page.goto('/setup');

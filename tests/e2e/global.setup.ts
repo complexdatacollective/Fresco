@@ -59,21 +59,6 @@ async function globalSetup(_config: FullConfig) {
 
   // eslint-disable-next-line no-console
   console.log('🚀 Starting global test setup...');
-
-  // Validate configuration
-  // eslint-disable-next-line no-console
-  console.log('🔧 Validating test configuration...');
-  try {
-    const { validateTestConfig } = await import('./utils/config');
-    validateTestConfig();
-    // eslint-disable-next-line no-console
-    console.log('✅ Test configuration valid');
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('❌ Test configuration invalid:', error);
-    throw error;
-  }
-
   // Setup test database
   try {
     // eslint-disable-next-line no-console

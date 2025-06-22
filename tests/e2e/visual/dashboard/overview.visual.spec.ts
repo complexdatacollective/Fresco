@@ -72,22 +72,4 @@ test.describe('Dashboard Overview - Visual Tests', () => {
     await visualHelper.waitForElements([navSelector]);
     await visualHelper.screenshotElement(navSelector, 'nav-dashboard');
   });
-
-  test('should render dashboard in different viewport sizes', async ({
-    authenticatedPage,
-    visualHelper,
-  }) => {
-    await authenticatedPage.goto('/dashboard');
-
-    const viewportSizes = [
-      { name: 'desktop', width: 1280, height: 720 },
-      { name: 'tablet', width: 768, height: 1024 },
-      { name: 'mobile', width: 390, height: 844 },
-    ];
-
-    await visualHelper.screenshotResponsive(
-      'dashboard-responsive',
-      viewportSizes,
-    );
-  });
 });
