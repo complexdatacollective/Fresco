@@ -49,7 +49,7 @@ type DataTableProps<TData, TValue> = {
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
   defaultSortBy?: SortingState[0];
-}
+};
 
 export function DataTable<TData, TValue>({
   columns = [],
@@ -151,6 +151,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2 pt-1 pb-4">
           {filterColumnAccessorKey && (
             <Input
+              data-testid="table-filter"
               name="filter"
               placeholder={`Filter by ${filterColumnAccessorKey}...`}
               value={
@@ -170,7 +171,7 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <Table>
+      <Table data-testid="data-table">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -205,7 +206,7 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))
           ) : (
-            <TableRow>
+            <TableRow data-testid="empty-state">
               <TableCell colSpan={columns.length} className="h-24 text-center">
                 No results.
               </TableCell>
@@ -219,8 +220,9 @@ export function DataTable<TData, TValue>({
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <div className="space-x-2">
+          <div className="space-x-2" data-testid="pagination">
             <Button
+              data-testid="pagination-next"
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
@@ -229,6 +231,7 @@ export function DataTable<TData, TValue>({
               Previous
             </Button>
             <Button
+              data-testid="pagination-previous"
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}

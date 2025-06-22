@@ -7,7 +7,11 @@
     "public/scripts/d3-timer.v3.min.js",
     "lib/interviewer/hooks/forceSimulation.worker.js",
     "utils/auth.ts",
-    "load-test.js"
+    "utils/db.ts",
+    "load-test.js",
+    "tests/e2e/global.setup.ts",
+    "tests/e2e/global.teardown.ts",
+    "tests/e2e/utils/config.ts"
   ],
   "ignoreDependencies": [
     "sharp",
@@ -15,7 +19,9 @@
     "@tailwindcss/container-queries",
     "@tailwindcss/forms",
     "@tailwindcss/typography",
-    "tailwindcss-animate"
+    "tailwindcss-animate",
+    "@node-rs/argon2",
+    "tsx"
   ],
   "ignoreBinaries": ["docker-compose"]
 }
