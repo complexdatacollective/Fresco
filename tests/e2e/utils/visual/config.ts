@@ -68,7 +68,7 @@ export const commonMasks = [
 ];
 
 // Viewport configurations for different test scenarios
-export const viewports = {
+const viewports = {
   androidTabletHorizontal: { width: 1280, height: 800 },
   ipadHorizontal: { width: 1024, height: 768 },
   hd: { width: 1920, height: 1080 },
