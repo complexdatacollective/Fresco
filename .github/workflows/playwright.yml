@@ -2,9 +2,10 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [main, next]
+    branches: [next]
   pull_request:
-    branches: [main, next]
+    branches: [next]
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   test:
@@ -13,11 +14,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: fresco_test
+          POSTGRES_DB: postgres
         ports:
           - 5433:5432
         options: >-
@@ -55,24 +56,10 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
 
-      - name: Setup test environment
-        run: |
-          cp .env.test .env
-          echo "DATABASE_URL=postgresql://postgres:password@localhost:5433/fresco_test" >> .env
-
-      - name: Run database migrations
-        run: pnpm exec prisma migrate deploy
-        env:
-          POSTGRES_PRISMA_URL: postgresql://postgres:password@localhost:5433/fresco_test?pgbouncer=true&connect_timeout=15
-          POSTGRES_URL_NON_POOLING: postgresql://postgres:password@localhost:5433/fresco_test?connect_timeout=15
-
       - name: Run Playwright tests
         run: pnpm exec playwright test
         env:
           CI: true
-          POSTGRES_PRISMA_URL: postgresql://postgres:password@localhost:5433/fresco_test?pgbouncer=true&connect_timeout=15
-          POSTGRES_URL_NON_POOLING: postgresql://postgres:password@localhost:5433/fresco_test?connect_timeout=15
-          SKIP_ENV_VALIDATION: true
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
