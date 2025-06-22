@@ -78,9 +78,13 @@ async function globalSetup(_config: FullConfig) {
   // eslint-disable-next-line no-console
   console.log('📊 Setting up test database...');
   try {
-    execSync('docker-compose -f docker-compose.test.yml up -d', {
-      stdio: 'inherit',
-    });
+    // In CI, database is started externally, so we skip this step
+    // eslint-disable-next-line no-process-env
+    if (!process.env.CI) {
+      execSync('docker-compose -f docker-compose.test.yml up -d', {
+        stdio: 'inherit',
+      });
+    }
 
     // eslint-disable-next-line no-console
     console.log('⏳ Waiting for database to be ready...');

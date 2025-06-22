@@ -48,18 +48,23 @@ async function globalTeardown(_config: FullConfig) {
   }
 
   // Cleanup test database
-  // eslint-disable-next-line no-console
-  console.log('📊 Removing test database container...');
-  try {
-    execSync('docker-compose -f docker-compose.test.yml down -v', {
-      stdio: 'inherit',
-    });
 
+  // Skip if we are in CI environment
+  // eslint-disable-next-line no-process-env
+  if (!process.env.CI) {
     // eslint-disable-next-line no-console
-    console.log('✅ Test database cleanup complete!');
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('⚠️  Database cleanup failed:', error);
+    console.log('📊 Removing test database container...');
+    try {
+      execSync('docker-compose -f docker-compose.test.yml down -v', {
+        stdio: 'inherit',
+      });
+
+      // eslint-disable-next-line no-console
+      console.log('✅ Test database cleanup complete!');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('⚠️  Database cleanup failed:', error);
+    }
   }
 
   // eslint-disable-next-line no-console

@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: fresco_test
+      POSTGRES_DB: postgres
     ports:
       - '5433:5432'
     volumes:
