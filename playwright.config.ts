@@ -11,7 +11,7 @@ export default defineConfig({
   // Store all visual snapshots in a flat directory structure
   snapshotDir: './tests/e2e/visual/snapshots',
   snapshotPathTemplate:
-    '{snapshotDir}/{testFileName}-{testName}-{platform}{ext}',
+    '{snapshotDir}/{testFileName}-{testName}{ext}',
 
   // Run tests in files in parallel
   fullyParallel: true,
@@ -41,6 +41,8 @@ export default defineConfig({
       threshold: 0.2, // 20% threshold for pixel differences
       maxDiffPixels: 1000, // Maximum number of different pixels allowed
       animations: 'disabled', // Disable animations for consistent screenshots
+      caret: 'hide', // Hide text cursor for consistency
+      scale: 'css', // Use CSS pixels for consistent scaling
     },
     toMatchSnapshot: {
       threshold: 0.2,
@@ -74,6 +76,17 @@ export default defineConfig({
         deviceScaleFactor: 1, // Consistent pixel density
         contextOptions: {
           reducedMotion: 'reduce', // Prevent issues with animations
+          forcedColors: 'none', // Disable forced colors for consistency
+          colorScheme: 'light', // Force light mode for consistent theming
+        },
+        // Additional font settings for cross-platform consistency
+        launchOptions: {
+          args: [
+            '--font-render-hinting=none', // Disable font hinting
+            '--disable-font-subpixel-positioning', // Consistent font positioning
+            '--disable-features=TranslateUI', // Disable translation UI
+            '--disable-ipc-flooding-protection', // Prevent timeout issues
+          ],
         },
       },
       testMatch: '**/*.visual.spec.ts',
