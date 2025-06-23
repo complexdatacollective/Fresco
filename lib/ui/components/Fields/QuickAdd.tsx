@@ -73,7 +73,7 @@ const QuickAdd = ({
   }, [input.value, meta?.invalid]);
 
   return (
-    <div className="flex flex-row items-center">
+    <div className={`flex flex-row items-center ${shouldShake ? 'animate-shake' : ''}`}>
       <div className="relative flex items-center">
         <motion.div
           key="tool-tip"
@@ -91,7 +91,7 @@ const QuickAdd = ({
           initial={inputVariants.hide}
           animate={inputVariants.show}
           exit={inputVariants.hide}
-          className={`bg-input mr-2 rounded-full px-6 py-4 text-lg font-bold text-(--nc-text-dark) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''} ${shouldShake ? 'animate-shake' : ''}`}
+          className={`bg-input mr-2 rounded-full px-6 py-4 text-lg font-bold text-(--nc-text-dark) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''}`}
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
