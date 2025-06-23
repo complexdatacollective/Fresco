@@ -49,6 +49,9 @@ const QuickAdd = ({
         if (meta?.invalid && meta?.error) {
           setShouldShake(true);
           setTimeout(() => setShouldShake(false), 820);
+        } else if (!input.value) {
+          // Close form
+          input.onBlur?.();
         } else {
           input.onSubmit?.();
         }
