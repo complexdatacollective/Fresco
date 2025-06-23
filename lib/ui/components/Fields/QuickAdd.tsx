@@ -12,7 +12,7 @@ const inputVariants = {
   show: {
     opacity: 1,
     x: '0px',
-    width: '25rem',
+    width: '22rem',
     transition: {
       delay: 0.2,
     },
@@ -20,7 +20,7 @@ const inputVariants = {
   hide: {
     opacity: 0,
     x: '4rem',
-    width: '20rem',
+    width: '22rem',
   },
 };
 
@@ -102,7 +102,7 @@ const QuickAdd = ({
           onKeyDown={handleKeyDown}
         />
         {meta?.invalid && meta?.touched && meta?.error && (
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 transform whitespace-nowrap text-(--nc-error)">
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 transform font-semibold whitespace-nowrap text-(--nc-error)">
             {meta?.error}
           </div>
         )}
