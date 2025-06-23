@@ -37,6 +37,7 @@ const QuickAdd = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShake, setShouldShake] = useState(false);
+  const [isNodeClicked, setIsNodeClicked] = useState(false);
   const subject = useSelector(getStageSubject)!;
 
   const nodeColor = useSelector(getNodeColor(subject.type));
@@ -95,7 +96,12 @@ const QuickAdd = ({
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
-          onBlur={input.onBlur ? () => input.onBlur() : undefined}
+          onBlur={input.onBlur ? () => {
+            if (!isNodeClicked) {
+              input.onBlur();
+            }
+            setIsNodeClicked(false);
+          } : undefined}
           placeholder={placeholder}
           value={input.value as string}
           type="text"
@@ -108,16 +114,20 @@ const QuickAdd = ({
         )}
       </div>
 
-      <Node
-        label={input.value as string}
-        selected={!meta?.invalid && !!input?.value}
-        color={nodeColor}
-        handleClick={() => {
-          if (input.value && !disabled) {
-            input.onSubmit?.();
-          }
-        }}
-      />
+      <div
+        onMouseDown={() => setIsNodeClicked(true)}
+      >
+        <Node
+          label={input.value as string}
+          selected={!meta?.invalid && !!input?.value}
+          color={nodeColor}
+          handleClick={() => {
+            if (input.value && !disabled) {
+              input.onSubmit?.();
+            }
+          }}
+        />
+      </div>
     </div>
   );
 };
