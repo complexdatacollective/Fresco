@@ -20,14 +20,14 @@ const containerVariants = {
   animate: (wide: boolean) =>
     wide
       ? {
-          width: 'var(--open-width)',
+          width: '40rem',
           y: '0rem',
           transition: {
             duration: 0,
           },
         }
       : {
-          width: 'var(--closed-width)',
+          width: '13rem',
           y: '0rem',
           transition: {
             delay: FIRST_LOAD_UI_ELEMENT_DELAY,
@@ -114,7 +114,7 @@ const QuickAddForm = ({
 
   return (
     <motion.div
-      className="flip-form"
+      className="absolute right-0 bottom-0 z-20 flex h-44 w-52 items-center"
       variants={containerVariants}
       custom={showForm}
     >
@@ -122,26 +122,28 @@ const QuickAddForm = ({
         {showForm && (
           <motion.div
             key="form-container"
-            className="form-container"
+            className="absolute right-3 flex items-center"
             initial={itemVariants.hide}
             animate={itemVariants.show}
             exit={itemVariants.hide}
           >
-            <TanStackForm
-              fields={fields}
-              handleFormSubmit={handleSubmit}
-              initialValues={{}}
-              entityId={undefined} // No entity ID in this context
-              autoFocus
-              disabled={disabled}
-              id={FORM_NAME}
-            />
+            <div className="-mt-7 flex flex-col items-center">
+              <TanStackForm
+                fields={fields}
+                handleFormSubmit={handleSubmit}
+                initialValues={{}}
+                entityId={undefined} // No entity ID in this context
+                autoFocus
+                disabled={disabled}
+                id={FORM_NAME}
+              />
+            </div>
           </motion.div>
         )}
         {!showForm && (
           <motion.div
             key="button-container"
-            className="button-container"
+            className="absolute right-3 mr-8"
             initial={itemVariants.hide}
             animate={itemVariants.show}
             exit={itemVariants.hide}

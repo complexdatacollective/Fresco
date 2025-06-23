@@ -12,7 +12,7 @@ const inputVariants = {
   show: {
     opacity: 1,
     x: '0px',
-    width: 'calc(var(--open-width) - 15rem)',
+    width: '25rem',
     transition: {
       delay: 0.2,
     },
@@ -20,7 +20,7 @@ const inputVariants = {
   hide: {
     opacity: 0,
     x: '4rem',
-    width: 'calc(var(--open-width) - 20rem)',
+    width: '20rem',
   },
 };
 
@@ -67,11 +67,11 @@ const QuickAdd = ({
   }, [input.value, meta?.invalid]);
 
   return (
-    <div className="quick-add-container">
-      <div className="quick-add-form">
+    <div className="flex flex-row items-center">
+      <div className="relative flex items-center">
         <motion.div
           key="tool-tip"
-          className="tool-tip"
+          className="absolute -top-8 left-1/2 mb-4 h-8 -translate-x-1/2 transform whitespace-nowrap text-shadow-sm"
           initial={{
             opacity: 0,
           }}
@@ -85,7 +85,7 @@ const QuickAdd = ({
           initial={inputVariants.hide}
           animate={inputVariants.show}
           exit={inputVariants.hide}
-          className={`label-input ${meta?.invalid && meta?.touched && meta?.error ? 'error' : ''}`}
+          className={`bg-input mr-2 rounded-full px-6 py-4 text-lg font-bold text-(--nc-text-dark) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''}`}
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
@@ -96,7 +96,9 @@ const QuickAdd = ({
           onKeyDown={handleKeyDown}
         />
         {meta?.invalid && meta?.touched && meta?.error && (
-          <div className="error-text">{meta?.error}</div>
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 transform whitespace-nowrap text-(--nc-error)">
+            {meta?.error}
+          </div>
         )}
       </div>
 
