@@ -104,7 +104,7 @@ const QuickAdd = ({
 
       <Node
         label={input.value as string}
-        selected={!meta?.invalid}
+        selected={!meta?.invalid && !!input?.value}
         color={nodeColor}
         handleClick={() => {
           if (input.value && !disabled) {
