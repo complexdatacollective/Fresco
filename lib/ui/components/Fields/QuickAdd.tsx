@@ -7,6 +7,7 @@ import {
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
+import Icon from '../Icon';
 
 const inputVariants = {
   show: {
@@ -77,11 +78,13 @@ const QuickAdd = ({
   }, [input.value, meta?.invalid]);
 
   return (
-    <div className={`flex flex-row items-center ${shouldShake ? 'animate-shake' : ''}`}>
+    <div
+      className={`flex flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${shouldShake ? 'animate-shake' : ''}`}
+    >
       <div className="relative flex items-center">
         <motion.div
           key="tool-tip"
-          className="absolute -top-8 left-1/2 mb-4 h-8 -translate-x-1/2 transform whitespace-nowrap text-shadow-sm"
+          className="absolute -top-8 left-1/2 mb-4 h-8 -translate-x-1/2 transform whitespace-nowrap"
           initial={{
             opacity: 0,
           }}
@@ -95,31 +98,34 @@ const QuickAdd = ({
           initial={inputVariants.hide}
           animate={inputVariants.show}
           exit={inputVariants.hide}
-          className={`bg-input mr-2 rounded-full px-6 py-4 text-lg font-bold text-(--nc-text-dark) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''}`}
+          className={`${meta?.invalid && meta?.touched && meta?.error ? 'mr-0' : 'mr-2'} ${meta?.invalid && meta?.touched && meta?.error ? 'rounded-t-(--nc-border-radius)' : 'rounded-(--nc-border-radius)'} bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''}`}
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
-          onBlur={input.onBlur ? () => {
-            if (!isNodeClicked) {
-              input.onBlur();
-            }
-            setIsNodeClicked(false);
-          } : undefined}
+          onBlur={
+            input.onBlur
+              ? () => {
+                  if (!isNodeClicked) {
+                    input.onBlur();
+                  }
+                  setIsNodeClicked(false);
+                }
+              : undefined
+          }
           placeholder={placeholder}
           value={input.value as string}
           type="text"
           onKeyDown={handleKeyDown}
         />
         {meta?.invalid && meta?.touched && meta?.error && (
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 transform font-semibold whitespace-nowrap text-(--nc-error)">
-            {meta?.error}
+          <div className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) px-6 py-2 text-(--form-error-text)">
+            <Icon name="warning" className="mr-2 max-h-5" />
+            <span>{meta?.error}</span>
           </div>
         )}
       </div>
 
-      <div
-        onMouseDown={() => setIsNodeClicked(true)}
-      >
+      <div onMouseDown={() => setIsNodeClicked(true)}>
         <Node
           label={input.value as string}
           selected={!meta?.invalid && !!input?.value}
