@@ -36,6 +36,7 @@ const QuickAdd = ({
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [showTooltip, setShowTooltip] = useState(false);
+  const [shouldShake, setShouldShake] = useState(false);
   const subject = useSelector(getStageSubject)!;
 
   const nodeColor = useSelector(getNodeColor(subject.type));
@@ -44,10 +45,15 @@ const QuickAdd = ({
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        input.onSubmit?.();
+        if (meta?.invalid && meta?.error) {
+          setShouldShake(true);
+          setTimeout(() => setShouldShake(false), 820);
+        } else {
+          input.onSubmit?.();
+        }
       }
     },
-    [input],
+    [input, meta?.invalid, meta?.error],
   );
 
   // Handle showing/hiding the tooltip based on the nodeLabel
@@ -85,7 +91,7 @@ const QuickAdd = ({
           initial={inputVariants.hide}
           animate={inputVariants.show}
           exit={inputVariants.hide}
-          className={`bg-input mr-2 rounded-full px-6 py-4 text-lg font-bold text-(--nc-text-dark) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''}`}
+          className={`bg-input mr-2 rounded-full px-6 py-4 text-lg font-bold text-(--nc-text-dark) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''} ${shouldShake ? 'animate-shake' : ''}`}
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
