@@ -37,7 +37,6 @@ const QuickAdd = ({
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [showTooltip, setShowTooltip] = useState(false);
-  const [isNodeClicked, setIsNodeClicked] = useState(false);
   const subject = useSelector(getStageSubject)!;
 
   const nodeColor = useSelector(getNodeColor(subject.type));
@@ -98,16 +97,7 @@ const QuickAdd = ({
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
-          onBlur={
-            input.onBlur
-              ? () => {
-                  if (!isNodeClicked) {
-                    input.onBlur();
-                  }
-                  setIsNodeClicked(false);
-                }
-              : undefined
-          }
+          onBlur={input.onBlur}
           placeholder={placeholder}
           value={input.value as string}
           type="text"
@@ -121,7 +111,12 @@ const QuickAdd = ({
         )}
       </div>
 
-      <div onMouseDown={() => setIsNodeClicked(true)}>
+      <div onMouseDown={(e) => {
+        e.preventDefault(); // Prevent focus change
+        if (input.value && !disabled && (!meta?.invalid || !meta?.error)) {
+          input.onSubmit?.();
+        }
+      }}>
         <Node
           label={input.value as string}
           selected={!meta?.invalid && !!input?.value}
