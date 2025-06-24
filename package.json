@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@codaco/analytics": "7.0.0",
-    "@codaco/protocol-validation": "3.0.0",
+    "@codaco/protocol-validation": "5.0.1",
     "@codaco/shared-consts": "^0.0.2",
     "@hookform/resolvers": "^5.1.1",
     "@lucia-auth/adapter-prisma": "^3.0.2",
