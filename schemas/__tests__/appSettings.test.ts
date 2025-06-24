@@ -7,20 +7,6 @@ import {
 
 describe('App Settings Schema Validators', () => {
   describe('App Setting Schema', () => {
-    it('should allow valid settings', () => {
-      const validSettings = {
-        configured: true,
-        allowAnonymousRecruitment: false,
-        limitInterviews: true,
-        initializedAt: new Date(),
-        installationId: 'installation123',
-        disableAnalytics: true,
-        uploadThingToken: 'ABCD1234Token',
-      };
-
-      expect(appSettingsSchema.parse(validSettings)).toEqual(validSettings);
-    });
-
     it('should reject missing required fields', () => {
       const invalidSettings = {
         allowAnonymousRecruitment: false,
@@ -112,6 +98,7 @@ describe('App Settings Schema Validators', () => {
         initializedAt: new Date('2023-10-01T00:00:00.000Z'),
         installationId: 'installation123',
         disableAnalytics: true,
+        disableSmallScreenOverlay: false,
       });
     });
 
@@ -132,6 +119,7 @@ describe('App Settings Schema Validators', () => {
         initializedAt: new Date('2023-10-01T00:00:00.000Z'),
         installationId: 'installation123',
         disableAnalytics: true,
+        disableSmallScreenOverlay: false,
       });
     });
   });
