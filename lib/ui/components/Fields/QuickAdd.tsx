@@ -74,9 +74,9 @@ const QuickAdd = ({
 
   return (
     <div
-      className={`flex flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${meta?.invalid && meta?.error ? 'animate-shake' : ''}`}
+      className={`flex flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${meta?.invalid && meta?.error && 'animate-shake'}`}
     >
-      <div className="relative flex items-center">
+      <div className="relative flex items-center justify-start">
         <motion.div
           key="tool-tip"
           className="absolute -top-8 left-1/2 mb-4 h-8 -translate-x-1/2 transform whitespace-nowrap"
@@ -104,19 +104,21 @@ const QuickAdd = ({
           onKeyDown={handleKeyDown}
         />
         {meta?.invalid && meta?.touched && meta?.error && (
-          <div className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) px-6 py-2 text-(--form-error-text)">
+          <div className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 text-(--form-error-text)">
             <Icon name="warning" className="mr-2 max-h-5" />
             <span>{meta?.error}</span>
           </div>
         )}
       </div>
 
-      <div onMouseDown={(e) => {
-        e.preventDefault(); // Prevent focus change
-        if (input.value && !disabled && (!meta?.invalid || !meta?.error)) {
-          input.onSubmit?.();
-        }
-      }}>
+      <div
+        onMouseDown={(e) => {
+          e.preventDefault(); // Prevent focus change
+          if (input.value && !disabled && (!meta?.invalid || !meta?.error)) {
+            input.onSubmit?.();
+          }
+        }}
+      >
         <Node
           label={input.value as string}
           selected={!meta?.invalid && !!input?.value}

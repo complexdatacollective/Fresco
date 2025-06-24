@@ -122,22 +122,20 @@ const QuickAddForm = ({
         {showForm && (
           <motion.div
             key="form-container"
-            className="absolute right-3 flex items-center"
+            className="absolute right-3 -mt-7"
             initial={itemVariants.hide}
             animate={itemVariants.show}
             exit={itemVariants.hide}
           >
-            <div className="-mt-7 flex flex-col items-center">
-              <TanStackForm
-                fields={fields}
-                handleFormSubmit={handleSubmit}
-                initialValues={{}}
-                entityId={undefined} // No entity ID in this context
-                autoFocus
-                disabled={disabled}
-                id={FORM_NAME}
-              />
-            </div>
+            <TanStackForm
+              fields={fields}
+              handleFormSubmit={handleSubmit}
+              initialValues={{}}
+              entityId={undefined} // No entity ID in this context
+              autoFocus
+              disabled={disabled}
+              id={FORM_NAME}
+            />
           </motion.div>
         )}
         {!showForm && (
