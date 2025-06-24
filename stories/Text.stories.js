@@ -16,7 +16,7 @@ export const Primary = {
     input: {
       name: 'exampleTextInput',
       value: '',
-      onChange: (e) => console.log('onChange:', e.target.value),
+      onChange: (value) => console.log('onChange:', value),
       onBlur: (e) => console.log('onBlur:', e.target.value),
     },
     label: 'Example Label',

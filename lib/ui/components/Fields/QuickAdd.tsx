@@ -45,10 +45,15 @@ const QuickAdd = ({
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
+
+        // If no value, close the form
         if (!input.value) {
-          // Close form
           input.onBlur?.();
-        } else if (!meta?.invalid || !meta?.error) {
+          return;
+        }
+
+        // If valid, submit the form
+        if (!meta?.invalid && !meta?.error) {
           input.onSubmit?.();
         }
       }
@@ -93,7 +98,7 @@ const QuickAdd = ({
           initial={inputVariants.hide}
           animate={inputVariants.show}
           exit={inputVariants.hide}
-          className={`${meta?.invalid && meta?.touched && meta?.error ? 'mr-0' : 'mr-2'} ${meta?.invalid && meta?.touched && meta?.error ? 'rounded-t-(--nc-border-radius)' : 'rounded-(--nc-border-radius)'} bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text) ${meta?.invalid && meta?.touched && meta?.error ? 'border-4 border-(--nc-error)' : ''}`}
+          className={` ${meta?.invalid && meta?.touched && meta?.error ? 'mr-0 rounded-t-(--nc-border-radius) border-4 border-(--nc-error)' : 'mr-2 rounded-(--nc-border-radius)'} bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text)`}
           autoFocus={autoFocus}
           disabled={disabled}
           onChange={(e) => input.onChange(e.target.value)}
@@ -102,9 +107,20 @@ const QuickAdd = ({
           value={input.value as string}
           type="text"
           onKeyDown={handleKeyDown}
+          aria-label={placeholder}
+          aria-invalid={meta?.invalid && meta?.touched}
+          aria-describedby={
+            meta?.invalid && meta?.touched && meta?.error
+              ? 'error-message'
+              : undefined
+          }
+          role="textbox"
         />
         {meta?.invalid && meta?.touched && meta?.error && (
-          <div className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 text-(--form-error-text)">
+          <div
+            id="error-message"
+            className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 text-(--form-error-text)"
+          >
             <Icon name="warning" className="mr-2 max-h-5" />
             <span>{meta?.error}</span>
           </div>
