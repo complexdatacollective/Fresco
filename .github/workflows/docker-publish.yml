@@ -44,5 +44,9 @@ jobs:
           tags: |
             ghcr.io/complexdatacollective/fresco:${{ env.version }}
             ghcr.io/complexdatacollective/fresco:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: |
+            type=gha
+            type=registry,ref=ghcr.io/complexdatacollective/fresco:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=ghcr.io/complexdatacollective/fresco:buildcache,mode=max,image-manifest=true

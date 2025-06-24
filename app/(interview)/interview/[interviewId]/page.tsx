@@ -7,6 +7,8 @@ import { getInterviewById } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
 import InterviewShell from '../_components/InterviewShell';
 
+export const dynamic = 'force-dynamic'; // Force dynamic rendering for this page
+
 export default async function Page({
   params,
 }: {
