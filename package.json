@@ -138,7 +138,7 @@
     "jsdom": "^26.1.0",
     "knip": "^5.61.2",
     "prettier": "^3.5.3",
-    "prettier-plugin-tailwindcss": "^0.6.12",
+    "prettier-plugin-tailwindcss": "^0.6.13",
     "prisma": "^6.10.0",
     "sass": "^1.89.2",
     "tailwindcss": "4.1.10",
