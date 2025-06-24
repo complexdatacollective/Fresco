@@ -37,7 +37,6 @@ const QuickAdd = ({
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [showTooltip, setShowTooltip] = useState(false);
-  const [shouldShake, setShouldShake] = useState(false);
   const [isNodeClicked, setIsNodeClicked] = useState(false);
   const subject = useSelector(getStageSubject)!;
 
@@ -47,13 +46,10 @@ const QuickAdd = ({
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (meta?.invalid && meta?.error) {
-          setShouldShake(true);
-          setTimeout(() => setShouldShake(false), 820);
-        } else if (!input.value) {
+        if (!input.value) {
           // Close form
           input.onBlur?.();
-        } else {
+        } else if (!meta?.invalid || !meta?.error) {
           input.onSubmit?.();
         }
       }
@@ -79,7 +75,7 @@ const QuickAdd = ({
 
   return (
     <div
-      className={`flex flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${shouldShake ? 'animate-shake' : ''}`}
+      className={`flex flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${meta?.invalid && meta?.error ? 'animate-shake' : ''}`}
     >
       <div className="relative flex items-center">
         <motion.div
