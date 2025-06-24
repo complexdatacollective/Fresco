@@ -5,6 +5,8 @@ import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ToggleSmallScreenWarning from '~/components/ToggleSmallScreenWarning';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import PageHeader from '~/components/ui/typography/PageHeader';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import VersionSection, {
@@ -79,6 +81,28 @@ export default async function Settings() {
             participation URL. This URL can be shared with participants to allow
             them to self-enroll in your study.
           </Paragraph>
+        </SettingsSection>
+        <SettingsSection
+          heading="Disable Small Screen Warning"
+          controlArea={
+            <Suspense fallback="Loading">
+              <ToggleSmallScreenWarning />
+            </Suspense>
+          }
+        >
+          <Paragraph margin="none">
+            If this option is enabled, the warning about using Fresco on a small
+            screen will be disabled.
+          </Paragraph>
+          <Alert variant="warning">
+            <AlertTitle>Important</AlertTitle>
+            <AlertDescription>
+              Ensure that you test your interview thoroughly on a small screen
+              before disabling this warning. Fresco is designed to work best on
+              larger screens, and using it on a small screen may lead to a poor
+              user experience for participants.
+            </AlertDescription>
+          </Alert>
         </SettingsSection>
         <SettingsSection
           heading="Limit Interviews"

@@ -97,6 +97,7 @@ enum AppSetting {
   initializedAt
   installationId
   disableAnalytics
+  disableSmallScreenOverlay
   uploadThingToken
 }
 
