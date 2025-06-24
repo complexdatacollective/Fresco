@@ -8,7 +8,7 @@ const SmallScreenOverlay = async () => {
   const disableSmallScrenOverlay = await getAppSetting(
     'disableSmallScreenOverlay',
   );
-  if (!disableSmallScrenOverlay || env.NODE_ENV === 'development') {
+  if (disableSmallScrenOverlay || env.NODE_ENV === 'development') {
     return null;
   }
 
