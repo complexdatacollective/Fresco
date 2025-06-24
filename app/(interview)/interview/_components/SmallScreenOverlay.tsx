@@ -5,10 +5,10 @@ import Paragraph from '~/components/ui/typography/Paragraph';
 import { getAppSetting } from '~/queries/appSettings';
 
 const SmallScreenOverlay = async () => {
-  const disableSmallScrenOverlay = await getAppSetting(
+  const disableSmallScreenOverlay = await getAppSetting(
     'disableSmallScreenOverlay',
   );
-  if (disableSmallScrenOverlay || env.NODE_ENV === 'development') {
+  if (disableSmallScreenOverlay || env.NODE_ENV === 'development') {
     return null;
   }
 
