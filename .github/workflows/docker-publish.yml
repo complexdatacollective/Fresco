@@ -32,11 +32,21 @@ jobs:
           VERSION=${VERSION#v}
           echo "version=$VERSION" >> $GITHUB_ENV
 
-      - name: Build and Tag Docker Image
-        run: |
-          docker build -t ghcr.io/complexdatacollective/fresco:${{ env.version }} -t ghcr.io/complexdatacollective/fresco:latest .
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Push Docker Images
-        run: |
-          docker push ghcr.io/complexdatacollective/fresco:${{ env.version }}
-          docker push ghcr.io/complexdatacollective/fresco:latest
+      - name: Build and Push Multi-platform Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/complexdatacollective/fresco:${{ env.version }}
+            ghcr.io/complexdatacollective/fresco:latest
+          cache-from: |
+            type=gha
+            type=registry,ref=ghcr.io/complexdatacollective/fresco:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=ghcr.io/complexdatacollective/fresco:buildcache,mode=max,image-manifest=true

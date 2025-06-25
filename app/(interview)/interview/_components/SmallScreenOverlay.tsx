@@ -2,9 +2,13 @@ import Image from 'next/image';
 import { env } from 'node:process';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
+import { getAppSetting } from '~/queries/appSettings';
 
-const SmallScreenOverlay = () => {
-  if (env.NODE_ENV === 'development') {
+const SmallScreenOverlay = async () => {
+  const disableSmallScreenOverlay = await getAppSetting(
+    'disableSmallScreenOverlay',
+  );
+  if (disableSmallScreenOverlay || env.NODE_ENV === 'development') {
     return null;
   }
 
