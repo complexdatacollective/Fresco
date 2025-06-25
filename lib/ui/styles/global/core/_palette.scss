@@ -3,7 +3,12 @@
 $-palette-map: () !default;
 
 @mixin palette-set($palette-name, $palette-value) {
-  $-palette-map: map-merge($-palette-map, ($palette-name: $palette-value)) !global;
+  $-palette-map: map-merge(
+    $-palette-map,
+    (
+      $palette-name: $palette-value,
+    )
+  ) !global;
 }
 
 @function palette($palette-name, $use-mapped-value: false) {

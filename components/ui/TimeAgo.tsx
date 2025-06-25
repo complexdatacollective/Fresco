@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { dateOptions } from '~/fresco.config';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 
-type TimeAgoProps = {
+type TimeAgoProps = React.TimeHTMLAttributes<HTMLTimeElement> & {
   date: Date | string | number;
 };
 
-const TimeAgo: React.FC<TimeAgoProps> = ({ date: dateProp }) => {
+const TimeAgo: React.FC<TimeAgoProps> = ({ date: dateProp, ...props }) => {
   const date = useMemo(() => new Date(dateProp), [dateProp]);
   const localisedDate = new Intl.DateTimeFormat(
     navigator.language,
@@ -49,7 +49,7 @@ const TimeAgo: React.FC<TimeAgoProps> = ({ date: dateProp }) => {
   }, [date, localisedDate]);
 
   return (
-    <time dateTime={localisedDate} title={localisedDate}>
+    <time {...props} dateTime={localisedDate} title={localisedDate}>
       {timeAgo}
     </time>
   );

@@ -20,7 +20,8 @@ const buttonVariants = cva(
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:text-accent',
-        tableHeader: 'hover:text-accent -ml-6 data-[state=open]:text-accent',
+        tableHeader:
+          'hover:text-accent data-[state=open]:text-accent !p-0 rounded-none',
         link: 'underline-offset-4 hover:underline',
       },
       size: {
@@ -39,7 +40,6 @@ const buttonVariants = cva(
       {
         variant: 'tableHeader',
         size: 'sm',
-        className: '-ml-4',
       },
     ],
   },
