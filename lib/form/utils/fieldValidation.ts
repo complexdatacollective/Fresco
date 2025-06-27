@@ -9,8 +9,13 @@ import {
 } from '@codaco/shared-consts';
 import { isNil, isString } from 'es-toolkit';
 import { filter, get, isNumber, some } from 'es-toolkit/compat';
-import { type ValidationContext } from './formContexts';
 export type FieldValue = VariableValue | undefined;
+
+export type ValidationContext = {
+  codebookVariables: Record<string, Variable>;
+  networkEntities: (NcNode | NcEdge | NcEgo)[];
+  currentEntityId?: string;
+};
 
 // TanStack Form native validator types
 export type TanStackValidatorParams = {

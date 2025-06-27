@@ -11,8 +11,10 @@ import type {
   FormField,
   InputComponentProps,
 } from '~/lib/form/types';
-import { getTanStackNativeValidators } from '~/lib/form/utils/fieldValidation';
-import { type ValidationContext } from '~/lib/form/utils/formContexts';
+import {
+  getTanStackNativeValidators,
+  type ValidationContext,
+} from '~/lib/form/utils/fieldValidation';
 import { makeEnrichFieldsWithCodebookMetadata } from '~/lib/interviewer/selectors/forms';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
@@ -79,8 +81,6 @@ export const useFormData = ({
         subject,
       }) as FieldType[],
   );
-
-  console.log('enrichedFields', enrichedFields);
 
   return useMemo(() => {
     // Create validation context
