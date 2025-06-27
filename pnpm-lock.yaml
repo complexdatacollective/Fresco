@@ -345,6 +345,9 @@ importers:
       '@types/redux-logger':
         specifier: ^3.0.13
         version: 3.0.13
+      '@types/scrollparent':
+        specifier: ^2.0.3
+        version: 2.0.3
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -3168,6 +3171,9 @@ packages:
 
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
+
+  '@types/scrollparent@2.0.3':
+    resolution: {integrity: sha512-hnZEChVDSDCVngnl8j+Dq0/sOzRuoHyqqR5Wc1dF7TFsWO4uQtIKBkrzTb+lakIH+XrR8mlLMHfWR8hfjqc/WA==}
 
   '@types/semver@7.7.0':
     resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
@@ -10920,6 +10926,8 @@ snapshots:
       redux: 5.0.1
 
   '@types/resolve@1.20.6': {}
+
+  '@types/scrollparent@2.0.3': {}
 
   '@types/semver@7.7.0': {}
 
