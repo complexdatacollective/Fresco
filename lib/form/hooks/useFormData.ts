@@ -6,20 +6,20 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import * as Fields from '~/lib/ui/components/Fields';
 import type {
   FieldType,
   FormField,
   InputComponentProps,
-} from '../../containers/TanStackForm/types';
-import { makeEnrichFieldsWithCodebookMetadata } from '../../selectors/forms';
-import { getCodebookVariablesForSubjectType } from '../../selectors/protocol';
+} from '~/lib/form/types';
+import { getTanStackNativeValidators } from '~/lib/form/utils/fieldValidation';
+import { type ValidationContext } from '~/lib/form/utils/formContexts';
+import { makeEnrichFieldsWithCodebookMetadata } from '~/lib/interviewer/selectors/forms';
+import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
   getNetworkEntitiesForType,
   getStageSubject,
-} from '../../selectors/session';
-import { getTanStackNativeValidators } from '../../utils/field-validation';
-import { type ValidationContext } from '../../utils/formContexts';
+} from '~/lib/interviewer/selectors/session';
+import * as Fields from '~/lib/ui/components/Fields';
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
@@ -34,6 +34,7 @@ const ComponentTypeNotFound = (componentType: string) => {
 };
 
 const getInputComponent = (componentType: ComponentType = 'Text') => {
+  // Get the component definition from the
   const def = get(ComponentTypes, componentType);
   return get(Fields, def, ComponentTypeNotFound(componentType));
 };
@@ -78,6 +79,8 @@ export const useFormData = ({
         subject,
       }) as FieldType[],
   );
+
+  console.log('enrichedFields', enrichedFields);
 
   return useMemo(() => {
     // Create validation context

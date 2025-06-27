@@ -1,11 +1,19 @@
 import { type VariableValue } from '@codaco/shared-consts';
-import { useFieldContext } from '../../utils/formContexts';
-import type { FieldProps, InputComponentProps } from './types';
+import type { FieldProps, InputComponentProps } from '~/lib/form/types';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 
 const Field = ({ field, autoFocus, disabled }: FieldProps) => {
   const fieldContext = useFieldContext();
-  const { fieldLabel, name, options, type, parameters, label, Component, onBlur } =
-    field;
+  const {
+    fieldLabel,
+    name,
+    options,
+    type,
+    parameters,
+    label,
+    Component,
+    onBlur,
+  } = field;
 
   // Use pre-resolved component if available, otherwise fallback to runtime resolution
   if (!Component) {

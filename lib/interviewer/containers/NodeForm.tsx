@@ -10,6 +10,7 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Form from '~/lib/form/Form';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
@@ -18,7 +19,6 @@ import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
 import { useAppDispatch } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
-import TanStackForm from './TanStackForm/Form';
 
 const FORM_NAME = 'node-form';
 
@@ -126,7 +126,7 @@ const NodeForm = (props: NodeFormProps) => {
         allowMaximize={false}
       >
         <Scroller>
-          <TanStackForm
+          <Form
             fields={form.fields}
             handleFormSubmit={handleSubmit}
             initialValues={selectedNode?.[entityAttributesProperty]}

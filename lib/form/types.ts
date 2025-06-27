@@ -8,7 +8,7 @@ import { type ValidationErrorMap } from '@tanstack/react-form';
 import type {
   TanStackValidator,
   VariableValidation,
-} from '../../utils/field-validation';
+} from '~/lib/form/utils/fieldValidation';
 
 export type FormField = {
   prompt?: string;

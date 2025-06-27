@@ -1,7 +1,4 @@
-import { useFormData } from '../../hooks/TanstackForm/useFormData';
-import { useTanStackForm } from '../../hooks/TanstackForm/useTanStackForm';
-import Field from './Field';
-import type { FormProps, TanStackFormErrors } from './types';
+import { type TanStackFormErrors } from '~/lib/form/types';
 
 const getScrollParent = (node: HTMLElement): Element => {
   const regex = /(auto|scroll)/;
@@ -41,7 +38,7 @@ const getScrollParent = (node: HTMLElement): Element => {
   return scrollParent(node);
 };
 
-const scrollToFirstError = (errors: TanStackFormErrors) => {
+export const scrollToFirstError = (errors: TanStackFormErrors) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check
   // vertical position to ensure it is actually the "first" in page order (topmost).
   if (!errors) return;
@@ -70,56 +67,3 @@ const scrollToFirstError = (errors: TanStackFormErrors) => {
   const scroller = getScrollParent(el);
   scroller.scrollTop = topPos;
 };
-
-const TanStackForm = ({
-  fields,
-  handleFormSubmit,
-  submitButton = <button type="submit" key="submit" aria-label="Submit" />,
-  initialValues,
-  autoFocus,
-  disabled,
-  id,
-  entityId,
-}: FormProps) => {
-  const { defaultValues, fieldsWithProps } = useFormData({
-    fields,
-    entityId,
-    initialValues,
-    autoFocus,
-  });
-
-  const form = useTanStackForm({
-    defaultValues,
-    onSubmit: ({ value }) => handleFormSubmit(value),
-    onSubmitInvalid: ({ formApi }) => {
-      const errors = formApi.getAllErrors().fields as TanStackFormErrors;
-      scrollToFirstError(errors);
-    },
-  });
-
-  return (
-    <div>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await form.handleSubmit();
-        }}
-        id={id}
-      >
-        {fieldsWithProps.map((field, index) => (
-          <form.AppField
-            name={field.name}
-            key={`${field.name}-${index}`}
-            validators={field.validators}
-          >
-            {() => <Field field={field} autoFocus={field.isFirst} disabled={disabled} />}
-          </form.AppField>
-        ))}
-        {submitButton}
-      </form>
-    </div>
-  );
-};
-
-export default TanStackForm;

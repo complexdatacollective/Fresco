@@ -6,13 +6,13 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Form from '~/lib/form/Form';
 import { ActionButton } from '~/lib/ui/components';
 import { QuickAdd } from '~/lib/ui/components/Fields';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
-import TanStackForm from './TanStackForm/Form';
 
 const FORM_NAME = 'quick-add-form';
 
@@ -127,7 +127,7 @@ const QuickAddForm = ({
             animate={itemVariants.show}
             exit={itemVariants.hide}
           >
-            <TanStackForm
+            <Form
               fields={fields}
               handleFormSubmit={handleSubmit}
               initialValues={{}}

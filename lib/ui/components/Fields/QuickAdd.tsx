@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import type { InputComponentProps } from '~/lib/interviewer/containers/TanStackForm/types';
+import type { InputComponentProps } from '~/lib/form/types';
 import {
   getNodeColor,
   getStageSubject,
