@@ -6,6 +6,7 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import * as Fields from '~/lib/form/fields';
 import type {
   FieldType,
   FormField,
@@ -21,7 +22,6 @@ import {
   getNetworkEntitiesForType,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import * as Fields from '~/lib/ui/components/Fields';
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {

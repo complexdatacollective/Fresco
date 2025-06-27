@@ -1,13 +1,13 @@
 import cx from 'classnames';
 import React, { type InputHTMLAttributes, memo, useId, useState } from 'react';
-import Icon from '../Icon';
+import Icon from '~/lib/ui/components/Icon';
 import MarkdownLabel from './MarkdownLabel';
 
 type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
   input: {
     name: string;
     value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (value: string) => void;
     onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
     onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   };
@@ -73,15 +73,16 @@ const TextInput = ({
       {anyLabel && <MarkdownLabel label={anyLabel} />}
       <div className={seamlessClasses}>
         <input
-          {...input}
           id={id}
           name={input.name}
+          value={input.value}
           className="form-field form-field-text__input"
           placeholder={placeholder}
           autoFocus={autoFocus}
           type={type}
           onBlur={handleBlur}
           onFocus={handleFocus}
+          onChange={(e) => input.onChange && input.onChange(e.target.value)}
         />
         {adornmentLeft && (
           <div className="form-field-text__adornment-left">{adornmentLeft}</div>
