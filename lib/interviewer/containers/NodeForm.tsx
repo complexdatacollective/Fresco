@@ -54,12 +54,12 @@ const NodeForm = (props: NodeFormProps) => {
   const useFullScreenForms = false;
 
   const handleSubmit = useCallback(
-    (formData: Record<string, VariableValue>) => {
+    ({ value }: { value: Record<string, VariableValue> }) => {
       if (!selectedNode) {
-        addNode({ ...newNodeAttributes, ...formData });
+        addNode({ ...newNodeAttributes, ...value });
       } else {
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        void updateNode({ nodeId: selectedUID, newAttributeData: formData });
+        void updateNode({ nodeId: selectedUID, newAttributeData: value });
       }
 
       setShow(false);

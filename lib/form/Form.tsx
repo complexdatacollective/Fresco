@@ -23,7 +23,7 @@ const Form = ({
 
   const form = useTanStackForm({
     defaultValues,
-    onSubmit: ({ value }) => handleFormSubmit(value),
+    onSubmit: handleFormSubmit,
     onSubmitInvalid: ({ formApi }) => {
       const errors = formApi.getAllErrors().fields as TanStackFormErrors;
       scrollToFirstError(errors);

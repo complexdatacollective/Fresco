@@ -75,11 +75,11 @@ const QuickAddForm = ({
   const icon = useSelector(getNodeIconName);
 
   const handleSubmit = useCallback(
-    (formData: Record<string, VariableValue>) => {
+    ({ value }: { value: Record<string, VariableValue> }) => {
       if (!disabled) {
         void addNode({
           ...newNodeAttributes,
-          ...formData,
+          ...value,
         });
 
         setShowForm(false);
