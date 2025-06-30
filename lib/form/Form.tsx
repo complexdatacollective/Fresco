@@ -14,7 +14,7 @@ const Form = ({
   id,
   entityId,
 }: FormProps) => {
-  const { defaultValues, fieldsWithProps } = useFormData({
+  const { defaultValues, enrichedFields } = useFormData({
     fields,
     entityId,
     initialValues,
@@ -40,7 +40,7 @@ const Form = ({
         }}
         id={id}
       >
-        {fieldsWithProps.map((field, index) => (
+        {enrichedFields.map((field, index) => (
           <form.AppField
             name={field.name}
             key={`${field.name}-${index}`}

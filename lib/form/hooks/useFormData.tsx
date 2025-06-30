@@ -68,10 +68,9 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
 };
 
 type UseFormDataReturn = {
-  enrichedFields: FieldType[];
   validationContext: ValidationContext;
   defaultValues: Record<string, VariableValue>;
-  fieldsWithProps: (FieldType & {
+  enrichedFields: (FieldType & {
     isFirst?: boolean;
     validators: ReturnType<typeof getTanStackNativeValidators>;
   })[];
@@ -100,7 +99,7 @@ export const useFormData = ({
   const subject = useSelector(getStageSubject);
   const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
   const networkEntities = useSelector(getNetworkEntitiesForType);
-  const enrichedFields = useSelector((state) =>
+  const baseFields = useSelector((state) =>
     enrichFieldsWithCodebookMetadata(state, {
       fields,
       subject,
@@ -116,7 +115,7 @@ export const useFormData = ({
     };
 
     const defaults: Record<string, VariableValue> = {};
-    const fieldsWithProps = enrichedFields.map(
+    const enrichedFields = baseFields.map(
       (field: FieldType, index: number) => {
         // Build default values
         defaults[field.name] = initialValues?.[field.name] ?? field.value ?? '';
@@ -145,13 +144,12 @@ export const useFormData = ({
     );
 
     return {
-      enrichedFields,
       validationContext,
       defaultValues: defaults,
-      fieldsWithProps,
+      enrichedFields,
     };
   }, [
-    enrichedFields,
+    baseFields,
     entityId,
     initialValues,
     autoFocus,
