@@ -11,8 +11,6 @@ import { QuickAdd } from '~/lib/form/fields';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
-const FORM_NAME = 'quick-add-form';
-
 const containerVariants = {
   animate: {
     y: '0rem',
@@ -77,7 +75,7 @@ const QuickAddForm = ({
         entityId={undefined} // No entity ID in this context
         autoFocus
         disabled={disabled}
-        id={FORM_NAME}
+        id="quick-add-form"
       />
     </motion.div>
   );
