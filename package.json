@@ -141,7 +141,7 @@
     "prettier-plugin-tailwindcss": "^0.6.13",
     "prisma": "^6.10.0",
     "sass": "^1.89.2",
-    "tailwindcss": "4.1.10",
+    "tailwindcss": "4.1.11",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
