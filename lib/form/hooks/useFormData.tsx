@@ -6,7 +6,6 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import * as Fields from '~/lib/form/fields';
 import type {
   FieldType,
   FormField,
@@ -25,20 +24,38 @@ import {
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
-    return React.createElement(
-      'div',
-      {},
-      `Input component "${componentType}" not found.`,
-    );
+    return <div>{`Input component "${componentType}" not found.`}</div>;
   };
   NotFoundComponent.displayName = `ComponentTypeNotFound(${componentType})`;
   return NotFoundComponent;
 };
 
+const lazyComponents = {
+  Boolean: React.lazy(() => import('~/lib/form/fields/Boolean')),
+  Checkbox: React.lazy(() => import('~/lib/form/fields/Checkbox')),
+  CheckboxGroup: React.lazy(() => import('~/lib/form/fields/CheckboxGroup')),
+  DatePicker: React.lazy(() => import('~/lib/form/fields/DatePicker')),
+  LikertScale: React.lazy(() => import('~/lib/form/fields/LikertScale')),
+  Markdown: React.lazy(() => import('~/lib/form/fields/Markdown')),
+  MarkdownLabel: React.lazy(() => import('~/lib/form/fields/MarkdownLabel')),
+  Number: React.lazy(() => import('~/lib/form/fields/Number')),
+  Radio: React.lazy(() => import('~/lib/form/fields/Radio')),
+  RadioGroup: React.lazy(() => import('~/lib/form/fields/RadioGroup')),
+  RelativeDatePicker: React.lazy(() => import('~/lib/form/fields/RelativeDatePicker')),
+  Search: React.lazy(() => import('~/lib/form/fields/Search')),
+  Slider: React.lazy(() => import('~/lib/form/fields/Slider')),
+  Text: React.lazy(() => import('~/lib/form/fields/Text')),
+  TextArea: React.lazy(() => import('~/lib/form/fields/TextArea')),
+  Toggle: React.lazy(() => import('~/lib/form/fields/Toggle')),
+  ToggleButton: React.lazy(() => import('~/lib/form/fields/ToggleButton')),
+  ToggleButtonGroup: React.lazy(() => import('~/lib/form/fields/ToggleButtonGroup')),
+  VisualAnalogScale: React.lazy(() => import('~/lib/form/fields/VisualAnalogScale')),
+  QuickAdd: React.lazy(() => import('~/lib/form/fields/QuickAdd')),
+} as const;
+
 const getInputComponent = (componentType: ComponentType = 'Text') => {
-  // Get the component definition from the
   const def = get(ComponentTypes, componentType);
-  return get(Fields, def, ComponentTypeNotFound(componentType));
+  return lazyComponents[def as keyof typeof lazyComponents] || ComponentTypeNotFound(componentType);
 };
 
 type UseFormDataReturn = {
