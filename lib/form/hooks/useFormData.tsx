@@ -15,7 +15,7 @@ import {
   getTanStackNativeValidators,
   type ValidationContext,
 } from '~/lib/form/utils/fieldValidation';
-import { makeEnrichFieldsWithCodebookMetadata } from '~/lib/interviewer/selectors/forms';
+import { enrichFieldsWithCodebookMetadata } from '~/lib/interviewer/selectors/forms';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
   getNetworkEntitiesForType,
@@ -41,21 +41,30 @@ const lazyComponents = {
   Number: React.lazy(() => import('~/lib/form/fields/Number')),
   Radio: React.lazy(() => import('~/lib/form/fields/Radio')),
   RadioGroup: React.lazy(() => import('~/lib/form/fields/RadioGroup')),
-  RelativeDatePicker: React.lazy(() => import('~/lib/form/fields/RelativeDatePicker')),
+  RelativeDatePicker: React.lazy(
+    () => import('~/lib/form/fields/RelativeDatePicker'),
+  ),
   Search: React.lazy(() => import('~/lib/form/fields/Search')),
   Slider: React.lazy(() => import('~/lib/form/fields/Slider')),
   Text: React.lazy(() => import('~/lib/form/fields/Text')),
   TextArea: React.lazy(() => import('~/lib/form/fields/TextArea')),
   Toggle: React.lazy(() => import('~/lib/form/fields/Toggle')),
   ToggleButton: React.lazy(() => import('~/lib/form/fields/ToggleButton')),
-  ToggleButtonGroup: React.lazy(() => import('~/lib/form/fields/ToggleButtonGroup')),
-  VisualAnalogScale: React.lazy(() => import('~/lib/form/fields/VisualAnalogScale')),
+  ToggleButtonGroup: React.lazy(
+    () => import('~/lib/form/fields/ToggleButtonGroup'),
+  ),
+  VisualAnalogScale: React.lazy(
+    () => import('~/lib/form/fields/VisualAnalogScale'),
+  ),
   QuickAdd: React.lazy(() => import('~/lib/form/fields/QuickAdd')),
 } as const;
 
 const getInputComponent = (componentType: ComponentType = 'Text') => {
   const def = get(ComponentTypes, componentType);
-  return lazyComponents[def as keyof typeof lazyComponents] || ComponentTypeNotFound(componentType);
+  return (
+    lazyComponents[def as keyof typeof lazyComponents] ||
+    ComponentTypeNotFound(componentType)
+  );
 };
 
 type UseFormDataReturn = {
@@ -91,12 +100,11 @@ export const useFormData = ({
   const subject = useSelector(getStageSubject);
   const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
   const networkEntities = useSelector(getNetworkEntitiesForType);
-  const enrichedFields = useSelector(
-    (state) =>
-      makeEnrichFieldsWithCodebookMetadata()(state, {
-        fields,
-        subject,
-      }) as FieldType[],
+  const enrichedFields = useSelector((state) =>
+    enrichFieldsWithCodebookMetadata(state, {
+      fields,
+      subject,
+    }),
   );
 
   return useMemo(() => {
@@ -108,31 +116,33 @@ export const useFormData = ({
     };
 
     const defaults: Record<string, VariableValue> = {};
-    const fieldsWithProps = enrichedFields.map((field, index) => {
-      // Build default values
-      defaults[field.name] = initialValues?.[field.name] ?? field.value ?? '';
+    const fieldsWithProps = enrichedFields.map(
+      (field: FieldType, index: number) => {
+        // Build default values
+        defaults[field.name] = initialValues?.[field.name] ?? field.value ?? '';
 
-      // Use passed Component if available, otherwise resolve from component type
-      const Component =
-        fields[index]?.Component ??
-        (getInputComponent(
-          field.component,
-        ) as React.ComponentType<InputComponentProps>);
+        // Use passed Component if available, otherwise resolve from component type
+        const Component =
+          fields[index]?.Component ??
+          (getInputComponent(
+            field.component,
+          ) as React.ComponentType<InputComponentProps>);
 
-      // Create validators
-      const validators = getTanStackNativeValidators(
-        field.validation ?? {},
-        validationContext,
-      );
+        // Create validators
+        const validators = getTanStackNativeValidators(
+          field.validation ?? {},
+          validationContext,
+        );
 
-      return {
-        ...field,
-        Component,
-        isFirst: autoFocus && index === 0,
-        validators,
-        onBlur: fields[index]?.onBlur, // Pass through custom onBlur handler
-      };
-    });
+        return {
+          ...field,
+          Component,
+          isFirst: autoFocus && index === 0,
+          validators,
+          onBlur: fields[index]?.onBlur, // Pass through custom onBlur handler
+        };
+      },
+    );
 
     return {
       enrichedFields,
