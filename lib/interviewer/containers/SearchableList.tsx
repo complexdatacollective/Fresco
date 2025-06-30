@@ -148,7 +148,8 @@ const SearchableList = memo(
       return sortedResults.filter((item) => !excludeItems.includes(item.id));
     }, [sortedResults, excludeItems]);
 
-    const handleChangeSearch = (value: string) => {
+    const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
       setQuery(value);
     };
 
