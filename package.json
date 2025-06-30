@@ -107,7 +107,7 @@
     "zod-form-data": "^2.0.7"
   },
   "devDependencies": {
-    "@playwright/test": "^1.53.0",
+    "@playwright/test": "^1.53.1",
     "@prisma/client": "^6.10.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/aspect-ratio": "^0.4.2",
