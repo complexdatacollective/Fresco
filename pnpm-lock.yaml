@@ -227,9 +227,6 @@ importers:
       sanitize-filename:
         specifier: ^1.6.3
         version: 1.6.3
-      scrollparent:
-        specifier: ^2.1.0
-        version: 2.1.0
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -345,9 +342,6 @@ importers:
       '@types/redux-logger':
         specifier: ^3.0.13
         version: 3.0.13
-      '@types/scrollparent':
-        specifier: ^2.0.3
-        version: 2.0.3
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -3171,9 +3165,6 @@ packages:
 
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
-
-  '@types/scrollparent@2.0.3':
-    resolution: {integrity: sha512-hnZEChVDSDCVngnl8j+Dq0/sOzRuoHyqqR5Wc1dF7TFsWO4uQtIKBkrzTb+lakIH+XrR8mlLMHfWR8hfjqc/WA==}
 
   '@types/semver@7.7.0':
     resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
@@ -6951,9 +6942,6 @@ packages:
   schema-utils@4.3.2:
     resolution: {integrity: sha512-Gn/JaSk/Mt9gYubxTtSn/QCV4em9mpAPiR1rqy/Ocu19u/G9J5WWdNoUT4SiV6mFC3y6cxyFcFwdzPM3FgxGAQ==}
     engines: {node: '>= 10.13.0'}
-
-  scrollparent@2.1.0:
-    resolution: {integrity: sha512-bnnvJL28/Rtz/kz2+4wpBjHzWoEzXhVg/TE8BeVGJHUqE8THNIRnDxDWMktwM+qahvlRdvlLdsQfYe+cuqfZeA==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -10926,8 +10914,6 @@ snapshots:
       redux: 5.0.1
 
   '@types/resolve@1.20.6': {}
-
-  '@types/scrollparent@2.0.3': {}
 
   '@types/semver@7.7.0': {}
 
@@ -15604,8 +15590,6 @@ snapshots:
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
       ajv-keywords: 5.1.0(ajv@8.17.1)
-
-  scrollparent@2.1.0: {}
 
   semver@6.3.1: {}
 

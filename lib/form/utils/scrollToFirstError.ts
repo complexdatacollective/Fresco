@@ -1,5 +1,5 @@
-import scrollparent from 'scrollparent';
 import { type TanStackFormErrors } from '~/lib/form/types';
+import { scrollParent } from '~/lib/interviewer/utils/scrollParent';
 
 export const scrollToFirstError = (errors: TanStackFormErrors) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check
@@ -20,7 +20,7 @@ export const scrollToFirstError = (errors: TanStackFormErrors) => {
     return;
   }
 
-  const scroller = scrollparent(el) as unknown as HTMLElement;
+  const scroller = scrollParent(el) as unknown as HTMLElement;
   const scrollStart = scroller.scrollTop;
   const scrollerOffset = parseInt(
     scroller.getBoundingClientRect().top.toString(),
