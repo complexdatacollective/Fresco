@@ -2,32 +2,23 @@
 
 import cx from 'classnames';
 import React, { useId } from 'react';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import MarkdownLabel from './MarkdownLabel';
-
-type InputProps = {
-  name?: string;
-  value?: string | number | readonly string[] | undefined;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  checked?: boolean;
-}
 
 type RadioProps = {
   label?: React.ReactNode;
   fieldLabel?: string;
   className?: string;
   disabled?: boolean;
-  input: InputProps;
 }
 
 const Radio = ({
   label,
   className = '',
-  input,
   disabled = false,
   ...rest
 }: RadioProps) => {
+  const fieldContext = useFieldContext();
   // Use React's useId hook to generate a stable ID
   const id = useId();
 
@@ -41,11 +32,10 @@ const Radio = ({
         type="radio"
         className="form-field-radio__input"
         id={id}
-        // input.checked is only provided by redux form if type="checkbox" or type="radio" is
-        // provided to <Field />, so for the case that it isn't we can rely on the more reliable
-        // input.value
-        checked={!!input.value}
-        {...input}
+        name={fieldContext.name}
+        checked={!!fieldContext.state.value}
+        onChange={(e) => fieldContext.handleChange(e.target.value)}
+        onBlur={() => fieldContext.handleBlur()}
         {...rest}
       />
       <div className="form-field-radio__radio" />

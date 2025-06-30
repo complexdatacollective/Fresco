@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import type {
   FieldType,
   FormField,
-  InputComponentProps,
+  FieldComponentProps,
 } from '~/lib/form/types';
 import {
   getTanStackNativeValidators,
@@ -125,7 +125,7 @@ export const useFormData = ({
           fields[index]?.Component ??
           (getInputComponent(
             field.component,
-          ) as React.ComponentType<InputComponentProps>);
+          ) as React.ComponentType<FieldComponentProps>);
 
         // Create validators
         const validators = getTanStackNativeValidators(

@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/Form';
-import { QuickAdd } from '~/lib/ui/components/Fields';
+import { QuickAdd } from '~/lib/form/fields';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 

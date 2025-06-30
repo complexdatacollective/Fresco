@@ -1,23 +1,22 @@
-import { noop } from 'es-toolkit';
-import { get, isEmpty } from 'es-toolkit/compat';
+import { isEmpty } from 'es-toolkit/compat';
 import { X as ClearIcon, Search as SearchIcon } from 'lucide-react';
-import { type ComponentProps } from 'react';
+import { type ComponentProps, useCallback } from 'react';
 import { getCSSVariableAsString } from '~/lib/ui/utils/CSSVariables';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import Text from './Text';
 
 type SearchProps = ComponentProps<typeof Text>;
 
 const Search = (props: SearchProps) => {
+  const fieldContext = useFieldContext();
   const color = getCSSVariableAsString('--nc-input-text');
 
-  const hasValue = !isEmpty(get(props, ['input', 'value'], ''));
-
-  const onChange = props.input.onChange || noop;
+  const hasValue = !isEmpty(fieldContext.state.value as string);
 
   // Call the change handler with an empty string
-  const handleClear = () => {
-    onChange('');
-  };
+  const handleClear = useCallback(() => {
+    fieldContext.handleChange('');
+  }, [fieldContext]);
 
   const adornmentLeft = color && <SearchIcon style={{ color }} />;
 

@@ -1,53 +1,49 @@
 'use client';
 
 import cx from 'classnames';
-import { useId } from 'react';
+import { useId, useState } from 'react';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import Icon from '~/lib/ui/components/Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-type InputProps = {
-  name?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
-};
-
-type MetaProps = {
-  active?: boolean;
-  error?: string;
-  invalid?: boolean;
-  touched?: boolean;
-};
-
 type TextAreaProps = {
-  meta: MetaProps;
   label?: string;
   placeholder?: string;
   fieldLabel?: string;
   className?: string;
   autoFocus?: boolean;
   hidden?: boolean;
-  input?: InputProps;
 };
 
 const TextArea = ({
-  meta = { active: false, error: '', invalid: false, touched: false },
   label,
   placeholder,
   fieldLabel,
   className = '',
   autoFocus = false,
   hidden = false,
-  input = {},
 }: TextAreaProps) => {
+  const fieldContext = useFieldContext();
+  const [hasFocus, setHasFocus] = useState(false);
   // Use React's useId hook to generate a stable ID
   const generatedId = useId();
   const id = `textarea-${generatedId}`;
 
+  const handleFocus = () => {
+    setHasFocus(true);
+  };
+
+  const handleBlur = () => {
+    setHasFocus(false);
+    fieldContext.handleBlur();
+  };
+
   const seamlessClasses = cx(className, 'form-field-text', {
-    'form-field-text--has-focus': meta.active,
-    'form-field-text--has-error': meta.invalid && meta.touched && meta.error,
+    'form-field-text--has-focus': hasFocus,
+    'form-field-text--has-error':
+      !fieldContext.state.meta.isValid &&
+      fieldContext.state.meta.isTouched &&
+      (fieldContext.state.meta.errors?.[0] as string),
   });
 
   return (
@@ -55,27 +51,28 @@ const TextArea = ({
       htmlFor={id}
       className="form-field-container"
       hidden={hidden}
-      data-name={input.name}
+      data-name={fieldContext.name}
     >
       {fieldLabel || label ? <MarkdownLabel label={fieldLabel ?? label} /> : ''}
       <div className={seamlessClasses}>
         <textarea
           id={id}
-          name={input.name}
-          value={input.value}
+          name={fieldContext.name}
+          value={(fieldContext.state.value as string) || ''}
           className="form-field form-field-text form-field-text--area form-field-text__input"
           placeholder={placeholder}
           autoFocus={autoFocus}
-          onBlur={input.onBlur}
-          onFocus={input.onFocus}
-          onChange={(e) => input.onChange && input.onChange(e.target.value)}
+          onBlur={handleBlur}
+          onFocus={handleFocus}
+          onChange={(e) => fieldContext.handleChange(e.target.value)}
         />
-        {meta.invalid && meta.touched && (
-          <div className="form-field-text__error">
-            <Icon name="warning" />
-            {meta.error}
-          </div>
-        )}
+        {!fieldContext.state.meta.isValid &&
+          fieldContext.state.meta.isTouched && (
+            <div className="form-field-text__error">
+              <Icon name="warning" />
+              {fieldContext.state.meta.errors?.[0]}
+            </div>
+          )}
       </div>
     </label>
   );

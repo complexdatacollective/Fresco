@@ -13,7 +13,7 @@ import type {
 export type FormField = {
   prompt?: string;
   variable: string;
-  Component?: React.ComponentType<InputComponentProps>; // optional pre-resolved component
+  Component?: React.ComponentType<FieldComponentProps>; // optional pre-resolved component
   onBlur?: () => void; // optional, custom blur handler
 };
 
@@ -28,7 +28,7 @@ export type FieldType = {
   parameters?: Record<string, unknown>;
   validation?: VariableValidation;
   validate?: TanStackValidator;
-  Component?: React.ComponentType<InputComponentProps>;
+  Component?: React.ComponentType<FieldComponentProps>;
   onBlur?: () => void; // optional, custom blur handler
 };
 
@@ -81,4 +81,14 @@ export type InputComponentProps = {
   autoFocus?: boolean;
   disabled?: boolean;
   type: VariableType;
+};
+
+export type FieldComponentProps = {
+  label?: string;
+  fieldLabel?: string;
+  options?: { label: string; value: VariableValue }[];
+  parameters?: Record<string, unknown>;
+  autoFocus?: boolean;
+  disabled?: boolean;
+  type?: VariableType;
 };

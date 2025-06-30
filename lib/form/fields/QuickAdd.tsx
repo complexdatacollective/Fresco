@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import type { InputComponentProps } from '~/lib/form/types';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
   getNodeColor,
@@ -47,16 +47,22 @@ const buttonVariants = {
 };
 
 const QuickAdd = ({
-  input,
-  meta,
   disabled = false,
   autoFocus = true,
   parameters,
-}: InputComponentProps & { onShowForm?: () => void }) => {
+  onShowForm: onShowFormProp,
+}: {
+  disabled?: boolean;
+  autoFocus?: boolean;
+  parameters?: Record<string, unknown>;
+  onShowForm?: () => void;
+}) => {
+  const fieldContext = useFieldContext();
   const [showForm, setShowForm] = useState(false);
   const placeholder =
     (parameters?.placeholder as string) ?? 'Type a label and press enter...';
-  const onShowForm = parameters?.onShowForm as (() => void) | undefined;
+  const onShowForm =
+    onShowFormProp ?? (parameters?.onShowForm as (() => void) | undefined);
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const [showTooltip, setShowTooltip] = useState(false);
@@ -72,8 +78,8 @@ const QuickAdd = ({
 
   const handleHideForm = useCallback(() => {
     setShowForm(false);
-    input.onBlur?.();
-  }, [input]);
+    fieldContext.handleBlur();
+  }, [fieldContext]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -81,19 +87,19 @@ const QuickAdd = ({
         e.preventDefault();
 
         // If no value, close the form
-        if (!input.value) {
+        if (!fieldContext.state.value) {
           handleHideForm();
           return;
         }
 
         // If valid, submit the form
-        if (!meta?.invalid && !meta?.error) {
-          input.onSubmit?.();
+        if (fieldContext.state.meta.isValid) {
+          void fieldContext.form.handleSubmit();
           setShowForm(false);
         }
       }
     },
-    [input, meta?.invalid, meta?.error, handleHideForm],
+    [fieldContext, handleHideForm],
   );
 
   // Close form when disabled
@@ -106,7 +112,11 @@ const QuickAdd = ({
   // Handle showing/hiding the tooltip based on the nodeLabel
   // Logic: wait 5 seconds after the user last typed something
   useEffect(() => {
-    if (showForm && input.value !== '' && !meta?.invalid) {
+    if (
+      showForm &&
+      fieldContext.state.value !== '' &&
+      !fieldContext.state.meta.isValid
+    ) {
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
 
@@ -117,7 +127,7 @@ const QuickAdd = ({
       setShowTooltip(false);
       clearTimeout(tooltipTimer.current);
     }
-  }, [showForm, input.value, meta?.invalid]);
+  }, [showForm, fieldContext.state.value, fieldContext.state.meta.isValid]);
 
   return (
     <div className="flex h-44 w-52 items-center justify-end">
@@ -143,7 +153,7 @@ const QuickAdd = ({
             initial={inputVariants.hide}
             animate={inputVariants.show}
             exit={inputVariants.hide}
-            className={`m-4 flex min-w-max flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${meta?.invalid && meta?.error && 'animate-shake'}`}
+            className={`m-4 flex min-w-max flex-row items-center rounded-(--nc-border-radius) bg-(--nc-panel-bg-muted) px-6 py-4 ${!fieldContext.state.meta.isValid && fieldContext.state.meta.errors?.[0] && 'animate-shake'}`}
           >
             <div className="relative flex items-center justify-start">
               <motion.div
@@ -162,47 +172,56 @@ const QuickAdd = ({
                 initial={inputVariants.hide}
                 animate={inputVariants.show}
                 exit={inputVariants.hide}
-                className={` ${meta?.invalid && meta?.touched && meta?.error ? 'mr-0 rounded-t-(--nc-border-radius) border-4 border-(--nc-error)' : 'mr-2 rounded-(--nc-border-radius)'} bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text)`}
+                className={` ${!fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && fieldContext.state.meta.errors?.[0] ? 'mr-0 rounded-t-(--nc-border-radius) border-4 border-(--nc-error)' : 'mr-2 rounded-(--nc-border-radius)'} bg-(--nc-input-background) px-6 py-4 text-lg font-bold text-(--nc-input-text)`}
                 autoFocus={autoFocus}
                 disabled={disabled}
-                onChange={(e) => input.onChange(e.target.value)}
+                onChange={(e) => fieldContext.handleChange(e.target.value)}
                 onBlur={handleHideForm}
                 placeholder={placeholder}
-                value={input.value as string}
+                value={fieldContext.state.value as string || ''}
                 type="text"
                 onKeyDown={handleKeyDown}
                 aria-label={placeholder}
-                aria-invalid={meta?.invalid && meta?.touched}
+                aria-invalid={
+                  !fieldContext.state.meta.isValid &&
+                  fieldContext.state.meta.isTouched
+                }
                 aria-describedby={
-                  meta?.invalid && meta?.touched && meta?.error
+                  !fieldContext.state.meta.isValid &&
+                  fieldContext.state.meta.isTouched &&
+                  fieldContext.state.meta.errors?.[0]
                     ? 'error-message'
                     : undefined
                 }
                 role="textbox"
               />
-              {meta?.invalid && meta?.touched && meta?.error && (
-                <div
-                  id="error-message"
-                  className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 text-(--form-error-text)"
-                >
-                  <Icon name="warning" className="mr-2 max-h-5" />
-                  <span>{meta?.error}</span>
-                </div>
-              )}
+              {!fieldContext.state.meta.isValid &&
+                fieldContext.state.meta.isTouched &&
+                fieldContext.state.meta.errors?.[0] && (
+                  <div
+                    id="error-message"
+                    className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 text-(--form-error-text)"
+                  >
+                    <Icon name="warning" className="mr-2 max-h-5" />
+                    <span>{fieldContext.state.meta.errors?.[0]}</span>
+                  </div>
+                )}
             </div>
 
             <div>
               <Node
-                label={input.value as string}
-                selected={!meta?.invalid && !!input?.value}
+                label={fieldContext.state.value as string || ''}
+                selected={
+                  fieldContext.state.meta.isValid && !!fieldContext.state.value
+                }
                 color={nodeColor}
                 handleClick={() => {
                   if (
-                    input.value &&
+                    fieldContext.state.value &&
                     !disabled &&
-                    (!meta?.invalid || !meta?.error)
+                    fieldContext.state.meta.isValid
                   ) {
-                    input.onSubmit?.();
+                    void fieldContext.form.handleSubmit();
                     setShowForm(false);
                   }
                 }}
@@ -215,4 +234,4 @@ const QuickAdd = ({
   );
 };
 
-export default memo(QuickAdd);
+export default QuickAdd;

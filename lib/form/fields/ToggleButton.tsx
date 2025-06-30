@@ -2,21 +2,12 @@
 
 import cx from 'classnames';
 import React, { useId } from 'react';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import MarkdownLabel from './MarkdownLabel';
-
-type InputProps = {
-  name?: string;
-  value?: string | number | readonly string[] | undefined;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  checked?: boolean;
-};
 
 type ToggleButtonProps = {
   label: string;
   className?: string;
-  input: InputProps;
   disabled?: boolean;
   color?: string;
   fieldLabel?: string;
@@ -25,13 +16,13 @@ type ToggleButtonProps = {
 const ToggleButton = ({
   label,
   className = '',
-  input,
   disabled = false,
   color = 'cat-color-seq-1',
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fieldLabel, // Included but not used
   ...rest
 }: ToggleButtonProps) => {
+  const fieldContext = useFieldContext();
   // Use React's useId hook to generate a stable ID
   const id = useId();
 
@@ -50,8 +41,10 @@ const ToggleButton = ({
         <input
           className="form-field-togglebutton__input"
           id={id}
-          checked={!!input.value}
-          {...input}
+          name={fieldContext.name}
+          checked={!!fieldContext.state.value}
+          onChange={(e) => fieldContext.handleChange(e.target.checked)}
+          onBlur={() => fieldContext.handleBlur()}
           {...rest}
           type="checkbox"
         />

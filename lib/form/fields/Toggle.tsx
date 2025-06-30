@@ -3,43 +3,26 @@
 import cx from 'classnames';
 import React, { useEffect, useId } from 'react';
 import Icon from '~/lib/ui/components/Icon';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import MarkdownLabel from './MarkdownLabel';
-
-type InputProps = {
-  name?: string;
-  value?: string | number | readonly string[] | undefined;
-  onChange: (e: boolean) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  checked?: boolean;
-};
-
-type MetaProps = {
-  error?: string;
-  invalid?: boolean;
-  touched?: boolean;
-};
 
 type ToggleProps = {
   label?: string;
   fieldLabel?: string;
   className?: string;
-  input: InputProps;
   disabled?: boolean;
   title?: string;
-  meta: MetaProps;
 };
 
 const Toggle = ({
   label,
   fieldLabel,
   className = '',
-  input,
   disabled = false,
   title,
-  meta: { error, invalid, touched },
   ...rest
 }: ToggleProps) => {
+  const fieldContext = useFieldContext();
   // Use React's useId hook to generate a stable ID
   const id = useId();
 
@@ -48,34 +31,33 @@ const Toggle = ({
     // Because redux forms will just not pass on this
     // field if it was never touched and we need it to
     // return `false`.
-    if (typeof input.value !== 'boolean') {
-      input.onChange(false);
+    if (typeof fieldContext.state.value !== 'boolean') {
+      fieldContext.handleChange(false);
     }
-  }, [input]);
+  }, [fieldContext]);
 
   const containerClassNames = cx('form-field-container', {
-    'form-field-toggle--has-error': invalid && touched && error,
+    'form-field-toggle--has-error': !fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && fieldContext.state.meta.errors?.[0],
   });
 
   const componentClasses = cx('form-field', 'form-field-toggle', className, {
     'form-field-toggle--disabled': disabled,
-    'form-field-toggle--has-error': invalid && touched && error,
+    'form-field-toggle--has-error': !fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && fieldContext.state.meta.errors?.[0],
   });
 
   return (
-    <div className={containerClassNames} data-name={input.name}>
+    <div className={containerClassNames} data-name={fieldContext.name}>
       {fieldLabel && <MarkdownLabel label={fieldLabel} />}
       <label className={componentClasses} htmlFor={id} title={title}>
         <input
           className="form-field-toggle__input"
           id={id}
           {...rest}
-          name={input.name}
-          value={input.value}
-          checked={!!input.value}
-          onChange={(e) => input.onChange(e.target.checked)}
-          onBlur={input.onBlur}
-          onFocus={input.onFocus}
+          name={fieldContext.name}
+          value={fieldContext.state.value as string}
+          checked={!!fieldContext.state.value}
+          onChange={(e) => fieldContext.handleChange(e.target.checked)}
+          onBlur={() => fieldContext.handleBlur()}
           disabled={disabled}
           type="checkbox"
         />
@@ -90,10 +72,10 @@ const Toggle = ({
           />
         )}
       </label>
-      {invalid && touched && (
+      {!fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && (
         <div className="form-field-toggle__error">
           <Icon name="warning" />
-          {error}
+          {fieldContext.state.meta.errors?.[0]}
         </div>
       )}
     </div>

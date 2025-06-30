@@ -1,4 +1,3 @@
-import Field from '~/lib/form/Field';
 import { useFormData } from '~/lib/form/hooks/useFormData';
 import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
 import type { FormProps, TanStackFormErrors } from '~/lib/form/types';
@@ -40,21 +39,33 @@ const Form = ({
         }}
         id={id}
       >
-        {enrichedFields.map((field, index) => (
-          <form.AppField
-            name={field.name}
-            key={`${field.name}-${index}`}
-            validators={field.validators}
-          >
-            {() => (
-              <Field
-                field={field}
-                autoFocus={field.isFirst}
-                disabled={disabled}
-              />
-            )}
-          </form.AppField>
-        ))}
+        {enrichedFields.map((field, index) => {
+          if (!field.Component) {
+            throw new Error(`Component not resolved for field: ${field.name}`);
+          }
+
+          const FieldComponent = field.Component;
+
+          return (
+            <form.AppField
+              name={field.name}
+              key={`${field.name}-${index}`}
+              validators={field.validators}
+            >
+              {() => (
+                <FieldComponent
+                  label={field.label}
+                  fieldLabel={field.fieldLabel}
+                  options={field.options}
+                  parameters={field.parameters}
+                  autoFocus={field.isFirst}
+                  disabled={disabled}
+                  type={field.type}
+                />
+              )}
+            </form.AppField>
+          );
+        })}
         {submitButton}
       </form>
     </div>
