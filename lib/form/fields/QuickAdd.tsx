@@ -82,7 +82,7 @@ const QuickAdd = ({
   }, [fieldContext]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    async (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
 
@@ -94,7 +94,8 @@ const QuickAdd = ({
 
         // If valid, submit the form
         if (fieldContext.state.meta.isValid) {
-          void fieldContext.form.handleSubmit();
+          await fieldContext.form.handleSubmit();
+          fieldContext.form.reset();
           setShowForm(false);
         }
       }
@@ -178,7 +179,7 @@ const QuickAdd = ({
                 onChange={(e) => fieldContext.handleChange(e.target.value)}
                 onBlur={handleHideForm}
                 placeholder={placeholder}
-                value={fieldContext.state.value as string || ''}
+                value={(fieldContext.state.value as string) || ''}
                 type="text"
                 onKeyDown={handleKeyDown}
                 aria-label={placeholder}
@@ -210,19 +211,23 @@ const QuickAdd = ({
 
             <div>
               <Node
-                label={fieldContext.state.value as string || ''}
+                label={(fieldContext.state.value as string) || ''}
                 selected={
                   fieldContext.state.meta.isValid && !!fieldContext.state.value
                 }
                 color={nodeColor}
-                handleClick={() => {
+                handleClick={async () => {
                   if (
                     fieldContext.state.value &&
                     !disabled &&
                     fieldContext.state.meta.isValid
                   ) {
-                    void fieldContext.form.handleSubmit();
+                    await fieldContext.form.handleSubmit();
+                    fieldContext.form.reset();
                     setShowForm(false);
+                  } else {
+                    fieldContext.form.reset();
+                    handleHideForm();
                   }
                 }}
               />
