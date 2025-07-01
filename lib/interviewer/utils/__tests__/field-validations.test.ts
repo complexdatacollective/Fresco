@@ -8,8 +8,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   tanStackValidations,
   type TanStackValidatorParams,
-} from '../field-validation';
-import { type ValidationContext } from '../formContexts';
+  type ValidationContext,
+} from '~/lib/form/utils/fieldValidation';
 
 vi.mock('../../selectors/interface');
 vi.mock('../../selectors/session');

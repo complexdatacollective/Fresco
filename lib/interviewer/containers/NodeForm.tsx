@@ -9,8 +9,10 @@ import {
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useStore } from 'react-redux';
+import type { RootState } from '../store';
 import Form from '~/lib/form/Form';
+import { processProtocolFields } from '~/lib/form/utils/processProtocolFields';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
@@ -37,6 +39,7 @@ const NodeForm = (props: NodeFormProps) => {
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
+  const store = useStore<RootState>();
 
   const [show, setShow] = useState(false);
 
@@ -127,11 +130,16 @@ const NodeForm = (props: NodeFormProps) => {
       >
         <Scroller>
           <Form
-            fields={form.fields}
-            handleFormSubmit={handleSubmit}
-            initialValues={selectedNode?.[entityAttributesProperty]}
-            entityId={selectedNode?.[entityPrimaryKeyProperty]}
-            autoFocus
+            fields={processProtocolFields({
+              fields: form.fields,
+              validationMeta: {
+                entityId: selectedNode?.[entityPrimaryKeyProperty],
+              },
+              autoFocus: true,
+              state: store.getState(),
+            })}
+            handleSubmit={handleSubmit}
+            getInitialValues={() => selectedNode?.[entityAttributesProperty] ?? {}}
             id={FORM_NAME}
           />
         </Scroller>

@@ -17,6 +17,22 @@ export type FormField = {
   onBlur?: () => void; // optional, custom blur handler
 };
 
+export type ProcessedFormField = {
+  variable: string;
+  Component: React.ComponentType<FieldComponentProps>;
+  validation: {
+    onChangeListenTo?: string[];
+    onChange: (params: { value: VariableValue; fieldApi: unknown }) => string | undefined;
+  };
+  label?: string;
+  fieldLabel?: string;
+  options?: { label: string; value: VariableValue }[];
+  parameters?: Record<string, unknown>;
+  type?: VariableType;
+  isFirst?: boolean;
+  onBlur?: () => void;
+};
+
 export type FieldType = {
   name: string;
   component: ComponentType;
@@ -41,15 +57,14 @@ export type TanStackFormErrors = Record<
 >;
 
 export type FormProps = {
-  fields: FormField[];
-  handleFormSubmit: ({ value }: { value: Record<string, VariableValue> }) => void;
+  fields: ProcessedFormField[];
+  handleSubmit: ({ value }: { value: Record<string, VariableValue> }) => void;
+  getInitialValues?: () => Record<string, VariableValue> | Promise<Record<string, VariableValue>>;
   submitButton?: React.ReactNode;
-  initialValues?: Record<string, VariableValue>;
-  autoFocus?: boolean;
   disabled?: boolean;
   id?: string;
-  entityId?: string;
 };
+
 
 export type FieldProps = {
   field: FieldType;
