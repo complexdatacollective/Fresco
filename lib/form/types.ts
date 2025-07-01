@@ -33,20 +33,27 @@ export type ProcessedFormField = {
   onBlur?: () => void;
 };
 
-export type FieldType = {
+type BaseFieldType = {
   name: string;
   component: ComponentType;
-  type: VariableType;
   label?: string;
   fieldLabel?: string;
   value?: VariableValue;
-  options?: { label: string; value: VariableValue }[];
   parameters?: Record<string, unknown>;
   validation?: VariableValidation;
   validate?: TanStackValidator;
   Component?: React.ComponentType<FieldComponentProps>;
-  onBlur?: () => void; // optional, custom blur handler
+  onBlur?: () => void;
 };
+
+export type FieldType =
+  | (BaseFieldType & {
+      type: 'categorical' | 'ordinal';
+      options: { label: string; value: VariableValue }[];
+    })
+  | (BaseFieldType & {
+      type: 'boolean' | 'text' | 'number' | 'datetime' | 'scalar' | 'layout' | 'location';
+    });
 
 export type TanStackFormErrors = Record<
   string,

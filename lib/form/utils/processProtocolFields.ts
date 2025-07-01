@@ -151,7 +151,7 @@ export const processProtocolFields = ({
       name: field.name,
       label: field.label,
       fieldLabel: field.fieldLabel,
-      options: field.options,
+      options: (field.type === 'categorical' || field.type === 'ordinal') ? field.options : undefined,
       parameters: field.parameters,
       type: field.type,
       isFirst: autoFocus && index === 0,
