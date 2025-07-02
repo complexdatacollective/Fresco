@@ -8,7 +8,7 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useStore } from 'react-redux';
 import type { RootState } from '../store';
 import Form from '~/lib/form/Form';
@@ -52,6 +52,24 @@ const NodeForm = (props: NodeFormProps) => {
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => dispatch(updateNodeAction(payload)),
     [dispatch],
+  );
+
+  const processedFields = useMemo(() => {
+    const validationMeta = {
+      entityId: selectedNode?.[entityPrimaryKeyProperty],
+    };
+    
+    return processProtocolFields({
+      fields: form.fields,
+      validationMeta,
+      autoFocus: true,
+      state: store.getState(),
+    });
+  }, [form.fields, selectedNode, store]);
+
+  const getInitialValues = useCallback(
+    () => selectedNode?.[entityAttributesProperty] ?? {},
+    [selectedNode],
   );
 
   const useFullScreenForms = false;
@@ -130,16 +148,9 @@ const NodeForm = (props: NodeFormProps) => {
       >
         <Scroller>
           <Form
-            fields={processProtocolFields({
-              fields: form.fields,
-              validationMeta: {
-                entityId: selectedNode?.[entityPrimaryKeyProperty],
-              },
-              autoFocus: true,
-              state: store.getState(),
-            })}
+            fields={processedFields}
             handleSubmit={handleSubmit}
-            getInitialValues={() => selectedNode?.[entityAttributesProperty] ?? {}}
+            getInitialValues={getInitialValues}
             id={FORM_NAME}
           />
         </Scroller>
