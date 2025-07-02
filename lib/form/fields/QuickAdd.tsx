@@ -201,7 +201,7 @@ const QuickAdd = ({
                 fieldContext.state.meta.errors?.[0] && (
                   <div
                     id="error-message"
-                    className="absolute -bottom-8 left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 text-(--form-error-text)"
+                    className="absolute top-full left-0 flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 pr-4 text-(--form-error-text)"
                   >
                     <Icon name="warning" className="mr-2 max-h-5" />
                     <span>{fieldContext.state.meta.errors?.[0]}</span>
