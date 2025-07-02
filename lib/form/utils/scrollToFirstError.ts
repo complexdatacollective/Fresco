@@ -1,7 +1,7 @@
-import { type TanStackFormErrors } from '~/lib/form/types';
+import { type FormErrors } from '~/lib/form/types';
 import { scrollParent } from '~/lib/interviewer/utils/scrollParent';
 
-export const scrollToFirstError = (errors: TanStackFormErrors) => {
+export const scrollToFirstError = (errors: FormErrors) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check
   // vertical position to ensure it is actually the "first" in page order (topmost).
   if (!errors) return;

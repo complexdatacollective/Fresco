@@ -10,30 +10,47 @@ import type {
   VariableValidation,
 } from '~/lib/form/utils/fieldValidation';
 
-export type FormField = {
-  prompt?: string;
-  variable: string;
-  Component?: React.ComponentType<FieldComponentProps>; // optional pre-resolved component
-  onBlur?: () => void; // optional, custom blur handler
+// Core field validation type
+type FieldValidation = {
+  onChangeListenTo?: string[];
+  onChange: (params: {
+    value: VariableValue;
+    fieldApi: unknown;
+  }) => string | undefined;
 };
 
-export type ProcessedFormField = {
+// Base field configuration (before processing)
+type BaseFormField = {
   variable: string;
-  Component: React.ComponentType<FieldComponentProps>;
-  validation: {
-    onChangeListenTo?: string[];
-    onChange: (params: { value: VariableValue; fieldApi: unknown }) => string | undefined;
-  };
-  label?: string;
-  fieldLabel?: string;
-  options?: { label: string; value: VariableValue }[];
-  parameters?: Record<string, unknown>;
-  type?: VariableType;
-  isFirst?: boolean;
+  prompt?: string;
   onBlur?: () => void;
 };
 
-type BaseFieldType = {
+// Raw field from protocol (input to processing)
+export type FormField = BaseFormField & {
+  Component?: React.ComponentType<FieldComponentProps>;
+};
+
+// Processed field ready for rendering (output of processing)
+export type ProcessedFormField = BaseFormField & {
+  Component: React.ComponentType<FieldComponentProps>;
+  validation: FieldValidation;
+  label?: string;
+  fieldLabel?: string;
+  options?: FieldOption[];
+  parameters?: Record<string, unknown>;
+  type?: VariableType;
+  isFirst?: boolean;
+};
+
+// Field option for categorical/ordinal fields
+export type FieldOption = {
+  label: string;
+  value: VariableValue;
+};
+
+// Protocol field definition (from codebook)
+type BaseProtocolField = {
   name: string;
   component: ComponentType;
   label?: string;
@@ -46,16 +63,25 @@ type BaseFieldType = {
   onBlur?: () => void;
 };
 
-export type FieldType =
-  | (BaseFieldType & {
+// Discriminated union for protocol field types
+export type ProtocolField =
+  | (BaseProtocolField & {
       type: 'categorical' | 'ordinal';
-      options: { label: string; value: VariableValue }[];
+      options: FieldOption[];
     })
-  | (BaseFieldType & {
-      type: 'boolean' | 'text' | 'number' | 'datetime' | 'scalar' | 'layout' | 'location';
+  | (BaseProtocolField & {
+      type:
+        | 'boolean'
+        | 'text'
+        | 'number'
+        | 'datetime'
+        | 'scalar'
+        | 'layout'
+        | 'location';
     });
 
-export type TanStackFormErrors = Record<
+// Form error structure from TanStack Form
+export type FormErrors = Record<
   string,
   {
     errors: ValidationError[];
@@ -63,52 +89,23 @@ export type TanStackFormErrors = Record<
   }
 >;
 
+// Form component props
 export type FormProps = {
   fields: ProcessedFormField[];
-  handleSubmit: ({ value }: { value: Record<string, VariableValue> }) => void;
-  getInitialValues?: () => Record<string, VariableValue> | Promise<Record<string, VariableValue>>;
+  handleSubmit: (data: { value: Record<string, VariableValue> }) => void;
+  getInitialValues?: () =>
+    | Record<string, VariableValue>
+    | Promise<Record<string, VariableValue>>;
   submitButton?: React.ReactNode;
   disabled?: boolean;
   id?: string;
 };
 
-
-export type FieldProps = {
-  field: FieldType;
-  autoFocus?: boolean;
-  disabled?: boolean;
-};
-
-type InputMeta = {
-  error: string | null;
-  invalid: boolean;
-  touched: boolean;
-};
-
-type InputHandlers = {
-  name: string;
-  value: VariableValue;
-  onChange: (value: VariableValue) => void;
-  onBlur: () => void;
-  onSubmit?: () => void;
-};
-
-export type InputComponentProps = {
-  input: InputHandlers;
-  meta: InputMeta;
-  label?: string;
-  fieldLabel?: string;
-  options?: { label: string; value: VariableValue }[];
-  parameters?: Record<string, unknown>;
-  autoFocus?: boolean;
-  disabled?: boolean;
-  type: VariableType;
-};
-
+// Standard field component props
 export type FieldComponentProps = {
   label?: string;
   fieldLabel?: string;
-  options?: { label: string; value: VariableValue }[];
+  options?: FieldOption[];
   parameters?: Record<string, unknown>;
   autoFocus?: boolean;
   disabled?: boolean;

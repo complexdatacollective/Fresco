@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { VariableValue } from '@codaco/shared-consts';
 import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
-import type { FormProps, TanStackFormErrors } from '~/lib/form/types';
+import type { FormProps, FormErrors } from '~/lib/form/types';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 
 const Form = ({
@@ -46,7 +46,7 @@ const Form = ({
     defaultValues,
     onSubmit: handleSubmit,
     onSubmitInvalid: ({ formApi }) => {
-      const errors = formApi.getAllErrors().fields as TanStackFormErrors;
+      const errors = formApi.getAllErrors().fields as FormErrors;
       scrollToFirstError(errors);
     },
   });

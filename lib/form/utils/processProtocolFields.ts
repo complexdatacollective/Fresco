@@ -1,12 +1,11 @@
 import {
   type ComponentType,
   ComponentTypes,
-  type VariableType,
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import React from 'react';
-import type { FieldComponentProps, FieldType } from '~/lib/form/types';
+import type { FieldComponentProps, FormField, ProcessedFormField, ProtocolField } from '~/lib/form/types';
 import {
   getTanStackNativeValidators,
   type ValidationContext,
@@ -68,29 +67,7 @@ export type ValidationMetadata = {
   entityId?: string;
 };
 
-export type FormField = {
-  prompt?: string;
-  variable: string;
-  Component?: React.ComponentType<FieldComponentProps>;
-  onBlur?: () => void;
-};
 
-export type ProcessedField = {
-  variable: string;
-  Component: React.ComponentType<FieldComponentProps>;
-  validation: {
-    onChangeListenTo?: string[];
-    onChange: (params: { value: VariableValue; fieldApi: unknown }) => string | undefined;
-  };
-  name: string;
-  label?: string;
-  fieldLabel?: string;
-  options?: { label: string; value: VariableValue }[];
-  parameters?: Record<string, unknown>;
-  type?: VariableType;
-  isFirst?: boolean;
-  onBlur?: () => void;
-};
 
 export type ProcessProtocolFieldsOptions = {
   fields: FormField[];
@@ -104,7 +81,7 @@ export const processProtocolFields = ({
   validationMeta,
   autoFocus,
   state,
-}: ProcessProtocolFieldsOptions): ProcessedField[] => {
+}: ProcessProtocolFieldsOptions): ProcessedFormField[] => {
   const subject = getStageSubject(state);
   const codebookVariables = getCodebookVariablesForSubjectType(state);
   const networkEntities = getNetworkEntitiesForType(state);
@@ -112,7 +89,7 @@ export const processProtocolFields = ({
   const baseFields = enrichFieldsWithCodebookMetadata(state, {
     fields,
     subject,
-  }) as FieldType[];
+  }) as ProtocolField[];
 
   const validationContext: ValidationContext = {
     codebookVariables,
@@ -120,7 +97,7 @@ export const processProtocolFields = ({
     currentEntityId: validationMeta.entityId,
   };
 
-  return baseFields.map((field: FieldType, index: number) => {
+  return baseFields.map((field: ProtocolField, index: number) => {
     const Component =
       fields[index]?.Component ??
       (getInputComponent(
