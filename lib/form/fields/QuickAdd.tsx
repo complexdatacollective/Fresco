@@ -76,10 +76,15 @@ const QuickAdd = ({
     onShowForm?.();
   }, [onShowForm]);
 
-  const handleHideForm = useCallback(() => {
+  const resetAndCloseForm = useCallback(() => {
+    fieldContext.form.reset();
     setShowForm(false);
-    fieldContext.handleBlur();
   }, [fieldContext]);
+
+  const handleHideForm = useCallback(() => {
+    resetAndCloseForm();
+    fieldContext.handleBlur();
+  }, [fieldContext, resetAndCloseForm]);
 
   const handleKeyDown = useCallback(
     async (e: React.KeyboardEvent) => {
@@ -95,12 +100,11 @@ const QuickAdd = ({
         // If valid, submit the form
         if (fieldContext.state.meta.isValid) {
           await fieldContext.form.handleSubmit();
-          fieldContext.form.reset();
-          setShowForm(false);
+          resetAndCloseForm();
         }
       }
     },
-    [fieldContext, handleHideForm],
+    [fieldContext, handleHideForm, resetAndCloseForm],
   );
 
   // Close form when disabled
@@ -223,10 +227,8 @@ const QuickAdd = ({
                     fieldContext.state.meta.isValid
                   ) {
                     await fieldContext.form.handleSubmit();
-                    fieldContext.form.reset();
-                    setShowForm(false);
+                    resetAndCloseForm();
                   } else {
-                    fieldContext.form.reset();
                     handleHideForm();
                   }
                 }}
