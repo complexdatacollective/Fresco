@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import type { VariableValue } from '@codaco/shared-consts';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
-import type { FormProps, FormErrors } from '~/lib/form/types';
+import type { FormErrors, FormProps } from '~/lib/form/types';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 
 const Form = ({
@@ -12,15 +12,15 @@ const Form = ({
   disabled,
   id,
 }: FormProps) => {
-  const [initialValues, setInitialValues] = useState<Record<string, VariableValue>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [initialValues, setInitialValues] = useState<
+    Record<string, VariableValue>
+  >({});
 
   // Handle initial values loading
   useEffect(() => {
     if (!getInitialValues) return;
 
     const loadInitialValues = async () => {
-      setIsLoading(true);
       try {
         const values = await getInitialValues();
         setInitialValues(values);
@@ -28,8 +28,6 @@ const Form = ({
         // eslint-disable-next-line no-console
         console.error('Failed to load initial values:', error);
         setInitialValues({});
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -37,10 +35,12 @@ const Form = ({
   }, [getInitialValues]);
 
   // Create default values from fields and initial values
-  const defaultValues = fields.reduce<Record<string, VariableValue>>((acc, field) => {
-    acc[field.variable] = initialValues[field.variable] ?? '';
-    return acc;
-  }, {});
+  const defaultValues = useMemo(() => {
+    return fields.reduce<Record<string, VariableValue>>((acc, field) => {
+      acc[field.variable] = initialValues[field.variable] ?? '';
+      return acc;
+    }, {});
+  }, [fields, initialValues]);
 
   const form = useTanStackForm({
     defaultValues,
@@ -58,10 +58,6 @@ const Form = ({
     }
   }, [initialValues, defaultValues, form]);
 
-  if (isLoading) {
-    return <div>Loading form...</div>;
-  }
-
   return (
     <div>
       <form
@@ -74,7 +70,9 @@ const Form = ({
       >
         {fields.map((field, index) => {
           if (!field.Component) {
-            throw new Error(`Component not resolved for field: ${field.variable}`);
+            throw new Error(
+              `Component not resolved for field: ${field.variable}`,
+            );
           }
 
           const FieldComponent = field.Component;
@@ -86,15 +84,17 @@ const Form = ({
               validators={field.validation}
             >
               {() => (
-                <FieldComponent
-                  label={field.label}
-                  fieldLabel={field.fieldLabel}
-                  options={field.options}
-                  parameters={field.parameters}
-                  autoFocus={field.isFirst}
-                  disabled={disabled}
-                  type={field.type}
-                />
+                <Suspense>
+                  <FieldComponent
+                    label={field.label}
+                    fieldLabel={field.fieldLabel}
+                    options={field.options}
+                    parameters={field.parameters}
+                    autoFocus={field.isFirst}
+                    disabled={disabled}
+                    type={field.type}
+                  />
+                </Suspense>
               )}
             </form.AppField>
           );
