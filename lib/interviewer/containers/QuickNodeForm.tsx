@@ -6,11 +6,11 @@ import {
 import { motion } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector, useStore } from 'react-redux';
-import type { RootState } from '../store';
 import Form from '~/lib/form/Form';
 import { QuickAdd } from '~/lib/form/fields';
 import { processProtocolFields } from '~/lib/form/utils/processProtocolFields';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
+import type { RootState } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
 const containerVariants = {
@@ -83,7 +83,6 @@ const QuickAddForm = ({
         handleSubmit={handleSubmit}
         getInitialValues={() => ({})}
         disabled={disabled}
-        id="quick-add-form"
       />
     </motion.div>
   );

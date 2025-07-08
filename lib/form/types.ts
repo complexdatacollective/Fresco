@@ -89,18 +89,6 @@ export type FormErrors = Record<
   }
 >;
 
-// Form component props
-export type FormProps = {
-  fields: ProcessedFormField[];
-  handleSubmit: (data: { value: Record<string, VariableValue> }) => void;
-  getInitialValues?: () =>
-    | Record<string, VariableValue>
-    | Promise<Record<string, VariableValue>>;
-  submitButton?: React.ReactNode;
-  disabled?: boolean;
-  id?: string;
-};
-
 // Standard field component props
 export type FieldComponentProps = {
   label?: string;

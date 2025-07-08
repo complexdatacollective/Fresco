@@ -8,9 +8,8 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useStore } from 'react-redux';
-import type { RootState } from '../store';
 import Form from '~/lib/form/Form';
 import { processProtocolFields } from '~/lib/form/utils/processProtocolFields';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
@@ -18,11 +17,10 @@ import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
+import type { RootState } from '../store';
 import { useAppDispatch } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
-
-const FORM_NAME = 'node-form';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -42,6 +40,7 @@ const NodeForm = (props: NodeFormProps) => {
   const store = useStore<RootState>();
 
   const [show, setShow] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const dispatch = useAppDispatch();
 
@@ -58,7 +57,7 @@ const NodeForm = (props: NodeFormProps) => {
     const validationMeta = {
       entityId: selectedNode?.[entityPrimaryKeyProperty],
     };
-    
+
     return processProtocolFields({
       fields: form.fields,
       validationMeta,
@@ -137,8 +136,9 @@ const NodeForm = (props: NodeFormProps) => {
             <Button
               key="submit"
               aria-label="Submit"
-              type="submit"
-              form={FORM_NAME}
+              onClick={() => {
+                formRef.current?.dispatchEvent(new Event('submit'));
+              }}
             >
               Finished
             </Button>
@@ -148,10 +148,10 @@ const NodeForm = (props: NodeFormProps) => {
       >
         <Scroller>
           <Form
+            ref={formRef}
             fields={processedFields}
             handleSubmit={handleSubmit}
             getInitialValues={getInitialValues}
-            id={FORM_NAME}
           />
         </Scroller>
       </Overlay>
