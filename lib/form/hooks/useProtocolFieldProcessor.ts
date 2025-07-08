@@ -5,7 +5,13 @@ import {
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import React from 'react';
-import type { FieldComponentProps, FormField, ProcessedFormField, ProtocolField } from '~/lib/form/types';
+import { useSelector } from 'react-redux';
+import type {
+  FieldComponentProps,
+  FormField,
+  ProcessedFormField,
+  ProtocolField,
+} from '~/lib/form/types';
 import {
   getTanStackNativeValidators,
   type ValidationContext,
@@ -16,11 +22,14 @@ import {
   getNetworkEntitiesForType,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import type { RootState } from '~/lib/interviewer/store';
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
-    return React.createElement('div', {}, `Input component "${componentType}" not found.`);
+    return React.createElement(
+      'div',
+      {},
+      `Input component "${componentType}" not found.`,
+    );
   };
   NotFoundComponent.displayName = `ComponentTypeNotFound(${componentType})`;
   return NotFoundComponent;
@@ -67,34 +76,33 @@ export type ValidationMetadata = {
   entityId?: string;
 };
 
-
-
-export type ProcessProtocolFieldsOptions = {
+export type UseProcessProtocolFieldsOptions = {
   fields: FormField[];
-  validationMeta: ValidationMetadata;
+  validationMeta?: ValidationMetadata;
   autoFocus?: boolean;
-  state: RootState;
 };
 
-export const processProtocolFields = ({
+export const useProtocolFieldProcessor = ({
   fields,
   validationMeta,
   autoFocus,
-  state,
-}: ProcessProtocolFieldsOptions): ProcessedFormField[] => {
-  const subject = getStageSubject(state);
-  const codebookVariables = getCodebookVariablesForSubjectType(state);
-  const networkEntities = getNetworkEntitiesForType(state);
+}: UseProcessProtocolFieldsOptions): ProcessedFormField[] => {
+  const subject = useSelector(getStageSubject);
+  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
+  const networkEntities = useSelector(getNetworkEntitiesForType);
 
-  const baseFields = enrichFieldsWithCodebookMetadata(state, {
-    fields,
-    subject,
-  }) as ProtocolField[];
+  const baseFields = useSelector((state) =>
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    enrichFieldsWithCodebookMetadata(state, {
+      fields,
+      subject,
+    }),
+  ) as ProtocolField[];
 
   const validationContext: ValidationContext = {
     codebookVariables,
     networkEntities,
-    currentEntityId: validationMeta.entityId,
+    currentEntityId: validationMeta?.entityId,
   };
 
   return baseFields.map((field: ProtocolField, index: number) => {
@@ -115,7 +123,9 @@ export const processProtocolFields = ({
         validators.onChange({
           value: params.value,
           fieldApi: params.fieldApi as {
-            form: { store: { state: { values: Record<string, VariableValue> } } };
+            form: {
+              store: { state: { values: Record<string, VariableValue> } };
+            };
             name: string;
           },
         }),
@@ -128,7 +138,10 @@ export const processProtocolFields = ({
       name: field.name,
       label: field.label,
       fieldLabel: field.fieldLabel,
-      options: (field.type === 'categorical' || field.type === 'ordinal') ? field.options : undefined,
+      options:
+        field.type === 'categorical' || field.type === 'ordinal'
+          ? field.options
+          : undefined,
       parameters: field.parameters,
       type: field.type,
       isFirst: autoFocus && index === 0,

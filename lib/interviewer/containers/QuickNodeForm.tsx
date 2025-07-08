@@ -5,12 +5,11 @@ import {
 } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
 import { useCallback } from 'react';
-import { useSelector, useStore } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Form from '~/lib/form/Form';
 import { QuickAdd } from '~/lib/form/fields';
-import { processProtocolFields } from '~/lib/form/utils/processProtocolFields';
+import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
-import type { RootState } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
 const containerVariants = {
@@ -25,21 +24,20 @@ const containerVariants = {
   },
 };
 
-type QuickAddFormProps = {
+type QuickNodeFormProps = {
   disabled: boolean;
   targetVariable: string;
   onShowForm: () => void;
   addNode: (attributes: NcNode[EntityAttributesProperty]) => void;
 };
 
-const QuickAddForm = ({
+const QuickNodeForm = ({
   disabled,
   targetVariable,
   onShowForm,
   addNode,
-}: QuickAddFormProps) => {
+}: QuickNodeFormProps) => {
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-  const store = useStore<RootState>();
 
   const handleSubmit = useCallback(
     ({ value }: { value: Record<string, VariableValue> }) => {
@@ -64,11 +62,9 @@ const QuickAddForm = ({
     },
   ];
 
-  const processedFields = processProtocolFields({
+  const processedFields = useProtocolFieldProcessor({
     fields,
-    validationMeta: {}, // No validation metadata needed for quick add
     autoFocus: true,
-    state: store.getState(),
   });
 
   return (
@@ -88,4 +84,4 @@ const QuickAddForm = ({
   );
 };
 
-export default QuickAddForm;
+export default QuickNodeForm;

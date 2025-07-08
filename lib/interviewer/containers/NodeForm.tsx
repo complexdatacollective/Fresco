@@ -8,16 +8,15 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSelector, useStore } from 'react-redux';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Form from '~/lib/form/Form';
-import { processProtocolFields } from '~/lib/form/utils/processProtocolFields';
+import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
-import type { RootState } from '../store';
 import { useAppDispatch } from '../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
@@ -37,7 +36,6 @@ const NodeForm = (props: NodeFormProps) => {
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
-  const store = useStore<RootState>();
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -53,18 +51,13 @@ const NodeForm = (props: NodeFormProps) => {
     [dispatch],
   );
 
-  const processedFields = useMemo(() => {
-    const validationMeta = {
+  const processedFields = useProtocolFieldProcessor({
+    fields: form.fields,
+    validationMeta: {
       entityId: selectedNode?.[entityPrimaryKeyProperty],
-    };
-
-    return processProtocolFields({
-      fields: form.fields,
-      validationMeta,
-      autoFocus: true,
-      state: store.getState(),
-    });
-  }, [form.fields, selectedNode, store]);
+    },
+    autoFocus: true,
+  });
 
   const getInitialValues = useCallback(
     () => selectedNode?.[entityAttributesProperty] ?? {},
