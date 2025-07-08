@@ -137,7 +137,7 @@ const NodeForm = (props: NodeFormProps) => {
               key="submit"
               aria-label="Submit"
               onClick={() => {
-                formRef.current?.dispatchEvent(new Event('submit'));
+                formRef.current?.requestSubmit();
               }}
             >
               Finished
