@@ -1,5 +1,5 @@
 import type { VariableValue } from '@codaco/shared-consts';
-import { forwardRef, Suspense, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
 import type { FormErrors, ProcessedFormField } from '~/lib/form/types';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
@@ -93,13 +93,11 @@ const Form = forwardRef<HTMLFormElement, FormProps>(
               validators={field.validation}
             >
               {() => (
-                <Suspense>
-                  <field.Component
-                    {...field}
-                    disabled={disabled}
-                    autoFocus={focusFirstInput && index === 0}
-                  />
-                </Suspense>
+                <field.Component
+                  {...field}
+                  disabled={disabled}
+                  autoFocus={focusFirstInput && index === 0}
+                />
               )}
             </form.AppField>
           );

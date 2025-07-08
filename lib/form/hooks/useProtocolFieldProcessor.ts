@@ -4,6 +4,7 @@ import {
 } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import type {
@@ -35,41 +36,53 @@ const ComponentTypeNotFound = (componentType: string) => {
   return NotFoundComponent;
 };
 
-const lazyComponents = {
-  Boolean: React.lazy(() => import('~/lib/form/fields/Boolean')),
-  Checkbox: React.lazy(() => import('~/lib/form/fields/Checkbox')),
-  CheckboxGroup: React.lazy(() => import('~/lib/form/fields/CheckboxGroup')),
-  DatePicker: React.lazy(() => import('~/lib/form/fields/DatePicker')),
-  LikertScale: React.lazy(() => import('~/lib/form/fields/LikertScale')),
-  Markdown: React.lazy(() => import('~/lib/form/fields/Markdown')),
-  MarkdownLabel: React.lazy(() => import('~/lib/form/fields/MarkdownLabel')),
-  Number: React.lazy(() => import('~/lib/form/fields/Number')),
-  Radio: React.lazy(() => import('~/lib/form/fields/Radio')),
-  RadioGroup: React.lazy(() => import('~/lib/form/fields/RadioGroup')),
-  RelativeDatePicker: React.lazy(
-    () => import('~/lib/form/fields/RelativeDatePicker'),
-  ),
-  Search: React.lazy(() => import('~/lib/form/fields/Search')),
-  Slider: React.lazy(() => import('~/lib/form/fields/Slider')),
-  Text: React.lazy(() => import('~/lib/form/fields/Text')),
-  TextArea: React.lazy(() => import('~/lib/form/fields/TextArea')),
-  Toggle: React.lazy(() => import('~/lib/form/fields/Toggle')),
-  ToggleButton: React.lazy(() => import('~/lib/form/fields/ToggleButton')),
-  ToggleButtonGroup: React.lazy(
-    () => import('~/lib/form/fields/ToggleButtonGroup'),
-  ),
-  VisualAnalogScale: React.lazy(
-    () => import('~/lib/form/fields/VisualAnalogScale'),
-  ),
-  QuickAdd: React.lazy(() => import('~/lib/form/fields/QuickAdd')),
-} as const;
-
 const getInputComponent = (componentType: ComponentType = 'Text') => {
-  const def = get(ComponentTypes, componentType);
-  return (
-    lazyComponents[def as keyof typeof lazyComponents] ||
-    ComponentTypeNotFound(componentType)
-  );
+  const def = get(ComponentTypes, componentType) as string;
+  
+  switch (def) {
+    case 'Boolean':
+      return dynamic(() => import('~/lib/form/fields/Boolean'));
+    case 'Checkbox':
+      return dynamic(() => import('~/lib/form/fields/Checkbox'));
+    case 'CheckboxGroup':
+      return dynamic(() => import('~/lib/form/fields/CheckboxGroup'));
+    case 'DatePicker':
+      return dynamic(() => import('~/lib/form/fields/DatePicker'));
+    case 'LikertScale':
+      return dynamic(() => import('~/lib/form/fields/LikertScale'));
+    case 'Markdown':
+      return dynamic(() => import('~/lib/form/fields/Markdown'));
+    case 'MarkdownLabel':
+      return dynamic(() => import('~/lib/form/fields/MarkdownLabel'));
+    case 'Number':
+      return dynamic(() => import('~/lib/form/fields/Number'));
+    case 'Radio':
+      return dynamic(() => import('~/lib/form/fields/Radio'));
+    case 'RadioGroup':
+      return dynamic(() => import('~/lib/form/fields/RadioGroup'));
+    case 'RelativeDatePicker':
+      return dynamic(() => import('~/lib/form/fields/RelativeDatePicker'));
+    case 'Search':
+      return dynamic(() => import('~/lib/form/fields/Search'));
+    case 'Slider':
+      return dynamic(() => import('~/lib/form/fields/Slider'));
+    case 'Text':
+      return dynamic(() => import('~/lib/form/fields/Text'));
+    case 'TextArea':
+      return dynamic(() => import('~/lib/form/fields/TextArea'));
+    case 'Toggle':
+      return dynamic(() => import('~/lib/form/fields/Toggle'));
+    case 'ToggleButton':
+      return dynamic(() => import('~/lib/form/fields/ToggleButton'));
+    case 'ToggleButtonGroup':
+      return dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'));
+    case 'VisualAnalogScale':
+      return dynamic(() => import('~/lib/form/fields/VisualAnalogScale'));
+    case 'QuickAdd':
+      return dynamic(() => import('~/lib/form/fields/QuickAdd'));
+    default:
+      return ComponentTypeNotFound(componentType);
+  }
 };
 
 export type ValidationMetadata = {
