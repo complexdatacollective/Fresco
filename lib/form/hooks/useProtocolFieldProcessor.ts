@@ -79,13 +79,11 @@ export type ValidationMetadata = {
 export type UseProcessProtocolFieldsOptions = {
   fields: FormField[];
   validationMeta?: ValidationMetadata;
-  autoFocus?: boolean;
 };
 
 export const useProtocolFieldProcessor = ({
   fields,
   validationMeta,
-  autoFocus,
 }: UseProcessProtocolFieldsOptions): ProcessedFormField[] => {
   const subject = useSelector(getStageSubject);
   const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
@@ -144,7 +142,6 @@ export const useProtocolFieldProcessor = ({
           : undefined,
       parameters: field.parameters,
       type: field.type,
-      isFirst: autoFocus && index === 0,
       onBlur: fields[index]?.onBlur,
     };
   });

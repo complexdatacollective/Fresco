@@ -40,7 +40,6 @@ export type ProcessedFormField = BaseFormField & {
   options?: FieldOption[];
   parameters?: Record<string, unknown>;
   type?: VariableType;
-  isFirst?: boolean;
 };
 
 // Field option for categorical/ordinal fields
@@ -95,7 +94,7 @@ export type FieldComponentProps = {
   fieldLabel?: string;
   options?: FieldOption[];
   parameters?: Record<string, unknown>;
-  autoFocus?: boolean;
   disabled?: boolean;
   type?: VariableType;
+  autoFocus?: boolean;
 };

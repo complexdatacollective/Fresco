@@ -56,7 +56,6 @@ const NodeForm = (props: NodeFormProps) => {
     validationMeta: {
       entityId: selectedNode?.[entityPrimaryKeyProperty],
     },
-    autoFocus: true,
   });
 
   const getInitialValues = useCallback(
@@ -145,6 +144,7 @@ const NodeForm = (props: NodeFormProps) => {
             fields={processedFields}
             handleSubmit={handleSubmit}
             getInitialValues={getInitialValues}
+            focusFirstInput={true}
           />
         </Scroller>
       </Overlay>

@@ -12,6 +12,7 @@ export type FormProps = {
     | Promise<Record<string, VariableValue>>;
   submitButton?: React.ReactNode;
   disabled?: boolean;
+  focusFirstInput?: boolean;
 } & React.FormHTMLAttributes<HTMLFormElement>;
 
 const Form = forwardRef<HTMLFormElement, FormProps>(
@@ -23,6 +24,7 @@ const Form = forwardRef<HTMLFormElement, FormProps>(
       getInitialValues,
       submitButton = <button type="submit" key="submit" aria-label="Submit" />,
       disabled,
+      focusFirstInput,
       children,
     },
     ref,
@@ -83,7 +85,7 @@ const Form = forwardRef<HTMLFormElement, FormProps>(
         }}
         id={id}
       >
-        {fields.map((field) => {
+        {fields.map((field, index) => {
           return (
             <form.AppField
               name={field.variable}
@@ -92,7 +94,11 @@ const Form = forwardRef<HTMLFormElement, FormProps>(
             >
               {() => (
                 <Suspense>
-                  <field.Component {...field} disabled={disabled} />
+                  <field.Component
+                    {...field}
+                    disabled={disabled}
+                    autoFocus={focusFirstInput && index === 0}
+                  />
                 </Suspense>
               )}
             </form.AppField>

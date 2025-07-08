@@ -64,7 +64,6 @@ const QuickNodeForm = ({
 
   const processedFields = useProtocolFieldProcessor({
     fields,
-    autoFocus: true,
   });
 
   return (
@@ -79,6 +78,7 @@ const QuickNodeForm = ({
         handleSubmit={handleSubmit}
         getInitialValues={() => ({})}
         disabled={disabled}
+        focusFirstInput={true}
       />
     </motion.div>
   );
