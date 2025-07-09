@@ -24,6 +24,27 @@ import {
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 
+const BooleanField = dynamic(() => import('~/lib/form/fields/Boolean'));
+const CheckboxField = dynamic(() => import('~/lib/form/fields/Checkbox'));
+const CheckboxGroupField = dynamic(() => import('~/lib/form/fields/CheckboxGroup'));
+const DatePickerField = dynamic(() => import('~/lib/form/fields/DatePicker'));
+const LikertScaleField = dynamic(() => import('~/lib/form/fields/LikertScale'));
+const MarkdownField = dynamic(() => import('~/lib/form/fields/Markdown'));
+const MarkdownLabelField = dynamic(() => import('~/lib/form/fields/MarkdownLabel'));
+const NumberField = dynamic(() => import('~/lib/form/fields/Number'));
+const RadioField = dynamic(() => import('~/lib/form/fields/Radio'));
+const RadioGroupField = dynamic(() => import('~/lib/form/fields/RadioGroup'));
+const RelativeDatePickerField = dynamic(() => import('~/lib/form/fields/RelativeDatePicker'));
+const SearchField = dynamic(() => import('~/lib/form/fields/Search'));
+const SliderField = dynamic(() => import('~/lib/form/fields/Slider'));
+const TextField = dynamic(() => import('~/lib/form/fields/Text'));
+const TextAreaField = dynamic(() => import('~/lib/form/fields/TextArea'));
+const ToggleField = dynamic(() => import('~/lib/form/fields/Toggle'));
+const ToggleButtonField = dynamic(() => import('~/lib/form/fields/ToggleButton'));
+const ToggleButtonGroupField = dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'));
+const VisualAnalogScaleField = dynamic(() => import('~/lib/form/fields/VisualAnalogScale'));
+const QuickAddField = dynamic(() => import('~/lib/form/fields/QuickAdd'));
+
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
     return React.createElement(
@@ -41,45 +62,45 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
   
   switch (def) {
     case 'Boolean':
-      return dynamic(() => import('~/lib/form/fields/Boolean'));
+      return BooleanField;
     case 'Checkbox':
-      return dynamic(() => import('~/lib/form/fields/Checkbox'));
+      return CheckboxField;
     case 'CheckboxGroup':
-      return dynamic(() => import('~/lib/form/fields/CheckboxGroup'));
+      return CheckboxGroupField;
     case 'DatePicker':
-      return dynamic(() => import('~/lib/form/fields/DatePicker'));
+      return DatePickerField;
     case 'LikertScale':
-      return dynamic(() => import('~/lib/form/fields/LikertScale'));
+      return LikertScaleField;
     case 'Markdown':
-      return dynamic(() => import('~/lib/form/fields/Markdown'));
+      return MarkdownField;
     case 'MarkdownLabel':
-      return dynamic(() => import('~/lib/form/fields/MarkdownLabel'));
+      return MarkdownLabelField;
     case 'Number':
-      return dynamic(() => import('~/lib/form/fields/Number'));
+      return NumberField;
     case 'Radio':
-      return dynamic(() => import('~/lib/form/fields/Radio'));
+      return RadioField;
     case 'RadioGroup':
-      return dynamic(() => import('~/lib/form/fields/RadioGroup'));
+      return RadioGroupField;
     case 'RelativeDatePicker':
-      return dynamic(() => import('~/lib/form/fields/RelativeDatePicker'));
+      return RelativeDatePickerField;
     case 'Search':
-      return dynamic(() => import('~/lib/form/fields/Search'));
+      return SearchField;
     case 'Slider':
-      return dynamic(() => import('~/lib/form/fields/Slider'));
+      return SliderField;
     case 'Text':
-      return dynamic(() => import('~/lib/form/fields/Text'));
+      return TextField;
     case 'TextArea':
-      return dynamic(() => import('~/lib/form/fields/TextArea'));
+      return TextAreaField;
     case 'Toggle':
-      return dynamic(() => import('~/lib/form/fields/Toggle'));
+      return ToggleField;
     case 'ToggleButton':
-      return dynamic(() => import('~/lib/form/fields/ToggleButton'));
+      return ToggleButtonField;
     case 'ToggleButtonGroup':
-      return dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'));
+      return ToggleButtonGroupField;
     case 'VisualAnalogScale':
-      return dynamic(() => import('~/lib/form/fields/VisualAnalogScale'));
+      return VisualAnalogScaleField;
     case 'QuickAdd':
-      return dynamic(() => import('~/lib/form/fields/QuickAdd'));
+      return QuickAddField;
     default:
       return ComponentTypeNotFound(componentType);
   }
