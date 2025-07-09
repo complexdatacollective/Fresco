@@ -402,7 +402,7 @@ export const getTanStackNativeValidators = (
     .map(([, variableId]) => variableId as string);
 
   return {
-    onChangeListenTo:
+    dependsOnVariables:
       listenToVariables.length > 0 ? listenToVariables : undefined,
     onChange: ({
       value,

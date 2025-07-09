@@ -7,32 +7,30 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { type ValidationErrorMap } from '@tanstack/react-form';
 import type {
   TanStackValidator,
+  TanStackValidatorParams,
   VariableValidation,
 } from '~/lib/form/utils/fieldValidation';
 
 // Core field validation type
 type FieldValidation = {
-  onChangeListenTo?: string[];
+  dependsOnVariables?: string[];
   onChange: (params: {
     value: VariableValue;
-    fieldApi: unknown;
+    fieldApi: TanStackValidatorParams['fieldApi'];
   }) => string | undefined;
 };
 
-// Base field configuration (before processing)
-type BaseFormField = {
+// Raw form field (from protocol)
+export type RawFormField = {
   variable: string;
   prompt?: string;
   onBlur?: () => void;
-};
-
-// Raw field from protocol (input to processing)
-export type FormField = BaseFormField & {
   Component?: React.ComponentType<FieldComponentProps>;
 };
 
-// Processed field ready for rendering (output of processing)
-export type ProcessedFormField = BaseFormField & {
+// Processed form field (ready to be rendered)
+export type ProcessedFormField = {
+  variable: string;
   Component: React.ComponentType<FieldComponentProps>;
   validation: FieldValidation;
   label?: string;
@@ -40,6 +38,7 @@ export type ProcessedFormField = BaseFormField & {
   options?: FieldOption[];
   parameters?: Record<string, unknown>;
   type?: VariableType;
+  onBlur?: () => void;
 };
 
 // Field option for categorical/ordinal fields
@@ -58,8 +57,6 @@ type BaseProtocolField = {
   parameters?: Record<string, unknown>;
   validation?: VariableValidation;
   validate?: TanStackValidator;
-  Component?: React.ComponentType<FieldComponentProps>;
-  onBlur?: () => void;
 };
 
 // Discriminated union for protocol field types

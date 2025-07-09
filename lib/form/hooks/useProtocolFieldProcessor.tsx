@@ -7,11 +7,12 @@ import { get } from 'es-toolkit/compat';
 import dynamic from 'next/dynamic';
 import React from 'react';
 import { useSelector } from 'react-redux';
+import FieldSkeleton from '~/lib/form/components/fields/FieldSkeleton';
 import type {
   FieldComponentProps,
-  FormField,
   ProcessedFormField,
   ProtocolField,
+  RawFormField,
 } from '~/lib/form/types';
 import {
   getTanStackNativeValidators,
@@ -23,68 +24,121 @@ import {
   getNetworkEntitiesForType,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import FieldSkeleton from '~/lib/form/components/FieldSkeleton';
 
-const BooleanField = dynamic(() => import('~/lib/form/fields/Boolean'), {
+const BooleanField = dynamic(
+  () => import('~/lib/form/components/fields/Boolean'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const CheckboxField = dynamic(
+  () => import('~/lib/form/components/fields/Checkbox'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const CheckboxGroupField = dynamic(
+  () => import('~/lib/form/components/fields/CheckboxGroup'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const DatePickerField = dynamic(
+  () => import('~/lib/form/components/fields/DatePicker'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const LikertScaleField = dynamic(
+  () => import('~/lib/form/components/fields/LikertScale'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const MarkdownField = dynamic(
+  () => import('~/lib/form/components/fields/Markdown'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const MarkdownLabelField = dynamic(
+  () => import('~/lib/form/components/fields/MarkdownLabel'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const NumberField = dynamic(
+  () => import('~/lib/form/components/fields/Number'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const RadioField = dynamic(() => import('~/lib/form/components/fields/Radio'), {
   loading: () => <FieldSkeleton />,
 });
-const CheckboxField = dynamic(() => import('~/lib/form/fields/Checkbox'), {
+const RadioGroupField = dynamic(
+  () => import('~/lib/form/components/fields/RadioGroup'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const RelativeDatePickerField = dynamic(
+  () => import('~/lib/form/components/fields/RelativeDatePicker'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const SearchField = dynamic(
+  () => import('~/lib/form/components/fields/Search'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const SliderField = dynamic(
+  () => import('~/lib/form/components/fields/Slider'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const TextField = dynamic(() => import('~/lib/form/components/fields/Text'), {
   loading: () => <FieldSkeleton />,
 });
-const CheckboxGroupField = dynamic(() => import('~/lib/form/fields/CheckboxGroup'), {
-  loading: () => <FieldSkeleton />,
-});
-const DatePickerField = dynamic(() => import('~/lib/form/fields/DatePicker'), {
-  loading: () => <FieldSkeleton />,
-});
-const LikertScaleField = dynamic(() => import('~/lib/form/fields/LikertScale'), {
-  loading: () => <FieldSkeleton />,
-});
-const MarkdownField = dynamic(() => import('~/lib/form/fields/Markdown'), {
-  loading: () => <FieldSkeleton />,
-});
-const MarkdownLabelField = dynamic(() => import('~/lib/form/fields/MarkdownLabel'), {
-  loading: () => <FieldSkeleton />,
-});
-const NumberField = dynamic(() => import('~/lib/form/fields/Number'), {
-  loading: () => <FieldSkeleton />,
-});
-const RadioField = dynamic(() => import('~/lib/form/fields/Radio'), {
-  loading: () => <FieldSkeleton />,
-});
-const RadioGroupField = dynamic(() => import('~/lib/form/fields/RadioGroup'), {
-  loading: () => <FieldSkeleton />,
-});
-const RelativeDatePickerField = dynamic(() => import('~/lib/form/fields/RelativeDatePicker'), {
-  loading: () => <FieldSkeleton />,
-});
-const SearchField = dynamic(() => import('~/lib/form/fields/Search'), {
-  loading: () => <FieldSkeleton />,
-});
-const SliderField = dynamic(() => import('~/lib/form/fields/Slider'), {
-  loading: () => <FieldSkeleton />,
-});
-const TextField = dynamic(() => import('~/lib/form/fields/Text'), {
-  loading: () => <FieldSkeleton />,
-});
-const TextAreaField = dynamic(() => import('~/lib/form/fields/TextArea'), {
-  loading: () => <FieldSkeleton />,
-});
-const ToggleField = dynamic(() => import('~/lib/form/fields/Toggle'), {
-  loading: () => <FieldSkeleton />,
-});
-const ToggleButtonField = dynamic(() => import('~/lib/form/fields/ToggleButton'), {
-  loading: () => <FieldSkeleton />,
-});
-const ToggleButtonGroupField = dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'), {
-  loading: () => <FieldSkeleton />,
-});
-const VisualAnalogScaleField = dynamic(() => import('~/lib/form/fields/VisualAnalogScale'), {
-  loading: () => <FieldSkeleton />,
-});
-const QuickAddField = dynamic(() => import('~/lib/form/fields/QuickAdd'), {
-  loading: () => <FieldSkeleton />,
-});
+const TextAreaField = dynamic(
+  () => import('~/lib/form/components/fields/TextArea'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const ToggleField = dynamic(
+  () => import('~/lib/form/components/fields/Toggle'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const ToggleButtonField = dynamic(
+  () => import('~/lib/form/components/fields/ToggleButton'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const ToggleButtonGroupField = dynamic(
+  () => import('~/lib/form/components/fields/ToggleButtonGroup'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const VisualAnalogScaleField = dynamic(
+  () => import('~/lib/form/components/fields/VisualAnalogScale'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
+const QuickAddField = dynamic(
+  () => import('~/lib/form/components/fields/QuickAdd'),
+  {
+    loading: () => <FieldSkeleton />,
+  },
+);
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {
@@ -100,7 +154,7 @@ const ComponentTypeNotFound = (componentType: string) => {
 
 const getInputComponent = (componentType: ComponentType = 'Text') => {
   const def = get(ComponentTypes, componentType) as string;
-  
+
   switch (def) {
     case 'Boolean':
       return BooleanField;
@@ -152,7 +206,7 @@ export type ValidationMetadata = {
 };
 
 export type UseProcessProtocolFieldsOptions = {
-  fields: FormField[];
+  fields: RawFormField[];
   validationMeta?: ValidationMetadata;
 };
 
@@ -191,7 +245,7 @@ export const useProtocolFieldProcessor = ({
     );
 
     const validation = {
-      onChangeListenTo: validators.onChangeListenTo,
+      onChangeListenTo: validators.dependsOnVariables,
       onChange: (params: { value: VariableValue; fieldApi: unknown }) =>
         validators.onChange({
           value: params.value,
@@ -208,7 +262,6 @@ export const useProtocolFieldProcessor = ({
       variable: field.name,
       Component,
       validation,
-      name: field.name,
       label: field.label,
       fieldLabel: field.fieldLabel,
       options:
