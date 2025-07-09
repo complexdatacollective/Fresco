@@ -26,19 +26,19 @@ import {
 import FieldSkeleton from '~/lib/form/components/FieldSkeleton';
 
 const BooleanField = dynamic(() => import('~/lib/form/fields/Boolean'), {
-  loading: () => <FieldSkeleton type="boolean" />,
+  loading: () => <FieldSkeleton />,
 });
 const CheckboxField = dynamic(() => import('~/lib/form/fields/Checkbox'), {
-  loading: () => <FieldSkeleton type="checkbox" />,
+  loading: () => <FieldSkeleton />,
 });
 const CheckboxGroupField = dynamic(() => import('~/lib/form/fields/CheckboxGroup'), {
-  loading: () => <FieldSkeleton type="checkbox" />,
+  loading: () => <FieldSkeleton />,
 });
 const DatePickerField = dynamic(() => import('~/lib/form/fields/DatePicker'), {
   loading: () => <FieldSkeleton />,
 });
 const LikertScaleField = dynamic(() => import('~/lib/form/fields/LikertScale'), {
-  loading: () => <FieldSkeleton type="slider" />,
+  loading: () => <FieldSkeleton />,
 });
 const MarkdownField = dynamic(() => import('~/lib/form/fields/Markdown'), {
   loading: () => <FieldSkeleton />,
@@ -50,10 +50,10 @@ const NumberField = dynamic(() => import('~/lib/form/fields/Number'), {
   loading: () => <FieldSkeleton />,
 });
 const RadioField = dynamic(() => import('~/lib/form/fields/Radio'), {
-  loading: () => <FieldSkeleton type="radio" />,
+  loading: () => <FieldSkeleton />,
 });
 const RadioGroupField = dynamic(() => import('~/lib/form/fields/RadioGroup'), {
-  loading: () => <FieldSkeleton type="radio" />,
+  loading: () => <FieldSkeleton />,
 });
 const RelativeDatePickerField = dynamic(() => import('~/lib/form/fields/RelativeDatePicker'), {
   loading: () => <FieldSkeleton />,
@@ -62,25 +62,25 @@ const SearchField = dynamic(() => import('~/lib/form/fields/Search'), {
   loading: () => <FieldSkeleton />,
 });
 const SliderField = dynamic(() => import('~/lib/form/fields/Slider'), {
-  loading: () => <FieldSkeleton type="slider" />,
+  loading: () => <FieldSkeleton />,
 });
 const TextField = dynamic(() => import('~/lib/form/fields/Text'), {
   loading: () => <FieldSkeleton />,
 });
 const TextAreaField = dynamic(() => import('~/lib/form/fields/TextArea'), {
-  loading: () => <FieldSkeleton type="textarea" />,
+  loading: () => <FieldSkeleton />,
 });
 const ToggleField = dynamic(() => import('~/lib/form/fields/Toggle'), {
-  loading: () => <FieldSkeleton type="toggle" />,
+  loading: () => <FieldSkeleton />,
 });
 const ToggleButtonField = dynamic(() => import('~/lib/form/fields/ToggleButton'), {
-  loading: () => <FieldSkeleton type="toggleButton" />,
+  loading: () => <FieldSkeleton />,
 });
 const ToggleButtonGroupField = dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'), {
-  loading: () => <FieldSkeleton type="toggleButton" />,
+  loading: () => <FieldSkeleton />,
 });
 const VisualAnalogScaleField = dynamic(() => import('~/lib/form/fields/VisualAnalogScale'), {
-  loading: () => <FieldSkeleton type="slider" />,
+  loading: () => <FieldSkeleton />,
 });
 const QuickAddField = dynamic(() => import('~/lib/form/fields/QuickAdd'), {
   loading: () => <FieldSkeleton />,
