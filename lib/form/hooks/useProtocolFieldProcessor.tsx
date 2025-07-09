@@ -23,27 +23,68 @@ import {
   getNetworkEntitiesForType,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
+import FieldSkeleton from '~/lib/form/components/FieldSkeleton';
 
-const BooleanField = dynamic(() => import('~/lib/form/fields/Boolean'));
-const CheckboxField = dynamic(() => import('~/lib/form/fields/Checkbox'));
-const CheckboxGroupField = dynamic(() => import('~/lib/form/fields/CheckboxGroup'));
-const DatePickerField = dynamic(() => import('~/lib/form/fields/DatePicker'));
-const LikertScaleField = dynamic(() => import('~/lib/form/fields/LikertScale'));
-const MarkdownField = dynamic(() => import('~/lib/form/fields/Markdown'));
-const MarkdownLabelField = dynamic(() => import('~/lib/form/fields/MarkdownLabel'));
-const NumberField = dynamic(() => import('~/lib/form/fields/Number'));
-const RadioField = dynamic(() => import('~/lib/form/fields/Radio'));
-const RadioGroupField = dynamic(() => import('~/lib/form/fields/RadioGroup'));
-const RelativeDatePickerField = dynamic(() => import('~/lib/form/fields/RelativeDatePicker'));
-const SearchField = dynamic(() => import('~/lib/form/fields/Search'));
-const SliderField = dynamic(() => import('~/lib/form/fields/Slider'));
-const TextField = dynamic(() => import('~/lib/form/fields/Text'));
-const TextAreaField = dynamic(() => import('~/lib/form/fields/TextArea'));
-const ToggleField = dynamic(() => import('~/lib/form/fields/Toggle'));
-const ToggleButtonField = dynamic(() => import('~/lib/form/fields/ToggleButton'));
-const ToggleButtonGroupField = dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'));
-const VisualAnalogScaleField = dynamic(() => import('~/lib/form/fields/VisualAnalogScale'));
-const QuickAddField = dynamic(() => import('~/lib/form/fields/QuickAdd'));
+const BooleanField = dynamic(() => import('~/lib/form/fields/Boolean'), {
+  loading: () => <FieldSkeleton type="boolean" />,
+});
+const CheckboxField = dynamic(() => import('~/lib/form/fields/Checkbox'), {
+  loading: () => <FieldSkeleton type="checkbox" />,
+});
+const CheckboxGroupField = dynamic(() => import('~/lib/form/fields/CheckboxGroup'), {
+  loading: () => <FieldSkeleton type="checkbox" />,
+});
+const DatePickerField = dynamic(() => import('~/lib/form/fields/DatePicker'), {
+  loading: () => <FieldSkeleton />,
+});
+const LikertScaleField = dynamic(() => import('~/lib/form/fields/LikertScale'), {
+  loading: () => <FieldSkeleton type="slider" />,
+});
+const MarkdownField = dynamic(() => import('~/lib/form/fields/Markdown'), {
+  loading: () => <FieldSkeleton />,
+});
+const MarkdownLabelField = dynamic(() => import('~/lib/form/fields/MarkdownLabel'), {
+  loading: () => <FieldSkeleton />,
+});
+const NumberField = dynamic(() => import('~/lib/form/fields/Number'), {
+  loading: () => <FieldSkeleton />,
+});
+const RadioField = dynamic(() => import('~/lib/form/fields/Radio'), {
+  loading: () => <FieldSkeleton type="radio" />,
+});
+const RadioGroupField = dynamic(() => import('~/lib/form/fields/RadioGroup'), {
+  loading: () => <FieldSkeleton type="radio" />,
+});
+const RelativeDatePickerField = dynamic(() => import('~/lib/form/fields/RelativeDatePicker'), {
+  loading: () => <FieldSkeleton />,
+});
+const SearchField = dynamic(() => import('~/lib/form/fields/Search'), {
+  loading: () => <FieldSkeleton />,
+});
+const SliderField = dynamic(() => import('~/lib/form/fields/Slider'), {
+  loading: () => <FieldSkeleton type="slider" />,
+});
+const TextField = dynamic(() => import('~/lib/form/fields/Text'), {
+  loading: () => <FieldSkeleton />,
+});
+const TextAreaField = dynamic(() => import('~/lib/form/fields/TextArea'), {
+  loading: () => <FieldSkeleton type="textarea" />,
+});
+const ToggleField = dynamic(() => import('~/lib/form/fields/Toggle'), {
+  loading: () => <FieldSkeleton type="toggle" />,
+});
+const ToggleButtonField = dynamic(() => import('~/lib/form/fields/ToggleButton'), {
+  loading: () => <FieldSkeleton type="toggleButton" />,
+});
+const ToggleButtonGroupField = dynamic(() => import('~/lib/form/fields/ToggleButtonGroup'), {
+  loading: () => <FieldSkeleton type="toggleButton" />,
+});
+const VisualAnalogScaleField = dynamic(() => import('~/lib/form/fields/VisualAnalogScale'), {
+  loading: () => <FieldSkeleton type="slider" />,
+});
+const QuickAddField = dynamic(() => import('~/lib/form/fields/QuickAdd'), {
+  loading: () => <FieldSkeleton />,
+});
 
 const ComponentTypeNotFound = (componentType: string) => {
   const NotFoundComponent = () => {

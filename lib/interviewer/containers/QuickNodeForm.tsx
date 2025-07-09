@@ -6,7 +6,7 @@ import {
 import { motion } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import Form from '~/lib/form/Form';
+import Form from '~/lib/form/components/Form';
 import { QuickAdd } from '~/lib/form/fields';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
