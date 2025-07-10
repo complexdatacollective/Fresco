@@ -3,7 +3,7 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { motion } from 'motion/react';
+import { motion, type Variants } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
@@ -12,7 +12,7 @@ import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProc
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
-const containerVariants = {
+const containerVariants: Variants = {
   animate: {
     y: '0rem',
     transition: {

@@ -1,24 +1,13 @@
-import { type NcNetwork } from '@codaco/shared-consts';
+'use client';
+
 import { type Middleware } from '@reduxjs/toolkit';
 import { isEqual, omit } from 'es-toolkit';
 import { type RootState } from '~/lib/interviewer/store';
 import { ensureError } from '~/utils/ensureError';
-import {
-  type SessionState,
-  type StageMetadata,
-} from '../ducks/modules/session';
+import { type SessionState } from '../ducks/modules/session';
 
 // Sync data implemented as fetch request
-const syncFn = async (
-  id: string,
-  data: {
-    id: string;
-    network: NcNetwork;
-    currentStep: number;
-    stageMetadata?: StageMetadata | undefined;
-    lastUpdated: string;
-  },
-) => {
+const syncFn = async (id: string, data: SessionState) => {
   try {
     // eslint-disable-next-line no-console
     console.log('🚀 Syncing data with server...');

@@ -20,7 +20,7 @@ import {
 import { invariant } from 'es-toolkit';
 import { find, get } from 'es-toolkit/compat';
 import { v4 as uuid, v4 } from 'uuid';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
@@ -86,7 +86,7 @@ export const StageMetadataSchema = z.record(
 );
 
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
-export type StageMetadata = z.infer<typeof StageMetadataSchema>;
+type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
 export type SessionState = {
   id: string;
@@ -247,8 +247,12 @@ export const updateNode = createAsyncThunk(
     const variablesForType = getCodebookVariablesForNodeType(node.type);
 
     const useEncryption = getShouldEncryptNames(state);
+    // We know that encryption is enabled at the protocol level, but are the node attributes we are updating encrypted?
+    const hasEncryptedAttributes = Object.keys(newAttributeData).some(
+      (key) => variablesForType[key]?.encrypted,
+    );
 
-    if (!useEncryption) {
+    if (!useEncryption || !hasEncryptedAttributes) {
       return {
         nodeId,
         newAttributeData,
@@ -259,10 +263,7 @@ export const updateNode = createAsyncThunk(
 
     const { passphrase } = state.ui;
 
-    invariant(
-      passphrase,
-      'Passphrase is required to add a node when encryption is enabled',
-    );
+    invariant(passphrase, 'Passphrase is required to update this node');
 
     const { secureAttributes, encryptedAttributes } =
       await generateSecureAttributes(

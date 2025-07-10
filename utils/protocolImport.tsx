@@ -31,7 +31,7 @@ type FetchedFileAsset = Omit<
 type ProtocolAssetsResult = {
   fileAssets: FetchedFileAsset[];
   apikeyAssets: AssetInsertType[];
-}
+};
 
 export const getProtocolAssets = async (
   protocolJson: Protocol,

@@ -1,3 +1,5 @@
+'use client';
+
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { reducer as form } from 'redux-form';

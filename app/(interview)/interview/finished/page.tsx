@@ -2,6 +2,8 @@ import { BadgeCheck } from 'lucide-react';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 
+export const dynamic = 'force-dynamic';
+
 export default function InterviewCompleted() {
   return (
     <div className="text-primary-foreground flex h-screen flex-col items-center justify-center bg-[var(--nc-background)]">

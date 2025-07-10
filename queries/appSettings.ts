@@ -3,7 +3,7 @@
 import { unstable_noStore } from 'next/cache';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { type z } from 'zod';
+import { type z } from 'zod/v3';
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { createCachedFunction } from '~/lib/cache';

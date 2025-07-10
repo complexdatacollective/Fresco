@@ -16,7 +16,7 @@ import type {
   sessionProperty,
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 type NodeWithEgo = NcNode & {
   [egoProperty]: string;
@@ -39,7 +39,7 @@ export type SessionVariables = {
   [sessionFinishTimeProperty]: string | undefined;
   COMMIT_HASH: string;
   APP_VERSION: string;
-}
+};
 
 export type FormattedSession = NcNetwork & {
   sessionVariables: SessionVariables;
@@ -75,12 +75,12 @@ export type ExportFormat =
 type ExportError = {
   success: false;
   error: Error;
-}
+};
 
 type ExportSuccess = {
   success: true;
   filePath: string;
-}
+};
 
 export type ExportResult = ExportError | ExportSuccess;
 
@@ -91,7 +91,7 @@ export type ExportReturn = {
   error: string | null;
   successfulExports?: ExportResult[];
   failedExports?: ExportResult[];
-}
+};
 
 export type NodeWithResequencedID = NodeWithEgo & {
   [nodeExportIDProperty]: number;
@@ -115,4 +115,4 @@ export type ArchiveResult = {
   path: string;
   completed: ExportResult[];
   rejected: ExportResult[];
-}
+};

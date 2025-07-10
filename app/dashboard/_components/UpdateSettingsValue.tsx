@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { type z } from 'zod';
+import { type z } from 'zod/v3';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
@@ -28,7 +28,7 @@ export default function UpdateSettingsValue<T extends string>({
 
     if (!result.success) {
       setError(
-        `Invalid: ${result.error.errors.map((e) => e.message).join(', ')}`,
+        `Invalid: ${result.error.issues.map((e) => e.message).join(', ')}`,
       );
     } else {
       setError(null);

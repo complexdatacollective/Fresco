@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { zfd } from 'zod-form-data';
+import { z } from 'zod/v3';
 
 export const appSettingsSchema = z
   .object({
@@ -10,6 +10,7 @@ export const appSettingsSchema = z
     uploadThingToken: z.string(),
     installationId: z.string(),
     disableAnalytics: z.boolean(),
+    disableSmallScreenOverlay: z.boolean(),
   })
   .strict();
 
@@ -31,6 +32,10 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
   ),
   limitInterviews: z.preprocess(parseBoolean, z.boolean().default(false)),
   disableAnalytics: z.preprocess(parseBoolean, z.boolean().default(false)),
+  disableSmallScreenOverlay: z.preprocess(
+    parseBoolean,
+    z.boolean().default(false),
+  ),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),
 });
