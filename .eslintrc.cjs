@@ -40,7 +40,7 @@ const config = {
     project: true,
   },
   plugins: ['@typescript-eslint'],
-  extends: ['eslint:recommended', 'next/core-web-vitals', 'prettier', 'plugin:storybook/recommended'],
+  extends: ['eslint:recommended', 'next/core-web-vitals', 'prettier'],
   ignorePatterns: ['node_modules', '*.stories.*', 'public'],
   rules: {
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
