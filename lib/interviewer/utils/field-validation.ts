@@ -67,29 +67,29 @@ const requiredAcceptsNull = (message?: string) => (value: FieldValue) => {
   return undefined;
 };
 
-export const maxLength = (max: number) => (value: string) =>
+const maxLength = (max: number) => (value: string) =>
   value && value.length > max
     ? `Your answer must be ${max} characters or less`
     : undefined;
-export const minLength = (min: number) => (value: string) =>
+const minLength = (min: number) => (value: string) =>
   !value || value.length < min
     ? `Your answer must be ${min} characters or more`
     : undefined;
-export const minValue = (min: number) => (value: number) =>
+const minValue = (min: number) => (value: number) =>
   isNumber(value) && value < min
     ? `Your answer must be at least ${min}`
     : undefined;
-export const maxValue = (max: number) => (value: number) =>
+const maxValue = (max: number) => (value: number) =>
   isNumber(value) && value > max
     ? `Your answer must be less than ${max}`
     : undefined;
 
-export const minSelected = (min: number) => (value: FieldValue) =>
+const minSelected = (min: number) => (value: FieldValue) =>
   !value || coerceArray(value).length < min
     ? `You must choose a minimum of ${min} option(s)`
     : undefined;
 
-export const maxSelected = (max: number) => (value: FieldValue) =>
+const maxSelected = (max: number) => (value: FieldValue) =>
   value && coerceArray(value).length > max
     ? `You must choose a maximum of ${max} option(s)`
     : undefined;
@@ -201,7 +201,7 @@ const getOtherNetworkEntities = (
     (node) => !entityId || node[entityPrimaryKeyProperty] !== entityId,
   );
 
-export const unique = (_: unknown, store: AppStore) => {
+const unique = (_: unknown, store: AppStore) => {
   return (
     value: FieldValue,
     __: Record<string, FieldValue>,
@@ -239,7 +239,7 @@ const getVariableName = (variableId: string, store: AppStore) => {
   return get(codebookVariablesForType, [variableId, 'name'], undefined);
 };
 
-export const differentFrom = (variableId: string, store: AppStore) => {
+const differentFrom = (variableId: string, store: AppStore) => {
   const variable = getVariable(variableId, store);
 
   if (!variable) {
@@ -254,7 +254,7 @@ export const differentFrom = (variableId: string, store: AppStore) => {
       : undefined;
 };
 
-export const sameAs = (variableId: string, store: AppStore) => {
+const sameAs = (variableId: string, store: AppStore) => {
   const variableName = getVariableName(variableId, store);
   return (value: FieldValue, allValues: Record<string, FieldValue>) =>
     !isMatchingValue(value, allValues[variableId])
@@ -314,7 +314,7 @@ const compareVariables = (
   return 0;
 };
 
-export const greaterThanVariable = (variableId: string, store: AppStore) => {
+const greaterThanVariable = (variableId: string, store: AppStore) => {
   const variable = getVariable(variableId, store);
 
   if (!variable) {
@@ -335,7 +335,7 @@ export const greaterThanVariable = (variableId: string, store: AppStore) => {
 };
 
 // Note: variableId is the variable being _compared_ to!
-export const lessThanVariable = (variableId: string, store: AppStore) => {
+const lessThanVariable = (variableId: string, store: AppStore) => {
   const variable = getVariable(variableId, store);
 
   if (!variable) {

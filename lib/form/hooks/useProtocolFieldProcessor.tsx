@@ -201,11 +201,11 @@ const getInputComponent = (componentType: ComponentType = 'Text') => {
   }
 };
 
-export type ValidationMetadata = {
+type ValidationMetadata = {
   entityId?: string;
 };
 
-export type UseProcessProtocolFieldsOptions = {
+type UseProcessProtocolFieldsOptions = {
   fields: RawFormField[];
   validationMeta?: ValidationMetadata;
 };

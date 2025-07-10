@@ -9,7 +9,7 @@ import {
 } from '@codaco/shared-consts';
 import { isNil, isString } from 'es-toolkit';
 import { filter, get, isNumber, some } from 'es-toolkit/compat';
-export type FieldValue = VariableValue | undefined;
+type FieldValue = VariableValue | undefined;
 
 export type ValidationContext = {
   codebookVariables: Record<string, Variable>;

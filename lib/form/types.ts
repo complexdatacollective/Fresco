@@ -42,7 +42,7 @@ export type ProcessedFormField = {
 };
 
 // Field option for categorical/ordinal fields
-export type FieldOption = {
+type FieldOption = {
   label: string;
   value: VariableValue;
 };

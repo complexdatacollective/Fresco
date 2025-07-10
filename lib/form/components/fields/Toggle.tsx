@@ -1,9 +1,9 @@
 'use client';
 
 import cx from 'classnames';
-import React, { useEffect, useId } from 'react';
-import Icon from '~/lib/ui/components/Icon';
+import { useEffect, useId } from 'react';
 import { useFieldContext } from '~/lib/form/utils/formContexts';
+import Icon from '~/lib/ui/components/Icon';
 import MarkdownLabel from './MarkdownLabel';
 
 type ToggleProps = {
@@ -36,13 +36,18 @@ const Toggle = ({
     }
   }, [fieldContext]);
 
+  const hasError =
+    !fieldContext.state.meta.isValid &&
+    fieldContext.state.meta.isTouched &&
+    fieldContext.state.meta.errors?.[0] !== undefined;
+
   const containerClassNames = cx('form-field-container', {
-    'form-field-toggle--has-error': !fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && fieldContext.state.meta.errors?.[0],
+    'form-field-toggle--has-error': hasError,
   });
 
   const componentClasses = cx('form-field', 'form-field-toggle', className, {
     'form-field-toggle--disabled': disabled,
-    'form-field-toggle--has-error': !fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && fieldContext.state.meta.errors?.[0],
+    'form-field-toggle--has-error': hasError,
   });
 
   return (
@@ -72,12 +77,13 @@ const Toggle = ({
           />
         )}
       </label>
-      {!fieldContext.state.meta.isValid && fieldContext.state.meta.isTouched && (
-        <div className="form-field-toggle__error">
-          <Icon name="warning" />
-          {fieldContext.state.meta.errors?.[0]}
-        </div>
-      )}
+      {!fieldContext.state.meta.isValid &&
+        fieldContext.state.meta.isTouched && (
+          <div className="form-field-toggle__error">
+            <Icon name="warning" />
+            {fieldContext.state.meta.errors?.[0]}
+          </div>
+        )}
     </div>
   );
 };

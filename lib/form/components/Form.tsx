@@ -4,7 +4,7 @@ import { useTanStackForm } from '~/lib/form/hooks/useTanStackForm';
 import type { FormErrors, ProcessedFormField } from '~/lib/form/types';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 
-export type FormProps = {
+type FormProps = {
   fields: ProcessedFormField[];
   handleSubmit: (data: { value: Record<string, VariableValue> }) => void;
   getInitialValues?: () =>

@@ -16,7 +16,7 @@ const inputVariants = {
     opacity: 1,
     x: '0px',
     width: '22rem',
-    transtion: {
+    transition: {
       duration: 0.2,
     },
   },
@@ -35,7 +35,7 @@ const buttonVariants = {
     opacity: 1,
     x: '0px',
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 150,
       damping: 20,
     },
