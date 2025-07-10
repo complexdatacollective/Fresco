@@ -14,7 +14,7 @@ import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
 import { calculateProgress } from './utils';
 
-export const getActiveSession = (state: RootState) => {
+const getActiveSession = (state: RootState) => {
   return state.session;
 };
 
@@ -86,7 +86,7 @@ export const getPrompts = createSelector(getCurrentStage, (stage) => {
   return null;
 });
 
-export const stagePromptIds = createSelector(getPrompts, (prompts) => {
+const stagePromptIds = createSelector(getPrompts, (prompts) => {
   if (!prompts) {
     return [];
   }
@@ -311,9 +311,6 @@ export const getEdgeColor = createSelector(
 
 export const makeGetEdgeColor = () => getEdgeColor;
 
-export const getEdgeColorForType = (type: string) => (state: RootState) =>
-  getEdgeColor(state, { type });
-
 export const makeGetNodeAttributeLabel = () =>
   createSelector(
     getCodebook,
@@ -366,8 +363,6 @@ export const getNetworkEdgesForType = createSelector(
   },
 );
 
-export const makeNetworkEdgesForType = () => getNetworkEdgesForType;
-
 /**
  * makeNetworkEntitiesForType()
  * Get the current prompt/stage subject, and filter the network by this entity type.
@@ -412,10 +407,6 @@ export const getStageNodeCount = createSelector(
       (node) => intersection(node.promptIDs ?? [], promptIds).length > 0,
     ).length,
 );
-
-export const makeGetStageNodeCount = () => {
-  return getStageCount;
-};
 
 export const getPromptId = createSelector(
   getPrompts,

@@ -46,8 +46,9 @@ const deriveAttributeTypeFromData = (
 
     // If the value can be parsed as a boolean, set the type to boolean
     if (
-      String(currentValue).toLowerCase() === 'true' ||
-      String(currentValue).toLowerCase() === 'false'
+      typeof currentValue === 'string' &&
+      (currentValue.toLowerCase() === 'true' ||
+        currentValue.toLowerCase() === 'false')
     ) {
       currentType = VariableTypes.boolean;
     }
