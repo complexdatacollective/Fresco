@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import store from './store';
 import {
   type DragSource,
   type MonitorDragSourceProps,
@@ -7,37 +7,37 @@ import {
 } from './types';
 
 export const useDragSourceMonitor = (): MonitorDragSourceState => {
-  const [dragState, setDragState] = useState<MonitorDragSourceState>({
+  const [state, setState] = useState<MonitorDragSourceState>({
     isDragging: false,
     dragOffset: null,
     source: null,
   });
 
-  const dragDropState = useSelector(
-    (state: Record<string, unknown>) => state.dragAndDrop,
-  ) as
-    | {
-        source: DragSource | null;
-      }
-    | undefined;
-
   useEffect(() => {
-    const source = dragDropState?.source;
+    const updateState = () => {
+      const currentState = store.getState();
+      const source = currentState.source as DragSource | null;
 
-    setDragState({
-      isDragging: !!source,
-      dragOffset: source ? { x: source.x, y: source.y } : null,
-      source: source ?? null,
-    });
-  }, [dragDropState]);
+      setState({
+        isDragging: !!source,
+        dragOffset: source ? { x: source.x, y: source.y } : null,
+        source: source ?? null,
+      });
+    };
 
-  return dragState;
+    const unsubscribe = store.subscribe(updateState);
+    updateState(); // initial call
+
+    return () => unsubscribe();
+  }, []);
+
+  return state;
 };
 
 // Render prop component
 export const MonitorDragSource: React.FC<MonitorDragSourceProps> = ({
   children,
 }) => {
-  const state = useDragSourceMonitor();
-  return <>{children(state)}</>;
+  const dragState = useDragSourceMonitor();
+  return <>{children(dragState)}</>;
 };

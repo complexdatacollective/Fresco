@@ -1,53 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { type MonitorDropTargetState, type MonitorDropTargetProps, type DragSource } from './types';
+import store from './store';
+import {
+  type MonitorDropTargetProps,
+  type MonitorDropTargetState,
+} from './types';
 
-export const useDropTargetMonitor = (targetId: string): MonitorDropTargetState => {
-  const [dropState, setDropState] = useState<MonitorDropTargetState>({
+export const useDropTargetMonitor = (
+  targetId: string,
+): MonitorDropTargetState => {
+  const [state, setState] = useState<MonitorDropTargetState>({
     isOver: false,
     willAccept: false,
     source: null,
   });
 
-  const dragDropState = useSelector(
-    (state: Record<string, unknown>) => state.dragAndDrop,
-  ) as
-    | {
-        targets: {
-          id: string;
-          isOver?: boolean;
-          willAccept?: boolean;
-          [key: string]: unknown;
-        }[];
-        source: DragSource | null;
-      }
-    | undefined;
-
   useEffect(() => {
-    const target = dragDropState?.targets?.find((t) => t.id === targetId);
+    const updateState = () => {
+      const currentState = store.getState();
+      console.log('Current state:', currentState);
 
-    if (target) {
-      setDropState({
-        isOver: Boolean(target.isOver),
-        willAccept: Boolean(target.willAccept),
-        source: dragDropState?.source ?? null,
-      });
-    } else {
-      setDropState({
-        isOver: false,
-        willAccept: false,
-        source: dragDropState?.source ?? null,
-      });
-    }
-  }, [dragDropState, targetId]);
+      const target = currentState.targets?.find((t) => t.id === targetId);
 
-  return dropState;
+      setState({
+        isOver: Boolean(target?.isOver),
+        willAccept: Boolean(target?.willAccept),
+        source: currentState.source ?? null,
+      });
+    };
+
+    const unsubscribe = store.subscribe(updateState);
+    updateState(); // call once immediately
+
+    return () => unsubscribe();
+  }, [targetId]);
+
+  return state;
 };
 
 // Render prop component
-export const MonitorDropTarget: React.FC<MonitorDropTargetProps> = ({ targetId, children }) => {
+export const MonitorDropTarget: React.FC<MonitorDropTargetProps> = ({
+  targetId,
+  children,
+}) => {
   const state = useDropTargetMonitor(targetId);
   return <>{children(state)}</>;
 };
-
-
