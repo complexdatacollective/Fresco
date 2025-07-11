@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { validateElementRef } from './utils/domValidation';
 import getAbsoluteBoundingRect from '../../utils/getAbsoluteBoundingRect';
 import { actionCreators as actions } from './reducer';
@@ -14,61 +14,59 @@ export const useDropTarget = (props: Omit<DropTargetProps, 'children'>) => {
     bounds: { x: 0, y: 0, width: 0, height: 0 },
   });
 
-  const updateTarget = useCallback(() => {
-    const element = validateElementRef(elementRef, 'useDropTarget');
-    if (!element) return;
-
-    const boundingRect = getAbsoluteBoundingRect(element);
-    if (!boundingRect) return;
-
-    const bounds: Bounds = {
-      x: boundingRect.left,
-      y: boundingRect.top,
-      width: boundingRect.width,
-      height: boundingRect.height,
-    };
-
-    setState((prev) => ({ ...prev, bounds }));
-
-    store.dispatch(
-      actions.upsertTarget({
-        id,
-        onDrop,
-        onDrag,
-        onDragEnd,
-        accepts,
-        meta: meta?.() ?? {},
-        width: bounds.width,
-        height: bounds.height,
-        y: bounds.y,
-        x: bounds.x,
-      }),
-    );
-  }, [id, onDrop, onDrag, onDragEnd, accepts, meta]);
-
-  const removeTarget = useCallback(() => {
-    store.dispatch(actions.removeTarget(id));
-  }, [id]);
+  // Use refs to store latest values and avoid re-running effect when props change
+  const propsRef = useRef({ onDrop, onDrag, onDragEnd, accepts, meta });
+  propsRef.current = { onDrop, onDrag, onDragEnd, accepts, meta };
 
   // Use ResizeObserver + IntersectionObserver only - NO POLLING
   useEffect(() => {
     const element = validateElementRef(elementRef, 'useDropTarget');
     if (!element) return;
 
-    updateTarget();
+    const updateTargetHandler = () => {
+      const boundingRect = getAbsoluteBoundingRect(element);
+      if (!boundingRect) return;
 
-    const resizeObserver = new ResizeObserver(updateTarget);
-    const intersectionObserver = new IntersectionObserver(updateTarget);
+      const bounds: Bounds = {
+        x: boundingRect.left,
+        y: boundingRect.top,
+        width: boundingRect.width,
+        height: boundingRect.height,
+      };
+
+      setState((prev) => ({ ...prev, bounds }));
+
+      const currentProps = propsRef.current;
+      store.dispatch(
+        actions.upsertTarget({
+          id,
+          onDrop: currentProps.onDrop,
+          onDrag: currentProps.onDrag,
+          onDragEnd: currentProps.onDragEnd,
+          accepts: currentProps.accepts,
+          meta: currentProps.meta?.() ?? {},
+          width: bounds.width,
+          height: bounds.height,
+          y: bounds.y,
+          x: bounds.x,
+        }),
+      );
+    };
+
+    updateTargetHandler();
+
+    const resizeObserver = new ResizeObserver(updateTargetHandler);
+    const intersectionObserver = new IntersectionObserver(updateTargetHandler);
 
     resizeObserver.observe(element);
     intersectionObserver.observe(element);
 
     return () => {
-      removeTarget();
+      store.dispatch(actions.removeTarget(id));
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
     };
-  }, [updateTarget, removeTarget]);
+  }, [id]);
 
   return { elementRef, state };
 };
