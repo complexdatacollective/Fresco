@@ -2,7 +2,7 @@ import { throttle } from 'es-toolkit';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import DragManager, { VERTICAL_SCROLL } from './DragManager';
-import { DraggablePreview } from './DragPreview';
+import { DragPreview } from './DragPreview';
 import { validateElementRef } from './utils/domValidation';
 import { actionCreators as actions } from './reducer';
 import store from './store';
@@ -25,7 +25,13 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
   const nodeRef = useRef<HTMLElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const dragManagerRef = useRef<DragManager | null>(null);
-  const previewElRef = useRef<DraggablePreview | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    sourceElement: HTMLElement;
+    x: number;
+    y: number;
+    isValidMove: boolean;
+    show: boolean;
+  } | null>(null);
   const [triggerSetup, setTriggerSetup] = useState(0);
   const [dragState, setDragState] = useState<DragSourceState>({
     isDragging: false,
@@ -35,17 +41,17 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
 
   // Custom ref that triggers setup when attached
   const customRef = useMemo(() => {
-    const ref: React.RefObject<HTMLElement> = {
+    const ref = {
       get current() {
         return nodeRef.current;
       },
-      set current(value) {
+      set current(value: HTMLElement | null) {
         nodeRef.current = value;
         // Trigger setup when ref changes
         setTriggerSetup(prev => prev + 1);
       }
     };
-    return ref;
+    return ref as React.RefObject<HTMLElement>;
   }, []);
 
   const cleanupDragManager = () => {
@@ -56,41 +62,39 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
   };
 
   const cleanupPreview = () => {
-    if (previewElRef.current) {
-      previewElRef.current.cleanup();
-      previewElRef.current = null;
-    }
+    setPreviewData(null);
   };
 
-  const createPreview = useCallback(() => {
+  const createPreview = useCallback((x: number, y: number) => {
     const element = validateElementRef(nodeRef, 'useDragSource');
     if (!element) return;
 
-    if (!preview) {
-      previewElRef.current = new DraggablePreview(element);
-      return;
-    }
-
-    if (previewRef.current) {
-      previewElRef.current = new DraggablePreview(previewRef.current);
-    }
+    const sourceElement = preview && previewRef.current ? previewRef.current : element;
+    
+    setPreviewData({
+      sourceElement,
+      x,
+      y,
+      isValidMove: true,
+      show: true,
+    });
   }, [preview]);
 
   const updatePreview = ({ x, y }: { x: number; y: number }) => {
-    if (previewElRef.current) {
-      previewElRef.current.position({ x, y });
-    }
+    setPreviewData(prev => 
+      prev ? { ...prev, x, y } : null
+    );
   };
 
   const setValidMove = (valid: boolean) => {
-    if (previewElRef.current) {
-      previewElRef.current.setValidMove(valid);
-    }
+    setPreviewData(prev => 
+      prev ? { ...prev, isValidMove: valid } : null
+    );
   };
 
   const onDragStart = useCallback(
     (movement: DragMovement) => {
-      createPreview();
+      createPreview(movement.x, movement.y);
 
       const source = {
         ...movement,
@@ -163,12 +167,27 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
     nodeRef: customRef,
     previewRef,
     state: dragState,
+    preview: previewData?.show && previewData.sourceElement ? (
+      <DragPreview
+        sourceElement={previewData.sourceElement}
+        x={previewData.x}
+        y={previewData.y}
+        isValidMove={previewData.isValidMove}
+      >
+        {preview}
+      </DragPreview>
+    ) : null,
   };
 };
 
 // Render prop component
 export const DragSource: React.FC<DragSourceProps> = ({ children, ...props }) => {
-  const { nodeRef, previewRef, state } = useDragSource(props);
-  return <>{children(nodeRef, state, previewRef)}</>;
+  const { nodeRef, previewRef, state, preview } = useDragSource(props);
+  return (
+    <>
+      {children(nodeRef, state, previewRef)}
+      {preview}
+    </>
+  );
 };
 
