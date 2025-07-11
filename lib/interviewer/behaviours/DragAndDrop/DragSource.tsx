@@ -1,12 +1,17 @@
 import { throttle } from 'es-toolkit';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import React from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import DragManager, { VERTICAL_SCROLL } from './DragManager';
 import { DragPreview } from './DragPreview';
-import { validateElementRef } from './utils/domValidation';
 import { actionCreators as actions } from './reducer';
 import store from './store';
 import { type DragSourceProps, type DragSourceState } from './types';
+import { validateElementRef } from './utils/domValidation';
 
 type DragMovement = {
   x: number;
@@ -48,8 +53,8 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
       set current(value: HTMLElement | null) {
         nodeRef.current = value;
         // Trigger setup when ref changes
-        setTriggerSetup(prev => prev + 1);
-      }
+        setTriggerSetup((prev) => prev + 1);
+      },
     };
     return ref as React.RefObject<HTMLElement>;
   }, []);
@@ -65,31 +70,31 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
     setPreviewData(null);
   };
 
-  const createPreview = useCallback((x: number, y: number) => {
-    const element = validateElementRef(nodeRef, 'useDragSource');
-    if (!element) return;
+  const createPreview = useCallback(
+    (x: number, y: number) => {
+      const element = validateElementRef(nodeRef, 'useDragSource');
+      if (!element) return;
 
-    const sourceElement = preview && previewRef.current ? previewRef.current : element;
-    
-    setPreviewData({
-      sourceElement,
-      x,
-      y,
-      isValidMove: true,
-      show: true,
-    });
-  }, [preview]);
+      const sourceElement =
+        preview && previewRef.current ? previewRef.current : element;
+
+      setPreviewData({
+        sourceElement,
+        x,
+        y,
+        isValidMove: true,
+        show: true,
+      });
+    },
+    [preview],
+  );
 
   const updatePreview = ({ x, y }: { x: number; y: number }) => {
-    setPreviewData(prev => 
-      prev ? { ...prev, x, y } : null
-    );
+    setPreviewData((prev) => (prev ? { ...prev, x, y } : null));
   };
 
   const setValidMove = (valid: boolean) => {
-    setPreviewData(prev => 
-      prev ? { ...prev, isValidMove: valid } : null
-    );
+    setPreviewData((prev) => (prev ? { ...prev, isValidMove: valid } : null));
   };
 
   const onDragStart = useCallback(
@@ -132,20 +137,20 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
 
   const onDragEnd = useCallback((movement: DragMovement) => {
     cleanupPreview();
-    
+
     setDragState({
       isDragging: false,
       dragOffset: null,
       source: null,
     });
-    
+
     store.dispatch(actions.dragEnd(movement));
   }, []);
 
   // Set up drag manager when element becomes available
   useEffect(() => {
     if (!allowDrag) return;
-    
+
     const validatedElement = validateElementRef(nodeRef, 'useDragSource');
     if (!validatedElement) return;
 
@@ -161,27 +166,41 @@ export const useDragSource = (props: Omit<DragSourceProps, 'children'>) => {
       cleanupPreview();
       cleanupDragManager();
     };
-  }, [triggerSetup, allowDrag, scrollDirection, onDragStart, onDragMove, onDragEnd]);
+  }, [
+    triggerSetup,
+    allowDrag,
+    scrollDirection,
+    onDragStart,
+    onDragMove,
+    onDragEnd,
+  ]);
+
+  const dragStyles = dragState.isDragging ? { visibility: 'hidden' } : {};
 
   return {
     nodeRef: customRef,
     previewRef,
     state: dragState,
-    preview: previewData?.show && previewData.sourceElement ? (
-      <DragPreview
-        sourceElement={previewData.sourceElement}
-        x={previewData.x}
-        y={previewData.y}
-        isValidMove={previewData.isValidMove}
-      >
-        {preview}
-      </DragPreview>
-    ) : null,
+    preview:
+      previewData?.show && previewData.sourceElement ? (
+        <DragPreview
+          sourceElement={previewData.sourceElement}
+          x={previewData.x}
+          y={previewData.y}
+          isValidMove={previewData.isValidMove}
+        >
+          {preview}
+        </DragPreview>
+      ) : null,
+    dragStyles,
   };
 };
 
 // Render prop component
-export const DragSource: React.FC<DragSourceProps> = ({ children, ...props }) => {
+export const DragSource: React.FC<DragSourceProps> = ({
+  children,
+  ...props
+}) => {
   const { nodeRef, previewRef, state, preview } = useDragSource(props);
   return (
     <>
@@ -190,4 +209,3 @@ export const DragSource: React.FC<DragSourceProps> = ({ children, ...props }) =>
     </>
   );
 };
-

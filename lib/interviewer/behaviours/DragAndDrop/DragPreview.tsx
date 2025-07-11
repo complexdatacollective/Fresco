@@ -85,19 +85,18 @@ export const DragPreview: React.FC<DragPreviewProps> = ({
 
   // Default content: clone the first child of the source element
   const defaultContent = useMemo(() => {
-    if (!sourceElement?.firstElementChild) return null;
+    if (!sourceElement) return null;
 
     try {
-      // Use dangerouslySetInnerHTML to clone the element content
+      // Clone the entire source element, not just the first child
       return (
         <div
           dangerouslySetInnerHTML={{
-            __html: sourceElement.firstElementChild.outerHTML,
+            __html: sourceElement.outerHTML,
           }}
         />
       );
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.warn('Failed to clone source element content:', error);
       return null;
     }
@@ -113,110 +112,3 @@ export const DragPreview: React.FC<DragPreviewProps> = ({
     document.body,
   );
 };
-
-/**
- * Legacy class for backward compatibility.
- * @deprecated Use DragPreview React component instead
- */
-export class DraggablePreview {
-  private node: HTMLDivElement;
-  private initialSize: Size;
-  private validMove = true;
-  private animationFrame?: number;
-  private x = 0;
-  private y = 0;
-  private _center?: { x: number; y: number };
-
-  constructor(sourceNode: HTMLElement) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      'DraggablePreview class is deprecated. Use DragPreview React component instead.',
-    );
-
-    this.node = document.createElement('div');
-    this.initialSize = getElementSize(sourceNode);
-    this.node.setAttribute('class', 'draggable-preview');
-
-    this.update();
-
-    const clone = sourceNode.firstChild?.cloneNode(true);
-    if (clone) {
-      this.node.appendChild(clone);
-    }
-
-    document.body.appendChild(this.node);
-  }
-
-  size(): Size {
-    if (!this.node) {
-      return { width: 0, height: 0 };
-    }
-    const element = this.node.firstChild as HTMLElement;
-    if (!element) {
-      return { width: 0, height: 0 };
-    }
-    return getElementSize(element);
-  }
-
-  center(): { x: number; y: number } {
-    if (!this.node) {
-      return { x: 0, y: 0 };
-    }
-
-    if (!this._center) {
-      const size = this.size();
-      this._center = {
-        x: Math.floor(size.width / 2),
-        y: Math.floor(size.height / 2),
-      };
-    }
-
-    return this._center;
-  }
-
-  private update = (): void => {
-    this.render();
-    this.animationFrame = window.requestAnimationFrame(this.update);
-  };
-
-  private render(): void {
-    const style = `
-      width: ${this.initialSize.width}px;
-      height: ${this.initialSize.height}px;
-      display: inline-block;
-      position: absolute;
-      left: 0px;
-      top: 0px;
-      transform: translate(${this.x}px, ${this.y}px);
-    `;
-
-    this.node.setAttribute('style', style);
-
-    if (this.validMove) {
-      this.node.setAttribute('class', 'draggable-preview');
-    } else {
-      this.node.setAttribute(
-        'class',
-        'draggable-preview draggable-preview--invalid',
-      );
-    }
-  }
-
-  position(coords: { x: number; y: number }): void {
-    this.x = coords.x - this.center().x;
-    this.y = coords.y - this.center().y;
-  }
-
-  setValidMove(valid: boolean): void {
-    this.validMove = valid;
-  }
-
-  cleanup(): void {
-    if (this.animationFrame) {
-      window.cancelAnimationFrame(this.animationFrame);
-    }
-    if (this.node && document.body.contains(this.node)) {
-      document.body.removeChild(this.node);
-    }
-  }
-}
