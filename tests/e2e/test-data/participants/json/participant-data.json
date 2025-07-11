@@ -1,0 +1,34 @@
+{
+  "participants": [
+    {
+      "identifier": "P001",
+      "name": "Alice Johnson",
+      "email": "alice.johnson@example.com",
+      "notes": "Primary contact for study"
+    },
+    {
+      "identifier": "P002",
+      "name": "Bob Smith",
+      "email": "bob.smith@example.com",
+      "notes": "Follow-up required"
+    },
+    {
+      "identifier": "P003",
+      "name": "Carol Davis",
+      "email": "carol.davis@example.com",
+      "notes": "Prefers email communication"
+    },
+    {
+      "identifier": "P004",
+      "name": "David Wilson",
+      "email": "david.wilson@example.com",
+      "notes": "Available weekdays only"
+    },
+    {
+      "identifier": "P005",
+      "name": "Eva Brown",
+      "email": "eva.brown@example.com",
+      "notes": "Completed initial screening"
+    }
+  ]
+}
