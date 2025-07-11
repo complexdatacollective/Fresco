@@ -1,3 +1,5 @@
+import { isDOMElement } from '../behaviours/DragAndDrop/utils/domValidation';
+
 /**
 https://gist.github.com/rgrove/5463265
 
@@ -13,32 +15,33 @@ This method corrects for scroll offsets all the way up the node tree, so the
 returned bounding rect will represent an absolute position on a virtual
 canvas, regardless of scrolling.
 
-@method getAbsoluteBoundingRect
-@param {HTMLElement} el HTML element.
-@return {Object} Absolute bounding rect for _el_.
-* */
+@param el HTML element.
+@return Absolute bounding rect for _el_ or null if invalid element.
+*/
 
-export default function getAbsoluteBoundingRect(el) {
-  if (!el) {
-    return 0;
+type BoundingRect = {
+  bottom: number;
+  height: number;
+  left: number;
+  right: number;
+  top: number;
+  width: number;
+}
+
+export default function getAbsoluteBoundingRect(el: unknown): BoundingRect | null {
+  if (!isDOMElement(el)) {
+    // eslint-disable-next-line no-console
+    console.error('getAbsoluteBoundingRect: Invalid element passed', el);
+    return null;
   }
 
-  let offsetX =
-    window.scrollX !== undefined
-      ? window.scrollX
-      : (document.documentElement || document.body.parentNode || document.body)
-          .scrollLeft;
-
-  let offsetY =
-    window.scrollY !== undefined
-      ? window.scrollY
-      : (document.documentElement || document.body.parentNode || document.body)
-          .scrollTop;
+  let offsetX = window.scrollX ?? document.documentElement?.scrollLeft ?? 0;
+  let offsetY = window.scrollY ?? document.documentElement?.scrollTop ?? 0;
 
   const rect = el.getBoundingClientRect();
 
   if (el !== document.body) {
-    let parent = el.parentNode;
+    let parent = el.parentElement;
 
     // The element's rect will be affected by the scroll positions of
     // *all* of its scrollable parents, not just the window, so we have
@@ -46,7 +49,7 @@ export default function getAbsoluteBoundingRect(el) {
     while (parent && parent !== document.body) {
       offsetX += parent.scrollLeft;
       offsetY += parent.scrollTop;
-      parent = parent.parentNode;
+      parent = parent.parentElement;
     }
   }
 
