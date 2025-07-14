@@ -123,8 +123,8 @@ importers:
         specifier: ^16.5.0
         version: 16.5.0
       es-toolkit:
-        specifier: ^1.39.3
-        version: 1.39.3
+        specifier: ^1.39.7
+        version: 1.39.7
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -1078,8 +1078,8 @@ packages:
     resolution: {integrity: sha512-HGwoYRVF0QSKJu1ZQX0o5ZrUrrhj0aOOFA8hXrumD7SIzjouevhawbTjmXdwOmURdGluU9DM/XvGm3NyFoiQjw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
-  '@jridgewell/gen-mapping@0.3.10':
-    resolution: {integrity: sha512-HM2F4B9N4cA0RH2KQiIZOHAZqtP4xGS4IZ+SFe1SIbO4dyjf9MTY2Bo3vHYnm0hglWfXqBrzUBSa+cJfl3Xvrg==}
+  '@jridgewell/gen-mapping@0.3.12':
+    resolution: {integrity: sha512-OuLGC46TjB5BbN1dH8JULVVZY4WTdkF7tV9Ys6wLL1rubZnCMstOhNHueU5bLCrnRuDhKPDM4g6sw4Bel5Gzqg==}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -1093,20 +1093,20 @@ packages:
     resolution: {integrity: sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==}
     engines: {node: '>=6.0.0'}
 
-  '@jridgewell/source-map@0.3.8':
-    resolution: {integrity: sha512-3EDAPd0B8X1gsQQgGHU8vyxSp2MB414z3roN67fY7nI0GV3GDthHfaWcbCfrC95tpAzA5xUvAuoO9Dxx/ywwRQ==}
+  '@jridgewell/source-map@0.3.10':
+    resolution: {integrity: sha512-0pPkgz9dY+bijgistcTTJ5mR+ocqRXLuhXHYdzoMmmoJ2C9S46RCm2GMUbatPEUK9Yjy26IrAy8D/M00lLkv+Q==}
 
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
-  '@jridgewell/sourcemap-codec@1.5.2':
-    resolution: {integrity: sha512-gKYheCylLIedI+CSZoDtGkFV9YEBxRRVcfCH7OfAqh4TyUyRjEE6WVE/aXDXX0p8BIe/QgLcaAoI0220KRRFgg==}
+  '@jridgewell/sourcemap-codec@1.5.4':
+    resolution: {integrity: sha512-VT2+G1VQs/9oz078bLrYbecdZKs912zQlkelYpuf+SXF+QvZDYJlbx/LSx+meSAwdDFnF8FVXW92AVjjkVmgFw==}
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@jridgewell/trace-mapping@0.3.27':
-    resolution: {integrity: sha512-VO95AxtSFMelbg3ouljAYnfvTEwSWVt/2YLf+U5Ejd8iT5mXE2Sa/1LGyvySMne2CGsepGLI7KpF3EzE3Aq9Mg==}
+  '@jridgewell/trace-mapping@0.3.29':
+    resolution: {integrity: sha512-uw6guiW/gcAGPDhLmd77/6lW8QLeiV5RUTsAX46Db6oLhGaVj4lhnPwb184s1bkc8kdVg/+h988dro8GRDpmYQ==}
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
@@ -3252,8 +3252,8 @@ packages:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.39.3:
-    resolution: {integrity: sha512-Qb/TCFCldgOy8lZ5uC7nLGdqJwSabkQiYQShmw4jyiPk1pZzaYWTwaYKYP7EgLccWYgZocMrtItrwh683voaww==}
+  es-toolkit@1.39.7:
+    resolution: {integrity: sha512-ek/wWryKouBrZIjkwW2BFf91CWOIMvoy2AE5YYgUrfWsJQM2Su1LoLtrw8uusEpN9RfqLlV/0FVNjT0WMv8Bxw==}
 
   es6-error@4.1.1:
     resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
@@ -6744,10 +6744,10 @@ snapshots:
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
-  '@jridgewell/gen-mapping@0.3.10':
+  '@jridgewell/gen-mapping@0.3.12':
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.2
-      '@jridgewell/trace-mapping': 0.3.27
+      '@jridgewell/sourcemap-codec': 1.5.4
+      '@jridgewell/trace-mapping': 0.3.29
     optional: true
 
   '@jridgewell/gen-mapping@0.3.8':
@@ -6760,15 +6760,15 @@ snapshots:
 
   '@jridgewell/set-array@1.2.1': {}
 
-  '@jridgewell/source-map@0.3.8':
+  '@jridgewell/source-map@0.3.10':
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.10
-      '@jridgewell/trace-mapping': 0.3.27
+      '@jridgewell/gen-mapping': 0.3.12
+      '@jridgewell/trace-mapping': 0.3.29
     optional: true
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
-  '@jridgewell/sourcemap-codec@1.5.2':
+  '@jridgewell/sourcemap-codec@1.5.4':
     optional: true
 
   '@jridgewell/trace-mapping@0.3.25':
@@ -6776,16 +6776,16 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@jridgewell/trace-mapping@0.3.27':
+  '@jridgewell/trace-mapping@0.3.29':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.2
+      '@jridgewell/sourcemap-codec': 1.5.4
     optional: true
 
   '@jridgewell/trace-mapping@0.3.9':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.2
+      '@jridgewell/sourcemap-codec': 1.5.4
     optional: true
 
   '@lucia-auth/adapter-prisma@3.0.2(@prisma/client@6.10.0(prisma@6.10.0(typescript@5.8.3))(typescript@5.8.3))(lucia@2.7.7)':
@@ -8841,7 +8841,7 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  es-toolkit@1.39.3: {}
+  es-toolkit@1.39.7: {}
 
   es6-error@4.1.1: {}
 
@@ -11759,7 +11759,7 @@ snapshots:
 
   terser@5.43.0:
     dependencies:
-      '@jridgewell/source-map': 0.3.8
+      '@jridgewell/source-map': 0.3.10
       acorn: 8.15.0
       commander: 2.20.3
       source-map-support: 0.5.21
