@@ -43,8 +43,8 @@
     "@radix-ui/react-toast": "^1.2.14",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-visually-hidden": "^1.2.3",
-    "@tanstack/react-form": "^1.12.3",
     "@reduxjs/toolkit": "^2.5.0",
+    "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-table": "^8.21.3",
     "@uploadthing/react": "^7.3.1",
     "@xmldom/xmldom": "^0.9.8",
@@ -105,7 +105,8 @@
     "uuid": "^11.1.0",
     "validator": "^13.15.15",
     "zod": "^3.25.67",
-    "zod-form-data": "^2.0.7"
+    "zod-form-data": "^2.0.7",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@prisma/client": "^6.10.0",
@@ -115,6 +116,7 @@
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "4.1.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/react": "^16.3.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/archiver": "^6.0.3",
     "@types/async": "^3.2.24",
