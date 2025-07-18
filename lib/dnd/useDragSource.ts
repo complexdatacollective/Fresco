@@ -11,10 +11,11 @@ import {
   announce,
   getKeyboardDragAnnouncement,
   getDragInstructions,
+  getDropTargetDescription,
 } from './accessibility';
 
 export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
-  const { metadata, onDragStart, onDragEnd, disabled = false } = options;
+  const { metadata, name, onDragStart, onDragEnd, disabled = false } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
@@ -29,8 +30,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
   const endDrag = useDndStore((state) => state.endDrag);
   
-  // Only subscribe to dropTargets when keyboard dragging to avoid unnecessary re-renders
-  const dropTargets = useDndStore((state) => state.dropTargets);
+  // Get dropTargets directly from store when needed to avoid unnecessary re-renders from scroll events
 
   // Track pointer position for auto-scrolling
   const pointerPositionRef = useRef({ x: 0, y: 0 });
@@ -176,10 +176,19 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
     const itemType = metadata.type;
     if (typeof itemType !== 'string') return [];
-    return Array.from(dropTargets.values()).filter((target) =>
-      target.accepts.includes(itemType),
-    );
-  }, [isDragging, metadata.type, dropTargets]);
+    
+    // Get dropTargets directly from store to avoid subscription re-renders
+    const dropTargets = useDndStore.getState().dropTargets;
+    const sourceZone = metadata.sourceZone as string;
+    
+    return Array.from(dropTargets.values()).filter((target) => {
+      // Check if target accepts the item type
+      const acceptsType = target.accepts.includes(itemType);
+      // Exclude source zone from keyboard navigation
+      const notSourceZone = !target.zoneId || sourceZone !== target.zoneId;
+      return acceptsType && notSourceZone;
+    });
+  }, [isDragging, metadata.type, metadata.sourceZone]);
 
   // Navigate to next/previous drop target
   const navigateDropTargets = useCallback(
@@ -207,11 +216,13 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         const centerY = target.y + target.height / 2;
         updateDragPosition(centerX, centerY);
 
+        const targetDescription = getDropTargetDescription(
+          newIndex,
+          compatibleTargets.length,
+          target.name,
+        );
         announce(
-          getKeyboardDragAnnouncement(
-            'navigate',
-            `Moved to drop target ${newIndex + 1} of ${compatibleTargets.length}`,
-          ),
+          getKeyboardDragAnnouncement('navigate', targetDescription),
         );
       }
     },
@@ -244,10 +255,23 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         onDragStart(metadata);
       }
 
-      announce(getKeyboardDragAnnouncement('start', getDragInstructions()));
+      // Calculate compatible zones count for announcement
+      const compatibleTargets = getCompatibleDropTargets();
+      const itemInfo = name ? `${name} ` : '';
+      const itemType = metadata.type as string;
+      const typeInfo = itemType ? `(${itemType}) ` : '';
+      const zonesInfo = `${compatibleTargets.length} compatible drop zones available. `;
+      
+      announce(
+        getKeyboardDragAnnouncement(
+          'start', 
+          `${itemInfo}${typeInfo}${zonesInfo}${getDragInstructions()}`
+        )
+      );
     },
-    [metadata, startDrag, onDragStart],
+    [metadata, name, startDrag, onDragStart, getCompatibleDropTargets],
   );
+
 
   // End keyboard drag
   const endKeyboardDrag = useCallback(
@@ -259,6 +283,11 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       setCurrentDropTargetIndex(-1);
 
       const dropTargetId = shouldDrop ? useDndStore.getState().activeDropTargetId : null;
+
+      // If cancelling, clear the active drop target before ending drag
+      if (!shouldDrop) {
+        useDndStore.getState().setActiveDropTarget(null);
+      }
 
       endDrag();
 
@@ -331,6 +360,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         'onKeyDown': handleKeyDown,
         'aria-grabbed': isDragging,
         'aria-dropeffect': 'move',
+        'aria-label': name,
         'role': 'button',
         'tabIndex': disabled ? -1 : 0,
         'style': {
@@ -342,6 +372,6 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       } as const,
       isDragging,
     }),
-    [handlePointerDown, handleKeyDown, isDragging, disabled],
+    [handlePointerDown, handleKeyDown, isDragging, disabled, name],
   );
 }

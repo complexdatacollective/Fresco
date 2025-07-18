@@ -21,6 +21,7 @@ export const DropTargetSchema = z.object({
   height: z.number(),
   accepts: z.array(z.string()),
   zoneId: z.string().optional(),
+  name: z.string().optional(),
 });;
 export type DropTarget = z.infer<typeof DropTargetSchema>;
 
@@ -41,6 +42,7 @@ export type UseDragSourceReturn = {
     'style'?: React.CSSProperties;
     'aria-grabbed'?: boolean;
     'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup';
+    'aria-label'?: string;
     'role'?: string;
     'tabIndex'?: number;
   };
@@ -51,7 +53,9 @@ export type UseDropTargetReturn = {
   dropProps: {
     'ref': (element: HTMLElement | null) => void;
     'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup';
+    'aria-label'?: string;
     'data-drop-target'?: boolean;
+    'data-zone-id'?: string;
     'style'?: React.CSSProperties;
     'tabIndex'?: number;
   };
@@ -77,6 +81,7 @@ export type DropCallback = (metadata: DragMetadata) => void;
 // Configuration options
 export type DragSourceOptions = {
   metadata: DragMetadata;
+  name?: string; // Human-readable name for screen reader announcements
   preview?: ReactNode;
   onDragStart?: DragStartCallback;
   onDragEnd?: DragEndCallback;
@@ -86,6 +91,7 @@ export type DragSourceOptions = {
 export type DropTargetOptions = {
   accepts: string[];
   zoneId?: string;
+  name?: string; // Human-readable name for screen reader announcements
   onDrop?: DropCallback;
   onDragEnter?: (metadata: DragMetadata) => void;
   onDragLeave?: (metadata: DragMetadata) => void;

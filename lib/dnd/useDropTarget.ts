@@ -11,6 +11,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const {
     accepts,
     zoneId,
+    name,
     onDrop,
     onDragEnter,
     onDragLeave,
@@ -93,6 +94,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           ...bounds,
           accepts: acceptsRef.current,
           zoneId,
+          name,
         });
 
         // Set up ResizeObserver for size changes
@@ -187,7 +189,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           };
       }
     },
-    [disabled, registerDropTarget, updateBounds, zoneId],
+    [disabled, registerDropTarget, updateBounds, zoneId, name],
   );
 
   // Update isOver state - only re-renders when THIS dropzone's isOver changes
@@ -286,9 +288,10 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         ...bounds,
         accepts: acceptsRef.current,
         zoneId,
+        name,
       });
     }
-  }, [disabled, registerDropTarget, unregisterDropTarget, zoneId]);
+  }, [disabled, registerDropTarget, unregisterDropTarget, zoneId, name]);
 
   // Memoize the return object to prevent unnecessary re-renders
   return useMemo(() => {
@@ -299,6 +302,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
       dropProps: {
         'ref': setRef,
         'aria-dropeffect': canDrop ? 'move' : 'none',
+        'aria-label': name,
         'data-drop-target': true,
         'data-zone-id': zoneId,
         // Only make drop zones focusable when keyboard dragging is active

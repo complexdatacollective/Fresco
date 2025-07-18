@@ -32,6 +32,7 @@ function DraggableItem({
       name: item.name,
       sourceZone,
     },
+    name: item.name, // For screen reader announcements
     onDragStart: (meta) => {
       // Drag started
       void meta;
@@ -79,6 +80,7 @@ function DropZone({
   const { dropProps, willAccept, isOver, isDragging } = useDropTarget({
     accepts: acceptTypes,
     zoneId,
+    name: title, // For screen reader announcements
     onDrop: (metadata) => {
       onItemReceived(metadata);
     },
