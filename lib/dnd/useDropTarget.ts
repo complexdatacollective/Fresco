@@ -10,6 +10,7 @@ import { createUniqueId, getElementBounds, rafThrottle } from './utils';
 export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const {
     accepts,
+    zoneId,
     onDrop,
     onDragEnter,
     onDragLeave,
@@ -91,6 +92,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           id: dropIdRef.current,
           ...bounds,
           accepts: acceptsRef.current,
+          zoneId,
         });
 
         // Set up ResizeObserver for size changes
@@ -185,7 +187,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           };
       }
     },
-    [disabled, registerDropTarget, updateBounds],
+    [disabled, registerDropTarget, updateBounds, zoneId],
   );
 
   // Update isOver state - only re-renders when THIS dropzone's isOver changes
@@ -209,7 +211,12 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   useEffect(() => {
     if (dragItem && !disabled) {
       const itemType = dragItem.metadata.type as string;
-      const canAccept = acceptsRef.current.includes(itemType);
+      const sourceZone = dragItem.metadata.sourceZone as string;
+      const canAcceptType = acceptsRef.current.includes(itemType);
+      
+      // Prevent dropping back into the same zone
+      const canAccept = canAcceptType && (!zoneId || sourceZone !== zoneId);
+      
       setCanDrop(canAccept);
       lastDragItemRef.current = dragItem;
     } else {
@@ -218,7 +225,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         lastDragItemRef.current = null;
       }
     }
-  }, [dragItem, disabled]);
+  }, [dragItem, disabled, zoneId]);
 
   // Handle drop and position updates during drag - optimized subscription
   useEffect(() => {
@@ -278,17 +285,22 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         id: dropIdRef.current,
         ...bounds,
         accepts: acceptsRef.current,
+        zoneId,
       });
     }
-  }, [disabled, registerDropTarget, unregisterDropTarget]);
+  }, [disabled, registerDropTarget, unregisterDropTarget, zoneId]);
 
   // Memoize the return object to prevent unnecessary re-renders
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    // Check if this is the source zone for the current drag item
+    const isSourceZone = dragItem && zoneId && dragItem.metadata.sourceZone === zoneId;
+    
+    return {
       dropProps: {
         'ref': setRef,
         'aria-dropeffect': canDrop ? 'move' : 'none',
         'data-drop-target': true,
+        'data-zone-id': zoneId,
         // Only make drop zones focusable when keyboard dragging is active
         'tabIndex': isDragging ? 0 : -1,
         'style': {
@@ -296,10 +308,10 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           position: 'relative',
         },
       } as const,
-      isOver,
-      willAccept: canDrop,
-      isDragging,
-    }),
-    [setRef, canDrop, isDragging, isOver],
-  );
+      // Source zone should not show any drag styling
+      isOver: isSourceZone ? false : isOver,
+      willAccept: isSourceZone ? false : canDrop,
+      isDragging: isSourceZone ? false : isDragging,
+    };
+  }, [setRef, canDrop, isDragging, isOver, zoneId, dragItem]);
 }

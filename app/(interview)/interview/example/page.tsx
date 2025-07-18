@@ -78,6 +78,7 @@ function DropZone({
 }) {
   const { dropProps, willAccept, isOver, isDragging } = useDropTarget({
     accepts: acceptTypes,
+    zoneId,
     onDrop: (metadata) => {
       onItemReceived(metadata);
     },

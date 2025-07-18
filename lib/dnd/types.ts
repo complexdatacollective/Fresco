@@ -20,7 +20,8 @@ export const DropTargetSchema = z.object({
   width: z.number(),
   height: z.number(),
   accepts: z.array(z.string()),
-});
+  zoneId: z.string().optional(),
+});;
 export type DropTarget = z.infer<typeof DropTargetSchema>;
 
 // Drag state schema
@@ -84,6 +85,7 @@ export type DragSourceOptions = {
 
 export type DropTargetOptions = {
   accepts: string[];
+  zoneId?: string;
   onDrop?: DropCallback;
   onDragEnter?: (metadata: DragMetadata) => void;
   onDragLeave?: (metadata: DragMetadata) => void;
