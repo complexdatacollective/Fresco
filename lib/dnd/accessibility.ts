@@ -42,7 +42,7 @@ export function announce(message: string): void {
 }
 
 export function cleanupLiveRegion(): void {
-  if (liveRegion && liveRegion.parentNode) {
+  if (liveRegion?.parentNode) {
     liveRegion.parentNode.removeChild(liveRegion);
     liveRegion = null;
   }
@@ -70,11 +70,11 @@ export function getKeyboardDragAnnouncement(
 ): string {
   switch (action) {
     case 'start':
-      return `Started dragging. ${details || ''} ${getDragInstructions()}`;
+      return `Started dragging. ${details ?? ''} ${getDragInstructions()}`;
     case 'navigate':
-      return details || 'Navigated to drop target';
+      return details ?? 'Navigated to drop target';
     case 'drop':
-      return `Dropped item. ${details || ''}`;
+      return `Dropped item. ${details ?? ''}`;
     case 'cancel':
       return 'Drag cancelled';
     default:

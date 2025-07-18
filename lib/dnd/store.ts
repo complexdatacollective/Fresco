@@ -5,12 +5,13 @@ import { type DragItem, type DropTarget } from './types';
 type DndStore = {
   // State
   dragItem: DragItem | null;
+  dragPosition: { x: number; y: number; width: number; height: number } | null;
   dropTargets: Map<string, DropTarget>;
   activeDropTargetId: string | null;
   isDragging: boolean;
 
   // Actions
-  startDrag: (item: Omit<DragItem, 'startX' | 'startY'>) => void;
+  startDrag: (item: DragItem, position: { x: number; y: number; width: number; height: number }) => void;
   updateDragPosition: (x: number, y: number) => void;
   endDrag: () => void;
   registerDropTarget: (target: DropTarget) => void;
@@ -100,12 +101,12 @@ class BSPNode {
       const leftResult = this.left?.find(x, y);
       if (leftResult) return leftResult;
       // Also check right side if point is near the split
-      return this.right?.find(x, y) || null;
+      return this.right?.find(x, y) ?? null;
     } else {
       const rightResult = this.right?.find(x, y);
       if (rightResult) return rightResult;
       // Also check left side if point is near the split
-      return this.left?.find(x, y) || null;
+      return this.left?.find(x, y) ?? null;
     }
   }
 
@@ -149,22 +150,37 @@ class BSPNode {
   }
 }
 
-// Create the BSP tree instance
-const bspTree = new BSPTree();
+// Create BSP tree factory to avoid singleton issues
+function createBSPTree() {
+  return new BSPTree();
+}
 
-// Cache for computed drop target states
-let dropTargetCache = new WeakMap<DragItem, Map<string, boolean>>();
+// Global BSP tree instance
+let bspTree = createBSPTree();
+
+// Helper function to check if target accepts drag item
+function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
+  const itemType = dragItem.metadata.type as string;
+  return target.accepts.includes(itemType);
+}
+
+// Function to reset BSP tree (fixes isolation issues)
+export function resetBSPTree() {
+  bspTree = createBSPTree();
+}
 
 export const useDndStore = create<DndStore>()(
   subscribeWithSelector((set, get) => ({
     dragItem: null,
+    dragPosition: null,
     dropTargets: new Map(),
     activeDropTargetId: null,
     isDragging: false,
 
-    startDrag: (item) => {
+    startDrag: (item, position) => {
       set({
-        dragItem: { ...item, startX: item.x, startY: item.y },
+        dragItem: item,
+        dragPosition: position,
         isDragging: true,
         activeDropTargetId: null,
       });
@@ -172,11 +188,11 @@ export const useDndStore = create<DndStore>()(
 
     updateDragPosition: (x, y) => {
       const state = get();
-      if (!state.dragItem) return;
+      if (!state.dragItem || !state.dragPosition) return;
 
-      // Update drag item position
+      // Update drag position
       set({
-        dragItem: { ...state.dragItem, x, y },
+        dragPosition: { ...state.dragPosition, x, y },
       });
 
       // Find drop target at current position using simple iteration
@@ -196,7 +212,7 @@ export const useDndStore = create<DndStore>()(
 
       if (foundTarget) {
         // Check if this target accepts the drag item
-        const accepts = foundTarget.accepts(state.dragItem.metadata);
+        const accepts = doesTargetAccept(foundTarget, state.dragItem);
 
         if (accepts) {
           set({ activeDropTargetId: foundTarget.id });
@@ -208,14 +224,18 @@ export const useDndStore = create<DndStore>()(
     },
 
     endDrag: () => {
+      // First, set isDragging to false to trigger drop target callbacks
       set({
         dragItem: null,
+        dragPosition: null,
         isDragging: false,
-        activeDropTargetId: null,
+        // Keep activeDropTargetId for a moment so drop targets can read it
       });
-
-      // Clear cache
-      dropTargetCache = new WeakMap();
+      
+      // Reset activeDropTargetId after a short delay to allow drop targets to process
+      setTimeout(() => {
+        set({ activeDropTargetId: null });
+      }, 0);
     },
 
     registerDropTarget: (target) => {

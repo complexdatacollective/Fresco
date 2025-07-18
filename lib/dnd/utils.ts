@@ -1,34 +1,33 @@
 // Performance utilities for drag and drop
 
 // Throttle function using requestAnimationFrame
-export function rafThrottle<T extends (...args: any[]) => void>(
-  fn: T,
-): (...args: Parameters<T>) => void {
+export function rafThrottle<TArgs extends readonly unknown[], TReturn = void>(
+  fn: (...args: TArgs) => TReturn,
+): ((...args: TArgs) => void) & { cancel: () => void } {
   let rafId: number | null = null;
-  let lastArgs: Parameters<T> | null = null;
+  let lastArgs: TArgs | null = null;
 
-  const throttled = (...args: Parameters<T>) => {
+  const throttled = (...args: TArgs) => {
     lastArgs = args;
 
-    if (rafId === null) {
-      rafId = requestAnimationFrame(() => {
-        if (lastArgs !== null) {
-          fn(...lastArgs);
-        }
-        rafId = null;
-      });
-    }
+    rafId ??= requestAnimationFrame(() => {
+      if (lastArgs !== null) {
+        fn(...lastArgs);
+      }
+      rafId = null;
+    });
   };
 
   // Add cancel method
-  (throttled as any).cancel = () => {
+  const throttledWithCancel = throttled as typeof throttled & { cancel: () => void };
+  throttledWithCancel.cancel = () => {
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
       rafId = null;
     }
   };
 
-  return throttled;
+  return throttledWithCancel;
 }
 
 // Get absolute position accounting for scroll and transforms
@@ -37,8 +36,8 @@ export function getAbsolutePosition(element: HTMLElement): {
   y: number;
 } {
   const rect = element.getBoundingClientRect();
-  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollLeft = window.pageXOffset ?? document.documentElement.scrollLeft;
+  const scrollTop = window.pageYOffset ?? document.documentElement.scrollTop;
 
   return {
     x: rect.left + scrollLeft,
@@ -54,8 +53,8 @@ export function getElementBounds(element: HTMLElement): {
   height: number;
 } {
   const rect = element.getBoundingClientRect();
-  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollLeft = window.pageXOffset ?? document.documentElement.scrollLeft;
+  const scrollTop = window.pageYOffset ?? document.documentElement.scrollTop;
 
   return {
     x: rect.left + scrollLeft,
@@ -128,7 +127,7 @@ export function createUniqueId(prefix = 'dnd'): string {
 }
 
 // Debounce with immediate option
-export function debounce<T extends (...args: any[]) => void>(
+export function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
   delay: number,
   immediate = false,

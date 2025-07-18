@@ -1,23 +1,20 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useDndStore } from '../store';
-import type { DragItem, DropTarget } from '../types';
+import { useDndStore, resetBSPTree } from '../store';
+import type { DropTarget } from '../types';
 
 describe('DnD Store', () => {
   beforeEach(() => {
     // Reset store state
     useDndStore.setState({
       dragItem: null,
+      dragPosition: null,
       dropTargets: new Map(),
       activeDropTargetId: null,
       isDragging: false,
     });
 
-    // Clear all drop targets to reset BSP tree
-    const state = useDndStore.getState();
-    const targetIds = Array.from(state.dropTargets.keys());
-    targetIds.forEach((id) => {
-      useDndStore.getState().unregisterDropTarget(id);
-    });
+    // Reset BSP tree to fix isolation issues
+    resetBSPTree();
   });
 
   describe('startDrag', () => {
@@ -25,21 +22,21 @@ describe('DnD Store', () => {
       const dragItem = {
         id: 'drag-1',
         metadata: { type: 'test' },
+      };
+
+      const position = {
         x: 100,
         y: 200,
         width: 50,
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem);
+      useDndStore.getState().startDrag(dragItem, position);
 
       const state = useDndStore.getState();
       expect(state.isDragging).toBe(true);
-      expect(state.dragItem).toEqual({
-        ...dragItem,
-        startX: 100,
-        startY: 200,
-      });
+      expect(state.dragItem).toEqual(dragItem);
+      expect(state.dragPosition).toEqual(position);
       expect(state.activeDropTargetId).toBe(null);
     });
   });
@@ -49,18 +46,21 @@ describe('DnD Store', () => {
       const dragItem = {
         id: 'drag-1',
         metadata: { type: 'test' },
+      };
+
+      const position = {
         x: 100,
         y: 200,
         width: 50,
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem);
+      useDndStore.getState().startDrag(dragItem, position);
       useDndStore.getState().updateDragPosition(150, 250);
 
       const state = useDndStore.getState();
-      expect(state.dragItem?.x).toBe(150);
-      expect(state.dragItem?.y).toBe(250);
+      expect(state.dragPosition?.x).toBe(150);
+      expect(state.dragPosition?.y).toBe(250);
     });
 
     it('should not update if no drag item', () => {
@@ -75,18 +75,22 @@ describe('DnD Store', () => {
       const dragItem = {
         id: 'drag-1',
         metadata: { type: 'test' },
+      };
+
+      const position = {
         x: 100,
         y: 200,
         width: 50,
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem);
+      useDndStore.getState().startDrag(dragItem, position);
       useDndStore.getState().endDrag();
 
       const state = useDndStore.getState();
       expect(state.isDragging).toBe(false);
       expect(state.dragItem).toBe(null);
+      expect(state.dragPosition).toBe(null);
       expect(state.activeDropTargetId).toBe(null);
     });
   });
@@ -99,7 +103,7 @@ describe('DnD Store', () => {
         y: 0,
         width: 100,
         height: 100,
-        accepts: () => true,
+        accepts: ['test'],
       };
 
       useDndStore.getState().registerDropTarget(dropTarget);
@@ -117,7 +121,7 @@ describe('DnD Store', () => {
         y: 0,
         width: 100,
         height: 100,
-        accepts: () => true,
+        accepts: ['test'],
       };
 
       useDndStore.getState().registerDropTarget(dropTarget);
@@ -134,7 +138,7 @@ describe('DnD Store', () => {
         y: 0,
         width: 100,
         height: 100,
-        accepts: () => true,
+        accepts: ['test'],
       };
 
       useDndStore.getState().registerDropTarget(dropTarget);
@@ -154,12 +158,15 @@ describe('DnD Store', () => {
         y: 50,
         width: 100,
         height: 100,
-        accepts: () => true,
+        accepts: ['test'],
       };
 
       const dragItem = {
         id: 'drag-1',
         metadata: { type: 'test' },
+      };
+
+      const position = {
         x: 100,
         y: 100,
         width: 50,
@@ -167,7 +174,7 @@ describe('DnD Store', () => {
       };
 
       useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem);
+      useDndStore.getState().startDrag(dragItem, position);
       useDndStore.getState().updateDragPosition(100, 100);
 
       const state = useDndStore.getState();
@@ -181,12 +188,15 @@ describe('DnD Store', () => {
         y: 50,
         width: 100,
         height: 100,
-        accepts: () => false,
+        accepts: ['other'],
       };
 
       const dragItem = {
         id: 'drag-1',
         metadata: { type: 'test' },
+      };
+
+      const position = {
         x: 100,
         y: 100,
         width: 50,
@@ -194,7 +204,7 @@ describe('DnD Store', () => {
       };
 
       useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem);
+      useDndStore.getState().startDrag(dragItem, position);
       useDndStore.getState().updateDragPosition(100, 100);
 
       const state = useDndStore.getState();
@@ -208,12 +218,15 @@ describe('DnD Store', () => {
         y: 50,
         width: 100,
         height: 100,
-        accepts: () => true,
+        accepts: ['test'],
       };
 
       const dragItem = {
         id: 'drag-1',
         metadata: { type: 'test' },
+      };
+
+      const position = {
         x: 200,
         y: 200,
         width: 50,
@@ -221,7 +234,7 @@ describe('DnD Store', () => {
       };
 
       useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem);
+      useDndStore.getState().startDrag(dragItem, position);
       useDndStore.getState().updateDragPosition(200, 200);
 
       const state = useDndStore.getState();

@@ -3,7 +3,6 @@ import { useDndStore } from './store';
 import {
   type DragSourceOptions,
   type UseDragSourceReturn,
-  type DragMetadata,
 } from './types';
 import {
   createUniqueId,
@@ -11,23 +10,29 @@ import {
   autoScroll,
   rafThrottle,
 } from './utils';
+import {
+  announce,
+  getKeyboardDragAnnouncement,
+  getDragInstructions,
+} from './accessibility';
 
 export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   const {
     metadata,
-    preview,
     onDragStart,
     onDragEnd,
     disabled = false,
   } = options;
 
   const [isDragging, setIsDragging] = useState(false);
+  const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
+  const [currentDropTargetIndex, setCurrentDropTargetIndex] = useState(-1);
   const dragIdRef = useRef<string>(createUniqueId('drag'));
   const elementRef = useRef<HTMLElement | null>(null);
   const scrollableParentRef = useRef<HTMLElement | null>(null);
   const autoScrollRafRef = useRef<number | null>(null);
 
-  const { startDrag, updateDragPosition, endDrag, activeDropTargetId } =
+  const { startDrag, updateDragPosition, endDrag, activeDropTargetId, dropTargets } =
     useDndStore();
 
   // Track pointer position for auto-scrolling
@@ -35,9 +40,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
   // Throttled position update
   const updatePosition = useRef(
-    rafThrottle((x: number, y: number) => {
-      updateDragPosition(x, y);
-    }),
+    rafThrottle(updateDragPosition),
   ).current;
 
   // Auto-scroll handling
@@ -80,19 +83,21 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         autoScrollRafRef.current = null;
       }
 
+      // Get the drop target ID before ending drag
+      const dropTargetId = useDndStore.getState().activeDropTargetId;
+      
       // End drag
       endDrag();
       setIsDragging(false);
 
       // Call onDragEnd callback
       if (onDragEnd) {
-        const dropTargetId = useDndStore.getState().activeDropTargetId;
         onDragEnd(metadata, dropTargetId);
       }
 
       // Release pointer capture if we have it
       const element = elementRef.current;
-      if (element && element.hasPointerCapture(e.pointerId)) {
+      if (element?.hasPointerCapture(e.pointerId)) {
         element.releasePointerCapture(e.pointerId);
       }
     },
@@ -111,6 +116,9 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       const dragItem = {
         id: dragIdRef.current,
         metadata,
+      };
+
+      const position = {
         x: e.pageX,
         y: e.pageY,
         width: rect.width,
@@ -118,7 +126,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       };
 
       // Start drag
-      startDrag(dragItem);
+      startDrag(dragItem, position);
       setIsDragging(true);
 
       // Find scrollable parent
@@ -163,29 +171,144 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       if (autoScrollRafRef.current) {
         cancelAnimationFrame(autoScrollRafRef.current);
       }
-      (updatePosition as any).cancel?.();
+      updatePosition.cancel();
     };
   }, [updatePosition]);
+
+  // Get compatible drop targets for keyboard navigation
+  const getCompatibleDropTargets = useCallback(() => {
+    if (!isDragging) return [];
+    
+    const itemType = metadata.type as string;
+    return Array.from(dropTargets.values()).filter(target => 
+      target.accepts.includes(itemType)
+    );
+  }, [isDragging, metadata.type, dropTargets]);
+
+  // Navigate to next/previous drop target
+  const navigateDropTargets = useCallback((direction: 'next' | 'prev') => {
+    const compatibleTargets = getCompatibleDropTargets();
+    if (compatibleTargets.length === 0) return;
+
+    let newIndex = currentDropTargetIndex;
+    
+    if (direction === 'next') {
+      newIndex = (currentDropTargetIndex + 1) % compatibleTargets.length;
+    } else {
+      newIndex = currentDropTargetIndex <= 0 
+        ? compatibleTargets.length - 1 
+        : currentDropTargetIndex - 1;
+    }
+    
+    setCurrentDropTargetIndex(newIndex);
+    
+    const target = compatibleTargets[newIndex];
+    if (target) {
+      // Update drag position to center of target
+      const centerX = target.x + target.width / 2;
+      const centerY = target.y + target.height / 2;
+      updateDragPosition(centerX, centerY);
+      
+      announce(getKeyboardDragAnnouncement('navigate', 
+        `Moved to drop target ${newIndex + 1} of ${compatibleTargets.length}`));
+    }
+  }, [currentDropTargetIndex, getCompatibleDropTargets, updateDragPosition]);
+
+  // Start keyboard drag
+  const startKeyboardDrag = useCallback((element: HTMLElement) => {
+    setIsKeyboardDragging(true);
+    setIsDragging(true);
+    setCurrentDropTargetIndex(-1);
+    
+    const rect = element.getBoundingClientRect();
+    const dragItem = {
+      id: dragIdRef.current,
+      metadata,
+    };
+    
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      width: rect.width,
+      height: rect.height,
+    };
+    
+    startDrag(dragItem, position);
+    
+    if (onDragStart) {
+      onDragStart(metadata);
+    }
+    
+    announce(getKeyboardDragAnnouncement('start', getDragInstructions()));
+  }, [metadata, startDrag, onDragStart]);
+
+  // End keyboard drag
+  const endKeyboardDrag = useCallback((shouldDrop: boolean) => {
+    if (!isKeyboardDragging) return;
+    
+    setIsKeyboardDragging(false);
+    setIsDragging(false);
+    setCurrentDropTargetIndex(-1);
+    
+    const dropTargetId = shouldDrop ? activeDropTargetId : null;
+    
+    endDrag();
+    
+    if (onDragEnd) {
+      onDragEnd(metadata, dropTargetId);
+    }
+    
+    if (shouldDrop && dropTargetId) {
+      announce(getKeyboardDragAnnouncement('drop', 'Item dropped successfully'));
+    } else {
+      announce(getKeyboardDragAnnouncement('cancel'));
+    }
+  }, [isKeyboardDragging, activeDropTargetId, endDrag, metadata, onDragEnd]);
 
   // Handle keyboard accessibility
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (disabled) return;
 
-      // Space or Enter to start drag
-      if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        // TODO: Implement keyboard drag
-        console.log('Keyboard drag not yet implemented');
+      if (isKeyboardDragging) {
+        // Handle navigation during drag
+        switch (e.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+            e.preventDefault();
+            navigateDropTargets('next');
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+            e.preventDefault();
+            navigateDropTargets('prev');
+            break;
+          case ' ':
+          case 'Enter':
+            e.preventDefault();
+            endKeyboardDrag(true);
+            break;
+          case 'Escape':
+            e.preventDefault();
+            endKeyboardDrag(false);
+            break;
+        }
+      } else {
+        // Start drag with Space or Enter
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          const element = e.currentTarget as HTMLElement;
+          startKeyboardDrag(element);
+        }
       }
     },
-    [disabled],
+    [disabled, isKeyboardDragging, navigateDropTargets, endKeyboardDrag, startKeyboardDrag],
   );
 
   return {
     dragProps: {
       'onPointerDown': handlePointerDown,
-      'onKeyDown': handleKeyDown,
+      onKeyDown: handleKeyDown,
       'aria-grabbed': isDragging,
       'aria-dropeffect': 'move',
       'role': 'button',

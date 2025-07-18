@@ -9,6 +9,7 @@ export function DragPreview({
 }: DragPreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const dragItem = useDndStore((state) => state.dragItem);
+  const dragPosition = useDndStore((state) => state.dragPosition);
   const isDragging = useDndStore((state) => state.isDragging);
 
   // Create container on mount
@@ -31,14 +32,14 @@ export function DragPreview({
 
   // Update position
   useEffect(() => {
-    if (containerRef.current && dragItem && isDragging) {
-      const transform = `translate3d(${dragItem.x + offset.x}px, ${dragItem.y + offset.y}px, 0)`;
+    if (containerRef.current && dragPosition && isDragging) {
+      const transform = `translate3d(${dragPosition.x + offset.x}px, ${dragPosition.y + offset.y}px, 0)`;
       containerRef.current.style.transform = transform;
       containerRef.current.style.willChange = 'transform';
     }
-  }, [dragItem, isDragging, offset.x, offset.y]);
+  }, [dragPosition, isDragging, offset.x, offset.y]);
 
-  if (!isDragging || !dragItem || !containerRef.current) {
+  if (!isDragging || !dragItem || !dragPosition || !containerRef.current) {
     return null;
   }
 
@@ -52,11 +53,11 @@ export function DragPreview({
         cursor: 'grabbing',
       }}
     >
-      {children || (
+      {children ?? (
         <div
           style={{
-            width: dragItem.width,
-            height: dragItem.height,
+            width: dragPosition.width,
+            height: dragPosition.height,
             backgroundColor: '#4299e1',
             borderRadius: '4px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',

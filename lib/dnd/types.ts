@@ -9,12 +9,6 @@ export type DragMetadata = z.infer<typeof DragMetadataSchema>;
 export const DragItemSchema = z.object({
   id: z.string(),
   metadata: DragMetadataSchema,
-  x: z.number(),
-  y: z.number(),
-  width: z.number(),
-  height: z.number(),
-  startX: z.number(),
-  startY: z.number(),
 });
 export type DragItem = z.infer<typeof DragItemSchema>;
 
@@ -25,7 +19,7 @@ export const DropTargetSchema = z.object({
   y: z.number(),
   width: z.number(),
   height: z.number(),
-  accepts: z.function().args(DragMetadataSchema).returns(z.boolean()),
+  accepts: z.array(z.string()),
 });
 export type DropTarget = z.infer<typeof DropTargetSchema>;
 
@@ -42,6 +36,7 @@ export type DragState = z.infer<typeof DragStateSchema>;
 export type UseDragSourceReturn = {
   dragProps: {
     'onPointerDown': (e: React.PointerEvent) => void;
+    'onKeyDown': (e: React.KeyboardEvent) => void;
     'style'?: React.CSSProperties;
     'aria-grabbed'?: boolean;
     'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup';
@@ -57,10 +52,11 @@ export type UseDropTargetReturn = {
     'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup';
     'data-drop-target'?: boolean;
     'style'?: React.CSSProperties;
+    'tabIndex'?: number;
   };
   isOver: boolean;
-  canDrop: boolean;
-  dragItem: DragItem | null;
+  willAccept: boolean;
+  isDragging: boolean;
 }
 
 // Drag preview props
@@ -87,7 +83,7 @@ export type DragSourceOptions = {
 }
 
 export type DropTargetOptions = {
-  accepts: (metadata: DragMetadata) => boolean;
+  accepts: string[];
   onDrop?: DropCallback;
   onDragEnter?: (metadata: DragMetadata) => void;
   onDragLeave?: (metadata: DragMetadata) => void;

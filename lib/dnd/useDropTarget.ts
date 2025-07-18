@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDndStore } from './store';
 import {
   type DropTargetOptions,
@@ -27,14 +27,15 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const {
     dragItem,
     activeDropTargetId,
+    isDragging,
     registerDropTarget,
     unregisterDropTarget,
     updateDropTarget,
   } = useDndStore();
 
-  // Memoize the accepts function to ensure stable reference
-  const acceptsFn = useRef(accepts);
-  acceptsFn.current = accepts;
+  // Memoize the accepts array to ensure stable reference
+  const acceptsRef = useRef(accepts);
+  acceptsRef.current = accepts;
 
   // Throttled bounds update
   const updateBounds = useRef(
@@ -63,7 +64,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         registerDropTarget({
           id: dropIdRef.current,
           ...bounds,
-          accepts: acceptsFn.current,
+          accepts: acceptsRef.current,
         });
 
         // Set up ResizeObserver for size changes
@@ -84,18 +85,49 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         );
         intersectionObserverRef.current.observe(element);
 
-        // Listen for scroll events on the document
+        // Listen for scroll events on the document and scrollable parents
+        const scrollListeners: { element: Element | Document; handler: () => void }[] = [];
         const handleScroll = () => updateBounds();
+        const handleResize = () => updateBounds();
+        
+        // Add document scroll listener
         document.addEventListener('scroll', handleScroll, {
           passive: true,
           capture: true,
         });
+        scrollListeners.push({ element: document, handler: handleScroll });
+        
+        // Add window resize listener
+        window.addEventListener('resize', handleResize, {
+          passive: true,
+        });
+        
+        // Find and listen to all scrollable parents
+        let parent = element.parentElement;
+        while (parent) {
+          const style = getComputedStyle(parent);
+          const hasScrollableContent = 
+            (style.overflowY === 'auto' || style.overflowY === 'scroll') ||
+            (style.overflowX === 'auto' || style.overflowX === 'scroll');
+            
+          if (hasScrollableContent) {
+            parent.addEventListener('scroll', handleScroll, {
+              passive: true,
+              capture: false,
+            });
+            scrollListeners.push({ element: parent, handler: handleScroll });
+          }
+          parent = parent.parentElement;
+        }
 
         // Store cleanup function
-        (element as any).__dndCleanup = () => {
-          document.removeEventListener('scroll', handleScroll, {
-            capture: true,
+        (element as HTMLElement & { __dndCleanup?: () => void }).__dndCleanup = () => {
+          scrollListeners.forEach(({ element: el, handler }) => {
+            el.removeEventListener('scroll', handler, {
+              capture: el === document,
+            });
           });
+          window.removeEventListener('resize', handleResize);
         };
       }
     },
@@ -123,7 +155,8 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   // Update canDrop state and track drag item
   useEffect(() => {
     if (dragItem && !disabled) {
-      const canAccept = acceptsFn.current(dragItem.metadata);
+      const itemType = dragItem.metadata.type as string;
+      const canAccept = acceptsRef.current.includes(itemType);
       setCanDrop(canAccept);
       lastDragItemRef.current = dragItem;
     } else {
@@ -134,11 +167,16 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     }
   }, [dragItem, disabled]);
 
-  // Handle drop
+  // Handle drop and position updates during drag
   useEffect(() => {
     const unsubscribe = useDndStore.subscribe(
       (state) => state.isDragging,
       (isDragging, wasDragging) => {
+        // Drag just started - update bounds immediately
+        if (isDragging && !wasDragging) {
+          updateBounds();
+        }
+        
         // Drag just ended
         if (!isDragging && wasDragging) {
           const state = useDndStore.getState();
@@ -153,7 +191,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     );
 
     return unsubscribe;
-  }, [canDrop, onDrop]);
+  }, [canDrop, onDrop, updateBounds]);
 
   // Clean up on unmount or when disabled
   useEffect(() => {
@@ -163,12 +201,13 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
       unregisterDropTarget(id);
       resizeObserverRef.current?.disconnect();
       intersectionObserverRef.current?.disconnect();
-      (updateBounds as any).cancel?.();
+      updateBounds.cancel();
 
       // Clean up scroll listener
       const element = elementRef.current;
-      if (element && (element as any).__dndCleanup) {
-        (element as any).__dndCleanup();
+      const elementWithCleanup = element as HTMLElement & { __dndCleanup?: () => void };
+      if (element && elementWithCleanup.__dndCleanup) {
+        elementWithCleanup.__dndCleanup();
       }
     };
   }, [unregisterDropTarget, updateBounds]);
@@ -182,7 +221,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
       registerDropTarget({
         id: dropIdRef.current,
         ...bounds,
-        accepts: acceptsFn.current,
+        accepts: acceptsRef.current,
       });
     }
   }, [disabled, registerDropTarget, unregisterDropTarget]);
@@ -192,17 +231,15 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
       'ref': setRef,
       'aria-dropeffect': canDrop ? 'move' : 'none',
       'data-drop-target': true,
+      // Only make drop zones focusable when keyboard dragging is active
+      'tabIndex': isDragging ? 0 : -1,
       'style': {
+        // Only include minimal styles for accessibility
         position: 'relative',
-        ...(isOver &&
-          canDrop && {
-            outline: '2px solid #4299e1',
-            outlineOffset: '2px',
-          }),
       },
     },
     isOver,
-    canDrop,
-    dragItem: dragItem,
+    willAccept: canDrop,
+    isDragging,
   };
 }
