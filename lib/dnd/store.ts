@@ -6,6 +6,7 @@ type DndStore = {
   // State
   dragItem: DragItem | null;
   dragPosition: { x: number; y: number; width: number; height: number } | null;
+  dragPreview: React.ReactNode | null;
   dropTargets: Map<string, DropTarget>;
   activeDropTargetId: string | null;
   isDragging: boolean;
@@ -14,6 +15,7 @@ type DndStore = {
   startDrag: (
     item: DragItem,
     position: { x: number; y: number; width: number; height: number },
+    preview?: React.ReactNode,
   ) => void;
   updateDragPosition: (x: number, y: number) => void;
   endDrag: () => void;
@@ -165,13 +167,13 @@ let bspTree = createBSPTree();
 function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
   const itemType = dragItem.metadata.type as string;
   const sourceZone = dragItem.metadata.sourceZone as string;
-  
+
   // Check if the target accepts the item type
   const acceptsType = target.accepts.includes(itemType);
-  
+
   // Prevent dropping back into the same zone
   const notSameZone = !target.zoneId || sourceZone !== target.zoneId;
-  
+
   return acceptsType && notSameZone;
 }
 
@@ -184,14 +186,16 @@ export const useDndStore = create<DndStore>()(
   subscribeWithSelector((set, get) => ({
     dragItem: null,
     dragPosition: null,
+    dragPreview: null,
     dropTargets: new Map(),
     activeDropTargetId: null,
     isDragging: false,
 
-    startDrag: (item, position) => {
+    startDrag: (item, position, preview) => {
       set({
         dragItem: item,
         dragPosition: position,
+        dragPreview: preview ?? null,
         isDragging: true,
         activeDropTargetId: null,
       });
@@ -245,6 +249,7 @@ export const useDndStore = create<DndStore>()(
       set({
         dragItem: null,
         dragPosition: null,
+        dragPreview: null,
         isDragging: false,
         // Keep activeDropTargetId for a moment so drop targets can read it
       });

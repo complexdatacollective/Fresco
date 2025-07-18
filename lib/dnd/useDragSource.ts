@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  createElement,
+} from 'react';
 import { useDndStore } from './store';
 import { type DragSourceOptions, type UseDragSourceReturn } from './types';
 import {
@@ -15,7 +22,14 @@ import {
 } from './accessibility';
 
 export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
-  const { metadata, name, onDragStart, onDragEnd, disabled = false } = options;
+  const {
+    metadata,
+    name,
+    preview,
+    onDragStart,
+    onDragEnd,
+    disabled = false,
+  } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
@@ -29,7 +43,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   const startDrag = useDndStore((state) => state.startDrag);
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
   const endDrag = useDndStore((state) => state.endDrag);
-  
+
   // Get dropTargets directly from store when needed to avoid unnecessary re-renders from scroll events
 
   // Track pointer position for auto-scrolling
@@ -37,6 +51,37 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
   // Throttled position update
   const updatePosition = useRef(rafThrottle(updateDragPosition)).current;
+
+  // Helper to create preview element
+  const createPreview = useCallback(
+    (element: HTMLElement | null) => {
+      if (preview !== undefined) {
+        // Use provided preview
+        return preview;
+      }
+
+      if (element) {
+        // Clone the dragged element
+        const clonedElement = element.cloneNode(true) as HTMLElement;
+
+        // Ensure it's not interactive
+        clonedElement.style.pointerEvents = 'none';
+
+        // Remove any IDs to avoid duplicates
+        clonedElement.removeAttribute('id');
+        const elementsWithId = clonedElement.querySelectorAll('[id]');
+        elementsWithId.forEach((el) => el.removeAttribute('id'));
+
+        // Return the cloned element wrapped in a div with the same styles
+        return createElement('div', {
+          dangerouslySetInnerHTML: { __html: clonedElement.outerHTML },
+        });
+      }
+
+      return null;
+    },
+    [preview],
+  );
 
   // Auto-scroll handling
   const handleAutoScroll = useCallback(() => {
@@ -120,8 +165,9 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         height: rect.height,
       };
 
-      // Start drag
-      startDrag(dragItem, position);
+      // Start drag with preview
+      const dragPreview = createPreview(element);
+      startDrag(dragItem, position, dragPreview);
       setIsDragging(true);
 
       // Find scrollable parent
@@ -153,6 +199,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       disabled,
       metadata,
       startDrag,
+      createPreview,
       handlePointerMove,
       handlePointerUp,
       handleAutoScroll,
@@ -176,11 +223,11 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
     const itemType = metadata.type;
     if (typeof itemType !== 'string') return [];
-    
+
     // Get dropTargets directly from store to avoid subscription re-renders
     const dropTargets = useDndStore.getState().dropTargets;
     const sourceZone = metadata.sourceZone as string;
-    
+
     return Array.from(dropTargets.values()).filter((target) => {
       // Check if target accepts the item type
       const acceptsType = target.accepts.includes(itemType);
@@ -221,9 +268,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
           compatibleTargets.length,
           target.name,
         );
-        announce(
-          getKeyboardDragAnnouncement('navigate', targetDescription),
-        );
+        announce(getKeyboardDragAnnouncement('navigate', targetDescription));
       }
     },
     [currentDropTargetIndex, getCompatibleDropTargets, updateDragPosition],
@@ -249,7 +294,8 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         height: rect.height,
       };
 
-      startDrag(dragItem, position);
+      const dragPreview = createPreview(element);
+      startDrag(dragItem, position, dragPreview);
 
       if (onDragStart) {
         onDragStart(metadata);
@@ -261,17 +307,23 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       const itemType = metadata.type as string;
       const typeInfo = itemType ? `(${itemType}) ` : '';
       const zonesInfo = `${compatibleTargets.length} compatible drop zones available. `;
-      
+
       announce(
         getKeyboardDragAnnouncement(
-          'start', 
-          `${itemInfo}${typeInfo}${zonesInfo}${getDragInstructions()}`
-        )
+          'start',
+          `${itemInfo}${typeInfo}${zonesInfo}${getDragInstructions()}`,
+        ),
       );
     },
-    [metadata, name, startDrag, onDragStart, getCompatibleDropTargets],
+    [
+      metadata,
+      name,
+      startDrag,
+      createPreview,
+      onDragStart,
+      getCompatibleDropTargets,
+    ],
   );
-
 
   // End keyboard drag
   const endKeyboardDrag = useCallback(
@@ -282,7 +334,9 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       setIsDragging(false);
       setCurrentDropTargetIndex(-1);
 
-      const dropTargetId = shouldDrop ? useDndStore.getState().activeDropTargetId : null;
+      const dropTargetId = shouldDrop
+        ? useDndStore.getState().activeDropTargetId
+        : null;
 
       // If cancelling, clear the active drop target before ending drag
       if (!shouldDrop) {
@@ -352,10 +406,16 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     ],
   );
 
+  // Ref callback to capture the element
+  const setDragRef = useCallback((element: HTMLElement | null) => {
+    elementRef.current = element;
+  }, []);
+
   // Memoize the return object to prevent unnecessary re-renders
   return useMemo(
     () => ({
       dragProps: {
+        'ref': setDragRef,
         'onPointerDown': handlePointerDown,
         'onKeyDown': handleKeyDown,
         'aria-grabbed': isDragging,
@@ -372,6 +432,6 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       } as const,
       isDragging,
     }),
-    [handlePointerDown, handleKeyDown, isDragging, disabled, name],
+    [setDragRef, handlePointerDown, handleKeyDown, isDragging, disabled, name],
   );
 }

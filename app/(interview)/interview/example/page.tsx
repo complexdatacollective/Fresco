@@ -33,6 +33,12 @@ function DraggableItem({
       sourceZone,
     },
     name: item.name, // For screen reader announcements
+    // Custom preview for fruits
+    preview: item.type === 'fruit' ? (
+      <div className="bg-barbie-pink text-white rounded-full h-20 w-20 flex items-center justify-center shadow-lg">
+        🍎 {item.name}
+      </div>
+    ) : undefined, // Use default (cloned element) for other types
     onDragStart: (meta) => {
       // Drag started
       void meta;
@@ -298,11 +304,7 @@ export default function DragDropExample() {
           </div>
         </div>
       </div>
-      <DragPreview>
-        <div className="bg-accent text-accent-foreground rotate-[-2deg] rounded-md px-4 py-2 text-sm font-bold shadow-lg">
-          📦 Dragging...
-        </div>
-      </DragPreview>
+      <DragPreview />
     </div>
   );
 }

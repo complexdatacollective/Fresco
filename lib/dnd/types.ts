@@ -22,7 +22,7 @@ export const DropTargetSchema = z.object({
   accepts: z.array(z.string()),
   zoneId: z.string().optional(),
   name: z.string().optional(),
-});;
+});
 export type DropTarget = z.infer<typeof DropTargetSchema>;
 
 // Drag state schema
@@ -31,12 +31,14 @@ export const DragStateSchema = z.object({
   dropTargets: z.map(z.string(), DropTargetSchema),
   activeDropTargetId: z.string().nullable(),
   isDragging: z.boolean(),
+  dragPreview: z.any().nullable(), // ReactNode for custom preview
 });
 export type DragState = z.infer<typeof DragStateSchema>;
 
 // Hook return types
 export type UseDragSourceReturn = {
   dragProps: {
+    'ref': (element: HTMLElement | null) => void;
     'onPointerDown': (e: React.PointerEvent) => void;
     'onKeyDown': (e: React.KeyboardEvent) => void;
     'style'?: React.CSSProperties;
