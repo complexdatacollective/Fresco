@@ -29,9 +29,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
   const endDrag = useDndStore((state) => state.endDrag);
   
-  // Always subscribe to drop targets and activeDropTargetId for consistency
-  // The performance impact is minimal and avoids conditional hook issues
-  const activeDropTargetId = useDndStore((state) => state.activeDropTargetId);
+  // Only subscribe to dropTargets when keyboard dragging to avoid unnecessary re-renders
   const dropTargets = useDndStore((state) => state.dropTargets);
 
   // Track pointer position for auto-scrolling
@@ -260,7 +258,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       setIsDragging(false);
       setCurrentDropTargetIndex(-1);
 
-      const dropTargetId = shouldDrop ? activeDropTargetId : null;
+      const dropTargetId = shouldDrop ? useDndStore.getState().activeDropTargetId : null;
 
       endDrag();
 
@@ -276,7 +274,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         announce(getKeyboardDragAnnouncement('cancel'));
       }
     },
-    [isKeyboardDragging, activeDropTargetId, endDrag, metadata, onDragEnd],
+    [isKeyboardDragging, endDrag, metadata, onDragEnd],
   );
 
   // Handle keyboard accessibility
