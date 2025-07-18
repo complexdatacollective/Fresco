@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTitle } from '~/components/ui/sheet';
 type FeedbackModalProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-}
+};
 
 const FeedbackModal = ({ open, setOpen }: FeedbackModalProps) => {
   return (

@@ -26,7 +26,7 @@ type ActionType = {
   UPDATE_TOAST: 'UPDATE_TOAST';
   DISMISS_TOAST: 'DISMISS_TOAST';
   REMOVE_TOAST: 'REMOVE_TOAST';
-}
+};
 
 type Action =
   | {
@@ -48,7 +48,7 @@ type Action =
 
 type State = {
   toasts: ToasterToast[];
-}
+};
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 

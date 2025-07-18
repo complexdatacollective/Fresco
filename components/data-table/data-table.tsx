@@ -76,7 +76,7 @@ type DataTableProps<TData, TValue> = {
    * @example deleteRowsAction={(event) => deleteSelectedRows(dataTable, event)}
    */
   deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>;
-}
+};
 
 export function DataTable<TData, TValue>({
   dataTable,

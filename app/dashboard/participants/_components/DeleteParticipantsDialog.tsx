@@ -19,7 +19,7 @@ type DeleteParticipantsDialog = {
   haveUnexportedInterviews: boolean;
   onConfirm: () => Promise<void>;
   onCancel: () => void;
-}
+};
 
 export const DeleteParticipantsDialog = ({
   open,

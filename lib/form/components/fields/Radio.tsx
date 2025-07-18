@@ -10,7 +10,7 @@ type RadioProps = {
   fieldLabel?: string;
   className?: string;
   disabled?: boolean;
-}
+};
 
 const Radio = ({
   label,

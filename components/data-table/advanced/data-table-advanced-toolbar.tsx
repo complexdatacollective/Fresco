@@ -17,7 +17,7 @@ type DataTableAdvancedToolbarProps<TData> = {
   dataTable: Table<TData>;
   searchableColumns?: DataTableSearchableColumn<TData>[];
   filterableColumns?: DataTableFilterableColumn<TData>[];
-}
+};
 
 export function DataTableAdvancedToolbar<TData>({
   dataTable,

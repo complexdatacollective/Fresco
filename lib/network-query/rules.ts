@@ -200,7 +200,7 @@ export type EgoRule = typeof egoRule;
 type RuleWithMetadata = {
   type: FilterRule['type'];
   options: FilterRule['options'];
-}
+};
 
 type RuleFunction =
   | EgoRule

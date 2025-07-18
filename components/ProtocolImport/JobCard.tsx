@@ -12,7 +12,7 @@ import { type ImportJob } from './JobReducer';
 type JobCardProps = {
   job: ImportJob;
   onCancel: () => void;
-}
+};
 
 const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
   ({ job, onCancel }, ref) => {

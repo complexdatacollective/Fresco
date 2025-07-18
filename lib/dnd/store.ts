@@ -11,7 +11,10 @@ type DndStore = {
   isDragging: boolean;
 
   // Actions
-  startDrag: (item: DragItem, position: { x: number; y: number; width: number; height: number }) => void;
+  startDrag: (
+    item: DragItem,
+    position: { x: number; y: number; width: number; height: number },
+  ) => void;
   updateDragPosition: (x: number, y: number) => void;
   endDrag: () => void;
   registerDropTarget: (target: DropTarget) => void;
@@ -21,7 +24,7 @@ type DndStore = {
     bounds: { x: number; y: number; width: number; height: number },
   ) => void;
   setActiveDropTarget: (id: string | null) => void;
-}
+};
 
 // Binary Space Partitioning for efficient hit detection
 class BSPTree {
@@ -190,14 +193,11 @@ export const useDndStore = create<DndStore>()(
       const state = get();
       if (!state.dragItem || !state.dragPosition) return;
 
-      // Update drag position
-      set({
-        dragPosition: { ...state.dragPosition, x, y },
-      });
-
       // Find drop target at current position using simple iteration
       // TODO: Restore BSP tree optimization after fixing isolation issues
       let foundTarget: DropTarget | null = null;
+      let newActiveDropTargetId: string | null = null;
+
       for (const target of state.dropTargets.values()) {
         if (
           x >= target.x &&
@@ -213,14 +213,23 @@ export const useDndStore = create<DndStore>()(
       if (foundTarget) {
         // Check if this target accepts the drag item
         const accepts = doesTargetAccept(foundTarget, state.dragItem);
-
         if (accepts) {
-          set({ activeDropTargetId: foundTarget.id });
-          return;
+          newActiveDropTargetId = foundTarget.id;
         }
       }
 
-      set({ activeDropTargetId: null });
+      // Only update if position or active drop target changed
+      const positionChanged =
+        state.dragPosition.x !== x || state.dragPosition.y !== y;
+      const activeDropTargetChanged =
+        state.activeDropTargetId !== newActiveDropTargetId;
+
+      if (positionChanged || activeDropTargetChanged) {
+        set({
+          dragPosition: { ...state.dragPosition, x, y },
+          activeDropTargetId: newActiveDropTargetId,
+        });
+      }
     },
 
     endDrag: () => {
@@ -231,7 +240,7 @@ export const useDndStore = create<DndStore>()(
         isDragging: false,
         // Keep activeDropTargetId for a moment so drop targets can read it
       });
-      
+
       // Reset activeDropTargetId after a short delay to allow drop targets to process
       setTimeout(() => {
         set({ activeDropTargetId: null });

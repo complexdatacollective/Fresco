@@ -20,7 +20,7 @@ type DataTableToolbarProps<TData> = {
   searchableColumns?: DataTableSearchableColumn<TData>[];
   newRowLink?: UrlObject;
   deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>;
-}
+};
 
 export function DataTableToolbar<TData>({
   table,

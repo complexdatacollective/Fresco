@@ -15,10 +15,10 @@ describe('Drag and Drop Hooks Integration', () => {
       activeDropTargetId: null,
       isDragging: false,
     });
-    
+
     // Reset BSP tree
     resetBSPTree();
-    
+
     vi.clearAllMocks();
   });
 
@@ -140,17 +140,19 @@ describe('Drag and Drop Hooks Integration', () => {
 
       // Register a drop target
       useDndStore.getState().registerDropTarget(dropTarget);
-      
+
       // Reset BSP tree
       resetBSPTree();
-      
+
       // Re-register after reset should work
       useDndStore.getState().registerDropTarget({
         ...dropTarget,
-        id: 'test-target-2'
+        id: 'test-target-2',
       });
-      
-      expect(useDndStore.getState().dropTargets.has('test-target-2')).toBe(true);
+
+      expect(useDndStore.getState().dropTargets.has('test-target-2')).toBe(
+        true,
+      );
     });
 
     it('should update drag position correctly', () => {

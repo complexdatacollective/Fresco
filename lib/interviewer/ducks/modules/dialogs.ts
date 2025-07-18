@@ -14,7 +14,7 @@ export type Dialog = {
   onConfirm?: () => void;
   onCancel?: () => void;
   confirmLabel?: string;
-}
+};
 
 const initialState: Dialog[] = [
   // {

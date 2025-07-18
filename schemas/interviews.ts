@@ -7,4 +7,4 @@ export type DeleteInterviews = {
 export type CreateInterview = {
   participantIdentifier?: Participant['identifier'];
   protocolId: Protocol['id'];
-}
+};

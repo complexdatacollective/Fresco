@@ -44,7 +44,7 @@ export type UseDragSourceReturn = {
     'tabIndex'?: number;
   };
   isDragging: boolean;
-}
+};
 
 export type UseDropTargetReturn = {
   dropProps: {
@@ -57,13 +57,13 @@ export type UseDropTargetReturn = {
   isOver: boolean;
   willAccept: boolean;
   isDragging: boolean;
-}
+};
 
 // Drag preview props
 export type DragPreviewProps = {
   children?: ReactNode;
   offset?: { x: number; y: number };
-}
+};
 
 // Event callbacks
 export type DragStartCallback = (metadata: DragMetadata) => void;
@@ -80,7 +80,7 @@ export type DragSourceOptions = {
   onDragStart?: DragStartCallback;
   onDragEnd?: DragEndCallback;
   disabled?: boolean;
-}
+};
 
 export type DropTargetOptions = {
   accepts: string[];
@@ -88,4 +88,4 @@ export type DropTargetOptions = {
   onDragEnter?: (metadata: DragMetadata) => void;
   onDragLeave?: (metadata: DragMetadata) => void;
   disabled?: boolean;
-}
+};

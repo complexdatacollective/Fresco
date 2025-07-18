@@ -7,6 +7,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
 ## Core Features
 
 ### 1. Draggable Components (DragSource)
+
 - **Purpose**: Makes any React component draggable
 - **Implementation**: Higher-Order Component (HOC) pattern
 - **Key Features**:
@@ -17,6 +18,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
   - Dispatches drag state to Redux store
 
 ### 2. Drop Targets (DropTarget)
+
 - **Purpose**: Designates areas where dragged items can be dropped
 - **Implementation**: HOC that wraps components
 - **Key Features**:
@@ -28,6 +30,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
   - Visual feedback through `isOver` and `willAccept` states
 
 ### 3. Drop Obstacles (DropObstacle)
+
 - **Purpose**: Defines areas where drops are not allowed
 - **Implementation**: HOC similar to DropTarget
 - **Key Features**:
@@ -36,6 +39,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
   - Used for UI controls that shouldn't accept drops
 
 ### 4. Boundary Detection (withBounds)
+
 - **Purpose**: Tracks component dimensions and position
 - **Implementation**: HOC using ResizeObserver
 - **Key Features**:
@@ -44,6 +48,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
   - Provides width, height, x, y props to wrapped components
 
 ### 5. State Monitoring
+
 - **MonitorDragSource**: HOC that subscribes to drag source state changes
 - **MonitorDropTarget**: HOC that subscribes to drop target state changes
 - **useDropMonitor**: Hook version of MonitorDropTarget (modern alternative)
@@ -51,6 +56,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
 ## Technical Architecture
 
 ### Redux Store Structure
+
 ```javascript
 {
   dragAndDrop: {
@@ -92,7 +98,8 @@ The Fresco interview application uses a custom drag-and-drop system located in `
 ```
 
 ### Event Flow
-1. **Drag Start**: 
+
+1. **Drag Start**:
    - DragSource creates DragManager instance
    - DragPreview is instantiated
    - DRAG_START action dispatched with source metadata
@@ -112,6 +119,7 @@ The Fresco interview application uses a custom drag-and-drop system located in `
 ## Component Usage Patterns
 
 ### Basic Draggable Component
+
 ```javascript
 export default compose(
   DragSource({
@@ -122,6 +130,7 @@ export default compose(
 ```
 
 ### Basic Drop Target
+
 ```javascript
 export default compose(
   DropTarget({
@@ -133,6 +142,7 @@ export default compose(
 ```
 
 ### Drop Obstacle
+
 ```javascript
 export default DropObstacle(UIControlComponent);
 ```
@@ -140,22 +150,26 @@ export default DropObstacle(UIControlComponent);
 ## Components Using the System
 
 ### Lists and Containers
+
 - **NodeList**: Draggable nodes with drop zone functionality
 - **HyperList**: Virtual scrolling list with drag-and-drop
 - **SearchableList**: Uses useDropMonitor hook for drop state
 
 ### Categorization Interfaces
+
 - **CategoricalList/CategoricalItem**: Drag nodes into categorical bins
 - **OrdinalBins**: Ordinal value assignment via drag-and-drop
 - **NodeBin**: Drop zone for node removal/deletion
 
 ### Canvas Interfaces
+
 - **NodeLayout**: Main canvas drop target for positioned nodes
 - **LayoutNode**: Custom drag handling for canvas nodes
 - **NodeBucket**: Draggable unplaced nodes with drop obstacle
 - **Annotations**: Uses DragManager for drawing gestures
 
 ### UI Elements
+
 - **NodePanels**: Shows/hides based on drag compatibility
 - **PresetSwitcher**: Drop obstacle to prevent accidental drops
 - **MultiNodeBucket**: Stacked nodes with top node draggable
@@ -163,6 +177,7 @@ export default DropObstacle(UIControlComponent);
 ## Known Issues
 
 ### 1. React 19 Incompatibility
+
 - Uses deprecated `findDOMNode` in:
   - DropTarget.js
   - DropObstacle.js
@@ -170,16 +185,19 @@ export default DropObstacle(UIControlComponent);
 - Needs migration to ref-based approach
 
 ### 2. Architecture Issues
+
 - Class components instead of functional components
 - HOC pattern instead of hooks (except useDropMonitor)
 - Separate Redux store instead of integrated slice
 
 ### 3. Redux Anti-Patterns
+
 - Stores non-serializable data (functions) in Redux state
 - Serialization checks disabled in store configuration
 - Side effects in reducer-adjacent code
 
 ### 4. Type Safety
+
 - Limited TypeScript coverage
 - Missing type definitions for drag metadata
 - No type safety for callbacks and accepts functions
@@ -187,23 +205,27 @@ export default DropObstacle(UIControlComponent);
 ## Migration Requirements
 
 ### 1. Replace findDOMNode
+
 - Implement ref forwarding in all HOCs
 - Use callback refs or forwardRef pattern
 - Update withBounds to use refs
 
 ### 2. Convert to Hooks
+
 - Create useDragSource hook
 - Create useDropTarget hook
 - Create useDropObstacle hook
 - Migrate withBounds to useBounds hook
 
 ### 3. Redux Modernization
+
 - Integrate into main store as RTK slice
 - Remove function storage from state
 - Implement proper action creators and selectors
 - Use event emitter or context for callbacks
 
 ### 4. TypeScript Enhancement
+
 - Define types for all drag metadata
 - Type-safe HOCs and hooks
 - Proper typing for Redux state and actions

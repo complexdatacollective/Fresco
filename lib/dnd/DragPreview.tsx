@@ -8,6 +8,8 @@ export function DragPreview({
   offset = { x: 0, y: 0 },
 }: DragPreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Use selective subscriptions instead of multiple useDndStore() calls
   const dragItem = useDndStore((state) => state.dragItem);
   const dragPosition = useDndStore((state) => state.dragPosition);
   const isDragging = useDndStore((state) => state.isDragging);
@@ -30,7 +32,7 @@ export function DragPreview({
     };
   }, []);
 
-  // Update position
+  // Update position with memoized values
   useEffect(() => {
     if (containerRef.current && dragPosition && isDragging) {
       const transform = `translate3d(${dragPosition.x + offset.x}px, ${dragPosition.y + offset.y}px, 0)`;
@@ -53,17 +55,7 @@ export function DragPreview({
         cursor: 'grabbing',
       }}
     >
-      {children ?? (
-        <div
-          style={{
-            width: dragPosition.width,
-            height: dragPosition.height,
-            backgroundColor: '#4299e1',
-            borderRadius: '4px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          }}
-        />
-      )}
+      {children}
     </div>,
     containerRef.current,
   );

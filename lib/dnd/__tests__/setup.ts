@@ -8,7 +8,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
-// Mock IntersectionObserver  
+// Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
@@ -16,10 +16,12 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 }));
 
 // Mock requestAnimationFrame
-global.requestAnimationFrame = vi.fn().mockImplementation((cb: FrameRequestCallback) => {
-  setTimeout(cb, 16);
-  return 1;
-});
+global.requestAnimationFrame = vi
+  .fn()
+  .mockImplementation((cb: FrameRequestCallback) => {
+    setTimeout(cb, 16);
+    return 1;
+  });
 
 global.cancelAnimationFrame = vi.fn();
 

@@ -4,7 +4,7 @@ export type KeyboardDragState = {
   isActive: boolean;
   targetIndex: number;
   dropTargets: string[];
-}
+};
 
 // ARIA live region for announcements
 let liveRegion: HTMLElement | null = null;

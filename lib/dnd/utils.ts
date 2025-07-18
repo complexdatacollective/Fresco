@@ -19,7 +19,9 @@ export function rafThrottle<TArgs extends readonly unknown[], TReturn = void>(
   };
 
   // Add cancel method
-  const throttledWithCancel = throttled as typeof throttled & { cancel: () => void };
+  const throttledWithCancel = throttled as typeof throttled & {
+    cancel: () => void;
+  };
   throttledWithCancel.cancel = () => {
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
