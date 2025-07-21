@@ -1,17 +1,26 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDndStore } from './store';
 import {
-  type DropTargetOptions,
-  type UseDropTargetReturn,
   type DragItem,
+  type DragMetadata,
+  type DropCallback,
+  type UseDropTargetReturn,
 } from './types';
 import { createUniqueId, getElementBounds, rafThrottle } from './utils';
+
+type DropTargetOptions = {
+  accepts: string[];
+  announcedName?: string; // Human-readable name for screen reader announcements
+  onDrop?: DropCallback;
+  onDragEnter?: (metadata?: DragMetadata) => void;
+  onDragLeave?: (metadata?: DragMetadata) => void;
+  disabled?: boolean;
+};
 
 export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const {
     accepts,
-    zoneId,
-    name,
+    announcedName,
     onDrop,
     onDragEnter,
     onDragLeave,
@@ -97,8 +106,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           id: dropIdRef.current,
           ...bounds,
           accepts: acceptsRef.current,
-          zoneId,
-          name,
+          announcedName,
         });
 
         // Set up ResizeObserver for size changes
@@ -193,7 +201,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           };
       }
     },
-    [disabled, registerDropTarget, updateBounds, zoneId, name],
+    [disabled, registerDropTarget, updateBounds, dropIdRef, announcedName],
   );
 
   // Update isOver state - only re-renders when THIS dropzone's isOver changes
@@ -216,12 +224,14 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   // Update canDrop state and track drag item - memoized to prevent unnecessary re-renders
   useEffect(() => {
     if (dragItem && !disabled) {
-      const itemType = dragItem.metadata.type as string;
-      const sourceZone = dragItem.metadata.sourceZone as string;
+      const itemType = dragItem.type;
+      const sourceZone = dragItem._sourceZone;
       const canAcceptType = acceptsRef.current.includes(itemType);
 
       // Prevent dropping back into the same zone
-      const canAccept = canAcceptType && (!zoneId || sourceZone !== zoneId);
+      const canAccept =
+        canAcceptType &&
+        (!dropIdRef.current || sourceZone !== dropIdRef.current);
 
       setCanDrop(canAccept);
       lastDragItemRef.current = dragItem;
@@ -231,7 +241,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         lastDragItemRef.current = null;
       }
     }
-  }, [dragItem, disabled, zoneId]);
+  }, [dragItem, disabled, dropIdRef]);
 
   // Handle drop and position updates during drag - optimized subscription
   useEffect(() => {
@@ -291,25 +301,31 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         id: dropIdRef.current,
         ...bounds,
         accepts: acceptsRef.current,
-        zoneId,
-        name,
+        announcedName,
       });
     }
-  }, [disabled, registerDropTarget, unregisterDropTarget, zoneId, name]);
+  }, [
+    disabled,
+    registerDropTarget,
+    unregisterDropTarget,
+    dropIdRef,
+    announcedName,
+  ]);
 
   // Memoize the return object to prevent unnecessary re-renders
   return useMemo(() => {
     // Check if this is the source zone for the current drag item
     const isSourceZone =
-      dragItem && zoneId && dragItem.metadata.sourceZone === zoneId;
+      dragItem &&
+      dropIdRef.current &&
+      dragItem._sourceZone === dropIdRef.current;
 
     return {
       dropProps: {
         'ref': setRef,
         'aria-dropeffect': canDrop ? 'move' : 'none',
-        'aria-label': name,
-        'data-drop-target': true,
-        'data-zone-id': zoneId,
+        'aria-label': announcedName,
+        'data-zone-id': dropIdRef.current,
         // Only make drop zones focusable when keyboard dragging is active
         'tabIndex': isDragging ? 0 : -1,
         'style': {
@@ -322,5 +338,5 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
       willAccept: isSourceZone ? false : canDrop,
       isDragging: isSourceZone ? false : isDragging,
     };
-  }, [setRef, canDrop, isDragging, isOver, zoneId, dragItem, name]);
+  }, [setRef, canDrop, isDragging, isOver, dragItem, announcedName]);
 }

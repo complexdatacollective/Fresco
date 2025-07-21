@@ -8,7 +8,9 @@ export type DragMetadata = z.infer<typeof DragMetadataSchema>;
 // Drag item schema
 export const DragItemSchema = z.object({
   id: z.string(),
-  metadata: DragMetadataSchema,
+  type: z.string(),
+  metadata: DragMetadataSchema.optional(),
+  _sourceZone: z.string().nullable(),
 });
 export type DragItem = z.infer<typeof DragItemSchema>;
 
@@ -20,8 +22,7 @@ export const DropTargetSchema = z.object({
   width: z.number(),
   height: z.number(),
   accepts: z.array(z.string()),
-  zoneId: z.string().optional(),
-  name: z.string().optional(),
+  announcedName: z.string().optional(),
 });
 export type DropTarget = z.infer<typeof DropTargetSchema>;
 
@@ -56,7 +57,6 @@ export type UseDropTargetReturn = {
     'ref': (element: HTMLElement | null) => void;
     'aria-dropeffect'?: 'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup';
     'aria-label'?: string;
-    'data-drop-target'?: boolean;
     'data-zone-id'?: string;
     'style'?: React.CSSProperties;
     'tabIndex'?: number;
@@ -73,29 +73,20 @@ export type DragPreviewProps = {
 };
 
 // Event callbacks
-export type DragStartCallback = (metadata: DragMetadata) => void;
+export type DragStartCallback = (metadata?: DragMetadata) => void;
 export type DragEndCallback = (
   metadata: DragMetadata,
   dropTargetId: string | null,
 ) => void;
-export type DropCallback = (metadata: DragMetadata) => void;
+export type DropCallback = (metadata?: DragMetadata) => void;
 
 // Configuration options
 export type DragSourceOptions = {
-  metadata: DragMetadata;
-  name?: string; // Human-readable name for screen reader announcements
+  type: string; // Type of the drag item
+  metadata?: DragMetadata;
+  announcedName?: string; // Human-readable name for screen reader announcements
   preview?: ReactNode;
   onDragStart?: DragStartCallback;
   onDragEnd?: DragEndCallback;
-  disabled?: boolean;
-};
-
-export type DropTargetOptions = {
-  accepts: string[];
-  zoneId?: string;
-  name?: string; // Human-readable name for screen reader announcements
-  onDrop?: DropCallback;
-  onDragEnter?: (metadata: DragMetadata) => void;
-  onDragLeave?: (metadata: DragMetadata) => void;
   disabled?: boolean;
 };

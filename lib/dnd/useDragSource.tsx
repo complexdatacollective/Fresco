@@ -9,24 +9,23 @@ import React, {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { useDndStore } from './store';
-import { type DragMetadata } from './types';
 import {
   getDragInstructions,
   getDropTargetDescription,
   getKeyboardDragAnnouncement,
 } from './accessibility';
+import { useDndStore } from './store';
+import { type DragMetadata } from './types';
 import { useAccessibilityAnnouncements } from './useAccessibilityAnnouncements';
 import { findSourceZone, rafThrottle } from './utils';
 
 // Hook-specific types
 export type DragSourceOptions = {
-  metadata: DragMetadata;
-  name?: string;
+  type: string;
+  metadata?: DragMetadata;
+  announcedName?: string;
   preview?: ReactNode;
   disabled?: boolean;
-  onDragStart?: (metadata: DragMetadata) => void;
-  onDragEnd?: (metadata: DragMetadata, dropTargetId: string | null) => void;
 };
 
 export type UseDragSourceReturn = {
@@ -45,17 +44,7 @@ export type UseDragSourceReturn = {
 };
 
 export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
-  const {
-    metadata,
-    name,
-    preview,
-    disabled = false,
-    onDragStart,
-    onDragEnd,
-  } = options;
-
-  const type = metadata.type;
-  const announcedName = name;
+  const { type, metadata, announcedName, preview, disabled = false } = options;
   const previewComponent = preview;
 
   const { announce } = useAccessibilityAnnouncements();
@@ -71,7 +60,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
   const endDrag = useDndStore((state) => state.endDrag);
 
-  const dropTargets = useDndStore((s) => s.dropTargets); // ✅ track the full dropTargets object
+  const dropTargets = useDndStore((s) => s.dropTargets);
 
   const updatePosition = useRef(rafThrottle(updateDragPosition)).current;
 
@@ -111,24 +100,17 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       const dragPreview = createPreview(element);
 
       startDrag(dragItem, dragPosition, dragPreview);
-      
+
       // Only hide the element during pointer drag, not keyboard drag
       // During keyboard drag, we need the element to stay visible and focused to receive events
       if (dragMode === 'pointer') {
         element.style.visibility = 'hidden';
       }
-      
-      // Call onDragStart callback if provided
-      if (onDragStart) {
-        onDragStart(metadata);
-      }
     },
-    [dragId, type, metadata, createPreview, startDrag, onDragStart, dragMode],
+    [dragId, type, metadata, createPreview, startDrag, dragMode],
   );
 
   const finishDrag = useCallback(() => {
-    const activeDropTargetId = useDndStore.getState().activeDropTargetId;
-    
     endDrag();
     setDragMode('none');
     setCurrentDropTargetIndex(-1);
@@ -137,12 +119,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     if (element) {
       element.style.visibility = 'visible'; // Restore visibility
     }
-
-    // Call onDragEnd callback if provided
-    if (onDragEnd) {
-      onDragEnd(metadata, activeDropTargetId);
-    }
-  }, [endDrag, onDragEnd, metadata]);
+  }, [endDrag]);
 
   const handlePointerMove = useCallback(
     (e: PointerEvent) => {
@@ -184,7 +161,6 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     [disabled, beginDrag, handlePointerMove, handlePointerUp],
   );
 
-
   const endKeyboardDrag = useCallback(
     (shouldDrop: boolean) => {
       const activeDropTargetId = useDndStore.getState().activeDropTargetId;
@@ -211,19 +187,14 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         y: rect.top + rect.height / 2,
       });
 
-      // Calculate compatible targets on the fly since drag hasn't started yet
-      const sourceZone = metadata.sourceZone as string;
-      
       // dropTargets is always a Map
       const targets = Array.from(dropTargets.values());
-      
-      const currentCompatibleTargets = targets.filter(
-        (target) => {
-          const acceptsType = target.accepts.includes(type as string);
-          const notSourceZone = !target.zoneId || sourceZone !== target.zoneId;
-          return acceptsType && notSourceZone;
-        },
-      );
+
+      const currentCompatibleTargets = targets.filter((target) => {
+        const acceptsType = target.accepts.includes(type);
+        const notSourceZone = !target.id || dragId !== target.id;
+        return acceptsType && notSourceZone;
+      });
 
       const itemInfo = announcedName ? `${announcedName} ` : '';
       const zonesInfo = `${currentCompatibleTargets.length} compatible drop zones available.`;
@@ -234,16 +205,8 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         ),
       );
     },
-    [
-      beginDrag,
-      announcedName,
-      announce,
-      type,
-      metadata.sourceZone,
-      dropTargets,
-    ],
+    [beginDrag, announcedName, announce, type, dropTargets, dragId],
   );
-
 
   useEffect(() => () => updatePosition.cancel(), [updatePosition]);
 
@@ -259,17 +222,15 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     const itemType = type;
     if (typeof itemType !== 'string') return [];
 
-    const sourceZone = metadata.sourceZone as string;
-
     // dropTargets is always a Map
     const targets = Array.from(dropTargets.values());
 
     return targets.filter((target) => {
       const acceptsType = target.accepts.includes(itemType);
-      const notSourceZone = !target.zoneId || sourceZone !== target.zoneId;
+      const notSourceZone = !target.id || dragId !== target.id;
       return acceptsType && notSourceZone;
     });
-  }, [isDragging, type, metadata.sourceZone, dropTargets]);
+  }, [isDragging, type, dragId, dropTargets]);
 
   const navigateDropTargets = useCallback(
     (direction: 'next' | 'prev') => {
@@ -291,7 +252,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         const description = getDropTargetDescription(
           nextIndex,
           compatibleTargets.length,
-          target.name,
+          target.announcedName,
         );
         announce(getKeyboardDragAnnouncement('navigate', description));
       }

@@ -30,14 +30,14 @@ type DndStore = {
 
 // Helper function to check if target accepts drag item
 function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
-  const itemType = dragItem.metadata.type as string;
-  const sourceZone = dragItem.metadata.sourceZone as string;
+  const itemType = dragItem.type;
+  const sourceZone = dragItem._sourceZone;
 
   // Check if the target accepts the item type
   const acceptsType = target.accepts.includes(itemType);
 
   // Prevent dropping back into the same zone
-  const notSameZone = !target.zoneId || sourceZone !== target.zoneId;
+  const notSameZone = !target.id || sourceZone !== target.id;
 
   return acceptsType && notSameZone;
 }

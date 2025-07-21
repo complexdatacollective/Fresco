@@ -28,35 +28,20 @@ const initialItems: Item[] = [
 
 type ItemStore = Record<string, Item[]>;
 
-function DraggableItem({
-  item,
-  sourceZone,
-}: {
-  item: Item;
-  sourceZone: string;
-}) {
+function DraggableItem({ item }: { item: Item }) {
   const { dragProps, isDragging } = useDragSource({
+    type: item.type,
     metadata: {
-      id: item.id,
-      type: item.type,
-      sourceZone,
+      ...item,
     },
-    name: item.name, // For screen reader announcements
+    announcedName: item.name, // For screen reader announcements
     // Custom preview for fruits
-    preview: item.type === 'fruit' ? (
-      <div className="bg-barbie-pink text-white rounded-full h-20 w-20 flex items-center justify-center shadow-lg">
-        🍎 {item.name}
-      </div>
-    ) : undefined, // Use default (cloned element) for other types
-    onDragStart: (meta) => {
-      // Drag started
-      void meta;
-    },
-    onDragEnd: (meta, dropTargetId) => {
-      // Drag ended - no action needed here as onDrop handles the move
-      void meta;
-      void dropTargetId;
-    },
+    preview:
+      item.type === 'fruit' ? (
+        <div className="bg-barbie-pink flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg">
+          🍎 {item.name}
+        </div>
+      ) : undefined, // Use default (cloned element) for other types
   });
 
   return (
@@ -68,7 +53,8 @@ function DraggableItem({
         item.type === 'fruit' && 'bg-barbie-pink',
         item.type === 'vegetable' && 'bg-kiwi',
         item.type === 'protein' && 'bg-charcoal',
-        isDragging && 'opacity-75 ring-2 ring-white ring-offset-2 ring-offset-transparent',
+        isDragging &&
+          'opacity-75 ring-2 ring-white ring-offset-2 ring-offset-transparent',
       )}
     >
       {item.name}
@@ -81,23 +67,18 @@ function DropZone({
   acceptTypes,
   items,
   onItemReceived,
-  zoneId,
   children,
 }: {
   title: string;
   acceptTypes: string[];
   items: Item[];
-  onItemReceived: (metadata: DragMetadata) => void;
-  zoneId: string;
+  onItemReceived: (metadata?: DragMetadata) => void;
   children?: React.ReactNode;
 }) {
   const { dropProps, willAccept, isOver, isDragging } = useDropTarget({
     accepts: acceptTypes,
-    zoneId,
-    name: title, // For screen reader announcements
-    onDrop: (metadata) => {
-      onItemReceived(metadata);
-    },
+    announcedName: title, // For screen reader announcements
+    onDrop: onItemReceived,
     onDragEnter: () => {
       // Drag entered
     },
@@ -134,7 +115,7 @@ function DropZone({
           {children}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {items.map((item) => (
-              <DraggableItem key={item.id} item={item} sourceZone={zoneId} />
+              <DraggableItem key={item.id} item={item} />
             ))}
           </div>
         </>
@@ -143,11 +124,7 @@ function DropZone({
   );
 }
 
-function ScrollableContainer({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function ScrollableContainer({ children }: { children: React.ReactNode }) {
   return (
     <div className="border-border bg-panel h-96 overflow-y-auto rounded-lg border p-4">
       <h3 className="text-foreground mt-0">Scrollable Container</h3>
@@ -198,14 +175,20 @@ export default function DragDropExample() {
     });
   };
 
-  const handleItemReceived = (metadata: DragMetadata, targetZone: string) => {
-    const item = findItemById(metadata.id as string);
-    const sourceZone = metadata.sourceZone as string;
+  const handleItemReceived =
+    (targetZone: string) => (metadata?: DragMetadata) => {
+      if (!metadata) return;
+      const item = findItemById(metadata.id as string);
 
-    if (item && sourceZone && sourceZone !== targetZone) {
-      moveItem(item, sourceZone, targetZone);
-    }
-  };
+      // Find source zone by id
+      const sourceZone = Object.keys(itemStore).find((zone) =>
+        itemStore[zone]?.some((i) => i.id === metadata.id),
+      );
+
+      if (item && sourceZone && sourceZone !== targetZone) {
+        moveItem(item, sourceZone, targetZone);
+      }
+    };
 
   const findItemById = (id: string): Item | null => {
     for (const items of Object.values(itemStore)) {
@@ -245,16 +228,14 @@ export default function DragDropExample() {
             title="All Items (Source)"
             acceptTypes={['fruit', 'vegetable', 'protein']}
             items={itemStore.source ?? []}
-            onItemReceived={(meta) => handleItemReceived(meta, 'source')}
-            zoneId="source"
+            onItemReceived={handleItemReceived('source')}
           />
           <ScrollableContainer>
             <DropZone
               title="Scrollable Drop Zone"
               acceptTypes={['fruit', 'vegetable']}
               items={itemStore.scrollable ?? []}
-              onItemReceived={(meta) => handleItemReceived(meta, 'scrollable')}
-              zoneId="scrollable"
+              onItemReceived={handleItemReceived('scrollable')}
             />
           </ScrollableContainer>
         </div>
@@ -264,29 +245,25 @@ export default function DragDropExample() {
               title="Fruits Only"
               acceptTypes={['fruit']}
               items={itemStore.fruits ?? []}
-              onItemReceived={(meta) => handleItemReceived(meta, 'fruits')}
-              zoneId="fruits"
+              onItemReceived={handleItemReceived('fruits')}
             />
             <DropZone
               title="Vegetables Only"
               acceptTypes={['vegetable']}
               items={itemStore.vegetables ?? []}
-              onItemReceived={(meta) => handleItemReceived(meta, 'vegetables')}
-              zoneId="vegetables"
+              onItemReceived={handleItemReceived('vegetables')}
             />
             <DropZone
               title="Proteins Only"
               acceptTypes={['protein']}
               items={itemStore.proteins ?? []}
-              onItemReceived={(meta) => handleItemReceived(meta, 'proteins')}
-              zoneId="proteins"
+              onItemReceived={handleItemReceived('proteins')}
             />
             <DropZone
               title="Mixed (All Types)"
               acceptTypes={['fruit', 'vegetable', 'protein']}
               items={itemStore.mixed ?? []}
-              onItemReceived={(meta) => handleItemReceived(meta, 'mixed')}
-              zoneId="mixed"
+              onItemReceived={handleItemReceived('mixed')}
             />
           </div>
         </div>
