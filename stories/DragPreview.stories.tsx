@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState, useEffect, useRef } from 'react';
-import { DragPreview } from '../lib/dnd/DragPreview';
+import { DragPreview } from '../lib/dnd/useDragSource';
 import { useDragSource } from '../lib/dnd/useDragSource';
 import { useDropTarget } from '../lib/dnd/useDropTarget';
 import { useDndStore } from '../lib/dnd/store';

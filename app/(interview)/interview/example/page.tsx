@@ -68,6 +68,7 @@ function DraggableItem({
         item.type === 'fruit' && 'bg-barbie-pink',
         item.type === 'vegetable' && 'bg-kiwi',
         item.type === 'protein' && 'bg-charcoal',
+        isDragging && 'opacity-75 ring-2 ring-white ring-offset-2 ring-offset-transparent',
       )}
     >
       {item.name}

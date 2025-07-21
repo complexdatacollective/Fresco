@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useDragSource } from '../lib/dnd/useDragSource';
 import { useDropTarget } from '../lib/dnd/useDropTarget';
-import { DragPreview } from '../lib/dnd/DragPreview';
+import { DragPreview } from '../lib/dnd/useDragSource';
 import { useDndStore } from '../lib/dnd/store';
 import { type DragMetadata } from '../lib/dnd/types';
 import { announce } from '../lib/dnd/accessibility';

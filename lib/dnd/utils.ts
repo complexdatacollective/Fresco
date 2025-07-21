@@ -155,3 +155,11 @@ export function debounce<T extends (...args: unknown[]) => void>(
     }
   };
 }
+
+export const findSourceZone = (element: HTMLElement | null): string | null => {
+  // Find the closest parent with the data attribute
+  const sourceZoneElement = element?.closest('[data-zone-name]');
+
+  // Return the attribute's value, or null if not found
+  return sourceZoneElement?.getAttribute('data-zone-name') ?? null;
+};
