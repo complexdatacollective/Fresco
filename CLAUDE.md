@@ -125,3 +125,11 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 2. Make changes following the existing patterns
 3. Run `pnpm lint` and `pnpm typecheck` before committing
 4. Test with `pnpm test` for unit tests
+
+## Best Practices
+
+- Always run lint and format tasks after your work
+
+## Debugging and Development Tips
+
+- Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.

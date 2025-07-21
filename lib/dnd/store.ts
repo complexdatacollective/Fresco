@@ -2,12 +2,18 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { type DragItem, type DropTarget } from './types';
 
+// Extended drop target with state
+type DropTargetWithState = DropTarget & {
+  canDrop: boolean;
+  isOver: boolean;
+};
+
 type DndStore = {
   // State
   dragItem: DragItem | null;
   dragPosition: { x: number; y: number; width: number; height: number } | null;
   dragPreview: React.ReactNode | null;
-  dropTargets: Map<string, DropTarget>;
+  dropTargets: Map<string, DropTargetWithState>;
   activeDropTargetId: string | null;
   isDragging: boolean;
 
@@ -26,20 +32,49 @@ type DndStore = {
     bounds: { x: number; y: number; width: number; height: number },
   ) => void;
   setActiveDropTarget: (id: string | null) => void;
+
+  // Selectors
+  getCompatibleTargets: () => DropTargetWithState[];
+  getDropTargetState: (
+    id: string,
+  ) => { canDrop: boolean; isOver: boolean } | null;
 };
 
 // Helper function to check if target accepts drag item
 function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
   const itemType = dragItem.type;
   const sourceZone = dragItem._sourceZone;
+  const sourceZoneTitle = dragItem._sourceZoneTitle;
 
   // Check if the target accepts the item type
   const acceptsType = target.accepts.includes(itemType);
 
-  // Prevent dropping back into the same zone
-  const notSameZone = !target.id || sourceZone !== target.id;
+  // Prevent dropping back into the same zone - handle hydration mismatch
+  if (sourceZone && target.id === sourceZone) {
+    return false;
+  }
 
-  return acceptsType && notSameZone;
+  // Additional check for hydration mismatch: compare by title if available
+  if (sourceZoneTitle && target.announcedName === sourceZoneTitle) {
+    return false;
+  }
+
+  return acceptsType;
+}
+
+// Helper to update canDrop for all targets
+function updateCanDropStates(
+  targets: Map<string, DropTargetWithState>,
+  dragItem: DragItem | null,
+): Map<string, DropTargetWithState> {
+  const newTargets = new Map(targets);
+
+  for (const [id, target] of newTargets) {
+    const canDrop = dragItem ? doesTargetAccept(target, dragItem) : false;
+    newTargets.set(id, { ...target, canDrop });
+  }
+
+  return newTargets;
 }
 
 export const useDndStore = create<DndStore>()(
@@ -52,12 +87,16 @@ export const useDndStore = create<DndStore>()(
     isDragging: false,
 
     startDrag: (item, position, preview) => {
+      const currentTargets = get().dropTargets;
+      const updatedTargets = updateCanDropStates(currentTargets, item);
+
       set({
         dragItem: item,
         dragPosition: position,
         dragPreview: preview ?? null,
         isDragging: true,
         activeDropTargetId: null,
+        dropTargets: updatedTargets,
       });
     },
 
@@ -65,9 +104,8 @@ export const useDndStore = create<DndStore>()(
       const state = get();
       if (!state.dragItem || !state.dragPosition) return;
 
-      // Find drop target at current position using simple iteration
-      // TODO: Restore BSP tree optimization after fixing isolation issues
-      let foundTarget: DropTarget | null = null;
+      // Find drop target at current position
+      let foundTarget: DropTargetWithState | null = null;
       let newActiveDropTargetId: string | null = null;
 
       for (const target of state.dropTargets.values()) {
@@ -82,12 +120,8 @@ export const useDndStore = create<DndStore>()(
         }
       }
 
-      if (foundTarget) {
-        // Check if this target accepts the drag item
-        const accepts = doesTargetAccept(foundTarget, state.dragItem);
-        if (accepts) {
-          newActiveDropTargetId = foundTarget.id;
-        }
+      if (foundTarget && foundTarget.canDrop) {
+        newActiveDropTargetId = foundTarget.id;
       }
 
       // Only update if position or active drop target changed
@@ -97,20 +131,58 @@ export const useDndStore = create<DndStore>()(
         state.activeDropTargetId !== newActiveDropTargetId;
 
       if (positionChanged || activeDropTargetChanged) {
+        // Update isOver state for drop targets
+        const newTargets = new Map(state.dropTargets);
+
+        // Clear previous isOver
+        if (
+          state.activeDropTargetId &&
+          state.activeDropTargetId !== newActiveDropTargetId
+        ) {
+          const prevTarget = newTargets.get(state.activeDropTargetId);
+          if (prevTarget) {
+            newTargets.set(state.activeDropTargetId, {
+              ...prevTarget,
+              isOver: false,
+            });
+          }
+        }
+
+        // Set new isOver
+        if (newActiveDropTargetId) {
+          const newTarget = newTargets.get(newActiveDropTargetId);
+          if (newTarget) {
+            newTargets.set(newActiveDropTargetId, {
+              ...newTarget,
+              isOver: true,
+            });
+          }
+        }
+
         set({
           dragPosition: { ...state.dragPosition, x, y },
           activeDropTargetId: newActiveDropTargetId,
+          dropTargets: newTargets,
         });
       }
     },
 
     endDrag: () => {
+      const currentTargets = get().dropTargets;
+
+      // Clear all canDrop and isOver states
+      const clearedTargets = new Map<string, DropTargetWithState>();
+      for (const [id, target] of currentTargets) {
+        clearedTargets.set(id, { ...target, canDrop: false, isOver: false });
+      }
+
       // First, set isDragging to false to trigger drop target callbacks
       set({
         dragItem: null,
         dragPosition: null,
         dragPreview: null,
         isDragging: false,
+        dropTargets: clearedTargets,
         // Keep activeDropTargetId for a moment so drop targets can read it
       });
 
@@ -123,7 +195,20 @@ export const useDndStore = create<DndStore>()(
     registerDropTarget: (target) => {
       set((state) => {
         const newTargets = new Map(state.dropTargets);
-        newTargets.set(target.id, target);
+
+        // Initialize with current drag state
+        const canDrop = state.dragItem
+          ? doesTargetAccept(target, state.dragItem)
+          : false;
+        const isOver = state.activeDropTargetId === target.id;
+
+        const targetWithState: DropTargetWithState = {
+          ...target,
+          canDrop,
+          isOver,
+        };
+
+        newTargets.set(target.id, targetWithState);
 
         return { dropTargets: newTargets };
       });
@@ -147,7 +232,7 @@ export const useDndStore = create<DndStore>()(
         const target = state.dropTargets.get(id);
         if (!target) return state;
 
-        const updatedTarget = { ...target, ...bounds };
+        const updatedTarget: DropTargetWithState = { ...target, ...bounds };
         const newTargets = new Map(state.dropTargets);
         newTargets.set(id, updatedTarget);
 
@@ -158,5 +243,49 @@ export const useDndStore = create<DndStore>()(
     setActiveDropTarget: (id) => {
       set({ activeDropTargetId: id });
     },
+
+    // Selectors
+    getCompatibleTargets: () => {
+      const state = get();
+      return Array.from(state.dropTargets.values()).filter(
+        (target) => target.canDrop,
+      );
+    },
+
+    getDropTargetState: (id) => {
+      const target = get().dropTargets.get(id);
+      if (!target) return null;
+      return { canDrop: target.canDrop, isOver: target.isOver };
+    },
   })),
 );
+
+// Selectors for drop targets to avoid unnecessary re-renders
+export const useDropTargetState = (id: string) =>
+  useDndStore((state) => {
+    const target = state.dropTargets.get(id);
+    return target ? { canDrop: target.canDrop, isOver: target.isOver } : null;
+  });
+
+// Memoized selector with proper equality checking
+export const useCompatibleTargets = () =>
+  useDndStore(
+    (state) => {
+      const compatibleTargets = Array.from(state.dropTargets.values()).filter(
+        (target) => target.canDrop,
+      );
+      return compatibleTargets;
+    },
+    (a: DropTargetWithState[], b: DropTargetWithState[]) => {
+      // Custom equality function to prevent unnecessary re-renders
+      if (a.length !== b.length) return false;
+      return a.every((target, index) => {
+        const bTarget = b[index];
+        return (
+          bTarget &&
+          target.id === bTarget.id &&
+          target.canDrop === bTarget.canDrop
+        );
+      });
+    },
+  );

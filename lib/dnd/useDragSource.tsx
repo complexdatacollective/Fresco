@@ -60,8 +60,6 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
   const endDrag = useDndStore((state) => state.endDrag);
 
-  const dropTargets = useDndStore((s) => s.dropTargets);
-
   const updatePosition = useRef(rafThrottle(updateDragPosition)).current;
 
   const createPreview = useCallback(
@@ -82,15 +80,29 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     [previewComponent],
   );
 
-  const beginDrag = useCallback(
-    (element: HTMLElement, position: { x: number; y: number }) => {
+  // Unified drag initialization logic
+  const initializeDrag = useCallback(
+    (
+      element: HTMLElement,
+      position: { x: number; y: number },
+      mode: 'pointer' | 'keyboard',
+    ) => {
+      elementRef.current = element;
+      setDragMode(mode);
+
       const rect = element.getBoundingClientRect();
       const sourceZone = findSourceZone(element);
+      const sourceZoneElement = sourceZone
+        ? element.closest('[data-zone-id]')
+        : null;
+      const sourceZoneTitle =
+        sourceZoneElement?.querySelector('h3')?.textContent ?? null;
       const dragItem = {
         id: dragId,
         type,
         metadata,
         _sourceZone: sourceZone,
+        _sourceZoneTitle: sourceZoneTitle,
       };
       const dragPosition = {
         ...position,
@@ -101,25 +113,43 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
       startDrag(dragItem, dragPosition, dragPreview);
 
-      // Only hide the element during pointer drag, not keyboard drag
-      // During keyboard drag, we need the element to stay visible and focused to receive events
-      if (dragMode === 'pointer') {
+      // Only hide the element during pointer drag
+      if (mode === 'pointer') {
         element.style.visibility = 'hidden';
       }
     },
-    [dragId, type, metadata, createPreview, startDrag, dragMode],
+    [dragId, type, metadata, createPreview, startDrag],
   );
 
-  const finishDrag = useCallback(() => {
-    endDrag();
-    setDragMode('none');
-    setCurrentDropTargetIndex(-1);
+  // Unified drag end logic
+  const finishDrag = useCallback(
+    (shouldDrop = true) => {
+      const activeDropTargetId = useDndStore.getState().activeDropTargetId;
 
-    const element = elementRef.current;
-    if (element) {
-      element.style.visibility = 'visible'; // Restore visibility
-    }
-  }, [endDrag]);
+      if (!shouldDrop) {
+        useDndStore.getState().setActiveDropTarget(null);
+      }
+
+      endDrag();
+      setDragMode('none');
+      setCurrentDropTargetIndex(-1);
+
+      const element = elementRef.current;
+      if (element) {
+        element.style.visibility = 'visible'; // Restore visibility
+      }
+
+      // Announce keyboard drag result
+      if (dragMode === 'keyboard') {
+        announce(
+          getKeyboardDragAnnouncement(
+            shouldDrop && activeDropTargetId ? 'drop' : 'cancel',
+          ),
+        );
+      }
+    },
+    [endDrag, dragMode, announce],
+  );
 
   const handlePointerMove = useCallback(
     (e: PointerEvent) => {
@@ -139,7 +169,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       if (element?.hasPointerCapture(e.pointerId)) {
         element.releasePointerCapture(e.pointerId);
       }
-      finishDrag();
+      finishDrag(true);
     },
     [handlePointerMove, finishDrag],
   );
@@ -148,56 +178,37 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
     (e: React.PointerEvent) => {
       if (disabled || e.button !== 0) return;
       const element = e.currentTarget as HTMLElement;
-      elementRef.current = element;
 
-      setDragMode('pointer');
-      beginDrag(element, { x: e.pageX, y: e.pageY });
+      initializeDrag(element, { x: e.pageX, y: e.pageY }, 'pointer');
 
       element.setPointerCapture(e.pointerId);
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
       document.addEventListener('pointercancel', handlePointerUp);
     },
-    [disabled, beginDrag, handlePointerMove, handlePointerUp],
-  );
-
-  const endKeyboardDrag = useCallback(
-    (shouldDrop: boolean) => {
-      const activeDropTargetId = useDndStore.getState().activeDropTargetId;
-      if (!shouldDrop) {
-        useDndStore.getState().setActiveDropTarget(null);
-      }
-      finishDrag();
-      announce(
-        getKeyboardDragAnnouncement(
-          shouldDrop && activeDropTargetId ? 'drop' : 'cancel',
-        ),
-      );
-    },
-    [finishDrag, announce],
+    [disabled, initializeDrag, handlePointerMove, handlePointerUp],
   );
 
   const startKeyboardDrag = useCallback(
     (element: HTMLElement) => {
-      elementRef.current = element;
-      setDragMode('keyboard');
       const rect = element.getBoundingClientRect();
-      beginDrag(element, {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      });
+      initializeDrag(
+        element,
+        {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        },
+        'keyboard',
+      );
 
-      // dropTargets is always a Map
-      const targets = Array.from(dropTargets.values());
-
-      const currentCompatibleTargets = targets.filter((target) => {
-        const acceptsType = target.accepts.includes(type);
-        const notSourceZone = !target.id || dragId !== target.id;
-        return acceptsType && notSourceZone;
-      });
+      // After drag starts, the store will have updated compatible targets
+      // We need to get the count from the store
+      const compatibleCount = useDndStore
+        .getState()
+        .getCompatibleTargets().length;
 
       const itemInfo = announcedName ? `${announcedName} ` : '';
-      const zonesInfo = `${currentCompatibleTargets.length} compatible drop zones available.`;
+      const zonesInfo = `${compatibleCount} compatible drop zones available.`;
       announce(
         getKeyboardDragAnnouncement(
           'start',
@@ -205,7 +216,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         ),
       );
     },
-    [beginDrag, announcedName, announce, type, dropTargets, dragId],
+    [initializeDrag, announcedName, announce],
   );
 
   useEffect(() => () => updatePosition.cancel(), [updatePosition]);
@@ -218,19 +229,8 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
   const compatibleTargets = useMemo(() => {
     if (!isDragging) return [];
-
-    const itemType = type;
-    if (typeof itemType !== 'string') return [];
-
-    // dropTargets is always a Map
-    const targets = Array.from(dropTargets.values());
-
-    return targets.filter((target) => {
-      const acceptsType = target.accepts.includes(itemType);
-      const notSourceZone = !target.id || dragId !== target.id;
-      return acceptsType && notSourceZone;
-    });
-  }, [isDragging, type, dragId, dropTargets]);
+    return useDndStore.getState().getCompatibleTargets();
+  }, [isDragging]);
 
   const navigateDropTargets = useCallback(
     (direction: 'next' | 'prev') => {
@@ -275,22 +275,16 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
             return navigateDropTargets('prev');
           case 'Enter':
           case ' ':
-            return endKeyboardDrag(true);
+            return finishDrag(true);
           case 'Escape':
-            return endKeyboardDrag(false);
+            return finishDrag(false);
         }
       } else if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         startKeyboardDrag(e.currentTarget as HTMLElement);
       }
     },
-    [
-      disabled,
-      dragMode,
-      navigateDropTargets,
-      endKeyboardDrag,
-      startKeyboardDrag,
-    ],
+    [disabled, dragMode, navigateDropTargets, finishDrag, startKeyboardDrag],
   );
 
   return useMemo(

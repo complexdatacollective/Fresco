@@ -107,7 +107,7 @@ function DropZone({
     >
       <h3 className="mt-0 mb-4 text-white">{title}</h3>
       {items.length === 0 && !children ? (
-        <p className="text-muted-foreground my-10 text-center italic">
+        <p className="my-10 text-center text-white/40 italic">
           Drop {acceptTypes.join(' or ')} items here
         </p>
       ) : (

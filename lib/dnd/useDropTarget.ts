@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDndStore } from './store';
 import {
   type DragItem,
@@ -31,8 +31,6 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const elementRef = useRef<HTMLElement | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
-  const [isOver, setIsOver] = useState(false);
-  const [canDrop, setCanDrop] = useState(false);
   const lastDragItemRef = useRef<DragItem | null>(null);
 
   // Use selective subscriptions for better performance
@@ -44,10 +42,16 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   );
   const updateDropTarget = useDndStore((state) => state.updateDropTarget);
 
-  // Only subscribe to activeDropTargetId changes that affect THIS dropzone
-  const isOverFromStore = useDndStore(
-    (state) => state.activeDropTargetId === dropIdRef.current,
-  );
+  // Use targeted selectors to prevent unnecessary re-renders
+  const isOver = useDndStore((state) => {
+    const target = state.dropTargets.get(dropIdRef.current);
+    return target?.isOver ?? false;
+  });
+
+  const canDrop = useDndStore((state) => {
+    const target = state.dropTargets.get(dropIdRef.current);
+    return target?.canDrop ?? false;
+  });
 
   // Memoize the accepts array to ensure stable reference
   const acceptsRef = useRef(accepts);
@@ -204,44 +208,32 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     [disabled, registerDropTarget, updateBounds, dropIdRef, announcedName],
   );
 
-  // Update isOver state - only re-renders when THIS dropzone's isOver changes
+  // Handle drag enter/leave callbacks
+  const prevIsOverRef = useRef(isOver);
   useEffect(() => {
-    setIsOver(isOverFromStore);
+    const prevIsOver = prevIsOverRef.current;
+    prevIsOverRef.current = isOver;
 
-    // Handle drag enter/leave callbacks
-    if (isOverFromStore && !isOver && onDragEnter && dragItem) {
+    if (isOver && !prevIsOver && onDragEnter && dragItem) {
       onDragEnter(dragItem.metadata);
     } else if (
-      !isOverFromStore &&
-      isOver &&
+      !isOver &&
+      prevIsOver &&
       onDragLeave &&
       lastDragItemRef.current
     ) {
       onDragLeave(lastDragItemRef.current.metadata);
     }
-  }, [isOverFromStore, isOver, onDragEnter, onDragLeave, dragItem]);
+  }, [isOver, onDragEnter, onDragLeave, dragItem]);
 
-  // Update canDrop state and track drag item - memoized to prevent unnecessary re-renders
+  // Track drag item for callbacks
   useEffect(() => {
-    if (dragItem && !disabled) {
-      const itemType = dragItem.type;
-      const sourceZone = dragItem._sourceZone;
-      const canAcceptType = acceptsRef.current.includes(itemType);
-
-      // Prevent dropping back into the same zone
-      const canAccept =
-        canAcceptType &&
-        (!dropIdRef.current || sourceZone !== dropIdRef.current);
-
-      setCanDrop(canAccept);
+    if (dragItem) {
       lastDragItemRef.current = dragItem;
     } else {
-      setCanDrop(false);
-      if (!dragItem) {
-        lastDragItemRef.current = null;
-      }
+      lastDragItemRef.current = null;
     }
-  }, [dragItem, disabled, dropIdRef]);
+  }, [dragItem]);
 
   // Handle drop and position updates during drag - optimized subscription
   useEffect(() => {

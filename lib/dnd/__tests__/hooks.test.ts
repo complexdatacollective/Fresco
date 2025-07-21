@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useDndStore, resetBSPTree } from '../store';
+import { useDndStore } from '../store';
 import type { DropTarget } from '../types';
 
 // Import setup
@@ -11,13 +11,11 @@ describe('Drag and Drop Hooks Integration', () => {
     useDndStore.setState({
       dragItem: null,
       dragPosition: null,
+      dragPreview: null,
       dropTargets: new Map(),
       activeDropTargetId: null,
       isDragging: false,
     });
-
-    // Reset BSP tree
-    resetBSPTree();
 
     vi.clearAllMocks();
   });
