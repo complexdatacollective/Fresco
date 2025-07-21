@@ -26,12 +26,12 @@ function DraggableItem({
   sourceZone: string;
 }) {
   const { dragProps, isDragging } = useDragSource({
-    metadata: {
-      id: item.id,
-      type: item.type,
-      name: item.name,
-      sourceZone,
-    },
+    // metadata: {
+    //   id: item.id,
+    //   type: item.type,
+    //   sourceZone,
+    // },
+    metadata: {},
     name: item.name, // For screen reader announcements
     // Custom preview for fruits
     preview: item.type === 'fruit' ? (
