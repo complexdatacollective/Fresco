@@ -12,9 +12,19 @@ import { cn } from '~/utils/shadcn';
 type Item = {
   id: string;
   name: string;
-  color: string;
-  type: string;
+  type: 'fruit' | 'vegetable' | 'protein';
 };
+
+const initialItems: Item[] = [
+  { id: '1', name: 'Apple', type: 'fruit' },
+  { id: '2', name: 'Banana', type: 'fruit' },
+  { id: '3', name: 'Orange', type: 'fruit' },
+  { id: '4', name: 'Carrot', type: 'vegetable' },
+  { id: '5', name: 'Broccoli', type: 'vegetable' },
+  { id: '6', name: 'Spinach', type: 'vegetable' },
+  { id: '7', name: 'Chicken', type: 'protein' },
+  { id: '8', name: 'Fish', type: 'protein' },
+];
 
 type ItemStore = Record<string, Item[]>;
 
@@ -26,12 +36,11 @@ function DraggableItem({
   sourceZone: string;
 }) {
   const { dragProps, isDragging } = useDragSource({
-    // metadata: {
-    //   id: item.id,
-    //   type: item.type,
-    //   sourceZone,
-    // },
-    metadata: {},
+    metadata: {
+      id: item.id,
+      type: item.type,
+      sourceZone,
+    },
     name: item.name, // For screen reader announcements
     // Custom preview for fruits
     preview: item.type === 'fruit' ? (
@@ -56,12 +65,10 @@ function DraggableItem({
       className={cn(
         'm-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
         'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
+        item.type === 'fruit' && 'bg-barbie-pink',
+        item.type === 'vegetable' && 'bg-kiwi',
+        item.type === 'protein' && 'bg-charcoal',
       )}
-      style={{
-        ...dragProps.style,
-        backgroundColor: item.color,
-        opacity: isDragging ? 0.5 : 1,
-      }}
     >
       {item.name}
     </div>
@@ -102,7 +109,7 @@ function DropZone({
     <div
       {...dropProps}
       className={cn(
-        'bg-cyber-grape/50 m-2.5 min-h-[300px] rounded-lg border-2 border-dashed border-transparent p-5 transition-all duration-200',
+        'bg-cyber-grape/50 min-h-[300px] rounded-lg border-2 border-dashed border-transparent p-5 transition-all duration-200',
         // Only show focus styles when drop zone is focusable (during dragging)
         isDragging &&
           'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
@@ -141,7 +148,7 @@ function ScrollableContainer({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-border bg-panel my-4 h-96 overflow-y-auto rounded-lg border p-4">
+    <div className="border-border bg-panel h-96 overflow-y-auto rounded-lg border p-4">
       <h3 className="text-foreground mt-0">Scrollable Container</h3>
       <p className="text-muted-foreground">
         This demonstrates dragging from/to scrollable containers
@@ -156,17 +163,6 @@ function ScrollableContainer({
 }
 
 export default function DragDropExample() {
-  const initialItems: Item[] = [
-    { id: '1', name: 'Apple', color: '#ef4444', type: 'fruit' },
-    { id: '2', name: 'Banana', color: '#fbbf24', type: 'fruit' },
-    { id: '3', name: 'Orange', color: '#f97316', type: 'fruit' },
-    { id: '4', name: 'Carrot', color: '#f97316', type: 'vegetable' },
-    { id: '5', name: 'Broccoli', color: '#22c55e', type: 'vegetable' },
-    { id: '6', name: 'Spinach', color: '#16a34a', type: 'vegetable' },
-    { id: '7', name: 'Chicken', color: '#a855f7', type: 'protein' },
-    { id: '8', name: 'Fish', color: '#3b82f6', type: 'protein' },
-  ];
-
   // State to track items in different zones
   const [itemStore, setItemStore] = useState<ItemStore>({
     source: initialItems,
@@ -175,11 +171,10 @@ export default function DragDropExample() {
     proteins: [],
     mixed: [],
     scrollable: [
-      { id: 's1', name: 'Scrolled Apple', color: '#dc2626', type: 'fruit' },
+      { id: 's1', name: 'Scrolled Apple', type: 'fruit' },
       {
         id: 's2',
         name: 'Scrolled Tomato',
-        color: '#ea580c',
         type: 'vegetable',
       },
     ],
@@ -201,8 +196,6 @@ export default function DragDropExample() {
       return newStore;
     });
   };
-
-  // handleItemMove is no longer needed - drops are handled by onDrop callback
 
   const handleItemReceived = (metadata: DragMetadata, targetZone: string) => {
     const item = findItemById(metadata.id as string);
@@ -246,8 +239,7 @@ export default function DragDropExample() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_2fr]">
-        {/* Source Area */}
-        <div>
+        <div className="flex flex-col gap-5">
           <DropZone
             title="All Items (Source)"
             acceptTypes={['fruit', 'vegetable', 'protein']}
@@ -255,7 +247,6 @@ export default function DragDropExample() {
             onItemReceived={(meta) => handleItemReceived(meta, 'source')}
             zoneId="source"
           />
-
           <ScrollableContainer>
             <DropZone
               title="Scrollable Drop Zone"
@@ -266,8 +257,6 @@ export default function DragDropExample() {
             />
           </ScrollableContainer>
         </div>
-
-        {/* Drop Zones */}
         <div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <DropZone
@@ -277,7 +266,6 @@ export default function DragDropExample() {
               onItemReceived={(meta) => handleItemReceived(meta, 'fruits')}
               zoneId="fruits"
             />
-
             <DropZone
               title="Vegetables Only"
               acceptTypes={['vegetable']}
@@ -285,7 +273,6 @@ export default function DragDropExample() {
               onItemReceived={(meta) => handleItemReceived(meta, 'vegetables')}
               zoneId="vegetables"
             />
-
             <DropZone
               title="Proteins Only"
               acceptTypes={['protein']}
@@ -293,7 +280,6 @@ export default function DragDropExample() {
               onItemReceived={(meta) => handleItemReceived(meta, 'proteins')}
               zoneId="proteins"
             />
-
             <DropZone
               title="Mixed (All Types)"
               acceptTypes={['fruit', 'vegetable', 'protein']}
