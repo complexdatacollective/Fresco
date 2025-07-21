@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic';
 
 const handler = async (
   req: NextRequest,
-  { params }: { params: { protocolId: string } },
+  { params }: { params: Promise<{ protocolId: string }> },
 ) => {
-  const protocolId = params.protocolId; // From route segment
+  const { protocolId } = await params; // From route segment
 
   // when deployed via docker `req.url` and `req.nextUrl`
   // shows Docker Container ID instead of real host
@@ -30,7 +30,7 @@ const handler = async (
   // if limitInterviews is enabled
   // Check cookies for interview already completed for this user for this protocol
   // and redirect to finished page
-  if (limitInterviews && cookies().get(protocolId)) {
+  if (limitInterviews && (await cookies()).get(protocolId)) {
     url.pathname = '/interview/finished';
     return NextResponse.redirect(url);
   }

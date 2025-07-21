@@ -3,7 +3,7 @@ import type { User } from '@prisma/client';
 import { lucia } from 'lucia';
 import { nextjs_future } from 'lucia/middleware';
 import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
-import * as context from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { RedirectType, redirect } from 'next/navigation';
 import { cache } from 'react';
 import 'server-only';
@@ -24,7 +24,11 @@ export const auth = lucia({
   adapter: prismaAdapter(client),
 });
 
-export const getServerSession = cache(() => {
+export const getServerSession = cache(async () => {
+  const context = {
+    headers,
+    cookies,
+  };
   const authRequest = auth.handleRequest('GET', context);
   return authRequest.validate();
 });

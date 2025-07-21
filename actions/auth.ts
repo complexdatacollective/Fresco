@@ -47,7 +47,7 @@ export async function signup(formData: unknown) {
 
     const sessionCookie = auth.createSessionCookie(session);
 
-    cookies().set(
+    (await cookies()).set(
       sessionCookie.name,
       sessionCookie.value,
       sessionCookie.attributes,
@@ -127,7 +127,7 @@ export const login = async (
   });
 
   const sessionCookie = auth.createSessionCookie(session);
-  cookies().set(
+  (await cookies()).set(
     sessionCookie.name,
     sessionCookie.value,
     sessionCookie.attributes,

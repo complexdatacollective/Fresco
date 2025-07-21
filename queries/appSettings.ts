@@ -13,7 +13,7 @@ import {
 } from '~/schemas/appSettings';
 import { prisma } from '~/utils/db';
 
-export const getAppSetting = <Key extends AppSetting>(key: Key) =>
+export const getAppSetting = async <Key extends AppSetting>(key: Key) =>
   createCachedFunction(
     async (key: AppSetting) => {
       const keyValue = await prisma.appSettings.findUnique({
