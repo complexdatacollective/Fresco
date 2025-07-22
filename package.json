@@ -16,7 +16,7 @@
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook-build": "storybook build"
   },
   "pnpm": {
     "overrides": {
