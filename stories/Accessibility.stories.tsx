@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useCallback, useRef, useState } from 'react';
-import { announce } from '../lib/dnd/accessibility';
-import { DndStoreProvider } from '../lib/dnd/DndStoreProvider';
-import { useDragSource } from '../lib/dnd/useDragSource';
-import { useDropTarget } from '../lib/dnd/useDropTarget';
+import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
+import { DndStoreProvider, useDragSource, useDropTarget } from '../lib/dnd';
 
 // Demo components for accessibility testing
 function AccessibleDragItem({
@@ -331,6 +329,8 @@ function LoggingDragItem({
   announcedName?: string;
   onAnnounce: (message: string) => void;
 }) {
+  const { announce } = useAccessibilityAnnouncements();
+
   const { dragProps, isDragging } = useDragSource({
     type,
     metadata: { type, id },
@@ -420,18 +420,19 @@ function LoggingDropZone({
     accepts,
     announcedName: announcedName || `Drop Zone ${id}`,
     onDrop: (metadata) => {
-      onAnnounce(`Dropped ${metadata.id || 'item'} in ${announcedName || id}`);
-      announce(`Dropped ${metadata.id || 'item'} in ${announcedName || id}`);
-      onDrop?.(metadata);
+      if (metadata) {
+        onAnnounce(
+          `Dropped ${metadata.id || 'item'} in ${announcedName || id}`,
+        );
+        onDrop?.(metadata);
+      }
     },
     onDragEnter: () => {
       onAnnounce(`Entered ${announcedName || id}`);
-      announce(`Entered ${announcedName || id}`);
       onDragEnter?.();
     },
     onDragLeave: () => {
       onAnnounce(`Left ${announcedName || id}`);
-      announce(`Left ${announcedName || id}`);
       onDragLeave?.();
     },
   });
@@ -500,6 +501,7 @@ export const ScreenReaderAnnouncements: Story = {
     const [announcements, setAnnouncements] = useState<string[]>([]);
     const [dragCount, setDragCount] = useState(0);
     const announcementsRef = useRef<HTMLDivElement>(null);
+    const { announce } = useAccessibilityAnnouncements();
 
     const logAnnouncement = useCallback((message: string) => {
       setAnnouncements((prev) => [
@@ -651,7 +653,6 @@ export const ScreenReaderAnnouncements: Story = {
 export const AriaAttributes: Story = {
   render: () => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
-    const [dragState, setDragState] = useState<{ [key: string]: boolean }>({});
 
     const items = [
       {
@@ -777,9 +778,6 @@ export const AriaAttributes: Story = {
                 id="aria-drop-secondary"
                 accepts={['other']} // Doesn't accept our items
                 announcedName="Secondary Drop Zone (rejects items)"
-                onDragEnter={() =>
-                  announce('This zone does not accept the current item')
-                }
               >
                 Secondary Zone
                 <br />

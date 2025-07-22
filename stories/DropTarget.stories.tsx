@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { DndStoreProvider } from '../lib/dnd/DndStoreProvider';
-import { useDropTarget } from '../lib/dnd/useDropTarget';
-import { useDragSource } from '../lib/dnd/useDragSource';
+import { DndStoreProvider, useDragSource, useDropTarget } from '../lib/dnd';
 
 // Simple drag source for testing
 function DraggableItem({

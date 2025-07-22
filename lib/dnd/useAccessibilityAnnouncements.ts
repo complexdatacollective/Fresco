@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-export type KeyboardDragState = {
-  isActive: boolean;
-  targetIndex: number;
-  dropTargets: string[];
-};
-
 /**
  * Custom hook for managing accessibility announcements in drag and drop operations.
  * Creates and manages an ARIA live region that is properly cleaned up with React's lifecycle.
@@ -85,7 +79,7 @@ export function getDropTargetDescription(
   return `Drop target ${index + 1} of ${total}`;
 }
 
-export function getDragInstructions(): string {
+function getDragInstructions(): string {
   return 'Press Space or Enter to start dragging. Use arrow keys to navigate between drop targets. Press Space or Enter to drop. Press Escape to cancel.';
 }
 

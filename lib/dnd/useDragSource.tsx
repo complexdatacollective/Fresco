@@ -10,17 +10,17 @@ import {
   type ReactNode,
 } from 'react';
 
+import { useDndStore, useDndStoreApi } from './DndStoreProvider';
+import { type DragMetadata } from './types';
 import {
   getDropTargetDescription,
   getKeyboardDragAnnouncement,
-} from './accessibility';
-import { useDndStore, useDndStoreApi } from './DndStoreProvider';
-import { type DragMetadata } from './types';
-import { useAccessibilityAnnouncements } from './useAccessibilityAnnouncements';
+  useAccessibilityAnnouncements,
+} from './useAccessibilityAnnouncements';
 import { findSourceZone, rafThrottle } from './utils';
 
 // Hook-specific types
-export type DragSourceOptions = {
+type DragSourceOptions = {
   type: string;
   metadata?: DragMetadata;
   announcedName?: string;
@@ -28,7 +28,7 @@ export type DragSourceOptions = {
   disabled?: boolean;
 };
 
-export type UseDragSourceReturn = {
+type UseDragSourceReturn = {
   dragProps: {
     'ref': (element: HTMLElement | null) => void;
     'onPointerDown': (e: React.PointerEvent) => void;

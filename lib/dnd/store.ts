@@ -9,7 +9,7 @@ type DropTargetWithState = DropTarget & {
 };
 
 // State types
-export type DndState = {
+type DndState = {
   dragItem: DragItem | null;
   dragPosition: { x: number; y: number; width: number; height: number } | null;
   dragPreview: React.ReactNode | null;
@@ -19,7 +19,7 @@ export type DndState = {
 };
 
 // Action types
-export type DndActions = {
+type DndActions = {
   startDrag: (
     item: DragItem,
     position: { x: number; y: number; width: number; height: number },
