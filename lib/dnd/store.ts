@@ -44,18 +44,12 @@ type DndStore = {
 function doesTargetAccept(target: DropTarget, dragItem: DragItem): boolean {
   const itemType = dragItem.type;
   const sourceZone = dragItem._sourceZone;
-  const sourceZoneTitle = dragItem._sourceZoneTitle;
 
   // Check if the target accepts the item type
   const acceptsType = target.accepts.includes(itemType);
 
-  // Prevent dropping back into the same zone - handle hydration mismatch
+  // Prevent dropping back into the same zone
   if (sourceZone && target.id === sourceZone) {
-    return false;
-  }
-
-  // Additional check for hydration mismatch: compare by title if available
-  if (sourceZoneTitle && target.announcedName === sourceZoneTitle) {
     return false;
   }
 

@@ -1,6 +1,0 @@
-- Refactor the system to not use the HTML drag and drop API at all. Instead, implement a custom drag and drop system using pointer events. Remember to keep the core functionality of the current system, including the ability to specify a drag preview component. Ensure you take into account dragging items from within scrollable containers.
-- Implement updating dropzone size and position in response to the element changing size/position in a performant and modern way. This should take into account changes due to scrolling, resizing, and transforms.
-- Review the code for performance. Make sure that updating the drag item position does not cause unnecessary re-renders for drop zones unless their isOver state changes (canDrop can be calculated once when the drag begins). Ensure that dropzone size and position updates are throttled or debounced to avoid performance issues during rapid drag movements, and that these updates do not cause other components to re-render unnecessarily.
-- Ensure that the drag and drop system is accessible, including keyboard navigation and screen reader support.
-
-Do not run the development server in order to test your changes. Instead, create tests that cover the new functionality and ensure that the tests pass.

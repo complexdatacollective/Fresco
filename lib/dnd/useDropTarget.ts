@@ -6,9 +6,10 @@ import {
   type DropCallback,
   type UseDropTargetReturn,
 } from './types';
-import { createUniqueId, getElementBounds, rafThrottle } from './utils';
+import { getElementBounds, rafThrottle } from './utils';
 
 type DropTargetOptions = {
+  id: string; // Required stable ID for the drop target
   accepts: string[];
   announcedName?: string; // Human-readable name for screen reader announcements
   onDrop?: DropCallback;
@@ -19,6 +20,7 @@ type DropTargetOptions = {
 
 export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const {
+    id,
     accepts,
     announcedName,
     onDrop,
@@ -27,7 +29,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     disabled = false,
   } = options;
 
-  const dropIdRef = useRef<string>(createUniqueId('drop'));
+  const dropIdRef = useRef<string>(id);
   const elementRef = useRef<HTMLElement | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);

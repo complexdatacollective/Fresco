@@ -76,6 +76,7 @@ function DropZone({
   children?: React.ReactNode;
 }) {
   const { dropProps, willAccept, isOver, isDragging } = useDropTarget({
+    id: `dropzone-${title.toLowerCase().replace(/\s+/g, '-')}`,
     accepts: acceptTypes,
     announcedName: title, // For screen reader announcements
     onDrop: onItemReceived,

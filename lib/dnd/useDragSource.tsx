@@ -92,17 +92,11 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
       const rect = element.getBoundingClientRect();
       const sourceZone = findSourceZone(element);
-      const sourceZoneElement = sourceZone
-        ? element.closest('[data-zone-id]')
-        : null;
-      const sourceZoneTitle =
-        sourceZoneElement?.querySelector('h3')?.textContent ?? null;
       const dragItem = {
         id: dragId,
         type,
         metadata,
         _sourceZone: sourceZone,
-        _sourceZoneTitle: sourceZoneTitle,
       };
       const dragPosition = {
         ...position,
@@ -185,6 +179,9 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
       document.addEventListener('pointercancel', handlePointerUp);
+
+      // Prevent default to avoid text selection
+      e.preventDefault();
     },
     [disabled, initializeDrag, handlePointerMove, handlePointerUp],
   );

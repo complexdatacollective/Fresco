@@ -11,7 +11,6 @@ export const DragItemSchema = z.object({
   type: z.string(),
   metadata: DragMetadataSchema.optional(),
   _sourceZone: z.string().nullable(),
-  _sourceZoneTitle: z.string().nullable(),
 });
 export type DragItem = z.infer<typeof DragItemSchema>;
 
