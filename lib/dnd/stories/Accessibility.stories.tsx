@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useCallback, useRef, useState } from 'react';
+import { DndStoreProvider, useDragSource, useDropTarget } from '~/lib/dnd';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
-import { DndStoreProvider, useDragSource, useDropTarget } from '..';
 
 // Demo components for accessibility testing
 function AccessibleDragItem({
