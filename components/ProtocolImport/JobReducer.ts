@@ -12,7 +12,7 @@ type ErrorState = {
   title: string;
   description: React.ReactNode;
   additionalContent?: React.ReactNode;
-}
+};
 
 export type ImportJob = {
   id: string;
@@ -21,27 +21,27 @@ export type ImportJob = {
   progress: number | null;
   error?: ErrorState;
   rawError?: Error;
-}
+};
 
 export const jobInitialState = [];
 
 type ClearJobsAction = {
   type: 'CLEAR_JOBS';
-}
+};
 
 type AddJobAction = {
   type: 'ADD_JOB';
   payload: {
     file: File;
   };
-}
+};
 
 type RemoveJobAction = {
   type: 'REMOVE_JOB';
   payload: {
     id: string;
   };
-}
+};
 
 type UpdateJobStatusAction = {
   type: 'UPDATE_STATUS';
@@ -50,7 +50,7 @@ type UpdateJobStatusAction = {
     status: ImportStatus;
     progress?: number;
   };
-}
+};
 
 type UpdateErrorAction = {
   type: 'UPDATE_ERROR';
@@ -59,7 +59,7 @@ type UpdateErrorAction = {
     error: ErrorState;
     rawError: Error;
   };
-}
+};
 
 type Action =
   | ClearJobsAction

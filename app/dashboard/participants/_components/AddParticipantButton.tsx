@@ -7,7 +7,7 @@ import { Plus } from 'lucide-react';
 
 type AddParticipantButtonProps = {
   existingParticipants: Participant[];
-}
+};
 
 function AddParticipantButton({
   existingParticipants,

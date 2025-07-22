@@ -17,7 +17,7 @@ import {
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
-}
+};
 
 export function DataTablePagination<TData>({
   table,

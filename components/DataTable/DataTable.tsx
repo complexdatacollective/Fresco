@@ -49,7 +49,7 @@ type DataTableProps<TData, TValue> = {
   calculateRowClasses?: (row: Row<TData>) => string | undefined;
   headerItems?: React.ReactNode;
   defaultSortBy?: SortingState[0];
-}
+};
 
 export function DataTable<TData, TValue>({
   columns = [],

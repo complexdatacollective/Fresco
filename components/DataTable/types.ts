@@ -5,7 +5,7 @@ export type Option = {
   label: string;
   value: ActivityType;
   icon?: React.ComponentType<{ className?: string }>;
-}
+};
 
 export type DataTableFilterOption<TData> = {
   id?: string;
@@ -13,12 +13,12 @@ export type DataTableFilterOption<TData> = {
   value: keyof TData | string;
   items: Option[];
   isMulti?: boolean;
-}
+};
 
 export type DataTableSearchableColumn<TData> = {
   id: keyof TData;
   title: string;
-}
+};
 
 export type DataTableFilterableColumn<TData> = {
   options: Option[];
@@ -73,4 +73,4 @@ export type SearchParams = {
   sort: (typeof sortOrder)[number];
   sortField: (typeof sortableFields)[number];
   filterParams: FilterParam[] | null;
-}
+};

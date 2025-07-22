@@ -18,7 +18,7 @@ type DeleteInterviewsDialog = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   interviewsToDelete: Interview[];
-}
+};
 
 export const DeleteInterviewsDialog = ({
   open,

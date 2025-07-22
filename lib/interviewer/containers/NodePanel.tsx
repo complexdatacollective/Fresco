@@ -23,7 +23,7 @@ type NodePanelProps = {
   onUpdate: (nodeCount: number, nodeIndex: Set<string>) => void;
   id: string;
   listId: string;
-}
+};
 
 function NodePanel(props: NodePanelProps) {
   const {

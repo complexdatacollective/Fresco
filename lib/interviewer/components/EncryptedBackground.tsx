@@ -16,7 +16,7 @@ type Stream = {
     maxScrambles: number;
   }[];
   lastScrambleTime?: number;
-}
+};
 
 const names = [
   // European Origin
@@ -182,7 +182,7 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
 
 type EncryptionBackgroundProps = {
   thresholdPosition: number;
-}
+};
 
 const EncryptionBackground = ({
   thresholdPosition,
