@@ -11,7 +11,6 @@ import {
 } from 'react';
 
 import {
-  getDragInstructions,
   getDropTargetDescription,
   getKeyboardDragAnnouncement,
 } from './accessibility';
@@ -135,22 +134,20 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         element.style.visibility = 'visible'; // Restore visibility
       }
 
-      // Announce keyboard drag result
-      if (dragMode === 'keyboard') {
-        announce(
-          getKeyboardDragAnnouncement(
-            shouldDrop && activeDropTargetId ? 'drop' : 'cancel',
-          ),
-        );
+      // Announce keyboard drag result for failed drops only
+      // Successful drops are announced by the drop target
+      if (dragMode === 'keyboard' && (!shouldDrop || !activeDropTargetId)) {
+        const itemName = announcedName ?? 'Item';
+        announce(`Drop cancelled, ${itemName} returned to original position`);
       }
     },
-    [endDrag, dragMode, announce, storeApi],
+    [endDrag, dragMode, announce, announcedName, storeApi],
   );
 
   const handlePointerMove = useCallback(
     (e: PointerEvent) => {
       e.preventDefault();
-      updatePosition(e.pageX, e.pageY);
+      updatePosition(e.clientX, e.clientY);
     },
     [updatePosition],
   );
@@ -175,7 +172,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       if (disabled || e.button !== 0) return;
       const element = e.currentTarget as HTMLElement;
 
-      initializeDrag(element, { x: e.pageX, y: e.pageY }, 'pointer');
+      initializeDrag(element, { x: e.clientX, y: e.clientY }, 'pointer');
 
       element.setPointerCapture(e.pointerId);
       document.addEventListener('pointermove', handlePointerMove);
@@ -200,20 +197,13 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         'keyboard',
       );
 
-      // After drag starts, the store will have updated compatible targets
-      // We need to get the count from the store
-      const compatibleCount = storeApi.getState().getCompatibleTargets().length;
-
-      const itemInfo = announcedName ? `${announcedName} ` : '';
-      const zonesInfo = `${compatibleCount} compatible drop zones available.`;
+      // Announce the enhanced grab message
+      const itemName = announcedName ?? 'Item';
       announce(
-        getKeyboardDragAnnouncement(
-          'start',
-          `${itemInfo}${zonesInfo} ${getDragInstructions()}`,
-        ),
+        `${itemName} grabbed, use arrow keys to navigate to drop targets, press Escape to cancel`,
       );
     },
-    [initializeDrag, announcedName, announce, storeApi],
+    [initializeDrag, announcedName, announce],
   );
 
   useEffect(() => () => updatePosition.cancel(), [updatePosition]);

@@ -1,599 +1,248 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { DndStoreProvider } from '../lib/dnd/DndStoreProvider';
 import { useDragSource } from '../lib/dnd/useDragSource';
 import { useDropTarget } from '../lib/dnd/useDropTarget';
-import { type DragMetadata } from '../lib/dnd/types';
 
-// Mock component that demonstrates drag source functionality
-interface DragSourceExampleProps {
-  metadata: DragMetadata;
-  name?: string;
-  preview?: React.ReactNode;
-  disabled?: boolean;
-  onDragStart?: (metadata: DragMetadata) => void;
-  onDragEnd?: (metadata: DragMetadata, dropTargetId: string | null) => void;
-  children?: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function DragSourceExample({
-  metadata,
-  name,
-  preview,
-  disabled = false,
-  onDragStart,
-  onDragEnd,
+// Simple draggable item component
+function DraggableItem({
+  id,
+  type,
   children,
-  className = '',
+  preview,
   style = {},
-}: DragSourceExampleProps) {
+}: {
+  id: string;
+  type: string;
+  children: React.ReactNode;
+  preview?: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
   const { dragProps, isDragging } = useDragSource({
-    type: metadata.type as string,
-    metadata,
-    announcedName: name,
+    type,
+    metadata: { type, id },
     preview,
-    disabled,
+    announcedName: `${type} item ${id}`,
   });
-
-  const baseStyle: React.CSSProperties = {
-    padding: '16px',
-    margin: '8px',
-    border: '2px solid #ccc',
-    borderRadius: '8px',
-    backgroundColor: '#f5f5f5',
-    minWidth: '120px',
-    textAlign: 'center',
-    ...style,
-  };
-
-  const dragStyle: React.CSSProperties = isDragging
-    ? {
-        opacity: 0.5,
-        backgroundColor: '#e0f2fe',
-        borderColor: '#0277bd',
-      }
-    : {};
 
   return (
     <div
       {...dragProps}
-      className={className}
-      style={{ ...baseStyle, ...dragStyle, ...dragProps.style }}
+      style={{
+        padding: '16px',
+        margin: '8px',
+        backgroundColor: isDragging ? '#e3f2fd' : '#f5f5f5',
+        border: '2px solid #ddd',
+        borderRadius: '8px',
+        cursor: 'grab',
+        opacity: isDragging ? 0.5 : 1,
+        transition: 'all 0.2s',
+        ...style,
+      }}
     >
-      {children || `${metadata.type} Item`}
-      {isDragging && (
-        <div style={{ fontSize: '12px', color: '#666' }}>Dragging...</div>
-      )}
+      {children}
     </div>
   );
 }
 
-// Mock drop target for testing
-function MockDropTarget({
+// Simple drop zone
+function DropZone({
   accepts,
-  name,
   children,
+  onDrop,
 }: {
   accepts: string[];
-  name: string;
-  children?: React.ReactNode;
+  children: React.ReactNode;
+  onDrop?: (metadata: any) => void;
 }) {
-  const dropId = `mock-drop-${Math.random().toString(36).substr(2, 9)}`;
   const { dropProps, isOver, willAccept } = useDropTarget({
-    id: dropId,
+    id: `drop-zone-${Math.random().toString(36).substr(2, 9)}`,
     accepts,
-    announcedName: name,
+    onDrop,
   });
 
   return (
     <div
       {...dropProps}
       style={{
-        ...dropProps.style,
-        padding: '20px',
+        padding: '24px',
         margin: '8px',
-        border: '2px dashed #999',
-        borderRadius: '8px',
-        backgroundColor: isOver && willAccept ? '#e8f5e8' : '#fafafa',
-        borderColor: isOver && willAccept ? '#4caf50' : '#999',
-        minHeight: '80px',
+        border: '3px dashed',
+        borderColor: isOver && willAccept ? '#4caf50' : '#ccc',
+        borderRadius: '12px',
+        backgroundColor: isOver && willAccept ? '#e8f5e9' : '#fafafa',
+        minHeight: '120px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        textAlign: 'center',
         transition: 'all 0.2s',
       }}
     >
-      {children || `Drop ${accepts.join(', ')} here`}
-      {isOver && willAccept && (
-        <div style={{ fontSize: '12px', color: '#2e7d32' }}>
-          {' '}
-          (Ready to drop!)
-        </div>
-      )}
+      {children}
     </div>
   );
 }
 
-// Container for stories
-function StoryContainer({ children }: { children: React.ReactNode }) {
-  return (
-    <DndStoreProvider>
-      <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-        <div style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
-          <strong>Instructions:</strong>
-          <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-            <li>Mouse/Touch: Click and drag items</li>
-            <li>
-              Keyboard: Focus an item, press Space/Enter to start dragging, use
-              arrow keys to navigate, Space/Enter to drop, Escape to cancel
-            </li>
-          </ul>
-        </div>
-        {children}
-      </div>
-    </DndStoreProvider>
-  );
-}
-
-// Custom preview component for demonstration
-function CustomPreview({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        padding: '12px',
-        backgroundColor: '#ff9800',
-        color: 'white',
-        borderRadius: '6px',
-        fontWeight: 'bold',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-      }}
-    >
-      🚀 {children}
-    </div>
-  );
-}
-
-const meta: Meta<typeof DragSourceExample> = {
-  title: 'DnD/useDragSource',
-  component: DragSourceExample,
+const meta: Meta = {
+  title: 'DnD/DragSource',
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
         component: `
-The \`useDragSource\` hook provides drag-and-drop functionality for source elements. It supports both mouse/touch and keyboard interactions with full accessibility features.
+The \`useDragSource\` hook makes elements draggable. It handles mouse, touch, and keyboard interactions.
 
-## Key Features:
-- **Mouse/Touch Support**: Click and drag with pointer events
-- **Keyboard Accessibility**: Full keyboard navigation with screen reader announcements
-- **Custom Previews**: Support for custom drag preview components
-- **Auto-scrolling**: Automatic scrolling when dragging near container edges
-- **Type Safety**: Full TypeScript support with Zod validation
+## Basic Usage
+\`\`\`tsx
+const { dragProps, isDragging } = useDragSource({
+  type: 'item',
+  metadata: { id: '1', type: 'item' },
+  announcedName: 'Item 1',
+});
 
-## Hook Options:
-- \`metadata\`: Required drag data (type, sourceZone, etc.)
-- \`name\`: Human-readable name for accessibility
-- \`preview\`: Custom preview component (defaults to element clone)
-- \`onDragStart\`: Callback when drag begins
-- \`onDragEnd\`: Callback when drag ends (with drop target info)
-- \`disabled\`: Disable drag functionality
-
-## Returns:
-- \`dragProps\`: Props to spread on draggable element
-- \`isDragging\`: Boolean indicating current drag state
+return <div {...dragProps}>Draggable Item</div>;
+\`\`\`
         `,
       },
     },
   },
   tags: ['autodocs'],
-  argTypes: {
-    metadata: {
-      control: 'object',
-      description: 'Drag metadata containing type and other data',
-    },
-    name: {
-      control: 'text',
-      description: 'Human-readable name for accessibility announcements',
-    },
-    disabled: {
-      control: 'boolean',
-      description: 'Whether the drag source is disabled',
-    },
-    onDragStart: {
-      action: 'dragStart',
-      description: 'Callback fired when drag operation starts',
-    },
-    onDragEnd: {
-      action: 'dragEnd',
-      description: 'Callback fired when drag operation ends',
-    },
-  },
-  args: {
-    onDragStart: () => {},
-    onDragEnd: () => {},
-  },
 };
 
 export default meta;
-type Story = StoryObj<typeof DragSourceExample>;
+type Story = StoryObj;
 
-// Basic drag source story
 export const Basic: Story = {
-  args: {
-    metadata: { type: 'card', id: '1' },
-    name: 'Basic Card',
-  },
-  render: (args) => (
-    <StoryContainer>
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <DragSourceExample {...args}>Basic Draggable Card</DragSourceExample>
-        <MockDropTarget accepts={['card']} name="Card Drop Zone">
-          Drop cards here
-        </MockDropTarget>
-      </div>
-    </StoryContainer>
-  ),
-};
-
-// Multiple drag sources with different types
-export const MultipleSources: Story = {
-  args: {
-    metadata: { type: 'card', id: '1' },
-    name: 'Card Item',
-  },
   render: () => (
-    <StoryContainer>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '20px',
-        }}
-      >
-        <DragSourceExample
-          metadata={{ type: 'card', id: '1' }}
-          name="Blue Card"
-          style={{ backgroundColor: '#e3f2fd' }}
-        >
-          Blue Card
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'token', id: '2' }}
-          name="Red Token"
-          style={{ backgroundColor: '#ffebee', borderRadius: '50%' }}
-        >
-          Red Token
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'card', id: '3' }}
-          name="Green Card"
-          style={{ backgroundColor: '#e8f5e8' }}
-        >
-          Green Card
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'special', id: '4' }}
-          name="Special Item"
-          style={{ backgroundColor: '#fff3e0' }}
-        >
-          Special Item
-        </DragSourceExample>
+    <DndStoreProvider>
+      <div style={{ padding: '20px' }}>
+        <h3>Basic Draggable Items</h3>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+          <div>
+            <DraggableItem id="1" type="card">
+              Card Item
+            </DraggableItem>
+            <DraggableItem id="2" type="card">
+              Another Card
+            </DraggableItem>
+          </div>
+          <DropZone accepts={['card']}>Drop cards here</DropZone>
+        </div>
       </div>
-      <div
-        style={{
-          marginTop: '30px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '20px',
-        }}
-      >
-        <MockDropTarget accepts={['card']} name="Cards Only">
-          Cards Only
-        </MockDropTarget>
-        <MockDropTarget accepts={['token', 'special']} name="Tokens & Special">
-          Tokens & Special Items
-        </MockDropTarget>
-      </div>
-    </StoryContainer>
+    </DndStoreProvider>
   ),
 };
 
-// Accessibility features demonstration
-export const AccessibilityFeatures: Story = {
-  args: {
-    metadata: { type: 'accessible-item', id: '1' },
-    name: 'Screen Reader Friendly Item',
-  },
+export const WithPreview: Story = {
   render: () => (
-    <StoryContainer>
-      <div
-        style={{
-          marginBottom: '20px',
-          padding: '16px',
-          backgroundColor: '#f0f8ff',
-          borderRadius: '8px',
-        }}
-      >
-        <h3 style={{ margin: '0 0 10px 0' }}>Accessibility Features</h3>
-        <ul style={{ margin: 0, paddingLeft: '20px' }}>
-          <li>All drag sources have proper ARIA labels and roles</li>
-          <li>Keyboard navigation with arrow keys</li>
-          <li>Screen reader announcements during drag operations</li>
-          <li>Focus management and visual indicators</li>
-        </ul>
+    <DndStoreProvider>
+      <div style={{ padding: '20px' }}>
+        <h3>Custom Preview</h3>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+          <div>
+            <DraggableItem
+              id="custom-1"
+              type="fancy"
+              preview={
+                <div
+                  style={{
+                    padding: '16px',
+                    backgroundColor: '#9c27b0',
+                    color: 'white',
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                    transform: 'rotate(-3deg)',
+                  }}
+                >
+                  🎯 Custom Preview
+                </div>
+              }
+            >
+              Item with Custom Preview
+            </DraggableItem>
+            <DraggableItem id="default-1" type="regular">
+              Default Preview
+            </DraggableItem>
+          </div>
+          <DropZone accepts={['fancy', 'regular']}>Drop items here</DropZone>
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <DragSourceExample
-          metadata={{ type: 'document', id: '1' }}
-          name="Important Document"
-        >
-          Important Document
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'image', id: '2' }}
-          name="Profile Photo"
-        >
-          Profile Photo
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'video', id: '3' }}
-          name="Tutorial Video"
-        >
-          Tutorial Video
-        </DragSourceExample>
-      </div>
-      <div style={{ marginTop: '20px', display: 'flex', gap: '20px' }}>
-        <MockDropTarget accepts={['document', 'image']} name="Media Library">
-          Media Library
-        </MockDropTarget>
-        <MockDropTarget accepts={['video']} name="Video Gallery">
-          Video Gallery
-        </MockDropTarget>
-      </div>
-    </StoryContainer>
+    </DndStoreProvider>
   ),
 };
 
-// Custom preview demonstration
-export const CustomPreviewDemo: Story = {
-  args: {
-    metadata: { type: 'custom-item', id: '1' },
-    name: 'Item with Custom Preview',
-  },
-  render: () => (
-    <StoryContainer>
-      <div
-        style={{
-          marginBottom: '20px',
-          padding: '16px',
-          backgroundColor: '#fff8e1',
-          borderRadius: '8px',
-        }}
-      >
-        <h3 style={{ margin: '0 0 10px 0' }}>Custom Preview Examples</h3>
-        <p style={{ margin: 0 }}>
-          These items show different preview styles when dragged.
-        </p>
-      </div>
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <DragSourceExample
-          metadata={{ type: 'file', id: '1' }}
-          name="File with Custom Preview"
-          preview={<CustomPreview>Custom File Preview</CustomPreview>}
-        >
-          File (Custom Preview)
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'file', id: '2' }}
-          name="File with Default Preview"
-        >
-          File (Default Preview)
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'file', id: '3' }}
-          name="File with No Preview"
-          preview={null}
-        >
-          File (No Preview)
-        </DragSourceExample>
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <MockDropTarget accepts={['file']} name="File Drop Zone">
-          Drop files here
-        </MockDropTarget>
-      </div>
-    </StoryContainer>
-  ),
-};
-
-// Disabled state demonstration
-export const DisabledState: Story = {
-  args: {
-    metadata: { type: 'item', id: '1' },
-    name: 'Disabled Item',
-    disabled: true,
-  },
-  render: () => (
-    <StoryContainer>
-      <div
-        style={{
-          marginBottom: '20px',
-          padding: '16px',
-          backgroundColor: '#ffebee',
-          borderRadius: '8px',
-        }}
-      >
-        <h3 style={{ margin: '0 0 10px 0' }}>Disabled State</h3>
-        <p style={{ margin: 0 }}>
-          Disabled items cannot be dragged and have appropriate visual styling
-          and accessibility attributes.
-        </p>
-      </div>
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <DragSourceExample
-          metadata={{ type: 'item', id: '1' }}
-          name="Enabled Item"
-          disabled={false}
-          style={{ backgroundColor: '#e8f5e8' }}
-        >
-          Enabled Item
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'item', id: '2' }}
-          name="Disabled Item"
-          disabled={true}
-          style={{
-            backgroundColor: '#f5f5f5',
-            color: '#999',
-            cursor: 'not-allowed',
-          }}
-        >
-          Disabled Item
-        </DragSourceExample>
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <MockDropTarget accepts={['item']} name="Item Drop Zone">
-          Drop enabled items here
-        </MockDropTarget>
-      </div>
-    </StoryContainer>
-  ),
-};
-
-// Interactive playground
-export const InteractivePlayground: Story = {
-  args: {
-    metadata: { type: 'playground-item', id: '1' },
-    name: 'Playground Item',
-    disabled: false,
-  },
-  render: (args) => {
-    const [dragCount, setDragCount] = useState(0);
-    const [lastDropTarget, setLastDropTarget] = useState<string | null>(null);
+export const TypeRestrictions: Story = {
+  render: () => {
+    const [lastDrop, setLastDrop] = useState<string>('');
 
     return (
-      <StoryContainer>
-        <div
-          style={{
-            marginBottom: '20px',
-            padding: '16px',
-            backgroundColor: '#f3e5f5',
-            borderRadius: '8px',
-          }}
-        >
-          <h3 style={{ margin: '0 0 10px 0' }}>Interactive Playground</h3>
-          <p style={{ margin: '0 0 10px 0' }}>
-            Test different configurations by dragging the item below.
-          </p>
-          <div style={{ fontSize: '14px' }}>
-            <div>Drags started: {dragCount}</div>
-            <div>Last drop target: {lastDropTarget || 'None'}</div>
+      <DndStoreProvider>
+        <div style={{ padding: '20px' }}>
+          <h3>Type Restrictions</h3>
+          {lastDrop && (
+            <div
+              style={{
+                padding: '8px',
+                marginBottom: '16px',
+                backgroundColor: '#e8f5e9',
+                borderRadius: '4px',
+                fontSize: '14px',
+              }}
+            >
+              Last dropped: {lastDrop}
+            </div>
+          )}
+          <div
+            style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}
+          >
+            <div>
+              <h4>Items</h4>
+              <DraggableItem
+                id="fruit-1"
+                type="fruit"
+                style={{ backgroundColor: '#ffcdd2' }}
+              >
+                🍎 Apple
+              </DraggableItem>
+              <DraggableItem
+                id="veggie-1"
+                type="vegetable"
+                style={{ backgroundColor: '#c8e6c9' }}
+              >
+                🥕 Carrot
+              </DraggableItem>
+              <DraggableItem
+                id="protein-1"
+                type="protein"
+                style={{ backgroundColor: '#d1c4e9' }}
+              >
+                🍖 Meat
+              </DraggableItem>
+            </div>
+            <div>
+              <h4>Drop Zones</h4>
+              <DropZone
+                accepts={['fruit']}
+                onDrop={(metadata) => setLastDrop(`Fruit: ${metadata.id}`)}
+              >
+                Fruits Only
+              </DropZone>
+              <DropZone
+                accepts={['vegetable']}
+                onDrop={(metadata) => setLastDrop(`Vegetable: ${metadata.id}`)}
+              >
+                Vegetables Only
+              </DropZone>
+              <DropZone
+                accepts={['fruit', 'vegetable', 'protein']}
+                onDrop={(metadata) => setLastDrop(`Any: ${metadata.id}`)}
+              >
+                All Types
+              </DropZone>
+            </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-          <DragSourceExample
-            {...args}
-            onDragStart={(metadata) => {
-              setDragCount((prev) => prev + 1);
-              args.onDragStart?.(metadata);
-            }}
-            onDragEnd={(metadata, dropTargetId) => {
-              setLastDropTarget(dropTargetId);
-              args.onDragEnd?.(metadata, dropTargetId);
-            }}
-          >
-            Playground Item
-          </DragSourceExample>
-        </div>
-        <div
-          style={{
-            marginTop: '20px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '20px',
-          }}
-        >
-          <MockDropTarget accepts={['playground-item']} name="Drop Zone 1">
-            Drop Zone 1
-          </MockDropTarget>
-          <MockDropTarget accepts={['playground-item']} name="Drop Zone 2">
-            Drop Zone 2
-          </MockDropTarget>
-          <MockDropTarget accepts={['other-type']} name="Incompatible Zone">
-            Incompatible Zone
-          </MockDropTarget>
-        </div>
-      </StoryContainer>
+      </DndStoreProvider>
     );
   },
-};
-
-// Keyboard navigation focus test
-export const KeyboardNavigation: Story = {
-  args: {
-    metadata: { type: 'nav-item', id: '1' },
-    name: 'Keyboard Navigation Item',
-  },
-  render: () => (
-    <StoryContainer>
-      <div
-        style={{
-          marginBottom: '20px',
-          padding: '16px',
-          backgroundColor: '#e8eaf6',
-          borderRadius: '8px',
-        }}
-      >
-        <h3 style={{ margin: '0 0 10px 0' }}>Keyboard Navigation Test</h3>
-        <p style={{ margin: 0 }}>
-          Tab to focus items, then use Space/Enter to start dragging. Use arrow
-          keys to navigate between drop zones during drag.
-        </p>
-      </div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '20px',
-          marginBottom: '20px',
-        }}
-      >
-        <DragSourceExample
-          metadata={{ type: 'nav-item', id: '1', sourceZone: 'source' }}
-          name="Navigation Item 1"
-        >
-          Nav Item 1
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'nav-item', id: '2', sourceZone: 'source' }}
-          name="Navigation Item 2"
-        >
-          Nav Item 2
-        </DragSourceExample>
-        <DragSourceExample
-          metadata={{ type: 'nav-item', id: '3', sourceZone: 'source' }}
-          name="Navigation Item 3"
-        >
-          Nav Item 3
-        </DragSourceExample>
-      </div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '20px',
-        }}
-      >
-        <MockDropTarget accepts={['nav-item']} name="Target Zone A">
-          Target Zone A
-        </MockDropTarget>
-        <MockDropTarget accepts={['nav-item']} name="Target Zone B">
-          Target Zone B
-        </MockDropTarget>
-      </div>
-    </StoryContainer>
-  ),
 };

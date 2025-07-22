@@ -126,8 +126,6 @@ describe('Drag and Drop Hooks Integration', () => {
       expect(store.getState().activeDropTargetId).toBe(null);
     });
 
-
-
     it('should update drag position correctly', () => {
       const dragItem = {
         id: 'test-item',

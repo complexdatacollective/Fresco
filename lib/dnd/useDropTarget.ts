@@ -34,6 +34,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
   const lastDragItemRef = useRef<DragItem | null>(null);
+  const dropOccurredRef = useRef<boolean>(false);
 
   // Use selective subscriptions for better performance
   const dragItem = useDndStore((state) => state.dragItem);
@@ -222,7 +223,8 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
       !isOver &&
       prevIsOver &&
       onDragLeave &&
-      lastDragItemRef.current
+      lastDragItemRef.current &&
+      !dropOccurredRef.current // Don't announce leave if a drop just occurred
     ) {
       onDragLeave(lastDragItemRef.current.metadata);
     }
@@ -246,6 +248,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         // Drag just started - update bounds immediately
         if (isDragging && !wasDragging) {
           updateBoundsImmediate();
+          dropOccurredRef.current = false; // Reset drop flag for new drag
         }
 
         // Drag just ended
@@ -255,6 +258,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           const draggedItem = lastDragItemRef.current;
 
           if (wasOver && draggedItem && canDrop && onDrop) {
+            dropOccurredRef.current = true;
             onDrop(draggedItem.metadata);
           }
         }

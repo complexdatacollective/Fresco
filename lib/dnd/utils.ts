@@ -47,7 +47,7 @@ export function getAbsolutePosition(element: HTMLElement): {
   };
 }
 
-// Get element bounds with transform support
+// Get element bounds with transform support (viewport coordinates)
 export function getElementBounds(element: HTMLElement): {
   x: number;
   y: number;
@@ -55,12 +55,10 @@ export function getElementBounds(element: HTMLElement): {
   height: number;
 } {
   const rect = element.getBoundingClientRect();
-  const scrollLeft = window.pageXOffset ?? document.documentElement.scrollLeft;
-  const scrollTop = window.pageYOffset ?? document.documentElement.scrollTop;
 
   return {
-    x: rect.left + scrollLeft,
-    y: rect.top + scrollTop,
+    x: rect.left,
+    y: rect.top,
     width: rect.width,
     height: rect.height,
   };
