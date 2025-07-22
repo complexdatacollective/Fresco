@@ -51,7 +51,7 @@ type EncryptedData = {
     salt: number[];
   };
   data: number[];
-}
+};
 
 export async function decryptData(
   encrypted: EncryptedData,

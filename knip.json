@@ -23,5 +23,5 @@
     "@node-rs/argon2",
     "tsx"
   ],
-  "ignoreBinaries": ["docker-compose"]
+  "ignoreBinaries": ["docker-compose", "playwright"]
 }

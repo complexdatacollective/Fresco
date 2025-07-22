@@ -25,7 +25,7 @@ type DataTableAdvancedFilterProps<TData> = {
     React.SetStateAction<DataTableFilterOption<TData>[]>
   >;
   children?: React.ReactNode;
-}
+};
 
 export function DataTableAdvancedFilter<TData>({
   options,

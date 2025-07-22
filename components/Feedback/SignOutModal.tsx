@@ -16,7 +16,7 @@ import {
 type SignOutModalProps = {
   openSignOutModal: boolean;
   setOpenSignOutModal: Dispatch<SetStateAction<boolean>>;
-}
+};
 
 const SignOutModal = ({
   openSignOutModal,

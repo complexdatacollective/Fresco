@@ -1,4 +1,6 @@
 # language of the project (csharp, python, rust, java, typescript, javascript, go, cpp, or ruby)
+#  * For C, use cpp
+#  * For JavaScript, use typescript
 # Special requirements:
 #  * csharp: Requires the presence of a .sln file in the project folder.
 language: typescript
@@ -17,10 +19,9 @@ ignored_paths: []
 # Added on 2025-04-18
 read_only: false
 
-
 # list of tool names to exclude. We recommend not excluding any tools, see the readme for more details.
 # Below is the complete list of tools for convenience.
-# To make sure you have the latest list of tools, and to view their descriptions, 
+# To make sure you have the latest list of tools, and to view their descriptions,
 # execute `uv run scripts/print_tool_overview.py`.
 #
 #  * `activate_project`: Activates a project by name.

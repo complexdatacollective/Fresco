@@ -25,7 +25,7 @@ const protocolSlice = createSlice({
     getShouldEncryptNames: (state) => {
       return state.experiments?.encryptedVariables ?? false;
     },
-    getCodebook: (state) => state.codebook,
+    getCodebook: (state): Protocol['codebook'] => state.codebook,
     getStages: createSelector(
       [(state: ProtocolState) => state.stages],
       (stages) => [...(stages ?? []), DefaultFinishStage] as Stage[],

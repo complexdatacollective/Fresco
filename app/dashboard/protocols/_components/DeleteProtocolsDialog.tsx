@@ -19,7 +19,7 @@ type DeleteProtocolsDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   protocolsToDelete: ProtocolWithInterviews[];
-}
+};
 
 export const DeleteProtocolsDialog = ({
   open,

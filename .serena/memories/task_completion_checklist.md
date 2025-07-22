@@ -2,38 +2,50 @@
 
 When completing any coding task, always run these commands in order:
 
-## 1. Code Quality Checks
+## 1. Type Checking
 ```bash
-npm run lint
-```
-- Automatically fix linting errors with `--fix` flag if available
-- ESLint will catch TypeScript, import, and code style issues
-
-## 2. Type Checking
-```bash
-npm run typecheck
+pnpm typecheck
+# or
+pnpm ts-lint
 ```
 - Ensure all TypeScript types are correct
 - Fix any type errors before proceeding
 
-## 3. Unused Code Detection
+## 2. Code Quality Checks
 ```bash
-npm run knip
+pnpm lint --fix
+```
+- Automatically fix linting errors with `--fix` flag
+- ESLint will catch TypeScript, import, and code style issues
+- Fix any remaining issues manually
+
+## 3. Code Formatting
+```bash
+npx prettier --write .
+```
+- Format all code according to project standards
+- Uses Tailwind plugin for class ordering
+- Should be automatically applied by editor or pre-commit hooks
+
+## 4. Unused Code Detection
+```bash
+pnpm knip
 ```
 - Remove any unused imports, exports, or code
 - Keep codebase clean and minimal
 
-## 4. Code Formatting
-- Code formatting is handled by Prettier
-- Should be automatically applied by editor or pre-commit hooks
-- Uses Tailwind plugin for class ordering
-
 ## 5. Testing (if relevant)
 ```bash
-npm run test
+pnpm test
 ```
 - Run unit tests to ensure functionality
 - For E2E tests: `npx playwright test`
+
+## 6. Build Verification
+```bash
+pnpm build
+```
+- Verify the application builds successfully
 
 ## Important Notes
 - **Always run lint and typecheck** before considering a task complete
@@ -41,3 +53,6 @@ npm run test
 - **Use absolute imports** with `~/` prefix from tsconfig paths
 - **Follow the established patterns** in the codebase
 - **Use types instead of interfaces** (ESLint enforced)
+- Ensure no `console.log` statements are left in production code
+- Verify proper TypeScript types are used
+- Ensure proper error handling is in place

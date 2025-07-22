@@ -15,7 +15,7 @@ type ScrollerProps = {
   ) => void;
   /** Whether to use smooth scrolling behavior */
   useSmoothScrolling?: boolean;
-}
+};
 
 const Scroller = forwardRef<HTMLDivElement, ScrollerProps>(function Scroller(
   { className, children, useSmoothScrolling = true, onScroll },

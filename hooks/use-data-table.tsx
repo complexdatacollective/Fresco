@@ -62,7 +62,7 @@ type UseDataTableProps<TData, TValue> = {
    * @example filterableColumns={[{ id: "status", title: "Status", options: ["todo", "in-progress", "done", "canceled"]}]}
    */
   filterableColumns?: DataTableFilterableColumn<TData>[];
-}
+};
 
 export function useDataTable<TData, TValue>({
   data,

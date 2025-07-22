@@ -1,27 +1,32 @@
-# Suggested Commands
+# Suggested Development Commands
 
 ## Development
-- `npm run dev` - Start development server with Docker PostgreSQL database
-- `npm run build` - Build production application
-- `npm run start` - Start production server
+- `pnpm dev` - Start development server with Docker PostgreSQL database
+- `pnpm build` - Build production application
+- `pnpm start` - Start production server
 
 ## Code Quality
-- `npm run lint` - Run ESLint code linting
-- `npm run typecheck` - Run TypeScript type checking
-- `npm run knip` - Detect unused code
+- `pnpm lint` - Run ESLint code linting (with env validation skipped)
+- `pnpm typecheck` / `pnpm ts-lint` - Run TypeScript type checking
+- `pnpm ts-lint:watch` - Run TypeScript type checking in watch mode
+- `pnpm knip` - Detect unused code and dependencies
+- `npx prettier --write .` - Format code with Prettier
 
 ## Testing
-- `npm run test` - Run Vitest unit tests
+- `pnpm test` - Run Vitest unit tests
 - `npx playwright test` - Run E2E tests (Playwright must be installed)
-- `npm run test:e2e` - Run E2E tests in test environment
-- `npm run test:e2e:ui` - Run E2E tests with UI
-- `npm run test:e2e:debug` - Debug E2E tests
-- `npm run test:e2e:report` - Show E2E test report
-- `npm run load-test` - Run K6 load tests via Docker
+- `pnpm test:e2e` - Run E2E tests in test environment
+- `pnpm test:e2e:ui` - Run E2E tests with UI
+- `pnpm test:e2e:debug` - Debug E2E tests
+- `pnpm test:e2e:report` - Show E2E test report
+- `pnpm load-test` - Run K6 load tests via Docker
 
 ## Database
-- Database runs in Docker during development via `npm run dev`
+- Database runs in Docker during development via `pnpm dev`
 - Prisma migrations are handled automatically
+- `npx prisma generate` - Generate Prisma client
+- `npx prisma db push` - Push schema changes to database
+- `npx prisma studio` - Open Prisma Studio
 
 ## System Commands (macOS)
 - `git` - Version control

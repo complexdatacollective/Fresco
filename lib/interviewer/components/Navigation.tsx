@@ -39,7 +39,7 @@ type NavigationProps = {
   pulseNext: boolean;
   disabled: boolean;
   progress: number;
-}
+};
 
 const Navigation = ({
   moveBackward,
@@ -69,7 +69,7 @@ const Navigation = ({
         className={cn(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
-          pulseNext && 'bg-success animate-pulse',
+          pulseNext && 'bg-success animate-pulse-glow',
         )}
         onClick={moveForward}
         disabled={disabled || !canMoveForward}

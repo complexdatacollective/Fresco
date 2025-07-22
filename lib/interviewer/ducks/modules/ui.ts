@@ -6,7 +6,7 @@ type UIState = {
   passphrase: string | null;
   showPassphrasePrompter: boolean;
   passphraseInvalid: boolean;
-}
+};
 
 const initialState = {
   FORM_IS_READY: false,

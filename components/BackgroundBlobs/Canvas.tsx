@@ -6,7 +6,7 @@ type CanvasProps = {
   draw: (ctx: CanvasRenderingContext2D, time: number) => void;
   predraw?: (ctx: CanvasRenderingContext2D, time: number) => void;
   postdraw?: (ctx: CanvasRenderingContext2D, time: number) => void;
-}
+};
 
 const Canvas = (props: CanvasProps) => {
   const { draw, predraw, postdraw } = props;

@@ -13,7 +13,7 @@ type DataTableSkeletonProps = {
   rowCount?: number;
   searchableColumnCount?: number;
   filterableColumnCount?: number;
-}
+};
 
 export function DataTableSkeleton({
   columnCount,

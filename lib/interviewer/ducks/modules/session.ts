@@ -67,7 +67,7 @@ export function edgeExists(
 
   if (forwardsEdge ?? reverseEdge) {
     const foundEdge = (forwardsEdge ?? reverseEdge)!;
-    return get(foundEdge, entityPrimaryKeyProperty);
+    return get(foundEdge, entityPrimaryKeyProperty) ?? false;
   }
 
   return false;

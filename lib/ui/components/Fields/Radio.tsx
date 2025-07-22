@@ -11,7 +11,7 @@ type InputProps = {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   checked?: boolean;
-}
+};
 
 type RadioProps = {
   label?: React.ReactNode;
@@ -19,7 +19,7 @@ type RadioProps = {
   className?: string;
   disabled?: boolean;
   input: InputProps;
-}
+};
 
 const Radio = ({
   label,

@@ -8,20 +8,18 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { submit } from 'redux-form';
+import Form from '~/lib/form/components/Form';
+import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { getNodeIconName } from '../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
 import { useAppDispatch } from '../store';
-import Form from './Form';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
-
-const reduxFormName = 'NODE_FORM';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -40,9 +38,9 @@ const NodeForm = (props: NodeFormProps) => {
   const icon = useSelector(getNodeIconName);
 
   const [show, setShow] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const dispatch = useAppDispatch();
-  const submitForm = () => dispatch(submit(reduxFormName));
 
   const updateNode = useCallback(
     (payload: {
@@ -53,18 +51,27 @@ const NodeForm = (props: NodeFormProps) => {
     [dispatch],
   );
 
+  const processedFields = useProtocolFieldProcessor({
+    fields: form.fields,
+    validationMeta: {
+      entityId: selectedNode?.[entityPrimaryKeyProperty],
+    },
+  });
+
+  const getInitialValues = useCallback(
+    () => selectedNode?.[entityAttributesProperty] ?? {},
+    [selectedNode],
+  );
+
   const useFullScreenForms = false;
 
   const handleSubmit = useCallback(
-    (rawFormData: Record<string, VariableValue>) => {
-      // This is needed because redux-form is passing its state directly, causing
-      // a mutation error.
-      const formData = structuredClone(rawFormData);
+    ({ value }: { value: Record<string, VariableValue> }) => {
       if (!selectedNode) {
-        addNode({ ...newNodeAttributes, ...formData });
+        addNode({ ...newNodeAttributes, ...value });
       } else {
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        void updateNode({ nodeId: selectedUID, newAttributeData: formData });
+        void updateNode({ nodeId: selectedUID, newAttributeData: value });
       }
 
       setShow(false);
@@ -121,8 +128,9 @@ const NodeForm = (props: NodeFormProps) => {
             <Button
               key="submit"
               aria-label="Submit"
-              type="submit"
-              onClick={submitForm}
+              onClick={() => {
+                formRef.current?.requestSubmit();
+              }}
             >
               Finished
             </Button>
@@ -132,15 +140,11 @@ const NodeForm = (props: NodeFormProps) => {
       >
         <Scroller>
           <Form
-            {...form}
-            subject={subject}
-            initialValues={selectedNode?.[entityAttributesProperty]}
-            onSubmit={handleSubmit}
-            autoFocus
-            form={reduxFormName}
-            validationMeta={{
-              entityId: selectedNode?.[entityPrimaryKeyProperty],
-            }}
+            ref={formRef}
+            fields={processedFields}
+            handleSubmit={handleSubmit}
+            getInitialValues={getInitialValues}
+            focusFirstInput={true}
           />
         </Scroller>
       </Overlay>

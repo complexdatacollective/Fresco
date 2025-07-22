@@ -26,7 +26,7 @@ type DataTableFacetedFilter<TData, TValue> = {
   title?: string;
   options: Option[];
   variant?: 'popover' | 'command';
-}
+};
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
