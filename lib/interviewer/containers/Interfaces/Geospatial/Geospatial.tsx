@@ -293,7 +293,7 @@ export default function GeospatialInterface({
           <ActionButton
             onClick={handleResetMapZoom}
             icon={<Locate />}
-            title="Reset Map"
+            title="Recenter Map"
             showPlusButton={false}
           />
         </div>
