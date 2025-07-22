@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createStore } from 'zustand/vanilla';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { type DragItem, type DropTarget } from './types';
 
@@ -8,16 +8,18 @@ type DropTargetWithState = DropTarget & {
   isOver: boolean;
 };
 
-type DndStore = {
-  // State
+// State types
+export type DndState = {
   dragItem: DragItem | null;
   dragPosition: { x: number; y: number; width: number; height: number } | null;
   dragPreview: React.ReactNode | null;
   dropTargets: Map<string, DropTargetWithState>;
   activeDropTargetId: string | null;
   isDragging: boolean;
+};
 
-  // Actions
+// Action types
+export type DndActions = {
   startDrag: (
     item: DragItem,
     position: { x: number; y: number; width: number; height: number },
@@ -32,12 +34,23 @@ type DndStore = {
     bounds: { x: number; y: number; width: number; height: number },
   ) => void;
   setActiveDropTarget: (id: string | null) => void;
-
-  // Selectors
   getCompatibleTargets: () => DropTargetWithState[];
   getDropTargetState: (
     id: string,
   ) => { canDrop: boolean; isOver: boolean } | null;
+};
+
+// Combined store type
+export type DndStore = DndState & DndActions;
+
+// Default initial state
+export const defaultInitState: DndState = {
+  dragItem: null,
+  dragPosition: null,
+  dragPreview: null,
+  dropTargets: new Map(),
+  activeDropTargetId: null,
+  isDragging: false,
 };
 
 // Helper function to check if target accepts drag item
@@ -71,215 +84,183 @@ function updateCanDropStates(
   return newTargets;
 }
 
-export const useDndStore = create<DndStore>()(
-  subscribeWithSelector((set, get) => ({
-    dragItem: null,
-    dragPosition: null,
-    dragPreview: null,
-    dropTargets: new Map(),
-    activeDropTargetId: null,
-    isDragging: false,
+// Factory function to create DnD store
+export const createDndStore = (initState: DndState = defaultInitState) => {
+  return createStore<DndStore>()(
+    subscribeWithSelector((set, get) => ({
+      ...initState,
 
-    startDrag: (item, position, preview) => {
-      const currentTargets = get().dropTargets;
-      const updatedTargets = updateCanDropStates(currentTargets, item);
-
-      set({
-        dragItem: item,
-        dragPosition: position,
-        dragPreview: preview ?? null,
-        isDragging: true,
-        activeDropTargetId: null,
-        dropTargets: updatedTargets,
-      });
-    },
-
-    updateDragPosition: (x, y) => {
-      const state = get();
-      if (!state.dragItem || !state.dragPosition) return;
-
-      // Find drop target at current position
-      let foundTarget: DropTargetWithState | null = null;
-      let newActiveDropTargetId: string | null = null;
-
-      for (const target of state.dropTargets.values()) {
-        if (
-          x >= target.x &&
-          x <= target.x + target.width &&
-          y >= target.y &&
-          y <= target.y + target.height
-        ) {
-          foundTarget = target;
-          break;
-        }
-      }
-
-      if (foundTarget && foundTarget.canDrop) {
-        newActiveDropTargetId = foundTarget.id;
-      }
-
-      // Only update if position or active drop target changed
-      const positionChanged =
-        state.dragPosition.x !== x || state.dragPosition.y !== y;
-      const activeDropTargetChanged =
-        state.activeDropTargetId !== newActiveDropTargetId;
-
-      if (positionChanged || activeDropTargetChanged) {
-        // Update isOver state for drop targets
-        const newTargets = new Map(state.dropTargets);
-
-        // Clear previous isOver
-        if (
-          state.activeDropTargetId &&
-          state.activeDropTargetId !== newActiveDropTargetId
-        ) {
-          const prevTarget = newTargets.get(state.activeDropTargetId);
-          if (prevTarget) {
-            newTargets.set(state.activeDropTargetId, {
-              ...prevTarget,
-              isOver: false,
-            });
-          }
-        }
-
-        // Set new isOver
-        if (newActiveDropTargetId) {
-          const newTarget = newTargets.get(newActiveDropTargetId);
-          if (newTarget) {
-            newTargets.set(newActiveDropTargetId, {
-              ...newTarget,
-              isOver: true,
-            });
-          }
-        }
+      startDrag: (item, position, preview) => {
+        const currentTargets = get().dropTargets;
+        const updatedTargets = updateCanDropStates(currentTargets, item);
 
         set({
-          dragPosition: { ...state.dragPosition, x, y },
-          activeDropTargetId: newActiveDropTargetId,
-          dropTargets: newTargets,
+          dragItem: item,
+          dragPosition: position,
+          dragPreview: preview ?? null,
+          isDragging: true,
+          activeDropTargetId: null,
+          dropTargets: updatedTargets,
         });
-      }
-    },
+      },
 
-    endDrag: () => {
-      const currentTargets = get().dropTargets;
+      updateDragPosition: (x, y) => {
+        const state = get();
+        if (!state.dragItem || !state.dragPosition) return;
 
-      // Clear all canDrop and isOver states
-      const clearedTargets = new Map<string, DropTargetWithState>();
-      for (const [id, target] of currentTargets) {
-        clearedTargets.set(id, { ...target, canDrop: false, isOver: false });
-      }
+        // Find drop target at current position
+        let foundTarget: DropTargetWithState | null = null;
+        let newActiveDropTargetId: string | null = null;
 
-      // First, set isDragging to false to trigger drop target callbacks
-      set({
-        dragItem: null,
-        dragPosition: null,
-        dragPreview: null,
-        isDragging: false,
-        dropTargets: clearedTargets,
-        // Keep activeDropTargetId for a moment so drop targets can read it
-      });
+        for (const target of state.dropTargets.values()) {
+          if (
+            x >= target.x &&
+            x <= target.x + target.width &&
+            y >= target.y &&
+            y <= target.y + target.height
+          ) {
+            foundTarget = target;
+            break;
+          }
+        }
 
-      // Reset activeDropTargetId after a short delay to allow drop targets to process
-      setTimeout(() => {
-        set({ activeDropTargetId: null });
-      }, 0);
-    },
+        if (foundTarget && foundTarget.canDrop) {
+          newActiveDropTargetId = foundTarget.id;
+        }
 
-    registerDropTarget: (target) => {
-      set((state) => {
-        const newTargets = new Map(state.dropTargets);
+        // Only update if position or active drop target changed
+        const positionChanged =
+          state.dragPosition.x !== x || state.dragPosition.y !== y;
+        const activeDropTargetChanged =
+          state.activeDropTargetId !== newActiveDropTargetId;
 
-        // Initialize with current drag state
-        const canDrop = state.dragItem
-          ? doesTargetAccept(target, state.dragItem)
-          : false;
-        const isOver = state.activeDropTargetId === target.id;
+        if (positionChanged || activeDropTargetChanged) {
+          // Update isOver state for drop targets
+          const newTargets = new Map(state.dropTargets);
 
-        const targetWithState: DropTargetWithState = {
-          ...target,
-          canDrop,
-          isOver,
-        };
+          // Clear previous isOver
+          if (
+            state.activeDropTargetId &&
+            state.activeDropTargetId !== newActiveDropTargetId
+          ) {
+            const prevTarget = newTargets.get(state.activeDropTargetId);
+            if (prevTarget) {
+              newTargets.set(state.activeDropTargetId, {
+                ...prevTarget,
+                isOver: false,
+              });
+            }
+          }
 
-        newTargets.set(target.id, targetWithState);
+          // Set new isOver
+          if (newActiveDropTargetId) {
+            const newTarget = newTargets.get(newActiveDropTargetId);
+            if (newTarget) {
+              newTargets.set(newActiveDropTargetId, {
+                ...newTarget,
+                isOver: true,
+              });
+            }
+          }
 
-        return { dropTargets: newTargets };
-      });
-    },
+          set({
+            dragPosition: { ...state.dragPosition, x, y },
+            activeDropTargetId: newActiveDropTargetId,
+            dropTargets: newTargets,
+          });
+        }
+      },
 
-    unregisterDropTarget: (id) => {
-      set((state) => {
-        const newTargets = new Map(state.dropTargets);
-        newTargets.delete(id);
+      endDrag: () => {
+        const currentTargets = get().dropTargets;
 
-        return {
-          dropTargets: newTargets,
-          activeDropTargetId:
-            state.activeDropTargetId === id ? null : state.activeDropTargetId,
-        };
-      });
-    },
+        // Clear all canDrop and isOver states
+        const clearedTargets = new Map<string, DropTargetWithState>();
+        for (const [id, target] of currentTargets) {
+          clearedTargets.set(id, { ...target, canDrop: false, isOver: false });
+        }
 
-    updateDropTarget: (id, bounds) => {
-      set((state) => {
-        const target = state.dropTargets.get(id);
-        if (!target) return state;
+        // First, set isDragging to false to trigger drop target callbacks
+        set({
+          dragItem: null,
+          dragPosition: null,
+          dragPreview: null,
+          isDragging: false,
+          dropTargets: clearedTargets,
+          // Keep activeDropTargetId for a moment so drop targets can read it
+        });
 
-        const updatedTarget: DropTargetWithState = { ...target, ...bounds };
-        const newTargets = new Map(state.dropTargets);
-        newTargets.set(id, updatedTarget);
+        // Reset activeDropTargetId after a short delay to allow drop targets to process
+        setTimeout(() => {
+          set({ activeDropTargetId: null });
+        }, 0);
+      },
 
-        return { dropTargets: newTargets };
-      });
-    },
+      registerDropTarget: (target) => {
+        set((state) => {
+          const newTargets = new Map(state.dropTargets);
 
-    setActiveDropTarget: (id) => {
-      set({ activeDropTargetId: id });
-    },
+          // Initialize with current drag state
+          const canDrop = state.dragItem
+            ? doesTargetAccept(target, state.dragItem)
+            : false;
+          const isOver = state.activeDropTargetId === target.id;
 
-    // Selectors
-    getCompatibleTargets: () => {
-      const state = get();
-      return Array.from(state.dropTargets.values()).filter(
-        (target) => target.canDrop,
-      );
-    },
+          const targetWithState: DropTargetWithState = {
+            ...target,
+            canDrop,
+            isOver,
+          };
 
-    getDropTargetState: (id) => {
-      const target = get().dropTargets.get(id);
-      if (!target) return null;
-      return { canDrop: target.canDrop, isOver: target.isOver };
-    },
-  })),
-);
+          newTargets.set(target.id, targetWithState);
 
-// Selectors for drop targets to avoid unnecessary re-renders
-export const useDropTargetState = (id: string) =>
-  useDndStore((state) => {
-    const target = state.dropTargets.get(id);
-    return target ? { canDrop: target.canDrop, isOver: target.isOver } : null;
-  });
+          return { dropTargets: newTargets };
+        });
+      },
 
-// Memoized selector with proper equality checking
-export const useCompatibleTargets = () =>
-  useDndStore(
-    (state) => {
-      const compatibleTargets = Array.from(state.dropTargets.values()).filter(
-        (target) => target.canDrop,
-      );
-      return compatibleTargets;
-    },
-    (a: DropTargetWithState[], b: DropTargetWithState[]) => {
-      // Custom equality function to prevent unnecessary re-renders
-      if (a.length !== b.length) return false;
-      return a.every((target, index) => {
-        const bTarget = b[index];
-        return (
-          bTarget &&
-          target.id === bTarget.id &&
-          target.canDrop === bTarget.canDrop
+      unregisterDropTarget: (id) => {
+        set((state) => {
+          const newTargets = new Map(state.dropTargets);
+          newTargets.delete(id);
+
+          return {
+            dropTargets: newTargets,
+            activeDropTargetId:
+              state.activeDropTargetId === id ? null : state.activeDropTargetId,
+          };
+        });
+      },
+
+      updateDropTarget: (id, bounds) => {
+        set((state) => {
+          const target = state.dropTargets.get(id);
+          if (!target) return state;
+
+          const updatedTarget: DropTargetWithState = { ...target, ...bounds };
+          const newTargets = new Map(state.dropTargets);
+          newTargets.set(id, updatedTarget);
+
+          return { dropTargets: newTargets };
+        });
+      },
+
+      setActiveDropTarget: (id) => {
+        set({ activeDropTargetId: id });
+      },
+
+      // Selectors
+      getCompatibleTargets: () => {
+        const state = get();
+        return Array.from(state.dropTargets.values()).filter(
+          (target) => target.canDrop,
         );
-      });
-    },
+      },
+
+      getDropTargetState: (id) => {
+        const target = get().dropTargets.get(id);
+        if (!target) return null;
+        return { canDrop: target.canDrop, isOver: target.isOver };
+      },
+    })),
   );
+};

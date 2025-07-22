@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { DndStoreProvider } from '../lib/dnd/DndStoreProvider';
 import { useDragSource } from '../lib/dnd/useDragSource';
 import { useDropTarget } from '../lib/dnd/useDropTarget';
-import { DragPreview } from '../lib/dnd/useDragSource';
-import { useDndStore } from '../lib/dnd/store';
 import { type DragMetadata } from '../lib/dnd/types';
 import { announce } from '../lib/dnd/accessibility';
 
@@ -51,19 +50,12 @@ interface InventoryItem {
 
 // ===== Shared Components =====
 
-// Container that includes DragPreview
-function DndContainer({
-  children,
-  offset = { x: 0, y: 0 },
-}: {
-  children: React.ReactNode;
-  offset?: { x: number; y: number };
-}) {
+// Container that includes DndStoreProvider
+function DndContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: '500px', position: 'relative' }}>
-      {children}
-      <DragPreview offset={offset} />
-    </div>
+    <DndStoreProvider>
+      <div style={{ minHeight: '500px', position: 'relative' }}>{children}</div>
+    </DndStoreProvider>
   );
 }
 
@@ -77,13 +69,14 @@ function KanbanCard({
   onUpdate?: (task: Task, newStatus: Task['status']) => void;
 }) {
   const { dragProps, isDragging } = useDragSource({
+    type: 'task',
     metadata: {
       type: 'task',
       id: task.id,
       sourceZone: task.status,
       task,
     },
-    name: `Task: ${task.title}`,
+    announcedName: `Task: ${task.title}`,
     preview: (
       <div
         style={{
@@ -105,15 +98,6 @@ function KanbanCard({
         )}
       </div>
     ),
-    onDragEnd: (metadata, dropTargetId) => {
-      if (dropTargetId && onUpdate) {
-        const newStatus = dropTargetId.replace(
-          'kanban-column-',
-          '',
-        ) as Task['status'];
-        onUpdate(task, newStatus);
-      }
-    },
   });
 
   const priorityColors = {
@@ -179,12 +163,16 @@ function KanbanColumn({
   onTaskDrop?: (taskId: string, newStatus: Task['status']) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
+    id: `kanban-column-${status}`,
     accepts: ['task'],
-    zoneId: status,
-    name: `${title} Column`,
+    announcedName: `${title} Column`,
     onDrop: (metadata) => {
       const taskMetadata = metadata as any;
-      if (taskMetadata.id && taskMetadata.sourceZone !== status && onTaskDrop) {
+      if (
+        taskMetadata?.id &&
+        taskMetadata.sourceZone !== status &&
+        onTaskDrop
+      ) {
         onTaskDrop(taskMetadata.id, status);
       }
     },
@@ -265,12 +253,13 @@ function FileItem({
   onMove?: (fileId: string, targetFolderId: string) => void;
 }) {
   const { dragProps, isDragging } = useDragSource({
+    type: file.type,
     metadata: {
       type: file.type,
       id: file.id,
       name: file.name,
     },
-    name: `${file.type === 'folder' ? 'Folder' : 'File'}: ${file.name}`,
+    announcedName: `${file.type === 'folder' ? 'Folder' : 'File'}: ${file.name}`,
     preview: (
       <div
         style={{
@@ -289,12 +278,12 @@ function FileItem({
   });
 
   const { dropProps, isOver, willAccept } = useDropTarget({
+    id: `file-${file.id}`,
     accepts: file.type === 'folder' ? ['file'] : [],
-    zoneId: file.id,
-    name: `Folder: ${file.name}`,
+    announcedName: `Folder: ${file.name}`,
     onDrop: (metadata) => {
       const fileMetadata = metadata as any;
-      if (fileMetadata.id && onMove) {
+      if (fileMetadata?.id && onMove) {
         onMove(fileMetadata.id, file.id);
       }
     },
@@ -347,13 +336,14 @@ function FileItem({
 
 function FormComponentItem({ component }: { component: FormComponent }) {
   const { dragProps, isDragging } = useDragSource({
+    type: 'form-component',
     metadata: {
       type: 'form-component',
       componentType: component.type,
       id: component.id,
       label: component.label,
     },
-    name: `Form Component: ${component.label}`,
+    announcedName: `Form Component: ${component.label}`,
     preview: (
       <div
         style={{
@@ -409,11 +399,12 @@ function FormCanvas({
   onComponentAdd?: (component: FormComponent) => void;
 }) {
   const { dropProps, isOver, willAccept } = useDropTarget({
+    id: 'form-canvas',
     accepts: ['form-component'],
-    name: 'Form Canvas',
+    announcedName: 'Form Canvas',
     onDrop: (metadata) => {
       const componentMetadata = metadata as any;
-      if (componentMetadata.componentType && onComponentAdd) {
+      if (componentMetadata?.componentType && onComponentAdd) {
         onComponentAdd({
           id: `field-${Date.now()}`,
           type: componentMetadata.componentType,
@@ -528,6 +519,7 @@ function InventorySlot({
   ) => void;
 }) {
   const { dragProps, isDragging } = useDragSource({
+    type: item ? 'inventory-item' : 'empty-slot',
     metadata: item
       ? {
           type: 'inventory-item',
@@ -535,8 +527,8 @@ function InventorySlot({
           item,
           sourceCategory: item.category,
         }
-      : {},
-    name: item ? `Item: ${item.name}` : '',
+      : { type: 'empty-slot' },
+    announcedName: item ? `Item: ${item.name}` : 'Empty slot',
     preview: item ? (
       <div
         style={{
@@ -561,12 +553,12 @@ function InventorySlot({
   });
 
   const { dropProps, isOver, willAccept } = useDropTarget({
+    id: `slot-${category}-${item?.id || 'empty'}`,
     accepts: ['inventory-item'],
-    zoneId: `slot-${category}-${item?.id || 'empty'}`,
-    name: `${category} slot`,
+    announcedName: `${category} slot`,
     onDrop: (metadata) => {
       const itemMetadata = metadata as any;
-      if (itemMetadata.item && onItemMove) {
+      if (itemMetadata?.item && onItemMove) {
         onItemMove(itemMetadata.item, category);
       }
     },
@@ -710,35 +702,14 @@ function KeyboardNavigationDemo() {
               .filter((item) => item.zone === 'source')
               .map((item) => {
                 const { dragProps, isDragging } = useDragSource({
+                  type: 'keyboard-item',
                   metadata: {
                     type: 'keyboard-item',
                     id: item.id,
                     name: item.name,
                     sourceZone: 'source',
                   },
-                  name: item.name,
-                  onDragStart: () => {
-                    setLastAction(`Started dragging ${item.name}`);
-                    announce(
-                      `Picked up ${item.name}. Use arrow keys to navigate drop zones.`,
-                    );
-                  },
-                  onDragEnd: (metadata, dropTargetId) => {
-                    if (dropTargetId) {
-                      setLastAction(`Dropped ${item.name} in ${dropTargetId}`);
-                      const newZone =
-                        dropTargetId === 'keyboard-target'
-                          ? 'target'
-                          : 'source';
-                      setItems((prev) =>
-                        prev.map((i) =>
-                          i.id === item.id ? { ...i, zone: newZone } : i,
-                        ),
-                      );
-                    } else {
-                      setLastAction(`Cancelled dragging ${item.name}`);
-                    }
-                  },
+                  announcedName: item.name,
                 });
 
                 return (
@@ -777,9 +748,9 @@ function KeyboardNavigationDemo() {
           <h4>Target Zone</h4>
           <div
             {...useDropTarget({
+              id: 'keyboard-target',
               accepts: ['keyboard-item'],
-              zoneId: 'keyboard-target',
-              name: 'Target Drop Zone',
+              announcedName: 'Target Drop Zone',
               onDrop: (metadata) => {
                 announce('Item dropped successfully');
               },
@@ -855,12 +826,13 @@ function MultipleDragContextsDemo() {
           >
             {context1Items.map((item) => {
               const { dragProps, isDragging } = useDragSource({
+                type: 'context-a',
                 metadata: {
                   type: 'context-a',
                   id: item,
                   sourceContext: 'context1',
                 },
-                name: `Blue ${item}`,
+                announcedName: `Blue ${item}`,
                 preview: (
                   <div
                     style={{
@@ -910,12 +882,13 @@ function MultipleDragContextsDemo() {
           >
             {context2Items.map((item) => {
               const { dragProps, isDragging } = useDragSource({
+                type: 'context-b',
                 metadata: {
                   type: 'context-b',
                   id: item,
                   sourceContext: 'context2',
                 },
-                name: `Red ${item}`,
+                announcedName: `Red ${item}`,
                 preview: (
                   <div
                     style={{
@@ -957,12 +930,13 @@ function MultipleDragContextsDemo() {
           <h4 style={{ color: '#4caf50' }}>Shared Zone (Accepts Both)</h4>
           <div
             {...useDropTarget({
+              id: 'shared-drop-zone',
               accepts: ['context-a', 'context-b'],
-              name: 'Shared Drop Zone',
+              announcedName: 'Shared Drop Zone',
               onDrop: (metadata) => {
                 const meta = metadata as any;
-                setSharedZone((prev) => [...prev, meta.id]);
-                if (meta.sourceContext === 'context1') {
+                setSharedZone((prev) => [...prev, meta?.id]);
+                if (meta?.sourceContext === 'context1') {
                   setContext1Items((prev) =>
                     prev.filter((item) => item !== meta.id),
                   );
@@ -1042,13 +1016,14 @@ function AdvancedConstraintsDemo() {
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           {items.map((item) => {
             const { dragProps, isDragging } = useDragSource({
+              type: 'constraint-item',
               metadata: {
                 type: 'constraint-item',
                 id: item.id,
                 value: item.value,
                 color: item.color,
               },
-              name: `Item ${item.id} (Value: ${item.value})`,
+              announcedName: `Item ${item.id} (Value: ${item.value})`,
               preview: (
                 <div
                   style={{
@@ -1102,11 +1077,12 @@ function AdvancedConstraintsDemo() {
           <h4>Zone 1: Max Sum 30</h4>
           <div
             {...useDropTarget({
+              id: 'constraint-zone-1',
               accepts: ['constraint-item'],
-              name: 'Zone 1 (Max 30)',
+              announcedName: 'Zone 1 (Max 30)',
               onDrop: (metadata) => {
                 const meta = metadata as any;
-                const newItem = items.find((i) => i.id === meta.id);
+                const newItem = items.find((i) => i.id === meta?.id);
                 if (newItem && zone1Sum + newItem.value <= 30) {
                   setZone1Items((prev) => [...prev, newItem]);
                   setItems((prev) => prev.filter((i) => i.id !== meta.id));
@@ -1153,11 +1129,12 @@ function AdvancedConstraintsDemo() {
           <h4>Zone 2: Only Red & Blue</h4>
           <div
             {...useDropTarget({
+              id: 'constraint-zone-2',
               accepts: ['constraint-item'],
-              name: 'Zone 2 (Red & Blue Only)',
+              announcedName: 'Zone 2 (Red & Blue Only)',
               onDrop: (metadata) => {
                 const meta = metadata as any;
-                const newItem = items.find((i) => i.id === meta.id);
+                const newItem = items.find((i) => i.id === meta?.id);
                 if (
                   newItem &&
                   (newItem.color === 'red' || newItem.color === 'blue')
@@ -1209,11 +1186,12 @@ function AdvancedConstraintsDemo() {
           <h4>Zone 3: Max 3 Items</h4>
           <div
             {...useDropTarget({
+              id: 'constraint-zone-3',
               accepts: ['constraint-item'],
-              name: 'Zone 3 (Max 3 Items)',
+              announcedName: 'Zone 3 (Max 3 Items)',
               onDrop: (metadata) => {
                 const meta = metadata as any;
-                const newItem = items.find((i) => i.id === meta.id);
+                const newItem = items.find((i) => i.id === meta?.id);
                 if (newItem && zone3Items.length < 3) {
                   setZone3Items((prev) => [...prev, newItem]);
                   setItems((prev) => prev.filter((i) => i.id !== meta.id));
@@ -1690,16 +1668,9 @@ export const AccessibilityShowcase: Story = {
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   {['Document', 'Image', 'Folder'].map((type) => {
                     const { dragProps, isDragging } = useDragSource({
+                      type: 'demo-item',
                       metadata: { type: 'demo-item', name: type },
-                      name: `${type} (accessible)`,
-                      onDragStart: () => announce(`Picked up ${type}`),
-                      onDragEnd: (_, dropTargetId) => {
-                        if (dropTargetId) {
-                          announce(`${type} dropped successfully`);
-                        } else {
-                          announce(`${type} drag cancelled`);
-                        }
-                      },
+                      announcedName: `${type} (accessible)`,
                     });
 
                     return (
@@ -1726,13 +1697,14 @@ export const AccessibilityShowcase: Story = {
                 <h4>Drop Zone</h4>
                 <div
                   {...useDropTarget({
+                    id: 'accessible-drop-zone',
                     accepts: ['demo-item'],
-                    name: 'Accessible Drop Zone',
+                    announcedName: 'Accessible Drop Zone',
                     onDragEnter: () => announce('Entered drop zone'),
                     onDragLeave: () => announce('Left drop zone'),
                     onDrop: (metadata) => {
                       const meta = metadata as any;
-                      announce(`${meta.name} dropped in zone`);
+                      announce(`${meta?.name} dropped in zone`);
                     },
                   }).dropProps}
                   style={{
@@ -1841,14 +1813,13 @@ export const AdvancedConstraints: Story = {
 export const CompletePlayground: Story = {
   render: () => {
     const [config, setConfig] = useState({
-      previewOffset: { x: 0, y: 0 },
       showInstructions: true,
       enableKeyboard: true,
       enableTouch: true,
     });
 
     return (
-      <DndContainer offset={config.previewOffset}>
+      <DndContainer>
         <div style={{ padding: '20px' }}>
           <h2 style={{ marginBottom: '20px' }}>Complete System Playground</h2>
 
@@ -1868,44 +1839,10 @@ export const CompletePlayground: Story = {
                 gap: '16px',
               }}
             >
-              <label>
-                Preview X Offset: {config.previewOffset.x}px
-                <input
-                  type="range"
-                  min="-50"
-                  max="50"
-                  value={config.previewOffset.x}
-                  onChange={(e) =>
-                    setConfig((prev) => ({
-                      ...prev,
-                      previewOffset: {
-                        ...prev.previewOffset,
-                        x: Number(e.target.value),
-                      },
-                    }))
-                  }
-                  style={{ width: '100%', marginTop: '4px' }}
-                />
-              </label>
-              <label>
-                Preview Y Offset: {config.previewOffset.y}px
-                <input
-                  type="range"
-                  min="-50"
-                  max="50"
-                  value={config.previewOffset.y}
-                  onChange={(e) =>
-                    setConfig((prev) => ({
-                      ...prev,
-                      previewOffset: {
-                        ...prev.previewOffset,
-                        y: Number(e.target.value),
-                      },
-                    }))
-                  }
-                  style={{ width: '100%', marginTop: '4px' }}
-                />
-              </label>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                Preview offset is now handled automatically by the
+                DndStoreProvider
+              </div>
               <label
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
@@ -1995,13 +1932,13 @@ function KanbanDemo() {
         <div
           key={status}
           {...useDropTarget({
+            id: `mini-task-${status}`,
             accepts: ['mini-task'],
-            zoneId: status,
-            name: `${status} column`,
+            announcedName: `${status} column`,
             onDrop: (metadata) => {
               const meta = metadata as any;
               setTasks((prev) =>
-                prev.map((t) => (t.id === meta.id ? { ...t, status } : t)),
+                prev.map((t) => (t.id === meta?.id ? { ...t, status } : t)),
               );
             },
           }).dropProps}
@@ -2026,12 +1963,13 @@ function KanbanDemo() {
             .filter((t) => t.status === status)
             .map((task) => {
               const { dragProps, isDragging } = useDragSource({
+                type: 'mini-task',
                 metadata: {
                   type: 'mini-task',
                   id: task.id,
                   sourceZone: task.status,
                 },
-                name: task.title,
+                announcedName: task.title,
               });
               return (
                 <div
@@ -2074,15 +2012,17 @@ function FileManagerDemo() {
     >
       {files.map((file) => {
         const { dragProps, isDragging } = useDragSource({
+          type: file.type,
           metadata: { type: file.type, id: file.id },
-          name: file.name,
+          announcedName: file.name,
         });
 
         const dropProps =
           file.type === 'folder'
             ? useDropTarget({
+                id: `mini-folder-${file.id}`,
                 accepts: ['file'],
-                name: `Folder: ${file.name}`,
+                announcedName: `Folder: ${file.name}`,
                 onDrop: (metadata) => {
                   const meta = metadata as any;
                   announce(`Moved file to ${file.name}`);
@@ -2134,8 +2074,9 @@ function InventoryDemo() {
     >
       {items.map((item) => {
         const { dragProps, isDragging } = useDragSource({
+          type: 'mini-item',
           metadata: { type: 'mini-item', id: item.id },
-          name: item.name,
+          announcedName: item.name,
         });
 
         return (

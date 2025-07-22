@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import {
-  DragPreview,
+  DndStoreProvider,
   useDragSource,
   useDropTarget,
   type DragMetadata,
@@ -200,76 +200,77 @@ export default function DragDropExample() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl p-5 text-white">
-      <div className="bg-cyber-grape mb-8 rounded-lg p-4">
-        <h2 className="mt-0">Instructions</h2>
-        <ul className="m-0">
-          <li>
-            <strong>Mouse/Touch:</strong> Drag items between zones
-          </li>
-          <li>
-            <strong>Keyboard:</strong> Tab to focus items, Space/Enter to start
-            drag, Arrow keys to navigate drop zones, Space/Enter to drop, Escape
-            to cancel
-          </li>
-          <li>
-            <strong>Visual Feedback:</strong> Success borders = valid drop
-            zones, Destructive borders = invalid zones
-          </li>
-          <li>
-            <strong>Type Restrictions:</strong> Each zone accepts specific item
-            types
-          </li>
-        </ul>
-      </div>
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_2fr]">
-        <div className="flex flex-col gap-5">
-          <DropZone
-            title="All Items (Source)"
-            acceptTypes={['fruit', 'vegetable', 'protein']}
-            items={itemStore.source ?? []}
-            onItemReceived={handleItemReceived('source')}
-          />
-          <ScrollableContainer>
-            <DropZone
-              title="Scrollable Drop Zone"
-              acceptTypes={['fruit', 'vegetable']}
-              items={itemStore.scrollable ?? []}
-              onItemReceived={handleItemReceived('scrollable')}
-            />
-          </ScrollableContainer>
+    <DndStoreProvider>
+      <div className="mx-auto max-w-7xl p-5 text-white">
+        <div className="bg-cyber-grape mb-8 rounded-lg p-4">
+          <h2 className="mt-0">Instructions</h2>
+          <ul className="m-0">
+            <li>
+              <strong>Mouse/Touch:</strong> Drag items between zones
+            </li>
+            <li>
+              <strong>Keyboard:</strong> Tab to focus items, Space/Enter to
+              start drag, Arrow keys to navigate drop zones, Space/Enter to
+              drop, Escape to cancel
+            </li>
+            <li>
+              <strong>Visual Feedback:</strong> Success borders = valid drop
+              zones, Destructive borders = invalid zones
+            </li>
+            <li>
+              <strong>Type Restrictions:</strong> Each zone accepts specific
+              item types
+            </li>
+          </ul>
         </div>
-        <div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_2fr]">
+          <div className="flex flex-col gap-5">
             <DropZone
-              title="Fruits Only"
-              acceptTypes={['fruit']}
-              items={itemStore.fruits ?? []}
-              onItemReceived={handleItemReceived('fruits')}
-            />
-            <DropZone
-              title="Vegetables Only"
-              acceptTypes={['vegetable']}
-              items={itemStore.vegetables ?? []}
-              onItemReceived={handleItemReceived('vegetables')}
-            />
-            <DropZone
-              title="Proteins Only"
-              acceptTypes={['protein']}
-              items={itemStore.proteins ?? []}
-              onItemReceived={handleItemReceived('proteins')}
-            />
-            <DropZone
-              title="Mixed (All Types)"
+              title="All Items (Source)"
               acceptTypes={['fruit', 'vegetable', 'protein']}
-              items={itemStore.mixed ?? []}
-              onItemReceived={handleItemReceived('mixed')}
+              items={itemStore.source ?? []}
+              onItemReceived={handleItemReceived('source')}
             />
+            <ScrollableContainer>
+              <DropZone
+                title="Scrollable Drop Zone"
+                acceptTypes={['fruit', 'vegetable']}
+                items={itemStore.scrollable ?? []}
+                onItemReceived={handleItemReceived('scrollable')}
+              />
+            </ScrollableContainer>
+          </div>
+          <div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <DropZone
+                title="Fruits Only"
+                acceptTypes={['fruit']}
+                items={itemStore.fruits ?? []}
+                onItemReceived={handleItemReceived('fruits')}
+              />
+              <DropZone
+                title="Vegetables Only"
+                acceptTypes={['vegetable']}
+                items={itemStore.vegetables ?? []}
+                onItemReceived={handleItemReceived('vegetables')}
+              />
+              <DropZone
+                title="Proteins Only"
+                acceptTypes={['protein']}
+                items={itemStore.proteins ?? []}
+                onItemReceived={handleItemReceived('proteins')}
+              />
+              <DropZone
+                title="Mixed (All Types)"
+                acceptTypes={['fruit', 'vegetable', 'protein']}
+                items={itemStore.mixed ?? []}
+                onItemReceived={handleItemReceived('mixed')}
+              />
+            </div>
           </div>
         </div>
       </div>
-      <DragPreview />
-    </div>
+    </DndStoreProvider>
   );
 }

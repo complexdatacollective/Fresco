@@ -1,18 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useDndStore } from '../store';
+import { createDndStore, defaultInitState } from '../store';
 import type { DropTarget } from '../types';
 
 describe('DnD Store', () => {
+  let store: ReturnType<typeof createDndStore>;
+
   beforeEach(() => {
-    // Reset store state
-    useDndStore.setState({
-      dragItem: null,
-      dragPosition: null,
-      dragPreview: null,
-      dropTargets: new Map(),
-      activeDropTargetId: null,
-      isDragging: false,
-    });
+    // Create a fresh store instance for each test
+    store = createDndStore(defaultInitState);
   });
 
   describe('startDrag', () => {
@@ -31,9 +26,9 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem, position);
+      store.getState().startDrag(dragItem, position);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.isDragging).toBe(true);
       expect(state.dragItem).toEqual(dragItem);
       expect(state.dragPosition).toEqual(position);
@@ -64,10 +59,10 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       const storedTarget = state.dropTargets.get('drop-1');
       expect(storedTarget?.canDrop).toBe(true);
     });
@@ -89,17 +84,17 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(150, 250);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(150, 250);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.dragPosition?.x).toBe(150);
       expect(state.dragPosition?.y).toBe(250);
     });
 
     it('should not update if no drag item', () => {
-      useDndStore.getState().updateDragPosition(150, 250);
-      const state = useDndStore.getState();
+      store.getState().updateDragPosition(150, 250);
+      const state = store.getState();
       expect(state.dragItem).toBe(null);
     });
   });
@@ -120,10 +115,10 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().endDrag();
+      store.getState().startDrag(dragItem, position);
+      store.getState().endDrag();
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.isDragging).toBe(false);
       expect(state.dragItem).toBe(null);
       expect(state.dragPosition).toBe(null);
@@ -154,11 +149,11 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().endDrag();
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
+      store.getState().endDrag();
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       const storedTarget = state.dropTargets.get('drop-1');
       expect(storedTarget?.canDrop).toBe(false);
       expect(storedTarget?.isOver).toBe(false);
@@ -176,9 +171,9 @@ describe('DnD Store', () => {
         accepts: ['test'],
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
+      store.getState().registerDropTarget(dropTarget);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       const storedTarget = state.dropTargets.get('drop-1');
       expect(storedTarget).toEqual({
         ...dropTarget,
@@ -199,10 +194,10 @@ describe('DnD Store', () => {
         accepts: ['test'],
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().unregisterDropTarget('drop-1');
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().unregisterDropTarget('drop-1');
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.dropTargets.has('drop-1')).toBe(false);
     });
 
@@ -216,11 +211,11 @@ describe('DnD Store', () => {
         accepts: ['test'],
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().setActiveDropTarget('drop-1');
-      useDndStore.getState().unregisterDropTarget('drop-1');
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().setActiveDropTarget('drop-1');
+      store.getState().unregisterDropTarget('drop-1');
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.activeDropTargetId).toBe(null);
     });
   });
@@ -250,11 +245,11 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(100, 100);
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(100, 100);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.activeDropTargetId).toBe('drop-1');
       const storedTarget = state.dropTargets.get('drop-1');
       expect(storedTarget?.isOver).toBe(true);
@@ -284,11 +279,11 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(100, 100);
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(100, 100);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.activeDropTargetId).toBe(null);
       const storedTarget = state.dropTargets.get('drop-1');
       expect(storedTarget?.isOver).toBe(false);
@@ -318,11 +313,11 @@ describe('DnD Store', () => {
         height: 50,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(200, 200);
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(200, 200);
 
-      const state = useDndStore.getState();
+      const state = store.getState();
       expect(state.activeDropTargetId).toBe(null);
       const storedTarget = state.dropTargets.get('drop-1');
       expect(storedTarget?.isOver).toBe(false);

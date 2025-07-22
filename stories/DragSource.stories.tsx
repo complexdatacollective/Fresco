@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState, useRef, useEffect } from 'react';
+import { DndStoreProvider } from '../lib/dnd/DndStoreProvider';
 import { useDragSource } from '../lib/dnd/useDragSource';
-import { useDndStore } from '../lib/dnd/store';
+import { useDropTarget } from '../lib/dnd/useDropTarget';
 import { type DragMetadata } from '../lib/dnd/types';
 
 // Mock component that demonstrates drag source functionality
@@ -29,11 +30,10 @@ function DragSourceExample({
   style = {},
 }: DragSourceExampleProps) {
   const { dragProps, isDragging } = useDragSource({
+    type: metadata.type as string,
     metadata,
-    name,
+    announcedName: name,
     preview,
-    onDragStart,
-    onDragEnd,
     disabled,
   });
 
@@ -80,59 +80,38 @@ function MockDropTarget({
   name: string;
   children?: React.ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const registerDropTarget = useDndStore((state) => state.registerDropTarget);
-  const unregisterDropTarget = useDndStore(
-    (state) => state.unregisterDropTarget,
-  );
-  const activeDropTargetId = useDndStore((state) => state.activeDropTargetId);
-
-  const targetId = useRef(
-    `drop-target-${Math.random().toString(36).substr(2, 9)}`,
-  );
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const rect = element.getBoundingClientRect();
-    registerDropTarget({
-      id: targetId.current,
-      x: rect.left + window.scrollX,
-      y: rect.top + window.scrollY,
-      width: rect.width,
-      height: rect.height,
-      accepts,
-      name,
-    });
-
-    return () => {
-      unregisterDropTarget(targetId.current);
-    };
-  }, [accepts, name, registerDropTarget, unregisterDropTarget]);
-
-  const isActive = activeDropTargetId === targetId.current;
+  const dropId = `mock-drop-${Math.random().toString(36).substr(2, 9)}`;
+  const { dropProps, isOver, willAccept } = useDropTarget({
+    id: dropId,
+    accepts,
+    announcedName: name,
+  });
 
   return (
     <div
-      ref={ref}
+      {...dropProps}
       style={{
+        ...dropProps.style,
         padding: '20px',
         margin: '8px',
         border: '2px dashed #999',
         borderRadius: '8px',
-        backgroundColor: isActive ? '#e8f5e8' : '#fafafa',
-        borderColor: isActive ? '#4caf50' : '#999',
+        backgroundColor: isOver && willAccept ? '#e8f5e8' : '#fafafa',
+        borderColor: isOver && willAccept ? '#4caf50' : '#999',
         minHeight: '80px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
+        transition: 'all 0.2s',
       }}
     >
       {children || `Drop ${accepts.join(', ')} here`}
-      {isActive && (
-        <div style={{ fontSize: '12px', color: '#2e7d32' }}> (Active)</div>
+      {isOver && willAccept && (
+        <div style={{ fontSize: '12px', color: '#2e7d32' }}>
+          {' '}
+          (Ready to drop!)
+        </div>
       )}
     </div>
   );
@@ -141,19 +120,21 @@ function MockDropTarget({
 // Container for stories
 function StoryContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
-        <strong>Instructions:</strong>
-        <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-          <li>Mouse/Touch: Click and drag items</li>
-          <li>
-            Keyboard: Focus an item, press Space/Enter to start dragging, use
-            arrow keys to navigate, Space/Enter to drop, Escape to cancel
-          </li>
-        </ul>
+    <DndStoreProvider>
+      <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+        <div style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
+          <strong>Instructions:</strong>
+          <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+            <li>Mouse/Touch: Click and drag items</li>
+            <li>
+              Keyboard: Focus an item, press Space/Enter to start dragging, use
+              arrow keys to navigate, Space/Enter to drop, Escape to cancel
+            </li>
+          </ul>
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </DndStoreProvider>
   );
 }
 
@@ -505,7 +486,7 @@ export const InteractivePlayground: Story = {
         >
           <h3 style={{ margin: '0 0 10px 0' }}>Interactive Playground</h3>
           <p style={{ margin: '0 0 10px 0' }}>
-            Use the controls below to test different configurations.
+            Test different configurations by dragging the item below.
           </p>
           <div style={{ fontSize: '14px' }}>
             <div>Drags started: {dragCount}</div>

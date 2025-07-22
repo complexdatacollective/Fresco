@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState, useRef, useEffect } from 'react';
+import { DndStoreProvider } from '../lib/dnd/DndStoreProvider';
 import { useDropTarget } from '../lib/dnd/useDropTarget';
 import { useDragSource } from '../lib/dnd/useDragSource';
-import { useDndStore } from '../lib/dnd/store';
 import { type DragMetadata, type DropCallback } from '../lib/dnd/types';
 
 // Mock drag source component for testing drop targets
@@ -20,8 +20,9 @@ function MockDragSource({
   style = {},
 }: MockDragSourceProps) {
   const { dragProps, isDragging } = useDragSource({
+    type: metadata.type as string,
     metadata,
-    name,
+    announcedName: name,
   });
 
   const baseStyle: React.CSSProperties = {
@@ -89,13 +90,19 @@ function DropTargetExample({
   style = {},
   minHeight = 100,
 }: DropTargetExampleProps) {
+  const dropId =
+    zoneId || `drop-target-${Math.random().toString(36).substr(2, 9)}`;
   const { dropProps, isOver, willAccept, isDragging } = useDropTarget({
+    id: dropId,
     accepts,
-    zoneId,
-    name,
-    onDrop,
-    onDragEnter,
-    onDragLeave,
+    announcedName: name,
+    onDrop: onDrop ? (metadata) => onDrop(metadata || {}) : undefined,
+    onDragEnter: onDragEnter
+      ? (metadata) => onDragEnter(metadata || {})
+      : undefined,
+    onDragLeave: onDragLeave
+      ? (metadata) => onDragLeave(metadata || {})
+      : undefined,
     disabled,
   });
 
@@ -202,21 +209,25 @@ function DropTargetExample({
 // Container for stories
 function StoryContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
-        <strong>Instructions:</strong>
-        <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-          <li>Mouse/Touch: Drag items from the source section to drop zones</li>
-          <li>
-            Keyboard: Focus a draggable item, press Space/Enter to start
-            dragging, use arrow keys to navigate between drop zones, Space/Enter
-            to drop, Escape to cancel
-          </li>
-          <li>Watch for visual feedback and status indicators</li>
-        </ul>
+    <DndStoreProvider>
+      <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+        <div style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
+          <strong>Instructions:</strong>
+          <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+            <li>
+              Mouse/Touch: Drag items from the source section to drop zones
+            </li>
+            <li>
+              Keyboard: Focus a draggable item, press Space/Enter to start
+              dragging, use arrow keys to navigate between drop zones,
+              Space/Enter to drop, Escape to cancel
+            </li>
+            <li>Watch for visual feedback and status indicators</li>
+          </ul>
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </DndStoreProvider>
   );
 }
 
@@ -679,14 +690,20 @@ export const CallbackFunctionality: Story = {
             accepts={['item']}
             name="Callback Demo Zone"
             onDrop={(metadata) => {
-              addEvent(`Dropped: ${metadata.label || metadata.id}`);
+              addEvent(
+                `Dropped: ${(metadata as any)?.label || (metadata as any)?.id}`,
+              );
               setDropCount((prev) => prev + 1);
             }}
             onDragEnter={(metadata) => {
-              addEvent(`Drag entered with: ${metadata.label || metadata.id}`);
+              addEvent(
+                `Drag entered with: ${(metadata as any)?.label || (metadata as any)?.id}`,
+              );
             }}
             onDragLeave={(metadata) => {
-              addEvent(`Drag left with: ${metadata.label || metadata.id}`);
+              addEvent(
+                `Drag left with: ${(metadata as any)?.label || (metadata as any)?.id}`,
+              );
             }}
             style={{ backgroundColor: '#f3e5f5' }}
           >

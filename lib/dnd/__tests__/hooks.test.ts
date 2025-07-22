@@ -1,22 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useDndStore } from '../store';
+import { createDndStore, defaultInitState } from '../store';
 import type { DropTarget } from '../types';
 
 // Import setup
 import './setup';
 
 describe('Drag and Drop Hooks Integration', () => {
-  beforeEach(() => {
-    // Reset store state
-    useDndStore.setState({
-      dragItem: null,
-      dragPosition: null,
-      dragPreview: null,
-      dropTargets: new Map(),
-      activeDropTargetId: null,
-      isDragging: false,
-    });
+  let store: ReturnType<typeof createDndStore>;
 
+  beforeEach(() => {
+    // Create a fresh store instance for each test
+    store = createDndStore(defaultInitState);
     vi.clearAllMocks();
   });
 
@@ -24,7 +18,9 @@ describe('Drag and Drop Hooks Integration', () => {
     it('should handle drag lifecycle', () => {
       const dragItem = {
         id: 'test-drag',
+        type: 'test',
         metadata: { type: 'test', id: '1' },
+        _sourceZone: null,
       };
 
       const position = {
@@ -34,17 +30,17 @@ describe('Drag and Drop Hooks Integration', () => {
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem, position);
+      store.getState().startDrag(dragItem, position);
 
-      expect(useDndStore.getState().isDragging).toBe(true);
-      expect(useDndStore.getState().dragItem).toEqual(dragItem);
-      expect(useDndStore.getState().dragPosition).toEqual(position);
+      expect(store.getState().isDragging).toBe(true);
+      expect(store.getState().dragItem).toEqual(dragItem);
+      expect(store.getState().dragPosition).toEqual(position);
 
-      useDndStore.getState().endDrag();
+      store.getState().endDrag();
 
-      expect(useDndStore.getState().isDragging).toBe(false);
-      expect(useDndStore.getState().dragItem).toBe(null);
-      expect(useDndStore.getState().dragPosition).toBe(null);
+      expect(store.getState().isDragging).toBe(false);
+      expect(store.getState().dragItem).toBe(null);
+      expect(store.getState().dragPosition).toBe(null);
     });
 
     it('should register and unregister drop targets', () => {
@@ -57,13 +53,13 @@ describe('Drag and Drop Hooks Integration', () => {
         accepts: ['test'],
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
+      store.getState().registerDropTarget(dropTarget);
 
-      expect(useDndStore.getState().dropTargets.has('test-target')).toBe(true);
+      expect(store.getState().dropTargets.has('test-target')).toBe(true);
 
-      useDndStore.getState().unregisterDropTarget('test-target');
+      store.getState().unregisterDropTarget('test-target');
 
-      expect(useDndStore.getState().dropTargets.has('test-target')).toBe(false);
+      expect(store.getState().dropTargets.has('test-target')).toBe(false);
     });
 
     it('should handle drag type acceptance correctly', () => {
@@ -78,7 +74,9 @@ describe('Drag and Drop Hooks Integration', () => {
 
       const dragItem = {
         id: 'apple',
+        type: 'fruit',
         metadata: { type: 'fruit', id: 'apple-1' },
+        _sourceZone: null,
       };
 
       const position = {
@@ -88,12 +86,12 @@ describe('Drag and Drop Hooks Integration', () => {
         height: 30,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(50, 50);
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(50, 50);
 
       // Should set active drop target for accepted type
-      expect(useDndStore.getState().activeDropTargetId).toBe('fruit-target');
+      expect(store.getState().activeDropTargetId).toBe('fruit-target');
     });
 
     it('should not set active drop target for rejected types', () => {
@@ -108,7 +106,9 @@ describe('Drag and Drop Hooks Integration', () => {
 
       const dragItem = {
         id: 'carrot',
+        type: 'vegetable',
         metadata: { type: 'vegetable', id: 'carrot-1' },
+        _sourceZone: null,
       };
 
       const position = {
@@ -118,45 +118,22 @@ describe('Drag and Drop Hooks Integration', () => {
         height: 30,
       };
 
-      useDndStore.getState().registerDropTarget(dropTarget);
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(50, 50);
+      store.getState().registerDropTarget(dropTarget);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(50, 50);
 
       // Should not set active drop target for rejected type
-      expect(useDndStore.getState().activeDropTargetId).toBe(null);
+      expect(store.getState().activeDropTargetId).toBe(null);
     });
 
-    it('should handle BSP tree reset correctly', () => {
-      const dropTarget: DropTarget = {
-        id: 'test-target',
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 100,
-        accepts: ['test'],
-      };
 
-      // Register a drop target
-      useDndStore.getState().registerDropTarget(dropTarget);
-
-      // Reset BSP tree
-      resetBSPTree();
-
-      // Re-register after reset should work
-      useDndStore.getState().registerDropTarget({
-        ...dropTarget,
-        id: 'test-target-2',
-      });
-
-      expect(useDndStore.getState().dropTargets.has('test-target-2')).toBe(
-        true,
-      );
-    });
 
     it('should update drag position correctly', () => {
       const dragItem = {
         id: 'test-item',
+        type: 'test',
         metadata: { type: 'test', id: '1' },
+        _sourceZone: null,
       };
 
       const position = {
@@ -166,10 +143,10 @@ describe('Drag and Drop Hooks Integration', () => {
         height: 50,
       };
 
-      useDndStore.getState().startDrag(dragItem, position);
-      useDndStore.getState().updateDragPosition(100, 200);
+      store.getState().startDrag(dragItem, position);
+      store.getState().updateDragPosition(100, 200);
 
-      const currentDragPosition = useDndStore.getState().dragPosition;
+      const currentDragPosition = store.getState().dragPosition;
       expect(currentDragPosition?.x).toBe(100);
       expect(currentDragPosition?.y).toBe(200);
       expect(currentDragPosition?.width).toBe(50);

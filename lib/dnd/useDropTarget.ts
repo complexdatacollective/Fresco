@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useDndStore } from './store';
+import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import {
   type DragItem,
   type DragMetadata,
@@ -238,8 +238,9 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
   }, [dragItem]);
 
   // Handle drop and position updates during drag - optimized subscription
+  const storeApi = useDndStoreApi();
   useEffect(() => {
-    const unsubscribe = useDndStore.subscribe(
+    const unsubscribe = storeApi.subscribe(
       (state) => state.isDragging,
       (isDragging, wasDragging) => {
         // Drag just started - update bounds immediately
@@ -249,7 +250,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
 
         // Drag just ended
         if (!isDragging && wasDragging) {
-          const state = useDndStore.getState();
+          const state = storeApi.getState();
           const wasOver = state.activeDropTargetId === dropIdRef.current;
           const draggedItem = lastDragItemRef.current;
 
@@ -261,7 +262,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     );
 
     return unsubscribe;
-  }, [canDrop, onDrop, updateBoundsImmediate]);
+  }, [canDrop, onDrop, updateBoundsImmediate, storeApi]);
 
   // Clean up on unmount or when disabled
   useEffect(() => {

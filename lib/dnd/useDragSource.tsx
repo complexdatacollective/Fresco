@@ -1,4 +1,5 @@
-import React, {
+import type React from 'react';
+import {
   createElement,
   useCallback,
   useEffect,
@@ -8,13 +9,13 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { createPortal } from 'react-dom';
+
 import {
   getDragInstructions,
   getDropTargetDescription,
   getKeyboardDragAnnouncement,
 } from './accessibility';
-import { useDndStore } from './store';
+import { useDndStore, useDndStoreApi } from './DndStoreProvider';
 import { type DragMetadata } from './types';
 import { useAccessibilityAnnouncements } from './useAccessibilityAnnouncements';
 import { findSourceZone, rafThrottle } from './utils';
@@ -116,12 +117,13 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
   );
 
   // Unified drag end logic
+  const storeApi = useDndStoreApi();
   const finishDrag = useCallback(
     (shouldDrop = true) => {
-      const activeDropTargetId = useDndStore.getState().activeDropTargetId;
+      const activeDropTargetId = storeApi.getState().activeDropTargetId;
 
       if (!shouldDrop) {
-        useDndStore.getState().setActiveDropTarget(null);
+        storeApi.getState().setActiveDropTarget(null);
       }
 
       endDrag();
@@ -142,7 +144,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         );
       }
     },
-    [endDrag, dragMode, announce],
+    [endDrag, dragMode, announce, storeApi],
   );
 
   const handlePointerMove = useCallback(
@@ -200,9 +202,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
       // After drag starts, the store will have updated compatible targets
       // We need to get the count from the store
-      const compatibleCount = useDndStore
-        .getState()
-        .getCompatibleTargets().length;
+      const compatibleCount = storeApi.getState().getCompatibleTargets().length;
 
       const itemInfo = announcedName ? `${announcedName} ` : '';
       const zonesInfo = `${compatibleCount} compatible drop zones available.`;
@@ -213,7 +213,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         ),
       );
     },
-    [initializeDrag, announcedName, announce],
+    [initializeDrag, announcedName, announce, storeApi],
   );
 
   useEffect(() => () => updatePosition.cancel(), [updatePosition]);
@@ -226,8 +226,8 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
 
   const compatibleTargets = useMemo(() => {
     if (!isDragging) return [];
-    return useDndStore.getState().getCompatibleTargets();
-  }, [isDragging]);
+    return storeApi.getState().getCompatibleTargets();
+  }, [isDragging, storeApi]);
 
   const navigateDropTargets = useCallback(
     (direction: 'next' | 'prev') => {
@@ -311,48 +311,5 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
       disabled,
       announcedName,
     ],
-  );
-}
-
-// A constant for the static styles
-const previewStyles: React.CSSProperties = {
-  position: 'fixed',
-  pointerEvents: 'none',
-  userSelect: 'none',
-  zIndex: 9999,
-  // Set left/top to 0, as we will position exclusively with transform
-  left: 0,
-  top: 0,
-};
-
-export function DragPreview() {
-  const dragPreview = useDndStore((state) => state.dragPreview);
-  const dragPosition = useDndStore((state) => state.dragPosition);
-  const dragItem = useDndStore((state) => state.dragItem);
-  const isDragging = !!dragItem;
-
-  // Memoize the dynamic part of the style so the object reference is stable
-  // if the position hasn't changed.
-  const transformStyle = useMemo(
-    () => ({
-      transform: `translate(${dragPosition?.x ?? 0}px, ${dragPosition?.y ?? 0}px) translate(-50%, -50%)`,
-    }),
-    [dragPosition],
-  );
-
-  if (!isDragging || !dragPreview) {
-    return null;
-  }
-
-  return createPortal(
-    <div
-      style={{
-        ...previewStyles, // Use the static styles
-        ...transformStyle, // Apply the dynamic transform
-      }}
-    >
-      {dragPreview}
-    </div>,
-    document.body,
   );
 }
