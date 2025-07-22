@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { DndStoreProvider, useDragSource, useDropTarget } from '../lib/dnd';
+import { DndStoreProvider, useDragSource, useDropTarget } from '..';
 
 // Simple drag source for testing
 function DraggableItem({
@@ -108,7 +108,7 @@ function DropTargetExample({
 }
 
 const meta: Meta = {
-  title: 'DnD/DropTarget',
+  title: 'Systems/DragAndDrop/DropTarget',
   parameters: {
     layout: 'fullscreen',
     docs: {

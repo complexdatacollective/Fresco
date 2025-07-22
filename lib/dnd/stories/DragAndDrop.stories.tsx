@@ -275,7 +275,7 @@ function DragDropExample() {
 }
 
 const meta: Meta = {
-  title: 'DnD',
+  title: 'Systems/DragAndDrop',
   parameters: {
     layout: 'fullscreen',
     docs: {

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useCallback, useRef, useState } from 'react';
 import { useAccessibilityAnnouncements } from '~/lib/dnd/useAccessibilityAnnouncements';
-import { DndStoreProvider, useDragSource, useDropTarget } from '../lib/dnd';
+import { DndStoreProvider, useDragSource, useDropTarget } from '..';
 
 // Demo components for accessibility testing
 function AccessibleDragItem({
@@ -152,7 +152,7 @@ function AccessibleDropZone({
 }
 
 const meta: Meta = {
-  title: 'DnD/Accessibility',
+  title: 'Systems/DragAndDrop/Accessibility',
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -183,7 +183,6 @@ The drag and drop system includes comprehensive accessibility support:
 
 ## 🎯 ARIA Attributes
 - \`aria-grabbed\`: Indicates drag state
-- \`aria-dropeffect\`: Describes drop behavior
 - \`aria-label\`: Accessible names for items
 - \`role="button"\`: Makes items focusable
         `,
