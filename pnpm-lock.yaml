@@ -81,8 +81,8 @@ importers:
         specifier: ^8.21.3
         version: 8.21.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@uploadthing/react':
-        specifier: ^7.3.1
-        version: 7.3.1(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react@18.3.1)(uploadthing@7.7.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(tailwindcss@4.1.11))
+        specifier: ^7.3.2
+        version: 7.3.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react@18.3.1)(uploadthing@7.7.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(tailwindcss@4.1.11))
       '@xmldom/xmldom':
         specifier: ^0.8.10
         version: 0.8.10
@@ -2492,8 +2492,8 @@ packages:
   '@uploadthing/mime-types@0.3.5':
     resolution: {integrity: sha512-iYOmod80XXOSe4NVvaUG9FsS91YGPUaJMTBj52Nwu0G2aTzEN6Xcl0mG1rWqXJ4NUH8MzjVqg+tQND5TPkJWhg==}
 
-  '@uploadthing/react@7.3.1':
-    resolution: {integrity: sha512-yIAFw46ZO/NPb74zpomwn6Hf2ZX/Ws+vNlR4oKNLJ7YtJ+/bqERclzC3xnRVi/pT47ctISlqXQFGiXUn85wg5Q==}
+  '@uploadthing/react@7.3.2':
+    resolution: {integrity: sha512-dssVzrxGBKBHUzJu/CiEGc3hQ49U4sPdnqN5xMmtEdnJP+6OB+a8JUjkwxiJDBQXc3ft9XCmkLCZZoUt1EQSIw==}
     peerDependencies:
       next: '*'
       react: ^17.0.2 || ^18.0.0 || ^19.0.0
@@ -2504,6 +2504,9 @@ packages:
 
   '@uploadthing/shared@7.1.8':
     resolution: {integrity: sha512-OA9ZrTfILOCt1G93wOD7dZmS653z99Nr3isZpIxzBO3y4B2geKFmPjJUZClig2RrAWLKr2VUYToXKfd9D/wP9w==}
+
+  '@uploadthing/shared@7.1.9':
+    resolution: {integrity: sha512-5Gn1wGVSygsBxI6tjOwwEQt/U4m+vbmZCnsuf8pDfZ+MiXe3el03CWMmpbH3KtSu0BwG48wyCKNfHplZsphvOA==}
 
   '@vitejs/plugin-react@4.5.2':
     resolution: {integrity: sha512-QNVT3/Lxx99nMQWJWF7K4N6apUEuT0KlZA3mx/mVaoGj3smm/8rc8ezz15J1pcbcjDK0V15rpHetVfya08r76Q==}
@@ -3108,6 +3111,9 @@ packages:
 
   effect@3.14.21:
     resolution: {integrity: sha512-TKR7zfWcuZgEdWd+oIGA8LdREj/c+1Q0wz4pWqQtYT7VHnkW/QQEYCXgrDI5dT6lJgRTgyQAC1bAnpAf6MdjIA==}
+
+  effect@3.16.8:
+    resolution: {integrity: sha512-E4U0MZFBun99myxOogy9ZZ1c3IYR47L/A5GqCP9Lp+6ORag0YLmGHOrYxQ3agN1FOMTrElgtJmciicwnHdE+Ug==}
 
   electron-to-chromium@1.5.169:
     resolution: {integrity: sha512-q7SQx6mkLy0GTJK9K9OiWeaBMV4XQtBSdf6MJUzDB/H/5tFXfIiX38Lci1Kl6SsgiEhz1SQI1ejEOU5asWEhwQ==}
@@ -7945,9 +7951,9 @@ snapshots:
 
   '@uploadthing/mime-types@0.3.5': {}
 
-  '@uploadthing/react@7.3.1(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react@18.3.1)(uploadthing@7.7.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(tailwindcss@4.1.11))':
+  '@uploadthing/react@7.3.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react@18.3.1)(uploadthing@7.7.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(tailwindcss@4.1.11))':
     dependencies:
-      '@uploadthing/shared': 7.1.8
+      '@uploadthing/shared': 7.1.9
       file-selector: 0.6.0
       react: 18.3.1
       uploadthing: 7.7.2(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(tailwindcss@4.1.11)
@@ -7958,6 +7964,12 @@ snapshots:
     dependencies:
       '@uploadthing/mime-types': 0.3.5
       effect: 3.14.21
+      sqids: 0.3.0
+
+  '@uploadthing/shared@7.1.9':
+    dependencies:
+      '@uploadthing/mime-types': 0.3.5
+      effect: 3.16.8
       sqids: 0.3.0
 
   '@vitejs/plugin-react@4.5.2(vite@6.3.5(@types/node@22.13.9)(jiti@2.4.2)(lightningcss@1.30.1)(sass@1.89.2)(terser@5.43.0))':
@@ -8599,6 +8611,11 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   effect@3.14.21:
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      fast-check: 3.23.2
+
+  effect@3.16.8:
     dependencies:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2

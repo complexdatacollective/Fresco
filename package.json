@@ -46,7 +46,7 @@
     "@radix-ui/react-visually-hidden": "^1.2.3",
     "@reduxjs/toolkit": "^1.9.7",
     "@tanstack/react-table": "^8.21.3",
-    "@uploadthing/react": "^7.3.1",
+    "@uploadthing/react": "^7.3.2",
     "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
