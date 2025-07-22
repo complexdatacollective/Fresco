@@ -1,6 +1,6 @@
 {
   "name": "fresco",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
@@ -15,7 +15,8 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
-    "load-test": "docker run -i grafana/k6 run - <load-test.js"
+    "load-test": "docker run -i grafana/k6 run - <load-test.js",
+    "storybook-build": "true"
   },
   "pnpm": {
     "overrides": {
@@ -46,7 +47,7 @@
     "@radix-ui/react-visually-hidden": "^1.2.3",
     "@reduxjs/toolkit": "^1.9.7",
     "@tanstack/react-table": "^8.21.3",
-    "@uploadthing/react": "^7.3.1",
+    "@uploadthing/react": "^7.3.2",
     "@xmldom/xmldom": "^0.8.10",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
@@ -59,13 +60,13 @@
     "concaveman": "^1.2.1",
     "csvtojson": "^2.0.10",
     "d3-interpolate-path": "^2.3.0",
-    "dotenv": "^16.5.0",
-    "es-toolkit": "^1.39.3",
+    "dotenv": "^17.2.0",
+    "es-toolkit": "^1.39.7",
     "fuse.js": "^7.1.0",
     "jssha": "^3.3.1",
     "jszip": "^3.10.1",
     "lucia": "^2.7.7",
-    "lucide-react": "^0.516.0",
+    "lucide-react": "^0.525.0",
     "luxon": "^3.6.1",
     "motion": "^12.18.1",
     "next": "^14.2.30",
@@ -107,7 +108,6 @@
     "zod-form-data": "^2.0.7"
   },
   "devDependencies": {
-    "@playwright/test": "^1.53.0",
     "@prisma/client": "^6.10.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/aspect-ratio": "^0.4.2",
@@ -132,7 +132,7 @@
     "@typescript-eslint/parser": "^8.34.1",
     "@vitejs/plugin-react": "^4.5.2",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^15.3.3",
+    "eslint-config-next": "^15.4.2",
     "eslint-config-prettier": "^10.1.5",
     "jest": "^30.0.2",
     "jsdom": "^26.1.0",
@@ -141,7 +141,7 @@
     "prettier-plugin-tailwindcss": "^0.6.13",
     "prisma": "^6.10.0",
     "sass": "^1.89.2",
-    "tailwindcss": "4.1.10",
+    "tailwindcss": "4.1.11",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.8.3",
     "vite-tsconfig-paths": "^5.1.4",

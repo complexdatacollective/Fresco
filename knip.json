@@ -20,5 +20,5 @@
     "@tailwindcss/typography",
     "tailwindcss-animate"
   ],
-  "ignoreBinaries": ["docker-compose"]
+  "ignoreBinaries": ["docker-compose", "playwright"]
 }
