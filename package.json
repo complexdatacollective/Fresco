@@ -15,7 +15,8 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
-    "load-test": "docker run -i grafana/k6 run - <load-test.js"
+    "load-test": "docker run -i grafana/k6 run - <load-test.js",
+    "storybook-build": "true"
   },
   "pnpm": {
     "overrides": {
