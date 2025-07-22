@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { unstable_noStore } from 'next/cache';
 import Markdown from 'react-markdown';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import Link from '~/components/Link';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { env } from '~/env';
@@ -130,7 +130,7 @@ export default async function VersionSection() {
                 upgrade documentation.
               </Link>
             </AlertDescription>
-            <article className="prose-headings:foreground prose my-4 max-w-full text-sm text-foreground prose-headings:text-sm prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground prose-a:text-link">
+            <article className="prose-headings:foreground prose text-foreground prose-headings:text-sm prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground prose-a:text-link my-4 max-w-full text-sm">
               <Markdown>{releaseNotes}</Markdown>
             </article>
             <div className="text-right">

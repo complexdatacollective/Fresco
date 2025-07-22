@@ -1,20 +1,26 @@
-import { useEffect, useMemo, type ReactNode } from 'react';
+'use client';
+
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-const usePortal = (targetElement: HTMLElement = document.body) => {
+const usePortal = (customTarget?: HTMLElement) => {
+  const [mounted, setMounted] = useState(false);
+  const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
+
   useEffect(() => {
-    // Ensure the hook is only used in the browser
-    const isBrowser = typeof window !== 'undefined';
-    if (!isBrowser) {
-      return;
-    }
-  }, []);
+    setMounted(true);
+    setTargetElement(customTarget ?? document.body);
+
+    return () => setMounted(false);
+  }, [customTarget]);
 
   const Portal = useMemo(() => {
     return ({ children }: { children: ReactNode }) => {
-      return createPortal(children, targetElement);
+      return mounted && targetElement
+        ? createPortal(children, targetElement)
+        : null;
     };
-  }, [targetElement]);
+  }, [mounted, targetElement]);
 
   return Portal;
 };
