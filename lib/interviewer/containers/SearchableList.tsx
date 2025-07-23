@@ -2,8 +2,8 @@ import cx from 'classnames';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
-import Search from '~/lib/ui/components/Fields/Search';
 import { useDndStore, type DndStore } from '~/lib/dnd';
+import Search from '~/lib/ui/components/Fields/Search';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
 import { cn } from '~/utils/shadcn';
 import Loading from '../components/Loading';
@@ -188,12 +188,20 @@ const SearchableList = memo(
 
     // Monitor drop state from new DND store
     const isDragging = useDndStore((state: DndStore) => state.isDragging);
-    const activeDropTargetId = useDndStore((state: DndStore) => state.activeDropTargetId);
+    const activeDropTargetId = useDndStore(
+      (state: DndStore) => state.activeDropTargetId,
+    );
     const dragItem = useDndStore((state: DndStore) => state.dragItem);
-    
+
     const listId = `hyper-list-${id}`;
-    const willAccept = isDragging && dragItem?.metadata && 
-      accepts({ meta: { itemType: (dragItem.metadata as { itemType?: string }).itemType ?? '' } });
+    const willAccept =
+      isDragging &&
+      dragItem?.metadata &&
+      accepts({
+        meta: {
+          itemType: (dragItem.metadata as { itemType?: string }).itemType ?? '',
+        },
+      });
     const isOver = activeDropTargetId === listId;
 
     return (
@@ -260,7 +268,7 @@ const SearchableList = memo(
                   dragComponent={dragComponent}
                   columns={columns}
                   emptyComponent={EmptyComponent}
-                  placeholder={hyperListPlaceholder as any}
+                  placeholder={hyperListPlaceholder}
                   itemType={itemType} // drop type
                   accepts={accepts}
                   onDrop={onDrop}

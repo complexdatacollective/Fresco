@@ -141,7 +141,9 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
 
         // Only update if position or active drop target changed
         const positionChanged =
-          updatedState.dragPosition.x !== x || updatedState.dragPosition.y !== y;
+          updatedState.dragPosition &&
+          (updatedState.dragPosition.x !== x ||
+            updatedState.dragPosition.y !== y);
         const activeDropTargetChanged =
           updatedState.activeDropTargetId !== newActiveDropTargetId;
 
@@ -175,7 +177,9 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
           }
 
           set({
-            dragPosition: { ...updatedState.dragPosition, x, y },
+            dragPosition: updatedState.dragPosition
+              ? { ...updatedState.dragPosition, x, y }
+              : null,
             activeDropTargetId: newActiveDropTargetId,
             dropTargets: newTargets,
           });
@@ -329,15 +333,9 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
       refreshAllBounds: () => {
         const state = get();
         for (const refreshFn of state.boundsRefreshFunctions.values()) {
-          try {
-            refreshFn();
-          } catch (error) {
-            console.error('Error refreshing bounds:', error);
-          }
+          refreshFn();
         }
       },
-
-
     })),
   );
 };
