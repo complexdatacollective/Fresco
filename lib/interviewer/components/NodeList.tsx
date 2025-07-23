@@ -4,8 +4,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
 import { memo, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
+import {
+  useDndStore,
+  useDragSource,
+  useDropTarget,
+  type DndStore,
+} from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
-import { useDragSource, useDropTarget, useDndStore, type DndStore } from '~/lib/dnd';
 import scrollable from '../behaviours/scrollable';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
@@ -18,24 +23,34 @@ type DraggableMotionNodeProps = {
 };
 
 // DraggableMotionNode component that wraps MotionNode with drag functionality
-const DraggableMotionNode = memo(({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
-  const { dragProps } = useDragSource({
-    type: 'node',
-    metadata: { ...node, itemType },
-    announcedName: `Node ${node.type}`,
-    disabled: !allowDrag,
-  });
+const DraggableMotionNode = memo(
+  ({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
+    const { dragProps } = useDragSource({
+      type: 'node',
+      metadata: { ...node, itemType },
+      announcedName: `Node ${node.type}`,
+      disabled: !allowDrag,
+    });
 
-  return (
-    <div {...dragProps}>
-      <MotionNode {...node} {...nodeProps} />
-    </div>
-  );
-});
+    return (
+      <div {...dragProps}>
+        <MotionNode {...node} {...nodeProps} />
+      </div>
+    );
+  },
+);
 
 DraggableMotionNode.displayName = 'DraggableMotionNode';
 
-export const NodeTransition = ({ children, delay, exit = false }: { children: ReactNode; delay: number; exit?: boolean }) => (
+export const NodeTransition = ({
+  children,
+  delay,
+  exit = false,
+}: {
+  children: ReactNode;
+  delay: number;
+  exit?: boolean;
+}) => (
   <motion.div
     layout
     initial={{ opacity: 0, y: '20%' }}
