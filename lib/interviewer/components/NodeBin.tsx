@@ -1,6 +1,5 @@
 import { type NcNode } from '@codaco/shared-consts';
 import cx from 'classnames';
-import { createPortal } from 'react-dom';
 import { useDropTarget } from '~/lib/dnd';
 
 type NodeBinProps = {
@@ -29,7 +28,7 @@ const NodeBin = ({ accepts, dropHandler }: NodeBinProps) => {
     { 'node-bin--hover': willAccept && isOver },
   );
 
-  return createPortal(<div {...dropProps} className={classNames} />, document.body);
+  return <div {...dropProps} className={classNames} />;
 };
 
 export default NodeBin;
