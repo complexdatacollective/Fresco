@@ -1,6 +1,6 @@
 .panels {
   @include transition-properties(
-    (opacity width margin-right),
+    (opacity width margin-right visibility),
     var(--animation-easing),
     var(--animation-duration-standard)
   );
@@ -15,9 +15,8 @@
   will-change: transform;
 
   &--minimize {
-    display: block; // Override flex to fix Safari layout issue (#407)
-    margin-right: 0;
-    width: 0;
-    opacity: 0;
+    // Use visibility: hidden to preserve layout space and dimensions for ResizeObserver
+    visibility: hidden;
+    margin-right: -24rem; // simulate zero width
   }
 }
