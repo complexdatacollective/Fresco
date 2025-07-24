@@ -68,8 +68,8 @@ type SearchableListProps = {
   title: string;
   dynamicProperties?: Record<string, unknown>;
   excludeItems?: string[];
-  itemComponent?: React.ElementType;
-  dragComponent?: React.ElementType;
+  itemComponent?: React.ComponentType<unknown>;
+  dragComponent?: React.ComponentType<unknown>;
   items: UseItemElement[];
   placeholder?: React.ReactNode;
   itemType: string;
@@ -89,12 +89,11 @@ const SearchableList = memo(
   (props: SearchableListProps) => {
     const {
       accepts,
-      columns,
       title,
       dynamicProperties,
       excludeItems,
-      itemComponent = null,
-      dragComponent = null,
+      itemComponent,
+      dragComponent,
       items,
       placeholder = null,
       itemType,
@@ -264,13 +263,12 @@ const SearchableList = memo(
                   id={`hyper-list-${id}`}
                   items={filteredResults}
                   dynamicProperties={dynamicProperties}
-                  itemComponent={itemComponent}
+                  itemComponent={itemComponent!}
                   dragComponent={dragComponent}
-                  columns={columns}
                   emptyComponent={EmptyComponent}
                   placeholder={hyperListPlaceholder}
                   itemType={itemType} // drop type
-                  accepts={accepts}
+                  accepts={undefined}
                   onDrop={onDrop}
                   showTooMany={showTooMany}
                   allowDragging={!disabled}
