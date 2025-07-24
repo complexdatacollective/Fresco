@@ -68,8 +68,8 @@ type SearchableListProps = {
   title: string;
   dynamicProperties?: Record<string, unknown>;
   excludeItems?: string[];
-  itemComponent?: React.ComponentType<unknown>;
-  dragComponent?: React.ComponentType<unknown>;
+  itemComponent?: React.ComponentType<UseItemElement['props']>;
+  dragComponent?: React.ComponentType<UseItemElement>;
   items: UseItemElement[];
   placeholder?: React.ReactNode;
   itemType: string;
