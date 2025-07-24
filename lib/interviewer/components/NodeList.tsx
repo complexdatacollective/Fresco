@@ -140,14 +140,13 @@ const NodeList = memo(
         layout
         key="node-list"
       >
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="sync">
           {items.map((node: NcNode) => {
             const isDraggable = !disableDragNew || node.stageId === stageId; // Always allow dragging if the node was created on this stage
             return (
               <motion.div
                 key={node[entityPrimaryKeyProperty]}
                 variants={nodeVariants}
-                exit={{ scale: 0 }}
               >
                 <DraggableMotionNode
                   node={node}
