@@ -16,7 +16,6 @@ type DndState = {
   dropTargets: Map<string, DropTargetWithState>;
   activeDropTargetId: string | null;
   isDragging: boolean;
-  boundsRefreshFunctions: Map<string, () => void>;
 };
 
 // Action types
@@ -39,9 +38,6 @@ type DndActions = {
   getDropTargetState: (
     id: string,
   ) => { canDrop: boolean; isOver: boolean } | null;
-  registerBoundsRefresh: (id: string, refreshFn: () => void) => void;
-  unregisterBoundsRefresh: (id: string) => void;
-  refreshAllBounds: () => void;
 };
 
 // Combined store type
@@ -55,7 +51,6 @@ export const defaultInitState: DndState = {
   dropTargets: new Map(),
   activeDropTargetId: null,
   isDragging: false,
-  boundsRefreshFunctions: new Map(),
 };
 
 // Helper function to check if target accepts drag item
@@ -113,17 +108,11 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const state = get();
         if (!state.dragItem || !state.dragPosition) return;
 
-        // Trigger bounds refresh for all drop targets to catch dynamic changes
-        get().refreshAllBounds();
-
-        // Get fresh state after bounds refresh
-        const updatedState = get();
-
         // Find drop target at current position
         let foundTarget: DropTargetWithState | null = null;
         let newActiveDropTargetId: string | null = null;
 
-        for (const target of updatedState.dropTargets.values()) {
+        for (const target of state.dropTargets.values()) {
           if (
             x >= target.x &&
             x <= target.x + target.width &&
@@ -141,24 +130,23 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
 
         // Only update if position or active drop target changed
         const positionChanged =
-          updatedState.dragPosition &&
-          (updatedState.dragPosition.x !== x ||
-            updatedState.dragPosition.y !== y);
+          state.dragPosition &&
+          (state.dragPosition.x !== x || state.dragPosition.y !== y);
         const activeDropTargetChanged =
-          updatedState.activeDropTargetId !== newActiveDropTargetId;
+          state.activeDropTargetId !== newActiveDropTargetId;
 
         if (positionChanged || activeDropTargetChanged) {
           // Update isOver state for drop targets
-          const newTargets = new Map(updatedState.dropTargets);
+          const newTargets = new Map(state.dropTargets);
 
           // Clear previous isOver
           if (
-            updatedState.activeDropTargetId &&
-            updatedState.activeDropTargetId !== newActiveDropTargetId
+            state.activeDropTargetId &&
+            state.activeDropTargetId !== newActiveDropTargetId
           ) {
-            const prevTarget = newTargets.get(updatedState.activeDropTargetId);
+            const prevTarget = newTargets.get(state.activeDropTargetId);
             if (prevTarget) {
-              newTargets.set(updatedState.activeDropTargetId, {
+              newTargets.set(state.activeDropTargetId, {
                 ...prevTarget,
                 isOver: false,
               });
@@ -177,8 +165,8 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
           }
 
           set({
-            dragPosition: updatedState.dragPosition
-              ? { ...updatedState.dragPosition, x, y }
+            dragPosition: state.dragPosition
+              ? { ...state.dragPosition, x, y }
               : null,
             activeDropTargetId: newActiveDropTargetId,
             dropTargets: newTargets,
@@ -255,44 +243,7 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
           const newTargets = new Map(state.dropTargets);
           newTargets.set(id, updatedTarget);
 
-          // If dragging, recalculate isOver for all targets based on current position
-          let newActiveDropTargetId = state.activeDropTargetId;
-
-          if (state.isDragging && state.dragPosition) {
-            const { x, y } = state.dragPosition;
-
-            // Clear all isOver states first
-            for (const [targetId, targetState] of newTargets) {
-              newTargets.set(targetId, { ...targetState, isOver: false });
-            }
-
-            // Find which target the mouse is currently over
-            let foundTarget: DropTargetWithState | null = null;
-            for (const targetState of newTargets.values()) {
-              if (
-                x >= targetState.x &&
-                x <= targetState.x + targetState.width &&
-                y >= targetState.y &&
-                y <= targetState.y + targetState.height
-              ) {
-                foundTarget = targetState;
-                break;
-              }
-            }
-
-            // Update active target and isOver state
-            if (foundTarget && foundTarget.canDrop) {
-              newActiveDropTargetId = foundTarget.id;
-              newTargets.set(foundTarget.id, { ...foundTarget, isOver: true });
-            } else {
-              newActiveDropTargetId = null;
-            }
-          }
-
-          return {
-            dropTargets: newTargets,
-            activeDropTargetId: newActiveDropTargetId,
-          };
+          return { dropTargets: newTargets };
         });
       },
 
@@ -312,29 +263,6 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
         const target = get().dropTargets.get(id);
         if (!target) return null;
         return { canDrop: target.canDrop, isOver: target.isOver };
-      },
-
-      registerBoundsRefresh: (id, refreshFn) => {
-        set((state) => {
-          const newRefreshFunctions = new Map(state.boundsRefreshFunctions);
-          newRefreshFunctions.set(id, refreshFn);
-          return { boundsRefreshFunctions: newRefreshFunctions };
-        });
-      },
-
-      unregisterBoundsRefresh: (id) => {
-        set((state) => {
-          const newRefreshFunctions = new Map(state.boundsRefreshFunctions);
-          newRefreshFunctions.delete(id);
-          return { boundsRefreshFunctions: newRefreshFunctions };
-        });
-      },
-
-      refreshAllBounds: () => {
-        const state = get();
-        for (const refreshFn of state.boundsRefreshFunctions.values()) {
-          refreshFn();
-        }
       },
     })),
   );

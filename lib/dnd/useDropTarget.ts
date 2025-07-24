@@ -44,12 +44,6 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
     (state) => state.unregisterDropTarget,
   );
   const updateDropTarget = useDndStore((state) => state.updateDropTarget);
-  const registerBoundsRefresh = useDndStore(
-    (state) => state.registerBoundsRefresh,
-  );
-  const unregisterBoundsRefresh = useDndStore(
-    (state) => state.unregisterBoundsRefresh,
-  );
 
   // Use targeted selectors to prevent unnecessary re-renders
   const isOver = useDndStore((state) => {
@@ -122,11 +116,8 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           announcedName,
         });
 
-        // Register bounds refresh function
-        registerBoundsRefresh(dropIdRef.current, updateBoundsImmediate);
-
         // Set up ResizeObserver for size changes
-        resizeObserverRef.current = new ResizeObserver((_entries) => {
+        resizeObserverRef.current = new ResizeObserver(() => {
           updateBounds();
         });
         resizeObserverRef.current.observe(element);
@@ -217,14 +208,7 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
           };
       }
     },
-    [
-      disabled,
-      registerDropTarget,
-      announcedName,
-      registerBoundsRefresh,
-      updateBoundsImmediate,
-      updateBounds,
-    ],
+    [disabled, registerDropTarget, updateBounds, dropIdRef, announcedName],
   );
 
   // Handle drag enter/leave callbacks
@@ -290,7 +274,6 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
 
     return () => {
       unregisterDropTarget(id);
-      unregisterBoundsRefresh(id);
       resizeObserverRef.current?.disconnect();
       intersectionObserverRef.current?.disconnect();
       updateBoundsThrottled.cancel();
@@ -305,13 +288,12 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         delete elementWithCleanup.__dndCleanup;
       }
     };
-  }, [unregisterDropTarget, unregisterBoundsRefresh, updateBoundsThrottled]);
+  }, [unregisterDropTarget, updateBoundsThrottled]);
 
   // Update registration when disabled state changes
   useEffect(() => {
     if (disabled) {
       unregisterDropTarget(dropIdRef.current);
-      unregisterBoundsRefresh(dropIdRef.current);
     } else if (elementRef.current) {
       const bounds = getElementBounds(elementRef.current);
       registerDropTarget({
@@ -320,17 +302,13 @@ export function useDropTarget(options: DropTargetOptions): UseDropTargetReturn {
         accepts: acceptsRef.current,
         announcedName,
       });
-      registerBoundsRefresh(dropIdRef.current, updateBoundsImmediate);
     }
   }, [
     disabled,
     registerDropTarget,
     unregisterDropTarget,
-    registerBoundsRefresh,
-    unregisterBoundsRefresh,
     dropIdRef,
     announcedName,
-    updateBoundsImmediate,
   ]);
 
   // Memoize the return object to prevent unnecessary re-renders
