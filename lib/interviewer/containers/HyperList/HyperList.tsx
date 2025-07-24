@@ -8,29 +8,28 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList as List } from 'react-window';
 import { useDragSource, useDropTarget } from '~/lib/dnd';
 
-type HyperListItem = {
+type HyperListItem<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
   id: string;
-  props: Record<string, any>;
-  data: Record<string, any>;
+  props: TProps;
+  data: TData;
 };
 
 type DynamicProperties = {
   disabled?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
-type DraggableItemComponentProps = {
-  ItemComponent: React.ComponentType<any>;
-  item: HyperListItem;
+type DraggableItemComponentProps<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
+  ItemComponent: React.ComponentType<TProps>;
+  item: HyperListItem<TProps, TData>;
   itemType: string;
   allowDrag: boolean;
   disabled: boolean;
   preview: React.ReactNode;
-  [key: string]: any;
-};
+} & TProps;
 
-type ListContextType = {
-  items: HyperListItem[];
+type ListContextType<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
+  items: HyperListItem<TProps, TData>[];
   dynamicProperties: DynamicProperties;
   itemType: string;
 };
@@ -40,32 +39,32 @@ type GetRowRenderContentProps = {
   style: React.CSSProperties;
 };
 
-type HyperListProps = {
+type HyperListProps<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
   className?: string;
-  items?: HyperListItem[];
+  items?: HyperListItem<TProps, TData>[];
   dynamicProperties?: DynamicProperties;
-  itemComponent: React.ComponentType<any>;
-  dragComponent?: React.ComponentType<any>;
-  emptyComponent?: React.ComponentType<any>;
+  itemComponent: React.ComponentType<TProps>;
+  dragComponent?: React.ComponentType<HyperListItem<TProps, TData>>;
+  emptyComponent?: React.ComponentType;
   placeholder?: React.ReactNode;
   itemType?: string;
   showTooMany?: boolean;
   allowDragging?: boolean;
   id?: string;
   accepts?: string[];
-  onDrop?: (data: { meta: any }) => void;
+  onDrop?: (data: { meta: TData }) => void;
 };
 
 // Draggable wrapper for item components
-const DraggableItemComponent = memo<DraggableItemComponentProps>(({ 
-  ItemComponent, 
-  item, 
-  itemType, 
-  allowDrag, 
-  disabled, 
-  preview, 
-  ...props 
-}) => {
+const DraggableItemComponent = memo(({
+  ItemComponent,
+  item,
+  itemType,
+  allowDrag,
+  disabled,
+  preview,
+  ...props
+}: DraggableItemComponentProps) => {
   const { dragProps } = useDragSource({
     type: 'node',
     metadata: { data: item.data, id: item.id, itemType },
@@ -117,13 +116,13 @@ const ListContext = React.createContext<ListContextType>({
   itemType: 'HYPER_LIST' 
 });
 
-const getRowRenderer = (
-  Component: React.ComponentType<any>, 
-  DragComponent?: React.ComponentType<any>, 
+const getRowRenderer = <TProps extends Record<string, unknown>, TData extends Record<string, unknown>>(
+  Component: React.ComponentType<TProps>, 
+  DragComponent?: React.ComponentType<HyperListItem<TProps, TData>>, 
   allowDragging?: boolean
 ) => {
   const GetRowRenderContent: React.FC<GetRowRenderContentProps> = ({ index, style }) => {
-    const { items, itemType, dynamicProperties } = useContext(ListContext);
+    const { items, itemType, dynamicProperties } = useContext(ListContext) as ListContextType<TProps, TData>;
 
     const item = items[index];
 
@@ -149,7 +148,7 @@ const getRowRenderer = (
         key={item.id}
       >
         <DraggableItemComponent
-          ItemComponent={Component}
+          ItemComponent={Component as React.ComponentType<Record<string, unknown>>}
           item={item}
           itemType={itemType}
           allowDrag={(allowDragging ?? false) && !isDisabled}
@@ -169,7 +168,7 @@ const getRowRenderer = (
  *
  * Includes drag and drop functionality.
  */
-const HyperList: React.FC<HyperListProps> = ({
+const HyperList = <TProps extends Record<string, unknown>, TData extends Record<string, unknown>>({
   className,
   items,
   dynamicProperties = {},
@@ -183,15 +182,15 @@ const HyperList: React.FC<HyperListProps> = ({
   id,
   accepts: _accepts,
   onDrop,
-}) => {
+}: HyperListProps<TProps, TData>) => {
   // Add drop target functionality
   const { dropProps } = useDropTarget({
-    id: id || `hyper-list-${itemType}`,
+    id: id ?? `hyper-list-${itemType}`,
     accepts: ['node'],
     announcedName: 'List',
     onDrop: (metadata) => {
       if (onDrop) {
-        onDrop({ meta: metadata });
+        onDrop({ meta: metadata as TData });
       }
     },
   });
@@ -214,7 +213,7 @@ const HyperList: React.FC<HyperListProps> = ({
   const classNames = cx('hyper-list', className);
 
   const SizeRenderer = useCallback(
-    (props: any) => (
+    (props: TProps) => (
       <div className="hyper-list__item">
         <ItemComponent {...props} />
       </div>
@@ -240,6 +239,7 @@ const HyperList: React.FC<HyperListProps> = ({
     newHiddenSizingEl.style.visibility = 'hidden';
 
     document.body.appendChild(newHiddenSizingEl);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     newHiddenSizingEl.innerHTML = renderToString(<SizeRenderer {...props} />);
     const height = newHiddenSizingEl.clientHeight;
     document.body.removeChild(newHiddenSizingEl);
