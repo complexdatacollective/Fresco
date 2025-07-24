@@ -8,7 +8,10 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList as List } from 'react-window';
 import { useDragSource, useDropTarget } from '~/lib/dnd';
 
-type HyperListItem<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
+type HyperListItem<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
   id: string;
   props: TProps;
   data: TData;
@@ -19,7 +22,10 @@ type DynamicProperties = {
   [key: string]: unknown;
 };
 
-type DraggableItemComponentProps<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
+type DraggableItemComponentProps<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
   ItemComponent: React.ComponentType<TProps>;
   item: HyperListItem<TProps, TData>;
   itemType: string;
@@ -28,7 +34,10 @@ type DraggableItemComponentProps<TProps = Record<string, unknown>, TData = Recor
   preview: React.ReactNode;
 } & TProps;
 
-type ListContextType<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
+type ListContextType<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
   items: HyperListItem<TProps, TData>[];
   dynamicProperties: DynamicProperties;
   itemType: string;
@@ -39,7 +48,10 @@ type GetRowRenderContentProps = {
   style: React.CSSProperties;
 };
 
-type HyperListProps<TProps = Record<string, unknown>, TData = Record<string, unknown>> = {
+type HyperListProps<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
   className?: string;
   items?: HyperListItem<TProps, TData>[];
   dynamicProperties?: DynamicProperties;
@@ -56,29 +68,31 @@ type HyperListProps<TProps = Record<string, unknown>, TData = Record<string, unk
 };
 
 // Draggable wrapper for item components
-const DraggableItemComponent = memo(({
-  ItemComponent,
-  item,
-  itemType,
-  allowDrag,
-  disabled,
-  preview,
-  ...props
-}: DraggableItemComponentProps) => {
-  const { dragProps } = useDragSource({
-    type: 'node',
-    metadata: { data: item.data, id: item.id, itemType },
-    announcedName: `Item ${item.id}`,
-    disabled: !allowDrag || disabled,
+const DraggableItemComponent = memo(
+  ({
+    ItemComponent,
+    item,
+    itemType,
+    allowDrag,
+    disabled,
     preview,
-  });
+    ...props
+  }: DraggableItemComponentProps) => {
+    const { dragProps } = useDragSource({
+      type: 'node',
+      metadata: { data: item.data, id: item.id, itemType },
+      announcedName: `Item ${item.id}`,
+      disabled: !allowDrag || disabled,
+      preview,
+    });
 
-  return (
-    <div {...dragProps}>
-      <ItemComponent {...props} />
-    </div>
-  );
-});
+    return (
+      <div {...dragProps}>
+        <ItemComponent {...props} />
+      </div>
+    );
+  },
+);
 
 DraggableItemComponent.displayName = 'DraggableItemComponent';
 
@@ -110,19 +124,27 @@ const LargeRosterNotice = () => (
 
 const GUTTER_SIZE = 14;
 
-const ListContext = React.createContext<ListContextType>({ 
-  items: [], 
-  dynamicProperties: {}, 
-  itemType: 'HYPER_LIST' 
+const ListContext = React.createContext<ListContextType>({
+  items: [],
+  dynamicProperties: {},
+  itemType: 'HYPER_LIST',
 });
 
-const getRowRenderer = <TProps extends Record<string, unknown>, TData extends Record<string, unknown>>(
-  Component: React.ComponentType<TProps>, 
-  DragComponent?: React.ComponentType<HyperListItem<TProps, TData>>, 
-  allowDragging?: boolean
+const getRowRenderer = <
+  TProps extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
+>(
+  Component: React.ComponentType<TProps>,
+  DragComponent?: React.ComponentType<HyperListItem<TProps, TData>>,
+  allowDragging?: boolean,
 ) => {
-  const GetRowRenderContent: React.FC<GetRowRenderContentProps> = ({ index, style }) => {
-    const { items, itemType, dynamicProperties } = useContext(ListContext) as ListContextType<TProps, TData>;
+  const GetRowRenderContent: React.FC<GetRowRenderContentProps> = ({
+    index,
+    style,
+  }) => {
+    const { items, itemType, dynamicProperties } = useContext(
+      ListContext,
+    ) as ListContextType<TProps, TData>;
 
     const item = items[index];
 
@@ -148,7 +170,9 @@ const getRowRenderer = <TProps extends Record<string, unknown>, TData extends Re
         key={item.id}
       >
         <DraggableItemComponent
-          ItemComponent={Component as React.ComponentType<Record<string, unknown>>}
+          ItemComponent={
+            Component as React.ComponentType<Record<string, unknown>>
+          }
           item={item}
           itemType={itemType}
           allowDrag={(allowDragging ?? false) && !isDisabled}
@@ -168,7 +192,10 @@ const getRowRenderer = <TProps extends Record<string, unknown>, TData extends Re
  *
  * Includes drag and drop functionality.
  */
-const HyperList = <TProps extends Record<string, unknown>, TData extends Record<string, unknown>>({
+const HyperList = <
+  TProps extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
+>({
   className,
   items,
   dynamicProperties = {},
@@ -196,8 +223,7 @@ const HyperList = <TProps extends Record<string, unknown>, TData extends Record<
   });
 
   const RowRenderer = useMemo(
-    () =>
-      getRowRenderer(ItemComponent, DragComponent, allowDragging),
+    () => getRowRenderer(ItemComponent, DragComponent, allowDragging),
     [ItemComponent, DragComponent, allowDragging],
   );
 
@@ -287,7 +313,10 @@ const HyperList = <TProps extends Record<string, unknown>, TData extends Record<
                           itemSize={(item: number) =>
                             getItemSize(item, containerSize.width)
                           }
-                          estimatedItemSize={getItemSize(0, containerSize.width)}
+                          estimatedItemSize={getItemSize(
+                            0,
+                            containerSize.width,
+                          )}
                           itemCount={items?.length ?? 0}
                         >
                           {RowRenderer}
@@ -307,4 +336,3 @@ const HyperList = <TProps extends Record<string, unknown>, TData extends Record<
 };
 
 export default HyperList;
-export type { HyperListProps, HyperListItem };
