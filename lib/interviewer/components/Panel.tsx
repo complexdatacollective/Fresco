@@ -35,7 +35,7 @@ const Panel = ({
     'transition-all easing-in-out duration-300',
     'last:mb-0',
     highlight === null && 'border-b-0',
-    minimize && 'border-b-0 mb-0 opacity-0',
+    minimize && 'border-b-0 basis-0 grow-0 mb-0 opacity-0',
     collapsed && !minimize && 'grow-0',
     highlight === '--primary' && 'border-b-sea-green',
     highlight === '--nc-primary-color-seq-1' &&
