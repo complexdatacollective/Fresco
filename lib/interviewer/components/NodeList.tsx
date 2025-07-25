@@ -128,6 +128,8 @@ const NodeList = memo(
 
     const classNames = cn(
       'flex flex-wrap justify-center min-h-full w-full transition-background duration-300 content-start rounded-md',
+      // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
+      items.length === 0 && 'min-h-[800px] min-w-[300px]',
       willAccept && 'bg-[var(--nc-node-list-action-bg)]',
       isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
     );
