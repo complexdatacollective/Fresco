@@ -24,6 +24,32 @@ export type LayoutConfig =
   | ColumnModeConfig
   | HorizontalModeConfig;
 
+// Animation configuration
+export type AnimationTiming = {
+  duration: number;
+  delay: number;
+  easing?: string;
+};
+
+export type AnimationKeyframes = {
+  from: React.CSSProperties;
+  to: React.CSSProperties;
+};
+
+export type AnimationConfig = {
+  enter?: {
+    keyframes: AnimationKeyframes;
+    timing: AnimationTiming;
+    stagger?: number;
+  };
+  exit?: {
+    keyframes: AnimationKeyframes;
+    timing: AnimationTiming;
+    stagger?: number;
+  };
+  disabled?: boolean;
+};
+
 export type VirtualListProps<T> = {
   // Data
   items: T[];
@@ -62,6 +88,9 @@ export type VirtualListProps<T> = {
 
   // Styling
   className?: string;
+
+  // Animations (Phase 6)
+  animations?: AnimationConfig;
 
   // Accessibility (Phase 5)
   ariaLabel: string;

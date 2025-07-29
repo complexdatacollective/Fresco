@@ -4,5 +4,8 @@ export type {
   LayoutConfig, 
   GridModeConfig, 
   ColumnModeConfig, 
-  HorizontalModeConfig
+  HorizontalModeConfig,
+  AnimationConfig,
+  AnimationTiming,
+  AnimationKeyframes
 } from './types';

@@ -481,3 +481,403 @@ export const WithSelection: Story = {
     },
   },
 };
+
+export const WithDefaultAnimations: Story = {
+  render: () => {
+    const [items, setItems] = useState<MockItem[]>(mockItems.slice(0, 50));
+    const [layoutMode, setLayoutMode] = useState<'grid' | 'columns' | 'horizontal'>('grid');
+
+    const refreshItems = () => {
+      // Create new items to trigger enter animations
+      const newItems = Array.from({ length: 50 }, (_, i) => ({
+        id: `refresh-${Date.now()}-${i}`,
+        name: `New Item ${i + 1}`,
+      }));
+      setItems(newItems);
+    };
+
+    const getLayout = (): LayoutConfig => {
+      switch (layoutMode) {
+        case 'grid':
+          return {
+            mode: 'grid',
+            itemSize: { width: 180, height: 120 },
+            gap: 12,
+          };
+        case 'columns':
+          return {
+            mode: 'columns',
+            columns: 3,
+            gap: 12,
+            itemHeight: 100,
+          };
+        case 'horizontal':
+          return {
+            mode: 'horizontal',
+            itemWidth: 200,
+            itemHeight: 120,
+            gap: 12,
+          };
+      }
+    };
+
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '0 8px' }}>
+          <label>Layout Mode:</label>
+          <select 
+            value={layoutMode} 
+            onChange={(e) => setLayoutMode(e.target.value as any)}
+            style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc' }}
+          >
+            <option value="grid">Grid</option>
+            <option value="columns">Columns</option>
+            <option value="horizontal">Horizontal</option>
+          </select>
+          <button 
+            onClick={refreshItems}
+            style={{ 
+              padding: '6px 12px', 
+              borderRadius: '4px', 
+              border: '1px solid #007acc',
+              backgroundColor: '#007acc',
+              color: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            Refresh Items (Trigger Animations)
+          </button>
+        </div>
+
+        <div style={{ flex: 1, border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+          <VirtualList
+            items={items}
+            keyExtractor={(item) => (item as MockItem).id}
+            renderItem={({ item, style }) => (
+              <ItemComponent 
+                item={item as MockItem} 
+                style={style}
+              />
+            )}
+            layout={getLayout()}
+            animations={{
+              enter: {
+                keyframes: {
+                  from: { 
+                    opacity: 0, 
+                    transform: 'translateY(20px) scale(0.95)' 
+                  },
+                  to: { 
+                    opacity: 1, 
+                    transform: 'translateY(0px) scale(1)' 
+                  }
+                },
+                timing: {
+                  duration: 300,
+                  delay: 0,
+                  easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+                },
+                stagger: 50
+              },
+              exit: {
+                keyframes: {
+                  from: { 
+                    opacity: 1, 
+                    transform: 'translateY(0px) scale(1)' 
+                  },
+                  to: { 
+                    opacity: 0, 
+                    transform: 'translateY(-10px) scale(0.95)' 
+                  }
+                },
+                timing: {
+                  duration: 200,
+                  delay: 0,
+                  easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+                },
+                stagger: 25
+              }
+            }}
+            ariaLabel="Virtual list with default animations"
+          />
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates the default staggered nodelist animations. Items fade in from below with a slight scale effect and staggered timing. Click "Refresh Items" to see the enter animations.',
+      },
+    },
+  },
+};
+
+export const WithCustomAnimations: Story = {
+  render: () => {
+    const [items, setItems] = useState<MockItem[]>(mockItems.slice(0, 30));
+
+    const refreshItems = () => {
+      const newItems = Array.from({ length: 30 }, (_, i) => ({
+        id: `custom-${Date.now()}-${i}`,
+        name: `Custom Item ${i + 1}`,
+      }));
+      setItems(newItems);
+    };
+
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '0 8px' }}>
+          <h3>Custom Slide & Rotate Animation</h3>
+          <button 
+            onClick={refreshItems}
+            style={{ 
+              padding: '6px 12px', 
+              borderRadius: '4px', 
+              border: '1px solid #28a745',
+              backgroundColor: '#28a745',
+              color: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            Refresh Items
+          </button>
+        </div>
+
+        <div style={{ flex: 1, border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+          <VirtualList
+            items={items}
+            keyExtractor={(item) => (item as MockItem).id}
+            renderItem={({ item, style }) => (
+              <ItemComponent 
+                item={item as MockItem} 
+                style={style}
+              />
+            )}
+            layout={{
+              mode: 'grid',
+              itemSize: { width: 200, height: 140 },
+              gap: 16,
+            }}
+            animations={{
+              enter: {
+                keyframes: {
+                  from: { 
+                    opacity: 0, 
+                    transform: 'translateX(-30px) rotate(-5deg) scale(0.8)' 
+                  },
+                  to: { 
+                    opacity: 1, 
+                    transform: 'translateX(0px) rotate(0deg) scale(1)' 
+                  }
+                },
+                timing: {
+                  duration: 400,
+                  delay: 0,
+                  easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                },
+                stagger: 80
+              },
+              exit: {
+                keyframes: {
+                  from: { 
+                    opacity: 1, 
+                    transform: 'translateX(0px) rotate(0deg) scale(1)' 
+                  },
+                  to: { 
+                    opacity: 0, 
+                    transform: 'translateX(30px) rotate(5deg) scale(0.8)' 
+                  }
+                },
+                timing: {
+                  duration: 300,
+                  delay: 0,
+                  easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                },
+                stagger: 40
+              }
+            }}
+            ariaLabel="Virtual list with custom animations"
+          />
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates custom animations with slide and rotate effects. Items slide in from the left with rotation and bounce easing, creating a more playful entrance effect.',
+      },
+    },
+  },
+};
+
+export const WithoutAnimations: Story = {
+  render: () => (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: '0 8px' }}>
+        <h3>No Animations (Performance Mode)</h3>
+        <p style={{ color: '#666', fontSize: '14px' }}>
+          This example shows the list without animations for maximum performance with large datasets.
+        </p>
+      </div>
+
+      <div style={{ flex: 1, border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+        <VirtualList
+          items={mockItems.slice(0, 200)}
+          keyExtractor={(item) => (item as MockItem).id}
+          renderItem={({ item, style }) => (
+            <ItemComponent 
+              item={item as MockItem} 
+              style={style}
+            />
+          )}
+          layout={{
+            mode: 'columns',
+            columns: 4,
+            gap: 8,
+            itemHeight: 80,
+          }}
+          ariaLabel="Virtual list without animations"
+        />
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Shows the VirtualList without animations. When the animations prop is omitted, the component renders items immediately for optimal performance.',
+      },
+    },
+  },
+};
+
+export const AnimationComparison: Story = {
+  render: () => {
+    const [leftItems, setLeftItems] = useState<MockItem[]>(mockItems.slice(0, 20));
+    const [rightItems, setRightItems] = useState<MockItem[]>(mockItems.slice(0, 20));
+
+    const refreshLeft = () => {
+      const newItems = Array.from({ length: 20 }, (_, i) => ({
+        id: `left-${Date.now()}-${i}`,
+        name: `With Animation ${i + 1}`,
+      }));
+      setLeftItems(newItems);
+    };
+
+    const refreshRight = () => {
+      const newItems = Array.from({ length: 20 }, (_, i) => ({
+        id: `right-${Date.now()}-${i}`,
+        name: `No Animation ${i + 1}`,
+      }));
+      setRightItems(newItems);
+    };
+
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: '0 8px' }}>
+          <h3>Animation vs No Animation Comparison</h3>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', gap: '16px' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4>With Animations</h4>
+              <button 
+                onClick={refreshLeft}
+                style={{ 
+                  padding: '4px 8px', 
+                  borderRadius: '4px', 
+                  border: '1px solid #007acc',
+                  backgroundColor: '#007acc',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Refresh
+              </button>
+            </div>
+            <div style={{ flex: 1, border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+              <VirtualList
+                items={leftItems}
+                keyExtractor={(item) => (item as MockItem).id}
+                renderItem={({ item, style }) => (
+                  <ItemComponent 
+                    item={item as MockItem} 
+                    style={style}
+                  />
+                )}
+                layout={{
+                  mode: 'columns',
+                  columns: 2,
+                  gap: 8,
+                  itemHeight: 90,
+                }}
+                animations={{
+                  enter: {
+                    keyframes: {
+                      from: { opacity: 0, transform: 'translateY(15px)' },
+                      to: { opacity: 1, transform: 'translateY(0px)' }
+                    },
+                    timing: { duration: 250, delay: 0 },
+                    stagger: 40
+                  }
+                }}
+                ariaLabel="Virtual list with animations"
+              />
+            </div>
+          </div>
+
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4>Without Animations</h4>
+              <button 
+                onClick={refreshRight}
+                style={{ 
+                  padding: '4px 8px', 
+                  borderRadius: '4px', 
+                  border: '1px solid #6c757d',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Refresh
+              </button>
+            </div>
+            <div style={{ flex: 1, border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+              <VirtualList
+                items={rightItems}
+                keyExtractor={(item) => (item as MockItem).id}
+                renderItem={({ item, style }) => (
+                  <ItemComponent 
+                    item={item as MockItem} 
+                    style={style}
+                  />
+                )}
+                layout={{
+                  mode: 'columns',
+                  columns: 2,
+                  gap: 8,
+                  itemHeight: 90,
+                }}
+                ariaLabel="Virtual list without animations"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Side-by-side comparison showing the same content with and without animations. Refresh either side to see the difference in how items appear.',
+      },
+    },
+  },
+};

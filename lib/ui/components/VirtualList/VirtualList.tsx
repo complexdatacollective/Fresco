@@ -7,7 +7,7 @@ import { cn } from '~/utils/shadcn';
 import { DraggableVirtualItem } from './components/DraggableVirtualItem';
 import { useDropTarget } from '~/lib/dnd';
 
-import { type VirtualListProps } from './types';
+import { type VirtualListProps, type AnimationConfig } from './types';
 
 import {
   calculateColumnWidth,
@@ -42,6 +42,143 @@ const VirtualItem = <T,>({
   return (
     <div
       style={style}
+      onClick={handleClick}
+      className={cn(onClick && 'cursor-pointer')}
+    >
+      {renderItem({ item, index, style })}
+    </div>
+  );
+};
+
+// Default staggered nodelist animation
+const defaultAnimationConfig: AnimationConfig = {
+  enter: {
+    keyframes: {
+      from: { 
+        opacity: 0, 
+        transform: 'translateY(20px) scale(0.95)' 
+      },
+      to: { 
+        opacity: 1, 
+        transform: 'translateY(0px) scale(1)' 
+      }
+    },
+    timing: {
+      duration: 300,
+      delay: 0,
+      easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+    },
+    stagger: 50
+  },
+  exit: {
+    keyframes: {
+      from: { 
+        opacity: 1, 
+        transform: 'translateY(0px) scale(1)' 
+      },
+      to: { 
+        opacity: 0, 
+        transform: 'translateY(-10px) scale(0.95)' 
+      }
+    },
+    timing: {
+      duration: 200,
+      delay: 0,
+      easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+    },
+    stagger: 25
+  }
+};
+
+type AnimatedVirtualItemProps<T> = VirtualItemProps<T> & {
+  animationConfig?: AnimationConfig;
+  isEntering?: boolean;
+  isExiting?: boolean;
+  staggerIndex?: number;
+};
+
+const AnimatedVirtualItem = <T,>({
+  item,
+  index,
+  style,
+  onClick,
+  renderItem,
+  _isVisible,
+  animationConfig,
+  isEntering = false,
+  isExiting = false,
+  staggerIndex = 0,
+}: AnimatedVirtualItemProps<T>) => {
+  const [isVisible, setIsVisible] = useState(!isEntering);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  const config = animationConfig?.disabled ? undefined : (animationConfig ?? defaultAnimationConfig);
+
+  useEffect(() => {
+    if (!config || (!isEntering && !isExiting)) return;
+
+    const animation = isEntering ? config.enter : config.exit;
+    if (!animation) return;
+
+    const staggerDelay = (animation.stagger ?? 0) * staggerIndex;
+    const totalDelay = animation.timing.delay + staggerDelay;
+
+    setIsAnimating(true);
+
+    const timer = setTimeout(() => {
+      if (isEntering) {
+        setIsVisible(true);
+      }
+
+      const element = itemRef.current;
+      if (!element) return;
+
+      // Apply animation
+      const keyframeAnimation = element.animate(
+        [
+          animation.keyframes.from as Keyframe,
+          animation.keyframes.to as Keyframe
+        ],
+        {
+          duration: animation.timing.duration,
+          easing: animation.timing.easing ?? 'ease',
+          fill: 'forwards'
+        }
+      );
+
+      keyframeAnimation.addEventListener('finish', () => {
+        setIsAnimating(false);
+        if (isExiting) {
+          setIsVisible(false);
+        }
+      });
+
+    }, totalDelay);
+
+    return () => clearTimeout(timer);
+  }, [isEntering, isExiting, config, staggerIndex]);
+
+  if (!isVisible && !isAnimating) {
+    return null;
+  }
+
+  const animatedStyle = {
+    ...style,
+    ...(config && isEntering && !isVisible ? (config.enter?.keyframes.from ?? {}) : {}),
+    ...(config && isExiting ? (config.exit?.keyframes.from ?? {}) : {})
+  };
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick(item, index);
+    }
+  };
+
+  return (
+    <div
+      ref={itemRef}
+      style={animatedStyle}
       onClick={handleClick}
       className={cn(onClick && 'cursor-pointer')}
     >
@@ -98,6 +235,7 @@ export const VirtualList = <T,>({
   getDragPreview,
   className,
   ariaLabel,
+  animations,
 }: VirtualListProps<T>) => {
   // Require layout prop
   if (!layout) {
@@ -230,7 +368,7 @@ export const VirtualList = <T,>({
   }
 
   const virtualItems = virtualizer.getVirtualItems();
-  const ItemComponent = draggable ? DraggableVirtualItem : VirtualItem;
+  const ItemComponent = draggable ? DraggableVirtualItem : (animations ? AnimatedVirtualItem : VirtualItem);
 
   const renderVirtualItems = () => {
       if (layout.mode === 'grid') {
@@ -282,8 +420,12 @@ export const VirtualList = <T,>({
                     }}
                     onClick={onItemClick}
                     renderItem={renderItem}
-
                     _isVisible={true}
+                    {...(animations && {
+                      animationConfig: animations,
+                      isEntering: true,
+                      staggerIndex: itemIndex,
+                    })}
                     {...(draggable && {
                       itemType,
                       getDragMetadata,
@@ -342,6 +484,11 @@ export const VirtualList = <T,>({
                       renderItem={renderItem}
                       onClick={() => onItemClick?.(item, index)}
                       _isVisible={true}
+                      {...(animations && {
+                        animationConfig: animations,
+                        isEntering: true,
+                        staggerIndex: index,
+                      })}
   
                       {...(draggable && {
                         itemType,
@@ -380,6 +527,11 @@ export const VirtualList = <T,>({
             onClick={() => onItemClick?.(item, virtualItem.index)}
             renderItem={renderItem}
             _isVisible={true}
+            {...(animations && {
+              animationConfig: animations,
+              isEntering: true,
+              staggerIndex: virtualItem.index,
+            })}
 
             {...(draggable && {
               itemType,
