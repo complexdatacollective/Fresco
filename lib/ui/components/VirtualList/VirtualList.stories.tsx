@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { DndStoreProvider, useDropTarget } from '~/lib/dnd';
+import { cn } from '~/utils/shadcn';
 import { VirtualList, type LayoutConfig } from './index';
 
 type MockItem = {
@@ -23,18 +24,10 @@ const ItemComponent = ({
   <div
     style={{
       ...style,
-      backgroundColor: '#f5f5f5',
-      border: '2px solid #fff',
-      borderRadius: '8px',
-      padding: '12px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      textAlign: 'center',
     }}
+    className="bg-navy-taupe focus:ring-accent focus:ring-offset-background m-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none focus:ring-2 focus:ring-offset-2 focus:outline-none"
   >
-    <div style={{ fontSize: '14px' }}>{item.name}</div>
+    {item.name}
   </div>
 );
 
@@ -141,7 +134,6 @@ const meta: Meta<typeof VirtualList> = {
           // minWidth: '12px',
           border: '2px solid #e0e0e0',
           borderRadius: '8px',
-          backgroundColor: '#ffffff',
         }}
       >
         <Story />
@@ -240,40 +232,6 @@ export const WithDragAndDrop: Story = {
       description: {
         story:
           'Phase 4 - Drag and drop integration with DndStoreProvider. Items can be dragged from the list and dropped into the target area on the right.',
-      },
-    },
-  },
-};
-
-export const WithAccessibility: Story = {
-  args: {
-    items: mockItems.slice(0, 100),
-    keyExtractor: (item) => (item as MockItem).id,
-    renderItem: ({ item, style }) => (
-      <ItemComponent item={item as MockItem} style={style} />
-    ),
-    layout: {
-      mode: 'grid',
-      itemSize: { width: 120, height: 120 },
-      gap: 16,
-    },
-    // Accessibility props
-    ariaLabel: 'Accessible virtual list with keyboard navigation',
-    role: 'list',
-    multiSelect: true,
-    onItemSelect: (items) =>
-      console.log(
-        'Selected items:',
-        items.map((item) => (item as MockItem).name),
-      ),
-    onItemClick: (item, index) =>
-      console.log('Clicked:', (item as MockItem).name, 'at index', index),
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Phase 5 - Full accessibility support with keyboard navigation and multi-selection. Use arrow keys to navigate, Enter/Space to select.',
       },
     },
   },
@@ -431,27 +389,17 @@ export const WithSelection: Story = {
       <div
         style={{
           ...style,
-          backgroundColor: isSelected ? '#2196f3' : '#f5f5f5',
-          color: isSelected ? 'white' : 'black',
-          border: `2px solid ${isSelected ? '#1976d2' : '#fff'}`,
-          borderRadius: '8px',
-          padding: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          transform: isSelected ? 'scale(0.98)' : 'scale(1)',
-          boxShadow: isSelected
-            ? '0 2px 8px rgba(33, 150, 243, 0.3)'
-            : '0 1px 3px rgba(0,0,0,0.1)',
         }}
+        className={cn(
+          'm-2 cursor-pointer rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
+          'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
+          isSelected ? 'bg-accent' : 'bg-navy-taupe',
+          isSelected &&
+            'ring-2 ring-white ring-offset-2 ring-offset-transparent',
+        )}
       >
         <div
           style={{
-            fontSize: '14px',
             fontWeight: isSelected ? 'bold' : 'normal',
           }}
         >

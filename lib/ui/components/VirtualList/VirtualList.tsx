@@ -107,9 +107,6 @@ export const VirtualList = <T,>({
   const parentRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
-  
-
-
   // Resize observer to track container size changes
   useEffect(() => {
     if (!layout) return; // Only needed for layout modes
@@ -136,6 +133,8 @@ export const VirtualList = <T,>({
       resizeObserver.disconnect();
     };
   }, [layout]);
+
+
 
   // Calculate virtualization parameters based on layout mode
   const virtualizerConfig = useMemo(() => {
