@@ -1,8 +1,7 @@
 'use client';
 
 import { useVirtualizer } from '@tanstack/react-virtual';
-
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { cn } from '~/utils/shadcn';
 import { DraggableVirtualItem } from './components/DraggableVirtualItem';
 import { useDropTarget } from '~/lib/dnd';
@@ -23,6 +22,10 @@ type VirtualItemProps<T> = {
   onClick?: (item: T, index: number) => void;
   renderItem: VirtualListProps<T>['renderItem'];
   _isVisible: boolean;
+  isFocused?: boolean;
+  isSelected?: boolean;
+  focusable?: boolean;
+  itemKey: string;
 };
 
 const VirtualItem = <T,>({
@@ -32,6 +35,10 @@ const VirtualItem = <T,>({
   onClick,
   renderItem,
   _isVisible,
+  isFocused = false,
+  isSelected = false,
+  focusable = false,
+  itemKey,
 }: VirtualItemProps<T>) => {
   const handleClick = () => {
     if (onClick) {
@@ -43,9 +50,19 @@ const VirtualItem = <T,>({
     <div
       style={style}
       onClick={handleClick}
-      className={cn(onClick && 'cursor-pointer')}
+      className={cn(
+        'flex',
+        onClick && 'cursor-pointer',
+        isFocused && focusable && 'ring-2 ring-blue-500',
+        isSelected && 'bg-blue-100 dark:bg-blue-900/20'
+      )}
+      tabIndex={-1}
+      role="listitem"
+      aria-selected={isSelected}
+      data-index={index}
+      data-key={itemKey}
     >
-      {renderItem({ item, index, style })}
+      {renderItem({ item, index, style: { width: '100%', height: '100%' } })}
     </div>
   );
 };
@@ -108,6 +125,10 @@ const AnimatedVirtualItem = <T,>({
   isEntering = false,
   isExiting = false,
   staggerIndex = 0,
+  isFocused = false,
+  isSelected = false,
+  focusable = false,
+  itemKey,
 }: AnimatedVirtualItemProps<T>) => {
   const [isVisible, setIsVisible] = useState(!isEntering);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -180,9 +201,19 @@ const AnimatedVirtualItem = <T,>({
       ref={itemRef}
       style={animatedStyle}
       onClick={handleClick}
-      className={cn(onClick && 'cursor-pointer')}
+      className={cn(
+        'flex',
+        onClick && 'cursor-pointer',
+        isFocused && focusable && 'ring-2 ring-blue-500',
+        isSelected && 'bg-blue-100 dark:bg-blue-900/20'
+      )}
+      tabIndex={-1}
+      role="listitem"
+      aria-selected={isSelected}
+      data-index={index}
+      data-key={itemKey}
     >
-      {renderItem({ item, index, style })}
+      {renderItem({ item, index, style: { width: '100%', height: '100%' } })}
     </div>
   );
 };
@@ -236,6 +267,12 @@ export const VirtualList = <T,>({
   className,
   ariaLabel,
   animations,
+  ariaDescribedBy,
+  role = 'list',
+  multiSelect = false,
+  onItemSelect,
+  selectedItems,
+  focusable = false,
 }: VirtualListProps<T>) => {
   // Require layout prop
   if (!layout) {
@@ -244,6 +281,13 @@ export const VirtualList = <T,>({
 
   const parentRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  
+  // Accessibility state
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [internalSelectedItems, setInternalSelectedItems] = useState<Set<string>>(new Set());
+  
+  // Use external selection if provided, otherwise use internal
+  const currentSelectedItems = selectedItems ?? internalSelectedItems;
 
   // Resize observer to track container size changes
   useEffect(() => {
@@ -271,6 +315,159 @@ export const VirtualList = <T,>({
       resizeObserver.disconnect();
     };
   }, [layout]);
+
+  // Keyboard navigation handlers
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (!focusable || items.length === 0) return;
+
+    const getColumnsCount = () => {
+      switch (layout.mode) {
+        case 'grid':
+          return calculateGridItemsPerRow(
+            containerSize.width,
+            layout.itemSize.width,
+            layout.gap,
+          );
+        case 'columns':
+          return layout.columns;
+        case 'horizontal':
+          return 1;
+        default:
+          return 1;
+      }
+    };
+
+    const columnsCount = getColumnsCount();
+    let newFocusedIndex = focusedIndex;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (layout.mode === 'horizontal') {
+          // No vertical navigation for horizontal layout
+          return;
+        }
+        newFocusedIndex = Math.min(
+          items.length - 1,
+          focusedIndex + columnsCount
+        );
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (layout.mode === 'horizontal') {
+          // No vertical navigation for horizontal layout
+          return;
+        }
+        newFocusedIndex = Math.max(0, focusedIndex - columnsCount);
+        break;
+
+      case 'ArrowRight':
+        event.preventDefault();
+        if (layout.mode === 'horizontal') {
+          newFocusedIndex = Math.min(items.length - 1, focusedIndex + 1);
+        } else {
+          newFocusedIndex = Math.min(items.length - 1, focusedIndex + 1);
+        }
+        break;
+
+      case 'ArrowLeft':
+        event.preventDefault();
+        if (layout.mode === 'horizontal') {
+          newFocusedIndex = Math.max(0, focusedIndex - 1);
+        } else {
+          newFocusedIndex = Math.max(0, focusedIndex - 1);
+        }
+        break;
+
+      case 'Home':
+        event.preventDefault();
+        newFocusedIndex = 0;
+        break;
+
+      case 'End':
+        event.preventDefault();
+        newFocusedIndex = items.length - 1;
+        break;
+
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < items.length) {
+          const item = items[focusedIndex];
+          const key = keyExtractor(item, focusedIndex);
+          
+          if (multiSelect) {
+            const newSelection = new Set(currentSelectedItems);
+            if (newSelection.has(key)) {
+              newSelection.delete(key);
+            } else {
+              newSelection.add(key);
+            }
+            
+            if (!selectedItems) {
+              setInternalSelectedItems(newSelection);
+            }
+            onItemSelect?.(Array.from(newSelection).map(k => 
+              items.find((item, idx) => keyExtractor(item, idx) === k)!
+            ).filter(Boolean));
+          }
+          
+          onItemClick?.(item, focusedIndex);
+        }
+        break;
+
+      default:
+        return;
+    }
+
+    if (newFocusedIndex !== focusedIndex) {
+      setFocusedIndex(newFocusedIndex);
+      
+      // Scroll to focused item
+      if (layout.mode === 'horizontal') {
+        const itemStart = newFocusedIndex * (layout.itemWidth + layout.gap);
+        parentRef.current?.scrollTo({
+          left: itemStart,
+          behavior: 'smooth'
+        });
+      } else {
+        const rowIndex = Math.floor(newFocusedIndex / columnsCount);
+        const itemHeight = layout.mode === 'grid' 
+          ? layout.itemSize.height + layout.gap
+          : layout.itemHeight + layout.gap;
+        const itemTop = rowIndex * itemHeight;
+        
+        parentRef.current?.scrollTo({
+          top: itemTop,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [
+    focusable,
+    items,
+    layout,
+    containerSize,
+    focusedIndex,
+    multiSelect,
+    currentSelectedItems,
+    selectedItems,
+    keyExtractor,
+    onItemSelect,
+    onItemClick
+  ]);
+
+  // Focus management
+  const handleFocus = useCallback(() => {
+    if (focusedIndex === -1 && items.length > 0) {
+      setFocusedIndex(0);
+    }
+  }, [focusedIndex, items.length]);
+
+  const handleBlur = useCallback(() => {
+    // Keep focus state for keyboard navigation
+  }, []);
 
 
 
@@ -421,6 +618,10 @@ export const VirtualList = <T,>({
                     onClick={onItemClick}
                     renderItem={renderItem}
                     _isVisible={true}
+                    isFocused={focusedIndex === itemIndex}
+                    isSelected={currentSelectedItems.has(key)}
+                    focusable={focusable}
+                    itemKey={key}
                     {...(animations && {
                       animationConfig: animations,
                       isEntering: true,
@@ -484,6 +685,10 @@ export const VirtualList = <T,>({
                       renderItem={renderItem}
                       onClick={() => onItemClick?.(item, index)}
                       _isVisible={true}
+                      isFocused={focusedIndex === index}
+                      isSelected={currentSelectedItems.has(key)}
+                      focusable={focusable}
+                      itemKey={key}
                       {...(animations && {
                         animationConfig: animations,
                         isEntering: true,
@@ -527,6 +732,10 @@ export const VirtualList = <T,>({
             onClick={() => onItemClick?.(item, virtualItem.index)}
             renderItem={renderItem}
             _isVisible={true}
+            isFocused={focusedIndex === virtualItem.index}
+            isSelected={currentSelectedItems.has(key)}
+            focusable={focusable}
+            itemKey={key}
             {...(animations && {
               animationConfig: animations,
               isEntering: true,
@@ -555,12 +764,8 @@ export const VirtualList = <T,>({
           position: 'relative',
         }}
       >
-        <div
-            style={{ width: '100%', height: '100%' }}
-          >
-            {renderVirtualItems()}
-          </div>
-        </div>
+        {renderVirtualItems()}
+      </div>
     );
 
     return (
@@ -573,7 +778,13 @@ export const VirtualList = <T,>({
           overflowY: scrollDirection === 'vertical' ? 'auto' : 'hidden',
         }}
         aria-label={ariaLabel || `${layout.mode} layout`}
-        role="list"
+        aria-describedby={ariaDescribedBy}
+        role={role === 'grid' ? 'grid' : 'list'}
+        aria-multiselectable={multiSelect}
+        tabIndex={focusable && items.length > 0 ? 0 : -1}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       >
         {droppable ? (
           <DroppableWrapper

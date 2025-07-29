@@ -48,7 +48,7 @@ export const DraggableVirtualItem = <T,>({
       onClick={handleClick}
       className={cn(onClick && 'cursor-pointer', isDragging && 'opacity-50')}
     >
-      {renderItem({ item, index, style })}
+      {renderItem({ item, index, style: {} })}
     </div>
   );
 };

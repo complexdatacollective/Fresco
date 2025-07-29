@@ -98,6 +98,8 @@ export type VirtualListProps<T> = {
   role?: 'list' | 'grid';
   multiSelect?: boolean;
   onItemSelect?: (items: T[]) => void;
+  selectedItems?: Set<string>;
+  focusable?: boolean;
 
   // Additional class naming
   itemClassName?: string | ((item: T, index: number) => string);

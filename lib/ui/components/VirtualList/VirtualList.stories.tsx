@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { DndStoreProvider, useDropTarget } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
 import { VirtualList, type LayoutConfig } from './index';
@@ -25,7 +25,7 @@ const ItemComponent = ({
     style={{
       ...style,
     }}
-    className="bg-navy-taupe focus:ring-accent focus:ring-offset-background m-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none focus:ring-2 focus:ring-offset-2 focus:outline-none"
+    className="bg-navy-taupe focus:ring-accent focus:ring-offset-background m-2 rounded-lg px-4 py-6 text-white transition-opacity duration-200 select-none focus:ring-2 focus:ring-offset-2 focus:outline-none"
   >
     {item.name}
   </div>
@@ -174,7 +174,7 @@ export const WithDragAndDrop: Story = {
                 mode: 'columns',
                 columns: 1,
                 gap: 12,
-                itemHeight: 80,
+                itemHeight: 120,
               }}
               // Drag & Drop props
               draggable={true}
@@ -258,7 +258,7 @@ export const InteractiveLayoutSwitcher: Story = {
             mode: 'columns',
             columns: columnCount,
             gap: 12,
-            itemHeight: 100,
+            itemHeight: 120,
           };
         case 'horizontal':
           return {
@@ -463,7 +463,7 @@ export const WithSelection: Story = {
               mode: 'columns',
               columns: 4,
               gap: 12,
-              itemHeight: 100,
+              itemHeight: 120,
             }}
             ariaLabel="Selectable virtual list"
             onItemClick={handleItemClick}
@@ -509,13 +509,13 @@ export const WithDefaultAnimations: Story = {
             mode: 'columns',
             columns: 3,
             gap: 12,
-            itemHeight: 100,
+            itemHeight: 120,
           };
         case 'horizontal':
           return {
             mode: 'horizontal',
             itemWidth: 200,
-            itemHeight: 120,
+            itemHeight: 150,
             gap: 12,
           };
       }
@@ -738,7 +738,7 @@ export const WithoutAnimations: Story = {
             mode: 'columns',
             columns: 4,
             gap: 8,
-            itemHeight: 80,
+            itemHeight: 120,
           }}
           ariaLabel="Virtual list without animations"
         />
@@ -750,6 +750,206 @@ export const WithoutAnimations: Story = {
       description: {
         story:
           'Shows the VirtualList without animations. When the animations prop is omitted, the component renders items immediately for optimal performance.',
+      },
+    },
+  },
+};
+
+export const WithAccessibility: Story = {
+  render: () => {
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+    const [announcements, setAnnouncements] = useState<string[]>([]);
+
+    const announcementsRef = useRef<HTMLDivElement>(null);
+
+    const handleItemSelect = (items: MockItem[]) => {
+      const newSelection = new Set(items.map(item => item.id));
+      setSelectedItems(newSelection);
+      
+      // Screen reader announcement for selection changes
+      if (items.length === 0) {
+        announceForScreenReader('All items deselected');
+      } else if (items.length === 1) {
+        announceForScreenReader(`Selected ${items[0].name}`);
+      } else {
+        announceForScreenReader(`Selected ${items.length} items: ${items.map(i => i.name).join(', ')}`);
+      }
+    };
+
+    const logAnnouncement = useCallback((message: string) => {
+      setAnnouncements((prev) => [
+        ...prev.slice(-4), // Keep last 5 announcements
+        `${new Date().toLocaleTimeString()}: ${message}`,
+      ]);
+
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        if (announcementsRef.current) {
+          announcementsRef.current.scrollTop = announcementsRef.current.scrollHeight;
+        }
+      }, 0);
+    }, []);
+
+    // Simulate screen reader announcements for testing
+    const announceForScreenReader = (message: string) => {
+      logAnnouncement(message);
+      // In a real app, this would use a proper screen reader API
+    };
+
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>
+            Accessibility Demo with Testing
+          </h3>
+          <div style={{ fontSize: '14px', color: '#666', lineHeight: '1.4' }}>
+            <p style={{ margin: '0 0 8px 0' }}>
+              <strong>Keyboard Navigation:</strong> Tab to focus, arrow keys to navigate, Enter/Space to select
+            </p>
+            <p style={{ margin: '0 0 8px 0' }}>
+              <strong>Screen Reader:</strong> Uses proper ARIA attributes and roles
+            </p>
+            <p style={{ margin: '0' }}>
+              <strong>Selection:</strong> {selectedItems.size} items selected
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', flex: 1 }}>
+          {/* Main Virtual List */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h4 style={{ margin: '0 0 8px 0' }}>Interactive VirtualList</h4>
+            <div style={{ flex: 1, border: '2px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+          <VirtualList
+            items={mockItems.slice(0, 100)}
+            keyExtractor={(item) => (item as MockItem).id}
+            renderItem={({ item, style }) => {
+              const isSelected = selectedItems.has((item as MockItem).id);
+              return (
+                <div
+                  style={{
+                    ...style,
+                  }}
+                  className={cn(
+                    'm-2 cursor-pointer rounded-lg px-4 py-6 text-white transition-opacity duration-200 select-none',
+                    'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                    isSelected ? 'bg-accent' : 'bg-navy-taupe',
+                    isSelected &&
+                      'ring-2 ring-white ring-offset-2 ring-offset-transparent',
+                  )}
+                >
+                  <div
+                    style={{
+                      fontWeight: isSelected ? 'bold' : 'normal',
+                    }}
+                  >
+                    {(item as MockItem).name}
+                  </div>
+                  {isSelected && (
+                    <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.9 }}>
+                      ✓ Selected
+                    </div>
+                  )}
+                </div>
+              );
+            }}
+            layout={{
+              mode: 'columns',
+              columns: 2,
+              gap: 8,
+              itemHeight: 120,
+            }}
+            ariaLabel="Accessible virtual list with keyboard navigation and selection"
+            ariaDescribedBy="accessibility-description"
+            role="list"
+            multiSelect={true}
+            focusable={true}
+            selectedItems={selectedItems}
+            onItemSelect={handleItemSelect}
+            onItemClick={(item, index) => {
+              console.log('Item clicked:', (item as MockItem).name, 'at index', index);
+              announceForScreenReader(`Activated ${(item as MockItem).name}, item ${index + 1} of ${mockItems.slice(0, 100).length}`);
+            }}
+          />
+            </div>
+          </div>
+
+          {/* Testing Panel */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h4 style={{ margin: '0 0 8px 0' }}>Screen Reader & ARIA Testing</h4>
+            
+            {/* ARIA Attributes Display */}
+            <div style={{ marginBottom: '16px', fontSize: '12px' }}>
+              <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Current ARIA Attributes:</div>
+              <div style={{ backgroundColor: '#f0f0f0', padding: '8px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                <div>role="list"</div>
+                <div>aria-label="Accessible virtual list..."</div>
+                <div>aria-multiselectable="true"</div>
+                <div>tabindex="0"</div>
+                <div style={{ marginTop: '4px', fontStyle: 'italic' }}>
+                  Items: role="listitem", aria-selected="true/false"
+                </div>
+              </div>
+            </div>
+
+            {/* Interaction Instructions */}
+            <div style={{ marginBottom: '16px', fontSize: '12px', backgroundColor: '#e3f2fd', padding: '8px', borderRadius: '4px' }}>
+              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Try these interactions:</div>
+              <div>• Tab to focus the list</div>
+              <div>• Arrow keys to navigate</div>
+              <div>• Enter/Space to select items</div>
+              <div>• All actions will be announced below</div>
+            </div>
+            
+
+
+            {/* Live Announcements */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <h5 style={{ margin: '0 0 8px 0' }}>Live Announcements</h5>
+              <div
+                ref={announcementsRef}
+                style={{
+                  flex: 1,
+                  height: '200px',
+                  overflow: 'auto',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  padding: '8px',
+                  backgroundColor: '#f9f9f9',
+                  fontSize: '12px',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {announcements.length === 0 ? (
+                  <div style={{ color: '#999' }}>
+                    Screen reader announcements will appear here...
+                    <br />
+                    Try using keyboard navigation or clicking items.
+                  </div>
+                ) : (
+                  announcements.map((announcement, index) => (
+                    <div
+                      key={index}
+                      style={{ marginBottom: '4px', wordWrap: 'break-word' }}
+                    >
+                      {announcement}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates full accessibility features including keyboard navigation, ARIA attributes, focus management, and multi-selection. Try using Tab, arrow keys, Enter/Space to interact.',
       },
     },
   },
@@ -814,7 +1014,7 @@ export const AnimationComparison: Story = {
                   mode: 'columns',
                   columns: 2,
                   gap: 8,
-                  itemHeight: 90,
+                  itemHeight: 120,
                 }}
                 animations={{
                   enter: {
@@ -862,7 +1062,7 @@ export const AnimationComparison: Story = {
                   mode: 'columns',
                   columns: 2,
                   gap: 8,
-                  itemHeight: 90,
+                  itemHeight: 120,
                 }}
                 ariaLabel="Virtual list without animations"
               />
