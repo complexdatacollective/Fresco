@@ -287,7 +287,7 @@ export function useDragSource(options: DragSourceOptions): UseDragSourceReturn {
         'aria-label': announcedName,
         'style': {
           cursor: disabled ? 'not-allowed' : isDragging ? 'grabbing' : 'grab',
-          touchAction: 'none',
+          touchAction: isDragging ? 'none' : 'pan-y',
           userSelect: 'none',
         },
       },
