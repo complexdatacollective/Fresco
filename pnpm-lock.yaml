@@ -111,8 +111,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       concaveman:
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^2.0.0
+        version: 2.0.0
       csvtojson:
         specifier: ^2.0.10
         version: 2.0.10
@@ -2919,8 +2919,8 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  concaveman@1.2.1:
-    resolution: {integrity: sha512-PwZYKaM/ckQSa8peP5JpVr7IMJ4Nn/MHIaWUjP4be+KoZ7Botgs8seAZGpmaOM+UZXawcdYRao/px9ycrCihHw==}
+  concaveman@2.0.0:
+    resolution: {integrity: sha512-3a9C//4G44/boNehBPZMRh8XxrwBvTXlhENUim+GMm207WoDie/Vq89U5lkhLn3kKA+vxwmwfdQPWIRwjQWoLA==}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -4871,11 +4871,11 @@ packages:
   queue-tick@1.0.1:
     resolution: {integrity: sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag==}
 
-  quickselect@2.0.0:
-    resolution: {integrity: sha512-RKJ22hX8mHe3Y6wH/N3wCM6BWtjaxIyyUIkpHOvfFnxdI4yD4tBXEBKSbriGujF6jnSVkJrffuo6vxACiSSxIw==}
+  quickselect@3.0.0:
+    resolution: {integrity: sha512-XdjUArbK4Bm5fLLvlm5KpTFOiOThgfWWI4axAZDWg4E/0mKdZyI9tNEfds27qCi1ze/vwTR16kvmmGhRra3c2g==}
 
-  rbush@3.0.1:
-    resolution: {integrity: sha512-XRaVO0YecOpEuIvbhbpTrZgoiI6xBlz6hnlr6EHhd+0x9ase6EmeN+hdwwUaJvLcsFFQ8iWVF1GAK1yB0BWi0w==}
+  rbush@4.0.1:
+    resolution: {integrity: sha512-IP0UpfeWQujYC8Jg162rMNc01Rf0gWMMAb2Uxus/Q0qOFw4lCcq6ZnQEZwUoJqWyUGJ9th7JjwI4yIWo+uvoAQ==}
 
   react-compound-slider@3.4.0:
     resolution: {integrity: sha512-KSje/rB0xSvvcb7YV0+82hkiXTV5ljSS7axKrNiXLf9AEO+rrr1Xq4MJWA+6v030YNNo/RoSoEB6D6fnoy+8ng==}
@@ -5121,8 +5121,8 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  robust-predicates@2.0.4:
-    resolution: {integrity: sha512-l4NwboJM74Ilm4VKfbAtFeGq7aEjWL+5kVFcmgFA2MrdnQWx9iE/tUGvxY5HyMI7o/WpSIUFLbC5fbeaHgSCYg==}
+  robust-predicates@3.0.2:
+    resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
 
   rollup@4.43.0:
     resolution: {integrity: sha512-wdN2Kd3Twh8MAEOEJZsuxuLKCsBEo4PVNLK6tQWAn10VhsVewQLzcucMgLolRlhFybGxfclbPeEYBaP6RvUFGg==}
@@ -5472,8 +5472,8 @@ packages:
     resolution: {integrity: sha512-Zba82s87IFq9A9XmjiX5uZA/ARWDrB03OHlq+Vw1fSdt0I+4/Kutwy8BP4Y/y/aORMo61FQ0vIb5j44vSo5Pkg==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  tinyqueue@2.0.3:
-    resolution: {integrity: sha512-ppJZNDuKGgxzkHihX8v9v9G5f+18gzaTfrukGrq6ueg0lmH4nqVnA2IPG0AEH3jKEk2GRJCUhDoqpoiw3PHLBA==}
+  tinyqueue@3.0.0:
+    resolution: {integrity: sha512-gRa9gwYU3ECmQYv3lslts5hxuIa90veaEcxDYuu3QGOIAEM2mOZkVHp48ANJuu1CURtRdHKUBY5Lm1tHV+sD4g==}
 
   tinyrainbow@2.0.0:
     resolution: {integrity: sha512-op4nsTR47R6p0vMUUoYl/a+ljLFVtlfaXkLQmqfLR1qHma1h/ysYk4hEXZ880bf2CYgTskvTa/e196Vd5dDQXw==}
@@ -8450,12 +8450,12 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  concaveman@1.2.1:
+  concaveman@2.0.0:
     dependencies:
       point-in-polygon: 1.1.0
-      rbush: 3.0.1
-      robust-predicates: 2.0.4
-      tinyqueue: 2.0.3
+      rbush: 4.0.1
+      robust-predicates: 3.0.2
+      tinyqueue: 3.0.0
 
   convert-source-map@2.0.0: {}
 
@@ -10964,11 +10964,11 @@ snapshots:
 
   queue-tick@1.0.1: {}
 
-  quickselect@2.0.0: {}
+  quickselect@3.0.0: {}
 
-  rbush@3.0.1:
+  rbush@4.0.1:
     dependencies:
-      quickselect: 2.0.0
+      quickselect: 3.0.0
 
   react-compound-slider@3.4.0(react@18.3.1):
     dependencies:
@@ -11261,7 +11261,7 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  robust-predicates@2.0.4: {}
+  robust-predicates@3.0.2: {}
 
   rollup@4.43.0:
     dependencies:
@@ -11691,7 +11691,7 @@ snapshots:
 
   tinypool@1.1.1: {}
 
-  tinyqueue@2.0.3: {}
+  tinyqueue@3.0.0: {}
 
   tinyrainbow@2.0.0: {}
 
