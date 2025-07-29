@@ -4,10 +4,5 @@ export type {
   LayoutConfig, 
   GridModeConfig, 
   ColumnModeConfig, 
-  HorizontalModeConfig,
-  AnimationConfig
+  HorizontalModeConfig
 } from './types';
-export { useVirtualization } from './hooks/useVirtualization';
-export { GridLayout } from './components/GridLayout';
-export { ColumnLayout } from './components/ColumnLayout';
-export { HorizontalLayout } from './components/HorizontalLayout';

@@ -1,10 +1,8 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { useDragSource } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
-import type { AnimationConfig, VirtualListProps } from '../types';
-import { createItemVariants, calculateStaggerDelay } from '../utils/animation';
-import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import type { VirtualListProps } from '../types';
 
 type DraggableVirtualItemProps<T> = {
   item: T;
@@ -12,18 +10,12 @@ type DraggableVirtualItemProps<T> = {
   style: React.CSSProperties;
   onClick?: (item: T, index: number) => void;
   renderItem: VirtualListProps<T>['renderItem'];
-  animation: AnimationConfig;
-  isVisible: boolean;
-  
-  // Drag & Drop props
-  draggable?: boolean;
-  droppable?: boolean;
+  _isVisible: boolean;
+
+  // Drag props
   itemType?: string;
-  accepts?: string[];
   getDragMetadata?: (item: T) => Record<string, unknown>;
   getDragPreview?: (item: T) => React.ReactElement;
-  onDrop?: (metadata: unknown) => void;
-  listId?: string;
 };
 
 export const DraggableVirtualItem = <T,>({
@@ -32,86 +24,31 @@ export const DraggableVirtualItem = <T,>({
   style,
   onClick,
   renderItem,
-  animation,
-  isVisible,
-  draggable = false,
-  droppable = false,
-  itemType,
-  accepts,
+  itemType = 'item',
   getDragMetadata,
   getDragPreview,
-  onDrop,
-  listId,
 }: DraggableVirtualItemProps<T>) => {
-  const { dragProps, dropProps, isDragging, isOver, canDrop } = useDragAndDrop({
-    item,
-    index,
-    draggable,
-    droppable,
-    itemType,
-    accepts,
-    getDragMetadata,
-    getDragPreview,
-    onDrop,
-    listId,
+  const { dragProps, isDragging } = useDragSource({
+    type: itemType,
+    metadata: getDragMetadata ? getDragMetadata(item) : { item },
+    announcedName: `Item ${index}`,
+    preview: getDragPreview ? getDragPreview(item) : undefined,
   });
 
   const handleClick = () => {
-    if (onClick) {
+    if (onClick && !isDragging) {
       onClick(item, index);
     }
   };
 
-  // If animations are disabled, render without motion
-  if (!animation.enabled) {
-    return (
-      <div
-        {...dragProps}
-        {...dropProps}
-        style={style}
-        onClick={handleClick}
-        className={cn(
-          onClick && 'cursor-pointer',
-          isDragging && 'opacity-50',
-          isOver && canDrop && 'ring-2 ring-blue-500',
-        )}
-      >
-        {renderItem({ item, index, style })}
-      </div>
-    );
-  }
-
-  const itemVariants = createItemVariants(animation);
-  const staggerDelay = calculateStaggerDelay(index, animation);
-
   return (
-    <motion.div
+    <div
       {...dragProps}
-      {...dropProps}
       style={style}
       onClick={handleClick}
-      className={cn(
-        onClick && 'cursor-pointer',
-        isDragging && 'opacity-50',
-        isOver && canDrop && 'ring-2 ring-blue-500',
-      )}
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-      variants={itemVariants as any}
-      initial="initial"
-      animate={isVisible ? "animate" : "initial"}
-      exit="exit"
-      transition={{
-        ...(itemVariants.animate.transition ?? {}),
-        delay: staggerDelay,
-      }}
-      layout // Enable layout animations for smooth repositioning
-      // Drag state affects scale and opacity
-      whileDrag={{
-        scale: 0.95,
-        opacity: 0.7,
-      }}
+      className={cn(onClick && 'cursor-pointer', isDragging && 'opacity-50')}
     >
       {renderItem({ item, index, style })}
-    </motion.div>
+    </div>
   );
 };
