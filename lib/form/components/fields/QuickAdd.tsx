@@ -100,7 +100,7 @@ const QuickAdd = ({
         // If valid, submit the form
         if (fieldContext.state.meta.isValid) {
           await fieldContext.form.handleSubmit();
-          resetAndCloseForm();
+          fieldContext.form.reset();
         }
       }
     },
