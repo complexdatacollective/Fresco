@@ -104,6 +104,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const generatePlaceholderNodes = (formData: Record<string, string>) => {
     addFamilyTreeNode({
+      id: crypto.randomUUID(),
       gender: 'male',
       label: 'father',
       xPos: xEgoOffset - 50,
@@ -111,6 +112,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       handleClick: setSelectedNode,
     });
     addFamilyTreeNode({
+      id: crypto.randomUUID(),
       gender: 'female',
       label: 'mother',
       xPos: xEgoOffset + 50,
@@ -118,6 +120,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       handleClick: setSelectedNode,
     });
     addFamilyTreeNode({
+      id: crypto.randomUUID(),
       gender: egoGender,
       label: 'self',
       xPos: xEgoOffset,
@@ -126,6 +129,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
     arrayFromRelationCount(formData, 'brothers').forEach((i) => {
       addFamilyTreeNode({
+        id: crypto.randomUUID(),
         gender: 'male',
         label: 'brother',
         xPos: xEgoOffset + 100 * (i + 1),
@@ -135,6 +139,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
     arrayFromRelationCount(formData, 'sisters').forEach((i) => {
       addFamilyTreeNode({
+        id: crypto.randomUUID(),
         gender: 'female',
         label: 'sister',
         xPos:
@@ -147,6 +152,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
     arrayFromRelationCount(formData, 'sons').forEach((i) => {
       addFamilyTreeNode({
+        id: crypto.randomUUID(),
         gender: 'male',
         label: 'son',
         xPos: xEgoOffset + 100 * (i + 1),
@@ -156,6 +162,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
     arrayFromRelationCount(formData, 'daughters').forEach((i) => {
       addFamilyTreeNode({
+        id: crypto.randomUUID(),
         gender: 'female',
         label: 'daughter',
         xPos:
@@ -231,6 +238,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     );
   };
 
+  function newShellForm(node) {}
+
   const renderFamilyTreeShells = () => {
     return (
       <div className="family-pedigree-interface">
@@ -259,6 +268,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                 label={node.label}
                 xPos={node.xPos}
                 yPos={node.yPos}
+                handleClick={() => newShellForm(node)}
               />
             );
           })}
