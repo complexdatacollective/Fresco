@@ -38,7 +38,10 @@ const AlterForm = dynamic(() => import('./AlterForm'), {
   loading: StageLoading,
 });
 const EgoForm = dynamic(() => import('./EgoForm'), { loading: StageLoading });
-const FamilyTreeCensus = dynamic(() => import('./FamilyTreeCensus'), { loading: StageLoading });
+const FamilyTreeCensus = dynamic(
+  () => import('./FamilyTreeCensus/FamilyTreeCensus'),
+  { loading: StageLoading },
+);
 const AlterEdgeForm = dynamic(() => import('./AlterEdgeForm'), {
   loading: StageLoading,
 });
