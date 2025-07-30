@@ -100,11 +100,11 @@ const QuickAdd = ({
         // If valid, submit the form
         if (fieldContext.state.meta.isValid) {
           await fieldContext.form.handleSubmit();
-          resetAndCloseForm();
+          fieldContext.form.reset();
         }
       }
     },
-    [fieldContext, handleHideForm, resetAndCloseForm],
+    [fieldContext, handleHideForm],
   );
 
   // Close form when disabled
@@ -136,7 +136,7 @@ const QuickAdd = ({
 
   return (
     <div className="flex h-44 w-52 items-center justify-end">
-      <AnimatePresence initial={false} mode="wait">
+      <AnimatePresence initial={false} mode="popLayout">
         {!showForm ? (
           <motion.div
             key="action-button"
