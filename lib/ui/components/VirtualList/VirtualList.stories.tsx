@@ -119,7 +119,7 @@ const meta: Meta<typeof VirtualList> = {
     docs: {
       description: {
         component:
-          'A virtualized list component with multiple layout modes for performance with large datasets.',
+          'A virtualized list component with multiple layout modes for performance with large datasets. Includes full keyboard navigation and accessibility support by default.',
       },
     },
   },
@@ -926,7 +926,6 @@ export const WithAccessibility: Story = {
               ariaDescribedBy="accessibility-description"
               role="list"
               multiSelect={true}
-              focusable={true}
               selectedItems={selectedItems}
               onItemSelect={handleItemSelect}
               onItemClick={(item, index) => {
@@ -947,7 +946,7 @@ export const WithAccessibility: Story = {
     docs: {
       description: {
         story:
-          'Demonstrates full accessibility features including keyboard navigation, ARIA attributes, focus management, and multi-selection. Use the Storybook a11y addon panel to check for accessibility violations.',
+          'Demonstrates multi-selection with accessibility features. All VirtualList instances now include keyboard navigation (Tab to focus, arrow keys to navigate, Enter/Space to select) and proper ARIA attributes by default. Use the Storybook a11y addon panel to check for accessibility violations.',
       },
     },
   },

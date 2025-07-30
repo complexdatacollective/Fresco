@@ -24,7 +24,6 @@ type VirtualItemProps<T> = {
   _isVisible: boolean;
   isFocused?: boolean;
   isSelected?: boolean;
-  focusable?: boolean;
   itemKey: string;
 };
 
@@ -37,7 +36,6 @@ const VirtualItem = <T,>({
   _isVisible,
   isFocused = false,
   isSelected = false,
-  focusable = false,
   itemKey,
 }: VirtualItemProps<T>) => {
   const handleClick = () => {
@@ -53,7 +51,7 @@ const VirtualItem = <T,>({
       className={cn(
         'flex',
         onClick && 'cursor-pointer',
-        isFocused && focusable && 'ring-2 ring-blue-500',
+        isFocused && 'ring-2 ring-blue-500',
         isSelected && 'bg-blue-100 dark:bg-blue-900/20',
       )}
       tabIndex={-1}
@@ -127,7 +125,6 @@ const AnimatedVirtualItem = <T,>({
   staggerIndex = 0,
   isFocused = false,
   isSelected = false,
-  focusable = false,
   itemKey,
 }: AnimatedVirtualItemProps<T>) => {
   const [isVisible, setIsVisible] = useState(!isEntering);
@@ -163,7 +160,7 @@ const AnimatedVirtualItem = <T,>({
       // Compose transforms: combine positioning transform with animation transforms
       const fromKeyframe = { ...animation.keyframes.from } as Keyframe;
       const toKeyframe = { ...animation.keyframes.to } as Keyframe;
-      
+
       if (positionTransform) {
         // Combine positioning transform with animation transforms
         if (fromKeyframe.transform) {
@@ -175,14 +172,11 @@ const AnimatedVirtualItem = <T,>({
       }
 
       // Apply animation
-      const keyframeAnimation = element.animate(
-        [fromKeyframe, toKeyframe],
-        {
-          duration: animation.timing.duration,
-          easing: animation.timing.easing ?? 'ease',
-          fill: 'forwards',
-        },
-      );
+      const keyframeAnimation = element.animate([fromKeyframe, toKeyframe], {
+        duration: animation.timing.duration,
+        easing: animation.timing.easing ?? 'ease',
+        fill: 'forwards',
+      });
 
       keyframeAnimation.addEventListener('finish', () => {
         setIsAnimating(false);
@@ -226,7 +220,7 @@ const AnimatedVirtualItem = <T,>({
       className={cn(
         'flex',
         onClick && 'cursor-pointer',
-        isFocused && focusable && 'ring-2 ring-blue-500',
+        isFocused && 'ring-2 ring-blue-500',
         isSelected && 'bg-blue-100 dark:bg-blue-900/20',
       )}
       tabIndex={-1}
@@ -297,7 +291,6 @@ export const VirtualList = <T,>({
   multiSelect = false,
   onItemSelect,
   selectedItems,
-  focusable = false,
 }: VirtualListProps<T>) => {
   // Require layout prop
   if (!layout) {
@@ -384,7 +377,7 @@ export const VirtualList = <T,>({
   // Keyboard navigation handlers
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (!focusable || items.length === 0) return;
+      if (items.length === 0) return;
 
       const getColumnsCount = () => {
         switch (layout.mode) {
@@ -496,14 +489,7 @@ export const VirtualList = <T,>({
         }
       }
     },
-    [
-      focusable,
-      items,
-      layout,
-      containerSize,
-      focusedIndex,
-      handleItemInteraction,
-    ],
+    [items, layout, containerSize, focusedIndex, handleItemInteraction],
   );
 
   // Focus management
@@ -672,7 +658,6 @@ export const VirtualList = <T,>({
                   _isVisible={true}
                   isFocused={focusedIndex === itemIndex}
                   isSelected={currentSelectedItems.has(key)}
-                  focusable={focusable}
                   itemKey={key}
                   {...(animations && {
                     animationConfig: animations,
@@ -741,7 +726,6 @@ export const VirtualList = <T,>({
                     _isVisible={true}
                     isFocused={focusedIndex === index}
                     isSelected={currentSelectedItems.has(key)}
-                    focusable={focusable}
                     itemKey={key}
                     {...(animations && {
                       animationConfig: animations,
@@ -789,7 +773,6 @@ export const VirtualList = <T,>({
           _isVisible={true}
           isFocused={focusedIndex === virtualItem.index}
           isSelected={currentSelectedItems.has(key)}
-          focusable={focusable}
           itemKey={key}
           {...(animations && {
             animationConfig: animations,
@@ -836,7 +819,7 @@ export const VirtualList = <T,>({
       aria-describedby={ariaDescribedBy}
       role={role === 'grid' ? 'grid' : 'list'}
       aria-multiselectable={role === 'grid' && multiSelect ? true : undefined}
-      tabIndex={focusable && items.length > 0 ? 0 : -1}
+      tabIndex={items.length > 0 ? 0 : -1}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       onBlur={handleBlur}
