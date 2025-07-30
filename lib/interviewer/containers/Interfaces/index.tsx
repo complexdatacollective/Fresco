@@ -38,6 +38,9 @@ const AlterForm = dynamic(() => import('./AlterForm'), {
   loading: StageLoading,
 });
 const EgoForm = dynamic(() => import('./EgoForm'), { loading: StageLoading });
+const FamilyTreeCensus = dynamic(() => import('./FamilyTreeCensus'), {
+  loading: StageLoading,
+});
 const AlterEdgeForm = dynamic(() => import('./AlterEdgeForm'), {
   loading: StageLoading,
 });
@@ -95,6 +98,8 @@ const getInterface = (interfaceType: InterfaceType) => {
       return Narrative;
     case 'AlterForm':
       return AlterForm;
+    case 'FamilyTreeCensus':
+      return FamilyTreeCensus;
     case 'EgoForm':
       return EgoForm;
     case 'AlterEdgeForm':
@@ -111,7 +116,6 @@ const getInterface = (interfaceType: InterfaceType) => {
       return Geospatial;
     case 'FinishSession':
       return FinishSession;
-    case 'FamilyTreeCensus':
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }

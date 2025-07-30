@@ -7,6 +7,7 @@ import { isDirty, isValid, submit } from 'redux-form';
 import Markdown from '~/lib/ui/components/Fields/Markdown';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';
+import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import {
   type Dialog,
   openDialog as openDialogAction,
@@ -14,7 +15,6 @@ import {
 import { updateEgo } from '../../ducks/modules/session';
 import useFlipflop from '../../hooks/useFlipflop';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
-import { getEgoAttributes } from '../../selectors/session';
 import { useAppDispatch } from '../../store';
 import Form from '../Form';
 import { type BeforeNextFunction } from '../ProtocolScreen';
@@ -40,17 +40,16 @@ const confirmDialog: Omit<Dialog, 'id'> = {
   confirmLabel: 'Discard changes',
 };
 
-const getFormName = (index: string) => `EGO_FORM_${index}`;
+// TODO: change to census form
+const getFormName = (index: string) => `CENSUS_FORM_${index}`;
 
-type EgoFormProps = StageProps & {
-  stage: Extract<Stage, { type: 'EgoForm' }>;
+type FamilyTreeCensusProps = StageProps & {
+  stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
 };
 
-const EgoForm = (props: EgoFormProps) => {
+const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { registerBeforeNext, stage } = props;
-
-  const { form, introductionPanel } = stage;
-  console.log('FORM HERE', form);
+  const { introductionPanel } = stage;
   const dispatch = useAppDispatch();
   const openDialog = useCallback(
     (dialog: Omit<Dialog, 'id'>) => dispatch(openDialogAction(dialog)),
@@ -67,9 +66,10 @@ const EgoForm = (props: EgoFormProps) => {
     7000,
     false,
   );
+
   const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
-  const egoAttributes = useSelector(getEgoAttributes);
+  // const egoAttributes = useSelector(getEgoAttributes);
 
   const formName = getFormName(props.stage.id);
   const isFormValid = useSelector(isValid(formName));
@@ -153,11 +153,33 @@ const EgoForm = (props: EgoFormProps) => {
     [scrollProgress, showScrollStatus, isOverflowing],
   );
 
-  console.log('form HERE', form);
-  console.log('attributes HERE', egoAttributes);
+  const step1CensusForm = {
+    fields: [
+      { variable: 'var1', prompt: 'How many brothers do you have?' },
+      { variable: 'var2', prompt: 'How many sisters do you have?' },
+      { variable: 'var3', prompt: 'How many sons do you have?' },
+      { variable: 'var4', prompt: 'How many daughters do you have?' },
+      {
+        variable: 'var5',
+        prompt: 'How many brothers does your mother have?',
+      },
+      {
+        variable: 'var6',
+        prompt: 'How many sisters does your mother have?',
+      },
+      {
+        variable: 'var7',
+        prompt: 'How many brothers does your father have?',
+      },
+      {
+        variable: 'var8',
+        prompt: 'How many sisters does your father have?',
+      },
+    ],
+  };
 
   return (
-    <div className="ego-form alter-form">
+    <div className="interface ego-form alter-form family-pedigree-interface">
       <div className="ego-form__form-container">
         <Scroller
           className="ego-form__form-container-scroller"
@@ -167,14 +189,14 @@ const EgoForm = (props: EgoFormProps) => {
             <h1>{introductionPanel!.title}</h1>
             <Markdown label={introductionPanel!.text} />
           </div>
+
           <Form
-            {...form}
-            initialValues={egoAttributes}
+            {...step1CensusForm}
+            // initialValues={egoAttributes}
             form={formName}
-            subject={{ entity: 'ego' }}
+            // subject={{ entity: 'ego' }}
             onSubmit={handleSubmitForm}
             onChange={() => {
-              // Reset the scroll nudge timeout each time a form field is changed
               setShowScrollStatus(false);
             }}
           />
@@ -208,4 +230,4 @@ const EgoForm = (props: EgoFormProps) => {
   );
 };
 
-export default EgoForm;
+export default withNoSSRWrapper(FamilyTreeCensus);
