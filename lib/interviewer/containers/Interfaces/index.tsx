@@ -96,6 +96,7 @@ const getInterface = (interfaceType: InterfaceType) => {
         loading: StageLoading,
       });
     case 'FamilyTreeCensus':
+      return FamilyTreeCensus;
     default:
       return () => <NotFoundInterface interfaceType={interfaceType} />;
   }
