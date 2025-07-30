@@ -138,6 +138,9 @@ const AnimatedVirtualItem = <T,>({
     ? undefined
     : (animationConfig ?? defaultAnimationConfig);
 
+  // Extract positioning transform from style prop (e.g., translateX for horizontal layout)
+  const positionTransform = style.transform as string | undefined;
+
   useEffect(() => {
     if (!config || (!isEntering && !isExiting)) return;
 
@@ -157,12 +160,23 @@ const AnimatedVirtualItem = <T,>({
       const element = itemRef.current;
       if (!element) return;
 
+      // Compose transforms: combine positioning transform with animation transforms
+      const fromKeyframe = { ...animation.keyframes.from } as Keyframe;
+      const toKeyframe = { ...animation.keyframes.to } as Keyframe;
+      
+      if (positionTransform) {
+        // Combine positioning transform with animation transforms
+        if (fromKeyframe.transform) {
+          fromKeyframe.transform = `${positionTransform} ${fromKeyframe.transform}`;
+        }
+        if (toKeyframe.transform) {
+          toKeyframe.transform = `${positionTransform} ${toKeyframe.transform}`;
+        }
+      }
+
       // Apply animation
       const keyframeAnimation = element.animate(
-        [
-          animation.keyframes.from as Keyframe,
-          animation.keyframes.to as Keyframe,
-        ],
+        [fromKeyframe, toKeyframe],
         {
           duration: animation.timing.duration,
           easing: animation.timing.easing ?? 'ease',
@@ -179,7 +193,7 @@ const AnimatedVirtualItem = <T,>({
     }, totalDelay);
 
     return () => clearTimeout(timer);
-  }, [isEntering, isExiting, config, staggerIndex]);
+  }, [isEntering, isExiting, config, staggerIndex, positionTransform]);
 
   if (!isVisible && !isAnimating) {
     return null;
@@ -192,6 +206,11 @@ const AnimatedVirtualItem = <T,>({
       : {}),
     ...(config && isExiting ? (config.exit?.keyframes.from ?? {}) : {}),
   };
+
+  // Don't override positioning transforms with animation transforms
+  if (positionTransform) {
+    animatedStyle.transform = positionTransform;
+  }
 
   const handleClick = () => {
     if (onClick) {
