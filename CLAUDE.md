@@ -4,62 +4,79 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fresco brings Network Canvas interviews to the web browser. It's a web-based platform for conducting network interviews, built with Next.js 14, TypeScript, and PostgreSQL.
+Fresco is a web-based Network Canvas interview platform built with Next.js 14 that brings network analysis interviews to web browsers. It's a pilot project that enables researchers to conduct network interviews online with support for various interface types (Name Generator, Sociogram, etc.) without adding new features to Network Canvas.
+
+## Current Status
+
+The project is in heavy development with significant new features being added. It's on version 3.0.0.
 
 ## Development Commands
 
 ### Development
 
-- `pnpm dev` - Start development server with Docker database
-- `pnpm build` - Build the application
+- `pnpm dev` - Start development server with Docker PostgreSQL database
+- `pnpm build` - Build production application
 - `pnpm start` - Start production server
 
 ### Code Quality
 
-- `pnpm lint` - Run ESLint
-- `pnpm typecheck` - Run TypeScript type checking
+- `pnpm lint` - Run ESLint code linting
+- `pnpm typecheck` / `pnpm ts-lint` - Run TypeScript type checking
+- `pnpm knip` - Detect unused code and dependencies
 - `npx prettier --write .` - Format code with Prettier
 
 ### Testing
 
-- `pnpm test` - Run Vitest tests
-- `pnpm load-test` - Run load testing with K6
+- `pnpm test` - Run Vitest unit tests
+- `npx playwright test` - Run E2E tests (Playwright must be installed)
+- `pnpm test:e2e` - Run E2E tests in test environment
+- `pnpm test:e2e:ui` - Run E2E tests with UI
+- `pnpm test:e2e:debug` - Debug E2E tests
+- `pnpm test:e2e:report` - Show E2E test report
+- `pnpm load-test` - Run K6 load tests via Docker
 
 ### Database
 
+- Database runs in Docker during development via `pnpm dev`
+- Prisma migrations are handled automatically
 - `npx prisma generate` - Generate Prisma client
 - `npx prisma db push` - Push schema changes to database
 - `npx prisma studio` - Open Prisma Studio
 
-### Utilities
+## Architecture
 
-- `pnpm knip` - Check for unused dependencies and exports
+### Next.js App Router Structure
 
-## Architecture Overview
-
-### Directory Structure
-
-- `/app` - Next.js App Router pages and API routes
-  - `(blobs)/` - Authentication and setup pages
-  - `(interview)/` - Interview interface
-  - `dashboard/` - Admin dashboard
-- `/components` - Shared UI components (shadcn/ui based)
-- `/lib` - Core libraries
-  - `interviewer/` - Network Canvas interview engine with Redux state
-  - `network-exporters/` - Data export functionality
-- `/actions` - Server actions for data operations
-- `/queries` - Prisma database queries
-- `/schemas` - Zod validation schemas
+- Modern App Router with route groups: `(blobs)`, `(interview)`, `(setup)`
+- Server Components by default, Client Components marked with `"use client"`
+- API routes in `/app/api/`
+- Middleware handles authentication and routing
 
 ### Key Technologies
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 14 with App Router, React 18.3.1, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: Lucia Auth
-- **State Management**: Redux Toolkit (interview components)
-- **UI**: Tailwind CSS with Radix UI
-- **Validation**: Zod schemas
+- **Authentication**: Lucia Auth with session management
+- **UI**: Shadcn/ui components + Tailwind CSS 4.1.10 with Radix UI
+- **State Management**: Redux Toolkit + React-Redux (for interview components)
 - **File Uploads**: UploadThing
+- **Validation**: Zod schemas
+- **Package Manager**: pnpm 9.1.1
+
+### Directory Structure
+
+- `/app` - Next.js App Router (routes, layouts, API)
+  - `(blobs)/` - Authentication and setup pages
+  - `(interview)/` - Interview interface
+  - `dashboard/` - Admin dashboard
+- `/lib` - Core libraries including `/interviewer` components
+  - `interviewer/` - Network Canvas interview engine with Redux state
+  - `network-exporters/` - Data export functionality
+- `/components` - Reusable UI components (Shadcn/ui based)
+- `/actions` - Next.js Server Actions for data operations
+- `/queries` - Server-side data fetching utilities (Prisma database queries)
+- `/schemas` - Zod validation schemas
+- `/prisma` - Database schema and migrations
 
 ### Interview Engine
 
@@ -77,16 +94,46 @@ The core interview functionality is in `/lib/interviewer/`, which contains:
 3. Network data is exported using the network-exporters library
 4. Server actions handle data mutations with Zod validation
 
-## Code Conventions
+### Authentication System
 
-### TypeScript
+- Uses Lucia Auth for session-based authentication
+- Protected routes handled by middleware
+- User management with username/password
+- Session persistence across requests
 
-- Strict mode enabled with `noUncheckedIndexedAccess`
-- Use `type` over `interface` for type definitions
+### Network Canvas Integration
+
+- Protocol import/export functionality
+- Interview session management with complex state
+- Multiple interface types with specialized components
+- Network data visualization and export capabilities
+
+## Development Notes
+
+### Code Style
+
+- TypeScript strict mode enabled with `noUncheckedIndexedAccess`
+- ESLint + Prettier configured
+- Uses absolute imports with path mapping (`~/` prefix)
+- Server/Client component pattern with Next.js App Router
+- **ALWAYS use types instead of interfaces** (ESLint enforced)
 - Prefer inline type imports: `import { type Foo }`
 
-### Component Structure
+### Database Patterns
 
+- Prisma for type-safe database access
+- Key entities: Users, Sessions, Protocols, Interviews, Participants
+- Use `cuid()` for generating IDs
+- JSON data storage for flexible network structures (protocols, networks)
+- Connection pooling configured for production
+- Proper indexing on foreign keys
+
+### Component Patterns
+
+- Custom UI library built on Shadcn/ui + Radix primitives
+- Server Actions for form handling and mutations
+- Client-side state management with Redux for complex interview flows
+- Responsive design with Tailwind container classes
 - Functional components with TypeScript
 - Props typed with explicit types
 - Default exports for pages, named exports for utilities
@@ -97,13 +144,7 @@ The core interview functionality is in `/lib/interviewer/`, which contains:
 - `.ts` for utilities and non-React code
 - camelCase for files, PascalCase for components
 
-### Database
-
-- Use `cuid()` for generating IDs
-- Complex data stored as Json fields (protocols, networks)
-- Proper indexing on foreign keys
-
-## Environment Configuration
+### Environment Configuration
 
 Environment variables are validated using `env.js` with Zod schemas. Key variables:
 
@@ -113,7 +154,7 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 - `DISABLE_ANALYTICS` - Disable analytics (default: false)
 - `SANDBOX_MODE` - Enable sandbox mode (default: false)
 
-## Protocol Support
+### Protocol Support
 
 - Supported schema versions: 7, 8
 - Protocol files use `.netcanvas` extension
@@ -128,8 +169,14 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 
 ## Best Practices
 
-- Always run lint and format tasks after your work
+- Always run lint and typecheck tasks after your work
+- When creating new tests, always add data attributes to components that are being tested
+- Follow the established patterns in the codebase
+- Use Server Components by default, Client Components only when needed
 
 ## Debugging and Development Tips
 
-- Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+- Use the playwright mcp to debug errors and view console output directly
+- Do NOT start the development server or the storybook server - prompt the user to start these
+
+This is a sophisticated research platform requiring careful handling of user data and interview state management.

@@ -103,7 +103,7 @@ export function DataTable<TData, TValue>({
           deleteRowsAction={deleteRowsAction}
         />
       )}
-      <Table>
+      <Table data-testid="activity-feed">
         <TableHeader>
           {dataTable.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

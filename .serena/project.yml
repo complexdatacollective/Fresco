@@ -1,4 +1,4 @@
-# language of the project (csharp, python, rust, java, typescript, go, cpp, or ruby)
+# language of the project (csharp, python, rust, java, typescript, javascript, go, cpp, or ruby)
 #  * For C, use cpp
 #  * For JavaScript, use typescript
 # Special requirements:
@@ -62,6 +62,6 @@ excluded_tools: []
 
 # initial prompt for the project. It will always be given to the LLM upon activating the project
 # (contrary to the memories, which are loaded on demand).
-initial_prompt: ''
+initial_prompt: ""
 
-project_name: 'Fresco'
+project_name: "Fresco"

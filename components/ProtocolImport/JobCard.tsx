@@ -101,4 +101,4 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
 
 JobCard.displayName = 'JobCard';
 
-export default motion(JobCard);
+export default motion.create(JobCard);

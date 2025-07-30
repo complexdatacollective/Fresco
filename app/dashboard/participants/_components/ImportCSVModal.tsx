@@ -104,12 +104,12 @@ const ImportCSVModal = ({
     <>
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
         <DialogTrigger asChild>
-          <Button className="w-full">
+          <Button className="w-full" data-testid="import-csv-button">
             <FileDown className="mr-2 h-4 w-4" />
             Import participants
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl" data-testid="import-csv-modal">
           <DialogHeader>
             <DialogTitle>Import participants</DialogTitle>
             <DialogDescription>

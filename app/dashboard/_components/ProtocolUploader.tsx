@@ -51,6 +51,7 @@ function ProtocolUploader({
   return (
     <>
       <Button
+        data-testid="add-protocol-button"
         disabled={buttonDisabled}
         onClick={open}
         variant={buttonVariant}

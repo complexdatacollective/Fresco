@@ -30,6 +30,7 @@ export const SignUpForm = () => {
       className="flex flex-col"
       onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       autoComplete="do-not-autofill"
+      data-testid="create-account-form"
     >
       <div className="mb-6 flex flex-wrap">
         <Input
