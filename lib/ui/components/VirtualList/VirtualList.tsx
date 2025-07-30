@@ -309,23 +309,23 @@ export const VirtualList = <T,>({
   // Use external selection if provided, otherwise use internal
   const currentSelectedItems = selectedItems ?? internalSelectedItems;
 
-  // Resize observer to track container size changes
+  // Resize observer to track container size changes - optimized to avoid recreation
+  const stableResizeCallback = useCallback((entries: ResizeObserverEntry[]) => {
+    for (const entry of entries) {
+      setContainerSize({
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
+      });
+    }
+  }, []);
+
   useEffect(() => {
-    if (!layout) return; // Only needed for layout modes
-
     const element = parentRef.current;
-    if (!element) return;
+    if (!element || !layout) return;
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setContainerSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        });
-      }
-    });
-
+    const resizeObserver = new ResizeObserver(stableResizeCallback);
     resizeObserver.observe(element);
+    
     setContainerSize({
       width: element.clientWidth,
       height: element.clientHeight,
@@ -334,7 +334,7 @@ export const VirtualList = <T,>({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [layout]);
+  }, [stableResizeCallback, layout]); // Include layout but with stable callback
 
   // Unified item interaction handler for both click and keyboard
   const handleItemInteraction = useCallback(
@@ -354,10 +354,11 @@ export const VirtualList = <T,>({
         }
         onItemSelect?.(
           Array.from(newSelection)
-            .map(
-              (k) => items.find((item, idx) => keyExtractor(item, idx) === k)!,
-            )
-            .filter(Boolean),
+            .map((key) => {
+              const index = items.findIndex((item, idx) => keyExtractor(item, idx) === key);
+              return index >= 0 ? items[index] : null;
+            })
+            .filter((item): item is T => item !== null),
         );
       }
 

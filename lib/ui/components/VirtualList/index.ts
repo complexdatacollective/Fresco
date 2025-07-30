@@ -1,11 +1,11 @@
-export { VirtualList } from './VirtualList';
-export type { 
-  VirtualListProps, 
-  LayoutConfig, 
-  GridModeConfig, 
-  ColumnModeConfig, 
-  HorizontalModeConfig,
+export type {
   AnimationConfig,
+  AnimationKeyframes,
   AnimationTiming,
-  AnimationKeyframes
+  ColumnModeConfig,
+  GridModeConfig,
+  HorizontalModeConfig,
+  LayoutConfig,
+  VirtualListProps,
 } from './types';
+export { VirtualList } from './VirtualList';

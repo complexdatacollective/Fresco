@@ -50,6 +50,43 @@ export type AnimationConfig = {
   disabled?: boolean;
 };
 
+// Additional utility types for the architecture
+export type Size = {
+  width: number;
+  height: number;
+};
+
+export type ItemRenderer<T> = (props: {
+  item: T;
+  index: number;
+  style: React.CSSProperties;
+}) => React.ReactElement;
+
+export type VirtualizerConfig = {
+  horizontal: boolean;
+  count: number;
+  estimateSize: () => number;
+  itemsPerRow?: number;
+  columns?: number;
+  columnWidth?: number;
+};
+
+export type DragDropProps<T> = {
+  draggable?: boolean;
+  droppable?: boolean;
+  itemType?: string;
+  onDrop?: (metadata: unknown) => void;
+  accepts?: string[];
+  getDragMetadata?: (item: T) => Record<string, unknown>;
+  getDragPreview?: (item: T) => React.ReactElement;
+};
+
+export type SelectionProps<T> = {
+  multiSelect?: boolean;
+  selectedItems?: Set<string>;
+  onItemSelect?: (items: T[]) => void;
+};
+
 export type VirtualListProps<T> = {
   // Data
   items: T[];
