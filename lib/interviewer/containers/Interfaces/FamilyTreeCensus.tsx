@@ -16,20 +16,21 @@ const yGap = 100;
 const egoGender = 'female';
 
 const genderColors: Record<string, string> = {
-  'male': "primary-color-seq-1",
-  'female': "primary-color-seq-2",
-}; const genderShapes: Record<string, string> = {
-  'male': 'circle',
-  'female': 'triangle',
+  male: 'primary-color-seq-1',
+  female: 'primary-color-seq-2',
+};
+const genderShapes: Record<string, string> = {
+  male: 'circle',
+  female: 'triangle',
 };
 
 type PlaceholderNodeProps = {
-  id?: string,
-  gender: string,
-  label: string,
-  xPos: number,
-  yPos: number,
-  handleClick?: (id: string) => void,
+  id?: string;
+  gender: string;
+  label: string;
+  xPos: number;
+  yPos: number;
+  handleClick?: (id: string) => void;
 };
 const FamilyTreeNode = (props: PlaceholderNodeProps) => {
   const {
@@ -41,22 +42,21 @@ const FamilyTreeNode = (props: PlaceholderNodeProps) => {
     handleClick = () => undefined,
   } = props;
 
-  return <UINode
-    key={`${xPos}-${yPos}`}
-    color={genderColors[gender]}
-    label={label}
-    shape={genderShapes[gender]}
-    xPos={xPos}
-    yPos={yPos}
-    handleClick={() => handleClick(id)}
-  />
-}
+  return (
+    <UINode
+      key={`${xPos}-${yPos}`}
+      color={genderColors[gender]}
+      label={label}
+      shape={genderShapes[gender]}
+      xPos={xPos}
+      yPos={yPos}
+      handleClick={() => handleClick(id)}
+    />
+  );
+};
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
-  const {
-    getNavigationHelpers,
-    registerBeforeNext,
-  } = props;
+  const { getNavigationHelpers, registerBeforeNext } = props;
   // keep an index to the step that we're viewing
   // and configure navigation logic
   const [activeIndex, setActiveIndex] = useState(0);
@@ -73,86 +73,97 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     [activeIndex],
   );
   const beforeNext = (direction: string) => {
-    if (direction == "forwards") {
+    if (direction == 'forwards') {
       nextItem();
-    } else if (direction == "backwards") {
+    } else if (direction == 'backwards') {
       previousItem();
     }
     return false;
   };
   registerBeforeNext(beforeNext);
 
-  const [familyTreeNodes, setFamilyTreeNodes] = useState<(PlaceholderNodeProps)[]>([]);
+  const [familyTreeNodes, setFamilyTreeNodes] = useState<
+    PlaceholderNodeProps[]
+  >([]);
   const addFamilyTreeNode = (newNode: PlaceholderNodeProps) => {
-    setFamilyTreeNodes(oldNodes => [...oldNodes, newNode])
+    setFamilyTreeNodes((oldNodes) => [...oldNodes, newNode]);
   };
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   // return either an empty array or an array of integers from 1 to the number of relations
-  const arrayFromRelationCount = (formData: Record<string, string>, relation: string) => {
-    if (typeof formData[relation] != "string") {
+  const arrayFromRelationCount = (
+    formData: Record<string, string>,
+    relation: string,
+  ) => {
+    if (typeof formData[relation] != 'string') {
       return [];
     } else {
       return [...Array(parseInt(formData[relation])).keys()];
     }
-  }
+  };
 
   const generatePlaceholderNodes = (formData: Record<string, string>) => {
     addFamilyTreeNode({
-      gender: "male",
-      label: "father",
+      gender: 'male',
+      label: 'father',
       xPos: xEgoOffset - 50,
       yPos: yParentOffset,
-      handleClick: setSelectedNode
+      handleClick: setSelectedNode,
     });
     addFamilyTreeNode({
-      gender: "female",
-      label: "mother",
+      gender: 'female',
+      label: 'mother',
       xPos: xEgoOffset + 50,
       yPos: yParentOffset,
-      handleClick: setSelectedNode
+      handleClick: setSelectedNode,
     });
     addFamilyTreeNode({
       gender: egoGender,
-      label: "self",
+      label: 'self',
       xPos: xEgoOffset,
       yPos: yParentOffset + yGap,
-      handleClick: setSelectedNode
+      handleClick: setSelectedNode,
     });
-    arrayFromRelationCount(formData, 'brothers').forEach(i => {
+    arrayFromRelationCount(formData, 'brothers').forEach((i) => {
       addFamilyTreeNode({
-        gender: "male",
-        label: "brother",
+        gender: 'male',
+        label: 'brother',
         xPos: xEgoOffset + 100 * (i + 1),
         yPos: yParentOffset + yGap,
-        handleClick: setSelectedNode
+        handleClick: setSelectedNode,
       });
     });
-    arrayFromRelationCount(formData, 'sisters').forEach(i => {
+    arrayFromRelationCount(formData, 'sisters').forEach((i) => {
       addFamilyTreeNode({
-        gender: "female",
-        label: "sister",
-        xPos: xEgoOffset + arrayFromRelationCount(formData, 'brothers').length * 100 + 100 * (i + 1),
+        gender: 'female',
+        label: 'sister',
+        xPos:
+          xEgoOffset +
+          arrayFromRelationCount(formData, 'brothers').length * 100 +
+          100 * (i + 1),
         yPos: yParentOffset + yGap,
-        handleClick: setSelectedNode
+        handleClick: setSelectedNode,
       });
     });
-    arrayFromRelationCount(formData, 'sons').forEach(i => {
+    arrayFromRelationCount(formData, 'sons').forEach((i) => {
       addFamilyTreeNode({
-        gender: "male",
-        label: "son",
+        gender: 'male',
+        label: 'son',
         xPos: xEgoOffset + 100 * (i + 1),
         yPos: yParentOffset + 2 * yGap,
-        handleClick: setSelectedNode
+        handleClick: setSelectedNode,
       });
     });
-    arrayFromRelationCount(formData, 'daughters').forEach(i => {
+    arrayFromRelationCount(formData, 'daughters').forEach((i) => {
       addFamilyTreeNode({
-        gender: "female",
-        label: "daughter",
-        xPos: xEgoOffset + arrayFromRelationCount(formData, 'sons').length * 100 + 100 * (i + 1),
+        gender: 'female',
+        label: 'daughter',
+        xPos:
+          xEgoOffset +
+          arrayFromRelationCount(formData, 'sons').length * 100 +
+          100 * (i + 1),
         yPos: yParentOffset + 2 * yGap,
-        handleClick: setSelectedNode
+        handleClick: setSelectedNode,
       });
     });
   };
@@ -204,9 +215,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const renderNameForm = () => {
     const step3NameForm = {
-      fields: [
-        { variable: 'name', prompt: 'What is this person\'s name?' },
-      ],
+      fields: [{ variable: 'name', prompt: "What is this person's name?" }],
     };
 
     return (
@@ -226,15 +235,32 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return (
       <div className="family-pedigree-interface">
         <div className="edge-layout">
-          <UIPartnerConnector xStartPos={xEgoOffset - 50} xEndPos={xEgoOffset + 50} yPos={yParentOffset} />
-          <UIOffspringConnector xPos={xEgoOffset} yStartPos={yParentOffset} yEndPos={yParentOffset + 50} />
+          <UIPartnerConnector
+            xStartPos={xEgoOffset - 50}
+            xEndPos={xEgoOffset + 50}
+            yPos={yParentOffset}
+          />
+          <UIOffspringConnector
+            xPos={xEgoOffset}
+            yStartPos={yParentOffset}
+            yEndPos={yParentOffset + 50}
+          />
           {/*<UISiblingConnector xStartPos={xEgoOffset} xEndPos={500} yPos={150} />
           <UISiblingConnector xStartPos={xEgoOffset} xEndPos={600} yPos={150} />
           <UISiblingConnector xStartPos={xEgoOffset} xEndPos={700} yPos={150} />*/}
         </div>
         <div className="node-layout">
           {familyTreeNodes.map((node) => {
-            return <FamilyTreeNode key={crypto.randomUUID()} id={node.id} gender={node.gender} label={node.label} xPos={node.xPos} yPos={node.yPos} />
+            return (
+              <FamilyTreeNode
+                key={crypto.randomUUID()}
+                id={node.id}
+                gender={node.gender}
+                label={node.label}
+                xPos={node.xPos}
+                yPos={node.yPos}
+              />
+            );
           })}
         </div>
       </div>
@@ -245,21 +271,39 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return (
       <div className="family-pedigree-interface">
         <div className="edge-layout">
-          <UIPartnerConnector xStartPos={xEgoOffset - 50} xEndPos={xEgoOffset + 50} yPos={yParentOffset} />
-          <UIOffspringConnector xPos={xEgoOffset} yStartPos={yParentOffset} yEndPos={yParentOffset + 50} />
+          <UIPartnerConnector
+            xStartPos={xEgoOffset - 50}
+            xEndPos={xEgoOffset + 50}
+            yPos={yParentOffset}
+          />
+          <UIOffspringConnector
+            xPos={xEgoOffset}
+            yStartPos={yParentOffset}
+            yEndPos={yParentOffset + 50}
+          />
           {/*<UISiblingConnector xStartPos={xEgoOffset} xEndPos={500} yPos={150} />
           <UISiblingConnector xStartPos={xEgoOffset} xEndPos={600} yPos={150} />
           <UISiblingConnector xStartPos={xEgoOffset} xEndPos={700} yPos={150} />*/}
         </div>
         <div className="node-layout">
           {familyTreeNodes.map((node) => {
-            return <FamilyTreeNode key={crypto.randomUUID()} id={node.id} gender={node.gender} label={node.label} xPos={node.xPos} yPos={node.yPos} handleClick={node.handleClick} />
+            return (
+              <FamilyTreeNode
+                key={crypto.randomUUID()}
+                id={node.id}
+                gender={node.gender}
+                label={node.label}
+                xPos={node.xPos}
+                yPos={node.yPos}
+                handleClick={node.handleClick}
+              />
+            );
           })}
         </div>
         {selectedNode != null ? renderNameForm() : null}
       </div>
     );
-  }
+  };
 
   const renderActiveStep = () => {
     if (isStep1()) {
@@ -269,14 +313,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     } else {
       return renderFamilyTreeCompletion();
     }
-  }
+  };
 
-  return (
-    <div>
-      {renderActiveStep()}
-    </div>
-  );
+  return <div>{renderActiveStep()}</div>;
 };
-
 
 export default withNoSSRWrapper(FamilyTreeCensus);
