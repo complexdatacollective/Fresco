@@ -14,7 +14,6 @@ type FormProps = {
   disabled?: boolean;
   focusFirstInput?: boolean;
 } & React.FormHTMLAttributes<HTMLFormElement>;
-
 const Form = forwardRef<HTMLFormElement, FormProps>(
   (
     {

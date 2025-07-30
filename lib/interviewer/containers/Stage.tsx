@@ -11,7 +11,7 @@ export type StageProps = {
     moveForward: () => void;
     moveBackward: () => void;
   };
-}
+};
 
 function Stage(props: StageProps) {
   const { stage, registerBeforeNext, getNavigationHelpers } = props;

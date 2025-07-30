@@ -1,6 +1,16 @@
 import classNames from 'classnames';
 import { Loader2 } from 'lucide-react';
-import { forwardRef } from 'react';
+import { ComponentType, SVGProps, forwardRef } from 'react';
+
+type ShapeComponent = ComponentType<SVGProps<SVGElement>>;
+
+const DefaultCircle: ShapeComponent = (props) => (
+  <circle cx="250" cy="250" r="200" {...props} />
+);
+
+export const Rectangle: ShapeComponent = (props) => (
+  <rect x="100" y="100" width="300" height="300" rx="20" ry="20" {...props} />
+);
 
 type UINodeProps = {
   color?: string;
@@ -11,6 +21,7 @@ type UINodeProps = {
   linking?: boolean;
   loading?: boolean;
   handleClick?: () => void;
+  shape?: ShapeComponent;
 };
 
 /**
@@ -27,7 +38,11 @@ const Node = forwardRef<HTMLDivElement, UINodeProps>((props, ref) => {
     linking = false,
     handleClick,
     loading = false,
+    shape = DefaultCircle,
   } = props;
+
+  const Shape = props.shape ?? DefaultCircle;
+
   const classes = classNames('node', {
     'node--inactive': inactive,
     'node--selected': selected,
@@ -54,28 +69,39 @@ const Node = forwardRef<HTMLDivElement, UINodeProps>((props, ref) => {
         className="node__node"
         preserveAspectRatio="xMidYMid meet"
       >
-        <circle
-          cx="250"
-          cy="270"
-          r="200"
+        <Shape
           className="node__node-shadow"
           opacity="0.25"
-        />
-        <circle cx="250" cy="250" r="250" className="node__node-outer-trim" />
-        <circle
-          cx="250"
-          cy="250"
-          r="200"
           fill={nodeBaseColor}
-          className="node__node-base"
         />
-        <path
-          d="m50,250 a1,1 0 0,0 400,0"
-          fill={nodeFlashColor}
-          className="node__node-flash"
-          transform="rotate(-35 250 250)"
+        <Shape
+          className="node__node-outer-trim"
+          fill="none"
+          stroke="black"
+          strokeWidth="4"
         />
-        <circle cx="250" cy="250" r="200" className="node__node-trim" />
+        <Shape className="node__node-base" fill={nodeBaseColor} />
+        {shape === Rectangle ? (
+          <path
+            d="M10 10 L10 100 A20 20 10 0 0 20 120 L120 120 L10 20 Z"
+            fill={nodeFlashColor}
+            className="node__node-flash"
+            transform="rotate(-90 200 200) scale(2.65) translate(-10 31)"
+          />
+        ) : (
+          <path
+            d="m50,250 a1,1 0 0,0 400,0"
+            fill={nodeFlashColor}
+            className="node__node-flash"
+            transform="rotate(-35 250 250)"
+          />
+        )}
+        <Shape
+          className="node__node-trim"
+          fill="none"
+          stroke="black"
+          strokeWidth="2"
+        />
       </svg>
       {loading && (
         <div className="absolute flex h-full w-full items-center justify-center">
