@@ -32,7 +32,7 @@ type FormStore = {
   unregisterField: (formName: string, fieldName: string) => void;
 
   // Field state updates
-  setValue: (formName: string, fieldName: string, value: any) => void;
+  setValue: (formName: string, fieldName: string, value: unknown) => void;
   setError: (formName: string, fieldName: string, error: string | null) => void;
   setTouched: (formName: string, fieldName: string, touched: boolean) => void;
   setDirty: (formName: string, fieldName: string, dirty: boolean) => void;
@@ -47,7 +47,7 @@ type FormStore = {
     formName: string,
     fieldName: string,
   ) => FieldState | undefined;
-  getFormValues: (formName: string) => Record<string, any>;
+  getFormValues: (formName: string) => Record<string, unknown>;
   getFormErrors: (formName: string) => Record<string, string>;
   getFormState: (formName: string) => FormState | undefined;
 
@@ -75,7 +75,6 @@ export const useFormStore = create<FormStore>()(
     fieldConfigs: new Map(),
 
     registerForm: (name, config) => {
-      console.log('Registering form:', name, config);
       set((state) => {
         const existingForm = state.forms.get(name);
         const existingFieldConfigs = state.fieldConfigs.get(name);
@@ -119,23 +118,23 @@ export const useFormStore = create<FormStore>()(
     },
 
     registerField: (formName, fieldName, config) => {
-      console.log('Registering field:', formName, fieldName, config);
       set((state) => {
         const form = state.forms.get(formName);
-        
+
         // Form must exist before fields can register
         if (!form) {
-          console.error('Cannot register field: Form does not exist', { formName, fieldName });
           return;
         }
 
         const fieldState: FieldState = {
           value: config.initialValue ?? '',
-          error: null,
-          isValidating: false,
-          isTouched: false,
-          isDirty: false,
-          isValid: true,
+          meta: {
+            error: null,
+            isValidating: false,
+            isTouched: false,
+            isDirty: false,
+            isValid: false,
+          },
         };
 
         // Store field state with dot notation key (flat structure)
@@ -173,7 +172,7 @@ export const useFormStore = create<FormStore>()(
         }
 
         form.fields[fieldName].value = value;
-        form.fields[fieldName].isDirty = true;
+        form.fields[fieldName].meta.isDirty = true;
       });
     },
 
@@ -182,12 +181,12 @@ export const useFormStore = create<FormStore>()(
         const form = state.forms.get(formName);
         if (!form?.fields[fieldName]) return;
 
-        form.fields[fieldName].error = error;
-        form.fields[fieldName].isValid = !error;
+        form.fields[fieldName].meta.error = error;
+        form.fields[fieldName].meta.isValid = !error;
 
         // Update form-level isValid
         form.isValid = Object.values(form.fields).every(
-          (field) => field.isValid,
+          (field) => field.meta.isValid,
         );
       });
     },
@@ -197,7 +196,7 @@ export const useFormStore = create<FormStore>()(
         const form = state.forms.get(formName);
         if (!form?.fields[fieldName]) return;
 
-        form.fields[fieldName].isTouched = touched;
+        form.fields[fieldName].meta.isTouched = touched;
       });
     },
 
@@ -206,7 +205,7 @@ export const useFormStore = create<FormStore>()(
         const form = state.forms.get(formName);
         if (!form?.fields[fieldName]) return;
 
-        form.fields[fieldName].isDirty = dirty;
+        form.fields[fieldName].meta.isDirty = dirty;
       });
     },
 
@@ -215,11 +214,11 @@ export const useFormStore = create<FormStore>()(
         const form = state.forms.get(formName);
         if (!form?.fields[fieldName]) return;
 
-        form.fields[fieldName].isValidating = validating;
+        form.fields[fieldName].meta.isValidating = validating;
 
         // Update form-level isValidating
         form.isValidating = Object.values(form.fields).some(
-          (field) => field.isValidating,
+          (field) => field.meta.isValidating,
         );
       });
     },
@@ -233,7 +232,7 @@ export const useFormStore = create<FormStore>()(
       const form = get().forms.get(formName);
       if (!form) return {};
 
-      const values: Record<string, any> = {};
+      const values: Record<string, unknown> = {};
       Object.entries(form.fields).forEach(([fieldName, fieldState]) => {
         setValue(values, fieldName, fieldState.value);
       });
@@ -245,8 +244,8 @@ export const useFormStore = create<FormStore>()(
       if (!form) return {};
       const errors: Record<string, string> = {};
       Object.entries(form.fields).forEach(([fieldName, fieldState]) => {
-        if (fieldState.error) {
-          setValue(errors, fieldName, fieldState.error);
+        if (fieldState.meta.error) {
+          setValue(errors, fieldName, fieldState.meta.error);
         }
       });
       return errors;
@@ -267,7 +266,7 @@ export const useFormStore = create<FormStore>()(
       set((draft) => {
         const form = draft.forms.get(formName);
         if (form?.fields[fieldName]) {
-          form.fields[fieldName].isValidating = true;
+          form.fields[fieldName].meta.isValidating = true;
         }
       });
 
@@ -281,13 +280,13 @@ export const useFormStore = create<FormStore>()(
         set((draft) => {
           const form = draft.forms.get(formName);
           if (form?.fields[fieldName]) {
-            form.fields[fieldName].error = error;
-            form.fields[fieldName].isValid = isValid;
-            form.fields[fieldName].isValidating = false;
+            form.fields[fieldName].meta.error = error;
+            form.fields[fieldName].meta.isValid = isValid;
+            form.fields[fieldName].meta.isValidating = false;
 
             // Update form-level isValid
             form.isValid = Object.values(form.fields).every(
-              (field) => field.isValid,
+              (field) => field.meta.isValid,
             );
           }
         });
@@ -295,13 +294,13 @@ export const useFormStore = create<FormStore>()(
         set((draft) => {
           const form = draft.forms.get(formName);
           if (form?.fields[fieldName]) {
-            form.fields[fieldName].error = 'Validation error';
-            form.fields[fieldName].isValid = false;
-            form.fields[fieldName].isValidating = false;
+            form.fields[fieldName].meta.error = 'Validation error';
+            form.fields[fieldName].meta.isValid = false;
+            form.fields[fieldName].meta.isValidating = false;
 
             // Update form-level isValid
             form.isValid = Object.values(form.fields).every(
-              (field) => field.isValid,
+              (field) => field.meta.isValid,
             );
           }
         });
@@ -324,8 +323,7 @@ export const useFormStore = create<FormStore>()(
         if (!fieldState) return true;
 
         const context = {
-          formContext: formConfig?.fieldContext,
-          fieldContext: formConfig?.fieldContext,
+          additionalContext: formConfig?.additionalContext,
           formValues: state.getFormValues(formName),
         };
 
@@ -340,8 +338,8 @@ export const useFormStore = create<FormStore>()(
           set((draft) => {
             const draftForm = draft.forms.get(formName);
             if (draftForm?.fields[fieldName]) {
-              draftForm.fields[fieldName].error = error;
-              draftForm.fields[fieldName].isValid = false;
+              draftForm.fields[fieldName].meta.error = error;
+              draftForm.fields[fieldName].meta.isValid = false;
             }
           });
         }
@@ -365,14 +363,14 @@ export const useFormStore = create<FormStore>()(
               if (draftForm) {
                 Object.entries(formErrors).forEach(([fieldName, error]) => {
                   if (draftForm.fields[fieldName] && error) {
-                    draftForm.fields[fieldName].error = error;
-                    draftForm.fields[fieldName].isValid = false;
+                    draftForm.fields[fieldName].meta.error = error;
+                    draftForm.fields[fieldName].meta.isValid = false;
                   }
                 });
 
                 // Update form-level isValid
                 draftForm.isValid = Object.values(draftForm.fields).every(
-                  (field) => field.isValid,
+                  (field) => field.meta.isValid,
                 );
               }
             });
@@ -380,7 +378,6 @@ export const useFormStore = create<FormStore>()(
             return false;
           }
         } catch (error) {
-          console.error('Form-level validation error:', error);
           return false;
         }
       }
@@ -390,7 +387,7 @@ export const useFormStore = create<FormStore>()(
         const draftForm = draft.forms.get(formName);
         if (draftForm) {
           draftForm.isValid = Object.values(draftForm.fields).every(
-            (field) => field.isValid,
+            (field) => field.meta.isValid,
           );
         }
       });
@@ -430,11 +427,13 @@ export const useFormStore = create<FormStore>()(
 
           form.fields[fieldName] = {
             value: initialValue,
-            error: null,
-            isValidating: false,
-            isTouched: false,
-            isDirty: false,
-            isValid: true,
+            meta: {
+              error: null,
+              isValidating: false,
+              isTouched: false,
+              isDirty: false,
+              isValid: true,
+            },
           };
         });
 
@@ -458,16 +457,18 @@ export const useFormStore = create<FormStore>()(
 
         form.fields[fieldName] = {
           value: initialValue,
-          error: null,
-          isValidating: false,
-          isTouched: false,
-          isDirty: false,
-          isValid: true,
+          meta: {
+            error: null,
+            isValidating: false,
+            isTouched: false,
+            isDirty: false,
+            isValid: true,
+          },
         };
 
         // Update form-level isValid
         form.isValid = Object.values(form.fields).every(
-          (field) => field.isValid,
+          (field) => field.meta.isValid,
         );
       });
     },

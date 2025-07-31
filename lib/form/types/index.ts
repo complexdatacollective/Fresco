@@ -1,14 +1,16 @@
 import { type z } from 'zod';
 
-export type FieldValue = any;
+export type FieldValue = unknown;
 
 export type FieldState = {
   value: FieldValue;
-  error: string | null;
-  isValidating: boolean;
-  isTouched: boolean;
-  isDirty: boolean;
-  isValid: boolean;
+  meta: {
+    error: string | null;
+    isValidating: boolean;
+    isTouched: boolean;
+    isDirty: boolean;
+    isValid: boolean;
+  };
 };
 
 export type FormState = {
@@ -19,28 +21,29 @@ export type FormState = {
   isValid: boolean;
 };
 
-export type FieldConfig = {
+export type FieldConfig<TContext = unknown> = {
   initialValue?: FieldValue;
   validation?:
     | z.ZodTypeAny
-    | ((context: ValidationContext) => z.ZodTypeAny | Promise<z.ZodTypeAny>);
+    | ((
+        context: ValidationContext<TContext>,
+      ) => z.ZodTypeAny | Promise<z.ZodTypeAny>);
 };
 
-export type FormConfig = {
+export type FormConfig<TContext = unknown> = {
   name: string;
-  onSubmit: (values: Record<string, any>) => void | Promise<void>;
+  onSubmit: (values: Record<string, unknown>) => void | Promise<void>;
   onSubmitInvalid?: (errors: FormErrors) => void;
   focusFirstInput?: boolean;
-  fieldContext?: any;
+  additionalContext?: TContext;
   validation?: (
-    values: Record<string, any>,
+    values: Record<string, unknown>,
   ) => FormErrors | Promise<FormErrors>;
 };
 
-export type ValidationContext = {
-  formContext: any;
-  fieldContext: any;
-  formValues: Record<string, any>;
+export type ValidationContext<TContext = unknown> = {
+  additionalContext?: TContext;
+  formValues: Record<string, unknown>;
 };
 
 export type FormErrors = Record<string, string>;

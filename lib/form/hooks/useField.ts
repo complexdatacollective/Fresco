@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, type ChangeEventHandler } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useDebounceCallback } from 'usehooks-ts';
 import { useFormContext } from '../context/FormContext';
 import { useFormStore } from '../store/formStore';
 import type { FieldConfig, ValidationContext } from '../types';
-import { debounce } from '../utils/validation';
 
-export function useField(config: {
+export function useField<TContext = unknown>(config: {
   name: string;
-  initialValue?: any;
-  validation?: FieldConfig['validation'];
+  initialValue?: unknown;
+  validation?: FieldConfig<TContext>['validation'];
 }) {
-  const formContext = useFormContext();
+  const formContext = useFormContext<TContext>();
   const formName = formContext.formName;
 
   const {
@@ -23,18 +23,21 @@ export function useField(config: {
     validateField,
   } = useFormStore();
 
+  const validationContext: ValidationContext<TContext> = useMemo(
+    () => ({
+      additionalContext: formContext.additionalContext,
+      formValues: getFormValues(formName),
+    }),
+    [formContext.additionalContext, formName, getFormValues],
+  );
+
   // Register field on mount - use useLayoutEffect to ensure it runs after form registration
   useEffect(() => {
-    // Use setTimeout to ensure this runs after form registration useLayoutEffect
-    const timeoutId = setTimeout(() => {
-      registerField(formName, config.name, {
-        initialValue: config.initialValue,
-        validation: config.validation,
-      });
-    }, 0);
-
+    registerField(formName, config.name, {
+      initialValue: config.initialValue,
+      validation: config.validation,
+    });
     return () => {
-      clearTimeout(timeoutId);
       unregisterField(formName, config.name);
     };
   }, [
@@ -50,62 +53,53 @@ export function useField(config: {
   const fieldState = getFieldState(formName, config.name);
 
   // Create debounced validation function
-  const debouncedValidationRef = useRef<ReturnType<typeof debounce>>();
-
-  useEffect(() => {
-    debouncedValidationRef.current = debounce((value: any) => {
-      const validationContext: ValidationContext = {
-        formContext: formContext.fieldContext,
-        fieldContext: formContext.fieldContext,
-        formValues: getFormValues(formName),
-      };
-
-      void validateField(formName, config.name, validationContext);
-    }, 300); // 300ms debounce delay
-  }, [formName, config.name, validateField, formContext, getFormValues]);
+  const debouncedValidation = useDebounceCallback(validateField, 100, {
+    leading: true,
+    trailing: true,
+  });
 
   const handleChange = useCallback(
-    (value: ChangeEventHandler<HTMLInputElement>) => {
+    (value: unknown) => {
       setValue(formName, config.name, value);
       setDirty(formName, config.name, true);
 
-      // Trigger debounced validation on change
-      if (debouncedValidationRef.current) {
-        debouncedValidationRef.current(value);
+      if (debouncedValidation) {
+        void debouncedValidation(formName, config.name, validationContext);
       }
     },
-    [formName, config.name, setValue, setDirty],
+    [
+      formName,
+      config.name,
+      setValue,
+      setDirty,
+      debouncedValidation,
+      validationContext,
+    ],
   );
 
   const handleBlur = useCallback(() => {
-    console.log('Field blurred:', config.name);
     setTouched(formName, config.name, true);
 
-    // Trigger validation on blur
-    const validationContext: ValidationContext = {
-      formContext: formContext.fieldContext,
-      fieldContext: formContext.fieldContext,
-      formValues: getFormValues(formName),
-    };
-
-    void validateField(formName, config.name, validationContext);
+    void debouncedValidation(formName, config.name, validationContext);
   }, [
     formName,
     config.name,
     setTouched,
-    validateField,
-    formContext,
-    getFormValues,
+    validationContext,
+    debouncedValidation,
   ]);
 
   return {
-    value: fieldState?.value ?? config.initialValue ?? '',
-    error: fieldState?.error ?? null,
-    isValid: fieldState?.isValid ?? true,
-    isTouched: fieldState?.isTouched ?? false,
-    isDirty: fieldState?.isDirty ?? false,
-    isValidating: fieldState?.isValidating ?? false,
-    onChange: handleChange,
-    onBlur: handleBlur,
+    'value': fieldState?.value ?? config.initialValue ?? '',
+    'meta': {
+      error: fieldState?.meta.error ?? null,
+      isValid: fieldState?.meta.isValid ?? true,
+      isTouched: fieldState?.meta.isTouched ?? false,
+      isDirty: fieldState?.meta.isDirty ?? false,
+      isValidating: fieldState?.meta.isValidating ?? false,
+    },
+    'onChange': handleChange,
+    'onBlur': handleBlur,
+    'data-field-name': config.name, // Used for scrolling to field errors
   };
 }

@@ -1,11 +1,21 @@
-import { useCallback, useId, useLayoutEffect, useRef, type FormEvent } from 'react';
+import {
+  useCallback,
+  useId,
+  useLayoutEffect,
+  useRef,
+  type FormEvent,
+} from 'react';
 import { useFormStore } from '../store/formStore';
 import type { FormConfig, FormErrors } from '../types';
 
-export function useForm(config: Partial<FormConfig> & { name?: string }) {
+export function useForm<TContext = unknown>(config: FormConfig<TContext>) {
   const formId = useId();
-  const formName = config.name || formId;
+  const formName = config.name ?? formId;
   const registeredRef = useRef(false);
+
+  // Store the latest config in a ref to avoid dependency issues
+  const configRef = useRef(config);
+  configRef.current = config;
 
   const {
     registerForm,
@@ -22,10 +32,13 @@ export function useForm(config: Partial<FormConfig> & { name?: string }) {
   // Register form once on mount
   useLayoutEffect(() => {
     if (!registeredRef.current) {
-      const formConfig: FormConfig = {
-        ...config,
+      const formConfig: FormConfig<TContext> = {
         name: formName,
-        onSubmit: config.onSubmit || (() => {}),
+        onSubmit: configRef.current.onSubmit,
+        onSubmitInvalid: configRef.current.onSubmitInvalid,
+        focusFirstInput: configRef.current.focusFirstInput,
+        additionalContext: configRef.current.additionalContext,
+        validation: configRef.current.validation,
       };
       registerForm(formName, formConfig);
       registeredRef.current = true;
@@ -37,7 +50,7 @@ export function useForm(config: Partial<FormConfig> & { name?: string }) {
         registeredRef.current = false;
       }
     };
-  }, [formName, registerForm, unregisterForm]); // Remove config from deps to prevent re-registration
+  }, [formName, registerForm, unregisterForm]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -50,23 +63,24 @@ export function useForm(config: Partial<FormConfig> & { name?: string }) {
       const values = getFormValues(formName);
 
       if (isValid) {
-        await config.onSubmit?.(values);
+        await configRef.current.onSubmit?.(values);
       } else {
         const formState = getFormState(formName);
-        if (formState && config.onSubmitInvalid) {
+        if (formState && configRef.current.onSubmitInvalid) {
           const errors: FormErrors = {};
           Object.entries(formState.fields).forEach(
             ([fieldName, fieldState]) => {
-              if (fieldState.error) {
-                errors[fieldName] = fieldState.error;
+              if (fieldState.meta.error) {
+                errors[fieldName] = fieldState.meta.error;
               }
             },
           );
-          config.onSubmitInvalid(errors);
+          configRef.current.onSubmitInvalid(errors);
         }
       }
     } catch (error) {
-      console.error('Form submission error:', error);
+      // Handle form submission errors silently or with proper error handling
+      // console.error('Form submission error:', error);
     } finally {
       setSubmitting(formName, false);
     }
@@ -82,10 +96,10 @@ export function useForm(config: Partial<FormConfig> & { name?: string }) {
       'data-form-name': formName,
     },
     formName,
-    formContext: {
+    context: {
       formName,
-      fieldContext: config.fieldContext,
-      focusFirstInput: config.focusFirstInput,
+      additionalContext: configRef.current.additionalContext,
+      focusFirstInput: configRef.current.focusFirstInput,
       errors: getFormErrors(formName),
     },
     reset: handleReset,
