@@ -33,7 +33,7 @@ const VirtualItem = <T,>({
   style,
   onClick,
   renderItem,
-  _isVisible,
+
   isFocused = false,
   isSelected = false,
   itemKey,

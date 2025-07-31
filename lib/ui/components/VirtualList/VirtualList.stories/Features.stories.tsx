@@ -4,10 +4,10 @@ import { DndStoreProvider } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
 import { VirtualList } from '../index';
 import {
-  mockItems,
-  ItemComponent,
-  SelectableItemComponent,
   DropTarget,
+  ItemComponent,
+  mockItems,
+  SelectableItemComponent,
   type MockItem,
 } from './shared';
 
@@ -267,7 +267,7 @@ ${selectedItems.map((item) => item.name).join(', ')}`);
                 Interactive Selection Demo
               </h3>
               <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>
-                Click items to select/deselect them. Use Ctrl+A to select all.
+                Click items to select/deselect them.
                 <br />
                 <strong>Selected:</strong> {selectedIds.size} of{' '}
                 {totalItems.length} items
@@ -404,7 +404,9 @@ ${selectedItems.map((item) => item.name).join(', ')}`);
             selectedItems={selectedIds} // Controlled selection state
             onItemSelect={(items) => {
               // Selection change handler - convert items back to Set of IDs
-              setSelectedIds(new Set(items.map((item) => (item as MockItem).id)));
+              setSelectedIds(
+                new Set(items.map((item) => (item as MockItem).id)),
+              );
             }}
             // Accessibility
             ariaLabel="Selectable virtual list with bulk actions"
@@ -877,7 +879,6 @@ export const WithAccessibility: Story = {
                     }}
                     className={cn(
                       'm-2 cursor-pointer rounded-lg px-4 py-6 text-white transition-opacity duration-200 select-none',
-                      'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
                       isSelected ? 'bg-accent' : 'bg-navy-taupe',
                       isSelected &&
                         'ring-2 ring-white ring-offset-2 ring-offset-transparent',

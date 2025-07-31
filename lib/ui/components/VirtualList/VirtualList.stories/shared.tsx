@@ -22,7 +22,7 @@ export const ItemComponent = ({
     style={{
       ...style,
     }}
-    className="bg-navy-taupe focus:ring-accent focus:ring-offset-background m-2 rounded-lg px-4 py-6 text-white transition-opacity duration-200 select-none focus:ring-2 focus:ring-offset-2 focus:outline-none"
+    className="bg-navy-taupe m-2 rounded-lg px-4 py-6 text-white transition-opacity duration-200 select-none"
   >
     {item.name}
   </div>
@@ -113,10 +113,8 @@ export const SelectableItemComponent = ({
     }}
     className={cn(
       'm-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
-      'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
       isSelected ? 'bg-accent' : 'bg-navy-taupe',
       isSelected && 'ring-2 ring-white ring-offset-2 ring-offset-transparent',
-      isFocused && 'ring-2 ring-blue-500 ring-offset-2 ring-offset-background',
     )}
   >
     <div
