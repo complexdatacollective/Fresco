@@ -1,9 +1,22 @@
+import { z } from 'zod';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
-import { Button } from '~/lib/ui/components';
 import { cn } from '~/utils/shadcn';
+import { FormContext } from '../context/FormContext';
+import { useField } from '../hooks/useField';
+import { useForm } from '../hooks/useForm';
+import type { FormErrors } from '../types';
 
 export function SubmitButton() {
-  return <Button type="submit" key="submit" aria-label="Submit" />;
+  return (
+    <button
+      type="submit"
+      key="submit"
+      aria-label="Submit"
+      className="bg-accent text-accent-foreground rounded-xl p-2"
+    >
+      Submit
+    </button>
+  );
 }
 
 /**
@@ -13,14 +26,13 @@ export function SubmitButton() {
 import { Form as BaseForm } from '@base-ui-components/react/form';
 
 type FormProps = {
-  onSubmit: (data: Record<string, unknown>) => void;
+  onSubmit: (data: Record<string, unknown>) => void | Promise<void>;
   initialValues?: Record<string, unknown>;
   focusFirstInput?: boolean;
-} & React.FormHTMLAttributes<HTMLFormElement>;
+} & Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit'>;
 
 export const Form = (props: FormProps) => {
-  const { onSubmit, initialValues, focusFirstInput, children, className } =
-    props;
+  const { onSubmit, focusFirstInput, children, className, ...rest } = props;
 
   const formClasses = cn('flex flex-col gap-4', className);
 
@@ -30,19 +42,25 @@ export const Form = (props: FormProps) => {
     externalData: 234234,
   };
 
-  const { formProps } = useForm({
-    initialValues,
+  const { formProps, formContext } = useForm({
     onSubmit,
-    onSubmitInvalid: ({ errors }) => {
+    onSubmitInvalid: (errors: FormErrors) => {
       scrollToFirstError(errors);
     },
     focusFirstInput,
     fieldContext,
   });
 
+  console.log('Form context:', formContext);
+
   return (
     <FormContext.Provider value={formContext}>
-      <BaseForm className={formClasses} {...formProps}>
+      <BaseForm
+        className={formClasses}
+        {...formProps}
+        {...rest}
+        errors={formContext.errors}
+      >
         {children}
       </BaseForm>
     </FormContext.Provider>
@@ -59,7 +77,7 @@ export const Form = (props: FormProps) => {
  * It would be ideal if FormContextType and FieldContextType were able to be
  * inferred somehow.
  */
-export function Field({
+export function Field<T extends Record<string, any> = Record<string, any>>({
   name,
   initialValue,
   validation,
@@ -67,9 +85,6 @@ export function Field({
   ...additionalFieldProps
 }: {
   name: string;
-  label: string;
-  hint?: string;
-  placeholder?: string;
   initialValue?: unknown;
   validation?:
     | z.ZodTypeAny
@@ -78,25 +93,25 @@ export function Field({
         fieldContext: unknown;
       }) => z.ZodTypeAny);
   Component: React.ElementType;
-}) {
-  const id = useId();
-
+} & T) {
   /**
    * This hook connects the field to the form context, backed by the zustand
    * store. The store tracks field state, the hook handles subscription to
    * changes, and provides the necessary props to the field component.
    */
   const fieldProps = useField({
-    id,
     name,
     initialValue,
     validation,
   });
 
   return (
-    <div className="" data-field-name={name} data-field-id={id}>
-      <Component name={name} {...additionalFieldProps} {...fieldProps} />
-    </div>
+    <Component
+      name={name}
+      {...fieldProps}
+      {...additionalFieldProps}
+      data-field-name={name}
+    />
   );
 }
 
@@ -106,34 +121,33 @@ export function Field({
 
 import { Field as BaseField } from '@base-ui-components/react/field';
 import { Input } from '@base-ui-components/react/input';
-import { useId } from 'react';
-import { z } from 'zod';
+import { type InputHTMLAttributes } from 'react';
 
 // Props that all fields compatible with this system can handle
-type BaseFieldProps = {
-  name: string;
+type BaseFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   hint?: string;
   isValid: boolean;
+  isTouched: boolean;
+  isDirty: boolean;
+  isValidating?: boolean;
   error?: string;
-  placeholder?: string;
-  value?: string;
-  onChange: (value: string) => void;
   onBlur: () => void;
 };
 
 export function InputField({
   name,
-  placeholder,
-  value,
-  onChange,
   isValid,
-  error,
+  isTouched,
+  isDirty,
+  isValidating,
   label,
+  error,
   hint,
-}: BaseFieldProps & {}) {
+  ...inputProps
+}: BaseFieldProps) {
   return (
-    <BaseField.Root invalid={!isValid} className="flex flex-col gap-2">
+    <BaseField.Root name={name} className="flex flex-col gap-2">
       <BaseField.Label className="text-sm font-medium">{label}</BaseField.Label>
       {hint && (
         <BaseField.Description className="text-muted-foreground text-xs">
@@ -142,20 +156,22 @@ export function InputField({
       )}
       <Input
         name={name}
-        placeholder={placeholder}
-        value={value}
-        onValueChange={onChange}
-        className=""
+        {...inputProps}
+        className="rounded border border-gray-300 px-3 py-2"
       />
-      {error && (
-        <BaseField.Error className="text-red-500">{error}</BaseField.Error>
-      )}
+      <BaseField.Error className="text-destructive text-sm">
+        <p>{error}</p>
+      </BaseField.Error>
     </BaseField.Root>
   );
 }
 
+// Default export for backwards compatibility
+export default Form;
+
 export function ExampleForm() {
-  const handleSubmit = (data) => {
+  const handleSubmit = (data: Record<string, unknown>) => {
+    // eslint-disable-next-line no-console
     console.log('Form submitted with data:', data);
   };
 
@@ -171,7 +187,7 @@ export function ExampleForm() {
         placeholder="Enter your email"
         hint="We'll never share your email."
         Component={InputField}
-        validation={({ formContext }) =>
+        validation={({ formContext: _formContext }) =>
           z.string().email('Invalid email address')
         }
       />
@@ -180,10 +196,12 @@ export function ExampleForm() {
         hint="Enter your age. You must be 18 or older."
         label="Age"
         Component={InputField}
-        additionalFieldProps={{ type: 'number' }}
         placeholder="Enter your age"
         validation={() =>
-          z.number().min(18, 'You must be at least 18 years old')
+          z.string().refine((val) => {
+            const num = parseInt(val, 10);
+            return !isNaN(num) && num >= 18;
+          }, 'You must be at least 18 years old')
         }
       />
       <SubmitButton />

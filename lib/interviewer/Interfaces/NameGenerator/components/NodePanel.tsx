@@ -37,10 +37,7 @@ function NodePanel(props: NodePanelProps) {
     accepts,
   } = props;
 
-  const stageSubject = useSelector(getStageSubject) as Extract<
-    StageSubject,
-    { entity: 'node' }
-  >;
+  const stageSubject = useSelector(getStageSubject);
   const { externalData } = useExternalData(
     panelConfig.dataSource,
     stageSubject,
