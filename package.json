@@ -57,7 +57,7 @@
     "classnames": "^2.5.1",
     "cmdk": "^1.1.1",
     "color": "^2.0.1",
-    "concaveman": "^1.2.1",
+    "concaveman": "^2.0.0",
     "csvtojson": "^2.0.10",
     "d3-interpolate-path": "^2.3.0",
     "dotenv": "^17.2.1",
