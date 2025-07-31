@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { VirtualList } from './index';
-import { mockItems, ItemComponent, type MockItem } from './VirtualList.stories/shared';
+import {
+  mockItems,
+  ItemComponent,
+  type MockItem,
+} from './VirtualList.stories/shared';
 
 const meta: Meta<typeof VirtualList> = {
   title: 'Components/VirtualList',
@@ -49,19 +53,46 @@ export const Overview: Story = {
         <h2 style={{ margin: '0 0 16px 0', fontSize: '24px', color: '#333' }}>
           VirtualList Component
         </h2>
-        <p style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#666', lineHeight: '1.5' }}>
-          A powerful virtualized list component built with the new decomposed architecture.
-          Supports multiple layout modes, animations, drag & drop, selection, and comprehensive accessibility features.
+        <p
+          style={{
+            margin: '0 0 16px 0',
+            fontSize: '16px',
+            color: '#666',
+            lineHeight: '1.5',
+          }}
+        >
+          A powerful virtualized list component built with the new decomposed
+          architecture. Supports multiple layout modes, animations, drag & drop,
+          selection, and comprehensive accessibility features.
         </p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ padding: '12px', backgroundColor: '#f3e5f5', borderRadius: '6px' }}>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '16px',
+            marginBottom: '20px',
+          }}
+        >
+          <div
+            style={{
+              padding: '12px',
+              backgroundColor: '#f3e5f5',
+              borderRadius: '6px',
+            }}
+          >
             <strong style={{ color: '#7b1fa2' }}>🎛️ Layouts</strong>
             <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#666' }}>
               Interactive layout switcher demo
             </p>
           </div>
-          <div style={{ padding: '12px', backgroundColor: '#e8f5e8', borderRadius: '6px' }}>
+          <div
+            style={{
+              padding: '12px',
+              backgroundColor: '#e8f5e8',
+              borderRadius: '6px',
+            }}
+          >
             <strong style={{ color: '#388e3c' }}>⚡ Features</strong>
             <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#666' }}>
               Selection, drag & drop, animations, accessibility
@@ -69,10 +100,20 @@ export const Overview: Story = {
           </div>
         </div>
 
-        <div style={{ padding: '16px', backgroundColor: '#fff', border: '1px solid #e0e0e0', borderRadius: '6px' }}>
-          <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>Quick Start Example</h4>
+        <div
+          style={{
+            padding: '16px',
+            backgroundColor: '#fff',
+            border: '1px solid #e0e0e0',
+            borderRadius: '6px',
+          }}
+        >
+          <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>
+            Quick Start Example
+          </h4>
           <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#666' }}>
-            The component below shows a basic implementation. Explore the sub-categories for more examples.
+            The component below shows a basic implementation. Explore the
+            sub-categories for more examples.
           </p>
         </div>
       </div>
@@ -106,4 +147,3 @@ export const Overview: Story = {
     },
   },
 };
-

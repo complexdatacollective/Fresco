@@ -140,5 +140,3 @@ export type VirtualListProps<T> = {
   // Additional class naming
   itemClassName?: string | ((item: T, index: number) => string);
 };
-
-

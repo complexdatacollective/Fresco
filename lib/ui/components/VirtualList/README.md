@@ -16,22 +16,21 @@ const items = [
 <VirtualList
   items={items}
   keyExtractor={(item) => item.id}
-  renderItem={({ item, style }) => (
-    <div style={style}>{item.name}</div>
-  )}
+  renderItem={({ item, style }) => <div style={style}>{item.name}</div>}
   layout={{
     mode: 'columns',
     columns: 3,
     gap: 16,
-    itemHeight: 120
+    itemHeight: 120,
   }}
   ariaLabel="My virtualized list"
-/>
+/>;
 ```
 
 ## Layout Modes
 
 ### Grid Layout
+
 Perfect for image galleries or card-based layouts.
 
 ```tsx
@@ -42,13 +41,14 @@ Perfect for image galleries or card-based layouts.
   layout={{
     mode: 'grid',
     itemSize: { width: 200, height: 150 },
-    gap: 16
+    gap: 16,
   }}
   ariaLabel="Grid layout"
 />
 ```
 
 ### Column Layout
+
 Great for responsive lists with fixed column counts.
 
 ```tsx
@@ -60,13 +60,14 @@ Great for responsive lists with fixed column counts.
     mode: 'columns',
     columns: 4,
     gap: 12,
-    itemHeight: 100
+    itemHeight: 100,
   }}
   ariaLabel="Column layout"
 />
 ```
 
 ### Horizontal Layout
+
 Ideal for horizontal scrolling lists.
 
 ```tsx
@@ -78,7 +79,7 @@ Ideal for horizontal scrolling lists.
     mode: 'horizontal',
     itemWidth: 180,
     itemHeight: 120,
-    gap: 16
+    gap: 16,
   }}
   ariaLabel="Horizontal layout"
 />
@@ -87,6 +88,7 @@ Ideal for horizontal scrolling lists.
 ## Features
 
 ### Selection
+
 Enable item selection with visual feedback.
 
 ```tsx
@@ -96,9 +98,9 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   items={items}
   keyExtractor={(item) => item.id}
   renderItem={({ item, style }) => (
-    <SelectableItem 
-      item={item} 
-      style={style} 
+    <SelectableItem
+      item={item}
+      style={style}
       isSelected={selectedIds.has(item.id)}
     />
   )}
@@ -106,21 +108,22 @@ const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   multiSelect={true}
   selectedItems={selectedIds}
   onItemSelect={(items) => {
-    const newSelection = new Set(items.map(item => item.id));
+    const newSelection = new Set(items.map((item) => item.id));
     setSelectedIds(newSelection);
   }}
   onItemClick={(item) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const newSet = new Set(prev);
       newSet.has(item.id) ? newSet.delete(item.id) : newSet.add(item.id);
       return newSet;
     });
   }}
   ariaLabel="Selectable list"
-/>
+/>;
 ```
 
 ### Drag & Drop
+
 Enable drag and drop functionality with the DND system.
 
 ```tsx
@@ -140,6 +143,7 @@ Enable drag and drop functionality with the DND system.
 ```
 
 ### Animations
+
 Add smooth enter/exit animations.
 
 ```tsx
@@ -152,19 +156,19 @@ Add smooth enter/exit animations.
     enter: {
       keyframes: {
         from: { opacity: 0, transform: 'translateY(20px)' },
-        to: { opacity: 1, transform: 'translateY(0px)' }
+        to: { opacity: 1, transform: 'translateY(0px)' },
       },
       timing: { duration: 300, delay: 0 },
-      stagger: 50
+      stagger: 50,
     },
     exit: {
       keyframes: {
         from: { opacity: 1, transform: 'translateY(0px)' },
-        to: { opacity: 0, transform: 'translateY(-10px)' }
+        to: { opacity: 0, transform: 'translateY(-10px)' },
       },
       timing: { duration: 200, delay: 0 },
-      stagger: 25
-    }
+      stagger: 25,
+    },
   }}
   ariaLabel="Animated list"
 />
@@ -174,18 +178,18 @@ Add smooth enter/exit animations.
 
 ### Core Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `items` | `T[]` | ✅ | Array of items to render |
-| `keyExtractor` | `(item: T, index: number) => string` | ✅ | Function to extract unique key |
-| `renderItem` | `(props: {item: T, index: number, style: CSSProperties}) => ReactElement` | ✅ | Function to render each item |
-| `layout` | `LayoutConfig` | ✅ | Layout configuration |
-| `ariaLabel` | `string` | ✅ | Accessibility label |
+| Prop           | Type                                                                      | Required | Description                    |
+| -------------- | ------------------------------------------------------------------------- | -------- | ------------------------------ |
+| `items`        | `T[]`                                                                     | ✅       | Array of items to render       |
+| `keyExtractor` | `(item: T, index: number) => string`                                      | ✅       | Function to extract unique key |
+| `renderItem`   | `(props: {item: T, index: number, style: CSSProperties}) => ReactElement` | ✅       | Function to render each item   |
+| `layout`       | `LayoutConfig`                                                            | ✅       | Layout configuration           |
+| `ariaLabel`    | `string`                                                                  | ✅       | Accessibility label            |
 
 ### Layout Configuration
 
 ```typescript
-type LayoutConfig = 
+type LayoutConfig =
   | { mode: 'grid'; itemSize: { width: number; height: number }; gap: number }
   | { mode: 'columns'; columns: number; gap: number; itemHeight: number }
   | { mode: 'horizontal'; itemWidth: number; itemHeight: number; gap: number };
@@ -193,40 +197,40 @@ type LayoutConfig =
 
 ### Optional Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `onItemClick` | `(item: T, index: number) => void` | - | Item click handler |
-| `EmptyComponent` | `React.ComponentType` | - | Component to show when empty |
-| `placeholder` | `React.ReactNode` | - | Placeholder content |
-| `overscan` | `number` | `5` | Number of items to render outside viewport |
-| `className` | `string` | - | CSS class for container |
-| `itemClassName` | `string \| ((item: T, index: number) => string)` | - | CSS class for items |
+| Prop             | Type                                             | Default | Description                                |
+| ---------------- | ------------------------------------------------ | ------- | ------------------------------------------ |
+| `onItemClick`    | `(item: T, index: number) => void`               | -       | Item click handler                         |
+| `EmptyComponent` | `React.ComponentType`                            | -       | Component to show when empty               |
+| `placeholder`    | `React.ReactNode`                                | -       | Placeholder content                        |
+| `overscan`       | `number`                                         | `5`     | Number of items to render outside viewport |
+| `className`      | `string`                                         | -       | CSS class for container                    |
+| `itemClassName`  | `string \| ((item: T, index: number) => string)` | -       | CSS class for items                        |
 
 ### Selection Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `multiSelect` | `boolean` | `false` | Enable multi-selection |
-| `selectedItems` | `Set<string>` | - | Currently selected items |
-| `onItemSelect` | `(items: T[]) => void` | - | Selection change handler |
+| Prop            | Type                   | Default | Description              |
+| --------------- | ---------------------- | ------- | ------------------------ |
+| `multiSelect`   | `boolean`              | `false` | Enable multi-selection   |
+| `selectedItems` | `Set<string>`          | -       | Currently selected items |
+| `onItemSelect`  | `(items: T[]) => void` | -       | Selection change handler |
 
 ### Drag & Drop Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `draggable` | `boolean` | `false` | Enable dragging |
-| `droppable` | `boolean` | `false` | Enable dropping |
-| `itemType` | `string` | - | DND item type |
-| `accepts` | `string[]` | - | Accepted drop types |
-| `getDragMetadata` | `(item: T) => Record<string, unknown>` | - | Extract drag metadata |
-| `getDragPreview` | `(item: T) => ReactElement` | - | Custom drag preview |
-| `onDrop` | `(metadata: unknown) => void` | - | Drop handler |
+| Prop              | Type                                   | Default | Description           |
+| ----------------- | -------------------------------------- | ------- | --------------------- |
+| `draggable`       | `boolean`                              | `false` | Enable dragging       |
+| `droppable`       | `boolean`                              | `false` | Enable dropping       |
+| `itemType`        | `string`                               | -       | DND item type         |
+| `accepts`         | `string[]`                             | -       | Accepted drop types   |
+| `getDragMetadata` | `(item: T) => Record<string, unknown>` | -       | Extract drag metadata |
+| `getDragPreview`  | `(item: T) => ReactElement`            | -       | Custom drag preview   |
+| `onDrop`          | `(metadata: unknown) => void`          | -       | Drop handler          |
 
 ### Animation Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `animations` | `AnimationConfig` | - | Animation configuration |
+| Prop         | Type              | Default | Description             |
+| ------------ | ----------------- | ------- | ----------------------- |
+| `animations` | `AnimationConfig` | -       | Animation configuration |
 
 ```typescript
 type AnimationConfig = {
@@ -245,10 +249,10 @@ type AnimationConfig = {
 
 ### Accessibility Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `ariaDescribedBy` | `string` | - | ARIA described-by attribute |
-| `role` | `'list' \| 'grid'` | `'list'` | ARIA role |
+| Prop              | Type               | Default  | Description                 |
+| ----------------- | ------------------ | -------- | --------------------------- |
+| `ariaDescribedBy` | `string`           | -        | ARIA described-by attribute |
+| `role`            | `'list' \| 'grid'` | `'list'` | ARIA role                   |
 
 ## Performance Tips
 
@@ -260,6 +264,7 @@ type AnimationConfig = {
 ## Examples
 
 Check out the Storybook stories for interactive examples:
+
 - **Layouts**: Different layout modes with interactive controls
 - **Features**: Selection, drag & drop, animations, and accessibility demos
 

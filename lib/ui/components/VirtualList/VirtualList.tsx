@@ -49,9 +49,10 @@ const VirtualItem = <T,>({
       style={style}
       onClick={handleClick}
       className={cn(
-        'flex',
+        'flex outline-none',
         onClick && 'cursor-pointer',
-        isFocused && 'ring-2 ring-blue-500',
+        isFocused &&
+          'ring-offset-background ring-2 ring-blue-500 ring-offset-2',
         isSelected && 'bg-blue-100 dark:bg-blue-900/20',
       )}
       tabIndex={-1}
@@ -218,9 +219,10 @@ const AnimatedVirtualItem = <T,>({
       style={animatedStyle}
       onClick={handleClick}
       className={cn(
-        'flex',
+        'flex outline-none',
         onClick && 'cursor-pointer',
-        isFocused && 'ring-2 ring-blue-500',
+        isFocused &&
+          'ring-offset-background ring-2 ring-blue-500 ring-offset-2',
         isSelected && 'bg-blue-100 dark:bg-blue-900/20',
       )}
       tabIndex={-1}
@@ -325,7 +327,7 @@ export const VirtualList = <T,>({
 
     const resizeObserver = new ResizeObserver(stableResizeCallback);
     resizeObserver.observe(element);
-    
+
     setContainerSize({
       width: element.clientWidth,
       height: element.clientHeight,
@@ -355,7 +357,9 @@ export const VirtualList = <T,>({
         onItemSelect?.(
           Array.from(newSelection)
             .map((key) => {
-              const index = items.findIndex((item, idx) => keyExtractor(item, idx) === key);
+              const index = items.findIndex(
+                (item, idx) => keyExtractor(item, idx) === key,
+              );
               return index >= 0 ? items[index] : null;
             })
             .filter((item): item is T => item !== null),

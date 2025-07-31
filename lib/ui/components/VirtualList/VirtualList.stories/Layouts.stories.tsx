@@ -156,3 +156,196 @@ export const InteractiveLayoutSwitcher: Story = {
     },
   },
 };
+
+export const SpacingConfiguration: Story = {
+  render: () => {
+    const [gap, setGap] = useState(12);
+    const [layoutMode, setLayoutMode] = useState<LayoutConfig['mode']>('grid');
+
+    const getLayout = (): LayoutConfig => {
+      switch (layoutMode) {
+        case 'grid':
+          return {
+            mode: 'grid',
+            itemSize: { width: 140, height: 140 },
+            gap, // Dynamic gap configuration
+          };
+        case 'columns':
+          return {
+            mode: 'columns',
+            columns: 3,
+            gap, // Dynamic gap configuration
+            itemHeight: 140,
+          };
+        case 'horizontal':
+          return {
+            mode: 'horizontal',
+            itemHeight: 140,
+            itemWidth: 140,
+            gap, // Dynamic gap configuration
+          };
+      }
+    };
+
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div
+          style={{
+            padding: '16px',
+            borderBottom: '1px solid #eee',
+            backgroundColor: '#f8f9fa',
+          }}
+        >
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '18px' }}>
+            Spacing Configuration Demo
+          </h3>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '24px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div>
+              <label style={{ marginRight: '8px', fontWeight: '500' }}>
+                Layout Mode:
+              </label>
+              <select
+                value={layoutMode}
+                onChange={(e) =>
+                  setLayoutMode(e.target.value as LayoutConfig['mode'])
+                }
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                }}
+              >
+                <option value="grid">Grid Layout</option>
+                <option value="columns">Columns Layout</option>
+                <option value="horizontal">Horizontal Layout</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <label style={{ fontWeight: '500' }}>Gap Size:</label>
+              <input
+                type="range"
+                min="0"
+                max="40"
+                step="2"
+                value={gap}
+                onChange={(e) => setGap(Number(e.target.value))}
+                style={{ minWidth: '120px' }}
+              />
+              <span
+                style={{
+                  minWidth: '40px',
+                  padding: '4px 8px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  textAlign: 'center',
+                }}
+              >
+                {gap}px
+              </span>
+            </div>
+          </div>
+
+          {/* Spacing documentation */}
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '12px',
+              backgroundColor: '#e3f2fd',
+              borderRadius: '6px',
+              fontSize: '14px',
+              lineHeight: '1.4',
+            }}
+          >
+            <strong>How gap works in {layoutMode} mode:</strong>
+            <br />
+            {layoutMode === 'grid' && (
+              <>
+                • Gap applies between all items horizontally and vertically
+                <br />• Items auto-arrange in a responsive grid based on
+                container width
+              </>
+            )}
+            {layoutMode === 'columns' && (
+              <>
+                • Gap applies between items in the same row and between rows
+                <br />• Fixed number of columns (
+                {getLayout().mode === 'columns'
+                  ? (getLayout() as any).columns
+                  : 3}
+                ) with equal width distribution
+              </>
+            )}
+            {layoutMode === 'horizontal' && (
+              <>
+                • Gap applies between items horizontally only
+                <br />• Items scroll horizontally with fixed width and height
+              </>
+            )}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, position: 'relative' }}>
+          {/* Visual spacing guides */}
+          {gap > 0 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                padding: '8px 12px',
+                backgroundColor: 'rgba(0, 123, 204, 0.9)',
+                color: 'white',
+                borderRadius: '4px',
+                fontSize: '12px',
+                zIndex: 10,
+              }}
+            >
+              Current spacing: <strong>{gap}px</strong>
+            </div>
+          )}
+
+          <VirtualList
+            items={mockItems.slice(0, 120)} // Fixed number for consistent comparison
+            keyExtractor={(item) => (item as MockItem).id}
+            renderItem={({ item, style }) => (
+              <div
+                style={{
+                  ...style,
+                  // Add visual indicator for spacing
+                  border:
+                    gap > 0 ? '1px dashed rgba(0, 123, 204, 0.3)' : 'none',
+                }}
+              >
+                <ItemComponent
+                  item={item as MockItem}
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </div>
+            )}
+            layout={getLayout()}
+            ariaLabel={`${layoutMode} layout with ${gap}px spacing`}
+          />
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive spacing configuration demo. Adjust the gap value to see how spacing affects different layout modes. Visual guides show the spacing areas between items.',
+      },
+    },
+  },
+};

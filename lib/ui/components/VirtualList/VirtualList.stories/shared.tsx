@@ -100,20 +100,23 @@ export const SelectableItemComponent = ({
   item,
   style,
   isSelected,
+  isFocused = false,
 }: {
   item: MockItem;
   style?: React.CSSProperties;
   isSelected: boolean;
+  isFocused?: boolean;
 }) => (
   <div
     style={{
       ...style,
     }}
     className={cn(
-      'm-2 cursor-pointer rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
+      'm-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
       'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
       isSelected ? 'bg-accent' : 'bg-navy-taupe',
       isSelected && 'ring-2 ring-white ring-offset-2 ring-offset-transparent',
+      isFocused && 'ring-2 ring-blue-500 ring-offset-2 ring-offset-background',
     )}
   >
     <div
@@ -126,6 +129,11 @@ export const SelectableItemComponent = ({
     {isSelected && (
       <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.9 }}>
         ✓ Selected
+      </div>
+    )}
+    {isFocused && !isSelected && (
+      <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.7 }}>
+        🎯 Focused
       </div>
     )}
   </div>
