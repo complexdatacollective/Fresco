@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import QuickAdd from '~/lib/form/components/fields/QuickAdd';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
-import { getAdditionalAttributesSelector } from '../selectors/prop';
+import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 
 const containerVariants: Variants = {

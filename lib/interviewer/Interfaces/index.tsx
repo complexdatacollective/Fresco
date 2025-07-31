@@ -10,12 +10,15 @@ const StageLoading = () => (
   </div>
 );
 
-const NameGenerator = dynamic(() => import('./NameGenerator'), {
+const NameGenerator = dynamic(() => import('./NameGenerator/NameGenerator'), {
   loading: StageLoading,
 });
-const NameGeneratorQuickAdd = dynamic(() => import('./NameGeneratorQuickAdd'), {
-  loading: StageLoading,
-});
+const NameGeneratorQuickAdd = dynamic(
+  () => import('./NameGenerator/NameGeneratorQuickAdd'),
+  {
+    loading: StageLoading,
+  },
+);
 const NameGeneratorRoster = dynamic(() => import('./NameGeneratorRoster'), {
   loading: StageLoading,
 });

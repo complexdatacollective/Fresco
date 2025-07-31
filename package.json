@@ -24,6 +24,7 @@
     }
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-beta.2",
     "@codaco/analytics": "7.0.0",
     "@codaco/protocol-validation": "5.0.2",
     "@codaco/shared-consts": "4.0.0",
@@ -48,8 +49,8 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-table": "^8.21.3",
-    "@xmldom/xmldom": "^0.9.8",
     "@uploadthing/react": "^7.3.2",
+    "@xmldom/xmldom": "^0.9.8",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",

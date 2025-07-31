@@ -14,12 +14,12 @@ import Form from '~/lib/form/components/Form';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
-import { getNodeIconName } from '../selectors/name-generator';
-import { getAdditionalAttributesSelector } from '../selectors/prop';
-import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
-import { useAppDispatch } from '../store';
+import Overlay from '../../../containers/Overlay';
+import { getNodeIconName } from '../../../selectors/name-generator';
+import { getAdditionalAttributesSelector } from '../../../selectors/prop';
+import { getNodeTypeLabel, getStageSubject } from '../../../selectors/session';
+import { useAppDispatch } from '../../../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
-import Overlay from './Overlay';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -63,23 +63,6 @@ const NodeForm = (props: NodeFormProps) => {
     [selectedNode],
   );
 
-  const useFullScreenForms = false;
-
-  const handleSubmit = useCallback(
-    ({ value }: { value: Record<string, VariableValue> }) => {
-      if (!selectedNode) {
-        addNode({ ...newNodeAttributes, ...value });
-      } else {
-        const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        void updateNode({ nodeId: selectedUID, newAttributeData: value });
-      }
-
-      setShow(false);
-      onClose();
-    },
-    [selectedNode, newNodeAttributes, onClose, addNode, updateNode],
-  );
-
   // When a selected node is passed in, we are editing an existing node.
   // We need to show the form and populate it with the node's data.
   useEffect(() => {
@@ -101,6 +84,19 @@ const NodeForm = (props: NodeFormProps) => {
       transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
     },
   };
+
+  const fields = [
+    {
+      variable: 'name',
+      type: 'text',
+      prompt: `Enter the ${nodeType} name`,
+    },
+    {
+      variable: 'age',
+      type: 'number',
+      prompt: `Enter the ${nodeType} age`,
+    },
+  ];
 
   return (
     <>
@@ -127,7 +123,7 @@ const NodeForm = (props: NodeFormProps) => {
           !useFullScreenForms && (
             <Button
               key="submit"
-              aria-label="Submit"
+              aria-label="Finished"
               onClick={() => {
                 formRef.current?.requestSubmit();
               }}
@@ -141,10 +137,23 @@ const NodeForm = (props: NodeFormProps) => {
         <Scroller>
           <Form
             ref={formRef}
-            fields={processedFields}
-            handleSubmit={handleSubmit}
-            getInitialValues={getInitialValues}
-            focusFirstInput={true}
+            fields={fields}
+            onSubmit={({ value }: { value: Record<string, VariableValue> }) => {
+              if (!selectedNode) {
+                addNode({ ...newNodeAttributes, ...value });
+              } else {
+                const selectedUID = selectedNode[entityPrimaryKeyProperty];
+                void updateNode({
+                  nodeId: selectedUID,
+                  newAttributeData: value,
+                });
+              }
+
+              setShow(false);
+              onClose();
+            }}
+            initialValues={selectedNode?.[entityAttributesProperty]}
+            focusFirstInput
           />
         </Scroller>
       </Overlay>
