@@ -202,8 +202,6 @@ export function VirtualList<T extends { id: string | number }>({
                       ? `calc((100% - ${gap * (columns - 1)}px) / ${columns})`
                       : `${effectiveWidth}px`,
                   height: `${effectiveHeight}px`,
-                  [layout === 'horizontal' ? 'marginRight' : 'marginBottom']:
-                    `${gap}px`,
                 }}
               >
                 {itemRenderer(item, itemIndex, isSelected)}

@@ -389,18 +389,22 @@ setSelectedIds(new Set(items.map(item => item.id)));
     return (
       <div className="p-5">
         <h3 className="mb-5 text-lg font-semibold">Grid Layout (100 items)</h3>
-        {selectedIds.size > 0 && (
-          <div className="bg-muted mb-4 rounded-lg p-3">
-            <p className="text-sm font-medium">
-              Selected: {selectedIds.size} items
-            </p>
+        <div className="bg-muted mb-4 rounded-lg p-3">
+          <p className="text-sm font-medium">
+            Selected: {selectedIds.size} items
+          </p>
+          {selectedIds.size > 0 ? (
             <p className="text-xs">
               Items: {Array.from(selectedIds).slice(0, 10).join(', ')}
               {selectedIds.size > 10 &&
                 ` ... and ${selectedIds.size - 10} more`}
             </p>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs">
+              Click items to select them or use keyboard navigation.
+            </p>
+          )}
+        </div>
         <VirtualList
           items={items}
           itemRenderer={SimpleItemRenderer}
@@ -502,18 +506,22 @@ const ItemRenderer = (item, index, isSelected) => (
           </select>
         </div>
 
-        {selectedIds.size > 0 && (
-          <div className="bg-muted mb-4 rounded-lg p-3">
-            <p className="text-sm font-medium">
-              Selected: {selectedIds.size} items
-            </p>
+        <div className="bg-muted mb-4 rounded-lg p-3">
+          <p className="text-sm font-medium">
+            Selected: {selectedIds.size} items
+          </p>
+          {selectedIds.size > 0 ? (
             <p className="text-xs">
               Items: {Array.from(selectedIds).slice(0, 10).join(', ')}
               {selectedIds.size > 10 &&
                 ` ... and ${selectedIds.size - 10} more`}
             </p>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs">
+              Click items to select them or use keyboard navigation.
+            </p>
+          )}
+        </div>
 
         <VirtualList
           items={items}
@@ -596,18 +604,22 @@ const ItemRenderer = (item, index, isSelected) => (
           Horizontal Layout (30 items)
         </h3>
 
-        {selectedIds.size > 0 && (
-          <div className="bg-muted mb-4 rounded-lg p-3">
-            <p className="text-sm font-medium">
-              Selected: {selectedIds.size} items
-            </p>
+        <div className="bg-muted mb-4 rounded-lg p-3">
+          <p className="text-sm font-medium">
+            Selected: {selectedIds.size} items
+          </p>
+          {selectedIds.size > 0 ? (
             <p className="text-xs">
               Items: {Array.from(selectedIds).slice(0, 10).join(', ')}
               {selectedIds.size > 10 &&
                 ` ... and ${selectedIds.size - 10} more`}
             </p>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs">
+              Click items to select them or use keyboard navigation.
+            </p>
+          )}
+        </div>
 
         <VirtualList
           items={items}
@@ -698,24 +710,22 @@ const ItemRenderer = (item, index, isSelected) => (
           Large Dataset (10,000 items)
         </h3>
 
-        {selectedIds.size > 0 ? (
-          <div className="bg-muted mb-4 rounded-lg p-3">
-            <p className="text-sm font-medium">
-              Selected: {selectedIds.size} items (
-              {((selectedIds.size / items.length) * 100).toFixed(1)}%)
-            </p>
+        <div className="bg-muted mb-4 rounded-lg p-3">
+          <p className="text-sm font-medium">
+            Selected: {selectedIds.size} items ({((selectedIds.size / items.length) * 100).toFixed(1)}%)
+          </p>
+          {selectedIds.size > 0 ? (
             <p className="text-xs">
               Items: {Array.from(selectedIds).slice(0, 15).join(', ')}
               {selectedIds.size > 15 &&
                 ` ... and ${selectedIds.size - 15} more`}
             </p>
-          </div>
-        ) : (
-          <p className="text-muted-foreground mb-4 text-sm">
-            No items selected. Click items to select them or use keyboard
-            navigation.
-          </p>
-        )}
+          ) : (
+            <p className="text-xs">
+              Click items to select them or use keyboard navigation.
+            </p>
+          )}
+        </div>
         <VirtualList
           items={items}
           itemRenderer={SimpleItemRenderer}
