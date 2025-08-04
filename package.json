@@ -48,8 +48,9 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-table": "^8.21.3",
-    "@xmldom/xmldom": "^0.9.8",
+    "@tanstack/react-virtual": "^3.13.12",
     "@uploadthing/react": "^7.3.2",
+    "@xmldom/xmldom": "^0.9.8",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",
@@ -112,6 +113,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^6.10.0",
+    "@storybook/addon-a11y": "^9.1.1",
     "@storybook/addon-docs": "^9.0.17",
     "@storybook/addon-links": "^9.0.17",
     "@storybook/addon-onboarding": "^9.0.17",
