@@ -7,7 +7,7 @@ import {
   type DragMetadata,
 } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
-import { VirtualList } from './VirtualList';
+import { VirtualList, type ItemAnimationConfig } from './VirtualList';
 
 // Sample data type
 type SampleItem = {
@@ -950,6 +950,283 @@ function DragDropLists() {
           </div>
         </div>
       </DndStoreProvider>
+    );
+  },
+};
+
+export const AnimationsStaggered: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Default Staggered Animation**
+
+The VirtualList component supports configurable enter/exit animations using motion/react. By default, it uses a staggered animation pattern inspired by the NodeList component.
+
+\`\`\`typescript
+import { VirtualList } from './VirtualList';
+
+// Default staggered animation (default behavior)
+<VirtualList 
+  items={items}
+  itemRenderer={ItemRenderer}
+  animations="staggered"    // Default: staggered entrance with delay
+  staggerDelay={0.02}       // Default: 20ms delay between items
+  layout="grid"
+  itemSize={100}
+/>
+
+// Disable animations completely
+<VirtualList 
+  items={items}
+  itemRenderer={ItemRenderer}
+  animations="none"         // No animations
+  layout="grid"
+  itemSize={100}
+/>
+\`\`\`
+
+**How Staggered Animation Works:**
+- Items animate in with a cascading effect
+- Each item starts with \`opacity: 0, y: 10, scale: 0.95\`
+- Items animate to \`opacity: 1, y: 0, scale: 1\`
+- Each subsequent item has a 20ms delay (configurable with \`staggerDelay\`)
+- Exit animations reverse the effect for smooth removal
+
+**Animation States:**
+- **Initial**: Items start slightly down and scaled down
+- **Animate**: Items move up to position and scale to full size
+- **Exit**: Items scale down and move up slightly while fading out
+
+**Performance Note:** These animations are optimized for virtualized lists and only animate items that are actually changing (add/remove), not during scrolling.
+        `,
+      },
+    },
+  },
+  render: () => {
+    const [items, setItems] = useState(generateItems(20));
+    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+
+    const handleItemClick = (id: string | number) => {
+      const newSelected = new Set(selectedIds);
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
+      setSelectedIds(newSelected);
+    };
+
+    const addItems = () => {
+      const newItems = generateItems(5).map(item => ({
+        ...item,
+        id: items.length + item.id,
+        name: `New Item ${items.length + item.id + 1}`
+      }));
+      setItems(prev => [...prev, ...newItems]);
+    };
+
+    const removeItems = () => {
+      if (items.length > 5) {
+        setItems(prev => prev.slice(0, -5));
+      }
+    };
+
+    return (
+      <div className="p-5">
+        <h3 className="mb-5 text-lg font-semibold">Staggered Animation (Default)</h3>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Items animate in with a staggered delay. Click buttons to see enter/exit animations.
+        </p>
+        
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={addItems}
+            className="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-primary/90"
+          >
+            Add 5 Items
+          </button>
+          <button
+            onClick={removeItems}
+            className="rounded bg-destructive px-3 py-1 text-sm text-white hover:bg-destructive/90"
+          >
+            Remove 5 Items
+          </button>
+        </div>
+
+        <VirtualList
+          items={items}
+          itemRenderer={SimpleItemRenderer}
+          selectedIds={selectedIds}
+          onItemClick={handleItemClick}
+          animations="staggered"
+          staggerDelay={0.02}
+          layout="grid"
+          itemSize={100}
+          gap={8}
+          className="h-96 rounded-lg border bg-white p-2"
+          ariaLabel="List with staggered animations"
+        />
+      </div>
+    );
+  },
+};
+
+export const AnimationsCustom: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Custom Animations & When They Trigger**
+
+You can provide custom animation configurations using motion/react variants:
+
+\`\`\`typescript
+import { VirtualList, type ItemAnimationConfig } from './VirtualList';
+
+// Custom height-based slide animation (TanStack Virtual best practice)
+const slideAnimation: ItemAnimationConfig = {
+  initial: { height: 0, opacity: 0, x: -20 },
+  animate: { 
+    height: 'auto',
+    opacity: 1, 
+    x: 0,
+    transition: { 
+      type: 'spring',
+      stiffness: 150,
+      damping: 20
+    }
+  },
+  exit: { 
+    height: 0,
+    opacity: 0, 
+    x: 20,
+    transition: { duration: 0.2 }
+  }
+};
+
+// Use custom animation
+<VirtualList 
+  items={items}
+  itemRenderer={ItemRenderer}
+  animations={slideAnimation}  // Pass custom config
+  layout="grid"
+  itemSize={100}
+/>
+\`\`\`
+
+**When Do Animations Trigger in Virtual Lists?**
+
+⚠️ **Important**: Virtual lists only animate items when they **enter/exit the data array**, NOT when scrolling in/out of view:
+
+- ✅ **Animate**: Adding new items to the \`items\` array
+- ✅ **Animate**: Removing items from the \`items\` array  
+- ✅ **Animate**: Filtering/sorting that changes the \`items\` array
+- ❌ **Don't animate**: Items scrolling into/out of viewport (would hurt performance)
+
+**Best Use Cases:**
+- **Data updates**: New messages, notifications, search results
+- **User actions**: Adding/removing items from lists
+- **State changes**: Filtering, sorting, or other data transformations
+
+**Performance Note**: Animations only apply to visible items in the virtual window, keeping performance smooth even with large datasets.
+        `,
+      },
+    },
+  },
+  render: () => {
+    const [items, setItems] = useState(generateItems(15));
+    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+
+    const handleItemClick = (id: string | number) => {
+      const newSelected = new Set(selectedIds);
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
+      setSelectedIds(newSelected);
+    };
+
+    const addItems = () => {
+      const newItems = generateItems(3).map(item => ({
+        ...item,
+        id: Math.max(...items.map(i => i.id)) + item.id + 1,
+        name: `New Item ${Math.max(...items.map(i => i.id)) + item.id + 2}`
+      }));
+      setItems(prev => [...prev, ...newItems]);
+    };
+
+    const removeItems = () => {
+      if (items.length > 3) {
+        setItems(prev => prev.slice(0, -3));
+      }
+    };
+
+    // Height-based slide animation (recommended for TanStack Virtual)
+    const slideAnimation: ItemAnimationConfig = {
+      initial: { height: 0, opacity: 0, x: -20 },
+      animate: { 
+        height: 'auto',
+        opacity: 1, 
+        x: 0,
+        transition: { 
+          type: 'spring',
+          stiffness: 150,
+          damping: 20
+        }
+      },
+      exit: { 
+        height: 0,
+        opacity: 0, 
+        x: 20,
+        transition: { duration: 0.2 }
+      }
+    };
+
+    return (
+      <div className="p-5">
+        <h3 className="mb-5 text-lg font-semibold">Custom Animation Example</h3>
+        <p className="mb-4 text-sm text-muted-foreground">
+          This shows a custom slide animation. Items slide in from left when added, slide out to right when removed.
+        </p>
+        
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={addItems}
+            className="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-primary/90"
+          >
+            Add 3 Items
+          </button>
+          <button
+            onClick={removeItems}
+            className="rounded bg-destructive px-3 py-1 text-sm text-white hover:bg-destructive/90"
+          >
+            Remove 3 Items
+          </button>
+        </div>
+
+        <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
+          <p className="text-sm font-medium text-amber-800">💡 Animation Timing</p>
+          <p className="mt-1 text-xs text-amber-700">
+            Animations only trigger when items are added/removed from the data array. 
+            Scrolling doesn't trigger animations (for performance).
+          </p>
+        </div>
+
+        <VirtualList
+          items={items}
+          itemRenderer={SimpleItemRenderer}
+          selectedIds={selectedIds}
+          onItemClick={handleItemClick}
+          animations={slideAnimation}
+          layout="grid"
+          itemSize={100}
+          gap={8}
+          className="h-96 rounded-lg border bg-white p-2"
+          ariaLabel="List with custom slide animations"
+        />
+      </div>
     );
   },
 };
