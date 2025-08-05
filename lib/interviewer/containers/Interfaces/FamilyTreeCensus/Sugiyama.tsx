@@ -1,17 +1,18 @@
 import { RefObject } from 'react';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
+import FamilyTreeNodeList from './FamilyTreeNodeList';
 
 // designate a layer number for each node
 // layer 0 is the layer with no parents
 export const assignLayers = (
-  nodes: PlaceholderNodeProps[],
+  nodes: FamilyTreeNodeList,
   couples: [PlaceholderNodeProps, PlaceholderNodeProps][] = [],
 ): Map<PlaceholderNodeProps, number> => {
   const layers = new Map<PlaceholderNodeProps, number>();
   const queue: { node: PlaceholderNodeProps; layer: number }[] = [];
 
-  nodes.forEach((node) => {
-    if (node.parents?.length === 0) {
+  nodes.allNodes().forEach((node) => {
+    if (nodes.parentsOf(node).length === 0) {
       layers.set(node, 0);
       queue.push({ node, layer: 0 });
     }
@@ -19,7 +20,7 @@ export const assignLayers = (
 
   while (queue.length > 0) {
     const { node, layer } = queue.shift()!;
-    node.children?.forEach((child) => {
+    nodes.childrenOf(node).forEach((child) => {
       const prev = layers.get(child);
       const nextLayer = layer + 1;
       if (prev === undefined || nextLayer > prev) {
@@ -32,8 +33,8 @@ export const assignLayers = (
   let changed = true;
   while (changed) {
     changed = false;
-    for (const node of nodes) {
-      node.children?.forEach((child) => {
+    for (const node of nodes.allNodes()) {
+      nodes.childrenOf(node).forEach((child) => {
         const childLayer = layers.get(child);
         if (childLayer !== undefined) {
           const desiredLayer = childLayer - 1;
@@ -71,6 +72,7 @@ export const assignLayers = (
 
 // assign a coordinate pair to each node
 export const assignCoordinates = (
+  nodes: FamilyTreeNodeList,
   layers: Map<PlaceholderNodeProps, number>,
   couples: [PlaceholderNodeProps, PlaceholderNodeProps][],
   layerHeight = 120,
@@ -116,7 +118,9 @@ export const assignCoordinates = (
         }
 
         const sharedChildren =
-          a.children?.filter((child) => b.children?.includes(child)) ?? [];
+          nodes
+            .childrenOf(a)
+            .filter((child) => nodes.childrenOf(b)?.includes(child)) ?? [];
         const childXs = sharedChildren
           .map((child) => coords.get(child)?.x)
           .filter((x): x is number => x !== undefined);
@@ -136,7 +140,8 @@ export const assignCoordinates = (
       } else {
         // node isn't part of a couple
         const childXs =
-          node.children
+          nodes
+            .childrenOf(node)
             ?.map((c) => coords.get(c)?.x)
             .filter((x): x is number => x !== undefined) ?? [];
 
@@ -158,6 +163,7 @@ export const assignCoordinates = (
 };
 
 export const arrangeSiblings = (
+  nodes: FamilyTreeNodeList,
   grouped: Map<number, PlaceholderNodeProps[]>,
   coords: Map<PlaceholderNodeProps, { x: number; y: number }>,
 ): void => {
@@ -166,6 +172,7 @@ export const arrangeSiblings = (
 };
 
 export const arrangeCouples = (
+  nodes: FamilyTreeNodeList,
   coords: Map<PlaceholderNodeProps, { x: number; y: number }>,
   couples: [PlaceholderNodeProps, PlaceholderNodeProps][],
 ): void => {
@@ -174,8 +181,8 @@ export const arrangeCouples = (
     const bCoords = coords.get(b);
     if (!aCoords || !bCoords) continue;
 
-    const aHasParents = (a.parents?.length ?? 0) > 0;
-    const bHasParents = (b.parents?.length ?? 0) > 0;
+    const aHasParents = (nodes.parentsOf(a)?.length ?? 0) > 0;
+    const bHasParents = (nodes.parentsOf(b)?.length ?? 0) > 0;
 
     if (aHasParents === bHasParents) continue;
 
@@ -183,7 +190,8 @@ export const arrangeCouples = (
     const unrelated = aHasParents ? b : a;
 
     const parentXs =
-      related.parents
+      nodes
+        .parentsOf(related)
         ?.map((p) => coords.get(p)?.x)
         .filter((x): x is number => x !== undefined) ?? [];
 

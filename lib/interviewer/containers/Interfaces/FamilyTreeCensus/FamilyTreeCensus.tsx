@@ -86,103 +86,107 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const generatePlaceholderNodes = (formData: Record<string, string>) => {
-    const allNodes: PlaceholderNodeProps[] = [];
-    const addPlaceholderNode = (
-      gender: string,
-      label: string,
-    ): PlaceholderNodeProps => {
-      const newNode: PlaceholderNodeProps = {
-        id: crypto.randomUUID(),
-        gender: gender,
-        label: label,
-        parents: [],
-        children: [],
-        handleClick: setSelectedNode,
-      };
-      allNodes.push(newNode);
-      return newNode;
-    };
+    // const allNodes: PlaceholderNodeProps[] = [];
+    const tempNodes = new FamilyTreeNodeList([], []);
 
-    const paternalGrandfather = addPlaceholderNode(
+    const paternalGrandfather = tempNodes.addPlaceholderNode(
       'male',
       'paternal grandfather',
     );
-    const paternalGrandmother = addPlaceholderNode(
+    const paternalGrandmother = tempNodes.addPlaceholderNode(
       'female',
       'paternal grandmother',
     );
-    paternalGrandfather.partner = paternalGrandmother;
-    const father = addPlaceholderNode('male', 'father');
-    paternalGrandfather.childrenIds?.push(father.id ?? '');
-    paternalGrandmother.childrenIds?.push(father.id ?? '');
-    father.parents?.push(paternalGrandfather, paternalGrandmother);
-    const maternalGrandfather = addPlaceholderNode(
+    paternalGrandfather.partnerId = paternalGrandmother.id;
+    const father = tempNodes.addPlaceholderNode('male', 'father');
+    paternalGrandfather.childIds?.push(father.id ?? '');
+    paternalGrandmother.childIds?.push(father.id ?? '');
+    father.parentIds?.push(
+      paternalGrandfather.id ?? '',
+      paternalGrandmother.id ?? '',
+    );
+    const maternalGrandfather = tempNodes.addPlaceholderNode(
       'male',
       'maternal grandfather',
     );
-    const maternalGrandmother = addPlaceholderNode(
+    const maternalGrandmother = tempNodes.addPlaceholderNode(
       'female',
       'maternal grandmother',
     );
-    maternalGrandfather.partner = maternalGrandmother;
-    const mother = addPlaceholderNode('female', 'mother');
-    father.partner = mother;
-    maternalGrandfather.children?.push(mother);
-    maternalGrandmother.children?.push(mother);
-    mother.parents?.push(maternalGrandfather, maternalGrandmother);
-    const ego = addPlaceholderNode('female', 'self');
-    father.children?.push(ego);
-    mother.children?.push(ego);
-    ego.parents?.push(father, mother);
-    const partner = addPlaceholderNode('male', 'spouse');
-    ego.partner = partner;
+    maternalGrandfather.partnerId = maternalGrandmother.id;
+    const mother = tempNodes.addPlaceholderNode('female', 'mother');
+    father.partnerId = mother.id;
+    maternalGrandfather.childIds?.push(mother.id ?? '');
+    maternalGrandmother.childIds?.push(mother.id ?? '');
+    mother.parentIds?.push(
+      maternalGrandfather.id ?? '',
+      maternalGrandmother.id ?? '',
+    );
+    const ego = tempNodes.addPlaceholderNode('female', 'self');
+    father.childIds?.push(ego.id ?? '');
+    mother.childIds?.push(ego.id ?? '');
+    ego.parentIds?.push(father.id ?? '', mother.id ?? '');
+    const partner = tempNodes.addPlaceholderNode('male', 'spouse');
+    ego.partnerId = partner.id;
     arrayFromRelationCount(formData, 'brothers').forEach(() => {
-      const brother = addPlaceholderNode('male', 'brother');
-      father.children?.push(brother);
-      mother.children?.push(brother);
-      brother.parents?.push(father, mother);
+      const brother = tempNodes.addPlaceholderNode('male', 'brother');
+      father.childIds?.push(brother.id ?? '');
+      mother.childIds?.push(brother.id ?? '');
+      brother.parentIds?.push(father.id ?? '', mother.id ?? '');
     });
     arrayFromRelationCount(formData, 'sisters').forEach(() => {
-      const sister = addPlaceholderNode('female', 'sister');
-      father.children?.push(sister);
-      mother.children?.push(sister);
-      sister.parents?.push(father, mother);
+      const sister = tempNodes.addPlaceholderNode('female', 'sister');
+      father.childIds?.push(sister.id ?? '');
+      mother.childIds?.push(sister.id ?? '');
+      sister.parentIds?.push(father.id ?? '', mother.id ?? '');
     });
     arrayFromRelationCount(formData, 'sons').forEach(() => {
-      const son = addPlaceholderNode('male', 'son');
-      ego.children?.push(son);
-      partner.children?.push(son);
-      son.parents?.push(ego, partner);
+      const son = tempNodes.addPlaceholderNode('male', 'son');
+      ego.childIds?.push(son.id ?? '');
+      partner.childIds?.push(son.id ?? '');
+      son.parentIds?.push(ego.id ?? '', partner.id ?? '');
     });
     arrayFromRelationCount(formData, 'daughters').forEach(() => {
-      const daughter = addPlaceholderNode('female', 'daughter');
-      ego.children?.push(daughter);
-      partner.children?.push(daughter);
-      daughter.parents?.push(ego, partner);
+      const daughter = tempNodes.addPlaceholderNode('female', 'daughter');
+      ego.childIds?.push(daughter.id ?? '');
+      partner.childIds?.push(daughter.id ?? '');
+      daughter.parentIds?.push(ego.id ?? '', partner.id ?? '');
     });
     arrayFromRelationCount(formData, 'paternal-uncles').forEach(() => {
-      const uncle = addPlaceholderNode('male', 'paternal uncle');
-      paternalGrandfather.children?.push(uncle);
-      paternalGrandmother.children?.push(uncle);
-      uncle.parents?.push(paternalGrandfather, paternalGrandmother);
+      const uncle = tempNodes.addPlaceholderNode('male', 'paternal uncle');
+      paternalGrandfather.childIds?.push(uncle.id ?? '');
+      paternalGrandmother.childIds?.push(uncle.id ?? '');
+      uncle.parentIds?.push(
+        paternalGrandfather.id ?? '',
+        paternalGrandmother.id ?? '',
+      );
     });
     arrayFromRelationCount(formData, 'paternal-aunts').forEach(() => {
-      const aunt = addPlaceholderNode('female', 'paternal aunt');
-      paternalGrandfather.children?.push(aunt);
-      paternalGrandmother.children?.push(aunt);
-      aunt.parents?.push(paternalGrandfather, paternalGrandmother);
+      const aunt = tempNodes.addPlaceholderNode('female', 'paternal aunt');
+      paternalGrandfather.childIds?.push(aunt.id ?? '');
+      paternalGrandmother.childIds?.push(aunt.id ?? '');
+      aunt.parentIds?.push(
+        paternalGrandfather.id ?? '',
+        paternalGrandmother.id ?? '',
+      );
     });
     arrayFromRelationCount(formData, 'maternal-uncles').forEach(() => {
-      const uncle = addPlaceholderNode('male', 'maternal uncle');
-      maternalGrandfather.children?.push(uncle);
-      maternalGrandmother.children?.push(uncle);
-      uncle.parents?.push(maternalGrandfather, maternalGrandmother);
+      const uncle = tempNodes.addPlaceholderNode('male', 'maternal uncle');
+      maternalGrandfather.childIds?.push(uncle.id ?? '');
+      maternalGrandmother.childIds?.push(uncle.id ?? '');
+      uncle.parentIds?.push(
+        maternalGrandfather.id ?? '',
+        maternalGrandmother.id ?? '',
+      );
     });
     arrayFromRelationCount(formData, 'maternal-aunts').forEach(() => {
-      const aunt = addPlaceholderNode('female', 'maternal aunt');
-      maternalGrandfather.children?.push(aunt);
-      maternalGrandmother.children?.push(aunt);
-      aunt.parents?.push(maternalGrandfather, maternalGrandmother);
+      const aunt = tempNodes.addPlaceholderNode('female', 'maternal aunt');
+      maternalGrandfather.childIds?.push(aunt.id ?? '');
+      maternalGrandmother.childIds?.push(aunt.id ?? '');
+      aunt.parentIds?.push(
+        maternalGrandfather.id ?? '',
+        maternalGrandmother.id ?? '',
+      );
     });
 
     const couples: [PlaceholderNodeProps, PlaceholderNodeProps][] = [
@@ -191,20 +195,20 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       [father, mother],
       [ego, partner],
     ];
-    const layers = assignLayers(allNodes, couples);
-    const [coords, grouped] = assignCoordinates(layers, couples);
-    arrangeSiblings(grouped, coords);
-    arrangeCouples(coords, couples);
+    const layers = assignLayers(tempNodes, couples);
+    const [coords, grouped] = assignCoordinates(tempNodes, layers, couples);
+    arrangeSiblings(tempNodes, grouped, coords);
+    arrangeCouples(tempNodes, coords, couples);
     fixOverlaps(grouped, coords, couples);
     // centerTree(allNodes, coords, elementRef);
     const xOffset = 200; // account for the scrollbar
     const yOffset = 100; // account for the navbar
-    allNodes.forEach((node) => {
+    tempNodes.allNodes().forEach((node) => {
       const pos = coords.get(node);
       node.xPos = (pos?.x ?? 0) + xOffset;
       node.yPos = (pos?.y ?? 0) + yOffset;
     });
-    setFamilyTreeNodes(allNodes);
+    setFamilyTreeNodes(tempNodes.allNodes());
   };
 
   const renderCensusForm = () => {
@@ -280,9 +284,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       addNode(selectedNode.id, {
         name: formData['name'],
         gender: selectedNode.gender,
-        parents: (selectedNode?.parents ?? []).map((parent) => parent.id ?? ''),
-        children: (selectedNode?.children ?? []).map((child) => child.id ?? ''),
-        partner: selectedNode?.partner?.id ?? null,
+        parentIds: selectedNode?.parentIds ?? [],
+        childIds: selectedNode?.childIds ?? [],
+        partner: selectedNode?.partnerId ?? null,
         x: selectedNode.xPos ?? 0,
         y: selectedNode.yPos ?? 0,
       });
@@ -315,42 +319,50 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return (
       <div className="family-pedigree-interface">
         <div className="edge-layout">
-          {familyTreeNodes.map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
-              node.partner != null && (
+              familyTreeNodeList.partnerOf(node) != null && (
                 <UIPartnerConnector
                   key={crypto.randomUUID()}
                   xStartPos={(node.xPos ?? 0) + 10}
-                  xEndPos={(node.partner?.xPos ?? 0) - 20}
+                  xEndPos={(familyTreeNodeList.partnerOf(node)?.xPos ?? 0) - 20}
                   yPos={node.yPos}
                 />
               )
             );
           })}
-          {familyTreeNodes.map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
-              node.partner != null &&
-              (node.children?.length ?? 0) > 0 && (
+              node.partnerId != null &&
+              (node.childIds?.length ?? 0) > 0 && (
                 <UIOffspringConnector
                   key={crypto.randomUUID()}
-                  xPos={((node.xPos ?? 0) + (node.partner?.xPos ?? 0)) / 2}
+                  xPos={
+                    ((node.xPos ?? 0) +
+                      (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
+                    2
+                  }
                   yStartPos={node.yPos ?? 0}
                   yEndPos={(node.yPos ?? 0) + rowHeight / 3}
                 />
               )
             );
           })}
-          {familyTreeNodes.map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
-              node.partner != null &&
-              node.children != null &&
-              node.children.length > 0 &&
-              node.children.map((child) => {
+              familyTreeNodeList.partnerOf(node) != null &&
+              familyTreeNodeList.childrenOf(node) != null &&
+              familyTreeNodeList.childrenOf(node).length > 0 &&
+              familyTreeNodeList.childrenOf(node).map((child) => {
                 return (
                   <UIChildConnector
                     key={crypto.randomUUID()}
                     xStartPos={child.xPos ?? 0}
-                    xEndPos={((node.xPos ?? 0) + (node.partner?.xPos ?? 0)) / 2}
+                    xEndPos={
+                      ((node.xPos ?? 0) +
+                        (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
+                      2
+                    }
                     yPos={(child.yPos ?? 0) - rowHeight / 2 + 5}
                     height={rowHeight / 3 - 15}
                   />
@@ -360,7 +372,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           })}
         </div>
         <div className="node-layout" ref={elementRef}>
-          {familyTreeNodes.map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
               <FamilyTreeNode
                 key={crypto.randomUUID()}
@@ -383,11 +395,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         <div className="edge-layout">
           {familyTreeNodeList.allNodes().map((node) => {
             return (
-              node.partner != null && (
+              familyTreeNodeList.partnerOf(node) != null && (
                 <UIPartnerConnector
                   key={`partner-${node.id}`}
                   xStartPos={(node.xPos ?? 0) + 10}
-                  xEndPos={(node.partner?.xPos ?? 0) - 20}
+                  xEndPos={(familyTreeNodeList.partnerOf(node)?.xPos ?? 0) - 20}
                   yPos={node.yPos}
                 />
               )
@@ -395,11 +407,15 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           })}
           {familyTreeNodeList.allNodes().map((node) => {
             return (
-              node.partner != null &&
-              (node.children?.length ?? 0) > 0 && (
+              familyTreeNodeList.partnerOf(node) != null &&
+              (node.childIds?.length ?? 0) > 0 && (
                 <UIOffspringConnector
                   key={`offspring-${node.id}`}
-                  xPos={((node.xPos ?? 0) + (node.partner?.xPos ?? 0)) / 2}
+                  xPos={
+                    ((node.xPos ?? 0) +
+                      (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
+                    2
+                  }
                   yStartPos={node.yPos ?? 0}
                   yEndPos={(node.yPos ?? 0) + rowHeight / 3}
                 />
@@ -408,15 +424,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           })}
           {familyTreeNodeList.allNodes().map((node) => {
             return (
-              node.partner != null &&
-              node.children != null &&
-              node.children.length > 0 &&
-              node.children.map((child) => {
+              familyTreeNodeList.partnerOf(node) != null &&
+              familyTreeNodeList.childrenOf(node) != null &&
+              (node.childIds ?? []).length > 0 &&
+              familyTreeNodeList.childrenOf(node).map((child) => {
                 return (
                   <UIChildConnector
                     key={`child-${node.id}`}
                     xStartPos={child.xPos ?? 0}
-                    xEndPos={((node.xPos ?? 0) + (node.partner?.xPos ?? 0)) / 2}
+                    xEndPos={
+                      ((node.xPos ?? 0) +
+                        (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
+                      2
+                    }
                     yPos={(child.yPos ?? 0) - rowHeight / 2 + 5}
                     height={rowHeight / 3 - 15}
                   />
@@ -436,7 +456,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   label={node.label}
                   xPos={node.xPos}
                   yPos={node.yPos}
-                  handleClick={node.handleClick}
+                  handleClick={(node) => setSelectedNode(node)}
                 />
               );
             })}

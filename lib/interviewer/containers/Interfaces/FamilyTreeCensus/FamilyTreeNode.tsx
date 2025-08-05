@@ -13,10 +13,9 @@ export type PlaceholderNodeProps = {
   id?: string;
   gender: string;
   label: string;
-  parents?: PlaceholderNodeProps[];
-  children?: PlaceholderNodeProps[];
-  childrenIds?: string[];
-  partner?: PlaceholderNodeProps;
+  parentIds?: string[];
+  childIds?: string[];
+  partnerId?: string;
   xPos?: number;
   yPos?: number;
   handleClick?: (node: PlaceholderNodeProps) => void;
