@@ -1,5 +1,8 @@
+import { RefObject } from 'react';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 
+// designate a layer number for each node
+// layer 0 is the layer with no parents
 export const assignLayers = (
   nodes: PlaceholderNodeProps[],
   couples: [PlaceholderNodeProps, PlaceholderNodeProps][] = [],
@@ -7,12 +10,12 @@ export const assignLayers = (
   const layers = new Map<PlaceholderNodeProps, number>();
   const queue: { node: PlaceholderNodeProps; layer: number }[] = [];
 
-  for (const node of nodes) {
+  nodes.forEach((node) => {
     if (node.parents?.length === 0) {
       layers.set(node, 0);
       queue.push({ node, layer: 0 });
     }
-  }
+  });
 
   while (queue.length > 0) {
     const { node, layer } = queue.shift()!;
@@ -44,7 +47,7 @@ export const assignLayers = (
     }
   }
 
-  for (const [a, b] of couples) {
+  couples.forEach(([a, b]) => {
     const aLayer = layers.get(a);
     const bLayer = layers.get(b);
 
@@ -61,24 +64,29 @@ export const assignLayers = (
       layers.set(a, target);
       layers.set(b, target);
     }
-  }
+  });
 
   return layers;
 };
 
+// assign a coordinate pair to each node
 export const assignCoordinates = (
   layers: Map<PlaceholderNodeProps, number>,
   couples: [PlaceholderNodeProps, PlaceholderNodeProps][],
-  layerHeight = 100,
-  nodeWidth = 150,
-): Map<PlaceholderNodeProps, { x: number; y: number }> => {
+  layerHeight = 120,
+  nodeWidth = 220,
+): [
+  Map<PlaceholderNodeProps, { x: number; y: number }>,
+  Map<number, PlaceholderNodeProps[]>,
+] => {
   const coords = new Map<PlaceholderNodeProps, { x: number; y: number }>();
 
+  // collect nodes by their assigned layer number
   const grouped = new Map<number, PlaceholderNodeProps[]>();
-  for (const [node, layer] of layers.entries()) {
+  layers.entries().forEach(([node, layer]) => {
     if (!grouped.has(layer)) grouped.set(layer, []);
     grouped.get(layer)!.push(node);
-  }
+  });
 
   const maxLayer = Math.max(...grouped.keys());
   let nextX = 0;
@@ -87,8 +95,8 @@ export const assignCoordinates = (
     const nodesAtLayer = grouped.get(layer) ?? [];
     const placed = new Set<PlaceholderNodeProps>();
 
-    for (const node of nodesAtLayer) {
-      if (placed.has(node)) continue;
+    nodesAtLayer.forEach((node) => {
+      if (placed.has(node)) return;
       const y = layer * layerHeight;
 
       const couple = couples.find(
@@ -98,11 +106,13 @@ export const assignCoordinates = (
       );
 
       if (couple) {
+        // node is part of a couple
+        // center couples over their children, space them 1/2 nodeWidth apart
         const [a, b] = couple;
         if (coords.has(a) && coords.has(b)) {
           placed.add(a);
           placed.add(b);
-          continue;
+          return;
         }
 
         const sharedChildren =
@@ -116,7 +126,7 @@ export const assignCoordinates = (
           centerX = childXs.reduce((a, b) => a + b, 0) / childXs.length;
         } else {
           centerX = nextX * nodeWidth;
-          nextX += 1.5;
+          nextX++;
         }
 
         coords.set(a, { x: centerX - nodeWidth / 4, y });
@@ -124,6 +134,7 @@ export const assignCoordinates = (
         placed.add(a);
         placed.add(b);
       } else {
+        // node isn't part of a couple
         const childXs =
           node.children
             ?.map((c) => coords.get(c)?.x)
@@ -140,10 +151,18 @@ export const assignCoordinates = (
         coords.set(node, { x, y });
         placed.add(node);
       }
-    }
+    });
   }
 
-  return coords;
+  return [coords, grouped];
+};
+
+export const arrangeSiblings = (
+  grouped: Map<number, PlaceholderNodeProps[]>,
+  coords: Map<PlaceholderNodeProps, { x: number; y: number }>,
+): void => {
+  // find parents of first node (if exist)
+  // check each node and if shared parents, slot it in to left
 };
 
 export const arrangeCouples = (
@@ -178,8 +197,101 @@ export const arrangeCouples = (
     const unrelatedDist = Math.abs(unrelatedCoords.x - parentAvgX);
 
     if (unrelatedDist < relatedDist) {
+      // swap the couple if the parents are closer to the partner than the child
       coords.set(related, unrelatedCoords);
       coords.set(unrelated, relatedCoords);
+    }
+  }
+};
+
+export function fixOverlaps(
+  grouped: Map<number, PlaceholderNodeProps[]>,
+  coords: Map<PlaceholderNodeProps, { x: number; y: number }>,
+  couples: [PlaceholderNodeProps, PlaceholderNodeProps][],
+): void {
+  const nodeWidth = 220;
+  grouped.forEach((layerNodes) => {
+    const placed = new Set<PlaceholderNodeProps>();
+    // order layer nodes by x's
+    const inXOrder = [...layerNodes].sort(
+      (a, b) => (coords.get(a)?.x ?? 0) - (coords.get(b)?.x ?? 0),
+    );
+    let lastNode: PlaceholderNodeProps;
+    const INITIAL_X = -1000;
+    let lastX = INITIAL_X;
+    inXOrder.forEach((node) => {
+      if (node === lastNode || placed.has(node)) console.log('skipping node');
+      if (node === lastNode || placed.has(node)) return;
+
+      const y = coords.get(node)?.y ?? 0;
+      const couple = couples.find(
+        ([a, b]) =>
+          (a === node && layerNodes.includes(b)) ||
+          (b === node && layerNodes.includes(a)),
+      );
+      if (lastX > INITIAL_X) {
+        // space this node past the last one
+        coords.set(node, { x: lastX + nodeWidth, y });
+      }
+      if (couple) {
+        // jump to the next node after this couple
+        const [a, b] = couple;
+        if (a === node) {
+          if (lastX > INITIAL_X) {
+            coords.set(b, { x: lastX + 1.5 * nodeWidth, y });
+          }
+          lastX = coords.get(b)?.x ?? 0;
+          lastNode = b;
+          placed.add(b);
+        } else {
+          if (lastX > INITIAL_X) {
+            coords.set(a, { x: lastX + 1.5 * nodeWidth, y });
+          }
+          lastX = coords.get(a)?.x ?? 0;
+          lastNode = a;
+          placed.add(a);
+        }
+        placed.add(node);
+      } else {
+        lastX = coords.get(node)?.x ?? 0;
+      }
+    });
+  });
+}
+
+export const centerTree = (
+  allNodes: PlaceholderNodeProps[],
+  coords: Map<PlaceholderNodeProps, { x: number; y: number }>,
+  elementRef: RefObject<HTMLDivElement>,
+): void => {
+  if (elementRef.current) {
+    const boundingRectangle = elementRef.current.getBoundingClientRect();
+    const boundingWidth = boundingRectangle?.width ?? 0;
+    const boundingHeight = boundingRectangle?.height ?? 0;
+    const inXOrder = [...allNodes].sort(
+      (a, b) => (coords.get(a)?.x ?? 0) - (coords.get(b)?.x ?? 0),
+    );
+    const inYOrder = [...allNodes].sort(
+      (a, b) => (coords.get(a)?.y ?? 0) - (coords.get(b)?.y ?? 0),
+    );
+    const lastXNode = inXOrder[inXOrder.length - 1];
+    const firstXNode = inXOrder[0];
+    const lastYNode = inYOrder[inYOrder.length - 1];
+    const firstYNode = inYOrder[0];
+
+    if (lastXNode && firstXNode && lastYNode && firstYNode) {
+      const treeWidth =
+        (coords.get(lastXNode)?.x ?? 0) - (coords.get(firstXNode)?.x ?? 0);
+      const xShift = boundingWidth / 2 - treeWidth / 2;
+      const treeHeight =
+        (coords.get(lastYNode)?.y ?? 0) - (coords.get(firstYNode)?.y ?? 0);
+      const yShift = boundingHeight / 2 - treeHeight / 2;
+      allNodes.forEach((node) => {
+        coords.set(node, {
+          x: (coords.get(node)?.x ?? 0) + xShift,
+          y: (coords.get(node)?.y ?? 0) + yShift,
+        });
+      });
     }
   }
 };

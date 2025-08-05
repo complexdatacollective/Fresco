@@ -15,9 +15,10 @@ export type PlaceholderNodeProps = {
   label: string;
   parents?: PlaceholderNodeProps[];
   children?: PlaceholderNodeProps[];
+  partner?: PlaceholderNodeProps;
   xPos?: number;
   yPos?: number;
-  handleClick?: (id: string) => void;
+  handleClick?: (node: PlaceholderNodeProps) => void;
 };
 export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
   const {
@@ -37,7 +38,7 @@ export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
       shape={genderShapes[gender]}
       xPos={xPos}
       yPos={yPos}
-      handleClick={() => handleClick(id)}
+      handleClick={() => handleClick(props)}
     />
   );
 };
