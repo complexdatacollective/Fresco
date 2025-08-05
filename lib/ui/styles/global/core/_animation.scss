@@ -56,6 +56,72 @@ $animation-easing-android: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -200%) scale(1);
+  }
+}
+
+@keyframes fadeSlideDiagUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(75%, -125%) scale(1);
+  }
+}
+
+@keyframes fadeSlideDiagDown {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(75%, 25%) scale(1);
+  }
+}
+
+@keyframes fadeSlideDown {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 100%) scale(1);
+  }
+}
+
+@keyframes fadeSlideRight {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(95%, -50%) scale(1);
+  }
+}
+
+@keyframes fadeSlideLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-200%, -50%) scale(1);
+  }
+}
+
 @mixin animation($animation-name) {
   animation-name: $animation-name;
   animation-duration: var(--animation-duration-standard);
