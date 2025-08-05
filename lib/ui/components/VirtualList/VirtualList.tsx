@@ -34,7 +34,6 @@ export type VirtualListProps<T extends { id: string | number }> = {
   className?: string;
   ariaLabel?: string;
   focusable?: boolean;
-  // Animation props
   animations?: ItemAnimationConfig | 'staggered' | 'none';
   staggerDelay?: number;
 };
@@ -66,12 +65,13 @@ export function VirtualList<T extends { id: string | number }>({
 }: VirtualListProps<T>) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [animatedIds, setAnimatedIds] = useState<Set<string | number>>(
+    new Set(),
+  );
 
-  // Calculate effective dimensions with fallbacks
   const effectiveWidth = itemWidth ?? itemSize ?? 100;
   const effectiveHeight = itemHeight ?? itemSize ?? 100;
 
-  // Determine animation configuration
   const animationConfig = React.useMemo(() => {
     if (animations === 'none') return null;
     if (animations === 'staggered') return defaultStaggeredAnimation;
@@ -88,8 +88,10 @@ export function VirtualList<T extends { id: string | number }>({
     return 1;
   }, [layout, columns, effectiveWidth, gap]);
 
+  const itemsPerRow = getItemsPerRow();
+
   const virtualizer = useVirtualizer({
-    count: Math.ceil(items.length / getItemsPerRow()),
+    count: Math.ceil(items.length / itemsPerRow),
     getScrollElement: () => parentRef.current,
     estimateSize: () =>
       (layout === 'horizontal' ? effectiveWidth : effectiveHeight) + gap,
@@ -148,9 +150,7 @@ export function VirtualList<T extends { id: string | number }>({
       if (newIndex !== activeIndex && newIndex >= 0) {
         setActiveIndex(newIndex);
         const rowIndex = Math.floor(newIndex / itemsPerRow);
-        if (rowIndex < virtualizer.options.count) {
-          virtualizer.scrollToIndex(rowIndex, { align: 'auto' });
-        }
+        virtualizer.scrollToIndex(rowIndex, { align: 'auto' });
       }
     },
     [
@@ -163,8 +163,6 @@ export function VirtualList<T extends { id: string | number }>({
       onItemClick,
     ],
   );
-
-  const itemsPerRow = getItemsPerRow();
 
   return (
     <div
@@ -196,95 +194,101 @@ export function VirtualList<T extends { id: string | number }>({
             `${virtualizer.getTotalSize()}px`,
         }}
       >
-        {virtualizer.getVirtualItems().map((virtualRow) => {
-          const baseIndex = virtualRow.index * itemsPerRow;
-          const rowItems = [];
+        <AnimatePresence mode="popLayout">
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+            const baseIndex = virtualRow.index * itemsPerRow;
+            const rowItems = [];
 
-          for (
-            let i = 0;
-            i < itemsPerRow && baseIndex + i < items.length;
-            i++
-          ) {
-            const itemIndex = baseIndex + i;
-            const item = items[itemIndex];
-            if (!item) continue;
+            for (
+              let i = 0;
+              i < itemsPerRow && baseIndex + i < items.length;
+              i++
+            ) {
+              const itemIndex = baseIndex + i;
+              const item = items[itemIndex];
+              if (!item) continue;
 
-            const isSelected = selectedIds?.has(item.id) ?? false;
-            const isActive = itemIndex === activeIndex;
+              const isSelected = selectedIds?.has(item.id) ?? false;
+              const isActive = itemIndex === activeIndex;
+              const hasAnimated = animatedIds.has(item.id);
+              const delay =
+                animations === 'staggered' && !hasAnimated
+                  ? itemIndex * staggerDelay
+                  : 0;
 
-            const baseProps = {
-              ...(focusable && {
-                'id': `item-${item.id}`,
-                'role': 'option',
-                'aria-selected': isSelected,
-              }),
-              onClick: () => handleItemClick(item.id),
-              className: cn(
-                'transition-all',
-                onItemClick && 'cursor-pointer',
-                focusable &&
-                  isActive &&
-                  'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
-              ),
-              style: {
-                width:
-                  layout === 'column'
-                    ? `calc((100% - ${gap * (columns - 1)}px) / ${columns})`
-                    : `${effectiveWidth}px`,
-                height: `${effectiveHeight}px`,
-              },
-            };
+              const handleAnimationComplete = () => {
+                if (!hasAnimated) {
+                  setAnimatedIds((prev) => new Set(prev).add(item.id));
+                }
+              };
 
-            rowItems.push(
-              animationConfig ? (
-                <motion.div
-                  key={item.id}
-                  {...baseProps}
-                  initial={animationConfig.initial}
-                  animate={animationConfig.animate}
-                  exit={animationConfig.exit}
-                  transition={{
-                    ...animationConfig.transition,
-                    delay:
-                      animations === 'staggered' ? itemIndex * staggerDelay : 0,
-                  }}
-                  layout
-                >
-                  {itemRenderer(item, itemIndex, isSelected)}
-                </motion.div>
-              ) : (
-                <div key={item.id} {...baseProps}>
-                  {itemRenderer(item, itemIndex, isSelected)}
-                </div>
-              ),
-            );
-          }
+              const baseProps = {
+                ...(focusable && {
+                  'id': `item-${item.id}`,
+                  'role': 'option',
+                  'aria-selected': isSelected,
+                }),
+                onClick: () => handleItemClick(item.id),
+                className: cn(
+                  'transition-all',
+                  onItemClick && 'cursor-pointer',
+                  focusable &&
+                    isActive &&
+                    'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
+                ),
+                style: {
+                  width:
+                    layout === 'column'
+                      ? `calc((100% - ${gap * (columns - 1)}px) / ${columns})`
+                      : `${effectiveWidth}px`,
+                  height: `${effectiveHeight}px`,
+                },
+              };
 
-          return (
-            <div
-              key={virtualRow.key}
-              className={cn(
-                'absolute top-0 left-0',
-                layout === 'horizontal'
-                  ? 'flex h-full'
-                  : 'flex w-full flex-wrap',
-              )}
-              style={{
-                [layout === 'horizontal' ? 'transform' : 'transform']:
+              rowItems.push(
+                animationConfig ? (
+                  <motion.div
+                    key={item.id}
+                    {...baseProps}
+                    initial={animationConfig.initial}
+                    animate={animationConfig.animate}
+                    exit={animationConfig.exit}
+                    transition={{ ...animationConfig.transition, delay }}
+                    layout
+                    onAnimationComplete={handleAnimationComplete}
+                  >
+                    {itemRenderer(item, itemIndex, isSelected)}
+                  </motion.div>
+                ) : (
+                  <div key={item.id} {...baseProps}>
+                    {itemRenderer(item, itemIndex, isSelected)}
+                  </div>
+                ),
+              );
+            }
+
+            return (
+              <div
+                key={virtualRow.key}
+                className={cn(
+                  'absolute top-0 left-0',
                   layout === 'horizontal'
-                    ? `translateX(${virtualRow.start}px)`
-                    : `translateY(${virtualRow.start}px)`,
-                gap: `${gap}px`,
-              }}
-            >
-              {animationConfig ? (
-                <AnimatePresence mode="popLayout">{rowItems}</AnimatePresence>
-              ) : (
-                rowItems
-              )}
-            </div>
-          );
-        })}
+                    ? 'flex h-full'
+                    : 'flex w-full flex-wrap',
+                )}
+                style={{
+                  transform:
+                    layout === 'horizontal'
+                      ? `translateX(${virtualRow.start}px)`
+                      : `translateY(${virtualRow.start}px)`,
+                  gap: `${gap}px`,
+                }}
+              >
+                {rowItems}
+              </div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );
