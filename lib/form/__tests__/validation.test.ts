@@ -5,8 +5,7 @@ import type { ValidationContext } from '../types';
 
 describe('Validation Utils', () => {
   const mockContext: ValidationContext = {
-    formContext: {},
-    fieldContext: {},
+    additionalContext: {},
     formValues: {},
   };
 
@@ -102,13 +101,14 @@ describe('Validation Utils', () => {
 
     it('should use context in validation', async () => {
       const contextValidationFn = (context: ValidationContext) => {
-        const minLength = (context.formContext?.minLength as number) ?? 3;
+        const minLength =
+          (context.additionalContext as { minLength?: number })?.minLength ?? 3;
         return z.string().min(minLength, `Must be at least ${minLength} chars`);
       };
 
       const contextWithMinLength: ValidationContext = {
         ...mockContext,
-        formContext: { minLength: 5 },
+        additionalContext: { minLength: 5 },
       };
 
       const result = await validateFieldValue(

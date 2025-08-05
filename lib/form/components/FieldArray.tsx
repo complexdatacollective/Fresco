@@ -5,10 +5,10 @@ type FieldArrayProps = {
   name: string;
   children: (props: {
     fields: FieldArrayItem[];
-    append: (value: any) => void;
+    append: (value: unknown) => void;
     remove: (index: number) => void;
     move: (from: number, to: number) => void;
-    insert: (index: number, value: any) => void;
+    insert: (index: number, value: unknown) => void;
     swap: (indexA: number, indexB: number) => void;
   }) => React.ReactNode;
 };

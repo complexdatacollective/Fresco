@@ -58,7 +58,7 @@ describe('Object Path Utils', () => {
 
   describe('setValue', () => {
     it('should set simple property', () => {
-      const obj: any = {};
+      const obj: Record<string, unknown> = {};
 
       setValue(obj, 'name', 'John');
       setValue(obj, 'age', 30);
@@ -67,7 +67,7 @@ describe('Object Path Utils', () => {
     });
 
     it('should set nested property', () => {
-      const obj: any = {};
+      const obj: Record<string, unknown> = {};
 
       setValue(obj, 'user.profile.name', 'John');
       setValue(obj, 'user.profile.age', 30);
@@ -106,7 +106,7 @@ describe('Object Path Utils', () => {
     });
 
     it('should handle array indices', () => {
-      const obj: any = {
+      const obj: Record<string, unknown> = {
         users: [{ name: 'John' }, { name: 'Jane' }],
       };
 
@@ -114,13 +114,14 @@ describe('Object Path Utils', () => {
       setValue(obj, 'users.1.age', 25);
       setValue(obj, 'users.2.name', 'Bob');
 
-      expect(obj.users[0].name).toBe('Johnny');
-      expect(obj.users[1].age).toBe(25);
-      expect(obj.users[2].name).toBe('Bob');
+      const users = obj.users as Record<string, unknown>[];
+      expect(users[0]?.name).toBe('Johnny');
+      expect(users[1]?.age).toBe(25);
+      expect(users[2]?.name).toBe('Bob');
     });
 
     it('should create intermediate objects', () => {
-      const obj: any = {};
+      const obj: Record<string, unknown> = {};
 
       setValue(obj, 'a.b.c.d.e', 'deep value');
 
@@ -138,7 +139,7 @@ describe('Object Path Utils', () => {
     });
 
     it('should handle mixed object and array paths', () => {
-      const obj: any = {};
+      const obj: Record<string, unknown> = {};
 
       setValue(obj, 'users.0.skills.1', 'typescript');
       setValue(obj, 'users.0.name', 'John');
@@ -156,7 +157,7 @@ describe('Object Path Utils', () => {
     });
 
     it('should handle empty path by replacing object', () => {
-      const obj: any = { name: 'John' };
+      const obj: Record<string, unknown> = { name: 'John' };
 
       setValue(obj, '', { name: 'Jane' });
 

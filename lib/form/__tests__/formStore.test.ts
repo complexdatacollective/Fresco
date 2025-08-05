@@ -1,20 +1,18 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useFormStore } from '../store/formStore';
+import { createFormStore } from '../store/formStore';
 import type { FormConfig, FieldConfig } from '../types';
 
 describe('FormStore', () => {
+  let store: ReturnType<typeof createFormStore>;
+
   beforeEach(() => {
-    // Reset store before each test
-    useFormStore.setState({
-      forms: new Map(),
-      formConfigs: new Map(),
-      fieldConfigs: new Map(),
-    });
+    // Create a fresh store for each test
+    store = createFormStore();
   });
 
   describe('Form Management', () => {
     it('should register a form', () => {
-      const { registerForm, getFormState } = useFormStore.getState();
+      const { registerForm, getFormState } = store.getState();
 
       const config: FormConfig = {
         name: 'test-form',
@@ -35,8 +33,7 @@ describe('FormStore', () => {
     });
 
     it('should unregister a form', () => {
-      const { registerForm, unregisterForm, getFormState } =
-        useFormStore.getState();
+      const { registerForm, unregisterForm, getFormState } = store.getState();
 
       const config: FormConfig = {
         name: 'test-form',
@@ -55,7 +52,7 @@ describe('FormStore', () => {
 
   describe('Field Management', () => {
     beforeEach(() => {
-      const { registerForm } = useFormStore.getState();
+      const { registerForm } = store.getState();
       registerForm('test-form', {
         name: 'test-form',
         onSubmit: () => {
@@ -65,7 +62,7 @@ describe('FormStore', () => {
     });
 
     it('should register a field', () => {
-      const { registerField, getFieldState } = useFormStore.getState();
+      const { registerField, getFieldState } = store.getState();
 
       const fieldConfig: FieldConfig = {
         initialValue: 'test value',
@@ -76,16 +73,16 @@ describe('FormStore', () => {
       const fieldState = getFieldState('test-form', 'test-field');
       expect(fieldState).toBeDefined();
       expect(fieldState?.value).toBe('test value');
-      expect(fieldState?.error).toBe(null);
-      expect(fieldState?.isValidating).toBe(false);
-      expect(fieldState?.isTouched).toBe(false);
-      expect(fieldState?.isDirty).toBe(false);
-      expect(fieldState?.isValid).toBe(true);
+      expect(fieldState?.meta.error).toBe(null);
+      expect(fieldState?.meta.isValidating).toBe(false);
+      expect(fieldState?.meta.isTouched).toBe(false);
+      expect(fieldState?.meta.isDirty).toBe(false);
+      expect(fieldState?.meta.isValid).toBe(false);
     });
 
     it('should unregister a field', () => {
       const { registerField, unregisterField, getFieldState } =
-        useFormStore.getState();
+        store.getState();
 
       registerField('test-form', 'test-field', { initialValue: 'test' });
       expect(getFieldState('test-form', 'test-field')).toBeDefined();
@@ -95,20 +92,19 @@ describe('FormStore', () => {
     });
 
     it('should set field value', () => {
-      const { registerField, setValue, getFieldState } =
-        useFormStore.getState();
+      const { registerField, setValue, getFieldState } = store.getState();
 
       registerField('test-form', 'test-field', { initialValue: 'initial' });
       setValue('test-form', 'test-field', 'new value');
 
       const fieldState = getFieldState('test-form', 'test-field');
       expect(fieldState?.value).toBe('new value');
-      expect(fieldState?.isDirty).toBe(true);
+      expect(fieldState?.meta.isDirty).toBe(true);
     });
 
     it('should set field error', () => {
       const { registerField, setError, getFieldState, getFormState } =
-        useFormStore.getState();
+        store.getState();
 
       registerField('test-form', 'test-field', { initialValue: 'test' });
       setError('test-form', 'test-field', 'Test error');
@@ -116,25 +112,24 @@ describe('FormStore', () => {
       const fieldState = getFieldState('test-form', 'test-field');
       const formState = getFormState('test-form');
 
-      expect(fieldState?.error).toBe('Test error');
-      expect(fieldState?.isValid).toBe(false);
+      expect(fieldState?.meta.error).toBe('Test error');
+      expect(fieldState?.meta.isValid).toBe(false);
       expect(formState?.isValid).toBe(false);
     });
 
     it('should set field touched', () => {
-      const { registerField, setTouched, getFieldState } =
-        useFormStore.getState();
+      const { registerField, setTouched, getFieldState } = store.getState();
 
       registerField('test-form', 'test-field', { initialValue: 'test' });
       setTouched('test-form', 'test-field', true);
 
       const fieldState = getFieldState('test-form', 'test-field');
-      expect(fieldState?.isTouched).toBe(true);
+      expect(fieldState?.meta.isTouched).toBe(true);
     });
 
     it('should set field validating state', () => {
       const { registerField, setValidating, getFieldState, getFormState } =
-        useFormStore.getState();
+        store.getState();
 
       registerField('test-form', 'test-field', { initialValue: 'test' });
       setValidating('test-form', 'test-field', true);
@@ -142,14 +137,14 @@ describe('FormStore', () => {
       const fieldState = getFieldState('test-form', 'test-field');
       const formState = getFormState('test-form');
 
-      expect(fieldState?.isValidating).toBe(true);
+      expect(fieldState?.meta.isValidating).toBe(true);
       expect(formState?.isValidating).toBe(true);
     });
   });
 
   describe('Form Values', () => {
     beforeEach(() => {
-      const { registerForm } = useFormStore.getState();
+      const { registerForm } = store.getState();
       registerForm('test-form', {
         name: 'test-form',
         onSubmit: () => {
@@ -159,8 +154,7 @@ describe('FormStore', () => {
     });
 
     it('should get form values', () => {
-      const { registerField, setValue, getFormValues } =
-        useFormStore.getState();
+      const { registerField, setValue, getFormValues } = store.getState();
 
       registerField('test-form', 'field1', { initialValue: 'value1' });
       registerField('test-form', 'field2', { initialValue: 'value2' });
@@ -174,7 +168,7 @@ describe('FormStore', () => {
     });
 
     it('should handle nested field values', () => {
-      const { registerField, getFormValues } = useFormStore.getState();
+      const { registerField, getFormValues } = store.getState();
 
       registerField('test-form', 'user.name', { initialValue: 'John' });
       registerField('test-form', 'user.email', {
@@ -200,7 +194,7 @@ describe('FormStore', () => {
         setError,
         setTouched,
         setDirty,
-      } = useFormStore.getState();
+      } = store.getState();
 
       registerForm('test-form', {
         name: 'test-form',
@@ -220,8 +214,7 @@ describe('FormStore', () => {
     });
 
     it('should reset entire form', () => {
-      const { resetForm, getFieldState, getFormState } =
-        useFormStore.getState();
+      const { resetForm, getFieldState, getFormState } = store.getState();
 
       resetForm('test-form');
 
@@ -230,10 +223,10 @@ describe('FormStore', () => {
       const formState = getFormState('test-form');
 
       expect(field1State?.value).toBe('initial1');
-      expect(field1State?.error).toBe(null);
-      expect(field1State?.isTouched).toBe(false);
-      expect(field1State?.isDirty).toBe(false);
-      expect(field1State?.isValid).toBe(true);
+      expect(field1State?.meta.error).toBe(null);
+      expect(field1State?.meta.isTouched).toBe(false);
+      expect(field1State?.meta.isDirty).toBe(false);
+      expect(field1State?.meta.isValid).toBe(true);
 
       expect(field2State?.value).toBe('initial2');
       expect(formState?.isValid).toBe(true);
@@ -241,7 +234,7 @@ describe('FormStore', () => {
     });
 
     it('should reset individual field', () => {
-      const { resetField, getFieldState } = useFormStore.getState();
+      const { resetField, getFieldState } = store.getState();
 
       resetField('test-form', 'field1');
 
@@ -249,10 +242,10 @@ describe('FormStore', () => {
       const field2State = getFieldState('test-form', 'field2');
 
       expect(field1State?.value).toBe('initial1');
-      expect(field1State?.error).toBe(null);
-      expect(field1State?.isTouched).toBe(false);
-      expect(field1State?.isDirty).toBe(false);
-      expect(field1State?.isValid).toBe(true);
+      expect(field1State?.meta.error).toBe(null);
+      expect(field1State?.meta.isTouched).toBe(false);
+      expect(field1State?.meta.isDirty).toBe(false);
+      expect(field1State?.meta.isValid).toBe(true);
 
       // field2 should remain unchanged
       expect(field2State?.value).toBe('initial2');
@@ -261,7 +254,7 @@ describe('FormStore', () => {
 
   describe('Form Submission', () => {
     beforeEach(() => {
-      const { registerForm } = useFormStore.getState();
+      const { registerForm } = store.getState();
       registerForm('test-form', {
         name: 'test-form',
         onSubmit: () => {
@@ -271,7 +264,7 @@ describe('FormStore', () => {
     });
 
     it('should set submitting state', () => {
-      const { setSubmitting, getFormState } = useFormStore.getState();
+      const { setSubmitting, getFormState } = store.getState();
 
       setSubmitting('test-form', true);
       expect(getFormState('test-form')?.isSubmitting).toBe(true);
@@ -281,7 +274,7 @@ describe('FormStore', () => {
     });
 
     it('should increment submit count', () => {
-      const { incrementSubmitCount, getFormState } = useFormStore.getState();
+      const { incrementSubmitCount, getFormState } = store.getState();
 
       expect(getFormState('test-form')?.submitCount).toBe(0);
 

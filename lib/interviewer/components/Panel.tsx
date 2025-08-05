@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { cn } from '~/utils/shadcn';
-import { type HighlightColor } from '../containers/NodePanels';
+import { type HighlightColor } from '../Interfaces/NameGenerator/components/NodePanels';
 
 type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   title: string;

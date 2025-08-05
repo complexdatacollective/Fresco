@@ -1,106 +1,89 @@
 import {
   useCallback,
-  useId,
   useLayoutEffect,
   useRef,
+  type ComponentProps,
   type FormEvent,
 } from 'react';
-import { useFormStore } from '../store/formStore';
-import type { FormConfig, FormErrors } from '../types';
+import { useFormStore } from '../store/formStoreProvider';
+import type { FormConfig } from '../types';
 
-export function useForm<TContext = unknown>(config: FormConfig<TContext>) {
-  const formId = useId();
-  const formName = config.name ?? formId;
+export function useForm(config: FormConfig): {
+  formProps: ComponentProps<'form'> & {
+    onSubmit: (e: FormEvent) => Promise<void>;
+  };
+  reset: () => void;
+} {
   const registeredRef = useRef(false);
+  const isUnmountingRef = useRef(false);
+
+  const registerForm = useFormStore((state) => state.registerForm);
+  const validateForm = useFormStore((state) => state.validateForm);
+  const getFormValues = useFormStore((state) => state.getFormValues);
+  const getFormErrors = useFormStore((state) => state.getFormErrors);
+  const reset = useFormStore((state) => state.reset);
+
+  const setSubmitting = useFormStore((state) => state.setSubmitting);
 
   // Store the latest config in a ref to avoid dependency issues
   const configRef = useRef(config);
   configRef.current = config;
 
-  const {
-    registerForm,
-    unregisterForm,
-    getFormState,
-    getFormValues,
-    getFormErrors,
-    validateForm,
-    setSubmitting,
-    incrementSubmitCount,
-    resetForm,
-  } = useFormStore();
-
-  // Register form once on mount
+  // Register form once on mount. layout effect used to ensure it runs before fields register.
   useLayoutEffect(() => {
-    if (!registeredRef.current) {
-      const formConfig: FormConfig<TContext> = {
-        name: formName,
+    if (!registeredRef.current && !isUnmountingRef.current) {
+      const formConfig: FormConfig = {
         onSubmit: configRef.current.onSubmit,
         onSubmitInvalid: configRef.current.onSubmitInvalid,
-        focusFirstInput: configRef.current.focusFirstInput,
         additionalContext: configRef.current.additionalContext,
-        validation: configRef.current.validation,
       };
-      registerForm(formName, formConfig);
+      registerForm(formConfig);
       registeredRef.current = true;
     }
 
     return () => {
+      isUnmountingRef.current = true;
       if (registeredRef.current) {
-        unregisterForm(formName);
+        reset();
         registeredRef.current = false;
       }
     };
-  }, [formName, registerForm, unregisterForm]);
+  }, [reset, registerForm]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
+      setSubmitting(true);
 
-    incrementSubmitCount(formName);
-    setSubmitting(formName, true);
+      try {
+        const isValid = await validateForm();
 
-    try {
-      const isValid = await validateForm(formName);
-      const values = getFormValues(formName);
-
-      if (isValid) {
-        await configRef.current.onSubmit?.(values);
-      } else {
-        const formState = getFormState(formName);
-        if (formState && configRef.current.onSubmitInvalid) {
-          const errors: FormErrors = {};
-          Object.entries(formState.fields).forEach(
-            ([fieldName, fieldState]) => {
-              if (fieldState.meta.error) {
-                errors[fieldName] = fieldState.meta.error;
-              }
-            },
-          );
-          configRef.current.onSubmitInvalid(errors);
+        if (isValid) {
+          const values = getFormValues();
+          await configRef.current.onSubmit?.(values);
+        } else {
+          const errors = getFormErrors();
+          if (errors && configRef.current.onSubmitInvalid) {
+            configRef.current.onSubmitInvalid(errors);
+          }
         }
+      } catch (error) {
+        // Handle form submission errors silently or with proper error handling
+        // console.error('Form submission error:', error);
+      } finally {
+        setSubmitting(false);
       }
-    } catch (error) {
-      // Handle form submission errors silently or with proper error handling
-      // console.error('Form submission error:', error);
-    } finally {
-      setSubmitting(formName, false);
-    }
-  };
+    },
+    [setSubmitting, validateForm, getFormValues, getFormErrors],
+  );
 
   const handleReset = useCallback(() => {
-    resetForm(formName);
-  }, [resetForm, formName]);
+    reset();
+  }, [reset]);
 
   return {
     formProps: {
-      'onSubmit': handleSubmit,
-      'data-form-name': formName,
-    },
-    formName,
-    context: {
-      formName,
-      additionalContext: configRef.current.additionalContext,
-      focusFirstInput: configRef.current.focusFirstInput,
-      errors: getFormErrors(formName),
+      onSubmit: handleSubmit,
     },
     reset: handleReset,
   };

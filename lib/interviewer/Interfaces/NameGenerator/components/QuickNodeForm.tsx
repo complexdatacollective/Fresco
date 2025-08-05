@@ -7,10 +7,9 @@ import { motion, type Variants } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
-import QuickAdd from '~/lib/form/components/fields/QuickAdd';
-import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
+
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
+import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 
 const containerVariants: Variants = {
   animate: {
@@ -33,8 +32,8 @@ type QuickNodeFormProps = {
 
 const QuickNodeForm = ({
   disabled,
-  targetVariable,
-  onShowForm,
+  _targetVariable,
+  _onShowForm,
   addNode,
 }: QuickNodeFormProps) => {
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
@@ -51,21 +50,6 @@ const QuickNodeForm = ({
     [disabled, addNode, newNodeAttributes],
   );
 
-  const fields = [
-    {
-      prompt: undefined,
-      variable: targetVariable,
-      Component: QuickAdd,
-      parameters: {
-        onShowForm,
-      },
-    },
-  ];
-
-  const processedFields = useProtocolFieldProcessor({
-    fields,
-  });
-
   return (
     <motion.div
       className="absolute right-0 bottom-0 z-20"
@@ -74,9 +58,8 @@ const QuickNodeForm = ({
       animate="animate"
     >
       <Form
-        fields={processedFields}
-        handleSubmit={handleSubmit}
-        getInitialValues={() => ({})}
+        onSubmit={handleSubmit}
+        initialValues={{}}
         disabled={disabled}
         focusFirstInput={true}
       />

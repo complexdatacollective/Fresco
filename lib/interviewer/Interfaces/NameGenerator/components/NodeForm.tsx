@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
-import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
+
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import Overlay from '../../../containers/Overlay';
@@ -19,7 +19,7 @@ import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
+import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -49,18 +49,6 @@ const NodeForm = (props: NodeFormProps) => {
       newAttributeData: NcNode[EntityAttributesProperty];
     }) => dispatch(updateNodeAction(payload)),
     [dispatch],
-  );
-
-  const processedFields = useProtocolFieldProcessor({
-    fields: form.fields,
-    validationMeta: {
-      entityId: selectedNode?.[entityPrimaryKeyProperty],
-    },
-  });
-
-  const getInitialValues = useCallback(
-    () => selectedNode?.[entityAttributesProperty] ?? {},
-    [selectedNode],
   );
 
   // When a selected node is passed in, we are editing an existing node.
@@ -118,9 +106,9 @@ const NodeForm = (props: NodeFormProps) => {
         title={form.title}
         onClose={handleClose}
         className="node-form"
-        forceEnableFullscreen={useFullScreenForms}
+        forceEnableFullscreen={false}
         footer={
-          !useFullScreenForms && (
+          true && (
             <Button
               key="submit"
               aria-label="Finished"

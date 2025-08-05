@@ -1,13 +1,15 @@
 import { z } from 'zod';
-import type { FieldConfig, ValidationContext } from '../types';
+import type { FieldState, ValidationContext } from '../types';
 
 export async function validateFieldValue(
-  value: any,
-  validation: FieldConfig['validation'],
+  value: unknown,
+  validation: FieldState['validation'],
   context: ValidationContext,
-): Promise<{ isValid: boolean; error: string | null }> {
+): Promise<
+  { isValid: true; errors: null } | { isValid: false; errors: string[] }
+> {
   if (!validation) {
-    return { isValid: true, error: null };
+    return { isValid: true, errors: null };
   }
 
   try {
@@ -21,26 +23,14 @@ export async function validateFieldValue(
     }
 
     await schema.parseAsync(value);
-    return { isValid: true, error: null };
+    return { isValid: true, errors: null };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         isValid: false,
-        error: error.errors[0]?.message || 'Invalid value',
+        errors: error.errors.map((e) => e.message) ?? ['Invalid value'],
       };
     }
-    return { isValid: false, error: 'Validation error' };
+    return { isValid: false, errors: ['Validation error'] };
   }
-}
-
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number,
-): (...args: Parameters<T>) => void {
-  let timeoutId: NodeJS.Timeout;
-
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
 }

@@ -47,7 +47,8 @@ export function TypedFormExample() {
   };
 
   const handleSubmit = (data: Record<string, unknown>) => {
-    console.log('Form submitted with:', data);
+    // Form submitted successfully with data
+    void data;
   };
 
   return (

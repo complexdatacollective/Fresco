@@ -12,8 +12,8 @@ import useSearch from '../hooks/useSearch';
 import useSort from '../hooks/useSort';
 import { type Direction } from '../utils/createSorter';
 import HyperList from './HyperList';
-import DropOverlay from './Interfaces/NameGeneratorRoster/DropOverlay';
-import { type UseItemElement } from './Interfaces/NameGeneratorRoster/useItems';
+import DropOverlay from '../Interfaces/NameGeneratorRoster/DropOverlay';
+import { type UseItemElement } from '../Interfaces/NameGeneratorRoster/useItems';
 
 const SortButton = ({
   color,

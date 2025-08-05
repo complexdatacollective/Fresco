@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { useFormStore } from '../store/formStore';
-import { useFormContext } from '../context/FormContext';
-import type { ValidationContext } from '../types';
+import { getFormStore } from '../store/formStore';
+import { useFormName } from '../context/FormNameContext';
 
 export type FieldArrayItem = {
   id: string;
@@ -9,20 +8,11 @@ export type FieldArrayItem = {
 };
 
 export function useFieldArray(name: string) {
-  const formContext = useFormContext();
-  const formName = formContext.formName;
+  const formName = useFormName();
+  const store = getFormStore();
 
-  const {
-    getFormValues,
-    setValue,
-    setDirty,
-    validateField,
-    registerField,
-    unregisterField,
-  } = useFormStore();
-
-  const values = getFormValues(formName);
-  const arrayValue = values[name] || [];
+  const values = store.getState().getFormValues(formName);
+  const arrayValue = (values[name] as unknown[]) || [];
 
   // Generate field items with stable IDs
   const fields: FieldArrayItem[] = arrayValue.map((_, index: number) => ({
@@ -31,66 +21,58 @@ export function useFieldArray(name: string) {
   }));
 
   const append = useCallback(
-    (value: any) => {
-      const currentValues = getFormValues(formName);
-      const currentArray = currentValues[name] || [];
+    (value: unknown) => {
+      const currentValues = store.getState().getFormValues(formName);
+      const currentArray = (currentValues[name] as unknown[]) || [];
       const newArray = [...currentArray, value];
       const newIndex = newArray.length - 1;
 
-      setValue(formName, name, newArray);
-      setDirty(formName, name, true);
+      store.getState().setValue(formName, name, newArray);
+      store.getState().setDirty(formName, name, true);
 
       // Register the new field
-      registerField(formName, `${name}.${newIndex}`, {
+      store.getState().registerField(formName, `${name}.${newIndex}`, {
         initialValue: value,
       });
     },
-    [formName, name, setValue, setDirty, registerField, getFormValues],
+    [formName, name, store],
   );
 
   const remove = useCallback(
     (index: number) => {
-      const currentValues = getFormValues(formName);
-      const currentArray = currentValues[name] || [];
+      const currentValues = store.getState().getFormValues(formName);
+      const currentArray = (currentValues[name] as unknown[]) || [];
 
       if (index < 0 || index >= currentArray.length) return;
 
       // Unregister the field being removed
-      unregisterField(formName, `${name}.${index}`);
+      store.getState().unregisterField(formName, `${name}.${index}`);
 
       // Remove the item
       const newArray = currentArray.filter((_, i) => i !== index);
-      setValue(formName, name, newArray);
-      setDirty(formName, name, true);
+      store.getState().setValue(formName, name, newArray);
+      store.getState().setDirty(formName, name, true);
 
       // Re-register fields with updated indices
-      newArray.forEach((item, newIndex) => {
+      newArray.forEach((item: unknown, newIndex: number) => {
         const oldFieldName = `${name}.${newIndex >= index ? newIndex + 1 : newIndex}`;
         const newFieldName = `${name}.${newIndex}`;
 
         if (newIndex >= index) {
-          unregisterField(formName, oldFieldName);
-          registerField(formName, newFieldName, {
+          store.getState().unregisterField(formName, oldFieldName);
+          store.getState().registerField(formName, newFieldName, {
             initialValue: item,
           });
         }
       });
     },
-    [
-      formName,
-      name,
-      setValue,
-      setDirty,
-      registerField,
-      unregisterField,
-      getFormValues,
-    ],
+    [formName, name, store],
   );
 
   const move = useCallback(
     (from: number, to: number) => {
-      const currentValues = getFormValues(formName);
-      const currentArray = currentValues[name] || [];
+      const currentValues = store.getState().getFormValues(formName);
+      const currentArray = (currentValues[name] as unknown[]) || [];
 
       if (
         from < 0 ||
@@ -105,70 +87,54 @@ export function useFieldArray(name: string) {
       const [moved] = newArray.splice(from, 1);
       newArray.splice(to, 0, moved);
 
-      setValue(formName, name, newArray);
-      setDirty(formName, name, true);
+      store.getState().setValue(formName, name, newArray);
+      store.getState().setDirty(formName, name, true);
 
       // Re-register all fields with updated indices
-      currentArray.forEach((_, index) => {
-        unregisterField(formName, `${name}.${index}`);
+      currentArray.forEach((_: unknown, index: number) => {
+        store.getState().unregisterField(formName, `${name}.${index}`);
       });
 
-      newArray.forEach((item, index) => {
-        registerField(formName, `${name}.${index}`, {
+      newArray.forEach((item: unknown, index: number) => {
+        store.getState().registerField(formName, `${name}.${index}`, {
           initialValue: item,
         });
       });
     },
-    [
-      formName,
-      name,
-      setValue,
-      setDirty,
-      registerField,
-      unregisterField,
-      getFormValues,
-    ],
+    [formName, name, store],
   );
 
   const insert = useCallback(
-    (index: number, value: any) => {
-      const currentValues = getFormValues(formName);
-      const currentArray = currentValues[name] || [];
+    (index: number, value: unknown) => {
+      const currentValues = store.getState().getFormValues(formName);
+      const currentArray = (currentValues[name] as unknown[]) || [];
 
       if (index < 0 || index > currentArray.length) return;
 
       const newArray = [...currentArray];
       newArray.splice(index, 0, value);
 
-      setValue(formName, name, newArray);
-      setDirty(formName, name, true);
+      store.getState().setValue(formName, name, newArray);
+      store.getState().setDirty(formName, name, true);
 
       // Re-register fields from the insertion point onwards
       for (let i = index; i < currentArray.length; i++) {
-        unregisterField(formName, `${name}.${i}`);
+        store.getState().unregisterField(formName, `${name}.${i}`);
       }
 
       for (let i = index; i < newArray.length; i++) {
-        registerField(formName, `${name}.${i}`, {
+        store.getState().registerField(formName, `${name}.${i}`, {
           initialValue: newArray[i],
         });
       }
     },
-    [
-      formName,
-      name,
-      setValue,
-      setDirty,
-      registerField,
-      unregisterField,
-      getFormValues,
-    ],
+    [formName, name, store],
   );
 
   const swap = useCallback(
     (indexA: number, indexB: number) => {
-      const currentValues = getFormValues(formName);
-      const currentArray = currentValues[name] || [];
+      const currentValues = store.getState().getFormValues(formName);
+      const currentArray = (currentValues[name] as unknown[]) || [];
 
       if (
         indexA < 0 ||
@@ -186,29 +152,21 @@ export function useFieldArray(name: string) {
         newArray[indexA],
       ];
 
-      setValue(formName, name, newArray);
-      setDirty(formName, name, true);
+      store.getState().setValue(formName, name, newArray);
+      store.getState().setDirty(formName, name, true);
 
       // Update the swapped fields
-      unregisterField(formName, `${name}.${indexA}`);
-      unregisterField(formName, `${name}.${indexB}`);
+      store.getState().unregisterField(formName, `${name}.${indexA}`);
+      store.getState().unregisterField(formName, `${name}.${indexB}`);
 
-      registerField(formName, `${name}.${indexA}`, {
+      store.getState().registerField(formName, `${name}.${indexA}`, {
         initialValue: newArray[indexA],
       });
-      registerField(formName, `${name}.${indexB}`, {
+      store.getState().registerField(formName, `${name}.${indexB}`, {
         initialValue: newArray[indexB],
       });
     },
-    [
-      formName,
-      name,
-      setValue,
-      setDirty,
-      registerField,
-      unregisterField,
-      getFormValues,
-    ],
+    [formName, name, store],
   );
 
   return {

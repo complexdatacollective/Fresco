@@ -1,99 +1,84 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import { useDebounceCallback } from 'usehooks-ts';
-import { useFormContext } from '../context/FormContext';
-import { useFormStore } from '../store/formStore';
-import type { FieldConfig, ValidationContext } from '../types';
+import {
+  type ChangeEvent,
+  type ChangeEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
+import { useFormStore } from '../store/formStoreProvider';
+import type { FieldConfig } from '../types';
 
-export function useField<TContext = unknown>(config: {
+export function useField(config: {
   name: string;
-  initialValue?: unknown;
-  validation?: FieldConfig<TContext>['validation'];
-}) {
-  const formContext = useFormContext<TContext>();
-  const formName = formContext.formName;
+  initialValue?: FieldValue;
+  validation?: FieldConfig['validation'];
+}): {
+  'value': FieldValue;
+  'meta': {
+    errors: string[] | null;
+    isValidating: boolean;
+    isTouched: boolean;
+    isDirty: boolean;
+    isValid: boolean;
+  };
+  'onChange': ChangeEventHandler<HTMLInputElement>;
+  'onBlur': () => void;
+  'data-field-name': string; // Used for scrolling to field errors
+} {
+  // Get the stable store API reference
+  const isUnmountingRef = useRef(false);
 
-  const {
-    registerField,
-    unregisterField,
-    setValue,
-    setTouched,
-    setDirty,
-    getFormValues,
-    getFieldState,
-    validateField,
-  } = useFormStore();
-
-  const validationContext: ValidationContext<TContext> = useMemo(
-    () => ({
-      additionalContext: formContext.additionalContext,
-      formValues: getFormValues(formName),
-    }),
-    [formContext.additionalContext, formName, getFormValues],
-  );
+  // Subscribe to the specific field state using Zustand's useStore hook
+  const fieldState = useFormStore((state) => state.getFieldState(config.name));
+  const registerField = useFormStore((store) => store.registerField);
+  const unregisterField = useFormStore((store) => store.unregisterField);
+  const setFieldValue = useFormStore((store) => store.setFieldValue);
+  const setFieldTouched = useFormStore((store) => store.setFieldTouched);
+  const validateField = useFormStore((store) => store.validateField);
 
   // Register field on mount - use useLayoutEffect to ensure it runs after form registration
   useEffect(() => {
-    registerField(formName, config.name, {
-      initialValue: config.initialValue,
-      validation: config.validation,
-    });
+    if (!isUnmountingRef.current) {
+      registerField({
+        name: config.name,
+        initialValue: config.initialValue,
+        validation: config.validation,
+      });
+    }
     return () => {
-      unregisterField(formName, config.name);
+      isUnmountingRef.current = true;
+      unregisterField(config.name);
     };
   }, [
-    formName,
     config.name,
     config.initialValue,
     config.validation,
-    registerField,
     unregisterField,
+    registerField,
   ]);
 
-  // Selective subscription to field state
-  const fieldState = getFieldState(formName, config.name);
-
-  // Create debounced validation function
-  const debouncedValidation = useDebounceCallback(validateField, 100, {
-    leading: true,
-    trailing: true,
-  });
-
   const handleChange = useCallback(
-    (value: unknown) => {
-      setValue(formName, config.name, value);
-      setDirty(formName, config.name, true);
-
-      if (debouncedValidation) {
-        void debouncedValidation(formName, config.name, validationContext);
-      }
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      setFieldValue(config.name, value);
+      void validateField(config.name);
     },
-    [
-      formName,
-      config.name,
-      setValue,
-      setDirty,
-      debouncedValidation,
-      validationContext,
-    ],
+    [config.name, setFieldValue, validateField],
   );
 
   const handleBlur = useCallback(() => {
-    setTouched(formName, config.name, true);
+    setFieldTouched(config.name, true);
 
-    void debouncedValidation(formName, config.name, validationContext);
-  }, [
-    formName,
-    config.name,
-    setTouched,
-    validationContext,
-    debouncedValidation,
-  ]);
+    // TODO: cache validation result if value hasn't changed.
+    void validateField(config.name);
+  }, [config.name, validateField, setFieldTouched]);
 
   return {
     'value': fieldState?.value ?? config.initialValue ?? '',
     'meta': {
-      error: fieldState?.meta.error ?? null,
-      isValid: fieldState?.meta.isValid ?? true,
+      errors: fieldState?.meta.errors ?? null,
+      isValid: fieldState?.meta.isValid ?? false,
       isTouched: fieldState?.meta.isTouched ?? false,
       isDirty: fieldState?.meta.isDirty ?? false,
       isValidating: fieldState?.meta.isValidating ?? false,

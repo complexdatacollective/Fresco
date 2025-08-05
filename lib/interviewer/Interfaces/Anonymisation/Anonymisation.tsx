@@ -8,10 +8,10 @@ import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { Button } from '~/lib/ui/components';
 import { Markdown } from '~/lib/ui/components/Fields';
-import EncryptionBackground from '../../../components/EncryptedBackground';
-import Form from '../../Form';
-import type { BeforeNextFunction } from '../../ProtocolScreen';
-import type { StageProps } from '../../Stage';
+import EncryptionBackground from '../../components/EncryptedBackground';
+import Form from '../../containers/Form';
+import type { BeforeNextFunction } from '../../containers/ProtocolScreen';
+import type { StageProps } from '../../containers/Stage';
 import { usePassphrase } from './usePassphrase';
 
 const FORM_NAME = 'passphrase-form';

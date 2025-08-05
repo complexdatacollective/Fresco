@@ -1,8 +1,8 @@
 import { compact, flatten, isEqual } from 'es-toolkit';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { convertNamesToUUIDs } from '../containers/Interfaces/NameGeneratorRoster/helpers';
-import { type UseItemElement } from '../containers/Interfaces/NameGeneratorRoster/useItems';
+import { convertNamesToUUIDs } from '../Interfaces/NameGeneratorRoster/helpers';
+import { type UseItemElement } from '../Interfaces/NameGeneratorRoster/useItems';
 import { getNodeVariables } from '../selectors/interface';
 import { getSortOptions } from '../selectors/name-generator';
 import createSorter, {

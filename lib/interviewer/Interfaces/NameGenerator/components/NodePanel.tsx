@@ -1,16 +1,13 @@
-import {
-  type Panel as PanelType,
-  type StageSubject,
-} from '@codaco/protocol-validation';
+import { type Panel as PanelType } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
-import useExternalData from '../hooks/useExternalData';
-import { getPanelNodes } from '../selectors/name-generator';
-import { getStageSubject } from '../selectors/session';
+import useExternalData from '../../../hooks/useExternalData';
+import { getPanelNodes } from '../../../selectors/name-generator';
+import { getStageSubject } from '../../../selectors/session';
 import { type HighlightColor } from './NodePanels';
 
 type NodePanelProps = {

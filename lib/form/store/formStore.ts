@@ -1,11 +1,12 @@
 import { enableMapSet } from 'immer';
-import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { createStore } from 'zustand/vanilla';
+import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import type {
   FieldConfig,
   FieldState,
   FormConfig,
-  FormState,
+  FormErrors,
   ValidationContext,
 } from '../types';
 import { setValue } from '../utils/objectPath';
@@ -14,463 +15,370 @@ import { validateFieldValue } from '../utils/validation';
 // Enable Map/Set support in Immer
 enableMapSet();
 
-type FormStore = {
-  forms: Map<string, FormState>;
-  formConfigs: Map<string, FormConfig>;
-  fieldConfigs: Map<string, Map<string, FieldConfig>>;
+export type FormStore = {
+  fields: Map<string, FieldState>;
+  isSubmitting: boolean;
+  isValidating: boolean;
+  isDirty: boolean;
+  isValid: boolean;
+  context: Record<string, unknown>;
+  submitHandler:
+    | ((data: Record<string, unknown>) => void | Promise<void>)
+    | null;
+  submitInvalidHandler: ((errors: FormErrors) => void) | null;
 
   // Form management
-  registerForm: (name: string, config: FormConfig) => void;
-  unregisterForm: (name: string) => void;
+  registerForm: (config: FormConfig) => void;
+  reset: () => void;
 
   // Field management
-  registerField: (
-    formName: string,
-    fieldName: string,
-    config: FieldConfig,
-  ) => void;
-  unregisterField: (formName: string, fieldName: string) => void;
+  registerField: (config: FieldConfig) => void;
+  unregisterField: (fieldName: string) => void;
 
   // Field state updates
-  setValue: (formName: string, fieldName: string, value: unknown) => void;
-  setError: (formName: string, fieldName: string, error: string | null) => void;
-  setTouched: (formName: string, fieldName: string, touched: boolean) => void;
-  setDirty: (formName: string, fieldName: string, dirty: boolean) => void;
-  setValidating: (
-    formName: string,
-    fieldName: string,
-    validating: boolean,
-  ) => void;
+  setFieldValue: (fieldName: string, value: FieldValue) => void;
+  setFieldError: (fieldName: string, error: string | null) => void;
+  setFieldTouched: (fieldName: string, touched: boolean) => void;
+  setFieldDirty: (fieldName: string, dirty: boolean) => void;
+  setFieldValidating: (fieldName: string, validating: boolean) => void;
 
   // Getters with selective subscription
-  getFieldState: (
-    formName: string,
-    fieldName: string,
-  ) => FieldState | undefined;
-  getFormValues: (formName: string) => Record<string, unknown>;
-  getFormErrors: (formName: string) => Record<string, string>;
-  getFormState: (formName: string) => FormState | undefined;
+  getFieldState: (fieldName: string) => FieldState | undefined;
+  getFormValues: () => Record<string, FieldValue>;
+  getFormErrors: () => Record<string, string[]>;
 
   // Validation
-  validateField: (
-    formName: string,
-    fieldName: string,
-    context: ValidationContext,
-  ) => Promise<void>;
-  validateForm: (formName: string) => Promise<boolean>;
+  validateField: (fieldName: string) => Promise<void>;
+  validateForm: () => Promise<boolean>;
 
   // Form submission
-  setSubmitting: (formName: string, submitting: boolean) => void;
-  incrementSubmitCount: (formName: string) => void;
+  setSubmitting: (submitting: boolean) => void;
 
   // Form reset
-  resetForm: (formName: string) => void;
-  resetField: (formName: string, fieldName: string) => void;
+  resetForm: () => void;
+  resetField: (fieldName: string) => void;
 };
+export type FormStoreApi = ReturnType<typeof createFormStore>;
 
-export const useFormStore = create<FormStore>()(
-  immer((set, get) => ({
-    forms: new Map(),
-    formConfigs: new Map(),
-    fieldConfigs: new Map(),
+export const createFormStore = () => {
+  return createStore<FormStore>()(
+    immer((set, get, store) => ({
+      fields: new Map(),
 
-    registerForm: (name, config) => {
-      set((state) => {
-        const existingForm = state.forms.get(name);
-        const existingFieldConfigs = state.fieldConfigs.get(name);
+      isSubmitting: false,
+      isValidating: false,
+      isDirty: false,
+      isValid: true,
 
-        // If form already exists (auto-created by field registration), preserve the fields
-        if (existingForm) {
-          // Keep existing fields but update other form state
-          state.forms.set(name, {
-            ...existingForm,
-            isSubmitting: false,
-            isValidating: false,
-            submitCount: 0,
-            isValid: true,
+      context: {},
+      submitHandler: null,
+      submitInvalidHandler: null,
+
+      registerForm: (config) => {
+        set((state) => {
+          state.submitHandler = config.onSubmit;
+          state.submitInvalidHandler = config.onSubmitInvalid ?? null;
+          state.context = config.additionalContext ?? {};
+        });
+      },
+
+      reset: () => {
+        set(store.getInitialState());
+      },
+
+      registerField: (config) => {
+        set((state) => {
+          const fieldState: FieldState = {
+            ...config,
+            value: config.initialValue ?? undefined, // TODO: should this get default initial value for type?
+            meta: {
+              errors: null,
+              isValidating: false,
+              isTouched: false,
+              isDirty: false,
+              isValid: false,
+            },
+          };
+
+          // Store field state with dot notation key (flat structure)
+          state.fields.set(config.name, fieldState);
+        });
+      },
+
+      unregisterField: (fieldName) => {
+        // Check if field exists before updating to avoid unnecessary renders
+        const currentState = get();
+        if (currentState.fields.has(fieldName)) {
+          set((state) => {
+            state.fields.delete(fieldName);
           });
-        } else {
-          // Create new form
-          state.forms.set(name, {
-            fields: {},
-            isSubmitting: false,
-            isValidating: false,
-            submitCount: 0,
-            isValid: true,
-          });
         }
+      },
 
-        state.formConfigs.set(name, config);
+      setFieldValue: (fieldName, value) => {
+        set((state) => {
+          if (!state.fields.get(fieldName)) {
+            return;
+          }
 
-        // Preserve existing field configs if they exist
-        if (!existingFieldConfigs) {
-          state.fieldConfigs.set(name, new Map());
-        }
-      });
-    },
+          state.fields.get(fieldName)!.value = value;
 
-    unregisterForm: (name) => {
-      set((state) => {
-        state.forms.delete(name);
-        state.formConfigs.delete(name);
-        state.fieldConfigs.delete(name);
-      });
-    },
+          state.fields.get(fieldName)!.meta.isDirty = true;
+        });
+      },
 
-    registerField: (formName, fieldName, config) => {
-      set((state) => {
-        const form = state.forms.get(formName);
+      setFieldError: (fieldName, error) => {
+        set((state) => {
+          if (!state.fields.get(fieldName)) return;
 
-        // Form must exist before fields can register
-        if (!form) {
-          return;
-        }
+          state.fields.get(fieldName)!.meta.errors = error ? [error] : null;
+          state.fields.get(fieldName)!.meta.isValid = !error;
 
-        const fieldState: FieldState = {
-          value: config.initialValue ?? '',
-          meta: {
-            error: null,
-            isValidating: false,
-            isTouched: false,
-            isDirty: false,
-            isValid: false,
+          // Update form-level isValid
+          state.isValid = Array.from(state.fields.values()).every(
+            (field) => field.meta.isValid,
+          );
+        });
+      },
+
+      setFieldTouched: (fieldName, touched) => {
+        set((state) => {
+          if (!state.fields.get(fieldName)) return;
+
+          state.fields.get(fieldName)!.meta.isTouched = touched;
+        });
+      },
+
+      setFieldDirty: (fieldName, dirty) => {
+        set((state) => {
+          if (!state.fields.get(fieldName)) return;
+
+          state.fields.get(fieldName)!.meta.isDirty = dirty;
+
+          // Update form-level isDirty
+          state.isDirty = Array.from(state.fields.values()).some(
+            (field) => field.meta.isDirty,
+          );
+        });
+      },
+
+      setFieldValidating: (fieldName, validating) => {
+        set((state) => {
+          if (!state.fields.get(fieldName)) return;
+
+          state.fields.get(fieldName)!.meta.isValidating = validating;
+
+          // Update form-level isValidating
+          state.isValidating = Array.from(state.fields.values()).some(
+            (field) => field.meta.isValidating,
+          );
+        });
+      },
+
+      getFieldState: (fieldName) => {
+        const state = get();
+        return state.fields.get(fieldName);
+      },
+
+      getFormValues: () => {
+        const state = get();
+        const values = {};
+        Array.from(state.fields.entries()).forEach(
+          ([fieldName, fieldState]) => {
+            setValue(values, fieldName, fieldState.value);
           },
-        };
-
-        // Store field state with dot notation key (flat structure)
-        form.fields[fieldName] = fieldState;
-
-        // Store field config
-        const formFieldConfigs = state.fieldConfigs.get(formName);
-        if (formFieldConfigs) {
-          formFieldConfigs.set(fieldName, config);
-        }
-      });
-    },
-
-    unregisterField: (formName, fieldName) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form) return;
-
-        // Remove field from form state
-        delete form.fields[fieldName];
-
-        // Remove field config
-        const formFieldConfigs = state.fieldConfigs.get(formName);
-        if (formFieldConfigs) {
-          formFieldConfigs.delete(fieldName);
-        }
-      });
-    },
-
-    setValue: (formName, fieldName, value) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form?.fields[fieldName]) {
-          return;
-        }
-
-        form.fields[fieldName].value = value;
-        form.fields[fieldName].meta.isDirty = true;
-      });
-    },
-
-    setError: (formName, fieldName, error) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form?.fields[fieldName]) return;
-
-        form.fields[fieldName].meta.error = error;
-        form.fields[fieldName].meta.isValid = !error;
-
-        // Update form-level isValid
-        form.isValid = Object.values(form.fields).every(
-          (field) => field.meta.isValid,
         );
-      });
-    },
+        return values as Record<string, FieldValue>;
+      },
 
-    setTouched: (formName, fieldName, touched) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form?.fields[fieldName]) return;
-
-        form.fields[fieldName].meta.isTouched = touched;
-      });
-    },
-
-    setDirty: (formName, fieldName, dirty) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form?.fields[fieldName]) return;
-
-        form.fields[fieldName].meta.isDirty = dirty;
-      });
-    },
-
-    setValidating: (formName, fieldName, validating) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form?.fields[fieldName]) return;
-
-        form.fields[fieldName].meta.isValidating = validating;
-
-        // Update form-level isValidating
-        form.isValidating = Object.values(form.fields).some(
-          (field) => field.meta.isValidating,
+      getFormErrors: () => {
+        const state = get();
+        const errors: FormErrors = {};
+        Array.from(state.fields.entries()).forEach(
+          ([fieldName, fieldState]) => {
+            if (fieldState.meta.errors) {
+              setValue(errors, fieldName, fieldState.meta.errors);
+            }
+          },
         );
-      });
-    },
+        return errors;
+      },
 
-    getFieldState: (formName, fieldName) => {
-      const form = get().forms.get(formName);
-      return form?.fields[fieldName];
-    },
+      validateField: async (fieldName) => {
+        const state = get();
+        const field = state.getFieldState(fieldName);
 
-    getFormValues: (formName) => {
-      const form = get().forms.get(formName);
-      if (!form) return {};
-
-      const values: Record<string, unknown> = {};
-      Object.entries(form.fields).forEach(([fieldName, fieldState]) => {
-        setValue(values, fieldName, fieldState.value);
-      });
-      return values;
-    },
-
-    getFormErrors: (formName) => {
-      const form = get().forms.get(formName);
-      if (!form) return {};
-      const errors: Record<string, string> = {};
-      Object.entries(form.fields).forEach(([fieldName, fieldState]) => {
-        if (fieldState.meta.error) {
-          setValue(errors, fieldName, fieldState.meta.error);
-        }
-      });
-      return errors;
-    },
-
-    getFormState: (formName) => {
-      return get().forms.get(formName);
-    },
-
-    validateField: async (formName, fieldName, context) => {
-      const state = get();
-      const formFieldConfigs = state.fieldConfigs.get(formName);
-      const fieldConfig = formFieldConfigs?.get(fieldName);
-      const fieldState = state.getFieldState(formName, fieldName);
-
-      if (!fieldConfig || !fieldState) return;
-
-      set((draft) => {
-        const form = draft.forms.get(formName);
-        if (form?.fields[fieldName]) {
-          form.fields[fieldName].meta.isValidating = true;
-        }
-      });
-
-      try {
-        const { isValid, error } = await validateFieldValue(
-          fieldState.value,
-          fieldConfig.validation,
-          context,
-        );
+        if (!field) return;
 
         set((draft) => {
-          const form = draft.forms.get(formName);
-          if (form?.fields[fieldName]) {
-            form.fields[fieldName].meta.error = error;
-            form.fields[fieldName].meta.isValid = isValid;
-            form.fields[fieldName].meta.isValidating = false;
-
-            // Update form-level isValid
-            form.isValid = Object.values(form.fields).every(
-              (field) => field.meta.isValid,
-            );
+          const form = draft;
+          if (form?.fields.get(fieldName)) {
+            form.fields.get(fieldName)!.meta.isValidating = true;
           }
         });
-      } catch (err) {
-        set((draft) => {
-          const form = draft.forms.get(formName);
-          if (form?.fields[fieldName]) {
-            form.fields[fieldName].meta.error = 'Validation error';
-            form.fields[fieldName].meta.isValid = false;
-            form.fields[fieldName].meta.isValidating = false;
 
-            // Update form-level isValid
-            form.isValid = Object.values(form.fields).every(
-              (field) => field.meta.isValid,
-            );
-          }
-        });
-      }
-    },
+        try {
+          // Validation context is context plus field values
+          const validationContext: ValidationContext = {
+            ...state.context,
+            formValues: state.getFormValues(),
+          };
 
-    validateForm: async (formName) => {
-      const state = get();
-      const form = state.forms.get(formName);
-      const formFieldConfigs = state.fieldConfigs.get(formName);
-      const formConfig = state.formConfigs.get(formName);
-
-      if (!form || !formFieldConfigs) return false;
-
-      // First validate all fields
-      const fieldValidationPromises = Array.from(
-        formFieldConfigs.entries(),
-      ).map(async ([fieldName, fieldConfig]) => {
-        const fieldState = form.fields[fieldName];
-        if (!fieldState) return true;
-
-        const context = {
-          additionalContext: formConfig?.additionalContext,
-          formValues: state.getFormValues(formName),
-        };
-
-        const { isValid, error } = await validateFieldValue(
-          fieldState.value,
-          fieldConfig.validation,
-          context,
-        );
-
-        // Update field state with validation result
-        if (!isValid && error) {
           set((draft) => {
-            const draftForm = draft.forms.get(formName);
-            if (draftForm?.fields[fieldName]) {
-              draftForm.fields[fieldName].meta.error = error;
-              draftForm.fields[fieldName].meta.isValid = false;
+            const form = draft;
+            if (form?.fields.get(fieldName)) {
+              form.fields.get(fieldName)!.meta.isValidating = true;
+            }
+          });
+
+          const { isValid, errors } = await validateFieldValue(
+            field.value,
+            field.validation,
+            validationContext,
+          );
+
+          set((draft) => {
+            const form = draft;
+            if (form?.fields.get(fieldName)) {
+              form.fields.get(fieldName)!.meta.isValidating = false;
+              form.fields.get(fieldName)!.meta.isValid = isValid;
+              form.fields.get(fieldName)!.meta.errors = errors;
+              // Update form-level isValid
+              form.isValid = Array.from(form.fields.values()).every(
+                (field) => field.meta.isValid,
+              );
+            }
+          });
+        } catch (err) {
+          set((draft) => {
+            const form = draft;
+            if (form?.fields.get(fieldName)) {
+              form.fields.get(fieldName)!.meta.errors = [
+                'Error with validation error',
+              ];
+              form.fields.get(fieldName)!.meta.isValid = false;
+              form.fields.get(fieldName)!.meta.isValidating = false;
+              // Update form-level isValid
+              form.isValid = Array.from(form.fields.values()).every(
+                (field) => field.meta.isValid,
+              );
             }
           });
         }
+      },
 
-        return isValid;
-      });
+      validateForm: async () => {
+        const state = get();
+        const fields = state.fields;
 
-      const fieldResults = await Promise.all(fieldValidationPromises);
-      const allFieldsValid = fieldResults.every(Boolean);
+        // First validate all fields
+        const fieldValidationPromises = Array.from(fields.entries()).map(
+          async ([fieldName, fieldState]) => {
+            if (!fieldState) return true;
 
-      // Then run form-level validation if all fields are valid
-      if (allFieldsValid && formConfig?.validation) {
-        try {
-          const formValues = state.getFormValues(formName);
-          const formErrors = await formConfig.validation(formValues);
+            const context = {
+              ...state.context,
+              formValues: state.getFormValues(),
+            } as ValidationContext;
 
-          if (formErrors && Object.keys(formErrors).length > 0) {
-            // Apply form-level errors to fields
-            set((draft) => {
-              const draftForm = draft.forms.get(formName);
-              if (draftForm) {
-                Object.entries(formErrors).forEach(([fieldName, error]) => {
-                  if (draftForm.fields[fieldName] && error) {
-                    draftForm.fields[fieldName].meta.error = error;
-                    draftForm.fields[fieldName].meta.isValid = false;
-                  }
-                });
+            const { isValid, errors } = await validateFieldValue(
+              fieldState.value,
+              fieldState.validation,
+              context,
+            );
 
-                // Update form-level isValid
-                draftForm.isValid = Object.values(draftForm.fields).every(
-                  (field) => field.meta.isValid,
-                );
-              }
-            });
+            // Update field state with validation result
+            if (!isValid && errors) {
+              set((draft) => {
+                const draftForm = draft;
+                if (draftForm?.fields) {
+                  draftForm.fields.get(fieldName)!.meta.errors = errors;
+                  draftForm.fields.get(fieldName)!.meta.isValid = false;
+                }
+              });
+            }
 
-            return false;
+            return isValid;
+          },
+        );
+
+        const fieldResults = await Promise.all(fieldValidationPromises);
+        const allFieldsValid = fieldResults.every(Boolean);
+
+        set((draft) => {
+          const draftForm = draft;
+          if (draftForm) {
+            draftForm.isValid = allFieldsValid;
           }
-        } catch (error) {
-          return false;
-        }
-      }
+        });
 
-      // Update form-level isValid
-      set((draft) => {
-        const draftForm = draft.forms.get(formName);
-        if (draftForm) {
-          draftForm.isValid = Object.values(draftForm.fields).every(
-            (field) => field.meta.isValid,
-          );
-        }
-      });
+        return allFieldsValid;
+      },
 
-      return allFieldsValid;
-    },
+      setSubmitting: (submitting) => {
+        set((state) => {
+          const form = state;
+          if (!form) return;
 
-    setSubmitting: (formName, submitting) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form) return;
+          form.isSubmitting = submitting;
+        });
+      },
 
-        form.isSubmitting = submitting;
-      });
-    },
+      resetForm: () => {
+        set((state) => {
+          const form = state;
+          const fields = state.fields;
 
-    incrementSubmitCount: (formName) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        if (!form) return;
+          if (!form || !fields) return;
 
-        form.submitCount += 1;
-      });
-    },
+          // Reset all fields to their initial values
+          Array.from(fields.keys()).forEach((fieldName) => {
+            state.resetField(fieldName);
+          });
 
-    resetForm: (formName) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        const formFieldConfigs = state.fieldConfigs.get(formName);
+          // Reset form-level state
+          form.isSubmitting = false;
+          form.isValidating = false;
+          form.isValid = true;
+        });
+      },
 
-        if (!form || !formFieldConfigs) return;
+      resetField: (fieldName) => {
+        set((state) => {
+          const form = state;
+          const fields = state.fields;
 
-        // Reset all fields to their initial values
-        Object.keys(form.fields).forEach((fieldName) => {
-          const fieldConfig = formFieldConfigs.get(fieldName);
+          if (
+            !form ||
+            !fields ||
+            !Array.from(fields.keys()).includes(fieldName)
+          )
+            return;
+
+          const fieldConfig = fields.get(fieldName);
           const initialValue = fieldConfig?.initialValue ?? '';
+          const validation =
+            fieldConfig?.validation as FieldConfig['validation'];
 
-          form.fields[fieldName] = {
+          fields.set(fieldName, {
             value: initialValue,
+            initialValue,
+            validation,
             meta: {
-              error: null,
+              errors: null,
               isValidating: false,
               isTouched: false,
               isDirty: false,
               isValid: true,
             },
-          };
+          });
+
+          // Update form-level isValid
+          form.isValid = Array.from(form.fields.keys()).every(
+            (fieldName) => fields.get(fieldName)?.meta.isValid,
+          );
         });
-
-        // Reset form-level state
-        form.isSubmitting = false;
-        form.isValidating = false;
-        form.submitCount = 0;
-        form.isValid = true;
-      });
-    },
-
-    resetField: (formName, fieldName) => {
-      set((state) => {
-        const form = state.forms.get(formName);
-        const formFieldConfigs = state.fieldConfigs.get(formName);
-
-        if (!form?.fields[fieldName] || !formFieldConfigs) return;
-
-        const fieldConfig = formFieldConfigs.get(fieldName);
-        const initialValue = fieldConfig?.initialValue ?? '';
-
-        form.fields[fieldName] = {
-          value: initialValue,
-          meta: {
-            error: null,
-            isValidating: false,
-            isTouched: false,
-            isDirty: false,
-            isValid: true,
-          },
-        };
-
-        // Update form-level isValid
-        form.isValid = Object.values(form.fields).every(
-          (field) => field.meta.isValid,
-        );
-      });
-    },
-  })),
-);
+      },
+    })),
+  );
+};

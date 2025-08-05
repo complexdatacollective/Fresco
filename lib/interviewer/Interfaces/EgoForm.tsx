@@ -10,15 +10,15 @@ import Scroller from '~/lib/ui/components/Scroller';
 import {
   type Dialog,
   openDialog as openDialogAction,
-} from '../../ducks/modules/dialogs';
-import { updateEgo } from '../../ducks/modules/session';
-import useFlipflop from '../../hooks/useFlipflop';
-import useReadyForNextStage from '../../hooks/useReadyForNextStage';
-import { getEgoAttributes } from '../../selectors/session';
-import { useAppDispatch } from '../../store';
-import Form from '../Form';
-import { type BeforeNextFunction } from '../ProtocolScreen';
-import { type StageProps } from '../Stage';
+} from '../ducks/modules/dialogs';
+import { updateEgo } from '../ducks/modules/session';
+import useFlipflop from '../hooks/useFlipflop';
+import useReadyForNextStage from '../hooks/useReadyForNextStage';
+import { getEgoAttributes } from '../selectors/session';
+import { useAppDispatch } from '../store';
+import Form from '../containers/Form';
+import { type BeforeNextFunction } from '../containers/ProtocolScreen';
+import { type StageProps } from '../containers/Stage';
 
 const elementHasOverflow = ({
   clientWidth,

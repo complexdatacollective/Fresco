@@ -5,16 +5,16 @@ import { invariant } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { MonitorDragSource } from '../behaviours/DragAndDrop';
-import { usePrompts } from '../behaviours/withPrompt';
-import Panels from '../components/Panels';
+import { MonitorDragSource } from '../../../behaviours/DragAndDrop';
+import { usePrompts } from '../../../behaviours/withPrompt';
+import Panels from '../../../components/Panels';
 import {
   deleteNode as deleteNodeAction,
   removeNodeFromPrompt as removeNodeFromPromptAction,
-} from '../ducks/modules/session';
-import { getPanelConfiguration } from '../selectors/name-generator';
-import { getCurrentStage } from '../selectors/session';
-import { useAppDispatch } from '../store';
+} from '../../../ducks/modules/session';
+import { getPanelConfiguration } from '../../../selectors/name-generator';
+import { getCurrentStage } from '../../../selectors/session';
+import { useAppDispatch } from '../../../store';
 import NodePanel from './NodePanel';
 
 /**

@@ -24,9 +24,9 @@ import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameV
 import { DataCard } from '~/lib/ui/components/Cards';
 import UINode from '~/lib/ui/components/Node';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import SearchableList from '../../SearchableList';
+import SearchableList from '../../containers/SearchableList';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
-import { nameGeneratorHandleBeforeLeaving } from '../NameGenerator';
+import { nameGeneratorHandleBeforeLeaving } from '../NameGenerator/NameGenerator';
 import {
   MaxNodesMet,
   maxNodesWithDefault,

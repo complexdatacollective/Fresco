@@ -2,13 +2,13 @@ import { type Prompt, type Stage } from '@codaco/protocol-validation';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { usePrompts } from '../../behaviours/withPrompt';
-import MultiNodeBucket from '../../components/MultiNodeBucket';
-import Prompts from '../../components/Prompts';
-import { getUncategorisedNodes } from '../../selectors/interface';
-import { type ProcessedSortRule } from '../../utils/createSorter';
-import CategoricalList from '../CategoricalList';
-import { type StageProps } from '../Stage';
+import { usePrompts } from '../behaviours/withPrompt';
+import MultiNodeBucket from '../components/MultiNodeBucket';
+import Prompts from '../components/Prompts';
+import { getUncategorisedNodes } from '../selectors/interface';
+import { type ProcessedSortRule } from '../utils/createSorter';
+import CategoricalList from '../containers/CategoricalList';
+import { type StageProps } from '../containers/Stage';
 
 type CategoricalBinStageProps = StageProps & {
   stage: Extract<

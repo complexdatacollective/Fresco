@@ -28,19 +28,19 @@ import {
   getStageNodeCount,
 } from '../../selectors/session';
 import { useAppDispatch } from '../../store';
-import NodeForm from '../NodeForm';
-import NodePanels from '../NodePanels';
-import { type Direction } from '../ProtocolScreen';
-import QuickNodeForm from '../QuickNodeForm';
-import { type StageProps } from '../Stage';
-import { usePassphrase } from './Anonymisation/usePassphrase';
-import { decryptData } from './Anonymisation/utils';
+import NodeForm from './components/NodeForm';
+import NodePanels from './components/NodePanels';
+import { type Direction } from '../../containers/ProtocolScreen';
+import QuickNodeForm from './components/QuickNodeForm';
+import { type StageProps } from '../../containers/Stage';
+import { usePassphrase } from '../Anonymisation/usePassphrase';
+import { decryptData } from '../Anonymisation/utils';
 import {
   MaxNodesMet,
   maxNodesWithDefault,
   MinNodesNotMet,
   minNodesWithDefault,
-} from './utils/StageLevelValidation';
+} from '../utils/StageLevelValidation';
 
 export const nameGeneratorHandleBeforeLeaving =
   (
