@@ -15,6 +15,7 @@ export type PlaceholderNodeProps = {
   label: string;
   parents?: PlaceholderNodeProps[];
   children?: PlaceholderNodeProps[];
+  childrenIds?: string[];
   partner?: PlaceholderNodeProps;
   xPos?: number;
   yPos?: number;

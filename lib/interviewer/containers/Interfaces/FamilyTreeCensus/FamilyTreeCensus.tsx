@@ -1,6 +1,5 @@
 import { type Stage } from '@codaco/protocol-validation';
 import {
-  entityAttributesProperty,
   EntityPrimaryKey,
   entityPrimaryKeyProperty,
   type EntityAttributesProperty,
@@ -20,6 +19,7 @@ import Form from '../../Form';
 import { type StageProps } from '../../Stage';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { FamilyTreeNode } from './FamilyTreeNode';
+import FamilyTreeNodeList from './FamilyTreeNodeList';
 import {
   arrangeCouples,
   arrangeSiblings,
@@ -64,37 +64,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const [familyTreeNodes, setFamilyTreeNodes] = useState<
     PlaceholderNodeProps[]
   >([]);
-  const getFamilyTreeNodes = () => {
-    const placeholderNodeFromRealNode = (
-      node: NcNode,
-    ): PlaceholderNodeProps => {
-      let name = node[entityAttributesProperty]['name'];
-      name = typeof name == 'string' ? name : 'unknown';
-      let gender = node[entityAttributesProperty]['gender'];
-      gender = typeof gender == 'string' ? gender : 'unknown';
-      let xPos = node[entityAttributesProperty]['x'];
-      xPos = typeof xPos == 'number' ? xPos : 0;
-      let yPos = node[entityAttributesProperty]['y'];
-      yPos = typeof yPos == 'number' ? yPos : 0;
-      return {
-        id: node[entityPrimaryKeyProperty],
-        gender: gender,
-        label: name,
-        xPos: xPos,
-        yPos: yPos,
-      };
-    };
-    const networkNodeIds = nodes.map((node) => node[entityPrimaryKeyProperty]);
-    return familyTreeNodes
-      .filter((node) => !networkNodeIds.includes(node.id || ''))
-      .concat(nodes.map((node) => placeholderNodeFromRealNode(node)));
-  };
+  const nodes = useSelector(getNetworkNodesForType);
+  const familyTreeNodeList = new FamilyTreeNodeList(familyTreeNodes, nodes);
   const [selectedNode, setSelectedNode] = useState<PlaceholderNodeProps | null>(
     null,
   );
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-  const nodes = useSelector(getNetworkNodesForType);
   const dispatch = useAppDispatch();
 
   // return either an empty array or an array of integers from 1 to the number of relations
@@ -137,8 +113,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     );
     paternalGrandfather.partner = paternalGrandmother;
     const father = addPlaceholderNode('male', 'father');
-    paternalGrandfather.children?.push(father);
-    paternalGrandmother.children?.push(father);
+    paternalGrandfather.childrenIds?.push(father.id ?? '');
+    paternalGrandmother.childrenIds?.push(father.id ?? '');
     father.parents?.push(paternalGrandfather, paternalGrandmother);
     const maternalGrandfather = addPlaceholderNode(
       'male',
@@ -304,6 +280,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       addNode(selectedNode.id, {
         name: formData['name'],
         gender: selectedNode.gender,
+        parents: (selectedNode?.parents ?? []).map((parent) => parent.id ?? ''),
+        children: (selectedNode?.children ?? []).map((child) => child.id ?? ''),
+        partner: selectedNode?.partner?.id ?? null,
         x: selectedNode.xPos ?? 0,
         y: selectedNode.yPos ?? 0,
       });
@@ -402,7 +381,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return (
       <div className="family-pedigree-interface">
         <div className="edge-layout">
-          {getFamilyTreeNodes().map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
               node.partner != null && (
                 <UIPartnerConnector
@@ -414,7 +393,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               )
             );
           })}
-          {getFamilyTreeNodes().map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
               node.partner != null &&
               (node.children?.length ?? 0) > 0 && (
@@ -427,7 +406,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               )
             );
           })}
-          {getFamilyTreeNodes().map((node) => {
+          {familyTreeNodeList.allNodes().map((node) => {
             return (
               node.partner != null &&
               node.children != null &&
@@ -448,7 +427,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         </div>
         <div className="node-layout" ref={elementRef}>
           <div className="inner-node-layout">
-            {getFamilyTreeNodes().map((node) => {
+            {familyTreeNodeList.allNodes().map((node) => {
               return (
                 <FamilyTreeNode
                   key={node.id}
