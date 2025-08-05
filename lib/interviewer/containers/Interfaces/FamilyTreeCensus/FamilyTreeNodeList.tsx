@@ -32,6 +32,18 @@ class FamilyTreeNodeList {
     this.networkNodes = networkNodes;
   }
 
+  addPlaceholderNode(gender: string, label: string): PlaceholderNodeProps {
+    const newNode: PlaceholderNodeProps = {
+      id: crypto.randomUUID(),
+      gender: gender,
+      label: label,
+      parentIds: [],
+      childIds: [],
+    };
+    this.placeholderNodes.push(newNode);
+    return newNode;
+  }
+
   allNodes() {
     const placeholderNodeFromNetworkNode = (
       node: NcNode,
@@ -58,8 +70,18 @@ class FamilyTreeNodeList {
 
   childrenOf(parentNode: PlaceholderNodeProps) {
     return this.allNodes().filter((node) =>
-      (parentNode.childrenIds ?? []).includes(node.id ?? ''),
+      (parentNode.childIds ?? []).includes(node.id ?? ''),
     );
+  }
+
+  parentsOf(childNode: PlaceholderNodeProps) {
+    return this.allNodes().filter((node) =>
+      (childNode.parentIds ?? []).includes(node.id ?? ''),
+    );
+  }
+
+  partnerOf(spouseNode: PlaceholderNodeProps) {
+    return this.allNodes().find((node) => spouseNode.partnerId == node.id);
   }
 }
 
