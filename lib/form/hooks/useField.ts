@@ -75,7 +75,7 @@ export function useField(config: {
   }, [config.name, validateField, setFieldTouched]);
 
   return {
-    'value': fieldState?.value ?? config.initialValue ?? '',
+    'value': fieldState?.value ?? config.initialValue ?? undefined,
     'meta': {
       errors: fieldState?.meta.errors ?? null,
       isValid: fieldState?.meta.isValid ?? false,

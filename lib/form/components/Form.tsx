@@ -10,7 +10,6 @@ import type { FormErrors } from '../types';
 type FormProps = {
   onSubmit: (data: Record<string, unknown>) => void | Promise<void>;
   initialValues?: Record<string, unknown>;
-  focusFirstInput?: boolean;
   additionalContext?: Record<string, unknown>;
 } & Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit'>;
 
