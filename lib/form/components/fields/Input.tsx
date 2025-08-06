@@ -3,14 +3,9 @@
  */
 import { type InputHTMLAttributes } from 'react';
 import { cn } from '~/utils/shadcn';
-import { type FieldState } from '../../types';
+import { type BaseFieldProps } from '../../types';
 
-// Props that all fields compatible with this system can handle
-type BaseFieldProps = InputHTMLAttributes<HTMLInputElement> &
-  FieldState & {
-    label: string;
-    hint?: string;
-  };
+type InputFieldProps = BaseFieldProps & InputHTMLAttributes<HTMLInputElement>;
 
 export function InputField({
   name,
@@ -19,7 +14,7 @@ export function InputField({
   meta: { isValid, isTouched, isDirty, isValidating, errors },
   className,
   ...inputProps
-}: BaseFieldProps) {
+}: InputFieldProps) {
   const inputClasses = cn(
     'rounded border border-border px-3 py-2',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',

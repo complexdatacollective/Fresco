@@ -1,9 +1,9 @@
 import { type z } from 'zod';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 
-export type FieldState = {
-  value: FieldValue;
-  initialValue?: FieldValue;
+export type FieldState<T extends FieldValue = string> = {
+  value: T;
+  initialValue?: T;
   meta: {
     errors: string[] | null;
     isValidating: boolean;
@@ -40,3 +40,14 @@ export type ValidationContext = {
 } & Record<string, unknown>;
 
 export type FormErrors = Record<string, string[]>;
+
+// Props that all fields compatible with this system can handle
+export type BaseFieldProps<T extends FieldValue = string> = FieldState<T> & {
+  name: string;
+  label: string;
+  hint?: string;
+  placeholder?: string;
+  className?: string;
+  onChange: (value: T) => void;
+  onBlur: () => void;
+};

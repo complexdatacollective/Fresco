@@ -1,6 +1,4 @@
 import {
-  type ChangeEvent,
-  type ChangeEventHandler,
   useCallback,
   useEffect,
   useRef,
@@ -9,12 +7,12 @@ import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
 import type { FieldConfig } from '../types';
 
-export function useField(config: {
+export function useField<T extends FieldValue = FieldValue>(config: {
   name: string;
-  initialValue?: FieldValue;
+  initialValue?: T;
   validation?: FieldConfig['validation'];
 }): {
-  'value': FieldValue;
+  'value': T;
   'meta': {
     errors: string[] | null;
     isValidating: boolean;
@@ -22,7 +20,7 @@ export function useField(config: {
     isDirty: boolean;
     isValid: boolean;
   };
-  'onChange': ChangeEventHandler<HTMLInputElement>;
+  'onChange': (value: T) => void;
   'onBlur': () => void;
   'data-field-name': string; // Used for scrolling to field errors
 } {
@@ -59,8 +57,7 @@ export function useField(config: {
   ]);
 
   const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const { value } = event.target;
+    (value: T) => {
       setFieldValue(config.name, value);
       void validateField(config.name);
     },
@@ -75,7 +72,7 @@ export function useField(config: {
   }, [config.name, validateField, setFieldTouched]);
 
   return {
-    'value': fieldState?.value ?? config.initialValue ?? undefined,
+    'value': (fieldState?.value ?? config.initialValue) as T,
     'meta': {
       errors: fieldState?.meta.errors ?? null,
       isValid: fieldState?.meta.isValid ?? false,

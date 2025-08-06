@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { z } from 'zod';
 import Field from '../components/Field';
 import { InputField } from '../components/fields/Input';
+import { InputArrayField } from '../components/fields/InputArrayField';
 import { SelectField } from '../components/fields/Select';
 import Form from '../components/Form';
 import SubmitButton from '../components/SubmitButton';
@@ -37,7 +38,6 @@ export const Default: Story = {
         hint="Please enter your full name"
         Component={InputField}
         validation={z.string().min(2, 'Name must be at least 2 characters')}
-        autoFocus
       />
       <Field
         name="age"
@@ -109,6 +109,18 @@ export const Default: Story = {
           { value: 'other', label: 'Other' },
         ]}
         validation={z.string().min(1, 'Please select a country')}
+      />
+      <Field
+        name="hobbies"
+        label="Hobbies"
+        hint="Add your hobbies (at least 2 required)"
+        Component={InputArrayField}
+        placeholder="Enter hobby"
+        addButtonText="Add Hobby"
+        initialValue={['Reading']}
+        validation={z
+          .array(z.string().min(1, 'Hobby cannot be empty'))
+          .min(2, 'At least 2 hobbies required')}
       />
 
       <SubmitButton />
