@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useState } from 'react';
 import {
   DndStoreProvider,
@@ -180,81 +180,29 @@ const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
   },
 };
 
-export const AlertOnClick: Story = {
+import { fn } from 'storybook/test';
+
+export const ActionOnClick: Story = {
   parameters: {
     docs: {
       description: {
         story: `
-**Alert on Click - Non-Selection Interaction**
+**Action on Click - Non-Selection Interaction**
 
-\`\`\`typescript
-import { VirtualList } from './VirtualList';
+This example demonstrates using the \`onItemClick\` prop to handle item clicks without managing selection state.
 
-type Item = { id: number; name: string; description: string };
-
-function MyComponent() {
-  const items: Item[] = [
-    { id: 1, name: 'Item 1', description: 'This is the first item' },
-    { id: 2, name: 'Item 2', description: 'This is the second item' },
-    // ... more items
-  ];
-
-  // Handle clicks with custom logic - not selection!
-  const handleItemClick = (id: string | number) => {
-    const item = items.find(item => item.id === id);
-    if (item) {
-      alert(\`Clicked: \${item.name}\\n\\n\${item.description}\`);
-    }
-  };
-
-  // Simple renderer - no selection styling needed
-  const ItemRenderer = (item: Item, _index: number, _isSelected: boolean) => (
-    <div className="flex h-full w-full items-center justify-center rounded-lg bg-accent text-foreground transition-all">
-      {item.name}
-    </div>
-  );
-
-  return (
-    <VirtualList 
-      items={items}
-      itemRenderer={ItemRenderer}
-      onItemClick={handleItemClick}  // Custom click handler
-      // No selectedIds prop = no selection styling
-      layout="grid"
-      itemSize={120}
-      gap={12}
-      className="h-96 border rounded-lg p-2"
-    />
-  );
-}
-\`\`\`
-
-**Key Points:**
-- \`onItemClick\` can do anything - alerts, navigation, modals, etc.
-- No \`selectedIds\` prop = no selection highlighting
-- \`isSelected\` will always be \`false\` in itemRenderer
-- Perfect for action-based interactions vs state-based selection
-
-**Keyboard Navigation:**
-- **Tab** - Focus the list, then use arrow keys to navigate
-- **Arrow Keys** - Move focus between items
-- **Enter/Space** - Trigger the alert for focused item
-- **Escape** - Dismiss alert (browser behavior)
+- Click any item to log an action
+- No selection state
+- Keyboard navigation: Tab, Arrows, Enter/Space
         `,
       },
     },
   },
-  render: () => {
-    const items = generateItems(50).map((item) => ({
-      ...item,
-    }));
-
-    const handleItemClick = (id: string | number) => {
-      const item = items.find((item) => item.id === id);
-      if (item) {
-        alert(`Clicked: ${item.name}`);
-      }
-    };
+  args: {
+    onItemClick: fn(),
+  },
+  render: (args) => {
+    const items = generateItems(50).map((item) => ({ ...item }));
 
     const AlertItemRenderer = (
       item: (typeof items)[0],
@@ -269,21 +217,20 @@ function MyComponent() {
     return (
       <div className="p-5">
         <h3 className="mb-5 text-lg font-semibold">
-          Alert on Click (50 items)
+          Action on Click (50 items)
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Click any item to see an alert with its details. No selection state
-          managed.
+          Click any item to log the click using Storybook Actions.
         </p>
         <VirtualList
           items={items}
           itemRenderer={AlertItemRenderer}
-          onItemClick={handleItemClick}
+          onItemClick={args.onItemClick}
           layout="grid"
           itemSize={120}
           gap={12}
           className="h-96 rounded-lg border bg-white p-2"
-          ariaLabel="Clickable items that show alerts"
+          ariaLabel="Clickable items that show actions"
         />
       </div>
     );
@@ -712,7 +659,8 @@ const ItemRenderer = (item, index, isSelected) => (
 
         <div className="bg-muted mb-4 rounded-lg p-3">
           <p className="text-sm font-medium">
-            Selected: {selectedIds.size} items ({((selectedIds.size / items.length) * 100).toFixed(1)}%)
+            Selected: {selectedIds.size} items (
+            {((selectedIds.size / items.length) * 100).toFixed(1)}%)
           </p>
           {selectedIds.size > 0 ? (
             <p className="text-xs">
@@ -1005,7 +953,9 @@ import { VirtualList } from './VirtualList';
   },
   render: () => {
     const [items, setItems] = useState(generateItems(20));
-    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
+      new Set(),
+    );
 
     const handleItemClick = (id: string | number) => {
       const newSelected = new Set(selectedIds);
@@ -1018,37 +968,40 @@ import { VirtualList } from './VirtualList';
     };
 
     const addItems = () => {
-      const newItems = generateItems(5).map(item => ({
+      const newItems = generateItems(5).map((item) => ({
         ...item,
         id: items.length + item.id,
-        name: `New Item ${items.length + item.id + 1}`
+        name: `New Item ${items.length + item.id + 1}`,
       }));
-      setItems(prev => [...prev, ...newItems]);
+      setItems((prev) => [...prev, ...newItems]);
     };
 
     const removeItems = () => {
       if (items.length > 5) {
-        setItems(prev => prev.slice(0, -5));
+        setItems((prev) => prev.slice(0, -5));
       }
     };
 
     return (
       <div className="p-5">
-        <h3 className="mb-5 text-lg font-semibold">Staggered Animation (Default)</h3>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Items animate in with a staggered delay. Click buttons to see enter/exit animations.
+        <h3 className="mb-5 text-lg font-semibold">
+          Staggered Animation (Default)
+        </h3>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Items animate in with a staggered delay. Click buttons to see
+          enter/exit animations.
         </p>
-        
+
         <div className="mb-4 flex gap-2">
           <button
             onClick={addItems}
-            className="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-primary/90"
+            className="bg-primary hover:bg-primary/90 rounded px-3 py-1 text-sm text-white"
           >
             Add 5 Items
           </button>
           <button
             onClick={removeItems}
-            className="rounded bg-destructive px-3 py-1 text-sm text-white hover:bg-destructive/90"
+            className="bg-destructive hover:bg-destructive/90 rounded px-3 py-1 text-sm text-white"
           >
             Remove 5 Items
           </button>
@@ -1136,7 +1089,9 @@ const slideAnimation: ItemAnimationConfig = {
   },
   render: () => {
     const [items, setItems] = useState(generateItems(15));
-    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
+      new Set(),
+    );
 
     const handleItemClick = (id: string | number) => {
       const newSelected = new Set(selectedIds);
@@ -1149,68 +1104,71 @@ const slideAnimation: ItemAnimationConfig = {
     };
 
     const addItems = () => {
-      const newItems = generateItems(3).map(item => ({
+      const newItems = generateItems(3).map((item) => ({
         ...item,
-        id: Math.max(...items.map(i => i.id)) + item.id + 1,
-        name: `New Item ${Math.max(...items.map(i => i.id)) + item.id + 2}`
+        id: Math.max(...items.map((i) => i.id)) + item.id + 1,
+        name: `New Item ${Math.max(...items.map((i) => i.id)) + item.id + 2}`,
       }));
-      setItems(prev => [...prev, ...newItems]);
+      setItems((prev) => [...prev, ...newItems]);
     };
 
     const removeItems = () => {
       if (items.length > 3) {
-        setItems(prev => prev.slice(0, -3));
+        setItems((prev) => prev.slice(0, -3));
       }
     };
 
     // Height-based slide animation (recommended for TanStack Virtual)
     const slideAnimation: ItemAnimationConfig = {
       initial: { height: 0, opacity: 0, x: -20 },
-      animate: { 
+      animate: {
         height: 'auto',
-        opacity: 1, 
+        opacity: 1,
         x: 0,
-        transition: { 
+        transition: {
           type: 'spring',
           stiffness: 150,
-          damping: 20
-        }
+          damping: 20,
+        },
       },
-      exit: { 
+      exit: {
         height: 0,
-        opacity: 0, 
+        opacity: 0,
         x: 20,
-        transition: { duration: 0.2 }
-      }
+        transition: { duration: 0.2 },
+      },
     };
 
     return (
       <div className="p-5">
         <h3 className="mb-5 text-lg font-semibold">Custom Animation Example</h3>
-        <p className="mb-4 text-sm text-muted-foreground">
-          This shows a custom slide animation. Items slide in from left when added, slide out to right when removed.
+        <p className="text-muted-foreground mb-4 text-sm">
+          This shows a custom slide animation. Items slide in from left when
+          added, slide out to right when removed.
         </p>
-        
+
         <div className="mb-4 flex gap-2">
           <button
             onClick={addItems}
-            className="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-primary/90"
+            className="bg-primary hover:bg-primary/90 rounded px-3 py-1 text-sm text-white"
           >
             Add 3 Items
           </button>
           <button
             onClick={removeItems}
-            className="rounded bg-destructive px-3 py-1 text-sm text-white hover:bg-destructive/90"
+            className="bg-destructive hover:bg-destructive/90 rounded px-3 py-1 text-sm text-white"
           >
             Remove 3 Items
           </button>
         </div>
 
-        <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
-          <p className="text-sm font-medium text-amber-800">💡 Animation Timing</p>
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-sm font-medium text-amber-800">
+            💡 Animation Timing
+          </p>
           <p className="mt-1 text-xs text-amber-700">
-            Animations only trigger when items are added/removed from the data array. 
-            Scrolling doesn't trigger animations (for performance).
+            Animations only trigger when items are added/removed from the data
+            array. Scrolling doesn't trigger animations (for performance).
           </p>
         </div>
 
