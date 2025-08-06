@@ -169,7 +169,7 @@ export function VirtualList<T extends { id: string | number }>({
       ref={parentRef}
       className={cn(
         'relative h-full w-full overflow-auto',
-        focusable && 'focus:outline-none',
+        focusable && 'focus:ring-ring',
         className,
       )}
       {...(focusable && {
