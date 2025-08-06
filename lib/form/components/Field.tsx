@@ -14,7 +14,8 @@ import { type ValidationContext } from '../types';
  * inferred somehow.
  */
 export default function Field<
-  TFieldProps extends Record<string, unknown> = Record<string, unknown>,
+  TComponent extends React.ElementType,
+  TComponentProps = React.ComponentPropsWithoutRef<TComponent>
 >({
   name,
   initialValue,
@@ -25,8 +26,8 @@ export default function Field<
   name: string;
   initialValue?: FieldValue;
   validation?: z.ZodTypeAny | ((context: ValidationContext) => z.ZodTypeAny);
-  Component: React.ElementType;
-} & TFieldProps) {
+  Component: TComponent;
+} & Omit<TComponentProps, 'name' | 'value' | 'meta' | 'onChange' | 'onBlur' | 'data-field-name'>) {
   /**
    * This hook connects the field to the form context, backed by the zustand
    * store. The store tracks field state, the hook handles subscription to
@@ -38,5 +39,5 @@ export default function Field<
     validation,
   });
 
-  return <Component name={name} {...fieldProps} {...additionalFieldProps} />;
+  return <Component name={name} {...fieldProps} {...(additionalFieldProps as any)} />;
 }

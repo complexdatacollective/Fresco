@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { z } from 'zod';
 import Field from '../components/Field';
 import { InputField } from '../components/fields/Input';
+import { SelectField } from '../components/fields/Select';
 import Form from '../components/Form';
 import SubmitButton from '../components/SubmitButton';
 import { FormStoreProvider } from '../store/formStoreProvider';
@@ -36,8 +37,8 @@ export const Default: Story = {
         hint="Please enter your full name"
         Component={InputField}
         validation={z.string().min(2, 'Name must be at least 2 characters')}
+        autoFocus
       />
-
       <Field
         name="age"
         hint="Enter your age. You must be 18 or older."
@@ -90,6 +91,26 @@ export const Default: Story = {
         Component={InputField}
         validation={z.string().email('Please enter a valid email')}
       />
+
+      <Field
+        name="country"
+        label="Country"
+        hint="Select your country of residence"
+        Component={SelectField}
+        placeholder="Select a country"
+        options={[
+          { value: 'us', label: 'United States' },
+          { value: 'uk', label: 'United Kingdom' },
+          { value: 'ca', label: 'Canada' },
+          { value: 'au', label: 'Australia' },
+          { value: 'de', label: 'Germany' },
+          { value: 'fr', label: 'France' },
+          { value: 'jp', label: 'Japan' },
+          { value: 'other', label: 'Other' },
+        ]}
+        validation={z.string().min(1, 'Please select a country')}
+      />
+
       <SubmitButton />
     </Form>
   ),

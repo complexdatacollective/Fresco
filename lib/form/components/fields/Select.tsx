@@ -1,88 +1,86 @@
-import { Field as BaseField } from '@base-ui-components/react/field';
-import { Select } from '@base-ui-components/react/select';
-import React from 'react';
+import { type SelectHTMLAttributes } from 'react';
 import { cn } from '~/utils/shadcn';
+import { type FieldState } from '../../types';
 
-type BaseFieldProps = {
-  meta: {
+type SelectOption = {
+  value: string | number;
+  label: string;
+};
+
+type BaseSelectProps = SelectHTMLAttributes<HTMLSelectElement> &
+  FieldState & {
     label: string;
     hint?: string;
-    isValid: boolean;
-    isTouched: boolean;
-    isDirty: boolean;
-    isValidating?: boolean;
-    error?: string;
+    options: SelectOption[];
+    placeholder?: string;
   };
-  onChange: (value: string) => void;
-  name: string;
-  value?: string;
-  options: { value: string; label: string }[];
-  placeholder?: string;
-};
 
 export function SelectField({
   name,
-  meta: { isValid, isTouched, error, label, hint },
-  onChange,
+  label,
+  hint,
+  meta: { isTouched, isValidating, errors },
+  className,
   options,
-  placeholder = 'Select an option...',
+  placeholder,
   value,
-}: BaseFieldProps) {
-  const triggerClasses = cn(
-    'w-full rounded border border-border bg-background px-3 py-2 text-left flex items-center justify-between',
-    !isValid && isTouched && 'border-destructive',
-    isValid && 'border-success',
-  );
-
-  // Create items array with placeholder
-  const items = [{ label: placeholder, value: '' }, ...options];
+  onChange,
+  onBlur,
+  ...restProps
+}: BaseSelectProps) {
+  const hasError = isTouched && errors && errors.length > 0;
 
   return (
-    <BaseField.Root
-      invalid={!isValid}
-      name={name}
-      className="flex flex-col gap-2"
-    >
-      <BaseField.Label className="text-sm font-medium">{label}</BaseField.Label>
-      {hint && (
-        <BaseField.Description className="text-muted-foreground text-xs">
-          {hint}
-        </BaseField.Description>
-      )}
-      <Select.Root
-        items={items}
-        value={value ?? ''}
-        onValueChange={(newValue) => {
-          onChange(newValue ?? '');
-        }}
+    <div className="mb-4">
+      <label
+        htmlFor={name}
+        className="mb-1 block text-sm font-medium text-gray-700"
       >
-        <Select.Trigger className={triggerClasses}>
-          <Select.Value />
-          <Select.Icon>
-            <span>▼</span>
-          </Select.Icon>
-        </Select.Trigger>
-
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup className="border-border bg-background z-50 max-h-60 overflow-auto rounded border shadow-lg">
-              {items.map((item) => (
-                <Select.Item
-                  key={item.value}
-                  value={item.value}
-                  className="hover:bg-accent focus:bg-accent cursor-pointer px-3 py-2"
-                  disabled={item.value === ''}
-                >
-                  <Select.ItemText>{item.label}</Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-      <BaseField.Error className="text-destructive text-sm">
-        <p>{error}</p>
-      </BaseField.Error>
-    </BaseField.Root>
+        {label}
+      </label>
+      {hint && (
+        <p className="mb-1 text-sm text-gray-500" id={`${name}-hint`}>
+          {hint}
+        </p>
+      )}
+      <select
+        id={name}
+        name={name}
+        value={value as string | number | undefined}
+        onChange={onChange}
+        onBlur={onBlur}
+        className={cn(
+          'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:ring-2 focus:outline-none',
+          hasError
+            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+          isValidating && 'opacity-60',
+          className,
+        )}
+        {...restProps}
+        aria-invalid={!!hasError}
+        aria-describedby={
+          hint || hasError
+            ? `${hint ? `${name}-hint` : ''} ${hasError ? `${name}-error` : ''}`.trim()
+            : undefined
+        }
+      >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {hasError && (
+        <p className="mt-1 text-sm text-red-600" id={`${name}-error`}>
+          {errors.join(', ')}
+        </p>
+      )}
+    </div>
   );
 }
