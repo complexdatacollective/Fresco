@@ -14,6 +14,7 @@ import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { getNetworkNodesForType } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
 import Form from '../../Form';
+import NodeForm from '../../NodeForm';
 import { type StageProps } from '../../Stage';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { FamilyTreeNode } from './FamilyTreeNode';
@@ -306,8 +307,32 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const renderFamilyTreeShells = () => {
+    const step2CensusForm = {
+      fields: [
+        { variable: 'relation', prompt: 'How is this person related to you?' },
+        {
+          variable: 'relation-parent',
+          prompt: 'Who is their parent?',
+        },
+      ],
+      title: 'Add Relative',
+    };
+
     return (
       <div className="family-pedigree-interface">
+        <NodeForm
+          selectedNode={null}
+          form={step2CensusForm}
+          disabled={false}
+          onClose={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+          addNode={function (
+            attributes: NcNode[EntityAttributesProperty],
+          ): void {
+            throw new Error('Function not implemented.');
+          }}
+        />
         <div className="edge-layout">
           {familyTreeNodeList.allNodes().map((node) => {
             return (
