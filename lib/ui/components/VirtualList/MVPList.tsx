@@ -1,8 +1,9 @@
 import { useDirection } from '@radix-ui/react-direction';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { motion, useAnimate } from 'motion/react';
+import { motion } from 'motion/react';
 import type React from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useVirtualListAnimation } from './useVirtualListAnimation'; // adjust path as needed
 
 type Item = {
   id: number;
@@ -18,7 +19,6 @@ type Props = {
 const SPACING_UNIT_PX = 16; // Tailwind's gap-4 and px-4 equivalent
 const ITEM_WIDTH = 100;
 const ITEM_HEIGHT = 100;
-const ANIMATION_TOTAL_DURATION = 1.0;
 
 const DefaultListItem = ({ item }: { item: Item }) => {
   return (
@@ -41,56 +41,11 @@ export default function ResponsiveVirtualGrid({
   ListItem = DefaultListItem,
 }: Props) {
   const direction = useDirection();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [columns, setColumns] = useState(1); // Number of columns based on container width
-  const [initiallyVisibleItems, setInitiallyVisibleItems] = useState<
-    Set<number>
-  >(new Set()); // Track initially visible items for animation
-  const [hasCapturedInitialItems, setHasCapturedInitialItems] = useState(false); // Have we captured the initial visible items?
-  const [displayItems, setDisplayItems] = useState(items); // Local copy of items, so we can handle transitioning when items change.
-  const [isTransitioning, setIsTransitioning] = useState(false); // Are we currently animating?
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const animatedItemsRef = useRef<Set<number>>(new Set()); // Track items that have been animated
-  const visibleItemOrderRef = useRef<Map<number, number>>(new Map()); // Track order of visible items for animation delays
-  const prevListIdRef = useRef<string | null>(null);
-  const [scope, animate] = useAnimate();
-
-  // Animation effect controlled by listId changes
-  useEffect(() => {
-    if (prevListIdRef.current !== null && prevListIdRef.current !== listId) {
-      // listId changed, so start transition to animate exit/enter sequence
-      setIsTransitioning(true);
-
-      // Animate out existing items simultaneously (no stagger)
-      const exitAnimation = async () => {
-        await animate('.item', { scale: 0, opacity: 0 }, { duration: 0.2 });
-
-        // TODO: This works, but breaks the initial animation. No way around it I can find.
-        // Disabling makes the animation work, but leaves the user scrolled to wherever they were.
-        // containerRef.current?.scrollTo({ top: 0 });
-
-        // Update to new items after exit completes
-        setDisplayItems(items);
-
-        // Reset animation tracking for new items
-        animatedItemsRef.current = new Set();
-        visibleItemOrderRef.current = new Map();
-        setInitiallyVisibleItems(new Set());
-        setHasCapturedInitialItems(false);
-        setIsTransitioning(false);
-      };
-
-      void exitAnimation();
-    } else {
-      // No listId change — just update displayItems immediately without animation
-      setDisplayItems(items);
-    }
-
-    prevListIdRef.current = listId;
-  }, [listId, items, animate]);
-
-  // Calculate columns based on container width
+  // ResizeObserver to determine column count based on container width
   useLayoutEffect(() => {
     if (!containerRef.current) return;
 
@@ -106,10 +61,25 @@ export default function ResponsiveVirtualGrid({
 
     updateColumns();
 
-    const resizeObserver = new ResizeObserver(updateColumns); // For performance
+    const resizeObserver = new ResizeObserver(updateColumns);
     resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
   }, []);
+
+  const {
+    displayItems,
+    // isTransitioning,
+    scope,
+    // animate,
+    shouldAnimateItem,
+    getItemDelay,
+    captureVisibleItems,
+  } = useVirtualListAnimation({
+    items,
+    listId,
+    containerRef,
+    columns,
+  });
 
   const rowCount = Math.ceil(displayItems.length / columns);
   const rowHeight = ITEM_HEIGHT + SPACING_UNIT_PX;
@@ -121,54 +91,13 @@ export default function ResponsiveVirtualGrid({
     estimateSize: () => rowHeight,
     paddingStart: SPACING_UNIT_PX,
     paddingEnd: SPACING_UNIT_PX,
-    isRtl: direction === 'rtl', // Use direction from Radix!
+    isRtl: direction === 'rtl',
   });
 
-  // Capture initially visible items for stagger animation
+  // After virtual rows are available, capture visible items for stagger animation
   useEffect(() => {
-    if (hasCapturedInitialItems || columns === 1 || isTransitioning) return;
-
-    const virtualItems = rowVirtualizer.getVirtualItems();
-    const visibleItemIds = new Set<number>();
-    const itemOrder = new Map<number, number>();
-    let visibleIndex = 0;
-
-    virtualItems.forEach((virtualRow) => {
-      const startIndex = virtualRow.index * columns;
-      for (let i = 0; i < columns; i++) {
-        const itemIndex = startIndex + i;
-        if (itemIndex < displayItems.length) {
-          const itemId = displayItems[itemIndex]!.id;
-          visibleItemIds.add(itemId);
-          itemOrder.set(itemId, visibleIndex);
-          visibleIndex++;
-        }
-      }
-    });
-
-    if (visibleItemIds.size > 0) {
-      setInitiallyVisibleItems(visibleItemIds);
-      visibleItemOrderRef.current = itemOrder;
-      setHasCapturedInitialItems(true);
-    }
-  }, [
-    columns,
-    displayItems,
-    rowVirtualizer,
-    hasCapturedInitialItems,
-    isTransitioning,
-  ]);
-
-  /**
-   * Regardless of the number of items that are being animated,
-   * we want the animation to finish in ANIMATION_TOTAL_DURATION
-   * seconds. This helps make the stagger effect more consistent.
-   */
-  const totalVisibleCount = initiallyVisibleItems.size;
-  const delayPerItem =
-    totalVisibleCount > 1
-      ? ANIMATION_TOTAL_DURATION / (totalVisibleCount - 1)
-      : 0;
+    captureVisibleItems(rowVirtualizer.getVirtualItems());
+  }, [rowVirtualizer.getVirtualItems, captureVisibleItems, rowVirtualizer]);
 
   return (
     <div
@@ -200,17 +129,8 @@ export default function ResponsiveVirtualGrid({
                 if (itemIndex >= displayItems.length) return null;
 
                 const item = displayItems[itemIndex]!;
-                const isInitiallyVisible = initiallyVisibleItems.has(item.id);
-                const hasAnimated = animatedItemsRef.current.has(item.id);
-                const shouldAnimate = isInitiallyVisible && !hasAnimated;
-
-                if (shouldAnimate) {
-                  animatedItemsRef.current.add(item.id);
-                }
-
-                const visibleOrder =
-                  visibleItemOrderRef.current.get(item.id) ?? 0;
-                const delay = shouldAnimate ? visibleOrder * delayPerItem : 0;
+                const shouldAnimate = shouldAnimateItem(item.id);
+                const delay = getItemDelay(item.id);
 
                 return shouldAnimate ? (
                   <motion.div
