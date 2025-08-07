@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { cn } from '~/utils/shadcn';
-import { useVirtualListAnimation } from './useVirtualListAnimation';
+import { useVirtualListAnimation, type CustomAnimation } from './useVirtualListAnimation';
 
 type Item = {
   id: number;
@@ -34,6 +34,7 @@ export type VirtualListProps = {
   ariaLabel?: string;
   focusable?: boolean;
   listId: string; // Controlled listId to decide when to animate
+  customAnimation?: CustomAnimation; // Optional custom animation configuration
 };
 
 export function VirtualList({
@@ -50,6 +51,7 @@ export function VirtualList({
   ariaLabel,
   focusable = true,
   listId,
+  customAnimation,
 }: VirtualListProps) {
   const direction = useDirection();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,11 +65,13 @@ export function VirtualList({
     shouldAnimateItem,
     getItemDelay,
     captureVisibleItems,
+    getItemVariants,
   } = useVirtualListAnimation({
     items,
     listId,
     containerRef,
     columns,
+    customAnimation,
   });
 
   const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -292,8 +296,9 @@ export function VirtualList({
                 {shouldAnimate ? (
                   <motion.div
                     {...baseProps}
-                    initial={{ opacity: 0, x: '100%' }}
-                    animate={{ opacity: 1, x: '0%' }}
+                    variants={getItemVariants()}
+                    initial="initial"
+                    animate="animate"
                     transition={{
                       delay,
                       type: 'spring',
@@ -357,8 +362,9 @@ export function VirtualList({
                 <motion.div
                   key={item.id}
                   {...baseProps}
-                  initial={{ opacity: 0, y: '100%' }}
-                  animate={{ opacity: 1, y: '0%' }}
+                  variants={getItemVariants()}
+                  initial="initial"
+                  animate="animate"
                   transition={{
                     delay,
                     type: 'spring',

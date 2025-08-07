@@ -914,127 +914,6 @@ function DragDropLists() {
   },
 };
 
-export const AnimationsStaggered: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**Default Staggered Animation**
-
-The VirtualList component supports configurable enter/exit animations using motion/react. By default, it uses a staggered animation pattern inspired by the NodeList component.
-
-\`\`\`typescript
-import { VirtualList } from './VirtualList';
-
-// Default staggered animation (default behavior)
-<VirtualList 
-  items={items}
-  itemRenderer={ItemRenderer}
-  animations="staggered"    // Default: staggered entrance with delay
-  staggerDelay={0.02}       // Default: 20ms delay between items
-  layout="grid"
-  itemSize={100}
-/>
-
-// Disable animations completely
-<VirtualList 
-  items={items}
-  itemRenderer={ItemRenderer}
-  animations="none"         // No animations
-  layout="grid"
-  itemSize={100}
-/>
-\`\`\`
-
-**How Staggered Animation Works:**
-- Items animate in with a cascading effect
-- Each item starts with \`opacity: 0, y: 10, scale: 0.95\`
-- Items animate to \`opacity: 1, y: 0, scale: 1\`
-- Each subsequent item has a 20ms delay (configurable with \`staggerDelay\`)
-- Exit animations reverse the effect for smooth removal
-
-**Animation States:**
-- **Initial**: Items start slightly down and scaled down
-- **Animate**: Items move up to position and scale to full size
-- **Exit**: Items scale down and move up slightly while fading out
-
-**Performance Note:** These animations are optimized for virtualized lists and only animate items that are actually changing (add/remove), not during scrolling.
-        `,
-      },
-    },
-  },
-  render: () => {
-    const [items, setItems] = useState(generateItems(20));
-    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
-      new Set(),
-    );
-
-    const handleItemClick = (id: string | number) => {
-      const newSelected = new Set(selectedIds);
-      if (newSelected.has(id)) {
-        newSelected.delete(id);
-      } else {
-        newSelected.add(id);
-      }
-      setSelectedIds(newSelected);
-    };
-
-    const addItems = () => {
-      const newItems = generateItems(5).map((item) => ({
-        ...item,
-        id: items.length + item.id,
-        name: `New Item ${items.length + item.id + 1}`,
-      }));
-      setItems((prev) => [...prev, ...newItems]);
-    };
-
-    const removeItems = () => {
-      if (items.length > 5) {
-        setItems((prev) => prev.slice(0, -5));
-      }
-    };
-
-    return (
-      <div className="p-5">
-        <h3 className="mb-5 text-lg font-semibold">
-          Staggered Animation (Default)
-        </h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          Items animate in with a staggered delay. Click buttons to see
-          enter/exit animations.
-        </p>
-
-        <div className="mb-4 flex gap-2">
-          <button
-            onClick={addItems}
-            className="bg-primary hover:bg-primary/90 rounded px-3 py-1 text-sm text-white"
-          >
-            Add 5 Items
-          </button>
-          <button
-            onClick={removeItems}
-            className="bg-destructive hover:bg-destructive/90 rounded px-3 py-1 text-sm text-white"
-          >
-            Remove 5 Items
-          </button>
-        </div>
-
-        <VirtualList
-          items={items}
-          itemRenderer={SimpleItemRenderer}
-          selectedIds={selectedIds}
-          onItemClick={handleItemClick}
-          layout="grid"
-          spacingUnit={8}
-          className="h-96 rounded-lg border bg-white p-2"
-          ariaLabel="List with staggered animations"
-          listId="staggered-animation-list"
-        />
-      </div>
-    );
-  },
-};
-
 export const AnimationsCustom: Story = {
   parameters: {
     docs: {
@@ -1113,13 +992,31 @@ const slideAnimation: ItemAnimationConfig = {
       setSelectedIds(newSelected);
     };
 
+    // Custom slide animation configuration
+    const slideAnimation = {
+      exitAnimation: {
+        targets: '.item',
+        keyframes: { opacity: 0, x: 20, scale: 0.9 },
+        options: { duration: 0.3 },
+      },
+      itemVariants: {
+        initial: { opacity: 0, x: -20, scale: 0.9 },
+        animate: {
+          opacity: 1,
+          x: 0,
+          scale: 1,
+        },
+        exit: {
+          opacity: 0,
+          x: 20,
+          scale: 0.9,
+        },
+      },
+    };
+
     return (
       <div className="p-5">
         <h3 className="mb-5 text-lg font-semibold">Custom Animation Example</h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          This shows a custom slide animation. Items slide in from left when
-          added, slide out to right when removed.
-        </p>
 
         <VirtualList
           items={items}
@@ -1131,6 +1028,7 @@ const slideAnimation: ItemAnimationConfig = {
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="List with custom slide animations"
           listId="custom-animation-list"
+          customAnimation={slideAnimation}
         />
       </div>
     );
@@ -1156,14 +1054,13 @@ const CircleItemRenderer = (
   </div>
 );
 
-export const WithColumnConfiguration: Story = {
+export const LayoutSwitcher: Story = {
   parameters: {
     docs: {
       description: {
         story: `
-**Column Configuration with Circle Items**
+**Layout switcher**
 
-This story demonstrates the column configuration interface using circular items similar to the MVPList component:
 
 \`\`\`typescript
 import { VirtualList } from './VirtualList';
@@ -1207,7 +1104,6 @@ const CircleItemRenderer = (item, index, isSelected) => (
 **Features:**
 - **Mode Buttons**: Switch between Grid (auto-responsive), Column (fixed), and Horizontal (scroll) layouts
 - **Column Dropdown**: Select specific column count when in Column mode (1-12 columns)
-- **Circle Items**: Uses the same circular item design as MVPList stories
 - **Interactive Testing**: Add/remove items to test layout behavior
 
 **Use Cases:**
@@ -1263,7 +1159,7 @@ const CircleItemRenderer = (item, index, isSelected) => (
     return (
       <div className="p-5">
         <h3 className="mb-3 text-lg font-semibold">
-          Column Configuration with Circle Items
+          Layout switcher with animation triggering
         </h3>
 
         {/* Mode Selection */}

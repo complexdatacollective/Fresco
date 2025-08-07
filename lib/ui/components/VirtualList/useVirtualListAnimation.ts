@@ -1,14 +1,30 @@
 // Reusable hook to manage animations in a virtual list
 
+import type { Variants } from 'motion/react';
 import { useAnimate } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 
 type Item = { id: number };
+
+// Custom animation configuration type
+// todo: can we reuse motion's types here?
+export type CustomAnimation = {
+  // Exit animation for list transition
+  exitAnimation?: {
+    targets: string;
+    keyframes: Record<string, unknown>;
+    options?: Record<string, unknown>;
+  };
+  // Enter animation variants for individual items
+  itemVariants?: Variants;
+};
+
 type UseVirtualListAnimationParams<T extends Item> = {
   items: T[];
   listId: string; // Controlled listId to decide when to animate
   containerRef: React.RefObject<HTMLElement>;
   columns: number;
+  customAnimation?: CustomAnimation; // Optional custom animation configuration
 };
 
 const ANIMATION_TOTAL_DURATION = 1.0;
@@ -18,6 +34,7 @@ export function useVirtualListAnimation<T extends Item>({
   listId,
   // containerRef,
   columns,
+  customAnimation,
 }: UseVirtualListAnimationParams<T>) {
   const [displayItems, setDisplayItems] = useState(items); // Local copy of items, so we can handle transitioning when items change.
   const [isTransitioning, setIsTransitioning] = useState(false); // Are we currently animating?
@@ -40,8 +57,14 @@ export function useVirtualListAnimation<T extends Item>({
       setIsTransitioning(true);
 
       const exitAnimation = async () => {
-        // Animate out existing items simultaneously (no stagger)
-        await animate('.item', { scale: 0, opacity: 0 }, { duration: 0.2 });
+        // Use custom exit animation if provided, otherwise use default
+        if (customAnimation?.exitAnimation) {
+          const { targets, keyframes, options } = customAnimation.exitAnimation;
+          await animate(targets, keyframes, options);
+        } else {
+          // Default: Animate out existing items simultaneously (no stagger)
+          await animate('.item', { scale: 0, opacity: 0 }, { duration: 0.2 });
+        }
 
         // TODO: This works, but breaks the initial animation. No way around it I can find.
         // Disabling makes the animation work, but leaves the user scrolled to wherever they were.
@@ -65,7 +88,7 @@ export function useVirtualListAnimation<T extends Item>({
     }
 
     prevListIdRef.current = listId;
-  }, [listId, items, animate]);
+  }, [listId, items, animate, customAnimation]);
 
   // Capture initially visible items for stagger animation
   const captureVisibleItems = (virtualRows: { index: number }[]) => {
@@ -118,6 +141,23 @@ export function useVirtualListAnimation<T extends Item>({
       : 0;
   };
 
+  /**
+   * Get animation variants for an item.
+   * Returns custom variants if provided, otherwise returns default variants.
+   */
+  const getItemVariants = () => {
+    if (customAnimation?.itemVariants) {
+      return customAnimation.itemVariants;
+    }
+
+    // Default variants
+    return {
+      initial: { opacity: 0, y: '100%' },
+      animate: { opacity: 1, y: '0%' },
+      exit: { opacity: 0, y: '-100%' },
+    };
+  };
+
   return {
     displayItems,
     isTransitioning,
@@ -126,5 +166,6 @@ export function useVirtualListAnimation<T extends Item>({
     shouldAnimateItem,
     getItemDelay,
     captureVisibleItems,
+    getItemVariants,
   };
 }
