@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { validateFieldValue, debounce } from '../utils/validation';
+import { validateFieldValue } from '../utils/validation';
 import type { ValidationContext } from '../types';
 
 describe('Validation Utils', () => {
@@ -14,7 +14,7 @@ describe('Validation Utils', () => {
       const result = await validateFieldValue('test', undefined, mockContext);
 
       expect(result.isValid).toBe(true);
-      expect(result.error).toBe(null);
+      expect(result.errors).toBe(null);
     });
 
     it('should validate with Zod schema', async () => {
@@ -27,12 +27,12 @@ describe('Validation Utils', () => {
         mockContext,
       );
       expect(validResult.isValid).toBe(true);
-      expect(validResult.error).toBe(null);
+      expect(validResult.errors).toBe(null);
 
       // Invalid case
       const invalidResult = await validateFieldValue('hi', schema, mockContext);
       expect(invalidResult.isValid).toBe(false);
-      expect(invalidResult.error).toBe('Too short');
+      expect(invalidResult.errors).toEqual(['Too short']);
     });
 
     it('should validate with function returning schema', async () => {
@@ -47,7 +47,7 @@ describe('Validation Utils', () => {
         mockContext,
       );
       expect(validResult.isValid).toBe(true);
-      expect(validResult.error).toBe(null);
+      expect(validResult.errors).toBe(null);
 
       // Invalid case
       const invalidResult = await validateFieldValue(
@@ -56,7 +56,7 @@ describe('Validation Utils', () => {
         mockContext,
       );
       expect(invalidResult.isValid).toBe(false);
-      expect(invalidResult.error).toBe('Invalid email');
+      expect(invalidResult.errors).toEqual(['Invalid email']);
     });
 
     it('should validate with async function returning schema', async () => {
@@ -73,7 +73,7 @@ describe('Validation Utils', () => {
         mockContext,
       );
       expect(validResult.isValid).toBe(true);
-      expect(validResult.error).toBe(null);
+      expect(validResult.errors).toBe(null);
 
       // Invalid case
       const invalidResult = await validateFieldValue(
@@ -82,7 +82,7 @@ describe('Validation Utils', () => {
         mockContext,
       );
       expect(invalidResult.isValid).toBe(false);
-      expect(invalidResult.error).toBe('Too short');
+      expect(invalidResult.errors).toEqual(['Too short']);
     });
 
     it('should handle validation errors gracefully', async () => {
@@ -96,7 +96,7 @@ describe('Validation Utils', () => {
         mockContext,
       );
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Validation error');
+      expect(result.errors).toEqual(['Validation error']);
     });
 
     it('should use context in validation', async () => {
@@ -117,64 +117,7 @@ describe('Validation Utils', () => {
         contextWithMinLength,
       );
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Must be at least 5 chars');
-    });
-  });
-
-  describe('debounce', () => {
-    it('should debounce function calls', async () => {
-      let callCount = 0;
-      const fn = () => {
-        callCount++;
-      };
-      const debouncedFn = debounce(fn, 50);
-
-      // Call multiple times quickly
-      debouncedFn();
-      debouncedFn();
-      debouncedFn();
-
-      // Should not have been called yet
-      expect(callCount).toBe(0);
-
-      // Wait for debounce delay
-      await new Promise((resolve) => setTimeout(resolve, 60));
-
-      // Should have been called only once
-      expect(callCount).toBe(1);
-    });
-
-    it('should pass arguments to debounced function', async () => {
-      let lastArgs: unknown[] = [];
-      const fn = (...args: unknown[]) => {
-        lastArgs = args;
-      };
-      const debouncedFn = debounce(fn, 50);
-
-      debouncedFn('arg1', 'arg2', 'arg3');
-
-      await new Promise((resolve) => setTimeout(resolve, 60));
-
-      expect(lastArgs).toEqual(['arg1', 'arg2', 'arg3']);
-    });
-
-    it('should cancel previous calls when called again', async () => {
-      let callCount = 0;
-      const fn = () => {
-        callCount++;
-      };
-      const debouncedFn = debounce(fn, 50);
-
-      debouncedFn();
-
-      // Call again before first delay expires
-      setTimeout(() => debouncedFn(), 25);
-
-      // Wait for both delays
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Should have been called only once (the second call)
-      expect(callCount).toBe(1);
+      expect(result.errors).toEqual(['Must be at least 5 chars']);
     });
   });
 });

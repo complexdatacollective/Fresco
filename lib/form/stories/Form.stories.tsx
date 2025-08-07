@@ -117,7 +117,7 @@ export const Default: Story = {
         Component={InputArrayField}
         placeholder="Enter hobby"
         addButtonText="Add Hobby"
-        initialValue={['Reading']}
+        initialValue={['Reading', 'Writing', 'Traveling']}
         validation={z
           .array(z.string().min(1, 'Hobby cannot be empty'))
           .min(2, 'At least 2 hobbies required')}
