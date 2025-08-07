@@ -1,73 +1,153 @@
+import { useDirection } from '@radix-ui/react-direction';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { useCallback, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '~/utils/shadcn';
+import { useVirtualListAnimation } from './useVirtualListAnimation';
 
-export type LayoutMode = 'grid' | 'column' | 'horizontal';
+type Item = {
+  id: number;
+  name: string;
+};
 
-
-export type VirtualListProps<T extends { id: string | number }> = {
-  items: T[];
+export type VirtualListProps = {
+  items: Item[];
   itemRenderer: (
-    item: T,
+    item: Item,
     index: number,
     isSelected: boolean,
   ) => React.ReactNode;
-  layout?: LayoutMode;
+  layout?: 'grid' | 'column' | 'horizontal';
   columns?: number;
-  itemSize?: number;
-  itemWidth?: number;
+  itemWidth?: number; // Note: ignored in column layout - items span 100% of column
   itemHeight?: number;
-  gap?: number;
+  spacingUnit?: number; // spacing unit px (e.g., 16 for gap-4 px-4)
   selectedIds?: Set<string | number>;
   onItemClick?: (id: string | number) => void;
   className?: string;
   ariaLabel?: string;
   focusable?: boolean;
+  listId: string; // Controlled listId to decide when to animate
 };
 
-
-export function VirtualList<T extends { id: string | number }>({
+export function VirtualList({
   items,
   itemRenderer,
   layout = 'grid',
-  columns = 1,
-  itemSize,
-  itemWidth,
-  itemHeight,
-  gap = 8,
+  columns: columnsOverride,
+  itemWidth = 100,
+  itemHeight = 100,
+  spacingUnit = 16,
   selectedIds,
   onItemClick,
   className,
   ariaLabel,
   focusable = true,
-}: VirtualListProps<T>) {
-  const parentRef = useRef<HTMLDivElement>(null);
+  listId,
+}: VirtualListProps) {
+  const direction = useDirection();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [columns, setColumns] = useState(1); // Number of columns based on container width
+
+  const {
+    displayItems,
+    // isTransitioning,
+    scope,
+    // animate,
+    shouldAnimateItem,
+    getItemDelay,
+    captureVisibleItems,
+  } = useVirtualListAnimation({
+    items,
+    listId,
+    containerRef,
+    columns,
+  });
+
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
-  const effectiveWidth = itemWidth ?? itemSize ?? 100;
-  const effectiveHeight = itemHeight ?? itemSize ?? 100;
+  // ResizeObserver to determine column count based on container width
+  useLayoutEffect(() => {
+    // If layout is 'column', use the columns prop or default to 3
+    // itemWidth is ignored in column layout - items span 100% of column
+    if (layout === 'column') {
+      setColumns(columnsOverride ?? 3);
+      return;
+    }
+
+    // If layout is 'horizontal', set to number of items (single row)
+    if (layout === 'horizontal') {
+      setColumns(displayItems.length);
+      return;
+    }
+
+    // For 'grid' layout, calculate responsive columns based on itemWidth
+    if (!containerRef.current) return;
+
+    const updateColumns = () => {
+      const containerWidth = containerRef.current?.offsetWidth ?? 0;
+      const availableWidth = containerWidth - spacingUnit * 2;
+      const maxColumns = Math.max(
+        1,
+        Math.floor(availableWidth / (itemWidth + spacingUnit)),
+      );
+      setColumns(maxColumns);
+    };
+
+    updateColumns();
+
+    const resizeObserver = new ResizeObserver(updateColumns);
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [layout, columnsOverride, displayItems.length, spacingUnit, itemWidth]);
+
+  const rowCount =
+    layout === 'horizontal'
+      ? displayItems.length
+      : Math.ceil(displayItems.length / columns);
+  const rowHeight =
+    layout === 'horizontal'
+      ? itemWidth + spacingUnit
+      : itemHeight + spacingUnit;
 
   const getItemsPerRow = useCallback(() => {
-    if (layout === 'column') return columns;
+    if (layout === 'column') return columns; // itemWidth ignored - items span column width
     if (layout === 'horizontal') return 1; // Each item is its own "row" for virtualizer. This is important for horizontal scrolling.
-    if (layout === 'grid' && parentRef.current) {
-      const containerWidth = parentRef.current.clientWidth;
-      return Math.floor((containerWidth + gap) / (effectiveWidth + gap));
+    if (layout === 'grid' && containerRef.current) {
+      const containerWidth = containerRef.current.clientWidth;
+      return Math.floor(
+        (containerWidth + spacingUnit) / (itemWidth + spacingUnit),
+      );
     }
     return 1;
-  }, [layout, columns, effectiveWidth, gap]);
+  }, [layout, columns, itemWidth, spacingUnit]);
 
   const itemsPerRow = getItemsPerRow();
 
   const virtualizer = useVirtualizer({
-    count: Math.ceil(items.length / itemsPerRow),
-    getScrollElement: () => parentRef.current,
-    estimateSize: () =>
-      (layout === 'horizontal' ? effectiveWidth : effectiveHeight) + gap,
+    count: rowCount,
+    getScrollElement: () => containerRef.current,
+    getItemKey: (index) =>
+      layout === 'horizontal'
+        ? displayItems[index]!.id.toString()
+        : `row-${index}`,
+    estimateSize: () => rowHeight,
+    paddingStart: spacingUnit,
+    paddingEnd: spacingUnit,
+    isRtl: direction === 'rtl',
     horizontal: layout === 'horizontal',
-    overscan: 5,
-    getItemKey: (index) => `row-${index}`,
   });
+
+  // After virtual rows are available, capture visible items for stagger animation
+  useEffect(() => {
+    captureVisibleItems(virtualizer.getVirtualItems());
+  }, [virtualizer.getVirtualItems, captureVisibleItems, virtualizer]);
 
   const handleItemClick = useCallback(
     (itemId: string | number) => {
@@ -123,20 +203,23 @@ export function VirtualList<T extends { id: string | number }>({
       }
     },
     [
-      activeIndex,
-      items,
-      layout,
       getItemsPerRow,
+      activeIndex,
+      layout,
+      items,
+      onItemClick,
       handleItemClick,
       virtualizer,
-      onItemClick,
     ],
   );
 
   return (
     <div
-      ref={parentRef}
+      ref={containerRef}
       className={cn(
+        layout === 'horizontal'
+          ? 'overflow-x-auto overflow-y-hidden'
+          : 'overflow-auto',
         'relative h-full w-full overflow-auto',
         focusable && 'focus:ring-ring',
         className,
@@ -154,82 +237,156 @@ export function VirtualList<T extends { id: string | number }>({
       })}
     >
       <div
-        className={cn(
-          'relative',
-          layout === 'horizontal' ? 'h-full' : 'w-full',
-        )}
+        ref={scope}
         style={{
-          [layout === 'horizontal' ? 'width' : 'height']:
-            `${virtualizer.getTotalSize()}px`,
+          height:
+            layout === 'horizontal'
+              ? `${itemHeight}px`
+              : `${virtualizer.getTotalSize()}px`,
+          width:
+            layout === 'horizontal'
+              ? `${displayItems.length * (itemWidth + spacingUnit)}px`
+              : 'auto',
+          position: 'relative',
         }}
       >
         {virtualizer.getVirtualItems().map((virtualRow) => {
-            const baseIndex = virtualRow.index * itemsPerRow;
-            const rowItems = [];
+          if (layout === 'horizontal') {
+            const item = displayItems[virtualRow.index];
+            if (!item) return null;
 
-            for (
-              let i = 0;
-              i < itemsPerRow && baseIndex + i < items.length;
-              i++
-            ) {
-              const itemIndex = baseIndex + i;
-              const item = items[itemIndex];
-              if (!item) continue;
+            const isSelected = selectedIds?.has(item.id) ?? false;
+            const isActive = virtualRow.index === activeIndex;
+            const shouldAnimate = shouldAnimateItem(item.id);
+            const delay = getItemDelay(item.id);
 
-              const isSelected = selectedIds?.has(item.id) ?? false;
-              const isActive = itemIndex === activeIndex;
-
-              const baseProps = {
-                ...(focusable && {
-                  'id': `item-${item.id}`,
-                  'role': 'option',
-                  'aria-selected': isSelected,
-                }),
-                onClick: () => handleItemClick(item.id),
-                className: cn(
-                  'transition-all',
-                  onItemClick && 'cursor-pointer',
-                  focusable &&
-                    isActive &&
-                    'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
-                ),
-                style: {
-                  width:
-                    layout === 'column'
-                      ? `calc((100% - ${gap * (columns - 1)}px) / ${columns})`
-                      : `${effectiveWidth}px`,
-                  height: `${effectiveHeight}px`,
-                },
-              };
-
-              rowItems.push(
-                <div key={item.id} {...baseProps}>
-                  {itemRenderer(item, itemIndex, isSelected)}
-                </div>,
-              );
-            }
+            const baseProps = {
+              ...(focusable && {
+                'id': `item-${item.id}`,
+                'role': 'option',
+                'aria-selected': isSelected,
+              }),
+              onClick: () => handleItemClick(item.id),
+              className: cn(
+                'transition-all',
+                onItemClick && 'cursor-pointer',
+                focusable &&
+                  isActive &&
+                  'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
+              ),
+              style: {
+                width: `${itemWidth}px`,
+                height: `${itemHeight}px`,
+              },
+            };
 
             return (
               <div
                 key={virtualRow.key}
-                className={cn(
-                  'absolute top-0 left-0',
-                  layout === 'horizontal'
-                    ? 'flex h-full'
-                    : 'flex w-full flex-wrap',
-                )}
                 style={{
-                  transform:
-                    layout === 'horizontal'
-                      ? `translateX(${virtualRow.start}px)`
-                      : `translateY(${virtualRow.start}px)`,
-                  gap: `${gap}px`,
+                  position: 'absolute',
+                  top: 0,
+                  left: virtualRow.start,
                 }}
               >
-                {rowItems}
+                {shouldAnimate ? (
+                  <motion.div
+                    {...baseProps}
+                    initial={{ opacity: 0, x: '100%' }}
+                    animate={{ opacity: 1, x: '0%' }}
+                    transition={{
+                      delay,
+                      type: 'spring',
+                      duration: 0.5,
+                    }}
+                  >
+                    {itemRenderer(item, virtualRow.index, isSelected)}
+                  </motion.div>
+                ) : (
+                  <div {...baseProps}>
+                    {itemRenderer(item, virtualRow.index, isSelected)}
+                  </div>
+                )}
               </div>
             );
-          })}
+          }
+
+          // Grid / column layout
+          const startIndex = virtualRow.index * itemsPerRow;
+          const rowItems = [];
+
+          for (
+            let i = 0;
+            i < itemsPerRow && startIndex + i < displayItems.length;
+            i++
+          ) {
+            const itemIndex = startIndex + i;
+            const item = displayItems[itemIndex];
+            if (!item) continue;
+
+            const isSelected = selectedIds?.has(item.id) ?? false;
+            const isActive = itemIndex === activeIndex;
+            const shouldAnimate = shouldAnimateItem(item.id);
+            const delay = getItemDelay(item.id);
+
+            const baseProps = {
+              ...(focusable && {
+                'id': `item-${item.id}`,
+                'role': 'option',
+                'aria-selected': isSelected,
+              }),
+              onClick: () => handleItemClick(item.id),
+              className: cn(
+                onItemClick && 'cursor-pointer',
+                focusable &&
+                  isActive &&
+                  'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
+              ),
+              style: {
+                width:
+                  layout === 'column'
+                    ? `calc((100% - ${spacingUnit * (columns - 1)}px) / ${columns})`
+                    : `${itemWidth}px`,
+                height: `${itemHeight}px`,
+              },
+            };
+
+            rowItems.push(
+              shouldAnimate ? (
+                <motion.div
+                  key={item.id}
+                  {...baseProps}
+                  initial={{ opacity: 0, y: '100%' }}
+                  animate={{ opacity: 1, y: '0%' }}
+                  transition={{
+                    delay,
+                    type: 'spring',
+                    duration: 0.5,
+                  }}
+                >
+                  {itemRenderer(item, itemIndex, isSelected)}
+                </motion.div>
+              ) : (
+                <div key={item.id} {...baseProps}>
+                  {itemRenderer(item, itemIndex, isSelected)}
+                </div>
+              ),
+            );
+          }
+
+          return (
+            <div
+              key={virtualRow.key}
+              className="absolute top-0 left-0 w-full flex"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+                gap: `${spacingUnit}px`,
+              }}
+            >
+              {rowItems}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

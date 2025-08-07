@@ -31,6 +31,10 @@ const meta: Meta<typeof VirtualList> = {
       description: {
         component: `
 Efficiently renders large lists using virtualization. Supports grid, column, and horizontal layouts with optional selection.
+
+- **Grid Layout**: Responsive columns based on container width and itemWidth
+- **Column Layout**: Fixed columns, items span 100% of column width (itemWidth ignored)
+- **Horizontal Layout**: Single row with horizontal scrolling
         `,
       },
     },
@@ -131,11 +135,9 @@ const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
   items={items}
   itemRenderer={ItemRenderer}
   layout="grid"
-  itemSize={100}      // Sets both width & height (square items)
-  // OR use separate dimensions:
-  // itemWidth={150}   // Custom width
-  // itemHeight={80}   // Custom height
-  gap={10}            // Space between items
+  itemWidth={150}   // Custom width
+  itemHeight={80}   // Custom height
+  spacingUnit={10}            // Space between items
   className="h-96 border rounded-lg p-2"
 />
 \`\`\`
@@ -143,8 +145,8 @@ const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
 **Key Points:**
 - No \`onItemClick\` = read-only, no pointer cursor
 - \`itemRenderer\` defines how each item looks
-- \`itemSize\` sets both width/height, OR use \`itemWidth\`/\`itemHeight\` separately
-- \`layout="grid"\` creates responsive grid
+- \`itemWidth\`/\`itemHeight\` control item dimensions (itemWidth ignored in column layout)
+- \`layout="grid"\` creates responsive grid, \`layout="column"\` spans 100% of column width
 
 **Keyboard Navigation & Accessibility:**
 - **Tab** - Focus the VirtualList container
@@ -170,10 +172,10 @@ const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
           items={items}
           itemRenderer={SimpleItemRenderer}
           layout="grid"
-          itemSize={100}
-          gap={10}
+          spacingUnit={10}
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="Basic grid of items"
+          listId="basic-list"
         />
       </div>
     );
@@ -227,10 +229,12 @@ This example demonstrates using the \`onItemClick\` prop to handle item clicks w
           itemRenderer={AlertItemRenderer}
           onItemClick={args.onItemClick}
           layout="grid"
-          itemSize={120}
-          gap={12}
+          itemWidth={120}
+          itemHeight={120}
+          spacingUnit={12}
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="Clickable items that show actions"
+          listId="action-on-click-list"
         />
       </div>
     );
@@ -288,7 +292,7 @@ function MyComponent() {
       layout="grid"
       itemWidth={150}                // Custom width for rectangular items
       itemHeight={100}               // Custom height
-      gap={12}
+      spacingUnit={12}
       className="h-96 border rounded-lg p-2"
     />
   );
@@ -358,11 +362,12 @@ setSelectedIds(new Set(items.map(item => item.id)));
           layout="grid"
           itemWidth={150}
           itemHeight={100}
-          gap={12}
+          spacingUnit={12}
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="Selectable grid items"
+          listId="selectable-grid-list"
         />
       </div>
     );
@@ -392,16 +397,18 @@ const ItemRenderer = (item, index, isSelected) => (
   itemRenderer={ItemRenderer}
   layout="column"       // Fixed column layout
   columns={3}           // Number of columns (required for column layout)
-  itemHeight={80}       // Height of each item (width fills column)
-  gap={16}              // Gap between items and columns
+  itemHeight={80}       // Height of each item (width spans 100% of column)
+  spacingUnit={16}      // spacing between items and columns
   className="h-96 border rounded-lg p-2"
+  // Note: itemWidth is ignored in column layout - items automatically span column width
 />
 \`\`\`
 
 **Key Points:**
 - \`layout="column"\` creates fixed column layout
 - \`columns\` prop is required (number of columns)
-- Use \`itemHeight\` for height (width fills column automatically)
+- Use \`itemHeight\` for height (width spans 100% of column automatically)
+- \`itemWidth\` prop is ignored in column layout
 - Width calculated automatically: \`(100% - gaps) / columns\`
 
 **Keyboard Navigation:**
@@ -476,11 +483,12 @@ const ItemRenderer = (item, index, isSelected) => (
           layout="column"
           columns={columns}
           itemHeight={80}
-          gap={16}
+          spacingUnit={16}
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
-          className="rounded-lg border bg-white p-2"
+          className="h-64 w-full rounded-lg bg-white p-2"
           ariaLabel={`Column layout with ${columns} columns`}
+          listId="column-layout-list"
         />
       </div>
     );
@@ -573,11 +581,12 @@ const ItemRenderer = (item, index, isSelected) => (
           itemRenderer={SimpleItemRenderer}
           layout="horizontal"
           itemWidth={150}
-          gap={12}
+          spacingUnit={12}
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
           className="rounded-lg border bg-white p-2"
           ariaLabel="Horizontal scrolling list"
+          listId="horizontal-layout-list"
         />
       </div>
     );
@@ -678,12 +687,12 @@ const ItemRenderer = (item, index, isSelected) => (
           items={items}
           itemRenderer={SimpleItemRenderer}
           layout="grid"
-          itemSize={100}
-          gap={8}
+          spacingUnit={8}
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
           className="rounded-lg border bg-white p-2"
           ariaLabel="Large dataset with 10,000 selectable items"
+          listId="large-dataset-list"
         />
       </div>
     );
@@ -854,10 +863,13 @@ function DragDropLists() {
               items={items}
               itemRenderer={DraggableItemRenderer}
               layout="grid"
-              itemSize={80}
-              gap={8}
+              itemWidth={80}
+              itemHeight={80}
+              spacingUnit={8}
               className="h-64"
               focusable={false}
+              ariaLabel={`${title} draggable items`}
+              listId={`dnd-list-${title.toLowerCase()}`}
             />
           </div>
         </div>
@@ -1013,10 +1025,10 @@ import { VirtualList } from './VirtualList';
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
           layout="grid"
-          itemSize={100}
-          gap={8}
+          spacingUnit={8}
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="List with staggered animations"
+          listId="staggered-animation-list"
         />
       </div>
     );
@@ -1116,7 +1128,6 @@ const slideAnimation: ItemAnimationConfig = {
       }
     };
 
-
     return (
       <div className="p-5">
         <h3 className="mb-5 text-lg font-semibold">Custom Animation Example</h3>
@@ -1156,10 +1167,10 @@ const slideAnimation: ItemAnimationConfig = {
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
           layout="grid"
-          itemSize={100}
-          gap={8}
+          spacingUnit={8}
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="List with custom slide animations"
+          listId="custom-animation-list"
         />
       </div>
     );
