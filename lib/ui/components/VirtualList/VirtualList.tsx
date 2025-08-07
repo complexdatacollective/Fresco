@@ -268,7 +268,7 @@ export function VirtualList({
               }),
               onClick: () => handleItemClick(item.id),
               className: cn(
-                'transition-all',
+                'item transition-all',
                 onItemClick && 'cursor-pointer',
                 focusable &&
                   isActive &&
@@ -337,6 +337,7 @@ export function VirtualList({
               }),
               onClick: () => handleItemClick(item.id),
               className: cn(
+                'item',
                 onItemClick && 'cursor-pointer',
                 focusable &&
                   isActive &&
@@ -377,7 +378,7 @@ export function VirtualList({
           return (
             <div
               key={virtualRow.key}
-              className="absolute top-0 left-0 w-full flex"
+              className="absolute top-0 left-0 flex w-full"
               style={{
                 transform: `translateY(${virtualRow.start}px)`,
                 gap: `${spacingUnit}px`,

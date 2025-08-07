@@ -1113,21 +1113,6 @@ const slideAnimation: ItemAnimationConfig = {
       setSelectedIds(newSelected);
     };
 
-    const addItems = () => {
-      const newItems = generateItems(3).map((item) => ({
-        ...item,
-        id: Math.max(...items.map((i) => i.id)) + item.id + 1,
-        name: `New Item ${Math.max(...items.map((i) => i.id)) + item.id + 2}`,
-      }));
-      setItems((prev) => [...prev, ...newItems]);
-    };
-
-    const removeItems = () => {
-      if (items.length > 3) {
-        setItems((prev) => prev.slice(0, -3));
-      }
-    };
-
     return (
       <div className="p-5">
         <h3 className="mb-5 text-lg font-semibold">Custom Animation Example</h3>
@@ -1135,31 +1120,6 @@ const slideAnimation: ItemAnimationConfig = {
           This shows a custom slide animation. Items slide in from left when
           added, slide out to right when removed.
         </p>
-
-        <div className="mb-4 flex gap-2">
-          <button
-            onClick={addItems}
-            className="bg-primary hover:bg-primary/90 rounded px-3 py-1 text-sm text-white"
-          >
-            Add 3 Items
-          </button>
-          <button
-            onClick={removeItems}
-            className="bg-destructive hover:bg-destructive/90 rounded px-3 py-1 text-sm text-white"
-          >
-            Remove 3 Items
-          </button>
-        </div>
-
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
-          <p className="text-sm font-medium text-amber-800">
-            💡 Animation Timing
-          </p>
-          <p className="mt-1 text-xs text-amber-700">
-            Animations only trigger when items are added/removed from the data
-            array. Scrolling doesn't trigger animations (for performance).
-          </p>
-        </div>
 
         <VirtualList
           items={items}
@@ -1171,6 +1131,267 @@ const slideAnimation: ItemAnimationConfig = {
           className="h-96 rounded-lg border bg-white p-2"
           ariaLabel="List with custom slide animations"
           listId="custom-animation-list"
+        />
+      </div>
+    );
+  },
+};
+
+const CircleItemRenderer = (
+  item: SampleItem,
+  _index: number,
+  isSelected: boolean,
+) => (
+  <div
+    className={`border-primary flex h-full w-full items-center justify-center rounded-full border text-center transition-all ${
+      isSelected
+        ? 'bg-primary border-primary text-white'
+        : 'text-foreground bg-gray-200'
+    }`}
+    style={{
+      userSelect: 'none',
+    }}
+  >
+    {item.name}
+  </div>
+);
+
+export const WithColumnConfiguration: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Column Configuration with Circle Items**
+
+This story demonstrates the column configuration interface using circular items similar to the MVPList component:
+
+\`\`\`typescript
+import { VirtualList } from './VirtualList';
+
+// Circle item renderer
+const CircleItemRenderer = (item, index, isSelected) => (
+  <div className="flex h-full w-full items-center justify-center rounded-full border border-gray-300 text-center">
+    {item.name}
+  </div>
+);
+
+<VirtualList 
+  items={items}
+  itemRenderer={CircleItemRenderer}
+  layout="grid"           // Auto-responsive grid
+  itemWidth={100}
+  itemHeight={100}
+  spacingUnit={12}
+/>
+
+// Fixed column layout
+<VirtualList 
+  items={items}
+  itemRenderer={CircleItemRenderer}
+  layout="column"         // Fixed column layout
+  columns={3}             // Number of columns
+  itemHeight={100}        // itemWidth ignored in column layout
+  spacingUnit={12}
+/>
+
+// Horizontal layout
+<VirtualList 
+  items={items}
+  itemRenderer={CircleItemRenderer}
+  layout="horizontal"     // Single row with scrolling
+  itemWidth={100}
+  spacingUnit={12}
+/>
+\`\`\`
+
+**Features:**
+- **Mode Buttons**: Switch between Grid (auto-responsive), Column (fixed), and Horizontal (scroll) layouts
+- **Column Dropdown**: Select specific column count when in Column mode (1-12 columns)
+- **Circle Items**: Uses the same circular item design as MVPList stories
+- **Interactive Testing**: Add/remove items to test layout behavior
+
+**Use Cases:**
+- **Grid Mode**: Responsive design that adapts to container width
+- **Column Mode**: Consistent layout regardless of screen size
+- **Horizontal Mode**: Single row layout with horizontal scrolling (great for carousels)
+        `,
+      },
+    },
+  },
+  render: () => {
+    const [mode, setMode] = useState<'grid' | 'column' | 'horizontal'>('grid');
+    const [columnCount, setColumnCount] = useState(3);
+    const [items, setItems] = useState(generateItems(50));
+    const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
+      new Set(),
+    );
+    const [animationTrigger, setAnimationTrigger] = useState(0); // counter to trigger animations
+
+    const handleItemClick = (id: string | number) => {
+      const newSelected = new Set(selectedIds);
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
+      setSelectedIds(newSelected);
+    };
+
+    const addItems = () => {
+      const newItems = generateItems(5).map((item) => ({
+        ...item,
+        id: items.length + item.id,
+        name: `Item ${items.length + item.id + 1}`,
+      }));
+      setItems((prev) => [...prev, ...newItems]);
+    };
+
+    const removeItems = () => {
+      if (items.length > 5) {
+        setItems((prev) => prev.slice(0, -5));
+      }
+    };
+
+    const retriggerAnimation = () => {
+      // Generate new items with different IDs to trigger fresh animations
+      setItems(generateItems(Math.floor(Math.random() * 100) + 50));
+      setAnimationTrigger((prev) => prev + 1); // Change listId to trigger animations
+    };
+
+    const listId = `listid-${animationTrigger}`;
+
+    return (
+      <div className="p-5">
+        <h3 className="mb-3 text-lg font-semibold">
+          Column Configuration with Circle Items
+        </h3>
+
+        {/* Mode Selection */}
+        <div className="mb-4 space-x-2">
+          <button
+            type="button"
+            onClick={() => setMode('grid')}
+            className={`rounded px-4 py-2 text-sm font-medium ${
+              mode === 'grid'
+                ? 'bg-accent text-accent-foreground'
+                : 'border-accent bg-background hover:bg-accent hover:text-accent-foreground border'
+            }`}
+          >
+            Grid (Auto Responsive)
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('column')}
+            className={`rounded px-4 py-2 text-sm font-medium ${
+              mode === 'column'
+                ? 'bg-accent text-accent-foreground'
+                : 'border-accent bg-background hover:bg-accent hover:text-accent-foreground border'
+            }`}
+          >
+            Column (Fixed)
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('horizontal')}
+            className={`rounded px-4 py-2 text-sm font-medium ${
+              mode === 'horizontal'
+                ? 'bg-accent text-accent-foreground'
+                : 'border-accent bg-background hover:bg-accent hover:text-accent-foreground border'
+            }`}
+          >
+            Horizontal (Scroll)
+          </button>
+        </div>
+
+        {/* Column Count Dropdown - only shown in column mode */}
+        {mode === 'column' && (
+          <div className="mb-4">
+            <label className="mb-2 block text-sm font-medium">
+              Number of Columns
+            </label>
+            <select
+              value={columnCount}
+              onChange={(e) => setColumnCount(parseInt(e.target.value))}
+              className="border-input bg-background rounded border px-3 py-2 text-sm"
+            >
+              <option value={1}>1 Column</option>
+              <option value={2}>2 Columns</option>
+              <option value={3}>3 Columns</option>
+              <option value={4}>4 Columns</option>
+              <option value={5}>5 Columns</option>
+              <option value={6}>6 Columns</option>
+              <option value={8}>8 Columns</option>
+              <option value={10}>10 Columns</option>
+              <option value={12}>12 Columns</option>
+            </select>
+          </div>
+        )}
+
+        {/* Re-trigger Animation Button */}
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={retriggerAnimation}
+            className="bg-accent hover:bg-accent/90 text-accent-foreground rounded px-4 py-2 text-sm"
+          >
+            Re-trigger Animation
+          </button>
+        </div>
+
+        {/* Add/Remove Items Buttons */}
+        <div className="mb-4 flex gap-2">
+          <button
+            type="button"
+            onClick={addItems}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded px-3 py-1 text-sm"
+          >
+            Add 5 Items
+          </button>
+          <button
+            type="button"
+            onClick={removeItems}
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded px-3 py-1 text-sm"
+          >
+            Remove 5 Items
+          </button>
+        </div>
+
+        {/* Current Configuration Display */}
+        <div className="mb-4 space-y-1 text-xs">
+          <p>
+            Mode:{' '}
+            <strong>
+              {mode === 'grid'
+                ? 'Grid (Auto Responsive)'
+                : mode === 'horizontal'
+                  ? 'Horizontal (Scroll)'
+                  : `Fixed ${columnCount} Column${columnCount > 1 ? 's' : ''}`}
+            </strong>
+          </p>
+          <p>
+            Items: <strong>{items.length}</strong>
+          </p>
+          <p>
+            Selected: <strong>{selectedIds.size}</strong>
+          </p>
+          <p>
+            ListId: <code className="rounded bg-white px-2 py-1">{listId}</code>
+          </p>
+        </div>
+
+        <VirtualList
+          items={items}
+          itemRenderer={CircleItemRenderer}
+          selectedIds={selectedIds}
+          onItemClick={handleItemClick}
+          layout={mode}
+          columns={mode === 'column' ? columnCount : undefined}
+          itemWidth={100}
+          itemHeight={100}
+          spacingUnit={12}
+          className="h-96 rounded-lg border bg-white p-2"
+          ariaLabel={`${mode} layout with circular items`}
+          listId={listId}
         />
       </div>
     );
