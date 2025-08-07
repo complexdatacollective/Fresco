@@ -31,7 +31,7 @@ export const WithRegenerateButton: Story = {
 
     const handleRegenerate = () => {
       // Generate new items with different IDs to ensure they're treated as new
-      setItems(generateItems(1000, Date.now()));
+      setItems(generateItems(Math.floor(Math.random() * 1000), Date.now()));
     };
 
     return (

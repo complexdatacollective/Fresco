@@ -1,3 +1,4 @@
+import { useDirection } from '@radix-ui/react-direction';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { motion, useAnimate } from 'motion/react';
 import type React from 'react';
@@ -18,35 +19,40 @@ const ITEM_WIDTH = 100;
 const ITEM_HEIGHT = 100;
 const ANIMATION_TOTAL_DURATION = 1.0;
 
-const DefaultListItem = ({ item }: { item: Item }) => (
-  <div
-    className="box-border flex items-center justify-center rounded-full border border-gray-300 bg-gray-200 text-center"
-    style={{
-      width: ITEM_WIDTH,
-      height: ITEM_HEIGHT,
-      userSelect: 'none',
-    }}
-  >
-    {item.name}
-  </div>
-);
+const DefaultListItem = ({ item }: { item: Item }) => {
+  return (
+    <div
+      className="box-border flex items-center justify-center rounded-full border border-gray-300 bg-gray-200 text-center"
+      style={{
+        width: ITEM_WIDTH,
+        height: ITEM_HEIGHT,
+        userSelect: 'none',
+      }}
+    >
+      {item.name}
+    </div>
+  );
+};
 
 export default function ResponsiveVirtualGrid({
   items,
   ListItem = DefaultListItem,
 }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [columns, setColumns] = useState(1);
+  const direction = useDirection();
+
+  const [columns, setColumns] = useState(1); // Number of columns based on container width
   const [initiallyVisibleItems, setInitiallyVisibleItems] = useState<
     Set<number>
-  >(new Set());
-  const [hasCapturedInitialItems, setHasCapturedInitialItems] = useState(false);
-  const animatedItemsRef = useRef<Set<number>>(new Set());
-  const visibleItemOrderRef = useRef<Map<number, number>>(new Map());
+  >(new Set()); // Track initially visible items for animation
+  const [hasCapturedInitialItems, setHasCapturedInitialItems] = useState(false); // Have we captured the initial visible items?
+  const [displayItems, setDisplayItems] = useState(items); // Local copy of items, so we can handle transitioning when items change.
+  const [isTransitioning, setIsTransitioning] = useState(false); // Are we currently animating?
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animatedItemsRef = useRef<Set<number>>(new Set()); // Track items that have been animated
+  const visibleItemOrderRef = useRef<Map<number, number>>(new Map()); // Track order of visible items for animation delays
   const prevItemsRef = useRef(items);
   const [scope, animate] = useAnimate();
-  const [displayItems, setDisplayItems] = useState(items);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Handle item changes with exit animation
   useEffect(() => {
@@ -56,11 +62,11 @@ export default function ResponsiveVirtualGrid({
 
       // Animate out existing items simultaneously (no stagger)
       const exitAnimation = async () => {
-        await animate(
-          '.item',
-          { scale: 0, opacity: 0 },
-          { duration: 0.2 }, // Removed stagger for simultaneous animation
-        );
+        await animate('.item', { scale: 0, opacity: 0 }, { duration: 0.2 });
+
+        // TODO: This works, but breaks the initial animation. No way around it I can find.
+        // Disabling makes the animation work, but leaves the user scrolled to wherever they were.
+        // containerRef.current?.scrollTo({ top: 0 });
 
         // Update to new items after exit completes
         setDisplayItems(items);
@@ -92,9 +98,7 @@ export default function ResponsiveVirtualGrid({
 
       const maxColumns = Math.max(
         1,
-        Math.floor(
-          (availableWidth + SPACING_UNIT_PX) / (ITEM_WIDTH + SPACING_UNIT_PX),
-        ),
+        Math.floor(availableWidth / (ITEM_WIDTH + SPACING_UNIT_PX)),
       );
 
       setColumns(maxColumns);
@@ -114,10 +118,11 @@ export default function ResponsiveVirtualGrid({
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => containerRef.current,
-    getItemKey: (index) => items[index]!.id.toString(),
+    getItemKey: (index) => displayItems[index]!.id.toString(),
     estimateSize: () => rowHeight,
     paddingStart: SPACING_UNIT_PX,
     paddingEnd: SPACING_UNIT_PX,
+    isRtl: direction === 'rtl', // Use direction from Radix!
   });
 
   // Capture initially visible items on first render
@@ -188,9 +193,9 @@ export default function ResponsiveVirtualGrid({
               className="flex gap-4"
               style={{
                 position: 'absolute',
-                top: 0,
+                top: virtualRow.start,
                 left: 0,
-                transform: `translateY(${virtualRow.start}px)`,
+                // transform: `translateY(${virtualRow.start}px)`,
               }}
             >
               {Array.from({ length: columns }).map((_, rowIndex) => {
@@ -214,8 +219,6 @@ export default function ResponsiveVirtualGrid({
 
                 return shouldAnimate ? (
                   <motion.div
-                    layout="position"
-                    layoutId={item.id.toString()}
                     className="item"
                     key={item.id}
                     initial={{ opacity: 0, y: '100%' }}
