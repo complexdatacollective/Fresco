@@ -1,137 +1,243 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useAnimate } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { motion, useAnimate } from 'motion/react';
+import type React from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-// MVP of animated virtual list to debug staggered animations
-// approach - animate only the initially rendered items
-// future items will appear instantly after initial animation completes
-type MVPListProps = {
-  items: string[];
-  onItemClick?: (item: string, index: number) => void;
-  className?: string;
+type Item = {
+  id: number;
+  name: string;
 };
 
-const ListItem = ({
-  item,
-  index,
-  onItemClick,
-  shouldAnimate,
-}: {
-  item: string;
-  index: number;
-  onItemClick?: (item: string, index: number) => void;
-  shouldAnimate: boolean;
-}) => {
-  const [scope, animate] = useAnimate();
-
-  useEffect(() => {
-    if (shouldAnimate) {
-      // Initially visible items - animate in with stagger (only on first render)
-      animate(
-        scope.current,
-        { opacity: 1, y: 0 },
-        { duration: 0.3, delay: index * 0.02 },
-      );
-    } else {
-      // Either not initially visible OR list has already animated - instantly show
-      animate(scope.current, { opacity: 1, y: 0 }, { duration: 0 });
-    }
-  }, [animate, shouldAnimate, index, scope]);
-
-  return (
-    <div
-      ref={scope}
-      style={{ opacity: 0, transform: 'translateY(20px)' }}
-      className="bg-accent flex cursor-pointer justify-center rounded-md p-4 text-white"
-      onClick={() => onItemClick?.(item, index)}
-    >
-      {item}
-    </div>
-  );
+type Props = {
+  items: Item[];
+  ListItem?: React.ComponentType<{ item: Item }>;
 };
 
-export const MVPList = ({
+const SPACING_UNIT_PX = 16; // Tailwind's gap-4 and px-4 equivalent
+const ITEM_WIDTH = 100;
+const ITEM_HEIGHT = 100;
+const ANIMATION_TOTAL_DURATION = 1.0;
+
+const DefaultListItem = ({ item }: { item: Item }) => (
+  <div
+    className="box-border flex items-center justify-center rounded-full border border-gray-300 bg-gray-200 text-center"
+    style={{
+      width: ITEM_WIDTH,
+      height: ITEM_HEIGHT,
+      userSelect: 'none',
+    }}
+  >
+    {item.name}
+  </div>
+);
+
+export default function ResponsiveVirtualGrid({
   items,
-  onItemClick,
-  className = '',
-}: MVPListProps) => {
+  ListItem = DefaultListItem,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [initiallyRenderedItems, setInitiallyRenderedItems] = useState<
+  const [columns, setColumns] = useState(1);
+  const [initiallyVisibleItems, setInitiallyVisibleItems] = useState<
     Set<number>
   >(new Set());
-  const hasSetInitialItems = useRef(false);
-  const [listHasAnimated, setListHasAnimated] = useState(false);
+  const [hasCapturedInitialItems, setHasCapturedInitialItems] = useState(false);
+  const animatedItemsRef = useRef<Set<number>>(new Set());
+  const visibleItemOrderRef = useRef<Map<number, number>>(new Map());
+  const prevItemsRef = useRef(items);
+  const [scope, animate] = useAnimate();
+  const [displayItems, setDisplayItems] = useState(items);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const virtualizer = useVirtualizer({
-    count: items.length,
+  // Handle item changes with exit animation
+  useEffect(() => {
+    if (prevItemsRef.current !== items && prevItemsRef.current.length > 0) {
+      // Start transitioning immediately to prevent flash of new items
+      setIsTransitioning(true);
+
+      // Animate out existing items simultaneously (no stagger)
+      const exitAnimation = async () => {
+        await animate(
+          '.item',
+          { scale: 0, opacity: 0 },
+          { duration: 0.2 }, // Removed stagger for simultaneous animation
+        );
+
+        // Update to new items after exit completes
+        setDisplayItems(items);
+
+        // Reset animation tracking for new items
+        animatedItemsRef.current = new Set();
+        visibleItemOrderRef.current = new Map();
+        setInitiallyVisibleItems(new Set());
+        setHasCapturedInitialItems(false);
+        setIsTransitioning(false);
+      };
+
+      exitAnimation();
+    } else if (prevItemsRef.current !== items) {
+      // First load or empty previous items
+      setDisplayItems(items);
+    }
+    prevItemsRef.current = items;
+  }, [items, animate]);
+
+  // Layout effect ensures we calculate columns before rendering
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateColumns = () => {
+      const containerWidth = containerRef.current?.offsetWidth ?? 0;
+
+      const availableWidth = containerWidth - SPACING_UNIT_PX * 2;
+
+      const maxColumns = Math.max(
+        1,
+        Math.floor(
+          (availableWidth + SPACING_UNIT_PX) / (ITEM_WIDTH + SPACING_UNIT_PX),
+        ),
+      );
+
+      setColumns(maxColumns);
+    };
+
+    updateColumns();
+
+    const resizeObserver = new ResizeObserver(updateColumns); // For performance
+    resizeObserver.observe(containerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const rowCount = Math.ceil(displayItems.length / columns);
+  const rowHeight = ITEM_HEIGHT + SPACING_UNIT_PX;
+
+  const rowVirtualizer = useVirtualizer({
+    count: rowCount,
     getScrollElement: () => containerRef.current,
-    estimateSize: () => 72,
-    gap: 8,
+    getItemKey: (index) => items[index]!.id.toString(),
+    estimateSize: () => rowHeight,
+    paddingStart: SPACING_UNIT_PX,
+    paddingEnd: SPACING_UNIT_PX,
   });
 
+  // Capture initially visible items on first render
   useEffect(() => {
-    // Only capture initially rendered items on first render
-    if (
-      !hasSetInitialItems.current &&
-      virtualizer.getVirtualItems().length > 0
-    ) {
-      const virtualItems = virtualizer.getVirtualItems();
-      const renderedIndexes = new Set(virtualItems.map((item) => item.index));
+    if (hasCapturedInitialItems || columns === 1 || isTransitioning) return;
 
-      setInitiallyRenderedItems(renderedIndexes);
-      hasSetInitialItems.current = true;
+    const virtualItems = rowVirtualizer.getVirtualItems();
+    const visibleItemIds = new Set<number>();
+    const itemOrder = new Map<number, number>();
+    let visibleIndex = 0;
 
-      // Mark list as animated after initial staggered animation completes
-      // Last item delay + animation duration + small buffer
-      const maxIndex = Math.max(...Array.from(renderedIndexes));
-      const animationCompleteTime = (maxIndex * 0.02 + 0.3 + 0.1) * 1000;
+    virtualItems.forEach((virtualRow) => {
+      const startIndex = virtualRow.index * columns;
+      for (let i = 0; i < columns; i++) {
+        const itemIndex = startIndex + i;
+        if (itemIndex < displayItems.length) {
+          const itemId = displayItems[itemIndex]!.id;
+          visibleItemIds.add(itemId);
+          itemOrder.set(itemId, visibleIndex);
+          visibleIndex++;
+        }
+      }
+    });
 
-      setTimeout(() => {
-        console.log(
-          'List animation completed - future items will appear instantly',
-        );
-        setListHasAnimated(true);
-      }, animationCompleteTime);
+    if (visibleItemIds.size > 0) {
+      setInitiallyVisibleItems(visibleItemIds);
+      visibleItemOrderRef.current = itemOrder;
+      setHasCapturedInitialItems(true);
     }
-  }, [virtualizer]);
+  }, [
+    columns,
+    displayItems,
+    rowVirtualizer,
+    hasCapturedInitialItems,
+    isTransitioning,
+  ]);
+
+  /**
+   * Regardless of the number of items that are being animated,
+   * we want the animation to finish in ANIMATION_TOTAL_DURATION
+   * seconds. This helps make the stagger effect more consistent.
+   */
+  const totalVisibleCount = initiallyVisibleItems.size;
+
+  const delayPerItem =
+    totalVisibleCount > 1
+      ? ANIMATION_TOTAL_DURATION / (totalVisibleCount - 1)
+      : 0;
 
   return (
     <div
       ref={containerRef}
-      className={`border-accent rounded-md border-2 bg-white px-12 py-6 ${className} h-96 overflow-y-auto`}
+      className="h-[500px] overflow-auto border border-gray-300 px-4"
     >
       <div
+        ref={scope}
         style={{
-          height: virtualizer.getTotalSize(),
-          width: '100%',
+          height: `${rowVirtualizer.getTotalSize()}px`,
           position: 'relative',
         }}
       >
-        {virtualizer.getVirtualItems().map((virtualItem) => (
-          <div
-            key={virtualItem.key}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              transform: `translateY(${virtualItem.start}px)`,
-            }}
-          >
-            <ListItem
-              item={items[virtualItem.index] ?? `Item ${virtualItem.index}`}
-              index={virtualItem.index}
-              onItemClick={onItemClick}
-              shouldAnimate={
-                initiallyRenderedItems.has(virtualItem.index) &&
-                !listHasAnimated
-              }
-            />
-          </div>
-        ))}
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          const startIndex = virtualRow.index * columns;
+
+          return (
+            <div
+              key={virtualRow.key}
+              className="flex gap-4"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              {Array.from({ length: columns }).map((_, rowIndex) => {
+                const itemIndex = startIndex + rowIndex;
+                if (itemIndex >= displayItems.length) return null;
+
+                const item = displayItems[itemIndex]!;
+                const isInitiallyVisible = initiallyVisibleItems.has(item.id);
+                const hasAnimated = animatedItemsRef.current.has(item.id);
+                const shouldAnimate = isInitiallyVisible && !hasAnimated;
+
+                // Mark item as animated
+                if (shouldAnimate) {
+                  animatedItemsRef.current.add(item.id);
+                }
+
+                const visibleOrder =
+                  visibleItemOrderRef.current.get(item.id) ?? 0;
+
+                const delay = shouldAnimate ? visibleOrder * delayPerItem : 0;
+
+                return shouldAnimate ? (
+                  <motion.div
+                    layout="position"
+                    layoutId={item.id.toString()}
+                    className="item"
+                    key={item.id}
+                    initial={{ opacity: 0, y: '100%' }}
+                    animate={{ opacity: 1, y: '0%' }}
+                    transition={{
+                      delay,
+                      type: 'spring',
+                      duration: 0.5,
+                    }}
+                  >
+                    <ListItem item={item} />
+                  </motion.div>
+                ) : (
+                  <div key={item.id} className="item">
+                    <ListItem item={item} />
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-};
-
-export default MVPList;
+}
