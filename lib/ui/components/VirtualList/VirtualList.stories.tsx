@@ -7,7 +7,7 @@ import {
   type DragMetadata,
 } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
-import { VirtualList, type ItemAnimationConfig } from './VirtualList';
+import { VirtualList } from './VirtualList';
 
 // Sample data type
 type SampleItem = {
@@ -1012,8 +1012,6 @@ import { VirtualList } from './VirtualList';
           itemRenderer={SimpleItemRenderer}
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
-          animations="staggered"
-          staggerDelay={0.02}
           layout="grid"
           itemSize={100}
           gap={8}
@@ -1035,7 +1033,7 @@ export const AnimationsCustom: Story = {
 You can provide custom animation configurations using motion/react variants:
 
 \`\`\`typescript
-import { VirtualList, type ItemAnimationConfig } from './VirtualList';
+import { VirtualList } from './VirtualList';
 
 // Custom height-based slide animation (TanStack Virtual best practice)
 const slideAnimation: ItemAnimationConfig = {
@@ -1118,26 +1116,6 @@ const slideAnimation: ItemAnimationConfig = {
       }
     };
 
-    // Height-based slide animation (recommended for TanStack Virtual)
-    const slideAnimation: ItemAnimationConfig = {
-      initial: { height: 0, opacity: 0, x: -20 },
-      animate: {
-        height: 'auto',
-        opacity: 1,
-        x: 0,
-        transition: {
-          type: 'spring',
-          stiffness: 150,
-          damping: 20,
-        },
-      },
-      exit: {
-        height: 0,
-        opacity: 0,
-        x: 20,
-        transition: { duration: 0.2 },
-      },
-    };
 
     return (
       <div className="p-5">
@@ -1177,7 +1155,6 @@ const slideAnimation: ItemAnimationConfig = {
           itemRenderer={SimpleItemRenderer}
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
-          animations={slideAnimation}
           layout="grid"
           itemSize={100}
           gap={8}

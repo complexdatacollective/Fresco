@@ -1,20 +1,9 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-  AnimatePresence,
-  motion,
-  type TargetAndTransition,
-} from 'motion/react';
 import React, { useCallback, useRef, useState } from 'react';
 import { cn } from '~/utils/shadcn';
 
 export type LayoutMode = 'grid' | 'column' | 'horizontal';
 
-export type ItemAnimationConfig = {
-  initial?: TargetAndTransition;
-  animate?: TargetAndTransition;
-  exit?: TargetAndTransition;
-  transition?: Record<string, unknown>;
-};
 
 export type VirtualListProps<T extends { id: string | number }> = {
   items: T[];
@@ -34,17 +23,8 @@ export type VirtualListProps<T extends { id: string | number }> = {
   className?: string;
   ariaLabel?: string;
   focusable?: boolean;
-  animations?: ItemAnimationConfig | 'staggered' | 'none';
-  staggerDelay?: number;
 };
 
-// Default staggered animation
-const defaultStaggeredAnimation: ItemAnimationConfig = {
-  initial: { opacity: 0, y: 10, scale: 0.95 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: -10, scale: 0.95 },
-  transition: { duration: 0.2 },
-};
 
 export function VirtualList<T extends { id: string | number }>({
   items,
@@ -60,23 +40,12 @@ export function VirtualList<T extends { id: string | number }>({
   className,
   ariaLabel,
   focusable = true,
-  animations = 'staggered',
-  staggerDelay = 0.02,
 }: VirtualListProps<T>) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
-  const [animatedIds, setAnimatedIds] = useState<Set<string | number>>(
-    new Set(),
-  );
 
   const effectiveWidth = itemWidth ?? itemSize ?? 100;
   const effectiveHeight = itemHeight ?? itemSize ?? 100;
-
-  const animationConfig = React.useMemo(() => {
-    if (animations === 'none') return null;
-    if (animations === 'staggered') return defaultStaggeredAnimation;
-    return animations;
-  }, [animations]);
 
   const getItemsPerRow = useCallback(() => {
     if (layout === 'column') return columns;
@@ -194,8 +163,7 @@ export function VirtualList<T extends { id: string | number }>({
             `${virtualizer.getTotalSize()}px`,
         }}
       >
-        <AnimatePresence mode="popLayout">
-          {virtualizer.getVirtualItems().map((virtualRow) => {
+        {virtualizer.getVirtualItems().map((virtualRow) => {
             const baseIndex = virtualRow.index * itemsPerRow;
             const rowItems = [];
 
@@ -210,17 +178,6 @@ export function VirtualList<T extends { id: string | number }>({
 
               const isSelected = selectedIds?.has(item.id) ?? false;
               const isActive = itemIndex === activeIndex;
-              const hasAnimated = animatedIds.has(item.id);
-              const delay =
-                animations === 'staggered' && !hasAnimated
-                  ? itemIndex * staggerDelay
-                  : 0;
-
-              const handleAnimationComplete = () => {
-                if (!hasAnimated) {
-                  setAnimatedIds((prev) => new Set(prev).add(item.id));
-                }
-              };
 
               const baseProps = {
                 ...(focusable && {
@@ -246,24 +203,9 @@ export function VirtualList<T extends { id: string | number }>({
               };
 
               rowItems.push(
-                animationConfig ? (
-                  <motion.div
-                    key={item.id}
-                    {...baseProps}
-                    initial={animationConfig.initial}
-                    animate={animationConfig.animate}
-                    exit={animationConfig.exit}
-                    transition={{ ...animationConfig.transition, delay }}
-                    layout
-                    onAnimationComplete={handleAnimationComplete}
-                  >
-                    {itemRenderer(item, itemIndex, isSelected)}
-                  </motion.div>
-                ) : (
-                  <div key={item.id} {...baseProps}>
-                    {itemRenderer(item, itemIndex, isSelected)}
-                  </div>
-                ),
+                <div key={item.id} {...baseProps}>
+                  {itemRenderer(item, itemIndex, isSelected)}
+                </div>,
               );
             }
 
@@ -288,7 +230,6 @@ export function VirtualList<T extends { id: string | number }>({
               </div>
             );
           })}
-        </AnimatePresence>
       </div>
     </div>
   );
