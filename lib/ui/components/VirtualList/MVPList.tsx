@@ -11,6 +11,7 @@ type Item = {
 
 type Props = {
   items: Item[];
+  listId: string; // Controlled listId to decide when to animate
   ListItem?: React.ComponentType<{ item: Item }>;
 };
 
@@ -36,6 +37,7 @@ const DefaultListItem = ({ item }: { item: Item }) => {
 
 export default function ResponsiveVirtualGrid({
   items,
+  listId,
   ListItem = DefaultListItem,
 }: Props) {
   const direction = useDirection();
@@ -51,13 +53,13 @@ export default function ResponsiveVirtualGrid({
   const containerRef = useRef<HTMLDivElement>(null);
   const animatedItemsRef = useRef<Set<number>>(new Set()); // Track items that have been animated
   const visibleItemOrderRef = useRef<Map<number, number>>(new Map()); // Track order of visible items for animation delays
-  const prevItemsRef = useRef(items);
+  const prevListIdRef = useRef<string | null>(null);
   const [scope, animate] = useAnimate();
 
-  // Handle item changes with exit animation
+  // Animation effect controlled by listId changes
   useEffect(() => {
-    if (prevItemsRef.current !== items && prevItemsRef.current.length > 0) {
-      // Start transitioning immediately to prevent flash of new items
+    if (prevListIdRef.current !== null && prevListIdRef.current !== listId) {
+      // listId changed, so start transition to animate exit/enter sequence
       setIsTransitioning(true);
 
       // Animate out existing items simultaneously (no stagger)
@@ -79,28 +81,26 @@ export default function ResponsiveVirtualGrid({
         setIsTransitioning(false);
       };
 
-      exitAnimation();
-    } else if (prevItemsRef.current !== items) {
-      // First load or empty previous items
+      void exitAnimation();
+    } else {
+      // No listId change — just update displayItems immediately without animation
       setDisplayItems(items);
     }
-    prevItemsRef.current = items;
-  }, [items, animate]);
 
-  // Layout effect ensures we calculate columns before rendering
+    prevListIdRef.current = listId;
+  }, [listId, items, animate]);
+
+  // Calculate columns based on container width
   useLayoutEffect(() => {
     if (!containerRef.current) return;
 
     const updateColumns = () => {
       const containerWidth = containerRef.current?.offsetWidth ?? 0;
-
       const availableWidth = containerWidth - SPACING_UNIT_PX * 2;
-
       const maxColumns = Math.max(
         1,
         Math.floor(availableWidth / (ITEM_WIDTH + SPACING_UNIT_PX)),
       );
-
       setColumns(maxColumns);
     };
 
@@ -108,7 +108,6 @@ export default function ResponsiveVirtualGrid({
 
     const resizeObserver = new ResizeObserver(updateColumns); // For performance
     resizeObserver.observe(containerRef.current);
-
     return () => resizeObserver.disconnect();
   }, []);
 
@@ -125,7 +124,7 @@ export default function ResponsiveVirtualGrid({
     isRtl: direction === 'rtl', // Use direction from Radix!
   });
 
-  // Capture initially visible items on first render
+  // Capture initially visible items for stagger animation
   useEffect(() => {
     if (hasCapturedInitialItems || columns === 1 || isTransitioning) return;
 
@@ -166,7 +165,6 @@ export default function ResponsiveVirtualGrid({
    * seconds. This helps make the stagger effect more consistent.
    */
   const totalVisibleCount = initiallyVisibleItems.size;
-
   const delayPerItem =
     totalVisibleCount > 1
       ? ANIMATION_TOTAL_DURATION / (totalVisibleCount - 1)
@@ -195,7 +193,6 @@ export default function ResponsiveVirtualGrid({
                 position: 'absolute',
                 top: virtualRow.start,
                 left: 0,
-                // transform: `translateY(${virtualRow.start}px)`,
               }}
             >
               {Array.from({ length: columns }).map((_, rowIndex) => {
@@ -207,14 +204,12 @@ export default function ResponsiveVirtualGrid({
                 const hasAnimated = animatedItemsRef.current.has(item.id);
                 const shouldAnimate = isInitiallyVisible && !hasAnimated;
 
-                // Mark item as animated
                 if (shouldAnimate) {
                   animatedItemsRef.current.add(item.id);
                 }
 
                 const visibleOrder =
                   visibleItemOrderRef.current.get(item.id) ?? 0;
-
                 const delay = shouldAnimate ? visibleOrder * delayPerItem : 0;
 
                 return shouldAnimate ? (
