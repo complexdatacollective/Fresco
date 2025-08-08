@@ -16,11 +16,12 @@ import {
 } from '../../../ducks/modules/session';
 import { getNetworkNodesForType } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
+import CensusStep2Form from '../../CensusStep2Form';
 import Form from '../../Form';
+import NodeForm from '../../NodeForm';
 import { type StageProps } from '../../Stage';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { FamilyTreeNode, FamilyTreeNodeNetworkBacked } from './FamilyTreeNode';
-import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 import FamilyTreeNodeList from './FamilyTreeNodeList';
 import TreeLayout from './TreeLayout';
 
@@ -259,13 +260,14 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     return (
       <div className="name-generator-interface">
-        <FamilyTreeNodeForm
-          selectedPlaceholderNode={selectedNode}
+        <NodeForm
+          open={true}
           selectedNode={null}
           form={step3NameForm}
           onClose={() => {
             setSelectedNode(null);
           }}
+          disabled={false}
           addNode={addNode}
         />
       </div>
@@ -273,8 +275,26 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const renderFamilyTreeShells = () => {
+    const step2CensusForm = {
+      fields: [],
+      title: 'Add Relative',
+    };
+
     return (
       <div className="family-pedigree-interface">
+        <CensusStep2Form
+          selectedNode={null}
+          form={step2CensusForm}
+          disabled={false}
+          onClose={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+          addNode={function (
+            attributes: NcNode[EntityAttributesProperty],
+          ): void {
+            throw new Error('Function not implemented.');
+          }}
+        />
         <div className="edge-layout">
           {familyTreeNodeList.allNodes().map((node) => {
             return (

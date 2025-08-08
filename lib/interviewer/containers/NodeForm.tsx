@@ -22,6 +22,7 @@ import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
 import Overlay from './Overlay';
 
 type NodeFormProps = {
+  open?: boolean;
   selectedNode: NcNode | null;
   form: TForm;
   disabled: boolean;
@@ -30,7 +31,14 @@ type NodeFormProps = {
 };
 
 const NodeForm = (props: NodeFormProps) => {
-  const { selectedNode, form, disabled, onClose, addNode } = props;
+  const {
+    open = false,
+    selectedNode,
+    form,
+    disabled,
+    onClose,
+    addNode,
+  } = props;
 
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
@@ -83,10 +91,10 @@ const NodeForm = (props: NodeFormProps) => {
   // When a selected node is passed in, we are editing an existing node.
   // We need to show the form and populate it with the node's data.
   useEffect(() => {
-    if (selectedNode) {
+    if (selectedNode || open) {
       setShow(true);
     }
-  }, [selectedNode]);
+  }, [selectedNode, open]);
 
   const handleClose = useCallback(() => {
     setShow(false);
