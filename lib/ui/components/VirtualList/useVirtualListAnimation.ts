@@ -22,12 +22,15 @@ export type CustomAnimation = {
 type UseVirtualListAnimationParams<T extends Item> = {
   items: T[];
   listId: string; // Controlled listId to decide when to animate
-  containerRef: React.RefObject<HTMLElement>;
+  containerRef?: React.RefObject<HTMLElement>;
   columns: number;
   customAnimation?: CustomAnimation; // Optional custom animation configuration
 };
 
 const ANIMATION_TOTAL_DURATION = 1.0;
+
+// Persistent animation history map — survives unmount/remount
+const hasAnimatedMap: Record<string, boolean> = {};
 
 export function useVirtualListAnimation<T extends Item>({
   items,
@@ -50,9 +53,23 @@ export function useVirtualListAnimation<T extends Item>({
   const prevListIdRef = useRef<string | null>(null);
   const [scope, animate] = useAnimate();
 
+  // Track whether this is the *true* first render for this listId
+  const isTrueFirstRender = useRef(false);
+  if (!hasAnimatedMap[listId]) {
+    isTrueFirstRender.current = true;
+    hasAnimatedMap[listId] = true;
+  }
+
   // Animation effect controlled by listId changes
   useEffect(() => {
-    if (prevListIdRef.current !== null && prevListIdRef.current !== listId) {
+    if (prevListIdRef.current === null) {
+      // On mount: only animate if it's the first time we've seen this listId
+      setDisplayItems(items);
+      prevListIdRef.current = listId;
+      return;
+    }
+
+    if (prevListIdRef.current !== listId) {
       // listId changed, so start transition to animate exit/enter sequence
       setIsTransitioning(true);
 
@@ -120,8 +137,10 @@ export function useVirtualListAnimation<T extends Item>({
   /**
    * Should this item animate?
    * If it's initially visible and hasn't animated yet, we animate it and mark it as animated.
+   * Also skips if this listId has already animated before (DnD remount protection).
    */
   const shouldAnimateItem = (id: number) => {
+    if (!isTrueFirstRender.current) return false;
     const should =
       initiallyVisibleItems.has(id) && !animatedItemsRef.current.has(id);
     if (should) animatedItemsRef.current.add(id);

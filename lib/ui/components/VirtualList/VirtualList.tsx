@@ -307,6 +307,7 @@ export function VirtualList({
                       type: 'spring',
                       duration: 0.5,
                     }}
+                    layout
                   >
                     {itemRenderer(item, virtualRow.index, isSelected)}
                   </motion.div>
@@ -373,6 +374,7 @@ export function VirtualList({
                     type: 'spring',
                     duration: 0.5,
                   }}
+                  layout
                 >
                   {itemRenderer(item, itemIndex, isSelected)}
                 </motion.div>
