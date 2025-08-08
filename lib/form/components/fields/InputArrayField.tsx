@@ -137,6 +137,10 @@ export function InputArrayField({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
 
+  console.log('InputArrayField rendered', { errors, isValid });
+
+  // Update isTouched state when the field is interacted with
+
   // Add item by appending to the existing value
   const handleAddItem = () => {
     if (newItem.trim()) {

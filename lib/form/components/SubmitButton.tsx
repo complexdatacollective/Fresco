@@ -1,3 +1,4 @@
+import { Button } from '~/components/ui/Button';
 import { useFormStore } from '../store/formStoreProvider';
 
 export default function SubmitButton() {
@@ -7,14 +8,13 @@ export default function SubmitButton() {
   console.log('SubmitButton isSubmitting:', isSubmitting, 'isValid:', isValid);
 
   return (
-    <button
+    <Button
       type="submit"
       key="submit"
       aria-label="Submit"
-      className="bg-accent text-accent-foreground rounded-xl p-2 disabled:cursor-not-allowed disabled:opacity-50"
       disabled={isSubmitting ?? !isValid}
     >
       {isSubmitting ? 'Submitting...' : 'Submit'}
-    </button>
+    </Button>
   );
 }
