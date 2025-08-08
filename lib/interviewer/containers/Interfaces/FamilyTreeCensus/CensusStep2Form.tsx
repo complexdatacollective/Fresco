@@ -11,14 +11,17 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
+import { FIRST_LOAD_UI_ELEMENT_DELAY } from '~/lib/interviewer/containers/Interfaces/utils/constants';
+import Overlay from '~/lib/interviewer/containers/Overlay';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
+import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
+import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
+import {
+  getNodeTypeLabel,
+  getStageSubject,
+} from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
-import { getNodeIconName } from '../selectors/name-generator';
-import { getAdditionalAttributesSelector } from '../selectors/prop';
-import { getNodeTypeLabel, getStageSubject } from '../selectors/session';
-import { useAppDispatch } from '../store';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from './Interfaces/utils/constants';
-import Overlay from './Overlay';
 // const RadioGroupField = dynamic(
 //   () => import('~/lib/form/components/fields/RadioGroup'),
 //   {
