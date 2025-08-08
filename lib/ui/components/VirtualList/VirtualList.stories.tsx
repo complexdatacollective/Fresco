@@ -1,11 +1,13 @@
+import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   DndStoreProvider,
   useDragSource,
   useDropTarget,
   type DragMetadata,
 } from '~/lib/dnd';
+
 import { cn } from '~/utils/shadcn';
 import { VirtualList } from './VirtualList';
 
@@ -19,7 +21,7 @@ type SampleItem = {
 const generateItems = (count: number): SampleItem[] =>
   Array.from({ length: count }, (_, i) => ({
     id: i,
-    name: `Item ${i + 1}`,
+    name: faker.person.firstName(),
   }));
 
 const meta: Meta<typeof VirtualList> = {
@@ -55,18 +57,77 @@ Efficiently renders large lists using virtualization. Supports grid, column, and
 export default meta;
 type Story = StoryObj<typeof VirtualList>;
 
-// Simple item renderer
+const Node = (item: SampleItem, _index: number, isSelected: boolean) => {
+  const classes = cn(
+    'flex items-center h-full w-full justify-center rounded-full',
+    'bg-linear-145 from-50% to-50%',
+    'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
+    'text-white text-sm font-medium',
+    'transition-all duration-200',
+    isSelected && 'ring ring-white ring-offset-2',
+  );
+
+  return (
+    <div className={classes}>
+      <span className="truncate px-2">{item.name}</span>
+    </div>
+  );
+};
+
+// Simple reusable item renderer for basic rectangular items
 const SimpleItemRenderer = (
   item: SampleItem,
   _index: number,
   isSelected: boolean,
-) => (
-  <div
-    className={`flex h-full w-full items-center justify-center rounded-lg text-sm text-white transition-all ${isSelected ? 'bg-primary' : 'text-foreground bg-accent'} `}
-  >
-    {item.name}
-  </div>
-);
+) => {
+  return (
+    <div
+      className={cn(
+        'flex h-full w-full items-center justify-center rounded-lg text-sm text-white transition-all',
+        isSelected ? 'bg-primary' : 'bg-accent',
+      )}
+    >
+      {item.name}
+    </div>
+  );
+};
+
+const DataCard = (item: SampleItem, _index: number, isSelected: boolean) => {
+  return (
+    <div
+      className={cn(
+        'flex h-full w-full flex-col overflow-hidden rounded-lg',
+        'text-navy-taupe',
+        isSelected && 'ring-primary ring-2 ring-offset-2',
+      )}
+    >
+      {/* Label section - constrained height */}
+      <div className="flex items-center bg-white px-4 py-2">
+        <h2 className="m-0 truncate text-sm font-bold">{item.name}</h2>
+      </div>
+
+      {/* Data section - fills remaining space */}
+      <div className="bg-accent table w-full flex-1 overflow-hidden px-2 py-1">
+        <div className="table-row">
+          <div className="table-cell w-1/3 py-1 pr-2 text-right text-xs font-semibold tracking-wider text-white uppercase opacity-50">
+            First Name
+          </div>
+          <div className="table-cell w-full truncate py-1 pl-0 text-xs text-white">
+            {item.name}
+          </div>
+        </div>
+        <div className="table-row">
+          <div className="table-cell w-1/3 py-1 pr-2 text-right text-xs font-semibold tracking-wider text-white uppercase opacity-50">
+            Item ID
+          </div>
+          <div className="table-cell w-full truncate py-1 pl-0 text-xs text-white">
+            {item.id}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Draggable item component wrapper
 const DraggableItem = ({
@@ -159,7 +220,7 @@ const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
     },
   },
   render: () => {
-    const items = generateItems(200);
+    const items = useMemo(() => generateItems(200), []);
 
     return (
       <div className="p-5">
@@ -204,17 +265,7 @@ This example demonstrates using the \`onItemClick\` prop to handle item clicks w
     onItemClick: fn(),
   },
   render: (args) => {
-    const items = generateItems(50).map((item) => ({ ...item }));
-
-    const AlertItemRenderer = (
-      item: (typeof items)[0],
-      _index: number,
-      _isSelected: boolean,
-    ) => (
-      <div className="bg-accent flex h-full w-full items-center justify-center rounded-lg text-white">
-        {item.name}
-      </div>
-    );
+    const items = useMemo(() => generateItems(50), []);
 
     return (
       <div className="p-5">
@@ -226,7 +277,7 @@ This example demonstrates using the \`onItemClick\` prop to handle item clicks w
         </p>
         <VirtualList
           items={items}
-          itemRenderer={AlertItemRenderer}
+          itemRenderer={SimpleItemRenderer}
           onItemClick={args.onItemClick}
           layout="grid"
           itemWidth={120}
@@ -325,7 +376,7 @@ setSelectedIds(new Set(items.map(item => item.id)));
     const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
       new Set(),
     );
-    const items = generateItems(100);
+    const items = useMemo(() => generateItems(100), []);
 
     const handleItemClick = (id: string | number) => {
       const newSelected = new Set(selectedIds);
@@ -423,7 +474,7 @@ const ItemRenderer = (item, index, isSelected) => (
       new Set(),
     );
     const [columns, setColumns] = useState(2);
-    const items = generateItems(50);
+    const items = useMemo(() => generateItems(50), []);
 
     const handleItemClick = (id: string | number) => {
       const newSelected = new Set(selectedIds);
@@ -541,7 +592,7 @@ const ItemRenderer = (item, index, isSelected) => (
     const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
       new Set(),
     );
-    const items = generateItems(30);
+    const items = useMemo(() => generateItems(30), []);
 
     const handleItemClick = (id: string | number) => {
       const newSelected = new Set(selectedIds);
@@ -648,7 +699,7 @@ const ItemRenderer = (item, index, isSelected) => (
     const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
       new Set(),
     );
-    const items = generateItems(10000);
+    const items = useMemo(() => generateItems(10000), []);
 
     const handleItemClick = (id: string | number) => {
       const newSelected = new Set(selectedIds);
@@ -816,7 +867,7 @@ function DragDropLists() {
     },
   },
   render: () => {
-    const [leftItems, setLeftItems] = useState(generateItems(100));
+    const [leftItems, setLeftItems] = useState(useMemo(() => generateItems(100), []));
     const [rightItems, setRightItems] = useState<SampleItem[]>([]);
 
     const moveItem = (item: SampleItem, fromLeft: boolean) => {
@@ -977,7 +1028,7 @@ const slideAnimation: ItemAnimationConfig = {
     },
   },
   render: () => {
-    const [items, setItems] = useState(generateItems(15));
+    const [items, setItems] = useState(useMemo(() => generateItems(15), []));
     const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
       new Set(),
     );
@@ -1035,46 +1086,16 @@ const slideAnimation: ItemAnimationConfig = {
   },
 };
 
-const CircleItemRenderer = (
-  item: SampleItem,
-  _index: number,
-  isSelected: boolean,
-) => (
-  <div
-    className={`border-primary flex h-full w-full items-center justify-center rounded-full border text-center transition-all ${
-      isSelected
-        ? 'bg-primary border-primary text-white'
-        : 'text-foreground bg-gray-200'
-    }`}
-    style={{
-      userSelect: 'none',
-    }}
-  >
-    {item.name}
-  </div>
-);
-
-export const LayoutSwitcher: Story = {
+export const CompleteExample: Story = {
   parameters: {
     docs: {
       description: {
         story: `
-**Layout switcher**
-
-
-\`\`\`typescript
-import { VirtualList } from './VirtualList';
-
-// Circle item renderer
-const CircleItemRenderer = (item, index, isSelected) => (
-  <div className="flex h-full w-full items-center justify-center rounded-full border border-gray-300 text-center">
-    {item.name}
-  </div>
-);
+**Complete example**
 
 <VirtualList 
   items={items}
-  itemRenderer={CircleItemRenderer}
+  itemRenderer={Node}
   layout="grid"           // Auto-responsive grid
   itemWidth={100}
   itemHeight={100}
@@ -1084,7 +1105,7 @@ const CircleItemRenderer = (item, index, isSelected) => (
 // Fixed column layout
 <VirtualList 
   items={items}
-  itemRenderer={CircleItemRenderer}
+  itemRenderer={Node}
   layout="column"         // Fixed column layout
   columns={3}             // Number of columns
   itemHeight={100}        // itemWidth ignored in column layout
@@ -1094,22 +1115,20 @@ const CircleItemRenderer = (item, index, isSelected) => (
 // Horizontal layout
 <VirtualList 
   items={items}
-  itemRenderer={CircleItemRenderer}
+  itemRenderer={Node}
   layout="horizontal"     // Single row with scrolling
   itemWidth={100}
   spacingUnit={12}
 />
-\`\`\`
 
 **Features:**
-- **Mode Buttons**: Switch between Grid (auto-responsive), Column (fixed), and Horizontal (scroll) layouts
+- **Mode dropdown**: Switch between Grid (auto-responsive), Column (fixed), and Horizontal (scroll) layouts
 - **Column Dropdown**: Select specific column count when in Column mode (1-12 columns)
-- **Interactive Testing**: Add/remove items to test layout behavior
+- **Renderer Dropdown**: Choose between Node and DataCard renderers for grid/horizontal modes
+- **Re-trigger Animation**: Button to generate new items and trigger animations by changing listId
+- **Add/Remove Items**: Buttons to dynamically add/remove items for testing layout behavior
+- **Selection**: Click items to toggle selection, with visual feedback
 
-**Use Cases:**
-- **Grid Mode**: Responsive design that adapts to container width
-- **Column Mode**: Consistent layout regardless of screen size
-- **Horizontal Mode**: Single row layout with horizontal scrolling (great for carousels)
         `,
       },
     },
@@ -1117,7 +1136,8 @@ const CircleItemRenderer = (item, index, isSelected) => (
   render: () => {
     const [mode, setMode] = useState<'grid' | 'column' | 'horizontal'>('grid');
     const [columnCount, setColumnCount] = useState(3);
-    const [items, setItems] = useState(generateItems(50));
+    const [renderer, setRenderer] = useState<'node' | 'datacard'>('node');
+    const [items, setItems] = useState(useMemo(() => generateItems(50), []));
     const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
       new Set(),
     );
@@ -1134,10 +1154,10 @@ const CircleItemRenderer = (item, index, isSelected) => (
     };
 
     const addItems = () => {
-      const newItems = generateItems(5).map((item) => ({
-        ...item,
-        id: items.length + item.id,
-        name: `Item ${items.length + item.id + 1}`,
+      const startId = items.length;
+      const newItems = Array.from({ length: 5 }, (_, i) => ({
+        id: startId + i,
+        name: faker.person.firstName(),
       }));
       setItems((prev) => [...prev, ...newItems]);
     };
@@ -1150,143 +1170,149 @@ const CircleItemRenderer = (item, index, isSelected) => (
 
     const retriggerAnimation = () => {
       // Generate new items with different IDs to trigger fresh animations
-      setItems(generateItems(Math.floor(Math.random() * 100) + 50));
+      const count = Math.floor(Math.random() * 100) + 50;
+      setItems(generateItems(count));
       setAnimationTrigger((prev) => prev + 1); // Change listId to trigger animations
     };
 
     const listId = `listid-${animationTrigger}`;
 
     return (
-      <div className="p-5">
-        <h3 className="mb-3 text-lg font-semibold">
-          Layout switcher with animation triggering
+      <div className="bg-navy-taupe p-5">
+        <h3 className="mb-3 text-lg text-white">
+          Virtual List Complete Example
         </h3>
 
-        {/* Mode Selection */}
-        <div className="mb-4 space-x-2">
-          <button
-            type="button"
-            onClick={() => setMode('grid')}
-            className={`rounded px-4 py-2 text-sm font-medium ${
-              mode === 'grid'
-                ? 'bg-accent text-accent-foreground'
-                : 'border-accent bg-background hover:bg-accent hover:text-accent-foreground border'
-            }`}
-          >
-            Grid (Auto Responsive)
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('column')}
-            className={`rounded px-4 py-2 text-sm font-medium ${
-              mode === 'column'
-                ? 'bg-accent text-accent-foreground'
-                : 'border-accent bg-background hover:bg-accent hover:text-accent-foreground border'
-            }`}
-          >
-            Column (Fixed)
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('horizontal')}
-            className={`rounded px-4 py-2 text-sm font-medium ${
-              mode === 'horizontal'
-                ? 'bg-accent text-accent-foreground'
-                : 'border-accent bg-background hover:bg-accent hover:text-accent-foreground border'
-            }`}
-          >
-            Horizontal (Scroll)
-          </button>
-        </div>
-
-        {/* Column Count Dropdown - only shown in column mode */}
-        {mode === 'column' && (
-          <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">
-              Number of Columns
-            </label>
+        <div className="mb-4 flex flex-wrap items-center gap-4">
+          {/* Mode Selection */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-white">Layout:</label>
             <select
-              value={columnCount}
-              onChange={(e) => setColumnCount(parseInt(e.target.value))}
+              value={mode}
+              onChange={(e) =>
+                setMode(e.target.value as 'grid' | 'column' | 'horizontal')
+              }
               className="border-input bg-background rounded border px-3 py-2 text-sm"
             >
-              <option value={1}>1 Column</option>
-              <option value={2}>2 Columns</option>
-              <option value={3}>3 Columns</option>
-              <option value={4}>4 Columns</option>
-              <option value={5}>5 Columns</option>
-              <option value={6}>6 Columns</option>
-              <option value={8}>8 Columns</option>
-              <option value={10}>10 Columns</option>
-              <option value={12}>12 Columns</option>
+              <option value="grid">Grid (Auto Responsive)</option>
+              <option value="column">Column (Fixed)</option>
+              <option value="horizontal">Horizontal (Scroll)</option>
             </select>
           </div>
-        )}
 
-        {/* Re-trigger Animation Button */}
-        <div className="mb-4">
+          {/* Column Count Dropdown - only shown in column mode */}
+          {mode === 'column' && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-white">Columns:</label>
+              <select
+                value={columnCount}
+                onChange={(e) => setColumnCount(parseInt(e.target.value))}
+                className="border-input bg-background rounded border px-3 py-2 text-sm"
+              >
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
+                <option value={4}>4</option>
+                <option value={5}>5</option>
+                <option value={6}>6</option>
+                <option value={8}>8</option>
+                <option value={10}>10</option>
+                <option value={12}>12</option>
+              </select>
+            </div>
+          )}
+
+          {/* Renderer Selection - only shown for grid/horizontal modes */}
+          {mode !== 'column' && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-white">
+                Renderer:
+              </label>
+              <select
+                value={renderer}
+                onChange={(e) =>
+                  setRenderer(e.target.value as 'node' | 'datacard')
+                }
+                className="border-input bg-background rounded border px-3 py-2 text-sm"
+              >
+                <option value="node">Node</option>
+                <option value="datacard">DataCard</option>
+              </select>
+            </div>
+          )}
+
+          {/* Re-trigger Animation Button */}
           <button
             type="button"
             onClick={retriggerAnimation}
-            className="bg-accent hover:bg-accent/90 text-accent-foreground rounded px-4 py-2 text-sm"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground rounded px-3 py-2 text-sm"
           >
             Re-trigger Animation
           </button>
+
+          {/* Add/Remove Items Buttons */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={addItems}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded px-3 py-1 text-sm"
+            >
+              Add 5
+            </button>
+            <button
+              type="button"
+              onClick={removeItems}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded px-3 py-1 text-sm"
+            >
+              Remove 5
+            </button>
+          </div>
         </div>
 
-        {/* Add/Remove Items Buttons */}
-        <div className="mb-4 flex gap-2">
-          <button
-            type="button"
-            onClick={addItems}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded px-3 py-1 text-sm"
-          >
-            Add 5 Items
-          </button>
-          <button
-            type="button"
-            onClick={removeItems}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded px-3 py-1 text-sm"
-          >
-            Remove 5 Items
-          </button>
-        </div>
-
-        {/* Current Configuration Display */}
-        <div className="mb-4 space-y-1 text-xs">
-          <p>
+        {/* Current Configuration Display - compact horizontal layout */}
+        <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-white">
+          <span>
             Mode:{' '}
             <strong>
               {mode === 'grid'
-                ? 'Grid (Auto Responsive)'
+                ? 'Grid'
                 : mode === 'horizontal'
-                  ? 'Horizontal (Scroll)'
-                  : `Fixed ${columnCount} Column${columnCount > 1 ? 's' : ''}`}
+                  ? 'Horizontal'
+                  : `${columnCount} Col${columnCount > 1 ? 's' : ''}`}
             </strong>
-          </p>
-          <p>
+          </span>
+          <span>
             Items: <strong>{items.length}</strong>
-          </p>
-          <p>
+          </span>
+          <span>
             Selected: <strong>{selectedIds.size}</strong>
-          </p>
-          <p>
-            ListId: <code className="rounded bg-white px-2 py-1">{listId}</code>
-          </p>
+          </span>
+          <span>
+            ListId:{' '}
+            <code className="text-foreground rounded bg-white px-2 py-1">
+              {listId}
+            </code>
+          </span>
         </div>
 
         <VirtualList
           items={items}
-          itemRenderer={CircleItemRenderer}
+          itemRenderer={
+            mode === 'column'
+              ? DataCard
+              : renderer === 'datacard'
+                ? DataCard
+                : Node
+          }
           selectedIds={selectedIds}
           onItemClick={handleItemClick}
           layout={mode}
           columns={mode === 'column' ? columnCount : undefined}
-          itemWidth={100}
+          itemWidth={mode !== 'column' && renderer === 'datacard' ? 400 : 100}
           itemHeight={100}
           spacingUnit={12}
-          className="h-96 rounded-lg border bg-white p-2"
-          ariaLabel={`${mode} layout with circular items`}
+          className="bg-cyber-grape h-128 rounded-lg p-2"
+          ariaLabel={`${mode} layout with ${mode === 'column' ? 'datacard' : renderer} items`}
           listId={listId}
         />
       </div>

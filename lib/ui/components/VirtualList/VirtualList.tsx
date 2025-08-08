@@ -9,7 +9,10 @@ import React, {
   useState,
 } from 'react';
 import { cn } from '~/utils/shadcn';
-import { useVirtualListAnimation, type CustomAnimation } from './useVirtualListAnimation';
+import {
+  useVirtualListAnimation,
+  type CustomAnimation,
+} from './useVirtualListAnimation';
 
 type Item = {
   id: number;
@@ -272,7 +275,7 @@ export function VirtualList({
               }),
               onClick: () => handleItemClick(item.id),
               className: cn(
-                'item transition-all',
+                'item',
                 onItemClick && 'cursor-pointer',
                 focusable &&
                   isActive &&
