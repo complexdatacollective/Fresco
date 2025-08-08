@@ -1,18 +1,16 @@
 import { type SelectHTMLAttributes } from 'react';
 import { cn } from '~/utils/shadcn';
-import { type FieldState } from '../../types';
+import { type BaseFieldProps } from '../../types';
+import { FieldError } from '../FieldError';
 
 type SelectOption = {
   value: string | number;
   label: string;
 };
 
-type BaseSelectProps = SelectHTMLAttributes<HTMLSelectElement> &
-  FieldState & {
-    label: string;
-    hint?: string;
+type BaseSelectProps = BaseFieldProps<string | number> &
+  SelectHTMLAttributes<HTMLSelectElement> & {
     options: SelectOption[];
-    placeholder?: string;
   };
 
 export function SelectField({
@@ -46,7 +44,7 @@ export function SelectField({
       <select
         id={name}
         name={name}
-        value={value as string | number | undefined}
+        value={value}
         onChange={onChange}
         onBlur={onBlur}
         className={cn(
@@ -66,7 +64,7 @@ export function SelectField({
         }
       >
         {placeholder && (
-          <option value="" disabled>
+          <option value="" selected={!value}>
             {placeholder}
           </option>
         )}
@@ -76,11 +74,7 @@ export function SelectField({
           </option>
         ))}
       </select>
-      {hasError && (
-        <p className="mt-1 text-sm text-red-600" id={`${name}-error`}>
-          {errors.join(', ')}
-        </p>
-      )}
+      <FieldError errors={errors} show={!!hasError} />
     </div>
   );
 }

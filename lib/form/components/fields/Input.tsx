@@ -4,6 +4,7 @@
 import { type InputHTMLAttributes } from 'react';
 import { cn } from '~/utils/shadcn';
 import { type BaseFieldProps } from '../../types';
+import { FieldError } from '../FieldError';
 
 type InputFieldProps = BaseFieldProps & InputHTMLAttributes<HTMLInputElement>;
 
@@ -13,6 +14,7 @@ export function InputField({
   hint,
   meta: { isValid, isTouched, isDirty, isValidating, errors },
   className,
+  onChange,
   ...inputProps
 }: InputFieldProps) {
   const inputClasses = cn(
@@ -30,20 +32,25 @@ export function InputField({
 
   const showError = !isValid && isTouched && errors && errors.length > 0;
 
+  // Handle the native HTML input onChange event
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Extract the value from the event and pass it to the form system's onChange
+    onChange?.(e.target.value);
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium" htmlFor={name}>
         {label}
       </label>
       {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
-      <input name={name} {...inputProps} className={inputClasses} />
-      {showError && (
-        <div className="text-destructive text-sm">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )}
+      <input
+        name={name}
+        {...inputProps}
+        onChange={handleChange}
+        className={inputClasses}
+      />
+      <FieldError errors={errors} show={!!showError} />
     </div>
   );
 }

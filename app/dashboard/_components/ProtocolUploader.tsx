@@ -9,8 +9,8 @@ import { Button, type ButtonProps } from '~/components/ui/Button';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import usePortal from '~/hooks/usePortal';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
+import { cx } from '~/utils/cva';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { cn } from '~/utils/shadcn';
 
 function ProtocolUploader({
   className,
@@ -55,9 +55,9 @@ function ProtocolUploader({
         onClick={open}
         variant={buttonVariant}
         size={buttonSize}
-        className={cn(
+        className={cx(
           isActive &&
-            cn(
+            cx(
               'from-cyber-grape via-neon-coral to-cyber-grape bg-linear-to-r text-white',
               'animate-background-gradient pointer-events-none cursor-wait bg-[length:400%]',
             ),

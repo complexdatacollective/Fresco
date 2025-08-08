@@ -294,6 +294,8 @@ export const createFormStore = () => {
                 if (draftForm?.fields) {
                   draftForm.fields.get(fieldName)!.meta.errors = errors;
                   draftForm.fields.get(fieldName)!.meta.isValid = false;
+                  // Set the field to touched to trigger error messages being shown
+                  draftForm.fields.get(fieldName)!.meta.isTouched = true;
                 }
               });
             }

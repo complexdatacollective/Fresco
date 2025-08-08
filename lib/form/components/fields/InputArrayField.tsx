@@ -8,6 +8,7 @@ import { AnimatePresence, Reorder, useDragControls } from 'motion/react';
 import { Button } from '~/components/ui/Button';
 import { cn } from '~/utils/shadcn';
 import { type BaseFieldProps } from '../../types';
+import { FieldError } from '../FieldError';
 import { InputField } from './Input';
 
 function Item({
@@ -64,7 +65,7 @@ function Item({
             <InputField
               type="text"
               value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              onChange={(value) => setEditValue(value)}
               onKeyDown={(e) => handleKeyDown(e, handleEditSave)}
               autoFocus
               meta={{
@@ -157,6 +158,8 @@ export function InputArrayField({
 
   const hasError = isTouched && errors && errors.length > 0;
 
+  console.log('InputArrayField hasError:', hasError, { errors });
+
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       <label className="text-sm font-medium" htmlFor={name}>
@@ -195,8 +198,8 @@ export function InputArrayField({
           type="text"
           value={newItem}
           placeholder={placeholder}
-          onChange={(e) => setNewItem(e.target.value)}
-          onKeyPress={(e) => handleKeyPress(e, handleAddItem)}
+          onChange={(value) => setNewItem(value)}
+          onKeyDown={(e) => handleKeyDown(e, handleAddItem)}
           meta={{
             isTouched: true,
             isValidating: false,
@@ -209,14 +212,7 @@ export function InputArrayField({
           {addButtonText}
         </Button>
       </div>
-
-      {hasError && (
-        <div className="text-destructive text-sm">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )}
+      <FieldError errors={errors} show={!!hasError} />
     </div>
   );
 }

@@ -1,17 +1,17 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
+import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
+import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import FeedbackButton from '~/components/Feedback/FeedbackButton';
+import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { Button } from '~/components/ui/Button';
 import { cardClasses } from '~/components/ui/card';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
-import { ClipboardCopy } from 'lucide-react';
 import { useToast } from '~/components/ui/use-toast';
-import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import Link from '~/components/Link';
+import { cx } from '~/utils/cva';
 
 export default function Error({
   error,
@@ -49,7 +49,7 @@ ${error.stack}`;
       <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"
-        className={cn(
+        className={cx(
           cardClasses,
           'shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl',
         )}

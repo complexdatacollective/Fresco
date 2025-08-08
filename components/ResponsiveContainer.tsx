@@ -1,8 +1,8 @@
-import { type VariantProps, cva } from 'class-variance-authority';
 import type { HTMLAttributes } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
-const containerVariants = cva('mx-auto flex flex-col my-6 md:my-10', {
+const containerVariants = cva({
+  base: 'mx-auto flex flex-col my-6 md:my-10',
   variants: {
     maxWidth: {
       'xl': 'max-w-xl',
@@ -37,7 +37,7 @@ const ResponsiveContainer = ({
   baseSize,
   className,
 }: ContainerProps) => (
-  <div className={cn(containerVariants({ maxWidth, baseSize }), className)}>
+  <div className={cx(containerVariants({ maxWidth, baseSize }), className)}>
     {children}
   </div>
 );

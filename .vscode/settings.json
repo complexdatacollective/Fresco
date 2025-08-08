@@ -13,8 +13,5 @@
     "source.fixAll.typescript": "always"
   },
   "editor.formatOnSave": true,
-  "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  "tailwindCSS.classFunctions": ["cva", "cx"]
 }

@@ -104,9 +104,6 @@ importers:
       blobs:
         specifier: 2.3.0-beta.2
         version: 2.3.0-beta.2
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -122,6 +119,9 @@ importers:
       csvtojson:
         specifier: ^2.0.10
         version: 2.0.10
+      cva:
+        specifier: 1.0.0-beta.4
+        version: 1.0.0-beta.4(typescript@5.8.3)
       d3-interpolate-path:
         specifier: ^2.3.0
         version: 2.3.0
@@ -3886,9 +3886,6 @@ packages:
   cjs-module-lexer@2.1.0:
     resolution: {integrity: sha512-UX0OwmYRYQQetfrLEZeewIFFI+wSTofC+pMBLNuH3RUuu/xzG1oz84UCEDOSoQlN3fZ4+AzmV50ZYvGqkMh9yA==}
 
-  class-variance-authority@0.7.1:
-    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
-
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
@@ -4083,6 +4080,14 @@ packages:
     resolution: {integrity: sha512-lUWFxGKyhraKCW8Qghz6Z0f2l/PqB1W3AO0HKJzGIQ5JRSlR651ekJDiGJbBT4sRNNv5ddnSGVEnsxP9XRCVpQ==}
     engines: {node: '>=4.0.0'}
     hasBin: true
+
+  cva@1.0.0-beta.4:
+    resolution: {integrity: sha512-F/JS9hScapq4DBVQXcK85l9U91M6ePeXoBMSp7vypzShoefUBxjQTo3g3935PUHgQd+IW77DjbPRIxugy4/GCQ==}
+    peerDependencies:
+      typescript: '>= 4.5.5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   d3-array@2.12.1:
     resolution: {integrity: sha512-B0ErZK/66mHtEsR1TkPEEkwdy+WDesimkM5gpZr5Dsg54BiTA5RXtYW5qTLIAcekaS9xfZrzBLF/OAkB3Qn1YQ==}
@@ -11630,10 +11635,6 @@ snapshots:
 
   cjs-module-lexer@2.1.0: {}
 
-  class-variance-authority@0.7.1:
-    dependencies:
-      clsx: 2.1.1
-
   classnames@2.5.1: {}
 
   clean-css@5.3.3:
@@ -11860,6 +11861,12 @@ snapshots:
       bluebird: 3.7.2
       lodash: 4.17.21
       strip-bom: 2.0.0
+
+  cva@1.0.0-beta.4(typescript@5.8.3):
+    dependencies:
+      clsx: 2.1.1
+    optionalDependencies:
+      typescript: 5.8.3
 
   d3-array@2.12.1:
     dependencies:
