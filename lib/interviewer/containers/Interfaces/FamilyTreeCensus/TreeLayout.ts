@@ -293,12 +293,14 @@ class TreeLayout {
                   lastUnmovedNode = neighborNode;
                   return;
                 }
-                // adjust following nodes to the left
-                const unmovedNodeX = this.coords.get(lastUnmovedNode)!.x;
-                this.coords.set(neighborNode, {
-                  x: unmovedNodeX + this.nodeWidth * (k + 1),
-                  y,
-                });
+                if (lastUnmovedNode) {
+                  // adjust following nodes to the left
+                  const unmovedNodeX = this.coords.get(lastUnmovedNode)!.x;
+                  this.coords.set(neighborNode, {
+                    x: unmovedNodeX + this.nodeWidth * (k + 1),
+                    y,
+                  });
+                }
               });
           } else {
             lastUnmovedNode = otherNode;
