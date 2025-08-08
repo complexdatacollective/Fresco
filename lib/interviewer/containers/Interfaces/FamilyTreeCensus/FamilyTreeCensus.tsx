@@ -1,7 +1,5 @@
 import { type Stage } from '@codaco/protocol-validation';
 import {
-  EntityPrimaryKey,
-  entityPrimaryKeyProperty,
   type EntityAttributesProperty,
   type NcNode,
 } from '@codaco/shared-consts';
@@ -19,19 +17,14 @@ import Form from '../../Form';
 import { type StageProps } from '../../Stage';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { FamilyTreeNode } from './FamilyTreeNode';
+import FamilyTreeNodeForm from './FamilyTreeNodeForm';
 import FamilyTreeNodeList from './FamilyTreeNodeList';
-import {
-  arrangeCouples,
-  arrangeSiblings,
-  assignCoordinates,
-  assignLayers,
-  fixOverlaps,
-} from './Sugiyama';
+import TreeLayout from './TreeLayout';
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
 };
-const rowHeight = 150;
+const rowHeight = 165;
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { getNavigationHelpers, registerBeforeNext, stage } = props;
@@ -89,38 +82,38 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     // const allNodes: PlaceholderNodeProps[] = [];
     const tempNodes = new FamilyTreeNodeList([], []);
 
-    const paternalGrandfather = tempNodes.addPlaceholderNode(
-      'male',
-      'paternal grandfather',
-    );
-    const paternalGrandmother = tempNodes.addPlaceholderNode(
+    const maternalGrandmother = tempNodes.addPlaceholderNode(
       'female',
-      'paternal grandmother',
-    );
-    paternalGrandfather.partnerId = paternalGrandmother.id;
-    const father = tempNodes.addPlaceholderNode('male', 'father');
-    paternalGrandfather.childIds?.push(father.id ?? '');
-    paternalGrandmother.childIds?.push(father.id ?? '');
-    father.parentIds?.push(
-      paternalGrandfather.id ?? '',
-      paternalGrandmother.id ?? '',
+      'maternal grandmother',
     );
     const maternalGrandfather = tempNodes.addPlaceholderNode(
       'male',
       'maternal grandfather',
     );
-    const maternalGrandmother = tempNodes.addPlaceholderNode(
-      'female',
-      'maternal grandmother',
-    );
     maternalGrandfather.partnerId = maternalGrandmother.id;
+    const paternalGrandmother = tempNodes.addPlaceholderNode(
+      'female',
+      'paternal grandmother',
+    );
+    const paternalGrandfather = tempNodes.addPlaceholderNode(
+      'male',
+      'paternal grandfather',
+    );
+    paternalGrandfather.partnerId = paternalGrandmother.id;
     const mother = tempNodes.addPlaceholderNode('female', 'mother');
-    father.partnerId = mother.id;
     maternalGrandfather.childIds?.push(mother.id ?? '');
     maternalGrandmother.childIds?.push(mother.id ?? '');
     mother.parentIds?.push(
       maternalGrandfather.id ?? '',
       maternalGrandmother.id ?? '',
+    );
+    const father = tempNodes.addPlaceholderNode('male', 'father');
+    father.partnerId = mother.id;
+    paternalGrandfather.childIds?.push(father.id ?? '');
+    paternalGrandmother.childIds?.push(father.id ?? '');
+    father.parentIds?.push(
+      paternalGrandfather.id ?? '',
+      paternalGrandmother.id ?? '',
     );
     const ego = tempNodes.addPlaceholderNode('female', 'self');
     father.childIds?.push(ego.id ?? '');
@@ -189,26 +182,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       );
     });
 
-    const couples: [PlaceholderNodeProps, PlaceholderNodeProps][] = [
-      [paternalGrandfather, paternalGrandmother],
-      [maternalGrandfather, maternalGrandmother],
-      [father, mother],
-      [ego, partner],
-    ];
-    const layers = assignLayers(tempNodes, couples);
-    const [coords, grouped] = assignCoordinates(tempNodes, layers, couples);
-    arrangeSiblings(tempNodes, grouped, coords);
-    arrangeCouples(tempNodes, coords, couples);
-    fixOverlaps(grouped, coords, couples);
-    // centerTree(allNodes, coords, elementRef);
-    const xOffset = 200; // account for the scrollbar
+    const xOffset = 100; // account for the scrollbar
     const yOffset = 100; // account for the navbar
-    tempNodes.allNodes().forEach((node) => {
-      const pos = coords.get(node);
-      node.xPos = (pos?.x ?? 0) + xOffset;
-      node.yPos = (pos?.y ?? 0) + yOffset;
-    });
-    setFamilyTreeNodes(tempNodes.allNodes());
+    const treeLayout = new TreeLayout(tempNodes.allNodes());
+    treeLayout.arrangeNodes({ xOffset: xOffset, yOffset: yOffset });
+    setFamilyTreeNodes(treeLayout.nodes);
   };
 
   const renderCensusForm = () => {
@@ -257,22 +235,18 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const addNode = useCallback(
-    (
-      primaryKey: NcNode[EntityPrimaryKey],
-      attributes: NcNode[EntityAttributesProperty],
-    ) => {
+    (attributes: NcNode[EntityAttributesProperty]) => {
       void dispatch(
         addNodeAction({
           type: stage.subject.type,
           attributeData: attributes,
-          modelData: { [entityPrimaryKeyProperty]: primaryKey },
         }),
       );
     },
     [dispatch, stage.subject.type],
   );
 
-  const handleSubmitName = useCallback(
+  /*const handleSubmitName = useCallback(
     (formData: Record<string, string>) => {
       if (
         selectedNode == null ||
@@ -294,12 +268,10 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       setSelectedNode(null);
     },
     [selectedNode, newNodeAttributes, addNode, setSelectedNode],
-  );
+  );*/
 
-  const renderNameForm = () => {
-    const step3NameForm = {
-      fields: [{ variable: 'name', prompt: "What is this person's name?" }],
-    };
+  /*const renderNameForm = () => {
+    const step3NameForm = stage.form;
 
     return (
       <div className="interface ego-form alter-form family-pedigree-interface">
@@ -311,6 +283,24 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             onSubmit={handleSubmitName}
           />
         </div>
+      </div>
+    );
+  };*/
+
+  const renderNodeForm = () => {
+    const step3NameForm = stage.form;
+
+    return (
+      <div className="name-generator-interface">
+        <FamilyTreeNodeForm
+          selectedPlaceholderNode={selectedNode}
+          selectedNode={null}
+          form={step3NameForm}
+          onClose={() => {
+            setSelectedNode(null);
+          }}
+          addNode={addNode}
+        />
       </div>
     );
   };
@@ -363,7 +353,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                         (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
                       2
                     }
-                    yPos={(child.yPos ?? 0) - rowHeight / 2 + 5}
+                    yPos={(child.yPos ?? 0) - rowHeight / 2 + 10}
                     height={rowHeight / 3 - 15}
                   />
                 );
@@ -462,7 +452,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             })}
           </div>
         </div>
-        {selectedNode != null ? renderNameForm() : null}
+        {selectedNode != null ? renderNodeForm() : null}
       </div>
     );
   };

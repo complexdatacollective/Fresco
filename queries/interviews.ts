@@ -94,5 +94,81 @@ export const getInterviewById = async (interviewId: string) => {
   const safeInterview = stringify(interview);
 
   //return safeInterview;
-  return JSON.stringify({"json":{"id":"cmdhi7mkw000bp52y1hvcxf28","startTime":"2025-07-24T14:44:54.413Z","finishTime":null,"exportTime":null,"lastUpdated":"2025-07-24T14:44:54.413Z","network":{"nodes":[],"edges":[],"ego":{"_uid":"612f34b6-6cfe-442f-a34d-530e1bf61666","attributes":{}}},"participantId":"cmdhi7mkw000cp52yudbrfyf2","protocolId":"cmdhi7ali0009p52ykn9232pu","currentStep":0,"stageMetadata":null,"protocol":{"id":"cmdhi7ali0009p52ykn9232pu","name":"Protocol.netcanvas","schemaVersion":7,"description":null,"importedAt":"2025-07-24T14:44:38.886Z","stages":[{"id":"56c0f070-689b-11f0-bd76-9b8c0f425a31","label":"Example","type":"FamilyTreeCensus","quickAdd":"bd054697-95f5-40de-8d40-d752b451d516","subject":{"entity":"node","type":"54532334-bfb9-4f54-9672-07931dd396a3"},"prompts":[{"id":"eacfcdfc-1a80-4483-86fe-0e5846b99093","text":"hi\n"}]}],"codebook":{"node":{"54532334-bfb9-4f54-9672-07931dd396a3":{"name":"Person","iconVariant":"add-a-person","variables":{"bd054697-95f5-40de-8d40-d752b451d516":{"name":"foo","type":"text"}},"color":"node-color-seq-1"}}},"experiments":null,"assets":[]}},"meta":{"values":{"startTime":["Date"],"lastUpdated":["Date"],"protocol.importedAt":["Date"]}}});
+  return JSON.stringify({
+    json: {
+      id: 'cme0esbwe0002p5ez7x3u1v3g',
+      startTime: '2025-08-06T20:16:39.231Z',
+      finishTime: null,
+      exportTime: null,
+      lastUpdated: '2025-08-06T20:16:39.231Z',
+      network: {
+        nodes: [],
+        edges: [],
+        ego: { _uid: '37b7cb82-6eff-4041-b153-ae6caa0682ee', attributes: {} },
+      },
+      participantId: 'cme0esbwe0003p5ezwm541nma',
+      protocolId: 'cme0erq4d0000p5ezi593j7gn',
+      currentStep: 0,
+      stageMetadata: null,
+      protocol: {
+        id: 'cme0erq4d0000p5ezi593j7gn',
+        name: 'Protocol.netcanvas',
+        schemaVersion: 7,
+        description: null,
+        importedAt: '2025-08-06T20:16:11.005Z',
+        stages: [
+          {
+            id: 'e312ff80-7301-11f0-af9e-5d5fda83c493',
+            label: 'Example2',
+            type: 'FamilyTreeCensus',
+            form: {
+              title: 'Add personal info',
+              fields: [
+                {
+                  variable: 'bd054697-95f5-40de-8d40-d752b451d516',
+                  prompt: 'What is this person&#39;s name?\n',
+                },
+              ],
+            },
+            subject: {
+              entity: 'node',
+              type: '54532334-bfb9-4f54-9672-07931dd396a3',
+            },
+            prompts: [
+              {
+                id: 'd057c3a5-ec09-497f-8db5-9b3fff07efff',
+                text: 'Please enter details about each family member.\n',
+              },
+            ],
+          },
+        ],
+        codebook: {
+          node: {
+            '54532334-bfb9-4f54-9672-07931dd396a3': {
+              name: 'Person',
+              iconVariant: 'add-a-person',
+              variables: {
+                'bd054697-95f5-40de-8d40-d752b451d516': {
+                  name: 'name',
+                  type: 'text',
+                  component: 'Text',
+                  validation: { required: true },
+                },
+              },
+              color: 'node-color-seq-1',
+            },
+          },
+        },
+        experiments: null,
+        assets: [],
+      },
+    },
+    meta: {
+      values: {
+        'startTime': ['Date'],
+        'lastUpdated': ['Date'],
+        'protocol.importedAt': ['Date'],
+      },
+    },
+  });
 };
