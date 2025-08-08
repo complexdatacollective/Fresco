@@ -1,9 +1,13 @@
 /**
  * Example of a simple controlled component, designed to be used with Field and Form
  */
-import { type InputHTMLAttributes } from 'react';
-import { cn } from '~/utils/shadcn';
+import { useId, type InputHTMLAttributes } from 'react';
 import { type BaseFieldProps } from '../../types';
+import { getInputState } from '../../utils/getInputState';
+import FieldErrors from '../FieldErrors';
+import Hint from '../Hint';
+import { Label } from '../Label';
+import { containerVariants, inputVariants } from './shared';
 
 type InputFieldProps = BaseFieldProps & InputHTMLAttributes<HTMLInputElement>;
 
@@ -11,39 +15,40 @@ export function InputField({
   name,
   label,
   hint,
-  meta: { isValid, isTouched, isDirty, isValidating, errors },
+  meta,
   className,
+  validation,
+  onChange,
   ...inputProps
 }: InputFieldProps) {
-  const inputClasses = cn(
-    'rounded border border-border px-3 py-2',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-    'focus-visible:ring-offset-2',
-    'transition-colors duration-200',
-    'disabled:cursor-not-allowed disabled:opacity-50',
-    isDirty && 'border-primary',
-    !isValid && isTouched && 'border-destructive',
-    isValid && 'border-success',
-    isValidating && 'border-warning',
-    className,
-  );
+  const id = useId();
 
-  const showError = !isValid && isTouched && errors && errors.length > 0;
+  const showError =
+    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0;
+
+  const inputVariantState = getInputState(meta);
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium" htmlFor={name}>
+    <div className={containerVariants({ state: inputVariantState })}>
+      <Label htmlFor={id} required={inputProps.required}>
         {label}
-      </label>
-      {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
-      <input name={name} {...inputProps} className={inputClasses} />
-      {showError && (
-        <div className="text-destructive text-sm">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
+      </Label>
+      {hint && (
+        <Hint id={`${id}-hint`} validation={validation}>
+          {hint}
+        </Hint>
       )}
+      <input
+        {...inputProps}
+        id={id}
+        name={name}
+        className={inputVariants({ className, state: inputVariantState })}
+        onChange={(e) => onChange(e.target.value)}
+        // aria-describedby supports multiple IDs, so we can use the hint and the error ID.
+        // Note: we cannot use aria-description yet, as it is not widely supported.
+        aria-describedby={`${hint ? `${id}-hint` : ''} ${showError ? `${id}-error` : ''}`.trim()}
+      />
+      <FieldErrors id={`${id}-error`} errors={meta.errors} show={!!showError} />
     </div>
   );
 }

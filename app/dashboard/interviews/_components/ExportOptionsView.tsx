@@ -4,9 +4,9 @@ import { Switch } from '~/components/ui/switch';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
-const sectionClasses = cn(
+const sectionClasses = cx(
   cardClasses,
   'p-4 flex gap-4',
   '[&_div]:[flex-basis:fit-content]',

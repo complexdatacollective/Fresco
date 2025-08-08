@@ -1,6 +1,6 @@
 import React from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
 import type { FormErrors } from '../types';
 
@@ -16,11 +16,12 @@ type FormProps = {
 export default function Form(props: FormProps) {
   const { onSubmit, additionalContext, children, className, ...rest } = props;
 
-  const formClasses = cn('flex flex-col gap-4', className);
+  const formClasses = cx('flex flex-col gap-4', className);
 
   const { formProps } = useForm({
     onSubmit,
     onSubmitInvalid: (errors: FormErrors) => {
+      console.log('Form submission invalid:', errors);
       scrollToFirstError(errors);
     },
     additionalContext,

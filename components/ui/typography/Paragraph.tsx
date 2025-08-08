@@ -1,10 +1,11 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva, type VariantProps } from '~/utils/cva';
 import { forwardRef } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
-export const paragraphVariants = cva('text-pretty font-normal', {
+export const paragraphVariants = cva({
+  base: 'text-pretty font-normal',
   variants: {
     variant: {
       default: '',
@@ -37,7 +38,7 @@ const Paragraph = forwardRef<HTMLParagraphElement, ParagraphProps>(
     return (
       <p
         ref={ref}
-        className={cn(paragraphVariants({ variant, margin, className }))}
+        className={cx(paragraphVariants({ variant, margin, className }))}
         {...props}
       />
     );

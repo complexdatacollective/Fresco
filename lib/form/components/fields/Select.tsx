@@ -1,6 +1,10 @@
-import { type SelectHTMLAttributes } from 'react';
-import { cn } from '~/utils/shadcn';
-import { type FieldState } from '../../types';
+import { useId, type SelectHTMLAttributes } from 'react';
+import { type BaseFieldProps } from '../../types';
+import { getInputState } from '../../utils/getInputState';
+import FieldErrors from '../FieldErrors';
+import Hint from '../Hint';
+import { Label } from '../Label';
+import { containerVariants, inputVariants } from './shared';
 
 type SelectOption = {
   value: string | number;
@@ -8,65 +12,54 @@ type SelectOption = {
 };
 
 type BaseSelectProps = SelectHTMLAttributes<HTMLSelectElement> &
-  FieldState & {
-    label: string;
-    hint?: string;
+  BaseFieldProps<SelectOption['value']> & {
     options: SelectOption[];
-    placeholder?: string;
   };
 
 export function SelectField({
   name,
   label,
   hint,
-  meta: { isTouched, isValidating, errors },
+  meta,
   className,
   options,
   placeholder,
   value,
   onChange,
-  onBlur,
+  validation,
   ...restProps
 }: BaseSelectProps) {
-  const hasError = isTouched && errors && errors.length > 0;
+  const id = useId();
+
+  const showError =
+    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0;
+
+  const inputVariantState = getInputState(meta);
 
   return (
-    <div className="mb-4">
-      <label
-        htmlFor={name}
-        className="mb-1 block text-sm font-medium text-gray-700"
-      >
-        {label}
-      </label>
+    <div className={containerVariants({ state: inputVariantState })}>
+      <Label htmlFor={id}>{label}</Label>
       {hint && (
-        <p className="mb-1 text-sm text-gray-500" id={`${name}-hint`}>
+        <Hint id={`${id}-hint`} validation={validation}>
           {hint}
-        </p>
+        </Hint>
       )}
       <select
-        id={name}
+        id={id}
         name={name}
         value={value as string | number | undefined}
         onChange={onChange}
-        onBlur={onBlur}
-        className={cn(
-          'block w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors focus:ring-2 focus:outline-none',
-          hasError
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-          isValidating && 'opacity-60',
-          className,
-        )}
+        className={inputVariants({ state: inputVariantState, className })}
         {...restProps}
-        aria-invalid={!!hasError}
+        aria-invalid={!!showError}
         aria-describedby={
-          hint || hasError
-            ? `${hint ? `${name}-hint` : ''} ${hasError ? `${name}-error` : ''}`.trim()
+          hint || showError
+            ? `${hint ? `${name}-hint` : ''} ${showError ? `${name}-error` : ''}`.trim()
             : undefined
         }
       >
         {placeholder && (
-          <option value="" disabled>
+          <option value="" selected={value === ''}>
             {placeholder}
           </option>
         )}
@@ -76,11 +69,7 @@ export function SelectField({
           </option>
         ))}
       </select>
-      {hasError && (
-        <p className="mt-1 text-sm text-red-600" id={`${name}-error`}>
-          {errors.join(', ')}
-        </p>
-      )}
+      <FieldErrors id={`${id}-error`} errors={meta.errors} show={!!showError} />
     </div>
   );
 }

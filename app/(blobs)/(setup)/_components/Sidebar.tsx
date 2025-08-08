@@ -3,7 +3,7 @@
 import { Check } from 'lucide-react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import Heading from '~/components/ui/typography/Heading';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 function OnboardSteps({ steps }: { steps: string[] }) {
   const [currentStep, setCurrentStep] = useQueryState(
@@ -16,7 +16,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
       {steps.map((step, index) => (
         <div
           key={index}
-          className={cn(
+          className={cx(
             'pointer-events-none flex items-center gap-2 rounded-xl',
             // Make 'clickable' if the step is complete
             currentStep > index && 'pointer-events-auto cursor-pointer',
@@ -24,7 +24,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
           onClick={() => void setCurrentStep(index + 1)}
         >
           <div
-            className={cn(
+            className={cx(
               'border-primary/[.06] flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold',
               index < currentStep - 1 &&
                 'bg-success border-teal-400 text-white',

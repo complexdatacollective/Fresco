@@ -294,6 +294,9 @@ export const createFormStore = () => {
                 if (draftForm?.fields) {
                   draftForm.fields.get(fieldName)!.meta.errors = errors;
                   draftForm.fields.get(fieldName)!.meta.isValid = false;
+
+                  // Set all fields as touched to trigger showing validation errors
+                  draftForm.fields.get(fieldName)!.meta.isTouched = true;
                 }
               });
             }

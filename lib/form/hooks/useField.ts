@@ -1,17 +1,9 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
 import type { FieldConfig } from '../types';
 
-export function useField<T extends FieldValue = FieldValue>(config: {
-  name: string;
-  initialValue?: T;
-  validation?: FieldConfig['validation'];
-}): {
+export type UseFieldConfig<T extends FieldValue = FieldValue> = {
   'value': T;
   'meta': {
     errors: string[] | null;
@@ -23,7 +15,18 @@ export function useField<T extends FieldValue = FieldValue>(config: {
   'onChange': (value: T) => void;
   'onBlur': () => void;
   'data-field-name': string; // Used for scrolling to field errors
-} {
+  'aria-invalid': boolean; // Indicates if the field is invalid
+};
+
+// Keys of UseFieldConfig
+export type UseFieldKeys = keyof UseFieldConfig;
+
+export function useField<T extends FieldValue = FieldValue>(config: {
+  name: string;
+  initialValue?: T;
+  required?: boolean;
+  validation?: FieldConfig['validation'];
+}): UseFieldConfig<T> {
   // Get the stable store API reference
   const isUnmountingRef = useRef(false);
 
@@ -83,5 +86,7 @@ export function useField<T extends FieldValue = FieldValue>(config: {
     'onChange': handleChange,
     'onBlur': handleBlur,
     'data-field-name': config.name, // Used for scrolling to field errors
+    // 'aria-required': true, // TODO: find a way to set this based on the validation config.
+    'aria-invalid': !fieldState?.meta.isValid,
   };
 }

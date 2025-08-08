@@ -5,8 +5,6 @@ export default function SubmitButton() {
   const isSubmitting = useFormStore((state) => state.isSubmitting);
   const isValid = useFormStore((state) => state.isValid);
 
-  console.log('SubmitButton isSubmitting:', isSubmitting, 'isValid:', isValid);
-
   return (
     <Button
       type="submit"

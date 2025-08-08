@@ -1,4 +1,4 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 export const CloseButton = ({
   onClick,
@@ -11,7 +11,7 @@ export const CloseButton = ({
     <button
       type="button"
       onClick={onClick}
-      className={cn(
+      className={cx(
         'ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted rounded-sm transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none',
         className,
       )}

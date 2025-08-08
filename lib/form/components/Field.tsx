@@ -1,6 +1,7 @@
+import { type ElementType } from 'react';
 import { type z } from 'zod';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
-import { useField } from '../hooks/useField';
+import { useField, type UseFieldKeys } from '../hooks/useField';
 import { type ValidationContext } from '../types';
 
 /**
@@ -24,17 +25,16 @@ export default function Field<
   initialValue?: FieldValue;
   validation?: z.ZodTypeAny | ((context: ValidationContext) => z.ZodTypeAny);
   Component: TComponent;
-} & Omit<
-  TComponentProps,
-  'name' | 'value' | 'meta' | 'onChange' | 'onBlur' | 'data-field-name'
->) {
+} & Omit<TComponentProps, UseFieldKeys>) {
   const fieldProps = useField({
     name,
     initialValue,
     validation,
   });
 
+  const FinalComponent = Component as ElementType;
+
   return (
-    <Component name={name} {...fieldProps} {...(additionalFieldProps as any)} />
+    <FinalComponent name={name} {...fieldProps} {...additionalFieldProps} />
   );
 }

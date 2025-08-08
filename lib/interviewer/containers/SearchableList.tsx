@@ -1,10 +1,10 @@
-import cx from 'classnames';
+import { cx } from '~/utils/cva';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
 import Search from '~/lib/ui/components/Fields/Search';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
 import Loading from '../components/Loading';
 import Panel from '../components/Panel';
@@ -33,7 +33,7 @@ const SortButton = ({
     {...rest}
     tabIndex={0}
     disabled={disabled}
-    className={cn(
+    className={cx(
       'filter-button',
       isActive && 'filter-button--active',
       disabled && 'pointer-events-none cursor-not-allowed opacity-50',

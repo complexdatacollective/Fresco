@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Image from 'next/image';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { cardClasses } from '~/components/ui/card';
@@ -49,7 +49,7 @@ ${error.stack}`;
       <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"
-        className={cn(
+        className={cx(
           cardClasses,
           'shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl',
         )}

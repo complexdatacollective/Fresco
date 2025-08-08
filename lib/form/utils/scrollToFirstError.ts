@@ -8,14 +8,14 @@ export const scrollToFirstError = (errors: FormErrors) => {
 
   const firstError = Object.keys(errors)[0];
   const el: HTMLElement | null = document.querySelector(
-    `[name="${firstError}"]`,
+    `[data-field-name="${firstError}"]`,
   );
 
   // If element is not found, prevent crash.
   if (!el) {
     // eslint-disable-next-line no-console
     console.warn(
-      `scrollToFirstError(): Element [name="${firstError}"] not found in DOM`,
+      `scrollToFirstError(): Element [data-field-name="${firstError}"] not found in DOM`,
     );
     return;
   }
@@ -33,5 +33,10 @@ export const scrollToFirstError = (errors: FormErrors) => {
 
   // Subtract 200 to put more of the input in view.
   const scrollEnd = destinationOffset + scrollStart - scrollerOffset - 200;
-  scroller.scrollTop = scrollEnd;
+  scroller.scrollTo({ top: scrollEnd, behavior: 'smooth' });
+
+  // Focus the element after a brief delay to ensure scrolling has started
+  setTimeout(() => {
+    el.focus();
+  }, 100);
 };

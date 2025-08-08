@@ -1,14 +1,18 @@
 /**
  * Input Array Field component that manages an array of text inputs
  */
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { MenuIcon, PenIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { AnimatePresence, Reorder, useDragControls } from 'motion/react';
 import { Button } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
 import { type BaseFieldProps } from '../../types';
+import { getInputState } from '../../utils/getInputState';
+import FieldErrors from '../FieldErrors';
+import Hint from '../Hint';
+import { Label } from '../Label';
 import { InputField } from './Input';
+import { containerVariants } from './shared';
 
 function Item({
   value,
@@ -123,21 +127,26 @@ type InputArrayFieldProps = BaseFieldProps<string[]> & {
 };
 
 export function InputArrayField({
-  name,
   value,
   label,
   hint,
   placeholder = 'Enter text',
   addButtonText = 'Add Item',
   className,
-  meta: { isTouched, isValidating, errors, isValid, isDirty },
+  meta,
+  validation,
   onChange,
 }: InputArrayFieldProps) {
+  const id = useId();
+
+  const showError =
+    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0;
+
+  const inputVariantState = getInputState(meta);
+
   const [newItem, setNewItem] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
-
-  console.log('InputArrayField rendered', { errors, isValid });
 
   // Update isTouched state when the field is interacted with
 
@@ -155,14 +164,14 @@ export function InputArrayField({
     onChange?.(newValue);
   };
 
-  const hasError = isTouched && errors && errors.length > 0;
-
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
-      <label className="text-sm font-medium" htmlFor={name}>
-        {label}
-      </label>
-      {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
+    <div className={containerVariants({ state: inputVariantState, className })}>
+      <Label htmlFor={id}>{label}</Label>
+      {hint && (
+        <Hint id={`${id}-hint`} validation={validation}>
+          {hint}
+        </Hint>
+      )}
 
       {value && value.length > 0 && (
         <div className="space-y-2">
@@ -210,13 +219,7 @@ export function InputArrayField({
         </Button>
       </div>
 
-      {hasError && (
-        <div className="text-destructive text-sm">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )}
+      <FieldErrors id={`${id}-error`} errors={meta.errors} show={!!showError} />
     </div>
   );
 }

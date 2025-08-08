@@ -6,7 +6,7 @@ import { Label } from '~/components/ui/Label';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { type FormSchema } from '~/schemas/participant';
 import parseCSV from '~/utils/parseCSV';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 const accept = {
   'text/csv': [],
@@ -84,7 +84,7 @@ export default function DropzoneField<T>({
       <div
         ref={controller.field.ref}
         {...getRootProps({
-          className: cn(
+          className: cx(
             'w-full relative mx-auto flex cursor-pointer flex-col items-center justify-center border border-dashed transition-colors hover:border-primary border-2 rounded-xl p-4',
           ),
         })}

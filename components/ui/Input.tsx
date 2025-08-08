@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Label } from '~/components/ui/Label';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type InputProps = {
   inputClassName?: string;
@@ -29,7 +29,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const id = props.id ?? props.name;
     return (
-      <div className={cn('relative mt-4 grid items-center gap-2', className)}>
+      <div className={cx('relative mt-4 grid items-center gap-2', className)}>
         {label && (
           <Label htmlFor={id} required={props.required}>
             {label}
@@ -47,7 +47,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             id={id}
             type={type}
-            className={cn(
+            className={cx(
               'focus-visible:ring-ring rounded-input border-border bg-input text-input-foreground ring-offset-background placeholder:text-muted-foreground flex h-10 w-full border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
               !!leftAdornment && 'pl-10',
               !!rightAdornment && 'pr-10',
