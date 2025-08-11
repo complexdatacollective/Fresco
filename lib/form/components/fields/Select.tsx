@@ -18,6 +18,16 @@ export type SelectProps = SelectHTMLAttributes<HTMLSelectElement> &
 const selectVariants = compose(
   cva({
     base: 'w-auto',
+    variants: {
+      size: {
+        sm: 'pr-8',
+        md: 'pr-10',
+        lg: 'pr-12',
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+    },
   }),
   standaloneInputVariants,
 );

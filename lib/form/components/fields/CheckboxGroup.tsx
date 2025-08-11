@@ -33,7 +33,7 @@ export const checkboxGroupVariants = cva({
 // Individual checkbox option styles
 export const checkboxOptionVariants = cva({
   base: cx(
-    'flex items-start gap-3 cursor-pointer group relative',
+    'flex items-center gap-3 cursor-pointer group',
     sharedTransitionStyles,
     // Disabled state
     'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
@@ -50,30 +50,49 @@ export const checkboxOptionVariants = cva({
   },
 });
 
-// Checkbox input styles
+// Checkbox input styles - matches RadioGroup sizing and colors
 export const checkboxInputVariants = cva({
   base: cx(
-    'shrink-0 rounded border-2 border-border bg-input cursor-pointer',
-    'appearance-none relative',
+    'peer shrink-0 rounded border-2 border-border bg-input cursor-pointer',
+    'sr-only', // Hide the native checkbox
     sharedTransitionStyles,
-    // Focus styles
-    'focus:outline-none focus:ring-4 focus:ring-input-foreground/10 focus:ring-offset-0',
-    'focus:border-input-foreground/50',
-    // Checked state
-    'checked:border-primary checked:bg-primary',
-    // Invalid state - applied via fieldset data attribute
-    'group-data-[invalid=true]:border-destructive',
-    'group-data-[invalid=true]:focus:border-destructive group-data-[invalid=true]:focus:ring-destructive/20',
-    'group-data-[invalid=true]:checked:border-destructive group-data-[invalid=true]:checked:bg-destructive',
-    // Disabled state
-    'disabled:cursor-not-allowed disabled:opacity-50',
-    'disabled:checked:bg-muted-foreground disabled:checked:border-muted-foreground',
   ),
   variants: {
     size: {
-      sm: 'w-4 h-4',
-      md: 'w-5 h-5',
-      lg: 'w-6 h-6',
+      sm: 'w-6 h-6',
+      md: 'w-8 h-8',
+      lg: 'w-10 h-10',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+// Visual checkbox container that replaces the native appearance
+export const checkboxVisualVariants = cva({
+  base: cx(
+    'shrink-0 rounded border-2 border-border bg-input cursor-pointer relative',
+    'flex items-center justify-center',
+    sharedTransitionStyles,
+    // Focus styles (when peer input is focused)
+    'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent/10 peer-focus:ring-offset-0',
+    'peer-focus:border-accent/50',
+    // Checked state - matches RadioGroup accent colors
+    'peer-checked:border-accent peer-checked:bg-accent',
+    // Invalid state - applied via fieldset data attribute
+    'group-data-[invalid=true]:border-destructive',
+    'group-data-[invalid=true]:peer-focus:border-destructive group-data-[invalid=true]:peer-focus:ring-destructive/20',
+    'group-data-[invalid=true]:peer-checked:border-destructive group-data-[invalid=true]:peer-checked:bg-destructive',
+    // Disabled state
+    'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+    'peer-disabled:peer-checked:bg-muted-foreground peer-disabled:peer-checked:border-muted-foreground',
+  ),
+  variants: {
+    size: {
+      sm: 'w-6 h-6',
+      md: 'w-8 h-8',
+      lg: 'w-10 h-10',
     },
   },
   defaultVariants: {
@@ -84,7 +103,7 @@ export const checkboxInputVariants = cva({
 // Checkbox check icon styles
 export const checkboxIconVariants = cva({
   base: cx(
-    'absolute inset-0 flex items-center justify-center text-primary-foreground',
+    'text-accent-foreground pointer-events-none',
     'opacity-0 scale-0',
     sharedTransitionStyles,
     // Show when checked
@@ -94,9 +113,9 @@ export const checkboxIconVariants = cva({
   ),
   variants: {
     size: {
-      sm: 'w-4 h-4',
-      md: 'w-5 h-5',
-      lg: 'w-6 h-6',
+      sm: 'w-3 h-3',
+      md: 'w-4 h-4',
+      lg: 'w-5 h-5',
     },
   },
   defaultVariants: {
@@ -191,33 +210,25 @@ export function CheckboxGroupField({
             htmlFor={optionId}
             className={checkboxOptionVariants({ size })}
           >
-            <div className="relative">
-              <input
-                type="checkbox"
-                id={optionId}
-                name={name}
-                value={option.value}
-                checked={isChecked}
-                defaultChecked={
-                  !isControlled && currentValues.includes(option.value)
+            <input
+              type="checkbox"
+              id={optionId}
+              name={name}
+              value={option.value}
+              checked={isChecked}
+              defaultChecked={
+                !isControlled && currentValues.includes(option.value)
+              }
+              disabled={isOptionDisabled}
+              onChange={(e) => {
+                if (!isOptionDisabled) {
+                  handleChange(option.value, e.target.checked);
                 }
-                disabled={isOptionDisabled}
-                onChange={(e) => {
-                  if (!isOptionDisabled) {
-                    handleChange(option.value, e.target.checked);
-                  }
-                }}
-                className={cx(checkboxInputVariants({ size }), 'peer')}
-              />
-              <div className={checkboxIconVariants({ size })}>
-                <Check
-                  className={cx(
-                    size === 'sm' && 'h-3 w-3',
-                    size === 'md' && 'h-4 w-4',
-                    size === 'lg' && 'h-5 w-5',
-                  )}
-                />
-              </div>
+              }}
+              className={checkboxInputVariants({ size })}
+            />
+            <div className={checkboxVisualVariants({ size })}>
+              <Check className={checkboxIconVariants({ size })} />
             </div>
             <span className={checkboxLabelVariants({ size })}>
               {option.label}
