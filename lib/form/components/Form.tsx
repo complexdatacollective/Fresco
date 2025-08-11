@@ -16,7 +16,7 @@ type FormProps = {
 export default function Form(props: FormProps) {
   const { onSubmit, additionalContext, children, className, ...rest } = props;
 
-  const formClasses = cx('flex flex-col gap-4', className);
+  const formClasses = cx('', className);
 
   const { formProps } = useForm({
     onSubmit,

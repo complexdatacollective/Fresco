@@ -1,18 +1,13 @@
 /**
  * Input Array Field component that manages an array of text inputs
  */
-import { useId, useState } from 'react';
+import { useState } from 'react';
 
 import { MenuIcon, PenIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { AnimatePresence, Reorder, useDragControls } from 'motion/react';
 import { Button } from '~/components/ui/Button';
 import { type BaseFieldProps } from '../../types';
-import { getInputState } from '../../utils/getInputState';
-import FieldErrors from '../FieldErrors';
-import Hint from '../Hint';
-import { Label } from '../Label';
 import { InputField } from './Input';
-import { containerVariants, inputVariants } from './shared';
 
 function Item({
   value,
@@ -71,28 +66,25 @@ function Item({
               onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={(e) => handleKeyDown(e, handleEditSave)}
               autoFocus
-              meta={{
-                isTouched: true,
-                isValidating: false,
-                errors: [],
-                isDirty: true,
-                isValid: true,
-              }}
             />
             <Button
               size="sm"
               variant="ghost"
+              name="save"
               onClick={handleEditSave}
               className="h-8 w-8 p-0"
             >
+              <span className="sr-only">Save</span>
               <PlusIcon className="h-4 w-4" />
             </Button>
             <Button
               size="sm"
               variant="ghost"
+              name="cancel"
               onClick={handleEditCancel}
               className="h-8 w-8 p-0"
             >
+              <span className="sr-only">Cancel</span>
               <TrashIcon className="h-4 w-4 text-red-600" />
             </Button>
           </>
@@ -102,17 +94,21 @@ function Item({
             <Button
               size="sm"
               variant="ghost"
+              name="edit"
               onClick={() => setIsEditing(true)}
               className="h-8 w-8 p-0"
             >
+              <span className="sr-only">Edit</span>
               <PenIcon className="h-4 w-4" />
             </Button>
             <Button
               size="sm"
               variant="ghost"
+              name="delete"
               onClick={handleDelete}
               className="h-8 w-8 p-0"
             >
+              <span className="sr-only">Delete</span>
               <TrashIcon className="h-4 w-4" />
             </Button>
           </>
@@ -122,7 +118,8 @@ function Item({
   );
 }
 
-type InputArrayFieldProps = BaseFieldProps<string[]> & {
+type InputArrayFieldProps = BaseFieldProps & {
+  placeholder?: string;
   addButtonText?: string;
 };
 
@@ -130,20 +127,10 @@ export function InputArrayField({
   value,
   label,
   hint,
-  placeholder = 'Enter text',
+  placeholder,
   addButtonText = 'Add Item',
-  className,
-  meta,
-  validation,
   onChange,
 }: InputArrayFieldProps) {
-  const id = useId();
-
-  const showError =
-    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0;
-
-  const inputVariantState = getInputState(meta);
-
   const [newItem, setNewItem] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -165,52 +152,41 @@ export function InputArrayField({
   };
 
   return (
-    <div className={containerVariants({ state: inputVariantState, className })}>
-      <Label htmlFor={id}>{label}</Label>
-      {hint && (
-        <Hint id={`${id}-hint`} validation={validation}>
-          {hint}
-        </Hint>
+    <div>
+      {value && value.length > 0 && (
+        <Reorder.Group
+          values={value}
+          onReorder={onChange}
+          className="space-y-2"
+        >
+          <AnimatePresence>
+            {value.map((item, index) => (
+              <Item
+                key={item}
+                value={item}
+                handleUpdate={(newValue) => {
+                  const newValueArray = [...(value || [])];
+                  newValueArray[index] = newValue;
+                  onChange?.(newValueArray);
+                }}
+                handleDelete={() => handleDeleteItem(index)}
+              />
+            ))}
+          </AnimatePresence>
+        </Reorder.Group>
       )}
 
-      <div className={inputVariants({ state: inputVariantState })}>
-        {value && value.length > 0 && (
-          <Reorder.Group
-            values={value}
-            onReorder={onChange}
-            className="space-y-2"
-          >
-            <AnimatePresence>
-              {value.map((item, index) => (
-                <Item
-                  key={item}
-                  value={item}
-                  handleUpdate={(newValue) => {
-                    const newValueArray = [...(value || [])];
-                    newValueArray[index] = newValue;
-                    onChange?.(newValueArray);
-                  }}
-                  handleDelete={() => handleDeleteItem(index)}
-                />
-              ))}
-            </AnimatePresence>
-          </Reorder.Group>
-        )}
+      {/* Add new item */}
 
-        {/* Add new item */}
-
-        <input
-          type="text"
-          value={newItem}
-          placeholder={placeholder}
-          onChange={(e) => setNewItem(e.target.value)}
-        />
-        <Button onClick={handleAddItem} disabled={!newItem.trim()}>
-          {addButtonText}
-        </Button>
-      </div>
-
-      <FieldErrors id={`${id}-error`} errors={meta.errors} show={!!showError} />
+      <input
+        type="text"
+        value={newItem}
+        placeholder={placeholder}
+        onChange={(e) => setNewItem(e.target.value)}
+      />
+      <Button onClick={handleAddItem} disabled={!newItem.trim()}>
+        {addButtonText}
+      </Button>
     </div>
   );
 }

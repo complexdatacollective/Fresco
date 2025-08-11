@@ -15,7 +15,7 @@ export default function Hint({
   console.warn('TODO: Implement validation in Hint component:', validation);
 
   return (
-    <Paragraph id={id} margin="none">
+    <Paragraph id={id} margin="none" style="smallText">
       {children}
     </Paragraph>
   );

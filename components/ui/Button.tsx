@@ -1,7 +1,6 @@
 import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from '~/utils/cva';
 import * as React from 'react';
-import { cx } from '~/utils/cva';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({

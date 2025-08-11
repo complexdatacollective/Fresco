@@ -1,21 +1,45 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useId, useRef } from 'react';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
 import type { FieldConfig } from '../types';
 
+/**
+ * Helper function to determine if a field should show an error message.
+ */
+function useFieldShouldShowError(name: string) {
+  const fieldState = useFormStore((state) => state.getFieldState(name));
+
+  if (!fieldState) {
+    return false;
+  }
+
+  const { meta } = fieldState;
+
+  return Boolean(
+    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0,
+  );
+}
+
 export type UseFieldConfig<T extends FieldValue = FieldValue> = {
-  'value': T;
-  'meta': {
+  id: string;
+  meta: {
+    shouldShowError: boolean;
     errors: string[] | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
     isValid: boolean;
   };
-  'onChange': (value: T) => void;
-  'onBlur': () => void;
-  'data-field-name': string; // Used for scrolling to field errors
-  'aria-invalid': boolean; // Indicates if the field is invalid
+  containerProps: {
+    'data-field-name': string; // Used for scrolling to field errors
+  };
+  fieldProps: {
+    'value': T;
+    'onChange': (value: T) => void;
+    'onBlur': () => void;
+    'aria-invalid': boolean; // Indicates if the field is invalid
+    'aria-describedby': string; // IDs of elements that provide additional information about the field
+  };
 };
 
 // Keys of UseFieldConfig
@@ -27,6 +51,9 @@ export function useField<T extends FieldValue = FieldValue>(config: {
   required?: boolean;
   validation?: FieldConfig['validation'];
 }): UseFieldConfig<T> {
+  // Create an ID that can be used to link Label, Hint, and Field.
+  const id = useId();
+
   // Get the stable store API reference
   const isUnmountingRef = useRef(false);
 
@@ -37,6 +64,8 @@ export function useField<T extends FieldValue = FieldValue>(config: {
   const setFieldValue = useFormStore((store) => store.setFieldValue);
   const setFieldTouched = useFormStore((store) => store.setFieldTouched);
   const validateField = useFormStore((store) => store.validateField);
+
+  const shouldShowError = useFieldShouldShowError(config.name);
 
   // Register field on mount - use useLayoutEffect to ensure it runs after form registration
   useEffect(() => {
@@ -75,18 +104,33 @@ export function useField<T extends FieldValue = FieldValue>(config: {
   }, [config.name, validateField, setFieldTouched]);
 
   return {
-    'value': (fieldState?.value ?? config.initialValue) as T,
-    'meta': {
+    id,
+    meta: {
+      shouldShowError,
       errors: fieldState?.meta.errors ?? null,
       isValid: fieldState?.meta.isValid ?? false,
       isTouched: fieldState?.meta.isTouched ?? false,
       isDirty: fieldState?.meta.isDirty ?? false,
       isValidating: fieldState?.meta.isValidating ?? false,
     },
-    'onChange': handleChange,
-    'onBlur': handleBlur,
-    'data-field-name': config.name, // Used for scrolling to field errors
-    // 'aria-required': true, // TODO: find a way to set this based on the validation config.
-    'aria-invalid': !fieldState?.meta.isValid,
+    containerProps: {
+      'data-field-name': config.name, // Used for scrolling to field errors
+    },
+    fieldProps: {
+      'value': (fieldState?.value ?? config.initialValue) as T,
+      'onChange': handleChange,
+      'onBlur': handleBlur,
+      // 'aria-required': true, // TODO: find a way to set this based on the validation config.
+      'aria-invalid': !fieldState?.meta.isValid,
+      /**
+       * Set this so that screen readers can properly announce the hint and error messages.
+       * If either the hint or error ID is not present, it will be ignored by the screen reader.
+       * The alternative would require us to check if the hint prop exists and if the error state
+       * is set, which doesn't seem worth it.
+       *
+       * Note: we cannot use aria-description yet, as it is not widely supported.
+       */
+      'aria-describedby': `${id}-hint ${id}-error`.trim(),
+    },
   };
 }

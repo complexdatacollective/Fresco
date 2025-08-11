@@ -99,6 +99,7 @@
 
   --color-input: hsl(var(--input));
   --color-input-foreground: hsl(var(--input-foreground));
+  --color-input-placeholder: hsl(var(--input-placeholder));
 
   --color-border: hsl(var(--border));
   --color-link: hsl(var(--link));
@@ -420,7 +421,7 @@
     --accent: var(--slate-blue);
     --accent-foreground: var(--white);
 
-    --destructive: var(--tomato);
+    --destructive: var(--tomato--dark);
     --destructive-foreground: var(--white);
 
     --warning: var(--neon-carrot);
@@ -442,6 +443,9 @@
 
     --input: 0 0% 100%;
     --input-foreground: var(--cyber-grape);
+    --input-placeholder: var(--cyber-grape-hue)
+      calc(var(--cyber-grape-saturation) - 10%)
+      calc(var(--cyber-grape-lightness) - 10%);
 
     --popover: var(--white);
     --popover-foreground: var(--foreground);

@@ -1,4 +1,4 @@
-import Icon from '~/lib/ui/components/Icon';
+import { TriangleAlert } from 'lucide-react';
 
 /**
  * Render field errors.
@@ -18,11 +18,8 @@ export default function FieldErrors({
   if (!show || !errors || errors.length === 0) return null;
 
   return (
-    <div
-      id={id}
-      className="bg-destructive text-destructive-foreground flex gap-2 rounded px-4 py-2 text-sm not-first:mt-4"
-    >
-      <Icon name="warning" className="h-4 w-4 self-center" />
+    <div id={id} className="text-destructive flex gap-2 text-sm">
+      <TriangleAlert className="h-4 w-4 self-center" />
       {errors.length === 1 ? (
         <p>{errors[0]}</p>
       ) : (

@@ -15,7 +15,7 @@ export const headingVariants = cva({
       'h4-all-caps':
         'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
       'label':
-        'scroll-m-20 text-sm font-extrabold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
+        'scroll-m-20 text-md font-bold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
     },
     margin: {
       default: 'not-first:mt-4',

@@ -1,54 +1,186 @@
 /**
  * Example of a simple controlled component, designed to be used with Field and Form
  */
-import { useId, type InputHTMLAttributes } from 'react';
-import { type BaseFieldProps } from '../../types';
-import { getInputState } from '../../utils/getInputState';
-import FieldErrors from '../FieldErrors';
-import Hint from '../Hint';
-import { Label } from '../Label';
-import { containerVariants, inputVariants } from './shared';
+import { type InputHTMLAttributes, type ReactNode } from 'react';
+import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 
-type InputFieldProps = BaseFieldProps & InputHTMLAttributes<HTMLInputElement>;
+export const inputVariants = cva({
+  base: cx(
+    'flex-1 min-w-0',
+    'border-0 p-0', // Remove default border and padding
+
+    'transition-colors duration-200',
+    'bg-transparent text-input-foreground placeholder:text-input-foreground/50 placeholder:italic',
+    'focus:outline-none focus:ring-0', // Remove all focus styles (handled by wrapper)
+    // Invalid state styles using aria-invalid
+    'aria-[invalid=true]:text-destructive',
+    // Disabled state styles
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    'disabled:text-muted-foreground disabled:placeholder:text-muted-foreground/50',
+    // Read-only state styles
+    'read-only:cursor-default read-only:text-muted-foreground',
+  ),
+  variants: {
+    size: {
+      sm: 'text-sm px-3',
+      md: 'text-base px-4',
+      lg: 'text-lg px-5',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+export const inputWrapperVariants = compose(
+  cva({
+    base: cx(
+      'group relative inline-flex w-full items-center rounded-lg',
+      'transition-all duration-200',
+      'border border-border',
+      'overflow-hidden',
+      'bg-input',
+      // Focus styles using :has selector for when input is focused
+      'has-[input:focus]:border-input-foreground/50',
+      'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-input-foreground/10 has-[input:focus-visible]:ring-offset-0',
+      // Invalid state styles using aria-invalid
+      'has-[[aria-invalid=true]]:border-destructive',
+      'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
+      // Disabled state styles
+      'has-[input:disabled]:bg-muted',
+      // Read-only state styles
+      'has-[input:read-only]:bg-muted/50 has-[input:read-only]:has-[input:focus]:border-border',
+    ),
+    variants: {
+      size: {
+        sm: 'h-8',
+        md: 'h-12',
+        lg: 'h-14',
+      },
+      variant: {
+        default: '',
+        ghost: cx(
+          'border-transparent bg-transparent',
+          'hover:bg-input/50',
+          'has-[input:disabled]:bg-transparent has-[input:disabled]:hover:bg-transparent',
+        ),
+        filled: cx(
+          'border-transparent bg-muted',
+          'hover:bg-muted/80',
+          'has-[input:disabled]:bg-muted has-[input:disabled]:hover:bg-muted',
+        ),
+        outline: cx(
+          'bg-transparent',
+          'hover:bg-input/20',
+          'has-[input:disabled]:bg-transparent has-[input:disabled]:hover:bg-transparent',
+        ),
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+      variant: 'default',
+    },
+  }),
+);
+
+export const affixVariants = cva({
+  base: cx(
+    'flex items-center justify-center shrink-0 grow-0 bg-platinum h-full',
+    'text-muted-foreground',
+  ),
+  variants: {
+    size: {
+      sm: 'text-sm px-3',
+      md: 'text-base px-5',
+      lg: 'text-lg px-5',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+type InputFieldProps = InputHTMLAttributes<HTMLInputElement> &
+  VariantProps<typeof inputWrapperVariants> & {
+    prefix?: ReactNode;
+    suffix?: ReactNode;
+  };
+
+// Standalone input styles (when no prefix/suffix)
+export const standaloneInputVariants = compose(
+  cva({
+    base: cx(
+      'w-full rounded-lg',
+      'transition-all duration-200',
+      'border border-border',
+      'bg-input text-input-foreground placeholder:text-input-foreground/50 placeholder:italic',
+      'focus:border-input-foreground/50',
+      'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-input-foreground/10 focus-visible:ring-offset-0',
+      // Invalid state styles using aria-invalid
+      'aria-[invalid=true]:border-destructive aria-[invalid=true]:text-destructive',
+      'aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20',
+      // Disabled state styles
+      'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted',
+      'disabled:text-muted-foreground disabled:placeholder:text-muted-foreground/50',
+      // Read-only state styles
+      'read-only:bg-muted/50 read-only:focus:border-border',
+      'read-only:cursor-default read-only:text-muted-foreground',
+    ),
+    variants: {
+      size: {
+        sm: 'text-sm px-3 py-1.5',
+        md: 'text-base px-4 py-2',
+        lg: 'text-lg px-5 py-3',
+      },
+      variant: {
+        default: '',
+        ghost: cx(
+          'border-transparent bg-transparent',
+          'hover:bg-input/50',
+          'disabled:bg-transparent disabled:hover:bg-transparent',
+        ),
+        filled: cx(
+          'border-transparent bg-muted',
+          'hover:bg-muted/80',
+          'disabled:bg-muted disabled:hover:bg-muted',
+        ),
+        outline: cx(
+          'bg-transparent',
+          'hover:bg-input/20',
+          'disabled:bg-transparent disabled:hover:bg-transparent',
+        ),
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+      variant: 'default',
+    },
+  }),
+);
 
 export function InputField({
-  name,
-  label,
-  hint,
-  meta,
   className,
-  validation,
-  onChange,
+  size,
+  variant,
+  prefix,
+  suffix,
   ...inputProps
 }: InputFieldProps) {
-  const id = useId();
-
-  const showError =
-    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0;
-
-  const inputVariantState = getInputState(meta);
-
-  return (
-    <div className={containerVariants({ state: inputVariantState })}>
-      <Label htmlFor={id} required={inputProps.required}>
-        {label}
-      </Label>
-      {hint && (
-        <Hint id={`${id}-hint`} validation={validation}>
-          {hint}
-        </Hint>
-      )}
+  // If no prefix or suffix, render simple input for backward compatibility
+  if (!prefix && !suffix) {
+    return (
       <input
         {...inputProps}
-        id={id}
-        name={name}
-        className={inputVariants({ className, state: inputVariantState })}
-        onChange={(e) => onChange(e.target.value)}
-        // aria-describedby supports multiple IDs, so we can use the hint and the error ID.
-        // Note: we cannot use aria-description yet, as it is not widely supported.
-        aria-describedby={`${hint ? `${id}-hint` : ''} ${showError ? `${id}-error` : ''}`.trim()}
+        className={standaloneInputVariants({ size, variant, className })}
       />
-      <FieldErrors id={`${id}-error`} errors={meta.errors} show={!!showError} />
+    );
+  }
+
+  return (
+    <div className={inputWrapperVariants({ size, variant, className })}>
+      {prefix && <div className={affixVariants({ size })}>{prefix}</div>}
+      <input {...inputProps} className={inputVariants({ size })} />
+      {suffix && <div className={affixVariants({ size })}>{suffix}</div>}
     </div>
   );
 }

@@ -41,13 +41,10 @@ export type ValidationContext = {
 
 export type FormErrors = Record<string, string[]>;
 
-// Props that all fields compatible with this system can handle
-export type BaseFieldProps<T extends FieldValue = string> = FieldState<T> & {
+export type BaseFieldProps = {
   name: string;
   label: string;
   hint?: string;
   placeholder?: string;
   className?: string;
-  onChange: (value: T) => void;
-  onBlur: () => void;
 };

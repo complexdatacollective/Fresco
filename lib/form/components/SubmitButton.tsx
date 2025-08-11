@@ -1,7 +1,8 @@
+import { type ComponentProps } from 'react';
 import { Button } from '~/components/ui/Button';
 import { useFormStore } from '../store/formStoreProvider';
 
-export default function SubmitButton() {
+export default function SubmitButton(props: ComponentProps<typeof Button>) {
   const isSubmitting = useFormStore((state) => state.isSubmitting);
   const isValid = useFormStore((state) => state.isValid);
 
@@ -11,6 +12,7 @@ export default function SubmitButton() {
       key="submit"
       aria-label="Submit"
       disabled={isSubmitting ?? !isValid}
+      {...props}
     >
       {isSubmitting ? 'Submitting...' : 'Submit'}
     </Button>
