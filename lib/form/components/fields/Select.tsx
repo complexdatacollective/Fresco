@@ -1,5 +1,5 @@
 import { type SelectHTMLAttributes } from 'react';
-import { inputVariants } from './Input';
+import { standaloneInputVariants } from './Input';
 
 type SelectOption = {
   value: string | number;
@@ -17,7 +17,7 @@ export function SelectField({
   ...selectProps
 }: SelectProps) {
   return (
-    <select {...selectProps} className={inputVariants()}>
+    <select {...selectProps} className={standaloneInputVariants()}>
       {placeholder && (
         <option value="" selected={selectProps.value === ''}>
           {placeholder}

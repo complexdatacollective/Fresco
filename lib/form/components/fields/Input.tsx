@@ -14,7 +14,7 @@ const sharedTextStyles = cx(
   'disabled:cursor-not-allowed disabled:opacity-50',
   'disabled:text-muted-foreground disabled:placeholder:text-muted-foreground/50',
   // Read-only state styles
-  'read-only:cursor-default read-only:text-muted-foreground',
+  'is-read-only:cursor-default is-read-only:text-muted-foreground',
 );
 
 // Shared base border styles (without focus)
@@ -22,7 +22,7 @@ const sharedBaseStyles = cx(
   'rounded-lg border border-border bg-input',
   'aria-[invalid=true]:border-destructive',
   'disabled:bg-muted',
-  'read-only:bg-muted/50',
+  'is-read-only:bg-muted/50',
 );
 
 // Focus styles for standalone input
@@ -30,7 +30,7 @@ const standaloneFocusStyles = cx(
   'focus:border-input-foreground/50',
   'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-input-foreground/10 focus-visible:ring-offset-0',
   'aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20',
-  'read-only:focus:border-border',
+  'is-read-only:focus:border-border',
 );
 
 // Focus styles for wrapper (using :has)
@@ -39,7 +39,7 @@ const wrapperFocusStyles = cx(
   'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-input-foreground/10 has-[input:focus-visible]:ring-offset-0',
   'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
   'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
-  'has-[input:read-only]:has-[input:focus]:border-border',
+  'has-[input:is-read-only]:has-[input:focus]:border-border',
 );
 
 // Shared variant definitions
@@ -68,7 +68,7 @@ export const inputVariants = cva({
     'flex-1 min-w-0 border-0 p-0',
     'bg-input', // Match the wrapper's background
     'disabled:bg-muted', // Ensure disabled state matches wrapper
-    'read-only:bg-muted/50', // Ensure read-only state matches wrapper
+    'is-read-only:bg-muted/50', // Ensure read-only state matches wrapper
     'focus:outline-none focus:ring-0',
     sharedTextStyles,
   ),
@@ -95,7 +95,7 @@ export const inputWrapperVariants = compose(
       // Additional :has selectors for state management
       'has-[[aria-invalid=true]]:border-destructive',
       'has-[input:disabled]:bg-muted',
-      'has-[input:read-only]:bg-muted/50',
+      'has-[input:is-read-only]:bg-muted/50',
     ),
     variants: {
       size: {

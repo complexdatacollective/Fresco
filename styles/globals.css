@@ -467,3 +467,14 @@
     @apply italic;
   }
 }
+
+/* 
+
+The default tailwind way to do this uses a psuedo element selector, which
+means that anything not editable is "read only", including things
+like <select>. 
+
+This custom variant lets you target only elements with the readonly attribute.
+
+*/
+@custom-variant is-read-only (&[readonly]);

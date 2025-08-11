@@ -35,7 +35,7 @@ export type UseFieldConfig<T extends FieldValue = FieldValue> = {
   };
   fieldProps: {
     'value': T;
-    'onChange': (value: T) => void;
+    'onChange': (valueOrEvent: T | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
     'onBlur': () => void;
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
@@ -89,7 +89,17 @@ export function useField<T extends FieldValue = FieldValue>(config: {
   ]);
 
   const handleChange = useCallback(
-    (value: T) => {
+    (valueOrEvent: T | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+      // Smart detection: if it's an event object, extract the value; otherwise use as-is
+      let value: T;
+      if (valueOrEvent && typeof valueOrEvent === 'object' && 'target' in valueOrEvent && 'type' in valueOrEvent) {
+        // It's an event object, extract the value
+        value = (valueOrEvent as React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>).target.value as T;
+      } else {
+        // It's a direct value
+        value = valueOrEvent as T;
+      }
+      
       setFieldValue(config.name, value);
       void validateField(config.name);
     },

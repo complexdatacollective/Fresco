@@ -18,12 +18,15 @@ export default function FieldErrors({
   if (!show || !errors || errors.length === 0) return null;
 
   return (
-    <div id={id} className="text-destructive flex gap-2 text-sm">
-      <TriangleAlert className="h-4 w-4 self-center" />
+    <div
+      id={id}
+      className="text-destructive flex justify-items-start gap-2 text-sm"
+    >
+      <TriangleAlert className="w-4" />
       {errors.length === 1 ? (
         <p>{errors[0]}</p>
       ) : (
-        <ul>
+        <ul className="list-disc pl-5">
           {errors.map((error, index) => (
             <li key={index}>{error}</li>
           ))}
