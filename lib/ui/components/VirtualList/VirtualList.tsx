@@ -241,6 +241,7 @@ export function VirtualList({
             ? `item-${items[activeIndex].id}`
             : undefined,
         'onKeyDown': handleKeyDown,
+        'onBlur': () => setActiveIndex(-1),
       })}
     >
       <div
