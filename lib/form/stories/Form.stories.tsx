@@ -12,6 +12,7 @@ import {
 } from '../components';
 import { InputField } from '../components/fields/Input';
 import { InputArrayField } from '../components/fields/InputArrayField';
+import { RadioGroupField } from '../components/fields/RadioGroup';
 import { SelectField } from '../components/fields/Select';
 import { FormStoreProvider } from '../store/formStoreProvider';
 
@@ -115,6 +116,19 @@ export const Default: Story = {
           { value: 'other', label: 'Other' },
         ]}
         validation={z.string().min(1, 'Please select a country')}
+      />
+      <Field
+        name="preferredContact"
+        label="Preferred Contact Method"
+        hint="How would you like us to contact you?"
+        Component={RadioGroupField}
+        options={[
+          { value: 'email', label: 'Email' },
+          { value: 'phone', label: 'Phone' },
+          { value: 'sms', label: 'SMS / Text Message' },
+          { value: 'none', label: 'Please do not contact me' },
+        ]}
+        validation={z.string().min(1, 'Please select a contact method')}
       />
       <Field
         name="hobbies"

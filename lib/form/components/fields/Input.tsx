@@ -27,16 +27,16 @@ const sharedBaseStyles = cx(
 
 // Focus styles for standalone input
 const standaloneFocusStyles = cx(
-  'focus:border-input-foreground/50',
-  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-input-foreground/10 focus-visible:ring-offset-0',
+  'focus:border-accent/50',
+  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/10 focus-visible:ring-offset-0',
   'aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20',
   'is-read-only:focus:border-border',
 );
 
 // Focus styles for wrapper (using :has)
 const wrapperFocusStyles = cx(
-  'has-[input:focus]:border-input-foreground/50',
-  'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-input-foreground/10 has-[input:focus-visible]:ring-offset-0',
+  'has-[input:focus]:border-accent/50',
+  'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-accent/10 has-[input:focus-visible]:ring-offset-0',
   'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
   'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
   'has-[input:is-read-only]:has-[input:focus]:border-border',
@@ -133,7 +133,6 @@ export const inputWrapperVariants = compose(
 export const standaloneInputVariants = compose(
   cva({
     base: cx(
-      'w-full',
       'transition-all duration-200',
       sharedBaseStyles,
       standaloneFocusStyles,

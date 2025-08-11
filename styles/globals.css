@@ -443,9 +443,6 @@
 
     --input: 0 0% 100%;
     --input-foreground: var(--cyber-grape);
-    --input-placeholder: var(--cyber-grape-hue)
-      calc(var(--cyber-grape-saturation) - 10%)
-      calc(var(--cyber-grape-lightness) - 10%);
 
     --popover: var(--white);
     --popover-foreground: var(--foreground);
