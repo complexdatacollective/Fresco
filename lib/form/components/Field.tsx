@@ -32,9 +32,9 @@ export default function Field<
     validation,
   });
 
-  const FinalComponent = Component as ElementType;
+  const FieldComponent = Component as ElementType;
 
   return (
-    <FinalComponent name={name} {...fieldProps} {...additionalFieldProps} />
+    <FieldComponent name={name} {...fieldProps} {...additionalFieldProps} />
   );
 }

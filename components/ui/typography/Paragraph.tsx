@@ -1,13 +1,12 @@
 'use client';
 
-import { cva, type VariantProps } from '~/utils/cva';
 import { forwardRef } from 'react';
-import { cx } from '~/utils/cva';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const paragraphVariants = cva({
   base: 'text-pretty font-normal',
   variants: {
-    variant: {
+    style: {
       default: '',
       blockquote: 'mt-6 border-l-2 pl-6 italic',
       inlineCode:
@@ -16,29 +15,36 @@ export const paragraphVariants = cva({
       mutedText: 'text-muted',
       smallText: 'text-sm',
     },
+    emphasis: {
+      default: '',
+      muted: 'text-muted',
+    },
     margin: {
       default: 'not-first:mt-4',
       none: 'mt-0',
     },
   },
   defaultVariants: {
-    variant: 'default',
+    style: 'default',
     margin: 'default',
   },
 });
 
 type ParagraphProps = {
-  variant?: VariantProps<typeof paragraphVariants>['variant'];
+  style?: VariantProps<typeof paragraphVariants>['style'];
+  emphasis?: VariantProps<typeof paragraphVariants>['emphasis'];
   margin?: VariantProps<typeof paragraphVariants>['margin'];
   asChild?: boolean;
 } & React.HTMLAttributes<HTMLParagraphElement>;
 
 const Paragraph = forwardRef<HTMLParagraphElement, ParagraphProps>(
-  ({ className, variant, margin, ...props }, ref) => {
+  ({ className, style, margin, emphasis, ...props }, ref) => {
     return (
       <p
         ref={ref}
-        className={cx(paragraphVariants({ variant, margin, className }))}
+        className={cx(
+          paragraphVariants({ style, margin, emphasis, className }),
+        )}
         {...props}
       />
     );

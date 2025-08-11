@@ -1,12 +1,11 @@
 'use client';
 
-import { cva, type VariantProps } from '~/utils/cva';
-import React from 'react';
-import { cx } from '~/utils/cva';
 import { Slot } from '@radix-ui/react-slot';
+import React from 'react';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const headingVariants = cva({
-  base: 'text-balance',
+  base: 'text-balance ',
   variants: {
     variant: {
       'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
@@ -17,6 +16,10 @@ export const headingVariants = cva({
         'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
       'label':
         'scroll-m-20 text-sm font-extrabold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
+    },
+    margin: {
+      default: 'not-first:mt-4',
+      none: 'mt-0',
     },
   },
 });

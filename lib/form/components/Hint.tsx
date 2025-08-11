@@ -1,3 +1,4 @@
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { type BaseFieldProps } from '../types';
 
 export default function Hint({
@@ -14,8 +15,8 @@ export default function Hint({
   console.warn('TODO: Implement validation in Hint component:', validation);
 
   return (
-    <p id={id} className="text-muted-foreground text-xs">
+    <Paragraph id={id} margin="none">
       {children}
-    </p>
+    </Paragraph>
   );
 }

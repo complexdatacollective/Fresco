@@ -45,12 +45,12 @@ export function SelectField({
         </Hint>
       )}
       <select
+        {...restProps}
         id={id}
         name={name}
         value={value as string | number | undefined}
         onChange={onChange}
         className={inputVariants({ state: inputVariantState, className })}
-        {...restProps}
         aria-invalid={!!showError}
         aria-describedby={
           hint || showError

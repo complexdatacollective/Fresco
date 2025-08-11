@@ -12,7 +12,7 @@ import FieldErrors from '../FieldErrors';
 import Hint from '../Hint';
 import { Label } from '../Label';
 import { InputField } from './Input';
-import { containerVariants } from './shared';
+import { containerVariants, inputVariants } from './shared';
 
 function Item({
   value,
@@ -173,8 +173,8 @@ export function InputArrayField({
         </Hint>
       )}
 
-      {value && value.length > 0 && (
-        <div className="space-y-2">
+      <div className={inputVariants({ state: inputVariantState })}>
+        {value && value.length > 0 && (
           <Reorder.Group
             values={value}
             onReorder={onChange}
@@ -195,24 +195,15 @@ export function InputArrayField({
               ))}
             </AnimatePresence>
           </Reorder.Group>
-        </div>
-      )}
+        )}
 
-      {/* Add new item */}
-      <div className="flex gap-2">
-        <InputField
+        {/* Add new item */}
+
+        <input
           type="text"
           value={newItem}
           placeholder={placeholder}
           onChange={(e) => setNewItem(e.target.value)}
-          onKeyPress={(e) => handleKeyPress(e, handleAddItem)}
-          meta={{
-            isTouched: true,
-            isValidating: false,
-            errors: [],
-            isDirty: true,
-            isValid: true,
-          }}
         />
         <Button onClick={handleAddItem} disabled={!newItem.trim()}>
           {addButtonText}
