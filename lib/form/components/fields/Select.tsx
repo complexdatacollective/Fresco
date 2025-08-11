@@ -6,7 +6,7 @@ type SelectOption = {
   label: string;
 };
 
-type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+export type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
   placeholder?: string;
   options: SelectOption[];
 };

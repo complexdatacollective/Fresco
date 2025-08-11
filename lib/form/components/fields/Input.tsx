@@ -17,15 +17,29 @@ const sharedTextStyles = cx(
   'read-only:cursor-default read-only:text-muted-foreground',
 );
 
-// Shared border and focus styles
-const sharedBorderStyles = cx(
+// Shared base border styles (without focus)
+const sharedBaseStyles = cx(
   'rounded-lg border border-border bg-input',
+  'aria-[invalid=true]:border-destructive',
+  'disabled:bg-muted',
+  'read-only:bg-muted/50',
+);
+
+// Focus styles for standalone input
+const standaloneFocusStyles = cx(
   'focus:border-input-foreground/50',
   'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-input-foreground/10 focus-visible:ring-offset-0',
-  'aria-[invalid=true]:border-destructive',
   'aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20',
-  'disabled:bg-muted',
-  'read-only:bg-muted/50 read-only:focus:border-border',
+  'read-only:focus:border-border',
+);
+
+// Focus styles for wrapper (using :has)
+const wrapperFocusStyles = cx(
+  'has-[input:focus]:border-input-foreground/50',
+  'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-input-foreground/10 has-[input:focus-visible]:ring-offset-0',
+  'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
+  'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
+  'has-[input:read-only]:has-[input:focus]:border-border',
 );
 
 // Shared variant definitions
@@ -51,15 +65,18 @@ const sharedVariantStyles = {
 // Input element when used with wrapper (prefix/suffix)
 export const inputVariants = cva({
   base: cx(
-    'flex-1 min-w-0 border-0 p-0 bg-transparent',
+    'flex-1 min-w-0 border-0 p-0',
+    'bg-input', // Match the wrapper's background
+    'disabled:bg-muted', // Ensure disabled state matches wrapper
+    'read-only:bg-muted/50', // Ensure read-only state matches wrapper
     'focus:outline-none focus:ring-0',
     sharedTextStyles,
   ),
   variants: {
     size: {
-      sm: 'text-sm px-3',
-      md: 'text-base px-4',
-      lg: 'text-lg px-5',
+      sm: 'h-8 text-sm px-3',
+      md: 'h-12 text-base px-4',
+      lg: 'h-14 text-lg px-5',
     },
   },
   defaultVariants: {
@@ -71,23 +88,20 @@ export const inputVariants = cva({
 export const inputWrapperVariants = compose(
   cva({
     base: cx(
-      'group relative inline-flex w-full items-center overflow-hidden',
-      sharedBorderStyles,
-      // Override focus styles to use :has selector
-      'focus:border-border', // Reset direct focus
-      'has-[input:focus]:border-input-foreground/50',
-      'has-[input:focus-visible]:ring-4',
+      'group relative inline-flex w-full items-stretch overflow-hidden',
+      'transition-all duration-200',
+      sharedBaseStyles,
+      wrapperFocusStyles,
+      // Additional :has selectors for state management
       'has-[[aria-invalid=true]]:border-destructive',
-      'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
-      'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
       'has-[input:disabled]:bg-muted',
-      'has-[input:read-only]:bg-muted/50 has-[input:read-only]:has-[input:focus]:border-border',
+      'has-[input:read-only]:bg-muted/50',
     ),
     variants: {
       size: {
-        sm: 'h-8',
-        md: 'h-12',
-        lg: 'h-14',
+        sm: '',
+        md: '',
+        lg: '',
       },
       variant: {
         default: '',
@@ -118,12 +132,18 @@ export const inputWrapperVariants = compose(
 // Standalone input (no prefix/suffix)
 export const standaloneInputVariants = compose(
   cva({
-    base: cx('w-full', sharedBorderStyles, sharedTextStyles),
+    base: cx(
+      'w-full',
+      'transition-all duration-200',
+      sharedBaseStyles,
+      standaloneFocusStyles,
+      sharedTextStyles,
+    ),
     variants: {
       size: {
-        sm: 'text-sm px-3 py-1.5',
-        md: 'text-base px-4 py-2',
-        lg: 'text-lg px-5 py-3',
+        sm: 'h-8 text-sm px-3',
+        md: 'h-12 text-base px-4',
+        lg: 'h-14 text-lg px-5',
       },
       variant: sharedVariantStyles,
     },
@@ -137,7 +157,8 @@ export const standaloneInputVariants = compose(
 // Prefix/suffix styles
 export const affixVariants = cva({
   base: cx(
-    'flex items-center justify-center shrink-0 grow-0 bg-platinum h-full',
+    'flex items-center justify-center shrink-0 grow-0',
+    'bg-muted/50', // Subtle background for affix areas
     'text-muted-foreground',
   ),
   variants: {
@@ -152,18 +173,19 @@ export const affixVariants = cva({
   },
 });
 
-type InputFieldProps = InputHTMLAttributes<HTMLInputElement> &
+type InputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> &
   VariantProps<typeof inputWrapperVariants> & {
-    prefix?: ReactNode;
-    suffix?: ReactNode;
+    // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
+    prefixComponent?: ReactNode;
+    suffixComponent?: ReactNode;
   };
 
 export function InputField({
   className,
   size,
   variant,
-  prefix,
-  suffix,
+  prefixComponent: prefix,
+  suffixComponent: suffix,
   ...inputProps
 }: InputFieldProps) {
   // If no prefix or suffix, render simple input for backward compatibility

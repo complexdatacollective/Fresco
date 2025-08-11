@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
-import type { FieldConfig } from '../types';
+import type { FieldConfig, FieldState } from '../types';
 
 /**
  * Helper function to determine if a field should show an error message.
@@ -58,12 +58,12 @@ export function useField<T extends FieldValue = FieldValue>(config: {
   const isUnmountingRef = useRef(false);
 
   // Subscribe to the specific field state using Zustand's useStore hook
-  const fieldState = useFormStore((state) => state.getFieldState(config.name));
-  const registerField = useFormStore((store) => store.registerField);
-  const unregisterField = useFormStore((store) => store.unregisterField);
-  const setFieldValue = useFormStore((store) => store.setFieldValue);
-  const setFieldTouched = useFormStore((store) => store.setFieldTouched);
-  const validateField = useFormStore((store) => store.validateField);
+  const fieldState: FieldState | undefined = useFormStore((state) => state.getFieldState(config.name));
+  const registerField: (config: FieldConfig) => void = useFormStore((store) => store.registerField);
+  const unregisterField: (fieldName: string) => void = useFormStore((store) => store.unregisterField);  
+  const setFieldValue: (fieldName: string, value: FieldValue) => void = useFormStore((store) => store.setFieldValue);
+  const setFieldTouched: (fieldName: string, touched: boolean) => void = useFormStore((store) => store.setFieldTouched);
+  const validateField: (fieldName: string) => Promise<void> = useFormStore((store) => store.validateField);
 
   const shouldShowError = useFieldShouldShowError(config.name);
 
@@ -103,7 +103,7 @@ export function useField<T extends FieldValue = FieldValue>(config: {
     void validateField(config.name);
   }, [config.name, validateField, setFieldTouched]);
 
-  return {
+  const result: UseFieldConfig<T> = {
     id,
     meta: {
       shouldShowError,
@@ -133,4 +133,6 @@ export function useField<T extends FieldValue = FieldValue>(config: {
       'aria-describedby': `${id}-hint ${id}-error`.trim(),
     },
   };
+  
+  return result;
 }

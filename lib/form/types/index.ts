@@ -47,4 +47,6 @@ export type BaseFieldProps = {
   hint?: string;
   placeholder?: string;
   className?: string;
+  value?: FieldValue;
+  onChange?: (value: FieldValue) => void;
 };

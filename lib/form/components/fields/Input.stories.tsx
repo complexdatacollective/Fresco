@@ -1,17 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import {
-  Search,
-  Mail,
-  Lock,
-  User,
-  DollarSign,
+  AlertCircle,
   Calendar,
+  Check,
+  DollarSign,
   Eye,
   EyeOff,
-  X,
-  Check,
-  AlertCircle,
   Loader2,
+  Lock,
+  Mail,
+  Search,
+  User,
+  X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { InputField } from './Input';
@@ -89,14 +89,14 @@ const meta: Meta<typeof InputField> = {
         type: { summary: 'string' },
       },
     },
-    prefix: {
+    prefixComponent: {
       control: false,
       description: 'Content to display before the input',
       table: {
         type: { summary: 'ReactNode' },
       },
     },
-    suffix: {
+    suffixComponent: {
       control: false,
       description: 'Content to display after the input',
       table: {
@@ -355,7 +355,7 @@ export const WithSearchIcon: Story = {
   name: 'With Search Icon',
   args: {
     placeholder: 'Search...',
-    prefix: <Search className="h-4 w-4" />,
+    prefixComponent: <Search className="h-4 w-4" />,
   },
 };
 
@@ -364,7 +364,7 @@ export const WithEmailIcon: Story = {
   args: {
     type: 'email',
     placeholder: 'user@example.com',
-    prefix: <Mail className="h-4 w-4" />,
+    prefixComponent: <Mail className="h-4 w-4" />,
   },
 };
 
@@ -376,8 +376,8 @@ export const WithPasswordToggle: Story = {
       <InputField
         type={showPassword ? 'text' : 'password'}
         placeholder="Enter password"
-        prefix={<Lock className="h-4 w-4" />}
-        suffix={
+        prefixComponent={<Lock className="h-4 w-4" />}
+        suffixComponent={
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
@@ -400,8 +400,8 @@ export const WithPriceInput: Story = {
   args: {
     type: 'number',
     placeholder: '0.00',
-    prefix: <DollarSign className="h-4 w-4" />,
-    suffix: <span className="text-sm">USD</span>,
+    prefixComponent: <DollarSign className="h-4 w-4" />,
+    suffixComponent: <span className="text-sm">USD</span>,
   },
 };
 
@@ -410,7 +410,7 @@ export const WithLoadingState: Story = {
   args: {
     placeholder: 'Loading...',
     disabled: true,
-    suffix: <Loader2 className="h-4 w-4 animate-spin" />,
+    suffixComponent: <Loader2 className="h-4 w-4 animate-spin" />,
   },
 };
 
@@ -420,12 +420,12 @@ export const WithValidationIcons: Story = {
     <div className="flex flex-col gap-4">
       <InputField
         defaultValue="Valid input"
-        suffix={<Check className="h-4 w-4 text-green-500" />}
+        suffixComponent={<Check className="h-4 w-4 text-green-500" />}
       />
       <InputField
         defaultValue="Invalid input"
         aria-invalid
-        suffix={<AlertCircle className="text-destructive h-4 w-4" />}
+        suffixComponent={<AlertCircle className="text-destructive h-4 w-4" />}
       />
     </div>
   ),
@@ -440,7 +440,7 @@ export const WithClearButton: Story = {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Type something..."
-        suffix={
+        suffixComponent={
           value && (
             <button
               type="button"
@@ -460,7 +460,7 @@ export const WithUserPrefix: Story = {
   name: 'Username Input',
   args: {
     placeholder: 'Enter username',
-    prefix: <User className="h-4 w-4" />,
+    prefixComponent: <User className="h-4 w-4" />,
   },
 };
 
@@ -468,7 +468,7 @@ export const WithDateIcon: Story = {
   name: 'Date Input',
   args: {
     type: 'date',
-    prefix: <Calendar className="h-4 w-4" />,
+    prefixComponent: <Calendar className="h-4 w-4" />,
   },
 };
 
@@ -479,20 +479,20 @@ export const ComplexExample: Story = {
       <InputField
         size="sm"
         placeholder="Small with icons"
-        prefix={<Search className="h-3 w-3" />}
-        suffix={<X className="h-3 w-3" />}
+        prefixComponent={<Search className="h-3 w-3" />}
+        suffixComponent={<X className="h-3 w-3" />}
       />
       <InputField
         size="md"
         placeholder="Medium with icons"
-        prefix={<Mail className="h-4 w-4" />}
-        suffix={<Check className="h-4 w-4 text-green-500" />}
+        prefixComponent={<Mail className="h-4 w-4" />}
+        suffixComponent={<Check className="h-4 w-4 text-green-500" />}
       />
       <InputField
         size="lg"
         placeholder="Large with icons"
-        prefix={<User className="h-5 w-5" />}
-        suffix={<span className="text-lg font-semibold">PRO</span>}
+        prefixComponent={<User className="h-5 w-5" />}
+        suffixComponent={<span className="text-lg font-semibold">PRO</span>}
       />
     </div>
   ),
@@ -505,22 +505,22 @@ export const VariantExamplesWithIcons: Story = {
       <InputField
         variant="default"
         placeholder="Default with search"
-        prefix={<Search className="h-4 w-4" />}
+        prefixComponent={<Search className="h-4 w-4" />}
       />
       <InputField
         variant="ghost"
         placeholder="Ghost with mail"
-        prefix={<Mail className="h-4 w-4" />}
+        prefixComponent={<Mail className="h-4 w-4" />}
       />
       <InputField
         variant="filled"
         placeholder="Filled with lock"
-        prefix={<Lock className="h-4 w-4" />}
+        prefixComponent={<Lock className="h-4 w-4" />}
       />
       <InputField
         variant="outline"
         placeholder="Outline with user"
-        prefix={<User className="h-4 w-4" />}
+        prefixComponent={<User className="h-4 w-4" />}
       />
     </div>
   ),
@@ -533,18 +533,18 @@ export const DisabledWithIcons: Story = {
       <InputField
         disabled
         defaultValue="Disabled with prefix"
-        prefix={<Mail className="h-4 w-4" />}
+        prefixComponent={<Mail className="h-4 w-4" />}
       />
       <InputField
         disabled
         defaultValue="Disabled with suffix"
-        suffix={<Lock className="h-4 w-4" />}
+        suffixComponent={<Lock className="h-4 w-4" />}
       />
       <InputField
         disabled
         defaultValue="Disabled with both"
-        prefix={<User className="h-4 w-4" />}
-        suffix={<Check className="h-4 w-4" />}
+        prefixComponent={<User className="h-4 w-4" />}
+        suffixComponent={<Check className="h-4 w-4" />}
       />
     </div>
   ),

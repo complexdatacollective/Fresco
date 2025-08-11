@@ -125,47 +125,46 @@ type InputArrayFieldProps = BaseFieldProps & {
 
 export function InputArrayField({
   value,
-  label,
-  hint,
+  label: _label,
+  hint: _hint,
   placeholder,
   addButtonText = 'Add Item',
   onChange,
 }: InputArrayFieldProps) {
   const [newItem, setNewItem] = useState('');
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState('');
 
-  // Update isTouched state when the field is interacted with
+  // Ensure value is treated as string array or empty array
+  const arrayValue = Array.isArray(value) ? value.filter(item => typeof item === 'string') as string[] : [];
 
   // Add item by appending to the existing value
   const handleAddItem = () => {
     if (newItem.trim()) {
-      const newValue = [...(value || []), newItem.trim()];
+      const newValue = [...arrayValue, newItem.trim()];
       onChange?.(newValue);
       setNewItem('');
     }
   };
 
   const handleDeleteItem = (index: number) => {
-    const newValue = (value || []).filter((_, i) => i !== index);
+    const newValue = arrayValue.filter((_, i) => i !== index);
     onChange?.(newValue);
   };
 
   return (
     <div>
-      {value && value.length > 0 && (
+      {arrayValue.length > 0 && (
         <Reorder.Group
-          values={value}
-          onReorder={onChange}
+          values={arrayValue}
+          onReorder={(newOrder) => onChange?.(newOrder)}
           className="space-y-2"
         >
           <AnimatePresence>
-            {value.map((item, index) => (
+            {arrayValue.map((item, index) => (
               <Item
                 key={item}
                 value={item}
                 handleUpdate={(newValue) => {
-                  const newValueArray = [...(value || [])];
+                  const newValueArray = [...arrayValue];
                   newValueArray[index] = newValue;
                   onChange?.(newValueArray);
                 }}

@@ -27,7 +27,7 @@ export const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
 };
 
 export const useFormStore = <T,>(
-  selector: (store: FormStore) => T = (store) => store as T,
+  selector: (store: FormStore) => T,
 ): T => {
   const formStoreContext = useContext(FormStoreContext);
 
