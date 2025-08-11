@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   DndStoreProvider,
   useDragSource,
@@ -57,7 +57,11 @@ Efficiently renders large lists using virtualization. Supports grid, column, and
 export default meta;
 type Story = StoryObj<typeof VirtualList>;
 
-const Node = (item: SampleItem, _index: number, isSelected: boolean) => {
+const Node = (
+  item: SampleItem,
+  _index: number,
+  isSelected: boolean,
+) => {
   const classes = cn(
     'flex items-center h-full w-full justify-center rounded-full',
     'bg-linear-145 from-50% to-50%',
@@ -92,7 +96,11 @@ const SimpleItemRenderer = (
   );
 };
 
-const DataCard = (item: SampleItem, _index: number, isSelected: boolean) => {
+const DataCard = (
+  item: SampleItem,
+  _index: number,
+  isSelected: boolean,
+) => {
   return (
     <div
       className={cn(
@@ -164,7 +172,9 @@ const DraggableItemRenderer = (
   item: SampleItem,
   index: number,
   isSelected: boolean,
-) => <DraggableItem item={item} isSelected={isSelected} />;
+) => (
+  <DraggableItem item={item} isSelected={isSelected} />
+);
 
 export const Basic: Story = {
   parameters: {
@@ -185,7 +195,7 @@ const items: Item[] = [
 ];
 
 // Define how each item should render
-const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
+const ItemRenderer = (item: Item, index: number, isSelected: boolean, isFocused: boolean) => (
   <div className="flex items-center justify-center h-full w-full bg-accent text-foreground rounded-lg">
     {item.name}
   </div>
@@ -325,11 +335,11 @@ function MyComponent() {
     setSelectedIds(newSelected);
   };
 
-  // Render function with selection styling
-  const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
+  // Render function with selection and focus styling
+  const ItemRenderer = (item: Item, index: number, isSelected: boolean, isFocused: boolean) => (
     <div className={\`flex items-center justify-center h-full w-full rounded-lg transition-all \${
       isSelected ? 'bg-primary text-white' : 'bg-accent text-foreground'
-    }\`}>
+    } \${isFocused ? 'ring-2 ring-accent ring-offset-2' : ''}\`}>
       {item.name}
     </div>
   );
@@ -437,7 +447,7 @@ import { VirtualList } from './VirtualList';
 
 const items = generateItems(100);
 
-const ItemRenderer = (item, index, isSelected) => (
+const ItemRenderer = (item, index, isSelected, isFocused) => (
   <div className="flex items-center justify-center h-full w-full bg-accent text-foreground rounded-lg">
     {item.name}
   </div>
@@ -558,7 +568,7 @@ import { VirtualList } from './VirtualList';
 
 const items = generateItems(50);
 
-const ItemRenderer = (item, index, isSelected) => (
+const ItemRenderer = (item, index, isSelected, isFocused) => (
   <div className="flex items-center justify-center h-full w-full bg-accent text-foreground rounded-lg">
     {item.name}
   </div>
@@ -660,10 +670,10 @@ const items = Array.from({ length: 10000 }, (_, i) => ({
   name: \`Item \${i + 1}\`
 }));
 
-const ItemRenderer = (item, index, isSelected) => (
+const ItemRenderer = (item, index, isSelected, isFocused) => (
   <div className={\`flex items-center justify-center h-full w-full rounded-lg transition-all \${
     isSelected ? 'bg-primary text-white' : 'bg-accent text-foreground'
-  }\`}>
+  } \${isFocused ? 'ring-2 ring-primary ring-offset-2' : ''}\`}>
     {item.name}
   </div>
 );
@@ -762,7 +772,7 @@ import { VirtualList } from './VirtualList';
 import { DndStoreProvider, useDragSource, useDropTarget } from '~/lib/dnd';
 
 // Draggable item component
-const DraggableItem = ({ item, isSelected }) => {
+const DraggableItem = ({ item, isSelected, isFocused }) => {
   const { dragProps, isDragging } = useDragSource({
     type: 'virtual-list-item',
     metadata: item,
@@ -782,8 +792,8 @@ const DraggableItem = ({ item, isSelected }) => {
 };
 
 // Item renderer for VirtualList
-const DraggableItemRenderer = (item, index, isSelected) => (
-  <DraggableItem item={item} isSelected={isSelected} />
+const DraggableItemRenderer = (item, index, isSelected, isFocused) => (
+  <DraggableItem item={item} isSelected={isSelected} isFocused={isFocused} />
 );
 
 // Drop zone wrapper around VirtualList
@@ -867,7 +877,9 @@ function DragDropLists() {
     },
   },
   render: () => {
-    const [leftItems, setLeftItems] = useState(useMemo(() => generateItems(100), []));
+    const [leftItems, setLeftItems] = useState(
+      useMemo(() => generateItems(100), []),
+    );
     const [rightItems, setRightItems] = useState<SampleItem[]>([]);
 
     const moveItem = (item: SampleItem, fromLeft: boolean) => {

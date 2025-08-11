@@ -278,9 +278,7 @@ export function VirtualList({
               className: cn(
                 'item',
                 onItemClick && 'cursor-pointer',
-                focusable &&
-                  isActive &&
-                  'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
+                focusable && isActive && '[&>*]:ring-2 [&>*]:ring-accent [&>*]:ring-offset-2',
               ),
               style: {
                 width: `${itemWidth}px`,
@@ -349,9 +347,7 @@ export function VirtualList({
               className: cn(
                 'item',
                 onItemClick && 'cursor-pointer',
-                focusable &&
-                  isActive &&
-                  'ring-primary ring-offset-background rounded-lg ring-2 ring-offset-2 outline-none',
+                focusable && isActive && '[&>*]:ring-2 [&>*]:ring-accent [&>*]:ring-offset-2',
               ),
               style: {
                 width:
