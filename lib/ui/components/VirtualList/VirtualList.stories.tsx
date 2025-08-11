@@ -195,7 +195,7 @@ const items: Item[] = [
 ];
 
 // Define how each item should render
-const ItemRenderer = (item: Item, index: number, isSelected: boolean, isFocused: boolean) => (
+const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
   <div className="flex items-center justify-center h-full w-full bg-accent text-foreground rounded-lg">
     {item.name}
   </div>
@@ -336,10 +336,10 @@ function MyComponent() {
   };
 
   // Render function with selection and focus styling
-  const ItemRenderer = (item: Item, index: number, isSelected: boolean, isFocused: boolean) => (
+  const ItemRenderer = (item: Item, index: number, isSelected: boolean) => (
     <div className={\`flex items-center justify-center h-full w-full rounded-lg transition-all \${
       isSelected ? 'bg-primary text-white' : 'bg-accent text-foreground'
-    } \${isFocused ? 'ring-2 ring-accent ring-offset-2' : ''}\`}>
+    }\`}>
       {item.name}
     </div>
   );
@@ -447,7 +447,7 @@ import { VirtualList } from './VirtualList';
 
 const items = generateItems(100);
 
-const ItemRenderer = (item, index, isSelected, isFocused) => (
+const ItemRenderer = (item, index, isSelected) => (
   <div className="flex items-center justify-center h-full w-full bg-accent text-foreground rounded-lg">
     {item.name}
   </div>
@@ -568,7 +568,7 @@ import { VirtualList } from './VirtualList';
 
 const items = generateItems(50);
 
-const ItemRenderer = (item, index, isSelected, isFocused) => (
+const ItemRenderer = (item, index, isSelected) => (
   <div className="flex items-center justify-center h-full w-full bg-accent text-foreground rounded-lg">
     {item.name}
   </div>
@@ -670,10 +670,10 @@ const items = Array.from({ length: 10000 }, (_, i) => ({
   name: \`Item \${i + 1}\`
 }));
 
-const ItemRenderer = (item, index, isSelected, isFocused) => (
+const ItemRenderer = (item, index, isSelected) => (
   <div className={\`flex items-center justify-center h-full w-full rounded-lg transition-all \${
     isSelected ? 'bg-primary text-white' : 'bg-accent text-foreground'
-  } \${isFocused ? 'ring-2 ring-primary ring-offset-2' : ''}\`}>
+  }\`}>
     {item.name}
   </div>
 );
@@ -772,7 +772,7 @@ import { VirtualList } from './VirtualList';
 import { DndStoreProvider, useDragSource, useDropTarget } from '~/lib/dnd';
 
 // Draggable item component
-const DraggableItem = ({ item, isSelected, isFocused }) => {
+const DraggableItem = ({ item, isSelected }) => {
   const { dragProps, isDragging } = useDragSource({
     type: 'virtual-list-item',
     metadata: item,
@@ -792,8 +792,8 @@ const DraggableItem = ({ item, isSelected, isFocused }) => {
 };
 
 // Item renderer for VirtualList
-const DraggableItemRenderer = (item, index, isSelected, isFocused) => (
-  <DraggableItem item={item} isSelected={isSelected} isFocused={isFocused} />
+const DraggableItemRenderer = (item, index, isSelected) => (
+  <DraggableItem item={item} isSelected={isSelected} />
 );
 
 // Drop zone wrapper around VirtualList
