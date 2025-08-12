@@ -31,10 +31,31 @@ export const radioGroupVariants = cva({
       md: cx(sizeStyles.md.text, sizeStyles.md.padding),
       lg: cx(sizeStyles.lg.text, sizeStyles.lg.padding),
     },
+    useColumns: {
+      true: cx(
+        'grid gap-3',
+        '@xs:grid-cols-1',
+        '@sm:grid-cols-2',
+        '@md:grid-cols-2',
+        '@lg:grid-cols-2',
+        '@xl:grid-cols-2',
+        '@2xl:grid-cols-3',
+        '@3xl:grid-cols-3',
+        '@5xl:grid-cols-4',
+      ),
+      false: '',
+    },
   },
+  compoundVariants: [
+    {
+      useColumns: true,
+      class: '!flex-none !grid', // Override orientation flex styles when useColumns is enabled
+    },
+  ],
   defaultVariants: {
     orientation: 'vertical',
     size: 'md',
+    useColumns: false,
   },
 });
 
@@ -135,9 +156,11 @@ type RadioGroupProps = Omit<
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
     size?: 'sm' | 'md' | 'lg';
+    useColumns?: boolean;
   };
 
 export function RadioGroupField({
+  id,
   className,
   name,
   options,
@@ -147,6 +170,7 @@ export function RadioGroupField({
   disabled = false,
   orientation = 'vertical',
   size = 'md',
+  useColumns = false,
   ...fieldsetProps
 }: RadioGroupProps) {
   const handleChange = (optionValue: string | number) => {
@@ -159,43 +183,53 @@ export function RadioGroupField({
   const isControlled = value !== undefined;
 
   return (
-    <fieldset
-      {...fieldsetProps}
-      className={radioGroupVariants({ orientation, size, className })}
-      disabled={disabled}
-      data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-    >
-      {options.map((option) => {
-        const optionId = `${name}-${option.value}`;
-        const isOptionDisabled = disabled || option.disabled;
-        const isChecked = isControlled ? value === option.value : undefined; // Let defaultValue handle uncontrolled case
+    <div className="@container">
+      <fieldset
+        {...fieldsetProps}
+        className={radioGroupVariants({
+          orientation,
+          size,
+          useColumns,
+          className,
+        })}
+        disabled={disabled}
+        data-invalid={fieldsetProps['aria-invalid'] === 'true'}
+        aria-labelledby={`${id}-label`} // Important, because we don't have a <legend>
+      >
+        {options.map((option) => {
+          const optionId = `${name}-${option.value}`;
+          const isOptionDisabled = disabled || option.disabled;
+          const isChecked = isControlled ? value === option.value : undefined; // Let defaultValue handle uncontrolled case
 
-        return (
-          <label
-            key={option.value}
-            htmlFor={optionId}
-            className={radioOptionVariants({ size })}
-          >
-            <input
-              type="radio"
-              id={optionId}
-              name={name}
-              value={option.value}
-              {...(isControlled
-                ? { checked: isChecked }
-                : { defaultChecked: defaultValue === option.value })}
-              disabled={isOptionDisabled}
-              onChange={(e) => {
-                if (e.target.checked && !isOptionDisabled) {
-                  handleChange(option.value);
-                }
-              }}
-              className={radioInputVariants({ size })}
-            />
-            <span className={radioLabelVariants({ size })}>{option.label}</span>
-          </label>
-        );
-      })}
-    </fieldset>
+          return (
+            <label
+              key={option.value}
+              htmlFor={optionId}
+              className={radioOptionVariants({ size })}
+            >
+              <input
+                type="radio"
+                id={optionId}
+                name={name}
+                value={option.value}
+                {...(isControlled
+                  ? { checked: isChecked }
+                  : { defaultChecked: defaultValue === option.value })}
+                disabled={isOptionDisabled}
+                onChange={(e) => {
+                  if (e.target.checked && !isOptionDisabled) {
+                    handleChange(option.value);
+                  }
+                }}
+                className={radioInputVariants({ size })}
+              />
+              <span className={radioLabelVariants({ size })}>
+                {option.label}
+              </span>
+            </label>
+          );
+        })}
+      </fieldset>
+    </div>
   );
 }

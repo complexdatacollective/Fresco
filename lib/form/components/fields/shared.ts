@@ -17,12 +17,12 @@ export const textStyles = {
 } as const;
 
 export const labelTextStyles = {
-  base: 'text-foreground select-none',
+  base: 'text-foreground select-none text-balance',
   disabled: 'group-has-[input:disabled]:text-muted-foreground',
   size: {
-    sm: 'text-sm leading-5',
-    md: 'text-base leading-6',
-    lg: 'text-lg leading-7',
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg',
   },
 } as const;
 

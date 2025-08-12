@@ -2,13 +2,13 @@ import { Check } from 'lucide-react';
 import { type FieldsetHTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import {
-  transitionStyles,
-  sizeStyles,
-  opacityStyles,
   cursorStyles,
-  labelTextStyles,
-  interactiveElementStyles,
   interactiveElementSizes,
+  interactiveElementStyles,
+  labelTextStyles,
+  opacityStyles,
+  sizeStyles,
+  transitionStyles,
 } from './shared';
 
 // Fieldset wrapper styles
@@ -30,10 +30,31 @@ export const checkboxGroupVariants = cva({
       md: sizeStyles.md.text,
       lg: sizeStyles.lg.text,
     },
+    useColumns: {
+      true: cx(
+        'grid gap-3',
+        '@xs:grid-cols-1',
+        '@sm:grid-cols-2',
+        '@md:grid-cols-2',
+        '@lg:grid-cols-2',
+        '@xl:grid-cols-2',
+        '@2xl:grid-cols-3',
+        '@3xl:grid-cols-3',
+        '@5xl:grid-cols-4',
+      ),
+      false: '',
+    },
   },
+  compoundVariants: [
+    {
+      useColumns: true,
+      class: '!flex-none !grid', // Override orientation flex styles when useColumns is enabled
+    },
+  ],
   defaultVariants: {
     orientation: 'vertical',
     size: 'md',
+    useColumns: false,
   },
 });
 
@@ -170,6 +191,7 @@ type CheckboxGroupProps = Omit<
     disabled?: boolean;
     orientation?: 'horizontal' | 'vertical';
     size?: 'sm' | 'md' | 'lg';
+    useColumns?: boolean;
   };
 
 export function CheckboxGroupField({
@@ -182,6 +204,7 @@ export function CheckboxGroupField({
   disabled = false,
   orientation = 'vertical',
   size = 'md',
+  useColumns = false,
   ...fieldsetProps
 }: CheckboxGroupProps) {
   const handleChange = (optionValue: string | number, checked: boolean) => {
@@ -199,51 +222,59 @@ export function CheckboxGroupField({
   const currentValues = isControlled ? value : (defaultValue ?? []);
 
   return (
-    <fieldset
-      {...fieldsetProps}
-      className={checkboxGroupVariants({ orientation, size, className })}
-      disabled={disabled}
-      data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-    >
-      {options.map((option) => {
-        const optionId = `${name}-${option.value}`;
-        const isOptionDisabled = disabled || option.disabled;
-        const isChecked = isControlled
-          ? currentValues.includes(option.value)
-          : undefined; // Let defaultValue handle uncontrolled case
+    <div className="@container">
+      <fieldset
+        {...fieldsetProps}
+        className={checkboxGroupVariants({
+          orientation,
+          size,
+          useColumns,
+          className,
+        })}
+        disabled={disabled}
+        data-invalid={fieldsetProps['aria-invalid'] === 'true'}
+        aria-labelledby={`${id}-label`} // Important, because we don't have a <legend>
+      >
+        {options.map((option) => {
+          const optionId = `${name}-${option.value}`;
+          const isOptionDisabled = disabled || option.disabled;
+          const isChecked = isControlled
+            ? currentValues.includes(option.value)
+            : undefined; // Let defaultValue handle uncontrolled case
 
-        return (
-          <label
-            key={option.value}
-            htmlFor={optionId}
-            className={checkboxOptionVariants({ size })}
-          >
-            <input
-              type="checkbox"
-              id={optionId}
-              name={name}
-              value={option.value}
-              checked={isChecked}
-              defaultChecked={
-                !isControlled && currentValues.includes(option.value)
-              }
-              disabled={isOptionDisabled}
-              onChange={(e) => {
-                if (!isOptionDisabled) {
-                  handleChange(option.value, e.target.checked);
+          return (
+            <label
+              key={option.value}
+              htmlFor={optionId}
+              className={checkboxOptionVariants({ size })}
+            >
+              <input
+                type="checkbox"
+                id={optionId}
+                name={name}
+                value={option.value}
+                checked={isChecked}
+                defaultChecked={
+                  !isControlled && currentValues.includes(option.value)
                 }
-              }}
-              className={checkboxInputVariants({ size })}
-            />
-            <div className={checkboxVisualVariants({ size })}>
-              <Check className={checkboxIconVariants({ size })} />
-            </div>
-            <span className={checkboxLabelVariants({ size })}>
-              {option.label}
-            </span>
-          </label>
-        );
-      })}
-    </fieldset>
+                disabled={isOptionDisabled}
+                onChange={(e) => {
+                  if (!isOptionDisabled) {
+                    handleChange(option.value, e.target.checked);
+                  }
+                }}
+                className={checkboxInputVariants({ size })}
+              />
+              <div className={checkboxVisualVariants({ size })}>
+                <Check className={checkboxIconVariants({ size })} />
+              </div>
+              <span className={checkboxLabelVariants({ size })}>
+                {option.label}
+              </span>
+            </label>
+          );
+        })}
+      </fieldset>
+    </div>
   );
 }

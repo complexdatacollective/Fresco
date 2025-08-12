@@ -38,7 +38,11 @@ function Test() {
 export const Default: Story = {
   render: () => (
     <Form
-      onSubmit={(data) => console.log('form-submitted', data)}
+      onSubmit={async (data) => {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        console.log('form-submitted', data);
+      }}
       className="w-2xl rounded-md bg-white p-10 shadow-2xl"
     >
       <Field
@@ -91,6 +95,7 @@ export const Default: Story = {
           { value: 'none', label: 'Please do not contact me' },
         ]}
         validation={z.string().min(1, 'Please select a contact method')}
+        useColumns
       />
       <FieldGroup
         watch={['preferredContact']}
