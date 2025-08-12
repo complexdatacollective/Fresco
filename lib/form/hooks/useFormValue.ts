@@ -2,38 +2,23 @@ import { useShallow } from 'zustand/react/shallow';
 import { useFormStore } from '../store/formStoreProvider';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 
-export function useFormValue<T extends FieldValue = FieldValue>(
-  fieldName: string,
-): T | undefined;
-export function useFormValue<T extends FieldValue = FieldValue>(
-  fieldNames: string[],
-): Record<string, T | undefined>;
-export function useFormValue<T extends FieldValue = FieldValue>(
-  fieldNameOrNames: string | string[],
-): T | undefined | Record<string, T | undefined> {
-  const isArray = Array.isArray(fieldNameOrNames);
-
-  const singleValue = useFormStore((state) => {
-    if (!isArray) {
-      const field = state.getFieldState(fieldNameOrNames);
-      return field?.value as T | undefined;
-    }
-    return undefined;
-  });
-
-  const multipleValues = useFormStore(
+/**
+ * Hook to get form field values by field names
+ * @param fieldNames - Array of field names to watch
+ * @returns Record of field names to their values
+ */
+export function useFormValue<
+  const K extends readonly string[],
+  T extends FieldValue = FieldValue,
+>(fieldNames: K): Record<K[number], T | undefined> {
+  return useFormStore(
     useShallow((state) => {
-      if (isArray) {
-        const values: Record<string, T | undefined> = {};
-        for (const name of fieldNameOrNames) {
-          const field = state.getFieldState(name);
-          values[name] = field?.value as T | undefined;
-        }
-        return values;
+      const values: Record<string, T | undefined> = {};
+      for (const name of fieldNames) {
+        const field = state.getFieldState(name);
+        values[name] = field?.value as T | undefined;
       }
-      return {};
+      return values as Record<K[number], T | undefined>;
     }),
   );
-
-  return isArray ? multipleValues : singleValue;
 }

@@ -144,6 +144,10 @@ export function useField<T extends FieldValue = FieldValue>(config: {
     void validateField(config.name);
   }, [config.name, validateField, setFieldTouched]);
 
+  // Ensure the value is never undefined to prevent uncontrolled to controlled warnings
+  const currentValue = fieldState?.value ?? config.initialValue;
+  const controlledValue = currentValue === undefined ? ('' as T) : currentValue;
+
   const result: UseFieldConfig<T> = {
     id,
     meta: {
@@ -158,7 +162,7 @@ export function useField<T extends FieldValue = FieldValue>(config: {
       'data-field-name': config.name, // Used for scrolling to field errors
     },
     fieldProps: {
-      'value': (fieldState?.value ?? config.initialValue) as T,
+      'value': controlledValue,
       'onChange': handleChange,
       'onBlur': handleBlur,
       // 'aria-required': true, // TODO: find a way to set this based on the validation config.

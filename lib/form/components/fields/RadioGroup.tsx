@@ -179,8 +179,9 @@ export function RadioGroupField({
               id={optionId}
               name={name}
               value={option.value}
-              checked={isChecked}
-              defaultChecked={!isControlled && defaultValue === option.value}
+              {...(isControlled
+                ? { checked: isChecked }
+                : { defaultChecked: defaultValue === option.value })}
               disabled={isOptionDisabled}
               onChange={(e) => {
                 if (e.target.checked && !isOptionDisabled) {
