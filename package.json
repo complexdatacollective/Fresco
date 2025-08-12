@@ -133,7 +133,7 @@
     "@vitejs/plugin-react": "^4.5.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.4.2",
-    "eslint-config-prettier": "^10.1.5",
+    "eslint-config-prettier": "^10.1.8",
     "jest": "^30.0.2",
     "jsdom": "^26.1.0",
     "knip": "^5.61.2",
