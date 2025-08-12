@@ -1,13 +1,14 @@
 import { type FieldsetHTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import {
-  transitionStyles,
-  sizeStyles,
-  opacityStyles,
+  borderStyles,
   cursorStyles,
-  labelTextStyles,
-  interactiveElementStyles,
   interactiveElementSizes,
+  interactiveElementStyles,
+  labelTextStyles,
+  opacityStyles,
+  sizeStyles,
+  transitionStyles,
 } from './shared';
 
 // Fieldset wrapper styles
@@ -18,6 +19,7 @@ export const radioGroupVariants = cva({
     // Disabled state styles
     opacityStyles.disabled,
     cursorStyles.disabled,
+    borderStyles.base,
   ),
   variants: {
     orientation: {
@@ -25,9 +27,9 @@ export const radioGroupVariants = cva({
       horizontal: 'flex flex-row flex-wrap gap-4',
     },
     size: {
-      sm: sizeStyles.sm.text,
-      md: sizeStyles.md.text,
-      lg: sizeStyles.lg.text,
+      sm: cx(sizeStyles.sm.text, sizeStyles.sm.padding),
+      md: cx(sizeStyles.md.text, sizeStyles.md.padding),
+      lg: cx(sizeStyles.lg.text, sizeStyles.lg.padding),
     },
   },
   defaultVariants: {

@@ -1,5 +1,4 @@
-import { cx } from '~/utils/cva';
-import { cva } from '~/utils/cva';
+import { cva, cx } from '~/utils/cva';
 
 // ============================================================================
 // Transition Styles
@@ -78,19 +77,19 @@ export const sizeStyles = {
   sm: {
     height: 'h-8',
     text: 'text-sm',
-    padding: 'px-3',
+    padding: 'py-1 px-3',
     gap: 'gap-2',
   },
   md: {
     height: 'h-12',
     text: 'text-base',
-    padding: 'px-4',
+    padding: 'py-2 px-4',
     gap: 'gap-3',
   },
   lg: {
     height: 'h-14',
     text: 'text-lg',
-    padding: 'px-5',
+    padding: 'py-3 px-5',
     gap: 'gap-3',
   },
 } as const;
