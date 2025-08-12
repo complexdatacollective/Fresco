@@ -1,4 +1,5 @@
 import { Slot } from '@radix-ui/react-slot';
+import { motion } from 'motion/react';
 import * as React from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
@@ -69,5 +70,7 @@ const ButtonSkeleton = (props: ButtonProps) => {
 
   return <Skeleton className={classes} />;
 };
+
+export const MotionButton = motion.create(Button);
 
 export { Button, ButtonSkeleton, buttonVariants };

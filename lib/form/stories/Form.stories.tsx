@@ -5,7 +5,6 @@ import { PersonStandingIcon } from 'lucide-react';
 import { z } from 'zod';
 import { Field, FieldGroup, Form, SubmitButton } from '../components';
 import { InputField } from '../components/fields/Input';
-import { InputArrayField } from '../components/fields/InputArrayField';
 import { RadioGroupField } from '../components/fields/RadioGroup';
 import { SelectField } from '../components/fields/Select';
 import { FormStoreProvider } from '../store/formStoreProvider';
@@ -40,7 +39,7 @@ export const Default: Story = {
   render: () => (
     <Form
       onSubmit={(data) => console.log('form-submitted', data)}
-      className="w-3xl rounded-md bg-white p-10 shadow-2xl"
+      className="w-2xl rounded-md bg-white p-10 shadow-2xl"
     >
       <Field
         name="name"
@@ -62,29 +61,24 @@ export const Default: Story = {
           .min(18, 'You must be at least 18 years old')}
         type="number"
       />
-      <FieldGroup
-        watch={['age']}
-        condition={(values) => Number(values.age) >= 18}
-      >
-        <Field
-          name="country"
-          label="Country"
-          hint="Select your country of residence"
-          Component={SelectField}
-          placeholder="Select a country"
-          options={[
-            { value: 'us', label: 'United States' },
-            { value: 'uk', label: 'United Kingdom' },
-            { value: 'ca', label: 'Canada' },
-            { value: 'au', label: 'Australia' },
-            { value: 'de', label: 'Germany' },
-            { value: 'fr', label: 'France' },
-            { value: 'jp', label: 'Japan' },
-            { value: 'other', label: 'Other' },
-          ]}
-          validation={z.string().min(1, 'Please select a country')}
-        />
-      </FieldGroup>
+      <Field
+        name="country"
+        label="Country"
+        hint="Select your country of residence"
+        Component={SelectField}
+        placeholder="Select a country"
+        options={[
+          { value: 'us', label: 'United States' },
+          { value: 'uk', label: 'United Kingdom' },
+          { value: 'ca', label: 'Canada' },
+          { value: 'au', label: 'Australia' },
+          { value: 'de', label: 'Germany' },
+          { value: 'fr', label: 'France' },
+          { value: 'jp', label: 'Japan' },
+          { value: 'other', label: 'Other' },
+        ]}
+        validation={z.string().min(1, 'Please select a country')}
+      />
       <Field
         name="preferredContact"
         label="Preferred Contact Method"
@@ -98,7 +92,38 @@ export const Default: Story = {
         ]}
         validation={z.string().min(1, 'Please select a contact method')}
       />
-      <Field
+      <FieldGroup
+        watch={['preferredContact']}
+        condition={(values) => values.preferredContact === 'email'}
+      >
+        <Field
+          name="email"
+          label="Email"
+          hint="Enter your email address"
+          Component={InputField}
+          placeholder="Enter your email"
+          validation={z.string().email('Invalid email address')}
+          type="email"
+        />
+      </FieldGroup>
+      <FieldGroup
+        watch={['preferredContact']}
+        condition={(values) =>
+          values.preferredContact === 'phone' ||
+          values.preferredContact === 'sms'
+        }
+      >
+        <Field
+          name="phone"
+          label="Phone"
+          hint="Enter your phone number"
+          Component={InputField}
+          placeholder="Enter your phone number"
+          validation={z.string().min(10, 'Invalid phone number')}
+          type="tel"
+        />
+      </FieldGroup>
+      {/* <Field
         name="hobbies"
         label="Hobbies"
         hint="Add your hobbies (at least 2 required)"
@@ -109,7 +134,7 @@ export const Default: Story = {
         validation={z
           .array(z.string().min(1, 'Hobby cannot be empty'))
           .min(2, 'At least 2 hobbies required')}
-      />
+      /> */}
 
       <SubmitButton className="mt-6" />
     </Form>

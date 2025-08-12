@@ -1,20 +1,26 @@
-import { type ComponentProps } from 'react';
-import { Button } from '~/components/ui/Button';
+import { forwardRef, type ComponentProps } from 'react';
+import { MotionButton } from '~/components/ui/Button';
 import { useFormStore } from '../store/formStoreProvider';
 
-export default function SubmitButton(props: ComponentProps<typeof Button>) {
+const SubmitButton = forwardRef<
+  HTMLButtonElement,
+  ComponentProps<typeof MotionButton>
+>(function SubmitButton(props, ref) {
   const isSubmitting = useFormStore((state) => state.isSubmitting);
   const isValid = useFormStore((state) => state.isValid);
 
   return (
-    <Button
+    <MotionButton
+      ref={ref}
+      layout
       type="submit"
-      key="submit"
       aria-label="Submit"
       disabled={isSubmitting ?? !isValid}
       {...props}
     >
       {isSubmitting ? 'Submitting...' : 'Submit'}
-    </Button>
+    </MotionButton>
   );
-}
+});
+
+export default SubmitButton;

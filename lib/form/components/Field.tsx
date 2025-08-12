@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { type ElementType } from 'react';
 import { type z } from 'zod';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
@@ -10,7 +11,7 @@ import Hint from './Hint';
 import { Label } from './Label';
 
 export const containerVariants = cva({
-  base: 'not-first:mt-6 grid gap-3',
+  base: 'grid gap-3 mt-6',
   variants: {
     state: {
       valid: 'border-success',
@@ -20,6 +21,19 @@ export const containerVariants = cva({
     },
   },
 });
+
+// Animation variants for field mount/unmount and layout changes
+export const fieldAnimationVariants = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
+  },
+  exit: {
+    opacity: 0,
+  },
+};
 
 /**
  * Wrapper that connects a field to the form context, and handles validation
@@ -56,11 +70,16 @@ export default function Field<
 
   const inputVariantState = getInputState(meta);
 
-  // const classes = inputVariants({ className, state: inputVariantState });
-
   return (
-    <div
+    <motion.div
+      key={id}
       className={containerVariants({ state: inputVariantState })}
+      variants={fieldAnimationVariants}
+      layoutId={name}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      layout="position"
       {...containerProps}
     >
       <div>
@@ -84,6 +103,6 @@ export default function Field<
         errors={meta.errors}
         show={meta.shouldShowError}
       />
-    </div>
+    </motion.div>
   );
 }
