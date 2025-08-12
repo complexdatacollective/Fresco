@@ -462,4 +462,9 @@
   em {
     @apply italic;
   }
+
+  /* Roving focus children items */
+  .focused-children > * {
+    @apply ring-offset-background ring-accent ring-2 ring-offset-2 outline-none;
+  }
 }
