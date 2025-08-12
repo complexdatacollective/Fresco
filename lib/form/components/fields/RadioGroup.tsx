@@ -1,16 +1,23 @@
 import { type FieldsetHTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-
-// Shared transition styles
-const sharedTransitionStyles = cx('transition-all duration-200');
+import {
+  transitionStyles,
+  sizeStyles,
+  opacityStyles,
+  cursorStyles,
+  labelTextStyles,
+  interactiveElementStyles,
+  interactiveElementSizes,
+} from './shared';
 
 // Fieldset wrapper styles
 export const radioGroupVariants = cva({
   base: cx(
     'w-full',
-    sharedTransitionStyles,
+    transitionStyles,
     // Disabled state styles
-    'disabled:opacity-50 disabled:cursor-not-allowed',
+    opacityStyles.disabled,
+    cursorStyles.disabled,
   ),
   variants: {
     orientation: {
@@ -18,9 +25,9 @@ export const radioGroupVariants = cva({
       horizontal: 'flex flex-row flex-wrap gap-4',
     },
     size: {
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-lg',
+      sm: sizeStyles.sm.text,
+      md: sizeStyles.md.text,
+      lg: sizeStyles.lg.text,
     },
   },
   defaultVariants: {
@@ -32,16 +39,16 @@ export const radioGroupVariants = cva({
 // Individual radio option styles
 export const radioOptionVariants = cva({
   base: cx(
-    'flex items-center gap-3 cursor-pointer group',
-    sharedTransitionStyles,
+    'flex items-center cursor-pointer group',
+    transitionStyles,
     // Disabled state
     'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
   ),
   variants: {
     size: {
-      sm: 'gap-2',
-      md: 'gap-3',
-      lg: 'gap-3',
+      sm: sizeStyles.sm.gap,
+      md: sizeStyles.md.gap,
+      lg: sizeStyles.lg.gap,
     },
   },
   defaultVariants: {
@@ -52,28 +59,27 @@ export const radioOptionVariants = cva({
 // Radio input styles
 export const radioInputVariants = cva({
   base: cx(
-    'shrink-0 rounded-full border-2 border-border bg-input cursor-pointer',
-    'appearance-none relative',
-    sharedTransitionStyles,
-    // Focus styles
-    'focus:outline-none focus:ring-4 focus:ring-input-foreground/10 focus:ring-offset-0',
-    'focus:border-input-foreground/50',
+    interactiveElementStyles.base,
+    'rounded-full',
+    transitionStyles,
+    interactiveElementStyles.focus,
+    interactiveElementStyles.focusInvalid,
     // Checked state - using background to create the inner circle
     'checked:border-accent checked:bg-input',
-    'checked:after:content-[""] checked:after:absolute  checked:after:rounded-full checked:after:bg-accent',
-    // Invalid state - applied via fieldset data attribute
-    'group-data-[invalid=true]:border-destructive',
-    'group-data-[invalid=true]:focus:border-destructive group-data-[invalid=true]:focus:ring-destructive/20',
-    'group-data-[invalid=true]:checked:border-destructive group-data-[invalid=true]:checked:bg-destructive',
+    'checked:after:content-[""] checked:after:absolute checked:after:rounded-full checked:after:bg-accent',
+    // Invalid state
+    interactiveElementStyles.invalidBorder,
+    interactiveElementStyles.checkedInvalid,
     // Disabled state
-    'disabled:cursor-not-allowed disabled:opacity-50',
-    'disabled:checked:bg-muted-foreground disabled:checked:border-muted-foreground',
+    cursorStyles.disabled,
+    opacityStyles.disabled,
+    interactiveElementStyles.checkedDisabled,
   ),
   variants: {
     size: {
-      sm: 'w-6 h-6 checked:after:inset-[3px]',
-      md: 'w-8 h-8 checked:after:inset-[5px]',
-      lg: 'w-10 h-10 checked:after:inset-[7px]',
+      sm: cx(interactiveElementSizes.sm, 'checked:after:inset-[3px]'),
+      md: cx(interactiveElementSizes.md, 'checked:after:inset-[5px]'),
+      lg: cx(interactiveElementSizes.lg, 'checked:after:inset-[7px]'),
     },
   },
   defaultVariants: {
@@ -84,22 +90,29 @@ export const radioInputVariants = cva({
 // Radio label text styles
 export const radioLabelVariants = cva({
   base: cx(
-    'text-foreground cursor-pointer select-none',
-    sharedTransitionStyles,
+    labelTextStyles.base,
+    transitionStyles,
+    cursorStyles.base,
     // Group states
-    'group-has-[input:disabled]:cursor-not-allowed group-has-[input:disabled]:text-muted-foreground',
+    labelTextStyles.disabled,
   ),
   variants: {
     size: {
-      sm: 'text-sm leading-5',
-      md: 'text-base leading-6',
-      lg: 'text-lg leading-7',
+      sm: labelTextStyles.size.sm,
+      md: labelTextStyles.size.md,
+      lg: labelTextStyles.size.lg,
     },
   },
   defaultVariants: {
     size: 'md',
   },
 });
+
+// Export for backward compatibility
+export const standaloneFocusStyles = cx(
+  interactiveElementStyles.focus,
+  interactiveElementStyles.focusInvalid,
+);
 
 export type RadioOption = {
   value: string | number;

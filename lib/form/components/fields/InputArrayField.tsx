@@ -134,7 +134,9 @@ export function InputArrayField({
   const [newItem, setNewItem] = useState('');
 
   // Ensure value is treated as string array or empty array
-  const arrayValue = Array.isArray(value) ? value.filter(item => typeof item === 'string') as string[] : [];
+  const arrayValue = Array.isArray(value)
+    ? (value.filter((item) => typeof item === 'string') as string[])
+    : [];
 
   // Add item by appending to the existing value
   const handleAddItem = () => {

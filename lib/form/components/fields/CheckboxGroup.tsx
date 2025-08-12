@@ -1,17 +1,24 @@
-import { type FieldsetHTMLAttributes } from 'react';
 import { Check } from 'lucide-react';
+import { type FieldsetHTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-
-// Shared transition styles
-const sharedTransitionStyles = cx('transition-all duration-200');
+import {
+  transitionStyles,
+  sizeStyles,
+  opacityStyles,
+  cursorStyles,
+  labelTextStyles,
+  interactiveElementStyles,
+  interactiveElementSizes,
+} from './shared';
 
 // Fieldset wrapper styles
 export const checkboxGroupVariants = cva({
   base: cx(
     'w-full',
-    sharedTransitionStyles,
+    transitionStyles,
     // Disabled state styles
-    'disabled:opacity-50 disabled:cursor-not-allowed',
+    opacityStyles.disabled,
+    cursorStyles.disabled,
   ),
   variants: {
     orientation: {
@@ -19,9 +26,9 @@ export const checkboxGroupVariants = cva({
       horizontal: 'flex flex-row flex-wrap gap-4',
     },
     size: {
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-lg',
+      sm: sizeStyles.sm.text,
+      md: sizeStyles.md.text,
+      lg: sizeStyles.lg.text,
     },
   },
   defaultVariants: {
@@ -33,16 +40,16 @@ export const checkboxGroupVariants = cva({
 // Individual checkbox option styles
 export const checkboxOptionVariants = cva({
   base: cx(
-    'flex items-center gap-3 cursor-pointer group',
-    sharedTransitionStyles,
+    'flex items-center cursor-pointer group',
+    transitionStyles,
     // Disabled state
     'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
   ),
   variants: {
     size: {
-      sm: 'gap-2',
-      md: 'gap-3',
-      lg: 'gap-3',
+      sm: sizeStyles.sm.gap,
+      md: sizeStyles.md.gap,
+      lg: sizeStyles.lg.gap,
     },
   },
   defaultVariants: {
@@ -50,18 +57,17 @@ export const checkboxOptionVariants = cva({
   },
 });
 
-// Checkbox input styles - matches RadioGroup sizing and colors
+// Checkbox input styles - hidden but still accessible
 export const checkboxInputVariants = cva({
   base: cx(
-    'peer shrink-0 rounded border-2 border-border bg-input cursor-pointer',
-    'sr-only', // Hide the native checkbox
-    sharedTransitionStyles,
+    'peer sr-only', // Hide the native checkbox
+    transitionStyles,
   ),
   variants: {
     size: {
-      sm: 'w-6 h-6',
-      md: 'w-8 h-8',
-      lg: 'w-10 h-10',
+      sm: interactiveElementSizes.sm,
+      md: interactiveElementSizes.md,
+      lg: interactiveElementSizes.lg,
     },
   },
   defaultVariants: {
@@ -72,16 +78,17 @@ export const checkboxInputVariants = cva({
 // Visual checkbox container that replaces the native appearance
 export const checkboxVisualVariants = cva({
   base: cx(
-    'shrink-0 rounded border-2 border-border bg-input cursor-pointer relative',
+    interactiveElementStyles.base,
+    'rounded relative',
     'flex items-center justify-center',
-    sharedTransitionStyles,
+    transitionStyles,
     // Focus styles (when peer input is focused)
     'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent/10 peer-focus:ring-offset-0',
     'peer-focus:border-accent/50',
     // Checked state - matches RadioGroup accent colors
     'peer-checked:border-accent peer-checked:bg-accent',
-    // Invalid state - applied via fieldset data attribute
-    'group-data-[invalid=true]:border-destructive',
+    // Invalid state
+    interactiveElementStyles.invalidBorder,
     'group-data-[invalid=true]:peer-focus:border-destructive group-data-[invalid=true]:peer-focus:ring-destructive/20',
     'group-data-[invalid=true]:peer-checked:border-destructive group-data-[invalid=true]:peer-checked:bg-destructive',
     // Disabled state
@@ -90,9 +97,9 @@ export const checkboxVisualVariants = cva({
   ),
   variants: {
     size: {
-      sm: 'w-6 h-6',
-      md: 'w-8 h-8',
-      lg: 'w-10 h-10',
+      sm: interactiveElementSizes.sm,
+      md: interactiveElementSizes.md,
+      lg: interactiveElementSizes.lg,
     },
   },
   defaultVariants: {
@@ -105,7 +112,7 @@ export const checkboxIconVariants = cva({
   base: cx(
     'text-accent-foreground pointer-events-none',
     'opacity-0 scale-0',
-    sharedTransitionStyles,
+    transitionStyles,
     // Show when checked
     'peer-checked:opacity-100 peer-checked:scale-100',
     // Disabled state
@@ -126,16 +133,17 @@ export const checkboxIconVariants = cva({
 // Checkbox label text styles
 export const checkboxLabelVariants = cva({
   base: cx(
-    'text-foreground cursor-pointer select-none',
-    sharedTransitionStyles,
+    labelTextStyles.base,
+    transitionStyles,
+    cursorStyles.base,
     // Group states
-    'group-has-[input:disabled]:cursor-not-allowed group-has-[input:disabled]:text-muted-foreground',
+    labelTextStyles.disabled,
   ),
   variants: {
     size: {
-      sm: 'text-sm leading-5',
-      md: 'text-base leading-6',
-      lg: 'text-lg leading-7',
+      sm: labelTextStyles.size.sm,
+      md: labelTextStyles.size.md,
+      lg: labelTextStyles.size.lg,
     },
   },
   defaultVariants: {

@@ -197,8 +197,8 @@ export const PrioritySelector: Story = {
 export const Invalid: Story = {
   name: 'Invalid State',
   args: {
-    options: sampleOptions,
-    defaultValue: 'option1',
+    'options': sampleOptions,
+    'defaultValue': 'option1',
     'aria-invalid': true,
   },
   parameters: {
@@ -249,11 +249,7 @@ export const DisabledStates: Story = {
         disabled
         placeholder="Disabled with placeholder"
       />
-      <SelectField
-        options={sampleOptions}
-        disabled
-        defaultValue="option2"
-      />
+      <SelectField options={sampleOptions} disabled defaultValue="option2" />
     </div>
   ),
   parameters: {
@@ -269,16 +265,8 @@ export const ReadOnlyStates: Story = {
   name: 'Read-Only States',
   render: () => (
     <div className="flex flex-col gap-4">
-      <SelectField
-        options={sampleOptions}
-        readOnly
-        defaultValue="option1"
-      />
-      <SelectField
-        options={countryOptions}
-        readOnly
-        defaultValue="us"
-      />
+      <SelectField options={sampleOptions} readOnly defaultValue="option1" />
+      <SelectField options={countryOptions} readOnly defaultValue="us" />
     </div>
   ),
   parameters: {

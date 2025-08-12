@@ -3,64 +3,25 @@
  */
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
-
-// Shared base styles for text and state handling
-const sharedTextStyles = cx(
-  'text-input-foreground placeholder:text-input-foreground/50 placeholder:italic',
-  'transition-all duration-200',
-  // Invalid state styles
-  'aria-[invalid=true]:text-destructive',
-  // Disabled state styles
-  'disabled:cursor-not-allowed disabled:opacity-50',
-  'disabled:text-muted-foreground disabled:placeholder:text-muted-foreground/50',
-  // Read-only state styles
-  'is-read-only:cursor-default is-read-only:text-muted-foreground',
-);
-
-// Shared base border styles (without focus)
-const sharedBaseStyles = cx(
-  'rounded-lg border border-border bg-input',
-  'aria-[invalid=true]:border-destructive',
-  'disabled:bg-muted',
-  'is-read-only:bg-muted/50',
-);
+import {
+  transitionStyles,
+  textStyles,
+  backgroundStyles,
+  borderStyles,
+  focusRingStyles,
+  cursorStyles,
+  sizeStyles,
+  buildVariantStyles,
+} from './shared';
 
 // Focus styles for standalone input
-const standaloneFocusStyles = cx(
-  'focus:border-accent/50',
-  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/10 focus-visible:ring-offset-0',
-  'aria-[invalid=true]:focus:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20',
-  'is-read-only:focus:border-border',
+export const standaloneFocusStyles = cx(
+  borderStyles.focus,
+  borderStyles.focusInvalid,
+  borderStyles.focusReadOnly,
+  focusRingStyles.base,
+  focusRingStyles.invalid,
 );
-
-// Focus styles for wrapper (using :has)
-const wrapperFocusStyles = cx(
-  'has-[input:focus]:border-accent/50',
-  'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-accent/10 has-[input:focus-visible]:ring-offset-0',
-  'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
-  'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
-  'has-[input:is-read-only]:has-[input:focus]:border-border',
-);
-
-// Shared variant definitions
-const sharedVariantStyles = {
-  default: '',
-  ghost: cx(
-    'border-transparent bg-transparent',
-    'hover:bg-input/50',
-    'disabled:bg-transparent disabled:hover:bg-transparent',
-  ),
-  filled: cx(
-    'border-transparent bg-muted',
-    'hover:bg-muted/80',
-    'disabled:bg-muted disabled:hover:bg-muted',
-  ),
-  outline: cx(
-    'bg-transparent',
-    'hover:bg-input/20',
-    'disabled:bg-transparent disabled:hover:bg-transparent',
-  ),
-};
 
 // Input element when used with wrapper (prefix/suffix)
 export const inputVariants = cva({
@@ -70,13 +31,17 @@ export const inputVariants = cva({
     'disabled:bg-muted', // Ensure disabled state matches wrapper
     'is-read-only:bg-muted/50', // Ensure read-only state matches wrapper
     'focus:outline-none focus:ring-0',
-    sharedTextStyles,
+    transitionStyles,
+    textStyles.base,
+    textStyles.invalid,
+    textStyles.disabled,
+    textStyles.readOnly,
   ),
   variants: {
     size: {
-      sm: 'h-8 text-sm px-3',
-      md: 'h-12 text-base px-4',
-      lg: 'h-14 text-lg px-5',
+      sm: cx(sizeStyles.sm.height, sizeStyles.sm.text, sizeStyles.sm.padding),
+      md: cx(sizeStyles.md.height, sizeStyles.md.text, sizeStyles.md.padding),
+      lg: cx(sizeStyles.lg.height, sizeStyles.lg.text, sizeStyles.lg.padding),
     },
   },
   defaultVariants: {
@@ -89,9 +54,18 @@ export const inputWrapperVariants = compose(
   cva({
     base: cx(
       'group relative inline-flex w-full items-stretch overflow-hidden',
-      'transition-all duration-200',
-      sharedBaseStyles,
-      wrapperFocusStyles,
+      transitionStyles,
+      borderStyles.base,
+      borderStyles.invalid,
+      backgroundStyles.base,
+      backgroundStyles.disabled,
+      backgroundStyles.readOnly,
+      // Focus styles using :has
+      'has-[input:focus]:border-accent/50',
+      'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-accent/10 has-[input:focus-visible]:ring-offset-0',
+      'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
+      'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
+      'has-[input:is-read-only]:has-[input:focus]:border-border',
       // Additional :has selectors for state management
       'has-[[aria-invalid=true]]:border-destructive',
       'has-[input:disabled]:bg-muted',
@@ -133,18 +107,32 @@ export const inputWrapperVariants = compose(
 export const standaloneInputVariants = compose(
   cva({
     base: cx(
-      'transition-all duration-200',
-      sharedBaseStyles,
+      transitionStyles,
+      borderStyles.base,
+      borderStyles.invalid,
+      backgroundStyles.base,
+      backgroundStyles.disabled,
+      backgroundStyles.readOnly,
       standaloneFocusStyles,
-      sharedTextStyles,
+      textStyles.base,
+      textStyles.invalid,
+      textStyles.disabled,
+      textStyles.readOnly,
+      cursorStyles.disabled,
+      cursorStyles.readOnly,
     ),
     variants: {
       size: {
-        sm: 'h-8 text-sm px-3',
-        md: 'h-12 text-base px-4',
-        lg: 'h-14 text-lg px-5',
+        sm: cx(sizeStyles.sm.height, sizeStyles.sm.text, sizeStyles.sm.padding),
+        md: cx(sizeStyles.md.height, sizeStyles.md.text, sizeStyles.md.padding),
+        lg: cx(sizeStyles.lg.height, sizeStyles.lg.text, sizeStyles.lg.padding),
       },
-      variant: sharedVariantStyles,
+      variant: {
+        default: '',
+        ghost: buildVariantStyles('ghost'),
+        filled: buildVariantStyles('filled'),
+        outline: buildVariantStyles('outline'),
+      },
     },
     defaultVariants: {
       size: 'md',
@@ -162,9 +150,9 @@ export const affixVariants = cva({
   ),
   variants: {
     size: {
-      sm: 'text-sm px-3',
-      md: 'text-base px-5',
-      lg: 'text-lg px-5',
+      sm: cx(sizeStyles.sm.text, sizeStyles.sm.padding),
+      md: cx(sizeStyles.md.text, sizeStyles.md.padding),
+      lg: cx(sizeStyles.lg.text, sizeStyles.lg.padding),
     },
   },
   defaultVariants: {

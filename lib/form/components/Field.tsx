@@ -64,7 +64,9 @@ export default function Field<
       {...containerProps}
     >
       <div>
-        <Label htmlFor={id}>{label}</Label>
+        <Label id={`${id}-label`} htmlFor={id}>
+          {label}
+        </Label>
         {hint && (
           <Hint id={`${id}-hint`} validation={validation}>
             {hint}
