@@ -31,12 +31,19 @@ type NodeFormProps = {
   form: TForm;
   disabled: boolean;
   onClose: () => void;
-  addNode: (nodes: PlaceholderNodeProps[]) => void;
+  setPlaceholderNodes: (nodes: PlaceholderNodeProps[]) => void;
   egoNodeId: string;
 };
 
 const CensusStep2Form = (props: NodeFormProps) => {
-  const { selectedNode, form, disabled, onClose, addNode, egoNodeId } = props;
+  const {
+    selectedNode,
+    form,
+    disabled,
+    onClose,
+    setPlaceholderNodes,
+    egoNodeId,
+  } = props;
   const {
     placeholderNodes,
     addPlaceholderNode,
@@ -415,7 +422,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
       const newNode: PlaceholderNodeProps = {
         id: crypto.randomUUID(),
         gender: 'female',
-        label: `aunt ${Math.random()}`,
+        label: `aunt ${Math.floor(Math.random() * (100 - 0 + 1) + 0)}`,
         parentIds: parentsArray.map((p) => p.id),
         childIds: [],
         xPos: 0,
@@ -430,12 +437,12 @@ const CensusStep2Form = (props: NodeFormProps) => {
       }));
 
       const updatedNodes = [...updatedParents, newNode];
-      addNode(updatedNodes);
+      setPlaceholderNodes(updatedNodes);
 
       setShow(false);
       onClose();
     },
-    [newNodeAttributes, onClose, step2Nodes, addNode, setShow],
+    [newNodeAttributes, onClose, step2Nodes, setPlaceholderNodes, setShow],
   );
 
   const getInitialValues = useCallback(

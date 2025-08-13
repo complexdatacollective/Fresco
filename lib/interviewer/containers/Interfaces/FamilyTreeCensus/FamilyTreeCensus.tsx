@@ -357,7 +357,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               console.log(allNodes);
             }, 7000);
           }}
-          addNode={setPlaceholderNodesBulk}
+          setPlaceholderNodes={setPlaceholderNodesBulk}
           egoNodeId={egoNodeId}
         />
         <div className="edge-layout">
