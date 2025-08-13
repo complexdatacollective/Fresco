@@ -99,15 +99,12 @@ const PedigreeStageMetadataEntrySchema = z.object({
   parentIds: z.array(z.string()),
 });
 
-const PedigreeStageMetadataEntry = z.record(
-  z.string(),
-  z.array(PedigreeStageMetadataEntrySchema),
-);
-
 export type PedigreeStageMetadataEntry = z.infer<
   typeof PedigreeStageMetadataEntrySchema
 >;
-type PedigreeStageMetadata = z.infer<typeof PedigreeStageMetadataEntry>;
+
+const PedigreeStageMetadataSchema = z.array(PedigreeStageMetadataEntrySchema);
+export type PedigreeStageMetadata = z.infer<typeof PedigreeStageMetadataSchema>;
 
 export type SessionState = {
   id: string;
@@ -691,14 +688,9 @@ const sessionReducer = createReducer(initialState, (builder) => {
   });
 
   builder.addCase(updatePedigreeStageMetadata, (state, action) => {
-    const pedigreeStageMetadata = action.payload;
-    const currentStep = state.currentStep;
     return withLastUpdated({
       ...state,
-      pedigreeStageMetadata: {
-        ...state.pedigreeStageMetadata,
-        [currentStep]: pedigreeStageMetadata,
-      },
+      pedigreeStageMetadata: action.payload,
     });
   });
 

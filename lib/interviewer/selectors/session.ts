@@ -30,6 +30,14 @@ export const getStageMetadata = createSelector(
   },
 );
 
+export const getPedigreeStageMetadata = createSelector(
+  getActiveSession,
+  getStageIndex,
+  (session) => {
+    return session?.pedigreeStageMetadata;
+  },
+);
+
 export const getCurrentStage = createSelector(
   getStages,
   getStageIndex,
