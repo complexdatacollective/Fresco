@@ -42,9 +42,24 @@ const selectVariants = compose(
     ),
     variants: {
       size: {
-        sm: cx(sizeStyles.sm.height, sizeStyles.sm.text, sizeStyles.sm.padding, 'pr-8'),
-        md: cx(sizeStyles.md.height, sizeStyles.md.text, sizeStyles.md.padding, 'pr-10'),
-        lg: cx(sizeStyles.lg.height, sizeStyles.lg.text, sizeStyles.lg.padding, 'pr-12'),
+        sm: cx(
+          sizeStyles.sm.height,
+          sizeStyles.sm.text,
+          sizeStyles.sm.padding,
+          'pr-8',
+        ),
+        md: cx(
+          sizeStyles.md.height,
+          sizeStyles.md.text,
+          sizeStyles.md.padding,
+          'pr-10',
+        ),
+        lg: cx(
+          sizeStyles.lg.height,
+          sizeStyles.lg.text,
+          sizeStyles.lg.padding,
+          'pr-12',
+        ),
       },
       variant: {
         default: '',
@@ -89,9 +104,7 @@ export function SelectField({
         ),
       })}
     >
-      {placeholder && (
-        <option value="">{placeholder}</option>
-      )}
+      {placeholder && <option value="">{placeholder}</option>}
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}

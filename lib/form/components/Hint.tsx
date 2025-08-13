@@ -1,18 +1,18 @@
 import Paragraph from '~/components/ui/typography/Paragraph';
-import { type BaseFieldProps } from '../types';
+import { type FieldConfig } from '../types';
 
 export default function Hint({
   id,
   children,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validation,
 }: {
   id: string;
   children: React.ReactNode;
-  validation: BaseFieldProps['validation'];
+  validation: FieldConfig['validation'];
 }) {
+  // TODO: implement validation summary here to help the user.
   // This could be implemented via zod registries: https://zod.dev/metadata
-  // eslint-disable-next-line no-console
-  console.warn('TODO: Implement validation in Hint component:', validation);
 
   return (
     <Paragraph id={id} margin="none" style="smallText">

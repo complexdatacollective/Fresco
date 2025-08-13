@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from 'motion/react';
 import { type ElementType } from 'react';
 import { type z } from 'zod';
@@ -11,7 +13,7 @@ import Hint from './Hint';
 import { Label } from './Label';
 
 export const containerVariants = cva({
-  base: 'grid gap-3 mt-6',
+  base: 'grid gap-3 not-first:mt-6',
   variants: {
     state: {
       valid: 'border-success',

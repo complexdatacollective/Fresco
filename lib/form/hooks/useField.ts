@@ -98,8 +98,12 @@ export function useField<T extends FieldValue = FieldValue>(config: {
     };
   }, [
     config.name,
+    // NOTE: We intentionally exclude config.validation from dependencies
+    // because validation functions are often defined inline and would cause
+    // unnecessary re-registrations. The validation is used during validation
+    // calls, not during registration.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     config.initialValue,
-    config.validation,
     unregisterField,
     registerField,
   ]);

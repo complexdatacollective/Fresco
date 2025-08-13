@@ -7,6 +7,7 @@ import type {
   FieldState,
   FormConfig,
   FormErrors,
+  FormSubmitHandler,
   ValidationContext,
 } from '../types';
 import { setValue } from '../utils/objectPath';
@@ -17,14 +18,13 @@ enableMapSet();
 
 export type FormStore = {
   fields: Map<string, FieldState>;
+  formErrors: string[]; // Add form-level errors
   isSubmitting: boolean;
   isValidating: boolean;
   isDirty: boolean;
   isValid: boolean;
   context: Record<string, unknown>;
-  submitHandler:
-    | ((data: Record<string, unknown>) => void | Promise<void>)
-    | null;
+  submitHandler: FormSubmitHandler | null;
   submitInvalidHandler: ((errors: FormErrors) => void) | null;
 
   // Form management
@@ -41,6 +41,10 @@ export type FormStore = {
   setFieldTouched: (fieldName: string, touched: boolean) => void;
   setFieldDirty: (fieldName: string, dirty: boolean) => void;
   setFieldValidating: (fieldName: string, validating: boolean) => void;
+
+  // Form errors
+  setFormErrors: (errors: string[]) => void;
+  clearFormErrors: () => void;
 
   // Getters with selective subscription
   getFieldState: (fieldName: string) => FieldState | undefined;
@@ -62,8 +66,9 @@ export type FormStoreApi = ReturnType<typeof createFormStore>;
 
 export const createFormStore = () => {
   return createStore<FormStore>()(
-    immer((set, get, store) => ({
+    immer((set, get, _store) => ({
       fields: new Map(),
+      formErrors: [],
 
       isSubmitting: false,
       isValidating: false,
@@ -83,10 +88,21 @@ export const createFormStore = () => {
       },
 
       reset: () => {
-        set(store.getInitialState());
+        set((state) => {
+          state.fields.clear();
+          state.formErrors = [];
+          state.isSubmitting = false;
+          state.isValidating = false;
+          state.isDirty = false;
+          state.isValid = true;
+          state.submitHandler = null;
+          state.submitInvalidHandler = null;
+          state.context = {};
+        });
       },
 
       registerField: (config) => {
+        console.log(`Registering field: ${config.name}`);
         set((state) => {
           const fieldState: FieldState = {
             ...config,
@@ -118,11 +134,12 @@ export const createFormStore = () => {
       setFieldValue: (fieldName, value) => {
         set((state) => {
           if (!state.fields.get(fieldName)) {
+            // eslint-disable-next-line no-console
+            console.warn(`Field "${fieldName}" is not registered.`);
             return;
           }
 
           state.fields.get(fieldName)!.value = value;
-
           state.fields.get(fieldName)!.meta.isDirty = true;
         });
       },
@@ -172,6 +189,18 @@ export const createFormStore = () => {
           state.isValidating = Array.from(state.fields.values()).some(
             (field) => field.meta.isValidating,
           );
+        });
+      },
+
+      setFormErrors: (errors) => {
+        set((state) => {
+          state.formErrors = errors;
+        });
+      },
+
+      clearFormErrors: () => {
+        set((state) => {
+          state.formErrors = [];
         });
       },
 
@@ -340,6 +369,7 @@ export const createFormStore = () => {
           });
 
           // Reset form-level state
+          form.formErrors = [];
           form.isSubmitting = false;
           form.isValidating = false;
           form.isValid = true;

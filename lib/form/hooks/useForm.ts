@@ -7,12 +7,14 @@ import {
 } from 'react';
 import { useFormStore } from '../store/formStoreProvider';
 import type { FormConfig } from '../types';
+import { FormSubmissionResultSchema } from '../types';
 
 export function useForm(config: FormConfig): {
   formProps: ComponentProps<'form'> & {
     onSubmit: (e: FormEvent) => Promise<void>;
   };
   reset: () => void;
+  formErrors: string[];
 } {
   const registeredRef = useRef(false);
   const isUnmountingRef = useRef(false);
@@ -22,6 +24,10 @@ export function useForm(config: FormConfig): {
   const getFormValues = useFormStore((state) => state.getFormValues);
   const getFormErrors = useFormStore((state) => state.getFormErrors);
   const reset = useFormStore((state) => state.reset);
+  const setFormErrors = useFormStore((state) => state.setFormErrors);
+  const clearFormErrors = useFormStore((state) => state.clearFormErrors);
+  const setFieldError = useFormStore((state) => state.setFieldError);
+  const formErrors = useFormStore((state) => state.formErrors);
 
   const setSubmitting = useFormStore((state) => state.setSubmitting);
 
@@ -52,29 +58,80 @@ export function useForm(config: FormConfig): {
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
-      e.preventDefault();
+      e.preventDefault(); // Prevent default form submission
       setSubmitting(true);
+      clearFormErrors();
 
       try {
-        const isValid = await validateForm();
+        const isValid = await validateForm(); // Run field level validation
 
-        if (isValid) {
-          const values = getFormValues();
-          await configRef.current.onSubmit?.(values);
-        } else {
+        if (!isValid) {
           const errors = getFormErrors();
           if (errors && configRef.current.onSubmitInvalid) {
             configRef.current.onSubmitInvalid(errors);
           }
+
+          return;
+        }
+
+        const values = getFormValues();
+        const result = await configRef.current.onSubmit?.(values);
+
+        // Validate and handle form submission result
+        if (result !== undefined && result !== null) {
+          const parseResult = FormSubmissionResultSchema.safeParse(result);
+
+          if (parseResult.success) {
+            const validatedResult = parseResult.data;
+
+            if (!validatedResult.success && validatedResult.errors) {
+              // Set form-level errors
+              if (
+                'form' in validatedResult.errors &&
+                validatedResult.errors.form
+              ) {
+                setFormErrors(validatedResult.errors.form);
+              }
+
+              // Set field-level errors
+              if (
+                'fields' in validatedResult.errors &&
+                validatedResult.errors.fields
+              ) {
+                Object.entries(validatedResult.errors.fields).forEach(
+                  ([fieldName, errors]) => {
+                    if (errors && errors.length > 0) {
+                      setFieldError(fieldName, errors.join(', '));
+                    }
+                  },
+                );
+              }
+            }
+          } else {
+            // Invalid return format - treat as an error
+            setFormErrors([
+              'Form submission returned an invalid response format. Please contact support.',
+            ]);
+            // parseResult.error contains the validation errors if needed for debugging
+          }
         }
       } catch (error) {
-        // Handle form submission errors silently or with proper error handling
-        // console.error('Form submission error:', error);
+        // Handle form submission errors - treat as form-level error
+        setFormErrors(['An unexpected error occurred. Please try again.']);
+        // Silently handle error - it's already shown to the user
       } finally {
         setSubmitting(false);
       }
     },
-    [setSubmitting, validateForm, getFormValues, getFormErrors],
+    [
+      setSubmitting,
+      validateForm,
+      getFormValues,
+      getFormErrors,
+      setFormErrors,
+      clearFormErrors,
+      setFieldError,
+    ],
   );
 
   const handleReset = useCallback(() => {
@@ -86,5 +143,6 @@ export function useForm(config: FormConfig): {
       onSubmit: handleSubmit,
     },
     reset: handleReset,
+    formErrors,
   };
 }

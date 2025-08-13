@@ -1,17 +1,16 @@
-/**
- * Example of a simple controlled component, designed to be used with Field and Form
- */
+'use client';
+
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import {
-  transitionStyles,
-  textStyles,
   backgroundStyles,
   borderStyles,
-  focusRingStyles,
-  cursorStyles,
-  sizeStyles,
   buildVariantStyles,
+  cursorStyles,
+  focusRingStyles,
+  sizeStyles,
+  textStyles,
+  transitionStyles,
 } from './shared';
 
 // Focus styles for standalone input

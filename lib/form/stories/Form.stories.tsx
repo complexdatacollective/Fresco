@@ -27,14 +27,6 @@ const meta: Meta<typeof Form> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function Test() {
-  return (
-    <div>
-      <PersonStandingIcon />
-    </div>
-  );
-}
-
 export const Default: Story = {
   render: () => (
     <Form
@@ -42,6 +34,10 @@ export const Default: Story = {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         console.log('form-submitted', data);
+
+        return {
+          success: true,
+        };
       }}
       className="w-2xl rounded-md bg-white p-10 shadow-2xl"
     >
@@ -52,7 +48,7 @@ export const Default: Story = {
         hint="Please enter your full name"
         Component={InputField}
         validation={z.string().min(2, 'Name must be at least 2 characters')}
-        prefixComponent={<Test />}
+        prefixComponent={<PersonStandingIcon />}
       />
       <Field
         name="age"

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AnimatePresence,
   type HTMLMotionProps,
@@ -6,26 +8,25 @@ import {
 } from 'motion/react';
 import { useId } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
-import { cx } from '~/utils/cva';
 import { useForm } from '../hooks/useForm';
-import type { FormErrors } from '../types';
+import type { FormErrors, FormSubmitHandler } from '../types';
+import FormErrorsList from './FormErrors';
 
 /**
  *
  */
 type FormProps = {
-  onSubmit: (data: Record<string, unknown>) => void | Promise<void>;
+  onSubmit: FormSubmitHandler;
   initialValues?: Record<string, unknown>;
   additionalContext?: Record<string, unknown>;
-} & HTMLMotionProps<'form'>;
+  children: React.ReactNode;
+} & Omit<HTMLMotionProps<'form'>, 'onSubmit' | 'children'>;
 
 export default function Form(props: FormProps) {
   const id = useId();
-  const { onSubmit, additionalContext, children, className, ...rest } = props;
+  const { onSubmit, additionalContext, children, ...rest } = props;
 
-  const formClasses = cx('', className);
-
-  const { formProps } = useForm({
+  const { formProps, formErrors } = useForm({
     onSubmit,
     onSubmitInvalid: (errors: FormErrors) => {
       scrollToFirstError(errors);
@@ -36,12 +37,14 @@ export default function Form(props: FormProps) {
   return (
     <LayoutGroup id={id}>
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.form
-          className={formClasses}
-          layout
-          onSubmit={formProps.onSubmit}
-          {...rest}
-        >
+        <motion.form key="form" layout onSubmit={formProps.onSubmit} {...rest}>
+          {formErrors && formErrors.length > 0 && (
+            <FormErrorsList
+              key="form-errors"
+              errors={formErrors}
+              className="mb-6"
+            />
+          )}
           {children}
         </motion.form>
       </AnimatePresence>
