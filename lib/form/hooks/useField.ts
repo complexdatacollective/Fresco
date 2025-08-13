@@ -85,13 +85,13 @@ export function useField<T extends FieldValue = FieldValue>(config: {
 
   // Register field on mount - use useLayoutEffect to ensure it runs after form registration
   useEffect(() => {
-    if (!isUnmountingRef.current) {
-      registerField({
-        name: config.name,
-        initialValue: config.initialValue,
-        validation: config.validation,
-      });
-    }
+    isUnmountingRef.current = false; // Reset the flag on each mount
+    registerField({
+      name: config.name,
+      initialValue: config.initialValue,
+      validation: config.validation,
+    });
+    
     return () => {
       isUnmountingRef.current = true;
       unregisterField(config.name);

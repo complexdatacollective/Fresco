@@ -102,7 +102,7 @@ export const createFormStore = () => {
       },
 
       registerField: (config) => {
-        console.log(`Registering field: ${config.name}`);
+
         set((state) => {
           const fieldState: FieldState = {
             ...config,
@@ -122,6 +122,7 @@ export const createFormStore = () => {
       },
 
       unregisterField: (fieldName) => {
+
         // Check if field exists before updating to avoid unnecessary renders
         const currentState = get();
         if (currentState.fields.has(fieldName)) {
@@ -132,6 +133,7 @@ export const createFormStore = () => {
       },
 
       setFieldValue: (fieldName, value) => {
+
         set((state) => {
           if (!state.fields.get(fieldName)) {
             // eslint-disable-next-line no-console

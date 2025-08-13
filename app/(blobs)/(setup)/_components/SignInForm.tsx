@@ -38,7 +38,9 @@ export const SignInForm = () => {
         name="username"
         label="Username"
         placeholder="Enter your username"
+        validation={loginSchema.shape.username}
         Component={InputField}
+        autoComplete="username"
       />
       <Field
         key="password"
