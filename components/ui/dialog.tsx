@@ -4,7 +4,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import * as React from 'react';
 
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Heading from './typography/Heading';
 import { paragraphVariants } from './typography/Paragraph';
 
@@ -18,7 +18,7 @@ const DialogPortal = ({ ...props }: DialogPrimitive.DialogPortalProps) => (
 DialogPortal.displayName = DialogPrimitive.Portal.displayName;
 
 export const dialogOverlayClasses = (className?: string) =>
-  cn(
+  cx(
     'bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 backdrop-blur-sm',
     className,
   );
@@ -36,7 +36,7 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 export const dialogContentClasses = (className?: string) =>
-  cn(
+  cx(
     'fixed top-[50%] left-[50%] z-50 max-h-screen w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] md:w-full',
     'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-85 data-[state=open]:zoom-in-100 data-[state=closed]:slide-out-to-top-[10%] data-[state=open]:slide-in-from-top-[10%] duration-300',
     'bg-card flex flex-col gap-4 border p-6 shadow-lg sm:rounded-lg',
@@ -69,7 +69,7 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
+    className={cx(
       'flex flex-col space-y-1.5 text-center sm:text-left',
       className,
     )}
@@ -83,7 +83,7 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
+    className={cx(
       'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
       className,
     )}
@@ -97,7 +97,7 @@ const DialogTitle = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, children, ...props }, ref) => (
   <DialogPrimitive.Title asChild ref={ref} {...props}>
-    <Heading variant="h3" className={cn(className)}>
+    <Heading variant="h3" className={cx(className)}>
       {children}
     </Heading>
   </DialogPrimitive.Title>
@@ -110,7 +110,7 @@ const DialogDescription = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, children, ...props }, ref) => (
   <DialogPrimitive.Description asChild ref={ref} {...props}>
-    <div className={cn(paragraphVariants(), className)}>{children}</div>
+    <div className={cx(paragraphVariants(), className)}>{children}</div>
   </DialogPrimitive.Description>
 ));
 

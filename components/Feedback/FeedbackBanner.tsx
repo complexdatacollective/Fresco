@@ -3,7 +3,7 @@
 import { ArrowLeftFromLine } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import Banner from '../Banner/Banner';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
@@ -66,7 +66,7 @@ const FeedbackBanner = () => {
         </>
       )}
       <div
-        className={cn(
+        className={cx(
           'flex grow items-center gap-4 text-sm',
           isDashboard ? 'justify-center' : 'justify-end',
         )}

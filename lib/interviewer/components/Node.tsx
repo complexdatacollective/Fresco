@@ -5,7 +5,7 @@ import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { getNodeColor } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/Node';
-import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
+import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 
 const Node = memo(
   forwardRef<

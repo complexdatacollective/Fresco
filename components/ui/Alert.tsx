@@ -1,31 +1,28 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { cn } from '~/utils/shadcn';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 import Heading from './typography/Heading';
 import { paragraphVariants } from './typography/Paragraph';
 
-const alertVariants = cva(
-  'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground gap-2 grid my-6',
-  {
-    variants: {
-      variant: {
-        default: '',
-        info: 'bg-info/5 border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
-        destructive:
-          'bg-destructive/5 border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
-        success:
-          'bg-success/5 border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
-        warning:
-          'bg-warning/2 border-warning text-warning [--color-link:var(--color-warning)]',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
+const alertVariants = cva({
+  base: 'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground gap-2 grid my-6',
+  variants: {
+    variant: {
+      default: '',
+      info: 'bg-info/5 border-info text-info [--color-link:var(--color-info)] [&>svg]:text-info',
+      destructive:
+        'bg-destructive/5 border-destructive text-destructive [&>svg]:text-destructive [--color-link:var(--color-destructive)]',
+      success:
+        'bg-success/5 border-success text-success [&>svg]:text-success [--color-link:var(--color-success)]',
+      warning:
+        'bg-warning/2 border-warning text-warning [--color-link:var(--color-warning)]',
     },
   },
-);
+  defaultVariants: {
+    variant: 'default',
+  },
+});
 
 const Alert = React.forwardRef<
   HTMLDivElement,
@@ -34,7 +31,7 @@ const Alert = React.forwardRef<
   <div
     ref={ref}
     role="alert"
-    className={cn(alertVariants({ variant }), className)}
+    className={cx(alertVariants({ variant }), className)}
     {...props}
   />
 ));
@@ -47,7 +44,7 @@ const AlertTitle = React.forwardRef<
   <Heading
     variant="h4-all-caps"
     ref={ref}
-    className={cn(className)}
+    className={cx(className)}
     {...props}
   />
 ));
@@ -59,8 +56,8 @@ const AlertDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      paragraphVariants({ variant: 'smallText', margin: 'none' }),
+    className={cx(
+      paragraphVariants({ style: 'smallText', margin: 'none' }),
       className,
     )}
     {...props}

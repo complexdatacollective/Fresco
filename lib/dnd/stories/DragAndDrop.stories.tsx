@@ -6,7 +6,7 @@ import {
   useDropTarget,
   type DragMetadata,
 } from '~/lib/dnd';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type Item = {
   id: string;
@@ -46,7 +46,7 @@ function DraggableItem({ item }: { item: Item }) {
   return (
     <div
       {...dragProps}
-      className={cn(
+      className={cx(
         'm-2 rounded-lg px-4 py-3 text-white transition-opacity duration-200 select-none',
         'focus:ring-accent focus:ring-offset-background focus:ring-2 focus:ring-offset-2 focus:outline-none',
         item.type === 'fruit' && 'bg-barbie-pink',
@@ -90,7 +90,7 @@ function DropZone({
   return (
     <div
       {...dropProps}
-      className={cn(
+      className={cx(
         'bg-cyber-grape/50 min-h-[300px] rounded-lg border-2 border-dashed border-transparent p-5 transition-all duration-200',
         // Only show focus styles when drop zone is focusable (during dragging)
         isDragging &&

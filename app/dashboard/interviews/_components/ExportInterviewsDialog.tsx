@@ -29,14 +29,14 @@ import {
   type FormattedSession,
 } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
   return (
     <div className="bg-background/80 text-primary fixed inset-0 z-99 flex flex-col items-center justify-center gap-3">
       <div
-        className={cn(
+        className={cx(
           cardClasses,
           'flex flex-col items-center justify-center gap-4 p-10',
         )}

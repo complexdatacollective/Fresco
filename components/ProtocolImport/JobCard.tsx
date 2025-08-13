@@ -1,7 +1,7 @@
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
 import ErrorDialog from '../ui/ErrorDialog';
@@ -37,7 +37,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
     return (
       <li
         ref={ref}
-        className={cn(
+        className={cx(
           'background-card bg-card shadow-primary/30 relative flex gap-4 rounded-xl border p-4 shadow-xl',
           error && 'animate-shake border-destructive',
           isComplete && 'border-success',
@@ -61,7 +61,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           >
             {id}
           </Heading>
-          <Paragraph variant="smallText" key={status} title={status}>
+          <Paragraph style="smallText" key={status} title={status}>
             {!error
               ? `${status}...`
               : 'There was an error importing this protocol.'}
