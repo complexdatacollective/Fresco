@@ -8,15 +8,19 @@ class TreeLayout {
   grouped: Map<number, PlaceholderNodeProps[]>;
   layerHeight: number;
   nodeWidth: number;
+  byId: Map<string, PlaceholderNodeProps>;
 
   constructor(nodes: PlaceholderNodeProps[]) {
-    this.nodes = [...nodes];
+    // this.nodes = [...nodes];
+    this.nodes = nodes.map((node) => ({ ...node }));
     this.couples = [];
     this.layers = new Map<PlaceholderNodeProps, number>();
+    // this.coords = new Map();
     this.coords = new Map<PlaceholderNodeProps, { x: number; y: number }>();
     this.grouped = new Map<number, PlaceholderNodeProps[]>();
     this.layerHeight = 130;
     this.nodeWidth = 130;
+    this.byId = new Map(nodes.map((n) => [n.id!, n]));
   }
 
   arrangeNodes(offsets: {
@@ -28,6 +32,7 @@ class TreeLayout {
     this.groupByLayer();
     this.assignCoordinates();
     this.fixOverlaps();
+    this.ensureAllNodesHaveCoords();
     this.offsetNodes(offsets);
 
     return this.nodes;
@@ -146,7 +151,12 @@ class TreeLayout {
   }
 
   groupByLayer() {
-    this.layers.entries().forEach(([node, layer]) => {
+    // this.layers.entries().forEach(([node, layer]) => {
+    //   if (!this.grouped.has(layer)) this.grouped.set(layer, []);
+    //   this.grouped.get(layer)!.push(node);
+    // });
+    this.grouped.clear();
+    this.layers.forEach((layer, node) => {
       if (!this.grouped.has(layer)) this.grouped.set(layer, []);
       this.grouped.get(layer)!.push(node);
     });
@@ -359,18 +369,88 @@ class TreeLayout {
   }
 
   offsetNodes(offset: { xOffset: number; yOffset: number }) {
-    const leftmostNode = this.nodes.reduce((previous, current) =>
-      this.coords.get(previous)!.x < this.coords.get(current)!.x
-        ? previous
-        : current,
-    );
-    const netXOffset = offset.xOffset - this.coords.get(leftmostNode)!.x;
+    console.log('THIS.NODES', this.nodes);
+    console.log('THIS.COORDS', this.coords);
+    // const leftmostNode = this.nodes.reduce((previous, current) =>
+    //   this.coords.get(previous)!.x < this.coords.get(current)!.x
+    //     ? previous
+    //     : current,
+    // );
+    // const netXOffset = offset.xOffset - this.coords.get(leftmostNode)!.x;
+    // this.nodes.forEach((node) => {
+    //   const pos = this.coords.get(node);
+    //   node.xPos = (pos?.x ?? 0) + netXOffset;
+    //   node.yPos = (pos?.y ?? 0) + offset.yOffset;
+    // });
+
+    const values = Array.from(this.coords.values());
+    if (!values.length) return;
+
+    const minX = Math.min(...values.map((c) => c.x));
+    const netXOffset = offset.xOffset - minX;
+
     this.nodes.forEach((node) => {
-      const pos = this.coords.get(node);
-      node.xPos = (pos?.x ?? 0) + netXOffset;
-      node.yPos = (pos?.y ?? 0) + offset.yOffset;
+      const pos = this.coords.get(node) ?? {
+        x: minX,
+        y: (this.layers.get(node) ?? 0) * this.layerHeight,
+      };
+      node.xPos = pos.x + netXOffset;
+      node.yPos = pos.y + offset.yOffset;
+    });
+  }
+
+  private ensureAllNodesHaveCoords() {
+    this.nodes.forEach((node) => {
+      if (this.coords.has(node)) return;
+
+      // layer = max(parent layer) + 1 (or 0 if none)
+      const parentLayers = (node.parentIds ?? [])
+        .map((pid) => this.byId.get(pid))
+        .filter(Boolean)
+        .map((p) => this.layers.get(p!) ?? 0);
+
+      const layer = parentLayers.length
+        ? Math.max(...parentLayers) + 1
+        : (this.layers.get(node) ?? 0);
+      const y = layer * this.layerHeight;
+
+      // place next to siblings (same parent set)
+      const key = JSON.stringify([...(node.parentIds ?? [])].sort());
+      const siblings = this.nodes.filter(
+        (n) =>
+          JSON.stringify([...(n.parentIds ?? [])].sort()) === key &&
+          this.coords.has(n),
+      );
+
+      const xs = siblings.map((s) => this.coords.get(s)!.x);
+      const x = xs.length ? Math.max(...xs) + this.nodeWidth : 0;
+
+      this.coords.set(node, { x, y });
     });
   }
 }
 
 export default TreeLayout;
+
+// offsetNodes(offset: { xOffset: number; yOffset: number }) {
+//   if (!this.nodes.length) return;
+
+//   const leftmostNode = this.nodes.reduce((prev, curr) => {
+//     const prevPos = this.coords.get(prev);
+//     const currPos = this.coords.get(curr);
+//     if (!prevPos) return curr;
+//     if (!currPos) return prev;
+//     return prevPos.x < currPos.x ? prev : curr;
+//   });
+
+//   const leftmostPos = this.coords.get(leftmostNode);
+//   if (!leftmostPos) return;
+
+//   const netXOffset = offset.xOffset - leftmostPos.x;
+
+//   this.nodes.forEach((node) => {
+//     const pos = this.coords.get(node);
+//     node.xPos = (pos?.x ?? 0) + netXOffset;
+//     node.yPos = (pos?.y ?? 0) + offset.yOffset;
+//   });
+// }

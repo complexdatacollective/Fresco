@@ -3,13 +3,13 @@ import {
   type EntityAttributesProperty,
   entityAttributesProperty,
   type EntityPrimaryKey,
-  entityPrimaryKeyProperty,
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import Form from '~/lib/form/components/Form';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from '~/lib/interviewer/containers/Interfaces/utils/constants';
 import Overlay from '~/lib/interviewer/containers/Overlay';
@@ -18,37 +18,42 @@ import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
   getNodeTypeLabel,
+  getPedigreeStageMetadata,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
-// const RadioGroupField = dynamic(
-//   () => import('~/lib/form/components/fields/RadioGroup'),
-//   {
-//     loading: () => <FieldSkeleton />,
-//   },
-// );
-import RadioGroup from '~/lib/form/components/fields/RadioGroup';
+import { PlaceholderNodeProps } from './FamilyTreeNode';
+import useFamilyTreeNodes from './useFamilyTreeNodes';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
   form: TForm;
   disabled: boolean;
   onClose: () => void;
-  addNode: (attributes: NcNode[EntityAttributesProperty]) => void;
+  addNode: (nodes: PlaceholderNodeProps[]) => void;
+  egoNodeId: string;
 };
 
 const CensusStep2Form = (props: NodeFormProps) => {
-  const { selectedNode, form, disabled, onClose, addNode } = props;
+  const { selectedNode, form, disabled, onClose, addNode, egoNodeId } = props;
+  const {
+    placeholderNodes,
+    addPlaceholderNode,
+    setPlaceholderNodesBulk,
+    allNodes,
+  } = useFamilyTreeNodes([]);
 
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
-  const state = useSelector((state) => state);
-  console.log(state);
+  const currentFamilyNodes = useSelector(getPedigreeStageMetadata);
 
   const [show, setShow] = useState(false);
+  const [relationValue, setRelationValue] = useState('');
+  const [egoId, setEgoId] = useState<string>(egoNodeId);
+  const [step2Nodes, setStep2Nodes] = useState(currentFamilyNodes);
   const formRef = useRef<HTMLFormElement>(null);
 
   const dispatch = useAppDispatch();
@@ -62,8 +67,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
     [dispatch],
   );
 
-  const [relationValue, setRelationValue] = useState('');
-
+  // TODO: conditionally render these depending on relations added.
+  // i.e. cousins shouldn't be an option without adding aunt or uncles first
   const baseField = {
     fieldLabel: 'How is this person related to you?',
     options: [
@@ -133,13 +138,173 @@ const CensusStep2Form = (props: NodeFormProps) => {
     validation: {},
   };
 
+  function getParents(subjectId: string, nodes) {
+    const ego = nodes.find((node) => node.id === subjectId);
+    if (!ego) return { mother: null, father: null };
+
+    const parentIds = ego.parentIds || [];
+
+    let mother: PlaceholderNodeProps | null = null;
+    let father: PlaceholderNodeProps | null = null;
+
+    parentIds.forEach((parentId) => {
+      const parent = nodes.find((node) => node.id === parentId);
+      if (!parent) return;
+
+      if (parent.gender.toLowerCase() === 'female') {
+        mother = parent;
+      } else if (parent.gender.toLowerCase() === 'male') {
+        father = parent;
+      }
+    });
+
+    return { mother, father };
+  }
+
+  function getSiblings(subjectId: string, nodes: PlaceholderNodeProps[]) {
+    const subject = nodes.find((node) => node.id === subjectId);
+    if (!subject) return [];
+
+    const parentIds = subject.parentIds || [];
+    if (parentIds.length === 0) return [];
+
+    const siblings = nodes.filter(
+      (node) =>
+        node.id !== subjectId &&
+        node.parentIds?.some((pid) => parentIds.includes(pid)),
+    );
+
+    siblings.sort((a, b) => a.xPos - b.xPos);
+
+    return siblings;
+  }
+
+  function getChildren(parentId: string, nodes: PlaceholderNodeProps[]) {
+    return nodes.filter((node) => node.parentIds?.includes(parentId));
+  }
+
+  const { mother, father } = useMemo(
+    () => getParents(egoId, step2Nodes),
+    [egoId, step2Nodes],
+  );
+
+  const maternalSiblings = useMemo(
+    () => (mother ? getSiblings(mother.id, step2Nodes) : []),
+    [mother, step2Nodes],
+  );
+
+  const paternalSiblings = useMemo(
+    () => (father ? getSiblings(father.id, step2Nodes) : []),
+    [father, step2Nodes],
+  );
+
+  const firstCousinOptions = useMemo(() => {
+    let maternalAuntCount = 0;
+    let maternalUncleCount = 0;
+    let paternalAuntCount = 0;
+    let paternalUncleCount = 0;
+    let options: { label: string; value: string }[] = [];
+
+    maternalSiblings.forEach((sibling) => {
+      if (sibling.gender.toLowerCase() === 'female') {
+        maternalAuntCount++;
+        options.push({
+          label: `Maternal Aunt ${maternalAuntCount}`,
+          value: sibling.id,
+        });
+      } else {
+        maternalUncleCount++;
+        options.push({
+          label: `Maternal Uncle ${maternalUncleCount}`,
+          value: sibling.id,
+        });
+      }
+    });
+
+    paternalSiblings.forEach((sibling) => {
+      if (sibling.gender.toLowerCase() === 'female') {
+        paternalAuntCount++;
+        options.push({
+          label: `Paternal Aunt ${paternalAuntCount}`,
+          value: sibling.id,
+        });
+      } else {
+        paternalUncleCount++;
+        options.push({
+          label: `Paternal Uncle ${paternalUncleCount}`,
+          value: sibling.id,
+        });
+      }
+    });
+
+    return options;
+  }, [maternalSiblings, paternalSiblings]);
+
+  const egoSiblings = useMemo(
+    () => getSiblings(egoId, step2Nodes),
+    [egoId, step2Nodes],
+  );
+
+  const nieceOptions = useMemo(() => {
+    let sisterCount = 0;
+    let brotherCount = 0;
+    let options: { label: string; value: string }[] = [];
+
+    egoSiblings.forEach((sibling) => {
+      if (sibling.gender.toLowerCase() === 'female') {
+        sisterCount++;
+        options.push({
+          label: `Sister ${sisterCount}`,
+          value: sibling.id,
+        });
+      } else {
+        brotherCount++;
+        options.push({
+          label: `Brother ${brotherCount}`,
+          value: sibling.id,
+        });
+      }
+    });
+
+    return options;
+  }, [egoSiblings]);
+
+  const egoChildren = useMemo(
+    () => getChildren(egoId, step2Nodes),
+    [egoId, step2Nodes],
+  );
+
+  const grandchildrenOptions = useMemo(() => {
+    let daughterCount = 0;
+    let sonCount = 0;
+    let options: { label: string; value: string }[] = [];
+
+    egoChildren.forEach((child) => {
+      if (child.gender.toLowerCase() === 'female') {
+        daughterCount++;
+        options.push({
+          label: `Daughter ${daughterCount}`,
+          value: child.id,
+        });
+      } else {
+        sonCount++;
+        options.push({
+          label: `Son ${sonCount}`,
+          value: child.id,
+        });
+      }
+    });
+
+    return options;
+  }, [egoChildren]);
+
   // Daughter, Son, Brother, and Sister all automatically add node to ego/create spouse if needed.
   const additionalFieldsMap = {
     'Aunt': {
       fieldLabel: 'Whos is the aunt related to?',
       options: [
-        { label: 'Father', value: 'Father' },
-        { label: 'Mother', value: 'Mother' },
+        { label: 'Father', value: father.id },
+        { label: 'Mother', value: mother.id },
       ],
       type: 'ordinal',
       variable: 'auntRelation',
@@ -149,8 +314,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
     'Uncle': {
       fieldLabel: 'Whos is the uncle related to?',
       options: [
-        { label: 'Father', value: 'Father' },
-        { label: 'Mother', value: 'Mother' },
+        { label: 'Father', value: father.id },
+        { label: 'Mother', value: mother.id },
       ],
       type: 'ordinal',
       variable: 'uncleRelation',
@@ -160,8 +325,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
     'Half Sister': {
       fieldLabel: 'Who is the parent of your half sister?',
       options: [
-        { label: 'Father', value: 'Father' },
-        { label: 'Mother', value: 'Mother' },
+        { label: 'Father', value: father.id },
+        { label: 'Mother', value: mother.id },
       ],
       type: 'ordinal',
       variable: 'halfSisterRelation',
@@ -171,15 +336,62 @@ const CensusStep2Form = (props: NodeFormProps) => {
     'Half Brother': {
       fieldLabel: 'Who is the parent of your half brother?',
       options: [
-        { label: 'Father', value: 'Father' },
-        { label: 'Mother', value: 'Mother' },
+        { label: 'Father', value: father.id },
+        { label: 'Mother', value: mother.id },
       ],
       type: 'ordinal',
       variable: 'halfBrotherRelation',
       Component: RadioGroup,
       validation: {},
     },
+    '(First) Cousin': {
+      fieldLabel: 'Who is the parent of your first cousin?',
+      options: firstCousinOptions,
+      type: 'ordinal',
+      variable: 'firstCousinRelation',
+      Component: RadioGroup,
+      validation: {},
+    },
+    'Niece': {
+      fieldLabel: 'Who is the parent of your niece?',
+      options: nieceOptions,
+      type: 'ordinal',
+      variable: 'nieceRelation',
+      Component: RadioGroup,
+      validation: {},
+    },
+    'Nephew': {
+      fieldLabel: 'Who is the parent of your nephew?',
+      options: nieceOptions,
+      type: 'ordinal',
+      variable: 'nieceRelation',
+      Component: RadioGroup,
+      validation: {},
+    },
+    'Granddaughter': {
+      fieldLabel: 'Who is the parent of your granddaughter?',
+      options: grandchildrenOptions,
+      type: 'ordinal',
+      variable: 'nieceRelation',
+      Component: RadioGroup,
+      validation: {},
+    },
+    'Grandson': {
+      fieldLabel: 'Who is the parent of your granddaughter?',
+      options: grandchildrenOptions,
+      type: 'ordinal',
+      variable: 'nieceRelation',
+      Component: RadioGroup,
+      validation: {},
+    },
   };
+
+  // const createNewPlaceholderNode(relative) = () => {
+  //   switch (relative) {
+  //     case 'Daughter':
+  //       const newDaughter
+  //   }
+  // }
 
   const processedFields = [
     baseField,
@@ -192,17 +404,38 @@ const CensusStep2Form = (props: NodeFormProps) => {
 
   const handleSubmit = useCallback(
     ({ value }: { value: Record<string, VariableValue> }) => {
-      if (!selectedNode) {
-        addNode({ ...newNodeAttributes, ...value });
-      } else {
-        const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        void updateNode({ nodeId: selectedUID, newAttributeData: value });
-      }
+      const fullData = { ...newNodeAttributes, ...value };
+
+      const parentsObject = getParents(
+        fullData.auntRelation as string,
+        step2Nodes,
+      );
+      const parentsArray = Object.values(parentsObject).filter(Boolean);
+
+      const newNode: PlaceholderNodeProps = {
+        id: crypto.randomUUID(),
+        gender: 'female',
+        label: `aunt ${Math.random()}`,
+        parentIds: parentsArray.map((p) => p.id),
+        childIds: [],
+        xPos: 0,
+        yPos: 0,
+      };
+
+      const updatedParents = parentsArray.map((parent) => ({
+        ...parent,
+        childIds: parent.childIds
+          ? [...parent.childIds, newNode.id]
+          : [newNode.id],
+      }));
+
+      const updatedNodes = [...updatedParents, newNode];
+      addNode(updatedNodes);
 
       setShow(false);
       onClose();
     },
-    [selectedNode, newNodeAttributes, onClose, addNode, updateNode],
+    [newNodeAttributes, onClose, step2Nodes, addNode, setShow],
   );
 
   const getInitialValues = useCallback(

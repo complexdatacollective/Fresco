@@ -50,6 +50,7 @@ export const store = ({
         lastUpdated: session.lastUpdated.toISOString(),
         network: session.network,
         stageMetadata: session.stageMetadata ?? undefined,
+        pedigreeStageMetadata: session.pedigreeStageMetadata ?? undefined,
       },
       protocol: {
         id: protocol.id,
