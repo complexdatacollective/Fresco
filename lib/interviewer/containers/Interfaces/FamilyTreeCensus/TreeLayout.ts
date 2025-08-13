@@ -11,11 +11,9 @@ class TreeLayout {
   byId: Map<string, PlaceholderNodeProps>;
 
   constructor(nodes: PlaceholderNodeProps[]) {
-    // this.nodes = [...nodes];
     this.nodes = nodes.map((node) => ({ ...node }));
     this.couples = [];
     this.layers = new Map<PlaceholderNodeProps, number>();
-    // this.coords = new Map();
     this.coords = new Map<PlaceholderNodeProps, { x: number; y: number }>();
     this.grouped = new Map<number, PlaceholderNodeProps[]>();
     this.layerHeight = 130;
@@ -151,10 +149,6 @@ class TreeLayout {
   }
 
   groupByLayer() {
-    // this.layers.entries().forEach(([node, layer]) => {
-    //   if (!this.grouped.has(layer)) this.grouped.set(layer, []);
-    //   this.grouped.get(layer)!.push(node);
-    // });
     this.grouped.clear();
     this.layers.forEach((layer, node) => {
       if (!this.grouped.has(layer)) this.grouped.set(layer, []);
@@ -369,20 +363,6 @@ class TreeLayout {
   }
 
   offsetNodes(offset: { xOffset: number; yOffset: number }) {
-    console.log('THIS.NODES', this.nodes);
-    console.log('THIS.COORDS', this.coords);
-    // const leftmostNode = this.nodes.reduce((previous, current) =>
-    //   this.coords.get(previous)!.x < this.coords.get(current)!.x
-    //     ? previous
-    //     : current,
-    // );
-    // const netXOffset = offset.xOffset - this.coords.get(leftmostNode)!.x;
-    // this.nodes.forEach((node) => {
-    //   const pos = this.coords.get(node);
-    //   node.xPos = (pos?.x ?? 0) + netXOffset;
-    //   node.yPos = (pos?.y ?? 0) + offset.yOffset;
-    // });
-
     const values = Array.from(this.coords.values());
     if (!values.length) return;
 
