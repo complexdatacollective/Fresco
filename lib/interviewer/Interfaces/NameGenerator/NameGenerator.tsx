@@ -16,6 +16,8 @@ import NodeList from '~/lib/interviewer/components/NodeList';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { usePrompts } from '../../behaviours/withPrompt';
 import Prompts from '../../components/Prompts';
+import { type Direction } from '../../containers/ProtocolScreen';
+import { type StageProps } from '../../containers/Stage';
 import {
   addNode as addNodeAction,
   addNodeToPrompt as addNodeToPromptAction,
@@ -28,11 +30,6 @@ import {
   getStageNodeCount,
 } from '../../selectors/session';
 import { useAppDispatch } from '../../store';
-import NodeForm from './components/NodeForm';
-import NodePanels from './components/NodePanels';
-import { type Direction } from '../../containers/ProtocolScreen';
-import QuickNodeForm from './components/QuickNodeForm';
-import { type StageProps } from '../../containers/Stage';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
 import { decryptData } from '../Anonymisation/utils';
 import {
@@ -41,6 +38,9 @@ import {
   MinNodesNotMet,
   minNodesWithDefault,
 } from '../utils/StageLevelValidation';
+import NodeForm from './components/NodeForm';
+import NodePanels from './components/NodePanels';
+import QuickNodeForm from './components/QuickNodeForm';
 
 export const nameGeneratorHandleBeforeLeaving =
   (
@@ -149,8 +149,8 @@ const NameGenerator = (props: NameGeneratorProps) => {
   );
 
   const addNode = useCallback(
-    (attributes: NcNode[EntityAttributesProperty]) => {
-      void dispatch(
+    async (attributes: NcNode[EntityAttributesProperty]) => {
+      await dispatch(
         addNodeAction({
           type: stage.subject.type,
           attributeData: attributes,

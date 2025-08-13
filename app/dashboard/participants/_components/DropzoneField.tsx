@@ -5,8 +5,8 @@ import { useController, type Control } from 'react-hook-form';
 import { Label } from '~/components/ui/Label';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { type FormSchema } from '~/schemas/participant';
-import parseCSV from '~/utils/parseCSV';
 import { cx } from '~/utils/cva';
+import parseCSV from '~/utils/parseCSV';
 
 const accept = {
   'text/csv': [],
@@ -93,7 +93,7 @@ export default function DropzoneField<T>({
         {!controller.field.value && (
           <>
             <FileText className="text-primary" size={28} />
-            <Paragraph variant="smallText">
+            <Paragraph style="smallText">
               Drag & drop file here, or click to select.
             </Paragraph>
           </>
@@ -101,7 +101,7 @@ export default function DropzoneField<T>({
         {controller.field.value && (
           <>
             <FileCheck size={28} />
-            <Paragraph variant="smallText">
+            <Paragraph style="smallText">
               File selected. Click import to continue, or drop a new file here
               to replace.
             </Paragraph>

@@ -3,9 +3,8 @@
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import * as React from 'react';
 
-import { type VariantProps } from '~/utils/cva';
 import { buttonVariants } from '~/components/ui/Button';
-import { cx } from '~/utils/cva';
+import { cx, type VariantProps } from '~/utils/cva';
 import { dialogContentClasses, dialogOverlayClasses } from './dialog';
 import Heading from './typography/Heading';
 import { paragraphVariants } from './typography/Paragraph';
@@ -92,7 +91,7 @@ const AlertDialogDescription = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, children, ...props }, ref) => (
   <AlertDialogPrimitive.Description asChild ref={ref} {...props}>
-    <div className={cx(paragraphVariants({ variant: 'smallText' }), className)}>
+    <div className={cx(paragraphVariants({ style: 'smallText' }), className)}>
       {children}
     </div>
   </AlertDialogPrimitive.Description>

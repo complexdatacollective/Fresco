@@ -1,4 +1,3 @@
-import { cx } from '~/utils/cva';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
@@ -10,10 +9,10 @@ import Loading from '../components/Loading';
 import Panel from '../components/Panel';
 import useSearch from '../hooks/useSearch';
 import useSort from '../hooks/useSort';
-import { type Direction } from '../utils/createSorter';
-import HyperList from './HyperList';
 import DropOverlay from '../Interfaces/NameGeneratorRoster/DropOverlay';
 import { type UseItemElement } from '../Interfaces/NameGeneratorRoster/useItems';
+import { type Direction } from '../utils/createSorter';
+import HyperList from './HyperList';
 
 const SortButton = ({
   color,

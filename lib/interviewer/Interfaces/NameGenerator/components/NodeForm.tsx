@@ -10,8 +10,7 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Form from '~/lib/form/components/Form';
-
+import Form from '~/lib/interviewer/containers/Form';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import Overlay from '../../../containers/Overlay';

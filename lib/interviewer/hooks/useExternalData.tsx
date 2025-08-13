@@ -11,7 +11,7 @@ import loadExternalData, {
 
 const useExternalData = (
   dataSource: Panel['dataSource'],
-  subject: Extract<StageSubject, { entity: 'node' }>,
+  subject: StageSubject | null,
 ) => {
   const assetManifest = useSelector(getAssetManifest);
   const codebook = useSelector(getCodebook);
@@ -32,7 +32,12 @@ const useExternalData = (
     }));
 
   useEffect(() => {
-    if (!dataSource || dataSource === 'existing') {
+    if (
+      !dataSource ||
+      dataSource === 'existing' ||
+      !subject ||
+      subject.entity === 'ego' // Only run this when the stage subject is a node or edge
+    ) {
       return;
     }
     // This is where we could set the loading state for URL assets

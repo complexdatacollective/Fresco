@@ -55,14 +55,6 @@ const meta: Meta<typeof SelectField> = {
         defaultValue: { summary: 'false' },
       },
     },
-    readOnly: {
-      control: 'boolean',
-      description: 'Whether the select is read-only',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
-    },
     required: {
       control: 'boolean',
       description: 'Whether the select is required',
@@ -100,7 +92,6 @@ const meta: Meta<typeof SelectField> = {
     options: sampleOptions,
     placeholder: 'Select an option...',
     disabled: false,
-    readOnly: false,
     required: false,
     multiple: false,
   },
@@ -143,14 +134,6 @@ export const Disabled: Story = {
     options: sampleOptions,
     disabled: true,
     defaultValue: 'option1',
-  },
-};
-
-export const ReadOnly: Story = {
-  args: {
-    options: sampleOptions,
-    readOnly: true,
-    defaultValue: 'option2',
   },
 };
 
@@ -256,23 +239,6 @@ export const DisabledStates: Story = {
     docs: {
       description: {
         story: 'Shows disabled states with and without values',
-      },
-    },
-  },
-};
-
-export const ReadOnlyStates: Story = {
-  name: 'Read-Only States',
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <SelectField options={sampleOptions} readOnly defaultValue="option1" />
-      <SelectField options={countryOptions} readOnly defaultValue="us" />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Shows read-only states with different option sets',
       },
     },
   },

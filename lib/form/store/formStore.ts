@@ -1,12 +1,12 @@
 import { enableMapSet } from 'immer';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import type {
   FieldConfig,
   FieldState,
+  FieldValue,
   FormConfig,
-  FormErrors,
+  FormFieldErrors,
   FormSubmitHandler,
   ValidationContext,
 } from '../types';
@@ -25,7 +25,7 @@ export type FormStore = {
   isValid: boolean;
   context: Record<string, unknown>;
   submitHandler: FormSubmitHandler | null;
-  submitInvalidHandler: ((errors: FormErrors) => void) | null;
+  submitInvalidHandler: ((errors: FormFieldErrors) => void) | null;
 
   // Form management
   registerForm: (config: FormConfig) => void;
@@ -102,7 +102,6 @@ export const createFormStore = () => {
       },
 
       registerField: (config) => {
-
         set((state) => {
           const fieldState: FieldState = {
             ...config,
@@ -122,7 +121,6 @@ export const createFormStore = () => {
       },
 
       unregisterField: (fieldName) => {
-
         // Check if field exists before updating to avoid unnecessary renders
         const currentState = get();
         if (currentState.fields.has(fieldName)) {
@@ -133,7 +131,6 @@ export const createFormStore = () => {
       },
 
       setFieldValue: (fieldName, value) => {
-
         set((state) => {
           if (!state.fields.get(fieldName)) {
             // eslint-disable-next-line no-console
@@ -224,7 +221,7 @@ export const createFormStore = () => {
 
       getFormErrors: () => {
         const state = get();
-        const errors: FormErrors = {};
+        const errors: FormFieldErrors = {};
         Array.from(state.fields.entries()).forEach(
           ([fieldName, fieldState]) => {
             if (fieldState.meta.errors) {

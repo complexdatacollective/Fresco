@@ -61,7 +61,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           >
             {id}
           </Heading>
-          <Paragraph variant="smallText" key={status} title={status}>
+          <Paragraph style="smallText" key={status} title={status}>
             {!error
               ? `${status}...`
               : 'There was an error importing this protocol.'}

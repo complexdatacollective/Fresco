@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
-import type { FieldConfig, FieldState } from '../types';
+import type { ChangeHandler, FieldConfig, FieldState } from '../types';
 
 /**
  * Helper function to determine if a field should show an error message.
@@ -20,7 +20,7 @@ function useFieldShouldShowError(name: string) {
   );
 }
 
-export type UseFieldConfig<T extends FieldValue = FieldValue> = {
+export type UseFieldConfig = {
   id: string;
   meta: {
     shouldShowError: boolean;
@@ -34,14 +34,8 @@ export type UseFieldConfig<T extends FieldValue = FieldValue> = {
     'data-field-name': string; // Used for scrolling to field errors
   };
   fieldProps: {
-    'value': T;
-    'onChange': (
-      valueOrEvent:
-        | T
-        | React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-          >,
-    ) => void;
+    'value': FieldValue;
+    'onChange': ChangeHandler; // Handles both direct value changes and event-based changes
     'onBlur': () => void;
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
@@ -51,12 +45,12 @@ export type UseFieldConfig<T extends FieldValue = FieldValue> = {
 // Keys of UseFieldConfig
 export type UseFieldKeys = keyof UseFieldConfig;
 
-export function useField<T extends FieldValue = FieldValue>(config: {
+export function useField(config: {
   name: string;
-  initialValue?: T;
+  initialValue?: FieldValue;
   required?: boolean;
   validation?: FieldConfig['validation'];
-}): UseFieldConfig<T> {
+}): UseFieldConfig {
   // Create an ID that can be used to link Label, Hint, and Field.
   const id = useId();
 
@@ -91,48 +85,36 @@ export function useField<T extends FieldValue = FieldValue>(config: {
       initialValue: config.initialValue,
       validation: config.validation,
     });
-    
+
     return () => {
       isUnmountingRef.current = true;
       unregisterField(config.name);
     };
-  }, [
-    config.name,
+
     // NOTE: We intentionally exclude config.validation from dependencies
     // because validation functions are often defined inline and would cause
     // unnecessary re-registrations. The validation is used during validation
     // calls, not during registration.
+    //
+    // TODO: memoize the validation function so that this is safe
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    config.initialValue,
-    unregisterField,
-    registerField,
-  ]);
+  }, [config.name, config.initialValue, unregisterField, registerField]);
 
-  const handleChange = useCallback(
-    (
-      valueOrEvent:
-        | T
-        | React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-          >,
-    ) => {
+  const handleChange: ChangeHandler = useCallback(
+    (valueOrEvent) => {
       // Smart detection: if it's an event object, extract the value; otherwise use as-is
-      let value: T;
+      let value: FieldValue;
       if (
         valueOrEvent &&
         typeof valueOrEvent === 'object' &&
         'target' in valueOrEvent &&
-        'type' in valueOrEvent
+        valueOrEvent.target instanceof EventTarget
       ) {
         // It's an event object, extract the value
-        value = (
-          valueOrEvent as React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-          >
-        ).target.value as T;
+        value = valueOrEvent.target.value;
       } else {
         // It's a direct value
-        value = valueOrEvent;
+        value = valueOrEvent as FieldValue;
       }
 
       setFieldValue(config.name, value);
@@ -150,9 +132,9 @@ export function useField<T extends FieldValue = FieldValue>(config: {
 
   // Ensure the value is never undefined to prevent uncontrolled to controlled warnings
   const currentValue = fieldState?.value ?? config.initialValue;
-  const controlledValue = currentValue === undefined ? ('' as T) : currentValue;
+  const controlledValue = currentValue === undefined ? '' : currentValue;
 
-  const result: UseFieldConfig<T> = {
+  const result: UseFieldConfig = {
     id,
     meta: {
       shouldShowError,

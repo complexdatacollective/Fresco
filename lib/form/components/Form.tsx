@@ -9,7 +9,7 @@ import {
 import { useId } from 'react';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { useForm } from '../hooks/useForm';
-import type { FormErrors, FormSubmitHandler } from '../types';
+import type { FormFieldErrors, FormSubmitHandler } from '../types';
 import FormErrorsList from './FormErrors';
 
 /**
@@ -28,7 +28,7 @@ export default function Form(props: FormProps) {
 
   const { formProps, formErrors } = useForm({
     onSubmit,
-    onSubmitInvalid: (errors: FormErrors) => {
+    onSubmitInvalid: (errors: FormFieldErrors) => {
       scrollToFirstError(errors);
     },
     additionalContext,

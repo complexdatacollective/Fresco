@@ -1,17 +1,17 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
-import { cx } from '~/utils/cva';
+import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
+import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import FeedbackButton from '~/components/Feedback/FeedbackButton';
+import Link from '~/components/Link';
 import ResponsiveContainer from '~/components/ResponsiveContainer';
+import { Button } from '~/components/ui/Button';
 import { cardClasses } from '~/components/ui/card';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
-import { ClipboardCopy } from 'lucide-react';
 import { useToast } from '~/components/ui/use-toast';
-import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import Link from '~/components/Link';
+import { cx } from '~/utils/cva';
 
 export default function Error({
   error,
@@ -65,7 +65,7 @@ ${error.stack}`;
             There&apos;s a problem with Fresco.
           </Heading>
         </div>
-        <Paragraph variant="lead" className="mb-0">
+        <Paragraph style="lead" className="mb-0">
           Fresco encountered a serious error and is unable to continue.
         </Paragraph>
         <Paragraph>

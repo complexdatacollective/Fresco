@@ -17,9 +17,7 @@ export type FormStoreProviderProps = {
 export const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
   const storeRef = useRef<FormStoreApi>();
 
-  if (!storeRef.current) {
-    storeRef.current = createFormStore();
-  }
+  storeRef.current ??= createFormStore();
 
   return (
     <FormStoreContext.Provider value={storeRef.current}>

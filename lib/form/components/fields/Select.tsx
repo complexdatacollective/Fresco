@@ -3,14 +3,14 @@ import { isEmpty } from 'es-toolkit/compat';
 import { type SelectHTMLAttributes } from 'react';
 import { cva } from '~/utils/cva';
 import {
-  transitionStyles,
-  textStyles,
   backgroundStyles,
   borderStyles,
-  focusRingStyles,
-  cursorStyles,
-  sizeStyles,
   buildVariantStyles,
+  cursorStyles,
+  focusRingStyles,
+  sizeStyles,
+  textStyles,
+  transitionStyles,
 } from './shared';
 
 type SelectOption = {
@@ -75,7 +75,10 @@ const selectVariants = compose(
   }),
 );
 
-export type SelectProps = SelectHTMLAttributes<HTMLSelectElement> &
+export type SelectProps = Omit<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  'size'
+> &
   VariantProps<typeof selectVariants> & {
     placeholder?: string;
     options: SelectOption[];

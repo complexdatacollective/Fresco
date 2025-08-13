@@ -57,7 +57,7 @@ const AlertDescription = React.forwardRef<
   <div
     ref={ref}
     className={cx(
-      paragraphVariants({ variant: 'smallText', margin: 'none' }),
+      paragraphVariants({ style: 'smallText', margin: 'none' }),
       className,
     )}
     {...props}

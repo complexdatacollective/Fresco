@@ -1,5 +1,7 @@
+import { type VariableValue } from '@codaco/shared-consts';
 import { z } from 'zod';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
+
+export type FieldValue = VariableValue | undefined;
 
 export type FieldState<T extends FieldValue = FieldValue> = {
   value: T;
@@ -15,6 +17,14 @@ export type FieldState<T extends FieldValue = FieldValue> = {
     | z.ZodTypeAny
     | ((context: ValidationContext) => z.ZodTypeAny | Promise<z.ZodTypeAny>);
 };
+
+export type ChangeHandler = (
+  valueOrEvent:
+    | FieldValue
+    | React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+) => void;
 
 export type FormState = {
   fields: Map<string, FieldState>;
@@ -35,7 +45,7 @@ export type FormSubmitHandler = (
 
 export type FormConfig = {
   onSubmit: FormSubmitHandler;
-  onSubmitInvalid?: (errors: FormErrors) => void;
+  onSubmitInvalid?: (errors: FormFieldErrors) => void;
   additionalContext?: Record<string, unknown>;
 };
 
@@ -48,9 +58,8 @@ export type ValidationContext = {
  * These provide both type generation and runtime validation
  */
 
-// Schema for form errors (field-level errors)
-export const FormErrorsSchema = z.record(z.string(), z.array(z.string()));
-export type FormErrors = z.infer<typeof FormErrorsSchema>;
+export const FormFieldErrorsSchema = z.record(z.string(), z.array(z.string()));
+export type FormFieldErrors = z.infer<typeof FormFieldErrorsSchema>;
 
 // Schema for successful submission
 export const FormSubmissionSuccessSchema = z.object({
@@ -62,18 +71,16 @@ export type FormSubmissionSuccess = z.infer<typeof FormSubmissionSuccessSchema>;
 // Schema for failed submission with errors
 export const FormSubmissionErrorSchema = z.object({
   success: z.literal(false),
-  errors: z
-    .union([
-      z.object({
-        form: z.array(z.string()),
-        fields: FormErrorsSchema.optional(),
-      }),
-      z.object({
-        form: z.array(z.string()).optional(),
-        fields: FormErrorsSchema,
-      }),
-    ])
-    .optional(),
+  errors: z.union([
+    z.object({
+      form: z.array(z.string()),
+      fields: FormFieldErrorsSchema.optional(),
+    }),
+    z.object({
+      form: z.array(z.string()).optional(),
+      fields: FormFieldErrorsSchema,
+    }),
+  ]),
 });
 
 export type FormSubmissionError = z.infer<typeof FormSubmissionErrorSchema>;
