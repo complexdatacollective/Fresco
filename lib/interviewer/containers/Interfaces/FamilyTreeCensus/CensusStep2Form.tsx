@@ -24,7 +24,6 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import { PlaceholderNodeProps } from './FamilyTreeNode';
-import useFamilyTreeNodes from './useFamilyTreeNodes';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -44,12 +43,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
     setPlaceholderNodes,
     egoNodeId,
   } = props;
-  const {
-    placeholderNodes,
-    addPlaceholderNode,
-    setPlaceholderNodesBulk,
-    allNodes,
-  } = useFamilyTreeNodes([]);
 
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
