@@ -1,7 +1,7 @@
+import type { Preview } from '@storybook/nextjs';
 import '../styles/globals.css';
 
-/** @type { import('@storybook/nextjs').Preview } */
-const preview = {
+const preview: Preview = {
   parameters: {
     controls: {
       matchers: {
