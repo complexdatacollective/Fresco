@@ -18,9 +18,9 @@ type StaticTag = (typeof CacheTags)[number];
 
 type DynamicTag = `${StaticTag}-${string}`;
 
-type CacheTag = StaticTag | DynamicTag;
+export type CacheTag = StaticTag | DynamicTag;
 
-export function safeRevalidateTag(tag: CacheTag | CacheTag[]) {
+export function safeRevalidateTag(tag: CacheTag | CacheTag[] = CacheTags) {
   if (Array.isArray(tag)) {
     tag.forEach((t) => revalidateTag(t));
     return;

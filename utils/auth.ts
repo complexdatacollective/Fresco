@@ -2,7 +2,6 @@ import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
 import type { User } from '@prisma/client';
 import { lucia } from 'lucia';
 import { nextjs_future } from 'lucia/middleware';
-import 'lucia/polyfill/node'; // polyfill for Node.js versions <= 18
 import * as context from 'next/headers';
 import { RedirectType, redirect } from 'next/navigation';
 import { cache } from 'react';

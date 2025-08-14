@@ -1,0 +1,36 @@
+{
+  "stages": [
+    {
+      "label": "Welcome",
+      "type": "Information",
+      "title": "Welcome to the Sample Protocol",
+      "items": [
+        {
+          "size": "MEDIUM",
+          "id": "f12c365f-237b-49da-99d2-2eeacc817997",
+          "type": "text",
+          "content": "This is a test protocol for functional testing.",
+          // This comment makes the JSON invalid
+        }
+      ],
+      "id": "3a352ae0-32e3-11eb-8503-3b4fa95b8bc6"
+    }
+  ],
+  "codebook": {
+    "node": {
+      "testNode": {
+        "name": "Test Node",
+        "color": "#FF0000",
+        "variables": {
+          "name": {
+            "name": "Name",
+            "type": "text"
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": 3,
+  "lastModified": "2023-01-01T00:00:00.000Z",
+  "description": "Invalid protocol for testing error handling",
+  // Missing closing brace to make it invalid JSON

@@ -2,7 +2,17 @@
 
 ## Purpose
 
-Fresco brings Network Canvas interviews to the web browser. It's a pilot project that provides a new way to conduct network interviews without adding new features to Network Canvas.
+**Fresco** is a web-based Network Canvas interview platform that brings network analysis interviews to web browsers. It's a pilot project built with Next.js 14 that enables researchers to conduct network interviews online without adding new features to Network Canvas.
+
+## Key Purpose
+- Web-based research platform for network analysis interviews
+- Enables researchers to conduct network interviews online
+- Supports multiple interface types for data collection (Name Generator, Sociogram, etc.)
+- Handles complex network data visualization and export
+- Provides a new way to conduct network interviews
+
+## Current Status
+The project is in heavy development with significant new features being added. It's on version 3.0.0 and uses modern web technologies.
 
 ## Tech Stack
 
