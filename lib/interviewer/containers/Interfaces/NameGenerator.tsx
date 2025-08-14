@@ -243,6 +243,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
     },
     [form, passphrase, useEncryption, codebookForNodeType],
   );
+  const stageElement = document.getElementById('stage');
 
   return (
     <div className="name-generator-interface" ref={interfaceRef}>
@@ -276,18 +277,20 @@ const NameGenerator = (props: NameGeneratorProps) => {
         }
         id="NODE_BIN"
       />
-      {createPortal(
-        <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
-        document.getElementById('stage')!,
-      )}
-      {createPortal(
-        <MinNodesNotMet
-          show={showMinWarning}
-          minNodes={minNodes}
-          onHideCallback={() => setShowMinWarning(false)}
-        />,
-        document.getElementById('stage')!,
-      )}
+      {stageElement &&
+        createPortal(
+          <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
+          stageElement,
+        )}
+      {stageElement &&
+        createPortal(
+          <MinNodesNotMet
+            show={showMinWarning}
+            minNodes={minNodes}
+            onHideCallback={() => setShowMinWarning(false)}
+          />,
+          stageElement,
+        )}
       {form && (
         <NodeForm
           selectedNode={selectedNode}

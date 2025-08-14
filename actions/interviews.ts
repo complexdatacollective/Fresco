@@ -8,7 +8,7 @@ import { cookies } from 'next/headers';
 import superjson from 'superjson';
 import trackEvent from '~/lib/analytics';
 import { safeRevalidateTag } from '~/lib/cache';
-import { initialNetwork } from '~/lib/interviewer/ducks/modules/session';
+import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
 import archive from '~/lib/network-exporters/formatters/session/archive';
 import { generateOutputFiles } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
@@ -211,7 +211,7 @@ export async function createInterview(data: CreateInterview) {
         id: true,
       },
       data: {
-        network: initialNetwork,
+        network: createInitialNetwork(),
         participant: participantStatement,
         protocol: {
           connect: {

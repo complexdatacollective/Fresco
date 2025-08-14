@@ -19,7 +19,7 @@ import {
 } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
 import { find, get } from 'es-toolkit/compat';
-import { v4 as uuid, v4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { z } from 'zod/v3';
 import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
@@ -118,14 +118,14 @@ const actionTypes = {
   updateEgo: 'NETWORK/UPDATE_EGO' as const,
 };
 
-export const initialNetwork: NcNetwork = {
+export const createInitialNetwork = (): NcNetwork => ({
   ego: {
-    [entityPrimaryKeyProperty]: v4(),
+    [entityPrimaryKeyProperty]: uuid(),
     [entityAttributesProperty]: {},
   },
   nodes: [],
   edges: [],
-};
+});
 
 const initialState = {} as SessionState;
 
