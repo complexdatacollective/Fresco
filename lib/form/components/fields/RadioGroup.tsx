@@ -148,6 +148,7 @@ type RadioGroupProps = Omit<
   'size' | 'onChange'
 > &
   VariantProps<typeof radioGroupVariants> & {
+    id?: string;
     name: string;
     options: RadioOption[];
     value?: string | number;
@@ -173,6 +174,8 @@ export function RadioGroupField({
   useColumns = false,
   ...fieldsetProps
 }: RadioGroupProps) {
+  // Generate a default id if none provided
+  const fieldId = id ?? `radio-${name}`;
   const handleChange = (optionValue: string | number) => {
     if (onChange) {
       onChange(optionValue);
@@ -194,7 +197,7 @@ export function RadioGroupField({
         })}
         disabled={disabled}
         data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-        aria-labelledby={`${id}-label`} // Important, because we don't have a <legend>
+        aria-labelledby={`${fieldId}-label`} // Important, because we don't have a <legend>
       >
         {options.map((option) => {
           const optionId = `${name}-${option.value}`;

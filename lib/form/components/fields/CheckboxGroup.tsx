@@ -183,6 +183,7 @@ type CheckboxGroupProps = Omit<
   'size' | 'onChange'
 > &
   VariantProps<typeof checkboxGroupVariants> & {
+    id?: string;
     name: string;
     options: CheckboxOption[];
     value?: (string | number)[];
@@ -195,6 +196,7 @@ type CheckboxGroupProps = Omit<
   };
 
 export function CheckboxGroupField({
+  id,
   className,
   name,
   options,
@@ -207,6 +209,8 @@ export function CheckboxGroupField({
   useColumns = false,
   ...fieldsetProps
 }: CheckboxGroupProps) {
+  // Generate a default id if none provided
+  const fieldId = id ?? `checkbox-${name}`;
   const handleChange = (optionValue: string | number, checked: boolean) => {
     if (onChange) {
       const currentValues = value ?? [];
@@ -233,7 +237,7 @@ export function CheckboxGroupField({
         })}
         disabled={disabled}
         data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-        aria-labelledby={`${id}-label`} // Important, because we don't have a <legend>
+        aria-labelledby={`${fieldId}-label`} // Important, because we don't have a <legend>
       >
         {options.map((option) => {
           const optionId = `${name}-${option.value}`;

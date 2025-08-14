@@ -8,12 +8,14 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Form from '~/lib/interviewer/containers/Form';
+import { Form, useFormFields } from '~/lib/form';
+import type { EnrichedFormField } from '~/lib/form/types/fields';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import Overlay from '../../../containers/Overlay';
+import { enrichFieldsWithCodebookMetadata } from '../../../selectors/forms';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../../../selectors/session';
@@ -36,8 +38,11 @@ const NodeForm = (props: NodeFormProps) => {
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
 
+  const enrichedFields = useSelector((state) =>
+    enrichFieldsWithCodebookMetadata(state, { fields: form.fields, subject }),
+  );
+
   const [show, setShow] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const dispatch = useAppDispatch();
 
@@ -72,18 +77,37 @@ const NodeForm = (props: NodeFormProps) => {
     },
   };
 
-  const fields = [
-    {
-      variable: 'name',
-      type: 'text',
-      prompt: `Enter the ${nodeType} name`,
+  // Use the translation hook to convert enriched fields directly to new Field components
+  const { fieldComponents, additionalContext } = useFormFields({
+    fields: enrichedFields as EnrichedFormField[],
+    subject,
+    autoFocus: true,
+  });
+
+  // Handle form submission
+  const handleSubmit = useCallback(
+    (values: Record<string, unknown>) => {
+      const variableValues = values as Record<string, VariableValue>;
+
+      if (!selectedNode) {
+        addNode({ ...newNodeAttributes, ...variableValues });
+      } else {
+        const selectedUID = selectedNode[entityPrimaryKeyProperty];
+        void updateNode({
+          nodeId: selectedUID,
+          newAttributeData: variableValues,
+        });
+      }
+
+      setShow(false);
+      onClose();
+      return Promise.resolve({ success: true as const });
     },
-    {
-      variable: 'age',
-      type: 'number',
-      prompt: `Enter the ${nodeType} age`,
-    },
-  ];
+    [selectedNode, addNode, newNodeAttributes, updateNode, onClose],
+  );
+
+  // Get initial values for the form
+  const initialValues = selectedNode?.[entityAttributesProperty] ?? {};
 
   return (
     <>
@@ -107,41 +131,27 @@ const NodeForm = (props: NodeFormProps) => {
         className="node-form"
         forceEnableFullscreen={false}
         footer={
-          true && (
-            <Button
-              key="submit"
-              aria-label="Finished"
-              onClick={() => {
-                formRef.current?.requestSubmit();
-              }}
-            >
-              Finished
-            </Button>
-          )
+          <Button
+            key="submit"
+            type="submit"
+            form="node-form"
+            aria-label="Finished"
+          >
+            Finished
+          </Button>
         }
         allowMaximize={false}
       >
         <Scroller>
           <Form
-            ref={formRef}
-            fields={fields}
-            onSubmit={({ value }: { value: Record<string, VariableValue> }) => {
-              if (!selectedNode) {
-                addNode({ ...newNodeAttributes, ...value });
-              } else {
-                const selectedUID = selectedNode[entityPrimaryKeyProperty];
-                void updateNode({
-                  nodeId: selectedUID,
-                  newAttributeData: value,
-                });
-              }
-
-              setShow(false);
-              onClose();
-            }}
-            initialValues={selectedNode?.[entityAttributesProperty]}
-            focusFirstInput
-          />
+            id="node-form"
+            onSubmit={handleSubmit}
+            initialValues={initialValues}
+            additionalContext={additionalContext}
+            className="space-y-4"
+          >
+            {fieldComponents}
+          </Form>
         </Scroller>
       </Overlay>
     </>
