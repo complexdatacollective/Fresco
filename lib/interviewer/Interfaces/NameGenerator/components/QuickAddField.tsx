@@ -54,7 +54,7 @@ export default function QuickAddField({
   onShowInput,
   validation,
 }: QuickAddFieldProps) {
-  const [showInput, setShowInput] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const { id, meta, fieldProps, containerProps } = useField({
@@ -73,7 +73,7 @@ export default function QuickAddField({
   // Close form when disabled
   useEffect(() => {
     if (disabled) {
-      setShowInput(false);
+      setChecked(false);
     }
   }, [disabled]);
 
@@ -112,21 +112,47 @@ export default function QuickAddField({
     'backface-hidden',
   );
 
+  const toggleId = `quick-add-toggle-${id}`;
+  const inputId = `quick-add-input-${id}`;
+
   return (
     <motion.div
       layout
       className="flex flex-row-reverse items-center"
       {...containerProps}
     >
+      {/* Semantic checkbox control: visually hidden but accessible */}
+      <input
+        type="checkbox"
+        id={toggleId}
+        className="sr-only"
+        aria-controls={inputId}
+        aria-expanded={checked}
+        checked={checked}
+        onChange={(e) => {
+          setChecked(e.target.checked);
+          if (e.target.checked) {
+            onShowInput();
+          }
+        }}
+        disabled={disabled}
+      />
+
+      <label htmlFor={toggleId} className="sr-only">
+        Quick Add {nodeType}
+      </label>
+
       <motion.div className="ml-6 w-[130px] basis-[130px]" layout>
         <AnimatePresence mode="popLayout">
-          {!showInput ? (
+          {!checked ? (
             <motion.div
               key="add-button"
               className={buttonClasses}
               onClick={() => {
-                setShowInput(true);
-                onShowInput();
+                if (!disabled) {
+                  setChecked(true);
+                  onShowInput();
+                }
               }}
               variants={buttonVariants}
               initial="initial"
@@ -135,7 +161,11 @@ export default function QuickAddField({
             >
               <ActionButton
                 disabled={disabled}
-                onClick={() => setShowInput(true)}
+                onClick={() => {
+                  if (!disabled) {
+                    setChecked(true);
+                  }
+                }}
                 icon={icon}
                 title={`Add ${nodeType}...`}
               />
@@ -161,9 +191,10 @@ export default function QuickAddField({
           )}
         </AnimatePresence>
       </motion.div>
+
       <motion.div layout="size" className="flex w-[40ch] flex-col">
         <AnimatePresence>
-          {showTooltip && (
+          {showTooltip && checked && (
             <motion.div
               layout="position"
               key="tool-tip"
@@ -178,10 +209,10 @@ export default function QuickAddField({
               <span>Press enter to add...</span>
             </motion.div>
           )}
-          {showInput && (
+          {checked && (
             <motion.input
               layout="position"
-              id="id"
+              id={inputId}
               key="quick-add-input"
               className={inputClasses}
               autoFocus
@@ -189,8 +220,15 @@ export default function QuickAddField({
               placeholder={placeholder}
               type="text"
               {...fieldProps}
-              onBlur={() => {
-                setShowInput(false);
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setChecked(false);
+                  // Move focus back to the toggle
+                  const toggleElement = document.getElementById(toggleId);
+                  if (toggleElement) {
+                    toggleElement.focus();
+                  }
+                }
               }}
               value={fieldProps.value as string}
               variants={inputVariants}
@@ -199,7 +237,7 @@ export default function QuickAddField({
               exit="exit"
             />
           )}
-          {meta.shouldShowError && (
+          {meta.shouldShowError && checked && (
             <motion.div
               layout="position"
               id="error-message"
@@ -241,10 +279,12 @@ function SimpleNode({
     <div
       className={nodeClasses}
       onClick={onClick}
-      style={{
-        '--bg': `var(--nc-${color})`,
-        '--bg-dark': `var(--nc-${color}--dark)`,
-      }}
+      style={
+        {
+          '--bg': `var(--nc-${color})`,
+          '--bg-dark': `var(--nc-${color}--dark)`,
+        } as React.CSSProperties
+      }
     >
       {label}
     </div>
