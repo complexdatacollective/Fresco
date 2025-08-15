@@ -352,11 +352,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           selectedNode={null}
           form={step2CensusForm}
           disabled={false}
-          onClose={function (): void {
-            setTimeout(() => {
-              console.log(allNodes);
-            }, 7000);
-          }}
+          onClose={function (): void {}}
           setPlaceholderNodes={setPlaceholderNodesBulk}
           egoNodeId={egoNodeId}
         />

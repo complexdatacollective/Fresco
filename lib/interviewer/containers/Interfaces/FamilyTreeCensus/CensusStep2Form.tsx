@@ -48,12 +48,11 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
-  const currentFamilyNodes = useSelector(getPedigreeStageMetadata);
+  let step2Nodes = useSelector(getPedigreeStageMetadata);
 
   const [show, setShow] = useState(false);
   const [relationValue, setRelationValue] = useState('');
   const [egoId, setEgoId] = useState<string>(egoNodeId);
-  const [step2Nodes, setStep2Nodes] = useState(currentFamilyNodes);
   const formRef = useRef<HTMLFormElement>(null);
 
   const dispatch = useAppDispatch();
@@ -67,64 +66,9 @@ const CensusStep2Form = (props: NodeFormProps) => {
     [dispatch],
   );
 
-  // TODO: conditionally render these depending on relations added.
-  // i.e. cousins shouldn't be an option without adding aunt or uncles first
   const baseField = {
     fieldLabel: 'How is this person related to you?',
-    options: [
-      {
-        label: 'Aunt',
-        value: 'Aunt',
-      },
-      {
-        label: 'Uncle',
-        value: 'Uncle',
-      },
-      {
-        label: 'Daughter',
-        value: 'Daughter',
-      },
-      {
-        label: 'Son',
-        value: 'Son',
-      },
-      {
-        label: 'Brother',
-        value: 'Brother',
-      },
-      {
-        label: 'Sister',
-        value: 'Sister',
-      },
-      {
-        label: 'Half Sister',
-        value: 'Half Sister',
-      },
-      {
-        label: 'Half Brother',
-        value: 'Half Brother',
-      },
-      {
-        label: '(First) Cousin',
-        value: '(First) Cousin',
-      },
-      {
-        label: 'Niece',
-        value: 'Niece',
-      },
-      {
-        label: 'Nephew',
-        value: 'Nephew',
-      },
-      {
-        label: 'Granddaughter',
-        value: 'Granddaughter',
-      },
-      {
-        label: 'Grandson',
-        value: 'Grandson',
-      },
-    ],
+    options: [],
     type: 'ordinal',
     variable: 'relation',
     Component: (props) => (
@@ -136,6 +80,45 @@ const CensusStep2Form = (props: NodeFormProps) => {
       />
     ),
     validation: {},
+  };
+
+  const hasAuntOrUncle = step2Nodes.some((node) =>
+    ['aunt', 'uncle'].includes(node.label),
+  );
+  const hasFirstCousin = step2Nodes.some(
+    (node) => node.label === 'firstCousin',
+  );
+  const hasChildren = step2Nodes.some((node) =>
+    ['son', 'daughter'].includes(node.label),
+  );
+
+  const dynamicBaseField = {
+    ...baseField,
+    options: [
+      { label: 'Aunt', value: 'aunt' },
+      { label: 'Uncle', value: 'uncle' },
+      { label: 'Daughter', value: 'daughter' },
+      { label: 'Son', value: 'son' },
+      { label: 'Brother', value: 'brother' },
+      { label: 'Sister', value: 'sister' },
+      { label: 'Half Sister', value: 'halfSister' },
+      { label: 'Half Brother', value: 'halfBrother' },
+      ...(hasAuntOrUncle
+        ? [{ label: '(First) Cousin', value: 'firstCousin' }]
+        : []),
+      ...(hasFirstCousin
+        ? [
+            { label: 'Niece', value: 'niece' },
+            { label: 'Nephew', value: 'nephew' },
+          ]
+        : []),
+      ...(hasChildren
+        ? [
+            { label: 'Granddaughter', value: 'granddaughter' },
+            { label: 'Grandson', value: 'grandson' },
+          ]
+        : []),
+    ],
   };
 
   function getParents(subjectId: string, nodes) {
@@ -300,7 +283,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
 
   // Daughter, Son, Brother, and Sister all automatically add node to ego/create spouse if needed.
   const additionalFieldsMap = {
-    'Aunt': {
+    aunt: {
       fieldLabel: 'Whos is the aunt related to?',
       options: [
         { label: 'Father', value: father.id },
@@ -311,7 +294,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    'Uncle': {
+    uncle: {
       fieldLabel: 'Whos is the uncle related to?',
       options: [
         { label: 'Father', value: father.id },
@@ -322,7 +305,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    'Half Sister': {
+    halfSister: {
       fieldLabel: 'Who is the parent of your half sister?',
       options: [
         { label: 'Father', value: father.id },
@@ -333,7 +316,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    'Half Brother': {
+    halfBrother: {
       fieldLabel: 'Who is the parent of your half brother?',
       options: [
         { label: 'Father', value: father.id },
@@ -344,7 +327,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    '(First) Cousin': {
+    firstCousin: {
       fieldLabel: 'Who is the parent of your first cousin?',
       options: firstCousinOptions,
       type: 'ordinal',
@@ -352,7 +335,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    'Niece': {
+    niece: {
       fieldLabel: 'Who is the parent of your niece?',
       options: nieceOptions,
       type: 'ordinal',
@@ -360,43 +343,43 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    'Nephew': {
+    nephew: {
       fieldLabel: 'Who is the parent of your nephew?',
       options: nieceOptions,
       type: 'ordinal',
-      variable: 'nieceRelation',
+      variable: 'nephewRelation',
       Component: RadioGroup,
       validation: {},
     },
-    'Granddaughter': {
+    granddaughter: {
       fieldLabel: 'Who is the parent of your granddaughter?',
       options: grandchildrenOptions,
       type: 'ordinal',
-      variable: 'nieceRelation',
+      variable: 'granddaughterRelation',
       Component: RadioGroup,
       validation: {},
     },
-    'Grandson': {
+    grandson: {
       fieldLabel: 'Who is the parent of your granddaughter?',
       options: grandchildrenOptions,
       type: 'ordinal',
-      variable: 'nieceRelation',
+      variable: 'grandsonRelation',
       Component: RadioGroup,
       validation: {},
     },
   };
 
-  // const createNewPlaceholderNode(relative) = () => {
-  //   switch (relative) {
-  //     case 'Daughter':
-  //       const newDaughter
-  //   }
-  // }
+  // resets the additional fields from the previous relative selection
+  useEffect(() => {
+    if (!show) {
+      setRelationValue('');
+    }
+  }, [show]);
 
   const processedFields = [
-    baseField,
+    dynamicBaseField,
     ...(relationValue && additionalFieldsMap[relationValue]
-      ? [additionalFieldsMap[relationValue]]
+      ? [{ ...additionalFieldsMap[relationValue], _uniqueKey: Date.now() }]
       : []),
   ];
 
@@ -404,34 +387,198 @@ const CensusStep2Form = (props: NodeFormProps) => {
 
   const handleSubmit = useCallback(
     ({ value }: { value: Record<string, VariableValue> }) => {
-      const fullData = { ...newNodeAttributes, ...value };
-
-      const parentsObject = getParents(
-        fullData.auntRelation as string,
-        step2Nodes,
+      const cleanedData = Object.fromEntries(
+        Object.entries(value).filter(([_, v]) => v !== '' && v != null),
       );
-      const parentsArray = Object.values(parentsObject).filter(Boolean);
+      const fullData = { ...newNodeAttributes, ...cleanedData };
 
-      const newNode: PlaceholderNodeProps = {
-        id: crypto.randomUUID(),
-        gender: 'female',
-        label: `aunt ${Math.floor(Math.random() * (100 - 0 + 1) + 0)}`,
-        parentIds: parentsArray.map((p) => p.id),
-        childIds: [],
-        xPos: 0,
-        yPos: 0,
-      };
+      let parentsArray: PlaceholderNodeProps[] = [];
+      let newNode: PlaceholderNodeProps;
+      let newNodeParentIds: string[] = [];
+
+      switch (fullData.relation) {
+        case 'aunt':
+        case 'uncle': {
+          const parentsObject = getParents(
+            fullData[`${fullData.relation}Relation`] as string,
+            step2Nodes,
+          );
+          parentsArray = Object.values(parentsObject).filter(Boolean);
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: fullData.relation === 'aunt' ? 'female' : 'male',
+            label: fullData.relation,
+            parentIds: parentsArray.map((p) => p.id),
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+          break;
+        }
+
+        case 'brother':
+        case 'sister': {
+          const egoNode = step2Nodes.find((n) => n.id === egoNodeId);
+          if (!egoNode) break;
+
+          parentsArray = step2Nodes.filter((n) =>
+            egoNode.parentIds.includes(n.id),
+          );
+
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: fullData.relation === 'sister' ? 'female' : 'male',
+            label: fullData.relation,
+            parentIds: parentsArray.map((p) => p.id),
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+          break;
+        }
+
+        case 'son':
+        case 'daughter': {
+          const egoNode = step2Nodes.find((n) => n.id === egoNodeId);
+          if (!egoNode) break;
+
+          parentsArray = [egoNode];
+          newNodeParentIds = [egoNode.id];
+
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: fullData.relation === 'son' ? 'male' : 'female',
+            label: fullData.relation.toLowerCase(),
+            parentIds: newNodeParentIds,
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+          break;
+        }
+
+        case 'firstCousin': {
+          const parentsObject = getParents(
+            fullData.auntRelation || fullData.uncleRelation,
+            step2Nodes,
+          );
+          parentsArray = Object.values(parentsObject).filter(Boolean);
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: 'male',
+            label: 'cousin',
+            parentIds: parentsArray.map((p) => p.id),
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+          break;
+        }
+
+        case 'niece':
+        case 'nephew': {
+          // Pick which sibling of ego is parent
+          const parentsObject = getParents(
+            fullData[`${fullData.relation}Relation`] as string,
+            step2Nodes,
+          );
+          parentsArray = Object.values(parentsObject).filter(Boolean);
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: fullData.relation === 'niece' ? 'female' : 'male',
+            label: fullData.relation,
+            parentIds: parentsArray.map((p) => p.id),
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+          break;
+        }
+
+        case 'granddaughter':
+        case 'grandson': {
+          const selectedChild = step2Nodes.find(
+            (n) => n.id === fullData[`${fullData.relation}Relation`],
+          );
+          if (!selectedChild) break;
+
+          let parentsArray: PlaceholderNodeProps[] = [selectedChild];
+          let newNodeParentIds: string[] = [selectedChild.id];
+
+          let updatedSelectedChild: PlaceholderNodeProps = selectedChild;
+          let partnerNode: PlaceholderNodeProps | undefined;
+
+          if (!selectedChild.partnerId) {
+            const partnerId = crypto.randomUUID();
+            partnerNode = {
+              id: partnerId,
+              gender: selectedChild.gender === 'male' ? 'female' : 'male',
+              label: `${selectedChild.label}'s spouse`,
+              parentIds: [],
+              childIds: [...(selectedChild.childIds || [])],
+              partnerId: selectedChild.id,
+              xPos: 0,
+              yPos: 0,
+            };
+
+            updatedSelectedChild = { ...selectedChild, partnerId };
+            parentsArray = [updatedSelectedChild, partnerNode];
+            newNodeParentIds = [updatedSelectedChild.id, partnerId];
+          } else {
+            partnerNode = step2Nodes.find(
+              (n) => n.id === selectedChild.partnerId,
+            );
+            if (partnerNode) {
+              parentsArray = [selectedChild, partnerNode];
+              newNodeParentIds = [selectedChild.id, partnerNode.id];
+            }
+          }
+
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: fullData.relation === 'granddaughter' ? 'female' : 'male',
+            label: fullData.relation,
+            parentIds: newNodeParentIds,
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+
+          const updatedChildWithGrandchild: PlaceholderNodeProps = {
+            ...updatedSelectedChild,
+            childIds: [...(updatedSelectedChild.childIds || []), newNode.id],
+          };
+
+          const updatedPartnerWithGrandchild: PlaceholderNodeProps | undefined =
+            partnerNode
+              ? {
+                  ...partnerNode,
+                  childIds: [...(partnerNode.childIds || []), newNode.id],
+                }
+              : undefined;
+
+          setPlaceholderNodes([
+            updatedChildWithGrandchild,
+            ...(updatedPartnerWithGrandchild
+              ? [updatedPartnerWithGrandchild]
+              : []),
+            newNode,
+          ]);
+
+          break;
+        }
+
+        default:
+          console.warn('Unhandled relation type', fullData.relation);
+          return;
+      }
 
       const updatedParents = parentsArray.map((parent) => ({
         ...parent,
-        childIds: parent.childIds
-          ? [...parent.childIds, newNode.id]
-          : [newNode.id],
+        childIds: [...(parent.childIds || []), newNode.id],
       }));
 
-      const updatedNodes = [...updatedParents, newNode];
-      setPlaceholderNodes(updatedNodes);
-
+      setPlaceholderNodes([...updatedParents, newNode]);
       setShow(false);
       onClose();
     },
@@ -442,14 +589,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
     () => selectedNode?.[entityAttributesProperty] ?? {},
     [selectedNode],
   );
-
-  // When a selected node is passed in, we are editing an existing node.
-  // We need to show the form and populate it with the node's data.
-  useEffect(() => {
-    if (selectedNode) {
-      setShow(true);
-    }
-  }, [selectedNode]);
 
   const handleClose = useCallback(() => {
     setShow(false);
