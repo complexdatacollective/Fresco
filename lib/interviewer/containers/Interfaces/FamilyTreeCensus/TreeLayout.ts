@@ -239,7 +239,6 @@ class TreeLayout {
 
   // swap couples so females are on the left
   orderCouplesBySex(nodes: PlaceholderNodeProps[]) {
-    console.log('NODES IN ORDER BY SEX', nodes);
     const placed = new Set<PlaceholderNodeProps>();
     nodes.forEach((node) => {
       if (placed.has(node)) return;
@@ -263,7 +262,6 @@ class TreeLayout {
     });
   }
 
-  // TODO: this version correctly lays out grandchildren
   groupSiblings(nodes: PlaceholderNodeProps[]) {
     // Bucket by actual parent couple
     const bucketKey = (n: PlaceholderNodeProps) => {
