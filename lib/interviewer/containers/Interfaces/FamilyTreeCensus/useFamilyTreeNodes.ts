@@ -1,6 +1,8 @@
 import { entityPrimaryKeyProperty, NcNode } from '@codaco/shared-consts';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { updatePedigreeStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
+import { useAppDispatch } from '../../../store';
 import { PlaceholderNodeProps } from './FamilyTreeNode';
 
 const getStringNodeAttribute = (node: NcNode, attribute: string): string => {
@@ -31,6 +33,8 @@ function useFamilyTreeNodes(networkNodes: NcNode[]): UseFamilyTreeNodesReturn {
   const [placeholderNodes, setPlaceholderNodes] = useState<
     PlaceholderNodeProps[]
   >([]);
+
+  const dispatch = useAppDispatch();
 
   const addPlaceholderNode = useCallback(
     (gender: string, label: string, parentIds: string[]) => {
@@ -97,6 +101,10 @@ function useFamilyTreeNodes(networkNodes: NcNode[]): UseFamilyTreeNodesReturn {
     );
     return [...filteredPlaceholders, ...networkNodesAsPlaceholders];
   }, [placeholderNodes, networkNodesAsPlaceholders]);
+
+  useEffect(() => {
+    dispatch(updatePedigreeStageMetadata(placeholderNodes));
+  }, [placeholderNodes, dispatch]);
 
   return {
     placeholderNodes,

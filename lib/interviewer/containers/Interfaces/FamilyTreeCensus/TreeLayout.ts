@@ -18,7 +18,7 @@ class TreeLayout {
     this.grouped = new Map<number, PlaceholderNodeProps[]>();
     this.layerHeight = 130;
     this.nodeWidth = 130;
-    this.byId = new Map(nodes.map((n) => [n.id!, n]));
+    this.byId = new Map(this.nodes.map((n) => [n.id!, n]));
   }
 
   arrangeNodes(offsets: {
@@ -29,8 +29,11 @@ class TreeLayout {
     this.assignLayers();
     this.groupByLayer();
     this.assignCoordinates();
+    this.recenterGrandchildrenAndCouples();
     this.fixOverlaps();
     this.ensureAllNodesHaveCoords();
+    this.orderCouplesBySex(this.nodes);
+    this.reorderSiblingsByParentSide();
     this.offsetNodes(offsets);
 
     return this.nodes;
@@ -73,9 +76,13 @@ class TreeLayout {
   }
 
   collectCouples() {
+    const seen = new Set<string>();
     this.nodes.forEach((node) => {
       const partner = this.partnerOf(node);
-      if (partner == null || this.coupleExists(node, partner)) return;
+      if (!partner) return;
+      const key = [node.id, partner.id].sort().join('|');
+      if (seen.has(key)) return;
+      seen.add(key);
       this.couples.push([node, partner]);
     });
   }
@@ -232,6 +239,7 @@ class TreeLayout {
 
   // swap couples so females are on the left
   orderCouplesBySex(nodes: PlaceholderNodeProps[]) {
+    console.log('NODES IN ORDER BY SEX', nodes);
     const placed = new Set<PlaceholderNodeProps>();
     nodes.forEach((node) => {
       if (placed.has(node)) return;
@@ -255,61 +263,54 @@ class TreeLayout {
     });
   }
 
-  // reorder siblings/couples by shared parents
+  // TODO: this version correctly lays out grandchildren
   groupSiblings(nodes: PlaceholderNodeProps[]) {
-    let foundAnchorNode = false;
-    let lastUnmovedNode: PlaceholderNodeProps;
-    // order layer nodes by x's
-    const inXOrder = this.orderByX(nodes);
-    inXOrder.forEach((node: PlaceholderNodeProps, i: number) => {
-      // pick the first node with parents, and order the remaining nodes to its left
-      if (foundAnchorNode || !this.hasParents(node)) return;
-      foundAnchorNode = true;
-      const parents = this.parentsOf(node);
-      const { x, y } = this.coords.get(node)!;
-      let numberMoved = 1;
-      inXOrder
-        .slice(i + 1)
-        .forEach((otherNode: PlaceholderNodeProps, j: number) => {
-          // move nodes with shared parents
-          if (!this.hasParents(otherNode)) {
-            lastUnmovedNode = otherNode;
-            return;
-          }
+    // Bucket by actual parent couple
+    const bucketKey = (n: PlaceholderNodeProps) => {
+      const parents = this.parentsOf(n);
+      if (parents.length === 0) return `root:${n.id}`;
 
-          const otherParent = this.parentsOf(otherNode)[0];
+      // find the couple that are parents of this node
+      const parentCouple = this.couples.find(
+        ([a, b]) => parents.includes(a) && parents.includes(b),
+      );
 
-          if (otherParent != null && parents.includes(otherParent)) {
-            const otherNodeCoords = this.coords.get(otherNode)!;
-            this.coords.set(otherNode, {
-              x: x - numberMoved++ * this.nodeWidth,
-              y,
-            });
-            inXOrder
-              .slice(i + j + 2)
-              .forEach((neighborNode: PlaceholderNodeProps, k: number) => {
-                const couple = this.couples.find(
-                  ([a, b]) =>
-                    (a === node && b === neighborNode) ||
-                    (b === node && a === neighborNode),
-                );
-                if (couple) {
-                  lastUnmovedNode = neighborNode;
-                  return;
-                }
-                if (lastUnmovedNode) {
-                  // adjust following nodes to the left
-                  const unmovedNodeX = this.coords.get(lastUnmovedNode)!.x;
-                  this.coords.set(neighborNode, {
-                    x: unmovedNodeX + this.nodeWidth * (k + 1),
-                    y,
-                  });
-                }
-              });
-          } else {
-            lastUnmovedNode = otherNode;
-          }
-        });
+      if (parentCouple) {
+        const [a, b] = parentCouple;
+        return `couple:${a.id}|${b.id}`;
+      }
+
+      return `parents:${parents
+        .map((p) => p.id)
+        .sort()
+        .join('|')}`;
+    };
+
+    const buckets = new Map<string, PlaceholderNodeProps[]>();
+    nodes.forEach((n) => {
+      const k = bucketKey(n);
+      if (!buckets.has(k)) buckets.set(k, []);
+      buckets.get(k)!.push(n);
+    });
+
+    const bucketList = Array.from(buckets.values()).map((list) => {
+      const xs = list.map((n) => this.coords.get(n)!.x);
+      const center = xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
+      return { list, center };
+    });
+
+    // Sort buckets left-to-right by center
+    bucketList.sort((a, b) => a.center - b.center);
+
+    // Repack: place buckets contiguously, keep members in x-order within bucket
+    let cursor = Math.min(...nodes.map((n) => this.coords.get(n)!.x));
+    bucketList.forEach(({ list }) => {
+      const inOrder = this.orderByX(list); // preserve couple ordering already handled earlier
+      inOrder.forEach((n, i) => {
+        const { y } = this.coords.get(n)!;
+        this.coords.set(n, { x: cursor + i * this.nodeWidth, y });
+      });
+      cursor += (inOrder.length || 1) * this.nodeWidth;
     });
   }
 
@@ -379,11 +380,41 @@ class TreeLayout {
     });
   }
 
+  recenterGrandchildrenAndCouples() {
+    for (const [a, b] of this.couples) {
+      const sharedChildren = this.childrenOf(a).filter((c) =>
+        this.childrenOf(b).includes(c),
+      );
+      if (!sharedChildren.length) continue;
+
+      const parentX = (this.coords.get(a)!.x + this.coords.get(b)!.x) / 2;
+      const childXs = sharedChildren.map((c) => this.coords.get(c)!.x);
+      const centroid = childXs.reduce((sum, x) => sum + x, 0) / childXs.length;
+      const dx = parentX - centroid;
+
+      for (const child of sharedChildren) {
+        const old = this.coords.get(child)!;
+        this.coords.set(child, { x: old.x + dx, y: old.y });
+      }
+    }
+
+    for (const [a, b] of this.couples) {
+      const coordA = this.coords.get(a)!;
+      const coordB = this.coords.get(b)!;
+
+      const spacing = this.nodeWidth * 0.4;
+      const centerX = (coordA.x + coordB.x) / 2;
+
+      this.coords.set(a, { x: centerX - spacing, y: coordA.y });
+      this.coords.set(b, { x: centerX + spacing, y: coordB.y });
+    }
+  }
+
   private ensureAllNodesHaveCoords() {
     this.nodes.forEach((node) => {
       if (this.coords.has(node)) return;
 
-      // layer = max(parent layer) + 1 (or 0 if none)
+      // layer = max(parent layer) + 1 (or existing layer if already set)
       const parentLayers = (node.parentIds ?? [])
         .map((pid) => this.byId.get(pid))
         .filter(Boolean)
@@ -394,12 +425,13 @@ class TreeLayout {
         : (this.layers.get(node) ?? 0);
       const y = layer * this.layerHeight;
 
-      // place next to siblings (same parent set)
+      // Siblings = same exact parent set, **and** already placed at this same layer
       const key = JSON.stringify([...(node.parentIds ?? [])].sort());
       const siblings = this.nodes.filter(
         (n) =>
-          JSON.stringify([...(n.parentIds ?? [])].sort()) === key &&
-          this.coords.has(n),
+          this.coords.has(n) &&
+          (this.layers.get(n) ?? 0) === layer &&
+          JSON.stringify([...(n.parentIds ?? [])].sort()) === key,
       );
 
       const xs = siblings.map((s) => this.coords.get(s)!.x);
@@ -408,29 +440,137 @@ class TreeLayout {
       this.coords.set(node, { x, y });
     });
   }
+
+  private reorderSiblingsByParentSide() {
+    // helpers
+    const layerOf = (n: PlaceholderNodeProps) => this.layers.get(n) ?? -1;
+    const getLayer = (k: number) => this.nodes.filter((n) => layerOf(n) === k);
+    const unitWidth = (u: PlaceholderNodeProps[]) =>
+      u.length === 2 ? this.nodeWidth * 1.8 : this.nodeWidth;
+    const unitLeft = (u: PlaceholderNodeProps[]) =>
+      Math.min(...u.map((n) => this.coords.get(n)!.x));
+    const unitRight = (u: PlaceholderNodeProps[]) =>
+      Math.max(...u.map((n) => this.coords.get(n)!.x));
+    const unitCenter = (u: PlaceholderNodeProps[]) =>
+      (unitLeft(u) + unitRight(u)) / 2;
+    const shiftUnit = (u: PlaceholderNodeProps[], dx: number) => {
+      u.forEach((n) => {
+        const c = this.coords.get(n)!;
+        this.coords.set(n, { x: c.x + dx, y: c.y });
+      });
+    };
+
+    // Work only with layer 1 and 2
+    const L1 = getLayer(1);
+    const L2 = getLayer(2);
+    if (!L1.length) return;
+
+    // Find the "parent couple" at layer 1: the L1 couple with the most shared children on L2
+    const l1Couples = this.couples.filter(
+      ([a, b]) => L1.includes(a) && L1.includes(b),
+    );
+    let parentCouple: [PlaceholderNodeProps, PlaceholderNodeProps] | null =
+      null;
+    let best = -1;
+
+    for (const [a, b] of l1Couples) {
+      const shared = this.childrenOf(a).filter((c) =>
+        this.childrenOf(b).includes(c),
+      );
+      const countOnL2 = shared.filter((c) => L2.includes(c)).length;
+      if (countOnL2 > best) {
+        best = countOnL2;
+        parentCouple = [a, b];
+      }
+    }
+    if (!parentCouple) return;
+
+    // Identify mother/father (prefer gender; fallback to current left/right)
+    let [m, f] = parentCouple;
+    if (m.gender === 'male' && f.gender !== 'male') [m, f] = [f, m];
+    if (m.gender !== 'female' && f.gender !== 'male') {
+      // fallback: whoever is left on screen is "mother", right is "father"
+      const mx = this.coords.get(m)!.x;
+      const fx = this.coords.get(f)!.x;
+      if (mx > fx) [m, f] = [f, m];
+    }
+
+    const motherX = this.coords.get(m)!.x;
+    const fatherX = this.coords.get(f)!.x;
+
+    // Grandparents for each side (assumes no single parents per your note)
+    const mParents = this.parentsOf(m);
+    const fParents = this.parentsOf(f);
+    if (mParents.length < 2 || fParents.length < 2) return;
+
+    const hasBoth = (n: PlaceholderNodeProps, pair: PlaceholderNodeProps[]) =>
+      pair.every((p) => (n.parentIds ?? []).includes(p.id!));
+
+    // Collect true maternal/paternal siblings (exclude the mother/father themselves)
+    const maternalSibs = L1.filter((n) => n !== m && hasBoth(n, mParents));
+    const paternalSibs = L1.filter((n) => n !== f && hasBoth(n, fParents));
+
+    if (!maternalSibs.length && !paternalSibs.length) return;
+
+    // Build "units": each sibling moves with their L1 partner if they have one
+    const L1Set = new Set(L1);
+    const inCoupleAtL1 = (n: PlaceholderNodeProps) => {
+      const p = this.partnerOf(n);
+      return p && L1Set.has(p) ? p : null;
+    };
+
+    const makeUnits = (people: PlaceholderNodeProps[]) => {
+      const used = new Set<PlaceholderNodeProps>();
+      const units: PlaceholderNodeProps[][] = [];
+      for (const n of people) {
+        if (used.has(n)) continue;
+        const p = inCoupleAtL1(n);
+        if (p) {
+          // preserve female-left ordering that orderCouplesBySex already established
+          const a =
+            n.gender === 'female' ||
+            this.coords.get(n)!.x <= this.coords.get(p)!.x
+              ? n
+              : p;
+          const b = a === n ? p : n;
+          units.push([a, b]);
+          used.add(n);
+          used.add(p);
+        } else {
+          units.push([n]);
+          used.add(n);
+        }
+      }
+      return units;
+    };
+
+    const maternalUnits = makeUnits(maternalSibs);
+    const paternalUnits = makeUnits(paternalSibs);
+
+    // Sort units by current position so we preserve visual order
+    maternalUnits.sort((u1, u2) => unitCenter(u1) - unitCenter(u2)); // left -> right
+    paternalUnits.sort((u1, u2) => unitCenter(u1) - unitCenter(u2)); // left -> right
+
+    // Pack maternal units from the mother **outwards to the left**
+    let cursorLeft = motherX - this.nodeWidth; // first right edge target just left of mother
+    for (let i = maternalUnits.length - 1; i >= 0; i--) {
+      const u = maternalUnits[i];
+      const targetRight = cursorLeft;
+      const currentRight = unitRight(u);
+      shiftUnit(u, targetRight - currentRight);
+      cursorLeft -= unitWidth(u);
+    }
+
+    // Pack paternal units from the father **outwards to the right**
+    let cursorRight = fatherX + this.nodeWidth; // first left edge target just right of father
+    for (let i = 0; i < paternalUnits.length; i++) {
+      const u = paternalUnits[i];
+      const targetLeft = cursorRight;
+      const currentLeft = unitLeft(u);
+      shiftUnit(u, targetLeft - currentLeft);
+      cursorRight += unitWidth(u);
+    }
+  }
 }
 
 export default TreeLayout;
-
-// offsetNodes(offset: { xOffset: number; yOffset: number }) {
-//   if (!this.nodes.length) return;
-
-//   const leftmostNode = this.nodes.reduce((prev, curr) => {
-//     const prevPos = this.coords.get(prev);
-//     const currPos = this.coords.get(curr);
-//     if (!prevPos) return curr;
-//     if (!currPos) return prev;
-//     return prevPos.x < currPos.x ? prev : curr;
-//   });
-
-//   const leftmostPos = this.coords.get(leftmostNode);
-//   if (!leftmostPos) return;
-
-//   const netXOffset = offset.xOffset - leftmostPos.x;
-
-//   this.nodes.forEach((node) => {
-//     const pos = this.coords.get(node);
-//     node.xPos = (pos?.x ?? 0) + netXOffset;
-//     node.yPos = (pos?.y ?? 0) + offset.yOffset;
-//   });
-// }
