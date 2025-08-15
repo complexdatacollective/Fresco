@@ -430,84 +430,85 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     );
   };
 
-  // TODO: reintegrate this after step2 is complete, just commented out for ease of use at the moment
-  // const renderFamilyTreeCompletion = () => {
-  //   return (
-  //     <div className="family-pedigree-interface">
-  //       <div className="edge-layout">
-  //         {familyTreeNodeList.allNodes().map((node) => {
-  //           return (
-  //             familyTreeNodeList.partnerOf(node) != null && (
-  //               <UIPartnerConnector
-  //                 key={`partner-${node.id}`}
-  //                 xStartPos={(node.xPos ?? 0) + 10}
-  //                 xEndPos={(familyTreeNodeList.partnerOf(node)?.xPos ?? 0) - 20}
-  //                 yPos={node.yPos}
-  //               />
-  //             )
-  //           );
-  //         })}
-  //         {familyTreeNodeList.allNodes().map((node) => {
-  //           return (
-  //             familyTreeNodeList.partnerOf(node) != null &&
-  //             (node.childIds?.length ?? 0) > 0 && (
-  //               <UIOffspringConnector
-  //                 key={`offspring-${node.id}`}
-  //                 xPos={
-  //                   ((node.xPos ?? 0) +
-  //                     (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
-  //                   2
-  //                 }
-  //                 yStartPos={node.yPos ?? 0}
-  //                 yEndPos={(node.yPos ?? 0) + rowHeight / 3}
-  //               />
-  //             )
-  //           );
-  //         })}
-  //         {familyTreeNodeList.allNodes().map((node) => {
-  //           return (
-  //             familyTreeNodeList.partnerOf(node) != null &&
-  //             familyTreeNodeList.childrenOf(node) != null &&
-  //             (node.childIds ?? []).length > 0 &&
-  //             familyTreeNodeList.childrenOf(node).map((child) => {
-  //               return (
-  //                 <UIChildConnector
-  //                   key={`child-${node.id}`}
-  //                   xStartPos={child.xPos ?? 0}
-  //                   xEndPos={
-  //                     ((node.xPos ?? 0) +
-  //                       (familyTreeNodeList.partnerOf(node)?.xPos ?? 0)) /
-  //                     2
-  //                   }
-  //                   yPos={(child.yPos ?? 0) - rowHeight / 2 + 5}
-  //                   height={rowHeight / 3 - 15}
-  //                 />
-  //               );
-  //             })
-  //           );
-  //         })}
-  //       </div>
-  //       <div className="node-layout" ref={elementRef}>
-  //         <div className="inner-node-layout">
-  //           {familyTreeNodeList.allNodes().map((node) => {
-  //             return (
-  //               <FamilyTreeNode
-  //                 key={node.id}
-  //                 id={node.id}
-  //                 gender={node.gender}
-  //                 label={node.label}
-  //                 xPos={node.xPos}
-  //                 yPos={node.yPos}
-  //                 handleClick={(node) => setSelectedNode(node)}
-  //               />
-  //             );
-  //           })}
-  //         </div>
-  //       </div>
-  //       {selectedNode != null ? renderNodeForm() : null}
-  //     </div>
-  //   );
-  // };
+  const renderFamilyTreeCompletion = () => {
+    return (
+      <div className="family-pedigree-interface">
+        <div className="edge-layout">
+          {positionedNodes.map((node) => {
+            return (
+              familyTreeNodesById[node.partnerId] != null && (
+                <UIPartnerConnector
+                  key={`partner-${node.id}`}
+                  xStartPos={(node.xPos ?? 0) + 10}
+                  xEndPos={
+                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) - 20
+                  }
+                  yPos={node.yPos}
+                />
+              )
+            );
+          })}
+          {positionedNodes.map((node) => {
+            return (
+              familyTreeNodesById[node.partnerId] != null &&
+              (node.childIds?.length ?? 0) > 0 && (
+                <UIOffspringConnector
+                  key={`offspring-${node.id}`}
+                  xPos={
+                    ((node.xPos ?? 0) +
+                      (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
+                    2
+                  }
+                  yStartPos={node.yPos ?? 0}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3}
+                />
+              )
+            );
+          })}
+          {positionedNodes.map((node) => {
+            return (
+              familyTreeNodesById[node.partnerId] != null &&
+              node.childIds.length > 0 &&
+              node.childIds.map((child) => {
+                let childNode = familyTreeNodesById[child];
+                return (
+                  <UIChildConnector
+                    key={`child-${node.id}`}
+                    xStartPos={childNode.xPos ?? 0}
+                    xEndPos={
+                      ((node.xPos ?? 0) +
+                        (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
+                      2
+                    }
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 2 + 5}
+                    height={rowHeight / 3 - 15}
+                  />
+                );
+              })
+            );
+          })}
+        </div>
+        <div className="node-layout" ref={elementRef}>
+          <div className="inner-node-layout">
+            {positionedNodes.map((node) => {
+              return (
+                <FamilyTreeNode
+                  key={node.id}
+                  id={node.id}
+                  gender={node.gender}
+                  label={node.label}
+                  xPos={node.xPos}
+                  yPos={node.yPos}
+                  handleClick={(node) => setSelectedNode(node)}
+                />
+              );
+            })}
+          </div>
+        </div>
+        {selectedNode != null ? renderNodeForm() : null}
+      </div>
+    );
+  };
 
   const renderActiveStep = () => {
     if (isStep1()) {
@@ -515,7 +516,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     } else if (isStep2()) {
       return renderFamilyTreeShells();
     } else {
-      // return renderFamilyTreeCompletion();
+      return renderFamilyTreeCompletion();
     }
   };
 
