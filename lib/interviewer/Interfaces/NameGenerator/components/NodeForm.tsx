@@ -8,9 +8,9 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Form, useFormFields } from '~/lib/form';
+import { Form, useProtocolForm } from '~/lib/form';
 import type { EnrichedFormField } from '~/lib/form/types/fields';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
@@ -77,9 +77,26 @@ const NodeForm = (props: NodeFormProps) => {
     },
   };
 
+  // Enrich fields with current node values if editing
+  const enrichedFieldsWithValues = useMemo(() => {
+    if (!selectedNode) {
+      return enrichedFields as EnrichedFormField[];
+    }
+    
+    // Add current node attribute values to the fields
+    return enrichedFields.map((field) => {
+      const fieldName = field.name; // This is the variable name from enrichment
+      const currentValue = selectedNode[entityAttributesProperty]?.[fieldName];
+      return {
+        ...field,
+        value: currentValue !== undefined ? currentValue : field.value,
+      };
+    }) as EnrichedFormField[];
+  }, [enrichedFields, selectedNode]);
+
   // Use the translation hook to convert enriched fields directly to new Field components
-  const { fieldComponents, additionalContext } = useFormFields({
-    fields: enrichedFields as EnrichedFormField[],
+  const { fieldComponents, additionalContext } = useProtocolForm({
+    fields: enrichedFieldsWithValues,
     subject,
     autoFocus: true,
   });

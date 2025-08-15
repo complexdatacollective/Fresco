@@ -10,13 +10,13 @@ import { RadioGroupField } from '../components/fields/RadioGroup';
 import type { FieldValue, ValidationContext } from '../types';
 import type { EnrichedFormField } from '../types/fields';
 
-export type UseFormFieldsOptions = {
+export type UseProtocolFormOptions = {
   fields: EnrichedFormField[];
   subject?: { entity: string; type?: string };
   autoFocus?: boolean;
 };
 
-export type UseFormFieldsReturn = {
+export type UseProtocolFormReturn = {
   fieldComponents: React.ReactElement[];
   additionalContext: Record<string, unknown>;
 };
@@ -45,6 +45,7 @@ function translateValidation(
 ): z.ZodTypeAny | ((context: ValidationContext) => z.ZodTypeAny) | undefined {
   const { validation } = field;
 
+  // eslint-disable-next-line no-console
   console.log(validation);
 
   // todo: convert validation to Zod schema
@@ -94,17 +95,21 @@ function extractAdditionalProps(
     props.type = 'date';
   }
 
+  if (field.type === 'scalar') {
+    props.type = 'range';
+  }
+
   return props;
 }
 
 /**
  * Hook to translate old field configurations to new Field components
  */
-export function useFormFields({
+export function useProtocolForm({
   fields,
   subject,
   autoFocus = false,
-}: UseFormFieldsOptions): UseFormFieldsReturn {
+}: UseProtocolFormOptions): UseProtocolFormReturn {
   // Build additional context for validation functions
   const additionalContext = useMemo(
     () => ({
@@ -155,4 +160,4 @@ export function useFormFields({
   };
 }
 
-export default useFormFields;
+export default useProtocolForm;
