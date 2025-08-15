@@ -39,8 +39,9 @@ const NodeForm = (props: NodeFormProps) => {
   const icon = useSelector(getNodeIconName);
 
   const enrichedFields = useSelector((state) =>
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     enrichFieldsWithCodebookMetadata(state, { fields: form.fields, subject }),
-  );
+  ) as EnrichedFormField[];
 
   const [show, setShow] = useState(false);
 
@@ -80,7 +81,7 @@ const NodeForm = (props: NodeFormProps) => {
   // Enrich fields with current node values if editing
   const enrichedFieldsWithValues = useMemo(() => {
     if (!selectedNode) {
-      return enrichedFields as EnrichedFormField[];
+      return enrichedFields;
     }
     
     // Add current node attribute values to the fields
@@ -91,7 +92,7 @@ const NodeForm = (props: NodeFormProps) => {
         ...field,
         value: currentValue !== undefined ? currentValue : field.value,
       };
-    }) as EnrichedFormField[];
+    });
   }, [enrichedFields, selectedNode]);
 
   // Use the translation hook to convert enriched fields directly to new Field components

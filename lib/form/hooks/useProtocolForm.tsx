@@ -2,13 +2,15 @@
 
 import type { ComponentType } from '@codaco/protocol-validation';
 import { useMemo } from 'react';
-import { type z } from 'zod';
 import Field from '../components/Field';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
 import { InputField } from '../components/fields/Input';
 import { RadioGroupField } from '../components/fields/RadioGroup';
-import type { FieldValue, ValidationContext } from '../types';
+import { useStore } from 'react-redux';
+import type { AppStore } from '~/lib/interviewer/store';
+import type { FieldValue } from '../types';
 import type { EnrichedFormField } from '../types/fields';
+import { translateProtocolValidation } from '../utils/translateProtocolValidation';
 
 export type UseProtocolFormOptions = {
   fields: EnrichedFormField[];
@@ -40,18 +42,6 @@ const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
   RelativeDatePicker: InputField, // todo
 };
 
-function translateValidation(
-  field: EnrichedFormField,
-): z.ZodTypeAny | ((context: ValidationContext) => z.ZodTypeAny) | undefined {
-  const { validation } = field;
-
-  // eslint-disable-next-line no-console
-  console.log(validation);
-
-  // todo: convert validation to Zod schema
-
-  return undefined;
-}
 
 function extractAdditionalProps(
   field: EnrichedFormField,
@@ -110,13 +100,17 @@ export function useProtocolForm({
   subject,
   autoFocus = false,
 }: UseProtocolFormOptions): UseProtocolFormReturn {
+  // Get the store instance for validation context
+  const storeInstance = useStore() as AppStore;
+  
   // Build additional context for validation functions
   const additionalContext = useMemo(
     () => ({
       subject,
+      store: storeInstance,
       ...(subject && { entity: subject.entity, entityType: subject.type }),
     }),
-    [subject],
+    [subject, storeInstance],
   );
 
   // Generate field components
@@ -128,7 +122,7 @@ export function useProtocolForm({
       const fieldType = field.component ?? field.type ?? 'Text';
       const Component = fieldTypeMap[fieldType as ComponentType];
 
-      const validation = translateValidation(field);
+      const validation = translateProtocolValidation(field);
 
       const additionalProps = extractAdditionalProps(
         field,
