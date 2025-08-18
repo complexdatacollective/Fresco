@@ -163,7 +163,7 @@ export function translateProtocolValidation(
             return value !== otherValue;
           },
           {
-            message: `Your answer must be different from {{fieldId}}`,
+            message: `Your answer must be different from`,
             params: { fieldId: otherFieldId, validationType: 'differentFrom' },
           },
         );
@@ -179,7 +179,7 @@ export function translateProtocolValidation(
             return value === otherValue;
           },
           {
-            message: `Your answer must be the same as {{fieldId}}`,
+            message: `Your answer must be the same as`,
             params: { fieldId: otherFieldId, validationType: 'sameAs' },
           },
         );

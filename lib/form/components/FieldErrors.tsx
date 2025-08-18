@@ -27,15 +27,13 @@ export default function FieldErrors({
       return error;
     }
 
-    let message = error.message;
-    
-    // Replace {{fieldId}} placeholders with variable names
+    // Append variable name to comparison validation messages
     if (error.params?.fieldId && typeof error.params.fieldId === 'string') {
       const variableName = get(codebookVariables, [error.params.fieldId, 'name'], error.params.fieldId);
-      message = message.replace('{{fieldId}}', variableName);
+      return `${error.message} ${variableName}`;
     }
 
-    return message;
+    return error.message;
   };
 
   const formattedErrors = errors.map(formatError);
