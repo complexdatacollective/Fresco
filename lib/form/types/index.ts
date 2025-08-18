@@ -7,7 +7,7 @@ export type FieldState<T extends FieldValue = FieldValue> = {
   value: T;
   initialValue?: T;
   meta: {
-    errors: string[] | null;
+    errors: (string | { message: string; params?: Record<string, unknown> })[] | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;

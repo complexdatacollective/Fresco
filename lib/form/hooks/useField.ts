@@ -24,7 +24,7 @@ export type UseFieldConfig = {
   id: string;
   meta: {
     shouldShowError: boolean;
-    errors: string[] | null;
+    errors: (string | { message: string; params?: Record<string, unknown> })[] | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;

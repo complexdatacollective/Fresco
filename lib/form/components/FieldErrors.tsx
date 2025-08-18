@@ -1,4 +1,7 @@
 import { TriangleAlert } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
+import { get } from 'es-toolkit/compat';
 
 /**
  * Render field errors.
@@ -12,10 +15,30 @@ export default function FieldErrors({
   show,
 }: {
   id: string;
-  errors: string[] | null;
+  errors: (string | { message: string; params?: Record<string, unknown> })[] | null;
   show: boolean;
 }) {
+  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
+
   if (!show || !errors || errors.length === 0) return null;
+
+  const formatError = (error: string | { message: string; params?: Record<string, unknown> }) => {
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    let message = error.message;
+    
+    // Replace {{fieldId}} placeholders with variable names
+    if (error.params?.fieldId && typeof error.params.fieldId === 'string') {
+      const variableName = get(codebookVariables, [error.params.fieldId, 'name'], error.params.fieldId);
+      message = message.replace('{{fieldId}}', variableName);
+    }
+
+    return message;
+  };
+
+  const formattedErrors = errors.map(formatError);
 
   return (
     <div
@@ -23,11 +46,11 @@ export default function FieldErrors({
       className="text-destructive flex justify-items-start gap-2 text-sm"
     >
       <TriangleAlert className="w-4" />
-      {errors.length === 1 ? (
-        <p>{errors[0]}</p>
+      {formattedErrors.length === 1 ? (
+        <p>{formattedErrors[0]}</p>
       ) : (
         <ul className="list-disc pl-5">
-          {errors.map((error, index) => (
+          {formattedErrors.map((error, index) => (
             <li key={index}>{error}</li>
           ))}
         </ul>

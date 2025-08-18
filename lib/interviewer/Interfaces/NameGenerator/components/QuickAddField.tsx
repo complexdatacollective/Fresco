@@ -244,7 +244,7 @@ export default function QuickAddField({
               className="flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 pr-4 text-(--form-error-text)"
             >
               <Icon name="warning" className="mr-2 max-h-5" />
-              <span>{meta.errors?.[0]}</span>
+              <span>{typeof meta.errors?.[0] === 'string' ? meta.errors[0] : meta.errors?.[0]?.message}</span>
             </motion.div>
           )}
         </AnimatePresence>

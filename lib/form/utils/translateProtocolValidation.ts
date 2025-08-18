@@ -34,7 +34,7 @@ export function translateProtocolValidation(
       break;
     case 'Boolean':
     case 'Toggle':
-      schema = z.boolean();
+      schema = z.string(); // todo - this will be boolean - but string while using text input.
       break;
     case 'CheckboxGroup':
       schema = z.array(z.number());
@@ -163,7 +163,8 @@ export function translateProtocolValidation(
             return value !== otherValue;
           },
           {
-            message: `Your answer must be different from ${otherFieldId}`, //todo: get field name
+            message: `Your answer must be different from {{fieldId}}`,
+            params: { fieldId: otherFieldId, validationType: 'differentFrom' },
           },
         );
       }
@@ -178,7 +179,8 @@ export function translateProtocolValidation(
             return value === otherValue;
           },
           {
-            message: `Your answer must be the same as ${otherFieldId}`, //todo: get field name
+            message: `Your answer must be the same as {{fieldId}}`,
+            params: { fieldId: otherFieldId, validationType: 'sameAs' },
           },
         );
       }
