@@ -81,7 +81,7 @@ export type FormErrors = Record<
   string,
   {
     errors: ValidationError[];
-    errorMap: ValidationErrorMap;
+    error: ValidationErrorMap;
   }
 >;
 

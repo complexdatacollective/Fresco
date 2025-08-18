@@ -83,8 +83,8 @@ const ImportCSVModal = ({
       if (e instanceof ZodError) {
         toast({
           title: 'Error',
-          description: e.errors[0]
-            ? `Invalid CSV File: ${e.errors[0].message}`
+          description: e.issues[0]
+            ? `Invalid CSV File: ${e.issues[0].message}`
             : 'Invalid CSV file. Please check the file requirements and try again.',
           variant: 'destructive',
         });

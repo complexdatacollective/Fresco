@@ -48,8 +48,8 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-table": "^8.21.3",
-    "@xmldom/xmldom": "^0.9.8",
     "@uploadthing/react": "^7.3.2",
+    "@xmldom/xmldom": "^0.9.8",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",
@@ -106,7 +106,7 @@
     "usehooks-ts": "^3.1.1",
     "uuid": "^11.1.0",
     "validator": "^13.15.15",
-    "zod": "^3.25.67",
+    "zod": "^4.0.17",
     "zod-form-data": "^2.0.7",
     "zustand": "^5.0.6"
   },

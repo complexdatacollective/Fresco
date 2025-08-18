@@ -1,5 +1,5 @@
 import { ProtocolSchema } from '@codaco/protocol-validation';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 const assetInsertSchema = z.object({
   key: z.string(),
@@ -19,5 +19,4 @@ export const protocolInsertSchema = z
     protocolName: z.string(),
     newAssets: z.array(assetInsertSchema),
     existingAssetIds: z.array(z.string()),
-  })
-  .passthrough();
+  });
