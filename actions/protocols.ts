@@ -129,6 +129,8 @@ export async function insertProtocol(
   try {
     const protocolHash = hash(protocol);
 
+    // TODO: updating protocol-validation package to use zod4 should fix the type issues
+
     await prisma.protocol.create({
       data: {
         hash: protocolHash,

@@ -19,5 +19,4 @@ export const protocolInsertSchema = z
     protocolName: z.string(),
     newAssets: z.array(assetInsertSchema),
     existingAssetIds: z.array(z.string()),
-  })
-  .passthrough();
+  });
