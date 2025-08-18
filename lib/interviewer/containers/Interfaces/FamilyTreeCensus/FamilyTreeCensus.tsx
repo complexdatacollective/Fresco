@@ -1,5 +1,6 @@
 import { type Stage } from '@codaco/protocol-validation';
 import {
+  entityPrimaryKeyProperty,
   type EntityAttributesProperty,
   type NcNode,
 } from '@codaco/shared-consts';
@@ -310,16 +311,33 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     );
   };
 
-  const addNode = useCallback(
+  // const addNode = useCallback(
+  //   (attributes: NcNode[EntityAttributesProperty]) => {
+  //     void dispatch(
+  //       addNodeAction({
+  //         type: stage.subject.type,
+  //         attributeData: attributes,
+  //       }),
+  //     );
+  //   },
+  //   [dispatch, stage.subject.type],
+  // );
+
+  const createNetworkNode = useCallback(
     (attributes: NcNode[EntityAttributesProperty]) => {
-      void dispatch(
-        addNodeAction({
-          type: stage.subject.type,
-          attributeData: attributes,
-        }),
-      );
+      if (selectedNode?.id) {
+        void dispatch(
+          addNodeAction({
+            type: stage.subject.type,
+            modelData: {
+              [entityPrimaryKeyProperty]: selectedNode.id,
+            },
+            attributeData: attributes,
+          }),
+        );
+      }
     },
-    [dispatch, stage.subject.type],
+    [dispatch, stage.subject.type, selectedNode?.id],
   );
 
   const renderNodeForm = () => {
@@ -334,7 +352,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           onClose={() => {
             setSelectedNode(null);
           }}
-          addNode={addNode}
+          addNode={createNetworkNode}
         />
       </div>
     );
@@ -473,7 +491,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                 let childNode = familyTreeNodesById[child];
                 return (
                   <UIChildConnector
-                    key={`child-${node.id}`}
+                    key={`child-${childNode.id}`}
                     xStartPos={childNode.xPos ?? 0}
                     xEndPos={
                       ((node.xPos ?? 0) +

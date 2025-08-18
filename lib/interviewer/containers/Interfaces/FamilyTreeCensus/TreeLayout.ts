@@ -510,6 +510,7 @@ class TreeLayout {
 
     if (!maternalSibs.length && !paternalSibs.length) return;
 
+    // TODO: this may begin to get broken with the cousins :/
     // Build "units": each sibling moves with their L1 partner if they have one
     const L1Set = new Set(L1);
     const inCoupleAtL1 = (n: PlaceholderNodeProps) => {
