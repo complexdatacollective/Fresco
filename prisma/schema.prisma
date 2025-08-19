@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
@@ -8,15 +5,15 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model User {
   id           String    @id @default(cuid())
   username     String    @unique
-  auth_session Session[]
   key          Key[]
+  auth_session Session[]
 }
 
 model Session {
@@ -24,7 +21,7 @@ model Session {
   user_id        String
   active_expires BigInt
   idle_expires   BigInt
-  user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user           User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
 }
@@ -33,7 +30,7 @@ model Key {
   id              String  @id @unique
   hashed_password String?
   user_id         String
-  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user            User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
 }
@@ -48,9 +45,9 @@ model Protocol {
   lastModified  DateTime
   stages        Json
   codebook      Json
-  assets        Asset[]
-  interviews    Interview[]
   experiments   Json?
+  interviews    Interview[]
+  assets        Asset[]     @relation("AssetToProtocol")
 }
 
 model Asset {
@@ -60,27 +57,27 @@ model Asset {
   type      String
   url       String
   size      Int
-  protocols Protocol[]
   value     String?
+  protocols Protocol[] @relation("AssetToProtocol")
 
-  @@index(fields: [assetId, key])
+  @@index([assetId, key])
 }
 
 model Interview {
-  id            String      @id @default(cuid()) // Cannot be bigint because we want to obfuscate the id
+  id            String      @id @default(cuid())
   startTime     DateTime    @default(now())
   finishTime    DateTime?
   exportTime    DateTime?
   lastUpdated   DateTime    @updatedAt
   network       Json
-  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
   participantId String
-  protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
   protocolId    String      @map("protocolId")
   currentStep   Int         @default(0)
-  stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
+  stageMetadata Json?
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  protocol      Protocol    @relation(fields: [protocolId], references: [id], onDelete: Cascade)
 
-  @@index(fields: [protocolId])
+  @@index([protocolId])
   @@index([participantId])
 }
 
@@ -89,18 +86,6 @@ model Participant {
   identifier String      @unique
   label      String?
   interviews Interview[]
-}
-
-// Cant be shared with TS, unfortunately. Ensure `./schemas/appSettings.ts` is in sync
-enum AppSetting {
-  configured
-  allowAnonymousRecruitment
-  limitInterviews
-  initializedAt
-  installationId
-  disableAnalytics
-  disableSmallScreenOverlay
-  uploadThingToken
 }
 
 model AppSettings {
@@ -113,4 +98,15 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+enum AppSetting {
+  configured
+  allowAnonymousRecruitment
+  limitInterviews
+  initializedAt
+  installationId
+  disableAnalytics
+  uploadThingToken
+  disableSmallScreenOverlay
 }

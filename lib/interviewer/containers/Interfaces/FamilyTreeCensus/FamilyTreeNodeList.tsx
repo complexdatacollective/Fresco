@@ -58,14 +58,16 @@ class FamilyTreeNodeList {
         yPos: getNumberNodeAttribute(node, 'y'),
       };
     };
-    const networkNodeIds = this.networkNodes.map(
-      (node) => node[entityPrimaryKeyProperty],
-    );
-    return this.placeholderNodes
-      .filter((node) => !networkNodeIds.includes(node.id ?? ''))
-      .concat(
-        this.networkNodes.map((node) => placeholderNodeFromNetworkNode(node)),
+
+    return this.placeholderNodes.map((node) => {
+      const networkNode = this.networkNodes.find(
+        (networkNode) => networkNode[entityPrimaryKeyProperty] === node.id,
       );
+      if (networkNode) {
+        node.networkNode = networkNode;
+      }
+      return node;
+    });
   }
 
   childrenOf(parentNode: PlaceholderNodeProps) {
