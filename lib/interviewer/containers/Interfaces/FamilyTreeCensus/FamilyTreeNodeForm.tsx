@@ -19,16 +19,14 @@ import Overlay from '../../Overlay';
 import { PlaceholderNodeProps } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
-  selectedPlaceholderNode: PlaceholderNodeProps | null;
-  selectedNode: NcNode | null;
+  selectedNode: PlaceholderNodeProps | NcNode | null;
   form: TForm;
   onClose: () => void;
   addNode: (attributes: NcNode[EntityAttributesProperty]) => void;
 };
 
 const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
-  const { selectedPlaceholderNode, selectedNode, form, onClose, addNode } =
-    props;
+  const { selectedNode, form, onClose, addNode } = props;
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
 
@@ -60,11 +58,26 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
 
   const handleSubmit = useCallback(
     ({ value }: { value: Record<string, VariableValue> }) => {
-      if (!selectedNode) {
-        addNode({ ...newNodeAttributes, ...value });
-      } else {
+      if (!selectedNode) return;
+
+      if ('_uid' in selectedNode) {
+        // It's an NcNode (already in network) → update
+        console.log('[Form] Updating existing node', {
+          id: selectedNode[entityPrimaryKeyProperty],
+          value,
+        });
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        void updateNode({ nodeId: selectedUID, newAttributeData: value });
+        void updateNode({
+          nodeId: selectedUID,
+          newAttributeData: value,
+        });
+      } else {
+        console.log('[Form] Adding new node from placeholder', {
+          placeholder: selectedNode,
+          value,
+        });
+        // It's a placeholder node → commit as new node
+        addNode({ ...newNodeAttributes, ...value });
       }
 
       setShow(false);
@@ -76,10 +89,10 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
   // When a selected node is passed in, we are editing an existing node.
   // We need to show the form and populate it with the node's data.
   useEffect(() => {
-    if (selectedNode || selectedPlaceholderNode) {
+    if (selectedNode) {
       setShow(true);
     }
-  }, [selectedNode, selectedPlaceholderNode]);
+  }, [selectedNode]);
 
   const handleClose = useCallback(() => {
     setShow(false);

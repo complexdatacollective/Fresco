@@ -93,9 +93,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   >([]);
 
   // const familyTreeNodeList = new FamilyTreeNodeList(familyTreeNodes, nodes);
-  const [selectedNode, setSelectedNode] = useState<PlaceholderNodeProps | null>(
-    null,
-  );
+  const [selectedNode, setSelectedNode] = useState<
+    PlaceholderNodeProps | NcNode | null
+  >(null);
   const [egoNodeId, setEgoNodeId] = useState<string>('');
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
@@ -365,8 +365,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return (
       <div className="name-generator-interface">
         <FamilyTreeNodeForm
-          selectedPlaceholderNode={selectedNode}
-          selectedNode={null}
+          selectedNode={selectedNode}
           form={step3NameForm}
           onClose={() => {
             setSelectedNode(null);
@@ -540,7 +539,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     xPos={node.xPos}
                     yPos={node.yPos}
                     networkNode={node.networkNode}
-                    handleClick={(node) => setSelectedNode(node)}
+                    handleClick={(node) => setSelectedNode(node.networkNode)}
                   />
                 );
               } else {
