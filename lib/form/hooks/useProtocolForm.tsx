@@ -2,13 +2,13 @@
 
 import type { ComponentType } from '@codaco/protocol-validation';
 import { useMemo } from 'react';
+import { useStore } from 'react-redux';
+import type { AppStore } from '~/lib/interviewer/store';
 import Field from '../components/Field';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
 import { InputField } from '../components/fields/Input';
 import { RadioGroupField } from '../components/fields/RadioGroup';
-import { useStore } from 'react-redux';
-import type { AppStore } from '~/lib/interviewer/store';
-import type { FieldValue } from '../types';
+import type { AdditionalContext, FieldValue } from '../types';
 import type { EnrichedFormField } from '../types/fields';
 import { translateProtocolValidation } from '../utils/translateProtocolValidation';
 
@@ -20,7 +20,7 @@ export type UseProtocolFormOptions = {
 
 export type UseProtocolFormReturn = {
   fieldComponents: React.ReactElement[];
-  additionalContext: Record<string, unknown>;
+  additionalContext: AdditionalContext;
 };
 
 // Map protocol component types to new field components
@@ -41,7 +41,6 @@ const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
   DatePicker: InputField, // todo
   RelativeDatePicker: InputField, // todo
 };
-
 
 function extractAdditionalProps(
   field: EnrichedFormField,
@@ -102,7 +101,7 @@ export function useProtocolForm({
 }: UseProtocolFormOptions): UseProtocolFormReturn {
   // Get the store instance for validation context
   const storeInstance = useStore() as AppStore;
-  
+
   // Build additional context for validation functions
   const additionalContext = useMemo(
     () => ({
@@ -122,7 +121,7 @@ export function useProtocolForm({
       const fieldType = field.component ?? field.type ?? 'Text';
       const Component = fieldTypeMap[fieldType as ComponentType];
 
-      const validation = translateProtocolValidation(field);
+      const validation = translateProtocolValidation(field, additionalContext);
 
       const additionalProps = extractAdditionalProps(
         field,
@@ -146,7 +145,7 @@ export function useProtocolForm({
         />
       );
     });
-  }, [fields, autoFocus]);
+  }, [fields, additionalContext, autoFocus]);
 
   return {
     fieldComponents,

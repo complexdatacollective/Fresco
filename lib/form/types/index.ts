@@ -7,7 +7,9 @@ export type FieldState<T extends FieldValue = FieldValue> = {
   value: T;
   initialValue?: T;
   meta: {
-    errors: (string | { message: string; params?: Record<string, unknown> })[] | null;
+    errors:
+      | (string | { message: string; params?: Record<string, unknown> })[]
+      | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
@@ -52,6 +54,13 @@ export type FormConfig = {
 export type ValidationContext = {
   formValues: Record<string, unknown>;
 } & Record<string, unknown>;
+
+export type AdditionalContext = {
+  subject?: { entity: string; type?: string };
+  store?: unknown;
+  entity?: string;
+  entityType?: string;
+};
 
 /**
  * Zod schemas for form submission results
