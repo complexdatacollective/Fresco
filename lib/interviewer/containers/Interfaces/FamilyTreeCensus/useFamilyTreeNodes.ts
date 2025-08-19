@@ -13,20 +13,17 @@ import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { useAppDispatch } from '../../../store';
 import { PlaceholderNodeProps } from './FamilyTreeNode';
 
-const getFirstStringAttribute = (node: NcNode): string => {
-  const attrs = getEntityAttributes(node);
-  for (const val of Object.values(attrs)) {
-    if (typeof val === 'string') return val;
-  }
-  return '';
+const getStringNodeAttribute = (node: NcNode, key: string): string => {
+  const val = getEntityAttributes(node)[key];
+  return typeof val === 'string' ? val : '';
 };
 
-const getAttr = <T extends string | number>(
+const getNumberNodeAttribute = (
   node: NcNode,
   key: string,
-): T | undefined => {
+): number | undefined => {
   const val = getEntityAttributes(node)[key];
-  return (typeof val === typeof ('' as T) ? val : undefined) as T | undefined;
+  return typeof val === 'number' ? val : undefined;
 };
 
 interface UseFamilyTreeNodesReturn {
@@ -60,30 +57,31 @@ function useFamilyTreeNodes(
   );
 
   const networkNodesAsPlaceholders = useMemo(() => {
-    const phById = new Map(placeholderNodes.map((p) => [p.id, p]));
+    const existingMap = new Map(placeholderNodes.map((p) => [p.id, p]));
 
-    return networkNodes.map<PlaceholderNodeProps>((net) => {
+    const nodeMap = new Map<string, PlaceholderNodeProps>();
+
+    for (const net of networkNodes) {
       const id = net[entityPrimaryKeyProperty];
-      const existing = phById.get(id);
+      const existing = existingMap.get(id);
 
-      return {
+      nodeMap.set(id, {
         id,
-        gender: getAttr<string>(net, 'gender') ?? existing?.gender ?? 'unknown',
-        label:
-          getAttr<string>(net, 'name') ??
-          getFirstStringAttribute(net) ??
-          existing?.label ??
-          '',
-        xPos: getAttr<number>(net, 'x') ?? existing?.xPos ?? 0,
-        yPos: getAttr<number>(net, 'y') ?? existing?.yPos ?? 0,
-
+        gender:
+          getStringNodeAttribute(net, 'gender') ||
+          existing?.gender ||
+          'unknown',
+        label: getStringNodeAttribute(net, 'name') || existing?.label || '',
+        xPos: getNumberNodeAttribute(net, 'x') ?? existing?.xPos ?? 0,
+        yPos: getNumberNodeAttribute(net, 'y') ?? existing?.yPos ?? 0,
         parentIds: existing?.parentIds ?? [],
         childIds: existing?.childIds ?? [],
         partnerId: existing?.partnerId,
-
         networkNode: net,
-      };
-    });
+      });
+    }
+
+    return Array.from(nodeMap.values());
   }, [networkNodes, placeholderNodes]);
 
   const allNodes = useMemo(() => {
