@@ -1,4 +1,6 @@
+import { NcNode } from '@codaco/shared-consts';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
+import { useNodeLabel } from '../Anonymisation/useNodeLabel';
 
 const genderColors: Record<string, string> = {
   male: 'primary-color-seq-1',
@@ -11,6 +13,7 @@ const genderShapes: Record<string, string> = {
 
 export type PlaceholderNodeProps = {
   id?: string;
+  networkNode?: NcNode;
   gender: string;
   label: string;
   parentIds?: string[];
@@ -22,7 +25,6 @@ export type PlaceholderNodeProps = {
 };
 export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
   const {
-    id = crypto.randomUUID(),
     gender,
     label,
     xPos = 0,
@@ -35,6 +37,28 @@ export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
       key={`${xPos}-${yPos}`}
       color={genderColors[gender]}
       label={label}
+      shape={genderShapes[gender]}
+      xPos={xPos}
+      yPos={yPos}
+      handleClick={() => handleClick(props)}
+    />
+  );
+};
+
+export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
+  const {
+    networkNode,
+    gender,
+    xPos = 0,
+    yPos = 0,
+    handleClick = () => undefined,
+  } = props;
+
+  return (
+    <UINode
+      key={`${xPos}-${yPos}`}
+      color={genderColors[gender]}
+      label={useNodeLabel(networkNode!)}
       shape={genderShapes[gender]}
       xPos={xPos}
       yPos={yPos}

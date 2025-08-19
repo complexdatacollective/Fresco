@@ -1,116 +1,141 @@
-import { entityPrimaryKeyProperty, NcNode } from '@codaco/shared-consts';
+import { Stage } from '@codaco/protocol-validation';
+import {
+  entityPrimaryKeyProperty,
+  type EntityAttributesProperty,
+  type NcNode,
+} from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { updatePedigreeStageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import {
+  addNode,
+  updatePedigreeStageMetadata,
+} from '~/lib/interviewer/ducks/modules/session';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { useAppDispatch } from '../../../store';
 import { PlaceholderNodeProps } from './FamilyTreeNode';
 
-const getStringNodeAttribute = (node: NcNode, attribute: string): string => {
-  const value = getEntityAttributes(node)[attribute];
-  return typeof value === 'string' ? value : 'unknown';
+const getFirstStringAttribute = (node: NcNode): string => {
+  const attrs = getEntityAttributes(node);
+  for (const val of Object.values(attrs)) {
+    if (typeof val === 'string') return val;
+  }
+  return '';
 };
 
-const getNumberNodeAttribute = (node: NcNode, attribute: string): number => {
-  const value = getEntityAttributes(node)[attribute];
-  return typeof value === 'number' ? value : 0;
+const getAttr = <T extends string | number>(
+  node: NcNode,
+  key: string,
+): T | undefined => {
+  const val = getEntityAttributes(node)[key];
+  return (typeof val === typeof ('' as T) ? val : undefined) as T | undefined;
 };
 
 interface UseFamilyTreeNodesReturn {
   placeholderNodes: PlaceholderNodeProps[];
-  addPlaceholderNode: (
-    gender: string,
-    label: string,
-    parentIds: string[],
-  ) => PlaceholderNodeProps;
   setPlaceholderNodesBulk: (nodes: PlaceholderNodeProps[]) => void;
-  updateNodes: (
-    updates: Partial<PlaceholderNodeProps & { id: string }>[],
+  commitPlaceholderNode: (
+    node: PlaceholderNodeProps,
+    attributes: NcNode[EntityAttributesProperty],
   ) => void;
   allNodes: PlaceholderNodeProps[];
 }
 
-function useFamilyTreeNodes(networkNodes: NcNode[]): UseFamilyTreeNodesReturn {
+function useFamilyTreeNodes(
+  networkNodes: NcNode[],
+  stage: Extract<Stage, { type: 'FamilyTreeCensus' }>,
+): UseFamilyTreeNodesReturn {
   const [placeholderNodes, setPlaceholderNodes] = useState<
     PlaceholderNodeProps[]
   >([]);
-
   const dispatch = useAppDispatch();
-
-  const addPlaceholderNode = useCallback(
-    (gender: string, label: string, parentIds: string[]) => {
-      const newNode: PlaceholderNodeProps = {
-        id: crypto.randomUUID(),
-        gender,
-        label,
-        parentIds,
-        childIds: [],
-        xPos: 0,
-        yPos: 0,
-      };
-      setPlaceholderNodes((prev) => [...prev, newNode]);
-      return newNode;
-    },
-    [],
-  );
 
   const setPlaceholderNodesBulk = useCallback(
     (nodes: PlaceholderNodeProps[]) => {
       setPlaceholderNodes((prev) => {
-        const prevById = Object.fromEntries(prev.map((n) => [n.id, n]));
-        for (const node of nodes) {
-          prevById[node.id] = node; // overwrite if exists, add if new
-        }
-        return Object.values(prevById);
-      });
-    },
-    [],
-  );
-
-  const updateNodes = useCallback(
-    (updates: Partial<PlaceholderNodeProps & { id: string }>[]) => {
-      setPlaceholderNodes((prev) => {
-        const updatesMap = new Map(updates.map((node) => [node.id, node]));
-        return prev.map((node) =>
-          updatesMap.has(node.id)
-            ? { ...node, ...updatesMap.get(node.id) }
-            : node,
-        );
+        const byId = new Map(prev.map((n) => [n.id, n]));
+        for (const n of nodes) byId.set(n.id, n);
+        return [...byId.values()];
       });
     },
     [],
   );
 
   const networkNodesAsPlaceholders = useMemo(() => {
-    return networkNodes.map((node) => ({
-      id: node[entityPrimaryKeyProperty],
-      gender: getStringNodeAttribute(node, 'gender'),
-      label: getStringNodeAttribute(node, 'name'),
-      xPos: getNumberNodeAttribute(node, 'x'),
-      yPos: getNumberNodeAttribute(node, 'y'),
-      parentIds: [],
-      childIds: [],
-    }));
-  }, [networkNodes]);
+    const phById = new Map(placeholderNodes.map((p) => [p.id, p]));
+
+    return networkNodes.map<PlaceholderNodeProps>((net) => {
+      const id = net[entityPrimaryKeyProperty];
+      const existing = phById.get(id);
+
+      return {
+        id,
+        gender: getAttr<string>(net, 'gender') ?? existing?.gender ?? 'unknown',
+        label:
+          getAttr<string>(net, 'name') ??
+          getFirstStringAttribute(net) ??
+          existing?.label ??
+          '',
+        xPos: getAttr<number>(net, 'x') ?? existing?.xPos ?? 0,
+        yPos: getAttr<number>(net, 'y') ?? existing?.yPos ?? 0,
+
+        parentIds: existing?.parentIds ?? [],
+        childIds: existing?.childIds ?? [],
+        partnerId: existing?.partnerId,
+
+        networkNode: net,
+      };
+    });
+  }, [networkNodes, placeholderNodes]);
 
   const allNodes = useMemo(() => {
-    const networkNodeIds = networkNodes.map(
-      (node) => node[entityPrimaryKeyProperty],
+    const networkIds = new Set(
+      networkNodes.map((n) => n[entityPrimaryKeyProperty] as string),
     );
-    const filteredPlaceholders = placeholderNodes.filter(
-      (node) => !networkNodeIds.includes(node.id ?? ''),
+    const placeholdersOnly = placeholderNodes.filter(
+      (p) => !networkIds.has(p.id),
     );
-    return [...filteredPlaceholders, ...networkNodesAsPlaceholders];
-  }, [placeholderNodes, networkNodesAsPlaceholders]);
+    return [...placeholdersOnly, ...networkNodesAsPlaceholders];
+  }, [placeholderNodes, networkNodesAsPlaceholders, networkNodes]);
 
   useEffect(() => {
     dispatch(updatePedigreeStageMetadata(placeholderNodes));
   }, [placeholderNodes, dispatch]);
 
+  const commitPlaceholderNode = useCallback(
+    (
+      node: PlaceholderNodeProps,
+      attributes: NcNode[EntityAttributesProperty],
+    ) => {
+      void dispatch(
+        addNode({
+          type: stage.subject.type,
+          modelData: { [entityPrimaryKeyProperty]: node.id },
+          attributeData: attributes,
+        }),
+      );
+
+      setPlaceholderNodes((prev) =>
+        prev.map((p) =>
+          p.id === node.id
+            ? {
+                ...p,
+                label:
+                  (attributes.name as string) ??
+                  (Object.values(attributes).find(
+                    (val) => typeof val === 'string',
+                  ) as string) ??
+                  p.label,
+              }
+            : p,
+        ),
+      );
+    },
+    [dispatch],
+  );
+
   return {
     placeholderNodes,
     setPlaceholderNodesBulk,
-    addPlaceholderNode,
-    updateNodes,
+    commitPlaceholderNode,
     allNodes,
   };
 }
