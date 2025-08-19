@@ -453,31 +453,16 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         </div>
         <div className="node-layout" ref={elementRef}>
           {positionedNodes.map((node) => {
-            if (node.networkNode) {
-              return (
-                <FamilyTreeNodeNetworkBacked
-                  key={node.id}
-                  id={node.id}
-                  gender={node.gender}
-                  label={node.label}
-                  xPos={node.xPos}
-                  yPos={node.yPos}
-                  networkNode={node.networkNode}
-                  handleClick={(node) => setSelectedNode(node)}
-                />
-              );
-            } else {
-              return (
-                <FamilyTreeNode
-                  key={crypto.randomUUID()}
-                  id={node.id}
-                  gender={node.gender}
-                  label={node.label}
-                  xPos={node.xPos}
-                  yPos={node.yPos}
-                />
-              );
-            }
+            return (
+              <FamilyTreeNode
+                key={crypto.randomUUID()}
+                id={node.id}
+                gender={node.gender}
+                label={node.label}
+                xPos={node.xPos}
+                yPos={node.yPos}
+              />
+            );
           })}
         </div>
       </div>
@@ -545,17 +530,32 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         <div className="node-layout" ref={elementRef}>
           <div className="inner-node-layout">
             {positionedNodes.map((node) => {
-              return (
-                <FamilyTreeNode
-                  key={node.id}
-                  id={node.id}
-                  gender={node.gender}
-                  label={node.label}
-                  xPos={node.xPos}
-                  yPos={node.yPos}
-                  handleClick={(node) => setSelectedNode(node)}
-                />
-              );
+              if (node.networkNode) {
+                return (
+                  <FamilyTreeNodeNetworkBacked
+                    key={node.id}
+                    id={node.id}
+                    gender={node.gender}
+                    label={node.label}
+                    xPos={node.xPos}
+                    yPos={node.yPos}
+                    networkNode={node.networkNode}
+                    handleClick={(node) => setSelectedNode(node)}
+                  />
+                );
+              } else {
+                return (
+                  <FamilyTreeNode
+                    key={crypto.randomUUID()}
+                    id={node.id}
+                    gender={node.gender}
+                    label={node.label}
+                    xPos={node.xPos}
+                    yPos={node.yPos}
+                    handleClick={(node) => setSelectedNode(node)}
+                  />
+                );
+              }
             })}
           </div>
         </div>
