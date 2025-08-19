@@ -1,4 +1,4 @@
-import { PlaceholderNodeProps } from './FamilyTreeNode';
+import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 class TreeLayout {
   nodes: PlaceholderNodeProps[];
@@ -16,7 +16,7 @@ class TreeLayout {
     this.layers = new Map<PlaceholderNodeProps, number>();
     this.coords = new Map<PlaceholderNodeProps, { x: number; y: number }>();
     this.grouped = new Map<number, PlaceholderNodeProps[]>();
-    this.layerHeight = 130;
+    this.layerHeight = 150;
     this.nodeWidth = 130;
     this.byId = new Map(this.nodes.map((n) => [n.id!, n]));
   }
@@ -70,9 +70,7 @@ class TreeLayout {
     const couplesJson = JSON.stringify(this.couples);
     const coupleA = JSON.stringify([partnerA, partnerB]);
     const coupleB = JSON.stringify([partnerB, partnerA]);
-    return (
-      couplesJson.indexOf(coupleA) != -1 || couplesJson.indexOf(coupleB) != -1
-    );
+    return couplesJson.includes(coupleA) || couplesJson.includes(coupleB);
   }
 
   collectCouples() {
@@ -169,7 +167,7 @@ class TreeLayout {
 
     for (let layer = maxLayer; layer >= 0; layer--) {
       let nextX = 0;
-      let nodesAtLayer = this.grouped.get(layer) ?? [];
+      const nodesAtLayer = this.grouped.get(layer) ?? [];
       const placed = new Set<PlaceholderNodeProps>();
 
       nodesAtLayer.forEach((node) => {
@@ -416,7 +414,7 @@ class TreeLayout {
       const parentLayers = (node.parentIds ?? [])
         .map((pid) => this.byId.get(pid))
         .filter(Boolean)
-        .map((p) => this.layers.get(p!) ?? 0);
+        .map((p) => this.layers.get(p) ?? 0);
 
       const layer = parentLayers.length
         ? Math.max(...parentLayers) + 1

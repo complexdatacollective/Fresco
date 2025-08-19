@@ -20,10 +20,9 @@ const FamilyTreeChildConnector = forwardRef<
     xEndPos = 0,
     yPos = 0,
     height = 0,
-    color = '#666',
+    color = '#807ea1',
   } = props;
   const classes = classNames('child-connector');
-  const width = xEndPos - xStartPos;
 
   return (
     <div className={classes} ref={ref}>
@@ -34,6 +33,7 @@ const FamilyTreeChildConnector = forwardRef<
           x2={xStartPos}
           y2={yPos + height}
           stroke={color}
+          strokeWidth={5}
           strokeLinecap="round"
         />
         <line
@@ -42,6 +42,7 @@ const FamilyTreeChildConnector = forwardRef<
           x2={xEndPos}
           y2={yPos}
           stroke={color}
+          strokeWidth="5"
           strokeLinecap="round"
         />
       </svg>

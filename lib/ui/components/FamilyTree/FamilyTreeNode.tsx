@@ -23,7 +23,7 @@ const FamilyTreeNode = forwardRef<
 >((props, ref) => {
   const {
     label = 'Node',
-    color = 'node-color-seq-1',
+    color = 'neon-coral',
     shape = 'circle',
     xPos = 0,
     yPos = 0,
@@ -34,86 +34,84 @@ const FamilyTreeNode = forwardRef<
     handleClick,
     loading = false,
   } = props;
-  const classes = classNames(
-    'node',
-    shape === 'triangle' ? 'triangle' : 'circle',
-    {
-      'node--inactive': inactive,
-      'node--selected': selected,
-      'node--linking': linking,
-      [`node--${selectedColor}`]: selected && selectedColor,
-    },
-  );
+  const classes = classNames('node', shape === 'square' ? 'square' : 'circle', {
+    'node--inactive': inactive,
+    'node--selected': selected,
+    'node--linking': linking,
+    [`node--${selectedColor}`]: selected && selectedColor,
+  });
 
   const labelClasses = () => {
     const labelLength = label.length;
     return `node__label-text len-${labelLength}`;
   };
 
-  const nodeBaseColor = `var(--nc-${color})`;
-  const nodeFlashColor = `var(--nc-${color}--dark)`;
+  const nodeBaseColor = `var(--color-${color})`;
+  const nodeFlashColor = `var(--color-${color}--dark)`;
 
   const labelWithEllipsis =
     label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`; // Add ellipsis for really long labels
-
-  const alterStrokeWidth = 3;
-
-  const nodeStyles = {
-    position: 'absolute',
-    transform: 'translate(-50%, -50%)',
-    display: 'block',
-    top: yPos,
-    left: xPos,
-  };
 
   return (
     <div
       className={classes}
       onClick={() => handleClick?.()}
       ref={ref}
-      style={nodeStyles}
+      style={{
+        position: 'absolute',
+        transform: 'translate(-50%, -50%)',
+        display: 'block',
+        top: yPos,
+        left: xPos,
+      }}
     >
       {(() => {
         switch (shape) {
-          case 'triangle':
+          case 'square':
             return (
               <svg
-                version="1.1"
+                viewBox="0 0 500 500"
                 xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 100 100"
+                className="node__node"
+                preserveAspectRatio="xMidYMid meet"
               >
-                <polygon
-                  points="50, 18.397 95, 95 5, 95"
+                <rect
+                  x="50"
+                  y="70"
+                  width="400"
+                  height="400"
+                  rx="16"
                   className="node__node-shadow"
-                  fill={nodeBaseColor}
                   opacity="0.25"
                 />
-                <line
-                  x1="50"
-                  y1="13.397"
-                  x2="95"
-                  y2="90"
-                  stroke={nodeBaseColor}
-                  strokeLinecap="round"
-                  strokeWidth={alterStrokeWidth}
+                <rect
+                  x="50"
+                  y="50"
+                  width="500"
+                  height="500"
+                  rx="16"
+                  className="node__node-outer-trim"
                 />
-                <line
-                  x1="95"
-                  y1="90"
-                  x2="5"
-                  y2="90"
-                  stroke={nodeBaseColor}
-                  strokeLinecap="round"
-                  strokeWidth={alterStrokeWidth}
+                <rect
+                  x="50"
+                  y="50"
+                  width="400"
+                  height="400"
+                  rx="16"
+                  fill={nodeBaseColor}
+                  className="node__node-base"
                 />
-                <line
-                  x1="5"
-                  y1="90"
-                  x2="50"
-                  y2="13.397"
-                  stroke={nodeBaseColor}
-                  strokeLinecap="round"
-                  strokeWidth={alterStrokeWidth}
+                <path
+                  d="M54, 50 L446,446 L446,50 Z"
+                  fill={nodeFlashColor}
+                  className="node__node-flash"
+                />
+                <rect
+                  x="50"
+                  y="50"
+                  width="400"
+                  height="400"
+                  className="node__node-trim"
                 />
               </svg>
             );
@@ -162,8 +160,10 @@ const FamilyTreeNode = forwardRef<
         </div>
       )}
       {!loading && (
-        <div className="node__label">
-          <div className={labelClasses()}>{labelWithEllipsis}</div>
+        <div className="node__label" style={{ top: '70px', padding: '6px' }}>
+          <div className={labelClasses()} style={{ alignItems: 'start' }}>
+            {labelWithEllipsis}
+          </div>
         </div>
       )}
     </div>

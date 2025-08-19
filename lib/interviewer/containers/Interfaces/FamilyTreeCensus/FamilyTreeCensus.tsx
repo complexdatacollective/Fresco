@@ -11,7 +11,7 @@ import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector'
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { updatePedigreeStageMetadata } from '../../../ducks/modules/session';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
-import { RootState, useAppDispatch } from '../../../store';
+import { type RootState, useAppDispatch } from '../../../store';
 import Form from '../../Form';
 import { type StageProps } from '../../Stage';
 import CensusStep2Form from './CensusStep2Form';
@@ -24,7 +24,7 @@ import useFamilyTreeNodes from './useFamilyTreeNodes';
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
 };
-const rowHeight = 165;
+const rowHeight = 205;
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { getNavigationHelpers, registerBeforeNext, stage } = props;
@@ -62,7 +62,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return layout.arrangeNodes({ xOffset: 100, yOffset: 100 });
   }
 
-  let elementRef = useRef(null);
+  const elementRef = useRef(null);
   // keep an index to the step that we're viewing
   // and configure navigation logic
   const [activeIndex, setActiveIndex] = useState(0);
@@ -433,7 +433,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               familyTreeNodesById[node.partnerId] != null &&
               node.childIds.length > 0 &&
               node.childIds.map((child) => {
-                let childNode = familyTreeNodesById[child];
+                const childNode = familyTreeNodesById[child];
                 return (
                   <UIChildConnector
                     key={crypto.randomUUID()}
@@ -443,7 +443,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                         (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
                       2
                     }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 2 + 10}
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 12}
                     height={rowHeight / 3 - 15}
                   />
                 );
@@ -524,7 +524,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               node.partnerId != null &&
               (node.childIds?.length ?? 0) > 0 &&
               node.childIds.map((child) => {
-                let childNode = familyTreeNodesById[child];
+                const childNode = familyTreeNodesById[child];
                 return (
                   <UIChildConnector
                     key={crypto.randomUUID()}
@@ -534,7 +534,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                         (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
                       2
                     }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 2 + 5}
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 12}
                     height={rowHeight / 3 - 15}
                   />
                 );

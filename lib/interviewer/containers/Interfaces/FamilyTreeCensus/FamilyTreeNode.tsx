@@ -1,14 +1,14 @@
-import { NcNode } from '@codaco/shared-consts';
+import type { NcNode } from '@codaco/shared-consts';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
 import { useNodeLabel } from '../Anonymisation/useNodeLabel';
 
 const genderColors: Record<string, string> = {
-  male: 'primary-color-seq-1',
-  female: 'primary-color-seq-2',
+  male: 'neon-coral',
+  female: 'sea-green',
 };
 const genderShapes: Record<string, string> = {
-  male: 'circle',
-  female: 'triangle',
+  male: 'square',
+  female: 'circle',
 };
 
 export type PlaceholderNodeProps = {
