@@ -83,7 +83,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
   };
 
   const hasAuntOrUncle = step2Nodes.some((node) =>
-    ['aunt', 'uncle'].includes(node.label),
+    /aunt|uncle/i.test(node.label),
   );
   const hasFirstCousin = step2Nodes.some(
     (node) => node.label === 'firstCousin',
