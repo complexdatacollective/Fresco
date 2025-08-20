@@ -505,15 +505,12 @@ const CensusStep2Form = (props: NodeFormProps) => {
           let partnerNode: PlaceholderNodeProps;
 
           const exPartner = getExPartnerForParent(step2Nodes, selectedRelative);
-          console.log('EXPARTNER', exPartner);
 
           if (exPartner) {
             partnerNode = exPartner;
             parentsArray = [selectedRelative, partnerNode];
             newNodeParentIds = [selectedRelative.id, partnerNode.id];
           } else {
-            // If no ex-partner exists, create one
-            console.log('here');
             const partnerId = crypto.randomUUID();
             partnerNode = {
               id: partnerId,
@@ -525,8 +522,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
               xPos: 0,
               yPos: 0,
             };
-
-            console.log('AGAIN PARTNERNODE', partnerNode);
 
             parentsArray = [selectedRelative, partnerNode];
             newNodeParentIds = [selectedRelative.id, partnerId];
@@ -544,8 +539,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
             xPos: 0,
             yPos: 0,
           };
-
-          console.log('AGAIN AGADSGGNA PARTNERNODE', partnerNode);
 
           const updatedRelativeWithHalfSibling: PlaceholderNodeProps = {
             ...selectedRelative,
