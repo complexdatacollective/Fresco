@@ -67,13 +67,20 @@ const CensusStep2Form = (props: NodeFormProps) => {
   );
 
   function hasDuplicatePartnerId(data, targetId) {
-    // Count how many objects have partnerId equal to targetId
     const count = data.reduce((acc, item) => {
       return acc + (item.partnerId === targetId ? 1 : 0);
     }, 0);
 
-    // Return true if two or more objects share this partnerId
     return count >= 2;
+  }
+
+  function getExPartnerForParent(
+    allNodes: PlaceholderNodeProps[],
+    parentNode: PlaceholderNodeProps,
+  ) {
+    return allNodes.find(
+      (n) => n.partnerId === parentNode.id && parentNode.partnerId !== n.id,
+    );
   }
 
   const baseField = {
@@ -495,32 +502,34 @@ const CensusStep2Form = (props: NodeFormProps) => {
           let newNodeParentIds: string[] = [selectedRelative.id];
 
           let updatedSelectedRelative: PlaceholderNodeProps = selectedRelative;
-          let partnerNode: PlaceholderNodeProps | undefined;
+          let partnerNode: PlaceholderNodeProps;
 
-          if (!existingExPartner) {
+          const exPartner = getExPartnerForParent(step2Nodes, selectedRelative);
+          console.log('EXPARTNER', exPartner);
+
+          if (exPartner) {
+            partnerNode = exPartner;
+            parentsArray = [selectedRelative, partnerNode];
+            newNodeParentIds = [selectedRelative.id, partnerNode.id];
+          } else {
+            // If no ex-partner exists, create one
+            console.log('here');
             const partnerId = crypto.randomUUID();
             partnerNode = {
               id: partnerId,
               gender: selectedRelative.gender === 'male' ? 'female' : 'male',
               label: `${selectedRelative.label}'s ex partner`,
               parentIds: [],
-              childIds: [...(selectedRelative.childIds || [])],
+              childIds: [],
               partnerId: selectedRelative.id,
               xPos: 0,
               yPos: 0,
             };
 
-            updatedSelectedRelative = { ...selectedRelative, partnerId };
-            parentsArray = [updatedSelectedRelative, partnerNode];
-            newNodeParentIds = [updatedSelectedRelative.id, partnerId];
-          } else {
-            partnerNode = step2Nodes.find(
-              (n) => n.id === selectedRelative.partnerId,
-            );
-            if (partnerNode) {
-              parentsArray = [selectedRelative, partnerNode];
-              newNodeParentIds = [selectedRelative.id, partnerNode.id];
-            }
+            console.log('AGAIN PARTNERNODE', partnerNode);
+
+            parentsArray = [selectedRelative, partnerNode];
+            newNodeParentIds = [selectedRelative.id, partnerId];
           }
 
           newNode = {
@@ -536,25 +545,21 @@ const CensusStep2Form = (props: NodeFormProps) => {
             yPos: 0,
           };
 
+          console.log('AGAIN AGADSGGNA PARTNERNODE', partnerNode);
+
           const updatedRelativeWithHalfSibling: PlaceholderNodeProps = {
-            ...updatedSelectedRelative,
-            childIds: [...(updatedSelectedRelative.childIds || []), newNode.id],
+            ...selectedRelative,
+            childIds: [...(selectedRelative.childIds || []), newNode.id],
           };
 
-          const updatedPartnerWithHalfSibling:
-            | PlaceholderNodeProps
-            | undefined = partnerNode
-            ? {
-                ...partnerNode,
-                childIds: [...(partnerNode.childIds || []), newNode.id],
-              }
-            : undefined;
+          const updatedPartnerWithHalfSibling: PlaceholderNodeProps = {
+            ...partnerNode,
+            childIds: [...(partnerNode.childIds || []), newNode.id],
+          };
 
           setPlaceholderNodes([
             updatedRelativeWithHalfSibling,
-            ...(updatedPartnerWithHalfSibling
-              ? [updatedPartnerWithHalfSibling]
-              : []),
+            updatedPartnerWithHalfSibling,
             newNode,
           ]);
 
