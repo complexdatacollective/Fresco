@@ -23,7 +23,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
-import { PlaceholderNodeProps } from './FamilyTreeNode';
+import type { PlaceholderNodeProps } from './FamilyTreeNode';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -48,7 +48,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
-  let step2Nodes = useSelector(getPedigreeStageMetadata);
+  const step2Nodes = useSelector(getPedigreeStageMetadata);
 
   const [show, setShow] = useState(false);
   const [relationValue, setRelationValue] = useState('');
@@ -141,7 +141,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
     ],
   };
 
-  function getParents(subjectId: string, nodes) {
+  function getParents(subjectId: string, nodes: PlaceholderNodeProps[]) {
     const ego = nodes.find((node) => node.id === subjectId);
     if (!ego) return { mother: null, father: null };
 
@@ -206,7 +206,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
     let maternalUncleCount = 0;
     let paternalAuntCount = 0;
     let paternalUncleCount = 0;
-    let options: { label: string; value: string }[] = [];
+    const options: { label: string; value: string }[] = [];
 
     maternalSiblings.forEach((sibling) => {
       if (sibling.gender.toLowerCase() === 'female') {
@@ -251,7 +251,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const nieceOptions = useMemo(() => {
     let sisterCount = 0;
     let brotherCount = 0;
-    let options: { label: string; value: string }[] = [];
+    const options: { label: string; value: string }[] = [];
 
     egoSiblings.forEach((sibling) => {
       if (sibling.gender.toLowerCase() === 'female') {
@@ -280,7 +280,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const grandchildrenOptions = useMemo(() => {
     let daughterCount = 0;
     let sonCount = 0;
-    let options: { label: string; value: string }[] = [];
+    const options: { label: string; value: string }[] = [];
 
     egoChildren.forEach((child) => {
       if (child.gender.toLowerCase() === 'female') {

@@ -160,7 +160,7 @@ const FamilyTreeNode = forwardRef<
         </div>
       )}
       {!loading && (
-        <div className="node__label" style={{ top: '70px', padding: '6px' }}>
+        <div className="node__label" style={{ top: '100%', padding: '0' }}>
           <div className={labelClasses()} style={{ alignItems: 'start' }}>
             {labelWithEllipsis}
           </div>
