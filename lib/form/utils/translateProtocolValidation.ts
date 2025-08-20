@@ -145,10 +145,10 @@ export function translateProtocolValidation(
       break;
     case 'Boolean':
     case 'Toggle':
-      schema = z.string(); // todo - this will be boolean - but string while using text input.
+      schema = z.boolean();
       break;
     case 'CheckboxGroup':
-      schema = z.array(z.number());
+      schema = z.array(z.coerce.string());
       break;
     case 'RadioGroup':
       schema = z.string();
@@ -159,13 +159,13 @@ export function translateProtocolValidation(
       break;
     case 'Slider':
     case 'VisualAnalogScale':
-      schema = z.coerce.number();
+      schema = z.coerce.string();
       break;
     case 'LikertScale':
-      schema = z.union([z.string(), z.number()]);
+      schema = z.coerce.string();
       break;
     case 'ToggleButtonGroup':
-      schema = z.string();
+      schema = z.array(z.string());
       break;
     default:
       schema = z.any();
