@@ -66,6 +66,16 @@ const CensusStep2Form = (props: NodeFormProps) => {
     [dispatch],
   );
 
+  function hasDuplicatePartnerId(data, targetId) {
+    // Count how many objects have partnerId equal to targetId
+    const count = data.reduce((acc, item) => {
+      return acc + (item.partnerId === targetId ? 1 : 0);
+    }, 0);
+
+    // Return true if two or more objects share this partnerId
+    return count >= 2;
+  }
+
   const baseField = {
     fieldLabel: 'How is this person related to you?',
     options: [],
@@ -85,8 +95,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const hasAuntOrUncle = step2Nodes.some((node) =>
     /aunt|uncle/i.test(node.label),
   );
-  const hasFirstCousin = step2Nodes.some(
-    (node) => node.label === 'firstCousin',
+  const hasSiblings = step2Nodes.some((node) =>
+    /brother|sister/i.test(node.label),
   );
   const hasChildren = step2Nodes.some((node) =>
     ['son', 'daughter'].includes(node.label),
@@ -104,9 +114,12 @@ const CensusStep2Form = (props: NodeFormProps) => {
       { label: 'Half Sister', value: 'halfSister' },
       { label: 'Half Brother', value: 'halfBrother' },
       ...(hasAuntOrUncle
-        ? [{ label: '(First) Cousin', value: 'firstCousin' }]
+        ? [
+            { label: 'First Cousin (Male)', value: 'firstCousinMale' },
+            { label: 'First Cousin (Female)', value: 'firstCousinFemale' },
+          ]
         : []),
-      ...(hasFirstCousin
+      ...(hasSiblings
         ? [
             { label: 'Niece', value: 'niece' },
             { label: 'Nephew', value: 'nephew' },
@@ -327,11 +340,19 @@ const CensusStep2Form = (props: NodeFormProps) => {
       Component: RadioGroup,
       validation: {},
     },
-    firstCousin: {
+    firstCousinMale: {
       fieldLabel: 'Who is the parent of your first cousin?',
       options: firstCousinOptions,
       type: 'ordinal',
-      variable: 'firstCousinRelation',
+      variable: 'firstCousinMaleRelation',
+      Component: RadioGroup,
+      validation: {},
+    },
+    firstCousinFemale: {
+      fieldLabel: 'Who is the parent of your first cousin?',
+      options: firstCousinOptions,
+      type: 'ordinal',
+      variable: 'firstCousinFemaleRelation',
       Component: RadioGroup,
       validation: {},
     },
@@ -457,41 +478,230 @@ const CensusStep2Form = (props: NodeFormProps) => {
           break;
         }
 
-        case 'firstCousin': {
-          const parentsObject = getParents(
-            fullData.auntRelation || fullData.uncleRelation,
-            step2Nodes,
+        case 'halfBrother':
+        case 'halfSister': {
+          const selectedRelative = step2Nodes.find(
+            (n) => n.id === fullData[`${fullData.relation}Relation`],
           );
-          parentsArray = Object.values(parentsObject).filter(Boolean);
+
+          if (!selectedRelative) break;
+
+          const existingExPartner = hasDuplicatePartnerId(
+            step2Nodes,
+            selectedRelative.id,
+          );
+
+          let parentsArray: PlaceholderNodeProps[] = [selectedRelative];
+          let newNodeParentIds: string[] = [selectedRelative.id];
+
+          let updatedSelectedRelative: PlaceholderNodeProps = selectedRelative;
+          let partnerNode: PlaceholderNodeProps | undefined;
+
+          if (!existingExPartner) {
+            const partnerId = crypto.randomUUID();
+            partnerNode = {
+              id: partnerId,
+              gender: selectedRelative.gender === 'male' ? 'female' : 'male',
+              label: `${selectedRelative.label}'s ex partner`,
+              parentIds: [],
+              childIds: [...(selectedRelative.childIds || [])],
+              partnerId: selectedRelative.id,
+              xPos: 0,
+              yPos: 0,
+            };
+
+            updatedSelectedRelative = { ...selectedRelative, partnerId };
+            parentsArray = [updatedSelectedRelative, partnerNode];
+            newNodeParentIds = [updatedSelectedRelative.id, partnerId];
+          } else {
+            partnerNode = step2Nodes.find(
+              (n) => n.id === selectedRelative.partnerId,
+            );
+            if (partnerNode) {
+              parentsArray = [selectedRelative, partnerNode];
+              newNodeParentIds = [selectedRelative.id, partnerNode.id];
+            }
+          }
+
           newNode = {
             id: crypto.randomUUID(),
-            gender: 'male',
-            label: 'cousin',
-            parentIds: parentsArray.map((p) => p.id),
+            gender: fullData.relation === 'halfBrother' ? 'male' : 'female',
+            label:
+              fullData.relation === 'halfBrother'
+                ? 'half brother'
+                : 'half sister',
+            parentIds: newNodeParentIds,
             childIds: [],
             xPos: 0,
             yPos: 0,
           };
+
+          const updatedRelativeWithHalfSibling: PlaceholderNodeProps = {
+            ...updatedSelectedRelative,
+            childIds: [...(updatedSelectedRelative.childIds || []), newNode.id],
+          };
+
+          const updatedPartnerWithHalfSibling:
+            | PlaceholderNodeProps
+            | undefined = partnerNode
+            ? {
+                ...partnerNode,
+                childIds: [...(partnerNode.childIds || []), newNode.id],
+              }
+            : undefined;
+
+          setPlaceholderNodes([
+            updatedRelativeWithHalfSibling,
+            ...(updatedPartnerWithHalfSibling
+              ? [updatedPartnerWithHalfSibling]
+              : []),
+            newNode,
+          ]);
+
+          break;
+        }
+
+        case 'firstCousinMale':
+        case 'firstCousinFemale': {
+          const selectedRelative = step2Nodes.find(
+            (n) => n.id === fullData[`${fullData.relation}Relation`],
+          );
+
+          if (!selectedRelative) break;
+
+          let parentsArray: PlaceholderNodeProps[] = [selectedRelative];
+          let newNodeParentIds: string[] = [selectedRelative.id];
+
+          let updatedSelectedRelative: PlaceholderNodeProps = selectedRelative;
+          let partnerNode: PlaceholderNodeProps | undefined;
+
+          if (!selectedRelative.partnerId) {
+            const partnerId = crypto.randomUUID();
+            partnerNode = {
+              id: partnerId,
+              gender: selectedRelative.gender === 'male' ? 'female' : 'male',
+              label: `${selectedRelative.label}'s spouse`,
+              parentIds: [],
+              childIds: [...(selectedRelative.childIds || [])],
+              partnerId: selectedRelative.id,
+              xPos: 0,
+              yPos: 0,
+            };
+
+            updatedSelectedRelative = { ...selectedRelative, partnerId };
+            parentsArray = [updatedSelectedRelative, partnerNode];
+            newNodeParentIds = [updatedSelectedRelative.id, partnerId];
+          } else {
+            partnerNode = step2Nodes.find(
+              (n) => n.id === selectedRelative.partnerId,
+            );
+            if (partnerNode) {
+              parentsArray = [selectedRelative, partnerNode];
+              newNodeParentIds = [selectedRelative.id, partnerNode.id];
+            }
+          }
+
+          newNode = {
+            id: crypto.randomUUID(),
+            gender: fullData.relation === 'firstCousinMale' ? 'male' : 'female',
+            label: 'cousin',
+            parentIds: newNodeParentIds,
+            childIds: [],
+            xPos: 0,
+            yPos: 0,
+          };
+
+          const updatedRelativeWithCousin: PlaceholderNodeProps = {
+            ...updatedSelectedRelative,
+            childIds: [...(updatedSelectedRelative.childIds || []), newNode.id],
+          };
+
+          const updatedPartnerWithCousin: PlaceholderNodeProps | undefined =
+            partnerNode
+              ? {
+                  ...partnerNode,
+                  childIds: [...(partnerNode.childIds || []), newNode.id],
+                }
+              : undefined;
+
+          setPlaceholderNodes([
+            updatedRelativeWithCousin,
+            ...(updatedPartnerWithCousin ? [updatedPartnerWithCousin] : []),
+            newNode,
+          ]);
+
           break;
         }
 
         case 'niece':
         case 'nephew': {
-          // Pick which sibling of ego is parent
-          const parentsObject = getParents(
-            fullData[`${fullData.relation}Relation`] as string,
-            step2Nodes,
+          const selectedRelative = step2Nodes.find(
+            (n) => n.id === fullData[`${fullData.relation}Relation`],
           );
-          parentsArray = Object.values(parentsObject).filter(Boolean);
+
+          if (!selectedRelative) break;
+
+          let parentsArray: PlaceholderNodeProps[] = [selectedRelative];
+          let newNodeParentIds: string[] = [selectedRelative.id];
+
+          let updatedSelectedRelative: PlaceholderNodeProps = selectedRelative;
+          let partnerNode: PlaceholderNodeProps | undefined;
+
+          if (!selectedRelative.partnerId) {
+            const partnerId = crypto.randomUUID();
+            partnerNode = {
+              id: partnerId,
+              gender: selectedRelative.gender === 'male' ? 'female' : 'male',
+              label: `${selectedRelative.label}'s spouse`,
+              parentIds: [],
+              childIds: [...(selectedRelative.childIds || [])],
+              partnerId: selectedRelative.id,
+              xPos: 0,
+              yPos: 0,
+            };
+
+            updatedSelectedRelative = { ...selectedRelative, partnerId };
+            parentsArray = [updatedSelectedRelative, partnerNode];
+            newNodeParentIds = [updatedSelectedRelative.id, partnerId];
+          } else {
+            partnerNode = step2Nodes.find(
+              (n) => n.id === selectedRelative.partnerId,
+            );
+            if (partnerNode) {
+              parentsArray = [selectedRelative, partnerNode];
+              newNodeParentIds = [selectedRelative.id, partnerNode.id];
+            }
+          }
+
           newNode = {
             id: crypto.randomUUID(),
             gender: fullData.relation === 'niece' ? 'female' : 'male',
             label: fullData.relation,
-            parentIds: parentsArray.map((p) => p.id),
+            parentIds: newNodeParentIds,
             childIds: [],
             xPos: 0,
             yPos: 0,
           };
+
+          const updatedRelativeWithChild: PlaceholderNodeProps = {
+            ...updatedSelectedRelative,
+            childIds: [...(updatedSelectedRelative.childIds || []), newNode.id],
+          };
+
+          const updatedPartnerWithChild: PlaceholderNodeProps | undefined =
+            partnerNode
+              ? {
+                  ...partnerNode,
+                  childIds: [...(partnerNode.childIds || []), newNode.id],
+                }
+              : undefined;
+
+          setPlaceholderNodes([
+            updatedRelativeWithChild,
+            ...(updatedPartnerWithChild ? [updatedPartnerWithChild] : []),
+            newNode,
+          ]);
+
           break;
         }
 

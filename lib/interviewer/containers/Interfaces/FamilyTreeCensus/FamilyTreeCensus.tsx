@@ -143,10 +143,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const maternalGrandmother = addNode('female', 'maternal grandmother');
     const maternalGrandfather = addNode('male', 'maternal grandfather');
     maternalGrandfather.partnerId = maternalGrandmother.id;
+    maternalGrandmother.partnerId = maternalGrandfather.id;
 
     const paternalGrandmother = addNode('female', 'paternal grandmother');
     const paternalGrandfather = addNode('male', 'paternal grandfather');
     paternalGrandfather.partnerId = paternalGrandmother.id;
+    paternalGrandmother.partnerId = paternalGrandfather.id;
 
     const mother = addNode('female', 'mother');
     maternalGrandfather.childIds?.push(mother.id ?? '');
@@ -158,6 +160,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     const father = addNode('male', 'father');
     father.partnerId = mother.id;
+    mother.partnerId = father.id;
     paternalGrandfather.childIds?.push(father.id ?? '');
     paternalGrandmother.childIds?.push(father.id ?? '');
     father.parentIds?.push(
@@ -173,6 +176,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     const partner = addNode('male', 'spouse');
     ego.partnerId = partner.id;
+    partner.partnerId = ego.id;
 
     // Add siblings, children, uncles, aunts
     arrayFromRelationCount(formData, 'brothers').forEach(() => {
