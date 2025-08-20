@@ -1,28 +1,39 @@
 'use client';
 
+import { Check, X } from 'lucide-react';
 import { type HTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
 import { transitionStyles } from './shared';
 
 const buttonBaseStyles = cx(
-  'flex-1 px-6 py-3 text-center rounded-md border text-base font-medium',
+  'flex-1 px-6 py-3 text-left rounded-md border text-base font-medium',
+  'flex items-center gap-3',
   transitionStyles,
-  'hover:bg-accent/10',
   'focus:outline-none focus:ring-2 focus:ring-accent/20',
   'disabled:opacity-50 disabled:cursor-not-allowed',
-);
-
-const buttonSelectedStyles = cx(
-  'bg-accent text-accent-foreground',
-  'border-accent',
-  'hover:bg-accent/90',
-);
-
-const buttonUnselectedStyles = cx(
   'bg-input',
-  'border-border',
-  'hover:border-accent/50',
 );
+
+const roundCheckboxStyles = cx(
+  'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center',
+  'transition-colors',
+);
+
+const roundCheckboxPositiveStyles = cx(
+  'bg-success border-success text-success-foreground',
+);
+
+const roundCheckboxNegativeStyles = cx(
+  'bg-destructive border-destructive text-destructive-foreground',
+);
+
+const roundCheckboxUnselectedStyles = cx('bg-input border-border');
+
+const buttonPositiveStyles = cx('border-success border-2');
+
+const buttonNegativeStyles = cx('border-destructive border-2');
+
+const buttonUnselectedStyles = cx('border-border');
 
 type BooleanFieldProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
   value?: boolean | null;
@@ -50,30 +61,50 @@ export function BooleanField({
   return (
     <div className={cx('w-full space-y-2', className)} {...divProps}>
       <div className="flex gap-2">
-        {options.map((option) => (
-          <button
-            key={String(option.value)}
-            type="button"
-            onClick={() => onChange?.(option.value)}
-            disabled={disabled}
-            className={cx(
-              buttonBaseStyles,
-              value === option.value
-                ? buttonSelectedStyles
-                : buttonUnselectedStyles,
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          const isPositive = option.value === true;
+
+          return (
+            <button
+              key={String(option.value)}
+              type="button"
+              onClick={() => onChange?.(option.value)}
+              disabled={disabled}
+              className={cx(
+                buttonBaseStyles,
+                isSelected
+                  ? isPositive
+                    ? buttonPositiveStyles
+                    : buttonNegativeStyles
+                  : buttonUnselectedStyles,
+              )}
+            >
+              <div
+                className={cx(
+                  roundCheckboxStyles,
+                  isSelected
+                    ? isPositive
+                      ? roundCheckboxPositiveStyles
+                      : roundCheckboxNegativeStyles
+                    : roundCheckboxUnselectedStyles,
+                )}
+              >
+                {isSelected &&
+                  (isPositive ? <Check size={16} /> : <X size={16} />)}
+              </div>
+              <span>{option.label}</span>
+            </button>
+          );
+        })}
       </div>
-      {!noReset && value !== null && value !== undefined && (
+      {!noReset && (
         <button
           type="button"
           onClick={() => onChange?.(null)}
           disabled={disabled}
           className={cx(
-            'text-muted-foreground w-full text-sm',
+            'text-muted-foreground text-left text-sm underline',
             'hover:text-foreground',
             transitionStyles,
             'disabled:cursor-not-allowed disabled:opacity-50',

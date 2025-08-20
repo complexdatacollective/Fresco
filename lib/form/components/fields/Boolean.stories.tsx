@@ -36,11 +36,14 @@ const meta: Meta<typeof BooleanField> = {
       },
     },
     options: {
-      control: false,
+      control: 'object',
       description: 'Custom options for yes/no buttons',
       table: {
         type: { summary: 'Array<{ label: string; value: boolean }>' },
-        defaultValue: { summary: '[{ label: "Yes", value: true }, { label: "No", value: false }]' },
+        defaultValue: {
+          summary:
+            '[{ label: "Yes. I wish to participate in the study in accordance with the terms outlined above.", value: true }, { label: "No. I decline to participate, and wish to immediately withdraw from this study.", value: false }]',
+        },
       },
     },
     onChange: {
@@ -54,6 +57,18 @@ const meta: Meta<typeof BooleanField> = {
   args: {
     disabled: false,
     noReset: false,
+    options: [
+      {
+        label:
+          'Yes. I wish to participate in the study in accordance with the terms outlined above.',
+        value: true,
+      },
+      {
+        label:
+          'No. I decline to participate, and wish to immediately withdraw from this study.',
+        value: false,
+      },
+    ],
   },
 };
 
@@ -65,10 +80,22 @@ export const Default: Story = {
     const [value, setValue] = useState<boolean | null>(null);
 
     return (
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-2xl">
         <BooleanField
           value={value}
           onChange={setValue}
+          options={[
+            {
+              label:
+                'Yes. I wish to participate in the study in accordance with the terms outlined above.',
+              value: true,
+            },
+            {
+              label:
+                'No. I decline to participate in the study, and wish to immediately withdraw.',
+              value: false,
+            },
+          ]}
         />
       </div>
     );

@@ -254,4 +254,8 @@ export const scaleSliderStyles = {
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/20',
     'disabled:pointer-events-none disabled:opacity-50',
   ),
+  tickContainer: cx(
+    'absolute inset-0 flex w-full grow items-center justify-between px-[10px]',
+  ),
+  tick: cx('bg-border h-8 w-1'),
 } as const;

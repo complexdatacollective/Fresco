@@ -61,9 +61,12 @@ export function LikertScaleField({
 
             {/* Tick marks */}
             {options.length > 0 && (
-              <div className="absolute inset-0 flex w-full grow items-center justify-between px-[10px]">
+              <div className={scaleSliderStyles.tickContainer}>
                 {options.map((_, index) => (
-                  <div key={index} className="bg-border h-3 w-1 rounded-full" />
+                  <div
+                    key={index}
+                    className={scaleSliderStyles.tick}
+                  />
                 ))}
               </div>
             )}
