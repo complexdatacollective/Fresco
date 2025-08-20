@@ -1,7 +1,9 @@
 'use client';
 
+import * as Slider from '@radix-ui/react-slider';
 import { type HTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
+import { scaleSliderStyles } from './shared';
 
 type VisualAnalogScaleFieldProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -27,61 +29,41 @@ export function VisualAnalogScaleField({
   step = 0.1,
   minLabel,
   maxLabel,
-  id,
+  id: _id,
   ...divProps
 }: VisualAnalogScaleFieldProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(Number(e.target.value));
+  const handleValueChange = (newValue: number[]) => {
+    const value = newValue[0];
+    if (value !== undefined) {
+      onChange?.(value);
+    }
   };
 
-  const ticksId = `analog-scale-ticks-${id}`;
+  const sliderValue = [value];
 
   return (
     <div className={cx('w-full', className)} {...divProps}>
       <div className="relative py-4">
-        {/* Track container */}
+        {/* Slider container */}
         <div className="relative flex h-10 items-center">
-          {/* Slider input with datalist */}
-          <input
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={value}
-            onChange={handleChange}
+          <Slider.Root
+            className={scaleSliderStyles.root}
+            value={sliderValue}
+            onValueChange={handleValueChange}
             disabled={disabled}
-            list={ticksId}
-            className={cx(
-              'absolute h-2 w-full cursor-pointer appearance-none bg-transparent',
-              '[&::-webkit-slider-thumb]:appearance-none',
-              '[&::-webkit-slider-thumb]:w-6',
-              '[&::-webkit-slider-thumb]:h-6',
-              '[&::-webkit-slider-thumb]:rounded-none',
-              '[&::-webkit-slider-thumb]:bg-accent',
-              '[&::-webkit-slider-thumb]:cursor-pointer',
-              '[&::-webkit-slider-thumb]:border-0',
-              '[&::-webkit-slider-thumb]:shadow-md',
-              '[&::-moz-range-thumb]:w-6',
-              '[&::-moz-range-thumb]:h-6',
-              '[&::-moz-range-thumb]:rounded-none',
-              '[&::-moz-range-thumb]:bg-accent',
-              '[&::-moz-range-thumb]:cursor-pointer',
-              '[&::-moz-range-thumb]:border-0',
-              '[&::-moz-range-thumb]:shadow-md',
-              '[&::-moz-range-thumb]:appearance-none',
-              '[&::-moz-range-track]:bg-transparent',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-            )}
-          />
-
-          {/* Datalist for tick marks */}
-          <datalist id={ticksId}>
-            <option value={min} label={minLabel}></option>
-            <option value={max} label={maxLabel}></option>
-          </datalist>
+            max={max}
+            min={min}
+            step={step}
+          >
+            <Slider.Track className={scaleSliderStyles.track} />
+            <Slider.Thumb
+              className={scaleSliderStyles.thumb}
+              aria-label="Visual analog scale value"
+            />
+          </Slider.Root>
         </div>
 
-        {/* Labels positioned below ticks */}
+        {/* Labels positioned below slider */}
         <div className="relative mt-2 flex justify-between">
           {minLabel && (
             <div className="text-muted-foreground max-w-24 text-left text-sm leading-tight">

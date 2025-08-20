@@ -74,7 +74,7 @@ export const Default: Story = {
     const [value, setValue] = useState(50);
 
     return (
-      <div className="w-full max-w-md">
+      <div className="w-xl">
         <SliderField
           min={0}
           max={100}

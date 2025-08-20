@@ -1,48 +1,33 @@
 'use client';
 
+import * as Slider from '@radix-ui/react-slider';
 import { type InputHTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
-import { cursorStyles, focusRingStyles, transitionStyles } from './shared';
 
-const sliderStyles = cx(
-  'w-full h-2 rounded-lg appearance-none cursor-pointer',
-  'bg-input border border-border',
-  transitionStyles,
-  focusRingStyles.base,
-  cursorStyles.disabled,
-  'disabled:opacity-50',
-  // Webkit thumb styles
-  '[&::-webkit-slider-thumb]:appearance-none',
-  '[&::-webkit-slider-thumb]:h-5',
-  '[&::-webkit-slider-thumb]:w-5',
-  '[&::-webkit-slider-thumb]:rounded-full',
-  '[&::-webkit-slider-thumb]:bg-accent',
-  '[&::-webkit-slider-thumb]:cursor-pointer',
-  '[&::-webkit-slider-thumb]:border-2',
-  '[&::-webkit-slider-thumb]:border-background',
-  '[&::-webkit-slider-thumb]:shadow-sm',
-  // Firefox thumb styles
-  '[&::-moz-range-thumb]:h-5',
-  '[&::-moz-range-thumb]:w-5',
-  '[&::-moz-range-thumb]:rounded-full',
-  '[&::-moz-range-thumb]:bg-accent',
-  '[&::-moz-range-thumb]:cursor-pointer',
-  '[&::-moz-range-thumb]:border-2',
-  '[&::-moz-range-thumb]:border-background',
-  '[&::-moz-range-thumb]:shadow-sm',
-  '[&::-moz-range-thumb]:appearance-none',
-  // Firefox track styles
-  '[&::-moz-range-track]:bg-input',
-  '[&::-moz-range-track]:border',
-  '[&::-moz-range-track]:border-border',
-  '[&::-moz-range-track]:rounded-lg',
-  '[&::-moz-range-track]:h-2',
+const sliderRootStyles = cx(
+  'relative flex w-full touch-none select-none items-center',
+  'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'
 );
 
-type SliderFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & {
+const sliderTrackStyles = cx(
+  'relative h-2 w-full grow overflow-hidden rounded-full bg-input border border-border'
+);
+
+const sliderRangeStyles = cx(
+  'absolute h-full bg-accent'
+);
+
+const sliderThumbStyles = cx(
+  'block h-5 w-5 rounded-full border-2 border-background bg-accent shadow-sm transition-colors',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/20',
+  'disabled:pointer-events-none disabled:opacity-50'
+);
+
+type SliderFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> & {
   min?: number;
   max?: number;
   step?: number;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export function SliderField({
@@ -50,16 +35,53 @@ export function SliderField({
   min = 0,
   max = 100,
   step = 1,
+  value,
+  onChange,
+  disabled,
   ...inputProps
 }: SliderFieldProps) {
+  const handleValueChange = (newValue: number[]) => {
+    onChange?.({
+      target: { value: String(newValue[0]) }
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  const sliderValue = value ? [Number(value)] : undefined;
+
   return (
-    <input
-      type="range"
-      min={min}
+    <Slider.Root
+      className={cx(sliderRootStyles, className)}
+      value={sliderValue}
+      onValueChange={handleValueChange}
+      disabled={disabled}
       max={max}
+      min={min}
       step={step}
-      className={cx(sliderStyles, className)}
-      {...inputProps}
-    />
+    >
+      <Slider.Track className={sliderTrackStyles}>
+        <Slider.Range className={sliderRangeStyles} />
+      </Slider.Track>
+      <Slider.Thumb 
+        className={sliderThumbStyles}
+        aria-label="Slider value"
+      />
+      {/* Hidden input for form compatibility */}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{
+          position: 'absolute',
+          pointerEvents: 'none',
+          opacity: 0,
+          margin: 0,
+        }}
+        {...inputProps}
+      />
+    </Slider.Root>
   );
 }

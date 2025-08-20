@@ -1,5 +1,6 @@
 'use client';
 
+import * as Switch from '@radix-ui/react-switch';
 import { type InputHTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
 
@@ -35,19 +36,13 @@ export function ToggleField({
   ...inputProps
 }: ToggleFieldProps) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={value}
-      data-state={value ? 'checked' : 'unchecked'}
+    <Switch.Root
+      checked={value}
+      onCheckedChange={onChange}
       disabled={disabled}
-      onClick={() => onChange?.(!value)}
       className={cx(toggleStyles, className)}
     >
-      <span
-        data-state={value ? 'checked' : 'unchecked'}
-        className={toggleThumbStyles}
-      />
+      <Switch.Thumb className={toggleThumbStyles} />
       <input
         type="checkbox"
         aria-hidden="true"
@@ -62,6 +57,6 @@ export function ToggleField({
         }}
         {...inputProps}
       />
-    </button>
+    </Switch.Root>
   );
 }

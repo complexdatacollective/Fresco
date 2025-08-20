@@ -1,7 +1,9 @@
 'use client';
 
+import * as Slider from '@radix-ui/react-slider';
 import { type HTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
+import { scaleSliderStyles } from './shared';
 
 type Option = {
   label: string;
@@ -24,67 +26,53 @@ export function LikertScaleField({
   onChange,
   disabled = false,
   options = [],
-  id,
+  id: _id,
   ...divProps
 }: LikertScaleFieldProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const index = Number(e.target.value);
-    const selectedOption = options[index];
-    if (selectedOption) {
-      onChange?.(selectedOption.value);
+  const handleValueChange = (newValue: number[]) => {
+    const index = newValue[0];
+    if (index !== undefined) {
+      const selectedOption = options[index];
+      if (selectedOption) {
+        onChange?.(selectedOption.value);
+      }
     }
   };
 
   // Find the index of the current value
   const currentIndex = options.findIndex((option) => option.value === value);
-  const sliderValue = currentIndex >= 0 ? currentIndex : 0;
-
-  const ticksId = `likert-scale-ticks-${id}`;
+  const sliderValue = currentIndex >= 0 ? [currentIndex] : [0];
 
   return (
     <div className={cx('w-full', className)} {...divProps}>
       <div className="relative py-4">
-        {/* Track container */}
+        {/* Slider container */}
         <div className="relative flex h-10 items-center">
-          {/* Slider input with datalist */}
-          <input
-            type="range"
-            min={0}
-            max={Math.max(0, options.length - 1)}
-            step={1}
+          <Slider.Root
+            className={scaleSliderStyles.root}
             value={sliderValue}
-            onChange={handleChange}
+            onValueChange={handleValueChange}
             disabled={disabled}
-            list={ticksId}
-            className={cx(
-              'absolute h-2 w-full cursor-pointer appearance-none bg-transparent',
-              '[&::-webkit-slider-thumb]:appearance-none',
-              '[&::-webkit-slider-thumb]:w-6',
-              '[&::-webkit-slider-thumb]:h-6',
-              '[&::-webkit-slider-thumb]:rounded-none',
-              '[&::-webkit-slider-thumb]:bg-accent',
-              '[&::-webkit-slider-thumb]:cursor-pointer',
-              '[&::-webkit-slider-thumb]:border-0',
-              '[&::-webkit-slider-thumb]:shadow-md',
-              '[&::-moz-range-thumb]:w-6',
-              '[&::-moz-range-thumb]:h-6',
-              '[&::-moz-range-thumb]:rounded-non',
-              '[&::-moz-range-thumb]:bg-accent',
-              '[&::-moz-range-thumb]:cursor-pointer',
-              '[&::-moz-range-thumb]:border-0',
-              '[&::-moz-range-thumb]:shadow-md',
-              '[&::-moz-range-thumb]:appearance-none',
-              '[&::-moz-range-track]:bg-transparent',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-            )}
-          />
+            max={Math.max(0, options.length - 1)}
+            min={0}
+            step={1}
+          >
+            <Slider.Track className={scaleSliderStyles.track} />
 
-          {/* Datalist for tick marks */}
-          <datalist id={ticksId}>
-            {options.map((option, index) => (
-              <option key={index} value={index} label={option.label}></option>
-            ))}
-          </datalist>
+            {/* Tick marks */}
+            {options.length > 0 && (
+              <div className="absolute inset-0 flex w-full grow items-center justify-between px-[10px]">
+                {options.map((_, index) => (
+                  <div key={index} className="bg-border h-3 w-1 rounded-full" />
+                ))}
+              </div>
+            )}
+
+            <Slider.Thumb
+              className={scaleSliderStyles.thumb}
+              aria-label="Likert scale value"
+            />
+          </Slider.Root>
         </div>
 
         {/* Labels positioned below ticks */}
@@ -92,7 +80,10 @@ export function LikertScaleField({
           {options.map((option, index) => {
             const isFirst = index === 0;
             const isLast = index === options.length - 1;
-            const percentage = (index / Math.max(1, options.length - 1)) * 100;
+            const percentage =
+              options.length > 1
+                ? (index / Math.max(1, options.length - 1)) * 100
+                : 50;
 
             return (
               <div

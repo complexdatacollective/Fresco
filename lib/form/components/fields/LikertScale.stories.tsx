@@ -62,7 +62,7 @@ export const Default: Story = {
     const [value, setValue] = useState<string | number | undefined>(3);
 
     return (
-      <div className="w-full max-w-lg">
+      <div className="w-xl">
         <LikertScaleField
           options={agreementOptions}
           value={value}
@@ -70,13 +70,5 @@ export const Default: Story = {
         />
       </div>
     );
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    options: agreementOptions,
-    value: 4,
-    disabled: true,
   },
 };

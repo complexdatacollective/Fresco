@@ -89,7 +89,7 @@ export const Default: Story = {
     const [value, setValue] = useState(50);
 
     return (
-      <div className="w-full max-w-md">
+      <div className="w-xl">
         <VisualAnalogScaleField
           value={value}
           onChange={setValue}
@@ -101,14 +101,5 @@ export const Default: Story = {
         />
       </div>
     );
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    value: 60,
-    disabled: true,
-    minLabel: 'Poor',
-    maxLabel: 'Excellent',
   },
 };

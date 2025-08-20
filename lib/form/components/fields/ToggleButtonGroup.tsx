@@ -1,5 +1,6 @@
 'use client';
 
+import * as Checkbox from '@radix-ui/react-checkbox';
 import { type HTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
 import { transitionStyles } from './shared';
@@ -62,10 +63,10 @@ export function ToggleButtonGroupField({
           const isSelected = value.includes(option.value);
 
           return (
-            <button
+            <Checkbox.Root
               key={String(option.value)}
-              type="button"
-              onClick={() => handleToggleOption(option.value)}
+              checked={isSelected}
+              onCheckedChange={() => handleToggleOption(option.value)}
               disabled={disabled}
               className={cx(
                 toggleButtonStyles,
@@ -77,16 +78,7 @@ export function ToggleButtonGroupField({
               <span className="relative z-10 break-words hyphens-auto">
                 {option.label}
               </span>
-              {/* Hidden checkbox for form compatibility */}
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={undefined}
-                tabIndex={-1}
-                aria-hidden="true"
-                className="pointer-events-none absolute opacity-0"
-              />
-            </button>
+            </Checkbox.Root>
           );
         })}
       </div>
