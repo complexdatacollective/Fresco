@@ -16,7 +16,7 @@ class TreeLayout {
     this.layers = new Map<PlaceholderNodeProps, number>();
     this.coords = new Map<PlaceholderNodeProps, { x: number; y: number }>();
     this.grouped = new Map<number, PlaceholderNodeProps[]>();
-    this.layerHeight = 150;
+    this.layerHeight = 160;
     this.nodeWidth = 130;
     this.byId = new Map(this.nodes.map((n) => [n.id!, n]));
   }
@@ -33,7 +33,7 @@ class TreeLayout {
     this.fixOverlaps();
     this.ensureAllNodesHaveCoords();
     this.orderCouplesBySex(this.nodes);
-    this.reorderSiblingsByParentSide();
+    //this.reorderSiblingsByParentSide();
     this.offsetNodes(offsets);
 
     return this.nodes;
@@ -166,11 +166,13 @@ class TreeLayout {
     const maxLayer = Math.max(...this.grouped.keys());
 
     for (let layer = maxLayer; layer >= 0; layer--) {
+      console.log(`at layer ${layer}`);
       let nextX = 0;
       const nodesAtLayer = this.grouped.get(layer) ?? [];
       const placed = new Set<PlaceholderNodeProps>();
 
-      nodesAtLayer.forEach((node) => {
+      this.orderByX(nodesAtLayer).forEach((node) => {
+        console.log(`node ${node.label}`);
         if (placed.has(node)) return;
         const y = layer * this.layerHeight;
 
@@ -205,7 +207,12 @@ class TreeLayout {
             centerX = nextX * this.nodeWidth;
             nextX++;
           }
-
+          console.log(
+            `set coords for ${a.label} to ${centerX - this.nodeWidth * 0.4}`,
+          );
+          console.log(
+            `set coords for ${b.label} to ${centerX + this.nodeWidth * 0.4}`,
+          );
           this.coords.set(a, { x: centerX - this.nodeWidth * 0.4, y });
           this.coords.set(b, { x: centerX + this.nodeWidth * 0.4, y });
           placed.add(a);
@@ -225,6 +232,7 @@ class TreeLayout {
             nextX++;
           }
 
+          console.log(`set node ${node.label} x to ${x}`);
           this.coords.set(node, { x, y });
           placed.add(node);
         }
@@ -237,6 +245,8 @@ class TreeLayout {
 
   // swap couples so females are on the left
   orderCouplesBySex(nodes: PlaceholderNodeProps[]) {
+    console.log(`ordering by sex`);
+    console.log(this.coords);
     const placed = new Set<PlaceholderNodeProps>();
     nodes.forEach((node) => {
       if (placed.has(node)) return;
@@ -249,10 +259,18 @@ class TreeLayout {
 
       if (couple) {
         const [a, b] = couple;
-        if (a.gender == 'male') {
+        if (
+          (a.gender == 'male' &&
+            this.coords.get(a)!.x < this.coords.get(b)!.x) ||
+          a.gender == 'female'
+        ) {
+          console.log(`reorder couple ${a.label} and ${b.label}`);
           const aCoords = this.coords.get(a)!;
           this.coords.set(a, this.coords.get(b)!);
           this.coords.set(b, aCoords);
+          console.log(
+            `${a.label} now at ${this.coords.get(a).x} and ${b.label} now at ${this.coords.get(b).x}`,
+          );
         }
         placed.add(a);
         placed.add(b);
@@ -272,8 +290,8 @@ class TreeLayout {
       );
 
       if (parentCouple) {
-        const [a, b] = parentCouple;
-        return `couple:${a.id}|${b.id}`;
+        const [aId, bId] = parentCouple.map((p) => p.id).sort();
+        return `couple:${aId}|${bId}`;
       }
 
       return `parents:${parents
@@ -360,7 +378,7 @@ class TreeLayout {
   }
 
   offsetNodes(offset: { xOffset: number; yOffset: number }) {
-    const values = Array.from(this.coords.values());
+    /*const values = Array.from(this.coords.values());
     if (!values.length) return;
 
     const minX = Math.min(...values.map((c) => c.x));
@@ -373,6 +391,21 @@ class TreeLayout {
       };
       node.xPos = pos.x + netXOffset;
       node.yPos = pos.y + offset.yOffset;
+    });*/
+    const leftmostNode = this.nodes.reduce((previous, current) =>
+      this.coords.get(previous)!.x < this.coords.get(current)!.x
+        ? previous
+        : current,
+    );
+    const netXOffset = offset.xOffset - this.coords.get(leftmostNode)!.x;
+    console.log(`net x offset ${netXOffset}`);
+    this.nodes.forEach((node) => {
+      const pos = this.coords.get(node);
+      console.log(
+        `change ${node.label} from ${pos.x} to ${pos.x + netXOffset}`,
+      );
+      node.xPos = (pos?.x ?? 0) + netXOffset;
+      node.yPos = (pos?.y ?? 0) + offset.yOffset;
     });
   }
 

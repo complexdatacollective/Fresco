@@ -425,7 +425,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     2
                   }
                   yStartPos={node.yPos ?? 0}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 10}
                 />
               )
             );
@@ -446,7 +446,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                         (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
                       2
                     }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 12}
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15}
                     height={rowHeight / 3 - 15}
                   />
                 );
@@ -502,7 +502,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     2
                   }
                   yStartPos={node.yPos ?? 0}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 10}
                 />
               )
             );
@@ -522,7 +522,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                         (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
                       2
                     }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 12}
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15}
                     height={rowHeight / 3 - 15}
                   />
                 );
