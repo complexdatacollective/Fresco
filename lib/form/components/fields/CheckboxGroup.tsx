@@ -257,10 +257,10 @@ export function CheckboxGroupField({
                 id={optionId}
                 name={name}
                 value={option.value}
-                checked={isChecked}
-                defaultChecked={
-                  !isControlled && currentValues.includes(option.value)
-                }
+                {...(isControlled
+                  ? { checked: isChecked }
+                  : { defaultChecked: currentValues.includes(option.value) }
+                )}
                 disabled={isOptionDisabled}
                 onChange={(e) => {
                   if (!isOptionDisabled) {

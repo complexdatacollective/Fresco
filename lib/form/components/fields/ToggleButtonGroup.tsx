@@ -11,18 +11,17 @@ const toggleButtonStyles = cx(
   'text-center p-3 text-sm font-medium',
   'border-4 border-accent',
   transitionStyles,
-  'hover:border-accent',
   'focus:outline-none focus:ring-2 focus:ring-accent/20',
   'disabled:opacity-50 disabled:cursor-not-allowed',
+  'text-accent-foreground',
 );
 
 const toggleButtonSelectedStyles = cx(
   'bg-accent',
   'after:absolute after:inset-2 after:rounded-full after:bg-accent after:-z-10',
-  'text-accent-foreground',
 );
 
-const toggleButtonUnselectedStyles = cx('text-foreground');
+const toggleButtonUnselectedStyles = cx('text-accent-foreground bg-primary');
 
 type Option = {
   label: string;

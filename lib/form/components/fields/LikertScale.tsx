@@ -1,7 +1,13 @@
 'use client';
 
 import * as Slider from '@radix-ui/react-slider';
-import { type HTMLAttributes } from 'react';
+import React, { type HTMLAttributes } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
 import { cx } from '~/utils/cva';
 import { scaleSliderStyles } from './shared';
 
@@ -29,6 +35,9 @@ export function LikertScaleField({
   id: _id,
   ...divProps
 }: LikertScaleFieldProps) {
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [showTooltip, setShowTooltip] = React.useState(false);
+
   const handleValueChange = (newValue: number[]) => {
     const index = newValue[0];
     if (index !== undefined) {
@@ -39,9 +48,27 @@ export function LikertScaleField({
     }
   };
 
+  const handlePointerDown = () => {
+    setIsDragging(true);
+    setShowTooltip(true);
+  };
+
+  const handlePointerUp = React.useCallback(() => {
+    setIsDragging(false);
+    setShowTooltip(false);
+  }, []);
+
+  React.useEffect(() => {
+    document.addEventListener('pointerup', handlePointerUp);
+    return () => {
+      document.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [handlePointerUp]);
+
   // Find the index of the current value
   const currentIndex = options.findIndex((option) => option.value === value);
   const sliderValue = currentIndex >= 0 ? [currentIndex] : [0];
+  const currentOption = options[currentIndex] ?? options[0];
 
   return (
     <div className={cx('w-full', className)} {...divProps}>
@@ -52,6 +79,7 @@ export function LikertScaleField({
             className={scaleSliderStyles.root}
             value={sliderValue}
             onValueChange={handleValueChange}
+            onPointerDown={handlePointerDown}
             disabled={disabled}
             max={Math.max(0, options.length - 1)}
             min={0}
@@ -63,18 +91,27 @@ export function LikertScaleField({
             {options.length > 0 && (
               <div className={scaleSliderStyles.tickContainer}>
                 {options.map((_, index) => (
-                  <div
-                    key={index}
-                    className={scaleSliderStyles.tick}
-                  />
+                  <div key={index} className={scaleSliderStyles.tick} />
                 ))}
               </div>
             )}
 
-            <Slider.Thumb
-              className={scaleSliderStyles.thumb}
-              aria-label="Likert scale value"
-            />
+            <TooltipProvider>
+              <Tooltip open={showTooltip}>
+                <TooltipTrigger asChild className="pointer-events-none">
+                  <Slider.Thumb
+                    className={scaleSliderStyles.thumb}
+                    data-dragging={isDragging}
+                    aria-label="Likert scale value"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => !isDragging && setShowTooltip(false)}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{currentOption?.label ?? currentOption?.value ?? ''}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </Slider.Root>
         </div>
 

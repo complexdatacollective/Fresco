@@ -5,8 +5,8 @@ import { type InputHTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
 
 const toggleStyles = cx(
-  'relative inline-flex h-8 w-14 items-center rounded-full',
-  'bg-input border-2 border-border',
+  'relative inline-flex h-8 w-16 items-center rounded-full',
+  'bg-primary',
   'transition-colors',
   'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/10',
   'disabled:cursor-not-allowed disabled:opacity-50',
@@ -14,10 +14,9 @@ const toggleStyles = cx(
 );
 
 const toggleThumbStyles = cx(
-  'pointer-events-none block h-6 w-6 rounded-full bg-background shadow-sm',
+  'pointer-events-none block h-8 w-8 rounded-full bg-background shadow-sm',
   'ring-0 transition-transform',
-  'translate-x-0.5',
-  'data-[state=checked]:translate-x-[26px]',
+  'data-[state=checked]:translate-x-[32px]',
 );
 
 type ToggleFieldProps = Omit<
@@ -49,6 +48,7 @@ export function ToggleField({
         tabIndex={-1}
         checked={value}
         disabled={disabled}
+        readOnly
         style={{
           position: 'absolute',
           pointerEvents: 'none',

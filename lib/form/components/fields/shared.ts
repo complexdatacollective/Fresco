@@ -250,9 +250,10 @@ export const scaleSliderStyles = {
     'relative h-6 w-full grow overflow-hidden rounded-full bg-input border border-border',
   ),
   thumb: cx(
-    'block h-8 w-8 rounded-full bg-accent',
+    'block h-8 w-8 rounded-full bg-accent transition-all duration-200',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/20',
     'disabled:pointer-events-none disabled:opacity-50',
+    'active:h-10 active:w-10 hover:h-9 hover:w-9',
   ),
   tickContainer: cx(
     'absolute inset-0 flex w-full grow items-center justify-between px-[10px]',
