@@ -1,0 +1,314 @@
+{
+  "config": {
+    "configFile": "/Users/jmh629/Projects/Fresco/playwright.config.ts",
+    "rootDir": "/Users/jmh629/Projects/Fresco/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/jmh629/Projects/Fresco/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/jmh629/Projects/Fresco/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/jmh629/Projects/Fresco/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/jmh629/Projects/Fresco/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/jmh629/Projects/Fresco/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/jmh629/Projects/Fresco/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "changed",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 6,
+    "webServer": {
+      "command": "pnpm dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "pipe",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "dashboard/protocols.spec.ts",
+      "file": "dashboard/protocols.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Dashboard - Protocol Management",
+          "file": "dashboard/protocols.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "visual regression - dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4025,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T19:54:45.883Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-1acc6aca1360b2f250e3",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 72,
+              "column": 3
+            },
+            {
+              "title": "visual regression - dashboard",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 2416,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n   at fixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T19:54:45.885Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-b9b8441445ebed5309f5",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 72,
+              "column": 3
+            },
+            {
+              "title": "visual regression - dashboard",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 2705,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n   at fixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T19:54:45.884Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-0271b8a91a5f02ce97d4",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 72,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-21T19:54:38.010Z",
+    "duration": 12236.939,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

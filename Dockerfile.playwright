@@ -1,0 +1,28 @@
+# Playwright test runner Dockerfile
+FROM mcr.microsoft.com/playwright:v1.55.0-noble
+
+# Set working directory
+WORKDIR /tests
+
+# Install pnpm
+RUN npm install -g pnpm@latest
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies (including Playwright)
+RUN pnpm install --frozen-lockfile
+
+# Copy test files and configuration
+COPY playwright.config.ts ./
+COPY tests ./tests
+
+# Create directories for test results and reports
+RUN mkdir -p test-results playwright-report
+
+# Set environment variables for testing
+ENV CI=true
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# Default command to run tests
+CMD ["pnpm", "exec", "playwright", "test"]

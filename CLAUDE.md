@@ -133,3 +133,5 @@ Environment variables are validated using `env.js` with Zod schemas. Key variabl
 ## Debugging and Development Tips
 
 - Use the playwright mcp to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
+
+- NEVER consider a task completed until you have fixed ALL typescript and eslint errors in files you have modified

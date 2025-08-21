@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: fresco-test-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: fresco_test
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    volumes:
+      - test-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  # Next.js Application
+  nextjs_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.nextjs
+    container_name: fresco-test-app
+    environment:
+      # Database URLs
+      POSTGRES_PRISMA_URL: postgresql://postgres:testpassword@postgres:5432/fresco_test?pgbouncer=true&connect_timeout=15
+      POSTGRES_URL_NON_POOLING: postgresql://postgres:testpassword@postgres:5432/fresco_test?connect_timeout=15
+      
+      # Application settings
+      NODE_ENV: test
+      SKIP_ENV_VALIDATION: true
+      PUBLIC_URL: http://localhost:3000
+      DISABLE_ANALYTICS: true
+      SANDBOX_MODE: false
+      
+      # Auth settings (generate your own secrets for production)
+      NEXTAUTH_SECRET: test-secret-change-in-production
+      LUCIA_SECRET: test-lucia-secret-change-in-production
+      
+      # UploadThing settings (optional, mock for tests)
+      UPLOADTHING_TOKEN: test-token
+      UPLOADTHING_SECRET: test-secret
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - test-network
+
+  # Playwright Test Runner
+  playwright_runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.playwright
+    container_name: fresco-playwright
+    environment:
+      BASE_URL: http://nextjs_app:3000
+      CI: "true"
+      SKIP_WEBSERVER: "true"  # Don't start dev server since we use the containerized app
+    volumes:
+      # Mount test results and reports to host
+      - ./test-results:/tests/test-results
+      - ./playwright-report:/tests/playwright-report
+      - ./tests/e2e/__screenshots__:/tests/tests/e2e/__screenshots__
+    depends_on:
+      nextjs_app:
+        condition: service_healthy
+    networks:
+      - test-network
+    command: ["pnpm", "exec", "playwright", "test", "--reporter=html,line"]
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  test-postgres-data:

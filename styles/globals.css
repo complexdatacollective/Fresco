@@ -463,3 +463,23 @@
     @apply italic;
   }
 }
+
+/* Hide animated blobs during visual regression tests */
+@layer utilities {
+  /* When animations are disabled (as Playwright does), hide the background blobs */
+  .hide-during-tests,
+  .hide-during-tests * {
+    animation-duration: 0s !important;
+    animation-fill-mode: none !important;
+    transition-duration: 0s !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .hide-during-tests {
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+  }
+}
