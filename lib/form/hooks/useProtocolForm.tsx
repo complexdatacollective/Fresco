@@ -23,7 +23,7 @@ import { translateProtocolValidation } from '../utils/translateProtocolValidatio
 
 export type UseProtocolFormOptions = {
   fields: EnrichedFormField[];
-  subject?: { entity: string; type?: string };
+  subject?: { entity: string; type?: string; currentEntityId?: string };
   autoFocus?: boolean;
 };
 

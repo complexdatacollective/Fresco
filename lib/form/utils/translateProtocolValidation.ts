@@ -6,7 +6,7 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { some } from 'es-toolkit/compat';
+import { filter, some } from 'es-toolkit/compat';
 import { z } from 'zod';
 import { getNetworkEntitiesForType } from '~/lib/interviewer/selectors/session';
 import { type AppStore } from '~/lib/interviewer/store';
@@ -302,6 +302,7 @@ export function translateProtocolValidation(
             const subject = additionalContext.subject as {
               entity: string;
               type?: string;
+              currentEntityId?: string;
             };
             const store = additionalContext.store as AppStore;
             const entityType = subject?.type;
@@ -310,8 +311,13 @@ export function translateProtocolValidation(
               return true;
             }
 
-            const otherNetworkEntities = getNetworkEntitiesForType(
-              store.getState(),
+            const currentEntityId = subject?.currentEntityId;
+
+            const networkEntities = getNetworkEntitiesForType(store.getState());
+
+            const otherNetworkEntities = filter(
+              networkEntities,
+              (entity) => !currentEntityId || entity._uid !== currentEntityId,
             );
 
             // Return false if value matches existing values (validation fails)

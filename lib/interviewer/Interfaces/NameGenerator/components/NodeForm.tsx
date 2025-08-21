@@ -83,7 +83,7 @@ const NodeForm = (props: NodeFormProps) => {
     if (!selectedNode) {
       return enrichedFields;
     }
-    
+
     // Add current node attribute values to the fields
     return enrichedFields.map((field) => {
       const fieldName = field.name; // This is the variable name from enrichment
@@ -98,7 +98,10 @@ const NodeForm = (props: NodeFormProps) => {
   // Use the translation hook to convert enriched fields directly to new Field components
   const { fieldComponents, additionalContext } = useProtocolForm({
     fields: enrichedFieldsWithValues,
-    subject,
+    subject: {
+      ...subject,
+      currentEntityId: selectedNode?.[entityPrimaryKeyProperty],
+    },
     autoFocus: true,
   });
 
