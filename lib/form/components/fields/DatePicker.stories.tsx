@@ -82,6 +82,7 @@ export const Default: Story = {
         <DatePickerField
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
+          aria-label="Select Date"
         />
       </div>
     );
@@ -92,5 +93,6 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     defaultValue: '2024-01-01',
+    'aria-label': 'Disabled Date',
   },
 };

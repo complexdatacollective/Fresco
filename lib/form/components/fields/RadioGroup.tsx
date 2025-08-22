@@ -197,7 +197,8 @@ export function RadioGroupField({
         })}
         disabled={disabled}
         data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-        aria-labelledby={`${fieldId}-label`} // Important, because we don't have a <legend>
+        {...(fieldsetProps['aria-labelledby'] ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] } : {})}
+        {...(fieldsetProps['aria-label'] ? { 'aria-label': fieldsetProps['aria-label'] } : {})}
       >
         {options.map((option) => {
           const optionId = `${name}-${option.value}`;

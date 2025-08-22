@@ -62,7 +62,6 @@ export function LikertScaleField({
     };
   }, [handlePointerUp]);
 
-  // Find the index of the current value
   const currentIndex = options.findIndex((option) => option.value === value);
   const sliderValue = currentIndex >= 0 ? [currentIndex] : [0];
   const currentOption = options[currentIndex] ?? options[0];
@@ -70,7 +69,6 @@ export function LikertScaleField({
   return (
     <div className={cx('w-full', className)} {...divProps}>
       <div className="relative py-4">
-        {/* Slider container */}
         <div className="relative flex h-10 items-center">
           <Slider.Root
             className={scaleSliderStyles.root}
@@ -81,14 +79,9 @@ export function LikertScaleField({
             max={Math.max(0, options.length - 1)}
             min={0}
             step={1}
-            aria-valuemin={0}
-            aria-valuemax={Math.max(0, options.length - 1)}
-            aria-valuenow={currentIndex >= 0 ? currentIndex : undefined}
-            aria-valuetext={currentOption?.label ?? ''}
           >
             <Slider.Track className={scaleSliderStyles.track} />
 
-            {/* Tick marks */}
             {options.length > 0 && (
               <div className={scaleSliderStyles.tickContainer}>
                 {options.map((_, index) => (
@@ -115,7 +108,6 @@ export function LikertScaleField({
           </Slider.Root>
         </div>
 
-        {/* Labels positioned below ticks */}
         <div className="relative mt-2">
           {options.map((option, index) => {
             const isFirst = index === 0;

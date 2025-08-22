@@ -78,6 +78,7 @@ export const Default: Story = {
           after={30}
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          aria-label="Select Relative Date"
         />
       </div>
     );
@@ -89,5 +90,6 @@ export const Disabled: Story = {
     disabled: true,
     before: 30,
     after: 30,
+    'aria-label': 'Disabled Relative Date',
   },
 };

@@ -52,6 +52,7 @@ export const Default: Story = {
         <ToggleField
           value={value}
           onChange={setValue}
+          aria-label="Enable Option"
         />
       </div>
     );
@@ -62,5 +63,6 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     value: true,
+    'aria-label': 'Disabled Toggle',
   },
 };

@@ -45,6 +45,7 @@ export const Default: Story = {
   args: {
     name: 'example',
     options,
+    'aria-label': 'Select Options',
   },
 };
 
@@ -53,6 +54,7 @@ export const Horizontal: Story = {
     name: 'horizontal',
     options,
     orientation: 'horizontal',
+    'aria-label': 'Horizontal Options',
   },
 };
 
@@ -61,6 +63,7 @@ export const WithDefaultValue: Story = {
     name: 'default-value',
     options,
     defaultValue: ['option1', 'option3'],
+    'aria-label': 'Pre-selected Options',
   },
 };
 
@@ -69,6 +72,7 @@ export const Small: Story = {
     name: 'small',
     options,
     size: 'sm',
+    'aria-label': 'Small Size Options',
   },
 };
 
@@ -77,6 +81,7 @@ export const Large: Story = {
     name: 'large',
     options,
     size: 'lg',
+    'aria-label': 'Large Size Options',
   },
 };
 
@@ -86,6 +91,7 @@ export const Disabled: Story = {
     options,
     disabled: true,
     defaultValue: ['option1'],
+    'aria-label': 'Disabled Options',
   },
 };
 
@@ -98,14 +104,16 @@ export const DisabledOptions: Story = {
       { value: 'enabled2', label: 'Another Enabled Option' },
       { value: 'disabled2', label: 'Another Disabled Option', disabled: true },
     ],
+    'aria-label': 'Mixed Disabled Options',
   },
 };
 
 export const Invalid: Story = {
   args: {
-    'name': 'invalid',
+    name: 'invalid',
     options,
     'aria-invalid': 'true',
+    'aria-label': 'Invalid State Options',
   },
 };
 
@@ -113,6 +121,7 @@ export const LongLabels: Story = {
   args: {
     name: 'long-labels',
     options: longLabelOptions,
+    'aria-label': 'Long Label Options',
   },
 };
 
@@ -121,6 +130,7 @@ export const LongLabelsHorizontal: Story = {
     name: 'long-labels-horizontal',
     options: longLabelOptions,
     orientation: 'horizontal',
+    'aria-label': 'Long Labels Horizontal',
   },
 };
 
@@ -131,6 +141,7 @@ export const ManyOptions: Story = {
       value: `option${i + 1}`,
       label: `Option ${i + 1}`,
     })),
+    'aria-label': 'Many Options',
   },
 };
 
@@ -142,6 +153,7 @@ export const ManyOptionsHorizontal: Story = {
       label: `Option ${i + 1}`,
     })),
     orientation: 'horizontal',
+    'aria-label': 'Many Options Horizontal',
   },
 };
 
@@ -153,5 +165,6 @@ export const PreSelected: Story = {
       label: `Option ${i + 1}`,
     })),
     defaultValue: ['option2', 'option4'],
+    'aria-label': 'Pre-selected Options',
   },
 };
