@@ -6,7 +6,7 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { filter, some } from 'es-toolkit/compat';
+import { filter, isEqual, some } from 'es-toolkit/compat';
 import { z } from 'zod';
 import { getNetworkEntitiesForType } from '~/lib/interviewer/selectors/session';
 import { type AppStore } from '~/lib/interviewer/store';
@@ -14,92 +14,6 @@ import type { AdditionalContext, ValidationContext } from '../types';
 import type { EnrichedFormField } from '../types/fields';
 
 type FieldValue = VariableValue | undefined;
-
-/**
- * Compares two FieldValue types to determine if they match.
- * Handles various types including primitives, arrays, objects, coordinates, and null/undefined.
- *
- * @param submittedValue - The value being submitted or compared
- * @param existingValue - The value to compare against
- * @returns true if the values match, false otherwise
- */
-const isMatchingValue = (
-  submittedValue: FieldValue,
-  existingValue: FieldValue,
-): boolean => {
-  // If both values are strictly equal, they match
-  if (submittedValue === existingValue) {
-    return true;
-  }
-
-  // Handle null and undefined cases
-  if (
-    submittedValue === null ||
-    submittedValue === undefined ||
-    existingValue === null ||
-    existingValue === undefined
-  ) {
-    return submittedValue === existingValue;
-  }
-
-  // Handle arrays
-  if (Array.isArray(submittedValue) && Array.isArray(existingValue)) {
-    // Different length arrays don't match
-    if (submittedValue.length !== existingValue.length) {
-      return false;
-    }
-
-    // Check if every element matches
-    return submittedValue.every((val, index) => {
-      return isMatchingValue(val, existingValue[index]);
-    });
-  }
-
-  // Handle coordinate objects {x, y}
-  if (
-    typeof submittedValue === 'object' &&
-    typeof existingValue === 'object' &&
-    'x' in submittedValue &&
-    'y' in submittedValue &&
-    'x' in existingValue &&
-    'y' in existingValue
-  ) {
-    return (
-      submittedValue.x === existingValue.x &&
-      submittedValue.y === existingValue.y
-    );
-  }
-
-  // Handle record objects
-  if (
-    typeof submittedValue === 'object' &&
-    typeof existingValue === 'object' &&
-    !Array.isArray(submittedValue) &&
-    !Array.isArray(existingValue)
-  ) {
-    const submittedKeys = Object.keys(submittedValue);
-    const existingKeys = Object.keys(existingValue);
-
-    // Different number of keys means they don't match
-    if (submittedKeys.length !== existingKeys.length) {
-      return false;
-    }
-
-    // Check if all keys exist in both objects and have matching values
-    return submittedKeys.every((key) => {
-      return (
-        key in existingValue &&
-        isMatchingValue(
-          (submittedValue as Record<string, FieldValue>)[key],
-          (existingValue as Record<string, FieldValue>)[key],
-        )
-      );
-    });
-  }
-
-  // For primitives and other cases, use strict equality
-  return submittedValue === existingValue;
-};
 
 const isSomeValueMatching = (
   value: FieldValue,
@@ -110,7 +24,7 @@ const isSomeValueMatching = (
     otherNetworkEntities,
     (entity) =>
       entity[entityAttributesProperty] &&
-      isMatchingValue(value, entity[entityAttributesProperty][name]),
+      isEqual(value, entity[entityAttributesProperty][name]),
   );
 
 /**

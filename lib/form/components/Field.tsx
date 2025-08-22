@@ -62,10 +62,18 @@ export default function Field<
   Component: TComponent;
 } & BaseFieldProps &
   Omit<TComponentProps, UseFieldKeys>) {
+  // Determine if field is required from validation
+  const isRequired = validation ? (
+    typeof validation === 'function' 
+      ? false // Can't determine from function, default to false
+      : !validation.isOptional()
+  ) : false;
+
   const { id, meta, fieldProps, containerProps } = useField({
     name,
     initialValue,
     validation,
+    required: isRequired,
   });
 
   const FieldComponent = Component as ElementType;

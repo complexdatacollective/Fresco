@@ -24,7 +24,9 @@ export type UseFieldConfig = {
   id: string;
   meta: {
     shouldShowError: boolean;
-    errors: (string | { message: string; params?: Record<string, unknown> })[] | null;
+    errors:
+      | (string | { message: string; params?: Record<string, unknown> })[]
+      | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
@@ -37,6 +39,7 @@ export type UseFieldConfig = {
     'value': FieldValue;
     'onChange': ChangeHandler; // Handles both direct value changes and event-based changes
     'onBlur': () => void;
+    'aria-required': boolean; // Indicates if the field is required
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
   };
@@ -151,7 +154,7 @@ export function useField(config: {
       'value': controlledValue,
       'onChange': handleChange,
       'onBlur': handleBlur,
-      // 'aria-required': true, // TODO: find a way to set this based on the validation config.
+      'aria-required': config.required ?? false,
       'aria-invalid': shouldShowError && !fieldState?.meta.isValid,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.

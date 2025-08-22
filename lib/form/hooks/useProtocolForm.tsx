@@ -74,7 +74,7 @@ function extractAdditionalProps(
   if (
     (fieldType === 'CheckboxGroup' || fieldType === 'RadioGroup') &&
     field.options &&
-    field.options.length > 3 // todo: decide what this should be?
+    field.options.length > 6
   ) {
     props.useColumns ??= true;
   }
@@ -82,15 +82,6 @@ function extractAdditionalProps(
   // Handle number inputs
   if (field.type === 'number' || fieldType === 'Number') {
     props.type = 'number';
-  }
-
-  // Handle date inputs
-  if (
-    field.type === 'datetime' ||
-    fieldType === 'DatePicker' ||
-    fieldType === 'RelativeDatePicker'
-  ) {
-    props.type = 'date';
   }
 
   if (field.type === 'scalar') {

@@ -24,7 +24,7 @@ type FormProps = {
 
 export default function Form(props: FormProps) {
   const id = useId();
-  const { onSubmit, initialValues, additionalContext, children, ...rest } = props;
+  const { onSubmit, additionalContext, children, ...rest } = props;
 
   const { formProps, formErrors } = useForm({
     onSubmit,

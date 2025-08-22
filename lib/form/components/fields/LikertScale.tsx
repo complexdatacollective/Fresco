@@ -35,8 +35,7 @@ export function LikertScaleField({
   id: _id,
   ...divProps
 }: LikertScaleFieldProps) {
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [showTooltip, setShowTooltip] = React.useState(false);
+  const [showTooltipState, setShowTooltipState] = React.useState(false);
 
   const handleValueChange = (newValue: number[]) => {
     const index = newValue[0];
@@ -49,13 +48,11 @@ export function LikertScaleField({
   };
 
   const handlePointerDown = () => {
-    setIsDragging(true);
-    setShowTooltip(true);
+    setShowTooltipState(true);
   };
 
   const handlePointerUp = React.useCallback(() => {
-    setIsDragging(false);
-    setShowTooltip(false);
+    setShowTooltipState(false);
   }, []);
 
   React.useEffect(() => {
@@ -84,6 +81,10 @@ export function LikertScaleField({
             max={Math.max(0, options.length - 1)}
             min={0}
             step={1}
+            aria-valuemin={0}
+            aria-valuemax={Math.max(0, options.length - 1)}
+            aria-valuenow={currentIndex >= 0 ? currentIndex : undefined}
+            aria-valuetext={currentOption?.label ?? ''}
           >
             <Slider.Track className={scaleSliderStyles.track} />
 
@@ -97,14 +98,13 @@ export function LikertScaleField({
             )}
 
             <TooltipProvider>
-              <Tooltip open={showTooltip}>
+              <Tooltip open={showTooltipState}>
                 <TooltipTrigger asChild className="pointer-events-none">
                   <Slider.Thumb
                     className={scaleSliderStyles.thumb}
-                    data-dragging={isDragging}
-                    aria-label="Likert scale value"
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => !isDragging && setShowTooltip(false)}
+                    aria-label={`Select value on scale: ${currentOption?.label ?? 'No selection'}`}
+                    onMouseEnter={() => setShowTooltipState(true)}
+                    onMouseLeave={() => setShowTooltipState(false)}
                   />
                 </TooltipTrigger>
                 <TooltipContent>

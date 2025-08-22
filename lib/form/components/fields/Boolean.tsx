@@ -35,11 +35,12 @@ const buttonNegativeStyles = cx('border-destructive border-2');
 
 const buttonUnselectedStyles = cx('border-border');
 
-type BooleanFieldProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
+type BooleanFieldProps = Omit<HTMLAttributes<HTMLFieldSetElement>, 'onChange'> & {
   value?: boolean | null;
   onChange?: (value: boolean | null) => void;
   disabled?: boolean;
   noReset?: boolean;
+  label?: string; // Optional label for fieldset legend
   options?: {
     label: string;
     value: boolean;
@@ -52,6 +53,7 @@ export function BooleanField({
   onChange,
   disabled = false,
   noReset = false,
+  label,
   options = [
     { label: 'Yes', value: true },
     { label: 'No', value: false },
@@ -59,7 +61,8 @@ export function BooleanField({
   ...divProps
 }: BooleanFieldProps) {
   return (
-    <div className={cx('w-full space-y-2', className)} {...divProps}>
+    <fieldset className={cx('w-full space-y-2 border-0 p-0', className)} {...divProps}>
+      {label && <legend className="sr-only">{label}</legend>}
       <div className="flex gap-2">
         {options.map((option) => {
           const isSelected = value === option.value;
@@ -113,6 +116,6 @@ export function BooleanField({
           Reset answer
         </button>
       )}
-    </div>
+    </fieldset>
   );
 }
