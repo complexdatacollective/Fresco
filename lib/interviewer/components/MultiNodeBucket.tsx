@@ -2,14 +2,34 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useMemo, useState } from 'react';
-import { DragSource } from '../behaviours/DragAndDrop';
-import { NO_SCROLL } from '../behaviours/DragAndDrop/DragManager';
+import { useDragSource } from '~/lib/dnd';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import Node from './Node';
 import { NodeTransition } from './NodeList';
 
-const EnhancedNode = DragSource(Node);
+// Draggable wrapper for Node component
+const DraggableNode = memo(({ node, itemType, allowDrag, ...nodeProps }: { 
+  node: NcNode; 
+  itemType: string; 
+  allowDrag: boolean;
+  [key: string]: unknown;
+}) => {
+  const { dragProps } = useDragSource({
+    type: 'node',
+    metadata: { ...node, itemType },
+    announcedName: `Node ${node.type}`,
+    disabled: !allowDrag,
+  });
+
+  return (
+    <div {...dragProps}>
+      <Node {...node} {...nodeProps} />
+    </div>
+  );
+});
+
+DraggableNode.displayName = 'DraggableNode';
 
 type MultiNodeBucketProps = {
   nodes: NcNode[];
@@ -51,11 +71,10 @@ const MultiNodeBucket = memo(
               key={`${node[entityPrimaryKeyProperty]}_${index}`}
               delay={stagger ? index * 0.05 : 0}
             >
-              <EnhancedNode
+              <DraggableNode
+                node={node}
+                itemType={itemType}
                 allowDrag={index === 0}
-                meta={() => ({ ...node, itemType })}
-                scrollDirection={NO_SCROLL}
-                {...node}
               />
             </NodeTransition>
           ))}

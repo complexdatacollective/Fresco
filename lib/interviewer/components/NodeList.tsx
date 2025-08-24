@@ -1,24 +1,56 @@
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { compose } from '@reduxjs/toolkit';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { find } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
-import { cn } from '~/utils/shadcn';
 import {
-  DragSource,
-  DropTarget,
-  MonitorDragSource,
-  MonitorDropTarget,
-} from '../behaviours/DragAndDrop';
+  useDndStore,
+  useDragSource,
+  useDropTarget,
+  type DndStore,
+} from '~/lib/dnd';
+import { cn } from '~/utils/shadcn';
 import scrollable from '../behaviours/scrollable';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
-const EnhancedNode = DragSource(MotionNode);
+type DraggableMotionNodeProps = {
+  node: NcNode;
+  itemType: string;
+  allowDrag: boolean;
+  [key: string]: unknown;
+};
 
-export const NodeTransition = ({ children, delay, exit = false }) => (
+// DraggableMotionNode component that wraps MotionNode with drag functionality
+const DraggableMotionNode = memo(
+  ({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
+    const { dragProps } = useDragSource({
+      type: 'node',
+      metadata: { ...node, itemType },
+      announcedName: `Node ${node.type}`,
+      disabled: !allowDrag,
+    });
+
+    return (
+      <div {...dragProps}>
+        <MotionNode {...node} {...nodeProps} />
+      </div>
+    );
+  },
+);
+
+DraggableMotionNode.displayName = 'DraggableMotionNode';
+
+export const NodeTransition = ({
+  children,
+  delay,
+  exit = false,
+}: {
+  children: ReactNode;
+  delay: number;
+  exit?: boolean;
+}) => (
   <motion.div
     layout
     initial={{ opacity: 0, y: '20%' }}
@@ -47,18 +79,44 @@ const nodeVariants = {
   animate: { opacity: 1, y: 0, scale: 1 },
 };
 
+type NodeListProps = {
+  disableDragNew?: boolean;
+  items?: NcNode[];
+  itemType?: string;
+  hoverColor?: string;
+  onItemClick?: (node: NcNode) => void;
+  id?: string;
+  accepts?: (data: unknown) => boolean;
+  onDrop?: (data: { meta: unknown }) => void;
+};
+
 const NodeList = memo(
   ({
     disableDragNew,
     items = [],
     itemType = 'NODE',
-    isOver,
-    willAccept,
-    meta = {},
     hoverColor,
     onItemClick = () => undefined,
-  }) => {
+    id,
+    accepts: _accepts,
+    onDrop,
+  }: NodeListProps) => {
     const stageId = useSelector(getCurrentStageId);
+
+    // Use new DND hooks
+    const { dropProps, isOver, willAccept } = useDropTarget({
+      id: id ?? 'node-list',
+      accepts: ['node'],
+      announcedName: 'Node list',
+      onDrop: (metadata) => {
+        if (onDrop) {
+          onDrop({ meta: metadata });
+        }
+      },
+    });
+
+    const dragItem = useDndStore((state: DndStore) => state.dragItem);
+    const meta = (dragItem?.metadata as NcNode) ?? ({} as NcNode);
 
     const isSource = !!find(items, [
       entityPrimaryKeyProperty,
@@ -70,33 +128,34 @@ const NodeList = memo(
 
     const classNames = cn(
       'flex flex-wrap justify-center min-h-full w-full transition-background duration-300 content-start rounded-md',
+      // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
+      items.length === 0 && 'min-h-[800px] min-w-[300px]',
       willAccept && 'bg-[var(--nc-node-list-action-bg)]',
       isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
     );
 
     return (
       <motion.div
+        {...dropProps}
         className={classNames}
         variants={nodeListVariants}
         layout
         key="node-list"
       >
-        <AnimatePresence mode="popLayout">
-          {items.map((node) => {
+        <AnimatePresence mode="sync">
+          {items.map((node: NcNode) => {
             const isDraggable = !disableDragNew || node.stageId === stageId; // Always allow dragging if the node was created on this stage
             return (
               <motion.div
                 key={node[entityPrimaryKeyProperty]}
                 variants={nodeVariants}
-                exit={{ scale: 0 }}
               >
-                <EnhancedNode
-                  layout
-                  allowDrag={isDraggable}
-                  meta={() => ({ ...node, itemType })}
+                <DraggableMotionNode
+                  node={node}
                   itemType={itemType}
+                  allowDrag={isDraggable}
+                  layout
                   onClick={() => onItemClick(node)}
-                  {...node}
                 />
               </motion.div>
             );
@@ -105,15 +164,9 @@ const NodeList = memo(
       </motion.div>
     );
   },
-  (prevProps, nextProps) => {
-    // only re-render if items change, or if isOver, or willAccept change, or click handler changes
+  (prevProps: NodeListProps, nextProps: NodeListProps) => {
+    // only re-render if items change, or click handler changes
     if (prevProps.onItemClick !== nextProps.onItemClick) {
-      return false;
-    }
-    if (prevProps.isOver !== nextProps.isOver) {
-      return false;
-    }
-    if (prevProps.willAccept !== nextProps.willAccept) {
       return false;
     }
     if (!isEqual(prevProps.items, nextProps.items)) {
@@ -126,9 +179,4 @@ const NodeList = memo(
 
 NodeList.displayName = 'NodeList';
 
-export default compose(
-  DropTarget,
-  MonitorDropTarget(['isOver', 'willAccept']),
-  MonitorDragSource(['meta', 'isDragging']),
-  scrollable,
-)(NodeList);
+export default scrollable(NodeList);
