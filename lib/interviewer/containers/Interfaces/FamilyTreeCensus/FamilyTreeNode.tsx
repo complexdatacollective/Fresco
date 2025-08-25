@@ -4,7 +4,7 @@ import { useNodeLabel } from '../Anonymisation/useNodeLabel';
 
 const genderColors: Record<string, string> = {
   male: 'neon-coral',
-  female: 'sea-green',
+  female: 'neon-coral',
 };
 const genderShapes: Record<string, string> = {
   male: 'square',
@@ -13,6 +13,7 @@ const genderShapes: Record<string, string> = {
 
 export type PlaceholderNodeProps = {
   id: string;
+  isEgo: boolean;
   networkNode?: NcNode;
   gender: string;
   label: string;
@@ -25,6 +26,7 @@ export type PlaceholderNodeProps = {
 };
 export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
   const {
+    isEgo,
     gender,
     label,
     xPos = 0,
@@ -35,6 +37,7 @@ export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
   return (
     <UINode
       key={`${xPos}-${yPos}`}
+      isEgo={isEgo}
       color={genderColors[gender]}
       label={label}
       shape={genderShapes[gender]}
@@ -48,6 +51,7 @@ export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
 export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
   const {
     networkNode,
+    isEgo,
     gender,
     xPos = 0,
     yPos = 0,
@@ -57,6 +61,7 @@ export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
   return (
     <UINode
       key={`${xPos}-${yPos}`}
+      isEgo={isEgo}
       color={genderColors[gender]}
       label={useNodeLabel(networkNode!)}
       shape={genderShapes[gender]}

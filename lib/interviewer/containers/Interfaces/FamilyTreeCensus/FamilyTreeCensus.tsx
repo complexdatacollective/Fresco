@@ -127,9 +127,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const createNode = (
       gender: string,
       label: string,
+      isEgo: boolean,
     ): PlaceholderNodeProps => {
       return {
         id: crypto.randomUUID(),
+        isEgo,
         gender,
         label,
         parentIds: [],
@@ -140,8 +142,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     };
 
     // Helper to add node and push to tempNodes array
-    const addNode = (gender: string, label: string) => {
-      const node = createNode(gender, label);
+    const addNode = (gender: string, label: string, isEgo = false) => {
+      const node = createNode(gender, label, isEgo);
       tempNodes.push(node);
       return node;
     };
@@ -175,13 +177,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       paternalGrandmother.id ?? '',
     );
 
-    const ego = addNode('female', 'self');
+    const ego = addNode('female', 'self', true);
     setEgoNodeId(ego.id);
     father.childIds?.push(ego.id ?? '');
     mother.childIds?.push(ego.id ?? '');
     ego.parentIds?.push(father.id ?? '', mother.id ?? '');
 
-    const partner = addNode('male', 'spouse');
+    const partner = addNode('male', 'partner');
     ego.partnerId = partner.id;
     partner.partnerId = ego.id;
 
@@ -474,6 +476,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               <FamilyTreeNode
                 key={crypto.randomUUID()}
                 id={node.id}
+                isEgo={node.isEgo}
                 gender={node.gender}
                 label={node.label}
                 xPos={node.xPos}
@@ -552,6 +555,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   <FamilyTreeNodeNetworkBacked
                     key={node.id}
                     id={node.id}
+                    isEgo={node.isEgo}
                     gender={node.gender}
                     label={node.label}
                     xPos={node.xPos}
@@ -565,6 +569,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   <FamilyTreeNode
                     key={crypto.randomUUID()}
                     id={node.id}
+                    isEgo={node.isEgo}
                     gender={node.gender}
                     label={node.label}
                     xPos={node.xPos}

@@ -21,9 +21,16 @@ const FamilyTreePartnerConnector = forwardRef<
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
         <line
           x1={xStartPos}
-          y1={yPos}
+          y1={yPos - 5}
           x2={xEndPos}
-          y2={yPos}
+          y2={yPos - 5}
+          stroke="#807ea1"
+        />
+        <line
+          x1={xStartPos}
+          y1={yPos + 5}
+          x2={xEndPos}
+          y2={yPos + 5}
           stroke="#807ea1"
         />
       </svg>

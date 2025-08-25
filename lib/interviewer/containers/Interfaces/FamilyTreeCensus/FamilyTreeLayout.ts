@@ -1,7 +1,11 @@
+const DEBUG_LAYER = 3;
+
 type FamilyTreeMember = {
   id: string;
+  isEgo: boolean;
   gender: string;
   partnerId?: string;
+  exPartnerId?: string;
   parentIds?: string[];
   childIds?: string[];
   xPos?: number;
@@ -35,6 +39,8 @@ class FamilyTreeLayout {
     this.nodes = nodes.map((node) => ({ ...node }));
     this.spacing = spacing;
     this.couples = this.collectCouples();
+    console.log('all couple ids');
+    console.log(this.couples);
     this.layerGroups = new Map();
     this.assignLayers();
     this.orderLayerGroups();
@@ -52,9 +58,20 @@ class FamilyTreeLayout {
     return this.nodes.find((node) => partnerNode.partnerId == node.id) ?? null;
   }
 
+  exPartnerOf(partnerNode: FamilyTreeMember): FamilyTreeMember | null {
+    return (
+      this.nodes.find((node) => partnerNode.exPartnerId == node.id) ?? null
+    );
+  }
+
   // returns the partner's node id if it exists
   partnerId(partnerNodeId: string) {
     return this.nodeById(partnerNodeId)?.partnerId;
+  }
+
+  // returns the ex partner's node id if it exists
+  exPartnerId(partnerNodeId: string) {
+    return this.nodeById(partnerNodeId)?.exPartnerId;
   }
 
   parents(childNodeId: string) {
@@ -96,6 +113,10 @@ class FamilyTreeLayout {
       const partner = this.partnerOf(node);
       if (node?.id && partner?.id) {
         coupleIds.add(this.coupleId(node.id, partner.id));
+      }
+      const exPartner = this.exPartnerOf(node);
+      if (node?.id && exPartner?.id) {
+        coupleIds.add(this.coupleId(node.id, exPartner.id));
       }
     });
 
@@ -144,6 +165,7 @@ class FamilyTreeLayout {
 
   // designate a layer number for each node
   // layer 0 is the layer with no parents
+  // (and not partner or ex-partner in another layer)
   assignLayers() {
     const queue: { nodeId: string; layer: number }[] = [];
 
@@ -232,13 +254,33 @@ class FamilyTreeLayout {
         if (placed.has(nodeId)) return;
         const node = this.nodeById(nodeId);
         const partnerId = this.partnerId(nodeId);
-
-        if (partnerId) {
-          // order each couple by female, male
-          const couple: string[] =
-            node?.gender === 'male' ? [partnerId, nodeId] : [nodeId, partnerId];
-          const leftParentsId = this.parentsId(couple[0]);
-          const rightParentsId = this.parentsId(couple[1]);
+        const exPartnerId = this.exPartnerId(nodeId);
+        if (layer == DEBUG_LAYER)
+          console.log(
+            `node id: ${nodeId}, partner id: ${partnerId}, ex partner id: ${exPartnerId}`,
+          );
+        let couple: string[] = [];
+        if (partnerId || exPartnerId) {
+          // order each couple by sex
+          if (partnerId) {
+            couple =
+              node?.gender === 'male'
+                ? [partnerId, nodeId]
+                : [nodeId, partnerId];
+            placed.add(partnerId);
+          } else if (exPartnerId) {
+            couple =
+              node?.gender === 'female'
+                ? [exPartnerId, nodeId]
+                : [nodeId, exPartnerId];
+            placed.add(exPartnerId);
+          }
+          let leftParentsId = this.parentsId(couple[0]);
+          let rightParentsId = this.parentsId(couple[1]);
+          leftParentsId =
+            leftParentsId === '|' ? rightParentsId : leftParentsId;
+          rightParentsId =
+            rightParentsId === '|' ? leftParentsId : rightParentsId;
           if (couples.get(leftParentsId) == null) {
             couples.set(leftParentsId, []);
           }
@@ -246,21 +288,27 @@ class FamilyTreeLayout {
             couples.set(rightParentsId, []);
           }
           const coupleData = {
-            coupleId: this.coupleId(nodeId, partnerId),
+            coupleId: this.coupleId(couple[0], couple[1]),
             leftPartnerId: couple[0],
             leftParentsId: leftParentsId,
             rightPartnerId: couple[1],
             rightParentsId: rightParentsId,
           };
+          if (layer == DEBUG_LAYER) console.log('couple data');
+          if (layer == DEBUG_LAYER) console.log(coupleData);
           couples.get(leftParentsId)?.push(coupleData);
           if (
             parentIds.includes(rightParentsId) &&
             !parentIds.includes(leftParentsId)
           ) {
             // insert left parents id before right parents id
+            if (layer == DEBUG_LAYER)
+              console.log(`insert ${leftParentsId} before ${rightParentsId}`);
             const targetIndex = parentIds.indexOf(rightParentsId);
             parentIds.splice(targetIndex, 0, leftParentsId);
           } else if (!parentIds.includes(leftParentsId)) {
+            if (layer == DEBUG_LAYER)
+              console.log(`insert left at end of parent ids`);
             parentIds.push(leftParentsId);
           }
           if (rightParentsId !== leftParentsId) {
@@ -270,14 +318,18 @@ class FamilyTreeLayout {
               !parentIds.includes(rightParentsId)
             ) {
               // insert right parents id after left parents id
+              if (layer == DEBUG_LAYER)
+                console.log(`insert after ${leftParentsId}`);
               const targetIndex = parentIds.indexOf(leftParentsId);
               parentIds.splice(targetIndex + 1, 0, rightParentsId);
             } else if (!parentIds.includes(rightParentsId)) {
+              if (layer == DEBUG_LAYER)
+                console.log(`insert right at end of parent ids`);
               parentIds.push(rightParentsId);
             }
           }
-          placed.add(partnerId);
         } else {
+          // solo: no partner or ex partner
           const parentsId = this.parentsId(nodeId);
           if (solos.get(parentsId) == null) solos.set(parentsId, []);
           solos.get(parentsId)?.push(nodeId);
@@ -289,8 +341,11 @@ class FamilyTreeLayout {
       const placedCouples = new Set<string>();
       // parentIds captures the order of parents of this layer's members
       const orderedParentIds = new Set<string>();
+      if (layer == DEBUG_LAYER) console.log(`all layer couples for ${layer}`);
+      if (layer == DEBUG_LAYER) console.log(couples);
       // add solo and couple members in order of parent id
       parentIds.forEach((id) => {
+        if (layer == DEBUG_LAYER) console.log(`parent id ${id}`);
         // add solo members first
         orderedNodesAtLayer.push(...(solos.get(id) ?? []));
         orderedParentIds.add(id);
@@ -319,15 +374,43 @@ class FamilyTreeLayout {
           });
         });
         // add any remaining couples that don't have children
+        if (layer == DEBUG_LAYER)
+          console.log(`childless related couples to ${id}`);
+        if (layer == DEBUG_LAYER) console.log(relatedCouples);
         relatedCouples?.forEach((couple) => {
           if (placedCouples.has(couple.coupleId)) return;
-          orderedNodesAtLayer.push(couple.leftPartnerId, couple.rightPartnerId);
+          let targetIndex: number;
+          if (
+            (targetIndex = orderedNodesAtLayer.indexOf(couple.leftPartnerId)) !=
+            -1
+          ) {
+            // left partner is an ex
+            orderedNodesAtLayer.splice(
+              targetIndex + 1,
+              0,
+              couple.rightPartnerId,
+            );
+          } else if (
+            (targetIndex = orderedNodesAtLayer.indexOf(
+              couple.rightPartnerId,
+            )) != -1
+          ) {
+            // right partner is an ex
+            orderedNodesAtLayer.splice(targetIndex, 0, couple.leftPartnerId);
+          } else {
+            // neither partner is an ex
+            orderedNodesAtLayer.push(
+              couple.leftPartnerId,
+              couple.rightPartnerId,
+            );
+          }
           placedCouples.add(couple.coupleId);
           orderedParentIds.add(couple.leftParentsId);
         });
       });
       lastLevelParentIds = orderedParentIds;
       this.layerGroups.set(layer, orderedNodesAtLayer);
+      if (layer == DEBUG_LAYER) console.log(orderedNodesAtLayer);
     });
   }
 
