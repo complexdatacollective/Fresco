@@ -17,7 +17,7 @@ const FamilyTreeOffspringConnector = forwardRef<
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
         <line
           x1={xPos}
-          y1={yStartPos}
+          y1={yStartPos + 5}
           x2={xPos}
           y2={yEndPos}
           stroke="#807ea1"
