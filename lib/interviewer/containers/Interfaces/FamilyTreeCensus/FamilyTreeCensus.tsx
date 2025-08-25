@@ -15,10 +15,10 @@ import { type RootState, useAppDispatch } from '../../../store';
 import Form from '../../Form';
 import { type StageProps } from '../../Stage';
 import CensusStep2Form from './CensusStep2Form';
+import FamilyTreeLayout from './FamilyTreeLayout';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { FamilyTreeNode, FamilyTreeNodeNetworkBacked } from './FamilyTreeNode';
 import FamilyTreeNodeForm from './FamilyTreeNodeForm';
-import TreeLayout from './TreeLayout';
 import useFamilyTreeNodes from './useFamilyTreeNodes';
 
 type FamilyTreeCensusProps = StageProps & {
@@ -57,9 +57,16 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       childIds: [...(n.childIds ?? [])],
     }));
 
-    const layout = new TreeLayout(cloned);
+    const layout = new FamilyTreeLayout(cloned, {
+      startX: 200,
+      startY: 100,
+      siblings: 150,
+      partners: 120,
+      generations: 180,
+    });
 
-    return layout.arrangeNodes({ xOffset: 100, yOffset: 100 });
+    //return layout.arrangeNodes({ xOffset: 100, yOffset: 100 });
+    return layout.nodes;
   }
 
   const elementRef = useRef(null);
@@ -250,8 +257,15 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     // Now layout the nodes
     const xOffset = 100; // account for the scrollbar
     const yOffset = 100; // account for the navbar
-    const treeLayout = new TreeLayout(tempNodes);
-    treeLayout.arrangeNodes({ xOffset, yOffset });
+    //const treeLayout = new TreeLayout(tempNodes);
+    //treeLayout.arrangeNodes({ xOffset, yOffset });
+    const treeLayout = new FamilyTreeLayout(tempNodes, {
+      startX: 200,
+      startY: 100,
+      siblings: 150,
+      partners: 120,
+      generations: 180,
+    });
 
     // Update positions after layout
     const updatedNodes = tempNodes.map((node) => {
@@ -425,7 +439,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     2
                   }
                   yStartPos={node.yPos ?? 0}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 10}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30}
                 />
               )
             );
@@ -502,7 +516,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     2
                   }
                   yStartPos={node.yPos ?? 0}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 10}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30}
                 />
               )
             );

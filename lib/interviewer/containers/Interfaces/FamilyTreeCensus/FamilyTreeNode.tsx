@@ -12,7 +12,7 @@ const genderShapes: Record<string, string> = {
 };
 
 export type PlaceholderNodeProps = {
-  id?: string;
+  id: string;
   networkNode?: NcNode;
   gender: string;
   label: string;
