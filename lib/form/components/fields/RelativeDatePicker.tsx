@@ -1,12 +1,9 @@
 'use client';
 
-import { type InputHTMLAttributes } from 'react';
-import { InputField } from './Input';
+import { DatePicker, type DatePickerProps } from './DatePicker/DatePicker';
+import { type DateRange } from './DatePicker/helpers';
 
-type RelativeDatePickerFieldProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'min' | 'max' | 'size'
-> & {
+type RelativeDatePickerFieldProps = Omit<DatePickerProps, 'range' | 'minDate' | 'maxDate'> & {
   anchor?: string; // ISO date string
   before?: number; // days before anchor
   after?: number; // days after anchor
@@ -40,11 +37,25 @@ export function RelativeDatePickerField({
   const minDate = addDays(anchorDate, -before);
   const maxDate = addDays(anchorDate, after);
 
+  // Create range for the DatePicker
+  const range: DateRange = {
+    start: {
+      year: minDate.getFullYear(),
+      month: minDate.getMonth() + 1,
+      day: minDate.getDate(),
+    },
+    end: {
+      year: maxDate.getFullYear(),
+      month: maxDate.getMonth() + 1,
+      day: maxDate.getDate(),
+    },
+  };
+
   return (
-    <InputField
-      type="date"
-      min={formatDateForInput(minDate)}
-      max={formatDateForInput(maxDate)}
+    <DatePicker
+      range={range}
+      minDate={formatDateForInput(minDate)}
+      maxDate={formatDateForInput(maxDate)}
       {...datePickerProps}
     />
   );
