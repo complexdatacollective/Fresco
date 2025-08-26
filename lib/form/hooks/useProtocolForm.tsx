@@ -2,7 +2,8 @@
 
 import type { ComponentType } from '@codaco/protocol-validation';
 import { useMemo } from 'react';
-import { useStore } from 'react-redux';
+import { useSelector, useStore } from 'react-redux';
+import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import type { AppStore } from '~/lib/interviewer/store';
 import Field from '../components/Field';
 import { BooleanField } from '../components/fields/Boolean';
@@ -117,14 +118,17 @@ export function useProtocolForm({
   // Get the store instance for validation context
   const storeInstance = useStore() as AppStore;
 
+  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
+
   // Build additional context for validation functions
   const additionalContext = useMemo(
     () => ({
       subject,
       store: storeInstance,
+      codebookVariables,
       ...(subject && { entity: subject.entity, entityType: subject.type }),
     }),
-    [subject, storeInstance],
+    [subject, storeInstance, codebookVariables],
   );
 
   // Generate field components

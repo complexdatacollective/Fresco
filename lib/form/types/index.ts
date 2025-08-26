@@ -1,3 +1,4 @@
+import { type Variable } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
 import { z } from 'zod';
 
@@ -60,6 +61,7 @@ export type AdditionalContext = {
   store?: unknown;
   entity?: string;
   entityType?: string;
+  codebookVariables?: Record<string, Variable>;
 };
 
 /**

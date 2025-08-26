@@ -1,7 +1,4 @@
 import { TriangleAlert } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
-import { get } from 'es-toolkit/compat';
 
 /**
  * Render field errors.
@@ -15,22 +12,18 @@ export default function FieldErrors({
   show,
 }: {
   id: string;
-  errors: (string | { message: string; params?: Record<string, unknown> })[] | null;
+  errors:
+    | (string | { message: string; params?: Record<string, unknown> })[]
+    | null;
   show: boolean;
 }) {
-  const codebookVariables = useSelector(getCodebookVariablesForSubjectType);
-
   if (!show || !errors || errors.length === 0) return null;
 
-  const formatError = (error: string | { message: string; params?: Record<string, unknown> }) => {
+  const formatError = (
+    error: string | { message: string; params?: Record<string, unknown> },
+  ) => {
     if (typeof error === 'string') {
       return error;
-    }
-
-    // Append variable name to comparison validation messages
-    if (error.params?.fieldId && typeof error.params.fieldId === 'string') {
-      const variableName = get(codebookVariables, [error.params.fieldId, 'name'], error.params.fieldId);
-      return `${error.message} ${variableName}`;
     }
 
     return error.message;

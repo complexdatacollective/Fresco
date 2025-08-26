@@ -181,6 +181,7 @@ export function translateProtocolValidation(
         typeof validationObj.differentFrom === 'string'
       ) {
         const otherFieldId = validationObj.differentFrom;
+        const otherFieldName = additionalContext.codebookVariables?.[otherFieldId]?.name ?? otherFieldId;
         contextSchema = contextSchema.refine(
           (value) => {
             const allValues = context.formValues ?? {};
@@ -188,8 +189,7 @@ export function translateProtocolValidation(
             return value !== otherValue;
           },
           {
-            message: `Your answer must be different from`,
-            params: { fieldId: otherFieldId, validationType: 'differentFrom' },
+            message: `Your answer must be different from ${otherFieldName}`,
           },
         );
       }
@@ -197,6 +197,7 @@ export function translateProtocolValidation(
       // sameAs validation
       if (validationObj.sameAs && typeof validationObj.sameAs === 'string') {
         const otherFieldId = validationObj.sameAs;
+        const otherFieldName = additionalContext.codebookVariables?.[otherFieldId]?.name ?? otherFieldId;
         contextSchema = contextSchema.refine(
           (value) => {
             const allValues = context.formValues ?? {};
@@ -204,8 +205,7 @@ export function translateProtocolValidation(
             return value === otherValue;
           },
           {
-            message: `Your answer must be the same as`,
-            params: { fieldId: otherFieldId, validationType: 'sameAs' },
+            message: `Your answer must be the same as ${otherFieldName}`,
           },
         );
       }
