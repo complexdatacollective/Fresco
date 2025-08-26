@@ -75,14 +75,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => {
-    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState('');
 
     return (
       <div className="w-full max-w-md">
         <DatePickerField
           value={selectedDate}
-          onChange={(value) => setSelectedDate(value)}
-          placeholder="Select Date"
+          onChange={(e) => setSelectedDate(e.target.value)}
+          aria-label="Select Date"
         />
       </div>
     );

@@ -69,7 +69,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => {
-    const [value, setValue] = useState<string | null>(null);
+    const [value, setValue] = useState('');
 
     return (
       <div className="w-full max-w-md">
@@ -77,8 +77,8 @@ export const Default: Story = {
           before={30}
           after={30}
           value={value}
-          onChange={(newValue) => setValue(newValue)}
-          placeholder="Select Relative Date"
+          onChange={(e) => setValue(e.target.value)}
+          aria-label="Select Relative Date"
         />
       </div>
     );

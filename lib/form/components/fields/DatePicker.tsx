@@ -1,9 +1,10 @@
 'use client';
 
-import { DatePicker, type DatePickerProps } from './DatePicker/DatePicker';
+import { type InputHTMLAttributes } from 'react';
+import { InputField } from './Input';
 
-type DatePickerFieldProps = DatePickerProps;
+type DatePickerFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'>;
 
 export function DatePickerField(props: DatePickerFieldProps) {
-  return <DatePicker {...props} />;
+  return <InputField type="date" {...props} />;
 }
