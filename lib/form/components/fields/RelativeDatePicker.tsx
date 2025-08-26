@@ -1,25 +1,18 @@
 'use client';
 
-import { type InputHTMLAttributes } from 'react';
-import { InputField } from './Input';
+import { type InputHTMLAttributes, useState } from 'react';
+import { DatePicker } from '~/components/ui/date-picker';
 
 type RelativeDatePickerFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'min' | 'max' | 'size'
+  'type' | 'min' | 'max' | 'size' | 'onChange' | 'value'
 > & {
   anchor?: string; // ISO date string
   before?: number; // days before anchor
   after?: number; // days after anchor
+  onChange?: (e: { target: { value: string } }) => void;
+  value?: string;
 };
-
-function formatDateForInput(date: Date): string {
-  const isoString = date.toISOString();
-  const datePart = isoString.split('T')[0];
-  if (!datePart) {
-    throw new Error('Invalid date format');
-  }
-  return datePart;
-}
 
 function addDays(date: Date, days: number): Date {
   const result = new Date(date);
@@ -27,11 +20,14 @@ function addDays(date: Date, days: number): Date {
   return result;
 }
 
+
 export function RelativeDatePickerField({
   anchor,
   before = 180,
   after = 0,
-  ...datePickerProps
+  onChange,
+  value,
+  ...props
 }: RelativeDatePickerFieldProps) {
   // Parse anchor date or default to today
   const anchorDate = anchor && typeof anchor === 'string' ? new Date(anchor) : new Date();
@@ -40,12 +36,30 @@ export function RelativeDatePickerField({
   const minDate = addDays(anchorDate, -before);
   const maxDate = addDays(anchorDate, after);
 
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(() => {
+    if (value) {
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? undefined : date;
+    }
+    return undefined;
+  });
+
+  const handleDateChange = (date: Date | undefined) => {
+    setSelectedDate(date);
+    // Convert to ISO string format for form compatibility
+    const isoValue: string = date ? date.toISOString().split('T')[0]! : '';
+    onChange?.({ target: { value: isoValue } });
+  };
+
   return (
-    <InputField
-      type="date"
-      min={formatDateForInput(minDate)}
-      max={formatDateForInput(maxDate)}
-      {...datePickerProps}
+    <DatePicker
+      value={selectedDate}
+      onChange={handleDateChange}
+      disabled={props.disabled}
+      placeholder={props.placeholder ?? 'Select a Date'}
+      className={props.className}
+      minDate={minDate}
+      maxDate={maxDate}
     />
   );
 }
