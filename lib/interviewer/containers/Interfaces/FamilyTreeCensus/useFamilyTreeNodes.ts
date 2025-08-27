@@ -142,7 +142,7 @@ function useFamilyTreeNodes(
           const node = byId.get(id);
           if (!node || toDelete.has(id)) return;
 
-          if (node.unDeleatable) return;
+          if (node.unDeletable) return;
 
           toDelete.add(id);
 
@@ -150,7 +150,7 @@ function useFamilyTreeNodes(
 
           if (node.partnerId) {
             const partner = byId.get(node.partnerId);
-            if (partner && !partner.unDeleatable) {
+            if (partner && !partner.unDeletable) {
               toDelete.add(node.partnerId);
             }
           }
