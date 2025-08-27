@@ -69,7 +69,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       generations: 180,
     });
 
-    //return layout.arrangeNodes({ xOffset: 100, yOffset: 100 });
     return layout.nodes;
   }
 
@@ -142,7 +141,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         childIds: [],
         xPos: 0,
         yPos: 0,
-        unDeleatable: false,
+        unDeletable: false,
       };
     };
 
@@ -157,16 +156,16 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const maternalGrandmother = addNode('female', 'maternal grandmother');
     const maternalGrandfather = addNode('male', 'maternal grandfather');
     maternalGrandfather.partnerId = maternalGrandmother.id;
-    maternalGrandfather.unDeleatable = true;
+    maternalGrandfather.unDeletable = true;
     maternalGrandmother.partnerId = maternalGrandfather.id;
-    maternalGrandmother.unDeleatable = true;
+    maternalGrandmother.unDeletable = true;
 
     const paternalGrandmother = addNode('female', 'paternal grandmother');
     const paternalGrandfather = addNode('male', 'paternal grandfather');
     paternalGrandfather.partnerId = paternalGrandmother.id;
-    paternalGrandfather.unDeleatable = true;
+    paternalGrandfather.unDeletable = true;
     paternalGrandmother.partnerId = paternalGrandfather.id;
-    paternalGrandmother.unDeleatable = true;
+    paternalGrandmother.unDeletable = true;
 
     const mother = addNode('female', 'mother');
     maternalGrandfather.childIds?.push(mother.id ?? '');
@@ -175,7 +174,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       maternalGrandfather.id ?? '',
       maternalGrandmother.id ?? '',
     );
-    mother.unDeleatable = true;
+    mother.unDeletable = true;
 
     const father = addNode('male', 'father');
     father.partnerId = mother.id;
@@ -186,19 +185,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       paternalGrandfather.id ?? '',
       paternalGrandmother.id ?? '',
     );
-    father.unDeleatable = true;
+    father.unDeletable = true;
 
     const ego = addNode('female', 'self', true);
     setEgoNodeId(ego.id);
     father.childIds?.push(ego.id ?? '');
     mother.childIds?.push(ego.id ?? '');
     ego.parentIds?.push(father.id ?? '', mother.id ?? '');
-    ego.unDeleatable = true;
+    ego.unDeletable = true;
 
     const partner = addNode('male', 'partner');
     ego.partnerId = partner.id;
     partner.partnerId = ego.id;
-    partner.unDeleatable = true;
+    partner.unDeletable = true;
 
     // Add siblings, children, uncles, aunts
     arrayFromRelationCount(formData, 'brothers').forEach(() => {
