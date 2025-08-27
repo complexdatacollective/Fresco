@@ -25,7 +25,7 @@ export type PlaceholderNodeProps = {
   partnerId?: string;
   xPos?: number;
   yPos?: number;
-  unDeleatable?: boolean;
+  unDeletable?: boolean;
   handleClick?: (node: PlaceholderNodeProps) => void;
 };
 export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
