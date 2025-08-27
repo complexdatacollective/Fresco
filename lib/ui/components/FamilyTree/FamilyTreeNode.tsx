@@ -63,6 +63,7 @@ const FamilyTreeNode = forwardRef<
         position: 'absolute',
         transform: 'translate(-50%, -50%)',
         display: 'block',
+        fontSize: '96px',
         top: yPos,
         left: xPos,
       }}
@@ -188,7 +189,10 @@ const FamilyTreeNode = forwardRef<
         </div>
       )}
       {!loading && (
-        <div className="node__label" style={{ top: '100%', padding: '0' }}>
+        <div
+          className="node__label"
+          style={{ top: '100%', padding: '0', height: 'fit-content' }}
+        >
           <div className={labelClasses()} style={{ alignItems: 'start' }}>
             {labelWithEllipsis}
           </div>
