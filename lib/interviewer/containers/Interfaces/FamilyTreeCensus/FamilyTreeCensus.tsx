@@ -1,10 +1,10 @@
 import { type Stage } from '@codaco/protocol-validation';
-import {
-  type EntityAttributesProperty,
-  type NcNode,
-} from '@codaco/shared-consts';
+import { type NcNode } from '@codaco/shared-consts';
+import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
+import NodeBin from '~/lib/interviewer/components/NodeBin';
 import UIChildConnector from '~/lib/ui/components/FamilyTree/ChildConnector';
 import UIOffspringConnector from '~/lib/ui/components/FamilyTree/OffspringConnector';
 import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector';
@@ -36,8 +36,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       ) ?? [],
   );
 
-  const { setPlaceholderNodesBulk, allNodes, commitPlaceholderNode } =
-    useFamilyTreeNodes(networkNodes, stage);
+  const {
+    setPlaceholderNodesBulk,
+    allNodes,
+    commitPlaceholderNode,
+    removePlaceholderNode,
+  } = useFamilyTreeNodes(networkNodes, stage);
 
   const positionedNodes = useMemo(() => {
     if (allNodes.length === 0) return [];
@@ -138,6 +142,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         childIds: [],
         xPos: 0,
         yPos: 0,
+        unDeleatable: false,
       };
     };
 
@@ -152,12 +157,16 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const maternalGrandmother = addNode('female', 'maternal grandmother');
     const maternalGrandfather = addNode('male', 'maternal grandfather');
     maternalGrandfather.partnerId = maternalGrandmother.id;
+    maternalGrandfather.unDeleatable = true;
     maternalGrandmother.partnerId = maternalGrandfather.id;
+    maternalGrandmother.unDeleatable = true;
 
     const paternalGrandmother = addNode('female', 'paternal grandmother');
     const paternalGrandfather = addNode('male', 'paternal grandfather');
     paternalGrandfather.partnerId = paternalGrandmother.id;
+    paternalGrandfather.unDeleatable = true;
     paternalGrandmother.partnerId = paternalGrandfather.id;
+    paternalGrandmother.unDeleatable = true;
 
     const mother = addNode('female', 'mother');
     maternalGrandfather.childIds?.push(mother.id ?? '');
@@ -166,6 +175,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       maternalGrandfather.id ?? '',
       maternalGrandmother.id ?? '',
     );
+    mother.unDeleatable = true;
 
     const father = addNode('male', 'father');
     father.partnerId = mother.id;
@@ -176,16 +186,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       paternalGrandfather.id ?? '',
       paternalGrandmother.id ?? '',
     );
+    father.unDeleatable = true;
 
     const ego = addNode('female', 'self', true);
     setEgoNodeId(ego.id);
     father.childIds?.push(ego.id ?? '');
     mother.childIds?.push(ego.id ?? '');
     ego.parentIds?.push(father.id ?? '', mother.id ?? '');
+    ego.unDeleatable = true;
 
     const partner = addNode('male', 'partner');
     ego.partnerId = partner.id;
     partner.partnerId = ego.id;
+    partner.unDeleatable = true;
 
     // Add siblings, children, uncles, aunts
     arrayFromRelationCount(formData, 'brothers').forEach(() => {
@@ -257,10 +270,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
 
     // Now layout the nodes
-    const xOffset = 100; // account for the scrollbar
-    const yOffset = 100; // account for the navbar
-    //const treeLayout = new TreeLayout(tempNodes);
-    //treeLayout.arrangeNodes({ xOffset, yOffset });
     const treeLayout = new FamilyTreeLayout(tempNodes, {
       startX: 200,
       startY: 100,
@@ -332,52 +341,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       </div>
     );
   };
-
-  // const addNode = useCallback(
-  //   (attributes: NcNode[EntityAttributesProperty]) => {
-  //     void dispatch(
-  //       addNodeAction({
-  //         type: stage.subject.type,
-  //         attributeData: attributes,
-  //       }),
-  //     );
-  //   },
-  //   [dispatch, stage.subject.type],
-  // );
-
-  // const createNetworkNode = useCallback(
-  //   (attributes: NcNode[EntityAttributesProperty]) => {
-  //     if (selectedNode?.id) {
-  //       void dispatch(
-  //         addNodeAction({
-  //           type: stage.type,
-  //           modelData: {
-  //             [entityPrimaryKeyProperty]: selectedNode.id,
-  //           },
-  //           attributeData: attributes,
-  //         }),
-  //       );
-  //     }
-  //   },
-  //   [dispatch, stage.type, selectedNode?.id],
-  // );
-
-  const createNetworkNode = useCallback(
-    (attributes: NcNode[EntityAttributesProperty]) => {
-      if (!selectedNode) return;
-
-      commitPlaceholderNode(selectedNode, {
-        ...attributes,
-        gender: selectedNode.gender,
-        name: selectedNode.label,
-        x: selectedNode.xPos,
-        y: selectedNode.yPos,
-      });
-
-      setSelectedNode(null);
-    },
-    [commitPlaceholderNode, selectedNode],
-  );
 
   const renderNodeForm = () => {
     const step3NameForm = stage.form;
@@ -470,7 +433,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             );
           })}
         </div>
-        <div className="node-layout" ref={elementRef}>
+        {/* <div className="node-layout" ref={elementRef}>
           {positionedNodes.map((node) => {
             return (
               <FamilyTreeNode
@@ -484,7 +447,33 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               />
             );
           })}
-        </div>
+        </div> */}
+
+        <FamilyTreePlaceholderNodeList
+          items={positionedNodes}
+          listId={`${stage.id}_MAIN_NODE_LIST`}
+          id="MAIN_NODE_LIST"
+          accepts={({ meta }: { meta: { itemType: string | null } }) =>
+            get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
+          }
+          onDrop={() => {
+            console.log('womp');
+          }}
+          onItemClick={() => {
+            console.log('wamp');
+          }}
+        />
+
+        <NodeBin
+          accepts={(meta: { itemType: string }) =>
+            meta.itemType === 'PLACEHOLDER_NODE'
+          }
+          dropHandler={(meta: PlaceholderNodeProps) =>
+            // deleteNode(meta[entityPrimaryKeyProperty])
+            removePlaceholderNode(meta.id)
+          }
+          id="NODE_BIN"
+        />
       </div>
     );
   };

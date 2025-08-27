@@ -93,7 +93,7 @@ export const getInterviewById = async (interviewId: string) => {
   // helper (could be generalised to `createServerFunction`).
   const safeInterview = stringify(interview);
 
-  //return safeInterview;
+  // return safeInterview;
   return JSON.stringify({
     json: {
       id: 'cme0esbwe0002p5ez7x3u1v3g',

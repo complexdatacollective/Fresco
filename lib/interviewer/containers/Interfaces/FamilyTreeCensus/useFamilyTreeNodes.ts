@@ -29,6 +29,7 @@ const getNumberNodeAttribute = (
 interface UseFamilyTreeNodesReturn {
   placeholderNodes: PlaceholderNodeProps[];
   setPlaceholderNodesBulk: (nodes: PlaceholderNodeProps[]) => void;
+  removePlaceholderNode: (nodeId: string) => void;
   commitPlaceholderNode: (
     node: PlaceholderNodeProps,
     attributes: NcNode[EntityAttributesProperty],
@@ -130,9 +131,54 @@ function useFamilyTreeNodes(
     [dispatch],
   );
 
+  const removePlaceholderNode = useCallback(
+    (nodeId: string) => {
+      setPlaceholderNodes((prev) => {
+        const byId = new Map(prev.map((n) => [n.id, n]));
+
+        const toDelete = new Set<string>();
+
+        function collectDeletions(id: string) {
+          const node = byId.get(id);
+          if (!node || toDelete.has(id)) return;
+
+          if (node.unDeleatable) return;
+
+          toDelete.add(id);
+
+          (node.childIds || []).forEach((childId) => collectDeletions(childId));
+
+          if (node.partnerId) {
+            const partner = byId.get(node.partnerId);
+            if (partner && !partner.unDeleatable) {
+              toDelete.add(node.partnerId);
+            }
+          }
+        }
+
+        collectDeletions(nodeId);
+
+        for (const id of toDelete) {
+          byId.delete(id);
+        }
+
+        const cleaned = [...byId.values()].map((n) => ({
+          ...n,
+          parentIds: (n.parentIds || []).filter((pid) => !toDelete.has(pid)),
+          childIds: (n.childIds || []).filter((cid) => !toDelete.has(cid)),
+          partnerId: toDelete.has(n.partnerId || '') ? undefined : n.partnerId,
+        }));
+
+        return cleaned;
+      });
+    },
+    [setPlaceholderNodes],
+  );
+
   return {
     placeholderNodes,
     setPlaceholderNodesBulk,
+    removePlaceholderNode,
     commitPlaceholderNode,
     allNodes,
   };
