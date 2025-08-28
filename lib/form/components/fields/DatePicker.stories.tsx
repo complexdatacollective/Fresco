@@ -62,6 +62,14 @@ const meta: Meta<typeof DatePickerField> = {
         type: { summary: '(event: ChangeEvent<HTMLInputElement>) => void' },
       },
     },
+    type: {
+      control: 'select',
+      options: ['full', 'month', 'year'],
+      description: 'The type of date input',
+      table: {
+        type: { summary: 'string' },
+      },
+    },
   },
   args: {
     disabled: false,
@@ -91,8 +99,34 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: {
-    disabled: true,
-    defaultValue: '2024-01-01',
+    'disabled': true,
+    'defaultValue': '2024-01-01',
     'aria-label': 'Disabled Date',
+  },
+};
+
+export const Month: Story = {
+  args: {
+    'type': 'month',
+    'defaultValue': '2024-01',
+    'aria-label': 'Select Month',
+  },
+};
+
+export const Year: Story = {
+  args: {
+    'type': 'year',
+    'defaultValue': '2024',
+    'aria-label': 'Select Year',
+  },
+};
+
+export const WithMinMax: Story = {
+  args: {
+    'type': 'date',
+    'min': '2024-01-01',
+    'max': '2024-12-31',
+    'defaultValue': '2024-06-15',
+    'aria-label': 'Select Date',
   },
 };
