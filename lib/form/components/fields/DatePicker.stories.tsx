@@ -82,6 +82,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  args: {
+    disabled: false,
+  },
+
   render: () => {
     const [selectedDate, setSelectedDate] = useState('');
 
@@ -123,7 +127,7 @@ export const Year: Story = {
 
 export const WithMinMax: Story = {
   args: {
-    'type': 'date',
+    'type': 'full',
     'min': '2024-01-01',
     'max': '2024-12-31',
     'defaultValue': '2024-06-15',
