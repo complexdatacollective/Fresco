@@ -1,0 +1,98 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "Fresco Frescov3.0.0" [ref=e3] [cursor=pointer]:
+      - /url: /
+      - img "Fresco" [ref=e4] [cursor=pointer]
+      - heading "Frescov3.0.0" [level=3] [ref=e5] [cursor=pointer]:
+        - text: Fresco
+        - superscript [ref=e6] [cursor=pointer]: v3.0.0
+    - list [ref=e7]:
+      - listitem [ref=e8]:
+        - link "Dashboard" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=e11]:
+        - link "Protocols" [ref=e12] [cursor=pointer]:
+          - /url: /dashboard/protocols
+      - listitem [ref=e13]:
+        - link "Participants" [ref=e14] [cursor=pointer]:
+          - /url: /dashboard/participants
+      - listitem [ref=e15]:
+        - link "Interviews" [ref=e16] [cursor=pointer]:
+          - /url: /dashboard/interviews
+      - listitem [ref=e17]:
+        - link "Settings" [ref=e18] [cursor=pointer]:
+          - /url: /dashboard/settings
+    - button "Sign out" [ref=e20]
+  - generic [ref=e26]:
+    - paragraph [ref=e27]: We depend on your feedback and issue reports to improve
+    - button "Provide Feedback" [ref=e28]:
+      - img [ref=e29]
+      - generic [ref=e31]: Provide Feedback
+  - generic [ref=e33]:
+    - heading "Dashboard" [level=1] [ref=e34]
+    - paragraph [ref=e35]: Welcome to Fresco! This page provides an overview of your recent activity and key metrics.
+  - generic [ref=e36]:
+    - link "Protocols 0" [ref=e37] [cursor=pointer]:
+      - /url: /dashboard/protocols
+      - generic [ref=e46] [cursor=pointer]:
+        - heading "Protocols" [level=4] [ref=e47] [cursor=pointer]
+        - heading "0" [level=1] [ref=e48] [cursor=pointer]
+    - link "Participant icon Participants 0" [ref=e49] [cursor=pointer]:
+      - /url: /dashboard/participants
+      - generic [ref=e50] [cursor=pointer]:
+        - img "Participant icon" [ref=e52] [cursor=pointer]
+        - generic [ref=e53] [cursor=pointer]:
+          - heading "Participants" [level=4] [ref=e54] [cursor=pointer]
+          - heading "0" [level=1] [ref=e55] [cursor=pointer]
+    - link "Interviews 0" [ref=e56] [cursor=pointer]:
+      - /url: /dashboard/interviews
+      - generic [ref=e70] [cursor=pointer]:
+        - heading "Interviews" [level=4] [ref=e71] [cursor=pointer]
+        - heading "0" [level=1] [ref=e72] [cursor=pointer]
+  - generic [ref=e73]:
+    - heading "Recent Activity" [level=2] [ref=e74]
+    - paragraph [ref=e75]: This table summarizes the most recent activity within Fresco. Use it to keep track of new protocols, interviews, and participants.
+  - generic [ref=e77]:
+    - generic [ref=e79]:
+      - textbox "Filter by activity details..." [ref=e82]
+      - button "Type" [ref=e83]:
+        - img [ref=e84]
+        - text: Type
+    - table [ref=e87]:
+      - rowgroup [ref=e88]:
+        - row "Time Type Details" [ref=e89]:
+          - cell "Time" [ref=e90]:
+            - button "Time" [ref=e92]:
+              - generic [ref=e93]: Time
+              - img [ref=e94]
+          - cell "Type" [ref=e96]:
+            - generic: Type
+          - cell "Details" [ref=e97]:
+            - generic: Details
+      - rowgroup [ref=e98]:
+        - row "No results." [ref=e99]:
+          - cell "No results." [ref=e100]
+    - generic [ref=e103]:
+      - generic [ref=e104]:
+        - paragraph [ref=e105]: Rows per page
+        - combobox [ref=e106]:
+          - generic [ref=e107]:
+            - generic: "10"
+          - img [ref=e108]
+      - generic [ref=e110]: Page 1 of 0
+      - generic [ref=e111]:
+        - button "Go to first page" [disabled]:
+          - img
+        - button "Go to previous page" [disabled]:
+          - img
+        - button "Go to next page" [disabled]:
+          - img
+        - button "Go to last page" [disabled]:
+          - img
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e112]
+```

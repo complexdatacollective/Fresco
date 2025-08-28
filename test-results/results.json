@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 3
+      "actualWorkers": 6
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 6
         },
         "id": "chromium",
         "name": "chromium",
@@ -59,7 +59,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 6
         },
         "id": "firefox",
         "name": "firefox",
@@ -75,7 +75,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 6
         },
         "id": "webkit",
         "name": "webkit",
@@ -88,7 +88,7 @@
       }
     ],
     "shard": null,
-    "updateSnapshots": "changed",
+    "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.55.0",
     "workers": 6,
@@ -103,6 +103,640 @@
   },
   "suites": [
     {
+      "title": "auth/login.spec.ts",
+      "file": "auth/login.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication",
+          "file": "auth/login.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "successful login redirects to dashboard",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 19143,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('h1:has-text(\"Dashboard\")')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1:has-text(\"Dashboard\")')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('h1:has-text(\"Dashboard\")')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1:has-text(\"Dashboard\")')\u001b[22m\n\n    at /Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts:27:60",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                          "column": 60,
+                          "line": 27
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 25 |\u001b[39m     \n \u001b[90m 26 |\u001b[39m     \u001b[90m// Verify dashboard content is loaded\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 27 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1:has-text(\"Dashboard\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 28 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m   test(\u001b[32m'invalid credentials show error message'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                            "column": 60,
+                            "line": 27
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('h1:has-text(\"Dashboard\")')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1:has-text(\"Dashboard\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 25 |\u001b[39m     \n \u001b[90m 26 |\u001b[39m     \u001b[90m// Verify dashboard content is loaded\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 27 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1:has-text(\"Dashboard\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 28 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m   test(\u001b[32m'invalid credentials show error message'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts:27:60\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.731Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/auth-login-Authentication--e8619-ogin-redirects-to-dashboard-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/auth-login-Authentication--e8619-ogin-redirects-to-dashboard-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/auth-login-Authentication--e8619-ogin-redirects-to-dashboard-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                        "column": 60,
+                        "line": 27
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-88798725c30c1ea77885",
+              "file": "auth/login.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "invalid credentials show error message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4027,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.730Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-aad5499466238c6e4965",
+              "file": "auth/login.spec.ts",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "empty fields show validation errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 3181,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.725Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-06f01f489b22ed9ce3de",
+              "file": "auth/login.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "visual regression - login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3190,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.725Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-d21ce40101c73c059866",
+              "file": "auth/login.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "logout redirects to login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                        "line": 60,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.268Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-abf53ce17a87ada45a34",
+              "file": "auth/login.spec.ts",
+              "line": 60,
+              "column": 8
+            },
+            {
+              "title": "successful login redirects to dashboard",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 13903,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:3000/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:3000/\u001b[7msignin\u001b[27m\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    13 × unexpected value \"http://localhost:3000/signin\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:3000/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:3000/\u001b[7msignin\u001b[27m\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    13 × unexpected value \"http://localhost:3000/signin\"\u001b[22m\n\n    at /Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts:24:24",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                          "column": 24,
+                          "line": 24
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[90m// Verify redirect to dashboard with longer timeout\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 24 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 25 |\u001b[39m     \n \u001b[90m 26 |\u001b[39m     \u001b[90m// Verify dashboard content is loaded\u001b[39m\n \u001b[90m 27 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1:has-text(\"Dashboard\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                            "column": 24,
+                            "line": 24
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:3000/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:3000/\u001b[7msignin\u001b[27m\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    13 × unexpected value \"http://localhost:3000/signin\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[90m// Verify redirect to dashboard with longer timeout\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 24 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 25 |\u001b[39m     \n \u001b[90m 26 |\u001b[39m     \u001b[90m// Verify dashboard content is loaded\u001b[39m\n \u001b[90m 27 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1:has-text(\"Dashboard\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts:24:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:17.070Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/auth-login-Authentication--e8619-ogin-redirects-to-dashboard-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/auth-login-Authentication--e8619-ogin-redirects-to-dashboard-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/auth-login-Authentication--e8619-ogin-redirects-to-dashboard-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                        "column": 24,
+                        "line": 24
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-141645c63763a0a722ed",
+              "file": "auth/login.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "invalid credentials show error message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 4079,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:17.878Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-bdd88e2dddabfb951a28",
+              "file": "auth/login.spec.ts",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "empty fields show validation errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4030,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:17.879Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-528de5a1ec3effd8e917",
+              "file": "auth/login.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "visual regression - login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 1470,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:22.663Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-b7dd5ea78ae7aaa9c654",
+              "file": "auth/login.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "logout redirects to login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                        "line": 60,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:23.027Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-074cb605cc74bb3d25ea",
+              "file": "auth/login.spec.ts",
+              "line": 60,
+              "column": 8
+            },
+            {
+              "title": "successful login redirects to dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2668,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:39.094Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-2441971a00998046321d",
+              "file": "auth/login.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "invalid credentials show error message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 1734,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:40.351Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-fc3f13d44f719c015cac",
+              "file": "auth/login.spec.ts",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "empty fields show validation errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 24,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1425,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:41.146Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-33e32e0c286aa7a77c2a",
+              "file": "auth/login.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "visual regression - login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 25,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1840,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:42.033Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-674e2911c61df26b7842",
+              "file": "auth/login.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "logout redirects to login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/auth/login.spec.ts",
+                        "line": 60,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:41.991Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "231ca1f0f4db3e4958c3-e23e8bf1a5fa25b88636",
+              "file": "auth/login.spec.ts",
+              "line": 60,
+              "column": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
       "title": "dashboard/protocols.spec.ts",
       "file": "dashboard/protocols.spec.ts",
       "column": 0,
@@ -116,6 +750,220 @@
           "column": 6,
           "specs": [
             {
+              "title": "displays uploaded protocols",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 5,
+                      "status": "failed",
+                      "duration": 10395,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:31:56",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                          "column": 56,
+                          "line": 31
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// Verify protocol is displayed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Test Protocol 1'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 33 |\u001b[39m       page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=A test protocol for E2E testing'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 34 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 56,
+                            "line": 31
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n\n\n\u001b[0m \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// Verify protocol is displayed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Test Protocol 1'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 33 |\u001b[39m       page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=A test protocol for E2E testing'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 34 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:31:56\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.737Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                        "column": 56,
+                        "line": 31
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-80cc5fc6c1bf077f47bb",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "allows protocol upload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 4,
+                      "status": "timedOut",
+                      "duration": 30472,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 38,
+                            "line": 41
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Upload Protocol\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m     \u001b[90m// Click upload button\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 |\u001b[39m     \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39muploadButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 |\u001b[39m\n \u001b[90m 43 |\u001b[39m     \u001b[90m// Verify upload dialog appears\u001b[39m\n \u001b[90m 44 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Upload Protocol'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:41:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:06.733Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-b4d6f9eb74dce9a43151",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "displays protocol statistics",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 2598,
+                      "error": {
+                        "message": "Error: Failed to create interview: Internal Server Error",
+                        "stack": "Error: Failed to create interview: Internal Server Error\n    at Object.createInterview (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:107:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:57:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 107
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:107\n\n\u001b[0m \u001b[90m 105 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 107 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create interview: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 108 |\u001b[39m         }\n \u001b[90m 109 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 107
+                          },
+                          "message": "Error: Failed to create interview: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:107\n\n\u001b[0m \u001b[90m 105 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 107 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create interview: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 108 |\u001b[39m         }\n \u001b[90m 109 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createInterview (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:107:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:57:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:10.209Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 107
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-dfa0850c917187389df2",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
               "title": "visual regression - dashboard",
               "ok": true,
               "tags": [],
@@ -128,15 +976,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 4025,
+                      "duration": 4206,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-21T19:54:45.883Z",
+                      "startTime": "2025-08-21T20:07:10.214Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -150,7 +998,73 @@
               "column": 3
             },
             {
-              "title": "visual regression - dashboard",
+              "title": "can delete protocol",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 30648,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 63,
+                            "line": 94
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=Protocol to Delete').locator('..').locator('button[aria-label=\"Delete\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 92 |\u001b[39m     \u001b[90m// Find and click delete button\u001b[39m\n \u001b[90m 93 |\u001b[39m     \u001b[36mconst\u001b[39m protocolCard \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Protocol to Delete'\u001b[39m)\u001b[33m.\u001b[39mlocator(\u001b[32m'..'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m     \u001b[36mawait\u001b[39m protocolCard\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Delete\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m\n \u001b[90m 96 |\u001b[39m     \u001b[90m// Confirm deletion\u001b[39m\n \u001b[90m 97 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Confirm\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:94:63\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:11.048Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-ea4c1213d2ab573a45e3",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "displays uploaded protocols",
               "ok": false,
               "tags": [],
               "tests": [
@@ -162,60 +1076,234 @@
                   "projectName": "firefox",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 13,
+                      "parallelIndex": 3,
                       "status": "failed",
-                      "duration": 2416,
+                      "duration": 7705,
                       "error": {
-                        "message": "Error: Failed to create protocol: Internal Server Error",
-                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:31:56",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                          "column": 56,
+                          "line": 31
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// Verify protocol is displayed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Test Protocol 1'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 33 |\u001b[39m       page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=A test protocol for E2E testing'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 34 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 56,
+                            "line": 31
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n\n\n\u001b[0m \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// Verify protocol is displayed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Test Protocol 1'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 33 |\u001b[39m       page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=A test protocol for E2E testing'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 34 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:31:56\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:23.036Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                        "column": 56,
+                        "line": 31
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-bd8de003db7f9d2533bf",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "allows protocol upload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 5,
+                      "status": "timedOut",
+                      "duration": 30049,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 38,
+                            "line": 41
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Upload Protocol\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m     \u001b[90m// Click upload button\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 |\u001b[39m     \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39muploadButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 |\u001b[39m\n \u001b[90m 43 |\u001b[39m     \u001b[90m// Verify upload dialog appears\u001b[39m\n \u001b[90m 44 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Upload Protocol'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:41:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:24.148Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-firefox/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-3cf49b592e1ce87dbe6b",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "displays protocol statistics",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2236,
+                      "error": {
+                        "message": "Error: Failed to create interview: Internal Server Error",
+                        "stack": "Error: Failed to create interview: Internal Server Error\n    at Object.createInterview (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:107:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:57:5",
                         "location": {
                           "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
                           "column": 17,
-                          "line": 92
+                          "line": 107
                         },
-                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },"
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:107\n\n\u001b[0m \u001b[90m 105 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 107 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create interview: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 108 |\u001b[39m         }\n \u001b[90m 109 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
                             "column": 17,
-                            "line": 92
+                            "line": 107
                           },
-                          "message": "Error: Failed to create protocol: Internal Server Error\n\n   at fixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5"
+                          "message": "Error: Failed to create interview: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:107\n\n\u001b[0m \u001b[90m 105 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 107 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create interview: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 108 |\u001b[39m         }\n \u001b[90m 109 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createInterview (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:107:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:57:5\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-21T19:54:45.885Z",
+                      "startTime": "2025-08-21T20:07:26.572Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-firefox/test-failed-1.png"
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-firefox/test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-firefox/video.webm"
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-firefox/video.webm"
                         },
                         {
                           "name": "error-context",
                           "contentType": "text/markdown",
-                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-firefox/error-context.md"
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-firefox/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
                         "column": 17,
-                        "line": 92
+                        "line": 107
                       }
                     }
                   ],
                   "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-522a4e6b0f0375f8b420",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "visual regression - dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3610,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:30.088Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
                 }
               ],
               "id": "4c123ac7ea9bd5363f42-b9b8441445ebed5309f5",
@@ -224,7 +1312,73 @@
               "column": 3
             },
             {
-              "title": "visual regression - dashboard",
+              "title": "can delete protocol",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 30051,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 63,
+                            "line": 94
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=Protocol to Delete').locator('..').locator('button[aria-label=\"Delete\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 92 |\u001b[39m     \u001b[90m// Find and click delete button\u001b[39m\n \u001b[90m 93 |\u001b[39m     \u001b[36mconst\u001b[39m protocolCard \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Protocol to Delete'\u001b[39m)\u001b[33m.\u001b[39mlocator(\u001b[32m'..'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m     \u001b[36mawait\u001b[39m protocolCard\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Delete\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m\n \u001b[90m 96 |\u001b[39m     \u001b[90m// Confirm deletion\u001b[39m\n \u001b[90m 97 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Confirm\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:94:63\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:31.501Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-firefox/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-42c81af4a5e5eb835282",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "displays uploaded protocols",
               "ok": false,
               "tags": [],
               "tests": [
@@ -236,19 +1390,562 @@
                   "projectName": "webkit",
                   "results": [
                     {
-                      "workerIndex": 2,
+                      "workerIndex": 22,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7456,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:31:56",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                          "column": 56,
+                          "line": 31
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// Verify protocol is displayed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Test Protocol 1'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 33 |\u001b[39m       page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=A test protocol for E2E testing'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 34 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 56,
+                            "line": 31
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=Test Protocol 1')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Test Protocol 1')\u001b[22m\n\n\n\u001b[0m \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[90m// Verify protocol is displayed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Test Protocol 1'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 33 |\u001b[39m       page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=A test protocol for E2E testing'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 34 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:31:56\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:41.997Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-223b2-displays-uploaded-protocols-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                        "column": 56,
+                        "line": 31
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-2d20d909cc9727749a8c",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "allows protocol upload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 4,
+                      "status": "timedOut",
+                      "duration": 30065,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 38,
+                            "line": 41
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Upload Protocol\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m     \u001b[90m// Click upload button\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 |\u001b[39m     \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39muploadButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 |\u001b[39m\n \u001b[90m 43 |\u001b[39m     \u001b[90m// Verify upload dialog appears\u001b[39m\n \u001b[90m 44 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Upload Protocol'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:41:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:42.306Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-29947-ment-allows-protocol-upload-webkit/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-0b4b79b5fa341e1250cf",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "displays protocol statistics",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 24,
                       "parallelIndex": 2,
                       "status": "failed",
-                      "duration": 2705,
+                      "duration": 1534,
+                      "error": {
+                        "message": "Error: Failed to create interview: Internal Server Error",
+                        "stack": "Error: Failed to create interview: Internal Server Error\n    at Object.createInterview (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:107:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:57:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 107
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:107\n\n\u001b[0m \u001b[90m 105 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 107 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create interview: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 108 |\u001b[39m         }\n \u001b[90m 109 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 107
+                          },
+                          "message": "Error: Failed to create interview: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:107\n\n\u001b[0m \u001b[90m 105 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 106 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 107 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create interview: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 108 |\u001b[39m         }\n \u001b[90m 109 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createInterview (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:107:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:57:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:42.767Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-b156c-isplays-protocol-statistics-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 107
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-d04422cf344af9e56631",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "visual regression - dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 25,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2279,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:44.092Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-0271b8a91a5f02ce97d4",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 72,
+              "column": 3
+            },
+            {
+              "title": "can delete protocol",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 26,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 30072,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
+                            "column": 63,
+                            "line": 94
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=Protocol to Delete').locator('..').locator('button[aria-label=\"Delete\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 92 |\u001b[39m     \u001b[90m// Find and click delete button\u001b[39m\n \u001b[90m 93 |\u001b[39m     \u001b[36mconst\u001b[39m protocolCard \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Protocol to Delete'\u001b[39m)\u001b[33m.\u001b[39mlocator(\u001b[32m'..'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m     \u001b[36mawait\u001b[39m protocolCard\u001b[33m.\u001b[39mlocator(\u001b[32m'button[aria-label=\"Delete\"]'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m\n \u001b[90m 96 |\u001b[39m     \u001b[90m// Confirm deletion\u001b[39m\n \u001b[90m 97 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Confirm\")'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:94:63\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:44.733Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-9d670-agement-can-delete-protocol-webkit/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4c123ac7ea9bd5363f42-89bc41dc06bbe63f5d61",
+              "file": "dashboard/protocols.spec.ts",
+              "line": 86,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "example.spec.ts",
+      "file": "example.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "has title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 544,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-21T20:07:13.596Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a30a6eba6312f6b87ea5-b06063a3e613764d08f8",
+          "file": "example.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "visual regression example",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 1141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-21T20:07:14.280Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a30a6eba6312f6b87ea5-1955fe42e5912b456726",
+          "file": "example.spec.ts",
+          "line": 10,
+          "column": 1
+        },
+        {
+          "title": "has title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 17,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 1666,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-21T20:07:32.598Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a30a6eba6312f6b87ea5-f53a5ad453cd33dc57d5",
+          "file": "example.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "visual regression example",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 15,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1393,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-21T20:07:34.249Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a30a6eba6312f6b87ea5-e89b9636208b3a64cee8",
+          "file": "example.spec.ts",
+          "line": 10,
+          "column": 1
+        },
+        {
+          "title": "has title",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 25,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 649,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-21T20:07:46.385Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a30a6eba6312f6b87ea5-4a26ebd06a6b810edcc2",
+          "file": "example.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "visual regression example",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 25,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1007,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-21T20:07:47.040Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a30a6eba6312f6b87ea5-4b856e8ab4f794c077e4",
+          "file": "example.spec.ts",
+          "line": 10,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "interview/interview-flow.spec.ts",
+      "file": "interview/interview-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Interview Flow",
+          "file": "interview/interview-flow.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "can start and navigate through interview",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 270,
                       "error": {
                         "message": "Error: Failed to create protocol: Internal Server Error",
-                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
                         "location": {
                           "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
                           "column": 17,
                           "line": 92
                         },
-                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },"
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
@@ -257,29 +1954,24 @@
                             "column": 17,
                             "line": 92
                           },
-                          "message": "Error: Failed to create protocol: Internal Server Error\n\n   at fixtures/test-fixtures.ts:92\n\n  90 |         });\n  91 |         if (!response.ok) {\n> 92 |           throw new Error(`Failed to create protocol: ${response.statusText}`);\n     |                 ^\n  93 |         }\n  94 |         return response.json();\n  95 |       },\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts:74:5"
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-21T19:54:45.884Z",
+                      "startTime": "2025-08-21T20:07:14.438Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-webkit/test-failed-1.png"
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-d2dae--navigate-through-interview-chromium/test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-webkit/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-protocols-Dashbo-56a12-sual-regression---dashboard-webkit/error-context.md"
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-d2dae--navigate-through-interview-chromium/video.webm"
                         }
                       ],
                       "errorLocation": {
@@ -292,9 +1984,1182 @@
                   "status": "unexpected"
                 }
               ],
-              "id": "4c123ac7ea9bd5363f42-0271b8a91a5f02ce97d4",
-              "file": "dashboard/protocols.spec.ts",
-              "line": 72,
+              "id": "40523bbd8e61f6f82fe7-56b52f2e9ac8dc4ad350",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 34,
+              "column": 3
+            },
+            {
+              "title": "can add nodes in name generator",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 367,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:15.162Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-6af44-add-nodes-in-name-generator-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-6af44-add-nodes-in-name-generator-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-f67ca9af9dd632d88173",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "can connect nodes in sociogram",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 342,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:15.437Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-cfb35--connect-nodes-in-sociogram-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-cfb35--connect-nodes-in-sociogram-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-545b94194158a1a298c4",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 66,
+              "column": 3
+            },
+            {
+              "title": "can complete interview",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 339,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:16.070Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-0e514-Flow-can-complete-interview-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-0e514-Flow-can-complete-interview-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-d87fa743235bf5c1fb3c",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "visual regression - interview stages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 386,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:16.157Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-3b40c-gression---interview-stages-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-3b40c-gression---interview-stages-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-da562899e841eef816c4",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "preserves data when navigating between stages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 397,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:16.947Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-1d492-n-navigating-between-stages-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-1d492-n-navigating-between-stages-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-2da6a6a826ec5c5592b1",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 123,
+              "column": 3
+            },
+            {
+              "title": "can start and navigate through interview",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 417,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:34.978Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-d2dae--navigate-through-interview-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-d2dae--navigate-through-interview-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-f06ff5d2127f1c43aaaa",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 34,
+              "column": 3
+            },
+            {
+              "title": "can add nodes in name generator",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 426,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:35.654Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-6af44-add-nodes-in-name-generator-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-6af44-add-nodes-in-name-generator-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-b58784f115565989553f",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "can connect nodes in sociogram",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 1137,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:36.074Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-cfb35--connect-nodes-in-sociogram-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-cfb35--connect-nodes-in-sociogram-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-8843c7ca265b3a9c5763",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 66,
+              "column": 3
+            },
+            {
+              "title": "can complete interview",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1127,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:36.781Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-0e514-Flow-can-complete-interview-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-0e514-Flow-can-complete-interview-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-6b98ea501a31c050f381",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "visual regression - interview stages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 1139,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:37.904Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-3b40c-gression---interview-stages-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-3b40c-gression---interview-stages-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-b60c2b9464ecf3f41119",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "preserves data when navigating between stages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 1205,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:38.419Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-1d492-n-navigating-between-stages-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-1d492-n-navigating-between-stages-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-f5b6aa523b55d93aacec",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 123,
+              "column": 3
+            },
+            {
+              "title": "can start and navigate through interview",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 25,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 399,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:48.056Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-d2dae--navigate-through-interview-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-d2dae--navigate-through-interview-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-247b3b8355a12b86459f",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 34,
+              "column": 3
+            },
+            {
+              "title": "can add nodes in name generator",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 27,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 598,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:48.836Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-6af44-add-nodes-in-name-generator-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-6af44-add-nodes-in-name-generator-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-24cbeb2b78cd25e34d18",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "can connect nodes in sociogram",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 28,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 569,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:49.839Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-cfb35--connect-nodes-in-sociogram-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-cfb35--connect-nodes-in-sociogram-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-8ac967c3b90b849dcefe",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 66,
+              "column": 3
+            },
+            {
+              "title": "can complete interview",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 29,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 594,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:49.975Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-0e514-Flow-can-complete-interview-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-0e514-Flow-can-complete-interview-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-794a539df7109e86f803",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "visual regression - interview stages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 30,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 610,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:50.979Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-3b40c-gression---interview-stages-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-3b40c-gression---interview-stages-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-39159e4d28d467de7473",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "preserves data when navigating between stages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 31,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 617,
+                      "error": {
+                        "message": "Error: Failed to create protocol: Internal Server Error",
+                        "stack": "Error: Failed to create protocol: Internal Server Error\n    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                          "column": 17,
+                          "line": 92
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                            "column": 17,
+                            "line": 92
+                          },
+                          "message": "Error: Failed to create protocol: Internal Server Error\n\n\u001b[90m   at \u001b[39mfixtures/test-fixtures.ts:92\n\n\u001b[0m \u001b[90m 90 |\u001b[39m         })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m         \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 92 |\u001b[39m           \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to create protocol: ${response.statusText}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 93 |\u001b[39m         }\n \u001b[90m 94 |\u001b[39m         \u001b[36mreturn\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m       }\u001b[33m,\u001b[39m\u001b[0m\n\u001b[2m    at Object.createProtocol (/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts:92:17)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/interview/interview-flow.spec.ts:17:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-21T20:07:51.108Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-1d492-n-navigating-between-stages-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/interview-interview-flow-I-1d492-n-navigating-between-stages-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/fixtures/test-fixtures.ts",
+                        "column": 17,
+                        "line": 92
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "40523bbd8e61f6f82fe7-aeaf7de7ed49188eb520",
+              "file": "interview/interview-flow.spec.ts",
+              "line": 123,
               "column": 3
             }
           ]
@@ -304,11 +3169,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-21T19:54:38.010Z",
-    "duration": 12236.939,
-    "expected": 1,
-    "skipped": 0,
-    "unexpected": 2,
+    "startTime": "2025-08-21T20:06:58.646Z",
+    "duration": 76573.493,
+    "expected": 19,
+    "skipped": 3,
+    "unexpected": 32,
     "flaky": 0
   }
 }

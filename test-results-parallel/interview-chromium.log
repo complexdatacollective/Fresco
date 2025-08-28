@@ -1,0 +1,655 @@
+Starting services for pod fresco-e2e-interview-chromium-20250822_172755...
+#1 [internal] load local bake definitions
+#1 reading from stdin 610B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile.nextjs
+#2 transferring dockerfile: 2.73kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:lts-alpine
+#3 DONE 0.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 247B done
+#4 DONE 0.0s
+
+#5 [base 1/1] FROM docker.io/library/node:lts-alpine@sha256:1b2479dd35a99687d6638f5976fd235e26c5b37e8122f786fcd5fe231d63de5b
+#5 resolve docker.io/library/node:lts-alpine@sha256:1b2479dd35a99687d6638f5976fd235e26c5b37e8122f786fcd5fe231d63de5b done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 123.75kB 0.1s done
+#6 DONE 0.1s
+
+#7 [deps 2/7] WORKDIR /app
+#7 CACHED
+
+#8 [builder 1/6] WORKDIR /app
+#8 CACHED
+
+#9 [deps 4/7] COPY package.json pnpm-lock.yaml* postinstall.js ./
+#9 CACHED
+
+#10 [deps 7/7] COPY migrate-and-start.sh setup-database.js initialize.js ./
+#10 CACHED
+
+#11 [builder 2/6] RUN apk add --no-cache git
+#11 CACHED
+
+#12 [deps 1/7] RUN apk add --no-cache libc6-compat git
+#12 CACHED
+
+#13 [deps 3/7] RUN corepack enable
+#13 CACHED
+
+#14 [deps 5/7] COPY prisma ./prisma
+#14 CACHED
+
+#15 [deps 6/7] RUN --mount=type=cache,target=/root/.local/share/pnpm/store     --mount=type=cache,target=/root/.cache/pnpm     corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline
+#15 CACHED
+
+#16 [builder 3/6] COPY --from=deps /app/node_modules ./node_modules
+#16 CACHED
+
+#17 [builder 4/6] COPY --from=deps /app/prisma ./prisma
+#17 CACHED
+
+#18 [builder 5/6] COPY . .
+#18 DONE 0.1s
+
+#19 [builder 6/6] RUN corepack enable pnpm && pnpm run build
+#19 0.126 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.1.1.tgz
+#19 0.790 
+#19 0.790 > fresco@3.0.0 build /app
+#19 0.790 > next build
+#19 0.790 
+#19 1.087 fatal: not a git repository (or any of the parent directories): .git
+#19 1.087 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 1.087 fatal: not a git repository (or any of the parent directories): .git
+#19 1.087 
+#19 1.103 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+#19 1.103 This information is used to shape Next.js' roadmap and prioritize features.
+#19 1.103 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#19 1.103 https://nextjs.org/telemetry
+#19 1.103 
+#19 1.138   ▲ Next.js 14.2.30
+#19 1.138   - Experiments (use with caution):
+#19 1.139     · typedRoutes
+#19 1.139     · webpackBuildWorker
+#19 1.139 
+#19 1.181    Creating an optimized production build ...
+#19 1.422 fatal: not a git repository (or any of the parent directories): .git
+#19 1.422 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 1.422 fatal: not a git repository (or any of the parent directories): .git
+#19 1.422 
+#19 23.92 fatal: not a git repository (or any of the parent directories): .git
+#19 23.92 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 23.92 fatal: not a git repository (or any of the parent directories): .git
+#19 23.92 
+#19 24.94 fatal: not a git repository (or any of the parent directories): .git
+#19 24.94 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 24.94 fatal: not a git repository (or any of the parent directories): .git
+#19 24.94 
+#19 39.16  ✓ Compiled successfully
+#19 39.16    Skipping validation of types
+#19 39.16    Skipping linting
+#19 39.31    Collecting page data ...
+#19 42.84    Generating static pages (0/20) ...
+#19 43.02    Generating static pages (5/20) 
+#19 43.02    Generating static pages (10/20) 
+#19 43.02 prisma:error 
+#19 43.02 Invalid `prisma.$queryRaw()` invocation:
+#19 43.02 
+#19 43.02 
+#19 43.02 error: Environment variable not found: POSTGRES_PRISMA_URL.
+#19 43.02   -->  schema.prisma:11
+#19 43.02    | 
+#19 43.02 10 |   provider  = "postgresql"
+#19 43.02 11 |   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+#19 43.02    | 
+#19 43.02 
+#19 43.02 Validation Error Count: 1
+#19 43.02 Health check failed: PrismaClientInitializationError: 
+#19 43.02 Invalid `prisma.$queryRaw()` invocation:
+#19 43.02 
+#19 43.02 
+#19 43.02 error: Environment variable not found: POSTGRES_PRISMA_URL.
+#19 43.02   -->  schema.prisma:11
+#19 43.02    | 
+#19 43.02 10 |   provider  = "postgresql"
+#19 43.02 11 |   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+#19 43.02    | 
+#19 43.02 
+#19 43.02 Validation Error Count: 1
+#19 43.02     at Zn.handleRequestError (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:121:7759)
+#19 43.02     at Zn.handleAndLogRequestError (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:121:6784)
+#19 43.02     at Zn.request (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:121:6491)
+#19 43.02     at async l (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:130:9778)
+#19 43.02     at async u (/app/.next/server/app/api/health/route.js:1:618)
+#19 43.02     at async /app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38411
+#19 43.02     at async e_.execute (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:27880)
+#19 43.02     at async e_.handle (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:39943)
+#19 43.02     at async exportAppRoute (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/export/routes/app-route.js:77:26)
+#19 43.02     at async exportPageImpl (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/export/worker.js:175:20) {
+#19 43.02   clientVersion: '6.10.0',
+#19 43.02   errorCode: undefined,
+#19 43.02   retryable: undefined
+#19 43.02 }
+#19 43.02    Generating static pages (15/20) 
+#19 43.24  ✓ Generating static pages (20/20)
+#19 43.55    Finalizing page optimization ...
+#19 43.55    Collecting build traces ...
+#19 55.51 
+#19 55.51 Route (app)                              Size     First Load JS
+#19 55.51 ┌ ○ /                                    162 B          89.2 kB
+#19 55.51 ├ ○ /_not-found                          162 B          89.2 kB
+#19 55.51 ├ ƒ /api/analytics                       0 B                0 B
+#19 55.51 ├ ƒ /api/health                          0 B                0 B
+#19 55.51 ├ ƒ /api/test/seed                       0 B                0 B
+#19 55.51 ├ ƒ /api/uploadthing                     0 B                0 B
+#19 55.51 ├ ƒ /dashboard                           11 kB           198 kB
+#19 55.51 ├ ƒ /dashboard/interviews                21.7 kB         228 kB
+#19 55.51 ├ ƒ /dashboard/participants              11.9 kB         238 kB
+#19 55.51 ├ ƒ /dashboard/protocols                 5.34 kB         350 kB
+#19 55.51 ├ ƒ /dashboard/settings                  9.11 kB         179 kB
+#19 55.51 ├ ƒ /expired                             1.76 kB        99.7 kB
+#19 55.51 ├ ƒ /interview/[interviewId]             224 kB          475 kB
+#19 55.51 ├ ƒ /interview/[interviewId]/sync        0 B                0 B
+#19 55.51 ├ ƒ /interview/finished                  978 B          98.9 kB
+#19 55.51 ├ ƒ /onboard/[protocolId]                0 B                0 B
+#19 55.51 ├ ○ /onboard/error                       162 B          89.2 kB
+#19 55.51 ├ ○ /onboard/no-anonymous-recruitment    162 B          89.2 kB
+#19 55.51 ├ ƒ /reset                               0 B                0 B
+#19 55.51 ├ ƒ /setup                               10.1 kB         372 kB
+#19 55.51 └ ƒ /signin                              4.21 kB         167 kB
+#19 55.51 + First Load JS shared by all            89 kB
+#19 55.51   ├ chunks/2988-be00248f401927a1.js      31.8 kB
+#19 55.51   ├ chunks/dd822c33-766e2b2a125be6bd.js  53.6 kB
+#19 55.51   └ other shared chunks (total)          3.65 kB
+#19 55.51 
+#19 55.51 
+#19 55.51 ○  (Static)   prerendered as static content
+#19 55.51 ƒ  (Dynamic)  server-rendered on demand
+#19 55.51 
+#19 DONE 56.4s
+
+#20 [runner  2/10] RUN addgroup --system --gid 1001 nodejs &&     adduser --system --uid 1001 nextjs
+#20 CACHED
+
+#21 [runner  3/10] COPY --from=builder /app/public ./public
+#21 CACHED
+
+#22 [runner  4/10] RUN mkdir .next && chown nextjs:nodejs .next
+#22 CACHED
+
+#23 [runner  5/10] COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+#23 DONE 0.3s
+
+#24 [runner  6/10] COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+#24 DONE 0.1s
+
+#25 [runner  7/10] COPY --from=builder --chown=nextjs:nodejs /app/initialize.js ./
+#25 DONE 0.0s
+
+#26 [runner  8/10] COPY --from=builder --chown=nextjs:nodejs /app/setup-database.js ./
+#26 DONE 0.0s
+
+#27 [runner  9/10] COPY --from=builder --chown=nextjs:nodejs /app/migrate-and-start.sh ./
+#27 DONE 0.0s
+
+#28 [runner 10/10] COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+#28 DONE 0.0s
+
+#29 exporting to oci image format
+#29 exporting layers
+#29 exporting layers 2.3s done
+#29 exporting manifest sha256:8eebe78c21c04627efa7c2f89c8de982f435175310c63f77dc0a91d852ac8262
+#29 exporting manifest sha256:8eebe78c21c04627efa7c2f89c8de982f435175310c63f77dc0a91d852ac8262 done
+#29 exporting config sha256:6584033e66796c1524372a9515f41403c546b2acfd475822fd135b4f5690cf68 done
+#29 sending tarball
+#29 sending tarball 1.7s done
+#29 DONE 3.9s
+
+#30 importing to docker
+#30 DONE 0.0s
+
+#31 resolving provenance for metadata file
+#31 DONE 0.0s
+ fresco-e2e-interview-chromium-20250822_172755-nextjs_app  Built
+ Network fresco-e2e-interview-chromium-20250822_172755_default  Creating
+ Network fresco-e2e-interview-chromium-20250822_172755_default  Created
+ Volume "fresco-e2e-interview-chromium-20250822_172755_postgres-data"  Creating
+ Volume "fresco-e2e-interview-chromium-20250822_172755_postgres-data"  Created
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Creating
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Created
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Creating
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Created
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Starting
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Started
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Waiting
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Healthy
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Starting
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Started
+Waiting for services to be healthy...
+Running tests...
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Running
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Running
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Waiting
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Healthy
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.14kB done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile.playwright
+#2 transferring dockerfile: 766B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for mcr.microsoft.com/playwright:v1.55.0-noble
+#3 DONE 1.2s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 247B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 4.74kB 0.0s done
+#5 DONE 0.0s
+
+#6 [1/9] FROM mcr.microsoft.com/playwright:v1.55.0-noble@sha256:b27e719ecbfef153e13fd24e8341736733bf2658b229677eb21ff57ff5d7fb29
+#6 resolve mcr.microsoft.com/playwright:v1.55.0-noble@sha256:b27e719ecbfef153e13fd24e8341736733bf2658b229677eb21ff57ff5d7fb29 done
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 0B / 758.67MB 0.2s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 42.99MB / 758.67MB 0.9s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 89.13MB / 758.67MB 1.5s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 138.41MB / 758.67MB 2.1s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 184.55MB / 758.67MB 2.7s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 231.74MB / 758.67MB 3.3s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 270.53MB / 758.67MB 3.9s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 312.48MB / 758.67MB 4.5s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 355.47MB / 758.67MB 5.1s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 399.51MB / 758.67MB 5.7s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 443.55MB / 758.67MB 6.3s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 491.78MB / 758.67MB 6.9s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 533.73MB / 758.67MB 8.0s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 575.67MB / 758.67MB 9.8s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 617.61MB / 758.67MB 11.4s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 658.51MB / 758.67MB 12.9s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 700.45MB / 758.67MB 14.4s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 739.25MB / 758.67MB 15.8s
+#6 sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 758.67MB / 758.67MB 16.5s done
+#6 extracting sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92
+#6 extracting sha256:0717787c2bf68758795e8d8f3cea68e1a49ba546e87910af6a727f39e67c0d92 9.2s done
+#6 DONE 25.8s
+
+#7 [2/9] WORKDIR /tests
+#7 DONE 0.3s
+
+#8 [3/9] RUN npm install -g pnpm@latest
+#8 1.520 
+#8 1.520 added 1 package in 1s
+#8 1.520 
+#8 1.520 1 package is looking for funding
+#8 1.520   run `npm fund` for details
+#8 1.521 npm notice
+#8 1.521 npm notice New major version of npm available! 10.9.3 -> 11.5.2
+#8 1.521 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
+#8 1.521 npm notice To update run: npm install -g npm@11.5.2
+#8 1.521 npm notice
+#8 DONE 1.6s
+
+#9 [4/9] COPY package.json pnpm-lock.yaml postinstall.js ./
+#9 DONE 0.0s
+
+#10 [5/9] COPY prisma ./prisma
+#10 DONE 0.0s
+
+#11 [6/9] RUN pnpm install --frozen-lockfile
+#11 1.072 Lockfile is up to date, resolution step is skipped
+#11 1.126 Progress: resolved 1, reused 0, downloaded 0, added 0
+#11 1.215 Packages: +1496
+#11 1.215 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#11 2.130 Progress: resolved 1496, reused 0, downloaded 76, added 77
+#11 3.131 Progress: resolved 1496, reused 0, downloaded 103, added 104
+#11 4.130 Progress: resolved 1496, reused 0, downloaded 151, added 152
+#11 5.130 Progress: resolved 1496, reused 0, downloaded 272, added 273
+#11 6.131 Progress: resolved 1496, reused 0, downloaded 453, added 454
+#11 7.132 Progress: resolved 1496, reused 0, downloaded 570, added 571
+#11 8.134 Progress: resolved 1496, reused 0, downloaded 649, added 650
+#11 9.134 Progress: resolved 1496, reused 0, downloaded 842, added 843
+#11 10.14 Progress: resolved 1496, reused 0, downloaded 1001, added 1002
+#11 11.14 Progress: resolved 1496, reused 0, downloaded 1106, added 1107
+#11 12.14 Progress: resolved 1496, reused 0, downloaded 1294, added 1297
+#11 13.14 Progress: resolved 1496, reused 0, downloaded 1447, added 1449
+#11 13.95 Progress: resolved 1496, reused 0, downloaded 1493, added 1496, done
+#11 14.22 .../node_modules/core-js-pure postinstall$ node -e "try{require('./postinstall')}catch(e){}"
+#11 14.22 .../node_modules/@tailwindcss/oxide postinstall$ node ./scripts/install.js
+#11 14.22 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#11 14.28 .../node_modules/core-js-pure postinstall: Thank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!
+#11 14.28 .../node_modules/core-js-pure postinstall: The project needs your help! Please consider supporting core-js:
+#11 14.28 .../node_modules/core-js-pure postinstall: > https://opencollective.com/core-js 
+#11 14.28 .../node_modules/core-js-pure postinstall: > https://patreon.com/zloirock 
+#11 14.28 .../node_modules/core-js-pure postinstall: > https://boosty.to/zloirock 
+#11 14.28 .../node_modules/core-js-pure postinstall: > bitcoin: bc1qlea7544qtsmj2rayg0lthvza9fau63ux0fstcz 
+#11 14.28 .../node_modules/core-js-pure postinstall: I highly recommend reading this: https://github.com/zloirock/core-js/blob/master/docs/2023-02-14-so-whats-next.md 
+#11 14.28 .../node_modules/core-js-pure postinstall: Done
+#11 14.29 .../node_modules/@parcel/watcher install$ node scripts/build-from-source.js
+#11 14.30 .../node_modules/@tailwindcss/oxide postinstall: Done
+#11 14.30 .../esbuild@0.25.5/node_modules/esbuild postinstall$ node install.js
+#11 14.32 .../node_modules/@parcel/watcher install: Done
+#11 14.32 .../node_modules/unrs-resolver postinstall$ napi-postinstall unrs-resolver 1.11.1 check
+#11 14.34 .../esbuild@0.25.5/node_modules/esbuild postinstall: Done
+#11 14.35 .../node_modules/msgpackr-extract install$ node-gyp-build-optional-packages
+#11 14.37 .../node_modules/unrs-resolver postinstall: Done
+#11 14.38 .../sharp@0.34.2/node_modules/sharp install$ node install/check
+#11 14.40 .../node_modules/msgpackr-extract install: node:internal/errors:540
+#11 14.40 .../node_modules/msgpackr-extract install:       throw error;
+#11 14.40 .../node_modules/msgpackr-extract install:       ^
+#11 14.40 .../node_modules/msgpackr-extract install: TypeError [ERR_INVALID_ARG_TYPE]: The "id" argument must be of type string. Received undefined
+#11 14.40 .../node_modules/msgpackr-extract install:     at Module.require (node:internal/modules/cjs/loader:1438:3)
+#11 14.40 .../node_modules/msgpackr-extract install:     at require (node:internal/modules/helpers:135:16)
+#11 14.40 .../node_modules/msgpackr-extract install:     at load (/tests/node_modules/.pnpm/node-gyp-build-optional-packages@5.2.2/node_modules/node-gyp-build-optional-packages/node-gyp-build.js:28:10)
+#11 14.40 .../node_modules/msgpackr-extract install:     at Object.<anonymous> (/tests/node_modules/.pnpm/node-gyp-build-optional-packages@5.2.2/node_modules/node-gyp-build-optional-packages/build-test.js:19:19)
+#11 14.40 .../node_modules/msgpackr-extract install:     at Module._compile (node:internal/modules/cjs/loader:1688:14)
+#11 14.40 .../node_modules/msgpackr-extract install:     at Object..js (node:internal/modules/cjs/loader:1820:10)
+#11 14.40 .../node_modules/msgpackr-extract install:     at Module.load (node:internal/modules/cjs/loader:1423:32)
+#11 14.40 .../node_modules/msgpackr-extract install:     at Function._load (node:internal/modules/cjs/loader:1246:12)
+#11 14.40 .../node_modules/msgpackr-extract install:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+#11 14.40 .../node_modules/msgpackr-extract install:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24) {
+#11 14.40 .../node_modules/msgpackr-extract install:   code: 'ERR_INVALID_ARG_TYPE'
+#11 14.40 .../node_modules/msgpackr-extract install: }
+#11 14.40 .../node_modules/msgpackr-extract install: Node.js v22.18.0
+#11 14.40 .../node_modules/msgpackr-extract install: The failure above indicates the primary issue with the native builds which are included for all major platforms. Will now attempt to build the package locally in case this can be resolved by re-compiling.
+#11 14.42 .../node_modules/msgpackr-extract install: gyp info it worked if it ends with ok
+#11 14.42 .../node_modules/msgpackr-extract install: gyp info using node-gyp@10.1.0
+#11 14.42 .../node_modules/msgpackr-extract install: gyp info using node@22.18.0 | linux | arm64
+#11 14.42 .../sharp@0.34.2/node_modules/sharp install: Done
+#11 14.46 .../node_modules/msgpackr-extract install: gyp info find Python using Python version 3.12.3 found at "/usr/bin/python3"
+#11 14.50 .../node_modules/msgpackr-extract install: gyp http GET https://nodejs.org/download/release/v22.18.0/node-v22.18.0-headers.tar.gz
+#11 14.62 .../node_modules/msgpackr-extract install: gyp http 200 https://nodejs.org/download/release/v22.18.0/node-v22.18.0-headers.tar.gz
+#11 15.48 .../node_modules/msgpackr-extract install: gyp http GET https://nodejs.org/download/release/v22.18.0/SHASUMS256.txt
+#11 15.52 .../node_modules/msgpackr-extract install: gyp http 200 https://nodejs.org/download/release/v22.18.0/SHASUMS256.txt
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn /usr/bin/python3
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args [
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args 'binding.gyp',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-f',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args 'make',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-I',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '/tests/node_modules/.pnpm/msgpackr-extract@3.0.3/node_modules/msgpackr-extract/build/config.gypi',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-I',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/addon.gypi',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-I',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '/root/.cache/node-gyp/22.18.0/include/node/common.gypi',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dlibrary=shared_library',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dvisibility=default',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dnode_root_dir=/root/.cache/node-gyp/22.18.0',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dnode_gyp_dir=/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dnode_lib_file=/root/.cache/node-gyp/22.18.0/<(target_arch)/node.lib',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dmodule_root_dir=/tests/node_modules/.pnpm/msgpackr-extract@3.0.3/node_modules/msgpackr-extract',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Dnode_engine=v8',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '--depth=.',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '--no-parallel',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '--generator-output',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args 'build',
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args '-Goutput_dir=.'
+#11 15.53 .../node_modules/msgpackr-extract install: gyp info spawn args ]
+#11 15.70 .../node_modules/msgpackr-extract install: /bin/sh: 1: gcc: not found
+#11 15.70 .../node_modules/msgpackr-extract install: Traceback (most recent call last):
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py", line 45, in <module>
+#11 15.70 .../node_modules/msgpackr-extract install:     sys.exit(gyp.script_main())
+#11 15.70 .../node_modules/msgpackr-extract install:              ^^^^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/__init__.py", line 688, in script_main
+#11 15.70 .../node_modules/msgpackr-extract install:     return main(sys.argv[1:])
+#11 15.70 .../node_modules/msgpackr-extract install:            ^^^^^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/__init__.py", line 680, in main
+#11 15.70 .../node_modules/msgpackr-extract install:     return gyp_main(args)
+#11 15.70 .../node_modules/msgpackr-extract install:            ^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/__init__.py", line 647, in gyp_main
+#11 15.70 .../node_modules/msgpackr-extract install:     [generator, flat_list, targets, data] = Load(
+#11 15.70 .../node_modules/msgpackr-extract install:                                             ^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/__init__.py", line 157, in Load
+#11 15.70 .../node_modules/msgpackr-extract install:     result = gyp.input.Load(
+#11 15.70 .../node_modules/msgpackr-extract install:              ^^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 2985, in Load
+#11 15.70 .../node_modules/msgpackr-extract install:     LoadTargetBuildFile(
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 427, in LoadTargetBuildFile
+#11 15.70 .../node_modules/msgpackr-extract install:     ProcessVariablesAndConditionsInDict(
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1399, in ProcessVariablesAndConditionsInDict
+#11 15.70 .../node_modules/msgpackr-extract install:     ProcessVariablesAndConditionsInList(value, phase, variables, build_file)
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1412, in ProcessVariablesAndConditionsInList
+#11 15.70 .../node_modules/msgpackr-extract install:     ProcessVariablesAndConditionsInDict(item, phase, variables, build_file)
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1373, in ProcessVariablesAndConditionsInDict
+#11 15.70 .../node_modules/msgpackr-extract install:     ProcessConditionsInDict(the_dict, phase, variables, build_file)
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1244, in ProcessConditionsInDict
+#11 15.70 .../node_modules/msgpackr-extract install:     ProcessVariablesAndConditionsInDict(
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1373, in ProcessVariablesAndConditionsInDict
+#11 15.70 .../node_modules/msgpackr-extract install:     ProcessConditionsInDict(the_dict, phase, variables, build_file)
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1237, in ProcessConditionsInDict
+#11 15.70 .../node_modules/msgpackr-extract install:     merge_dict = EvalCondition(
+#11 15.70 .../node_modules/msgpackr-extract install:                  ^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1153, in EvalCondition
+#11 15.70 .../node_modules/msgpackr-extract install:     result = EvalSingleCondition(
+#11 15.70 .../node_modules/msgpackr-extract install:              ^^^^^^^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/gyp/pylib/gyp/input.py", line 1182, in EvalSingleCondition
+#11 15.70 .../node_modules/msgpackr-extract install:     if eval(ast_code, env, variables):
+#11 15.70 .../node_modules/msgpackr-extract install:        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#11 15.70 .../node_modules/msgpackr-extract install:   File "<string>", line 1, in <module>
+#11 15.70 .../node_modules/msgpackr-extract install: TypeError: '>=' not supported between instances of 'str' and 'int' while trying to load binding.gyp
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! configure error 
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! stack Error: `gyp` failed with exit code: 1
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! stack at ChildProcess.<anonymous> (/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/lib/configure.js:297:18)
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! stack at ChildProcess.emit (node:events:518:28)
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! stack at ChildProcess._handle.onexit (node:internal/child_process:293:12)
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! System Linux 6.10.14-linuxkit
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! command "/usr/bin/node" "/root/.local/share/pnpm/.tools/pnpm/9.1.1/node_modules/pnpm/dist/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! cwd /tests/node_modules/.pnpm/msgpackr-extract@3.0.3/node_modules/msgpackr-extract
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! node -v v22.18.0
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! node-gyp -v v10.1.0
+#11 15.71 .../node_modules/msgpackr-extract install: gyp ERR! not ok 
+#11 15.71 .../node_modules/msgpackr-extract install: Failed
+#11 16.40 .../node_modules/@prisma/engines postinstall: Done
+#11 16.46 .../node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+#11 16.50 .../node_modules/prisma preinstall: Done
+#11 16.56 .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+#11 17.53 .../node_modules/@prisma/client postinstall: Prisma schema loaded from prisma/schema.prisma
+#11 53.87 .../node_modules/@prisma/client postinstall: ✔ Generated Prisma Client (v6.10.0) to ./node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client in 64ms
+#11 53.87 .../node_modules/@prisma/client postinstall: Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+#11 53.87 .../node_modules/@prisma/client postinstall: Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+#11 53.87 .../node_modules/@prisma/client postinstall: Done
+#11 54.06 
+#11 54.06 dependencies:
+#11 54.06 + @codaco/analytics 7.0.0
+#11 54.06 + @codaco/protocol-validation 5.0.2
+#11 54.06 + @codaco/shared-consts 4.0.0
+#11 54.06 + @hookform/resolvers 5.1.1
+#11 54.06 + @lucia-auth/adapter-prisma 3.0.2
+#11 54.06 + @paralleldrive/cuid2 2.2.2
+#11 54.06 + @radix-ui/react-alert-dialog 1.1.14
+#11 54.06 + @radix-ui/react-checkbox 1.3.2
+#11 54.06 + @radix-ui/react-collapsible 1.1.11
+#11 54.06 + @radix-ui/react-dialog 1.1.14
+#11 54.06 + @radix-ui/react-dropdown-menu 2.1.15
+#11 54.06 + @radix-ui/react-label 2.1.7
+#11 54.06 + @radix-ui/react-popover 1.1.14
+#11 54.06 + @radix-ui/react-progress 1.1.7
+#11 54.06 + @radix-ui/react-select 2.2.5
+#11 54.06 + @radix-ui/react-separator 1.1.7
+#11 54.06 + @radix-ui/react-slot 1.2.3
+#11 54.06 + @radix-ui/react-switch 1.2.5
+#11 54.06 + @radix-ui/react-toast 1.2.14
+#11 54.06 + @radix-ui/react-tooltip 1.2.7
+#11 54.06 + @radix-ui/react-visually-hidden 1.2.3
+#11 54.06 + @reduxjs/toolkit 2.8.2
+#11 54.06 + @tanstack/react-form 1.14.2
+#11 54.06 + @tanstack/react-table 8.21.3
+#11 54.06 + @uploadthing/react 7.3.2
+#11 54.06 + @xmldom/xmldom 0.9.8
+#11 54.06 + animejs 2.2.0
+#11 54.06 + archiver 7.0.1
+#11 54.06 + async 3.2.6
+#11 54.06 + blobs 2.3.0-beta.2
+#11 54.06 + class-variance-authority 0.7.1
+#11 54.06 + classnames 2.5.1
+#11 54.06 + cmdk 1.1.1
+#11 54.06 + color 2.0.1
+#11 54.06 + concaveman 1.2.1
+#11 54.06 + csvtojson 2.0.10
+#11 54.06 + d3-interpolate-path 2.3.0
+#11 54.06 + dotenv 17.2.0
+#11 54.06 + es-toolkit 1.39.7
+#11 54.06 + fuse.js 7.1.0
+#11 54.06 + jszip 3.10.1
+#11 54.06 + lucia 2.7.7
+#11 54.06 + lucide-react 0.525.0
+#11 54.06 + luxon 3.6.1
+#11 54.06 + mapbox-gl 3.13.0
+#11 54.06 + motion 12.18.1
+#11 54.06 + next 14.2.30
+#11 54.06 + nuqs 1.20.0
+#11 54.06 + ohash 1.1.6
+#11 54.06 + papaparse 5.5.3
+#11 54.06 + postcss 8.5.6
+#11 54.06 + prop-types 15.8.1
+#11 54.06 + react 18.3.1
+#11 54.06 + react-compound-slider 3.4.0
+#11 54.06 + react-dom 18.3.1
+#11 54.06 + react-dropzone 14.3.8
+#11 54.06 + react-flip-toolkit 7.2.4
+#11 54.06 + react-hook-form 7.58.1
+#11 54.06 + react-markdown 9.1.0
+#11 54.06 + react-redux 9.2.0
+#11 54.06 + react-resize-aware 4.0.0
+#11 54.06 + react-transition-group 4.4.5
+#11 54.06 + react-virtualized-auto-sizer 1.0.26
+#11 54.06 + react-window 1.8.11
+#11 54.06 + recompose <- react-recompose 0.33.0
+#11 54.06 + redux-form 8.3.10
+#11 54.06 + redux-logger 3.0.6
+#11 54.06 + redux-thunk 3.1.0
+#11 54.06 + rehype-raw 7.0.0
+#11 54.06 + rehype-sanitize 6.0.0
+#11 54.06 + remark 15.0.1
+#11 54.06 + remark-gemoji 8.0.0
+#11 54.06 + sanitize-filename 1.6.3
+#11 54.06 + server-only 0.0.1
+#11 54.06 + sharp 0.34.2
+#11 54.06 + strip-markdown 6.0.0
+#11 54.06 + superjson 2.2.2
+#11 54.06 + tailwind-merge 3.3.1
+#11 54.06 + uploadthing 7.7.2
+#11 54.06 + usehooks-ts 3.1.1
+#11 54.06 + uuid 11.1.0
+#11 54.06 + validator 13.15.15
+#11 54.06 + zod 3.25.67
+#11 54.06 + zod-form-data 2.0.7
+#11 54.06 + zustand 5.0.6
+#11 54.06 
+#11 54.06 devDependencies:
+#11 54.06 + @playwright/test 1.55.0
+#11 54.06 + @prisma/client 6.10.0
+#11 54.06 + @storybook/addon-docs 9.0.18
+#11 54.06 + @storybook/addon-links 9.0.18
+#11 54.06 + @storybook/addon-onboarding 9.0.18
+#11 54.06 + @storybook/nextjs 9.0.18
+#11 54.06 + @storybook/react 9.0.18
+#11 54.06 + @t3-oss/env-nextjs 0.13.8
+#11 54.06 + @tailwindcss/aspect-ratio 0.4.2
+#11 54.06 + @tailwindcss/container-queries 0.1.1
+#11 54.06 + @tailwindcss/forms 0.5.10
+#11 54.06 + @tailwindcss/postcss 4.1.10
+#11 54.06 + @tailwindcss/typography 0.5.16
+#11 54.06 + @total-typescript/ts-reset 0.6.1
+#11 54.06 + @types/archiver 6.0.3
+#11 54.06 + @types/async 3.2.24
+#11 54.06 + @types/d3-interpolate-path 2.0.3
+#11 54.06 + @types/eslint 8.56.12
+#11 54.06 + @types/jest 30.0.0
+#11 54.06 + @types/node 22.13.9
+#11 54.06 + @types/papaparse 5.3.16
+#11 54.06 + @types/react 18.3.18
+#11 54.06 + @types/react-dom 18.3.5
+#11 54.06 + @types/recompose 0.30.15
+#11 54.06 + @types/redux-form 8.3.11
+#11 54.06 + @types/redux-logger 3.0.13
+#11 54.06 + @types/uuid 10.0.0
+#11 54.06 + @types/validator 13.15.2
+#11 54.06 + @typescript-eslint/eslint-plugin 8.34.1
+#11 54.06 + @typescript-eslint/parser 8.34.1
+#11 54.06 + @vitejs/plugin-react 4.5.2
+#11 54.06 + eslint 8.57.1
+#11 54.06 + eslint-config-next 15.4.2
+#11 54.06 + eslint-config-prettier 10.1.5
+#11 54.06 + eslint-import-resolver-alias 1.1.2
+#11 54.06 + eslint-import-resolver-typescript 4.4.4
+#11 54.06 + eslint-plugin-import 2.32.0
+#11 54.06 + eslint-plugin-storybook 9.0.18
+#11 54.06 + jest 30.0.2
+#11 54.06 + jsdom 26.1.0
+#11 54.06 + knip 5.61.2
+#11 54.06 + prettier 3.6.0
+#11 54.06 + prettier-plugin-tailwindcss 0.6.13
+#11 54.06 + prisma 6.10.0
+#11 54.06 + sass 1.89.2
+#11 54.06 + storybook 9.0.18
+#11 54.06 + tailwindcss 4.1.11
+#11 54.06 + tailwindcss-animate 1.0.7
+#11 54.06 + typescript 5.8.3
+#11 54.06 + vite-tsconfig-paths 5.1.4
+#11 54.06 + vitest 3.2.4
+#11 54.06 
+#11 54.09 
+#11 54.09 > fresco@3.0.0 postinstall /tests
+#11 54.09 > node postinstall.js
+#11 54.09 
+#11 54.13 [dotenv@17.2.0] injecting env (0) from .env (tip: ⚙️  override existing env vars with { override: true })
+#11 54.48 Prisma schema loaded from prisma/schema.prisma
+#11 54.60 
+#11 54.60 ✔ Generated Prisma Client (v6.10.0) to ./node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client in 49ms
+#11 54.60 
+#11 54.60 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+#11 54.60 
+#11 54.60 Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+#11 54.60 
+#11 54.61 Done in 53.7s
+#11 DONE 54.8s
+
+#12 [7/9] COPY playwright.config.ts ./
+#12 DONE 0.4s
+
+#13 [8/9] COPY tests ./tests
+#13 DONE 0.0s
+
+#14 [9/9] RUN mkdir -p test-results playwright-report
+#14 DONE 0.0s
+
+#15 exporting to oci image format
+#15 exporting layers
+#15 exporting layers 28.3s done
+#15 exporting manifest sha256:69e3f6c496366374ad74b411983048449d96f373cc0de81b80caba2f508dc728 done
+#15 exporting config sha256:b9a1654da5ec0f83edb88e36d028bfecea928e1ecf81a1fc0a291ebc770e0a41 done
+#15 sending tarball
+#15 ...
+
+#16 importing to docker
+#16 DONE 0.0s
+
+#15 exporting to oci image format
+#15 sending tarball 26.7s done
+#15 DONE 55.0s
+
+#17 resolving provenance for metadata file
+#17 DONE 0.0s
+dependency failed to start: container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1 is unhealthy
+Cleaning up pod containers...
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Stopping
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Stopped
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Removing
+ Container fresco-e2e-interview-chromium-20250822_172755-nextjs_app-1  Removed
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Stopping
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Stopped
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Removing
+ Container fresco-e2e-interview-chromium-20250822_172755-postgres-1  Removed
+ Network fresco-e2e-interview-chromium-20250822_172755_default  Removing
+ Volume fresco-e2e-interview-chromium-20250822_172755_postgres-data  Removing
+ Volume fresco-e2e-interview-chromium-20250822_172755_postgres-data  Removed
+ Network fresco-e2e-interview-chromium-20250822_172755_default  Removed

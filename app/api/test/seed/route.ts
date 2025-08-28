@@ -2,13 +2,15 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 
-// Only allow in test environment
-// eslint-disable-next-line no-process-env
-const nodeEnv = process.env.NODE_ENV;
-if (nodeEnv !== 'test' && nodeEnv !== 'development') {
-  throw new Error(
-    'Test endpoints are only available in test/development environments',
-  );
+// Helper to check environment at runtime
+function checkTestEnvironment() {
+  // eslint-disable-next-line no-process-env
+  const nodeEnv = process.env.NODE_ENV;
+  if (nodeEnv !== 'test' && nodeEnv !== 'development') {
+    throw new Error(
+      'Test endpoints are only available in test/development environments',
+    );
+  }
 }
 
 type SeedRequestBody = {
@@ -32,15 +34,7 @@ type SeedRequestBody = {
 export async function POST(request: NextRequest) {
   try {
     // Check for test environment
-    if (nodeEnv !== 'test' && nodeEnv !== 'development') {
-      return NextResponse.json(
-        {
-          error:
-            'Test endpoints are only available in test/development environments',
-        },
-        { status: 403 },
-      );
-    }
+    checkTestEnvironment();
 
     const body = (await request.json()) as SeedRequestBody;
     const { action, data } = body;
@@ -87,10 +81,11 @@ export async function POST(request: NextRequest) {
       }
 
       case 'createProtocol': {
-        // Create a test protocol
+        // Create a test protocol with unique hash
+        const uniqueHash = data?.hash ?? `test-hash-${Date.now()}-${Math.random()}`;
         const protocol = await prisma.protocol.create({
           data: {
-            hash: data?.hash ?? 'test-hash',
+            hash: uniqueHash,
             name: data?.name ?? 'Test Protocol',
             schemaVersion: data?.schemaVersion ?? 8,
             lastModified: new Date(),
@@ -141,15 +136,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE() {
   try {
     // Check for test environment
-    if (nodeEnv !== 'test' && nodeEnv !== 'development') {
-      return NextResponse.json(
-        {
-          error:
-            'Test endpoints are only available in test/development environments',
-        },
-        { status: 403 },
-      );
-    }
+    checkTestEnvironment();
 
     // Clear all test data
     await prisma.$transaction([

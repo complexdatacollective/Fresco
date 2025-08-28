@@ -7,8 +7,9 @@ WORKDIR /tests
 # Install pnpm
 RUN npm install -g pnpm@latest
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
+# Copy package files and prisma schema
+COPY package.json pnpm-lock.yaml postinstall.js ./
+COPY prisma ./prisma
 
 # Install dependencies (including Playwright)
 RUN pnpm install --frozen-lockfile

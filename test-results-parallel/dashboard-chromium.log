@@ -1,0 +1,469 @@
+Starting services for pod fresco-e2e-dashboard-chromium-20250822_172755...
+#1 [internal] load local bake definitions
+#1 reading from stdin 610B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile.nextjs
+#2 transferring dockerfile: 2.73kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:lts-alpine
+#3 DONE 1.6s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 247B done
+#4 DONE 0.0s
+
+#5 [base 1/1] FROM docker.io/library/node:lts-alpine@sha256:1b2479dd35a99687d6638f5976fd235e26c5b37e8122f786fcd5fe231d63de5b
+#5 resolve docker.io/library/node:lts-alpine@sha256:1b2479dd35a99687d6638f5976fd235e26c5b37e8122f786fcd5fe231d63de5b done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 27.14MB 0.3s done
+#6 DONE 0.3s
+
+#5 [base 1/1] FROM docker.io/library/node:lts-alpine@sha256:1b2479dd35a99687d6638f5976fd235e26c5b37e8122f786fcd5fe231d63de5b
+#5 CACHED
+
+#7 [deps 1/7] RUN apk add --no-cache libc6-compat git
+#7 0.073 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/aarch64/APKINDEX.tar.gz
+#7 0.336 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/aarch64/APKINDEX.tar.gz
+#7 0.704 (1/15) Installing brotli-libs (1.1.0-r2)
+#7 0.722 (2/15) Installing c-ares (1.34.5-r0)
+#7 0.732 (3/15) Installing libunistring (1.3-r0)
+#7 0.756 (4/15) Installing libidn2 (2.3.7-r0)
+#7 0.765 (5/15) Installing nghttp2-libs (1.65.0-r0)
+#7 0.774 (6/15) Installing libpsl (0.21.5-r3)
+#7 0.781 (7/15) Installing zstd-libs (1.5.7-r0)
+#7 0.796 (8/15) Installing libcurl (8.14.1-r1)
+#7 0.809 (9/15) Installing libexpat (2.7.1-r0)
+#7 0.816 (10/15) Installing pcre2 (10.43-r1)
+#7 0.831 (11/15) Installing git (2.49.1-r0)
+#7 0.922 (12/15) Installing git-init-template (2.49.1-r0)
+#7 0.929 (13/15) Installing musl-obstack (1.2.3-r2)
+#7 0.934 (14/15) Installing libucontext (1.3.2-r0)
+#7 0.940 (15/15) Installing gcompat (1.1.0-r4)
+#7 0.947 Executing busybox-1.37.0-r18.trigger
+#7 0.954 OK: 23 MiB in 33 packages
+#7 DONE 1.1s
+
+#8 [deps 2/7] WORKDIR /app
+#8 DONE 0.0s
+
+#9 [deps 3/7] RUN corepack enable
+#9 DONE 0.1s
+
+#10 [deps 4/7] COPY package.json pnpm-lock.yaml* postinstall.js ./
+#10 DONE 0.1s
+
+#11 [deps 5/7] COPY prisma ./prisma
+#11 DONE 0.0s
+
+#12 [deps 6/7] RUN --mount=type=cache,target=/root/.local/share/pnpm/store     --mount=type=cache,target=/root/.cache/pnpm     corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline
+#12 0.113 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.1.1.tgz
+#12 0.841 Lockfile is up to date, resolution step is skipped
+#12 0.896 Progress: resolved 1, reused 0, downloaded 0, added 0
+#12 1.178 Packages: +1496
+#12 1.178 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#12 1.896 Progress: resolved 1496, reused 0, downloaded 49, added 50
+#12 2.897 Progress: resolved 1496, reused 0, downloaded 92, added 92
+#12 3.898 Progress: resolved 1496, reused 0, downloaded 139, added 140
+#12 4.900 Progress: resolved 1496, reused 0, downloaded 192, added 191
+#12 5.901 Progress: resolved 1496, reused 0, downloaded 357, added 358
+#12 6.901 Progress: resolved 1496, reused 0, downloaded 548, added 549
+#12 7.902 Progress: resolved 1496, reused 0, downloaded 622, added 623
+#12 8.918 Progress: resolved 1496, reused 0, downloaded 724, added 723
+#12 9.910 Progress: resolved 1496, reused 0, downloaded 979, added 980
+#12 10.91 Progress: resolved 1496, reused 0, downloaded 1057, added 1058
+#12 11.91 Progress: resolved 1496, reused 0, downloaded 1261, added 1263
+#12 12.91 Progress: resolved 1496, reused 0, downloaded 1428, added 1431
+#12 13.77 Progress: resolved 1496, reused 0, downloaded 1493, added 1496, done
+#12 14.04 .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+#12 14.04 .../node_modules/core-js-pure postinstall$ node -e "try{require('./postinstall')}catch(e){}"
+#12 14.04 .../node_modules/@tailwindcss/oxide postinstall$ node ./scripts/install.js
+#12 14.06 .../node_modules/@parcel/watcher install$ node scripts/build-from-source.js
+#12 14.06 .../esbuild@0.25.5/node_modules/esbuild postinstall$ node install.js
+#12 14.08 .../node_modules/core-js-pure postinstall: Thank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!
+#12 14.08 .../node_modules/core-js-pure postinstall: The project needs your help! Please consider supporting core-js:
+#12 14.08 .../node_modules/core-js-pure postinstall: > https://opencollective.com/core-js 
+#12 14.08 .../node_modules/core-js-pure postinstall: > https://patreon.com/zloirock 
+#12 14.08 .../node_modules/core-js-pure postinstall: > https://boosty.to/zloirock 
+#12 14.08 .../node_modules/core-js-pure postinstall: > bitcoin: bc1qlea7544qtsmj2rayg0lthvza9fau63ux0fstcz 
+#12 14.08 .../node_modules/core-js-pure postinstall: I highly recommend reading this: https://github.com/zloirock/core-js/blob/master/docs/2023-02-14-so-whats-next.md 
+#12 14.09 .../node_modules/core-js-pure postinstall: Done
+#12 14.09 .../node_modules/@parcel/watcher install: Done
+#12 14.10 .../node_modules/unrs-resolver postinstall$ napi-postinstall unrs-resolver 1.11.1 check
+#12 14.11 .../esbuild@0.25.5/node_modules/esbuild postinstall: Done
+#12 14.12 .../node_modules/@tailwindcss/oxide postinstall: Done
+#12 14.13 .../node_modules/msgpackr-extract install$ node-gyp-build-optional-packages
+#12 14.14 .../node_modules/unrs-resolver postinstall: Done
+#12 14.15 .../sharp@0.34.2/node_modules/sharp install$ node install/check
+#12 14.18 .../node_modules/msgpackr-extract install: Done
+#12 14.19 .../sharp@0.34.2/node_modules/sharp install: Done
+#12 14.74 .../node_modules/@prisma/engines postinstall: Done
+#12 14.81 .../node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+#12 14.84 .../node_modules/prisma preinstall: Done
+#12 14.89 .../node_modules/@prisma/client postinstall$ node scripts/postinstall.js
+#12 16.38 .../node_modules/@prisma/client postinstall: Prisma schema loaded from prisma/schema.prisma
+#12 16.52 .../node_modules/@prisma/client postinstall: ✔ Generated Prisma Client (v6.10.0) to ./node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client in 48ms
+#12 16.52 .../node_modules/@prisma/client postinstall: Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+#12 16.52 .../node_modules/@prisma/client postinstall: Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+#12 16.52 .../node_modules/@prisma/client postinstall: ┌─────────────────────────────────────────────────────────┐
+#12 16.52 .../node_modules/@prisma/client postinstall: │  Update available 6.10.0 -> 6.14.0                      │
+#12 16.52 .../node_modules/@prisma/client postinstall: │  Run the following to update                            │
+#12 16.52 .../node_modules/@prisma/client postinstall: │    npm i --save-dev prisma@latest                       │
+#12 16.52 .../node_modules/@prisma/client postinstall: │    npm i @prisma/client@latest                          │
+#12 16.52 .../node_modules/@prisma/client postinstall: └─────────────────────────────────────────────────────────┘
+#12 16.53 .../node_modules/@prisma/client postinstall: Done
+#12 16.96 
+#12 16.96 dependencies:
+#12 16.96 + @codaco/analytics 7.0.0
+#12 16.96 + @codaco/protocol-validation 5.0.2
+#12 16.96 + @codaco/shared-consts 4.0.0
+#12 16.96 + @hookform/resolvers 5.1.1
+#12 16.96 + @lucia-auth/adapter-prisma 3.0.2
+#12 16.96 + @paralleldrive/cuid2 2.2.2
+#12 16.96 + @radix-ui/react-alert-dialog 1.1.14
+#12 16.96 + @radix-ui/react-checkbox 1.3.2
+#12 16.96 + @radix-ui/react-collapsible 1.1.11
+#12 16.96 + @radix-ui/react-dialog 1.1.14
+#12 16.96 + @radix-ui/react-dropdown-menu 2.1.15
+#12 16.96 + @radix-ui/react-label 2.1.7
+#12 16.96 + @radix-ui/react-popover 1.1.14
+#12 16.96 + @radix-ui/react-progress 1.1.7
+#12 16.96 + @radix-ui/react-select 2.2.5
+#12 16.96 + @radix-ui/react-separator 1.1.7
+#12 16.96 + @radix-ui/react-slot 1.2.3
+#12 16.96 + @radix-ui/react-switch 1.2.5
+#12 16.96 + @radix-ui/react-toast 1.2.14
+#12 16.96 + @radix-ui/react-tooltip 1.2.7
+#12 16.96 + @radix-ui/react-visually-hidden 1.2.3
+#12 16.96 + @reduxjs/toolkit 2.8.2
+#12 16.96 + @tanstack/react-form 1.14.2
+#12 16.96 + @tanstack/react-table 8.21.3
+#12 16.96 + @uploadthing/react 7.3.2
+#12 16.96 + @xmldom/xmldom 0.9.8
+#12 16.96 + animejs 2.2.0
+#12 16.96 + archiver 7.0.1
+#12 16.96 + async 3.2.6
+#12 16.96 + blobs 2.3.0-beta.2
+#12 16.96 + class-variance-authority 0.7.1
+#12 16.96 + classnames 2.5.1
+#12 16.96 + cmdk 1.1.1
+#12 16.96 + color 2.0.1
+#12 16.96 + concaveman 1.2.1
+#12 16.96 + csvtojson 2.0.10
+#12 16.96 + d3-interpolate-path 2.3.0
+#12 16.96 + dotenv 17.2.0
+#12 16.96 + es-toolkit 1.39.7
+#12 16.96 + fuse.js 7.1.0
+#12 16.96 + jszip 3.10.1
+#12 16.96 + lucia 2.7.7
+#12 16.96 + lucide-react 0.525.0
+#12 16.96 + luxon 3.6.1
+#12 16.96 + mapbox-gl 3.13.0
+#12 16.96 + motion 12.18.1
+#12 16.96 + next 14.2.30
+#12 16.96 + nuqs 1.20.0
+#12 16.96 + ohash 1.1.6
+#12 16.96 + papaparse 5.5.3
+#12 16.96 + postcss 8.5.6
+#12 16.96 + prop-types 15.8.1
+#12 16.96 + react 18.3.1
+#12 16.96 + react-compound-slider 3.4.0
+#12 16.96 + react-dom 18.3.1
+#12 16.96 + react-dropzone 14.3.8
+#12 16.96 + react-flip-toolkit 7.2.4
+#12 16.96 + react-hook-form 7.58.1
+#12 16.96 + react-markdown 9.1.0
+#12 16.96 + react-redux 9.2.0
+#12 16.96 + react-resize-aware 4.0.0
+#12 16.96 + react-transition-group 4.4.5
+#12 16.96 + react-virtualized-auto-sizer 1.0.26
+#12 16.96 + react-window 1.8.11
+#12 16.96 + recompose <- react-recompose 0.33.0
+#12 16.96 + redux-form 8.3.10
+#12 16.96 + redux-logger 3.0.6
+#12 16.96 + redux-thunk 3.1.0
+#12 16.96 + rehype-raw 7.0.0
+#12 16.96 + rehype-sanitize 6.0.0
+#12 16.96 + remark 15.0.1
+#12 16.96 + remark-gemoji 8.0.0
+#12 16.96 + sanitize-filename 1.6.3
+#12 16.96 + server-only 0.0.1
+#12 16.96 + sharp 0.34.2
+#12 16.96 + strip-markdown 6.0.0
+#12 16.96 + superjson 2.2.2
+#12 16.96 + tailwind-merge 3.3.1
+#12 16.96 + uploadthing 7.7.2
+#12 16.96 + usehooks-ts 3.1.1
+#12 16.96 + uuid 11.1.0
+#12 16.96 + validator 13.15.15
+#12 16.96 + zod 3.25.67
+#12 16.96 + zod-form-data 2.0.7
+#12 16.96 + zustand 5.0.6
+#12 16.96 
+#12 16.96 devDependencies:
+#12 16.96 + @playwright/test 1.55.0
+#12 16.96 + @prisma/client 6.10.0
+#12 16.96 + @storybook/addon-docs 9.0.18
+#12 16.96 + @storybook/addon-links 9.0.18
+#12 16.96 + @storybook/addon-onboarding 9.0.18
+#12 16.96 + @storybook/nextjs 9.0.18
+#12 16.96 + @storybook/react 9.0.18
+#12 16.96 + @t3-oss/env-nextjs 0.13.8
+#12 16.96 + @tailwindcss/aspect-ratio 0.4.2
+#12 16.96 + @tailwindcss/container-queries 0.1.1
+#12 16.96 + @tailwindcss/forms 0.5.10
+#12 16.96 + @tailwindcss/postcss 4.1.10
+#12 16.96 + @tailwindcss/typography 0.5.16
+#12 16.96 + @total-typescript/ts-reset 0.6.1
+#12 16.96 + @types/archiver 6.0.3
+#12 16.96 + @types/async 3.2.24
+#12 16.96 + @types/d3-interpolate-path 2.0.3
+#12 16.96 + @types/eslint 8.56.12
+#12 16.96 + @types/jest 30.0.0
+#12 16.96 + @types/node 22.13.9
+#12 16.96 + @types/papaparse 5.3.16
+#12 16.96 + @types/react 18.3.18
+#12 16.96 + @types/react-dom 18.3.5
+#12 16.96 + @types/recompose 0.30.15
+#12 16.96 + @types/redux-form 8.3.11
+#12 16.96 + @types/redux-logger 3.0.13
+#12 16.96 + @types/uuid 10.0.0
+#12 16.96 + @types/validator 13.15.2
+#12 16.96 + @typescript-eslint/eslint-plugin 8.34.1
+#12 16.96 + @typescript-eslint/parser 8.34.1
+#12 16.96 + @vitejs/plugin-react 4.5.2
+#12 16.96 + eslint 8.57.1
+#12 16.96 + eslint-config-next 15.4.2
+#12 16.96 + eslint-config-prettier 10.1.5
+#12 16.96 + eslint-import-resolver-alias 1.1.2
+#12 16.96 + eslint-import-resolver-typescript 4.4.4
+#12 16.96 + eslint-plugin-import 2.32.0
+#12 16.96 + eslint-plugin-storybook 9.0.18
+#12 16.96 + jest 30.0.2
+#12 16.96 + jsdom 26.1.0
+#12 16.96 + knip 5.61.2
+#12 16.96 + prettier 3.6.0
+#12 16.96 + prettier-plugin-tailwindcss 0.6.13
+#12 16.96 + prisma 6.10.0
+#12 16.96 + sass 1.89.2
+#12 16.96 + storybook 9.0.18
+#12 16.96 + tailwindcss 4.1.11
+#12 16.96 + tailwindcss-animate 1.0.7
+#12 16.96 + typescript 5.8.3
+#12 16.96 + vite-tsconfig-paths 5.1.4
+#12 16.96 + vitest 3.2.4
+#12 16.96 
+#12 16.98 
+#12 16.98 > fresco@3.0.0 postinstall /app
+#12 16.98 > node postinstall.js
+#12 16.98 
+#12 17.02 [dotenv@17.2.0] injecting env (0) from .env (tip: ⚙️  override existing env vars with { override: true })
+#12 17.54 Prisma schema loaded from prisma/schema.prisma
+#12 17.68 
+#12 17.68 ✔ Generated Prisma Client (v6.10.0) to ./node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client in 58ms
+#12 17.68 
+#12 17.68 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+#12 17.68 
+#12 17.68 Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+#12 17.68 
+#12 17.70 Done in 17.1s
+#12 DONE 18.3s
+
+#13 [deps 7/7] COPY migrate-and-start.sh setup-database.js initialize.js ./
+#13 DONE 0.3s
+
+#14 [builder 1/6] WORKDIR /app
+#14 CACHED
+
+#15 [builder 2/6] RUN apk add --no-cache git
+#15 CACHED
+
+#16 [builder 3/6] COPY --from=deps /app/node_modules ./node_modules
+#16 DONE 4.6s
+
+#17 [builder 4/6] COPY --from=deps /app/prisma ./prisma
+#17 DONE 0.3s
+
+#18 [builder 5/6] COPY . .
+#18 DONE 0.2s
+
+#19 [builder 6/6] RUN corepack enable pnpm && pnpm run build
+#19 0.132 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-9.1.1.tgz
+#19 0.758 
+#19 0.758 > fresco@3.0.0 build /app
+#19 0.758 > next build
+#19 0.758 
+#19 1.062 fatal: not a git repository (or any of the parent directories): .git
+#19 1.062 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 1.062 fatal: not a git repository (or any of the parent directories): .git
+#19 1.062 
+#19 1.079 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+#19 1.079 This information is used to shape Next.js' roadmap and prioritize features.
+#19 1.079 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#19 1.079 https://nextjs.org/telemetry
+#19 1.079 
+#19 1.114   ▲ Next.js 14.2.30
+#19 1.114   - Experiments (use with caution):
+#19 1.114     · typedRoutes
+#19 1.114     · webpackBuildWorker
+#19 1.115 
+#19 1.158    Creating an optimized production build ...
+#19 1.400 fatal: not a git repository (or any of the parent directories): .git
+#19 1.400 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 1.400 fatal: not a git repository (or any of the parent directories): .git
+#19 1.400 
+#19 27.03 fatal: not a git repository (or any of the parent directories): .git
+#19 27.03 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 27.03 fatal: not a git repository (or any of the parent directories): .git
+#19 27.03 
+#19 27.90 fatal: not a git repository (or any of the parent directories): .git
+#19 27.90 Error getting commit hash: Command failed: git log --pretty=format:"%h" -n1
+#19 27.90 fatal: not a git repository (or any of the parent directories): .git
+#19 27.90 
+#19 43.54  ✓ Compiled successfully
+#19 43.54    Skipping validation of types
+#19 43.54    Skipping linting
+#19 43.69    Collecting page data ...
+#19 47.54    Generating static pages (0/20) ...
+#19 47.60 Health check failed: PrismaClientInitializationError: 
+#19 47.60 Invalid `prisma.$queryRaw()` invocation:
+#19 47.60 
+#19 47.60 
+#19 47.60 error: Environment variable not found: POSTGRES_PRISMA_URL.
+#19 47.60   -->  schema.prisma:11
+#19 47.60    | 
+#19 47.60 10 |   provider  = "postgresql"
+#19 47.60 11 |   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+#19 47.60    | 
+#19 47.60 
+#19 47.60 Validation Error Count: 1
+#19 47.60     at Zn.handleRequestError (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:121:7759)
+#19 47.60     at Zn.handleAndLogRequestError (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:121:6784)
+#19 47.60     at Zn.request (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:121:6491)
+#19 47.60     at async l (/app/node_modules/.pnpm/@prisma+client@6.10.0_prisma@6.10.0_typescript@5.8.3__typescript@5.8.3/node_modules/@prisma/client/runtime/library.js:130:9778)
+#19 47.60     at async u (/app/.next/server/app/api/health/route.js:1:618)
+#19 47.60     at async /app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38411
+#19 47.60     at async e_.execute (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:27880)
+#19 47.60     at async e_.handle (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:39943)
+#19 47.60     at async exportAppRoute (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/export/routes/app-route.js:77:26)
+#19 47.60     at async exportPageImpl (/app/node_modules/.pnpm/next@14.2.30_@babel+core@7.27.4_@playwright+test@1.55.0_react-dom@18.3.1_react@18.3.1__react@18.3.1_sass@1.89.2/node_modules/next/dist/export/worker.js:175:20) {
+#19 47.60   clientVersion: '6.10.0',
+#19 47.60   errorCode: undefined,
+#19 47.60   retryable: undefined
+#19 47.60 }
+#19 47.60 prisma:error 
+#19 47.60 Invalid `prisma.$queryRaw()` invocation:
+#19 47.60 
+#19 47.60 
+#19 47.60 error: Environment variable not found: POSTGRES_PRISMA_URL.
+#19 47.60   -->  schema.prisma:11
+#19 47.60    | 
+#19 47.60 10 |   provider  = "postgresql"
+#19 47.60 11 |   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+#19 47.60    | 
+#19 47.60 
+#19 47.60 Validation Error Count: 1
+#19 47.60    Generating static pages (5/20) 
+#19 47.75    Generating static pages (10/20) 
+#19 47.75    Generating static pages (15/20) 
+#19 47.99  ✓ Generating static pages (20/20)
+#19 48.37    Finalizing page optimization ...
+#19 48.37    Collecting build traces ...
+#19 61.08 
+#19 61.08 Route (app)                              Size     First Load JS
+#19 61.08 ┌ ○ /                                    162 B          89.2 kB
+#19 61.08 ├ ○ /_not-found                          162 B          89.2 kB
+#19 61.08 ├ ƒ /api/analytics                       0 B                0 B
+#19 61.08 ├ ƒ /api/health                          0 B                0 B
+#19 61.08 ├ ƒ /api/test/seed                       0 B                0 B
+#19 61.08 ├ ƒ /api/uploadthing                     0 B                0 B
+#19 61.08 ├ ƒ /dashboard                           11 kB           198 kB
+#19 61.08 ├ ƒ /dashboard/interviews                21.7 kB         228 kB
+#19 61.08 ├ ƒ /dashboard/participants              11.9 kB         238 kB
+#19 61.08 ├ ƒ /dashboard/protocols                 5.34 kB         350 kB
+#19 61.08 ├ ƒ /dashboard/settings                  9.11 kB         179 kB
+#19 61.08 ├ ƒ /expired                             1.76 kB        99.7 kB
+#19 61.08 ├ ƒ /interview/[interviewId]             224 kB          475 kB
+#19 61.08 ├ ƒ /interview/[interviewId]/sync        0 B                0 B
+#19 61.08 ├ ƒ /interview/finished                  978 B          98.9 kB
+#19 61.08 ├ ƒ /onboard/[protocolId]                0 B                0 B
+#19 61.08 ├ ○ /onboard/error                       162 B          89.2 kB
+#19 61.08 ├ ○ /onboard/no-anonymous-recruitment    162 B          89.2 kB
+#19 61.08 ├ ƒ /reset                               0 B                0 B
+#19 61.08 ├ ƒ /setup                               10.1 kB         372 kB
+#19 61.08 └ ƒ /signin                              4.21 kB         167 kB
+#19 61.08 + First Load JS shared by all            89 kB
+#19 61.08   ├ chunks/2988-be00248f401927a1.js      31.8 kB
+#19 61.08   ├ chunks/dd822c33-766e2b2a125be6bd.js  53.6 kB
+#19 61.08   └ other shared chunks (total)          3.65 kB
+#19 61.08 
+#19 61.08 
+#19 61.08 ○  (Static)   prerendered as static content
+#19 61.08 ƒ  (Dynamic)  server-rendered on demand
+#19 61.08 
+#19 DONE 61.5s
+
+#14 [builder 1/6] WORKDIR /app
+#14 CACHED
+
+#20 [runner  2/10] RUN addgroup --system --gid 1001 nodejs &&     adduser --system --uid 1001 nextjs
+#20 DONE 0.1s
+
+#21 [runner  3/10] COPY --from=builder /app/public ./public
+#21 DONE 0.0s
+
+#22 [runner  4/10] RUN mkdir .next && chown nextjs:nodejs .next
+#22 DONE 0.1s
+
+#23 [runner  5/10] COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+#23 DONE 0.3s
+
+#24 [runner  6/10] COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+#24 DONE 0.0s
+
+#25 [runner  7/10] COPY --from=builder --chown=nextjs:nodejs /app/initialize.js ./
+#25 DONE 0.0s
+
+#26 [runner  8/10] COPY --from=builder --chown=nextjs:nodejs /app/setup-database.js ./
+#26 DONE 0.0s
+
+#27 [runner  9/10] COPY --from=builder --chown=nextjs:nodejs /app/migrate-and-start.sh ./
+#27 DONE 0.0s
+
+#28 [runner 10/10] COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+#28 DONE 0.0s
+
+#29 exporting to oci image format
+#29 exporting layers
+#29 exporting layers 2.3s done
+#29 exporting manifest sha256:726011f75d5fe41cba23b50c73f8c723856f3238dbc9e7b9e3a2f34496852a5e
+#29 exporting manifest sha256:726011f75d5fe41cba23b50c73f8c723856f3238dbc9e7b9e3a2f34496852a5e done
+#29 exporting config sha256:bc08cdea1ba6e68437c347f55cd4228374a97db03b318df8e59bbf2092d3b1ce done
+#29 sending tarball
+#29 sending tarball 1.7s done
+#29 DONE 4.0s
+
+#30 importing to docker
+#30 DONE 0.0s
+
+#31 resolving provenance for metadata file
+#31 DONE 0.0s
+ fresco-e2e-dashboard-chromium-20250822_172755-nextjs_app  Built
+ Network fresco-e2e-dashboard-chromium-20250822_172755_default  Creating
+ Network fresco-e2e-dashboard-chromium-20250822_172755_default  Created
+ Volume "fresco-e2e-dashboard-chromium-20250822_172755_postgres-data"  Creating
+ Volume "fresco-e2e-dashboard-chromium-20250822_172755_postgres-data"  Created
+ Container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1  Creating
+ Container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1  Created
+ Container fresco-e2e-dashboard-chromium-20250822_172755-nextjs_app-1  Creating
+ Container fresco-e2e-dashboard-chromium-20250822_172755-nextjs_app-1  Created
+ Container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1  Starting
+ Container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1  Started
+ Container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1  Waiting
+ Container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1  Error
+dependency failed to start: container fresco-e2e-dashboard-chromium-20250822_172755-postgres-1 exited (1)
+Waiting for services to be healthy...
+Services failed to become healthy
