@@ -96,6 +96,14 @@ function extractAdditionalProps(
     if (params.maxLabel) props.maxLabel = params.maxLabel;
   }
 
+  // Handle DatePicker parameters
+  if (fieldType === 'DatePicker' && field.parameters) {
+    const params = field.parameters;
+    if (params.min) props.min = params.min;
+    if (params.max) props.max = params.max;
+    if (params.type) props.type = params.type;
+  }
+
   // Handle RelativeDatePicker parameters
   if (fieldType === 'RelativeDatePicker' && field.parameters) {
     const params = field.parameters;
