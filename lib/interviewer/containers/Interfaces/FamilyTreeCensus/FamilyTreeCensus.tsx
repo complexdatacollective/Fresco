@@ -123,6 +123,20 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     }
   };
 
+  const egoChildCheck = (formData: Record<string, string>) => {
+    if (
+      typeof formData['sons'] != 'string' ||
+      typeof formData['daughters'] != 'string'
+    ) {
+      return false;
+    } else if (
+      parseInt(formData['sons']) > 0 ||
+      parseInt(formData['daughters']) > 0
+    ) {
+      return true;
+    }
+  };
+
   const generatePlaceholderNodes = (formData: Record<string, string>) => {
     // Use a temporary local array to accumulate nodes before setting
     const tempNodes: PlaceholderNodeProps[] = [];
@@ -194,11 +208,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     ego.parentIds?.push(father.id ?? '', mother.id ?? '');
     ego.unDeletable = true;
 
-    const partner = addNode('male', 'partner');
-    ego.partnerId = partner.id;
-    partner.partnerId = ego.id;
-    partner.unDeletable = true;
-
     // Add siblings, children, uncles, aunts
     arrayFromRelationCount(formData, 'brothers').forEach(() => {
       const brother = addNode('male', 'brother');
@@ -214,19 +223,25 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       sister.parentIds?.push(father.id ?? '', mother.id ?? '');
     });
 
-    arrayFromRelationCount(formData, 'sons').forEach(() => {
-      const son = addNode('male', 'son');
-      ego.childIds?.push(son.id ?? '');
-      partner.childIds?.push(son.id ?? '');
-      son.parentIds?.push(ego.id ?? '', partner.id ?? '');
-    });
+    if (egoChildCheck(formData)) {
+      const partner = addNode('male', 'partner');
+      ego.partnerId = partner.id;
+      partner.partnerId = ego.id;
 
-    arrayFromRelationCount(formData, 'daughters').forEach(() => {
-      const daughter = addNode('female', 'daughter');
-      ego.childIds?.push(daughter.id ?? '');
-      partner.childIds?.push(daughter.id ?? '');
-      daughter.parentIds?.push(ego.id ?? '', partner.id ?? '');
-    });
+      arrayFromRelationCount(formData, 'sons').forEach(() => {
+        const son = addNode('male', 'son');
+        ego.childIds?.push(son.id ?? '');
+        partner.childIds?.push(son.id ?? '');
+        son.parentIds?.push(ego.id ?? '', partner.id ?? '');
+      });
+
+      arrayFromRelationCount(formData, 'daughters').forEach(() => {
+        const daughter = addNode('female', 'daughter');
+        ego.childIds?.push(daughter.id ?? '');
+        partner.childIds?.push(daughter.id ?? '');
+        daughter.parentIds?.push(ego.id ?? '', partner.id ?? '');
+      });
+    }
 
     arrayFromRelationCount(formData, 'paternal-uncles').forEach(() => {
       const uncle = addNode('male', 'paternal uncle');
@@ -455,12 +470,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           accepts={({ meta }: { meta: { itemType: string | null } }) =>
             get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
           }
-          onDrop={() => {
-            console.log('womp');
-          }}
-          onItemClick={() => {
-            console.log('wamp');
-          }}
+          onDrop={() => {}}
+          onItemClick={() => {}}
         />
 
         <NodeBin
