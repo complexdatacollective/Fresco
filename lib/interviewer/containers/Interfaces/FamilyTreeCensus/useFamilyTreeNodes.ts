@@ -135,20 +135,24 @@ function useFamilyTreeNodes(
     (nodeId: string) => {
       setPlaceholderNodes((prev) => {
         const byId = new Map(prev.map((n) => [n.id, n]));
-
         const toDelete = new Set<string>();
 
-        function collectDeletions(id: string) {
+        function collectDeletions(id: string, deletePartner: boolean) {
           const node = byId.get(id);
           if (!node || toDelete.has(id)) return;
 
           if (node.unDeletable) return;
 
+          // Always delete the node itself
           toDelete.add(id);
 
-          (node.childIds || []).forEach((childId) => collectDeletions(childId));
+          // Delete children
+          (node.childIds || []).forEach((childId) =>
+            collectDeletions(childId, true),
+          );
 
-          if (node.partnerId) {
+          // Conditionally delete partner
+          if (deletePartner && node.partnerId) {
             const partner = byId.get(node.partnerId);
             if (partner && !partner.unDeletable) {
               toDelete.add(node.partnerId);
@@ -156,18 +160,55 @@ function useFamilyTreeNodes(
           }
         }
 
-        collectDeletions(nodeId);
+        const target = byId.get(nodeId);
+        if (!target) return prev;
 
+        const relatedToEgo = (target.parentIds || []).length > 0;
+
+        collectDeletions(nodeId, relatedToEgo);
+
+        // Remove all marked nodes
         for (const id of toDelete) {
           byId.delete(id);
         }
 
-        const cleaned = [...byId.values()].map((n) => ({
+        // Clean references
+        let cleaned = [...byId.values()].map((n) => ({
           ...n,
           parentIds: (n.parentIds || []).filter((pid) => !toDelete.has(pid)),
           childIds: (n.childIds || []).filter((cid) => !toDelete.has(cid)),
           partnerId: toDelete.has(n.partnerId || '') ? undefined : n.partnerId,
         }));
+
+        // delete their partner (if partner is unrelated/deletable)
+        const extraDeletes = new Set<string>();
+        cleaned.forEach((n) => {
+          if (
+            (n.parentIds || []).length > 0 &&
+            (n.childIds || []).length === 0
+          ) {
+            if (n.partnerId) {
+              const partner = cleaned.find((c) => c.id === n.partnerId);
+              if (
+                partner &&
+                (partner.parentIds || []).length === 0 &&
+                !partner.unDeletable
+              ) {
+                extraDeletes.add(partner.id);
+              }
+            }
+          }
+        });
+
+        if (extraDeletes.size > 0) {
+          cleaned = cleaned.filter((n) => !extraDeletes.has(n.id));
+          cleaned = cleaned.map((n) => ({
+            ...n,
+            partnerId: extraDeletes.has(n.partnerId || '')
+              ? undefined
+              : n.partnerId,
+          }));
+        }
 
         return cleaned;
       });

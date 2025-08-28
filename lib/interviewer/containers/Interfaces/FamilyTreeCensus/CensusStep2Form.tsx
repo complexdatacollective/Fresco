@@ -1,8 +1,6 @@
 import { type Form as TForm } from '@codaco/protocol-validation';
 import {
-  type EntityAttributesProperty,
   entityAttributesProperty,
-  type EntityPrimaryKey,
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
@@ -13,7 +11,6 @@ import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import Form from '~/lib/form/components/Form';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from '~/lib/interviewer/containers/Interfaces/utils/constants';
 import Overlay from '~/lib/interviewer/containers/Overlay';
-import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
@@ -21,7 +18,6 @@ import {
   getPedigreeStageMetadata,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
-import { useAppDispatch } from '~/lib/interviewer/store';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 
@@ -54,17 +50,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const [relationValue, setRelationValue] = useState('');
   const [egoId, setEgoId] = useState<string>(egoNodeId);
   const formRef = useRef<HTMLFormElement>(null);
-
-  const dispatch = useAppDispatch();
-
-  const updateNode = useCallback(
-    (payload: {
-      nodeId: NcNode[EntityPrimaryKey];
-      newModelData?: Record<string, unknown>;
-      newAttributeData: NcNode[EntityAttributesProperty];
-    }) => dispatch(updateNodeAction(payload)),
-    [dispatch],
-  );
 
   function hasDuplicatePartnerId(data, targetId) {
     const count = data.reduce((acc, item) => {
@@ -470,8 +455,36 @@ const CensusStep2Form = (props: NodeFormProps) => {
           const egoNode = step2Nodes.find((n) => n.id === egoNodeId);
           if (!egoNode) break;
 
-          parentsArray = [egoNode];
-          newNodeParentIds = [egoNode.id];
+          let parentsArray: PlaceholderNodeProps[] = [egoNode];
+          let newNodeParentIds: string[] = [egoNode.id];
+
+          let updatedEgo: PlaceholderNodeProps = egoNode;
+          let partnerNode: PlaceholderNodeProps | undefined;
+
+          if (!egoNode.partnerId) {
+            const partnerId = crypto.randomUUID();
+            partnerNode = {
+              id: partnerId,
+              gender: egoNode.gender === 'male' ? 'female' : 'male',
+              label: `${egoNode.label}'s partner`,
+              parentIds: [],
+              childIds: [...(egoNode.childIds || [])],
+              partnerId: egoNode.id,
+              xPos: 0,
+              yPos: 0,
+            };
+
+            updatedEgo = { ...egoNode, partnerId };
+            parentsArray = [updatedEgo, partnerNode];
+            newNodeParentIds = [updatedEgo.id, partnerId];
+          } else {
+            partnerNode = step2Nodes?.find((n) => n.id === egoNode.partnerId);
+
+            if (partnerNode) {
+              parentsArray = [egoNode, partnerNode];
+              newNodeParentIds = [egoNode.id, partnerNode.id];
+            }
+          }
 
           newNode = {
             id: crypto.randomUUID(),
@@ -482,6 +495,26 @@ const CensusStep2Form = (props: NodeFormProps) => {
             xPos: 0,
             yPos: 0,
           };
+
+          const updatedEgoWithChildren: PlaceholderNodeProps = {
+            ...updatedEgo,
+            childIds: [...(updatedEgo.childIds || []), newNode.id],
+          };
+
+          const updatedPartnerWithChildren: PlaceholderNodeProps | undefined =
+            partnerNode
+              ? {
+                  ...partnerNode,
+                  childIds: [...(partnerNode.childIds || []), newNode.id],
+                }
+              : undefined;
+
+          setPlaceholderNodes([
+            updatedEgoWithChildren,
+            ...(updatedPartnerWithChildren ? [updatedPartnerWithChildren] : []),
+            newNode,
+          ]);
+
           break;
         }
 
