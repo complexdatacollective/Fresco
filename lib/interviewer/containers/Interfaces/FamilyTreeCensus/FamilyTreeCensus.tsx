@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import UIChildConnector from '~/lib/ui/components/FamilyTree/ChildConnector';
+import UIExPartnerConnector from '~/lib/ui/components/FamilyTree/ExPartnerConnector';
 import UIOffspringConnector from '~/lib/ui/components/FamilyTree/OffspringConnector';
 import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
@@ -25,6 +26,8 @@ type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
 };
 const rowHeight = 205;
+const xOffset = 200;
+const yOffset = 100;
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { getNavigationHelpers, registerBeforeNext, stage } = props;
@@ -125,13 +128,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const egoChildCheck = (formData: Record<string, string>) => {
     if (
-      typeof formData['sons'] != 'string' ||
-      typeof formData['daughters'] != 'string'
+      typeof formData.sons != 'string' ||
+      typeof formData.daughters != 'string'
     ) {
       return false;
     } else if (
-      parseInt(formData['sons']) > 0 ||
-      parseInt(formData['daughters']) > 0
+      parseInt(formData.sons) > 0 ||
+      parseInt(formData.daughters) > 0
     ) {
       return true;
     }
@@ -153,8 +156,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         label,
         parentIds: [],
         childIds: [],
-        xPos: 0,
-        yPos: 0,
+        xPos: undefined,
+        yPos: undefined,
         unDeletable: false,
       };
     };
@@ -397,11 +400,29 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               node.partnerId != null && (
                 <UIPartnerConnector
                   key={crypto.randomUUID()}
-                  xStartPos={(node.xPos ?? 0) + 10}
+                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
                   xEndPos={
-                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) - 20
+                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) -
+                    20 +
+                    xOffset
                   }
-                  yPos={node.yPos}
+                  yPos={node.yPos + yOffset}
+                />
+              )
+            );
+          })}
+          {positionedNodes.map((node) => {
+            return (
+              node.exPartnerId != null && (
+                <UIExPartnerConnector
+                  key={crypto.randomUUID()}
+                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
+                  xEndPos={
+                    (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) -
+                    20 +
+                    xOffset
+                  }
+                  yPos={node.yPos + yOffset}
                 />
               )
             );
@@ -415,10 +436,29 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   xPos={
                     ((node.xPos ?? 0) +
                       (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                    2
+                      2 +
+                    xOffset
                   }
-                  yStartPos={node.yPos ?? 0}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30}
+                  yStartPos={(node.yPos ?? 0) + yOffset}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
+                />
+              )
+            );
+          })}
+          {positionedNodes.map((node) => {
+            return (
+              node.exPartnerId != null &&
+              (node.childIds?.length ?? 0) > 0 && (
+                <UIOffspringConnector
+                  key={crypto.randomUUID()}
+                  xPos={
+                    ((node.xPos ?? 0) +
+                      (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0)) /
+                      2 +
+                    xOffset
+                  }
+                  yStartPos={(node.yPos ?? 0) - 5 + yOffset}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
                 />
               )
             );
@@ -433,13 +473,38 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                 return (
                   <UIChildConnector
                     key={crypto.randomUUID()}
-                    xStartPos={childNode.xPos ?? 0}
+                    xStartPos={(childNode.xPos ?? 0) + xOffset}
                     xEndPos={
                       ((node.xPos ?? 0) +
                         (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                      2
+                        2 +
+                      xOffset
                     }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15}
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset}
+                    height={rowHeight / 3 - 15}
+                  />
+                );
+              })
+            );
+          })}
+          {positionedNodes.map((node) => {
+            return (
+              familyTreeNodesById[node.exPartnerId] != null &&
+              familyTreeNodesById[node.exPartnerId] != null &&
+              node.childIds.length > 0 &&
+              node.childIds.map((child) => {
+                const childNode = familyTreeNodesById[child];
+                return (
+                  <UIChildConnector
+                    key={crypto.randomUUID()}
+                    xStartPos={(childNode.xPos ?? 0) + xOffset}
+                    xEndPos={
+                      ((node.xPos ?? 0) +
+                        (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0)) /
+                        2 +
+                      xOffset
+                    }
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset}
                     height={rowHeight / 3 - 15}
                   />
                 );
@@ -456,8 +521,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                 isEgo={node.isEgo}
                 gender={node.gender}
                 label={node.label}
-                xPos={node.xPos}
-                yPos={node.yPos}
+                xPos={node.xPos + xOffset}
+                yPos={node.yPos + yOffset}
               />
             );
           })}
@@ -500,6 +565,20 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   xStartPos={(node.xPos ?? 0) + 10}
                   xEndPos={
                     (familyTreeNodesById[node.partnerId]?.xPos ?? 0) - 20
+                  }
+                  yPos={node.yPos}
+                />
+              )
+            );
+          })}
+          {positionedNodes.map((node) => {
+            return (
+              node.exPartnerId != null && (
+                <UIExPartnerConnector
+                  key={crypto.randomUUID()}
+                  xStartPos={(node.xPos ?? 0) + 10}
+                  xEndPos={
+                    (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) - 20
                   }
                   yPos={node.yPos}
                 />
@@ -571,8 +650,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     isEgo={node.isEgo}
                     gender={node.gender}
                     label={node.label}
-                    xPos={node.xPos}
-                    yPos={node.yPos}
+                    xPos={node.xPos + 200}
+                    yPos={node.yPos + 100}
                     handleClick={(node) => setSelectedNode(node)}
                   />
                 );

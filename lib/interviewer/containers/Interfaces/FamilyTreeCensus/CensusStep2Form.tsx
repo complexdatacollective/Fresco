@@ -423,8 +423,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
             label: fullData.relation,
             parentIds: parentsArray.map((p) => p.id),
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
           break;
         }
@@ -444,8 +444,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
             label: fullData.relation,
             parentIds: parentsArray.map((p) => p.id),
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
           break;
         }
@@ -492,8 +492,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
             label: fullData.relation.toLowerCase(),
             parentIds: newNodeParentIds,
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
 
           const updatedEgoWithChildren: PlaceholderNodeProps = {
@@ -534,7 +534,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
           let parentsArray: PlaceholderNodeProps[] = [selectedRelative];
           let newNodeParentIds: string[] = [selectedRelative.id];
 
-          let updatedSelectedRelative: PlaceholderNodeProps = selectedRelative;
+          const updatedSelectedRelative: PlaceholderNodeProps =
+            selectedRelative;
           let partnerNode: PlaceholderNodeProps;
 
           const exPartner = getExPartnerForParent(step2Nodes, selectedRelative);
@@ -551,9 +552,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
               label: `${selectedRelative.label}'s ex partner`,
               parentIds: [],
               childIds: [],
-              partnerId: selectedRelative.id,
-              xPos: 0,
-              yPos: 0,
+              xPos: undefined,
+              yPos: undefined,
             };
 
             parentsArray = [selectedRelative, partnerNode];
@@ -569,17 +569,19 @@ const CensusStep2Form = (props: NodeFormProps) => {
                 : 'half sister',
             parentIds: newNodeParentIds,
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
 
           const updatedRelativeWithHalfSibling: PlaceholderNodeProps = {
             ...selectedRelative,
+            exPartnerId: partnerNode.id,
             childIds: [...(selectedRelative.childIds || []), newNode.id],
           };
 
           const updatedPartnerWithHalfSibling: PlaceholderNodeProps = {
             ...partnerNode,
+            exPartnerId: selectedRelative.id,
             childIds: [...(partnerNode.childIds || []), newNode.id],
           };
 
@@ -615,8 +617,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
               parentIds: [],
               childIds: [...(selectedRelative.childIds || [])],
               partnerId: selectedRelative.id,
-              xPos: 0,
-              yPos: 0,
+              xPos: undefined,
+              yPos: undefined,
             };
 
             updatedSelectedRelative = { ...selectedRelative, partnerId };
@@ -638,8 +640,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
             label: 'cousin',
             parentIds: newNodeParentIds,
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
 
           const updatedRelativeWithCousin: PlaceholderNodeProps = {
@@ -687,8 +689,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
               parentIds: [],
               childIds: [...(selectedRelative.childIds || [])],
               partnerId: selectedRelative.id,
-              xPos: 0,
-              yPos: 0,
+              xPos: undefined,
+              yPos: undefined,
             };
 
             updatedSelectedRelative = { ...selectedRelative, partnerId };
@@ -710,8 +712,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
             label: fullData.relation,
             parentIds: newNodeParentIds,
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
 
           const updatedRelativeWithChild: PlaceholderNodeProps = {
@@ -758,8 +760,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
               parentIds: [],
               childIds: [...(selectedChild.childIds || [])],
               partnerId: selectedChild.id,
-              xPos: 0,
-              yPos: 0,
+              xPos: undefined,
+              yPos: undefined,
             };
 
             updatedSelectedChild = { ...selectedChild, partnerId };
@@ -781,8 +783,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
             label: fullData.relation,
             parentIds: newNodeParentIds,
             childIds: [],
-            xPos: 0,
-            yPos: 0,
+            xPos: undefined,
+            yPos: undefined,
           };
 
           const updatedChildWithGrandchild: PlaceholderNodeProps = {

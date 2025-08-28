@@ -21,6 +21,7 @@ export type PlaceholderNodeProps = {
   parentIds?: string[];
   childIds?: string[];
   partnerId?: string;
+  exPartnerId?: string;
   xPos?: number;
   yPos?: number;
   unDeletable?: boolean;
