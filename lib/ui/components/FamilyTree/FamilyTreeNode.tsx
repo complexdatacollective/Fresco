@@ -36,12 +36,17 @@ const FamilyTreeNode = forwardRef<
     handleClick,
     loading = false,
   } = props;
-  const classes = classNames('node', shape === 'square' ? 'square' : 'circle', {
-    'node--inactive': inactive,
-    'node--selected': selected,
-    'node--linking': linking,
-    [`node--${selectedColor}`]: selected && selectedColor,
-  });
+  const classes = classNames(
+    'node',
+    'family-tree-node',
+    shape === 'square' ? 'square' : 'circle',
+    {
+      'node--inactive': inactive,
+      'node--selected': selected,
+      'node--linking': linking,
+      [`node--${selectedColor}`]: selected && selectedColor,
+    },
+  );
 
   const labelClasses = () => {
     const labelLength = label.length;

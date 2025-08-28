@@ -3,8 +3,6 @@ import { motion } from 'motion/react';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
 import { useNodeLabel } from '../Anonymisation/useNodeLabel';
 
-import { DragSource } from '../../../behaviours/DragAndDrop';
-
 const genderColors: Record<string, string> = {
   male: 'neon-coral',
   female: 'neon-coral',
@@ -78,7 +76,4 @@ export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
 
 FamilyTreeNode.displayName = 'FamilyTreeNode';
 
-const MotionFamilyTreeNode = motion.create(FamilyTreeNode);
-MotionFamilyTreeNode.displayName = 'MotionFamilyTreeNode';
-
-export const EnhancedFamilyTreeNode = DragSource(MotionFamilyTreeNode);
+export const MotionFamilyTreeNode = motion.create(FamilyTreeNode);
