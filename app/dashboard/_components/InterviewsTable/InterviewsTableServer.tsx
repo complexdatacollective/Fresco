@@ -9,13 +9,15 @@ export default function InterviewsTableServer() {
   const protocolsPromise = getProtocols();
 
   return (
-    <Suspense
-      fallback={<DataTableSkeleton columnCount={7} filterableColumnCount={2} />}
-    >
-      <InterviewsTable
-        interviewsPromise={interviewsPromise}
-        protocolsPromise={protocolsPromise}
-      />
-    </Suspense>
+    <div data-testid="interviews-table">
+      <Suspense
+        fallback={<DataTableSkeleton columnCount={7} filterableColumnCount={2} />}
+      >
+        <InterviewsTable
+          interviewsPromise={interviewsPromise}
+          protocolsPromise={protocolsPromise}
+        />
+      </Suspense>
+    </div>
   );
 }

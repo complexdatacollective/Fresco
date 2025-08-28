@@ -18,7 +18,7 @@ export default async function InterviewPage() {
         />
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="8xl" baseSize="content">
-        <Section>
+        <Section data-testid="interviews-container">
           <InterviewsTableServer />
         </Section>
       </ResponsiveContainer>

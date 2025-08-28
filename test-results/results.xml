@@ -1,0 +1,118 @@
+<testsuites id="" name="" tests="48" failures="0" skipped="1" errors="0" time="23.07535">
+<testsuite name="auth.setup.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="setup" tests="1" failures="0" skipped="0" time="1.058" errors="0">
+<testcase name="authenticate" classname="auth.setup.ts" time="1.058">
+</testcase>
+</testsuite>
+<testsuite name="dashboard/dashboard-home.spec.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="chromium" tests="7" failures="0" skipped="0" time="24.979" errors="0">
+<testcase name="Dashboard Home Page › should display main dashboard elements" classname="dashboard/dashboard-home.spec.ts" time="2.229">
+</testcase>
+<testcase name="Dashboard Home Page › should have working navigation links" classname="dashboard/dashboard-home.spec.ts" time="7.327">
+</testcase>
+<testcase name="Dashboard Home Page › visual regression: dashboard home page" classname="dashboard/dashboard-home.spec.ts" time="2.868">
+</testcase>
+<testcase name="Dashboard Home Page › visual regression: summary statistics" classname="dashboard/dashboard-home.spec.ts" time="2.864">
+</testcase>
+<testcase name="Dashboard Home Page › visual regression: activity feed" classname="dashboard/dashboard-home.spec.ts" time="2.86">
+</testcase>
+<testcase name="Dashboard Home Page › responsive design: mobile viewport" classname="dashboard/dashboard-home.spec.ts" time="3.704">
+</testcase>
+<testcase name="Dashboard Home Page › responsive design: tablet viewport" classname="dashboard/dashboard-home.spec.ts" time="3.127">
+</testcase>
+</testsuite>
+<testsuite name="dashboard/interviews.spec.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="chromium" tests="9" failures="0" skipped="0" time="14.739" errors="0">
+<testcase name="Dashboard Interviews Page › should display interviews page" classname="dashboard/interviews.spec.ts" time="1.307">
+</testcase>
+<testcase name="Dashboard Interviews Page › should display interviews table when interviews exist" classname="dashboard/interviews.spec.ts" time="1.323">
+</testcase>
+<testcase name="Dashboard Interviews Page › should have interview export functionality" classname="dashboard/interviews.spec.ts" time="1.284">
+</testcase>
+<testcase name="Dashboard Interviews Page › visual regression: interviews page" classname="dashboard/interviews.spec.ts" time="2.058">
+</testcase>
+<testcase name="Dashboard Interviews Page › visual regression: interviews table" classname="dashboard/interviews.spec.ts" time="1.869">
+</testcase>
+<testcase name="Dashboard Interviews Page › should handle interview actions" classname="dashboard/interviews.spec.ts" time="1.199">
+</testcase>
+<testcase name="Dashboard Interviews Page › should display network summary when available" classname="dashboard/interviews.spec.ts" time="1.199">
+</testcase>
+<testcase name="Dashboard Interviews Page › should open export dialog" classname="dashboard/interviews.spec.ts" time="1.579">
+</testcase>
+<testcase name="Dashboard Interviews Page › responsive design: mobile interviews view" classname="dashboard/interviews.spec.ts" time="2.921">
+</testcase>
+</testsuite>
+<testsuite name="dashboard/participants.spec.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="chromium" tests="9" failures="0" skipped="0" time="14.954" errors="0">
+<testcase name="Dashboard Participants Page › should display participants page" classname="dashboard/participants.spec.ts" time="1.473">
+</testcase>
+<testcase name="Dashboard Participants Page › should display participants table when participants exist" classname="dashboard/participants.spec.ts" time="1.629">
+</testcase>
+<testcase name="Dashboard Participants Page › should have participant management functionality" classname="dashboard/participants.spec.ts" time="1.363">
+</testcase>
+<testcase name="Dashboard Participants Page › should have import/export functionality" classname="dashboard/participants.spec.ts" time="1.15">
+</testcase>
+<testcase name="Dashboard Participants Page › visual regression: participants page" classname="dashboard/participants.spec.ts" time="1.733">
+</testcase>
+<testcase name="Dashboard Participants Page › visual regression: participants table" classname="dashboard/participants.spec.ts" time="2.006">
+</testcase>
+<testcase name="Dashboard Participants Page › should handle participant actions" classname="dashboard/participants.spec.ts" time="1.294">
+</testcase>
+<testcase name="Dashboard Participants Page › should open add participant modal" classname="dashboard/participants.spec.ts" time="1.348">
+</testcase>
+<testcase name="Dashboard Participants Page › responsive design: mobile participants view" classname="dashboard/participants.spec.ts" time="2.958">
+</testcase>
+</testsuite>
+<testsuite name="dashboard/protocols.spec.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="chromium" tests="7" failures="0" skipped="1" time="13.724" errors="0">
+<testcase name="Dashboard Protocols Page › should display protocols page" classname="dashboard/protocols.spec.ts" time="1.401">
+</testcase>
+<testcase name="Dashboard Protocols Page › should display protocols table when protocols exist" classname="dashboard/protocols.spec.ts" time="1.84">
+</testcase>
+<testcase name="Dashboard Protocols Page › should have protocol upload functionality" classname="dashboard/protocols.spec.ts" time="1.846">
+</testcase>
+<testcase name="Dashboard Protocols Page › visual regression: protocols page" classname="dashboard/protocols.spec.ts" time="2.463">
+</testcase>
+<testcase name="Dashboard Protocols Page › visual regression: protocols table" classname="dashboard/protocols.spec.ts" time="2.057">
+</testcase>
+<testcase name="Dashboard Protocols Page › should handle protocol actions menu" classname="dashboard/protocols.spec.ts" time="1.136">
+<properties>
+<property name="skip" value="No protocol action buttons found - skipping test">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Protocols Page › responsive design: mobile protocols view" classname="dashboard/protocols.spec.ts" time="2.981">
+</testcase>
+</testsuite>
+<testsuite name="dashboard/settings.spec.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="chromium" tests="9" failures="0" skipped="0" time="14.367" errors="0">
+<testcase name="Dashboard Settings Page › should display settings page" classname="dashboard/settings.spec.ts" time="1.094">
+</testcase>
+<testcase name="Dashboard Settings Page › should display settings form fields" classname="dashboard/settings.spec.ts" time="1.4">
+</testcase>
+<testcase name="Dashboard Settings Page › should have installation ID field" classname="dashboard/settings.spec.ts" time="1.376">
+</testcase>
+<testcase name="Dashboard Settings Page › should have UploadThing token field" classname="dashboard/settings.spec.ts" time="1.246">
+</testcase>
+<testcase name="Dashboard Settings Page › visual regression: settings page" classname="dashboard/settings.spec.ts" time="2.04">
+</testcase>
+<testcase name="Dashboard Settings Page › should show save/update buttons" classname="dashboard/settings.spec.ts" time="1.094">
+</testcase>
+<testcase name="Dashboard Settings Page › should display environment warnings if applicable" classname="dashboard/settings.spec.ts" time="1.502">
+</testcase>
+<testcase name="Dashboard Settings Page › should handle form validation" classname="dashboard/settings.spec.ts" time="1.394">
+</testcase>
+<testcase name="Dashboard Settings Page › responsive design: mobile settings view" classname="dashboard/settings.spec.ts" time="3.221">
+</testcase>
+</testsuite>
+<testsuite name="dashboard/smoke.spec.ts" timestamp="2025-08-28T22:30:58.185Z" hostname="chromium" tests="6" failures="0" skipped="0" time="15.927" errors="0">
+<testcase name="Dashboard Smoke Tests › authentication flow and dashboard access" classname="dashboard/smoke.spec.ts" time="0.57">
+</testcase>
+<testcase name="Dashboard Smoke Tests › dashboard navigation smoke test" classname="dashboard/smoke.spec.ts" time="4.991">
+</testcase>
+<testcase name="Dashboard Smoke Tests › basic functionality smoke test" classname="dashboard/smoke.spec.ts" time="1.515">
+</testcase>
+<testcase name="Dashboard Smoke Tests › page load performance" classname="dashboard/smoke.spec.ts" time="4.394">
+</testcase>
+<testcase name="Dashboard Smoke Tests › responsive layout smoke test" classname="dashboard/smoke.spec.ts" time="2.988">
+</testcase>
+<testcase name="Dashboard Smoke Tests › accessibility smoke test" classname="dashboard/smoke.spec.ts" time="1.469">
+</testcase>
+</testsuite>
+</testsuites>

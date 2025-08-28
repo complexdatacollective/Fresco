@@ -43,6 +43,15 @@ async function checkForUpdate() {
       { cache: 'no-store' },
     );
     const data = await response.json();
+
+    // If we are rate limited, we get a 403 back. This should not be an error state.
+    if (response.status === 403) {
+      return {
+        error: false,
+        rateLimited: true,
+      };
+    }
+
     const { latestVersion, releaseNotes, releaseUrl } =
       GithubApiResponseSchema.parse(data);
 

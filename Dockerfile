@@ -12,7 +12,7 @@ WORKDIR /app
 RUN corepack enable
 
 # Copy dependency files, Prisma schema, and postinstall script
-COPY package.json pnpm-lock.yaml* postinstall.js ./
+COPY package.json pnpm-lock.yaml* scripts/postinstall.js ./
 COPY prisma ./prisma
 
 # Install pnpm and dependencies with cache mount for faster builds
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline
 
 # Copy remaining setup scripts
-COPY migrate-and-start.sh setup-database.js initialize.js ./
+COPY scripts/migrate-and-start.sh scripts/setup-database.js scripts/initialize.js ./
 
 # ---------
 

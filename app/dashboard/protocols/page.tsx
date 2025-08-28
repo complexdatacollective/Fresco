@@ -23,7 +23,7 @@ export default async function ProtocolsPage() {
         </Suspense>
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
+        <Section data-testid="protocols-container">
           <ProtocolsTable />
         </Section>
       </ResponsiveContainer>

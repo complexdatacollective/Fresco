@@ -9,13 +9,15 @@ export default function ParticipantsTable() {
   const protocolsPromise = getProtocols();
 
   return (
-    <Suspense
-      fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={3} />}
-    >
-      <ParticipantsTableClient
-        participantsPromise={participantsPromise}
-        protocolsPromise={protocolsPromise}
-      />
-    </Suspense>
+    <div data-testid="participants-table">
+      <Suspense
+        fallback={<DataTableSkeleton columnCount={4} filterableColumnCount={3} />}
+      >
+        <ParticipantsTableClient
+          participantsPromise={participantsPromise}
+          protocolsPromise={protocolsPromise}
+        />
+      </Suspense>
+    </div>
   );
 }

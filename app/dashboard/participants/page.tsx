@@ -20,7 +20,7 @@ export default async function ParticipantPage() {
       </ResponsiveContainer>
       <ImportExportSection />
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
+        <Section data-testid="participants-container">
           <ParticipantsTable />
         </Section>
       </ResponsiveContainer>

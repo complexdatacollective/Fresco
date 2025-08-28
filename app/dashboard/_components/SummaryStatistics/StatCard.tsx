@@ -22,7 +22,7 @@ function StatCard({
   const data = use(dataPromise);
 
   return (
-    <div className={statCardClasses}>
+    <div className={statCardClasses} data-testid={`stat-card-${title.toLowerCase()}`}>
       <div className="hidden md:block">{icon}</div>
       <div>
         <Heading variant="h4-all-caps">{title}</Heading>
