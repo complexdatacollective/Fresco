@@ -29,7 +29,7 @@ export type PlaceholderNodeProps = {
 };
 export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
   const {
-    isEgo,
+    isEgo = false,
     gender,
     label,
     xPos = 0,

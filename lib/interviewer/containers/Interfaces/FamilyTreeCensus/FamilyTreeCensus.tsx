@@ -65,14 +65,20 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     }));
 
     const layout = new FamilyTreeLayout(cloned, {
-      startX: 200,
-      startY: 100,
       siblings: 150,
       partners: 120,
       generations: 180,
     });
-
     return layout.nodes;
+  }
+
+  function positionedNodesWithOffsets(nodes, xOffset, yOffset) {
+    console.log(nodes, xOffset, yOffset);
+    return nodes.map((n) => ({
+      ...n,
+      xPos: n.xPos + xOffset,
+      yPos: n.yPos + yOffset,
+    }));
   }
 
   const elementRef = useRef(null);
@@ -127,17 +133,10 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const egoChildCheck = (formData: Record<string, string>) => {
-    if (
-      typeof formData.sons != 'string' ||
-      typeof formData.daughters != 'string'
-    ) {
-      return false;
-    } else if (
-      parseInt(formData.sons) > 0 ||
-      parseInt(formData.daughters) > 0
-    ) {
-      return true;
-    }
+    const sons = formData.sons ? parseInt(formData.sons, 10) : 0;
+    const daughters = formData.daughters ? parseInt(formData.daughters, 10) : 0;
+
+    return sons > 0 || daughters > 0;
   };
 
   const generatePlaceholderNodes = (formData: Record<string, string>) => {
@@ -288,8 +287,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     // Now layout the nodes
     const treeLayout = new FamilyTreeLayout(tempNodes, {
-      startX: 200,
-      startY: 100,
       siblings: 150,
       partners: 120,
       generations: 180,
@@ -529,7 +526,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         </div> */}
 
         <FamilyTreePlaceholderNodeList
-          items={positionedNodes}
+          items={positionedNodesWithOffsets(positionedNodes, xOffset, yOffset)}
           listId={`${stage.id}_MAIN_NODE_LIST`}
           id="MAIN_NODE_LIST"
           accepts={({ meta }: { meta: { itemType: string | null } }) =>
@@ -544,7 +541,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             meta.itemType === 'PLACEHOLDER_NODE'
           }
           dropHandler={(meta: PlaceholderNodeProps) =>
-            // deleteNode(meta[entityPrimaryKeyProperty])
             removePlaceholderNode(meta.id)
           }
           id="NODE_BIN"

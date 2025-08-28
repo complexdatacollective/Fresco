@@ -178,21 +178,38 @@ function useFamilyTreeNodes(
           parentIds: (n.parentIds || []).filter((pid) => !toDelete.has(pid)),
           childIds: (n.childIds || []).filter((cid) => !toDelete.has(cid)),
           partnerId: toDelete.has(n.partnerId || '') ? undefined : n.partnerId,
+          exPartnerId: toDelete.has(n.exPartnerId || '')
+            ? undefined
+            : n.exPartnerId,
         }));
 
-        // delete their partner (if partner is unrelated/deletable)
+        // Extra cleanup: if blood relation lost last shared child with exPartner, delete exPartner
         const extraDeletes = new Set<string>();
         cleaned.forEach((n) => {
-          if (
-            (n.parentIds || []).length > 0 &&
-            (n.childIds || []).length === 0
-          ) {
+          if ((n.parentIds || []).length > 0) {
+            // blood relative
+            // Handle exPartnerId
+            if (n.exPartnerId) {
+              const exPartner = cleaned.find((c) => c.id === n.exPartnerId);
+              if (exPartner && !exPartner.unDeletable) {
+                // Check if they still share any children
+                const sharedChildren = (n.childIds || []).filter((cid) =>
+                  exPartner.childIds?.includes(cid),
+                );
+                if (sharedChildren.length === 0) {
+                  extraDeletes.add(exPartner.id);
+                }
+              }
+            }
+
+            // Handle partnerId (unchanged from before)
             if (n.partnerId) {
               const partner = cleaned.find((c) => c.id === n.partnerId);
               if (
                 partner &&
                 (partner.parentIds || []).length === 0 &&
-                !partner.unDeletable
+                !partner.unDeletable &&
+                (n.childIds || []).length === 0
               ) {
                 extraDeletes.add(partner.id);
               }
@@ -207,6 +224,9 @@ function useFamilyTreeNodes(
             partnerId: extraDeletes.has(n.partnerId || '')
               ? undefined
               : n.partnerId,
+            exPartnerId: extraDeletes.has(n.exPartnerId || '')
+              ? undefined
+              : n.exPartnerId,
           }));
         }
 

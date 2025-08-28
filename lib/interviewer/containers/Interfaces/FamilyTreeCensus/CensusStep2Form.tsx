@@ -51,21 +51,11 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const [egoId, setEgoId] = useState<string>(egoNodeId);
   const formRef = useRef<HTMLFormElement>(null);
 
-  function hasDuplicatePartnerId(data, targetId) {
-    const count = data.reduce((acc, item) => {
-      return acc + (item.partnerId === targetId ? 1 : 0);
-    }, 0);
-
-    return count >= 2;
-  }
-
   function getExPartnerForParent(
     allNodes: PlaceholderNodeProps[],
     parentNode: PlaceholderNodeProps,
   ) {
-    return allNodes.find(
-      (n) => n.partnerId === parentNode.id && parentNode.partnerId !== n.id,
-    );
+    return allNodes.find((n) => n.id === parentNode.exPartnerId);
   }
 
   const baseField = {
@@ -526,16 +516,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
 
           if (!selectedRelative) break;
 
-          const existingExPartner = hasDuplicatePartnerId(
-            step2Nodes,
-            selectedRelative.id,
-          );
-
           let parentsArray: PlaceholderNodeProps[] = [selectedRelative];
           let newNodeParentIds: string[] = [selectedRelative.id];
-
-          const updatedSelectedRelative: PlaceholderNodeProps =
-            selectedRelative;
           let partnerNode: PlaceholderNodeProps;
 
           const exPartner = getExPartnerForParent(step2Nodes, selectedRelative);
