@@ -1,0 +1,328 @@
+import { type PrismaClient } from '@prisma/client';
+import {
+  PostgreSqlContainer,
+  type StartedPostgreSqlContainer,
+} from '@testcontainers/postgresql';
+import { exec } from 'child_process';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import {
+  GenericContainer,
+  Network,
+  type StartedNetwork,
+  type StartedTestContainer,
+  Wait,
+} from 'testcontainers';
+import { fileURLToPath } from 'url';
+import { promisify } from 'util';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const execAsync = promisify(exec);
+
+export type TestEnvironmentConfig = {
+  /** Unique identifier for this test suite environment */
+  suiteId: string;
+  /** Optional SQL or TypeScript file to run for seeding test data */
+  seedScript?: string;
+  /** Custom function to set up test data using Prisma client */
+  setupData?: (prisma: PrismaClient) => Promise<void>;
+};
+
+export type TestEnvironmentContext = {
+  appUrl: string;
+  appContainer: StartedTestContainer;
+  dbContainer: StartedPostgreSqlContainer;
+  prisma: PrismaClient;
+  network: StartedNetwork;
+  createSnapshot: (name?: string) => Promise<void>;
+  restoreSnapshot: (name?: string) => Promise<void>;
+  cleanup: () => Promise<void>;
+};
+
+export class TestEnvironment {
+  private contexts = new Map<string, TestEnvironmentContext>();
+
+  async create(config: TestEnvironmentConfig): Promise<TestEnvironmentContext> {
+    // eslint-disable-next-line no-console
+    console.log(`🚀 Creating test environment: ${config.suiteId}`);
+
+    try {
+      // Create network for this environment
+      const network = await new Network().start();
+
+      // Start PostgreSQL container
+      const dbContainer = await this.startDatabase(network);
+
+      // Run Prisma migrations
+      await this.runPrismaMigrations(dbContainer.getConnectionUri());
+
+      // Build and start application container
+      const appContainer = await this.startApplication({
+        ...config,
+        dbContainer,
+        network,
+      });
+
+      // Initialize Prisma client
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient({
+        datasources: {
+          db: {
+            url: dbContainer.getConnectionUri(),
+          },
+        },
+      });
+
+      await prisma.$connect();
+
+      // Run seed script if provided
+      if (config.seedScript) {
+        await this.runSeedScript(config.seedScript, prisma);
+      }
+
+      // Run custom setup data function if provided
+      if (config.setupData) {
+        await config.setupData(prisma);
+      }
+
+      const appPort = appContainer.getMappedPort(3000);
+      const appUrl = `http://localhost:${appPort}`;
+
+      const context: TestEnvironmentContext = {
+        appUrl,
+        appContainer,
+        dbContainer,
+        prisma,
+        network,
+        createSnapshot: async (name?: string) => {
+          await dbContainer.snapshot(name);
+        },
+        restoreSnapshot: async (name?: string) => {
+          await dbContainer.restoreSnapshot(name);
+        },
+        cleanup: async () => {
+          await this.cleanup(config.suiteId);
+        },
+      };
+
+      this.contexts.set(config.suiteId, context);
+      return context;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to create environment ${config.suiteId}:`, error);
+      await this.cleanup(config.suiteId);
+      throw error;
+    }
+  }
+
+  private async startDatabase(
+    network: StartedNetwork,
+  ): Promise<StartedPostgreSqlContainer> {
+    // eslint-disable-next-line no-console
+    console.log(`  📦 Starting PostgreSQL...`);
+
+    const container = await new PostgreSqlContainer('postgres:16-alpine')
+      .withNetwork(network)
+      .withNetworkAliases('postgres-db')
+      .start();
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `  ✅ PostgreSQL started on port ${container.getMappedPort(5432)}`,
+    );
+    return container;
+  }
+
+  private async runPrismaMigrations(databaseUrl: string): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log(`  🔄 Running Prisma migrations...`);
+
+    const projectRoot = path.join(__dirname, '../../..');
+
+    // Set environment variables for Prisma
+    const env = {
+      ...process.env,
+      POSTGRES_PRISMA_URL: databaseUrl,
+      POSTGRES_URL_NON_POOLING: databaseUrl,
+    };
+
+    try {
+      // Generate Prisma client first
+      await execAsync('pnpm prisma generate', {
+        cwd: projectRoot,
+        env,
+      });
+
+      // Run migrations
+      await execAsync('pnpm prisma migrate deploy', {
+        cwd: projectRoot,
+        env,
+      });
+
+      // eslint-disable-next-line no-console
+      console.log(`  ✅ Migrations completed`);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Migration error:', error);
+      throw error;
+    }
+  }
+
+  private async runSeedScript(
+    seedScript: string,
+    prisma: PrismaClient,
+  ): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log(`  🌱 Running seed script: ${seedScript}`);
+
+    const seedPath = path.join(__dirname, '../seeds', seedScript);
+
+    // Check if it's a SQL file or a TypeScript file
+    if (seedScript.endsWith('.sql')) {
+      const seedContent = await fs.readFile(seedPath, 'utf-8');
+      // Execute raw SQL
+      await prisma.$executeRawUnsafe(seedContent);
+    } else if (seedScript.endsWith('.ts')) {
+      // Dynamic import of TypeScript seed file
+      const seedModule = (await import(seedPath)) as {
+        default: (prisma: PrismaClient) => Promise<void>;
+      };
+      if (typeof seedModule.default === 'function') {
+        await seedModule.default(prisma);
+      } else {
+        throw new Error(
+          `Seed script ${seedScript} does not export a default function`,
+        );
+      }
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`    ✓ Applied seed: ${seedScript}`);
+  }
+
+  private async startApplication(
+    config: TestEnvironmentConfig & {
+      dbContainer: StartedPostgreSqlContainer;
+      network: StartedNetwork;
+    },
+  ): Promise<StartedTestContainer> {
+    // eslint-disable-next-line no-console
+    console.log(`  🚀 Starting application...`);
+
+    // Option 1: Use pre-built image (faster for CI)
+    if (process.env.TEST_IMAGE_NAME) {
+      return await this.startFromImage(config);
+    }
+
+    // Option 2: Build from Dockerfile (slower but ensures latest code)
+    return await this.startFromDockerfile(config);
+  }
+
+  private async startFromDockerfile(
+    config: TestEnvironmentConfig & {
+      dbContainer: StartedPostgreSqlContainer;
+      network: StartedNetwork;
+    },
+  ): Promise<StartedTestContainer> {
+    // Use the pre-built image set by global setup
+    const imageName = process.env.TEST_IMAGE_NAME ?? 'fresco-test:latest';
+
+    const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
+
+    const container = await new GenericContainer(imageName)
+      .withEnvironment({
+        NODE_ENV: 'test',
+        POSTGRES_PRISMA_URL: databaseUrl,
+        POSTGRES_URL_NON_POOLING: databaseUrl,
+        SKIP_ENV_VALIDATION: 'true',
+        HOSTNAME: '0.0.0.0',
+        PORT: '3000',
+      })
+      .withExposedPorts(3000)
+      .withNetwork(config.network)
+      .withNetworkAliases('app')
+      // .withWaitStrategy(
+      //   Wait.forHttp('/api/health', 3000)
+      //     .forStatusCode(200)
+      //     .withStartupTimeout(120000),
+      // )
+      .start();
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `  ✅ Application started on port ${container.getMappedPort(3000)}`,
+    );
+    
+    // Wait a bit for the Next.js app to start
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    return container;
+  }
+
+  private async startFromImage(
+    config: TestEnvironmentConfig & {
+      dbContainer: StartedPostgreSqlContainer;
+      network: StartedNetwork;
+    },
+  ): Promise<StartedTestContainer> {
+    // Assume image is already built (e.g., in CI pipeline)
+    const imageName = process.env.TEST_IMAGE_NAME!;
+
+    const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
+
+    const container = await new GenericContainer(imageName)
+      .withEnvironment({
+        NODE_ENV: 'test',
+        POSTGRES_PRISMA_URL: databaseUrl,
+        POSTGRES_URL_NON_POOLING: databaseUrl,
+        SKIP_ENV_VALIDATION: 'true',
+        HOSTNAME: '0.0.0.0',
+        PORT: '3000',
+      })
+      .withExposedPorts(3000)
+      .withNetwork(config.network)
+      .withNetworkAliases('app')
+      // .withWaitStrategy(
+      //   Wait.forHttp('/api/health', 3000)
+      //     .forStatusCode(200)
+      //     .withStartupTimeout(120000),
+      // )
+      .start();
+
+    return container;
+  }
+
+  async cleanup(suiteId: string): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log(`🧹 Cleaning up environment: ${suiteId}`);
+
+    const context = this.contexts.get(suiteId);
+    if (!context) return;
+
+    try {
+      await Promise.allSettled([
+        context.prisma.$disconnect(),
+        context.appContainer?.stop(),
+        context.dbContainer?.stop(),
+        context.network?.stop(),
+      ]);
+
+      this.contexts.delete(suiteId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Error during cleanup of ${suiteId}:`, error);
+    }
+  }
+
+  async cleanupAll(): Promise<void> {
+    const cleanupPromises = Array.from(this.contexts.keys()).map((suiteId) =>
+      this.cleanup(suiteId),
+    );
+    await Promise.all(cleanupPromises);
+  }
+
+  getContext(suiteId: string): TestEnvironmentContext | undefined {
+    return this.contexts.get(suiteId);
+  }
+}
