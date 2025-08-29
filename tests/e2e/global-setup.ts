@@ -21,8 +21,7 @@ async function globalSetup() {
   const setupPromises = [
     setupInitialSetupEnvironment(testEnv),
     setupDashboardEnvironment(testEnv),
-    // setupInterviewsEnvironment(testEnv),
-    // setupParticipantsEnvironment(testEnv),
+    setupInterviewsEnvironment(testEnv),
   ];
 
   await Promise.all(setupPromises);
@@ -51,6 +50,11 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
       // Setup app as configured
       await dataBuilder.setupAppSettings();
 
+      // Setup app settings
+      await dataBuilder.setupAppSettings({
+        allowAnonymousRecruitment: true,
+      });
+
       // Create admin user
       await dataBuilder.createUser({
         username: 'admin',
@@ -74,37 +78,15 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
     setupData: async (prisma) => {
       const dataBuilder = new TestDataBuilder(prisma);
 
-      // Setup complete test data
-      const testData = await dataBuilder.setupCompleteTestData();
-
-      // Store test data for use in tests
-      global.__INTERVIEWS_TEST_DATA__ = testData;
-    },
-  });
-
-  // Create snapshot for restoration between interview tests
-  await context.createSnapshot('initial');
-
-  // Store context for use in tests
-  global.__INTERVIEWS_CONTEXT__ = context;
-
-  return context;
-}
-
-async function setupParticipantsEnvironment(testEnv: TestEnvironment) {
-  const context = await testEnv.create({
-    suiteId: 'participants',
-    setupData: async (prisma) => {
-      const dataBuilder = new TestDataBuilder(prisma);
-
       // Setup app settings
       await dataBuilder.setupAppSettings({
+        configured: true,
         allowAnonymousRecruitment: true,
       });
 
       // Create admin user
-      await dataBuilder.createUser({
-        username: 'admin_participants',
+      const adminData = await dataBuilder.createUser({
+        username: 'admin',
         password: 'AdminPass123!',
       });
 
@@ -132,12 +114,25 @@ async function setupParticipantsEnvironment(testEnv: TestEnvironment) {
         participants.push(participant);
       }
 
-      global.__PARTICIPANTS_TEST_DATA__ = {
+      global.__INTERVIEWS_TEST_DATA__ = {
+        admin: adminData,
         protocol,
         participants,
       };
     },
   });
+
+  // Disconnect Prisma before creating snapshot to avoid connection issues
+  await context.prisma.$disconnect();
+  
+  // Create snapshot for restoration between interview tests
+  await context.createSnapshot('initial');
+  
+  // Reconnect Prisma after snapshot
+  await context.prisma.$connect();
+
+  // Store context for use in tests
+  global.__INTERVIEWS_CONTEXT__ = context;
 
   return context;
 }

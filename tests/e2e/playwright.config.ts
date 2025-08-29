@@ -42,24 +42,15 @@ export default defineConfig({
       },
       fullyParallel: true, // Parallel for protocol management tests
     },
-    // {
-    //   name: 'interviews',
-    //   testMatch: '**/interviews/*.spec.ts',
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //     baseURL: process.env.INTERVIEWS_URL,
-    //   },
-    //   fullyParallel: false, // Sequential for interview flow
-    // },
-    // {
-    //   name: 'participants',
-    //   testMatch: '**/participants/*.spec.ts',
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //     baseURL: process.env.PARTICIPANTS_URL,
-    //   },
-    //   fullyParallel: true,
-    // },
+    {
+      name: 'interviews',
+      testMatch: '**/interviews/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.INTERVIEWS_URL,
+      },
+      fullyParallel: false, // Sequential for interview flow
+    },
   ],
 
   // Global setup and teardown

@@ -9,6 +9,7 @@ import * as path from 'path';
 import {
   GenericContainer,
   Network,
+  Wait,
   type StartedNetwork,
   type StartedTestContainer,
 } from 'testcontainers';
@@ -110,7 +111,7 @@ export class TestEnvironment {
       process.env[variable] = appUrl;
 
       // eslint-disable-next-line no-console
-      console.log(`  ${config.suiteId}:        ${variable ?? 'N/A'}`);
+      console.log(`  ${config.suiteId}:        ${appUrl}`);
       return context;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -179,13 +180,35 @@ export class TestEnvironment {
     // eslint-disable-next-line no-console
     console.log(`  🚀 Starting application...`);
 
-    // Option 1: Use pre-built image (faster for CI)
-    if (process.env.TEST_IMAGE_NAME) {
-      return await this.startFromImage(config);
-    }
+    // Assume image is already built (e.g., in CI pipeline)
+    const imageName = process.env.TEST_IMAGE_NAME!;
 
-    // Option 2: Build from Dockerfile (slower but ensures latest code)
-    return await this.startFromDockerfile(config);
+    const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
+
+    const container = await new GenericContainer(imageName)
+      .withEnvironment({
+        NODE_ENV: 'test',
+        POSTGRES_PRISMA_URL: databaseUrl,
+        POSTGRES_URL_NON_POOLING: databaseUrl,
+        SKIP_ENV_VALIDATION: 'true',
+        HOSTNAME: '0.0.0.0',
+        PORT: '3000',
+        // Add a test UploadThing token for onboarding flow
+        UPLOADTHING_TOKEN: 'sk_test_dummy_token_for_testing',
+      })
+      .withExposedPorts(3000)
+      .withNetwork(config.network)
+      .withNetworkAliases('app')
+      .withWaitStrategy(
+        Wait.forListeningPorts()
+          .withStartupTimeout(180000),
+      )
+      .start();
+
+    // Wait a bit for the Next.js app to fully initialize
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    return container;
   }
 
   private async startFromDockerfile(
@@ -213,11 +236,10 @@ export class TestEnvironment {
       .withExposedPorts(3000)
       .withNetwork(config.network)
       .withNetworkAliases('app')
-      // .withWaitStrategy(
-      //   Wait.forHttp('/api/health', 3000)
-      //     .forStatusCode(200)
-      //     .withStartupTimeout(120000),
-      // )
+      .withWaitStrategy(
+        Wait.forListeningPorts()
+          .withStartupTimeout(180000),
+      )
       .start();
 
     // eslint-disable-next-line no-console
@@ -225,46 +247,8 @@ export class TestEnvironment {
       `  ✅ Application started on port ${container.getMappedPort(3000)}`,
     );
 
-    // Wait a bit for the Next.js app to start
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    return container;
-  }
-
-  private async startFromImage(
-    config: TestEnvironmentConfig & {
-      dbContainer: StartedPostgreSqlContainer;
-      network: StartedNetwork;
-    },
-  ): Promise<StartedTestContainer> {
-    // Assume image is already built (e.g., in CI pipeline)
-    const imageName = process.env.TEST_IMAGE_NAME!;
-
-    const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
-
-    const container = await new GenericContainer(imageName)
-      .withEnvironment({
-        NODE_ENV: 'test',
-        POSTGRES_PRISMA_URL: databaseUrl,
-        POSTGRES_URL_NON_POOLING: databaseUrl,
-        SKIP_ENV_VALIDATION: 'true',
-        HOSTNAME: '0.0.0.0',
-        PORT: '3000',
-        // Add a test UploadThing token for onboarding flow
-        UPLOADTHING_TOKEN: 'sk_test_dummy_token_for_testing',
-      })
-      .withExposedPorts(3000)
-      .withNetwork(config.network)
-      .withNetworkAliases('app')
-      // .withWaitStrategy(
-      //   Wait.forHttp('/api/health', 3000)
-      //     .forStatusCode(200)
-      //     .withStartupTimeout(120000),
-      // )
-      .start();
-
-    // Wait a bit for the Next.js app to start
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // Wait a bit for the Next.js app to fully initialize
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     return container;
   }

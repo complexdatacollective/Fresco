@@ -195,68 +195,6 @@ export class TestDataBuilder {
   }
 
   /**
-   * Setup a complete test environment with protocol, participants, and interviews
-   */
-  async setupCompleteTestData() {
-    // Setup app settings
-    await this.setupAppSettings();
-
-    // Create admin user
-    const adminData = await this.createUser({
-      username: `admin_${createId().slice(0, 8)}`,
-      password: 'AdminPassword123!',
-    });
-
-    // Create a protocol
-    const protocol = await this.createProtocol({
-      name: 'Test Study Protocol',
-      description: 'A comprehensive protocol for testing',
-    });
-
-    // Create participants
-    const participants = await Promise.all([
-      this.createParticipant({ identifier: 'P001', label: 'Alice' }),
-      this.createParticipant({ identifier: 'P002', label: 'Bob' }),
-      this.createParticipant({ identifier: 'P003', label: 'Charlie' }),
-    ]);
-
-    // Create interviews
-    const interviews = await Promise.all([
-      // Completed interview
-      this.createInterview(participants[0].id, protocol.id, {
-        currentStep: 2,
-        finishTime: new Date(),
-        network: {
-          nodes: [
-            { id: '1', type: 'person', attributes: { name: 'John' } },
-            { id: '2', type: 'person', attributes: { name: 'Jane' } },
-          ],
-          edges: [{ from: '1', to: '2', type: 'knows' }],
-          ego: { name: 'Alice' },
-        },
-      }),
-      // In-progress interview
-      this.createInterview(participants[1].id, protocol.id, {
-        currentStep: 1,
-        network: {
-          nodes: [{ id: '1', type: 'person', attributes: { name: 'Mike' } }],
-          edges: [],
-          ego: { name: 'Bob' },
-        },
-      }),
-      // Not started interview
-      this.createInterview(participants[2].id, protocol.id),
-    ]);
-
-    return {
-      admin: adminData,
-      protocol,
-      participants,
-      interviews,
-    };
-  }
-
-  /**
    * Create multiple protocols for testing protocol management
    */
   async createMultipleProtocols(count = 5) {
