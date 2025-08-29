@@ -23,7 +23,7 @@ export default function Layout({ children }: PropsWithChildren) {
           {children}
         </main>
       </div>
-      <div className="text-background-primary bg-navy-taupe fixed top-0 left-0 h-[100dvh] w-[100dvw]">
+      <div className="text-background-primary bg-navy-taupe fixed top-0 left-0 h-[100dvh] w-[100dvw] hide-during-tests">
         <BackgroundBlobs large={0} medium={3} small={4} />
       </div>
     </>

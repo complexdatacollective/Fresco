@@ -16,7 +16,17 @@
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
-    "storybook-build": "storybook build"
+    "storybook-build": "storybook build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:docker": "docker compose -f docker-compose.test.yml up --build --abort-on-container-exit",
+    "test:e2e:docker:down": "docker compose -f docker-compose.test.yml down -v",
+    "test:e2e:parallel": "./scripts/run-parallel-tests.sh",
+    "test:e2e:parallel:browsers": "./scripts/run-parallel-tests.sh --mode browsers",
+    "test:e2e:parallel:all": "./scripts/run-parallel-tests.sh --mode all",
+    "playwright:install": "playwright install"
   },
   "pnpm": {
     "overrides": {
@@ -48,8 +58,8 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-table": "^8.21.3",
-    "@xmldom/xmldom": "^0.9.8",
     "@uploadthing/react": "^7.3.2",
+    "@xmldom/xmldom": "^0.9.8",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",
@@ -111,6 +121,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@prisma/client": "^6.10.0",
     "@storybook/addon-docs": "^9.0.17",
     "@storybook/addon-links": "^9.0.17",
