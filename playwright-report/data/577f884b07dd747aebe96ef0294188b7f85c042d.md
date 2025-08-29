@@ -1,0 +1,105 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "Fresco" [ref=e3] [cursor=pointer]:
+      - /url: /
+      - img "Fresco" [ref=e4] [cursor=pointer]
+    - list [ref=e5]:
+      - listitem [ref=e6]:
+        - link "Dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=e9]:
+        - link "Protocols" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard/protocols
+      - listitem [ref=e11]:
+        - link "Participants" [ref=e12] [cursor=pointer]:
+          - /url: /dashboard/participants
+      - listitem [ref=e13]:
+        - link "Interviews" [ref=e14] [cursor=pointer]:
+          - /url: /dashboard/interviews
+      - listitem [ref=e15]:
+        - link "Settings" [ref=e16] [cursor=pointer]:
+          - /url: /dashboard/settings
+    - button "Sign out" [ref=e18]
+  - generic [ref=e24]:
+    - paragraph [ref=e25]: We depend on your feedback and issue reports to improve
+    - button "Provide Feedback" [ref=e26]:
+      - img [ref=e27]
+      - generic [ref=e29]: Provide Feedback
+  - generic [ref=e30]:
+    - generic [ref=e31]:
+      - heading "Dashboard" [level=1] [ref=e32]
+      - paragraph [ref=e33]: Welcome to Fresco! This page provides an overview of your recent activity and key metrics.
+    - alert [ref=e34]:
+      - img [ref=e35]
+      - heading "Please Note" [level=4] [ref=e37]
+      - generic [ref=e38]:
+        - text: Anonymous recruitment is enabled. This means that participants can self-enroll in your study without needing to be invited, by visiting the protocol-specific onboarding link. To disable anonymous recruitment, visit
+        - link "the settings page" [ref=e39] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - generic [ref=e40] [cursor=pointer]: the settings page
+        - text: .
+  - generic [ref=e41]:
+    - link "Protocols 1" [ref=e42] [cursor=pointer]:
+      - /url: /dashboard/protocols
+      - generic [ref=e51] [cursor=pointer]:
+        - heading "Protocols" [level=4] [ref=e52] [cursor=pointer]
+        - heading "1" [level=1] [ref=e53] [cursor=pointer]
+    - link "Participant icon Participants 5" [ref=e54] [cursor=pointer]:
+      - /url: /dashboard/participants
+      - generic [ref=e55] [cursor=pointer]:
+        - img "Participant icon" [ref=e57] [cursor=pointer]
+        - generic [ref=e58] [cursor=pointer]:
+          - heading "Participants" [level=4] [ref=e59] [cursor=pointer]
+          - heading "5" [level=1] [ref=e60] [cursor=pointer]
+    - link "Interviews 1" [ref=e61] [cursor=pointer]:
+      - /url: /dashboard/interviews
+      - generic [ref=e75] [cursor=pointer]:
+        - heading "Interviews" [level=4] [ref=e76] [cursor=pointer]
+        - heading "1" [level=1] [ref=e77] [cursor=pointer]
+  - generic [ref=e78]:
+    - heading "Recent Activity" [level=2] [ref=e79]
+    - paragraph [ref=e80]: This table summarizes the most recent activity within Fresco. Use it to keep track of new protocols, interviews, and participants.
+  - generic [ref=e83]:
+    - generic [ref=e85]:
+      - textbox "Filter by activity details..." [ref=e88]
+      - button "Type" [ref=e89]:
+        - img [ref=e90]
+        - text: Type
+    - table [ref=e93]:
+      - rowgroup [ref=e94]:
+        - row "Time Type Details" [ref=e95]:
+          - cell "Time" [ref=e96]:
+            - button "Time" [ref=e98]:
+              - generic [ref=e99]: Time
+              - img [ref=e100]
+          - cell "Type" [ref=e102]:
+            - generic: Type
+          - cell "Details" [ref=e103]:
+            - generic: Details
+      - rowgroup [ref=e104]:
+        - row "No results." [ref=e105]:
+          - cell "No results." [ref=e106]
+    - generic [ref=e109]:
+      - generic [ref=e110]:
+        - paragraph [ref=e111]: Rows per page
+        - combobox [ref=e112]:
+          - generic [ref=e113]:
+            - generic: "10"
+          - img [ref=e114]
+      - generic [ref=e116]: Page 1 of 0
+      - generic [ref=e117]:
+        - button "Go to first page" [disabled]:
+          - img
+        - button "Go to previous page" [disabled]:
+          - img
+        - button "Go to next page" [disabled]:
+          - img
+        - button "Go to last page" [disabled]:
+          - img
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e118]
+```

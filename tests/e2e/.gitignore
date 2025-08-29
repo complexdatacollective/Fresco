@@ -1,0 +1,8 @@
+# Test artifacts
+.auth/
+test-results/
+playwright-report/
+
+# Screenshots (keep baselines in git, exclude generated ones)
+*.png-actual
+*.png-diff

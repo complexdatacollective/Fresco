@@ -42,11 +42,11 @@ export default async function Settings() {
           subHeaderText="Here you can configure your installation of Fresco."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer className="gap-4">
+      <ResponsiveContainer className="gap-4" data-testid="settings-container">
         <Suspense fallback={<VersionSectionSkeleton />}>
           <VersionSection />
         </Suspense>
-        <SettingsSection heading="Installation ID">
+        <SettingsSection heading="Installation ID" data-testid="installation-id-section">
           <Paragraph margin="none">
             This is the unique identifier for your installation of Fresco. This
             ID is used to track analytics data and for other internal purposes.
@@ -56,7 +56,7 @@ export default async function Settings() {
             readOnly={!!env.INSTALLATION_ID}
           />
         </SettingsSection>
-        <SettingsSection heading="UploadThing API Key">
+        <SettingsSection heading="UploadThing API Key" data-testid="uploadthing-api-key-section">
           <Paragraph margin="none">
             This is the API key used to communicate with the UploadThing
             service. See our{' '}
@@ -70,6 +70,7 @@ export default async function Settings() {
         </SettingsSection>
         <SettingsSection
           heading="Anonymous Recruitment"
+          data-testid="anonymous-recruitment-section"
           controlArea={
             <Suspense fallback="Loading">
               <AnonymousRecruitmentSwitch />
@@ -84,6 +85,7 @@ export default async function Settings() {
         </SettingsSection>
         <SettingsSection
           heading="Disable Small Screen Warning"
+          data-testid="small-screen-warning-section"
           controlArea={
             <Suspense fallback="Loading">
               <ToggleSmallScreenWarning />
@@ -106,6 +108,7 @@ export default async function Settings() {
         </SettingsSection>
         <SettingsSection
           heading="Limit Interviews"
+          data-testid="limit-interviews-section"
           controlArea={
             <Suspense fallback="Loading">
               <LimitInterviewsSwitch />
@@ -123,6 +126,7 @@ export default async function Settings() {
         </SettingsSection>
         <SettingsSection
           heading="Disable Analytics"
+          data-testid="disable-analytics-section"
           controlArea={
             <Suspense fallback="Loading">
               <DisableAnalyticsSwitch />
@@ -139,6 +143,7 @@ export default async function Settings() {
           <SettingsSection
             devOnly
             heading="Reset Settings"
+            data-testid="reset-settings-section"
             controlArea={<ResetButton />}
           >
             <Paragraph margin="none">

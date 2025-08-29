@@ -10,12 +10,14 @@ export default function SettingsSection({
   controlArea,
   classNames,
   devOnly,
+  'data-testid': dataTestId,
 }: {
   heading: string;
   children: ReactNode;
   controlArea?: ReactNode;
   classNames?: string;
   devOnly?: boolean;
+  'data-testid'?: string;
 }) {
   return (
     <Section
@@ -24,6 +26,7 @@ export default function SettingsSection({
         'flex gap-10',
         devOnly && 'border-destructive bg-destructive/5 text-destructive',
       )}
+      data-testid={dataTestId}
     >
       <div className="flex-1">
         <Heading variant="h4-all-caps" className="mb-2">

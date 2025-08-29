@@ -1,0 +1,99 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "Fresco" [ref=e3] [cursor=pointer]:
+      - /url: /
+      - img "Fresco" [ref=e4] [cursor=pointer]
+    - list [ref=e5]:
+      - listitem [ref=e6]:
+        - link "Dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=e8]:
+        - link "Protocols" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard/protocols
+      - listitem [ref=e10]:
+        - link "Participants" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard/participants
+      - listitem [ref=e12]:
+        - link "Interviews" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard/interviews
+      - listitem [ref=e15]:
+        - link "Settings" [ref=e16] [cursor=pointer]:
+          - /url: /dashboard/settings
+    - button "Sign out" [ref=e18]
+  - button "Provide Feedback" [ref=e25]:
+    - img [ref=e26]
+    - generic [ref=e28]: Provide Feedback
+  - generic [ref=e30]:
+    - heading "Interviews" [level=1] [ref=e31]
+    - paragraph [ref=e32]: View and manage your interview data.
+  - generic [ref=e35]:
+    - generic [ref=e36]:
+      - textbox "Filter by identifier..." [ref=e39]
+      - button "Export Interview Data" [ref=e40]: Export Interview Data
+      - button "Export Incomplete Interview URLs" [ref=e43]: Export Incomplete Interview URLs
+    - table [ref=e48]:
+      - rowgroup [ref=e49]:
+        - row "Select all Participant Identifier Protocol Name Started Updated Progress Network Export Status" [ref=e50]:
+          - cell "Select all" [ref=e51]:
+            - checkbox "Select all" [ref=e53]
+          - cell "Participant Identifier" [ref=e54]:
+            - button "Participant Identifier" [ref=e56]:
+              - generic [ref=e57]: Participant Identifier
+              - img [ref=e58]
+          - cell "Protocol Name" [ref=e61]:
+            - button "Protocol Name" [ref=e63]:
+              - generic [ref=e64]: Protocol Name
+              - img [ref=e65]
+          - cell "Started" [ref=e68]:
+            - button "Started" [ref=e70]:
+              - generic [ref=e71]: Started
+              - img [ref=e72]
+          - cell "Updated" [ref=e75]:
+            - button "Updated" [ref=e77]:
+              - generic [ref=e78]: Updated
+              - img [ref=e79]
+          - cell "Progress" [ref=e81]:
+            - button "Progress" [ref=e83]:
+              - generic [ref=e84]: Progress
+              - img [ref=e85]
+          - cell "Network" [ref=e88]:
+            - generic: Network
+          - cell "Export Status" [ref=e89]:
+            - button "Export Status" [ref=e91]:
+              - generic [ref=e92]: Export Status
+              - img [ref=e93]
+          - cell [ref=e96]
+      - rowgroup [ref=e97]:
+        - row "Select row p-qp7x1lxgeguiubuafaejyqrp Sample Protocol v4 0% No nodes or edges Not exported Open menu" [ref=e98]:
+          - cell "Select row" [ref=e99]:
+            - checkbox "Select row" [ref=e101]
+          - cell "p-qp7x1lxgeguiubuafaejyqrp" [ref=e102]:
+            - generic [ref=e105]: p-qp7x1lxgeguiubuafaejyqrp
+          - cell "Sample Protocol v4" [ref=e106]:
+            - generic [ref=e108]: Sample Protocol v4
+          - cell [ref=e109]
+          - cell [ref=e110]
+          - cell "0%" [ref=e111]:
+            - generic [ref=e112]:
+              - progressbar [ref=e113]
+              - generic [ref=e115]: 0%
+          - cell "No nodes or edges" [ref=e116]:
+            - generic [ref=e117]: No nodes or edges
+          - cell "Not exported" [ref=e118]:
+            - generic [ref=e119]: Not exported
+          - cell "Open menu" [ref=e120]:
+            - button "Open menu" [ref=e121]:
+              - generic [ref=e122]: Open menu
+              - img [ref=e123]
+    - generic [ref=e128]:
+      - generic [ref=e129]: 0 of 1 row(s) selected.
+      - generic [ref=e130]:
+        - button "Previous" [disabled]
+        - button "Next" [disabled]
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e131]
+```

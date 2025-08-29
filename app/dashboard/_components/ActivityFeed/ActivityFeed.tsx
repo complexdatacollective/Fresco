@@ -10,11 +10,13 @@ export default function ActivityFeed() {
   const activitiesPromise = getActivities(searchParams);
 
   return (
-    <Suspense
-      key={hash(searchParams)}
-      fallback={<DataTableSkeleton columnCount={3} filterableColumnCount={1} />}
-    >
-      <ActivityFeedTable activitiesPromise={activitiesPromise} />
-    </Suspense>
+    <div data-testid="activity-feed">
+      <Suspense
+        key={hash(searchParams)}
+        fallback={<DataTableSkeleton columnCount={3} filterableColumnCount={1} />}
+      >
+        <ActivityFeedTable activitiesPromise={activitiesPromise} />
+      </Suspense>
+    </div>
   );
 }
