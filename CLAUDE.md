@@ -23,7 +23,6 @@ Fresco brings Network Canvas interviews to the web browser. It's a web-based pla
 ### Testing
 
 - `pnpm test` - Run Vitest tests
-- `pnpm load-test` - Run load testing with K6
 
 ### Database
 

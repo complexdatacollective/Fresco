@@ -106,10 +106,10 @@ test.describe('Dashboard Home Page', () => {
     await dashboardHelpers.navigateToDashboard();
     await dashboardHelpers.prepareForVisualTesting();
     
-    // Take tablet screenshot with higher threshold for content differences
+    // Take tablet screenshot with reasonable threshold for content differences
     await dashboardHelpers.expectVisualRegression('dashboard-home-tablet', {
-      threshold: 0.25,
-      maxDiffPixels: 20000
+      threshold: 0.05,
+      maxDiffPixels: 500
     });
   });
 });

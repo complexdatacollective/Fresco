@@ -23,19 +23,19 @@ test.describe('Dashboard Protocols Page', () => {
   test('should display protocols table when protocols exist', async ({
     page,
   }) => {
-    // Wait for table to load (if there are protocols)
-    try {
-      await dashboardHelpers.waitForProtocolsTable();
+    // Check if protocols table exists
+    const table = dashboardHelpers.protocolsTable;
+    const hasProtocols = (await table.count()) > 0;
 
-      // Verify table structure
-      const table = dashboardHelpers.protocolsTable;
+    if (hasProtocols) {
+      await dashboardHelpers.waitForProtocolsTable();
       await expect(table).toBeVisible();
 
       // Check for table headers
       const headers = page.locator('th, [role="columnheader"]');
       await expect(headers.first()).toBeVisible();
-    } catch (error) {
-      // If no protocols exist, check for empty state
+    } else {
+      // Check for empty state
       const emptyState = page.locator(
         '[data-testid="empty-state"], .empty-state',
       );
@@ -87,6 +87,15 @@ test.describe('Dashboard Protocols Page', () => {
   });
 
   test('should handle protocol actions menu', async ({ page }) => {
+    // First check if protocols table exists
+    const table = dashboardHelpers.protocolsTable;
+    const hasProtocols = (await table.count()) > 0;
+
+    if (!hasProtocols) {
+      test.skip(true, 'No protocols found - skipping action menu test');
+      return;
+    }
+
     await dashboardHelpers.waitForProtocolsTable();
 
     // Look for action buttons in the table

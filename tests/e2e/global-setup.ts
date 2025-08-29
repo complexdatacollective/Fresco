@@ -8,10 +8,25 @@ async function globalSetup(_config: FullConfig) {
   console.log('🔧 Setting up global test environment...');
   
   try {
-    // Verify environment variables
-    if (!process.env.TEST_USERNAME || !process.env.TEST_PASSWORD) {
-      throw new Error('Missing TEST_USERNAME or TEST_PASSWORD environment variables');
+    // Verify required environment variables
+    const requiredEnvVars = ['TEST_USERNAME', 'TEST_PASSWORD'];
+    const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+    
+    if (missingEnvVars.length > 0) {
+      throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
     }
+
+    // Validate NODE_ENV is set correctly for tests
+    if (process.env.NODE_ENV !== 'test') {
+      console.warn('⚠️  NODE_ENV is not set to "test". Some features may not work correctly.');
+    }
+
+    // Check optional but recommended environment variables
+    if (!process.env.POSTGRES_PRISMA_URL) {
+      console.warn('⚠️  POSTGRES_PRISMA_URL not set. Database tests may fail.');
+    }
+
+    console.log('✅ Environment variable validation passed');
 
     // Verify database connection
     if (process.env.POSTGRES_PRISMA_URL) {

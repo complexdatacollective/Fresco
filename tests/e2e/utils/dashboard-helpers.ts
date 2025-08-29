@@ -34,13 +34,13 @@ export class DashboardHelpers extends TestHelpers {
 
   // Dashboard-specific UI helpers
   async waitForSummaryStats() {
-    // Wait for the dashboard summary cards to load
-    await this.page.waitForSelector('div:has-text("Protocols")');
+    // Wait for the dashboard summary cards to load using data-testid
+    await this.page.waitForSelector('[data-testid="summary-statistics"]', { timeout: 10000 });
   }
 
   async waitForActivityFeed() {
-    // Wait for Recent Activity section
-    await this.page.waitForSelector('h2:has-text("Recent Activity")');
+    // Wait for activity feed using data-testid
+    await this.page.waitForSelector('[data-testid="activity-feed"]', { timeout: 10000 });
   }
 
   async waitForProtocolsTable() {

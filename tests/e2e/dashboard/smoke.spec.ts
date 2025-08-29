@@ -1,14 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { AuthHelper } from '../utils/auth-helper';
 import { DashboardHelpers } from '../utils/dashboard-helpers';
+import { AccessibilityHelper } from '../utils/accessibility-helper';
 
 test.describe('Dashboard Smoke Tests', () => {
   let dashboardHelpers: DashboardHelpers;
   let authHelper: AuthHelper;
+  let accessibilityHelper: AccessibilityHelper;
 
   test.beforeEach(async ({ page }) => {
     dashboardHelpers = new DashboardHelpers(page);
     authHelper = new AuthHelper(page);
+    accessibilityHelper = new AccessibilityHelper(page);
   });
 
   test('authentication flow and dashboard access', async ({ page }) => {
@@ -125,21 +128,39 @@ test.describe('Dashboard Smoke Tests', () => {
       const mainContent = page.locator('[data-testid="dashboard-page-header"], [data-testid="summary-statistics"]');
       await expect(mainContent.first()).toBeVisible();
 
-      // Check for reasonable mobile layout (may have some overflow due to fixed elements)
+      // Check for proper mobile layout (strict mobile responsiveness)
       if (viewport.width <= 768) {
         const bodyWidth = await page
           .locator('body')
           .evaluate((el) => el.scrollWidth);
         
-        // Very generous allowance for responsive layouts that may not be fully mobile-optimized
-        const maxAllowedWidth = viewport.width + 300; // Allow significant overflow for non-mobile-first designs
+        // Strict mobile layout check with minimal tolerance
+        const maxAllowedWidth = viewport.width + 20; // Allow only minimal overflow for scrollbars
         
         if (bodyWidth > maxAllowedWidth) {
-          console.warn(`Mobile viewport overflow detected: ${bodyWidth}px > ${maxAllowedWidth}px for ${viewport.width}px viewport`);
-          test.skip(true, `Mobile layout needs optimization - viewport ${viewport.width}px has overflow to ${bodyWidth}px`);
+          // Log details for debugging
+          const overflowAmount = bodyWidth - viewport.width;
+          console.error(`Mobile layout overflow: ${overflowAmount}px overflow on ${viewport.width}px viewport`);
+          
+          // Check for common causes of overflow
+          const wideElements = await page.evaluate(() => {
+            const elements = Array.from(document.querySelectorAll('*'));
+            return elements
+              .filter(el => el.scrollWidth > window.innerWidth)
+              .map(el => ({
+                tag: el.tagName,
+                class: el.className,
+                id: el.id,
+                width: el.scrollWidth
+              }))
+              .slice(0, 3); // Top 3 problematic elements
+          });
+          
+          console.error('Elements causing overflow:', wideElements);
+          
+          // Fail the test - mobile layouts should be responsive
+          expect(bodyWidth).toBeLessThanOrEqual(maxAllowedWidth);
         }
-        
-        expect(bodyWidth).toBeLessThanOrEqual(maxAllowedWidth);
       }
     }
   });
@@ -147,41 +168,30 @@ test.describe('Dashboard Smoke Tests', () => {
   test('accessibility smoke test', async ({ page }) => {
     await dashboardHelpers.navigateToDashboard();
 
-    // Check for basic accessibility requirements
+    // Run comprehensive accessibility check
+    await accessibilityHelper.runFullAccessibilityCheck();
 
-    // Page should have a title
-    await expect(page).toHaveTitle(/.+/);
-
-    // Main page heading should exist (check for the dashboard page header specifically)
-    const pageHeading = page.locator('[data-testid="dashboard-page-header"] h1');
-    if ((await pageHeading.count()) > 0) {
-      await expect(pageHeading).toBeVisible();
-    } else {
-      // Fallback: check that at least one h1 exists
-      const h1Elements = page.locator('h1');
-      const h1Count = await h1Elements.count();
-      expect(h1Count).toBeGreaterThan(0);
-    }
-
-    // Navigation should have proper ARIA labels
-    const nav = page.locator('nav, [role="navigation"]');
+    // Additional dashboard-specific accessibility checks
+    
+    // Check navigation accessibility
+    const nav = page.locator('[data-testid="navigation-bar"]');
     if ((await nav.count()) > 0) {
-      await expect(nav.first()).toBeVisible();
+      await expect(nav).toBeVisible();
     }
 
-    // Interactive elements should be keyboard accessible
-    const buttons = page.locator('button');
-    const links = page.locator('a');
-
-    // Focus should be manageable
-    if ((await buttons.count()) > 0) {
-      await buttons.first().focus();
-      await expect(buttons.first()).toBeFocused();
+    // Check main content areas have proper structure
+    const summaryStats = page.locator('[data-testid="summary-statistics"]');
+    if ((await summaryStats.count()) > 0) {
+      await expect(summaryStats).toBeVisible();
     }
 
-    if ((await links.count()) > 0) {
-      await links.first().focus();
-      await expect(links.first()).toBeFocused();
+    // Check that dashboard page header is properly structured
+    const pageHeader = page.locator('[data-testid="dashboard-page-header"]');
+    if ((await pageHeader.count()) > 0) {
+      const headerH1 = pageHeader.locator('h1');
+      if ((await headerH1.count()) > 0) {
+        await expect(headerH1.first()).toBeVisible();
+      }
     }
   });
 });

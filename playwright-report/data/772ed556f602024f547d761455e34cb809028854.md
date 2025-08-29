@@ -1,0 +1,101 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "Fresco" [ref=e3] [cursor=pointer]:
+      - /url: /
+      - img "Fresco" [ref=e4] [cursor=pointer]
+    - list [ref=e5]:
+      - listitem [ref=e6]:
+        - link "Dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=e9]:
+        - link "Protocols" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard/protocols
+      - listitem [ref=e11]:
+        - link "Participants" [ref=e12] [cursor=pointer]:
+          - /url: /dashboard/participants
+      - listitem [ref=e13]:
+        - link "Interviews" [ref=e14] [cursor=pointer]:
+          - /url: /dashboard/interviews
+      - listitem [ref=e15]:
+        - link "Settings" [ref=e16] [cursor=pointer]:
+          - /url: /dashboard/settings
+    - button "Sign out" [ref=e18]
+  - button "Provide Feedback" [ref=e25]:
+    - img [ref=e26]
+    - generic [ref=e28]: Provide Feedback
+  - generic [ref=e29]:
+    - generic [ref=e30]:
+      - heading "Dashboard" [level=1] [ref=e31]
+      - paragraph [ref=e32]: Welcome to Fresco! This page provides an overview of your recent activity and key metrics.
+    - alert [ref=e33]:
+      - img [ref=e34]
+      - heading "Please Note" [level=4] [ref=e36]
+      - generic [ref=e37]:
+        - text: Anonymous recruitment is enabled. This means that participants can self-enroll in your study without needing to be invited, by visiting the protocol-specific onboarding link. To disable anonymous recruitment, visit
+        - link "the settings page" [ref=e38] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - generic [ref=e39] [cursor=pointer]: the settings page
+        - text: .
+  - generic [ref=e40]:
+    - link "Protocols 1" [ref=e41] [cursor=pointer]:
+      - /url: /dashboard/protocols
+      - generic [ref=e43] [cursor=pointer]:
+        - heading "Protocols" [level=4] [ref=e44] [cursor=pointer]
+        - heading "1" [level=1] [ref=e45] [cursor=pointer]
+    - link "Participants 5" [ref=e46] [cursor=pointer]:
+      - /url: /dashboard/participants
+      - generic [ref=e48] [cursor=pointer]:
+        - heading "Participants" [level=4] [ref=e49] [cursor=pointer]
+        - heading "5" [level=1] [ref=e50] [cursor=pointer]
+    - link "Interviews 1" [ref=e51] [cursor=pointer]:
+      - /url: /dashboard/interviews
+      - generic [ref=e53] [cursor=pointer]:
+        - heading "Interviews" [level=4] [ref=e54] [cursor=pointer]
+        - heading "1" [level=1] [ref=e55] [cursor=pointer]
+  - generic [ref=e56]:
+    - heading "Recent Activity" [level=2] [ref=e57]
+    - paragraph [ref=e58]: This table summarizes the most recent activity within Fresco. Use it to keep track of new protocols, interviews, and participants.
+  - generic [ref=e61]:
+    - generic [ref=e63]:
+      - textbox "Filter by activity details..." [ref=e66]
+      - button "Type" [ref=e67]:
+        - img [ref=e68]
+        - text: Type
+    - table [ref=e71]:
+      - rowgroup [ref=e72]:
+        - row "Time Type Details" [ref=e73]:
+          - cell "Time" [ref=e74]:
+            - button "Time" [ref=e76]:
+              - generic [ref=e77]: Time
+              - img [ref=e78]
+          - cell "Type" [ref=e80]:
+            - generic: Type
+          - cell "Details" [ref=e81]:
+            - generic: Details
+      - rowgroup [ref=e82]:
+        - row "No results." [ref=e83]:
+          - cell "No results." [ref=e84]
+    - generic [ref=e87]:
+      - generic [ref=e88]:
+        - paragraph [ref=e89]: Rows per page
+        - combobox [ref=e90]:
+          - generic [ref=e91]:
+            - generic: "10"
+          - img [ref=e92]
+      - generic [ref=e94]: Page 1 of 0
+      - generic [ref=e95]:
+        - button "Go to first page" [disabled]:
+          - img
+        - button "Go to previous page" [disabled]:
+          - img
+        - button "Go to next page" [disabled]:
+          - img
+        - button "Go to last page" [disabled]:
+          - img
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e96]
+```

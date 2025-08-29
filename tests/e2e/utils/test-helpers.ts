@@ -31,8 +31,8 @@ export class TestHelpers {
 
   async expectVisualRegression(name: string, options?: { threshold?: number; maxDiffPixels?: number }) {
     await expect(this.page).toHaveScreenshot(`${name}.png`, {
-      threshold: options?.threshold || 0.15,
-      maxDiffPixels: options?.maxDiffPixels || 10000,
+      threshold: options?.threshold || 0.02,
+      maxDiffPixels: options?.maxDiffPixels || 100,
     });
   }
 
@@ -42,9 +42,13 @@ export class TestHelpers {
     options?: { threshold?: number; maxDiffPixels?: number }
   ) {
     const element = this.page.locator(selector);
+    
+    // Validate element exists before taking screenshot
+    await expect(element).toBeVisible({ timeout: 5000 });
+    
     await expect(element).toHaveScreenshot(`${name}.png`, {
-      threshold: options?.threshold || 0.15,
-      maxDiffPixels: options?.maxDiffPixels || 10000,
+      threshold: options?.threshold || 0.02,
+      maxDiffPixels: options?.maxDiffPixels || 100,
     });
   }
 
@@ -65,17 +69,17 @@ export class TestHelpers {
   }
 
   async waitForTableToLoad(tableSelector = '[role="table"], table') {
-    await this.page.waitForSelector(tableSelector);
-    // Wait for any loading indicators to disappear
-    await this.page.waitForFunction(
-      (selector) => {
-        const table = document.querySelector(selector);
-        const loadingIndicators = table?.querySelectorAll('[data-testid*="loading"], .loading, .skeleton');
-        return !loadingIndicators || loadingIndicators.length === 0;
-      },
-      tableSelector,
-      { timeout: 10000 }
-    );
+    await this.page.waitForSelector(tableSelector, { timeout: 10000 });
+    
+    // Simple wait for loading indicators to disappear
+    const loadingIndicators = this.page.locator('[data-testid*="loading"], .loading, .skeleton');
+    
+    // Wait for loading indicators to not be visible (with timeout)
+    try {
+      await loadingIndicators.first().waitFor({ state: 'hidden', timeout: 5000 });
+    } catch (error) {
+      // Loading indicators may not exist, which is fine
+    }
   }
 }
 

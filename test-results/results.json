@@ -106,12 +106,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1058,
+                  "duration": 1118,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2025-08-28T22:30:58.527Z",
+                  "startTime": "2025-08-29T08:39:12.259Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -155,12 +155,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2229,
+                      "duration": 2432,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:00.300Z",
+                      "startTime": "2025-08-29T08:39:14.206Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -189,12 +189,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 7327,
+                      "duration": 9580,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:00.300Z",
+                      "startTime": "2025-08-29T08:39:14.206Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -223,12 +223,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 2868,
+                      "duration": 3049,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:00.300Z",
+                      "startTime": "2025-08-29T08:39:14.204Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -257,12 +257,12 @@
                       "workerIndex": 4,
                       "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 2864,
+                      "duration": 3030,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:00.300Z",
+                      "startTime": "2025-08-29T08:39:14.205Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -291,12 +291,12 @@
                       "workerIndex": 5,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 2860,
+                      "duration": 3010,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:00.305Z",
+                      "startTime": "2025-08-29T08:39:14.206Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -311,7 +311,7 @@
             },
             {
               "title": "responsive design: mobile viewport",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -324,18 +324,68 @@
                     {
                       "workerIndex": 6,
                       "parallelIndex": 5,
-                      "status": "passed",
-                      "duration": 3704,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 4238,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  81387 pixels (ratio 0.33 of all image pixels) are different.\n\n  Snapshot: dashboard-home-mobile.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(dashboard-home-mobile.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 81387 pixels (ratio 0.33 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 81387 pixels (ratio 0.33 of all image pixels) are different.\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  81387 pixels (ratio 0.33 of all image pixels) are different.\n\n  Snapshot: dashboard-home-mobile.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(dashboard-home-mobile.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 81387 pixels (ratio 0.33 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 81387 pixels (ratio 0.33 of all image pixels) are different.\u001b[22m\n\n    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/dashboard-home.spec.ts:99:28",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                          "column": 29,
+                          "line": 33
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                            "column": 29,
+                            "line": 33
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  81387 pixels (ratio 0.33 of all image pixels) are different.\n\n  Snapshot: dashboard-home-mobile.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(dashboard-home-mobile.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 81387 pixels (ratio 0.33 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 81387 pixels (ratio 0.33 of all image pixels) are different.\u001b[22m\n\n\n\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/dashboard-home.spec.ts:99:28\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:00.306Z",
+                      "startTime": "2025-08-29T08:39:14.207Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "dashboard-home-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/dashboard-home.spec.ts-snapshots/dashboard-home-mobile-chromium-darwin.png"
+                        },
+                        {
+                          "name": "dashboard-home-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-47028-sive-design-mobile-viewport-chromium/dashboard-home-mobile-actual.png"
+                        },
+                        {
+                          "name": "dashboard-home-mobile-diff.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-47028-sive-design-mobile-viewport-chromium/dashboard-home-mobile-diff.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-47028-sive-design-mobile-viewport-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-47028-sive-design-mobile-viewport-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                        "column": 29,
+                        "line": 33
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "dbaeacce9530f4910fec-cd36dbcebff6e95454f7",
@@ -345,7 +395,7 @@
             },
             {
               "title": "responsive design: tablet viewport",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -358,18 +408,68 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3127,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 3674,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  324176 pixels (ratio 0.42 of all image pixels) are different.\n\n  Snapshot: dashboard-home-tablet.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(dashboard-home-tablet.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 324176 pixels (ratio 0.42 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 324176 pixels (ratio 0.42 of all image pixels) are different.\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  324176 pixels (ratio 0.42 of all image pixels) are different.\n\n  Snapshot: dashboard-home-tablet.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(dashboard-home-tablet.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 324176 pixels (ratio 0.42 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 324176 pixels (ratio 0.42 of all image pixels) are different.\u001b[22m\n\n    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/dashboard-home.spec.ts:110:28",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                          "column": 29,
+                          "line": 33
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                            "column": 29,
+                            "line": 33
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  324176 pixels (ratio 0.42 of all image pixels) are different.\n\n  Snapshot: dashboard-home-tablet.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(dashboard-home-tablet.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 324176 pixels (ratio 0.42 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 324176 pixels (ratio 0.42 of all image pixels) are different.\u001b[22m\n\n\n\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/dashboard-home.spec.ts:110:28\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:02.848Z",
+                      "startTime": "2025-08-29T08:39:16.957Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "dashboard-home-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/dashboard-home.spec.ts-snapshots/dashboard-home-tablet-chromium-darwin.png"
+                        },
+                        {
+                          "name": "dashboard-home-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-a2cbd-sive-design-tablet-viewport-chromium/dashboard-home-tablet-actual.png"
+                        },
+                        {
+                          "name": "dashboard-home-tablet-diff.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-a2cbd-sive-design-tablet-viewport-chromium/dashboard-home-tablet-diff.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-a2cbd-sive-design-tablet-viewport-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-dashboard-home-D-a2cbd-sive-design-tablet-viewport-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                        "column": 29,
+                        "line": 33
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "dbaeacce9530f4910fec-e83f936d678bfef6e75c",
@@ -410,12 +510,12 @@
                       "workerIndex": 5,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 1307,
+                      "duration": 1398,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:03.489Z",
+                      "startTime": "2025-08-29T08:39:17.543Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -441,15 +541,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 2,
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 1323,
+                      "duration": 1431,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:03.492Z",
+                      "startTime": "2025-08-29T08:39:17.597Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -475,15 +575,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1284,
+                      "duration": 1377,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:03.494Z",
+                      "startTime": "2025-08-29T08:39:17.617Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -498,7 +598,7 @@
             },
             {
               "title": "visual regression: interviews page",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -509,20 +609,70 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
+                      "workerIndex": 7,
                       "parallelIndex": 5,
-                      "status": "passed",
-                      "duration": 2058,
-                      "errors": [],
+                      "status": "failed",
+                      "duration": 2710,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  5844 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: interviews-page-full.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(interviews-page-full.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 5844 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 5844 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  5844 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: interviews-page-full.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(interviews-page-full.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 5844 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 5844 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\n    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/interviews.spec.ts:63:28",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                          "column": 29,
+                          "line": 33
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                            "column": 29,
+                            "line": 33
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  5844 pixels (ratio 0.01 of all image pixels) are different.\n\n  Snapshot: interviews-page-full.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(interviews-page-full.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 5844 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 5844 pixels (ratio 0.01 of all image pixels) are different.\u001b[22m\n\n\n\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/interviews.spec.ts:63:28\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:04.336Z",
+                      "startTime": "2025-08-29T08:39:19.374Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "interviews-page-full-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/interviews.spec.ts-snapshots/interviews-page-full-chromium-darwin.png"
+                        },
+                        {
+                          "name": "interviews-page-full-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-4209b--regression-interviews-page-chromium/interviews-page-full-actual.png"
+                        },
+                        {
+                          "name": "interviews-page-full-diff.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-4209b--regression-interviews-page-chromium/interviews-page-full-diff.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-4209b--regression-interviews-page-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-4209b--regression-interviews-page-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                        "column": 29,
+                        "line": 33
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "d2aa4c315603e07b6de4-1383ac33e59392d85d0a",
@@ -543,15 +693,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 5,
+                      "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 1869,
+                      "duration": 2583,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:04.792Z",
+                      "startTime": "2025-08-29T08:39:18.952Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -577,15 +727,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 4,
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1199,
+                      "duration": 1844,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:04.808Z",
+                      "startTime": "2025-08-29T08:39:19.008Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -611,15 +761,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 2,
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 1199,
+                      "duration": 1814,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:04.828Z",
+                      "startTime": "2025-08-29T08:39:19.041Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -645,15 +795,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 8,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1579,
+                      "duration": 2163,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:05.999Z",
+                      "startTime": "2025-08-29T08:39:21.157Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -668,7 +818,7 @@
             },
             {
               "title": "responsive design: mobile interviews view",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -679,20 +829,70 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 4,
-                      "status": "passed",
-                      "duration": 2921,
-                      "errors": [],
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 4200,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  21980 pixels (ratio 0.09 of all image pixels) are different.\n\n  Snapshot: interviews-page-mobile.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(interviews-page-mobile.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 21980 pixels (ratio 0.09 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 21980 pixels (ratio 0.09 of all image pixels) are different.\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  21980 pixels (ratio 0.09 of all image pixels) are different.\n\n  Snapshot: interviews-page-mobile.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(interviews-page-mobile.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 21980 pixels (ratio 0.09 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 21980 pixels (ratio 0.09 of all image pixels) are different.\u001b[22m\n\n    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/interviews.spec.ts:163:28",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                          "column": 29,
+                          "line": 33
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                            "column": 29,
+                            "line": 33
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveScreenshot\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\n  21980 pixels (ratio 0.09 of all image pixels) are different.\n\n  Snapshot: interviews-page-mobile.png\n\nCall log:\n\u001b[2m  - Expect \"toHaveScreenshot(interviews-page-mobile.png)\" with timeout 10000ms\u001b[22m\n\u001b[2m    - verifying given screenshot expectation\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - 21980 pixels (ratio 0.09 of all image pixels) are different.\u001b[22m\n\u001b[2m  - waiting 100ms before taking screenshot\u001b[22m\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m    - disabled all CSS animations\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - captured a stable screenshot\u001b[22m\n\u001b[2m  - 21980 pixels (ratio 0.09 of all image pixels) are different.\u001b[22m\n\n\n\u001b[90m   at \u001b[39mutils/test-helpers.ts:33\n\n\u001b[0m \u001b[90m 31 |\u001b[39m\n \u001b[90m 32 |\u001b[39m   \u001b[36masync\u001b[39m expectVisualRegression(name\u001b[33m:\u001b[39m string\u001b[33m,\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m { threshold\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m;\u001b[39m maxDiffPixels\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number }) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${name}.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m       threshold\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mthreshold \u001b[33m||\u001b[39m \u001b[35m0.02\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 35 |\u001b[39m       maxDiffPixels\u001b[33m:\u001b[39m options\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmaxDiffPixels \u001b[33m||\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 36 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at DashboardHelpers.expectVisualRegression (/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts:33:29)\u001b[22m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/interviews.spec.ts:163:28\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:06.018Z",
+                      "startTime": "2025-08-29T08:39:20.864Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "interviews-page-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/interviews.spec.ts-snapshots/interviews-page-mobile-chromium-darwin.png"
+                        },
+                        {
+                          "name": "interviews-page-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-2be19-sign-mobile-interviews-view-chromium/interviews-page-mobile-actual.png"
+                        },
+                        {
+                          "name": "interviews-page-mobile-diff.png",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-2be19-sign-mobile-interviews-view-chromium/interviews-page-mobile-diff.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-2be19-sign-mobile-interviews-view-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-interviews-Dashb-2be19-sign-mobile-interviews-view-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/utils/test-helpers.ts",
+                        "column": 29,
+                        "line": 33
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "d2aa4c315603e07b6de4-eec55bd021fe595f6672",
@@ -733,12 +933,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1473,
+                      "duration": 1516,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:06.040Z",
+                      "startTime": "2025-08-29T08:39:20.883Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -764,15 +964,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 5,
+                      "workerIndex": 5,
+                      "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 1629,
+                      "duration": 2214,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:06.415Z",
+                      "startTime": "2025-08-29T08:39:21.560Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -798,15 +998,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 9,
+                      "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 1363,
+                      "duration": 2105,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:06.679Z",
+                      "startTime": "2025-08-29T08:39:22.817Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -816,7 +1016,7 @@
               ],
               "id": "eee03190c3f44ee387d6-622f7f0c5cc44aa90b21",
               "file": "dashboard/participants.spec.ts",
-              "line": 48,
+              "line": 49,
               "column": 3
             },
             {
@@ -835,12 +1035,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1150,
+                      "duration": 1833,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:07.525Z",
+                      "startTime": "2025-08-29T08:39:22.409Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -850,7 +1050,7 @@
               ],
               "id": "eee03190c3f44ee387d6-553f9bded42d00edf5a9",
               "file": "dashboard/participants.spec.ts",
-              "line": 57,
+              "line": 58,
               "column": 3
             },
             {
@@ -866,15 +1066,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 8,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1733,
+                      "duration": 3559,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:07.594Z",
+                      "startTime": "2025-08-29T08:39:23.577Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -884,7 +1084,7 @@
               ],
               "id": "eee03190c3f44ee387d6-edef60aefaadcc106b88",
               "file": "dashboard/participants.spec.ts",
-              "line": 68,
+              "line": 69,
               "column": 3
             },
             {
@@ -900,15 +1100,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 1,
+                      "workerIndex": 5,
+                      "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 2006,
+                      "duration": 3411,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:07.960Z",
+                      "startTime": "2025-08-29T08:39:23.786Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -918,7 +1118,7 @@
               ],
               "id": "eee03190c3f44ee387d6-b86b3dd19dc9a8107fb0",
               "file": "dashboard/participants.spec.ts",
-              "line": 75,
+              "line": 76,
               "column": 3
             },
             {
@@ -928,31 +1128,51 @@
               "tests": [
                 {
                   "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "No participant action buttons found",
+                      "location": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/participants.spec.ts",
+                        "line": 117,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 5,
-                      "status": "passed",
-                      "duration": 1294,
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "skipped",
+                      "duration": 2316,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:08.052Z",
-                      "annotations": [],
+                      "startTime": "2025-08-29T08:39:24.143Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "No participant action buttons found",
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/participants.spec.ts",
+                            "line": 117,
+                            "column": 12
+                          }
+                        }
+                      ],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "eee03190c3f44ee387d6-294dcb829aa71ed644bf",
               "file": "dashboard/participants.spec.ts",
-              "line": 91,
+              "line": 95,
               "column": 3
             },
             {
@@ -968,15 +1188,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1348,
+                      "duration": 2354,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:08.055Z",
+                      "startTime": "2025-08-29T08:39:24.257Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -986,7 +1206,7 @@
               ],
               "id": "eee03190c3f44ee387d6-ff26bab34d4db36f6a40",
               "file": "dashboard/participants.spec.ts",
-              "line": 120,
+              "line": 135,
               "column": 3
             },
             {
@@ -1002,15 +1222,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 2,
+                      "workerIndex": 9,
+                      "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 2958,
+                      "duration": 3814,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:08.685Z",
+                      "startTime": "2025-08-29T08:39:25.104Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1020,7 +1240,7 @@
               ],
               "id": "eee03190c3f44ee387d6-4cd01fabe2d21e2e00a6",
               "file": "dashboard/participants.spec.ts",
-              "line": 145,
+              "line": 160,
               "column": 3
             }
           ]
@@ -1053,15 +1273,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 4,
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 1401,
+                      "duration": 1146,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:08.958Z",
+                      "startTime": "2025-08-29T08:39:25.673Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1087,15 +1307,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1840,
+                      "duration": 2174,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:09.347Z",
+                      "startTime": "2025-08-29T08:39:26.478Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1121,15 +1341,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 5,
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1846,
+                      "duration": 2092,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:09.361Z",
+                      "startTime": "2025-08-29T08:39:26.643Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1155,15 +1375,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
+                      "workerIndex": 10,
                       "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 2463,
+                      "duration": 2597,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:09.431Z",
+                      "startTime": "2025-08-29T08:39:27.070Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1189,15 +1409,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 1,
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2057,
+                      "duration": 2430,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:09.983Z",
+                      "startTime": "2025-08-29T08:39:27.164Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1223,7 +1443,7 @@
                       "description": "No protocol action buttons found - skipping test",
                       "location": {
                         "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
-                        "line": 102,
+                        "line": 111,
                         "column": 12
                       }
                     }
@@ -1236,19 +1456,19 @@
                       "workerIndex": 5,
                       "parallelIndex": 4,
                       "status": "skipped",
-                      "duration": 1136,
+                      "duration": 1703,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:10.378Z",
+                      "startTime": "2025-08-29T08:39:27.223Z",
                       "annotations": [
                         {
                           "type": "skip",
                           "description": "No protocol action buttons found - skipping test",
                           "location": {
                             "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/protocols.spec.ts",
-                            "line": 102,
+                            "line": 111,
                             "column": 12
                           }
                         }
@@ -1277,15 +1497,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 2981,
+                      "duration": 3995,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:11.199Z",
+                      "startTime": "2025-08-29T08:39:28.661Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1295,7 +1515,7 @@
               ],
               "id": "4c123ac7ea9bd5363f42-767b6657ab7bd51c17e3",
               "file": "dashboard/protocols.spec.ts",
-              "line": 118,
+              "line": 127,
               "column": 3
             }
           ]
@@ -1328,15 +1548,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 5,
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1094,
+                      "duration": 1551,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:11.218Z",
+                      "startTime": "2025-08-29T08:39:28.750Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1365,12 +1585,12 @@
                       "workerIndex": 5,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 1400,
+                      "duration": 1276,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:11.556Z",
+                      "startTime": "2025-08-29T08:39:28.947Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1396,15 +1616,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 2,
+                      "workerIndex": 9,
+                      "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 1376,
+                      "duration": 1231,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:11.663Z",
+                      "startTime": "2025-08-29T08:39:28.973Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1430,15 +1650,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1246,
+                      "duration": 1248,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:11.909Z",
+                      "startTime": "2025-08-29T08:39:29.612Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1464,15 +1684,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 1,
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 2040,
+                      "duration": 1787,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:12.071Z",
+                      "startTime": "2025-08-29T08:39:29.711Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1498,15 +1718,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
+                      "workerIndex": 9,
                       "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 1094,
+                      "duration": 1528,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:12.322Z",
+                      "startTime": "2025-08-29T08:39:30.215Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1535,12 +1755,12 @@
                       "workerIndex": 5,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 1502,
+                      "duration": 1497,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:12.965Z",
+                      "startTime": "2025-08-29T08:39:30.246Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1569,12 +1789,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 1394,
+                      "duration": 1427,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:13.047Z",
+                      "startTime": "2025-08-29T08:39:30.314Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1600,15 +1820,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3221,
+                      "duration": 3360,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:13.165Z",
+                      "startTime": "2025-08-29T08:39:30.877Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1635,7 +1855,7 @@
         {
           "title": "Dashboard Smoke Tests",
           "file": "dashboard/smoke.spec.ts",
-          "line": 5,
+          "line": 6,
           "column": 6,
           "specs": [
             {
@@ -1651,15 +1871,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 5,
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 570,
+                      "duration": 689,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:13.438Z",
+                      "startTime": "2025-08-29T08:39:31.522Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1669,7 +1889,7 @@
               ],
               "id": "fff4c5cb9a938ae75223-35a70255cf6975e20d32",
               "file": "dashboard/smoke.spec.ts",
-              "line": 14,
+              "line": 17,
               "column": 3
             },
             {
@@ -1685,15 +1905,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 6,
+                      "workerIndex": 9,
                       "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 4991,
+                      "duration": 6610,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:14.015Z",
+                      "startTime": "2025-08-29T08:39:31.771Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1703,7 +1923,7 @@
               ],
               "id": "fff4c5cb9a938ae75223-f7ccab2cb74670e43c1a",
               "file": "dashboard/smoke.spec.ts",
-              "line": 28,
+              "line": 31,
               "column": 3
             },
             {
@@ -1719,15 +1939,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 1,
+                      "workerIndex": 5,
+                      "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 1515,
+                      "duration": 1671,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:14.125Z",
+                      "startTime": "2025-08-29T08:39:31.770Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1737,7 +1957,7 @@
               ],
               "id": "fff4c5cb9a938ae75223-b5ff651d21a8ca1882d7",
               "file": "dashboard/smoke.spec.ts",
-              "line": 50,
+              "line": 53,
               "column": 3
             },
             {
@@ -1753,15 +1973,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 4394,
+                      "duration": 5871,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:14.194Z",
+                      "startTime": "2025-08-29T08:39:31.773Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1771,12 +1991,12 @@
               ],
               "id": "fff4c5cb9a938ae75223-304de532c4da307b8187",
               "file": "dashboard/smoke.spec.ts",
-              "line": 80,
+              "line": 83,
               "column": 3
             },
             {
               "title": "responsive layout smoke test",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -1787,25 +2007,67 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 2988,
-                      "errors": [],
+                      "workerIndex": 10,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 3173,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m395\u001b[39m\nReceived:    \u001b[31m641\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m395\u001b[39m\nReceived:    \u001b[31m641\u001b[39m\n    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/smoke.spec.ts:162:29",
+                        "location": {
+                          "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/smoke.spec.ts",
+                          "column": 29,
+                          "line": 162
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 160 |\u001b[39m           \n \u001b[90m 161 |\u001b[39m           \u001b[90m// Fail the test - mobile layouts should be responsive\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 162 |\u001b[39m           expect(bodyWidth)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(maxAllowedWidth)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 163 |\u001b[39m         }\n \u001b[90m 164 |\u001b[39m       }\n \u001b[90m 165 |\u001b[39m     }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/smoke.spec.ts",
+                            "column": 29,
+                            "line": 162
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m395\u001b[39m\nReceived:    \u001b[31m641\u001b[39m\n\n\u001b[0m \u001b[90m 160 |\u001b[39m           \n \u001b[90m 161 |\u001b[39m           \u001b[90m// Fail the test - mobile layouts should be responsive\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 162 |\u001b[39m           expect(bodyWidth)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(maxAllowedWidth)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 163 |\u001b[39m         }\n \u001b[90m 164 |\u001b[39m       }\n \u001b[90m 165 |\u001b[39m     }\u001b[0m\n\u001b[2m    at /Users/jmh629/Projects/Fresco/tests/e2e/dashboard/smoke.spec.ts:162:29\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
-                      "stderr": [],
+                      "stderr": [
+                        {
+                          "text": "Mobile layout overflow: 266px overflow on 375px viewport\n"
+                        },
+                        {
+                          "text": "Elements causing overflow: [\n  { tag: \u001b[32m'HTML'\u001b[39m, class: \u001b[32m''\u001b[39m, id: \u001b[32m''\u001b[39m, width: \u001b[33m641\u001b[39m },\n  {\n    tag: \u001b[32m'BODY'\u001b[39m,\n    class: \u001b[32m'__className_e9c9f6 antialiased'\u001b[39m,\n    id: \u001b[32m''\u001b[39m,\n    width: \u001b[33m641\u001b[39m\n  },\n  {\n    tag: \u001b[32m'NAV'\u001b[39m,\n    class: \u001b[32m'bg-cyber-grape flex items-center justify-between gap-4 px-4 py-3'\u001b[39m,\n    id: \u001b[32m''\u001b[39m,\n    width: \u001b[33m641\u001b[39m\n  }\n]\n"
+                        }
+                      ],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:14.466Z",
+                      "startTime": "2025-08-29T08:39:32.222Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-smoke-Dashboard--d9e65-esponsive-layout-smoke-test-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/jmh629/Projects/Fresco/test-results/dashboard-smoke-Dashboard--d9e65-esponsive-layout-smoke-test-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/jmh629/Projects/Fresco/tests/e2e/dashboard/smoke.spec.ts",
+                        "column": 29,
+                        "line": 162
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "fff4c5cb9a938ae75223-eb049545be4484263264",
               "file": "dashboard/smoke.spec.ts",
-              "line": 106,
+              "line": 109,
               "column": 3
             },
             {
@@ -1821,15 +2083,22 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 4,
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1469,
+                      "duration": 1343,
                       "errors": [],
                       "stdout": [],
-                      "stderr": [],
+                      "stderr": [
+                        {
+                          "text": "Multiple h1 elements found (4). Consider using a single h1 per page.\n"
+                        },
+                        {
+                          "text": "Potential color contrast issues: [\n  \u001b[32m'Element 24: White text on white/transparent background'\u001b[39m,\n  \u001b[32m'Element 25: White text on white/transparent background'\u001b[39m,\n  \u001b[32m'Element 28: White text on white/transparent background'\u001b[39m,\n  \u001b[32m'Element 31: White text on white/transparent background'\u001b[39m,\n  \u001b[32m'Element 33: White text on white/transparent background'\u001b[39m\n]\n"
+                        }
+                      ],
                       "retry": 0,
-                      "startTime": "2025-08-28T22:31:14.490Z",
+                      "startTime": "2025-08-29T08:39:32.672Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1839,7 +2108,7 @@
               ],
               "id": "fff4c5cb9a938ae75223-0713a8015afcd8afeca6",
               "file": "dashboard/smoke.spec.ts",
-              "line": 147,
+              "line": 168,
               "column": 3
             }
           ]
@@ -1849,11 +2118,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-28T22:30:56.000Z",
-    "duration": 23075.35,
-    "expected": 47,
-    "skipped": 1,
-    "unexpected": 0,
+    "startTime": "2025-08-29T08:39:10.206Z",
+    "duration": 28341.524999999998,
+    "expected": 41,
+    "skipped": 2,
+    "unexpected": 5,
     "flaky": 0
   }
 }

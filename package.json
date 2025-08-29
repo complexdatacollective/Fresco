@@ -15,12 +15,9 @@
     "test": "vitest",
     "test:e2e": "dotenv -e .env.test -- npx playwright test",
     "test:e2e:ui": "dotenv -e .env.test -- npx playwright test --ui",
-    "test:e2e:headed": "dotenv -e .env.test -- npx playwright test --headed",
     "test:e2e:dashboard": "dotenv -e .env.test -- npx playwright test tests/e2e/dashboard",
-    "test:e2e:smoke": "dotenv -e .env.test -- npx playwright test smoke.spec.ts",
     "test:visual": "dotenv -e .env.test -- npx playwright test --grep 'visual regression'",
     "test:visual:update": "dotenv -e .env.test -- npx playwright test --grep 'visual regression' --update-snapshots",
-    "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "storybook-build": "storybook build"

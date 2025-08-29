@@ -23,19 +23,20 @@ test.describe('Dashboard Participants Page', () => {
   test('should display participants table when participants exist', async ({
     page,
   }) => {
-    try {
-      await dashboardHelpers.waitForParticipantsTable();
+    // Check if participants table exists
+    const table = dashboardHelpers.participantsTable;
+    const hasParticipants = (await table.count()) > 0;
 
-      // Verify table structure
-      const table = dashboardHelpers.participantsTable;
+    if (hasParticipants) {
+      await dashboardHelpers.waitForParticipantsTable();
       await expect(table).toBeVisible();
 
       // Check for table headers
       const headers = page.locator('th, [role="columnheader"]');
       const headerCount = await headers.count();
       expect(headerCount).toBeGreaterThan(0);
-    } catch (error) {
-      // If no participants exist, check for empty state
+    } else {
+      // Check for empty state
       const emptyState = page.locator(
         '[data-testid="empty-state"], .empty-state',
       );
@@ -73,47 +74,61 @@ test.describe('Dashboard Participants Page', () => {
   });
 
   test('visual regression: participants table', async ({ page }) => {
-    try {
-      await dashboardHelpers.waitForParticipantsTable();
-      await dashboardHelpers.prepareForVisualTesting();
+    const table = dashboardHelpers.participantsTable;
+    const hasParticipants = (await table.count()) > 0;
 
-      // Screenshot the participants table
-      await dashboardHelpers.expectElementVisualRegression(
-        '[data-testid="participants-table"]',
-        'participants-table',
-      );
-    } catch (error) {
-      // Skip if no table exists
-      test.skip(!!error, 'No participants table found');
+    if (!hasParticipants) {
+      test.skip(true, 'No participants table found - skipping visual regression');
+      return;
     }
+
+    await dashboardHelpers.waitForParticipantsTable();
+    await dashboardHelpers.prepareForVisualTesting();
+
+    // Screenshot the participants table
+    await dashboardHelpers.expectElementVisualRegression(
+      '[data-testid="participants-table"]',
+      'participants-table',
+    );
   });
 
   test('should handle participant actions', async ({ page }) => {
-    try {
-      await dashboardHelpers.waitForParticipantsTable();
+    // Check if participants table exists first
+    const table = dashboardHelpers.participantsTable;
+    const hasParticipants = (await table.count()) > 0;
 
-      // Look for action buttons in the table
-      const actionButton = page
-        .locator(
-          '[data-testid*="action"], [data-testid*="menu"], button[aria-label*="action"]',
-        )
-        .first();
+    if (!hasParticipants) {
+      test.skip(true, 'No participants found - skipping actions test');
+      return;
+    }
 
-      if (await actionButton.isVisible()) {
-        await actionButton.click();
+    await dashboardHelpers.waitForParticipantsTable();
 
-        // Check that menu appears
-        const menu = page.locator('[role="menu"], .dropdown-menu');
-        await expect(menu).toBeVisible();
+    // Look for action buttons in the table
+    const actionButton = page
+      .locator(
+        '[data-testid*="action"], [data-testid*="menu"], button[aria-label*="action"]',
+      )
+      .first();
 
-        // Check for common actions
-        const menuItems = page.locator('[role="menuitem"], .menu-item');
-        const count = await menuItems.count();
-        expect(count).toBeGreaterThan(0);
-      }
-    } catch (error) {
-      // Skip if no actions available
-      test.skip(!!error, 'No participant actions found');
+    const hasActionButton = (await actionButton.count()) > 0;
+
+    if (!hasActionButton) {
+      test.skip(true, 'No participant action buttons found');
+      return;
+    }
+
+    if (await actionButton.isVisible()) {
+      await actionButton.click();
+
+      // Check that menu appears
+      const menu = page.locator('[role="menu"], .dropdown-menu');
+      await expect(menu).toBeVisible();
+
+      // Check for common actions
+      const menuItems = page.locator('[role="menuitem"], .menu-item');
+      const count = await menuItems.count();
+      expect(count).toBeGreaterThan(0);
     }
   });
 
