@@ -28,16 +28,17 @@ export default defineConfig({
       testMatch: '**/setup/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
+        // This URL is provided by testEnv.create() which is called in global-setup
         baseURL: process.env.SETUP_URL,
       },
       fullyParallel: false, // Sequential for initial setup
     },
     {
-      name: 'protocols',
-      testMatch: '**/protocols/*.spec.ts',
+      name: 'dashboard',
+      testMatch: '**/dashboard/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.PROTOCOLS_URL,
+        baseURL: process.env.DASHBOARD_URL,
       },
       fullyParallel: true, // Parallel for protocol management tests
     },

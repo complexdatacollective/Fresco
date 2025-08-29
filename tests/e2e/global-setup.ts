@@ -20,32 +20,18 @@ async function globalSetup() {
   // Setup parallel environments
   const setupPromises = [
     setupInitialSetupEnvironment(testEnv),
-    setupProtocolsEnvironment(testEnv),
+    setupDashboardEnvironment(testEnv),
     // setupInterviewsEnvironment(testEnv),
     // setupParticipantsEnvironment(testEnv),
   ];
 
-  const results = await Promise.all(setupPromises);
-
-  // Store URLs in environment variables for Playwright projects
-  process.env.SETUP_URL = results[0]?.appUrl ?? '';
-  process.env.PROTOCOLS_URL = results[1]?.appUrl ?? '';
-  process.env.INTERVIEWS_URL = results[2]?.appUrl ?? '';
-  process.env.PARTICIPANTS_URL = results[3]?.appUrl ?? '';
+  await Promise.all(setupPromises);
 
   // Store the test environment instance globally for teardown
   global.__TEST_ENVIRONMENT__ = testEnv;
 
   // eslint-disable-next-line no-console
   console.log('\n✅ All test environments ready!\n');
-  // eslint-disable-next-line no-console
-  console.log(`  Setup:        ${process.env.SETUP_URL ?? 'N/A'}`);
-  // eslint-disable-next-line no-console
-  console.log(`  Protocols:    ${process.env.PROTOCOLS_URL ?? 'N/A'}`);
-  // eslint-disable-next-line no-console
-  console.log(`  Interviews:   ${process.env.INTERVIEWS_URL ?? 'N/A'}`);
-  // eslint-disable-next-line no-console
-  console.log(`  Participants: ${process.env.PARTICIPANTS_URL ?? 'N/A'}\n`);
 }
 
 async function setupInitialSetupEnvironment(testEnv: TestEnvironment) {
@@ -56,9 +42,9 @@ async function setupInitialSetupEnvironment(testEnv: TestEnvironment) {
   return context;
 }
 
-async function setupProtocolsEnvironment(testEnv: TestEnvironment) {
+async function setupDashboardEnvironment(testEnv: TestEnvironment) {
   const context = await testEnv.create({
-    suiteId: 'protocols',
+    suiteId: 'dashboard',
     setupData: async (prisma) => {
       const dataBuilder = new TestDataBuilder(prisma);
 

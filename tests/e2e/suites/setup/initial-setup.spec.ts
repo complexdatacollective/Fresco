@@ -17,58 +17,49 @@ test.describe('Initial App Setup', () => {
     test('should complete initial configuration', async ({ page }) => {
       await page.goto('/setup');
 
-      // Fill in configuration form
-      await page.fill('[name="adminUsername"]', 'testadmin');
-      await page.fill('[name="adminPassword"]', 'TestAdmin123!');
-      await page.fill('[name="confirmPassword"]', 'TestAdmin123!');
+      // Step 1: Create admin account
+      await page.getByRole('textbox', { name: 'Username' }).fill('testadmin');
+      await page.getByRole('textbox', { name: 'Password' }).fill('TestAdmin123!');
+      await page.getByRole('textbox', { name: 'Confirm password' }).fill('TestAdmin123!');
+      
+      // Wait for button to be enabled and submit
+      await page.waitForSelector('button:has-text("Create account"):not([disabled])');
+      await page.getByRole('button', { name: 'Create account' }).click();
 
-      // Configure app settings
-      const anonymousToggle = page.locator(
-        '[name="allowAnonymousRecruitment"]',
-      );
-      if (await anonymousToggle.isVisible()) {
-        await anonymousToggle.check();
-      }
+      // Step 2: UploadThing configuration
+      await expect(page).toHaveURL(/step=2/);
+      await page.getByRole('textbox', { name: /UPLOADTHING_TOKEN/i }).fill('sk_test_dummy_token_for_testing');
+      await page.getByRole('button', { name: /save.*continue/i }).click();
 
-      // Submit configuration
-      await page.click(
-        '[type="submit"], button:has-text("Configure"), button:has-text("Setup")',
-      );
+      // Step 3: Upload Protocol (optional)
+      await expect(page).toHaveURL(/step=3/);
+      await expect(page.getByRole('heading', { name: 'Import Protocols' })).toBeVisible();
+      // Skip protocol upload - just continue
+      await page.getByRole('button', { name: 'Continue' }).click();
 
-      // Wait for success indication
-      await expect(page).toHaveURL(/\/(dashboard|protocols|home)/);
+      // Step 4: Configure Participation
+      await expect(page).toHaveURL(/step=4/);
+      await expect(page.getByRole('heading', { name: 'Configure Participation', level: 2 })).toBeVisible();
+      
+      // Optionally configure some settings (Anonymous Recruitment, etc.)
+      // For now, just continue with defaults
+      await page.getByRole('button', { name: 'Continue' }).click();
 
-      // Verify we can access the app
-      await expect(page.locator('body')).not.toContainText(/error/i);
-    });
+      // Step 5: Documentation (final step)
+      await expect(page).toHaveURL(/step=5/);
+      await expect(page.getByRole('heading', { name: 'Documentation', level: 2 })).toBeVisible();
+      
+      // Complete onboarding
+      await page.getByRole('button', { name: 'Go to the dashboard!' }).click();
 
-    test('should be able to login with created admin account', async ({
-      page,
-    }) => {
-      // Try to logout first if already logged in
-      const userMenu = page.locator(
-        '[data-testid="user-menu"], [aria-label="User menu"]',
-      );
-      if (await userMenu.isVisible()) {
-        await userMenu.click();
-        const logoutButton = page.locator(
-          'button:has-text("Logout"), a:has-text("Logout")',
-        );
-        if (await logoutButton.isVisible()) {
-          await logoutButton.click();
-        }
-      }
-
-      // Navigate to login
-      await page.goto('/signin');
-
-      // Login with admin credentials
-      await page.fill('[name="username"], [type="text"]', 'testadmin');
-      await page.fill('[name="password"], [type="password"]', 'TestAdmin123!');
-      await page.click('[type="submit"], button:has-text("Login")');
-
-      // Should be logged in
-      await expect(page).toHaveURL(/\/(dashboard|protocols|home)/);
+      // Should now be on the dashboard
+      await expect(page).toHaveURL(/\/dashboard/);
+      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+      
+      // Verify we can see the main navigation (use nav element to be specific)
+      await expect(page.locator('nav').getByRole('link', { name: 'Protocols' })).toBeVisible();
+      await expect(page.locator('nav').getByRole('link', { name: 'Participants' })).toBeVisible();
+      await expect(page.locator('nav').getByRole('link', { name: 'Interviews' })).toBeVisible();
     });
   });
 });

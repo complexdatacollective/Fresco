@@ -11,7 +11,6 @@ import {
   Network,
   type StartedNetwork,
   type StartedTestContainer,
-  Wait,
 } from 'testcontainers';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
@@ -53,9 +52,6 @@ export class TestEnvironment {
 
       // Start PostgreSQL container
       const dbContainer = await this.startDatabase(network);
-
-      // Run Prisma migrations
-      await this.runPrismaMigrations(dbContainer.getConnectionUri());
 
       // Build and start application container
       const appContainer = await this.startApplication({
@@ -107,6 +103,14 @@ export class TestEnvironment {
       };
 
       this.contexts.set(config.suiteId, context);
+
+      const variable = `${config.suiteId.toUpperCase()}_URL`;
+
+      // Store URLs in environment variables for Playwright projects
+      process.env[variable] = appUrl;
+
+      // eslint-disable-next-line no-console
+      console.log(`  ${config.suiteId}:        ${variable ?? 'N/A'}`);
       return context;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -132,41 +136,6 @@ export class TestEnvironment {
       `  ✅ PostgreSQL started on port ${container.getMappedPort(5432)}`,
     );
     return container;
-  }
-
-  private async runPrismaMigrations(databaseUrl: string): Promise<void> {
-    // eslint-disable-next-line no-console
-    console.log(`  🔄 Running Prisma migrations...`);
-
-    const projectRoot = path.join(__dirname, '../../..');
-
-    // Set environment variables for Prisma
-    const env = {
-      ...process.env,
-      POSTGRES_PRISMA_URL: databaseUrl,
-      POSTGRES_URL_NON_POOLING: databaseUrl,
-    };
-
-    try {
-      // Generate Prisma client first
-      await execAsync('pnpm prisma generate', {
-        cwd: projectRoot,
-        env,
-      });
-
-      // Run migrations
-      await execAsync('pnpm prisma migrate deploy', {
-        cwd: projectRoot,
-        env,
-      });
-
-      // eslint-disable-next-line no-console
-      console.log(`  ✅ Migrations completed`);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Migration error:', error);
-      throw error;
-    }
   }
 
   private async runSeedScript(
@@ -238,6 +207,8 @@ export class TestEnvironment {
         SKIP_ENV_VALIDATION: 'true',
         HOSTNAME: '0.0.0.0',
         PORT: '3000',
+        // Add a test UploadThing token for onboarding flow
+        UPLOADTHING_TOKEN: 'sk_test_dummy_token_for_testing',
       })
       .withExposedPorts(3000)
       .withNetwork(config.network)
@@ -253,10 +224,10 @@ export class TestEnvironment {
     console.log(
       `  ✅ Application started on port ${container.getMappedPort(3000)}`,
     );
-    
+
     // Wait a bit for the Next.js app to start
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
     return container;
   }
 
@@ -279,6 +250,8 @@ export class TestEnvironment {
         SKIP_ENV_VALIDATION: 'true',
         HOSTNAME: '0.0.0.0',
         PORT: '3000',
+        // Add a test UploadThing token for onboarding flow
+        UPLOADTHING_TOKEN: 'sk_test_dummy_token_for_testing',
       })
       .withExposedPorts(3000)
       .withNetwork(config.network)
@@ -289,6 +262,9 @@ export class TestEnvironment {
       //     .withStartupTimeout(120000),
       // )
       .start();
+
+    // Wait a bit for the Next.js app to start
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     return container;
   }
