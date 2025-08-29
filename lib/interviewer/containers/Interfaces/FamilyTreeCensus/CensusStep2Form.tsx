@@ -460,8 +460,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
               parentIds: [],
               childIds: [...(egoNode.childIds || [])],
               partnerId: egoNode.id,
-              xPos: 0,
-              yPos: 0,
+              xPos: undefined,
+              yPos: undefined,
             };
 
             updatedEgo = { ...egoNode, partnerId };
