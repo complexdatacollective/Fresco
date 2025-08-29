@@ -41,5 +41,11 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# storybook
 *storybook.log
 storybook-static
+
+# playwright
+playwright-report
+test-results
