@@ -1,112 +1,32 @@
 'use client';
 
-import { CalendarIcon } from 'lucide-react';
-import { type InputHTMLAttributes, useEffect, useRef, useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '~/components/ui/popover';
+import { type InputHTMLAttributes, useEffect, useMemo, useState } from 'react';
 import { InputField } from './Input';
+import type { SelectOption } from './Select';
+import { SelectField } from './Select';
 
 type DatePickerFieldProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'size' | 'type'
+  | InputHTMLAttributes<HTMLInputElement>
+  | InputHTMLAttributes<HTMLSelectElement>,
+  'size'
 > & {
-  type?: 'year' | 'month' | 'full';
+  type?: 'full' | 'month' | 'year';
 };
 
-const months = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
+const months: SelectOption[] = [
+  { value: '01', label: 'January' },
+  { value: '02', label: 'February' },
+  { value: '03', label: 'March' },
+  { value: '04', label: 'April' },
+  { value: '05', label: 'May' },
+  { value: '06', label: 'June' },
+  { value: '07', label: 'July' },
+  { value: '08', label: 'August' },
+  { value: '09', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
 ];
-
-function YearGrid({
-  selectedYear,
-  onSelect,
-  min = 1920,
-  max = new Date().getFullYear(),
-}: {
-  selectedYear?: number;
-  onSelect: (year: number) => void;
-  min?: number;
-  max?: number;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const years = [];
-  for (let year = min; year <= max; year++) {
-    years.push(year);
-  }
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const targetYear = selectedYear ?? new Date().getFullYear();
-      const yearButton = containerRef.current.querySelector(
-        `[data-year="${targetYear}"]`,
-      );
-      if (yearButton) {
-        yearButton.scrollIntoView({ block: 'center', behavior: 'auto' });
-      }
-    }
-  }, [selectedYear]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="grid max-h-[300px] grid-cols-4 gap-2 overflow-y-auto"
-    >
-      {years.map((year) => (
-        <Button
-          key={year}
-          data-year={year}
-          type="button"
-          variant={selectedYear === year ? 'default' : 'outline'}
-          size="sm"
-          className="h-8 w-full"
-          onClick={() => onSelect(year)}
-        >
-          {year}
-        </Button>
-      ))}
-    </div>
-  );
-}
-
-function MonthGrid({
-  selectedMonth,
-  onSelect,
-}: {
-  selectedMonth?: number;
-  onSelect: (month: number) => void;
-}) {
-  return (
-    <div className="grid grid-cols-3 gap-2">
-      {months.map((month, index) => (
-        <Button
-          key={month}
-          type="button"
-          variant={selectedMonth === index + 1 ? 'default' : 'outline'}
-          size="sm"
-          className="h-8 w-full"
-          onClick={() => onSelect(index + 1)}
-        >
-          {month}
-        </Button>
-      ))}
-    </div>
-  );
-}
 
 export function DatePickerField({
   type: resolutionType = 'full',
@@ -114,217 +34,108 @@ export function DatePickerField({
   max,
   value,
   onChange,
-  placeholder,
+  name,
   ...props
 }: DatePickerFieldProps) {
-  const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState((value as string) || '');
-  const [selectedYear, setSelectedYear] = useState<number | undefined>();
-  const [selectedMonth, setSelectedMonth] = useState<number | undefined>();
-  const [viewMode, setViewMode] = useState<'year' | 'month'>('year');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const today = new Date();
 
-  const currentYear = new Date().getFullYear();
-  const minYear = min ? parseInt(min as string) : 1920;
-  const maxYear = max ? parseInt(max as string) : currentYear;
+  const minDate = min ? new Date(min) : new Date(1920, 0, 1);
+  const maxDate = max ? new Date(max) : today;
 
+  const minYear = minDate.getFullYear();
+  const maxYear = maxDate.getFullYear();
+
+  // Internal state for month/year
+  const [selectedYear, setSelectedYear] = useState<string | undefined>();
+  const [selectedMonth, setSelectedMonth] = useState<string | undefined>();
+
+  // Initialize from value
   useEffect(() => {
-    if (value) {
-      setInputValue(value as string);
-      if (resolutionType === 'year') {
-        const year = parseInt(value as string);
-        if (!isNaN(year)) {
-          setSelectedYear(year);
-        }
-      } else if (resolutionType === 'month') {
-        const parts = (value as string).split('/');
-        if (parts.length === 2) {
-          const month = parseInt(parts[0] ?? '');
-          const year = parseInt(parts[1] ?? '');
-          if (!isNaN(month) && !isNaN(year)) {
-            setSelectedMonth(month);
-            setSelectedYear(year);
-          }
-        }
-      }
+    if (resolutionType === 'month' && value && typeof value === 'string') {
+      const [year, month] = value.split('-');
+      if (year) setSelectedYear(year);
+      if (month) setSelectedMonth(month);
     }
   }, [value, resolutionType]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let newValue = e.target.value;
+  const years = useMemo(() => {
+    const arr: SelectOption[] = [];
+    for (let y = maxYear; y >= minYear; y--)
+      arr.push({ value: y.toString(), label: y.toString() });
+    return arr;
+  }, [minYear, maxYear]);
 
-    if (resolutionType === 'year') {
-      // Only allow 4 digits
-      newValue = newValue.replace(/\D/g, '').slice(0, 4);
-      setInputValue(newValue);
+  const availableMonths = useMemo(() => {
+    if (!selectedYear) return months;
+    const year = parseInt(selectedYear, 10);
+    let startMonth = 1;
+    let endMonth = 12;
+    if (year === minYear) startMonth = minDate.getMonth() + 1;
+    if (year === maxYear) endMonth = maxDate.getMonth() + 1;
+    return months.filter((m) => {
+      const monthNum = parseInt(m.value, 10);
+      return monthNum >= startMonth && monthNum <= endMonth;
+    });
+  }, [selectedYear, minYear, maxYear, minDate, maxDate]);
 
-      if (newValue.length === 4) {
-        const year = parseInt(newValue);
-        if (year >= minYear && year <= maxYear) {
-          setSelectedYear(year);
-          onChange?.(e);
-        }
-      }
-    } else if (resolutionType === 'month') {
-      // Format as MM/YYYY
-      newValue = newValue.replace(/\D/g, '');
+  console.log({ selectedYear, selectedMonth });
 
-      if (newValue.length <= 2) {
-        setInputValue(newValue);
-      } else if (newValue.length <= 6) {
-        const month = newValue.slice(0, 2);
-        const year = newValue.slice(2);
-        setInputValue(`${month}/${year}`);
-      }
-
-      // Validate and update state when complete
-      if (newValue.length === 6) {
-        const month = parseInt(newValue.slice(0, 2));
-        const year = parseInt(newValue.slice(2));
-        if (month >= 1 && month <= 12 && year >= minYear && year <= maxYear) {
-          setSelectedMonth(month);
-          setSelectedYear(year);
-          e.target.value = `${String(month).padStart(2, '0')}/${year}`;
-          onChange?.(e);
-        }
-      }
-    } else {
-      // Default date input
-      setInputValue(newValue);
-      onChange?.(e);
-    }
-  };
-
-  const handleYearSelect = (year: number) => {
-    setSelectedYear(year);
-
-    if (resolutionType === 'year') {
-      setInputValue(String(year));
-      setOpen(false);
-      if (inputRef.current) {
-        inputRef.current.value = String(year);
-        const nativeEvent = new Event('change', { bubbles: true });
-        Object.defineProperty(nativeEvent, 'target', {
-          writable: false,
-          value: inputRef.current,
-        });
-        onChange?.(
-          nativeEvent as unknown as React.ChangeEvent<HTMLInputElement>,
-        );
-      }
-    } else if (resolutionType === 'month') {
-      setViewMode('month');
-    }
-  };
-
-  const handleMonthSelect = (month: number) => {
-    setSelectedMonth(month);
-    if (selectedYear) {
-      const formattedValue = `${String(month).padStart(2, '0')}/${selectedYear}`;
-      setInputValue(formattedValue);
-      setOpen(false);
-      setViewMode('year');
-      if (inputRef.current) {
-        inputRef.current.value = formattedValue;
-        const nativeEvent = new Event('change', { bubbles: true });
-        Object.defineProperty(nativeEvent, 'target', {
-          writable: false,
-          value: inputRef.current,
-        });
-        onChange?.(
-          nativeEvent as unknown as React.ChangeEvent<HTMLInputElement>,
-        );
-      }
-    }
-  };
-
-  if (resolutionType === 'full') {
-    // For full date, use native date input
+  if (resolutionType === 'month') {
     return (
-      <InputField
-        type="date"
-        min={min}
-        max={max}
-        value={value}
+      <div className="flex gap-2">
+        <SelectField
+          size="md"
+          options={years}
+          placeholder="Year"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.target.value)}
+          disabled={props.disabled}
+          required={props.required}
+        />
+        <SelectField
+          size="md"
+          options={availableMonths}
+          placeholder="Month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          disabled={props.disabled}
+          required={props.required}
+        />
+        <InputField
+          hidden
+          name={name}
+          value={`${selectedYear}-${selectedMonth}`}
+          onChange={onChange}
+          {...props}
+        />
+      </div>
+    );
+  }
+
+  if (resolutionType === 'year') {
+    return (
+      <SelectField
+        size="md"
+        options={years}
+        placeholder="Year"
+        value={value as string}
         onChange={onChange}
-        {...props}
+        name={name}
+        disabled={props.disabled}
+        required={props.required}
       />
     );
   }
 
-  const getPlaceholder = () => {
-    if (placeholder) return placeholder;
-    if (resolutionType === 'year') return 'YYYY';
-    if (resolutionType === 'month') return 'MM/YYYY';
-    return '';
-  };
-
   return (
-    <div className="relative">
-      <InputField
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder={getPlaceholder()}
-        {...props}
-      />
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="absolute top-0 right-0 h-10 w-10 p-0"
-          >
-            <CalendarIcon className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-3" align="start">
-          {resolutionType === 'year' && (
-            <YearGrid
-              selectedYear={selectedYear}
-              onSelect={handleYearSelect}
-              min={minYear}
-              max={maxYear}
-            />
-          )}
-          {resolutionType === 'month' && (
-            <>
-              {viewMode === 'year' ? (
-                <div>
-                  <div className="mb-2 text-center text-sm font-medium">
-                    Select Year
-                  </div>
-                  <YearGrid
-                    selectedYear={selectedYear}
-                    onSelect={handleYearSelect}
-                    min={minYear}
-                    max={maxYear}
-                  />
-                </div>
-              ) : (
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setViewMode('year')}
-                    >
-                      ← {selectedYear}
-                    </Button>
-                    <span className="text-sm font-medium">Select Month</span>
-                  </div>
-                  <MonthGrid
-                    selectedMonth={selectedMonth}
-                    onSelect={handleMonthSelect}
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </PopoverContent>
-      </Popover>
-    </div>
+    <InputField
+      type="date"
+      min={min}
+      max={max}
+      value={value}
+      onChange={onChange}
+      name={name}
+      {...props}
+    />
   );
 }

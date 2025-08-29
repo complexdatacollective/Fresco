@@ -104,7 +104,6 @@ export const Default: Story = {
 export const Disabled: Story = {
   args: {
     'disabled': true,
-    'defaultValue': '2024-01-01',
     'aria-label': 'Disabled Date',
   },
 };
@@ -112,7 +111,6 @@ export const Disabled: Story = {
 export const Month: Story = {
   args: {
     'type': 'month',
-    'defaultValue': '2024-01',
     'aria-label': 'Select Month',
   },
 };
@@ -120,7 +118,6 @@ export const Month: Story = {
 export const Year: Story = {
   args: {
     'type': 'year',
-    'defaultValue': '2024',
     'aria-label': 'Select Year',
   },
 };
@@ -130,7 +127,15 @@ export const WithMinMax: Story = {
     'type': 'full',
     'min': '2024-01-01',
     'max': '2024-12-31',
-    'defaultValue': '2024-06-15',
+    'aria-label': 'Select Date',
+  },
+};
+
+export const MonthYearWithMinMax: Story = {
+  args: {
+    'type': 'month',
+    'min': '2022-01-01',
+    'max': '2023-12-31',
     'aria-label': 'Select Date',
   },
 };

@@ -13,7 +13,7 @@ import {
   transitionStyles,
 } from './shared';
 
-type SelectOption = {
+export type SelectOption = {
   value: string | number;
   label: string;
 };
