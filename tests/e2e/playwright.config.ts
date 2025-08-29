@@ -61,11 +61,11 @@ export default defineConfig({
 
     // Interview tests - depend on auth setup
     {
-      name: 'interviews',
-      testMatch: '**/interviews/*.spec.ts',
+      name: 'interview',
+      testMatch: '**/interview/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.INTERVIEWS_URL,
+        baseURL: process.env.INTERVIEW_URL,
         // Use stored auth state
       },
       fullyParallel: false, // Sequential for interview flow
