@@ -1,17 +1,7 @@
-import { expect, test, type Page } from '@playwright/test';
-
-async function loginAsAdmin(page: Page) {
-  await page.goto('/signin');
-  await page.fill('[name="username"], [type="text"]', 'admin');
-  await page.fill('[name="password"], [type="password"]', 'AdminPass123!');
-  await page.click('[type="submit"], button:has-text("Login")');
-  await page.waitForURL(/\/(dashboard|protocols|home)/);
-}
+import { expect, test } from '@playwright/test';
 
 test.describe('Protocol Management', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
-  });
+  // No need for beforeEach login - using stored auth state from config
 
   test('should display list of protocols', async ({ page }) => {
     await page.goto('/protocols');

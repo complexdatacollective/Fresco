@@ -1,5 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { type PrismaClient } from '@prisma/client';
+import { generateLuciaPasswordHash } from 'lucia/utils';
 import { getStringValue } from '~/utils/getStringValue';
 
 export class TestDataBuilder {
@@ -8,10 +9,7 @@ export class TestDataBuilder {
   /**
    * Create a test user with authentication
    */
-  async createUser(overrides: { username?: string; password?: string } = {}) {
-    const username = overrides.username ?? `testuser_${createId().slice(0, 8)}`;
-    const password = overrides.password ?? 'TestPassword123!';
-
+  async createUser(username: string, password: string) {
     // Create user
     const user = await this.prisma.user.create({
       data: {
@@ -20,13 +18,11 @@ export class TestDataBuilder {
       },
     });
 
-    // Create authentication key (simplified for testing)
-    // In production, this would use proper hashing with Lucia
     await this.prisma.key.create({
       data: {
         id: `username:${username}`,
         user_id: user.id,
-        hashed_password: `hashed_${password}`, // Simplified for testing
+        hashed_password: await generateLuciaPasswordHash(password),
       },
     });
 

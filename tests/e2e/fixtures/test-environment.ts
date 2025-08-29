@@ -15,6 +15,7 @@ import {
 } from 'testcontainers';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
+import { TEST_ENVIRONMENT, TEST_TIMEOUTS } from '../config/test-config';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -190,23 +191,23 @@ export class TestEnvironment {
         NODE_ENV: 'test',
         POSTGRES_PRISMA_URL: databaseUrl,
         POSTGRES_URL_NON_POOLING: databaseUrl,
-        SKIP_ENV_VALIDATION: 'true',
+        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation ? 'true' : 'false',
         HOSTNAME: '0.0.0.0',
         PORT: '3000',
         // Add a test UploadThing token for onboarding flow
-        UPLOADTHING_TOKEN: 'sk_test_dummy_token_for_testing',
+        UPLOADTHING_TOKEN: TEST_ENVIRONMENT.uploadThingToken,
       })
       .withExposedPorts(3000)
       .withNetwork(config.network)
       .withNetworkAliases('app')
       .withWaitStrategy(
         Wait.forListeningPorts()
-          .withStartupTimeout(180000),
+          .withStartupTimeout(TEST_TIMEOUTS.containerStartup),
       )
       .start();
 
     // Wait a bit for the Next.js app to fully initialize
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, TEST_TIMEOUTS.appInitialization));
 
     return container;
   }
@@ -227,18 +228,18 @@ export class TestEnvironment {
         NODE_ENV: 'test',
         POSTGRES_PRISMA_URL: databaseUrl,
         POSTGRES_URL_NON_POOLING: databaseUrl,
-        SKIP_ENV_VALIDATION: 'true',
+        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation ? 'true' : 'false',
         HOSTNAME: '0.0.0.0',
         PORT: '3000',
         // Add a test UploadThing token for onboarding flow
-        UPLOADTHING_TOKEN: 'sk_test_dummy_token_for_testing',
+        UPLOADTHING_TOKEN: TEST_ENVIRONMENT.uploadThingToken,
       })
       .withExposedPorts(3000)
       .withNetwork(config.network)
       .withNetworkAliases('app')
       .withWaitStrategy(
         Wait.forListeningPorts()
-          .withStartupTimeout(180000),
+          .withStartupTimeout(TEST_TIMEOUTS.containerStartup),
       )
       .start();
 
@@ -248,7 +249,7 @@ export class TestEnvironment {
     );
 
     // Wait a bit for the Next.js app to fully initialize
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, TEST_TIMEOUTS.appInitialization));
 
     return container;
   }

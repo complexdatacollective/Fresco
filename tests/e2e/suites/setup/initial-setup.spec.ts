@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ADMIN_CREDENTIALS } from '../../config/test-config';
 
 test.describe('Initial App Setup', () => {
   test.describe.serial('First-time setup flow', () => {
@@ -17,10 +18,10 @@ test.describe('Initial App Setup', () => {
     test('should complete initial configuration', async ({ page }) => {
       await page.goto('/setup');
 
-      // Step 1: Create admin account
-      await page.getByRole('textbox', { name: 'Username' }).fill('testadmin');
-      await page.getByRole('textbox', { name: 'Password' }).fill('TestAdmin123!');
-      await page.getByRole('textbox', { name: 'Confirm password' }).fill('TestAdmin123!');
+      // Step 1: Create admin account with standardized credentials
+      await page.getByRole('textbox', { name: 'Username' }).fill(ADMIN_CREDENTIALS.username);
+      await page.getByRole('textbox', { name: 'Password' }).fill(ADMIN_CREDENTIALS.password);
+      await page.getByRole('textbox', { name: 'Confirm password' }).fill(ADMIN_CREDENTIALS.password);
       
       // Wait for button to be enabled and submit
       await page.waitForSelector('button:has-text("Create account"):not([disabled])');

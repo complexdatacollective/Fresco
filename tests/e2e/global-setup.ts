@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
+import { ADMIN_CREDENTIALS } from './config/test-config';
 import { TestDataBuilder } from './fixtures/test-data-builder';
 import { TestEnvironment } from './fixtures/test-environment';
 
@@ -55,11 +56,11 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
         allowAnonymousRecruitment: true,
       });
 
-      // Create admin user
-      await dataBuilder.createUser({
-        username: 'admin',
-        password: 'AdminPass123!',
-      });
+      // Create admin user with standardized credentials
+      await dataBuilder.createUser(
+        ADMIN_CREDENTIALS.username,
+        ADMIN_CREDENTIALS.password,
+      );
 
       // Create multiple protocols for testing
       await dataBuilder.createMultipleProtocols(10);
@@ -84,11 +85,11 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
         allowAnonymousRecruitment: true,
       });
 
-      // Create admin user
-      const adminData = await dataBuilder.createUser({
-        username: 'admin',
-        password: 'AdminPass123!',
-      });
+      // Create admin user with standardized credentials
+      const adminData = await dataBuilder.createUser(
+        ADMIN_CREDENTIALS.username,
+        ADMIN_CREDENTIALS.password,
+      );
 
       // Create a protocol for interviews
       const protocol = await dataBuilder.createProtocol({
@@ -124,10 +125,10 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
 
   // Disconnect Prisma before creating snapshot to avoid connection issues
   await context.prisma.$disconnect();
-  
+
   // Create snapshot for restoration between interview tests
   await context.createSnapshot('initial');
-  
+
   // Reconnect Prisma after snapshot
   await context.prisma.$connect();
 

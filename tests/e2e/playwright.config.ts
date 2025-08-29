@@ -23,6 +23,7 @@ export default defineConfig({
   },
 
   projects: [
+    // Setup project for initial app configuration tests
     {
       name: 'setup',
       testMatch: '**/setup/*.spec.ts',
@@ -33,21 +34,39 @@ export default defineConfig({
       },
       fullyParallel: false, // Sequential for initial setup
     },
+
+    // Auth setup project - runs once to create auth state for dashboard tests
     {
-      name: 'dashboard',
-      testMatch: '**/dashboard/*.spec.ts',
+      name: 'auth-dashboard',
+      testMatch: '**/auth/dashboard-setup.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         baseURL: process.env.DASHBOARD_URL,
       },
+    },
+
+    // Dashboard tests - depend on auth setup
+    {
+      name: 'dashboard',
+      testMatch: '**/dashboard/*.spec.ts',
+      dependencies: ['auth-dashboard'],
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.DASHBOARD_URL,
+        // Use stored auth state
+        storageState: 'tests/e2e/.auth/admin.json',
+      },
       fullyParallel: true, // Parallel for protocol management tests
     },
+
+    // Interview tests - depend on auth setup
     {
       name: 'interviews',
       testMatch: '**/interviews/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         baseURL: process.env.INTERVIEWS_URL,
+        // Use stored auth state
       },
       fullyParallel: false, // Sequential for interview flow
     },
