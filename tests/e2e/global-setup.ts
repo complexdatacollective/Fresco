@@ -28,7 +28,7 @@ async function globalSetup() {
   await Promise.all(setupPromises);
 
   // Store the test environment instance globally for teardown
-  global.__TEST_ENVIRONMENT__ = testEnv;
+  globalThis.__TEST_ENVIRONMENT__ = testEnv;
 
   // eslint-disable-next-line no-console
   console.log('\n✅ All test environments ready!\n');
@@ -50,11 +50,6 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
 
       // Setup app as configured
       await dataBuilder.setupAppSettings();
-
-      // Setup app settings
-      await dataBuilder.setupAppSettings({
-        allowAnonymousRecruitment: true,
-      });
 
       // Create admin user with standardized credentials
       await dataBuilder.createUser(
@@ -115,7 +110,7 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
         participants.push(participant);
       }
 
-      global.__INTERVIEWS_TEST_DATA__ = {
+      globalThis.__INTERVIEWS_TEST_DATA__ = {
         admin: adminData,
         protocol,
         participants,
@@ -133,16 +128,18 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
   await context.prisma.$connect();
 
   // Store context for use in tests
-  global.__INTERVIEWS_CONTEXT__ = context;
+  globalThis.__INTERVIEWS_CONTEXT__ = context;
 
   return context;
 }
 
 async function ensureDockerImage() {
   // If TEST_IMAGE_NAME is already set (e.g., in CI), use that
+  // eslint-disable-next-line no-process-env
   if (process.env.TEST_IMAGE_NAME) {
     // eslint-disable-next-line no-console
     console.log(
+      // eslint-disable-next-line no-process-env
       `🐳 Using existing Docker image: ${process.env.TEST_IMAGE_NAME}`,
     );
     return;
@@ -162,6 +159,8 @@ async function ensureDockerImage() {
     );
 
     // Set the environment variable for all test environments to use
+    // Note: This is needed for runtime communication between setup and test files
+    // eslint-disable-next-line no-process-env
     process.env.TEST_IMAGE_NAME = imageName;
 
     // eslint-disable-next-line no-console

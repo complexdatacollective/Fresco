@@ -3,7 +3,6 @@ import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
-import { exec } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import {
@@ -14,12 +13,9 @@ import {
   type StartedTestContainer,
 } from 'testcontainers';
 import { fileURLToPath } from 'url';
-import { promisify } from 'util';
 import { TEST_ENVIRONMENT, TEST_TIMEOUTS } from '../config/test-config';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const execAsync = promisify(exec);
 
 export type TestEnvironmentConfig = {
   /** Unique identifier for this test suite environment */
@@ -109,6 +105,7 @@ export class TestEnvironment {
       const variable = `${config.suiteId.toUpperCase()}_URL`;
 
       // Store URLs in environment variables for Playwright projects
+      // eslint-disable-next-line no-process-env
       process.env[variable] = appUrl;
 
       // eslint-disable-next-line no-console
@@ -182,6 +179,7 @@ export class TestEnvironment {
     console.log(`  🚀 Starting application...`);
 
     // Assume image is already built (e.g., in CI pipeline)
+    // eslint-disable-next-line no-process-env
     const imageName = process.env.TEST_IMAGE_NAME!;
 
     const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
@@ -191,7 +189,9 @@ export class TestEnvironment {
         NODE_ENV: 'test',
         POSTGRES_PRISMA_URL: databaseUrl,
         POSTGRES_URL_NON_POOLING: databaseUrl,
-        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation ? 'true' : 'false',
+        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation
+          ? 'true'
+          : 'false',
         HOSTNAME: '0.0.0.0',
         PORT: '3000',
         // Add a test UploadThing token for onboarding flow
@@ -201,13 +201,16 @@ export class TestEnvironment {
       .withNetwork(config.network)
       .withNetworkAliases('app')
       .withWaitStrategy(
-        Wait.forListeningPorts()
-          .withStartupTimeout(TEST_TIMEOUTS.containerStartup),
+        Wait.forListeningPorts().withStartupTimeout(
+          TEST_TIMEOUTS.containerStartup,
+        ),
       )
       .start();
 
     // Wait a bit for the Next.js app to fully initialize
-    await new Promise((resolve) => setTimeout(resolve, TEST_TIMEOUTS.appInitialization));
+    await new Promise((resolve) =>
+      setTimeout(resolve, TEST_TIMEOUTS.appInitialization),
+    );
 
     return container;
   }
@@ -219,6 +222,7 @@ export class TestEnvironment {
     },
   ): Promise<StartedTestContainer> {
     // Use the pre-built image set by global setup
+    // eslint-disable-next-line no-process-env
     const imageName = process.env.TEST_IMAGE_NAME ?? 'fresco-test:latest';
 
     const databaseUrl = `postgresql://${config.dbContainer.getUsername()}:${config.dbContainer.getPassword()}@postgres-db:5432/${config.dbContainer.getDatabase()}`;
@@ -228,7 +232,9 @@ export class TestEnvironment {
         NODE_ENV: 'test',
         POSTGRES_PRISMA_URL: databaseUrl,
         POSTGRES_URL_NON_POOLING: databaseUrl,
-        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation ? 'true' : 'false',
+        SKIP_ENV_VALIDATION: TEST_ENVIRONMENT.skipEnvValidation
+          ? 'true'
+          : 'false',
         HOSTNAME: '0.0.0.0',
         PORT: '3000',
         // Add a test UploadThing token for onboarding flow
@@ -238,8 +244,9 @@ export class TestEnvironment {
       .withNetwork(config.network)
       .withNetworkAliases('app')
       .withWaitStrategy(
-        Wait.forListeningPorts()
-          .withStartupTimeout(TEST_TIMEOUTS.containerStartup),
+        Wait.forListeningPorts().withStartupTimeout(
+          TEST_TIMEOUTS.containerStartup,
+        ),
       )
       .start();
 
@@ -249,7 +256,9 @@ export class TestEnvironment {
     );
 
     // Wait a bit for the Next.js app to fully initialize
-    await new Promise((resolve) => setTimeout(resolve, TEST_TIMEOUTS.appInitialization));
+    await new Promise((resolve) =>
+      setTimeout(resolve, TEST_TIMEOUTS.appInitialization),
+    );
 
     return container;
   }

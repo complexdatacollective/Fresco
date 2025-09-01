@@ -1,6 +1,8 @@
 import { createId } from '@paralleldrive/cuid2';
 import { type PrismaClient } from '@prisma/client';
 import { generateLuciaPasswordHash } from 'lucia/utils';
+import { type z } from 'zod';
+import { type appSettingsSchema } from '~/schemas/appSettings';
 import { getStringValue } from '~/utils/getStringValue';
 
 export class TestDataBuilder {
@@ -145,7 +147,7 @@ export class TestDataBuilder {
         participantId,
         protocolId,
         currentStep: overrides.currentStep ?? 0,
-        network: overrides.network || { nodes: [], edges: [], ego: {} },
+        network: overrides.network ?? { nodes: [], edges: [], ego: {} },
         finishTime: overrides.finishTime ?? null,
       },
     });
@@ -171,7 +173,8 @@ export class TestDataBuilder {
       disableAnalytics: true,
       initializedAt: new Date(),
       installationId: `test-${createId()}`,
-    };
+      uploadThingToken: "UPLOADTHING_TOKEN='TEST_TOKEN'",
+    } as z.infer<typeof appSettingsSchema>;
 
     const finalSettings = { ...defaultSettings, ...settings };
 

@@ -1,11 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// For test configuration, access env vars directly but safely
+const getEnvVar = (name: string): string | undefined => {
+  try {
+    // eslint-disable-next-line no-process-env
+    return process.env[name];
+  } catch {
+    return undefined;
+  }
+};
+
 export default defineConfig({
   testDir: './suites',
   fullyParallel: false, // We'll control parallelization per project
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined,
+  forbidOnly: !!getEnvVar('CI'),
+  retries: getEnvVar('CI') ? 2 : 0,
+  workers: getEnvVar('CI') ? 4 : undefined,
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['line'],
@@ -30,7 +40,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         // This URL is provided by testEnv.create() which is called in global-setup
-        baseURL: process.env.SETUP_URL,
+        baseURL: getEnvVar('SETUP_URL'),
       },
       fullyParallel: false, // Sequential for initial setup
     },
@@ -41,7 +51,7 @@ export default defineConfig({
       testMatch: '**/auth/dashboard-setup.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.DASHBOARD_URL,
+        baseURL: getEnvVar('DASHBOARD_URL'),
       },
     },
 
@@ -52,7 +62,7 @@ export default defineConfig({
       dependencies: ['auth-dashboard'],
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.DASHBOARD_URL,
+        baseURL: getEnvVar('DASHBOARD_URL'),
         // Use stored auth state
         storageState: 'tests/e2e/.auth/admin.json',
       },
@@ -65,7 +75,7 @@ export default defineConfig({
       testMatch: '**/interview/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.INTERVIEW_URL,
+        baseURL: getEnvVar('INTERVIEW_URL'),
         // Use stored auth state
       },
       fullyParallel: false, // Sequential for interview flow

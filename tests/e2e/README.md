@@ -5,6 +5,7 @@ This directory contains comprehensive end-to-end tests for the Fresco applicatio
 ## Architecture
 
 The e2e testing setup uses Testcontainers to create isolated Docker environments for each test suite, ensuring:
+
 - Complete isolation between test suites
 - Parallel execution of test suites
 - Reproducible test environments
@@ -35,20 +36,26 @@ The e2e testing setup uses Testcontainers to create isolated Docker environments
 ## Test Suites
 
 ### Setup Suite (`suites/setup/`)
+
 Tests the initial application setup and configuration flow.
+
 - First-time setup
 - Admin account creation
 - Initial configuration
 
 ### Protocols Suite (`suites/protocols/`)
+
 Tests protocol management functionality.
+
 - Protocol import/export
 - Protocol listing and search
 - Protocol deletion
 - Asset management
 
 ### Interviews Suite (`suites/interviews/`)
+
 Tests the interview workflow.
+
 - Starting interviews
 - Interview navigation
 - Data collection
@@ -56,7 +63,9 @@ Tests the interview workflow.
 - Data export
 
 ### Participants Suite (`suites/participants/`)
+
 Tests participant management.
+
 - Participant creation
 - Participant search
 - Bulk operations
@@ -67,17 +76,20 @@ Tests participant management.
 ### Prerequisites
 
 1. Install dependencies:
+
 ```bash
 pnpm install
 pnpm add -D @playwright/test @testcontainers/postgresql testcontainers wait-on
 ```
 
 2. Install Playwright browsers:
+
 ```bash
 pnpm playwright install
 ```
 
 3. Ensure Docker is running:
+
 ```bash
 docker --version
 ```
@@ -128,6 +140,7 @@ pnpm test:e2e:ci
 ### Test Users
 
 Default test users created by seeds:
+
 - Username: `admin`, Password: `AdminPass123!`
 - Username: `testuser`, Password: `TestPassword123!`
 
@@ -141,6 +154,7 @@ Default test users created by seeds:
 4. Follow the existing test patterns
 
 Example:
+
 ```typescript
 import { test, expect } from '@playwright/test';
 import { createPageHelpers } from '../../fixtures/page-helpers';
@@ -149,7 +163,7 @@ test.describe('Feature Name', () => {
   test('should do something', async ({ page }) => {
     const helpers = createPageHelpers(page);
     await helpers.login('admin', 'AdminPass123!');
-    
+
     // Your test logic here
   });
 });
@@ -165,6 +179,7 @@ test.describe('Feature Name', () => {
 ### Debugging Failed Tests
 
 1. **View test report:**
+
    ```bash
    pnpm playwright show-report
    ```
@@ -173,6 +188,7 @@ test.describe('Feature Name', () => {
    Failed tests automatically capture screenshots in `test-results/`
 
 3. **View traces:**
+
    ```bash
    pnpm playwright show-trace path/to/trace.zip
    ```
@@ -197,6 +213,7 @@ test.describe('Feature Name', () => {
 ### Container Issues
 
 If containers fail to start:
+
 ```bash
 # Check Docker status
 docker ps -a
@@ -211,6 +228,7 @@ docker system prune -a
 ### Port Conflicts
 
 If you get port binding errors:
+
 ```bash
 # Find processes using ports
 lsof -i :3000
@@ -223,6 +241,7 @@ kill -9 <PID>
 ### Database Migration Issues
 
 If migrations fail:
+
 ```bash
 # Run migrations manually
 pnpm prisma migrate deploy
@@ -234,6 +253,7 @@ pnpm prisma migrate reset
 ### Test Timeout Issues
 
 Increase timeouts in `playwright.config.ts`:
+
 ```typescript
 use: {
   actionTimeout: 30000,
@@ -244,11 +264,13 @@ use: {
 ## Environment Variables
 
 The test environment automatically sets:
+
 - `NODE_ENV=test`
 - `POSTGRES_*` variables for database connection
 - `SKIP_ENV_VALIDATION=true` for testing
 
 Custom environment variables can be added in the test setup:
+
 ```typescript
 environmentVariables: {
   CUSTOM_VAR: 'value',
@@ -283,6 +305,7 @@ jobs:
 ## Contributing
 
 When contributing to e2e tests:
+
 1. Ensure tests pass locally before pushing
 2. Add appropriate test coverage for new features
 3. Update this README if adding new patterns or suites

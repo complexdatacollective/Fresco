@@ -45,7 +45,7 @@ export class PageHelpers {
       .first();
     await toast.waitFor({ state: 'visible' });
     const text = await toast.textContent();
-    return text || '';
+    return text ?? '';
   }
 
   /**
@@ -165,7 +165,7 @@ export class PageHelpers {
       const cells = await row.locator('td').allTextContents();
       const rowData: Record<string, string> = {};
       headers.forEach((header, index) => {
-        rowData[header] = cells[index] || '';
+        rowData[header] = cells[index] ?? '';
       });
       data.push(rowData);
     }

@@ -7,7 +7,7 @@ import { createId } from '@paralleldrive/cuid2';
 export default async function seed(prisma: PrismaClient) {
   // Create multiple protocols with different configurations
   const protocols = [];
-  
+
   for (let i = 1; i <= 5; i++) {
     const protocol = await prisma.protocol.create({
       data: {
@@ -132,7 +132,7 @@ export default async function seed(prisma: PrismaClient) {
   for (let i = 0; i < participants.length; i++) {
     const participant = participants[i];
     const protocol = protocols[i % protocols.length];
-    
+
     if (i < 10) {
       // Completed interviews
       await prisma.interview.create({

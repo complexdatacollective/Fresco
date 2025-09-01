@@ -9,14 +9,14 @@ export const TEST_CONFIG = {
     username: 'testadmin',
     password: 'TestAdmin123!',
   },
-  
+
   // Test timeouts
   timeouts: {
     containerStartup: 180000, // 3 minutes
     appInitialization: 10000, // 10 seconds
     navigation: 30000, // 30 seconds
   },
-  
+
   // Test environment settings
   environment: {
     // Whether to skip environment validation in containers
