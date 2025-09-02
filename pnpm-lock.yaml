@@ -15,11 +15,11 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))
       '@codaco/protocol-validation':
-        specifier: 5.0.2
-        version: 5.0.2
+        specifier: 6.0.0
+        version: 6.0.0
       '@codaco/shared-consts':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 5.0.0
+        version: 5.0.0
       '@hookform/resolvers':
         specifier: ^5.1.1
         version: 5.1.1(react-hook-form@7.58.1(react@18.3.1))
@@ -1114,13 +1114,12 @@ packages:
     peerDependencies:
       next: 13 || 14 || 15
 
-  '@codaco/protocol-validation@5.0.2':
-    resolution: {integrity: sha512-HH68/XTI4dPy1WDTpNzhn5PM44+0fj4ZNFkWMqRsPpRgRvhbnnVR+bynDsk/BGKxPF9gdvqx2wvBX0AUbdGOMw==}
-    engines: {node: '>=20.0.0'}
+  '@codaco/protocol-validation@6.0.0':
+    resolution: {integrity: sha512-ISa1Ry83KK+zY9beqtXBcm7i1cEmQqaMQ7qjAoziTt24Wjb/F2lhQmcY3A6AaGHwy/EGOhke9qRyy558gh3HzQ==}
     hasBin: true
 
-  '@codaco/shared-consts@4.0.0':
-    resolution: {integrity: sha512-j39tdNf93FlZ4R2ycZ+FpHNjzgAXcz92fVpC59Cg7k0loWkuMpoEfArzaZyI0mXGT0BEned5BJ+kG7hBu77wDw==}
+  '@codaco/shared-consts@5.0.0':
+    resolution: {integrity: sha512-7neTWHNjw6Y7FdVOU8htO2OshADlpS9vI+5mQEDWOdtlL8BdHmBflqQlZE8lFjzBin8tUI9jIlxsLlMYOpjm/w==}
     engines: {node: '>=20.0.0'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -7839,6 +7838,9 @@ packages:
   zod@4.0.17:
     resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
 
+  zod@4.1.5:
+    resolution: {integrity: sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg==}
+
   zustand@5.0.6:
     resolution: {integrity: sha512-ihAqNeUVhe0MAD+X8M5UzqyZ9k3FFZLBTtqo6JLPwV53cbRB/mJwBI0PxcIgqhBBHlEs8G45OTDTMq3gNcLq3A==}
     engines: {node: '>=12.20.0'}
@@ -8751,15 +8753,14 @@ snapshots:
       next: 14.2.30(@babel/core@7.27.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
       zod: 3.25.67
 
-  '@codaco/protocol-validation@5.0.2':
+  '@codaco/protocol-validation@6.0.0':
     dependencies:
-      '@codaco/shared-consts': 4.0.0
-      ajv: 8.17.1
-      zod: 3.25.67
+      '@codaco/shared-consts': 5.0.0
+      zod: 4.1.5
 
-  '@codaco/shared-consts@4.0.0':
+  '@codaco/shared-consts@5.0.0':
     dependencies:
-      zod: 3.25.67
+      zod: 4.1.5
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -16460,6 +16461,8 @@ snapshots:
   zod@3.25.67: {}
 
   zod@4.0.17: {}
+
+  zod@4.1.5: {}
 
   zustand@5.0.6(@types/react@18.3.18)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1)):
     optionalDependencies:
