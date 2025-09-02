@@ -16,7 +16,6 @@
     "knip": "knip",
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
-    "storybook-build": "true",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
