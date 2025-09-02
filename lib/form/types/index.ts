@@ -106,7 +106,7 @@ export type FormSubmissionResult = z.infer<typeof FormSubmissionResultSchema>;
 export type BaseFieldProps = {
   name: string;
   label: string;
-  hint?: string;
+  hint?: React.ReactNode;
   placeholder?: string;
   className?: string;
   value?: FieldValue;
