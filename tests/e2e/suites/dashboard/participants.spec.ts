@@ -1,21 +1,17 @@
-import { expect, test } from '@playwright/test';
+import { expect, SNAPSHOT_CONFIGS, test } from '../../fixtures/test';
 
 // Parallel tests - no mutations!
 
 test.describe.parallel('Participants page - parallel', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard/participants');
+  test.beforeEach(async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/dashboard/participants');
   });
 
   // Visual snapshot of this page
-  test('should match visual snapshot', async ({ page }) => {
-    // Wait for data to load
-    await page.waitForSelector('[data-testid="participants-table"], table', {
-      timeout: 10000,
-    });
-    await page.waitForTimeout(1000); // Allow animations to settle
-
-    expect(await page.screenshot()).toMatchSnapshot('participants-page.png');
+  test('should match visual snapshot', async ({ snapshots }) => {
+    await snapshots.expectPageToMatchSnapshot(
+      SNAPSHOT_CONFIGS.fullPage('participants-page'),
+    );
   });
 
   test('should display participants list', async ({ page }) => {
@@ -453,12 +449,13 @@ test.describe.serial('Participants page - serial', () => {
   });
 
   // Visual snapshot of empty state should match
-  test('should match visual snapshot of empty state', async ({ page }) => {
-    // Ensure we're in empty state (from previous test or explicitly clear)
-    await page.waitForTimeout(1000);
+  test('should match visual snapshot of empty state', async ({ snapshots }) => {
+    // Wait for empty state to be stable
+    await snapshots.waitForStablePage();
 
-    expect(await page.screenshot()).toMatchSnapshot(
-      'participants-empty-state.png',
+    // Take empty state snapshot
+    await snapshots.expectPageToMatchSnapshot(
+      SNAPSHOT_CONFIGS.emptyState('participants-empty-state'),
     );
   });
 });

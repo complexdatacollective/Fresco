@@ -1,6 +1,8 @@
+import { type Protocol, ProtocolSchema } from '@codaco/protocol-validation';
 import { createId } from '@paralleldrive/cuid2';
 import { type PrismaClient } from '@prisma/client';
 import { generateLuciaPasswordHash } from 'lucia/utils';
+import { objectHash } from 'ohash';
 import { type z } from 'zod';
 import { type appSettingsSchema } from '~/schemas/appSettings';
 import { getStringValue } from '~/utils/getStringValue';
@@ -38,71 +40,72 @@ export class TestDataBuilder {
   /**
    * Create a test protocol with basic data
    */
-  async createProtocol(
-    overrides: {
-      name?: string;
-      description?: string;
-      stages?: unknown;
-      codebook?: unknown;
-    } = {},
-  ) {
-    const protocol = await this.prisma.protocol.create({
-      data: {
-        id: createId(),
-        hash: `hash_${createId()}`,
-        name: overrides.name ?? `Test Protocol ${Date.now()}`,
-        description: overrides.description ?? 'A test protocol for e2e testing',
-        schemaVersion: 8,
-        lastModified: new Date(),
-        stages: overrides.stages ?? {
-          stages: [
+  async createProtocol() {
+    const testProtocol: Protocol = {
+      description: 'A test protocol for e2e testing',
+      schemaVersion: 8,
+      stages: [
+        {
+          id: 'stage1',
+          label: 'Information',
+          type: 'Information',
+          items: [
             {
-              id: 'stage1',
-              label: 'Information',
-              type: 'Information',
-              panels: [
-                {
-                  id: 'panel1',
-                  title: 'Welcome',
-                  text: 'Welcome to the test protocol',
-                },
-              ],
+              id: 'item1',
+              type: 'text',
+              content: 'What is your name?',
             },
             {
-              id: 'stage2',
-              label: 'Name Generator',
-              type: 'NameGenerator',
-              subject: {
-                entity: 'node',
-                type: 'person',
-              },
-              prompts: [
-                {
-                  id: 'prompt1',
-                  text: 'Name some people you know',
-                },
-              ],
+              id: 'item2',
+              type: 'text',
+              content: 'What is your age?',
             },
           ],
         },
-        codebook: overrides.codebook ?? {
-          node: {
-            person: {
-              name: 'Person',
-              color: 'blue',
-              iconVariant: 'user',
-              variables: {
-                name: {
-                  type: 'string',
-                  name: 'Name',
-                  required: true,
-                },
+        {
+          id: 'stage2',
+          label: 'Name Generator',
+          type: 'NameGeneratorQuickAdd',
+          quickAdd: 'name',
+          subject: {
+            entity: 'node',
+            type: 'person',
+          },
+          prompts: [
+            {
+              id: 'prompt1',
+              text: 'Name some people you know',
+            },
+          ],
+        },
+      ],
+      codebook: {
+        node: {
+          person: {
+            name: 'Person',
+            color: 'blue',
+            iconVariant: 'user',
+            variables: {
+              name: {
+                type: 'text',
+                name: 'Name',
               },
             },
           },
-          edge: {},
-          ego: {},
         },
+        edge: {},
+        ego: {},
+      },
+    };
+
+    const safeProtocol = ProtocolSchema.parse(testProtocol);
+
+    const protocol = await this.prisma.protocol.create({
+      data: {
+        name: `Test Protocol`,
+        hash: objectHash(safeProtocol),
+        lastModified: new Date(),
+        ...safeProtocol,
       },
     });
 
@@ -191,61 +194,5 @@ export class TestDataBuilder {
     }
 
     return finalSettings;
-  }
-
-  /**
-   * Create multiple protocols for testing protocol management
-   */
-  async createMultipleProtocols(count = 5) {
-    const protocols = [];
-    for (let i = 0; i < count; i++) {
-      const protocol = await this.createProtocol({
-        name: `Protocol ${i + 1}`,
-        description: `Description for protocol ${i + 1}`,
-      });
-      protocols.push(protocol);
-    }
-    return protocols;
-  }
-
-  /**
-   * Create a protocol with assets
-   */
-  async createProtocolWithAssets() {
-    const protocol = await this.createProtocol({
-      name: 'Protocol with Assets',
-    });
-
-    // Create some test assets
-    const assets = await Promise.all([
-      this.prisma.asset.create({
-        data: {
-          key: `asset_${createId()}`,
-          assetId: createId(),
-          name: 'test-image.jpg',
-          type: 'image/jpeg',
-          url: '/assets/test-image.jpg',
-          size: 1024,
-          protocols: {
-            connect: { id: protocol.id },
-          },
-        },
-      }),
-      this.prisma.asset.create({
-        data: {
-          key: `asset_${createId()}`,
-          assetId: createId(),
-          name: 'test-video.mp4',
-          type: 'video/mp4',
-          url: '/assets/test-video.mp4',
-          size: 5242880,
-          protocols: {
-            connect: { id: protocol.id },
-          },
-        },
-      }),
-    ]);
-
-    return { protocol, assets };
   }
 }

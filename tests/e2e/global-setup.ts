@@ -39,6 +39,9 @@ async function setupInitialSetupEnvironment(testEnv: TestEnvironment) {
     suiteId: 'setup',
   });
 
+  // Store setup context globally for easy access
+  globalThis.__SETUP_CONTEXT__ = context;
+
   return context;
 }
 
@@ -57,13 +60,12 @@ async function setupDashboardEnvironment(testEnv: TestEnvironment) {
         ADMIN_CREDENTIALS.password,
       );
 
-      // Create multiple protocols for testing
-      await dataBuilder.createMultipleProtocols(10);
-
-      // Create a protocol with assets
-      await dataBuilder.createProtocolWithAssets();
+      await dataBuilder.createProtocol();
     },
   });
+
+  // Store dashboard context globally for easy access
+  globalThis.__DASHBOARD_CONTEXT__ = context;
 
   return context;
 }
@@ -87,9 +89,7 @@ async function setupInterviewsEnvironment(testEnv: TestEnvironment) {
       );
 
       // Create a protocol for interviews
-      const protocol = await dataBuilder.createProtocol({
-        name: 'Main Study Protocol',
-      });
+      const protocol = await dataBuilder.createProtocol();
 
       // Create various participants with different states
       const participants = [];

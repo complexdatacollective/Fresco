@@ -14,12 +14,13 @@
     "knip": "knip",
     "test": "vitest",
     "test:e2e": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts",
-    "test:e2e:ui": "playwright test --config=tests/e2e/playwright.config.ts --ui",
-    "test:e2e:debug": "playwright test --config=tests/e2e/playwright.config.ts --debug",
+    "test:e2e:ui": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts --ui",
+    "test:e2e:debug": "TEST_IMAGE_NAME=fresco-test:latest playwright test --config=tests/e2e/playwright.config.ts --debug",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "SKIP_ENV_VALIDATION=true storybook build",
-    "chromatic": "pnpx chromatic --project-token=chpt_54d6831d4ddd5cc"
+    "chromatic": "pnpx chromatic --project-token=chpt_54d6831d4ddd5cc",
+    "docker-build": "docker build -t fresco-test:latest ."
   },
   "pnpm": {
     "overrides": {

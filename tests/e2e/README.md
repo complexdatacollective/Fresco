@@ -1,312 +1,218 @@
-# End-to-End Testing for Fresco
+# E2E Testing System
 
-This directory contains comprehensive end-to-end tests for the Fresco application using Playwright and Testcontainers.
+This directory contains the end-to-end testing system for Fresco, including comprehensive test suites, fixtures, and utilities.
 
-## Architecture
+## Quick Start
 
-The e2e testing setup uses Testcontainers to create isolated Docker environments for each test suite, ensuring:
-
-- Complete isolation between test suites
-- Parallel execution of test suites
-- Reproducible test environments
-- No pollution between tests
-
-### Key Components
-
-1. **Test Environment Manager** (`fixtures/test-environment.ts`)
-   - Manages Docker containers for PostgreSQL and the Fresco application
-   - Handles Prisma migrations and database seeding
-   - Provides cleanup mechanisms
-
-2. **Database Manager** (`fixtures/database-manager.ts`)
-   - Manages database snapshots for test restoration
-   - Provides utilities for database operations
-   - Integrates with Prisma ORM
-
-3. **Test Data Builder** (`fixtures/test-data-builder.ts`)
-   - Creates test data using Prisma
-   - Provides factory methods for all domain entities
-   - Ensures consistent test data across suites
-
-4. **Page Helpers** (`fixtures/page-helpers.ts`)
-   - Common UI interaction helpers
-   - Reduces code duplication in tests
-   - Provides consistent test patterns
-
-## Test Suites
-
-### Setup Suite (`suites/setup/`)
-
-Tests the initial application setup and configuration flow.
-
-- First-time setup
-- Admin account creation
-- Initial configuration
-
-### Protocols Suite (`suites/protocols/`)
-
-Tests protocol management functionality.
-
-- Protocol import/export
-- Protocol listing and search
-- Protocol deletion
-- Asset management
-
-### Interviews Suite (`suites/interviews/`)
-
-Tests the interview workflow.
-
-- Starting interviews
-- Interview navigation
-- Data collection
-- Interview completion
-- Data export
-
-### Participants Suite (`suites/participants/`)
-
-Tests participant management.
-
-- Participant creation
-- Participant search
-- Bulk operations
-- Interview history
-
-## Running Tests
-
-### Prerequisites
-
-1. Install dependencies:
-
-```bash
-pnpm install
-pnpm add -D @playwright/test @testcontainers/postgresql testcontainers wait-on
-```
-
-2. Install Playwright browsers:
-
-```bash
-pnpm playwright install
-```
-
-3. Ensure Docker is running:
-
-```bash
-docker --version
-```
-
-### Running All Tests
+### Running Tests
 
 ```bash
 # Run all e2e tests
-pnpm test:e2e
+npx playwright test --config tests/e2e/playwright.config.ts
 
-# Run with UI mode (interactive)
-pnpm test:e2e:ui
+# Run specific test suite
+npx playwright test tests/e2e/suites/dashboard/participants.spec.ts
 
-# Run in debug mode
-pnpm test:e2e:debug
+# Run tests in headed mode (with browser UI)
+npx playwright test --headed
+
+# Run tests with debug mode
+npx playwright test --debug
 ```
 
-### Running Specific Test Suites
+### Visual Regression Testing
+
+The system includes a comprehensive visual snapshot system. See [VISUAL_TESTING.md](./docs/VISUAL_TESTING.md) for detailed documentation.
 
 ```bash
-# Run only setup tests
-pnpm test:e2e --project=setup
+# Generate baseline screenshots
+./tests/e2e/scripts/generate-baselines.sh
 
-# Run only protocol tests
-pnpm test:e2e --project=protocols
+# Run visual regression tests
+npx playwright test --grep "visual snapshot"
 
-# Run only interview tests
-pnpm test:e2e --project=interviews
-
-# Run only participant tests
-pnpm test:e2e --project=participants
+# Update specific baselines
+npx playwright test participants.spec.ts --update-snapshots
 ```
 
-### Running in CI
+## Directory Structure
 
-```bash
-# Build test image first, then run tests
-pnpm test:e2e:ci
+```
+tests/e2e/
+├── docs/               # Documentation
+│   ├── DATABASE_SNAPSHOTS.md
+│   └── VISUAL_TESTING.md
+├── fixtures/           # Reusable test utilities
+│   ├── database-snapshots.ts
+│   ├── page-helpers.ts
+│   ├── test-data-builder.ts
+│   ├── test-environment.ts
+│   ├── test.ts         # Main test fixture with visual snapshots, auth & database
+│   └── visual-snapshots.ts
+├── scripts/           # Utility scripts
+│   └── generate-baselines.sh
+├── suites/            # Test suites organized by area
+│   ├── auth/
+│   ├── dashboard/
+│   ├── interview/
+│   └── setup/
+├── types/             # TypeScript type definitions
+│   └── global.d.ts
+├── global-setup.ts    # Global test setup
+├── global-teardown.ts # Global test cleanup
+└── playwright.config.ts # Playwright configuration
 ```
 
-## Test Data
+## Test Organization
 
-### Seed Files
+Tests are organized into logical suites:
 
-- `seeds/base-seed.sql` - Minimal seed data for testing
-- `seeds/complex-seed.ts` - TypeScript seed with complex test scenarios
+- **Auth**: Authentication flow tests
+- **Dashboard**: Admin dashboard functionality
+- **Interview**: Interview experience tests
+- **Setup**: Initial application setup tests
 
-### Test Users
+Each suite can run independently with appropriate database seeding and environment setup.
 
-Default test users created by seeds:
+## Key Features
 
-- Username: `admin`, Password: `AdminPass123!`
-- Username: `testuser`, Password: `TestPassword123!`
+### 🎯 Visual Regression Testing
 
-## Development
+- **Integrated fixture system**: `snapshots` available in every test automatically
+- Comprehensive snapshot system with configurable options
+- Automatic handling of dynamic content and animations
+- Predefined configurations for common UI patterns
+- Easy baseline generation and management
 
-### Adding New Tests
+### 🔐 Authentication System
 
-1. Create a new test file in the appropriate suite directory
-2. Import page helpers for common operations
-3. Use the test data builder for consistent data
-4. Follow the existing test patterns
+- **Integrated fixture system**: `authenticatedPage` available when needed
+- Persistent authentication state between tests
+- Admin and participant authentication flows
+- Automatic session management
 
-Example:
+### 🗄️ Database Management
 
-```typescript
-import { test, expect } from '@playwright/test';
-import { createPageHelpers } from '../../fixtures/page-helpers';
+- **Integrated fixture system**: `database` available for snapshot operations
+- **Context-aware**: Automatically detects the correct database context per test suite
+- Isolated test environments per suite (setup, dashboard, interviews)
+- Automatic seeding with realistic test data
+- Snapshot and restore capabilities for state management
+- Direct Prisma client access for database operations
 
-test.describe('Feature Name', () => {
-  test('should do something', async ({ page }) => {
-    const helpers = createPageHelpers(page);
-    await helpers.login('admin', 'AdminPass123!');
+### 🐳 Containerized Testing
 
-    // Your test logic here
-  });
-});
-```
+- Docker-based test environments for consistency
+- Automatic PostgreSQL database provisioning
+- Network isolation between test suites
 
-### Creating New Test Suites
+### 📊 Comprehensive Coverage
 
-1. Add a new directory under `suites/`
-2. Update `playwright.config.ts` to add the new project
-3. Update `global-setup.ts` to create the test environment
-4. Create test files in the new directory
+- Parallel and serial test execution strategies
+- Both functional and visual regression testing
+- Cross-browser testing support
 
-### Debugging Failed Tests
+## Configuration
 
-1. **View test report:**
+The system uses several configuration files:
 
-   ```bash
-   pnpm playwright show-report
-   ```
-
-2. **Check screenshots:**
-   Failed tests automatically capture screenshots in `test-results/`
-
-3. **View traces:**
-
-   ```bash
-   pnpm playwright show-trace path/to/trace.zip
-   ```
-
-4. **Run specific test in headed mode:**
-   ```bash
-   pnpm playwright test path/to/test.spec.ts --headed
-   ```
-
-## Best Practices
-
-1. **Test Isolation:** Each test should be independent and not rely on other tests
-2. **Use Page Helpers:** Leverage the page helpers for common operations
-3. **Meaningful Assertions:** Write clear, specific assertions
-4. **Cleanup:** Always ensure proper cleanup in test teardown
-5. **Descriptive Names:** Use descriptive test and suite names
-6. **Avoid Hard Waits:** Use Playwright's built-in waiting mechanisms
-7. **Data Builders:** Use the test data builder for consistent test data
-
-## Troubleshooting
-
-### Container Issues
-
-If containers fail to start:
-
-```bash
-# Check Docker status
-docker ps -a
-
-# View container logs
-docker logs <container-id>
-
-# Clean up orphaned containers
-docker system prune -a
-```
-
-### Port Conflicts
-
-If you get port binding errors:
-
-```bash
-# Find processes using ports
-lsof -i :3000
-lsof -i :5432
-
-# Kill conflicting processes
-kill -9 <PID>
-```
-
-### Database Migration Issues
-
-If migrations fail:
-
-```bash
-# Run migrations manually
-pnpm prisma migrate deploy
-
-# Reset database
-pnpm prisma migrate reset
-```
-
-### Test Timeout Issues
-
-Increase timeouts in `playwright.config.ts`:
-
-```typescript
-use: {
-  actionTimeout: 30000,
-  navigationTimeout: 60000,
-}
-```
+- `playwright.config.ts`: Main Playwright configuration
+- `config/test-config.ts`: Test-specific settings and credentials
+- `global.d.ts`: TypeScript global type definitions
 
 ## Environment Variables
 
-The test environment automatically sets:
+Key environment variables (automatically managed):
 
-- `NODE_ENV=test`
-- `POSTGRES_*` variables for database connection
-- `SKIP_ENV_VALIDATION=true` for testing
+- `TEST_IMAGE_NAME`: Docker image for containerized tests
+- `SETUP_URL`, `DASHBOARD_URL`, `INTERVIEW_URL`: Generated test environment URLs
+- `CI`: Enables CI-specific optimizations
 
-Custom environment variables can be added in the test setup:
+## Best Practices
+
+### Test Writing
+
+- Use descriptive test names that explain the expected behavior
+- Leverage the integrated fixture system for visual testing and authentication
+- Wait for stability before assertions, especially for visual tests
+- Use semantic selectors (roles, labels) over CSS selectors when possible
 
 ```typescript
-environmentVariables: {
-  CUSTOM_VAR: 'value',
-}
+// Import the integrated test fixture
+import { expect, test, SNAPSHOT_CONFIGS } from '../../fixtures/test';
+
+test('page functionality and visuals', async ({ page, snapshots }) => {
+  await page.goto('/my-page');
+
+  // Test functionality first
+  await expect(page.getByRole('heading')).toBeVisible();
+
+  // Then test visual appearance
+  await snapshots.waitForStablePage();
+  await snapshots.expectPageToMatchSnapshot(SNAPSHOT_CONFIGS.page('my-page'));
+});
+
+// For tests that need authentication
+test('admin functionality', async ({ authenticatedPage, snapshots }) => {
+  await authenticatedPage.goto('/admin');
+  // Test authenticated functionality...
+});
+
+// For tests that need database isolation
+test('database mutations with isolation', async ({ database }) => {
+  const cleanup = await database.isolate('test-state');
+  
+  // Make database changes
+  await database.prisma.participant.deleteMany();
+  
+  // Test with modified state
+  const count = await database.prisma.participant.count();
+  expect(count).toBe(0);
+  
+  // Restore original state
+  await cleanup();
+});
 ```
 
-## CI/CD Integration
+### Visual Testing
 
-### GitHub Actions Example
+- Always use the visual snapshot system for consistency
+- Generate baselines deliberately and review them carefully
+- Use appropriate configurations for different UI patterns
+- Mask dynamic content that shouldn't affect visual validation
 
-```yaml
-name: E2E Tests
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: pnpm install
-      - run: pnpm playwright install
-      - run: pnpm test:e2e
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: test-results
-          path: test-results/
-```
+### Database Testing
 
-## Contributing
+- Use the integrated `database` fixture for state management
+- Create snapshots before mutations to enable rollback
+- Use `isolate()` for automatic cleanup in serial tests
+- Access Prisma client directly via `database.prisma`
+- See [DATABASE_SNAPSHOTS.md](./docs/DATABASE_SNAPSHOTS.md) for comprehensive guidance
 
-When contributing to e2e tests:
+### Debugging
 
-1. Ensure tests pass locally before pushing
-2. Add appropriate test coverage for new features
-3. Update this README if adding new patterns or suites
-4. Follow the existing code style and patterns
+- Use `--headed` mode to see tests running in real browsers
+- Use `--debug` mode to step through tests interactively
+- Check the `test-results/` directory for failure artifacts
+- Review the HTML report generated after test runs
+
+## Troubleshooting
+
+### Common Issues
+
+**Tests timing out**: Increase timeouts in `playwright.config.ts` or use more specific waits
+
+**Visual tests failing**: Check if UI changes are intentional, then update baselines with `--update-snapshots`
+
+**Database connection errors**: Ensure Docker is running and containers are healthy
+
+**Authentication failures**: Check test credentials in `config/test-config.ts`
+
+### Getting Help
+
+1. Check the logs in `test-results/` for detailed error information
+2. Run tests with `--reporter=line` for more verbose output
+3. Use `--debug` mode to step through failing tests
+4. Review the documentation in the `docs/` directory
+
+For visual regression testing specifically, see [VISUAL_TESTING.md](./docs/VISUAL_TESTING.md) for comprehensive guidance.

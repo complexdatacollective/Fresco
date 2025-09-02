@@ -3,6 +3,7 @@
  */
 /* eslint-disable no-var, @typescript-eslint/no-explicit-any */
 
+import { type Protocol } from '@codaco/protocol-validation';
 import type { User } from '@prisma/client';
 import type { TestEnvironment } from './tests/e2e/fixtures/test-environment';
 
@@ -16,7 +17,7 @@ declare global {
             username: string;
             password: string;
           };
-          protocol: any;
+          protocol: Protocol;
           participants: any[];
         }
       | undefined;
