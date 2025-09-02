@@ -24,7 +24,7 @@ type DraggableMotionNodeProps = {
 
 // DraggableMotionNode component that wraps MotionNode with drag functionality
 const DraggableMotionNode = memo(
-  ({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
+  ({ node, itemType, allowDrag, onClick, ...nodeProps }: DraggableMotionNodeProps & { onClick?: () => void }) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -33,7 +33,7 @@ const DraggableMotionNode = memo(
     });
 
     return (
-      <div {...dragProps}>
+      <div {...dragProps} onClick={onClick}>
         <MotionNode {...node} {...nodeProps} />
       </div>
     );
