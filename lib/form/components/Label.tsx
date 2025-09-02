@@ -1,0 +1,93 @@
+'use client';
+
+import * as LabelPrimitive from '@radix-ui/react-label';
+import * as React from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import remarkGemoji from 'remark-gemoji';
+import { headingVariants } from '~/components/ui/typography/Heading';
+import { cx, type VariantProps } from '~/utils/cva';
+
+const ALLOWED_MARKDOWN_LABEL_TAGS = [
+  'br',
+  'p',
+  'em',
+  'strong',
+  'ul',
+  'ol',
+  'li',
+];
+
+/**
+ * Hack for `>` characters that already exist in some protocols
+ * and will be interpreted as block quotes on first load
+ * Encoding this way forces slate to treat them as paragraphs.
+ *
+ * This was implemented as two successive 'replace' operations
+ * rather than a single regex, because Safari does not support
+ * lookbehind.
+ */
+const escapeAngleBracket = (value = '') =>
+  value.replace(/>/g, '&gt;').replace(/<br&gt;/g, '<br>');
+
+const externalLinkRenderer = ({
+  href,
+  children,
+}: {
+  href?: string;
+  children?: React.ReactNode;
+}) => (
+  <a href={href} target="_blank" rel="noopener noreferrer">
+    {children}
+  </a>
+);
+
+const defaultMarkdownRenderers = {
+  a: externalLinkRenderer,
+};
+
+const Label = React.forwardRef<
+  React.ElementRef<typeof LabelPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    required?: boolean;
+  } & VariantProps<typeof headingVariants>
+>(({ className, required, children, ...props }, ref) => {
+  const processedChildren = React.useMemo(() => {
+    if (typeof children === 'string') {
+      return escapeAngleBracket(children);
+    }
+    return children;
+  }, [children]);
+
+  return (
+    <LabelPrimitive.Root
+      ref={ref}
+      className={cx(headingVariants({ variant: 'label' }), className)}
+      {...props}
+    >
+      {typeof processedChildren === 'string' ? (
+        <ReactMarkdown
+          allowedElements={ALLOWED_MARKDOWN_LABEL_TAGS}
+          components={defaultMarkdownRenderers}
+          remarkPlugins={[remarkGemoji]}
+          rehypePlugins={[rehypeRaw, rehypeSanitize]}
+          unwrapDisallowed
+        >
+          {processedChildren}
+        </ReactMarkdown>
+      ) : (
+        processedChildren
+      )}
+      {required && (
+        <span className="text-destructive" aria-hidden="true">
+          {' '}
+          *
+        </span>
+      )}
+    </LabelPrimitive.Root>
+  );
+});
+Label.displayName = LabelPrimitive.Root.displayName;
+
+export { Label };

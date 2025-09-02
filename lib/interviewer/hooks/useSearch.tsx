@@ -3,8 +3,8 @@ import { compact, flatten } from 'es-toolkit';
 import Fuse, { type Expression } from 'fuse.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { convertNamesToUUIDs } from '../containers/Interfaces/NameGeneratorRoster/helpers';
-import { type UseItemElement } from '../containers/Interfaces/NameGeneratorRoster/useItems';
+import { convertNamesToUUIDs } from '../Interfaces/NameGeneratorRoster/helpers';
+import { type UseItemElement } from '../Interfaces/NameGeneratorRoster/useItems';
 import { getNodeVariables } from '../selectors/interface';
 import { getSearchOptions } from '../selectors/name-generator';
 

@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { required } from '~/lib/interviewer/utils/field-validation';
 import { Button } from '~/lib/ui/components';
 import Form from '../containers/Form';
-import { usePassphrase } from '../containers/Interfaces/Anonymisation/usePassphrase';
+import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from '../containers/Overlay';
 
 const transition: Transition = {

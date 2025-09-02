@@ -7,7 +7,7 @@ import { compose, withProps } from 'recompose';
 import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import { DropTarget, MonitorDropTarget } from '../behaviours/DragAndDrop';
 import { usePrompts } from '../behaviours/withPrompt';
-import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
+import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import NodeList from './NodeList';
 

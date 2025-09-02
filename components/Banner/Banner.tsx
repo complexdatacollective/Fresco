@@ -1,4 +1,4 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 export default function Banner({
   children,
@@ -9,7 +9,7 @@ export default function Banner({
 }) {
   return (
     <div
-      className={cn(
+      className={cx(
         'bg-background text-foreground relative isolate z-50 flex w-full items-center justify-center gap-x-6 overflow-hidden px-6 py-1.5 sm:px-3.5',
         className,
       )}

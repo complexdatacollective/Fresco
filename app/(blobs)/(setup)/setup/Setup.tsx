@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import ConnectUploadThing from '../_components/OnboardSteps/ConnectUploadThing';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
@@ -44,8 +44,8 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     },
   ];
 
-  const cardClasses = cn(containerClasses, 'flex-row bg-transparent p-0 gap-6');
-  const mainClasses = cn('bg-white flex w-full p-12 rounded-xl');
+  const cardClasses = cx(containerClasses, 'flex-row bg-transparent p-0 gap-6');
+  const mainClasses = cx('bg-white flex w-full p-12 rounded-xl');
 
   useEffect(() => {
     if (!setupData.hasAuth && step > 1) {

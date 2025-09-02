@@ -99,6 +99,7 @@
 
   --color-input: hsl(var(--input));
   --color-input-foreground: hsl(var(--input-foreground));
+  --color-input-placeholder: hsl(var(--input-placeholder));
 
   --color-border: hsl(var(--border));
   --color-link: hsl(var(--link));
@@ -420,7 +421,7 @@
     --accent: var(--slate-blue);
     --accent-foreground: var(--white);
 
-    --destructive: var(--tomato);
+    --destructive: var(--tomato--dark);
     --destructive-foreground: var(--white);
 
     --warning: var(--neon-carrot);
@@ -463,3 +464,14 @@
     @apply italic;
   }
 }
+
+/* 
+
+The default tailwind way to do this uses a psuedo element selector, which
+means that anything not editable is "read only", including things
+like <select>. 
+
+This custom variant lets you target only elements with the readonly attribute.
+
+*/
+@custom-variant is-read-only (&[readonly]);

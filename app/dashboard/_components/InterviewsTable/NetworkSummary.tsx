@@ -1,7 +1,7 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import type { NcNetwork } from '@codaco/shared-consts';
 
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type NodeColorSequence =
   | 'node-color-seq-1'
@@ -36,7 +36,7 @@ type EdgeSummaryProps = {
   typeName: string;
 };
 function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
-  const classes = cn(
+  const classes = cx(
     'flex items-center h-8 w-8 justify-center rounded-full',
     'bg-linear-145 from-50% to-50%',
     'from-[var(--node-color-seq-1)] to-[var(--node-color-seq-1-dark)]',
@@ -68,7 +68,7 @@ function NodeSummary({ color, count, typeName }: NodeSummaryProps) {
   );
 }
 function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
-  const lightColorClass = cn(
+  const lightColorClass = cx(
     'fill-[var(--edge-color-seq-1)]',
     color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1)]',
     color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2)]',
@@ -81,7 +81,7 @@ function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
     color === 'edge-color-seq-9' && 'fill-[var(--edge-color-seq-9)]',
   );
 
-  const darkColorClass = cn(
+  const darkColorClass = cx(
     'fill-[var(--edge-color-seq-1-dark)]',
     color === 'edge-color-seq-1' && 'fill-[var(--edge-color-seq-1-dark)]',
     color === 'edge-color-seq-2' && 'fill-[var(--edge-color-seq-2-dark)]',

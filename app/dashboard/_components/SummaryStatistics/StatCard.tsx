@@ -1,9 +1,9 @@
 import { use } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
 import Heading from '~/components/ui/typography/Heading';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
-const statCardClasses = cn(
+const statCardClasses = cx(
   'flex flex-col gap-4 rounded-xl border border-[hsl(var(--platinum--dark))] bg-card p-4 text-card-foreground shadow-xl shadow-platinum-dark transition-all',
   'sm:flex-row sm:items-center md:p-6 lg:gap-6 lg:p-10',
   ' hover:scale-[102%]',

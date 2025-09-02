@@ -12,7 +12,7 @@ import {
 } from '~/components/DataTable/types';
 import { Button, buttonVariants } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type DataTableToolbarProps<TData> = {
   table: Table<TData>;
@@ -102,7 +102,7 @@ export function DataTableToolbar<TData>({
         ) : newRowLink ? (
           <Link aria-label="Create new row" href={newRowLink}>
             <div
-              className={cn(
+              className={cx(
                 buttonVariants({
                   variant: 'outline',
                   size: 'sm',

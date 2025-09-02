@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { Separator } from '~/components/ui/separator';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type DataTableFacetedFilter<TData, TValue> = {
   column?: Column<TData, TValue>;
@@ -104,14 +104,14 @@ export function DataTableFacetedFilter<TData, TValue>({
                         }}
                       >
                         <div
-                          className={cn(
+                          className={cx(
                             'border-primary mr-2 flex size-4 items-center justify-center rounded-sm border',
                             isSelected
                               ? 'bg-primary text-primary-foreground'
                               : 'opacity-50 [&_svg]:invisible',
                           )}
                         >
-                          <Check className={cn('size-4')} aria-hidden="true" />
+                          <Check className={cx('size-4')} aria-hidden="true" />
                         </div>
                         {option.icon && (
                           <option.icon
@@ -170,14 +170,14 @@ export function DataTableFacetedFilter<TData, TValue>({
                     }}
                   >
                     <div
-                      className={cn(
+                      className={cx(
                         'border-primary mr-2 flex size-4 items-center justify-center rounded-sm border',
                         isSelected
                           ? 'bg-primary text-primary-foreground'
                           : 'opacity-50 [&_svg]:invisible',
                       )}
                     >
-                      <Check className={cn('size-4')} aria-hidden="true" />
+                      <Check className={cx('size-4')} aria-hidden="true" />
                     </div>
                     {option.icon && (
                       <option.icon

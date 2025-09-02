@@ -3,9 +3,8 @@
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import * as React from 'react';
 
-import { type VariantProps } from 'class-variance-authority';
 import { buttonVariants } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
+import { cx, type VariantProps } from '~/utils/cva';
 import { dialogContentClasses, dialogOverlayClasses } from './dialog';
 import Heading from './typography/Heading';
 import { paragraphVariants } from './typography/Paragraph';
@@ -52,7 +51,7 @@ const AlertDialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
+    className={cx(
       'flex flex-col space-y-2 text-center sm:text-left',
       className,
     )}
@@ -66,7 +65,7 @@ const AlertDialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
+    className={cx(
       'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
       className,
     )}
@@ -80,7 +79,7 @@ const AlertDialogTitle = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, children, ...props }, ref) => (
   <AlertDialogPrimitive.Title asChild ref={ref} {...props}>
-    <Heading variant="h3" className={cn(className)}>
+    <Heading variant="h3" className={cx(className)}>
       {children}
     </Heading>
   </AlertDialogPrimitive.Title>
@@ -92,7 +91,7 @@ const AlertDialogDescription = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, children, ...props }, ref) => (
   <AlertDialogPrimitive.Description asChild ref={ref} {...props}>
-    <div className={cn(paragraphVariants({ variant: 'smallText' }), className)}>
+    <div className={cx(paragraphVariants({ style: 'smallText' }), className)}>
       {children}
     </div>
   </AlertDialogPrimitive.Description>
@@ -108,7 +107,7 @@ const AlertDialogAction = React.forwardRef<
 >(({ className, buttonVariant, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn(
+    className={cx(
       buttonVariants({ variant: buttonVariant ?? 'destructive' }),
       className,
     )}
@@ -125,7 +124,7 @@ const AlertDialogCancel = React.forwardRef<
 >(({ className, buttonVariant, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
-    className={cn(
+    className={cx(
       buttonVariants({ variant: buttonVariant ?? 'outline' }), // use buttonVariant or default to 'outline'
       'mt-2 sm:mt-0',
       className,
