@@ -6,11 +6,15 @@ import type { SelectOption } from './Select';
 import { SelectField } from './Select';
 
 type DatePickerFieldProps = Omit<
-  | InputHTMLAttributes<HTMLInputElement>
-  | InputHTMLAttributes<HTMLSelectElement>,
+  InputHTMLAttributes<HTMLInputElement>,
   'size'
 > & {
   type?: 'full' | 'month' | 'year';
+  value?: string;
+  onChange?: (value: string) => void;
+  name?: string;
+  disabled?: boolean;
+  required?: boolean;
 };
 
 const months: SelectOption[] = [
@@ -35,26 +39,30 @@ export function DatePickerField({
   value,
   onChange,
   name,
+  disabled,
+  required,
   ...props
 }: DatePickerFieldProps) {
   const today = new Date();
-
   const minDate = min ? new Date(min) : new Date(1920, 0, 1);
   const maxDate = max ? new Date(max) : today;
 
   const minYear = minDate.getFullYear();
   const maxYear = maxDate.getFullYear();
 
-  // Internal state for month/year
   const [selectedYear, setSelectedYear] = useState<string | undefined>();
   const [selectedMonth, setSelectedMonth] = useState<string | undefined>();
 
   // Initialize from value
   useEffect(() => {
-    if (resolutionType === 'month' && value && typeof value === 'string') {
+    if (
+      resolutionType === 'month' &&
+      typeof value === 'string' &&
+      value.includes('-')
+    ) {
       const [year, month] = value.split('-');
-      if (year) setSelectedYear(year);
-      if (month) setSelectedMonth(month);
+      setSelectedYear(year);
+      setSelectedMonth(month);
     }
   }, [value, resolutionType]);
 
@@ -78,7 +86,15 @@ export function DatePickerField({
     });
   }, [selectedYear, minYear, maxYear, minDate, maxDate]);
 
-  console.log({ selectedYear, selectedMonth });
+  const handleChange = (year?: string, month?: string) => {
+    const newYear = year ?? selectedYear;
+    const newMonth = month ?? selectedMonth;
+    setSelectedYear(newYear);
+    setSelectedMonth(newMonth);
+    if (newYear && newMonth && onChange && name) {
+      onChange(`${newYear}-${newMonth}`);
+    }
+  };
 
   if (resolutionType === 'month') {
     return (
@@ -88,25 +104,18 @@ export function DatePickerField({
           options={years}
           placeholder="Year"
           value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
-          disabled={props.disabled}
-          required={props.required}
+          onChange={(e) => handleChange(e.target.value, undefined)}
+          disabled={disabled}
+          required={required}
         />
         <SelectField
           size="md"
           options={availableMonths}
           placeholder="Month"
           value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          disabled={props.disabled}
-          required={props.required}
-        />
-        <InputField
-          hidden
-          name={name}
-          value={`${selectedYear}-${selectedMonth}`}
-          onChange={onChange}
-          {...props}
+          onChange={(e) => handleChange(undefined, e.target.value)}
+          disabled={disabled || !selectedYear}
+          required={required}
         />
       </div>
     );
@@ -118,11 +127,11 @@ export function DatePickerField({
         size="md"
         options={years}
         placeholder="Year"
-        value={value as string}
+        value={value}
         onChange={onChange}
         name={name}
-        disabled={props.disabled}
-        required={props.required}
+        disabled={disabled}
+        required={required}
       />
     );
   }
@@ -135,6 +144,8 @@ export function DatePickerField({
       value={value}
       onChange={onChange}
       name={name}
+      disabled={disabled}
+      required={required}
       {...props}
     />
   );
