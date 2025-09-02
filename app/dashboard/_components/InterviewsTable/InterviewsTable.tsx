@@ -1,7 +1,7 @@
 'use client';
 
 import { HardDriveUpload } from 'lucide-react';
-import { objectHash } from 'ohash';
+import { hash as objectHash } from 'ohash';
 import { use, useMemo, useState } from 'react';
 import superjson from 'superjson';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
