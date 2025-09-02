@@ -25,7 +25,7 @@ const FamilyTreeNode = forwardRef<
   const {
     isEgo,
     label = 'Node',
-    color = 'neon-coral',
+    color = 'platinum',
     shape = 'circle',
     xPos = 0,
     yPos = 0,

@@ -72,8 +72,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return layout.nodes;
   }
 
-  function positionedNodesWithOffsets(nodes, xOffset, yOffset) {
-    console.log(nodes, xOffset, yOffset);
+  function positionedNodesWithOffsets(nodes, xOffset: number, yOffset: number) {
     return nodes.map((n) => ({
       ...n,
       xPos: n.xPos + xOffset,
@@ -162,7 +161,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     };
 
     // Helper to add node and push to tempNodes array
-    const addNode = (gender: string, label: string, isEgo = false) => {
+    const addNode = (gender: string, label: string, isEgo: boolean = false) => {
       const node = createNode(gender, label, isEgo);
       tempNodes.push(node);
       return node;
@@ -509,21 +508,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             );
           })}
         </div>
-        {/* <div className="node-layout" ref={elementRef}>
-          {positionedNodes.map((node) => {
-            return (
-              <FamilyTreeNode
-                key={crypto.randomUUID()}
-                id={node.id}
-                isEgo={node.isEgo}
-                gender={node.gender}
-                label={node.label}
-                xPos={node.xPos + xOffset}
-                yPos={node.yPos + yOffset}
-              />
-            );
-          })}
-        </div> */}
 
         <FamilyTreePlaceholderNodeList
           items={positionedNodesWithOffsets(positionedNodes, xOffset, yOffset)}
@@ -558,11 +542,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               node.partnerId != null && (
                 <UIPartnerConnector
                   key={`partner-${node.id}`}
-                  xStartPos={(node.xPos ?? 0) + 10}
+                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
                   xEndPos={
-                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) - 20
+                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) -
+                    20 +
+                    xOffset
                   }
-                  yPos={node.yPos}
+                  yPos={node.yPos + yOffset}
                 />
               )
             );
@@ -572,11 +558,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
               node.exPartnerId != null && (
                 <UIExPartnerConnector
                   key={crypto.randomUUID()}
-                  xStartPos={(node.xPos ?? 0) + 10}
+                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
                   xEndPos={
-                    (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) - 20
+                    (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) -
+                    20 +
+                    xOffset
                   }
-                  yPos={node.yPos}
+                  yPos={node.yPos + yOffset}
                 />
               )
             );
@@ -590,10 +578,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   xPos={
                     ((node.xPos ?? 0) +
                       (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                    2
+                      2 +
+                    xOffset
                   }
-                  yStartPos={node.yPos ?? 0}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30}
+                  yStartPos={(node.yPos ?? 0) + yOffset}
+                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
                 />
               )
             );
@@ -607,13 +596,14 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                 return (
                   <UIChildConnector
                     key={crypto.randomUUID()}
-                    xStartPos={childNode.xPos ?? 0}
+                    xStartPos={(childNode.xPos ?? 0) + xOffset}
                     xEndPos={
                       ((node.xPos ?? 0) +
                         (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                      2
+                        2 +
+                      xOffset
                     }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15}
+                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset}
                     height={rowHeight / 3 - 15}
                   />
                 );
@@ -625,15 +615,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           <div className="inner-node-layout">
             {positionedNodes.map((node) => {
               if (node.networkNode) {
+                console.log('NODE', node);
                 return (
                   <FamilyTreeNodeNetworkBacked
                     key={node.id}
                     id={node.id}
-                    isEgo={node.isEgo}
+                    isEgo={node.isEgo || false}
                     gender={node.gender}
                     label={node.label}
-                    xPos={node.xPos}
-                    yPos={node.yPos}
+                    xPos={node.xPos + xOffset}
+                    yPos={node.yPos + yOffset}
+                    yOffset={yOffset}
+                    parentIds={node.parentIds}
+                    childIds={node.childIds}
                     networkNode={node.networkNode}
                     handleClick={(node) => setSelectedNode(node.networkNode)}
                   />
@@ -643,11 +637,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                   <FamilyTreeNode
                     key={crypto.randomUUID()}
                     id={node.id}
-                    isEgo={node.isEgo}
+                    isEgo={node.isEgo || false}
                     gender={node.gender}
                     label={node.label}
-                    xPos={node.xPos + 200}
-                    yPos={node.yPos + 100}
+                    xPos={node.xPos + xOffset}
+                    yPos={node.yPos + yOffset}
                     handleClick={(node) => setSelectedNode(node)}
                   />
                 );

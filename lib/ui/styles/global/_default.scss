@@ -17,6 +17,12 @@ $export-ui-classes: true !default;
 // =============================================================================
 @include color-set('neon-coral', '226, 33, 91');
 @include color-set('neon-coral--dark', '206, 28, 84');
+@include color-set('darker-neon-coral', '184, 26, 74');
+@include color-set('darker-neon-coral--dark', '167, 24, 68');
+@include color-set('even-darker-neon-coral', '157, 23, 63');
+@include color-set('even-darker-neon-coral--dark', '142, 22, 58');
+@include color-set('darkest-neon-coral', '107, 15, 44');
+@include color-set('darkest-neon-coral--dark', '97, 14, 40');
 @include color-set('mustard', '242, 183, 0');
 @include color-set('mustard--dark', '219, 165, 0');
 @include color-set('sea-green', '0, 201, 162');
