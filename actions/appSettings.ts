@@ -7,13 +7,7 @@ import { type AppSetting, appSettingsSchema } from '~/schemas/appSettings';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/utils/db';
 import { ensureError } from '~/utils/ensureError';
-
-// Convert string | boolean | Date to string
-const getStringValue = (value: string | boolean | Date) => {
-  if (typeof value === 'boolean') return value.toString();
-  if (value instanceof Date) return value.toISOString();
-  return value;
-};
+import { getStringValue } from '~/utils/getStringValue';
 
 export async function setAppSetting<
   Key extends AppSetting,
