@@ -5,7 +5,7 @@ type User = {
   name: string;
 };
 
-export type HeaderProps = {
+type HeaderProps = {
   user?: User;
   onLogin?: () => void;
   onLogout?: () => void;
