@@ -6,7 +6,14 @@ export async function validateFieldValue(
   validation: FieldState['validation'],
   context: ValidationContext,
 ): Promise<
-  { isValid: true; errors: null } | { isValid: false; errors: (string | { message: string; params?: Record<string, unknown> })[] }
+  | { isValid: true; errors: null }
+  | {
+      isValid: false;
+      errors: (
+        | string
+        | { message: string; params?: Record<string, unknown> }
+      )[];
+    }
 > {
   if (!validation) {
     return { isValid: true, errors: null };
@@ -28,10 +35,12 @@ export async function validateFieldValue(
     if (error instanceof z.ZodError) {
       return {
         isValid: false,
-        errors: error.errors.map((e) => {
+        errors: error.issues.map((e) => {
           // Check if the error has custom params from refine()
           // The params are stored in the issue itself for refine errors
-          const zodIssue = e as z.ZodIssue & { params?: Record<string, unknown> };
+          const zodIssue = e as z.ZodIssue & {
+            params?: Record<string, unknown>;
+          };
           if (zodIssue.params) {
             return { message: e.message, params: zodIssue.params };
           }
