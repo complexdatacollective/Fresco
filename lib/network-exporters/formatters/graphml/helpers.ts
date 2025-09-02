@@ -57,6 +57,11 @@ export function deriveEntityType(
       : 'ego';
   }
 
+  // Handle empty arrays
+  if (entities.length === 0) {
+    return 'node';
+  }
+
   return Object.prototype.hasOwnProperty.call(entities[0], edgeSourceProperty)
     ? 'edge'
     : 'node';

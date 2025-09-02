@@ -26,8 +26,8 @@
   "dependencies": {
     "@base-ui-components/react": "1.0.0-beta.2",
     "@codaco/analytics": "7.0.0",
-    "@codaco/protocol-validation": "5.0.2",
-    "@codaco/shared-consts": "4.0.0",
+    "@codaco/protocol-validation": "6.0.0",
+    "@codaco/shared-consts": "5.0.0",
     "@hookform/resolvers": "^5.1.1",
     "@lucia-auth/adapter-prisma": "^3.0.2",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -110,7 +110,7 @@
     "usehooks-ts": "^3.1.1",
     "uuid": "^11.1.0",
     "validator": "^13.15.15",
-    "zod": "^3.25.67",
+    "zod": "^4.0.17",
     "zod-form-data": "^2.0.7",
     "zustand": "^5.0.6"
   },

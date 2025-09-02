@@ -1,6 +1,6 @@
 /* eslint-disable no-process-env */
 import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 // this is a workaround for this issue:https://github.com/colinhacks/zod/issues/1630
 // z.coerce.boolean() doesn't work as expected

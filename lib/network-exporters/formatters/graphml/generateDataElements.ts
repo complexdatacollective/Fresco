@@ -40,6 +40,10 @@ export default function getDataElementGenerator(
   ): DocumentFragment => {
     const fragment = createDocumentFragment();
 
+    if (!entities) {
+      return fragment;
+    }
+
     // If the entity is an object (not an array) it is an ego
     if (!Array.isArray(entities)) {
       const entityDataElements = generateDataElementsForEntity(

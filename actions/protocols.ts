@@ -3,7 +3,7 @@
 import { Prisma } from '@prisma/client';
 import { safeRevalidateTag } from 'lib/cache';
 import { hash } from 'ohash';
-import { type z } from 'zod/v3';
+import { type z } from 'zod';
 import { getUTApi } from '~/lib/uploadthing-server-helpers';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
@@ -128,6 +128,8 @@ export async function insertProtocol(
 
   try {
     const protocolHash = hash(protocol);
+
+    // TODO: updating protocol-validation package to use zod4 should fix the type issues
 
     await prisma.protocol.create({
       data: {
