@@ -1,5 +1,5 @@
-import { createStore } from 'zustand/vanilla';
 import { subscribeWithSelector } from 'zustand/middleware';
+import { createStore } from 'zustand/vanilla';
 import { type DragItem, type DropTarget } from './types';
 
 // Extended drop target with state
@@ -130,7 +130,8 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
 
         // Only update if position or active drop target changed
         const positionChanged =
-          state.dragPosition.x !== x || state.dragPosition.y !== y;
+          state.dragPosition &&
+          (state.dragPosition.x !== x || state.dragPosition.y !== y);
         const activeDropTargetChanged =
           state.activeDropTargetId !== newActiveDropTargetId;
 
@@ -164,7 +165,9 @@ export const createDndStore = (initState: DndState = defaultInitState) => {
           }
 
           set({
-            dragPosition: { ...state.dragPosition, x, y },
+            dragPosition: state.dragPosition
+              ? { ...state.dragPosition, x, y }
+              : null,
             activeDropTargetId: newActiveDropTargetId,
             dropTargets: newTargets,
           });

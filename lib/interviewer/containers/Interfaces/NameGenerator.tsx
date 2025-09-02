@@ -269,13 +269,12 @@ const NameGenerator = (props: NameGeneratorProps) => {
         </div>
       </div>
       <NodeBin
-        accepts={(meta: { itemType: string }) =>
-          meta.itemType === 'EXISTING_NODE'
+        accepts={(node: NcNode & { itemType?: string }) =>
+          node.itemType === 'EXISTING_NODE'
         }
         dropHandler={(meta: NcNode) =>
           deleteNode(meta[entityPrimaryKeyProperty])
         }
-        id="NODE_BIN"
       />
       {stageElement &&
         createPortal(
