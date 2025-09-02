@@ -1,10 +1,10 @@
 import { isEqual } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useEffect, useId, useMemo } from 'react';
+import { useDndStore, type DndStore } from '~/lib/dnd';
 import Search from '~/lib/ui/components/Fields/Search';
 import { getCSSVariableAsNumber } from '~/lib/ui/utils/CSSVariables';
 import { cx } from '~/utils/cva';
-import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
 import Loading from '../components/Loading';
 import Panel from '../components/Panel';
 import useSearch from '../hooks/useSearch';
@@ -67,8 +67,8 @@ type SearchableListProps = {
   title: string;
   dynamicProperties?: Record<string, unknown>;
   excludeItems?: string[];
-  itemComponent?: React.ElementType;
-  dragComponent?: React.ElementType;
+  itemComponent?: React.ComponentType<UseItemElement['props']>;
+  dragComponent?: React.ComponentType<UseItemElement>;
   items: UseItemElement[];
   placeholder?: React.ReactNode;
   itemType: string;
@@ -88,12 +88,11 @@ const SearchableList = memo(
   (props: SearchableListProps) => {
     const {
       accepts,
-      columns,
       title,
       dynamicProperties,
       excludeItems,
-      itemComponent = null,
-      dragComponent = null,
+      itemComponent,
+      dragComponent,
       items,
       placeholder = null,
       itemType,
@@ -185,10 +184,23 @@ const SearchableList = memo(
       { 'searchable-list__list--too-many': showTooMany },
     );
 
-    const { willAccept, isOver } = useDropMonitor(`hyper-list-${id}`) ?? {
-      willAccept: false,
-      isOver: false,
-    };
+    // Monitor drop state from new DND store
+    const isDragging = useDndStore((state: DndStore) => state.isDragging);
+    const activeDropTargetId = useDndStore(
+      (state: DndStore) => state.activeDropTargetId,
+    );
+    const dragItem = useDndStore((state: DndStore) => state.dragItem);
+
+    const listId = `hyper-list-${id}`;
+    const willAccept =
+      isDragging &&
+      dragItem?.metadata &&
+      accepts({
+        meta: {
+          itemType: (dragItem.metadata as { itemType?: string }).itemType ?? '',
+        },
+      });
+    const isOver = activeDropTargetId === listId;
 
     return (
       <motion.div
@@ -250,13 +262,12 @@ const SearchableList = memo(
                   id={`hyper-list-${id}`}
                   items={filteredResults}
                   dynamicProperties={dynamicProperties}
-                  itemComponent={itemComponent}
+                  itemComponent={itemComponent!}
                   dragComponent={dragComponent}
-                  columns={columns}
                   emptyComponent={EmptyComponent}
                   placeholder={hyperListPlaceholder}
                   itemType={itemType} // drop type
-                  accepts={accepts}
+                  accepts={undefined}
                   onDrop={onDrop}
                   showTooMany={showTooMany}
                   allowDragging={!disabled}

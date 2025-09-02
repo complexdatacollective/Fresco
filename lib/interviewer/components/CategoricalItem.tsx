@@ -3,9 +3,8 @@ import { type NcNode } from '@codaco/shared-consts';
 import cx from 'classnames';
 import { useMemo } from 'react';
 import { Flipped } from 'react-flip-toolkit';
-import { compose, withProps } from 'recompose';
+import { useDropTarget } from '~/lib/dnd';
 import { MarkdownLabel } from '~/lib/ui/components/Fields';
-import { DropTarget, MonitorDropTarget } from '../behaviours/DragAndDrop';
 import { usePrompts } from '../behaviours/withPrompt';
 import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
@@ -33,11 +32,6 @@ type CategoricalItemProps = {
   nodes: NcNode[];
 };
 
-type InnerCategoricalProps = CategoricalItemProps & {
-  isOver?: boolean;
-  willAccept?: boolean;
-};
-
 /**
  * Renders a droppable CategoricalBin item
  */
@@ -45,13 +39,20 @@ const CategoricalItem = ({
   accentColor = 'black',
   id,
   isExpanded = false,
-  isOver = false,
   label,
   nodes = [],
   onClick,
   onClickItem,
-  willAccept = false,
-}: InnerCategoricalProps) => {
+  onDrop,
+}: CategoricalItemProps) => {
+  const { dropProps, isOver, willAccept } = useDropTarget({
+    id,
+    accepts: ['node'],
+    announcedName: `Category: ${label}`,
+    onDrop: (metadata) => {
+      onDrop({ meta: metadata as NcNode });
+    },
+  });
   const {
     prompt: { sortOrder },
   } = usePrompts<Prompt & { sortOrder: ProcessedSortRule[] }>();
@@ -69,6 +70,7 @@ const CategoricalItem = ({
   return (
     <Flipped flipId={id}>
       <div
+        {...dropProps}
         className={classNames}
         // @ts-expect-error need to update CSS global types
         style={{ '--categorical-item-color': accentColor }}
@@ -103,13 +105,4 @@ const CategoricalItem = ({
   );
 };
 
-export default compose<InnerCategoricalProps, CategoricalItemProps>(
-  withProps((props: CategoricalItemProps) => ({
-    accepts: () => true,
-    onDrop: ({ meta }: { meta: NcNode }) => {
-      props.onDrop({ meta });
-    },
-  })),
-  DropTarget,
-  MonitorDropTarget(['isOver', 'willAccept']),
-)(CategoricalItem);
+export default CategoricalItem;

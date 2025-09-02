@@ -1,16 +1,100 @@
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'motion/react';
+// @ts-expect-error - Next.js internal import
 import { renderToString } from 'next/dist/compiled/react-dom/cjs/react-dom-server-legacy.browser.production';
-import PropTypes from 'prop-types';
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
+// @ts-expect-error - Missing types for react-window
 import { VariableSizeList as List } from 'react-window';
-import { compose } from 'recompose';
-import {
-  DragSource,
-  DropTarget,
-  MonitorDropTarget,
-} from '../../behaviours/DragAndDrop';
+import { useDragSource, useDropTarget } from '~/lib/dnd';
+
+type HyperListItem<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
+  id: string;
+  props: TProps;
+  data: TData;
+};
+
+type DynamicProperties = {
+  disabled?: string[];
+  [key: string]: unknown;
+};
+
+type DraggableItemComponentProps<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
+  ItemComponent: React.ComponentType<TProps>;
+  item: HyperListItem<TProps, TData>;
+  itemType: string;
+  allowDrag: boolean;
+  disabled: boolean;
+  preview: React.ReactNode;
+} & TProps;
+
+type ListContextType<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
+  items: HyperListItem<TProps, TData>[];
+  dynamicProperties: DynamicProperties;
+  itemType: string;
+};
+
+type GetRowRenderContentProps = {
+  index: number;
+  style: React.CSSProperties;
+};
+
+type HyperListProps<
+  TProps = Record<string, unknown>,
+  TData = Record<string, unknown>,
+> = {
+  className?: string;
+  items?: HyperListItem<TProps, TData>[];
+  dynamicProperties?: DynamicProperties;
+  itemComponent: React.ComponentType<TProps>;
+  dragComponent?: React.ComponentType<HyperListItem<TProps, TData>>;
+  emptyComponent?: React.ComponentType;
+  placeholder?: React.ReactNode;
+  itemType?: string;
+  showTooMany?: boolean;
+  allowDragging?: boolean;
+  id?: string;
+  accepts?: string[];
+  onDrop?: (data: { meta: TData }) => void;
+};
+
+// Draggable wrapper for item components
+const DraggableItemComponent = memo(
+  ({
+    ItemComponent,
+    item,
+    itemType,
+    allowDrag,
+    disabled,
+    preview,
+    ...props
+  }: DraggableItemComponentProps) => {
+    const { dragProps } = useDragSource({
+      type: 'node',
+      metadata: { data: item.data, id: item.id, itemType },
+      announcedName: `Item ${item.id}`,
+      disabled: !allowDrag || disabled,
+      preview,
+    });
+
+    return (
+      <div {...dragProps}>
+        <ItemComponent {...props} />
+      </div>
+    );
+  },
+);
+
+DraggableItemComponent.displayName = 'DraggableItemComponent';
 
 const LargeRosterNotice = () => (
   <div
@@ -40,11 +124,27 @@ const LargeRosterNotice = () => (
 
 const GUTTER_SIZE = 14;
 
-const ListContext = React.createContext({ items: [] });
+const ListContext = React.createContext<ListContextType>({
+  items: [],
+  dynamicProperties: {},
+  itemType: 'HYPER_LIST',
+});
 
-const getRowRenderer = (Component, DragComponent, allowDragging) => {
-  const GetRowRenderContent = ({ index, style }) => {
-    const { items, itemType, dynamicProperties } = useContext(ListContext);
+const getRowRenderer = <
+  TProps extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
+>(
+  Component: React.ComponentType<TProps>,
+  DragComponent?: React.ComponentType<HyperListItem<TProps, TData>>,
+  allowDragging?: boolean,
+) => {
+  const GetRowRenderContent: React.FC<GetRowRenderContentProps> = ({
+    index,
+    style,
+  }) => {
+    const { items, itemType, dynamicProperties } = useContext(
+      ListContext,
+    ) as ListContextType<TProps, TData>;
 
     const item = items[index];
 
@@ -54,7 +154,7 @@ const getRowRenderer = (Component, DragComponent, allowDragging) => {
 
     const { disabled } = dynamicProperties;
 
-    const isDisabled = disabled && disabled.includes(item.id);
+    const isDisabled = Boolean(disabled?.includes(item.id));
     const preview = DragComponent ? <DragComponent {...item} /> : null;
 
     return (
@@ -62,19 +162,23 @@ const getRowRenderer = (Component, DragComponent, allowDragging) => {
         className="hyper-list__item"
         style={{
           ...style,
-          left: style.left + GUTTER_SIZE,
-          top: style.top + GUTTER_SIZE,
+          left: (style.left as number) + GUTTER_SIZE,
+          top: (style.top as number) + GUTTER_SIZE,
           width: `calc(${style.width} - ${GUTTER_SIZE * 2}px)`,
-          height: style.height - GUTTER_SIZE,
+          height: (style.height as number) - GUTTER_SIZE,
         }}
         key={item.id}
       >
-        <Component
-          {...item.props}
-          meta={() => ({ data: item.data, id: item.id, itemType })}
+        <DraggableItemComponent
+          ItemComponent={
+            Component as React.ComponentType<Record<string, unknown>>
+          }
+          item={item}
+          itemType={itemType}
+          allowDrag={(allowDragging ?? false) && !isDisabled}
           disabled={isDisabled}
-          allowDrag={allowDragging && !isDisabled}
           preview={preview}
+          {...item.props}
         />
       </div>
     );
@@ -87,25 +191,11 @@ const getRowRenderer = (Component, DragComponent, allowDragging) => {
  * Renders an arbitrary list of items using itemComponent.
  *
  * Includes drag and drop functionality.
- *
- * @prop {Array} items Items in format [{ id, props: {}, data: {} }, ...]
- * @prop {Object} dynamicProperties Can be used for mutating properties,
- * that aren't necessarily part of item data. This is because items may
- * go through several filters before reaching HyperList, and these dynamic
- * properties may not be relevant (e.g. recomputing search results when
- * item values haven't changed). Currently only used to get the list of
- * disabled items.
- * @prop {React Component} emptyComponent React component to render when items is an empty array.
- * @prop {React Component} itemComponent React component, rendered with `{ props }` from item.
- * `{ data }`, `id`, and `itemType` is passed to the drag and drop state.
- * @prop {React node} placeholder React node. If provided will override rendering of
- * items/emptyComponent and will be rendered instead.
- * example usage: `<HyperList placeholder={(<div>placeholder</div>)} />`
- * @prop {number} columns Number of columns
- * @prop {string} itemType itemType used by drag and drop functionality
  */
-
-const HyperList = ({
+const HyperList = <
+  TProps extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
+>({
   className,
   items,
   dynamicProperties = {},
@@ -116,16 +206,30 @@ const HyperList = ({
   itemType = 'HYPER_LIST',
   showTooMany,
   allowDragging,
-}) => {
+  id,
+  accepts: _accepts,
+  onDrop,
+}: HyperListProps<TProps, TData>) => {
+  // Add drop target functionality
+  const { dropProps } = useDropTarget({
+    id: id ?? `hyper-list-${itemType}`,
+    accepts: ['node'],
+    announcedName: 'List',
+    onDrop: (metadata) => {
+      if (onDrop) {
+        onDrop({ meta: metadata as TData });
+      }
+    },
+  });
+
   const RowRenderer = useMemo(
-    () =>
-      getRowRenderer(DragSource(ItemComponent), DragComponent, allowDragging),
+    () => getRowRenderer(ItemComponent, DragComponent, allowDragging),
     [ItemComponent, DragComponent, allowDragging],
   );
 
   const context = useMemo(
     () => ({
-      items,
+      items: items ?? [],
       dynamicProperties,
       itemType,
     }),
@@ -135,7 +239,7 @@ const HyperList = ({
   const classNames = cx('hyper-list', className);
 
   const SizeRenderer = useCallback(
-    (props) => (
+    (props: TProps) => (
       <div className="hyper-list__item">
         <ItemComponent {...props} />
       </div>
@@ -143,12 +247,13 @@ const HyperList = ({
     [ItemComponent],
   );
 
-  const getItemSize = (item, listWidth) => {
+  const getItemSize = (item: number, listWidth: number): number => {
     if (!listWidth) {
       return 0;
     }
 
-    const itemData = items[item];
+    const itemData = items?.[item];
+    if (!itemData) return 0;
     const { props } = itemData;
     const newHiddenSizingEl = document.createElement('div');
 
@@ -160,6 +265,7 @@ const HyperList = ({
     newHiddenSizingEl.style.visibility = 'hidden';
 
     document.body.appendChild(newHiddenSizingEl);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     newHiddenSizingEl.innerHTML = renderToString(<SizeRenderer {...props} />);
     const height = newHiddenSizingEl.clientHeight;
     document.body.removeChild(newHiddenSizingEl);
@@ -177,6 +283,7 @@ const HyperList = ({
   return (
     <>
       <motion.div
+        {...dropProps}
         key={`hyper-list-${itemType}`}
         className={classNames}
         initial={{ opacity: 0 }}
@@ -189,7 +296,7 @@ const HyperList = ({
               <AnimatePresence mode="wait">
                 {showPlaceholder ? (
                   placeholder
-                ) : showEmpty ? (
+                ) : showEmpty && EmptyComponent ? (
                   <EmptyComponent />
                 ) : (
                   <AutoSizer>
@@ -203,11 +310,14 @@ const HyperList = ({
                           className="hyper-list__grid"
                           height={containerSize.height}
                           width={containerSize.width}
-                          itemSize={(item) =>
+                          itemSize={(item: number) =>
                             getItemSize(item, containerSize.width)
                           }
-                          estimatedItemSize={getItemSize(0)}
-                          itemCount={items.length}
+                          estimatedItemSize={getItemSize(
+                            0,
+                            containerSize.width,
+                          )}
+                          itemCount={items?.length ?? 0}
                         >
                           {RowRenderer}
                         </List>
@@ -225,14 +335,4 @@ const HyperList = ({
   );
 };
 
-HyperList.propTypes = {
-  itemComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  emptyComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  placeholder: PropTypes.node,
-  itemType: PropTypes.string,
-};
-
-export default compose(
-  DropTarget,
-  MonitorDropTarget(['isOver', 'willAccept']),
-)(HyperList);
+export default HyperList;
