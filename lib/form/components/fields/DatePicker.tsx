@@ -43,9 +43,15 @@ export function DatePickerField({
   required,
   ...props
 }: DatePickerFieldProps) {
-  const today = new Date();
-  const minDate = min ? new Date(min) : new Date(1920, 0, 1);
-  const maxDate = max ? new Date(max) : today;
+  const today = useMemo(() => new Date(), []);
+  const minDate = useMemo(
+    () => (min ? new Date(String(min)) : new Date(1920, 0, 1)),
+    [min],
+  );
+  const maxDate = useMemo(
+    () => (max ? new Date(String(max)) : today),
+    [max, today],
+  );
 
   const minYear = minDate.getFullYear();
   const maxYear = maxDate.getFullYear();
@@ -81,7 +87,7 @@ export function DatePickerField({
     if (year === minYear) startMonth = minDate.getMonth() + 1;
     if (year === maxYear) endMonth = maxDate.getMonth() + 1;
     return months.filter((m) => {
-      const monthNum = parseInt(m.value, 10);
+      const monthNum = parseInt(String(m.value), 10);
       return monthNum >= startMonth && monthNum <= endMonth;
     });
   }, [selectedYear, minYear, maxYear, minDate, maxDate]);
@@ -114,7 +120,7 @@ export function DatePickerField({
           placeholder="Month"
           value={selectedMonth}
           onChange={(e) => handleChange(undefined, e.target.value)}
-          disabled={disabled || !selectedYear}
+          disabled={disabled ?? !selectedYear}
           required={required}
         />
       </div>
@@ -128,7 +134,7 @@ export function DatePickerField({
         options={years}
         placeholder="Year"
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange?.(e.target.value)}
         name={name}
         disabled={disabled}
         required={required}
@@ -139,10 +145,10 @@ export function DatePickerField({
   return (
     <InputField
       type="date"
-      min={min}
-      max={max}
+      min={min ? String(min) : undefined}
+      max={max ? String(max) : undefined}
       value={value}
-      onChange={onChange}
+      onChange={(e) => onChange?.(e.target.value)}
       name={name}
       disabled={disabled}
       required={required}
