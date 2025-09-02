@@ -19,6 +19,7 @@ type TreeSpacing = {
 };
 
 class FamilyTreeLayout {
+  // contains all nodes to be placed
   nodes: FamilyTreeMember[];
   couples: Set<string>;
   layerGroups: Map<number, string[]>;
@@ -31,15 +32,19 @@ class FamilyTreeLayout {
       partners: 80,
       generations: 100,
     },
+    skipAutomaticProcessing = false,
   ) {
     this.nodes = nodes.map((node) => ({ ...node }));
     this.spacing = spacing;
     this.couples = this.collectCouples();
     this.layerGroups = new Map();
-    this.assignLayers();
-    this.orderLayerGroups();
-    this.insertHalfSiblings();
-    this.assignCoordinates();
+    if (skipAutomaticProcessing == false) {
+      this.assignLayers();
+      this.orderLayerGroups();
+      this.insertHalfSiblings();
+      this.insertCousins();
+      this.assignCoordinates();
+    }
   }
 
   get ego() {
@@ -94,6 +99,24 @@ class FamilyTreeLayout {
     );
   }
 
+  // returns true if node is an aunt/uncle to ego
+  isAuntUncle(nodeId: string) {
+    if (this.ego == null) return false;
+
+    return this.parentIds(this.ego.id)
+      .flatMap((parentId) => this.fullSiblingIds(parentId))
+      .includes(nodeId);
+  }
+
+  // returns true if node has a parent who is an aunt/uncle
+  isCousin(nodeId: string) {
+    if (this.ego == null) return false;
+
+    return this.parentIds(nodeId).some((parentId) => {
+      return this.isAuntUncle(parentId);
+    });
+  }
+
   parents(childNodeId: string) {
     const childNode = this.nodeById(childNodeId);
     return this.nodes.filter((node) =>
@@ -104,6 +127,16 @@ class FamilyTreeLayout {
   // returns an array of the parent node ids
   parentIds(childNodeId: string): string[] {
     return this.parents(childNodeId).map((node) => node.id);
+  }
+
+  fullSiblingIds(nodeId: string) {
+    const parentIds = this.parentIds(nodeId);
+    const parent1ChildIds = this.childrenOf(parentIds[0]);
+    const parent2ChildIds = this.childrenOf(parentIds[1]);
+
+    return parent1ChildIds.filter(
+      (childId) => childId !== nodeId && parent2ChildIds.includes(childId),
+    );
   }
 
   // returns the couple id for the node's parents
@@ -134,10 +167,6 @@ class FamilyTreeLayout {
       if (node?.id && partner?.id) {
         coupleIds.add(this.coupleId(node.id, partner.id));
       }
-      /*const exPartner = this.exPartnerOf(node);
-      if (node?.id && exPartner?.id) {
-        coupleIds.add(this.coupleId(node.id, exPartner.id));
-      }*/
     });
 
     return coupleIds;
@@ -190,7 +219,8 @@ class FamilyTreeLayout {
     const queue: { nodeId: string; layer: number }[] = [];
 
     this.nodes.forEach((node) => {
-      if (this.isEx(node.id) || this.isHalf(node.id)) return;
+      if (this.isEx(node.id) || this.isHalf(node.id) || this.isCousin(node.id))
+        return;
 
       if ((node.parentIds || []).length == 0 && node.id) {
         // handle nodes with no parents
@@ -202,7 +232,7 @@ class FamilyTreeLayout {
     while (queue.length > 0) {
       const { nodeId, layer } = queue.shift()!;
       this.childrenOf(nodeId).forEach((childId) => {
-        if (this.isHalf(childId)) return;
+        if (this.isHalf(childId) || this.isCousin(childId)) return;
         const prev = this.nodeLayer(childId);
         const nextLayer = layer + 1;
         if (prev == null || nextLayer > prev) {
@@ -217,7 +247,12 @@ class FamilyTreeLayout {
       changed = false;
       this.nodes.forEach((node) => {
         if (node.id == null) return;
-        if (this.isEx(node.id) || this.isHalf(node.id)) return;
+        if (
+          this.isEx(node.id) ||
+          this.isHalf(node.id) ||
+          this.isCousin(node.id)
+        )
+          return;
         this.childrenOf(node.id).forEach((childId) => {
           const childLayer = this.nodeLayer(childId);
           if (childLayer != null) {
@@ -262,10 +297,10 @@ class FamilyTreeLayout {
       rightPartnerId: string;
       rightParentsId: string;
     };
-    // captures the order of parent ids on the previous (higher) layer
+    // captures the order of parent ids on the previous (younger) layer
     // so that the current layer's couples can be ordered correctly
     let lastLevelParentIds = new Set<string>();
-    // iterate from the lowest to the highest layer
+    // iterate from the youngest to the oldest layer
     [...Array(this.maxLayer + 1).keys()].reverse().forEach((layer) => {
       const currentNodesAtLayer = this.layerGroups.get(layer);
       // map parents id to units
@@ -278,7 +313,6 @@ class FamilyTreeLayout {
         if (placed.has(nodeId)) return;
         const node = this.nodeById(nodeId);
         const partnerId = this.partnerId(nodeId);
-        const exPartnerId = this.exPartnerId(nodeId);
         let couple: string[] = [];
         if (partnerId) {
           // order each couple by sex
@@ -353,7 +387,7 @@ class FamilyTreeLayout {
         // relatedCouples are couples where one of the partners shares parents
         let relatedCouples = couples.get(id);
         lastLevelParentIds.forEach((coupleId) => {
-          // separate the couples that fit the ordered couple id
+          // separate the couples that fit the ordered couple id from the children's layer
           const matchedCouples = relatedCouples?.filter((couple) => {
             return couple.coupleId === coupleId;
           });
@@ -369,14 +403,53 @@ class FamilyTreeLayout {
           });
           // keep the remaining couples
           relatedCouples = relatedCouples?.filter((couple) => {
-            return couple.coupleId !== coupleId;
+            return (
+              couple.coupleId !== coupleId &&
+              !placedCouples.has(couple.coupleId)
+            );
           });
         });
         // add any remaining couples that don't have children
         relatedCouples?.forEach((couple) => {
-          if (placedCouples.has(couple.coupleId)) return;
-          // neither partner is an ex
-          orderedNodesAtLayer.push(couple.leftPartnerId, couple.rightPartnerId);
+          // find the first sibling of either partner
+          const targetIndex = orderedNodesAtLayer.findIndex((nodeId) => {
+            const parentsId = this.parentsId(nodeId);
+            return (
+              parentsId === couple.leftParentsId ||
+              parentsId === couple.rightParentsId
+            );
+          });
+
+          if (targetIndex > -1) {
+            // found a sibling of one of the couple's partners
+            let hasSiblingPartner = false;
+            const siblingId = orderedNodesAtLayer[targetIndex];
+            // if there's a partner to the left, insert couple to the right
+            const siblingPartnerId = orderedNodesAtLayer[targetIndex - 1];
+            const siblingPartner = this.nodeById(siblingPartnerId);
+            if (siblingPartner && siblingPartner.partnerId === siblingId) {
+              hasSiblingPartner = true;
+              orderedNodesAtLayer.splice(
+                targetIndex + 1,
+                0,
+                couple.leftPartnerId,
+                couple.rightPartnerId,
+              );
+            } else {
+              hasSiblingPartner = true;
+              orderedNodesAtLayer.splice(
+                targetIndex,
+                0,
+                couple.leftPartnerId,
+                couple.rightPartnerId,
+              );
+            }
+          } else {
+            orderedNodesAtLayer.push(
+              couple.leftPartnerId,
+              couple.rightPartnerId,
+            );
+          }
           placedCouples.add(couple.coupleId);
           orderedParentIds.add(couple.leftParentsId);
         });
@@ -387,7 +460,7 @@ class FamilyTreeLayout {
     });
   }
 
-  // place ex partners on the correct side
+  // place ex partners on the correct side of existing partners
   insertExPartners(orderedNodesAtLayer: string[]) {
     const exPartners = this.nodes.filter((node) => {
       const partnerId = this.exPartnerId(node.id);
@@ -460,6 +533,58 @@ class FamilyTreeLayout {
     }
   }
 
+  insertCousins() {
+    if (this.ego == null) return;
+
+    const placedCousins = new Set<string>();
+    const egoLayer = this.nodeLayer(this.ego.id)!;
+    const orderedIds = this.layerGroups.get(egoLayer)!;
+    const cousins = this.nodes.filter((node) => this.isCousin(node.id));
+    const cousinParentIds = cousins.flatMap((cousin) =>
+      this.parentIds(cousin.id),
+    );
+    const cousinFamilies = new Map<string, string[]>();
+    const parentsLayer = this.nodeLayer(this.parentIds(this.ego.id)[0])!;
+    const orderedParentLayerIds = this.layerGroups.get(parentsLayer);
+
+    orderedParentLayerIds?.forEach((parentLayerId, index) => {
+      let targetIndex = 0;
+      // find the first id associated with a cousin
+      if (cousinParentIds.includes(parentLayerId)) {
+        // find the rightmost previous parent's rightmost child and insert after
+        const previousParentId = orderedParentLayerIds
+          .slice(0, index)
+          .findLast((parentLayerId) => this.nodeById(parentLayerId)!.parentIds);
+        if (previousParentId == null) {
+          targetIndex = 0;
+        } else {
+          const previousChildIds = this.childrenOf(previousParentId);
+          targetIndex = orderedIds.findLastIndex((id) =>
+            previousChildIds.includes(id),
+          );
+          const partnerId = orderedIds[targetIndex + 1];
+          const partner = this.nodeById(partnerId);
+          if (
+            (partner && partner.partnerId === orderedIds[targetIndex]) ||
+            partner?.exPartnerId === orderedIds[targetIndex]
+          ) {
+            targetIndex++;
+          }
+          targetIndex++;
+        }
+        const currentCousinIds = cousins
+          .filter(
+            (cousin) =>
+              !placedCousins.has(cousin.id) &&
+              this.parentIds(cousin.id).includes(parentLayerId),
+          )
+          .map((cousin) => cousin.id);
+        orderedIds.splice(targetIndex, 0, ...currentCousinIds);
+        currentCousinIds.forEach((id) => placedCousins.add(id));
+      }
+    });
+  }
+
   assignCoordinates() {
     if (this.allNodesPositioned) return;
     const placed = new Set<string>();
@@ -503,14 +628,15 @@ class FamilyTreeLayout {
           }
         } else {
           // solo or ex partner
-          if (this.childrenOf(nodeId).length > 0) {
+          const nodeChildIds = this.childrenOf(nodeId);
+          if (nodeChildIds.length > 0) {
             // has children
             const exPartnerId = this.exPartnerId(nodeId);
             if (exPartnerId) {
               const partner = this.nodeById(exPartnerId);
               if (partner) {
-                const sharedChildIds = this.childrenOf(nodeId).filter(
-                  (childId) => this.childrenOf(exPartnerId).includes(childId),
+                const sharedChildIds = nodeChildIds.filter((childId) =>
+                  this.childrenOf(exPartnerId).includes(childId),
                 );
                 this.placeParentsOverChildren(
                   node,
