@@ -51,7 +51,7 @@
 
   &__introduction {
     max-height: 100%;
-    background: var(--nc-light-background);
+    background: var(--nc-panel-bg-muted);
     border-radius: var(--nc-border-radius);
     padding: units.unit(2) units.unit(4);
     max-width: 80ch; // Same as ego form for readability

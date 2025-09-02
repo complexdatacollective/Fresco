@@ -21,11 +21,14 @@
     h3 {
       text-transform: none !important;
       font-size: type-scale(body);
-      margin: .5rem 0 0;
+      margin: 0.5rem 0 0;
     }
 
-    h2, h3 {
-      text-shadow: 1px 1px 0rem #000000, 0 0rem 0.5rem #000000b8;
+    h2,
+    h3 {
+      text-shadow:
+        1px 1px 0rem #000000,
+        0 0rem 0.5rem #000000b8;
     }
   }
 }

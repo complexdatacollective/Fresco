@@ -3,6 +3,11 @@ import type {
   codebookHashProperty,
   edgeExportIDProperty,
   egoProperty,
+  NcEdge,
+  NcNetwork,
+  NcNode,
+  ncSourceUUID,
+  ncTargetUUID,
   nodeExportIDProperty,
   protocolName,
   protocolProperty,
@@ -11,14 +16,13 @@ import type {
   sessionProperty,
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
-import { z } from 'zod';
-import type { NcNetwork, ZNcEdge, ZNcNode } from '~/schemas/network-canvas';
+import { z } from 'zod/v3';
 
-type NodeWithEgo = z.infer<typeof ZNcNode> & {
+type NodeWithEgo = NcNode & {
   [egoProperty]: string;
 };
 
-type EdgeWithEgo = z.infer<typeof ZNcEdge> & {
+type EdgeWithEgo = NcEdge & {
   [egoProperty]: string;
 };
 
@@ -94,6 +98,8 @@ export type NodeWithResequencedID = NodeWithEgo & {
 };
 
 export type EdgeWithResequencedID = EdgeWithEgo & {
+  [ncSourceUUID]: string;
+  [ncTargetUUID]: string;
   [edgeExportIDProperty]: number;
 };
 

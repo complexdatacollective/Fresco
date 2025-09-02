@@ -1,5 +1,5 @@
 .hover-marquee {
-  width:100%;
+  width: 100%;
   position: relative;
   white-space: nowrap;
   overflow: hidden;
@@ -11,9 +11,9 @@
 
   span {
     position: relative;
-    left:0px;
-    width:100%;
-    transform:translateX(0%);
+    left: 0px;
+    width: 100%;
+    transform: translateX(0%);
     // transition:left .25s ease;
   }
 }
