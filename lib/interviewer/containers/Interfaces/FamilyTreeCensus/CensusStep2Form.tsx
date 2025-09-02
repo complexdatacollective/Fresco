@@ -187,13 +187,13 @@ const CensusStep2Form = (props: NodeFormProps) => {
       if (sibling.gender.toLowerCase() === 'female') {
         maternalAuntCount++;
         options.push({
-          label: `Maternal Aunt ${maternalAuntCount}`,
+          label: `Maternal Aunt #${maternalAuntCount}`,
           value: sibling.id,
         });
       } else {
         maternalUncleCount++;
         options.push({
-          label: `Maternal Uncle ${maternalUncleCount}`,
+          label: `Maternal Uncle #${maternalUncleCount}`,
           value: sibling.id,
         });
       }
@@ -203,13 +203,13 @@ const CensusStep2Form = (props: NodeFormProps) => {
       if (sibling.gender.toLowerCase() === 'female') {
         paternalAuntCount++;
         options.push({
-          label: `Paternal Aunt ${paternalAuntCount}`,
+          label: `Paternal Aunt #${paternalAuntCount}`,
           value: sibling.id,
         });
       } else {
         paternalUncleCount++;
         options.push({
-          label: `Paternal Uncle ${paternalUncleCount}`,
+          label: `Paternal Uncle #${paternalUncleCount}`,
           value: sibling.id,
         });
       }
@@ -232,13 +232,13 @@ const CensusStep2Form = (props: NodeFormProps) => {
       if (sibling.gender.toLowerCase() === 'female') {
         sisterCount++;
         options.push({
-          label: `Sister ${sisterCount}`,
+          label: `Sister #${sisterCount}`,
           value: sibling.id,
         });
       } else {
         brotherCount++;
         options.push({
-          label: `Brother ${brotherCount}`,
+          label: `Brother #${brotherCount}`,
           value: sibling.id,
         });
       }
@@ -261,13 +261,13 @@ const CensusStep2Form = (props: NodeFormProps) => {
       if (child.gender.toLowerCase() === 'female') {
         daughterCount++;
         options.push({
-          label: `Daughter ${daughterCount}`,
+          label: `Daughter #${daughterCount}`,
           value: child.id,
         });
       } else {
         sonCount++;
         options.push({
-          label: `Son ${sonCount}`,
+          label: `Son #${sonCount}`,
           value: child.id,
         });
       }
@@ -276,7 +276,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
     return options;
   }, [egoChildren]);
 
-  // Daughter, Son, Brother, and Sister all automatically add node to ego/create spouse if needed.
+  // Daughter, Son, Brother, and Sister all automatically add node to ego/create partner if needed.
   const additionalFieldsMap = {
     aunt: {
       fieldLabel: 'Whos is the aunt related to?',
@@ -595,7 +595,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             partnerNode = {
               id: partnerId,
               gender: selectedRelative.gender === 'male' ? 'female' : 'male',
-              label: `${selectedRelative.label}'s spouse`,
+              label: `${selectedRelative.label}'s partner`,
               parentIds: [],
               childIds: [...(selectedRelative.childIds || [])],
               partnerId: selectedRelative.id,
@@ -667,7 +667,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             partnerNode = {
               id: partnerId,
               gender: selectedRelative.gender === 'male' ? 'female' : 'male',
-              label: `${selectedRelative.label}'s spouse`,
+              label: `${selectedRelative.label}'s partner`,
               parentIds: [],
               childIds: [...(selectedRelative.childIds || [])],
               partnerId: selectedRelative.id,
@@ -738,7 +738,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             partnerNode = {
               id: partnerId,
               gender: selectedChild.gender === 'male' ? 'female' : 'male',
-              label: `${selectedChild.label}'s spouse`,
+              label: `${selectedChild.label}'s partner`,
               parentIds: [],
               childIds: [...(selectedChild.childIds || [])],
               partnerId: selectedChild.id,

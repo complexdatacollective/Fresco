@@ -1,15 +1,33 @@
 import type { NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
+import { useSelector } from 'react-redux';
+import { getPedigreeStageMetadata } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
 import { useNodeLabel } from '../Anonymisation/useNodeLabel';
 
 const genderColors: Record<string, string> = {
-  male: 'neon-coral',
-  female: 'neon-coral',
+  male: 'platinum',
+  female: 'platinum',
 };
+
 const genderShapes: Record<string, string> = {
   male: 'square',
   female: 'circle',
+};
+
+type RelationKey =
+  | 'placeholder'
+  | 'direct'
+  | 'twoGenRemoved'
+  | 'cousins'
+  | 'unrelated';
+
+const relationColors: Record<RelationKey, string> = {
+  placeholder: 'platinum',
+  direct: 'neon-coral',
+  twoGenRemoved: 'darker-neon-coral',
+  cousins: 'even-darker-neon-coral',
+  unrelated: 'darkest-neon-coral',
 };
 
 export type PlaceholderNodeProps = {
@@ -24,6 +42,7 @@ export type PlaceholderNodeProps = {
   exPartnerId?: string;
   xPos?: number;
   yPos?: number;
+  yOffset?: number;
   unDeletable?: boolean;
   handleClick?: (node: PlaceholderNodeProps) => void;
 };
@@ -41,7 +60,7 @@ export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
     <UINode
       key={`${xPos}-${yPos}`}
       isEgo={isEgo}
-      color={genderColors[gender]}
+      color={isEgo ? 'neon-coral' : 'platinum'}
       label={label}
       shape={genderShapes[gender]}
       xPos={xPos}
@@ -54,18 +73,70 @@ export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
 export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
   const {
     networkNode,
-    isEgo,
+    isEgo = false,
     gender,
     xPos = 0,
     yPos = 0,
+    yOffset = 0,
     handleClick = () => undefined,
   } = props;
+
+  const placeholderNodes = useSelector(getPedigreeStageMetadata);
+  const ego = placeholderNodes?.find((n) => n.isEgo);
+
+  function classifyRelation(node: Node, ego: Node): RelationKey | null {
+    const sharedParents = node.parentIds.filter((pid) =>
+      ego.parentIds.includes(pid),
+    );
+    const GENERATION_GAP = 180;
+
+    if (!node.networkNode) {
+      return 'placeholder';
+    }
+
+    if (node.parentIds.length === 0 && node.yPos !== yOffset) {
+      return 'unrelated';
+    }
+
+    if (
+      ego.parentIds.includes(node.id) ||
+      ego.childIds.includes(node.id) ||
+      node.parentIds.includes(ego.id) ||
+      node.childIds.includes(ego.id) ||
+      (node.yPos - yOffset === ego.yPos && sharedParents.length === 2) ||
+      node.id === ego.id
+    ) {
+      return 'direct';
+    }
+
+    if (
+      (node.yPos - yOffset === ego.yPos && sharedParents.length === 1) ||
+      (node.yPos - yOffset === ego.yPos - GENERATION_GAP &&
+        !ego.parentIds.includes(node.id)) ||
+      (node.yPos - yOffset === ego.yPos + GENERATION_GAP &&
+        !ego.childIds.includes(node.id)) ||
+      node.yPos - yOffset === ego.yPos + 2 * GENERATION_GAP ||
+      node.yPos === yOffset
+    ) {
+      return 'twoGenRemoved';
+    }
+
+    if (node.yPos - yOffset === ego.yPos && sharedParents.length === 0) {
+      return 'cousins';
+    }
+
+    return null;
+  }
+
+  const color = classifyRelation(props, ego)
+    ? relationColors[classifyRelation(props, ego)!]
+    : 'platinum';
 
   return (
     <UINode
       key={`${xPos}-${yPos}`}
       isEgo={isEgo}
-      color={genderColors[gender]}
+      color={color}
       label={useNodeLabel(networkNode!)}
       shape={genderShapes[gender]}
       xPos={xPos}
