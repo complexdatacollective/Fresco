@@ -27,7 +27,7 @@ const relationColors: Record<RelationKey, string> = {
 
 export type PlaceholderNodeProps = {
   id: string;
-  isEgo: boolean;
+  isEgo: boolean | undefined;
   networkNode?: NcNode;
   gender: string;
   label: string;
@@ -128,16 +128,44 @@ export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
     : 'platinum';
 
   return (
-    <UINode
-      key={`${xPos}-${yPos}`}
-      isEgo={isEgo}
-      color={color}
-      label={useNodeLabel(networkNode!)}
-      shape={genderShapes[gender]}
-      xPos={xPos}
-      yPos={yPos}
-      handleClick={() => handleClick(props)}
-    />
+    <>
+      <UINode
+        key={`${xPos}-${yPos}`}
+        isEgo={isEgo}
+        color={color}
+        label={useNodeLabel(networkNode!)}
+        shape={genderShapes[gender]}
+        xPos={xPos}
+        yPos={yPos}
+        handleClick={() => handleClick(props)}
+      />
+      {isEgo && (
+        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="5"
+              refY="5"
+              markerWidth="3"
+              markerHeight="6"
+              fill="yellow"
+            >
+              <path d="M 0 0 L 8.5 2 L 2 8.5 z"></path>
+            </marker>
+          </defs>
+          <line
+            x1="295"
+            y1="295"
+            x2="270"
+            y2="270"
+            stroke="yellow"
+            marker-end="url(#arrow)"
+            stroke-width="20"
+          ></line>
+        </svg>
+      )}
+    </>
   );
 };
 
