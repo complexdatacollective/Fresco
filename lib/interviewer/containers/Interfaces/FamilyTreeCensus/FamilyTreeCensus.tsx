@@ -12,7 +12,7 @@ import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector'
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { updatePedigreeStageMetadata } from '../../../ducks/modules/session';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
-import { type RootState, useAppDispatch } from '../../../store';
+import { useAppDispatch, type RootState } from '../../../store';
 import Form from '../../Form';
 import { type StageProps } from '../../Stage';
 import CensusStep2Form from './CensusStep2Form';
@@ -38,6 +38,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         (n) => n.type === stage.subject.type,
       ) ?? [],
   );
+
+  // const egoFromNetwork = useSelector(getEgoAttributes);
 
   const {
     setPlaceholderNodesBulk,
@@ -69,6 +71,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       partners: 120,
       generations: 180,
     });
+
     return layout.nodes;
   }
 
@@ -97,9 +100,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     [activeIndex],
   );
   const beforeNext = (direction: string) => {
-    if (direction == 'forwards') {
+    if (direction === 'forwards') {
+      // We're about to increment activeIndex
+      if (activeIndex === 1) {
+        // Going from step 2 → step 3
+        const nodesWithOffsets = positionedNodes.map((n) => ({
+          ...n,
+          xPos: n.xPos ?? 0,
+          yPos: n.yPos ?? 0,
+        }));
+        setPlaceholderNodesBulk(nodesWithOffsets);
+      }
       nextItem();
-    } else if (direction == 'backwards') {
+    } else if (direction === 'backwards') {
       previousItem();
     }
     return false;
@@ -589,7 +602,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           })}
           {positionedNodes.map((node) => {
             return (
-              node.partnerId != null &&
+              (node.partnerId != null || node.exPartnerId != null) &&
               (node.childIds?.length ?? 0) > 0 &&
               node.childIds.map((child) => {
                 const childNode = familyTreeNodesById[child];
@@ -615,7 +628,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           <div className="inner-node-layout">
             {positionedNodes.map((node) => {
               if (node.networkNode) {
-                console.log('NODE', node);
                 return (
                   <FamilyTreeNodeNetworkBacked
                     key={node.id}
