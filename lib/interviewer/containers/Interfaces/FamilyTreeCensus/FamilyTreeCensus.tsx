@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
+import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import UIChildConnector from '~/lib/ui/components/FamilyTree/ChildConnector';
 import UIExPartnerConnector from '~/lib/ui/components/FamilyTree/ExPartnerConnector';
 import UIOffspringConnector from '~/lib/ui/components/FamilyTree/OffspringConnector';
@@ -32,14 +33,14 @@ const yOffset = 100;
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { getNavigationHelpers, registerBeforeNext, stage } = props;
 
+  const networkEgo = useSelector(getNetworkEgo);
+
   const networkNodes = useSelector(
     (state: RootState) =>
       state.session.network.nodes?.filter(
         (n) => n.type === stage.subject.type,
       ) ?? [],
   );
-
-  // const egoFromNetwork = useSelector(getEgoAttributes);
 
   const {
     setPlaceholderNodesBulk,
@@ -213,12 +214,29 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     );
     father.unDeletable = true;
 
-    const ego = addNode('female', 'self', true);
+    const ego: PlaceholderNodeProps = {
+      id: (networkEgo?._uid as string) || crypto.randomUUID(),
+      isEgo: true,
+      gender: 'female',
+      label: (networkEgo?.attributes.name as string) ?? 'self',
+      parentIds: [],
+      childIds: [],
+      xPos: undefined,
+      yPos: undefined,
+      unDeletable: true,
+      networkNode: {
+        _uid: networkEgo?._uid as string,
+        type: stage.subject.type,
+        attributes: networkEgo?.attributes,
+        promptIDs: [],
+        stageId: stage.id,
+      },
+    };
+    tempNodes.push(ego);
     setEgoNodeId(ego.id);
     father.childIds?.push(ego.id ?? '');
     mother.childIds?.push(ego.id ?? '');
     ego.parentIds?.push(father.id ?? '', mother.id ?? '');
-    ego.unDeletable = true;
 
     // Add siblings, children, uncles, aunts
     arrayFromRelationCount(formData, 'brothers').forEach(() => {
@@ -639,7 +657,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     parentIds={node.parentIds}
                     childIds={node.childIds}
                     networkNode={node.networkNode}
-                    handleClick={(node) => setSelectedNode(node.networkNode)}
+                    handleClick={
+                      node.isEgo
+                        ? () => {}
+                        : (node) => setSelectedNode(node.networkNode)
+                    }
                   />
                 );
               } else {
