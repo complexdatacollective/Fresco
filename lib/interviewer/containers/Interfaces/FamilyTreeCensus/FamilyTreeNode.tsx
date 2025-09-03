@@ -5,11 +5,6 @@ import { getPedigreeStageMetadata } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
 import { useNodeLabel } from '../Anonymisation/useNodeLabel';
 
-const genderColors: Record<string, string> = {
-  male: 'platinum',
-  female: 'platinum',
-};
-
 const genderShapes: Record<string, string> = {
   male: 'square',
   female: 'circle',
@@ -18,14 +13,14 @@ const genderShapes: Record<string, string> = {
 type RelationKey =
   | 'placeholder'
   | 'direct'
-  | 'twoGenRemoved'
+  | 'twoDegRemoved'
   | 'cousins'
   | 'unrelated';
 
 const relationColors: Record<RelationKey, string> = {
   placeholder: 'platinum',
   direct: 'neon-coral',
-  twoGenRemoved: 'darker-neon-coral',
+  twoDegRemoved: 'darker-neon-coral',
   cousins: 'even-darker-neon-coral',
   unrelated: 'darkest-neon-coral',
 };
@@ -118,7 +113,7 @@ export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
       node.yPos - yOffset === ego.yPos + 2 * GENERATION_GAP ||
       node.yPos === yOffset
     ) {
-      return 'twoGenRemoved';
+      return 'twoDegRemoved';
     }
 
     if (node.yPos - yOffset === ego.yPos && sharedParents.length === 0) {

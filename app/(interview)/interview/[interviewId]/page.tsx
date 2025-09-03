@@ -24,6 +24,7 @@ export default async function Page({
   }
 
   const rawInterview = await getInterviewById(interviewId);
+  console.log('INTERVIEWWWWWWWW2', rawInterview);
 
   // If the interview is not found, redirect to the 404 page
   if (!rawInterview) {
