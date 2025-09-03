@@ -82,7 +82,6 @@ export type GetInterviewByIdQuery = Awaited<
 // would cause the interview route to reload, thereby clearing the redux store.
 export const getInterviewById = async (interviewId: string) => {
   const interview = await prisma_getInterviewById(interviewId);
-  console.log('INTERVIEWWWW', interview);
 
   if (!interview) {
     return null;
@@ -107,7 +106,9 @@ export const getInterviewById = async (interviewId: string) => {
         edges: [],
         ego: {
           _uid: '37b7cb82-6eff-4041-b153-ae6caa0682ee',
-          attributes: { name: 'jimbo' },
+          attributes: {
+            name: 'ego name from network',
+          },
         },
       },
       participantId: 'cme0esbwe0003p5ezwm541nma',
