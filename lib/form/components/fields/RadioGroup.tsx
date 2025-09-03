@@ -161,7 +161,7 @@ type RadioGroupProps = Omit<
   };
 
 export function RadioGroupField({
-  id,
+  id: _id,
   className,
   name,
   options,
@@ -174,8 +174,7 @@ export function RadioGroupField({
   useColumns = false,
   ...fieldsetProps
 }: RadioGroupProps) {
-  // Generate a default id if none provided
-  const fieldId = id ?? `radio-${name}`;
+
   const handleChange = (optionValue: string | number) => {
     if (onChange) {
       onChange(optionValue);

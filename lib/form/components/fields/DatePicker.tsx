@@ -7,7 +7,7 @@ import { SelectField } from './Select';
 
 type DatePickerFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'size'
+  'size' | 'onChange'
 > & {
   type?: 'full' | 'month' | 'year';
   value?: string;

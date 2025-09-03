@@ -196,7 +196,7 @@ type CheckboxGroupProps = Omit<
   };
 
 export function CheckboxGroupField({
-  id,
+  id: _id,
   className,
   name,
   options,
@@ -209,8 +209,7 @@ export function CheckboxGroupField({
   useColumns = false,
   ...fieldsetProps
 }: CheckboxGroupProps) {
-  // Generate a default id if none provided
-  const fieldId = id ?? `checkbox-${name}`;
+
   const handleChange = (optionValue: string | number, checked: boolean) => {
     if (onChange) {
       const currentValues = value ?? [];

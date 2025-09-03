@@ -52,8 +52,6 @@ export const Default: Story = {
 export const Horizontal: Story = {
   args: {
     name: 'horizontal',
-    label: 'Horizontal Options',
-    Component: RadioGroupField,
     options,
     orientation: 'horizontal',
   },
@@ -62,18 +60,14 @@ export const Horizontal: Story = {
 export const WithDefaultValue: Story = {
   args: {
     name: 'default-value',
-    label: 'Pre-selected Option',
-    Component: RadioGroupField,
     options,
-    initialValue: 'option2',
+    defaultValue: 'option2',
   },
 };
 
 export const Small: Story = {
   args: {
     name: 'small',
-    label: 'Small Size',
-    Component: RadioGroupField,
     options,
     size: 'sm',
   },
@@ -82,8 +76,6 @@ export const Small: Story = {
 export const Large: Story = {
   args: {
     name: 'large',
-    label: 'Large Size',
-    Component: RadioGroupField,
     options,
     size: 'lg',
   },
@@ -92,19 +84,15 @@ export const Large: Story = {
 export const Disabled: Story = {
   args: {
     name: 'disabled',
-    label: 'Disabled Options',
-    Component: RadioGroupField,
     options,
     disabled: true,
-    initialValue: 'option1',
+    defaultValue: 'option1',
   },
 };
 
 export const DisabledOptions: Story = {
   args: {
     name: 'disabled-options',
-    label: 'Mixed Disabled Options',
-    Component: RadioGroupField,
     options: [
       { value: 'enabled1', label: 'Enabled Option' },
       { value: 'disabled1', label: 'Disabled Option', disabled: true },
@@ -117,8 +105,6 @@ export const DisabledOptions: Story = {
 export const Invalid: Story = {
   args: {
     name: 'invalid',
-    label: 'Invalid State',
-    Component: RadioGroupField,
     options,
     'aria-invalid': 'true',
   },
@@ -127,8 +113,6 @@ export const Invalid: Story = {
 export const LongLabels: Story = {
   args: {
     name: 'long-labels',
-    label: 'Long Label Options',
-    Component: RadioGroupField,
     options: longLabelOptions,
   },
 };
@@ -136,8 +120,6 @@ export const LongLabels: Story = {
 export const LongLabelsHorizontal: Story = {
   args: {
     name: 'long-labels-horizontal',
-    label: 'Long Labels Horizontal',
-    Component: RadioGroupField,
     options: longLabelOptions,
     orientation: 'horizontal',
   },
@@ -146,8 +128,6 @@ export const LongLabelsHorizontal: Story = {
 export const ManyOptions: Story = {
   args: {
     name: 'many-options',
-    label: 'Many Options',
-    Component: RadioGroupField,
     options: Array.from({ length: 8 }, (_, i) => ({
       value: `option${i + 1}`,
       label: `Option ${i + 1}`,
@@ -158,8 +138,6 @@ export const ManyOptions: Story = {
 export const ManyOptionsHorizontal: Story = {
   args: {
     name: 'many-options-horizontal',
-    label: 'Many Options Horizontal',
-    Component: RadioGroupField,
     options: Array.from({ length: 6 }, (_, i) => ({
       value: `option${i + 1}`,
       label: `Option ${i + 1}`,

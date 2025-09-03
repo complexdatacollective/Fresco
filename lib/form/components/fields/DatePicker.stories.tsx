@@ -55,13 +55,6 @@ const meta: Meta<typeof DatePickerField> = {
         type: { summary: 'string' },
       },
     },
-    onChange: {
-      action: 'onChange',
-      description: 'Callback when date value changes',
-      table: {
-        type: { summary: '(event: ChangeEvent<HTMLInputElement>) => void' },
-      },
-    },
     type: {
       control: 'select',
       options: ['full', 'month', 'year'],
@@ -93,7 +86,7 @@ export const Default: Story = {
       <div className="w-full max-w-md">
         <DatePickerField
           value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
+          onChange={(value: string) => setSelectedDate(value)}
           aria-label="Select Date"
         />
       </div>
