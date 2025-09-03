@@ -101,9 +101,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   );
   const beforeNext = (direction: string) => {
     if (direction === 'forwards') {
-      // We're about to increment activeIndex
       if (activeIndex === 1) {
-        // Going from step 2 → step 3
         const nodesWithOffsets = positionedNodes.map((n) => ({
           ...n,
           xPos: n.xPos ?? 0,

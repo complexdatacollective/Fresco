@@ -78,6 +78,7 @@ function useFamilyTreeNodes(
         parentIds: existing?.parentIds ?? [],
         childIds: existing?.childIds ?? [],
         partnerId: existing?.partnerId,
+        isEgo: existing?.isEgo,
         networkNode: net,
       });
     }
