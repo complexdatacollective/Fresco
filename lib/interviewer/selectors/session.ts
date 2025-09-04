@@ -43,15 +43,9 @@ export const getCurrentStage = createSelector(
 );
 
 export const getStageSubject = createSelector(getCurrentStage, (stage) => {
-  if (!stage) {
-    return null;
-  }
+  invariant('subject' in stage, 'getStageSubject: No subject found');
 
-  if ('subject' in stage) {
-    return stage.subject;
-  }
-
-  return null;
+  return stage.subject;
 });
 
 export const getSubjectType = createSelector(getStageSubject, (subject) => {

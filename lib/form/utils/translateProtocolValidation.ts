@@ -8,8 +8,6 @@ import {
 } from '@codaco/shared-consts';
 import { filter, isEqual, some } from 'es-toolkit/compat';
 import { z } from 'zod';
-import { getNetworkEntitiesForType } from '~/lib/interviewer/selectors/session';
-import { type AppStore } from '~/lib/interviewer/store';
 import type { AdditionalContext, ValidationContext } from '../types';
 import type { EnrichedFormField } from '../types/fields';
 
@@ -181,7 +179,9 @@ export function translateProtocolValidation(
         typeof validationObj.differentFrom === 'string'
       ) {
         const otherFieldId = validationObj.differentFrom;
-        const otherFieldName = additionalContext.codebookVariables?.[otherFieldId]?.name ?? otherFieldId;
+        const otherFieldName =
+          additionalContext.codebookVariables?.[otherFieldId]?.name ??
+          otherFieldId;
         contextSchema = contextSchema.refine(
           (value) => {
             const allValues = context.formValues ?? {};
@@ -197,7 +197,9 @@ export function translateProtocolValidation(
       // sameAs validation
       if (validationObj.sameAs && typeof validationObj.sameAs === 'string') {
         const otherFieldId = validationObj.sameAs;
-        const otherFieldName = additionalContext.codebookVariables?.[otherFieldId]?.name ?? otherFieldId;
+        const otherFieldName =
+          additionalContext.codebookVariables?.[otherFieldId]?.name ??
+          otherFieldId;
         contextSchema = contextSchema.refine(
           (value) => {
             const allValues = context.formValues ?? {};
@@ -213,21 +215,17 @@ export function translateProtocolValidation(
       if (validationObj.unique) {
         contextSchema = contextSchema.refine(
           (value) => {
-            const subject = additionalContext.subject as {
-              entity: string;
-              type?: string;
-              currentEntityId?: string;
-            };
-            const store = additionalContext.store as AppStore;
-            const entityType = subject?.type;
+            const subject = additionalContext.subject;
+            const networkEntities = additionalContext.networkEntities as
+              | NcNode[]
+              | NcEdge[]
+              | NcEgo[];
 
-            if (!entityType || !store) {
+            if (!subject?.type || !networkEntities) {
               return true;
             }
 
-            const currentEntityId = subject?.currentEntityId;
-
-            const networkEntities = getNetworkEntitiesForType(store.getState());
+            const currentEntityId = subject.currentEntityId;
 
             const otherNetworkEntities = filter(
               networkEntities,

@@ -57,8 +57,8 @@ export type ValidationContext = {
 } & Record<string, unknown>;
 
 export type AdditionalContext = {
-  subject?: { entity: string; type?: string };
-  store?: unknown;
+  subject?: { entity: string; type?: string; currentEntityId?: string };
+  networkEntities?: unknown[];
   entity?: string;
   entityType?: string;
   codebookVariables?: Record<string, Variable>;

@@ -8,14 +8,12 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Form, useProtocolForm } from '~/lib/form';
-import type { EnrichedFormField } from '~/lib/form/types/fields';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
-import { ActionButton, Button, Scroller } from '~/lib/ui/components';
+import { ActionButton, Button } from '~/lib/ui/components';
 import Overlay from '../../../containers/Overlay';
-import { enrichFieldsWithCodebookMetadata } from '../../../selectors/forms';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { getNodeTypeLabel, getStageSubject } from '../../../selectors/session';
@@ -37,11 +35,6 @@ const NodeForm = (props: NodeFormProps) => {
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
-
-  const enrichedFields = useSelector((state) =>
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    enrichFieldsWithCodebookMetadata(state, { fields: form.fields, subject }),
-  ) as EnrichedFormField[];
 
   const [show, setShow] = useState(false);
 
@@ -78,30 +71,9 @@ const NodeForm = (props: NodeFormProps) => {
     },
   };
 
-  // Enrich fields with current node values if editing
-  const enrichedFieldsWithValues = useMemo(() => {
-    if (!selectedNode) {
-      return enrichedFields;
-    }
-
-    // Add current node attribute values to the fields
-    return enrichedFields.map((field) => {
-      const fieldName = field.name; // This is the variable name from enrichment
-      const currentValue = selectedNode[entityAttributesProperty]?.[fieldName];
-      return {
-        ...field,
-        value: currentValue !== undefined ? currentValue : field.value,
-      };
-    });
-  }, [enrichedFields, selectedNode]);
-
   // Use the translation hook to convert enriched fields directly to new Field components
-  const { fieldComponents, additionalContext } = useProtocolForm({
-    fields: enrichedFieldsWithValues,
-    subject: {
-      ...subject,
-      currentEntityId: selectedNode?.[entityPrimaryKeyProperty],
-    },
+  const { fieldComponents, formContext } = useProtocolForm({
+    fields: form.fields,
     autoFocus: true,
   });
 
@@ -163,17 +135,13 @@ const NodeForm = (props: NodeFormProps) => {
         }
         allowMaximize={false}
       >
-        <Scroller>
-          <Form
-            id="node-form"
-            onSubmit={handleSubmit}
-            initialValues={initialValues}
-            additionalContext={additionalContext}
-            className="space-y-4"
-          >
-            {fieldComponents}
-          </Form>
-        </Scroller>
+        <Form
+          onSubmit={handleSubmit}
+          initialValues={initialValues}
+          additionalContext={formContext}
+        >
+          {fieldComponents}
+        </Form>
       </Overlay>
     </>
   );
