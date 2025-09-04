@@ -21,7 +21,7 @@ export class UnauthorizedError extends Error {
  * encryption more secure by adding a random salt. This ensures the same
  * passphrase results in a unique key each time.
  */
-async function generateKey(passphrase: string, salt: Uint8Array) {
+async function generateKey(passphrase: string, salt: Uint8Array<ArrayBuffer>) {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -34,7 +34,7 @@ async function generateKey(passphrase: string, salt: Uint8Array) {
   return await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt,
       iterations: 100000,
       hash: 'SHA-256',
     },
