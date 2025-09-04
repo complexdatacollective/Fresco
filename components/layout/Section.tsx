@@ -1,4 +1,4 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { cardClasses } from '../ui/card';
 
 const Section = ({
@@ -8,7 +8,7 @@ const Section = ({
   children: React.ReactNode;
   classNames?: string;
 }) => (
-  <section className={cn(cardClasses, 'p-6', classNames)}>{children}</section>
+  <section className={cx(cardClasses, 'p-6', classNames)}>{children}</section>
 );
 
 export default Section;

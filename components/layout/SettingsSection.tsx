@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { Skeleton } from '../ui/skeleton';
 import Heading from '../ui/typography/Heading';
 import Section from './Section';
@@ -19,7 +19,7 @@ export default function SettingsSection({
 }) {
   return (
     <Section
-      classNames={cn(
+      classNames={cx(
         classNames,
         'flex gap-10',
         devOnly && 'border-destructive bg-destructive/5 text-destructive',

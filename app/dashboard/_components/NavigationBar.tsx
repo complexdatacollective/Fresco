@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
 import Heading from '~/components/ui/typography/Heading';
 import { env } from '~/env';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import UserMenu from './UserMenu';
 
 const NavButton = ({
@@ -24,7 +24,7 @@ const NavButton = ({
     <motion.li layout className="relative flex flex-col justify-start">
       <Link
         href={href}
-        className={cn(
+        className={cx(
           'text-primary-foreground text-sm font-semibold',
           !isActive && 'hover:text-sea-green',
         )}

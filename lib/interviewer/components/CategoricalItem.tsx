@@ -6,7 +6,7 @@ import { Flipped } from 'react-flip-toolkit';
 import { useDropTarget } from '~/lib/dnd';
 import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import { usePrompts } from '../behaviours/withPrompt';
-import { useNodeLabel } from '../containers/Interfaces/Anonymisation/useNodeLabel';
+import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 import createSorter, { type ProcessedSortRule } from '../utils/createSorter';
 import NodeList from './NodeList';
 

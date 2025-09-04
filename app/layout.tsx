@@ -1,5 +1,6 @@
 import { Quicksand } from 'next/font/google';
 import { Toaster } from '~/components/ui/toaster';
+import { FormStoreProvider } from '~/lib/form/store/formStoreProvider';
 import '~/styles/globals.css';
 
 export const metadata = {
@@ -17,7 +18,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${quicksand.className} antialiased`}>
-        {children}
+        <FormStoreProvider>{children}</FormStoreProvider>
         <Toaster />
       </body>
     </html>

@@ -1,10 +1,10 @@
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 function Skeleton({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const classes = cn('animate-pulse rounded-md bg-platinum', className);
+  const classes = cx('animate-pulse rounded-md bg-platinum', className);
   return <div className={classes} {...props} />;
 }
 

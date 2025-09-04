@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { getNavigationInfo } from '../selectors/session';
 import PassphrasePrompter from './PassphrasePrompter';
 
@@ -18,7 +18,7 @@ const NavigationButton = ({
 }) => {
   return (
     <div
-      className={cn(
+      className={cx(
         `session-navigation__button m-4 flex h-[4.8rem] w-[4.8rem] basis-[4.8rem] cursor-pointer items-center justify-center rounded-full transition-all`,
         'hover:bg-[#4a4677]',
         disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent',
@@ -66,7 +66,7 @@ const Navigation = ({
         <ProgressBar percentProgress={progress} />
       </div>
       <NavigationButton
-        className={cn(
+        className={cx(
           'bg-[var(--nc-light-background)]',
           'hover:bg-[var(--nc-primary)]',
           pulseNext && 'bg-success animate-pulse-glow',

@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
@@ -23,7 +23,7 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!column.getCanSort()) {
     return (
       <div
-        className={cn(
+        className={cx(
           buttonVariants({ size: 'sm', variant: 'tableHeader' }),
           'pointer-events-none p-0',
           className,
@@ -35,7 +35,7 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn('flex items-center', className)}>
+    <div className={cx('flex items-center', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="tableHeader" size="sm" className="p-0">

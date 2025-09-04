@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'usehooks-ts';
-import { type z } from 'zod/v3';
+import { type z } from 'zod';
 
 /**
  * A reusable state hook that combines localstorage with zod schema validation.

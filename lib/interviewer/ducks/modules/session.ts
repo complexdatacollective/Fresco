@@ -20,8 +20,8 @@ import {
 import { invariant } from 'es-toolkit';
 import { find, get } from 'es-toolkit/compat';
 import { v4 as uuid } from 'uuid';
-import { z } from 'zod/v3';
-import { generateSecureAttributes } from '../../containers/Interfaces/Anonymisation/utils';
+import { z } from 'zod';
+import { generateSecureAttributes } from '../../Interfaces/Anonymisation/utils';
 import { getAdditionalAttributesSelector } from '../../selectors/prop';
 import { makeGetCodebookVariablesForNodeType } from '../../selectors/protocol';
 import {

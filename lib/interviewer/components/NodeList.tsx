@@ -10,7 +10,7 @@ import {
   useDropTarget,
   type DndStore,
 } from '~/lib/dnd';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import scrollable from '../behaviours/scrollable';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
@@ -24,7 +24,7 @@ type DraggableMotionNodeProps = {
 
 // DraggableMotionNode component that wraps MotionNode with drag functionality
 const DraggableMotionNode = memo(
-  ({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
+  ({ node, itemType, allowDrag, onClick, ...nodeProps }: DraggableMotionNodeProps & { onClick?: () => void }) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -33,7 +33,7 @@ const DraggableMotionNode = memo(
     });
 
     return (
-      <div {...dragProps}>
+      <div {...dragProps} onClick={onClick}>
         <MotionNode {...node} {...nodeProps} />
       </div>
     );
@@ -126,7 +126,7 @@ const NodeList = memo(
     const isValidTarget = !isSource && willAccept;
     const isHovering = isValidTarget && isOver;
 
-    const classNames = cn(
+    const classNames = cx(
       'flex flex-wrap justify-center min-h-full w-full transition-background duration-300 content-start rounded-md',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
