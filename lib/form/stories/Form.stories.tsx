@@ -7,18 +7,10 @@ import { Field, FieldGroup, Form, SubmitButton } from '../components';
 import { InputField } from '../components/fields/Input';
 import { RadioGroupField } from '../components/fields/RadioGroup';
 import { SelectField } from '../components/fields/Select';
-import { FormStoreProvider } from '../store/formStoreProvider';
 
 const meta: Meta<typeof Form> = {
   title: 'Systems/Form/Form',
   component: Form,
-  decorators: [
-    (Story) => (
-      <FormStoreProvider>
-        <Story />
-      </FormStoreProvider>
-    ),
-  ],
   parameters: {
     layout: 'centered',
   },

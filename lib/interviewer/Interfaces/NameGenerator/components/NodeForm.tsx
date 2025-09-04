@@ -10,13 +10,13 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Form, useProtocolForm } from '~/lib/form';
+import { Form } from '~/lib/form';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { ActionButton, Button } from '~/lib/ui/components';
 import Overlay from '../../../containers/Overlay';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
-import { getNodeTypeLabel, getStageSubject } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
 import { FIRST_LOAD_UI_ELEMENT_DELAY } from '../../utils/constants';
 
@@ -31,8 +31,6 @@ type NodeFormProps = {
 const NodeForm = (props: NodeFormProps) => {
   const { selectedNode, form, disabled, onClose, addNode } = props;
 
-  const subject = useSelector(getStageSubject)!;
-  const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
 
@@ -113,7 +111,7 @@ const NodeForm = (props: NodeFormProps) => {
             disabled={disabled}
             onClick={() => setShow(true)}
             icon={icon}
-            title={`Add ${nodeType}...`}
+            title={`Add...`}
           />
         </motion.div>
       </AnimatePresence>

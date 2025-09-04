@@ -2,17 +2,17 @@
 
 import type {
   ComponentType,
-  Form as TForm,
   FormField,
+  Form as TForm,
 } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  type NcNode,
 } from '@codaco/shared-consts';
-import type { Meta, StoryObj } from '@storybook/react';
 import { configureStore } from '@reduxjs/toolkit';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Provider } from 'react-redux';
+import '~/styles/interview.scss';
 import NodeForm from './NodeForm';
 
 // Mock data for the story
@@ -111,9 +111,6 @@ const mockProtocol = {
         {
           id: 'prompt-1',
           text: 'Name the people in your network',
-          additionalAttributes: {
-            close_friend: true,
-          },
         },
       ],
       form: {
@@ -235,7 +232,7 @@ const createMockStore = (overrides = {}) => {
 
   console.log('Mock protocol stages:', mockProtocol.stages);
   console.log('Mock protocol state:', mockProtocolState);
-  
+
   const mockSessionState = {
     ...mockSession,
     // Add stage info that getStageSubject selector expects
