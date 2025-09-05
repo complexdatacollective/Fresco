@@ -35,6 +35,10 @@ class FamilyTreeLayout {
     skipAutomaticProcessing = false,
   ) {
     this.nodes = nodes.map((node) => ({ ...node }));
+    this.nodes.forEach((node) => {
+      node.xPos = undefined;
+      node.yPos = undefined;
+    });
     this.spacing = spacing;
     this.couples = this.collectCouples();
     this.layerGroups = new Map();
@@ -49,10 +53,6 @@ class FamilyTreeLayout {
 
   get ego() {
     return this.nodes.find((node) => node.isEgo);
-  }
-
-  get allNodesPositioned() {
-    return this.nodes.every((node) => node.xPos != null && node.yPos != null);
   }
 
   nodeById(nodeId: string) {
@@ -219,9 +219,13 @@ class FamilyTreeLayout {
     const queue: { nodeId: string; layer: number }[] = [];
 
     this.nodes.forEach((node) => {
-      if (this.isEx(node.id) || this.isHalf(node.id) || this.isCousin(node.id))
+      if (
+        this.isEx(node.id) ||
+        this.isHalf(node.id) ||
+        this.isCousin(node.id)
+      ) {
         return;
-
+      }
       if ((node.parentIds || []).length == 0 && node.id) {
         // handle nodes with no parents
         this.assignNodeLayer(0, node.id);
@@ -586,7 +590,6 @@ class FamilyTreeLayout {
   }
 
   assignCoordinates() {
-    if (this.allNodesPositioned) return;
     const placed = new Set<string>();
     [...Array(this.maxLayer + 1).keys()].reverse().forEach((layer) => {
       const y = layer * this.spacing.generations;
