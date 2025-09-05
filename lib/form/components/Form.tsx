@@ -7,28 +7,28 @@ import {
   motion,
 } from 'motion/react';
 import { useId } from 'react';
+import type z from 'zod';
 import { scrollToFirstError } from '~/lib/form/utils/scrollToFirstError';
 import { useForm } from '../hooks/useForm';
-import type { FormFieldErrors, FormSubmitHandler } from '../types';
+import type { FormSubmitHandler } from '../types';
 import FormErrorsList from './FormErrors';
 
 /**
  *
  */
-type FormProps = {
-  onSubmit: FormSubmitHandler;
-  initialValues?: Record<string, unknown>;
+type FormProps<T extends z.ZodType> = {
+  onSubmit: FormSubmitHandler<T>;
   additionalContext?: Record<string, unknown>;
   children: React.ReactNode;
 } & Omit<HTMLMotionProps<'form'>, 'onSubmit' | 'children'>;
 
-export default function Form(props: FormProps) {
+export default function Form<T extends z.ZodType>(props: FormProps<T>) {
   const id = useId();
   const { onSubmit, additionalContext, children, ...rest } = props;
 
   const { formProps, formErrors } = useForm({
     onSubmit,
-    onSubmitInvalid: (errors: FormFieldErrors) => {
+    onSubmitInvalid: (errors) => {
       scrollToFirstError(errors);
     },
     additionalContext,
@@ -38,10 +38,10 @@ export default function Form(props: FormProps) {
     <LayoutGroup id={id}>
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.form key="form" layout onSubmit={formProps.onSubmit} {...rest}>
-          {formErrors && formErrors.length > 0 && (
+          {formErrors && (
             <FormErrorsList
               key="form-errors"
-              errors={formErrors}
+              errors={formErrors.issues}
               className="mb-6"
             />
           )}

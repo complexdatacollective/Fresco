@@ -120,7 +120,6 @@ const NodeForm = (props: NodeFormProps) => {
         title={form.title}
         onClose={handleClose}
         className="node-form"
-        forceEnableFullscreen={false}
         footer={
           <Button
             key="submit"
@@ -131,9 +130,9 @@ const NodeForm = (props: NodeFormProps) => {
             Finished
           </Button>
         }
-        allowMaximize={false}
       >
         <Form
+          id="node-form"
           onSubmit={handleSubmit}
           initialValues={initialValues}
           additionalContext={formContext}

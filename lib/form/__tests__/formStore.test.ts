@@ -187,15 +187,6 @@ describe('FormStore', () => {
       expect(field?.meta.isDirty).toBe(true);
       expect(state.isDirty).toBe(true);
     });
-
-    it('should set field validating and update form validating state', () => {
-      store.getState().setFieldValidating('email', true);
-      const field = store.getState().getFieldState('email');
-      const state = store.getState();
-
-      expect(field?.meta.isValidating).toBe(true);
-      expect(state.isValidating).toBe(true);
-    });
   });
 
   describe('Form-level state updates', () => {
@@ -250,12 +241,6 @@ describe('FormStore', () => {
         .getState()
         .registerField({ name: 'field2', validation: z.string().optional() });
 
-      expect(store.getState().isValidating).toBe(false);
-
-      store.getState().setFieldValidating('field1', true);
-      expect(store.getState().isValidating).toBe(true);
-
-      store.getState().setFieldValidating('field1', false);
       expect(store.getState().isValidating).toBe(false);
     });
   });
@@ -537,7 +522,6 @@ describe('FormStore', () => {
         store.getState().setFieldError(nonExistentField, 'error');
         store.getState().setFieldTouched(nonExistentField, true);
         store.getState().setFieldDirty(nonExistentField, true);
-        store.getState().setFieldValidating(nonExistentField, true);
       }).not.toThrow();
 
       expect(store.getState().getFieldState(nonExistentField)).toBeUndefined();

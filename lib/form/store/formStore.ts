@@ -1,4 +1,6 @@
 import { enableMapSet } from 'immer';
+import type z from 'zod';
+import { type ZodAny, ZodError } from 'zod';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import type {
@@ -6,7 +8,6 @@ import type {
   FieldState,
   FieldValue,
   FormConfig,
-  FormFieldErrors,
   FormSubmitHandler,
   ValidationContext,
 } from '../types';
@@ -16,19 +17,19 @@ import { validateFieldValue } from '../utils/validation';
 // Enable Map/Set support in Immer
 enableMapSet();
 
-export type FormStore = {
+export type FormStore<T extends z.ZodType> = {
   fields: Map<string, FieldState>;
-  formErrors: string[]; // Add form-level errors
+  formErrors: z.ZodError<z.infer<T>> | null;
   isSubmitting: boolean;
   isValidating: boolean;
   isDirty: boolean;
   isValid: boolean;
   context: Record<string, unknown>;
-  submitHandler: FormSubmitHandler | null;
-  submitInvalidHandler: ((errors: FormFieldErrors) => void) | null;
+  submitHandler: FormSubmitHandler<T> | null;
+  submitInvalidHandler: ((errors: ZodError<z.infer<T>>) => void) | null;
 
   // Form management
-  registerForm: (config: FormConfig) => void;
+  registerForm: (config: FormConfig<T>) => void;
   reset: () => void;
 
   // Field management
@@ -37,19 +38,20 @@ export type FormStore = {
 
   // Field state updates
   setFieldValue: (fieldName: string, value: FieldValue) => void;
-  setFieldError: (fieldName: string, error: string | null) => void;
+  setFieldError: (
+    fieldName: string,
+    error: ZodError<z.infer<T>> | null,
+  ) => void;
   setFieldTouched: (fieldName: string, touched: boolean) => void;
   setFieldDirty: (fieldName: string, dirty: boolean) => void;
-  setFieldValidating: (fieldName: string, validating: boolean) => void;
 
   // Form errors
-  setFormErrors: (errors: string[]) => void;
-  clearFormErrors: () => void;
+  setFormErrors: (errors: ZodError<z.infer<T>> | null) => void;
 
   // Getters with selective subscription
   getFieldState: (fieldName: string) => FieldState | undefined;
   getFormValues: () => Record<string, FieldValue>;
-  getFormErrors: () => Record<string, string[]>;
+  getFormErrors: () => ZodError<z.infer<T>> | null;
 
   // Validation
   validateField: (fieldName: string) => Promise<void>;
@@ -64,11 +66,11 @@ export type FormStore = {
 };
 export type FormStoreApi = ReturnType<typeof createFormStore>;
 
-export const createFormStore = () => {
-  return createStore<FormStore>()(
+export const createFormStore = <T extends z.ZodType = ZodAny>() => {
+  return createStore<FormStore<T>>()(
     immer((set, get, _store) => ({
       fields: new Map(),
-      formErrors: [],
+      formErrors: null,
 
       isSubmitting: false,
       isValidating: false,
@@ -90,7 +92,7 @@ export const createFormStore = () => {
       reset: () => {
         set((state) => {
           state.fields.clear();
-          state.formErrors = [];
+          state.formErrors = null;
           state.isSubmitting = false;
           state.isValidating = false;
           state.isDirty = false;
@@ -147,7 +149,7 @@ export const createFormStore = () => {
         set((state) => {
           if (!state.fields.get(fieldName)) return;
 
-          state.fields.get(fieldName)!.meta.errors = error ? [error] : null;
+          state.fields.get(fieldName)!.meta.errors = error;
           state.fields.get(fieldName)!.meta.isValid = !error;
 
           // Update form-level isValid
@@ -178,28 +180,9 @@ export const createFormStore = () => {
         });
       },
 
-      setFieldValidating: (fieldName, validating) => {
-        set((state) => {
-          if (!state.fields.get(fieldName)) return;
-
-          state.fields.get(fieldName)!.meta.isValidating = validating;
-
-          // Update form-level isValidating
-          state.isValidating = Array.from(state.fields.values()).some(
-            (field) => field.meta.isValidating,
-          );
-        });
-      },
-
       setFormErrors: (errors) => {
         set((state) => {
           state.formErrors = errors;
-        });
-      },
-
-      clearFormErrors: () => {
-        set((state) => {
-          state.formErrors = [];
         });
       },
 
@@ -221,22 +204,14 @@ export const createFormStore = () => {
 
       getFormErrors: () => {
         const state = get();
-        const errors: FormFieldErrors = {};
-        Array.from(state.fields.entries()).forEach(
-          ([fieldName, fieldState]) => {
-            if (fieldState.meta.errors) {
-              setValue(errors, fieldName, fieldState.meta.errors);
-            }
-          },
-        );
-        return errors;
+        return state.formErrors;
       },
 
       validateField: async (fieldName) => {
         const state = get();
         const field = state.getFieldState(fieldName);
 
-        if (!field) return;
+        if (!field?.validation) return;
 
         set((draft) => {
           const form = draft;
@@ -259,34 +234,50 @@ export const createFormStore = () => {
             }
           });
 
-          const { isValid, errors } = await validateFieldValue(
+          const result = await validateFieldValue(
             field.value,
             field.validation,
             validationContext,
           );
 
-          set((draft) => {
-            const form = draft;
-            if (form?.fields.get(fieldName)) {
-              form.fields.get(fieldName)!.meta.isValidating = false;
-              form.fields.get(fieldName)!.meta.isValid = isValid;
-              form.fields.get(fieldName)!.meta.errors = errors;
-              // Update form-level isValid
-              form.isValid = Array.from(form.fields.values()).every(
-                (field) => field.meta.isValid,
-              );
-            }
-          });
+          if (!result.success) {
+            set((draft) => {
+              const form = draft;
+              if (form?.fields.get(fieldName)) {
+                form.fields.get(fieldName)!.meta.errors = result.error;
+                form.fields.get(fieldName)!.meta.isValid = false;
+              }
+            });
+          } else {
+            set((draft) => {
+              const form = draft;
+              if (form?.fields.get(fieldName)) {
+                form.fields.get(fieldName)!.meta.isValidating = false;
+                form.fields.get(fieldName)!.meta.isValid = true;
+                form.fields.get(fieldName)!.meta.errors = null;
+                // Update form-level isValid
+                form.isValid = Array.from(form.fields.values()).every(
+                  (field) => field.meta.isValid,
+                );
+              }
+            });
+          }
         } catch (err) {
           set((draft) => {
             const form = draft;
             if (form?.fields.get(fieldName)) {
-              form.fields.get(fieldName)!.meta.errors = [
-                'Error with validation error',
-              ];
+              const error = new ZodError([
+                {
+                  code: 'custom',
+                  message: 'Something went wrong during validation',
+                  path: [],
+                },
+              ]);
+
+              form.fields.get(fieldName)!.meta.errors = error;
               form.fields.get(fieldName)!.meta.isValid = false;
               form.fields.get(fieldName)!.meta.isValidating = false;
-              // Update form-level isValid
+              // Update form-level isValid to
               form.isValid = Array.from(form.fields.values()).every(
                 (field) => field.meta.isValid,
               );
@@ -302,25 +293,25 @@ export const createFormStore = () => {
         // First validate all fields
         const fieldValidationPromises = Array.from(fields.entries()).map(
           async ([fieldName, fieldState]) => {
-            if (!fieldState) return true;
+            if (!fieldState?.validation) return true;
 
             const context = {
               ...state.context,
               formValues: state.getFormValues(),
             } as ValidationContext;
 
-            const { isValid, errors } = await validateFieldValue(
+            const result = await validateFieldValue(
               fieldState.value,
               fieldState.validation,
               context,
             );
 
             // Update field state with validation result
-            if (!isValid && errors) {
+            if (!result.success) {
               set((draft) => {
                 const draftForm = draft;
                 if (draftForm?.fields) {
-                  draftForm.fields.get(fieldName)!.meta.errors = errors;
+                  draftForm.fields.get(fieldName)!.meta.errors = result.error;
                   draftForm.fields.get(fieldName)!.meta.isValid = false;
 
                   // Set all fields as touched to trigger showing validation errors
@@ -329,7 +320,7 @@ export const createFormStore = () => {
               });
             }
 
-            return isValid;
+            return result.success;
           },
         );
 
@@ -368,7 +359,7 @@ export const createFormStore = () => {
           });
 
           // Reset form-level state
-          form.formErrors = [];
+          form.formErrors = null;
           form.isSubmitting = false;
           form.isValidating = false;
           form.isValid = true;
@@ -389,13 +380,10 @@ export const createFormStore = () => {
 
           const fieldConfig = fields.get(fieldName);
           const initialValue = fieldConfig?.initialValue ?? '';
-          const validation =
-            fieldConfig?.validation as FieldConfig['validation'];
 
           fields.set(fieldName, {
+            ...fieldConfig!,
             value: initialValue,
-            initialValue,
-            validation,
             meta: {
               errors: null,
               isValidating: false,

@@ -1,9 +1,10 @@
-import { AnimatePresence, motion } from 'motion/react';
 import { AlertCircle } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type ZodIssue } from 'zod';
 import { cx } from '~/utils/cva';
 
 type FormErrorsProps = {
-  errors: string[];
+  errors: ZodIssue[];
   className?: string;
 };
 
@@ -26,7 +27,7 @@ export default function FormErrors({ errors, className }: FormErrorsProps) {
           <div className="space-y-1">
             {errors.map((error, index) => (
               <p key={index} className="text-destructive text-sm">
-                {error}
+                {error.message}
               </p>
             ))}
           </div>

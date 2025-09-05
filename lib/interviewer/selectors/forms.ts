@@ -4,7 +4,6 @@ import { invariant } from 'es-toolkit';
 import { getCodebookVariablesForSubjectType } from './protocol';
 
 type VariableWithComponent = Extract<Variable, { component?: unknown }>;
-type VariableComponent = NonNullable<VariableWithComponent['component']>;
 
 export const selectFieldMetadata = createSelector(
   [getCodebookVariablesForSubjectType, (_, fields: FormField[]) => fields],

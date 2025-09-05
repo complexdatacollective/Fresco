@@ -36,6 +36,7 @@ const fieldTypeMap = {
 };
 
 import React from 'react';
+import { translateProtocolValidation } from '../utils/translateProtocolValidation';
 
 type UseProtocolFormReturn = {
   fieldComponents: React.ReactElement[];
@@ -57,10 +58,10 @@ export default function useProtocolForm({
   );
 
   const fieldComponents = fieldsWithMetadata.map(
-    ({ type, component, validation, ...fieldProps }, index) => {
+    ({ component, ...fieldProps }, index) => {
       const FieldComponent = fieldTypeMap[component!];
 
-      // const validation = translateProtocolValidation(fieldProps, formContext);
+      const validation = translateProtocolValidation(fieldProps, formContext);
 
       const autoFocusField = autoFocus && index === 0;
 
@@ -68,6 +69,7 @@ export default function useProtocolForm({
         <Field
           key={index}
           {...fieldProps}
+          validation={validation}
           Component={FieldComponent}
           autoFocus={autoFocusField}
         />

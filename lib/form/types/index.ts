@@ -1,24 +1,27 @@
-import { type Variable } from '@codaco/protocol-validation';
 import { type VariableValue } from '@codaco/shared-consts';
-import { z } from 'zod';
+import type * as z from 'zod/v4';
 
 export type FieldValue = VariableValue | undefined;
+
+export type FieldValidation =
+  | z.ZodType
+  | ((context: ValidationContext) => z.ZodType | Promise<z.ZodType>);
+
+export type ValidationResult<T extends z.ZodTypeAny> =
+  | { success: true; data: z.infer<T> }
+  | { success: false; error: z.ZodError<z.infer<T>> };
 
 export type FieldState<T extends FieldValue = FieldValue> = {
   value: T;
   initialValue?: T;
   meta: {
-    errors:
-      | (string | { message: string; params?: Record<string, unknown> })[]
-      | null;
+    errors: z.ZodError<z.infer<T>> | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
     isValid: boolean;
   };
-  validation?:
-    | z.ZodTypeAny
-    | ((context: ValidationContext) => z.ZodTypeAny | Promise<z.ZodTypeAny>);
+  validation?: FieldValidation;
 };
 
 export type ChangeHandler = (
@@ -39,74 +42,40 @@ export type FormState = {
 export type FieldConfig = {
   name: string;
   initialValue?: FieldValue;
-  validation?: z.ZodTypeAny | ((context: ValidationContext) => z.ZodTypeAny);
+  validation?: FieldValidation;
 };
 
-export type FormSubmitHandler = (
+export type FormSubmitHandler<T extends z.ZodType> = (
   values: Record<string, unknown>,
-) => FormSubmissionResult | Promise<FormSubmissionResult>;
+  schema: T,
+) => FormSubmissionResult<T> | Promise<FormSubmissionResult<T>>;
 
-export type FormConfig = {
-  onSubmit: FormSubmitHandler;
-  onSubmitInvalid?: (errors: FormFieldErrors) => void;
+export type FormConfig<T extends z.ZodType> = {
+  onSubmit: FormSubmitHandler<T>;
+  onSubmitInvalid?: (errors: z.ZodError<z.infer<T>>) => void;
   additionalContext?: Record<string, unknown>;
 };
 
+// Context for validation functions
 export type ValidationContext = {
   formValues: Record<string, unknown>;
 } & Record<string, unknown>;
-
-export type AdditionalContext = {
-  subject?: { entity: string; type?: string; currentEntityId?: string };
-  networkEntities?: unknown[];
-  entity?: string;
-  entityType?: string;
-  codebookVariables?: Record<string, Variable>;
-};
 
 /**
  * Zod schemas for form submission results
  * These provide both type generation and runtime validation
  */
+type FormSubmissionResult<T extends z.ZodType> =
+  | { success: true; data: z.infer<T> }
+  | { success: false; errors: z.ZodError<z.infer<T>> };
 
-export const FormFieldErrorsSchema = z.record(z.string(), z.array(z.string()));
-export type FormFieldErrors = z.infer<typeof FormFieldErrorsSchema>;
-
-// Schema for successful submission
-export const FormSubmissionSuccessSchema = z.object({
-  success: z.literal(true),
-  data: z.unknown().optional(),
-});
-export type FormSubmissionSuccess = z.infer<typeof FormSubmissionSuccessSchema>;
-
-// Schema for failed submission with errors
-export const FormSubmissionErrorSchema = z.object({
-  success: z.literal(false),
-  errors: z.union([
-    z.object({
-      form: z.array(z.string()),
-      fields: FormFieldErrorsSchema.optional(),
-    }),
-    z.object({
-      form: z.array(z.string()).optional(),
-      fields: FormFieldErrorsSchema,
-    }),
-  ]),
-});
-
-export type FormSubmissionError = z.infer<typeof FormSubmissionErrorSchema>;
-
-// Combined schema for any form submission result
-export const FormSubmissionResultSchema = z.discriminatedUnion('success', [
-  FormSubmissionSuccessSchema,
-  FormSubmissionErrorSchema,
-]);
-export type FormSubmissionResult = z.infer<typeof FormSubmissionResultSchema>;
-
+/**
+ * Props that all fields **must** handle.
+ */
 export type BaseFieldProps = {
   name: string;
   label: string;
-  hint?: string | React.ReactNode;
+  hint?: React.ReactNode;
   placeholder?: string;
   className?: string;
   value?: FieldValue;
