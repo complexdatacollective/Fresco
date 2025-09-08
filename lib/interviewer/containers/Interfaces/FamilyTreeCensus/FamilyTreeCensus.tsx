@@ -545,18 +545,18 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           accepts={({ meta }: { meta: { itemType: string | null } }) =>
             get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
           }
+          itemType="PLACEHOLDER_NODE"
           onDrop={() => {}}
           onItemClick={() => {}}
         />
 
         <NodeBin
-          accepts={(meta: { itemType: string }) =>
-            meta.itemType === 'PLACEHOLDER_NODE'
+          accepts={(node: PlaceholderNodeProps & { itemType: string }) =>
+            node.itemType === 'PLACEHOLDER_NODE'
           }
           dropHandler={(meta: PlaceholderNodeProps) =>
             removePlaceholderNode(meta.id)
           }
-          id="NODE_BIN"
         />
       </div>
     );

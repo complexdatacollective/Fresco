@@ -183,8 +183,8 @@ const FamilyTreeNode = forwardRef<
             x2="270"
             y2="270"
             stroke="yellow"
-            marker-end="url(#arrow)"
-            stroke-width="20"
+            markerEnd="url(#arrow)"
+            strokeWidth="20"
           ></line>
         </svg>
       )}

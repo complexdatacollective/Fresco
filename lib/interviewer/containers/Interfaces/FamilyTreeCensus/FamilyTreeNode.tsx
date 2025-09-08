@@ -1,5 +1,6 @@
 import type { NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
+import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
 import { getPedigreeStageMetadata } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
@@ -41,29 +42,33 @@ export type PlaceholderNodeProps = {
   unDeletable?: boolean;
   handleClick?: (node: PlaceholderNodeProps) => void;
 };
-export const FamilyTreeNode = (props: PlaceholderNodeProps) => {
-  const {
-    isEgo = false,
-    gender,
-    label,
-    xPos = 0,
-    yPos = 0,
-    handleClick = () => undefined,
-  } = props;
+export const FamilyTreeNode = forwardRef<HTMLDivElement, PlaceholderNodeProps>(
+  (props: PlaceholderNodeProps, ref) => {
+    const {
+      isEgo = false,
+      gender,
+      label,
+      xPos = 0,
+      yPos = 0,
+      handleClick = () => undefined,
+    } = props;
 
-  return (
-    <UINode
-      key={`${xPos}-${yPos}`}
-      isEgo={isEgo}
-      color={isEgo ? 'neon-coral' : 'platinum'}
-      label={label}
-      shape={genderShapes[gender]}
-      xPos={xPos}
-      yPos={yPos}
-      handleClick={() => handleClick(props)}
-    />
-  );
-};
+    return (
+      <div ref={ref}>
+        <UINode
+          key={`${xPos}-${yPos}`}
+          isEgo={isEgo}
+          color={isEgo ? 'neon-coral' : 'platinum'}
+          label={label}
+          shape={genderShapes[gender]}
+          xPos={xPos}
+          yPos={yPos}
+          handleClick={() => handleClick(props)}
+        />
+      </div>
+    );
+  },
+);
 
 export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
   const {

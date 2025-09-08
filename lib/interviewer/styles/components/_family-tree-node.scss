@@ -1,5 +1,9 @@
-.draggable-preview .family-tree-node {
+.pointer-events-none .family-tree-node {
   top: 0 !important;
   left: 0 !important;
   transform: none !important;
+}
+
+.family-pedigree-interface .node-bin {
+  position: absolute !important;
 }
