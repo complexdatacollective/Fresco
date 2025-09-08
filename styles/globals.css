@@ -445,6 +445,24 @@
 
     --popover: var(--white);
     --popover-foreground: var(--foreground);
+
+    --overlay: var(--platinum);
+
+    /* Surfaces */
+    --surface-0: var(--white);
+    --surface-0-foreground: var(--color-charcoal);
+
+    --surface-1: 97% 0.001 var(--cyber-grape-hue);
+    --surface-1-foreground: var(--color-charcoal);
+
+    --surface-2: 95% 0.001 var(--cyber-grape-hue);
+    --surface-2-foreground: var(--color-charcoal);
+
+    --surface-3: 93% 0.001 var(--cyber-grape-hue);
+    --surface-3-foreground: var(--color-charcoal);
+
+    --surface-4: 91% 0.001 var(--cyber-grape-hue);
+    --surface-4-foreground: var(--color-charcoal);
   }
 }
 

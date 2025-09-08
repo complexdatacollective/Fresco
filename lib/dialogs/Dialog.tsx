@@ -3,7 +3,7 @@ import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { cn } from '../utils';
+import { cn } from '~/utils/shadcn';
 
 export type DialogProps = {
   title: string;
@@ -16,7 +16,7 @@ export type DialogProps = {
 /**
  * Native HTML Dialog modified so that it can be used with React.
  *
- * For use with `useDialog` and `DialogProvider`! Use `ControlledDialog` in
+ * For use with `useDialog` and `DialogProvider`. Use `ControlledDialog` in
  * situations where you need to control the dialog's open state manually.
  *
  * Implementation Notes:
@@ -49,24 +49,25 @@ export const Dialog = ({
       aria-describedby={description ? `${id}-description` : undefined}
       onClose={closeDialog} // Needed so that closing via keyboard still returns a value
       className={cn(
-        'bg-transparent',
-        'opacity-0 transition-all duration-300 ease-out allow-discrete motion-safe:-translate-y-6',
-        'open:opacity-100 open:backdrop:bg-overlay/70 open:from:backdrop:bg-overlay/0 motion-safe:open:translate-y-0 motion-safe:open:from:-translate-y-6',
-        'backdrop:bg-overlay/0 backdrop:backdrop-blur-xs backdrop:transition-all backdrop:delay-100 backdrop:duration-300 backdrop:ease-out open:backdrop:delay-0',
+        // 'bg-transparent',
+        // 'allow-discrete opacity-0 transition-all duration-300 ease-out motion-safe:-translate-y-6',
+        // 'open:backdrop:bg-overlay/70 open:from:backdrop:bg-overlay/0 motion-safe:open:from:-translate-y-6 open:opacity-100 motion-safe:open:translate-y-0',
+        // 'backdrop:bg-overlay/0 backdrop:backdrop-blur-xs backdrop:transition-all backdrop:delay-100 backdrop:duration-300 backdrop:ease-out open:backdrop:delay-0',
+        'm-auto transition transition-discrete duration-300 not-open:opacity-0 starting:opacity-0',
       )}
       {...rest}
     >
       <Surface
         level={0}
         className={cn(
-          'max-w-4xl rounded bg-surface-0 text-surface-0-foreground',
+          'bg-surface-0 text-surface-0-foreground max-w-4xl rounded',
 
           // Accent overrides the primary hue so that nested buttons inherit color
           accent === 'success' && '[--primary:var(--success)]',
           accent === 'warning' && '[--primary:var(--warning)]',
           accent === 'info' && '[--primary:var(--info)]',
           accent === 'danger' && '[--primary:var(--destructive)]',
-          'border-b-4 border-primary',
+          'border-primary border-b-4',
         )}
       >
         <Heading variant="h2" id={`${id}-title`}>

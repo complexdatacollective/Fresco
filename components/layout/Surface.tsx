@@ -1,12 +1,11 @@
 'use client';
 
+import { cva, type VariantProps } from 'class-variance-authority';
+import { motion, type MotionProps } from 'motion/react';
 import { type ElementType } from 'react';
-import { tv, type VariantProps } from 'tailwind-variants';
-import { cn } from '~/lib/utils';
-import { motion, type MotionProps } from 'framer-motion';
+import { cn } from '~/utils/shadcn';
 
-export const surfaceVariants = tv({
-  base: '',
+export const surfaceVariants = cva('', {
   variants: {
     level: {
       // Level 0 is for dialogs and popovers
@@ -68,7 +67,6 @@ const Surface = <T extends ElementType = 'div'>({
 
 export default Surface;
 
-// @ts-expect-error incompatibility between framer-motion 12.x and new react types
 export const MotionSurface = motion.create(Surface) as <E extends ElementType>(
   props: SurfaceProps<E> & MotionProps,
 ) => JSX.Element;

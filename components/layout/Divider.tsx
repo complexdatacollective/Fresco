@@ -1,4 +1,4 @@
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils/shadcn';
 
 export default function Divider({ className }: { className?: string }) {
   return (

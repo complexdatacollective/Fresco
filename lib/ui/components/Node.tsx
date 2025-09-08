@@ -2,8 +2,21 @@ import classNames from 'classnames';
 import { Loader2 } from 'lucide-react';
 import { forwardRef } from 'react';
 
+export const NodeColors = [
+  'node-color-seq-1',
+  'node-color-seq-2',
+  'node-color-seq-3',
+  'node-color-seq-4',
+  'node-color-seq-5',
+  'node-color-seq-6',
+  'node-color-seq-7',
+  'node-color-seq-8',
+] as const;
+
+export type NodeColorSequence = (typeof NodeColors)[number];
+
 type UINodeProps = {
-  color?: string;
+  color?: NodeColorSequence;
   inactive?: boolean;
   label?: string;
   selected?: boolean;
