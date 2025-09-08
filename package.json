@@ -86,7 +86,7 @@
     "react-resize-aware": "^4.0.0",
     "react-transition-group": "^4.4.5",
     "react-virtualized-auto-sizer": "^1.0.26",
-    "react-window": "^1.8.11",
+    "react-window": "^2.1.0",
     "recompose": "npm:react-recompose@^0.33.0",
     "redux-form": "^8.3.10",
     "redux-logger": "^3.0.6",
