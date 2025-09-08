@@ -2,11 +2,11 @@ import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { cn } from '~/utils/shadcn';
+import Heading from '../typography/Heading';
+import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
 import ErrorDialog from '../ui/ErrorDialog';
-import Heading from '../ui/typography/Heading';
-import Paragraph from '../ui/typography/Paragraph';
 import { type ImportJob } from './JobReducer';
 
 type JobCardProps = {

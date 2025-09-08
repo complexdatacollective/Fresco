@@ -1,17 +1,17 @@
 'use client';
 
-import { Button } from '~/components/ui/Button';
-import { cn } from '~/utils/shadcn';
-import Image from 'next/image';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
-import { cardClasses } from '~/components/ui/card';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import { ClipboardCopy } from 'lucide-react';
-import { useToast } from '~/components/ui/use-toast';
+import Image from 'next/image';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
+import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import Link from '~/components/Link';
+import ResponsiveContainer from '~/components/ResponsiveContainer';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
+import { Button } from '~/components/ui/Button';
+import { cardClasses } from '~/components/ui/card';
+import { useToast } from '~/components/ui/use-toast';
+import { cn } from '~/utils/shadcn';
 
 export default function Error({
   error,

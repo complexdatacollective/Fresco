@@ -1,9 +1,9 @@
 import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
+import PageHeader from '~/components/typography/PageHeader';
 import { ButtonSkeleton } from '~/components/ui/Button';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SwitchSkeleton } from '~/components/ui/switch';
-import PageHeader from '~/components/ui/typography/PageHeader';
 import { env } from '~/env';
 
 export default function Loading() {
