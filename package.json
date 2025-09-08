@@ -20,7 +20,9 @@
   },
   "pnpm": {
     "overrides": {
-      "d3-force>d3-timer": "3.0.0"
+      "d3-force>d3-timer": "3.0.0",
+      "@types/react": "19.1.12",
+      "@types/react-dom": "19.1.9"
     }
   },
   "dependencies": {
@@ -71,15 +73,15 @@
     "luxon": "^3.7.1",
     "mapbox-gl": "^3.13.0",
     "motion": "^12.23.12",
-    "next": "^14.2.32",
+    "next": "15.5.2",
     "nuqs": "^1.20.0",
     "ohash": "^2.0.11",
     "papaparse": "^5.5.3",
     "postcss": "^8.5.6",
     "prop-types": "^15.8.1",
-    "react": "18.3.1",
+    "react": "19.1.1",
     "react-compound-slider": "^3.4.0",
-    "react-dom": "18.3.1",
+    "react-dom": "19.1.1",
     "react-dropzone": "^14.3.8",
     "react-flip-toolkit": "^7.2.4",
     "react-hook-form": "^7.62.0",
@@ -133,8 +135,8 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.13.9",
     "@types/papaparse": "^5.3.16",
-    "@types/react": "18.3.18",
-    "@types/react-dom": "18.3.5",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
     "@types/recompose": "^0.30.15",
     "@types/redux-form": "^8.3.11",
     "@types/redux-logger": "^3.0.13",
@@ -144,7 +146,7 @@
     "@typescript-eslint/parser": "^8.42.0",
     "@vitejs/plugin-react": "^5.0.2",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^15.5.2",
+    "eslint-config-next": "15.5.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^4.4.3",

@@ -287,7 +287,7 @@ export async function finishInterview(interviewId: Interview['id']) {
       },
     });
 
-    cookies().set(updatedInterview.protocolId, 'completed');
+    (await cookies()).set(updatedInterview.protocolId, 'completed');
 
     safeRevalidateTag('getInterviews');
     safeRevalidateTag('summaryStatistics');

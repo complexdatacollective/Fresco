@@ -1,3 +1,6 @@
+'use client';
+
+import { spring } from 'motion/react';
 import React, { useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
@@ -8,7 +11,7 @@ import { cn } from '~/utils/shadcn';
 export type DialogProps = {
   title: string;
   description?: string;
-  ref?: React.RefObject<HTMLDialogElement>;
+  ref?: React.RefObject<HTMLDialogElement | null>;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
 } & React.DialogHTMLAttributes<HTMLDialogElement>;
@@ -48,19 +51,23 @@ export const Dialog = ({
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onClose={closeDialog} // Needed so that closing via keyboard still returns a value
+      style={{
+        transition: `all ${spring(0.35, 0.5).toString()} allow-discrete`, // No way to do this with TW, I think?
+      }}
       className={cn(
-        // 'bg-transparent',
-        // 'allow-discrete opacity-0 transition-all duration-300 ease-out motion-safe:-translate-y-6',
-        // 'open:backdrop:bg-overlay/70 open:from:backdrop:bg-overlay/0 motion-safe:open:from:-translate-y-6 open:opacity-100 motion-safe:open:translate-y-0',
-        // 'backdrop:bg-overlay/0 backdrop:backdrop-blur-xs backdrop:transition-all backdrop:delay-100 backdrop:duration-300 backdrop:ease-out open:backdrop:delay-0',
-        'm-auto transition transition-discrete duration-300 not-open:opacity-0 starting:opacity-0',
+        'bg-transparent', // Or else rounded corner content will have white edges
+        'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
+        'backdrop:transition-opacity',
+        'backdrop:duration-300',
+        'backdrop:transition-discrete',
+        'm-auto transition-discrete not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
       )}
       {...rest}
     >
       <Surface
         level={0}
         className={cn(
-          'bg-surface-0 text-surface-0-foreground max-w-4xl rounded',
+          'text-surface-0-foreground max-w-4xl rounded bg-white',
 
           // Accent overrides the primary hue so that nested buttons inherit color
           accent === 'success' && '[--primary:var(--success)]',

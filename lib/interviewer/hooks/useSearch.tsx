@@ -68,7 +68,7 @@ const useSearch = <T extends UseItemElement>(
   const stageSearchOptions = useSelector(getSearchOptions);
   const nodeVariables = useSelector(getNodeVariables);
 
-  const delayRef = useRef<NodeJS.Timeout>();
+  const delayRef = useRef<NodeJS.Timeout>(undefined);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<T[]>(list);
   const [isWaiting, setIsWaiting] = useState(false);

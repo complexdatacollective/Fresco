@@ -2,7 +2,7 @@
 
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion, type MotionProps } from 'motion/react';
-import { type ElementType } from 'react';
+import { type ElementType, type JSX } from 'react';
 import { cn } from '~/utils/shadcn';
 
 export const surfaceVariants = cva('', {

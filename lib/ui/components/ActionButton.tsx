@@ -3,7 +3,7 @@ import { noop } from 'es-toolkit';
 import React, { type ButtonHTMLAttributes, type ReactElement } from 'react';
 import Icon from './Icon';
 
-const renderIcon = (icon: ReactElement | string | undefined) => {
+const renderIcon = (icon: ReactElement<any> | string | undefined) => {
   let iconElement = null;
   if (icon) {
     if (typeof icon === 'string') {
@@ -18,7 +18,7 @@ const renderIcon = (icon: ReactElement | string | undefined) => {
 type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   disabled?: boolean;
   onClick?: () => void;
-  icon?: string | ReactElement;
+  icon?: string | ReactElement<any>;
   color?: string;
   title?: string;
   showPlusButton?: boolean;

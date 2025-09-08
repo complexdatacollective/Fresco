@@ -35,7 +35,7 @@ type Dialog<T> = {
 type DialogState = Dialog<unknown> & {
   id: string;
   resolveCallback: (value: unknown) => void;
-  ref: RefObject<HTMLDialogElement>;
+  ref: RefObject<HTMLDialogElement | null>;
 };
 
 type DialogContextType = {
