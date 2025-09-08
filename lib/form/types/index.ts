@@ -47,7 +47,6 @@ export type FieldConfig = {
 
 export type FormSubmitHandler<T extends z.ZodType> = (
   values: Record<string, unknown>,
-  schema: T,
 ) => FormSubmissionResult<T> | Promise<FormSubmissionResult<T>>;
 
 export type FormConfig<T extends z.ZodType> = {
@@ -66,7 +65,7 @@ export type ValidationContext = {
  * These provide both type generation and runtime validation
  */
 type FormSubmissionResult<T extends z.ZodType> =
-  | { success: true; data: z.infer<T> }
+  | { success: true; errors?: never }
   | { success: false; errors: z.ZodError<z.infer<T>> };
 
 /**
