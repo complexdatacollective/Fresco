@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import React, {
   createContext,
   useCallback,
@@ -9,9 +8,8 @@ import React, {
   type RefObject,
 } from 'react';
 import { flushSync } from 'react-dom';
-import { Button } from '~/components/Button';
-import Form from '~/components/form/Form';
-import { generatePublicId } from '../generatePublicId';
+import { generatePublicId } from '~/utils/generatePublicId';
+import { Button } from '../ui/components';
 import { Dialog } from './Dialog';
 
 type ConfirmDialog = {
@@ -50,7 +48,6 @@ const DialogContext = createContext<DialogContextType | null>(null);
 const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const t = useTranslations('Generic');
   const [dialogs, setDialogs] = useState<DialogState[]>([]);
 
   const openDialog = useCallback(
@@ -121,23 +118,17 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               ref={dialog.ref}
             >
               {dialog.children}
-              <Form.Footer
-                primaryAction={
-                  <Button
-                    onClick={() => closeDialog(dialog.id, true)}
-                    color="primary"
-                  >
-                    {dialog.confirmText ?? t('Acknowledge')}
-                  </Button>
-                }
-                secondaryAction={
-                  !dialog.hideCancel && (
-                    <Button onClick={() => closeDialog(dialog.id, null)}>
-                      {dialog.cancelText ?? t('Cancel')}
-                    </Button>
-                  )
-                }
-              />
+              <Button
+                onClick={() => closeDialog(dialog.id, true)}
+                color="primary"
+              >
+                {dialog.confirmText ?? 'Acknowledge'}
+              </Button>
+              {!dialog.hideCancel && (
+                <Button onClick={() => closeDialog(dialog.id, null)}>
+                  {dialog.cancelText ?? 'Cancel'}
+                </Button>
+              )}
             </Dialog>
           );
         }

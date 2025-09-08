@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import type { StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { Button } from '~/components/Button';
-import Form from '~/components/form/Form';
+import { fn } from 'storybook/test';
+import { Button } from '../ui/components';
 import { useDialog } from './DialogProvider';
 
 const meta = {
@@ -74,16 +73,12 @@ export const Default: Story = {
           };
 
           return (
-            <Form.Footer
-              primaryAction={
-                <Button onClick={handleConfirm} color="primary">
-                  Do a dangerous thing
-                </Button>
-              }
-              secondaryAction={
-                <Button onClick={() => resolve(null)}>Cancel</Button>
-              }
-            />
+            <>
+              <Button onClick={handleConfirm} color="primary">
+                Do a dangerous thing
+              </Button>
+              <Button onClick={() => resolve(null)}>Cancel</Button>
+            </>
           );
         },
       });

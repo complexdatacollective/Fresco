@@ -1,11 +1,7 @@
 import { type Meta, type StoryFn } from '@storybook/react';
-import ActionButton from '~/components/interview/ActionButton';
-import {
-  type NodeColor,
-  NodeColors,
-  type NodeIcon,
-  NodeIcons,
-} from '~/schemas/protocol/entities';
+import NodeIcons from 'lucide-react/dynamicIconImports';
+import ActionButton, { NodeIcon } from '~/components/interview/ActionButton';
+import { NodeColors, NodeColorSequence } from '~/lib/ui/components/Node';
 
 export default {
   title: 'Interview/ActionButton',
@@ -19,7 +15,7 @@ export default {
       control: {
         type: 'select',
       },
-      options: NodeIcons,
+      options: Object.keys(NodeIcons),
     },
     color: {
       control: {
@@ -40,12 +36,12 @@ export default {
 
 const Template: StoryFn<{
   iconName: NodeIcon;
-  color: NodeColor;
+  color: NodeColorSequence;
   onClick: () => void;
 }> = (args) => <ActionButton {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
   iconName: 'user-round',
-  color: 'node-1',
+  color: 'node-color-seq-1',
 };

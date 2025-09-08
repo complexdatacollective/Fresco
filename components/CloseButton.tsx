@@ -1,20 +1,19 @@
 import { X } from 'lucide-react';
-import { cn } from '~/lib/utils';
-import { Button } from './Button';
-import { useTranslations } from 'next-intl';
+import { type ComponentProps } from 'react';
+import { cn } from '~/utils/shadcn';
+import { Button } from './ui/Button';
 
 type CloseButtonProps = {
   className?: string;
-} & React.ComponentProps<typeof Button>;
+} & ComponentProps<typeof Button>;
 
 export default function CloseButton(props: CloseButtonProps) {
   const { className, ...rest } = props;
-  const t = useTranslations('Generic');
   return (
     <Button
       {...rest}
-      title={t('Close')}
-      variant="text"
+      title="Close"
+      variant="outline"
       size="icon"
       className={cn('absolute top-2 ltr:right-2 rtl:left-2', className)}
     >

@@ -1,9 +1,8 @@
-import { type VariantProps, tv } from 'tailwind-variants';
-import type { ElementType, ComponentPropsWithoutRef } from 'react';
-import { cn } from '~/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
+import type { ComponentPropsWithoutRef, ElementType } from 'react';
+import { cn } from '~/utils/shadcn';
 
-const containerVariants = tv({
-  base: 'mx-4 md:mx-auto',
+const containerVariants = cva('mx-4 md:mx-auto', {
   variants: {
     maxWidth: {
       'xl': 'max-w-xl',

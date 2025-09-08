@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { Button } from '~/components/Button';
-import Form from '~/components/form/Form';
+import { fn } from 'storybook/test';
+import { Button } from '../ui/components';
 import { Dialog, type DialogProps } from './Dialog';
 
 const meta: Meta<typeof Dialog> = {
@@ -28,13 +27,6 @@ const meta: Meta<typeof Dialog> = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <div className="flex h-72 items-center">
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default meta;
@@ -43,14 +35,10 @@ type Story = StoryObj<typeof Dialog>;
 const DialogTemplate = (args: DialogProps) => (
   <Dialog {...args} open ref={undefined}>
     <p>This is the content inside the dialog.</p>
-    <Form.Footer
-      primaryAction={
-        <Button color="primary" onClick={args.closeDialog}>
-          Continue
-        </Button>
-      }
-      secondaryAction={<Button onClick={args.closeDialog}>Cancel</Button>}
-    />
+    <Button color="primary" onClick={args.closeDialog}>
+      Continue
+    </Button>
+    <Button onClick={args.closeDialog}>Cancel</Button>
   </Dialog>
 );
 

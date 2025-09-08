@@ -2,7 +2,7 @@
 
 import type { Meta, StoryFn } from '@storybook/react';
 import { type ElementType } from 'react';
-import { Button } from '~/components/Button';
+import { Button } from '../ui/Button';
 import Surface, { MotionSurface, type SurfaceVariants } from './Surface';
 
 // Define the metadata for the Storybook
@@ -127,7 +127,7 @@ export const MotionSurfaceExample: StoryFn<typeof Surface> = () => (
 
 // **New Story: Nested Surfaces**
 export const NestedSurfaces: StoryFn<typeof Surface> = () => (
-  <div className="bg-background p-10 text-foreground">
+  <div className="bg-background text-foreground p-10">
     <div className="flex items-center gap-10">
       Background
       <Button color="default">Default Button</Button>
