@@ -220,7 +220,7 @@ const QuickAdd = ({
                   fieldContext.state.meta.isValid && !!fieldContext.state.value
                 }
                 color={nodeColor}
-                handleClick={async () => {
+                onClick={async () => {
                   if (
                     fieldContext.state.value &&
                     !disabled &&

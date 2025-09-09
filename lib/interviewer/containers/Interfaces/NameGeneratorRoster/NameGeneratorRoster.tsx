@@ -16,7 +16,7 @@ import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/pro
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
   getNetworkNodesForPrompt,
-  getNodeColor,
+  getNodeColorSelector,
   getStageNodeCount,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
@@ -82,8 +82,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const codebookForNodeType = useSelector(getCodebookVariablesForSubjectType);
   const nodesForPrompt = useSelector(getNetworkNodesForPrompt);
 
-  const nodeType = stage.subject.type;
-  const dropNodeColor = useSelector(getNodeColor(nodeType));
+  const dropNodeColor = useSelector(getNodeColorSelector);
 
   const { status: itemsStatus, items, excludeItems } = useItems(props);
 
