@@ -1,8 +1,9 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { noop } from 'es-toolkit';
 import { find } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
-import { memo, type ReactNode } from 'react';
+import { memo, type ComponentProps, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import {
   useDndStore,
@@ -10,14 +11,16 @@ import {
   useDropTarget,
   type DndStore,
 } from '~/lib/dnd';
+import { type DropCallback } from '~/lib/dnd/types';
 import { cn } from '~/utils/shadcn';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
-type DraggableMotionNodeProps = {
+type DraggableMotionNodeProps = ComponentProps<typeof MotionNode> & {
   node: NcNode;
   itemType: string;
   allowDrag: boolean;
+  nodeSize?: 'sm' | 'md' | 'lg';
   [key: string]: unknown;
 };
 
@@ -91,8 +94,8 @@ type NodeListProps = {
   hoverColor?: string;
   onItemClick?: (node: NcNode) => void;
   id?: string;
-  accepts?: (data: unknown) => boolean;
-  onDrop?: (data: { meta: unknown }) => void;
+  accepts?: string[];
+  onDrop?: DropCallback;
   nodeSize?: 'sm' | 'md' | 'lg';
   className?: string;
 };
@@ -105,8 +108,8 @@ const NodeList = memo(
     hoverColor,
     onItemClick = () => undefined,
     id,
-    accepts: _accepts,
-    onDrop,
+    accepts = ['node'],
+    onDrop = noop,
     nodeSize = 'md',
     className,
   }: NodeListProps) => {
@@ -115,13 +118,9 @@ const NodeList = memo(
     // Use new DND hooks
     const { dropProps, isOver, willAccept } = useDropTarget({
       id: id ?? 'node-list',
-      accepts: ['node'],
+      accepts,
       announcedName: 'Node list',
-      onDrop: (metadata) => {
-        if (onDrop) {
-          onDrop({ meta: metadata });
-        }
-      },
+      onDrop,
     });
 
     const dragItem = useDndStore((state: DndStore) => state.dragItem);

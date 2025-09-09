@@ -261,11 +261,8 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
                 id="node-list"
                 className={nodeListClasses}
                 itemType="ADDED_NODES"
-                accepts={({
-                  meta: { itemType },
-                }: {
-                  meta: { itemType: string };
-                }) => itemType !== 'ADDED_NODES'}
+                accepts={['ADDED_NODES']}
+                // @ts-expect-error not yet implemented
                 onDrop={handleAddNode}
                 items={nodesForPrompt}
                 itemComponent={Node}

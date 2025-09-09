@@ -7,7 +7,7 @@ import {
   entitySecureAttributesMeta,
   type NcNode,
 } from '@codaco/shared-consts';
-import { get, has } from 'es-toolkit/compat';
+import { has } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
@@ -260,10 +260,9 @@ const NameGenerator = (props: NameGeneratorProps) => {
               items={nodesForPrompt}
               listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
               id="MAIN_NODE_LIST"
-              accepts={({ meta }: { meta: { itemType: string | null } }) =>
-                get(meta, 'itemType', null) === 'NEW_NODE'
-              }
+              accepts={['NEW_NODE']}
               itemType="EXISTING_NODE"
+              // @ts-expect-error not yet implemented
               onDrop={handleDropNode}
               onItemClick={handleSelectNode}
             />
