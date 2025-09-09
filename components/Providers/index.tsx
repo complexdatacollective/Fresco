@@ -1,3 +1,5 @@
+'use client';
+
 import { MotionConfig } from 'motion/react';
 import { type ReactNode } from 'react';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
