@@ -87,7 +87,7 @@ export const States: StoryFn<typeof Node> = () => (
     <Node label="Default" />
     <Node label="Selected" selected />
     <Node label="Loading" loading />
-    <Node label="Disabled" disabled />
+    <Node label="Disabled" disabled={true} />
     <Node label="Linking" linking />
   </div>
 );

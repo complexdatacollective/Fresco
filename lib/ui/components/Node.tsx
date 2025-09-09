@@ -22,7 +22,9 @@ type UINodeProps = {
   linking?: boolean;
   loading?: boolean;
   size?: 'sm' | 'md' | 'lg';
-} & HTMLAttributes<HTMLButtonElement>;
+} & Omit<HTMLAttributes<HTMLButtonElement>, 'color'> & {
+    disabled?: boolean;
+  };
 
 /**
  * Renders a Node.
@@ -35,6 +37,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     linking = false,
     loading = false,
     size = 'md',
+    ...buttonProps
   } = props;
   const classes = cn(
     'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300 spring-[0.2,0.5]',
@@ -76,7 +79,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     label.length < 22 ? label : `${label.substring(0, 18)}\u{AD}...`; // Add ellipsis for really long labels
 
   return (
-    <button className={classes} ref={ref} aria-label={label} {...props}>
+    <button className={classes} ref={ref} aria-label={label} {...buttonProps}>
       {loading && <Loader2 className="animate-spin" size={24} />}
       {!loading && <span className={labelClasses}>{labelWithEllipsis}</span>}
     </button>
