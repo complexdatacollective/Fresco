@@ -164,9 +164,10 @@ function NodePanels(props: NodePanelsProps) {
         key={index}
         panelConfig={panel}
         disableDragging={disableAddNew}
-        accepts={() => isPanelCompatible(index)}
+        accepts={['EXISTING_NODE']} // TODO: needs to adapt based on panel source
         highlightColor={getHighlight(index)}
         minimize={!isPanelOpen(index)}
+        // @ts-expect-error not yet implemented
         onDrop={handleDrop}
         onUpdate={handlePanelUpdate(index)}
         id={`PANEL_NODE_LIST_${index}`}

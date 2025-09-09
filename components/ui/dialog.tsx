@@ -3,10 +3,9 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import * as React from 'react';
-
 import { cx } from '~/utils/cva';
-import Heading from './typography/Heading';
-import { paragraphVariants } from './typography/Paragraph';
+import Heading from '../typography/Heading';
+import { paragraphVariants } from '../typography/Paragraph';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -132,5 +131,6 @@ export {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 };
+

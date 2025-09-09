@@ -5,9 +5,9 @@ import * as React from 'react';
 
 import { buttonVariants } from '~/components/ui/Button';
 import { cx, type VariantProps } from '~/utils/cva';
+import Heading from '../typography/Heading';
+import { paragraphVariants } from '../typography/Paragraph';
 import { dialogContentClasses, dialogOverlayClasses } from './dialog';
-import Heading from './typography/Heading';
-import { paragraphVariants } from './typography/Paragraph';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -142,5 +142,6 @@ export {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 };
+

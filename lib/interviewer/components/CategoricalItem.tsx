@@ -64,7 +64,7 @@ const CategoricalItem = ({
   );
 
   const sortedNodes = useMemo(
-    () => createSorter(sortOrder)(nodes),
+    () => createSorter<NcNode>(sortOrder)(nodes),
     [nodes, sortOrder],
   );
   return (
@@ -92,7 +92,6 @@ const CategoricalItem = ({
           {isExpanded && (
             <div className="categorical-item__content">
               <NodeList
-                listId={`CATBIN_NODE_LIST_${label}`}
                 id={`CATBIN_NODE_LIST_${label}`}
                 onItemClick={onClickItem}
                 items={sortedNodes}

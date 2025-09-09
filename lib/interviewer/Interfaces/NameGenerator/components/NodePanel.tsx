@@ -1,8 +1,9 @@
 import { type Panel as PanelType } from '@codaco/protocol-validation';
-import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { type DropCallback } from '~/lib/dnd/types';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import useExternalData from '../../../hooks/useExternalData';
@@ -13,13 +14,12 @@ import { type HighlightColor } from './NodePanels';
 type NodePanelProps = {
   panelConfig: PanelType;
   disableDragging: boolean;
-  accepts: () => boolean;
+  accepts: string[];
   highlightColor: HighlightColor;
   minimize: boolean;
-  onDrop: (item: { meta: NcNode }, dataSource: string) => void;
+  onDrop: DropCallback;
   onUpdate: (nodeCount: number, nodeIndex: Set<string>) => void;
   id: string;
-  listId: string;
 };
 
 function NodePanel(props: NodePanelProps) {
@@ -30,11 +30,11 @@ function NodePanel(props: NodePanelProps) {
     panelConfig,
     onDrop,
     minimize,
-    listId,
     accepts,
   } = props;
 
   const stageSubject = useSelector(getStageSubject);
+
   const { externalData } = useExternalData(
     panelConfig.dataSource,
     stageSubject,
@@ -56,10 +56,6 @@ function NodePanel(props: NodePanelProps) {
     onUpdate(nodes.length, fullNodeIndex);
   }, [nodes.length, onUpdate, fullNodeIndex]);
 
-  const handleDrop = (item: { meta: NcNode; target: NcNode }) => {
-    return onDrop(item, panelConfig.dataSource);
-  };
-
   return (
     <Panel
       title={panelConfig.title}
@@ -68,11 +64,12 @@ function NodePanel(props: NodePanelProps) {
     >
       <NodeList
         items={nodes}
-        listId={listId}
         id={id}
-        itemType="NEW_NODE"
-        onDrop={handleDrop}
+        itemType="NEW_NODE" // TODO - this should changed based on panel's data source
+        onDrop={onDrop}
         accepts={accepts}
+        nodeSize="sm"
+        className="gap-4 p-4"
       />
     </Panel>
   );

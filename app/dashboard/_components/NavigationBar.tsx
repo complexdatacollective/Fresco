@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
-import Heading from '~/components/ui/typography/Heading';
+import Heading from '~/components/typography/Heading';
 import { env } from '~/env';
 import { cx } from '~/utils/cva';
 import UserMenu from './UserMenu';

@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/nextjs';
-import { FormStoreProvider } from '../lib/form/store/formStoreProvider';
+import Providers from '../components/Providers';
 import '../styles/globals.css';
 
 const preview: Preview = {
@@ -26,9 +26,9 @@ const preview: Preview = {
   },
   decorators: [
     (Story) => (
-      <FormStoreProvider>
+      <Providers>
         <Story />
-      </FormStoreProvider>
+      </Providers>
     ),
   ],
 };

@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import Heading from './typography/Heading';
-import { paragraphVariants } from './typography/Paragraph';
+import Heading from '../typography/Heading';
+import { paragraphVariants } from '../typography/Paragraph';
 
 const alertVariants = cva({
   base: 'relative w-full bg-card text-foreground rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground gap-2 grid my-6',

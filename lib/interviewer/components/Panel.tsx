@@ -29,10 +29,10 @@ const Panel = ({
     setCollapsed((value) => !value);
   }, [setCollapsed, noCollapse]);
 
-  const panelClasses = cx(
-    'panel',
+  const panelClasses = cn(
+    'panel shadow-xl',
     'flex flex-col grow shrink-0 basis-[5rem] bg-[var(--nc-panel-bg-muted)] border-b-[0.5rem] rounded-[var(--nc-border-radius)] mb-4 overflow-hidden',
-    'transition-all easing-in-out duration-300',
+    'transition-all easing-in-out duration-500',
     'last:mb-0',
     highlight === null && 'border-b-0',
     minimize && 'border-b-0 basis-0 grow-0 mb-0 opacity-0',

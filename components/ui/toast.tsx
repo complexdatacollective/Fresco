@@ -1,9 +1,8 @@
 import * as ToastPrimitives from '@radix-ui/react-toast';
-import { cva, type VariantProps } from '~/utils/cva';
 import { X } from 'lucide-react';
 import * as React from 'react';
-import { cx } from '~/utils/cva';
-import Heading from './typography/Heading';
+import { cva, cx, type VariantProps } from '~/utils/cva';
+import Heading from '../typography/Heading';
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -129,5 +128,6 @@ export {
   ToastTitle,
   ToastViewport,
   type ToastActionElement,
-  type ToastProps,
+  type ToastProps
 };
+

@@ -1,8 +1,8 @@
 import { type Dispatch, type SetStateAction } from 'react';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { cardClasses } from '~/components/ui/card';
 import { Switch } from '~/components/ui/switch';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { cx } from '~/utils/cva';
 

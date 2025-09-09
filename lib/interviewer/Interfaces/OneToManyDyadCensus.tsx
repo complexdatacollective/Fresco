@@ -193,7 +193,7 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
                     <MotionNode
                       {...node}
                       selected={selected}
-                      handleClick={handleNodeClick(source, node)}
+                      onClick={handleNodeClick(source, node)}
                       layoutId={node[entityPrimaryKeyProperty]}
                       key={`${node[entityPrimaryKeyProperty]}-${promptIndex}`}
                     />

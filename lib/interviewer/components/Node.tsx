@@ -3,7 +3,7 @@ import { isEqual } from 'es-toolkit';
 import { motion } from 'motion/react';
 import React, { forwardRef, memo } from 'react';
 import { useSelector } from 'react-redux';
-import { getNodeColor } from '~/lib/interviewer/selectors/session';
+import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/Node';
 import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';
 
@@ -12,8 +12,7 @@ const Node = memo(
     React.ElementRef<typeof UINode>,
     NcNode & React.ComponentProps<typeof UINode>
   >((props: NcNode & React.ComponentProps<typeof UINode>, ref) => {
-    const { type } = props;
-    const color = useSelector(getNodeColor(type));
+    const color = useSelector(getNodeColorSelector);
     const label = useNodeLabel(props);
 
     return <UINode color={color} {...props} label={label} ref={ref} />;

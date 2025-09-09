@@ -12,9 +12,9 @@ import {
 
 import { PopoverTrigger } from '@radix-ui/react-popover';
 import { Check, Copy } from 'lucide-react';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { Popover, PopoverContent } from '~/components/ui/popover';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { useToast } from '~/components/ui/use-toast';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 

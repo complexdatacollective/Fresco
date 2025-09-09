@@ -9,9 +9,9 @@ import trackEvent from '~/lib/analytics';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsSection from './layout/SettingsSection';
+import Heading from './typography/Heading';
+import Paragraph from './typography/Paragraph';
 import { Button } from './ui/Button';
-import Heading from './ui/typography/Heading';
-import Paragraph from './ui/typography/Paragraph';
 
 const GithubApiResponseSchema = z
   .object({

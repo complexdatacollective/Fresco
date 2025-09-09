@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { cx } from '~/utils/cva';
 import Banner from '../Banner/Banner';
+import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
 import { CloseButton } from '../ui/CloseButton';
-import Paragraph from '../ui/typography/Paragraph';
 import FeedbackButton from './FeedbackButton';
 import SignOutModal from './SignOutModal';
 

@@ -10,7 +10,7 @@ import { loginSchema } from '~/schemas/auth';
 export const SignInForm = () => {
   const router = useRouter();
 
-  const handleSubmit: FormSubmitHandler = async (data) => {
+  const handleSubmit: FormSubmitHandler<typeof loginSchema> = async (data) => {
     const result = await login(data);
 
     if (result.success === true) {

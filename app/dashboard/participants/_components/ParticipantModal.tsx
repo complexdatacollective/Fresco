@@ -8,6 +8,8 @@ import { useState, type Dispatch, type SetStateAction } from 'react';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -16,12 +18,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
-import { type FormSubmitHandler } from '~/lib/form/types';
 import { useFormStore } from '~/lib/form/store/formStoreProvider';
+import { type FormSubmitHandler } from '~/lib/form/types';
 import {
   participantIdentifierSchema,
   participantLabelSchema,

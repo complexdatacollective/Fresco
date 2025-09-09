@@ -2,7 +2,7 @@
 
 import { Check } from 'lucide-react';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import Heading from '~/components/ui/typography/Heading';
+import Heading from '~/components/typography/Heading';
 import { cx } from '~/utils/cva';
 
 function OnboardSteps({ steps }: { steps: string[] }) {

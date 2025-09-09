@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { cx } from '~/utils/cva';
+import Heading from '../typography/Heading';
 import { Skeleton } from '../ui/skeleton';
-import Heading from '../ui/typography/Heading';
 import Section from './Section';
 
 export default function SettingsSection({

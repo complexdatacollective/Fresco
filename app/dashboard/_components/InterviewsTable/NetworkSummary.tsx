@@ -1,17 +1,8 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import type { NcNetwork } from '@codaco/shared-consts';
+import { type NodeColorSequence } from '~/lib/ui/components/Node';
 
 import { cx } from '~/utils/cva';
-
-type NodeColorSequence =
-  | 'node-color-seq-1'
-  | 'node-color-seq-2'
-  | 'node-color-seq-3'
-  | 'node-color-seq-4'
-  | 'node-color-seq-5'
-  | 'node-color-seq-6'
-  | 'node-color-seq-7'
-  | 'node-color-seq-8';
 
 type EdgeColorSequence =
   | 'edge-color-seq-1'
