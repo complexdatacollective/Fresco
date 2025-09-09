@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useId } from 'react';
+import React, { forwardRef, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
@@ -10,7 +10,6 @@ import { cn } from '~/utils/shadcn';
 export type DialogProps = {
   title: string;
   description?: string;
-  ref?: React.RefObject<HTMLDialogElement | null>;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
 } & React.DialogHTMLAttributes<HTMLDialogElement>;
@@ -33,15 +32,14 @@ export type DialogProps = {
  *   can't be read from the dialog itself (although _can_ be read by mutation
  *   observer... but that's a bit much)
  */
-export const Dialog = ({
+export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(({
   title,
   description,
   children,
-  ref,
   closeDialog,
   accent,
   ...rest
-}: DialogProps) => {
+}, ref) => {
   const id = useId();
   // TODO: automatic focus on least destructive action, or initialFocusEl ref.
   return (
@@ -85,4 +83,6 @@ export const Dialog = ({
       </Surface>
     </dialog>
   );
-};
+});
+
+Dialog.displayName = 'Dialog';
