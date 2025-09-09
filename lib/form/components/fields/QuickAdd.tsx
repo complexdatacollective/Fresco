@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useFieldContext } from '~/lib/form/utils/formContexts';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
-  getNodeColor,
+  getNodeColorSelector,
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
@@ -67,7 +67,7 @@ const QuickAdd = ({
 
   const [showTooltip, setShowTooltip] = useState(false);
   const subject = useSelector(getStageSubject)!;
-  const nodeColor = useSelector(getNodeColor(subject.type));
+  const nodeColor = useSelector(getNodeColorSelector);
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const icon = useSelector(getNodeIconName);
 

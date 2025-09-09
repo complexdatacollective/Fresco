@@ -104,6 +104,10 @@
   --color-border: hsl(var(--border));
   --color-link: hsl(var(--link));
 
+  --color-overlay: hsl(var(--overlay));
+
+  --color-selected: hsl(var(--selected));
+
   /* interviewer - node sequence colors */
   --node-color-seq-1: var(--color-neon-coral);
   --node-color-seq-1-dark: var(--color-neon-coral-dark);
@@ -176,6 +180,7 @@
   --animate-indeterminate-progress-bar: indeterminate-progress-bar 1s infinite
     linear;
   --animate-background-gradient: background-gradient 5s infinite ease-in-out;
+  --animate-linking: linking 1s ease-in-out infinite;
 
   --transform-origin-left-right: 0% 50%;
 
@@ -241,6 +246,20 @@
     40%,
     60% {
       transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  @keyframes linking {
+    0% {
+      transform: scale(0.8);
+    }
+
+    50% {
+      transform: scale(1);
+    }
+
+    100% {
+      transform: scale(0.8);
     }
   }
 }
@@ -448,6 +467,8 @@
     --popover-foreground: var(--foreground);
 
     --overlay: var(--platinum);
+
+    --selected: var(--mustard);
 
     /* Surfaces */
     --surface-0: var(--white);
