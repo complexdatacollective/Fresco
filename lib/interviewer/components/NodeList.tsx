@@ -11,7 +11,6 @@ import {
   type DndStore,
 } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
-import scrollable from '../behaviours/scrollable';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
@@ -24,7 +23,13 @@ type DraggableMotionNodeProps = {
 
 // DraggableMotionNode component that wraps MotionNode with drag functionality
 const DraggableMotionNode = memo(
-  ({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
+  ({
+    node,
+    itemType,
+    allowDrag,
+    nodeSize,
+    ...nodeProps
+  }: DraggableMotionNodeProps) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -34,7 +39,7 @@ const DraggableMotionNode = memo(
 
     return (
       <div {...dragProps}>
-        <MotionNode {...node} {...nodeProps} />
+        <MotionNode {...node} {...nodeProps} size={nodeSize} />
       </div>
     );
   },
@@ -88,6 +93,8 @@ type NodeListProps = {
   id?: string;
   accepts?: (data: unknown) => boolean;
   onDrop?: (data: { meta: unknown }) => void;
+  nodeSize?: 'sm' | 'md' | 'lg';
+  className?: string;
 };
 
 const NodeList = memo(
@@ -100,6 +107,8 @@ const NodeList = memo(
     id,
     accepts: _accepts,
     onDrop,
+    nodeSize = 'md',
+    className,
   }: NodeListProps) => {
     const stageId = useSelector(getCurrentStageId);
 
@@ -127,11 +136,12 @@ const NodeList = memo(
     const isHovering = isValidTarget && isOver;
 
     const classNames = cn(
-      'flex flex-wrap justify-center min-h-full w-full transition-background duration-300 content-start rounded-md',
+      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
       willAccept && 'bg-[var(--nc-node-list-action-bg)]',
       isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
+      className,
     );
 
     return (
@@ -156,6 +166,7 @@ const NodeList = memo(
                   allowDrag={isDraggable}
                   layout
                   onClick={() => onItemClick(node)}
+                  nodeSize={nodeSize}
                 />
               </motion.div>
             );
@@ -179,4 +190,4 @@ const NodeList = memo(
 
 NodeList.displayName = 'NodeList';
 
-export default scrollable(NodeList);
+export default NodeList;

@@ -42,10 +42,10 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   const classes = cn(
     'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300 spring-[0.2,0.5]',
     'disabled:saturate-50 disabled:cursor-not-allowed',
-    'text-white',
-    size === 'sm' && 'h-24 w-24',
-    size === 'md' && 'h-32 w-32',
-    size === 'lg' && 'h-40 w-40',
+    'text-white text-lg font-semibold',
+    size === 'sm' && 'h-32 w-32',
+    size === 'md' && 'h-40 w-40',
+    size === 'lg' && 'h-48 w-48',
     '[--base:var(--node-color-seq-1)] [--dark:var(--node-color-seq-1-dark)]',
     color === 'node-color-seq-1' &&
       '[--base:var(--node-color-seq-1)] [--dark:var(--node-color-seq-1-dark)]',
@@ -72,7 +72,6 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
 
   const labelClasses = cn(
     'whitespace-pre-line overflow-hidden text-center hyphens-auto text-wrap break-all px-2',
-    size === 'sm' ? 'text-sm' : 'text-base',
   );
 
   const labelWithEllipsis =

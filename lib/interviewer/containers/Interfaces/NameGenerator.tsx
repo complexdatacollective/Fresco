@@ -246,36 +246,42 @@ const NameGenerator = (props: NameGeneratorProps) => {
   const stageElement = document.getElementById('stage');
 
   return (
-    <div className="name-generator-interface" ref={interfaceRef}>
-      <div className="name-generator-interface__prompt">
-        <Prompts />
-      </div>
-      <div className="name-generator-interface__main">
-        <div className="name-generator-interface__panels">
-          <NodePanels disableAddNew={maxNodesReached} />
+    <>
+      <div className="name-generator-interface" ref={interfaceRef}>
+        <div className="name-generator-interface__prompt">
+          <Prompts />
         </div>
-        <div className="name-generator-interface__nodes">
-          <NodeList
-            items={nodesForPrompt}
-            listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
-            id="MAIN_NODE_LIST"
-            accepts={({ meta }: { meta: { itemType: string | null } }) =>
-              get(meta, 'itemType', null) === 'NEW_NODE'
+        <div className="name-generator-interface__main">
+          <div className="name-generator-interface__panels">
+            <NodePanels disableAddNew={maxNodesReached} />
+          </div>
+          <div className="name-generator-interface__nodes">
+            <NodeList
+              items={nodesForPrompt}
+              listId={`${stage.id}_${promptIndex}_MAIN_NODE_LIST`}
+              id="MAIN_NODE_LIST"
+              accepts={({ meta }: { meta: { itemType: string | null } }) =>
+                get(meta, 'itemType', null) === 'NEW_NODE'
+              }
+              itemType="EXISTING_NODE"
+              onDrop={handleDropNode}
+              onItemClick={handleSelectNode}
+            />
+          </div>
+        </div>
+      </div>
+      {stageElement &&
+        createPortal(
+          <NodeBin
+            accepts={(node: NcNode & { itemType?: string }) =>
+              node.itemType === 'EXISTING_NODE'
             }
-            itemType="EXISTING_NODE"
-            onDrop={handleDropNode}
-            onItemClick={handleSelectNode}
-          />
-        </div>
-      </div>
-      <NodeBin
-        accepts={(node: NcNode & { itemType?: string }) =>
-          node.itemType === 'EXISTING_NODE'
-        }
-        dropHandler={(meta: NcNode) =>
-          deleteNode(meta[entityPrimaryKeyProperty])
-        }
-      />
+            dropHandler={(meta: NcNode) =>
+              deleteNode(meta[entityPrimaryKeyProperty])
+            }
+          />,
+          stageElement,
+        )}
       {stageElement &&
         createPortal(
           <MaxNodesMet show={maxNodesReached} timeoutDuration={0} />,
@@ -307,7 +313,7 @@ const NameGenerator = (props: NameGeneratorProps) => {
           addNode={addNode}
         />
       )}
-    </div>
+    </>
   );
 };
 

@@ -41,6 +41,7 @@ function NodePanel(props: NodePanelProps) {
     StageSubject,
     { entity: 'node' }
   >;
+
   const { externalData } = useExternalData(
     panelConfig.dataSource,
     stageSubject,
@@ -79,6 +80,8 @@ function NodePanel(props: NodePanelProps) {
         itemType="NEW_NODE"
         onDrop={handleDrop}
         accepts={accepts}
+        nodeSize="sm"
+        className="gap-4 p-4"
       />
     </Panel>
   );
