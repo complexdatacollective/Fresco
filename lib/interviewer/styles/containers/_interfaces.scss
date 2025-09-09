@@ -11,8 +11,7 @@
 // positioned child elements aren't clipped by overflow hidden.
 @mixin interface-centering {
   display: flex;
-  flex: 1;
+  flex: 1 0 100%;
   overflow: hidden;
-  padding: units.unit(2) units.unit(4);
   position: relative;
 }

@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
 import AnonymousRecruitmentSwitch from '~/components/AnonymousRecruitmentSwitch';
 import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import SettingsSection from '~/components/layout/SettingsSection';
 import LimitInterviewsSwitch from '~/components/LimitInterviewsSwitch';
 import Link from '~/components/Link';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
 import ToggleSmallScreenWarning from '~/components/ToggleSmallScreenWarning';
+import PageHeader from '~/components/typography/PageHeader';
+import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import PageHeader from '~/components/ui/typography/PageHeader';
-import Paragraph from '~/components/ui/typography/Paragraph';
 import VersionSection, {
   VersionSectionSkeleton,
 } from '~/components/VersionSection';

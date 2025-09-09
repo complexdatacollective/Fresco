@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { cn } from '~/utils/shadcn';
-import Heading from './typography/Heading';
+import Heading from '../typography/Heading';
 
 export const cardClasses =
   'rounded-xl border border-[hsl(var(--platinum--dark))] bg-card text-card-foreground';

@@ -5,6 +5,7 @@
 @plugin '@tailwindcss/container-queries';
 @plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';
+@plugin './tailwind-motion-spring';
 
 @theme {
   --color-*: initial;
@@ -103,6 +104,10 @@
   --color-border: hsl(var(--border));
   --color-link: hsl(var(--link));
 
+  --color-overlay: hsl(var(--overlay));
+
+  --color-selected: hsl(var(--selected));
+
   /* interviewer - node sequence colors */
   --node-color-seq-1: var(--color-neon-coral);
   --node-color-seq-1-dark: var(--color-neon-coral-dark);
@@ -175,6 +180,7 @@
   --animate-indeterminate-progress-bar: indeterminate-progress-bar 1s infinite
     linear;
   --animate-background-gradient: background-gradient 5s infinite ease-in-out;
+  --animate-linking: linking 1s ease-in-out infinite;
 
   --transform-origin-left-right: 0% 50%;
 
@@ -240,6 +246,20 @@
     40%,
     60% {
       transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  @keyframes linking {
+    0% {
+      transform: scale(0.8);
+    }
+
+    50% {
+      transform: scale(1);
+    }
+
+    100% {
+      transform: scale(0.8);
     }
   }
 }
@@ -445,6 +465,26 @@
 
     --popover: var(--white);
     --popover-foreground: var(--foreground);
+
+    --overlay: var(--platinum);
+
+    --selected: var(--mustard);
+
+    /* Surfaces */
+    --surface-0: var(--white);
+    --surface-0-foreground: var(--color-charcoal);
+
+    --surface-1: 97% 0.001 var(--cyber-grape-hue);
+    --surface-1-foreground: var(--color-charcoal);
+
+    --surface-2: 95% 0.001 var(--cyber-grape-hue);
+    --surface-2-foreground: var(--color-charcoal);
+
+    --surface-3: 93% 0.001 var(--cyber-grape-hue);
+    --surface-3-foreground: var(--color-charcoal);
+
+    --surface-4: 91% 0.001 var(--cyber-grape-hue);
+    --surface-4-foreground: var(--color-charcoal);
   }
 }
 

@@ -1,8 +1,9 @@
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { noop } from 'es-toolkit';
 import { find } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
-import { memo, type ReactNode } from 'react';
+import { memo, type ComponentProps, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import {
   useDndStore,
@@ -10,21 +11,28 @@ import {
   useDropTarget,
   type DndStore,
 } from '~/lib/dnd';
+import { type DropCallback } from '~/lib/dnd/types';
 import { cn } from '~/utils/shadcn';
-import scrollable from '../behaviours/scrollable';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
-type DraggableMotionNodeProps = {
+type DraggableMotionNodeProps = ComponentProps<typeof MotionNode> & {
   node: NcNode;
   itemType: string;
   allowDrag: boolean;
+  nodeSize?: 'sm' | 'md' | 'lg';
   [key: string]: unknown;
 };
 
 // DraggableMotionNode component that wraps MotionNode with drag functionality
 const DraggableMotionNode = memo(
-  ({ node, itemType, allowDrag, ...nodeProps }: DraggableMotionNodeProps) => {
+  ({
+    node,
+    itemType,
+    allowDrag,
+    nodeSize,
+    ...nodeProps
+  }: DraggableMotionNodeProps) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -34,7 +42,7 @@ const DraggableMotionNode = memo(
 
     return (
       <div {...dragProps}>
-        <MotionNode {...node} {...nodeProps} />
+        <MotionNode {...node} {...nodeProps} size={nodeSize} />
       </div>
     );
   },
@@ -86,8 +94,10 @@ type NodeListProps = {
   hoverColor?: string;
   onItemClick?: (node: NcNode) => void;
   id?: string;
-  accepts?: (data: unknown) => boolean;
-  onDrop?: (data: { meta: unknown }) => void;
+  accepts?: string[];
+  onDrop?: DropCallback;
+  nodeSize?: 'sm' | 'md' | 'lg';
+  className?: string;
 };
 
 const NodeList = memo(
@@ -98,21 +108,19 @@ const NodeList = memo(
     hoverColor,
     onItemClick = () => undefined,
     id,
-    accepts: _accepts,
-    onDrop,
+    accepts = ['node'],
+    onDrop = noop,
+    nodeSize = 'md',
+    className,
   }: NodeListProps) => {
     const stageId = useSelector(getCurrentStageId);
 
     // Use new DND hooks
     const { dropProps, isOver, willAccept } = useDropTarget({
       id: id ?? 'node-list',
-      accepts: ['node'],
+      accepts,
       announcedName: 'Node list',
-      onDrop: (metadata) => {
-        if (onDrop) {
-          onDrop({ meta: metadata });
-        }
-      },
+      onDrop,
     });
 
     const dragItem = useDndStore((state: DndStore) => state.dragItem);
@@ -127,11 +135,12 @@ const NodeList = memo(
     const isHovering = isValidTarget && isOver;
 
     const classNames = cn(
-      'flex flex-wrap justify-center min-h-full w-full transition-background duration-300 content-start rounded-md',
+      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
       willAccept && 'bg-[var(--nc-node-list-action-bg)]',
       isHovering && (hoverColor ? `bg-[var(${hoverColor})]` : 'bg-accent'),
+      className,
     );
 
     return (
@@ -156,6 +165,7 @@ const NodeList = memo(
                   allowDrag={isDraggable}
                   layout
                   onClick={() => onItemClick(node)}
+                  nodeSize={nodeSize}
                 />
               </motion.div>
             );
@@ -179,4 +189,4 @@ const NodeList = memo(
 
 NodeList.displayName = 'NodeList';
 
-export default scrollable(NodeList);
+export default NodeList;

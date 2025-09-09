@@ -3,9 +3,9 @@
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { login } from '~/actions/auth';
+import UnorderedList from '~/components/typography/UnorderedList';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
-import UnorderedList from '~/components/ui/typography/UnorderedList';
 import { useToast } from '~/components/ui/use-toast';
 import useZodForm from '~/hooks/useZodForm';
 import { loginSchema } from '~/schemas/auth';

@@ -1,8 +1,0 @@
-.panel {
-  --base-node-size: calc(var(--nc-base-font-size) * 6.6);
-
-  & .node-list--hover,
-  & .node-list--drag {
-    background-color: var(--nc-panel-selected-node-bg-color);
-  }
-}

@@ -6,9 +6,9 @@ import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 import { buttonVariants } from '~/components/ui/Button';
 import { cn } from '~/utils/shadcn';
+import Heading from '../typography/Heading';
+import { paragraphVariants } from '../typography/Paragraph';
 import { dialogContentClasses, dialogOverlayClasses } from './dialog';
-import Heading from './typography/Heading';
-import { paragraphVariants } from './typography/Paragraph';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 

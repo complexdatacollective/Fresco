@@ -1,6 +1,6 @@
 import { BadgeCheck } from 'lucide-react';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 
 export const dynamic = 'force-dynamic';
 

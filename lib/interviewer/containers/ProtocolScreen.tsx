@@ -262,7 +262,7 @@ export default function ProtocolScreen() {
   return (
     <>
       <motion.div
-        className="relative flex h-full w-full flex-1 flex-row overflow-hidden"
+        className="relative flex h-full w-full flex-1 flex-row gap-6 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >

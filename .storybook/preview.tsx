@@ -1,7 +1,8 @@
+import type { Preview } from '@storybook/nextjs';
+import Providers from '../components/Providers';
 import '../styles/globals.css';
 
-/** @type { import('@storybook/nextjs').Preview } */
-const preview = {
+const preview: Preview = {
   parameters: {
     controls: {
       matchers: {
@@ -23,6 +24,13 @@ const preview = {
       ],
     },
   },
+  decorators: [
+    (Story) => (
+      <Providers>
+        <Story />
+      </Providers>
+    ),
+  ],
 };
 
 export default preview;
