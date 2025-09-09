@@ -5,6 +5,7 @@
 @plugin '@tailwindcss/container-queries';
 @plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';
+@plugin './tailwind-motion-spring';
 
 @theme {
   --color-*: initial;

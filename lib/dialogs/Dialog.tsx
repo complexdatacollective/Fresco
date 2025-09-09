@@ -1,6 +1,5 @@
 'use client';
 
-import { spring } from 'motion/react';
 import React, { useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
@@ -51,10 +50,8 @@ export const Dialog = ({
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onClose={closeDialog} // Needed so that closing via keyboard still returns a value
-      style={{
-        transition: `all ${spring(0.35, 0.5).toString()} allow-discrete`, // No way to do this with TW, I think?
-      }}
       className={cn(
+        'spring-medium',
         'bg-transparent', // Or else rounded corner content will have white edges
         'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
         'backdrop:transition-opacity',
