@@ -1,5 +1,5 @@
-import ResponsiveContainer from '~/components/ResponsiveContainer';
 import { DataTableSkeleton } from '~/components/data-table/data-table-skeleton';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
 import PageHeader from '~/components/typography/PageHeader';

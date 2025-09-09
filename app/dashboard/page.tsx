@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';

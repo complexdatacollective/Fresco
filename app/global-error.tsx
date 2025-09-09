@@ -5,7 +5,7 @@ import Image from 'next/image';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
 import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import Link from '~/components/Link';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';

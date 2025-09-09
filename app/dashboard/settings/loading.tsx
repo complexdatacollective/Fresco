@@ -1,4 +1,4 @@
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import { SettingsSectionSkeleton } from '~/components/layout/SettingsSection';
 import PageHeader from '~/components/typography/PageHeader';
 import { ButtonSkeleton } from '~/components/ui/Button';

@@ -71,6 +71,7 @@
     "luxon": "^3.7.1",
     "mapbox-gl": "^3.13.0",
     "motion": "^12.23.12",
+    "nanoid": "^5.1.5",
     "next": "^14.2.32",
     "nuqs": "^1.20.0",
     "ohash": "^2.0.11",
@@ -113,10 +114,6 @@
   },
   "devDependencies": {
     "@prisma/client": "^6.15.0",
-    "@storybook/addon-docs": "^9.0.17",
-    "@storybook/addon-links": "^9.0.17",
-    "@storybook/addon-onboarding": "^9.0.17",
-    "@storybook/addon-vitest": "^9.1.5",
     "@storybook/nextjs": "^9.1.4",
     "@storybook/react": "^9.0.17",
     "@t3-oss/env-nextjs": "^0.13.8",

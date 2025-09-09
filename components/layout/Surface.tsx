@@ -5,7 +5,7 @@ import { motion, type MotionProps } from 'motion/react';
 import { type ElementType } from 'react';
 import { cn } from '~/utils/shadcn';
 
-export const surfaceVariants = cva('', {
+const surfaceVariants = cva('', {
   variants: {
     level: {
       // Level 0 is for dialogs and popovers

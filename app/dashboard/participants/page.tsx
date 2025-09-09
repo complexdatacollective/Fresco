@@ -1,5 +1,5 @@
 import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
-import ResponsiveContainer from '~/components/ResponsiveContainer';
+import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';

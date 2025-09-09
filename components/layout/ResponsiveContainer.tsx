@@ -1,54 +1,45 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import type { ComponentPropsWithoutRef, ElementType } from 'react';
+import { type VariantProps, cva } from 'class-variance-authority';
+import type { HTMLAttributes } from 'react';
 import { cn } from '~/utils/shadcn';
 
-const containerVariants = cva('mx-4 md:mx-auto', {
+const containerVariants = cva('mx-auto flex flex-col my-6 md:my-10', {
   variants: {
     maxWidth: {
       'xl': 'max-w-xl',
       '3xl': 'max-w-3xl',
-      '4xl': 'max-w-4xl',
       '5xl': 'max-w-5xl',
       '6xl': 'max-w-6xl',
       '7xl': 'max-w-7xl',
+      '8xl': 'max-w-8xl',
     },
     baseSize: {
-      '60%': 'md:w-[60%]',
-      '80%': 'md:w-[80%]',
-      '90%': 'md:w-[90%]',
-      '100%': 'md:w-[100%]',
+      '60%': 'w-[60%]',
+      '80%': 'w-[80%]',
+      '90%': 'w-[90%]',
+      '100%': 'w-[100%]',
+      'content': 'max-w-fit px-6',
     },
   },
   defaultVariants: {
-    maxWidth: '4xl',
+    maxWidth: '3xl',
     baseSize: '90%',
   },
 });
 
-type ContainerProps<T extends ElementType> = {
-  as?: T;
+type ContainerProps = {
   maxWidth?: VariantProps<typeof containerVariants>['maxWidth'];
   baseSize?: VariantProps<typeof containerVariants>['baseSize'];
-  className?: string;
-} & ComponentPropsWithoutRef<T>;
+} & HTMLAttributes<HTMLDivElement>;
 
-const ResponsiveContainer = <T extends ElementType = 'div'>({
-  as,
+const ResponsiveContainer = ({
   children,
   maxWidth,
   baseSize,
   className,
-  ...props
-}: ContainerProps<T>) => {
-  const Component = as ?? 'div';
-  return (
-    <Component
-      className={cn(containerVariants({ maxWidth, baseSize }), className)}
-      {...props}
-    >
-      {children}
-    </Component>
-  );
-};
+}: ContainerProps) => (
+  <div className={cn(containerVariants({ maxWidth, baseSize }), className)}>
+    {children}
+  </div>
+);
 
 export default ResponsiveContainer;
