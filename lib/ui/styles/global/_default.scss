@@ -298,10 +298,6 @@ $system-font-stack: 'system-ui', sans-serif;
   display: flex;
 }
 
-@if $export-ui-classes {
-  @include normalize;
-}
-
 html {
   font-family: var(--nc-body-font-family);
   font-size: var(--nc-base-font-size);

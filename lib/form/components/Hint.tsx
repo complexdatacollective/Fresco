@@ -1,4 +1,4 @@
-import Paragraph from '~/components/ui/typography/Paragraph';
+import Paragraph from '~/components/typography/Paragraph';
 import { type FieldConfig } from '../types';
 
 export default function Hint({

@@ -65,7 +65,7 @@ export default function QuickAddField({
 
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  const subject = useSelector(getStageSubject)!;
+  const subject = useSelector(getStageSubject);
   const nodeColor = useSelector(getNodeColor(subject.type));
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const icon = useSelector(getNodeIconName);

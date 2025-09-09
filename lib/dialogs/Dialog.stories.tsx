@@ -35,7 +35,7 @@ type Story = StoryObj<typeof Dialog>;
 const DialogTemplate = (args: DialogProps) => (
   <Dialog {...args} open ref={undefined}>
     <p>This is the content inside the dialog.</p>
-    <Button color="primary" onClick={args.closeDialog}>
+    <Button color="sea-green" onClick={args.closeDialog}>
       Continue
     </Button>
     <Button onClick={args.closeDialog}>Cancel</Button>

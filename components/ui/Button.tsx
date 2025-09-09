@@ -7,7 +7,7 @@ import { cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
-  base: 'inline-flex items-center justify-center rounded-full text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate text-foreground',
+  base: 'inline-flex focusable items-center justify-center rounded-full text-sm font-semibold disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate text-foreground',
   variants: {
     variant: {
       default: 'bg-primary hover:bg-primary/90 text-primary-foreground',

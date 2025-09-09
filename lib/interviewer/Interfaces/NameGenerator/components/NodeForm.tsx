@@ -10,11 +10,12 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import ActionButton from '~/components/interview/ActionButton';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { Form } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
-import { ActionButton, Button } from '~/lib/ui/components';
-import Overlay from '../../../containers/Overlay';
+import { Button } from '~/lib/ui/components';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch } from '../../../store';
@@ -108,18 +109,19 @@ const NodeForm = (props: NodeFormProps) => {
           variants={variants}
         >
           <ActionButton
+            color="node-color-seq-1"
             disabled={disabled}
             onClick={() => setShow(true)}
-            icon={icon}
+            iconName="person-standing"
+            // icon={icon}
             title={`Add...`}
           />
         </motion.div>
       </AnimatePresence>
-      <Overlay
-        show={show}
-        title={form.title}
-        onClose={handleClose}
-        className="node-form"
+      <ControlledDialog
+        open={show}
+        title={form.title!}
+        closeDialog={handleClose}
         footer={
           <Button
             key="submit"
@@ -139,7 +141,7 @@ const NodeForm = (props: NodeFormProps) => {
         >
           {fieldComponents}
         </Form>
-      </Overlay>
+      </ControlledDialog>
     </>
   );
 };

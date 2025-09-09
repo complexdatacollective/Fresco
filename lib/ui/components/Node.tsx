@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { forwardRef, type HTMLAttributes } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 export const NodeColors = [
   'node-color-seq-1',
@@ -39,7 +39,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     size = 'md',
     ...buttonProps
   } = props;
-  const classes = cn(
+  const classes = cx(
     'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300 spring-[0.2,0.5]',
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
@@ -70,8 +70,9 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       'shadow-none border-5 border-selected before:content-[""] before:absolute before:-inset-4 before:-z-10 before:bg-selected before:rounded-full before:animate-linking before:origin-center before:opacity-50 before:shadow-lg',
   );
 
-  const labelClasses = cn(
+  const labelClasses = cx(
     'whitespace-pre-line overflow-hidden text-center hyphens-auto text-wrap break-all px-2',
+    size === 'sm' ? 'text-sm' : 'text-base',
   );
 
   const labelWithEllipsis =

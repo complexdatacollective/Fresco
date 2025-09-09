@@ -5,11 +5,12 @@ import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 
 export type DialogProps = {
   title: string;
   description?: string;
+  footer?: React.ReactNode;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
 } & React.DialogHTMLAttributes<HTMLDialogElement>;
@@ -32,57 +33,56 @@ export type DialogProps = {
  *   can't be read from the dialog itself (although _can_ be read by mutation
  *   observer... but that's a bit much)
  */
-export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(({
-  title,
-  description,
-  children,
-  closeDialog,
-  accent,
-  ...rest
-}, ref) => {
-  const id = useId();
-  // TODO: automatic focus on least destructive action, or initialFocusEl ref.
-  return (
-    <dialog
-      ref={ref}
-      aria-labelledby={`${id}-title`}
-      aria-describedby={description ? `${id}-description` : undefined}
-      onClose={closeDialog} // Needed so that closing via keyboard still returns a value
-      className={cn(
-        'spring-medium',
-        'bg-transparent', // Or else rounded corner content will have white edges
-        'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
-        'backdrop:transition-opacity',
-        'backdrop:duration-300',
-        'backdrop:transition-discrete',
-        'm-auto transition-discrete not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
-      )}
-      {...rest}
-    >
-      <Surface
-        level={0}
-        className={cn(
-          'text-surface-0-foreground max-w-4xl rounded bg-white',
-
-          // Accent overrides the primary hue so that nested buttons inherit color
-          accent === 'success' && '[--primary:var(--success)]',
-          accent === 'warning' && '[--primary:var(--warning)]',
-          accent === 'info' && '[--primary:var(--info)]',
-          accent === 'danger' && '[--primary:var(--destructive)]',
-          'border-primary border-b-4',
+export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
+  (
+    { title, description, children, closeDialog, accent, footer, ...rest },
+    ref,
+  ) => {
+    const id = useId();
+    // TODO: automatic focus on least destructive action, or initialFocusEl ref.
+    return (
+      <dialog
+        ref={ref}
+        aria-labelledby={`${id}-title`}
+        aria-describedby={description ? `${id}-description` : undefined}
+        onClose={closeDialog} // Needed so that closing via keyboard still returns a value
+        className={cx(
+          'spring-medium',
+          'bg-transparent', // Or else rounded corner content will have white edges
+          'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
+          'backdrop:transition-opacity',
+          'backdrop:duration-300',
+          'backdrop:transition-discrete',
+          'm-auto transition-discrete not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
         )}
+        {...rest}
       >
-        <Heading variant="h2" id={`${id}-title`}>
-          {title}
-        </Heading>
-        {description && (
-          <Paragraph id={`${id}-description`}>{description}</Paragraph>
-        )}
-        {children}
-        <CloseButton onClick={closeDialog} />
-      </Surface>
-    </dialog>
-  );
-});
+        <Surface
+          level={0}
+          className={cx(
+            'text-surface-0-foreground max-w-4xl rounded bg-white',
+
+            // Accent overrides the primary hue so that nested buttons inherit color
+            accent === 'success' && '[--primary:var(--success)]',
+            accent === 'warning' && '[--primary:var(--warning)]',
+            accent === 'info' && '[--primary:var(--info)]',
+            accent === 'danger' && '[--primary:var(--destructive)]',
+            'border-primary border-b-4',
+          )}
+        >
+          <Heading variant="h2" id={`${id}-title`}>
+            {title}
+          </Heading>
+          {description && (
+            <Paragraph id={`${id}-description`}>{description}</Paragraph>
+          )}
+          {children}
+          {footer}
+          <CloseButton onClick={closeDialog} />
+        </Surface>
+      </dialog>
+    );
+  },
+);
 
 Dialog.displayName = 'Dialog';

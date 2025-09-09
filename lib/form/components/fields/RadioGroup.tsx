@@ -62,8 +62,8 @@ export const radioGroupVariants = cva({
 // Individual radio option styles
 export const radioOptionVariants = cva({
   base: cx(
-    'flex items-center cursor-pointer group',
     transitionStyles,
+    'flex items-center cursor-pointer group',
     // Disabled state
     'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
   ),
@@ -174,7 +174,6 @@ export function RadioGroupField({
   useColumns = false,
   ...fieldsetProps
 }: RadioGroupProps) {
-
   const handleChange = (optionValue: string | number) => {
     if (onChange) {
       onChange(optionValue);
@@ -196,8 +195,12 @@ export function RadioGroupField({
         })}
         disabled={disabled}
         data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-        {...(fieldsetProps['aria-labelledby'] ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] } : {})}
-        {...(fieldsetProps['aria-label'] ? { 'aria-label': fieldsetProps['aria-label'] } : {})}
+        {...(fieldsetProps['aria-labelledby']
+          ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] }
+          : {})}
+        {...(fieldsetProps['aria-label']
+          ? { 'aria-label': fieldsetProps['aria-label'] }
+          : {})}
       >
         {options.map((option) => {
           const optionId = `${name}-${option.value}`;

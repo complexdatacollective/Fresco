@@ -1,11 +1,10 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
 import { motion, type MotionProps } from 'motion/react';
 import { type ElementType } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cva, cx, type VariantProps } from '~/utils/cva';
 
-const surfaceVariants = cva('', {
+const surfaceVariants = cva({
   variants: {
     level: {
       // Level 0 is for dialogs and popovers
@@ -58,7 +57,7 @@ const Surface = <T extends ElementType = 'div'>({
     <Component
       ref={ref}
       {...rest}
-      className={cn(surfaceVariants({ level, spacing }), className)}
+      className={cx(surfaceVariants({ level, spacing }), className)}
     >
       {children}
     </Component>

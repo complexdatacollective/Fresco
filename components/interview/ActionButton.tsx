@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react';
 import type dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { type NodeColorSequence } from '~/lib/ui/components/Node';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import DynamicLucideIcon from '../DynamicLucideIcon';
 
 export type NodeIcon = keyof typeof dynamicIconImports;
@@ -21,13 +21,13 @@ export default function ActionButton({
     <button
       {...rest}
       aria-label="Add a person"
-      className={cn(
-        'group relative mt-2 mr-4 flex h-40 w-40 rounded-full',
+      className={cx(
+        'group focusable relative mt-2 mr-4 flex h-40 w-40 rounded-full',
         className,
       )}
     >
       <div
-        className={cn(
+        className={cx(
           'text-white',
           color === 'node-color-seq-1' && 'bg-[var(--node-color-seq-1)]',
           color === 'node-color-seq-2' && 'bg-[var(--node-color-seq-2)]',
@@ -37,7 +37,7 @@ export default function ActionButton({
           color === 'node-color-seq-6' && 'bg-[var(--node-color-seq-6)]',
           color === 'node-color-seq-7' && 'bg-[var(--node-color-seq-7)]',
           color === 'node-color-seq-8' && 'bg-[var(--node-color-seq-8)]',
-          'scale-90 transition-transform duration-300 ease-in-out group-hover:scale-100 group-focus:scale-100',
+          'scale-90 transition-transform duration-300 ease-in-out group-hover:scale-100',
           'absolute inset-0 flex items-center justify-center rounded-full shadow-2xl',
           'bg-[repeating-linear-gradient(145deg,transparent,transparent_50%,rgba(0,0,0,0.1)_50%,rgba(0,0,0,0.1)_100%)]',
         )}

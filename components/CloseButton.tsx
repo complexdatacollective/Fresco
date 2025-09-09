@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { type ComponentProps } from 'react';
-import { cn } from '~/utils/shadcn';
+import { cx } from '~/utils/cva';
 import { Button } from './ui/Button';
 
 type CloseButtonProps = {
@@ -15,7 +15,7 @@ export default function CloseButton(props: CloseButtonProps) {
       title="Close"
       variant="outline"
       size="icon"
-      className={cn('absolute top-2 ltr:right-2 rtl:left-2', className)}
+      className={cx('absolute top-2 ltr:right-2 rtl:left-2', className)}
     >
       <X />
     </Button>

@@ -515,3 +515,7 @@ This custom variant lets you target only elements with the readonly attribute.
 
 */
 @custom-variant is-read-only (&[readonly]);
+
+@utility focusable {
+  @apply ring-offset-background focus-visible:ring-accent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden;
+}

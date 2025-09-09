@@ -6,18 +6,10 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
-import { headingVariants } from '~/components/ui/typography/Heading';
+import { headingVariants } from '~/components/typography/Heading';
 import { cx, type VariantProps } from '~/utils/cva';
 
-const ALLOWED_MARKDOWN_LABEL_TAGS = [
-  'br',
-  'p',
-  'em',
-  'strong',
-  'ul',
-  'ol',
-  'li',
-];
+const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
 /**
  * Hack for `>` characters that already exist in some protocols

@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
 import { memo, type ComponentProps, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
+import { cx } from '~/utils/cva';
 import {
   useDndStore,
   useDragSource,
@@ -25,7 +26,14 @@ type DraggableMotionNodeProps = ComponentProps<typeof MotionNode> & {
 
 // DraggableMotionNode component that wraps MotionNode with drag functionality
 const DraggableMotionNode = memo(
-  ({ node, itemType, allowDrag, onClick, nodeSize, ...nodeProps }: DraggableMotionNodeProps & { onClick?: () => void }) => {
+  ({
+    node,
+    itemType,
+    allowDrag,
+    onClick,
+    nodeSize,
+    ...nodeProps
+  }: DraggableMotionNodeProps & { onClick?: () => void }) => {
     const { dragProps } = useDragSource({
       type: 'node',
       metadata: { ...node, itemType },
@@ -127,7 +135,7 @@ const NodeList = memo(
     const isValidTarget = !isSource && willAccept;
     const isHovering = isValidTarget && isOver;
 
-    const classNames = cn(
+    const classNames = cx(
       'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
