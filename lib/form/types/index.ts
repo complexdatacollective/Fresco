@@ -1,13 +1,14 @@
-import { Codebook, StageSubject } from '@codaco/protocol-validation';
-import { NcNetwork, type VariableValue } from '@codaco/shared-consts';
+import { type Codebook, type StageSubject } from '@codaco/protocol-validation';
+import { type NcNetwork, type VariableValue } from '@codaco/shared-consts';
 import type * as z from 'zod/v4';
-import { VariableDefinition } from '~/lib/network-exporters/formatters/csv/processEntityVariables';
 
 export type FieldValue = VariableValue | undefined;
 
 export type FieldValidation =
   | z.ZodType
-  | ((context: ValidationContext) => z.ZodType | Promise<z.ZodType>);
+  | ((
+      formValues: Record<string, FieldValue>,
+    ) => z.ZodType | Promise<z.ZodType>);
 
 export type ValidationResult<T extends z.ZodTypeAny> =
   | { success: true; data: z.infer<T> }
@@ -17,7 +18,7 @@ export type FieldState<T extends FieldValue = FieldValue> = {
   value: T;
   initialValue?: T;
   meta: {
-    errors: z.ZodError<z.infer<T>> | null;
+    errors: string[] | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
@@ -58,8 +59,7 @@ export type FormConfig<T extends z.ZodType> = {
 
 // Context for validation functions
 export type ValidationContext = {
-  subject: StageSubject;
-  variable: VariableDefinition;
+  stageSubject: StageSubject;
   codebook: Codebook;
   network: NcNetwork;
 };

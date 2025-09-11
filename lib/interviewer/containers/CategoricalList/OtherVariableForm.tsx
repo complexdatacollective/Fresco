@@ -1,10 +1,12 @@
 import { type NcNode } from '@codaco/shared-consts';
 import { useEffect } from 'react';
 import { reduxForm, type InjectedFormProps } from 'redux-form';
+import { Field, Form } from '~/lib/form';
+import { InputField } from '~/lib/form/components/fields/Input';
+import { validations } from '~/lib/form/validation';
 import Button from '~/lib/ui/components/Button';
 import { MarkdownLabel } from '~/lib/ui/components/Fields';
 import Node from '../../components/Node';
-import Field from '../Field';
 
 type FormValues = {
   otherVariable: string;
@@ -37,7 +39,7 @@ const OtherVariableForm = ({
 
   return (
     <div className="other-variable-form" onClick={(e) => e.stopPropagation()}>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <div className="other-variable-form__content">
           <div className="other-variable-form__content-left">
             <Node {...node} />
@@ -49,9 +51,9 @@ const OtherVariableForm = ({
             <Field
               label=""
               placeholder="Enter your response here..."
-              component="Text"
+              component={InputField}
               name="otherVariable"
-              validation={{ required: true }}
+              validation={validations.required()}
             />
           </div>
         </div>
@@ -63,7 +65,7 @@ const OtherVariableForm = ({
             Continue
           </Button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 };

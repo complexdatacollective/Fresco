@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'motion/react';
 import React, { forwardRef, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
@@ -58,9 +59,11 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         {...rest}
       >
         <Surface
+          as={motion.div}
+          layout="size"
           level={0}
           className={cx(
-            'text-surface-0-foreground max-w-4xl rounded bg-white',
+            'text-surface-0-foreground h-10/12 w-2xl rounded-lg bg-white',
 
             // Accent overrides the primary hue so that nested buttons inherit color
             accent === 'success' && '[--primary:var(--success)]',

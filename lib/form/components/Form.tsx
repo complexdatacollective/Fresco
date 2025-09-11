@@ -39,7 +39,7 @@ export default function Form<T extends z.ZodType>(props: FormProps<T>) {
           {formErrors && (
             <FormErrorsList
               key="form-errors"
-              errors={formErrors.issues}
+              errors={formErrors}
               className="mb-6"
             />
           )}

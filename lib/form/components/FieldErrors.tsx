@@ -1,4 +1,4 @@
-import z, { ZodError } from 'zod';
+import { TriangleAlert } from 'lucide-react';
 
 /**
  * Render field errors.
@@ -12,32 +12,26 @@ export default function FieldErrors({
   show,
 }: {
   id: string;
-  errors: ZodError<unknown> | null;
+  errors: string[] | null;
   show: boolean;
 }) {
-  if (!show || !errors) return null;
+  if (!show || !errors || errors.length === 0) return null;
 
-  const flattenedErrors = z.flattenError(errors);
-
-  console.log(flattenedErrors);
-
-  return null;
-
-  // return (
-  //   <div
-  //     id={id}
-  //     className="text-destructive flex justify-items-start gap-2 text-sm"
-  //   >
-  //     <TriangleAlert className="w-4" />
-  //     {errors.length === 1 ? (
-  //       <p>{errors[0]!.message}</p>
-  //     ) : (
-  //       <ul className="list-disc pl-5">
-  //         {errors.map((error, index) => (
-  //           <li key={index}>{error.message}</li>
-  //         ))}
-  //       </ul>
-  //     )}
-  //   </div>
-  // );
+  return (
+    <div
+      id={id}
+      className="text-destructive flex justify-items-start gap-2 text-sm"
+    >
+      <TriangleAlert className="w-4" />
+      {errors.length === 1 ? (
+        <p>{errors[0]}</p>
+      ) : (
+        <ul className="list-disc pl-5">
+          {errors.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }

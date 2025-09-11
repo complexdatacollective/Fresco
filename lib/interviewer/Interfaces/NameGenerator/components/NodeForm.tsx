@@ -70,10 +70,10 @@ const NodeForm = (props: NodeFormProps) => {
     },
   };
 
-  // Use the translation hook to convert enriched fields directly to new Field components
   const fieldComponents = useProtocolForm({
     fields: form.fields,
     autoFocus: true,
+    initialValues: selectedNode?.[entityAttributesProperty] ?? {},
   });
 
   // Handle form submission
@@ -97,9 +97,6 @@ const NodeForm = (props: NodeFormProps) => {
     },
     [selectedNode, addNode, newNodeAttributes, updateNode, onClose],
   );
-
-  // Get initial values for the form
-  const initialValues = selectedNode?.[entityAttributesProperty] ?? {};
 
   return (
     <>
@@ -135,8 +132,8 @@ const NodeForm = (props: NodeFormProps) => {
         <Form
           id="node-form"
           onSubmit={handleSubmit}
-          initialValues={initialValues}
           className="mt-4"
+          key={`${show}`}
         >
           {fieldComponents}
         </Form>

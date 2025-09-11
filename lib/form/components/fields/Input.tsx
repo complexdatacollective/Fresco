@@ -2,6 +2,7 @@
 
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
+import { FieldValue } from '../../types';
 import {
   backgroundStyles,
   borderStyles,
@@ -161,6 +162,7 @@ export const affixVariants = cva({
 
 type InputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> &
   VariantProps<typeof inputWrapperVariants> & {
+    onChange: (value: FieldValue) => void;
     // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
     prefixComponent?: ReactNode;
     suffixComponent?: ReactNode;
@@ -172,22 +174,41 @@ export function InputField({
   variant,
   prefixComponent: prefix,
   suffixComponent: suffix,
+  onChange,
   ...inputProps
 }: InputFieldProps) {
-  // If no prefix or suffix, render simple input for backward compatibility
-  if (!prefix && !suffix) {
-    return (
-      <input
-        {...inputProps}
-        className={standaloneInputVariants({ size, variant, className })}
-      />
-    );
-  }
+  // Change handler that coerces the value passed on onChange based on the input type
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value: FieldValue = e.target.value;
+
+    switch (inputProps.type) {
+      case 'number':
+        value = Number(value);
+        break;
+      case 'radio':
+      case 'checkbox':
+        value = e.target.checked;
+        break;
+
+      case 'text':
+      case 'datetime-local':
+        value = String(value);
+        break;
+      default:
+        value = String(value);
+    }
+
+    onChange(value);
+  };
 
   return (
     <div className={inputWrapperVariants({ size, variant, className })}>
       {prefix && <div className={affixVariants({ size })}>{prefix}</div>}
-      <input {...inputProps} className={inputVariants({ size })} />
+      <input
+        {...inputProps}
+        onChange={handleChange}
+        className={inputVariants({ size })}
+      />
       {suffix && <div className={affixVariants({ size })}>{suffix}</div>}
     </div>
   );

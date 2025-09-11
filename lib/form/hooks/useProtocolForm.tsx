@@ -1,11 +1,15 @@
-import { ComponentType, type FormField } from '@codaco/protocol-validation';
+import {
+  type ComponentType,
+  type FormField,
+  type Validation,
+  type ValidationName,
+} from '@codaco/protocol-validation';
 import { useSelector } from 'react-redux';
 import z from 'zod';
 import {
   getValidationContext,
   selectFieldMetadata,
 } from '~/lib/interviewer/selectors/forms';
-import { getValidation } from '~/lib/interviewer/utils/field-validation';
 import { Field } from '../components';
 import { BooleanField } from '../components/fields/Boolean';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
@@ -19,24 +23,21 @@ import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleField } from '../components/fields/Toggle';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
-import { FieldValidation } from '../types';
+import { type FieldValidation } from '../types';
+import { validations } from '../validation';
 
 const fieldTypeMap: Record<ComponentType, React.ElementType> = {
-  // Text inputs
   Text: InputField,
   TextArea: TextAreaField,
   Number: InputField,
-  // Selection fields
   RadioGroup: RadioGroupField,
   CheckboxGroup: CheckboxGroupField,
   Boolean: BooleanField,
   Toggle: ToggleField,
   ToggleButtonGroup: ToggleButtonGroupField,
-  // Scale fields
   Slider: SliderField,
   VisualAnalogScale: VisualAnalogScaleField,
   LikertScale: LikertScaleField,
-  // Date fields
   DatePicker: DatePickerField,
   RelativeDatePicker: RelativeDatePickerField,
 };
@@ -75,24 +76,39 @@ export default function useProtocolForm({
 
     // process validation
     if (field.validation) {
-      props.validation = (formValues: Record<string, unknown>) => {
-        return z.any().superRefine((value, ctx) => {
-          console.log('Validating field:', field.name, value);
-          const fn = getValidation(field.validation, validationContext);
+      props.validation = (formValues) =>
+        z.unknown().superRefine(async (value, ctx) => {
+          Object.entries(field.validation as Validation).forEach(
+            async ([validationName, parameter]) => {
+              try {
+                const validationFnFactory =
+                  validations[validationName as ValidationName];
+                const validationFn = validationFnFactory(
+                  parameter,
+                  validationContext,
+                )(formValues);
 
-          const p = {};
-          const n = null;
+                const result = await validationFn.safeParseAsync(value);
 
-          fn.forEach((issue) => {
-            const t = issue(value, formValues, p, n);
-            console.log('  Issue:', t);
-            if (t) {
-              ctx.addIssue(t);
-            }
-          });
-          console.log('Validation result:', ctx);
+                if (!result.success && result.error) {
+                  result.error.issues.forEach((issue) => {
+                    ctx.addIssue({
+                      code: 'custom',
+                      message: issue.message,
+                      path: [field.name, ...issue.path],
+                    });
+                  });
+                }
+              } catch (error) {
+                ctx.addIssue({
+                  code: 'custom',
+                  message: 'An error occurred while validating.',
+                  path: [field.name],
+                });
+              }
+            },
+          );
         });
-      };
     }
 
     // Process ordinal and categorical options

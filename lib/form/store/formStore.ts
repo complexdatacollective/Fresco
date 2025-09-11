@@ -1,6 +1,6 @@
 import { enableMapSet } from 'immer';
 import type z from 'zod';
-import { type ZodAny, ZodError } from 'zod';
+import { type ZodAny, type ZodError } from 'zod';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import type {
@@ -9,7 +9,6 @@ import type {
   FieldValue,
   FormConfig,
   FormSubmitHandler,
-  ValidationContext,
 } from '../types';
 import { setValue } from '../utils/objectPath';
 import { validateFieldValue } from '../utils/validation';
@@ -19,7 +18,7 @@ enableMapSet();
 
 export type FormStore<T extends z.ZodType> = {
   fields: Map<string, FieldState>;
-  formErrors: z.ZodError<z.infer<T>> | null;
+  formErrors: string[] | null;
   isSubmitting: boolean;
   isValidating: boolean;
   isDirty: boolean;
@@ -38,20 +37,14 @@ export type FormStore<T extends z.ZodType> = {
 
   // Field state updates
   setFieldValue: (fieldName: string, value: FieldValue) => void;
-  setFieldError: (
-    fieldName: string,
-    error: ZodError<z.infer<T>> | null,
-  ) => void;
   setFieldTouched: (fieldName: string, touched: boolean) => void;
-  setFieldDirty: (fieldName: string, dirty: boolean) => void;
 
-  // Form errors
   setFormErrors: (errors: ZodError<z.infer<T>> | null) => void;
 
   // Getters with selective subscription
   getFieldState: (fieldName: string) => FieldState | undefined;
   getFormValues: () => Record<string, FieldValue>;
-  getFormErrors: () => ZodError<z.infer<T>> | null;
+  getFormErrors: () => string[] | null;
 
   // Validation
   validateField: (fieldName: string) => Promise<void>;
@@ -132,6 +125,12 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
         }
       },
 
+      setFormErrors: (errors) => {
+        set((state) => {
+          state.formErrors = errors?.issues.map((i) => i.message) ?? null;
+        });
+      },
+
       setFieldValue: (fieldName, value) => {
         set((state) => {
           if (!state.fields.get(fieldName)) {
@@ -145,44 +144,11 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
         });
       },
 
-      setFieldError: (fieldName, error) => {
-        set((state) => {
-          if (!state.fields.get(fieldName)) return;
-
-          state.fields.get(fieldName)!.meta.errors = error;
-          state.fields.get(fieldName)!.meta.isValid = !error;
-
-          // Update form-level isValid
-          state.isValid = Array.from(state.fields.values()).every(
-            (field) => field.meta.isValid,
-          );
-        });
-      },
-
       setFieldTouched: (fieldName, touched) => {
         set((state) => {
           if (!state.fields.get(fieldName)) return;
 
           state.fields.get(fieldName)!.meta.isTouched = touched;
-        });
-      },
-
-      setFieldDirty: (fieldName, dirty) => {
-        set((state) => {
-          if (!state.fields.get(fieldName)) return;
-
-          state.fields.get(fieldName)!.meta.isDirty = dirty;
-
-          // Update form-level isDirty
-          state.isDirty = Array.from(state.fields.values()).some(
-            (field) => field.meta.isDirty,
-          );
-        });
-      },
-
-      setFormErrors: (errors) => {
-        set((state) => {
-          state.formErrors = errors;
         });
       },
 
@@ -210,7 +176,6 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
       validateField: async (fieldName) => {
         const state = get();
         const field = state.getFieldState(fieldName);
-
         if (!field?.validation) return;
 
         set((draft) => {
@@ -221,12 +186,6 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
         });
 
         try {
-          // Validation context is context plus field values
-          const validationContext: ValidationContext = {
-            ...state.context,
-            formValues: state.getFormValues(),
-          };
-
           set((draft) => {
             const form = draft;
             if (form?.fields.get(fieldName)) {
@@ -237,15 +196,21 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
           const result = await validateFieldValue(
             field.value,
             field.validation,
-            validationContext,
+            state.getFormValues(),
           );
 
           if (!result.success) {
             set((draft) => {
               const form = draft;
               if (form?.fields.get(fieldName)) {
-                form.fields.get(fieldName)!.meta.errors = result.error;
+                form.fields.get(fieldName)!.meta.errors =
+                  result.error.issues.map((i) => i.message);
                 form.fields.get(fieldName)!.meta.isValid = false;
+
+                // Update form-level isValid to
+                form.isValid = Array.from(form.fields.values()).every(
+                  (field) => field.meta.isValid,
+                );
               }
             });
           } else {
@@ -255,7 +220,8 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
                 form.fields.get(fieldName)!.meta.isValidating = false;
                 form.fields.get(fieldName)!.meta.isValid = true;
                 form.fields.get(fieldName)!.meta.errors = null;
-                // Update form-level isValid
+
+                // Update form-level isValid to
                 form.isValid = Array.from(form.fields.values()).every(
                   (field) => field.meta.isValid,
                 );
@@ -263,22 +229,15 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
             });
           }
         } catch (err) {
-          console.log('Error validating field:', fieldName, err);
-
           set((draft) => {
             const form = draft;
             if (form?.fields.get(fieldName)) {
-              const error = new ZodError([
-                {
-                  code: 'custom',
-                  message: 'Something went wrong during validation',
-                  path: [],
-                },
-              ]);
-
-              form.fields.get(fieldName)!.meta.errors = error;
+              form.fields.get(fieldName)!.meta.errors = [
+                'Something went wrong during validation',
+              ];
               form.fields.get(fieldName)!.meta.isValid = false;
               form.fields.get(fieldName)!.meta.isValidating = false;
+
               // Update form-level isValid to
               form.isValid = Array.from(form.fields.values()).every(
                 (field) => field.meta.isValid,
@@ -297,15 +256,10 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
           async ([fieldName, fieldState]) => {
             if (!fieldState?.validation) return true;
 
-            const context = {
-              ...state.context,
-              formValues: state.getFormValues(),
-            } as ValidationContext;
-
             const result = await validateFieldValue(
               fieldState.value,
               fieldState.validation,
-              context,
+              state.getFormValues(),
             );
 
             // Update field state with validation result
@@ -313,7 +267,8 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
               set((draft) => {
                 const draftForm = draft;
                 if (draftForm?.fields) {
-                  draftForm.fields.get(fieldName)!.meta.errors = result.error;
+                  draftForm.fields.get(fieldName)!.meta.errors =
+                    result.error.issues.map((i) => i.message);
                   draftForm.fields.get(fieldName)!.meta.isValid = false;
 
                   // Set all fields as touched to trigger showing validation errors

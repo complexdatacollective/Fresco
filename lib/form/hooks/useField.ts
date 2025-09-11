@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useId, useRef } from 'react';
-import { type ZodError } from 'zod';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
-import type { ChangeHandler, FieldConfig, FieldState } from '../types';
+import type {
+  ChangeHandler,
+  FieldConfig,
+  FieldState,
+  FieldValue,
+} from '../types';
 
 /**
  * Helper function to determine if a field should show an error message.
@@ -17,10 +20,7 @@ function useFieldShouldShowError(name: string) {
   const { meta } = fieldState;
 
   return Boolean(
-    !meta.isValid &&
-      meta.isTouched &&
-      meta.errors?.issues &&
-      meta.errors.issues.length > 0,
+    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0,
   );
 }
 
@@ -28,7 +28,7 @@ export type UseFieldConfig = {
   id: string;
   meta: {
     shouldShowError: boolean;
-    errors: ZodError<unknown> | null;
+    errors: string[] | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
@@ -129,6 +129,7 @@ export function useField(config: {
   );
 
   const handleBlur = useCallback(() => {
+    console.log('handleBlur', config.name);
     setFieldTouched(config.name, true);
 
     // TODO: cache validation result if value hasn't changed.

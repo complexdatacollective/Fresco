@@ -5,7 +5,7 @@ import { type ElementType } from 'react';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { cva } from '~/utils/cva';
 import { useField, type UseFieldKeys } from '../hooks/useField';
-import { FieldValidation, type BaseFieldProps } from '../types';
+import { type BaseFieldProps, type FieldValidation } from '../types';
 import { getInputState } from '../utils/getInputState';
 import FieldErrors from './FieldErrors';
 import Hint from './Hint';

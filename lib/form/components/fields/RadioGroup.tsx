@@ -1,6 +1,7 @@
 import { type FieldsetHTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import {
+  backgroundStyles,
   borderStyles,
   cursorStyles,
   interactiveElementSizes,
@@ -20,6 +21,9 @@ export const radioGroupVariants = cva({
     opacityStyles.disabled,
     cursorStyles.disabled,
     borderStyles.base,
+    borderStyles.invalid,
+    backgroundStyles.disabled,
+    backgroundStyles.readOnly,
   ),
   variants: {
     orientation: {

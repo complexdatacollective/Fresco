@@ -1,10 +1,6 @@
 'use client';
 
-import type {
-  ComponentType,
-  FormField,
-  Form as TForm,
-} from '@codaco/protocol-validation';
+import type { Form as TForm } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -27,39 +23,46 @@ const mockProtocol = {
         variables: {
           name: {
             name: 'Name',
-            type: 'text' as const,
-            component: 'Text' as ComponentType,
-            required: true,
+            type: 'text',
+            component: 'Text',
+            validation: {
+              required: true,
+              minLength: 2,
+              maxLength: 100,
+            },
           },
           age: {
             name: 'Age',
-            type: 'number' as const,
-            component: 'Number' as ComponentType,
+            type: 'number',
+            component: 'Number',
             validation: {
-              minValue: 0,
-              maxValue: 120,
+              minValue: 18,
+              maxValue: 60,
             },
           },
           gender: {
             name: 'Gender',
-            type: 'categorical' as const,
-            component: 'RadioGroup' as ComponentType,
+            type: 'categorical',
+            component: 'RadioGroup',
             options: [
               { label: 'Male', value: 'male' },
               { label: 'Female', value: 'female' },
               { label: 'Non-binary', value: 'non_binary' },
               { label: 'Prefer not to say', value: 'prefer_not_say' },
             ],
+            validation: {
+              required: true,
+            },
           },
           occupation: {
             name: 'Occupation',
-            type: 'text' as const,
-            component: 'Text' as ComponentType,
+            type: 'text',
+            component: 'Text',
           },
           favoriteColors: {
             name: 'Favorite Colors',
-            type: 'categorical' as const,
-            component: 'CheckboxGroup' as ComponentType,
+            type: 'categorical',
+            component: 'CheckboxGroup',
             options: [
               { label: 'Red', value: 'red' },
               { label: 'Blue', value: 'blue' },
@@ -67,16 +70,21 @@ const mockProtocol = {
               { label: 'Yellow', value: 'yellow' },
               { label: 'Purple', value: 'purple' },
             ],
+            validation: {
+              required: true,
+              minSelected: 2,
+              maxSelected: 3,
+            },
           },
           birthDate: {
             name: 'Birth Date',
-            type: 'datetime' as const,
-            component: 'DatePicker' as ComponentType,
+            type: 'datetime',
+            component: 'DatePicker',
           },
           happiness: {
             name: 'Happiness Level',
-            type: 'scalar' as const,
-            component: 'Slider' as ComponentType,
+            type: 'scalar',
+            component: 'Slider',
             parameters: {
               min: 0,
               max: 100,
@@ -84,13 +92,13 @@ const mockProtocol = {
           },
           isEmployed: {
             name: 'Currently Employed',
-            type: 'boolean' as const,
-            component: 'Toggle' as ComponentType,
+            type: 'boolean',
+            component: 'Toggle',
           },
           bio: {
             name: 'Biography',
-            type: 'text' as const,
-            component: 'TextArea' as ComponentType,
+            type: 'text',
+            component: 'TextArea',
             validation: {
               maxLength: 500,
             },
@@ -198,26 +206,6 @@ const mockSession = {
   },
 };
 
-// Create a simple mock session reducer that returns current stage info
-const mockSessionReducer = (state = mockSession) => ({
-  ...state,
-  // Add current stage metadata that selectors expect
-  currentStage: {
-    type: 'NameGenerator',
-    subject: {
-      entity: 'node',
-      type: 'person',
-    },
-    prompts: [
-      {
-        id: 'prompt-1',
-        text: 'Name the people in your network',
-      },
-    ],
-  },
-  promptIndex: 0,
-});
-
 // Create mock Redux store with proper structure
 const createMockStore = (overrides = {}) => {
   const mockProtocolState = {
@@ -229,9 +217,6 @@ const createMockStore = (overrides = {}) => {
       encryptedVariables: false,
     },
   };
-
-  console.log('Mock protocol stages:', mockProtocol.stages);
-  console.log('Mock protocol state:', mockProtocolState);
 
   const mockSessionState = {
     ...mockSession,
@@ -256,7 +241,7 @@ const createMockStore = (overrides = {}) => {
 };
 
 // Story decorator to provide Redux store
-const ReduxDecorator = (Story: any, context: any) => {
+const ReduxDecorator = (Story, context) => {
   const store = createMockStore(context.parameters?.reduxState);
   return (
     <Provider store={store}>
@@ -319,7 +304,7 @@ const basicForm: TForm = {
       variable: 'occupation',
       prompt: 'What do they do for work?',
     },
-  ] as FormField[],
+  ],
 };
 
 // Form with validation
@@ -329,30 +314,16 @@ const validatedForm: TForm = {
     {
       variable: 'name',
       prompt: 'Name (required)',
-      validation: {
-        required: true,
-        minLength: 2,
-        maxLength: 50,
-      },
-    } as any,
+    },
     {
       variable: 'age',
       prompt: 'Age (18-100)',
-      validation: {
-        required: true,
-        minValue: 18,
-        maxValue: 100,
-      },
-    } as any,
+    },
     {
       variable: 'favoriteColors',
       prompt: 'Select at least 2 favorite colors',
-      validation: {
-        minSelected: 2,
-        maxSelected: 3,
-      },
-    } as any,
-  ] as FormField[],
+    },
+  ],
 };
 
 // Complex form with all field types
@@ -362,11 +333,7 @@ const complexForm: TForm = {
     {
       variable: 'name',
       prompt: 'Full Name',
-      validation: {
-        required: true,
-        unique: true,
-      },
-    } as any,
+    },
     {
       variable: 'age',
       prompt: 'Age',
@@ -399,7 +366,7 @@ const complexForm: TForm = {
       variable: 'bio',
       prompt: 'Short Biography',
     },
-  ] as FormField[],
+  ],
 };
 
 export const CreateNewNode: Story = {
@@ -479,7 +446,7 @@ export const EmptyForm: Story = {
     selectedNode: null,
     form: {
       title: 'Quick Add',
-      fields: [] as FormField[],
+      fields: [],
     },
     disabled: false,
   },
@@ -494,11 +461,8 @@ export const SingleFieldForm: Story = {
         {
           variable: 'name',
           prompt: "Enter the person's name",
-          validation: {
-            required: true,
-          },
-        } as any,
-      ] as FormField[],
+        },
+      ],
     },
     disabled: false,
   },
@@ -515,12 +479,8 @@ export const WithUniqueValidation: Story = {
           variable: 'name',
           prompt:
             'Enter a unique name (Alice Smith and Bob Johnson already exist)',
-          validation: {
-            required: true,
-            unique: true,
-          },
-        } as any,
-      ] as FormField[],
+        },
+      ],
     },
     disabled: false,
   },

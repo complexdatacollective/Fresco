@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
 import { getCodebook } from '../ducks/modules/protocol';
 import { getCodebookVariablesForSubjectType } from './protocol';
-import { getNetwork } from './session';
+import { getNetwork, getStageSubject } from './session';
 
 type CodebookVariableWithComponent = Extract<Variable, { component?: unknown }>;
 
@@ -35,9 +35,10 @@ export const selectFieldMetadata = createSelector(
 export type FieldWithMetadata = ReturnType<typeof selectFieldMetadata>[number];
 
 export const getValidationContext = createSelector(
-  [getCodebook, getNetwork],
-  (codebook, network) => ({
+  [getCodebook, getNetwork, getStageSubject],
+  (codebook, network, stageSubject) => ({
     codebook,
     network,
+    stageSubject,
   }),
 );

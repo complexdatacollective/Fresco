@@ -40,7 +40,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     ...buttonProps
   } = props;
   const classes = cx(
-    'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300 spring-[0.2,0.5]',
+    'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300',
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
     size === 'sm' && 'h-32 w-32',
