@@ -26,7 +26,6 @@ export function useForm<TValues extends z.ZodType>(
       const formConfig: FormConfig<TValues> = {
         onSubmit: configRef.current.onSubmit,
         onSubmitInvalid: configRef.current.onSubmitInvalid,
-        additionalContext: configRef.current.additionalContext,
       };
       registerForm(formConfig as unknown as Parameters<typeof registerForm>[0]);
       registeredRef.current = true;
@@ -63,10 +62,7 @@ export function useForm<TValues extends z.ZodType>(
 
         const values = getFormValues();
         // The schema is passed to onSubmit which provides type safety
-        const result = await configRef.current.onSubmit?.(
-          values,
-          {} as TValues,
-        );
+        const result = await configRef.current.onSubmit?.(values);
 
         // Handle the submission result
         if (result && !result.success && result.errors) {

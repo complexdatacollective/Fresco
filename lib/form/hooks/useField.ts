@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef } from 'react';
+import { type ZodError } from 'zod';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { useFormStore } from '../store/formStoreProvider';
 import type { ChangeHandler, FieldConfig, FieldState } from '../types';
@@ -16,7 +17,10 @@ function useFieldShouldShowError(name: string) {
   const { meta } = fieldState;
 
   return Boolean(
-    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0,
+    !meta.isValid &&
+      meta.isTouched &&
+      meta.errors?.issues &&
+      meta.errors.issues.length > 0,
   );
 }
 
@@ -24,9 +28,7 @@ export type UseFieldConfig = {
   id: string;
   meta: {
     shouldShowError: boolean;
-    errors:
-      | (string | { message: string; params?: Record<string, unknown> })[]
-      | null;
+    errors: ZodError<unknown> | null;
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;

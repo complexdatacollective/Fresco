@@ -8,9 +8,10 @@ import {
   useWillChange,
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { required } from '~/lib/interviewer/utils/field-validation';
+import z from 'zod';
+import { Field, Form } from '~/lib/form';
+import { InputField } from '~/lib/form/components/fields/Input';
 import { Button } from '~/lib/ui/components';
-import Form from '../containers/Form';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from '../containers/Overlay';
 
@@ -122,31 +123,12 @@ const PassphraseOverlay = ({
 }) => {
   const { passphraseInvalid } = usePassphrase();
 
-  const formConfig = {
-    formName: 'paassphrase',
-    fields: [
-      {
-        label: null,
-        name: 'passphrase',
-        component: 'Text',
-        placeholder: 'Enter your passphrase...',
-        validate: [required('You must enter a value.')],
-      },
-    ],
-  };
-
   const onSubmitForm = (fields: { passphrase: string }) => {
     handleSubmit(fields.passphrase);
   };
 
   return (
-    <Overlay
-      show={show}
-      title="Enter your Passphrase"
-      onClose={onClose}
-      forceDisableFullscreen
-      className="!max-w-[65ch]"
-    >
+    <Overlay show={show} title="Enter your Passphrase" onClose={onClose}>
       <div className="flex flex-col">
         {passphraseInvalid && (
           <p className="bg-accent/50 rounded-md p-6 text-white">
@@ -159,15 +141,16 @@ const PassphraseOverlay = ({
           you cannot remember your passphrase, please contact the person who
           recruited you to this study.
         </p>
-        <Form
-          className="mt-6"
-          form={formConfig.formName}
-          subject={{ entity: 'ego' }}
-          autoFocus
-          onSubmit={onSubmitForm}
-          {...formConfig} // eslint-disable-line react/jsx-props-no-spreading
-        >
+        <Form className="mt-6" onSubmit={onSubmitForm}>
           <div className="mb-4 flex items-center justify-end">
+            <Field
+              Component={InputField}
+              name="passphrase"
+              label="Passphrase"
+              placeholder="Enter your passphrase..."
+              validation={z.string().nonempty()}
+              autoFocus
+            />
             <Button aria-label="Submit" type="submit">
               Submit passphrase
             </Button>

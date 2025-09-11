@@ -18,20 +18,18 @@ import FormErrorsList from './FormErrors';
  */
 type FormProps<T extends z.ZodType> = {
   onSubmit: FormSubmitHandler<T>;
-  additionalContext?: Record<string, unknown>;
   children: React.ReactNode;
 } & Omit<HTMLMotionProps<'form'>, 'onSubmit' | 'children'>;
 
 export default function Form<T extends z.ZodType>(props: FormProps<T>) {
   const id = useId();
-  const { onSubmit, additionalContext, children, ...rest } = props;
+  const { onSubmit, children, ...rest } = props;
 
   const { formProps, formErrors } = useForm({
     onSubmit,
     onSubmitInvalid: (errors) => {
       scrollToFirstError(errors);
     },
-    additionalContext,
   });
 
   return (

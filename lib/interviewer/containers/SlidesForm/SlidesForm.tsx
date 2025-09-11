@@ -1,16 +1,33 @@
+import { type Stage } from '@codaco/protocol-validation';
 import cx from 'classnames';
 import { debounce } from 'es-toolkit';
 import { AnimatePresence, motion } from 'motion/react';
-import PropTypes from 'prop-types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ComponentType, ReactElement } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { connect, useDispatch } from 'react-redux';
-import { isDirty, isValid, submit } from 'redux-form';
-import { v4 as uuid } from 'uuid';
+import { useFormState } from '~/lib/form';
 import { Markdown } from '~/lib/ui/components/Fields';
 import ProgressBar from '~/lib/ui/components/ProgressBar';
-import { openDialog as openDialogAction } from '../../ducks/modules/dialogs.ts';
+import { openDialog as openDialogAction } from '../../ducks/modules/dialogs';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
+import { useAppDispatch } from '../../store';
+import { type BeforeNextFunction, type Direction } from '../ProtocolScreen';
+import { type StageProps } from '../Stage';
+
+type SlidesFormProps = StageProps & {
+  stage: Extract<Stage, { type: 'AlterForm' | 'EgoForm' }>;
+  items: unknown[];
+  updateItem: (...args: unknown[]) => void;
+  parentClass?: string;
+  slideForm: ComponentType<{
+    subject: Record<string, unknown>;
+    item: unknown;
+    onUpdate: (...args: unknown[]) => void;
+    onScroll: () => void;
+    form: Record<string, unknown>;
+    submitButton: ReactElement;
+  }>;
+};
 
 const confirmDialog = {
   type: 'Confirm',
@@ -32,38 +49,32 @@ const slideVariants = {
   },
 };
 
-const SlidesForm = (props) => {
-  const {
-    form,
-    stage,
-    getNavigationHelpers,
-    items = [],
-    slideForm: SlideForm,
-    parentClass = '',
-    registerBeforeNext,
-    getFormName,
-    isFormValid,
-    isFormDirty,
-    updateItem,
-  } = props;
-
+function SlidesForm({
+  stage,
+  getNavigationHelpers,
+  items = [],
+  slideForm: SlideForm,
+  parentClass = '',
+  registerBeforeNext,
+  updateItem,
+}: SlidesFormProps) {
   const { moveForward } = getNavigationHelpers();
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const openDialog = useCallback(
-    (dialog) => dispatch(openDialogAction(dialog)),
+    (dialog: typeof confirmDialog) => dispatch(openDialogAction(dialog)),
     [dispatch],
   );
-  const submitFormRedux = useCallback(
-    (formName) => dispatch(submit(formName)),
-    [dispatch],
-  );
+
+  const { submitForm, isValid, isDirty } = useFormState();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
 
-  const [pendingDirection, setPendingDirection] = useState(null);
+  const [pendingDirection, setPendingDirection] = useState<Direction | null>(
+    null,
+  );
 
   const getItemIndex = useCallback(() => activeIndex - 1, [activeIndex]);
   const isIntroScreen = useCallback(() => activeIndex === 0, [activeIndex]);
@@ -81,101 +92,55 @@ const SlidesForm = (props) => {
     [activeIndex],
   );
 
-  // Submit the form of whatever slide is currently active.
-  // Get the form name based on the index of the slide.
-  const submitCurrentForm = useCallback(
-    () => submitFormRedux(getFormName(getItemIndex())),
-    [submitFormRedux, getFormName, getItemIndex],
-  );
-
-  // Ref to hold the current slide form state
-  const formState = useRef({
-    isFormValid,
-    isFormDirty,
-  });
-
-  // Helpers for accessing form state
-  const currentFormIsValid = useCallback(
-    () => formState.current.isFormValid[getItemIndex()],
-    [getItemIndex],
-  );
-  const currentFormIsDirty = useCallback(
-    () => formState.current.isFormDirty[getItemIndex()],
-    [getItemIndex],
-  );
-
-  // Update the navigation button to glow when the current form is valid
-  // And we are scrolled to the bottom.
   useEffect(() => {
-    formState.current = {
-      isFormValid,
-      isFormDirty,
-    };
-  }, [isFormValid, isFormDirty]);
-
-  useEffect(() => {
-    const readyForNext = currentFormIsValid() && scrollProgress === 1;
+    const readyForNext = isValid && scrollProgress === 1;
     setIsReadyForNext(readyForNext);
-  }, [setIsReadyForNext, scrollProgress, currentFormIsValid]);
+  }, [setIsReadyForNext, scrollProgress, isValid]);
 
-  // Show a dialog prompting the user to discard changes when form is dirty & invalid
   const checkShouldProceed = useCallback(() => {
     return openDialog(confirmDialog);
   }, [openDialog]);
 
-  const beforeNext = (direction) => {
-    // Leave the stage if there are no items
+  const beforeNext: BeforeNextFunction = (direction: Direction) => {
     if (items.length === 0) {
       return true;
     }
 
-    setPendingDirection(direction);
-    flushSync();
+    flushSync(() => setPendingDirection(direction));
 
-    // Leave the stage if we are on the intro and going backwards
     if (isIntroScreen() && direction === 'backwards') {
       return true;
     }
 
-    // We are moving backwards.
     if (direction === 'backwards') {
-      // When moving backwards, allow navigation when form is valid and not dirty
-      if (!currentFormIsValid() && currentFormIsDirty()) {
-        checkShouldProceed().then((confirm) => {
+      if (!isValid && isDirty) {
+        void checkShouldProceed().then((confirm) => {
           if (confirm) {
             previousItem();
           }
-          submitCurrentForm(); // submit so errors will display
+          void submitForm();
         });
         return false;
-        // submit the form if it is valid
-      } else if (currentFormIsValid()) {
-        submitCurrentForm();
+      } else if (isValid) {
+        void submitForm();
       }
 
       previousItem();
       return false;
     }
 
-    // We are moving forwards.
-
-    // If we are on the intro and moving forwards, move to the next item
     if (isIntroScreen()) {
       nextItem();
       return false;
     }
 
-    // We need to check the validity of the current
-    // form, and submit it.
-    submitCurrentForm();
+    void submitForm();
 
-    if (!currentFormIsValid()) {
+    if (!isValid) {
       return false;
     }
 
-    // If the form is valid, move to the next item
-    if (currentFormIsValid()) {
-      // If we are on the last item, move to the next stage
+    if (isValid) {
       if (isLastItem()) {
         return true;
       }
@@ -183,12 +148,14 @@ const SlidesForm = (props) => {
       nextItem();
       return false;
     }
+
+    return false;
   };
 
   const parentClasses = cx('alter-form', parentClass);
 
   const isComplete = useCallback(
-    (direction) => {
+    (direction: Direction | null) => {
       if (isIntroScreen() && direction === 'backwards') {
         return true;
       }
@@ -202,13 +169,13 @@ const SlidesForm = (props) => {
 
   const handleScroll = useCallback(
     () =>
-      debounce((_, progress) => {
+      debounce((_: unknown, progress: number) => {
         setScrollProgress(progress);
-        const nextIsReady = currentFormIsValid() && progress === 1;
+        const nextIsReady = isValid && progress === 1;
 
         setIsReadyForNext(nextIsReady);
       }, 200),
-    [setIsReadyForNext, setScrollProgress, currentFormIsValid],
+    [setIsReadyForNext, isValid],
   );
 
   useEffect(() => {
@@ -216,10 +183,9 @@ const SlidesForm = (props) => {
   }, [activeIndex, setIsReadyForNext]);
 
   const handleUpdate = useCallback(
-    (...update) => {
+    (...update: unknown[]) => {
       updateItem(...update);
 
-      // If stage is complete, return early.
       if (isComplete(pendingDirection)) {
         return;
       }
@@ -236,20 +202,13 @@ const SlidesForm = (props) => {
 
   registerBeforeNext(beforeNext);
 
-  // enter key should always move forward, and needs to process using beforeNext
-  const handleEnterSubmit = (e) => {
+  const handleEnterSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     moveForward();
     e.preventDefault();
   };
 
   const renderActiveSlide = () => {
     const itemIndex = getItemIndex();
-    const formName = getFormName(itemIndex);
-
-    const slideForm = {
-      ...form,
-      form: formName,
-    };
 
     return (
       <motion.div
@@ -259,15 +218,14 @@ const SlidesForm = (props) => {
         animate="show"
         initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}
         exit={pendingDirection === 'forwards' ? 'hideTop' : 'hideBottom'}
-        transition={{ easing: 'easeInOutQuad', duration: 0.5 }}
+        transition={{ ease: 'easeInOut', duration: 0.5 }}
       >
         <SlideForm
           key={itemIndex}
-          subject={stage.subject}
           item={items[itemIndex]}
-          onUpdate={handleUpdate} // TODO: this should be renamed onSubmit for consistency with EgoForm
+          onUpdate={handleUpdate}
           onScroll={handleScroll}
-          form={slideForm}
+          form={form}
           submitButton={
             <button
               type="submit"
@@ -291,19 +249,15 @@ const SlidesForm = (props) => {
         animate="show"
         initial={pendingDirection === 'forwards' ? 'hideBottom' : 'hideTop'}
         exit="hideTop"
-        transition={{ easing: 'easeInOutQuad', duration: 0.5 }}
+        transition={{ ease: 'easeInOut', duration: 0.5 }}
       >
         <div className="alter-form__introduction">
-          <h1>{stage.introductionPanel.title}</h1>
-          <Markdown label={stage.introductionPanel.text} />
+          <h1>{stage.introductionPanel!.title}</h1>
+          <Markdown label={stage.introductionPanel!.text} />
         </div>
       </motion.div>
     ),
-    [
-      pendingDirection,
-      stage.introductionPanel.title,
-      stage.introductionPanel.text,
-    ],
+    [pendingDirection, stage.introductionPanel],
   );
 
   return (
@@ -339,41 +293,6 @@ const SlidesForm = (props) => {
       </AnimatePresence>
     </div>
   );
-};
+}
 
-SlidesForm.propTypes = {
-  form: PropTypes.object.isRequired,
-  stage: PropTypes.object.isRequired,
-  items: PropTypes.array,
-  updateItem: PropTypes.func.isRequired,
-  parentClass: PropTypes.string,
-  slideForm: PropTypes.elementType.isRequired,
-};
-
-const makeMapStateToProps = () => {
-  const formPrefix = uuid();
-
-  const getFormName = (formId) =>
-    formId ? `${formPrefix}_${formId}` : formPrefix;
-
-  return (state, props) => {
-    const isFormValid = props.items.map((_, index) =>
-      isValid(getFormName(index))(state),
-    );
-
-    const isFormDirty = props.items.map((_, index) =>
-      isDirty(getFormName(index))(state),
-    );
-
-    return {
-      form: props.stage.form,
-      getFormName,
-      isFormValid,
-      isFormDirty,
-    };
-  };
-};
-
-const withStore = connect(makeMapStateToProps);
-
-export default withStore(SlidesForm);
+export default SlidesForm;

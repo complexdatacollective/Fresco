@@ -71,7 +71,7 @@ const NodeForm = (props: NodeFormProps) => {
   };
 
   // Use the translation hook to convert enriched fields directly to new Field components
-  const { fieldComponents, formContext } = useProtocolForm({
+  const fieldComponents = useProtocolForm({
     fields: form.fields,
     autoFocus: true,
   });
@@ -109,10 +109,9 @@ const NodeForm = (props: NodeFormProps) => {
           variants={variants}
         >
           <ActionButton
-            color="node-color-seq-1"
             disabled={disabled}
             onClick={() => setShow(true)}
-            iconName="person-standing"
+            iconName="user"
             // icon={icon}
             title={`Add...`}
           />
@@ -137,7 +136,7 @@ const NodeForm = (props: NodeFormProps) => {
           id="node-form"
           onSubmit={handleSubmit}
           initialValues={initialValues}
-          additionalContext={formContext}
+          className="mt-4"
         >
           {fieldComponents}
         </Form>

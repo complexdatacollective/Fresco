@@ -1,6 +1,5 @@
 .action-button {
   --size: #{unit(13)};
-  @include reset-button;
   @include color-modifiers($include-hover: true);
 
   position: relative;

@@ -59,6 +59,7 @@ export type FormStore<T extends z.ZodType> = {
 
   // Form submission
   setSubmitting: (submitting: boolean) => void;
+  submitForm: () => Promise<void>;
 
   // Form reset
   resetForm: () => void;
@@ -85,7 +86,6 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
         set((state) => {
           state.submitHandler = config.onSubmit;
           state.submitInvalidHandler = config.onSubmitInvalid ?? null;
-          state.context = config.additionalContext ?? {};
         });
       },
 
@@ -263,6 +263,8 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
             });
           }
         } catch (err) {
+          console.log('Error validating field:', fieldName, err);
+
           set((draft) => {
             const form = draft;
             if (form?.fields.get(fieldName)) {
@@ -344,6 +346,19 @@ export const createFormStore = <T extends z.ZodType = ZodAny>() => {
 
           form.isSubmitting = submitting;
         });
+      },
+
+      submitForm: async () => {
+        const state = get();
+
+        if (!state.submitHandler) {
+          // eslint-disable-next-line no-console
+          console.warn('No submit handler registered');
+          return;
+        }
+
+        const values = state.getFormValues();
+        await state.submitHandler(values);
       },
 
       resetForm: () => {

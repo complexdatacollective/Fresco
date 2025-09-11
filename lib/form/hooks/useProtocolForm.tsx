@@ -1,6 +1,11 @@
-import { type FormField } from '@codaco/protocol-validation';
+import { ComponentType, type FormField } from '@codaco/protocol-validation';
 import { useSelector } from 'react-redux';
-import { selectFieldMetadata } from '~/lib/interviewer/selectors/forms';
+import z from 'zod';
+import {
+  getValidationContext,
+  selectFieldMetadata,
+} from '~/lib/interviewer/selectors/forms';
+import { getValidation } from '~/lib/interviewer/utils/field-validation';
 import { Field } from '../components';
 import { BooleanField } from '../components/fields/Boolean';
 import { CheckboxGroupField } from '../components/fields/CheckboxGroup';
@@ -14,8 +19,9 @@ import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleField } from '../components/fields/Toggle';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
+import { FieldValidation } from '../types';
 
-const fieldTypeMap = {
+const fieldTypeMap: Record<ComponentType, React.ElementType> = {
   // Text inputs
   Text: InputField,
   TextArea: TextAreaField,
@@ -35,33 +41,109 @@ const fieldTypeMap = {
   RelativeDatePicker: RelativeDatePickerField,
 };
 
-import React from 'react';
-import { translateProtocolValidation } from '../utils/translateProtocolValidation';
-
-type UseProtocolFormReturn = {
-  fieldComponents: React.ReactElement[];
-  formContext: Record<string, unknown>;
-};
-
 export default function useProtocolForm({
   fields,
   autoFocus = false,
 }: {
   fields: FormField[];
   autoFocus?: boolean;
-}): UseProtocolFormReturn {
-  // const formContext = useSelector(getProtocolFormContext);
-  const formContext = {};
+}) {
+  const validationContext = useSelector(getValidationContext);
 
   const fieldsWithMetadata = useSelector((state) =>
     selectFieldMetadata(state, fields),
-  );
+  ).map((field) => {
+    const props: {
+      name: string;
+      label: string;
+      component?: string;
+      options?: unknown[];
+      useColumns?: boolean;
+      type?: string;
+      minLabel?: string;
+      maxLabel?: string;
+      min?: string;
+      max?: string;
+      before?: number;
+      after?: number;
+      validation?: FieldValidation;
+    } = {
+      name: field.name,
+      label: field.label,
+      component: field.component,
+    };
+
+    // process validation
+    if (field.validation) {
+      props.validation = (formValues: Record<string, unknown>) => {
+        return z.any().superRefine((value, ctx) => {
+          console.log('Validating field:', field.name, value);
+          const fn = getValidation(field.validation, validationContext);
+
+          const p = {};
+          const n = null;
+
+          fn.forEach((issue) => {
+            const t = issue(value, formValues, p, n);
+            console.log('  Issue:', t);
+            if (t) {
+              ctx.addIssue(t);
+            }
+          });
+          console.log('Validation result:', ctx);
+        });
+      };
+    }
+
+    // Process ordinal and categorical options
+    if ('options' in field) props.options = field.options;
+
+    // Turn on columns if there are more than 6 options. Maybe a bad idea?
+    if (
+      (field.component === 'CheckboxGroup' ||
+        field.component === 'RadioGroup') &&
+      field.options.length > 6
+    ) {
+      props.useColumns ??= true;
+    }
+
+    // Handle number inputs
+    if (field.type === 'number') {
+      props.type = 'number';
+    }
+
+    if (field.type === 'scalar') {
+      props.type = 'range';
+    }
+
+    // Handle VisualAnalogScale parameters
+    if (field.component === 'VisualAnalogScale' && field.parameters) {
+      const params = field.parameters;
+      if (params.minLabel) props.minLabel = params.minLabel;
+      if (params.maxLabel) props.maxLabel = params.maxLabel;
+    }
+
+    // Handle DatePicker parameters
+    if (field.component === 'DatePicker' && field.parameters) {
+      const params = field.parameters;
+      if (params.min) props.min = params.min;
+      if (params.max) props.max = params.max;
+      if (params.type) props.type = params.type;
+    }
+
+    // Handle RelativeDatePicker parameters
+    if (field.component === 'RelativeDatePicker' && field.parameters) {
+      const params = field.parameters;
+      if (params.before !== undefined) props.before = params.before;
+      if (params.after !== undefined) props.after = params.after;
+    }
+
+    return props;
+  });
 
   const fieldComponents = fieldsWithMetadata.map(
-    ({ component, ...fieldProps }, index) => {
-      const FieldComponent = fieldTypeMap[component!];
-
-      const validation = translateProtocolValidation(fieldProps, formContext);
+    ({ component, validation, ...fieldProps }, index) => {
+      const FieldComponent = fieldTypeMap[component as ComponentType];
 
       const autoFocusField = autoFocus && index === 0;
 
@@ -77,8 +159,5 @@ export default function useProtocolForm({
     },
   );
 
-  return {
-    fieldComponents,
-    formContext,
-  };
+  return fieldComponents;
 }

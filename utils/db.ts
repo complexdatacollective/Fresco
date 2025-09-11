@@ -12,6 +12,19 @@ const createPrismaClient = () =>
   new PrismaClient({
     log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }).$extends({
+    /**
+     * These transformations use our Zod schemas to parse JSON from the DB
+     * into known structures.
+     *
+     * Ultimately we will want to think about how to replace this. Some
+     * considerations:
+     *
+     * - MongoDB or similar also stores unstructured data - could a similar
+     *   approach help us to parse and validate that data?
+     * - Zod has a Codec feature (https://zod.dev/codecs) that might be useful
+     *   for two-way transformations. This might also help with passing data
+     *   across client boundaries, where we currently need to use superjson.
+     */
     result: {
       interview: {
         network: {

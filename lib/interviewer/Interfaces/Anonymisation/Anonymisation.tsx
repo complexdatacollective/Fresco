@@ -4,17 +4,16 @@ import { motion } from 'motion/react';
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { isValid, submit } from 'redux-form';
+import z from 'zod';
+import { Field, Form } from '~/lib/form';
+import { InputField } from '~/lib/form/components/fields/Input';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { Button } from '~/lib/ui/components';
 import { Markdown } from '~/lib/ui/components/Fields';
 import EncryptionBackground from '../../components/EncryptedBackground';
-import Form from '../../containers/Form';
 import type { BeforeNextFunction } from '../../containers/ProtocolScreen';
 import type { StageProps } from '../../containers/Stage';
 import { usePassphrase } from './usePassphrase';
-
-const FORM_NAME = 'passphrase-form';
 
 type AnonymisationProps = StageProps & {
   stage: Extract<Stage, { type: 'Anonymisation' }>;
@@ -101,7 +100,6 @@ export default function Anonymisation(props: AnonymisationProps) {
             {!passphrase && (
               <div>
                 <Form
-                  form={FORM_NAME}
                   submitButton={
                     <Button
                       key="submit"
@@ -114,41 +112,37 @@ export default function Anonymisation(props: AnonymisationProps) {
                     </Button>
                   }
                   onSubmit={handleSetPassphrase}
-                  subject={{ entity: 'ego' }}
-                  autoFocus
-                  fields={[
-                    {
-                      label: null,
-                      name: 'passphrase',
-                      component: 'Text',
-                      placeholder: 'Enter your passphrase...',
-                      validation: {
-                        required: 'You must enter a passphrase',
-                        ...passphraseValidation,
-                      },
-                    },
-                    {
-                      label: null,
-                      name: 'passphrase-2',
-                      component: 'Text',
-                      placeholder: 'Re-enter your passphrase...',
-                      validation: {
-                        required: 'You must re-enter your passphrase',
-                        ...passphraseValidation,
-                        validate: (
-                          value: FieldValue,
-                          values: Record<string, FieldValue>,
-                        ) => {
-                          if (value !== values.passphrase) {
-                            return 'Passphrases do not match';
-                          }
-
-                          return undefined;
-                        },
-                      },
-                    },
-                  ]}
-                />
+                >
+                  <Field
+                    Component={InputField}
+                    name="passphrase"
+                    placeholder="Enter your passphrase..."
+                    label="Passphrase"
+                    validation={z.string().nonempty()}
+                    autoFocus
+                  />
+                  <Field
+                    Component={InputField}
+                    name="passphrase-2"
+                    placeholder="Re-enter your passphrase..."
+                    label="Confirm Passphrase"
+                    validation={({ formValues }) => {
+                      const schema = z.string().nonempty();
+                      const result = schema.safeParse(
+                        formValues?.['passphrase-2'],
+                      );
+                      if (!result.success) {
+                        return 'You must re-enter your passphrase';
+                      }
+                      if (
+                        formValues?.passphrase !== formValues?.['passphrase-2']
+                      ) {
+                        return 'Passphrases do not match';
+                      }
+                      return undefined;
+                    }}
+                  />
+                </Form>
               </div>
             )}
           </div>

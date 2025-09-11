@@ -1,9 +1,11 @@
 import { type FormField, type Variable } from '@codaco/protocol-validation';
 import { createSelector } from '@reduxjs/toolkit';
 import { invariant } from 'es-toolkit';
+import { getCodebook } from '../ducks/modules/protocol';
 import { getCodebookVariablesForSubjectType } from './protocol';
+import { getNetwork } from './session';
 
-type VariableWithComponent = Extract<Variable, { component?: unknown }>;
+type CodebookVariableWithComponent = Extract<Variable, { component?: unknown }>;
 
 export const selectFieldMetadata = createSelector(
   [getCodebookVariablesForSubjectType, (_, fields: FormField[]) => fields],
@@ -23,9 +25,19 @@ export const selectFieldMetadata = createSelector(
       );
 
       return {
-        ...(codebookEntry as VariableWithComponent),
+        ...(codebookEntry as CodebookVariableWithComponent),
         label: prompt,
       };
     });
   },
+);
+
+export type FieldWithMetadata = ReturnType<typeof selectFieldMetadata>[number];
+
+export const getValidationContext = createSelector(
+  [getCodebook, getNetwork],
+  (codebook, network) => ({
+    codebook,
+    network,
+  }),
 );

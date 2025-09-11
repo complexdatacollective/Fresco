@@ -39,12 +39,10 @@ describe('FormStore', () => {
     it('should register form with config', () => {
       const onSubmit = vi.fn();
       const onSubmitInvalid = vi.fn();
-      const additionalContext = { userId: '123' };
 
       const formConfig: FormConfig = {
         onSubmit,
         onSubmitInvalid,
-        additionalContext,
       };
 
       store.getState().registerForm(formConfig);
@@ -52,7 +50,6 @@ describe('FormStore', () => {
 
       expect(state.submitHandler).toBe(onSubmit);
       expect(state.submitInvalidHandler).toBe(onSubmitInvalid);
-      expect(state.context).toEqual(additionalContext);
     });
 
     it('should register form without optional handlers', () => {
@@ -364,7 +361,6 @@ describe('FormStore', () => {
 
       store.getState().registerForm({
         onSubmit: vi.fn(),
-        additionalContext: { userId: '123' },
       });
 
       await store.getState().validateField('email');
@@ -440,6 +436,160 @@ describe('FormStore', () => {
 
       store.getState().setSubmitting(false);
       expect(store.getState().isSubmitting).toBe(false);
+    });
+
+    describe('submitForm', () => {
+      beforeEach(() => {
+        // Register a field for testing
+        store.getState().registerField({
+          name: 'email',
+          initialValue: 'test@example.com',
+          validation: z.string().email(),
+        });
+      });
+
+      it('should submit form successfully when valid', async () => {
+        const mockOnSubmit = vi.fn().mockResolvedValue({ success: true });
+        const formConfig = {
+          onSubmit: mockOnSubmit,
+        };
+
+        store.getState().registerForm(formConfig as any);
+
+        // Mock validation to return success
+        mockValidateFieldValue.mockResolvedValue({
+          success: true,
+          data: 'test@example.com',
+        });
+
+        await store.getState().submitForm();
+
+        expect(mockOnSubmit).toHaveBeenCalledWith({
+          email: 'test@example.com',
+        });
+        expect(store.getState().isSubmitting).toBe(false);
+        expect(store.getState().formErrors).toBeNull();
+      });
+
+      it('should not submit when form is invalid', async () => {
+        const mockOnSubmit = vi.fn();
+        const mockOnSubmitInvalid = vi.fn();
+        const formConfig = {
+          onSubmit: mockOnSubmit,
+          onSubmitInvalid: mockOnSubmitInvalid,
+        };
+
+        store.getState().registerForm(formConfig as any);
+
+        // Mock validation to return failure
+        const mockError = new z.ZodError([
+          { code: 'invalid_string', message: 'Invalid email', path: ['email'] },
+        ]);
+        mockValidateFieldValue.mockResolvedValue({
+          success: false,
+          error: mockError,
+        });
+
+        await store.getState().submitForm();
+
+        expect(mockOnSubmit).not.toHaveBeenCalled();
+        expect(mockOnSubmitInvalid).toHaveBeenCalledWith(mockError);
+        expect(store.getState().isSubmitting).toBe(false);
+      });
+
+      it('should handle submission errors', async () => {
+        const mockOnSubmit = vi.fn().mockResolvedValue({
+          success: false,
+          errors: new z.ZodError([
+            { code: 'custom', message: 'Server error', path: [] },
+          ]),
+        });
+        const formConfig = {
+          onSubmit: mockOnSubmit,
+        };
+
+        store.getState().registerForm(formConfig as any);
+
+        // Mock validation to return success
+        mockValidateFieldValue.mockResolvedValue({
+          success: true,
+          data: 'test@example.com',
+        });
+
+        await store.getState().submitForm();
+
+        expect(mockOnSubmit).toHaveBeenCalled();
+        expect(store.getState().isSubmitting).toBe(false);
+        expect(store.getState().formErrors).toBeDefined();
+      });
+
+      it('should handle submission exceptions', async () => {
+        const mockOnSubmit = vi
+          .fn()
+          .mockRejectedValue(new Error('Network error'));
+        const formConfig = {
+          onSubmit: mockOnSubmit,
+        };
+
+        store.getState().registerForm(formConfig as any);
+
+        // Mock validation to return success
+        mockValidateFieldValue.mockResolvedValue({
+          success: true,
+          data: 'test@example.com',
+        });
+
+        await store.getState().submitForm();
+
+        expect(mockOnSubmit).toHaveBeenCalled();
+        expect(store.getState().isSubmitting).toBe(false);
+        expect(store.getState().formErrors).toBeNull();
+      });
+
+      it('should warn when no submit handler is registered', async () => {
+        const consoleSpy = vi
+          .spyOn(console, 'warn')
+          .mockImplementation(() => {});
+
+        await store.getState().submitForm();
+
+        expect(consoleSpy).toHaveBeenCalledWith('No submit handler registered');
+        expect(store.getState().isSubmitting).toBe(false);
+
+        consoleSpy.mockRestore();
+      });
+
+      it('should manage submitting state correctly during submission', async () => {
+        let submitResolve: (value: any) => void;
+        const submitPromise = new Promise((resolve) => {
+          submitResolve = resolve;
+        });
+
+        const mockOnSubmit = vi.fn().mockReturnValue(submitPromise);
+        const formConfig = {
+          onSubmit: mockOnSubmit,
+        };
+
+        store.getState().registerForm(formConfig as any);
+
+        // Mock validation to return success
+        mockValidateFieldValue.mockResolvedValue({
+          success: true,
+          data: 'test@example.com',
+        });
+
+        const submitFormPromise = store.getState().submitForm();
+
+        // Check that submitting is true during submission
+        expect(store.getState().isSubmitting).toBe(true);
+
+        // Resolve the submission
+        submitResolve!({ success: true });
+        await submitFormPromise;
+
+        // Check that submitting is false after submission
+        expect(store.getState().isSubmitting).toBe(false);
+      });
     });
   });
 

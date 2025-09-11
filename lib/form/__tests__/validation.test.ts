@@ -1,12 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { validateFieldValue } from '../utils/validation';
 import type { ValidationContext } from '../types';
+import { validateFieldValue } from '../utils/validation';
 
 describe('Validation Utils', () => {
   const mockContext: ValidationContext = {
-    additionalContext: {},
+    codebook: {} as any,
     formValues: {},
+    network: {} as any,
   };
 
   describe('validateFieldValue', () => {
@@ -102,13 +103,12 @@ describe('Validation Utils', () => {
     it('should use context in validation', async () => {
       const contextValidationFn = (context: ValidationContext) => {
         const minLength =
-          (context.additionalContext as { minLength?: number })?.minLength ?? 3;
+          (context.codebook as { minLength?: number })?.minLength ?? 3;
         return z.string().min(minLength, `Must be at least ${minLength} chars`);
       };
 
       const contextWithMinLength: ValidationContext = {
         ...mockContext,
-        additionalContext: { minLength: 5 },
       };
 
       const result = await validateFieldValue(

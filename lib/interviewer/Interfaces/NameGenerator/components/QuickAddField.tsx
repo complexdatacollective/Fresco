@@ -5,7 +5,7 @@ import { useField } from '~/lib/form';
 import { type BaseFieldProps, type FieldConfig } from '~/lib/form/types';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import {
-  getNodeColor,
+  getNodeColorSelector,
   getNodeTypeLabel,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
@@ -66,7 +66,7 @@ export default function QuickAddField({
   const tooltipTimer = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const subject = useSelector(getStageSubject);
-  const nodeColor = useSelector(getNodeColor(subject.type));
+  const nodeColor = useSelector(getNodeColorSelector);
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const icon = useSelector(getNodeIconName);
 
@@ -244,7 +244,11 @@ export default function QuickAddField({
               className="flex w-full items-start rounded-b-(--nc-border-radius) bg-(--nc-error) py-2 pr-4 text-(--form-error-text)"
             >
               <Icon name="warning" className="mr-2 max-h-5" />
-              <span>{typeof meta.errors?.[0] === 'string' ? meta.errors[0] : meta.errors?.[0]?.message}</span>
+              <span>
+                {typeof meta.errors?.[0] === 'string'
+                  ? meta.errors[0]
+                  : meta.errors?.[0]?.message}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>

@@ -2,11 +2,10 @@
 
 import { motion } from 'motion/react';
 import { type ElementType } from 'react';
-import { type z } from 'zod';
 import { type FieldValue } from '~/lib/interviewer/utils/field-validation';
 import { cva } from '~/utils/cva';
 import { useField, type UseFieldKeys } from '../hooks/useField';
-import { type BaseFieldProps, type ValidationContext } from '../types';
+import { FieldValidation, type BaseFieldProps } from '../types';
 import { getInputState } from '../utils/getInputState';
 import FieldErrors from './FieldErrors';
 import Hint from './Hint';
@@ -58,16 +57,16 @@ export default function Field<
 }: {
   name: string;
   initialValue?: FieldValue;
-  validation?: z.ZodTypeAny | ((context: ValidationContext) => z.ZodTypeAny);
+  validation?: FieldValidation;
   Component: TComponent;
 } & BaseFieldProps &
   Omit<TComponentProps, UseFieldKeys>) {
   // Determine if field is required from validation
-  const isRequired = validation ? (
-    typeof validation === 'function' 
+  const isRequired = validation
+    ? typeof validation === 'function'
       ? false // Can't determine from function, default to false
       : !validation.isOptional()
-  ) : false;
+    : false;
 
   const { id, meta, fieldProps, containerProps } = useField({
     name,

@@ -1,5 +1,7 @@
-import { type VariableValue } from '@codaco/shared-consts';
+import { Codebook, StageSubject } from '@codaco/protocol-validation';
+import { NcNetwork, type VariableValue } from '@codaco/shared-consts';
 import type * as z from 'zod/v4';
+import { VariableDefinition } from '~/lib/network-exporters/formatters/csv/processEntityVariables';
 
 export type FieldValue = VariableValue | undefined;
 
@@ -52,13 +54,15 @@ export type FormSubmitHandler<T extends z.ZodType> = (
 export type FormConfig<T extends z.ZodType> = {
   onSubmit: FormSubmitHandler<T>;
   onSubmitInvalid?: (errors: z.ZodError<z.infer<T>>) => void;
-  additionalContext?: Record<string, unknown>;
 };
 
 // Context for validation functions
 export type ValidationContext = {
-  formValues: Record<string, unknown>;
-} & Record<string, unknown>;
+  subject: StageSubject;
+  variable: VariableDefinition;
+  codebook: Codebook;
+  network: NcNetwork;
+};
 
 /**
  * Zod schemas for form submission results

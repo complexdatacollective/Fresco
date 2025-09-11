@@ -4,9 +4,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { isDirty, isValid, submit } from 'redux-form';
+import { Form } from '~/lib/form';
+import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import Markdown from '~/lib/ui/components/Fields/Markdown';
 import Icon from '~/lib/ui/components/Icon';
 import Scroller from '~/lib/ui/components/Scroller';
+import { type BeforeNextFunction } from '../containers/ProtocolScreen';
+import { type StageProps } from '../containers/Stage';
 import {
   type Dialog,
   openDialog as openDialogAction,
@@ -16,9 +20,6 @@ import useFlipflop from '../hooks/useFlipflop';
 import useReadyForNextStage from '../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../selectors/session';
 import { useAppDispatch } from '../store';
-import Form from '../containers/Form';
-import { type BeforeNextFunction } from '../containers/ProtocolScreen';
-import { type StageProps } from '../containers/Stage';
 
 const elementHasOverflow = ({
   clientWidth,
@@ -153,6 +154,8 @@ const EgoForm = (props: EgoFormProps) => {
     [scrollProgress, showScrollStatus, isOverflowing],
   );
 
+  const fieldComponents = useProtocolForm(form.fields);
+
   return (
     <div className="ego-form alter-form">
       <div className="ego-form__form-container">
@@ -164,17 +167,9 @@ const EgoForm = (props: EgoFormProps) => {
             <h1>{introductionPanel!.title}</h1>
             <Markdown label={introductionPanel!.text} />
           </div>
-          <Form
-            {...form}
-            initialValues={egoAttributes}
-            form={formName}
-            subject={{ entity: 'ego' }}
-            onSubmit={handleSubmitForm}
-            onChange={() => {
-              // Reset the scroll nudge timeout each time a form field is changed
-              setShowScrollStatus(false);
-            }}
-          />
+          <Form initialValues={egoAttributes} onSubmit={handleSubmitForm}>
+            {fieldComponents}
+          </Form>
         </Scroller>
       </div>
       <AnimatePresence>
