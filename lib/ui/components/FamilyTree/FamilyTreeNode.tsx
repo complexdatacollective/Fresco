@@ -68,7 +68,7 @@ const FamilyTreeNode = forwardRef<
         position: 'absolute',
         transform: 'translate(-50%, -50%)',
         display: 'block',
-        fontSize: '96px',
+        // fontSize: '96px',
         top: yPos,
         left: xPos,
       }}
