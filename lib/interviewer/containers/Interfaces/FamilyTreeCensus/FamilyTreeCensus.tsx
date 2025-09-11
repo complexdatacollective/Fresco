@@ -671,6 +671,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
                     id={node.id}
                     isEgo={node.isEgo || false}
                     gender={node.gender}
+                    parentIds={node.parentIds}
                     label={node.label}
                     xPos={node.xPos + xOffset}
                     yPos={node.yPos + yOffset}
