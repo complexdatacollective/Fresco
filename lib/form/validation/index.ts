@@ -78,20 +78,7 @@ const maxLength: ValidationFunction = (parameters) => {
 
   invariant(max, 'Max length must be specified');
 
-  return z
-    .string()
-    .max(max)
-    .superRefine((value, ctx) => {
-      if (value.length > max) {
-        ctx.addIssue({
-          code: 'too_big',
-          maximum: max,
-          origin: 'string',
-          message: `Your answer must be ${max} characters or less.`,
-          path: [],
-        });
-      }
-    });
+  return z.string().max(max);
 };
 
 /**
@@ -102,20 +89,7 @@ const minLength: ValidationFunction = (parameters) => {
 
   invariant(min, 'Min length must be specified');
 
-  return z
-    .string()
-    .min(min)
-    .superRefine((value, ctx) => {
-      if (value.length < min) {
-        ctx.addIssue({
-          code: 'too_small',
-          minimum: min,
-          origin: 'string',
-          message: `Your answer must be ${min} characters or more.`,
-          path: [],
-        });
-      }
-    });
+  return z.string().min(min);
 };
 
 /**
@@ -126,20 +100,7 @@ const minValue: ValidationFunction = (parameters) => {
 
   invariant(min, 'Min value must be specified');
 
-  return z
-    .number()
-    .min(min)
-    .superRefine((value, ctx) => {
-      if (value < min) {
-        ctx.addIssue({
-          code: 'too_small',
-          minimum: min,
-          origin: 'number',
-          message: `Your answer must be at least ${min}.`,
-          path: [],
-        });
-      }
-    });
+  return z.number().min(min);
 };
 
 /**
@@ -150,20 +111,7 @@ const maxValue: ValidationFunction = (parameters) => {
 
   invariant(max, 'Max value must be specified');
 
-  return z
-    .number()
-    .max(max)
-    .superRefine((value, ctx) => {
-      if (value > max) {
-        ctx.addIssue({
-          code: 'too_big',
-          maximum: max,
-          origin: 'number',
-          message: `Your answer must be less than ${max}.`,
-          path: [],
-        });
-      }
-    });
+  return z.number().max(max);
 };
 
 /**
@@ -174,20 +122,17 @@ const minSelected: ValidationFunction = (parameters) => {
 
   invariant(min, 'Min items must be specified');
 
-  return z
-    .array(z.unknown())
-    .min(min)
-    .superRefine((value, ctx) => {
-      if (value.length < min) {
-        ctx.addIssue({
-          code: 'too_small',
-          minimum: min,
-          origin: 'array',
-          message: `You must choose a minimum of ${min} option${min === 1 ? '' : 's'}.`,
-          path: [],
-        });
-      }
-    });
+  return z.array(z.unknown()).superRefine((value, ctx) => {
+    if (value.length < min) {
+      ctx.addIssue({
+        code: 'too_small',
+        minimum: min,
+        origin: 'array',
+        message: `You must choose a minimum of ${min} option${min === 1 ? '' : 's'}.`,
+        path: [],
+      });
+    }
+  });
 };
 
 /**
@@ -198,20 +143,17 @@ const maxSelected: ValidationFunction = (parameters) => {
 
   invariant(max, 'Max items must be specified');
 
-  return z
-    .array(z.unknown())
-    .max(max)
-    .superRefine((value, ctx) => {
-      if (value.length > max) {
-        ctx.addIssue({
-          code: 'too_big',
-          maximum: max,
-          origin: 'array',
-          message: `You can choose a maximum of ${max} option${max === 1 ? '' : 's'}.`,
-          path: [],
-        });
-      }
-    });
+  return z.array(z.unknown()).superRefine((value, ctx) => {
+    if (value.length > max) {
+      ctx.addIssue({
+        code: 'too_big',
+        maximum: max,
+        origin: 'array',
+        message: `You can choose a maximum of ${max} option${max === 1 ? '' : 's'}.`,
+        path: [],
+      });
+    }
+  });
 };
 
 /**
@@ -307,7 +249,7 @@ const sameAs: ValidationFunction = (parameters) => {
 
     invariant(comparisonVariable, 'Comparison variable not found in codebook');
 
-    if (isMatchingValue(value, formValues[attribute] as FieldValue)) {
+    if (!isMatchingValue(value, formValues[attribute] as FieldValue)) {
       ctx.addIssue({
         code: 'custom',
         message: `Your answer must be the same as '${comparisonVariable.name}'`,
