@@ -399,6 +399,14 @@ const CensusStep2Form = (props: NodeFormProps) => {
       let newNode: PlaceholderNodeProps;
       let newNodeParentIds: string[] = [];
 
+      const relationLabel =
+        step2Nodes.find(
+          (n) => n.id === fullData[`${fullData.relation}Relation`],
+        )?.label ?? '';
+
+      const isMaternal = /mother|maternal/i.test(relationLabel);
+      const labelPrefix = isMaternal ? 'maternal' : 'paternal';
+
       switch (fullData.relation) {
         case 'aunt':
         case 'uncle': {
@@ -410,7 +418,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
           newNode = {
             id: crypto.randomUUID(),
             gender: fullData.relation === 'aunt' ? 'female' : 'male',
-            label: fullData.relation,
+            label: `${labelPrefix} ${fullData.relation}`,
             parentIds: parentsArray.map((p) => p.id),
             childIds: [],
             xPos: undefined,
@@ -545,10 +553,11 @@ const CensusStep2Form = (props: NodeFormProps) => {
           newNode = {
             id: crypto.randomUUID(),
             gender: fullData.relation === 'halfBrother' ? 'male' : 'female',
-            label:
+            label: `${labelPrefix} ${
               fullData.relation === 'halfBrother'
                 ? 'half brother'
-                : 'half sister',
+                : 'half sister'
+            }`,
             parentIds: newNodeParentIds,
             childIds: [],
             xPos: undefined,
@@ -619,7 +628,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
           newNode = {
             id: crypto.randomUUID(),
             gender: fullData.relation === 'firstCousinMale' ? 'male' : 'female',
-            label: 'cousin',
+            label: `${labelPrefix} cousin`,
             parentIds: newNodeParentIds,
             childIds: [],
             xPos: undefined,

@@ -1,9 +1,98 @@
 .pointer-events-none .family-tree-node {
-  top: 0 !important;
-  left: 0 !important;
+  top: -50px !important;
+  left: -50px !important;
   transform: none !important;
 }
 
 .family-pedigree-interface .node-bin {
   position: absolute !important;
+}
+
+.family-tree-node {
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  font-size: var(--base-node-size);
+  vertical-align: middle;
+
+  &__node {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: visible;
+  }
+
+  &__node-trim {
+    fill: transparent;
+    stroke: transparent;
+    stroke-width: 0.75rem;
+    transition: stroke var(--animation-duration-standard) ease-in-out;
+  }
+
+  &__node-outer-trim {
+    fill: transparent;
+  }
+
+  &__label {
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    color: var(--nc-node-label);
+
+    &-text {
+      align-items: start;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+      text-align: center;
+      font-size: 0.15em;
+      font-family: $netcanvas-font-stack;
+      color: palette('text');
+      hyphens: auto;
+      overflow: hidden;
+      white-space: pre-line;
+
+      &.len-1 {
+        font-size: 0.17em;
+      }
+
+      &.len-2 {
+        font-size: 0.17em;
+      }
+
+      &.len-3 {
+        font-size: 0.17em;
+      }
+
+      &.len-4 {
+        font-size: 0.17em;
+      }
+
+      &.len-5 {
+        font-size: 0.17em;
+      }
+
+      &.len-6 {
+        font-size: 0.17em;
+      }
+    }
+  }
+
+  &--selected {
+    .node__node-trim {
+      stroke: palette('selected');
+    }
+
+    .node__node-outer-trim {
+      fill: var(--nc-node-outer-trim-stroke);
+      transform-origin: 250px 250px;
+      animation: bounce var(--animation-duration-standard) ease-in-out;
+    }
+  }
 }

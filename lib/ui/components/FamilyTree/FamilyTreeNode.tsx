@@ -50,7 +50,7 @@ const FamilyTreeNode = forwardRef<
 
   const labelClasses = () => {
     const labelLength = label.length;
-    return `node__label-text len-${labelLength}`;
+    return `family-tree-node__label-text len-${labelLength}`;
   };
 
   const nodeBaseColor = `var(--color-${color})`;
@@ -68,7 +68,7 @@ const FamilyTreeNode = forwardRef<
         position: 'absolute',
         transform: 'translate(-50%, -50%)',
         display: 'block',
-        // fontSize: '96px',
+        fontSize: '96px',
         top: yPos,
         left: xPos,
       }}
@@ -80,7 +80,7 @@ const FamilyTreeNode = forwardRef<
               <svg
                 viewBox="0 0 500 500"
                 xmlns="http://www.w3.org/2000/svg"
-                className="node__node"
+                className="family-tree-node__node"
                 preserveAspectRatio="xMidYMid meet"
               >
                 <rect
@@ -89,7 +89,7 @@ const FamilyTreeNode = forwardRef<
                   width="400"
                   height="400"
                   rx="16"
-                  className="node__node-shadow"
+                  className="family-tree-node__node-shadow"
                   opacity="0.25"
                 />
                 <rect
@@ -98,7 +98,7 @@ const FamilyTreeNode = forwardRef<
                   width="500"
                   height="500"
                   rx="16"
-                  className="node__node-outer-trim"
+                  className="family-tree-node__node-outer-trim"
                 />
                 <rect
                   x="50"
@@ -107,19 +107,19 @@ const FamilyTreeNode = forwardRef<
                   height="400"
                   rx="16"
                   fill={nodeBaseColor}
-                  className="node__node-base"
+                  className="family-tree-node__node-base"
                 />
                 <path
                   d="M54, 50 L446,446 L446,50 Z"
                   fill={nodeFlashColor}
-                  className="node__node-flash"
+                  className="family-tree-node__node-flash"
                 />
                 <rect
                   x="50"
                   y="50"
                   width="400"
                   height="400"
-                  className="node__node-trim"
+                  className="family-tree-node__node-trim"
                 />
               </svg>
             );
@@ -128,36 +128,41 @@ const FamilyTreeNode = forwardRef<
               <svg
                 viewBox="0 0 500 500"
                 xmlns="http://www.w3.org/2000/svg"
-                className="node__node"
+                className="family-tree-node__node"
                 preserveAspectRatio="xMidYMid meet"
               >
                 <circle
                   cx="250"
                   cy="270"
                   r="200"
-                  className="node__node-shadow"
+                  className="family-tree-node__node-shadow"
                   opacity="0.25"
                 />
                 <circle
                   cx="250"
                   cy="250"
                   r="250"
-                  className="node__node-outer-trim"
+                  className="family-tree-node__node-outer-trim"
                 />
                 <circle
                   cx="250"
                   cy="250"
                   r="200"
                   fill={nodeBaseColor}
-                  className="node__node-base"
+                  className="family-tree-node__node-base"
                 />
                 <path
                   d="m50,250 a1,1 0 0,0 400,0"
                   fill={nodeFlashColor}
-                  className="node__node-flash"
+                  className="family-tree-node__node-flash"
                   transform="rotate(-35 250 250)"
                 />
-                <circle cx="250" cy="250" r="200" className="node__node-trim" />
+                <circle
+                  cx="250"
+                  cy="250"
+                  r="200"
+                  className="family-tree-node__node-trim"
+                />
               </svg>
             );
         }
@@ -194,13 +199,8 @@ const FamilyTreeNode = forwardRef<
         </div>
       )}
       {!loading && (
-        <div
-          className="node__label"
-          style={{ top: '100%', padding: '0', height: 'fit-content' }}
-        >
-          <div className={labelClasses()} style={{ alignItems: 'start' }}>
-            {labelWithEllipsis}
-          </div>
+        <div className="family-tree-node__label">
+          <div className={labelClasses()}>{labelWithEllipsis}</div>
         </div>
       )}
     </div>
