@@ -26,23 +26,34 @@ export default defineConfig({
             '**/.{idea,git,cache,output,temp}/**',
             '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
             '**/tests/e2e/**', // Exclude Playwright E2E tests
+            '**/*.stories.tsx', // Exclude Storybook files from unit tests
+            '**/*.stories.ts',
           ],
           name: 'unit tests',
         },
       },
       {
         plugins: [
-          tsconfigPaths(),
-          react(),
           storybookTest({
             configDir: path.join(dirname, '.storybook'),
           }),
         ],
-        // test: {
-        //   name: 'storybook',
-        //   globals: true,
-        //   environment: 'jsdom',
-        // },
+        test: {
+          name: 'storybook',
+          globals: true,
+          browser: {
+            provider: 'playwright',
+            enabled: true,
+            instances: [{ browser: 'chromium' }],
+          },
+          include: ['**/*.stories.{ts,tsx}'],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/tests/e2e/**', // Exclude Playwright E2E tests
+          ],
+          setupFiles: ['./.storybook/vitest.setup.ts'],
+        },
       },
     ],
   },
