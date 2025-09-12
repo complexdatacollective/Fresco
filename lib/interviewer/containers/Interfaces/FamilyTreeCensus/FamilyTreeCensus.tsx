@@ -254,7 +254,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
 
     if (egoChildCheck(formData)) {
-      const partner = addNode('male', 'partner');
+      const partner = addNode('male', `${ego.label}'s partner`);
       ego.partnerId = partner.id;
       partner.partnerId = ego.id;
 

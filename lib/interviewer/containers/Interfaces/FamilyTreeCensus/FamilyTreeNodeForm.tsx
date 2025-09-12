@@ -60,27 +60,32 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     ({ value }: { value: Record<string, VariableValue> }) => {
       if (!selectedNode) return;
 
-      const { parentIds, label } = selectedNode;
-      const fullPayload = { ...value, parentIds, label };
-
       if ('_uid' in selectedNode) {
-        // It's an NcNode (already in network) → update
+        // Existing node → update only the editable fields
         console.log('[Form] Updating existing node', {
           id: selectedNode[entityPrimaryKeyProperty],
-          fullPayload,
+          value,
         });
         const selectedUID = selectedNode[entityPrimaryKeyProperty];
         void updateNode({
           nodeId: selectedUID,
-          newAttributeData: fullPayload,
+          newAttributeData: value,
         });
       } else {
+        // Placeholder → enrich with parentIds + label and commit
+        const { parentIds, label } = selectedNode;
+        const fullPayload = {
+          ...newNodeAttributes,
+          ...value,
+          parentIds,
+          label,
+        };
+
         console.log('[Form] Adding new node from placeholder', {
           placeholder: selectedNode,
           fullPayload,
         });
-        // It's a placeholder node → commit as new node
-        addNode({ ...newNodeAttributes, ...fullPayload });
+        addNode(fullPayload);
       }
 
       setShow(false);

@@ -58,26 +58,11 @@
       overflow: hidden;
       white-space: pre-line;
 
-      &.len-1 {
-        font-size: 0.17em;
-      }
-
-      &.len-2 {
-        font-size: 0.17em;
-      }
-
-      &.len-3 {
-        font-size: 0.17em;
-      }
-
-      &.len-4 {
-        font-size: 0.17em;
-      }
-
-      &.len-5 {
-        font-size: 0.17em;
-      }
-
+      &.len-1,
+      &.len-2,
+      &.len-3,
+      &.len-4,
+      &.len-5,
       &.len-6 {
         font-size: 0.17em;
       }

@@ -107,7 +107,7 @@ export const getInterviewById = async (interviewId: string) => {
         ego: {
           _uid: '37b7cb82-6eff-4041-b153-ae6caa0682ee',
           attributes: {
-            name: 'ego name from network',
+            name: 'network ego',
           },
         },
       },
