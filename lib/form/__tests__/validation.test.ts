@@ -1,21 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import type { ValidationContext } from '../types';
+import type { FieldValue } from '../types';
 import { validateFieldValue } from '../utils/validation';
 
 describe('Validation Utils', () => {
-  const mockContext: ValidationContext = {
-    codebook: {} as any,
-    formValues: {},
-    network: {} as any,
-  };
+  const mockFormValues: Record<string, FieldValue> = {};
 
   describe('validateFieldValue', () => {
-    it('should return valid for no validation', async () => {
-      const result = await validateFieldValue('test', undefined, mockContext);
+    it('should validate with no schema (passthrough)', async () => {
+      // When no validation is provided, we can use z.unknown() which accepts anything
+      const result = await validateFieldValue(
+        'test',
+        z.unknown(),
+        mockFormValues,
+      );
 
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toBe(null);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toBe('test');
+      }
     });
 
     it('should validate with Zod schema', async () => {
@@ -25,45 +28,59 @@ describe('Validation Utils', () => {
       const validResult = await validateFieldValue(
         'hello',
         schema,
-        mockContext,
+        mockFormValues,
       );
-      expect(validResult.isValid).toBe(true);
-      expect(validResult.errors).toBe(null);
+      expect(validResult.success).toBe(true);
+      if (validResult.success) {
+        expect(validResult.data).toBe('hello');
+      }
 
       // Invalid case
-      const invalidResult = await validateFieldValue('hi', schema, mockContext);
-      expect(invalidResult.isValid).toBe(false);
-      expect(invalidResult.errors).toEqual(['Too short']);
+      const invalidResult = await validateFieldValue(
+        'hi',
+        schema,
+        mockFormValues,
+      );
+      expect(invalidResult.success).toBe(false);
+      if (!invalidResult.success) {
+        expect(invalidResult.error.issues[0]?.message).toBe('Too short');
+      }
     });
 
     it('should validate with function returning schema', async () => {
-      const validationFn = (_context: ValidationContext) => {
-        return z.string().email('Invalid email');
+      const validationFn = (_formValues: Record<string, FieldValue>) => {
+        return z.string().email({ message: 'Invalid email' });
       };
 
       // Valid case
       const validResult = await validateFieldValue(
         'test@example.com',
         validationFn,
-        mockContext,
+        mockFormValues,
       );
-      expect(validResult.isValid).toBe(true);
-      expect(validResult.errors).toBe(null);
+      expect(validResult.success).toBe(true);
+      if (validResult.success) {
+        expect(validResult.data).toBe('test@example.com');
+      }
 
       // Invalid case
       const invalidResult = await validateFieldValue(
         'invalid-email',
         validationFn,
-        mockContext,
+        mockFormValues,
       );
-      expect(invalidResult.isValid).toBe(false);
-      expect(invalidResult.errors).toEqual(['Invalid email']);
+      expect(invalidResult.success).toBe(false);
+      if (!invalidResult.success) {
+        expect(invalidResult.error.issues[0]?.message).toBe('Invalid email');
+      }
     });
 
     it('should validate with async function returning schema', async () => {
-      const asyncValidationFn = async (_context: ValidationContext) => {
+      const asyncValidationFn = async (
+        _formValues: Record<string, FieldValue>,
+      ) => {
         // Simulate async operation
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise<void>((resolve) => setTimeout(resolve, 10));
         return z.string().min(5, 'Too short');
       };
 
@@ -71,19 +88,23 @@ describe('Validation Utils', () => {
       const validResult = await validateFieldValue(
         'hello',
         asyncValidationFn,
-        mockContext,
+        mockFormValues,
       );
-      expect(validResult.isValid).toBe(true);
-      expect(validResult.errors).toBe(null);
+      expect(validResult.success).toBe(true);
+      if (validResult.success) {
+        expect(validResult.data).toBe('hello');
+      }
 
       // Invalid case
       const invalidResult = await validateFieldValue(
         'hi',
         asyncValidationFn,
-        mockContext,
+        mockFormValues,
       );
-      expect(invalidResult.isValid).toBe(false);
-      expect(invalidResult.errors).toEqual(['Too short']);
+      expect(invalidResult.success).toBe(false);
+      if (!invalidResult.success) {
+        expect(invalidResult.error.issues[0]?.message).toBe('Too short');
+      }
     });
 
     it('should handle validation errors gracefully', async () => {
@@ -91,33 +112,36 @@ describe('Validation Utils', () => {
         throw new Error('Validation function error');
       };
 
-      const result = await validateFieldValue(
-        'test',
-        errorValidationFn,
-        mockContext,
-      );
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toEqual(['Validation error']);
+      await expect(
+        validateFieldValue('test', errorValidationFn, mockFormValues),
+      ).rejects.toThrow('Validation function error');
     });
 
-    it('should use context in validation', async () => {
-      const contextValidationFn = (context: ValidationContext) => {
-        const minLength =
-          (context.codebook as { minLength?: number })?.minLength ?? 3;
+    it('should use formValues in validation', async () => {
+      const formValueValidationFn = (
+        formValues: Record<string, FieldValue>,
+      ) => {
+        const minLength = typeof formValues.minLength === 'number' 
+          ? formValues.minLength 
+          : 3;
         return z.string().min(minLength, `Must be at least ${minLength} chars`);
       };
 
-      const contextWithMinLength: ValidationContext = {
-        ...mockContext,
+      const formValuesWithMinLength: Record<string, FieldValue> = {
+        minLength: 5,
       };
 
       const result = await validateFieldValue(
         'hi',
-        contextValidationFn,
-        contextWithMinLength,
+        formValueValidationFn,
+        formValuesWithMinLength,
       );
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toEqual(['Must be at least 5 chars']);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe(
+          'Must be at least 5 chars',
+        );
+      }
     });
   });
 });

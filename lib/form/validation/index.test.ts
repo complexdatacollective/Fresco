@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { Codebook, StageSubject } from '@codaco/protocol-validation';
+import type {
+  Codebook,
+  StageSubject,
+  Variable,
+} from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
   type NcNetwork,
@@ -8,12 +12,10 @@ import type { ValidationContext } from '../types';
 import { required, validations } from './index';
 
 describe('Validation Functions', () => {
-  const createMockContext = (overrides = {}): ValidationContext => ({
-    subject: { entity: 'node', type: 'person' } as StageSubject,
-    variable: {
-      name: 'testVariable',
-      type: 'text',
-    } as any,
+  const createMockContext = (
+    overrides: Partial<ValidationContext> = {},
+  ): ValidationContext => ({
+    stageSubject: { entity: 'node', type: 'person' } as StageSubject,
     codebook: {
       node: {
         person: {
@@ -23,36 +25,33 @@ describe('Validation Functions', () => {
             testAttribute: {
               name: 'Test Attribute',
               type: 'text',
-            },
+            } as Variable,
             numberAttribute: {
               name: 'Number Attribute',
               type: 'number',
-            },
+            } as Variable,
             dateAttribute: {
               name: 'Date Attribute',
               type: 'datetime',
-            },
+            } as Variable,
           },
         },
       },
-    } as unknown as Codebook,
+    } as Codebook,
     network: {
       nodes: [],
       edges: [],
       ego: {
         _uid: 'ego',
-        attributes: {},
+        [entityAttributesProperty]: {},
       },
-    } as unknown as NcNetwork,
+    } as NcNetwork,
     ...overrides,
   });
 
   describe('required', () => {
     it('should reject null values', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()(); // required()() returns a function that takes formValues
 
       const result = validator.safeParse(null);
       expect(result.success).toBe(false);
@@ -64,80 +63,56 @@ describe('Validation Functions', () => {
     });
 
     it('should reject undefined values', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()(); 
 
       const result = validator.safeParse(undefined);
       expect(result.success).toBe(false);
     });
 
     it('should reject empty strings', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       const result = validator.safeParse('  ');
       expect(result.success).toBe(false);
     });
 
     it('should accept non-empty strings', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       const result = validator.safeParse('valid text');
       expect(result.success).toBe(true);
     });
 
     it('should reject NaN for number fields', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       const result = validator.safeParse(NaN);
       expect(result.success).toBe(false);
     });
 
     it('should accept zero for number fields', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       const result = validator.safeParse(0);
       expect(result.success).toBe(true);
     });
 
     it('should reject empty arrays', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       const result = validator.safeParse([]);
       expect(result.success).toBe(false);
     });
 
     it('should accept non-empty arrays', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       const result = validator.safeParse(['item1', 'item2']);
       expect(result.success).toBe(true);
     });
 
     it('should accept boolean values', () => {
-      const validator = required({
-        formValues: {},
-        context: createMockContext(),
-      });
+      const validator = required()();
 
       expect(validator.safeParse(true).success).toBe(true);
       expect(validator.safeParse(false).success).toBe(true);
@@ -146,39 +121,26 @@ describe('Validation Functions', () => {
 
   describe('maxLength', () => {
     it('should reject strings longer than max', () => {
-      const validator = validations.maxLength({
-        formValues: {},
-        context: createMockContext(),
-        max: 5,
-      });
+      const validator = validations.maxLength(5, createMockContext())({});
 
       const result = validator.safeParse('too long');
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Zod's built-in max validator provides this message
         expect(result.error.issues[0]?.message).toBe(
-          'Too big: expected string to have <=5 characters',
+          'You must enter no more than 5 characters.',
         );
       }
     });
 
     it('should accept strings at max length', () => {
-      const validator = validations.maxLength({
-        formValues: {},
-        context: createMockContext(),
-        max: 5,
-      });
+      const validator = validations.maxLength(5, createMockContext())({});
 
       const result = validator.safeParse('12345');
       expect(result.success).toBe(true);
     });
 
     it('should accept strings shorter than max', () => {
-      const validator = validations.maxLength({
-        formValues: {},
-        context: createMockContext(),
-        max: 10,
-      });
+      const validator = validations.maxLength(10, createMockContext())({});
 
       const result = validator.safeParse('short');
       expect(result.success).toBe(true);
@@ -186,49 +148,33 @@ describe('Validation Functions', () => {
 
     it('should throw error when max is not specified', () => {
       expect(() => {
-        validations.maxLength({
-          formValues: {},
-          context: createMockContext(),
-        });
+        validations.maxLength(null as unknown as number, createMockContext())({});
       }).toThrow('Max length must be specified');
     });
   });
 
   describe('minLength', () => {
     it('should reject strings shorter than min', () => {
-      const validator = validations.minLength({
-        formValues: {},
-        context: createMockContext(),
-        min: 5,
-      });
+      const validator = validations.minLength(5, createMockContext())({});
 
       const result = validator.safeParse('hi');
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Zod's built-in min validator provides this message
         expect(result.error.issues[0]?.message).toBe(
-          'Too small: expected string to have >=5 characters',
+          'You must enter at least 5 characters.',
         );
       }
     });
 
     it('should accept strings at min length', () => {
-      const validator = validations.minLength({
-        formValues: {},
-        context: createMockContext(),
-        min: 5,
-      });
+      const validator = validations.minLength(5, createMockContext())({});
 
       const result = validator.safeParse('12345');
       expect(result.success).toBe(true);
     });
 
     it('should accept strings longer than min', () => {
-      const validator = validations.minLength({
-        formValues: {},
-        context: createMockContext(),
-        min: 3,
-      });
+      const validator = validations.minLength(3, createMockContext())({});
 
       const result = validator.safeParse('longer text');
       expect(result.success).toBe(true);
@@ -236,49 +182,33 @@ describe('Validation Functions', () => {
 
     it('should throw error when min is not specified', () => {
       expect(() => {
-        validations.minLength({
-          formValues: {},
-          context: createMockContext(),
-        });
+        validations.minLength(null as unknown as number, createMockContext())({});
       }).toThrow('Min length must be specified');
     });
   });
 
   describe('minValue', () => {
     it('should reject numbers less than min', () => {
-      const validator = validations.minValue({
-        formValues: {},
-        context: createMockContext(),
-        min: 10,
-      });
+      const validator = validations.minValue(10, createMockContext())({});
 
       const result = validator.safeParse(5);
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Zod's built-in min validator provides this message
         expect(result.error.issues[0]?.message).toBe(
-          'Too small: expected number to be >=10',
+          'You must enter a value greater than 10.',
         );
       }
     });
 
     it('should accept numbers equal to min', () => {
-      const validator = validations.minValue({
-        formValues: {},
-        context: createMockContext(),
-        min: 10,
-      });
+      const validator = validations.minValue(10, createMockContext())({});
 
       const result = validator.safeParse(10);
       expect(result.success).toBe(true);
     });
 
     it('should accept numbers greater than min', () => {
-      const validator = validations.minValue({
-        formValues: {},
-        context: createMockContext(),
-        min: 10,
-      });
+      const validator = validations.minValue(10, createMockContext())({});
 
       const result = validator.safeParse(15);
       expect(result.success).toBe(true);
@@ -286,49 +216,33 @@ describe('Validation Functions', () => {
 
     it('should throw error when min is not specified', () => {
       expect(() => {
-        validations.minValue({
-          formValues: {},
-          context: createMockContext(),
-        });
+        validations.minValue(NaN, createMockContext())({});
       }).toThrow('Min value must be specified');
     });
   });
 
   describe('maxValue', () => {
     it('should reject numbers greater than max', () => {
-      const validator = validations.maxValue({
-        formValues: {},
-        context: createMockContext(),
-        max: 10,
-      });
+      const validator = validations.maxValue(10, createMockContext())({});
 
       const result = validator.safeParse(15);
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Zod's built-in max validator provides this message
         expect(result.error.issues[0]?.message).toBe(
-          'Too big: expected number to be <=10',
+          'You must enter a value less than 10.',
         );
       }
     });
 
     it('should accept numbers equal to max', () => {
-      const validator = validations.maxValue({
-        formValues: {},
-        context: createMockContext(),
-        max: 10,
-      });
+      const validator = validations.maxValue(10, createMockContext())({});
 
       const result = validator.safeParse(10);
       expect(result.success).toBe(true);
     });
 
     it('should accept numbers less than max', () => {
-      const validator = validations.maxValue({
-        formValues: {},
-        context: createMockContext(),
-        max: 10,
-      });
+      const validator = validations.maxValue(10, createMockContext())({});
 
       const result = validator.safeParse(5);
       expect(result.success).toBe(true);
@@ -336,26 +250,18 @@ describe('Validation Functions', () => {
 
     it('should throw error when max is not specified', () => {
       expect(() => {
-        validations.maxValue({
-          formValues: {},
-          context: createMockContext(),
-        });
+        validations.maxValue(null as unknown as number, createMockContext())({});
       }).toThrow('Max value must be specified');
     });
   });
 
   describe('minSelected', () => {
     it('should reject arrays with fewer than min items', () => {
-      const validator = validations.minSelected({
-        formValues: {},
-        context: createMockContext(),
-        min: 3,
-      });
+      const validator = validations.minSelected(3, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b']);
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Custom message for minSelected
         expect(result.error.issues[0]?.message).toBe(
           'You must choose a minimum of 3 options.',
         );
@@ -363,38 +269,25 @@ describe('Validation Functions', () => {
     });
 
     it('should accept arrays with exactly min items', () => {
-      const validator = validations.minSelected({
-        formValues: {},
-        context: createMockContext(),
-        min: 3,
-      });
+      const validator = validations.minSelected(3, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b', 'c']);
       expect(result.success).toBe(true);
     });
 
     it('should accept arrays with more than min items', () => {
-      const validator = validations.minSelected({
-        formValues: {},
-        context: createMockContext(),
-        min: 2,
-      });
+      const validator = validations.minSelected(2, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b', 'c', 'd']);
       expect(result.success).toBe(true);
     });
 
     it('should use singular form for min=1', () => {
-      const validator = validations.minSelected({
-        formValues: {},
-        context: createMockContext(),
-        min: 1,
-      });
+      const validator = validations.minSelected(1, createMockContext())({});
 
       const result = validator.safeParse([]);
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Custom message for minSelected with singular form
         expect(result.error.issues[0]?.message).toBe(
           'You must choose a minimum of 1 option.',
         );
@@ -403,26 +296,18 @@ describe('Validation Functions', () => {
 
     it('should throw error when min is not specified', () => {
       expect(() => {
-        validations.minSelected({
-          formValues: {},
-          context: createMockContext(),
-        });
+        validations.minSelected(null as unknown as number, createMockContext())({});
       }).toThrow('Min items must be specified');
     });
   });
 
   describe('maxSelected', () => {
     it('should reject arrays with more than max items', () => {
-      const validator = validations.maxSelected({
-        formValues: {},
-        context: createMockContext(),
-        max: 2,
-      });
+      const validator = validations.maxSelected(2, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b', 'c']);
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Custom message for maxSelected
         expect(result.error.issues[0]?.message).toBe(
           'You can choose a maximum of 2 options.',
         );
@@ -430,38 +315,25 @@ describe('Validation Functions', () => {
     });
 
     it('should accept arrays with exactly max items', () => {
-      const validator = validations.maxSelected({
-        formValues: {},
-        context: createMockContext(),
-        max: 3,
-      });
+      const validator = validations.maxSelected(3, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b', 'c']);
       expect(result.success).toBe(true);
     });
 
     it('should accept arrays with fewer than max items', () => {
-      const validator = validations.maxSelected({
-        formValues: {},
-        context: createMockContext(),
-        max: 5,
-      });
+      const validator = validations.maxSelected(5, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b']);
       expect(result.success).toBe(true);
     });
 
     it('should use singular form for max=1', () => {
-      const validator = validations.maxSelected({
-        formValues: {},
-        context: createMockContext(),
-        max: 1,
-      });
+      const validator = validations.maxSelected(1, createMockContext())({});
 
       const result = validator.safeParse(['a', 'b']);
       expect(result.success).toBe(false);
       if (!result.success) {
-        // Custom message for maxSelected with singular form
         expect(result.error.issues[0]?.message).toBe(
           'You can choose a maximum of 1 option.',
         );
@@ -470,10 +342,7 @@ describe('Validation Functions', () => {
 
     it('should throw error when max is not specified', () => {
       expect(() => {
-        validations.maxSelected({
-          formValues: {},
-          context: createMockContext(),
-        });
+        validations.maxSelected(null as unknown as number, createMockContext())({});
       }).toThrow('Max items must be specified');
     });
   });
@@ -496,15 +365,14 @@ describe('Validation Functions', () => {
         edges: [],
         ego: {
           _uid: 'ego',
-          attributes: {},
+          [entityAttributesProperty]: {},
         },
-      } as unknown as NcNetwork;
+      } as NcNetwork;
 
-      const validator = validations.unique({
-        formValues: {},
-        context: createMockContext({ network: mockNetwork }),
-        attribute: 'name',
-      });
+      const validator = validations.unique(
+        'name',
+        createMockContext({ network: mockNetwork }),
+      )({});
 
       const result = validator.safeParse('John');
       expect(result.success).toBe(false);
@@ -527,15 +395,14 @@ describe('Validation Functions', () => {
         edges: [],
         ego: {
           _uid: 'ego',
-          attributes: {},
+          [entityAttributesProperty]: {},
         },
-      } as unknown as NcNetwork;
+      } as NcNetwork;
 
-      const validator = validations.unique({
-        formValues: {},
-        context: createMockContext({ network: mockNetwork }),
-        attribute: 'name',
-      });
+      const validator = validations.unique(
+        'name',
+        createMockContext({ network: mockNetwork }),
+      )({});
 
       const result = validator.safeParse('Alice');
       expect(result.success).toBe(true);
@@ -543,27 +410,18 @@ describe('Validation Functions', () => {
 
     it('should throw error for ego entities', () => {
       const context = createMockContext({
-        subject: { entity: 'ego' } as StageSubject,
+        stageSubject: { entity: 'ego' } as StageSubject,
       });
 
       expect(() => {
-        validations
-          .unique({
-            formValues: {},
-            context,
-            attribute: 'name',
-          })
-          .safeParse('test');
+        validations.unique('name', context)({}).safeParse('test');
       }).toThrow('Not applicable to ego entities');
     });
 
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .unique({
-            formValues: {},
-            context: createMockContext(),
-          })
+          .unique(null as unknown as string, createMockContext())({})
           .safeParse('test');
       }).toThrow('Attribute must be specified for unique validation');
     });
@@ -571,11 +429,10 @@ describe('Validation Functions', () => {
 
   describe('differentFrom', () => {
     it('should reject values that match the comparison field', () => {
-      const validator = validations.differentFrom({
-        formValues: { testAttribute: 'sameValue' },
-        context: createMockContext(),
-        attribute: 'testAttribute',
-      });
+      const validator = validations.differentFrom(
+        'testAttribute',
+        createMockContext(),
+      )({ testAttribute: 'sameValue' });
 
       const result = validator.safeParse('sameValue');
       expect(result.success).toBe(false);
@@ -587,11 +444,10 @@ describe('Validation Functions', () => {
     });
 
     it('should accept values that differ from the comparison field', () => {
-      const validator = validations.differentFrom({
-        formValues: { testAttribute: 'originalValue' },
-        context: createMockContext(),
-        attribute: 'testAttribute',
-      });
+      const validator = validations.differentFrom(
+        'testAttribute',
+        createMockContext(),
+      )({ testAttribute: 'originalValue' });
 
       const result = validator.safeParse('differentValue');
       expect(result.success).toBe(true);
@@ -600,10 +456,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .differentFrom({
-            formValues: {},
-            context: createMockContext(),
-          })
+          .differentFrom(null as unknown as string, createMockContext())({})
           .safeParse('test');
       }).toThrow('Attribute must be specified for differentFrom validation');
     });
@@ -611,11 +464,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not in form values', () => {
       expect(() => {
         validations
-          .differentFrom({
-            formValues: {},
-            context: createMockContext(),
-            attribute: 'missingAttribute',
-          })
+          .differentFrom('missingAttribute', createMockContext())({})
           .safeParse('test');
       }).toThrow('Form values must contain the attribute being compared');
     });
@@ -623,10 +472,8 @@ describe('Validation Functions', () => {
     it('should throw error when comparison variable is not found in codebook', () => {
       expect(() => {
         validations
-          .differentFrom({
-            formValues: { unknownAttribute: 'value' },
-            context: createMockContext(),
-            attribute: 'unknownAttribute',
+          .differentFrom('unknownAttribute', createMockContext())({
+            unknownAttribute: 'value',
           })
           .safeParse('test');
       }).toThrow('Comparison variable not found in codebook');
@@ -635,11 +482,10 @@ describe('Validation Functions', () => {
 
   describe('sameAs', () => {
     it('should reject values that differ from the comparison field', () => {
-      const validator = validations.sameAs({
-        formValues: { testAttribute: 'originalValue' },
-        context: createMockContext(),
-        attribute: 'testAttribute',
-      });
+      const validator = validations.sameAs(
+        'testAttribute',
+        createMockContext(),
+      )({ testAttribute: 'originalValue' });
 
       const result = validator.safeParse('differentValue');
       expect(result.success).toBe(false);
@@ -651,11 +497,10 @@ describe('Validation Functions', () => {
     });
 
     it('should accept values that match the comparison field', () => {
-      const validator = validations.sameAs({
-        formValues: { testAttribute: 'sameValue' },
-        context: createMockContext(),
-        attribute: 'testAttribute',
-      });
+      const validator = validations.sameAs(
+        'testAttribute',
+        createMockContext(),
+      )({ testAttribute: 'sameValue' });
 
       const result = validator.safeParse('sameValue');
       expect(result.success).toBe(true);
@@ -664,10 +509,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .sameAs({
-            formValues: {},
-            context: createMockContext(),
-          })
+          .sameAs(null as unknown as string, createMockContext())({})
           .safeParse('test');
       }).toThrow('Attribute must be specified for sameAs validation');
     });
@@ -675,11 +517,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not in form values', () => {
       expect(() => {
         validations
-          .sameAs({
-            formValues: {},
-            context: createMockContext(),
-            attribute: 'missingAttribute',
-          })
+          .sameAs('missingAttribute', createMockContext())({})
           .safeParse('test');
       }).toThrow('Form values must contain the attribute being compared');
     });
@@ -687,11 +525,10 @@ describe('Validation Functions', () => {
 
   describe('greaterThanVariable', () => {
     it('should reject values less than the comparison field', () => {
-      const validator = validations.greaterThanVariable({
-        formValues: { numberAttribute: 10 },
-        context: createMockContext(),
-        attribute: 'numberAttribute',
-      });
+      const validator = validations.greaterThanVariable(
+        'numberAttribute',
+        createMockContext(),
+      )({ numberAttribute: 10 });
 
       const result = validator.safeParse(5);
       expect(result.success).toBe(false);
@@ -703,22 +540,20 @@ describe('Validation Functions', () => {
     });
 
     it('should accept values greater than the comparison field', () => {
-      const validator = validations.greaterThanVariable({
-        formValues: { numberAttribute: 10 },
-        context: createMockContext(),
-        attribute: 'numberAttribute',
-      });
+      const validator = validations.greaterThanVariable(
+        'numberAttribute',
+        createMockContext(),
+      )({ numberAttribute: 10 });
 
       const result = validator.safeParse(15);
       expect(result.success).toBe(true);
     });
 
     it('should work with datetime fields', () => {
-      const validator = validations.greaterThanVariable({
-        formValues: { dateAttribute: '2024-01-01T00:00:00Z' },
-        context: createMockContext(),
-        attribute: 'dateAttribute',
-      });
+      const validator = validations.greaterThanVariable(
+        'dateAttribute',
+        createMockContext(),
+      )({ dateAttribute: '2024-01-01T00:00:00Z' });
 
       const result = validator.safeParse('2024-06-01T00:00:00Z');
       expect(result.success).toBe(true);
@@ -730,10 +565,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .greaterThanVariable({
-            formValues: {},
-            context: createMockContext(),
-          })
+          .greaterThanVariable(null as unknown as string, createMockContext())({})
           .safeParse(10);
       }).toThrow(
         'Attribute must be specified for greaterThanVariable validation',
@@ -743,11 +575,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not in form values', () => {
       expect(() => {
         validations
-          .greaterThanVariable({
-            formValues: {},
-            context: createMockContext(),
-            attribute: 'missingAttribute',
-          })
+          .greaterThanVariable('missingAttribute', createMockContext())({})
           .safeParse(10);
       }).toThrow('Form values must contain the attribute being compared');
     });
@@ -755,11 +583,10 @@ describe('Validation Functions', () => {
 
   describe('lessThanVariable', () => {
     it('should reject values greater than the comparison field', () => {
-      const validator = validations.lessThanVariable({
-        formValues: { numberAttribute: 10 },
-        context: createMockContext(),
-        attribute: 'numberAttribute',
-      });
+      const validator = validations.lessThanVariable(
+        'numberAttribute',
+        createMockContext(),
+      )({ numberAttribute: 10 });
 
       const result = validator.safeParse(15);
       expect(result.success).toBe(false);
@@ -771,22 +598,20 @@ describe('Validation Functions', () => {
     });
 
     it('should accept values less than the comparison field', () => {
-      const validator = validations.lessThanVariable({
-        formValues: { numberAttribute: 10 },
-        context: createMockContext(),
-        attribute: 'numberAttribute',
-      });
+      const validator = validations.lessThanVariable(
+        'numberAttribute',
+        createMockContext(),
+      )({ numberAttribute: 10 });
 
       const result = validator.safeParse(5);
       expect(result.success).toBe(true);
     });
 
     it('should work with datetime fields', () => {
-      const validator = validations.lessThanVariable({
-        formValues: { dateAttribute: '2024-01-01T00:00:00Z' },
-        context: createMockContext(),
-        attribute: 'dateAttribute',
-      });
+      const validator = validations.lessThanVariable(
+        'dateAttribute',
+        createMockContext(),
+      )({ dateAttribute: '2024-01-01T00:00:00Z' });
 
       const result = validator.safeParse('2023-06-01T00:00:00Z');
       expect(result.success).toBe(true);
@@ -798,10 +623,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .lessThanVariable({
-            formValues: {},
-            context: createMockContext(),
-          })
+          .lessThanVariable(null as unknown as string, createMockContext())({})
           .safeParse(10);
       }).toThrow('Attribute must be specified for lessThanVariable validation');
     });
@@ -809,11 +631,7 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not in form values', () => {
       expect(() => {
         validations
-          .lessThanVariable({
-            formValues: {},
-            context: createMockContext(),
-            attribute: 'missingAttribute',
-          })
+          .lessThanVariable('missingAttribute', createMockContext())({})
           .safeParse(10);
       }).toThrow('Form values must contain the attribute being compared');
     });

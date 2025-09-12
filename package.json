@@ -13,6 +13,7 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
+    "test-storybook": "vitest --project=storybook",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
@@ -122,7 +123,7 @@
     "@storybook/addon-docs": "^9.0.17",
     "@storybook/addon-links": "^9.0.17",
     "@storybook/addon-onboarding": "^9.0.17",
-    "@storybook/nextjs": "^9.1.4",
+    "@storybook/addon-vitest": "^9.1.4",
     "@storybook/react": "^9.0.17",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/aspect-ratio": "^0.4.2",
@@ -167,6 +168,10 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.9.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@storybook/nextjs-vite": "^9.1.5",
+    "@vitest/browser": "3.2.4",
+    "playwright": "^1.55.0",
+    "@vitest/coverage-v8": "3.2.4"
   }
 }

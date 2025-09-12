@@ -6,13 +6,11 @@ import collectNetworkValues from './utils/collectNetworkValues';
 import { getVariableDefinition } from './utils/getVariableDefinition';
 import isMatchingValue from './utils/isMatchingValue';
 
-type ValidationFunctionParameter =
-  | boolean // required
-  | number // maxLength, maxValue minLength, minValue
-  | string; // Unique, differentFrom, sameAs
-
-type ValidationFunction = (
-  parameter: ValidationFunctionParameter,
+type ValidationFunction<T = string | boolean | number> = (
+  // Parameter type is the value of the key/value pair of the protocol
+  // validation object. required = boolean, maxLength = number,
+  // unique = string etc.
+  parameter: T,
   context: ValidationContext,
 ) => (formValues: Record<string, FieldValue>) => z.ZodType;
 
@@ -28,7 +26,7 @@ type ValidationFunction = (
  * - boolean: not null
  * - categorical: not null, empty array is not permitted
  */
-export const required: ValidationFunction = () => () => {
+export const required = () => () => {
   // TODO: localisation.
   const message = 'You must answer this question before continuing';
 
@@ -71,7 +69,7 @@ export const required: ValidationFunction = () => () => {
 /**
  * Require that a string be shorter than a maximum length
  */
-const maxLength: ValidationFunction = (max) => () => {
+const maxLength: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max length must be specified');
 
   return z.unknown().refine(
@@ -90,7 +88,7 @@ const maxLength: ValidationFunction = (max) => () => {
 /**
  * Require that a string be longer than a minimum length
  */
-const minLength: ValidationFunction = (min) => () => {
+const minLength: ValidationFunction<number> = (min) => () => {
   invariant(min, 'Min length must be specified');
 
   return z.unknown().refine(
@@ -109,7 +107,7 @@ const minLength: ValidationFunction = (min) => () => {
 /**
  * Require that a number be greater than a minimum value
  */
-const minValue: ValidationFunction = (min) => () => {
+const minValue: ValidationFunction<number> = (min) => () => {
   invariant(!isNaN(Number(min)), 'Min value must be specified');
 
   return z.unknown().refine(
@@ -128,7 +126,7 @@ const minValue: ValidationFunction = (min) => () => {
 /**
  * Require that a number be less than a maximum value
  */
-const maxValue: ValidationFunction = (max) => () => {
+const maxValue: ValidationFunction<number> = (max) => () => {
   invariant(max, 'Max value must be specified');
 
   return z.unknown().refine(
@@ -147,7 +145,7 @@ const maxValue: ValidationFunction = (max) => () => {
 /**
  * Require that an array have a minimum number of elements
  */
-const minSelected: ValidationFunction = (min) => () => {
+const minSelected: ValidationFunction<number> = (min) => () => {
   invariant(typeof min === 'number', 'Min items must be specified');
 
   return z.array(z.unknown()).superRefine((value, ctx) => {
@@ -166,7 +164,7 @@ const minSelected: ValidationFunction = (min) => () => {
 /**
  * Require that an array have a maximum number of elements
  */
-const maxSelected: ValidationFunction = (max) => () => {
+const maxSelected: ValidationFunction<number> = (max) => () => {
   invariant(typeof max === 'number', 'Max items must be specified');
 
   return z.array(z.unknown()).superRefine((value, ctx) => {
@@ -403,4 +401,4 @@ export const validations = {
   sameAs,
   greaterThanVariable,
   lessThanVariable,
-};
+} satisfies Record<string, ValidationFunction>;

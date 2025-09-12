@@ -18,7 +18,6 @@ import { InputField } from '../components/fields/Input';
 import { LikertScaleField } from '../components/fields/LikertScale';
 import { RadioGroupField } from '../components/fields/RadioGroup';
 import { RelativeDatePickerField } from '../components/fields/RelativeDatePicker';
-import { SliderField } from '../components/fields/Slider';
 import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleField } from '../components/fields/Toggle';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
@@ -26,6 +25,7 @@ import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
 import { type FieldValidation } from '../types';
 import { validations } from '../validation';
 
+// @ts-expect-error Slider component erroneously exists - will be removed
 const fieldTypeMap: Record<ComponentType, React.ElementType> = {
   Text: InputField,
   TextArea: TextAreaField,
@@ -35,7 +35,6 @@ const fieldTypeMap: Record<ComponentType, React.ElementType> = {
   Boolean: BooleanField,
   Toggle: ToggleField,
   ToggleButtonGroup: ToggleButtonGroupField,
-  Slider: SliderField,
   VisualAnalogScale: VisualAnalogScaleField,
   LikertScale: LikertScaleField,
   DatePicker: DatePickerField,
