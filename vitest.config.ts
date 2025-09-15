@@ -12,11 +12,6 @@ const dirname =
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
-  resolve: {
-    alias: {
-      '~': path.resolve(__dirname, './src'), // adjust to your actual root
-    },
-  },
   test: {
     environment: 'jsdom',
     globals: true,
@@ -24,16 +19,16 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          // exclude: [
-          //   '**/node_modules/**',
-          //   '**/dist/**',
-          //   '**/cypress/**',
-          //   '**/.{idea,git,cache,output,temp}/**',
-          //   '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-          //   '**/tests/e2e/**', // Exclude Playwright E2E tests
-          //   '**/*.stories.tsx', // Exclude Storybook files from unit tests
-          //   '**/*.stories.ts',
-          // ],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+            '**/tests/e2e/**', // Exclude Playwright E2E tests
+            '**/*.stories.tsx', // Exclude Storybook files from unit tests
+            '**/*.stories.ts',
+          ],
           name: 'unit tests',
         },
         resolve: {
@@ -44,8 +39,26 @@ export default defineConfig({
         },
       },
       {
-        extends: true,
+        resolve: {
+          alias: {
+            '~': path.resolve(__dirname, './'),
+          },
+        },
+        css: {
+          preprocessorOptions: {
+            scss: {
+              silenceDeprecations: [
+                'import', // Silences warnings related to @import
+                'mixed-decls', // Silences warnings related to mixed declarations
+                'color-functions', // Silences warnings related to deprecated color functions
+                'global-builtin', // Silences warnings related to global built-in functions
+                'legacy-js-api', // Silences warnings related to the legacy JS API
+              ],
+            },
+          },
+        },
         plugins: [
+          react(),
           {
             name: 'treat-js-files-as-jsx',
             async transform(code, id) {
@@ -78,11 +91,11 @@ export default defineConfig({
             enabled: true,
             instances: [{ browser: 'chromium' }],
           },
-          // exclude: [
-          //   '**/node_modules/**',
-          //   '**/dist/**',
-          //   '**/tests/e2e/**', // Exclude Playwright E2E tests
-          // ],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/tests/e2e/**', // Exclude Playwright E2E tests
+          ],
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },
       },

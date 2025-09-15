@@ -1,7 +1,7 @@
-import { Variable } from '@codaco/protocol-validation';
+import { type Variable } from '@codaco/protocol-validation';
 import { isNil, isString } from 'es-toolkit';
 import { isNumber } from 'es-toolkit/compat';
-import { FieldValue } from '../types';
+import { type FieldValue } from '../types';
 
 export default function compareVariables(
   value1: unknown,

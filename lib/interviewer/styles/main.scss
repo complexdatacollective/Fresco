@@ -1,12 +1,12 @@
-@use '~/lib/ui/styles/global/core/units';
-@import '~~/lib/ui/styles/_all';
+@use '../..//ui/styles/global/core/_units';
+@import '../../ui/styles/_all';
 @import 'helpers/all';
 @import 'components/all';
 @import 'containers/all';
 @import 'transitions';
 
-$font-path: '~~/lib/ui/assets/fonts';
-$image-path: '~~/lib/ui/assets/images';
+$font-path: '~/lib/ui/assets/fonts';
+$image-path: '~/lib/ui/assets/images';
 
 body,
 html {

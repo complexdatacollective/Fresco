@@ -6,9 +6,8 @@ import {
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import { configureStore } from '@reduxjs/toolkit';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
-import '~/styles/interview.scss';
 import NodeForm from './NodeForm';
 
 // Mock data for the story

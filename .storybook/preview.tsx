@@ -1,6 +1,7 @@
 import type { Preview } from '@storybook/nextjs-vite';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
+import '../styles/interview.scss';
 
 const preview: Preview = {
   parameters: {

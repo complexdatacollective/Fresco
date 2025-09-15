@@ -6,9 +6,9 @@ import { useSelector } from 'react-redux';
 import { type DropCallback } from '~/lib/dnd/types';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
-import useExternalData from '../../../hooks/useExternalData';
-import { getPanelNodes } from '../../../selectors/name-generator';
-import { getStageSubject } from '../../../selectors/session';
+import useExternalData from '~/lib/interviewer/hooks/useExternalData';
+import { getPanelNodes } from '~/lib/interviewer/selectors/name-generator';
+import { getStageSubject } from '~/lib/interviewer/selectors/session';
 import { type HighlightColor } from './NodePanels';
 
 type NodePanelProps = {

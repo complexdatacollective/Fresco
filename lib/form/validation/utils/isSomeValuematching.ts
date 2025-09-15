@@ -1,11 +1,11 @@
 import {
   entityAttributesProperty,
-  NcEdge,
-  NcEgo,
-  NcNode,
+  type NcEdge,
+  type NcEgo,
+  type NcNode,
 } from '@codaco/shared-consts';
 import { some } from 'es-toolkit/compat';
-import { FieldValue } from '../../types';
+import { type FieldValue } from '../../types';
 import isMatchingValue from './isMatchingValue';
 
 export default function isSomeValueMatching(

@@ -371,7 +371,7 @@ export const VisualFeedback: Story = {
 
 export const NestedDropTargets: Story = {
   render: () => {
-    const [drops, setDrops] = useState<Array<{ zone: string; item: string }>>(
+    const [drops, setDrops] = useState<{ zone: string; item: string }[]>(
       [],
     );
 

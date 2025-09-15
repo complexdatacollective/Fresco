@@ -1,4 +1,4 @@
-import { Codebook, StageSubject } from '@codaco/protocol-validation';
+import { type Codebook, type StageSubject } from '@codaco/protocol-validation';
 
 export function getVariableDefinition(
   codebook: Codebook,

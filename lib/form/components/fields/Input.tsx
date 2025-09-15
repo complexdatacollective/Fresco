@@ -2,7 +2,7 @@
 
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
-import { FieldValue } from '../../types';
+import { type FieldValue } from '../../types';
 import {
   backgroundStyles,
   borderStyles,
