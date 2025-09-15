@@ -2,8 +2,8 @@ import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defineConfig, transformWithEsbuild } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { defineConfig } from 'vitest/config';
 
 const dirname =
   typeof __dirname !== 'undefined'
@@ -12,55 +12,80 @@ const dirname =
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, './src'), // adjust to your actual root
+    },
+  },
   test: {
+    environment: 'jsdom',
+    globals: true,
     projects: [
       {
         extends: true,
         test: {
-          globals: true,
-          environment: 'jsdom',
-          exclude: [
-            '**/node_modules/**',
-            '**/dist/**',
-            '**/cypress/**',
-            '**/.{idea,git,cache,output,temp}/**',
-            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-            '**/tests/e2e/**', // Exclude Playwright E2E tests
-            '**/*.stories.tsx', // Exclude Storybook files from unit tests
-            '**/*.stories.ts',
-          ],
+          // exclude: [
+          //   '**/node_modules/**',
+          //   '**/dist/**',
+          //   '**/cypress/**',
+          //   '**/.{idea,git,cache,output,temp}/**',
+          //   '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+          //   '**/tests/e2e/**', // Exclude Playwright E2E tests
+          //   '**/*.stories.tsx', // Exclude Storybook files from unit tests
+          //   '**/*.stories.ts',
+          // ],
           name: 'unit tests',
+        },
+        resolve: {
+          alias: {
+            // Reference the internal react package shipped in next.js
+            react: 'next/dist/compiled/react/cjs/react.development.js',
+          },
         },
       },
       {
+        extends: true,
         plugins: [
+          {
+            name: 'treat-js-files-as-jsx',
+            async transform(code, id) {
+              if (!id.match(/src\/.*\.js$/)) return null;
+
+              // Use the exposed transform from vite, instead of directly
+              // transforming with esbuild
+              return transformWithEsbuild(code, id, {
+                loader: 'jsx',
+                jsx: 'automatic',
+              });
+            },
+          },
           storybookTest({
             configDir: path.join(dirname, '.storybook'),
           }),
         ],
+        optimizeDeps: {
+          force: true,
+          esbuildOptions: {
+            loader: {
+              '.js': 'jsx',
+            },
+          },
+        },
         test: {
           name: 'storybook',
-          globals: true,
           browser: {
             provider: 'playwright',
             enabled: true,
             instances: [{ browser: 'chromium' }],
           },
-          include: ['**/*.stories.{ts,tsx}'],
-          exclude: [
-            '**/node_modules/**',
-            '**/dist/**',
-            '**/tests/e2e/**', // Exclude Playwright E2E tests
-          ],
+          // exclude: [
+          //   '**/node_modules/**',
+          //   '**/dist/**',
+          //   '**/tests/e2e/**', // Exclude Playwright E2E tests
+          // ],
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },
       },
     ],
-  },
-  resolve: {
-    alias: {
-      // Reference the internal react package shipped in next.js
-      react: 'next/dist/compiled/react/cjs/react.development.js',
-    },
   },
 });
