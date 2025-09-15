@@ -325,49 +325,6 @@ const validatedForm: TForm = {
   ],
 };
 
-// Complex form with all field types
-const complexForm: TForm = {
-  title: 'Comprehensive Person Form',
-  fields: [
-    {
-      variable: 'name',
-      prompt: 'Full Name',
-    },
-    {
-      variable: 'age',
-      prompt: 'Age',
-    },
-    {
-      variable: 'gender',
-      prompt: 'Gender Identity',
-    },
-    {
-      variable: 'occupation',
-      prompt: 'Current Occupation',
-    },
-    {
-      variable: 'favoriteColors',
-      prompt: 'Favorite Colors (select multiple)',
-    },
-    {
-      variable: 'birthDate',
-      prompt: 'Date of Birth',
-    },
-    {
-      variable: 'happiness',
-      prompt: 'Overall Happiness (0-100)',
-    },
-    {
-      variable: 'isEmployed',
-      prompt: 'Currently Employed?',
-    },
-    {
-      variable: 'bio',
-      prompt: 'Short Biography',
-    },
-  ],
-};
-
 export const CreateNewNode: Story = {
   args: {
     selectedNode: null,
@@ -402,41 +359,11 @@ export const WithValidation: Story = {
   },
 };
 
-export const ComplexForm: Story = {
-  args: {
-    selectedNode: null,
-    form: complexForm,
-    disabled: false,
-  },
-};
-
 export const DisabledState: Story = {
   args: {
     selectedNode: null,
     form: basicForm,
     disabled: true,
-  },
-};
-
-export const EditWithComplexData: Story = {
-  args: {
-    selectedNode: {
-      [entityPrimaryKeyProperty]: 'node-complex',
-      type: 'person',
-      [entityAttributesProperty]: {
-        name: 'Dr. Jane Wilson',
-        age: 45,
-        gender: 'female',
-        occupation: 'Research Scientist',
-        favoriteColors: ['blue', 'green'],
-        birthDate: '1979-03-15',
-        happiness: 85,
-        isEmployed: true,
-        bio: 'Dr. Wilson is a leading researcher in quantum computing with over 20 years of experience.',
-      },
-    },
-    form: complexForm,
-    disabled: false,
   },
 };
 

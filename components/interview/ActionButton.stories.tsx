@@ -1,7 +1,9 @@
-import { type Meta, type StoryFn } from '@storybook/react';
+import { type Meta, type StoryFn } from '@storybook/nextjs-vite';
 import NodeIcons from 'lucide-react/dynamicIconImports';
-import ActionButton, { type NodeIcon } from '~/components/interview/ActionButton';
-import { NodeColors, type NodeColorSequence } from '~/lib/ui/components/Node';
+import ActionButton, {
+  type NodeIcon,
+} from '~/components/interview/ActionButton';
+import { type NodeColorSequence } from '~/lib/ui/components/Node';
 
 export default {
   title: 'Interview/ActionButton',
@@ -17,21 +19,9 @@ export default {
       },
       options: Object.keys(NodeIcons),
     },
-    color: {
-      control: {
-        type: 'select',
-      },
-      options: NodeColors,
-    },
+    disabled: { control: 'boolean' },
     onClick: { action: 'clicked' }, // Action logger for click events
   },
-  decorators: [
-    (Story) => (
-      <div className="bg-primary-background flex h-screen w-screen items-center justify-center">
-        <Story />
-      </div>
-    ),
-  ],
 } as Meta;
 
 const Template: StoryFn<{

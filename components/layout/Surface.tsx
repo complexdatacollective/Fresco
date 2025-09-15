@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, type MotionProps } from 'motion/react';
-import { type ElementType } from 'react';
+import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 const surfaceVariants = cva({
@@ -33,7 +33,7 @@ export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 type SurfaceProps<T extends ElementType = 'div'> = {
   as?: T;
 } & SurfaceVariants &
-  Omit<React.ComponentPropsWithRef<T>, keyof SurfaceVariants | 'as'>;
+  Omit<React.ComponentPropsWithoutRef<T>, keyof SurfaceVariants | 'as'>;
 
 /**
  * Surface is a layout component that provides a background and foreground color
@@ -43,26 +43,26 @@ type SurfaceProps<T extends ElementType = 'div'> = {
  *
  * Note that Surface level '0' is a special case that is used for dialogs and popovers.
  */
-const Surface = <T extends ElementType = 'div'>({
-  as,
-  children,
-  ref,
-  level,
-  spacing,
-  className,
-  ...rest
-}: SurfaceProps<T>) => {
-  const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
-  return (
-    <Component
-      ref={ref}
-      {...rest}
-      className={cx(surfaceVariants({ level, spacing }), className)}
-    >
-      {children}
-    </Component>
-  );
-};
+const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
+  ({ as, children, level, spacing, className, ...rest }, ref) => {
+    const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
+    return (
+      <Component
+        ref={ref}
+        {...rest}
+        className={cx(surfaceVariants({ level, spacing }), className)}
+      >
+        {children}
+      </Component>
+    );
+  },
+);
+
+SurfaceComponent.displayName = 'Surface';
+
+const Surface = SurfaceComponent as <T extends ElementType = 'div'>(
+  props: SurfaceProps<T> & { ref?: React.Ref<React.ElementRef<T>> },
+) => React.ReactElement | null;
 
 export default Surface;
 

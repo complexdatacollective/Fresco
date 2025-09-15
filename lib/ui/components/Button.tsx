@@ -15,14 +15,11 @@ const buttonVariants = cva({
     'min-h-14 px-12',
     'rounded-[2rem] mb-[0.15rem]',
     'transition-all duration-200',
-    // Default color
-    'bg-sea-green text-white',
     // Disabled state
     'disabled:opacity-50 disabled:cursor-not-allowed',
   ],
   variants: {
     color: {
-      'default': 'bg-sea-green text-white hover:bg-sea-green-dark',
       'primary': 'bg-primary text-primary-foreground hover:bg-primary',
       'secondary': 'bg-secondary text-secondary-foreground hover:bg-secondary',
       'destructive':
@@ -54,7 +51,7 @@ const buttonVariants = cva({
   },
   compoundVariants: [],
   defaultVariants: {
-    color: 'default',
+    color: 'primary',
     size: 'default',
     iconPosition: 'left',
     loading: false,

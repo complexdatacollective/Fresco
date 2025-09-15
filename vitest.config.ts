@@ -59,6 +59,7 @@ export default defineConfig({
         },
         plugins: [
           react(),
+          tsconfigPaths(),
           {
             name: 'treat-js-files-as-jsx',
             async transform(code, id) {
