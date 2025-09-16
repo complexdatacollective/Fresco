@@ -1,5 +1,4 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite';
-import { resolve } from 'path';
 
 const config: StorybookConfig = {
   addons: [
@@ -10,15 +9,12 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: '@storybook/nextjs-vite',
-    options: {},
-  },
-  viteFinal: async (config) => {
-    config.resolve = config.resolve || {};
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '~': resolve(__dirname, '../'),
-    };
-    return config;
+    options: {
+      builder: {
+        // Customize the Vite builder options here
+        viteConfigPath: './vitest.config.ts',
+      },
+    },
   },
   staticDirs: ['../public'],
   typescript: {

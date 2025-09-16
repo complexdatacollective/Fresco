@@ -3,8 +3,6 @@
 @use 'sass:list';
 @use '../global/default' as default;
 
-@reference 'tailwindcss';
-
 $icon-dimension-base: 2.5rem !default;
 
 $icon-small-width: $icon-dimension-base !default;
@@ -147,10 +145,7 @@ $-icon-color-modifiers: (
     }
 
     .cls-5 {
-      fill: rgba(
-        var(--color-navy-taupe---rgb),
-        0.5
-      ); //sass-lint:disable-line no-color-literals
+      fill: rgba(var(--color-navy-taupe---rgb), 0.5);
     }
 
     .cls-6 {
@@ -273,10 +268,7 @@ $-icon-color-modifiers: (
     }
 
     .cls-4 {
-      fill: rgba(
-        var(--color-navy-taupe---rgb),
-        0.5
-      ); //sass-lint:disable-line no-color-literals
+      fill: rgba(var(--color-navy-taupe---rgb), 0.5);
     }
 
     .cls-5 {
@@ -376,7 +368,7 @@ $-icon-color-modifiers: (
     }
 
     .cls-7 {
-      fill: rgba(255, 255, 255, 0.2); //sass-lint:disable-line no-color-literals
+      fill: rgba(255, 255, 255, 0.2);
     }
 
     @each $ordinal-color in default.$ordinal-colors {
@@ -394,7 +386,7 @@ $-icon-color-modifiers: (
     }
 
     .cls-7 {
-      fill: rgba(255, 255, 255, 0.2); //sass-lint:disable-line no-color-literals
+      fill: rgba(255, 255, 255, 0.2);
     }
 
     @each $categorical-color in default.$categorical-colors {

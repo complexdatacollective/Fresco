@@ -12,22 +12,6 @@ const dirname =
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        silenceDeprecations: [
-          'import', // Silences warnings related to @import
-          'mixed-decls', // Silences warnings related to mixed declarations
-          'color-functions', // Silences warnings related to deprecated color functions
-          'global-builtin', // Silences warnings related to global built-in functions
-          'legacy-js-api', // Silences warnings related to the legacy JS API
-        ],
-      },
-    },
-  },
-  esbuild: {
-    jsx: 'automatic',
-  },
   test: {
     environment: 'jsdom',
     globals: true,

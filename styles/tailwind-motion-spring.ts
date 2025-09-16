@@ -18,7 +18,7 @@ export default plugin((api) => {
   Object.entries(springPresets).forEach(([name, [stiffness, damping]]) => {
     const springValue = spring(stiffness, damping);
     presetUtilities[`.spring-${name}`] = {
-      transition: `all ${springValue.toString()} allow-discrete`,
+      transition: `all ${springValue.toString()}`,
     };
   });
 
@@ -36,7 +36,7 @@ export default plugin((api) => {
 
           if (params.length < 2 || params.some(isNaN)) {
             return {
-              transition: `all ${spring().toString()} allow-discrete`,
+              transition: `all ${spring().toString()}`,
             };
           }
 
@@ -44,7 +44,7 @@ export default plugin((api) => {
           const springValue = spring(duration, bounciness);
 
           return {
-            transition: `all ${springValue.toString()} allow-discrete`,
+            transition: `all ${springValue.toString()}`,
           };
         },
       },

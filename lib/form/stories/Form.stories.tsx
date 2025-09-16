@@ -1,6 +1,6 @@
 'use client';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { PersonStandingIcon } from 'lucide-react';
 import { z } from 'zod';
 import { Field, FieldGroup, Form, SubmitButton } from '../components';
