@@ -4,7 +4,8 @@
   height: 100%;
 
   @media (min-aspect-ratio: 0.625) {
-    @apply mx-[100px];
+    margin-left: 100px;
+    margin-right: 100px;
   }
 
   max-height: inherit;

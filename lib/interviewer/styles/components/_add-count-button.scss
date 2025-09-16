@@ -17,7 +17,7 @@ $_module-name: add-count-button;
 .#{$_module-name} {
   background-color: transparent;
   border: 0;
-  @apply text-white;
+  color: var(--color-white);
   cursor: pointer;
   display: block;
   font-size: 3rem;
@@ -50,10 +50,10 @@ $_module-name: add-count-button;
   // Generate color modifiers at build time when needed
 
   &__badge {
-    @apply fill-white;
+    fill: var(--color-white);
   }
 
   &__plus {
-    @apply fill-charcoal;
+    fill: var(--color-charcoal);
   }
 }

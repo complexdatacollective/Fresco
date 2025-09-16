@@ -356,34 +356,34 @@ $system-font-stack: 'system-ui', sans-serif;
 // Replaced breakpoint mixins with explicit responsive classes
 
 .base-hide {
-  @apply hidden;
+  display: none;
 }
 
 @media (max-aspect-ratio: 0.625) {
   .small-hide {
-    @apply hidden;
+    display: none;
   }
 }
 
 @media (min-aspect-ratio: 0.625) {
   .full-hide {
-    @apply hidden;
+    display: none;
   }
 }
 
 .base-show--flex {
-  @apply flex;
+  display: flex;
 }
 
 @media (max-aspect-ratio: 0.625) {
   .small-show--flex {
-    @apply flex;
+    display: flex;
   }
 }
 
 @media (min-aspect-ratio: 0.625) {
   .full-show--flex {
-    @apply flex;
+    display: flex;
   }
 }
 

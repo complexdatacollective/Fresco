@@ -3,6 +3,8 @@
 @use 'sass:list';
 @use '../global/default' as default;
 
+@reference 'tailwindcss';
+
 $icon-dimension-base: 2.5rem !default;
 
 $icon-small-width: $icon-dimension-base !default;
@@ -32,7 +34,7 @@ $-icon-color-modifiers: (
   // and need to be styled individually
   &[name='add-a-context-button'] {
     .cls-1 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-2 {
@@ -44,23 +46,23 @@ $-icon-color-modifiers: (
     }
 
     .cls-4 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-5 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-6 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-7 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-8 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
   }
 
@@ -76,72 +78,72 @@ $-icon-color-modifiers: (
   &[name='add-a-person-button'],
   &[name='add-a-relationship-button'] {
     .cls-1 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-2 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-3 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-4 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-5 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-6 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
   }
 
   &[name='add-a-place-button'] {
     .cls-1 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-2 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-3 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-4 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-5 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-6 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
   }
 
   &[name='add-a-protocol'],
   &[name='add-a-protocol-button'] {
     .cls-1 {
-      @apply fill-white;
+      fill: var(--color-white);
     }
 
     .cls-2 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-3 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-4 {
-      @apply fill-cyber-grape;
+      fill: var(--color-cyber-grape);
     }
 
     .cls-5 {
@@ -152,122 +154,122 @@ $-icon-color-modifiers: (
     }
 
     .cls-6 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-8 {
-      @apply fill-navy-taupe;
+      fill: var(--color-navy-taupe);
     }
 
     .cls-7 {
-      @apply fill-slate-blue;
+      fill: var(--color-slate-blue);
     }
 
     .cls-9 {
-      @apply fill-white;
+      fill: var(--color-white);
     }
   }
 
   &[name='add-a-screen'] {
     .cls-1 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-2 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-3 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-4 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-5 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-6 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
   }
 
   &[name='tick'],
   &[name='cross'] {
     .cls-1 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
   }
 
   &[name='error'] {
     .cls-1 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-2 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-3 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-4 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-5 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-6 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-8 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
   }
 
   &[name='info'] {
     .cls-1 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-2 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-3 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-4 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-5 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
   }
 
   &[name='protocol-card'] {
     .cls-1 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-2 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-2 {
-      @apply fill-cyber-grape;
+      fill: var(--color-cyber-grape);
     }
 
     .cls-3 {
-      @apply fill-navy-taupe;
+      fill: var(--color-navy-taupe);
     }
 
     .cls-4 {
@@ -278,77 +280,77 @@ $-icon-color-modifiers: (
     }
 
     .cls-5 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-6 {
-      @apply fill-slate-blue;
+      fill: var(--color-slate-blue);
     }
   }
 
   &[name='warning'] {
     .cls-1 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-2 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-3 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-4 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
   }
 
   &[name='edit'] {
     .cls-1 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-2 {
-      @apply fill-[var(--color-#{$main-color}-dark)];
+      fill: var(--color-#{$main-color}-dark);
     }
 
     .cls-3 {
-      @apply fill-tomato;
+      fill: var(--color-tomato);
     }
 
     .cls-4 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-5 {
-      @apply fill-tomato-dark;
+      fill: var(--color-tomato-dark);
     }
 
     .cls-6 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-7 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-8 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
   }
 
   &[name='trash-bin'] {
     .cls-1 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-2 {
-      @apply fill-[var(--color-#{$main-color})];
+      fill: var(--color-#{$main-color});
     }
 
     .cls-3 {
-      @apply fill-[var(--color-#{$main-color}-dark)];
+      fill: var(--color-#{$main-color}-dark);
     }
   }
 
@@ -360,7 +362,7 @@ $-icon-color-modifiers: (
 
   &[name='toggle-off'] {
     .cls-2 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
   }
 
@@ -388,7 +390,7 @@ $-icon-color-modifiers: (
 
   &[name='contexts'] {
     .cls-6 {
-      @apply fill-cyber-grape;
+      fill: var(--color-cyber-grape);
     }
 
     .cls-7 {
@@ -418,11 +420,11 @@ $-icon-color-modifiers: (
 @mixin color-icon($color: 'sea-green') {
   .cls-1,
   .cls-3 {
-    @apply fill-[var(--color-#{$color}-dark)];
+    fill: var(--color-#{$color}-dark);
   }
 
   .cls-2 {
-    @apply fill-[var(--color-#{$color})];
+    fill: var(--color-#{$color});
   }
 }
 
@@ -432,19 +434,19 @@ $-icon-color-modifiers: (
 
     .cls-1,
     .cls-3 {
-      @apply fill-platinum-dark;
+      fill: var(--color-platinum-dark);
     }
 
     .cls-2 {
-      @apply fill-platinum;
+      fill: var(--color-platinum);
     }
 
     .cls-4 {
-      @apply fill-neon-coral;
+      fill: var(--color-neon-coral);
     }
 
     .cls-5 {
-      @apply fill-neon-coral-dark;
+      fill: var(--color-neon-coral-dark);
     }
 
     @include special-icon-colors;

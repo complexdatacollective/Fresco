@@ -69,17 +69,18 @@
     padding: 0.75rem 1rem;
     font-size: 1rem;
     line-height: 1.5;
-    transition: border-color var(--animation-duration-fast) var(--animation-easing);
-    
+    transition: border-color var(--animation-duration-fast)
+      var(--animation-easing);
+
     &:focus {
       outline: none;
       border-color: var(--nc-input-accent);
     }
-    
+
     &::placeholder {
       color: var(--nc-input-placeholder);
     }
-    
+
     &:disabled {
       background-color: var(--nc-input-disabled);
       cursor: not-allowed;

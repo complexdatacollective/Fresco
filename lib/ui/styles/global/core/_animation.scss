@@ -113,7 +113,11 @@ $transition-presets: (
 ) {
   $transitions: ();
   @each $value in $properties {
-    $transitions: list.append($transitions, $value $duration $easing $delay, comma);
+    $transitions: list.append(
+      $transitions,
+      $value $duration $easing $delay,
+      comma
+    );
   }
   transition: $transitions;
 }

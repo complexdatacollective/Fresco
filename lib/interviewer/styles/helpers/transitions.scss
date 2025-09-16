@@ -7,12 +7,26 @@
   @include mixins.transition-properties($properties, $easing, $duration);
 }
 
-@mixin transition-properties-with-delay($properties, $easing, $duration, $delay: 0s) {
-  @include mixins.transition-properties-with-delay($properties, $easing, $duration, $delay);
+@mixin transition-properties-with-delay(
+  $properties,
+  $easing,
+  $duration,
+  $delay: 0s
+) {
+  @include mixins.transition-properties-with-delay(
+    $properties,
+    $easing,
+    $duration,
+    $delay
+  );
 }
 
 @mixin group-transition-with-delay($transition-name, $duration, $delay) {
-  @include ui-animation.group-transition-with-delay($transition-name, $duration, $delay);
+  @include ui-animation.group-transition-with-delay(
+    $transition-name,
+    $duration,
+    $delay
+  );
 }
 
 @mixin group-transition-enter {
@@ -33,6 +47,9 @@
   }
 }
 
-@mixin group-transition($transition-name, $duration: var(--animation-duration-standard)) {
+@mixin group-transition(
+  $transition-name,
+  $duration: var(--animation-duration-standard)
+) {
   @include ui-animation.group-transition($transition-name, $duration);
 }

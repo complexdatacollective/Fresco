@@ -28,12 +28,26 @@
   @include ui-animation.transition-properties($properties, $easing, $duration);
 }
 
-@mixin transition-properties-with-delay($properties, $easing, $duration, $delay: 0s) {
-  @include ui-animation.transition-properties-with-delay($properties, $easing, $duration, $delay);
+@mixin transition-properties-with-delay(
+  $properties,
+  $easing,
+  $duration,
+  $delay: 0s
+) {
+  @include ui-animation.transition-properties-with-delay(
+    $properties,
+    $easing,
+    $duration,
+    $delay
+  );
 }
 
 @mixin group-transition-with-delay($transition-name, $duration, $delay) {
-  @include ui-animation.group-transition-with-delay($transition-name, $duration, $delay);
+  @include ui-animation.group-transition-with-delay(
+    $transition-name,
+    $duration,
+    $delay
+  );
 }
 
 @mixin gpu {
