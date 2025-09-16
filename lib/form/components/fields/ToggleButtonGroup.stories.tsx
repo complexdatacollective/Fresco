@@ -58,7 +58,9 @@ const basicOptions = [
 
 export const Default: Story = {
   render: () => {
-    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
+    const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
+      [],
+    );
 
     return (
       <div className="w-full max-w-md">

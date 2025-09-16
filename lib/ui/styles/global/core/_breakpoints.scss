@@ -1,40 +1,10 @@
-// Breakpoints, setter and mixins for mobile-first layouts
+// Breakpoint mixins removed - use Tailwind responsive utilities or custom media queries
 // =============================================================================
 
-$-breakpoint-map: (
-  base: 'min-width: 0',
-) !default;
-
-// !global allows us to scope different sets of settings within the list
-@mixin breakpoint-set($breakpoint-name, $rule) {
-  $-breakpoint-map: map-merge(
-    $-breakpoint-map,
-    (
-      $breakpoint-name: $rule,
-    )
-  ) !global;
-}
-
-@mixin breakpoint($name) {
-  @media (map-get($-breakpoint-map, $name)) {
-    @content;
-  }
-}
-
-@function _breakpoint-is-zero($breakpoint-name) {
-  @if nth(map-keys($-breakpoint-map), 1) == $breakpoint-name {
-    @return true;
-  } @else {
-    @return false;
-  }
-}
-
-@mixin breakpoint-classes($suffix) {
-  @each $breakpoint-name, $rule in $-breakpoint-map {
-    @include breakpoint($breakpoint-name) {
-      .#{$breakpoint-name}-#{$suffix} {
-        @content;
-      }
-    }
-  }
-}
+/* 
+  Legacy breakpoint system replaced with:
+  - Tailwind responsive utilities (sm:, md:, lg:, xl:, 2xl:)
+  - Custom media queries for aspect-ratio breakpoints:
+    - @media (max-aspect-ratio: 0.625) for 'small'
+    - @media (min-aspect-ratio: 0.625) for 'full'
+*/

@@ -61,8 +61,8 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: {
-    disabled: true,
-    value: true,
+    'disabled': true,
+    'value': true,
     'aria-label': 'Disabled Toggle',
   },
 };

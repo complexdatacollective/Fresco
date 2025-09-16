@@ -1,7 +1,6 @@
 'use client';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
-import { type FormSubmitHandler } from '~/lib/form/types';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
 export const UploadThingTokenForm = ({
@@ -9,7 +8,7 @@ export const UploadThingTokenForm = ({
 }: {
   action: (token: string) => Promise<string | void>;
 }) => {
-  const handleSubmit: FormSubmitHandler = async (data) => {
+  const handleSubmit = async (data) => {
     const typedData = data as { uploadThingToken: string };
     await action(typedData.uploadThingToken);
     return {

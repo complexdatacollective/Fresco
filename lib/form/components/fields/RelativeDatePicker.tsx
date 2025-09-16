@@ -34,8 +34,9 @@ export function RelativeDatePickerField({
   ...datePickerProps
 }: RelativeDatePickerFieldProps) {
   // Parse anchor date or default to today
-  const anchorDate = anchor && typeof anchor === 'string' ? new Date(anchor) : new Date();
-  
+  const anchorDate =
+    anchor && typeof anchor === 'string' ? new Date(anchor) : new Date();
+
   // Calculate min and max dates
   const minDate = addDays(anchorDate, -before);
   const maxDate = addDays(anchorDate, after);

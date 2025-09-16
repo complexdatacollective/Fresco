@@ -87,9 +87,9 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: {
-    disabled: true,
-    before: 30,
-    after: 30,
+    'disabled': true,
+    'before': 30,
+    'after': 30,
     'aria-label': 'Disabled Relative Date',
   },
 };

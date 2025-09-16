@@ -1,3 +1,5 @@
+@use '../../../ui/styles/global/core/units';
+
 .overlay {
   &:not(.overlay--fullscreen) {
     &.node-form {

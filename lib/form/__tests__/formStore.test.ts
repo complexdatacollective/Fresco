@@ -185,7 +185,7 @@ describe('FormStore', () => {
         data: 'test@example.com',
       });
       await store.getState().validateField('email');
-      
+
       const field = store.getState().getFieldState('email');
       expect(field?.meta.errors).toBeNull();
       expect(field?.meta.isValid).toBe(true);
@@ -321,13 +321,13 @@ describe('FormStore', () => {
       const mockError2 = new z.ZodError([
         { code: 'custom', message: 'Invalid email', path: ['user', 'email'] },
       ]);
-      
+
       mockValidateFieldValue.mockResolvedValueOnce({
         success: false,
         error: mockError1,
       });
       await store.getState().validateField('user.name');
-      
+
       mockValidateFieldValue.mockResolvedValueOnce({
         success: false,
         error: mockError2,
@@ -403,7 +403,9 @@ describe('FormStore', () => {
 
       expect(field?.meta.isValidating).toBe(false);
       expect(field?.meta.isValid).toBe(false);
-      expect(field?.meta.errors).toEqual(['Something went wrong during validation']);
+      expect(field?.meta.errors).toEqual([
+        'Something went wrong during validation',
+      ]);
     });
 
     it('should not validate non-existent field', async () => {
@@ -599,17 +601,17 @@ describe('FormStore', () => {
         });
 
         // Expect the promise to be rejected
-        await expect(store.getState().submitForm()).rejects.toThrow('Network error');
+        await expect(store.getState().submitForm()).rejects.toThrow(
+          'Network error',
+        );
 
         expect(mockOnSubmit).toHaveBeenCalled();
       });
 
       it('should warn when no submit handler is registered', async () => {
-        const consoleSpy = vi
-          .spyOn(console, 'warn')
-          .mockImplementation(() => {
-            // Mock implementation
-          });
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+          // Mock implementation
+        });
 
         await store.getState().submitForm();
 
@@ -670,7 +672,7 @@ describe('FormStore', () => {
     it('should reset entire form', async () => {
       // Modify field values and states
       store.getState().setFieldValue('email', 'changed@example.com');
-      
+
       // Set an error through validation
       const mockError = new z.ZodError([
         { code: 'custom', message: 'Some error', path: ['email'] },
@@ -680,7 +682,7 @@ describe('FormStore', () => {
         error: mockError,
       });
       await store.getState().validateField('email');
-      
+
       store.getState().setFieldTouched('email', true);
       store.getState().setSubmitting(true);
 
@@ -695,7 +697,7 @@ describe('FormStore', () => {
     it('should reset individual field', async () => {
       // Modify field
       store.getState().setFieldValue('email', 'changed@example.com');
-      
+
       // Set an error through validation
       const mockError = new z.ZodError([
         { code: 'custom', message: 'Some error', path: ['email'] },
@@ -705,7 +707,7 @@ describe('FormStore', () => {
         error: mockError,
       });
       await store.getState().validateField('email');
-      
+
       store.getState().setFieldTouched('email', true);
 
       store.getState().resetField('email');
@@ -780,7 +782,7 @@ describe('FormStore', () => {
       // Simulate concurrent updates
       store.getState().setFieldValue('test', 'new value');
       store.getState().setFieldTouched('test', true);
-      
+
       // Set validation error
       const mockError = new z.ZodError([
         { code: 'custom', message: 'validation error', path: ['test'] },

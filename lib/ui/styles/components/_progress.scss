@@ -21,7 +21,7 @@
 }
 
 .progress {
-  @include modifier(indeterminate) {
+  &--indeterminate {
     animation: progress-bar-animation
       var(--progress-indeterminate-animation-duration) linear infinite;
     background-image: linear-gradient(

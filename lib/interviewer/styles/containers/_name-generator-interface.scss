@@ -1,12 +1,13 @@
 @use '../../../ui/styles/global/core/units';
+@use '../mixins';
 
 .name-generator-interface {
-  @include interface-centering;
+  @include mixins.interface-centering;
   flex-direction: column;
   gap: units.unit(2);
 
   &__prompt {
-    @include interface-prompt;
+    @include mixins.interface-prompt;
   }
 
   &__main {

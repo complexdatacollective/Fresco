@@ -35,7 +35,10 @@ const buttonNegativeStyles = cx('border-destructive border-2');
 
 const buttonUnselectedStyles = cx('border-border');
 
-type BooleanFieldProps = Omit<HTMLAttributes<HTMLFieldSetElement>, 'onChange'> & {
+type BooleanFieldProps = Omit<
+  HTMLAttributes<HTMLFieldSetElement>,
+  'onChange'
+> & {
   value?: boolean | null;
   onChange?: (value: boolean | null) => void;
   disabled?: boolean;
@@ -61,7 +64,10 @@ export function BooleanField({
   ...divProps
 }: BooleanFieldProps) {
   return (
-    <fieldset className={cx('w-full space-y-2 border-0 p-0', className)} {...divProps}>
+    <fieldset
+      className={cx('w-full space-y-2 border-0 p-0', className)}
+      {...divProps}
+    >
       {label && <legend className="sr-only">{label}</legend>}
       <div className="flex gap-2">
         {options.map((option) => {

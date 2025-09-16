@@ -63,7 +63,7 @@ describe('Validation Functions', () => {
     });
 
     it('should reject undefined values', () => {
-      const validator = required()(); 
+      const validator = required()();
 
       const result = validator.safeParse(undefined);
       expect(result.success).toBe(false);
@@ -148,7 +148,10 @@ describe('Validation Functions', () => {
 
     it('should throw error when max is not specified', () => {
       expect(() => {
-        validations.maxLength(null as unknown as number, createMockContext())({});
+        validations.maxLength(
+          null as unknown as number,
+          createMockContext(),
+        )({});
       }).toThrow('Max length must be specified');
     });
   });
@@ -182,7 +185,10 @@ describe('Validation Functions', () => {
 
     it('should throw error when min is not specified', () => {
       expect(() => {
-        validations.minLength(null as unknown as number, createMockContext())({});
+        validations.minLength(
+          null as unknown as number,
+          createMockContext(),
+        )({});
       }).toThrow('Min length must be specified');
     });
   });
@@ -250,7 +256,10 @@ describe('Validation Functions', () => {
 
     it('should throw error when max is not specified', () => {
       expect(() => {
-        validations.maxValue(null as unknown as number, createMockContext())({});
+        validations.maxValue(
+          null as unknown as number,
+          createMockContext(),
+        )({});
       }).toThrow('Max value must be specified');
     });
   });
@@ -296,7 +305,10 @@ describe('Validation Functions', () => {
 
     it('should throw error when min is not specified', () => {
       expect(() => {
-        validations.minSelected(null as unknown as number, createMockContext())({});
+        validations.minSelected(
+          null as unknown as number,
+          createMockContext(),
+        )({});
       }).toThrow('Min items must be specified');
     });
   });
@@ -342,7 +354,10 @@ describe('Validation Functions', () => {
 
     it('should throw error when max is not specified', () => {
       expect(() => {
-        validations.maxSelected(null as unknown as number, createMockContext())({});
+        validations.maxSelected(
+          null as unknown as number,
+          createMockContext(),
+        )({});
       }).toThrow('Max items must be specified');
     });
   });
@@ -421,7 +436,10 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .unique(null as unknown as string, createMockContext())({})
+          .unique(
+            null as unknown as string,
+            createMockContext(),
+          )({})
           .safeParse('test');
       }).toThrow('Attribute must be specified for unique validation');
     });
@@ -456,7 +474,10 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .differentFrom(null as unknown as string, createMockContext())({})
+          .differentFrom(
+            null as unknown as string,
+            createMockContext(),
+          )({})
           .safeParse('test');
       }).toThrow('Attribute must be specified for differentFrom validation');
     });
@@ -472,7 +493,10 @@ describe('Validation Functions', () => {
     it('should throw error when comparison variable is not found in codebook', () => {
       expect(() => {
         validations
-          .differentFrom('unknownAttribute', createMockContext())({
+          .differentFrom(
+            'unknownAttribute',
+            createMockContext(),
+          )({
             unknownAttribute: 'value',
           })
           .safeParse('test');
@@ -509,7 +533,10 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .sameAs(null as unknown as string, createMockContext())({})
+          .sameAs(
+            null as unknown as string,
+            createMockContext(),
+          )({})
           .safeParse('test');
       }).toThrow('Attribute must be specified for sameAs validation');
     });
@@ -565,7 +592,10 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .greaterThanVariable(null as unknown as string, createMockContext())({})
+          .greaterThanVariable(
+            null as unknown as string,
+            createMockContext(),
+          )({})
           .safeParse(10);
       }).toThrow(
         'Attribute must be specified for greaterThanVariable validation',
@@ -623,7 +653,10 @@ describe('Validation Functions', () => {
     it('should throw error when attribute is not specified', () => {
       expect(() => {
         validations
-          .lessThanVariable(null as unknown as string, createMockContext())({})
+          .lessThanVariable(
+            null as unknown as string,
+            createMockContext(),
+          )({})
           .safeParse(10);
       }).toThrow('Attribute must be specified for lessThanVariable validation');
     });

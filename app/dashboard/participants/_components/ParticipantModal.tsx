@@ -67,12 +67,12 @@ function ParticipantModal({
 
     if (result.error) {
       setError(result.error);
-      return { 
+      return {
         success: false,
-        errors: { form: [result.error] }
+        errors: { form: [result.error] },
       };
     }
-    
+
     router.refresh();
     setOpen(false);
     return { success: true };
@@ -87,10 +87,12 @@ function ParticipantModal({
   };
 
   // Use initialValues to set values when editing
-  const initialValues = editingParticipant ? {
-    identifier: editingParticipant.identifier,
-    label: editingParticipant.label ?? '',
-  } : undefined;
+  const initialValues = editingParticipant
+    ? {
+        identifier: editingParticipant.identifier,
+        label: editingParticipant.label ?? '',
+      }
+    : undefined;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -111,7 +113,7 @@ function ParticipantModal({
           initialValues={initialValues}
           className="flex flex-col gap-2"
         >
-          <IdentifierField 
+          <IdentifierField
             existingParticipants={existingParticipants}
             editingParticipant={editingParticipant}
           />
@@ -125,7 +127,11 @@ function ParticipantModal({
             Component={InputField}
           />
           <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+            >
               Cancel
             </Button>
             <SubmitButton key="submit">
@@ -139,10 +145,10 @@ function ParticipantModal({
 }
 
 // Separate component to handle the identifier field with generate button
-function IdentifierField({ 
-  existingParticipants, 
-  editingParticipant 
-}: { 
+function IdentifierField({
+  existingParticipants,
+  editingParticipant,
+}: {
   existingParticipants: Participant[];
   editingParticipant?: Participant | null;
 }) {
@@ -157,8 +163,7 @@ function IdentifierField({
       // Allow the current identifier if editing
       return (
         !existingParticipant ||
-        (editingParticipant &&
-          existingParticipant.id === editingParticipant.id)
+        (editingParticipant && existingParticipant.id === editingParticipant.id)
       );
     },
     {
@@ -168,24 +173,20 @@ function IdentifierField({
 
   const hint = (
     <>
-      This could be a study ID, a number, or any other unique
-      identifier. It should be unique for each participant, and should
-      not be easy to guess{' '}
+      This could be a study ID, a number, or any other unique identifier. It
+      should be unique for each participant, and should not be easy to guess{' '}
       <InfoTooltip
         trigger={<HelpCircle className="h-4 w-4" />}
         content={
           <>
-            <Heading variant="h4-all-caps">
-              Participant Identifiers
-            </Heading>
+            <Heading variant="h4-all-caps">Participant Identifiers</Heading>
             <Paragraph>
               Participant identifiers are used by Fresco to onboard
-              participants. They might be exposed to the participant
-              during this process via the participation URL, and so
-              must <strong>not</strong> contain any sensitive
-              information, and must not be easy for other participants
-              to guess (e.g. sequential numbers, or easily guessable
-              strings).
+              participants. They might be exposed to the participant during this
+              process via the participation URL, and so must{' '}
+              <strong>not</strong> contain any sensitive information, and must
+              not be easy for other participants to guess (e.g. sequential
+              numbers, or easily guessable strings).
             </Paragraph>
           </>
         }

@@ -209,7 +209,6 @@ export function CheckboxGroupField({
   useColumns = false,
   ...fieldsetProps
 }: CheckboxGroupProps) {
-
   const handleChange = (optionValue: string | number, checked: boolean) => {
     if (onChange) {
       const currentValues = value ?? [];
@@ -236,8 +235,12 @@ export function CheckboxGroupField({
         })}
         disabled={disabled}
         data-invalid={fieldsetProps['aria-invalid'] === 'true'}
-        {...(fieldsetProps['aria-labelledby'] ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] } : {})}
-        {...(fieldsetProps['aria-label'] ? { 'aria-label': fieldsetProps['aria-label'] } : {})}
+        {...(fieldsetProps['aria-labelledby']
+          ? { 'aria-labelledby': fieldsetProps['aria-labelledby'] }
+          : {})}
+        {...(fieldsetProps['aria-label']
+          ? { 'aria-label': fieldsetProps['aria-label'] }
+          : {})}
       >
         {options.map((option) => {
           const optionId = `${name}-${option.value}`;
@@ -259,8 +262,7 @@ export function CheckboxGroupField({
                 value={option.value}
                 {...(isControlled
                   ? { checked: isChecked }
-                  : { defaultChecked: currentValues.includes(option.value) }
-                )}
+                  : { defaultChecked: currentValues.includes(option.value) })}
                 disabled={isOptionDisabled}
                 onChange={(e) => {
                   if (!isOptionDisabled) {

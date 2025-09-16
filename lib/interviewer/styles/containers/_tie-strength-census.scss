@@ -1,3 +1,6 @@
+@use '../../../ui/styles/global/core/units';
+@use '../mixins';
+
 @keyframes shake {
   10%,
   90% {
@@ -22,7 +25,7 @@
 }
 
 .tie-strength-census {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   height: 100%;
   display: flex;
@@ -38,7 +41,7 @@
   }
 
   &__prompt {
-    @include interface-prompt;
+    @include mixins.interface-prompt;
   }
 
   &__main {

@@ -43,7 +43,7 @@ const longLabelOptions = [
 
 export const Default: Story = {
   args: {
-    name: 'example',
+    'name': 'example',
     options,
     'aria-label': 'Select Option',
   },
@@ -104,7 +104,7 @@ export const DisabledOptions: Story = {
 
 export const Invalid: Story = {
   args: {
-    name: 'invalid',
+    'name': 'invalid',
     options,
     'aria-invalid': 'true',
   },

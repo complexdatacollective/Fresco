@@ -1,4 +1,4 @@
-@mixin scrollable($top-height: unit(2)) {
+@mixin scrollable($top-height: 2rem) {
   overflow-x: hidden;
   overflow-y: auto;
   // sass-lint:disable no-vendor-prefixes

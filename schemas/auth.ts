@@ -17,7 +17,8 @@ export const createUserSchema = z
           minSymbols: 1,
         }),
       {
-        error: 'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
+        error:
+          'Password must contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol',
       },
     ),
     confirmPassword: z.string().min(1),

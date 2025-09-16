@@ -17,7 +17,7 @@
     stroke: var(--color-platinum);
   }
 
-  @include element(status) {
+  &__status {
     position: absolute;
     top: 0;
     left: 0;
@@ -30,7 +30,7 @@
     shape-outside: circle(50%);
   }
 
-  @include element(circle) {
+  &__circle {
     flex: 1;
     height: 100%;
   }

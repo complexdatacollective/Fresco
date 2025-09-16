@@ -43,7 +43,7 @@ const longLabelOptions = [
 
 export const Default: Story = {
   args: {
-    name: 'example',
+    'name': 'example',
     options,
     'aria-label': 'Select Options',
   },
@@ -51,54 +51,54 @@ export const Default: Story = {
 
 export const Horizontal: Story = {
   args: {
-    name: 'horizontal',
+    'name': 'horizontal',
     options,
-    orientation: 'horizontal',
+    'orientation': 'horizontal',
     'aria-label': 'Horizontal Options',
   },
 };
 
 export const WithDefaultValue: Story = {
   args: {
-    name: 'default-value',
+    'name': 'default-value',
     options,
-    defaultValue: ['option1', 'option3'],
+    'defaultValue': ['option1', 'option3'],
     'aria-label': 'Pre-selected Options',
   },
 };
 
 export const Small: Story = {
   args: {
-    name: 'small',
+    'name': 'small',
     options,
-    size: 'sm',
+    'size': 'sm',
     'aria-label': 'Small Size Options',
   },
 };
 
 export const Large: Story = {
   args: {
-    name: 'large',
+    'name': 'large',
     options,
-    size: 'lg',
+    'size': 'lg',
     'aria-label': 'Large Size Options',
   },
 };
 
 export const Disabled: Story = {
   args: {
-    name: 'disabled',
+    'name': 'disabled',
     options,
-    disabled: true,
-    defaultValue: ['option1'],
+    'disabled': true,
+    'defaultValue': ['option1'],
     'aria-label': 'Disabled Options',
   },
 };
 
 export const DisabledOptions: Story = {
   args: {
-    name: 'disabled-options',
-    options: [
+    'name': 'disabled-options',
+    'options': [
       { value: 'enabled1', label: 'Enabled Option' },
       { value: 'disabled1', label: 'Disabled Option', disabled: true },
       { value: 'enabled2', label: 'Another Enabled Option' },
@@ -110,7 +110,7 @@ export const DisabledOptions: Story = {
 
 export const Invalid: Story = {
   args: {
-    name: 'invalid',
+    'name': 'invalid',
     options,
     'aria-invalid': 'true',
     'aria-label': 'Invalid State Options',
@@ -119,25 +119,25 @@ export const Invalid: Story = {
 
 export const LongLabels: Story = {
   args: {
-    name: 'long-labels',
-    options: longLabelOptions,
+    'name': 'long-labels',
+    'options': longLabelOptions,
     'aria-label': 'Long Label Options',
   },
 };
 
 export const LongLabelsHorizontal: Story = {
   args: {
-    name: 'long-labels-horizontal',
-    options: longLabelOptions,
-    orientation: 'horizontal',
+    'name': 'long-labels-horizontal',
+    'options': longLabelOptions,
+    'orientation': 'horizontal',
     'aria-label': 'Long Labels Horizontal',
   },
 };
 
 export const ManyOptions: Story = {
   args: {
-    name: 'many-options',
-    options: Array.from({ length: 8 }, (_, i) => ({
+    'name': 'many-options',
+    'options': Array.from({ length: 8 }, (_, i) => ({
       value: `option${i + 1}`,
       label: `Option ${i + 1}`,
     })),
@@ -147,24 +147,24 @@ export const ManyOptions: Story = {
 
 export const ManyOptionsHorizontal: Story = {
   args: {
-    name: 'many-options-horizontal',
-    options: Array.from({ length: 6 }, (_, i) => ({
+    'name': 'many-options-horizontal',
+    'options': Array.from({ length: 6 }, (_, i) => ({
       value: `option${i + 1}`,
       label: `Option ${i + 1}`,
     })),
-    orientation: 'horizontal',
+    'orientation': 'horizontal',
     'aria-label': 'Many Options Horizontal',
   },
 };
 
 export const PreSelected: Story = {
   args: {
-    name: 'pre-selected',
-    options: Array.from({ length: 5 }, (_, i) => ({
+    'name': 'pre-selected',
+    'options': Array.from({ length: 5 }, (_, i) => ({
       value: `option${i + 1}`,
       label: `Option ${i + 1}`,
     })),
-    defaultValue: ['option2', 'option4'],
+    'defaultValue': ['option2', 'option4'],
     'aria-label': 'Pre-selected Options',
   },
 };

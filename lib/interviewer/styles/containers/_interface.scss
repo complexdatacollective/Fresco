@@ -1,5 +1,8 @@
+@use '../helpers/interface-centering';
+@use '../mixins';
+
 .interface {
-  @include interface-centering;
+  @include interface-centering.interface-centering;
 
   height: 100%;
   overflow: hidden;
@@ -7,7 +10,7 @@
   flex-direction: column;
 
   &__prompt {
-    @include interface-prompt;
+    @include mixins.interface-prompt;
   }
 
   &__main {

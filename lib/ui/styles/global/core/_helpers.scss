@@ -45,3 +45,44 @@
     @content;
   }
 }
+
+@mixin interface-centering {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin interface-prompt {
+  flex: 0 0 var(--interface-prompt-flex-basis);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+@mixin text-input($class-name: 'text-input') {
+  .#{$class-name} {
+    border: 1px solid var(--nc-input-border);
+    border-radius: var(--nc-border-radius);
+    background-color: var(--nc-input-background);
+    color: var(--nc-input-text);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: border-color var(--animation-duration-fast) var(--animation-easing);
+    
+    &:focus {
+      outline: none;
+      border-color: var(--nc-input-accent);
+    }
+    
+    &::placeholder {
+      color: var(--nc-input-placeholder);
+    }
+    
+    &:disabled {
+      background-color: var(--nc-input-disabled);
+      cursor: not-allowed;
+    }
+  }
+}

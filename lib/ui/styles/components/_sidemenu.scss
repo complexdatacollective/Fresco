@@ -1,19 +1,20 @@
 // Sidemenu
 // =============================================================================
+@use '../global/core/spacing' as *;
 @mixin sidemenu($sidemenu-class: 'sidemenu') {
   .#{$sidemenu-class} {
     max-height: 100vh;
     overflow-y: scroll;
     padding: $spacer-3;
-    background-color: color('white');
+    @apply bg-white;
     position: absolute;
     visibility: hidden;
     transform: translate3d(-100%, 0, 0);
     transition: translate var(--animation-duration-standard);
 
     &__heading {
-      @include typography('title-1');
-      color: color('white');
+      /* TODO: Replace with appropriate Tailwind text classes */
+      @apply text-white;
       text-align: left;
     }
 
@@ -24,8 +25,7 @@
     }
 
     &__list-item {
-      @include typography('title-4');
-
+      /* TODO: Replace with appropriate Tailwind text classes */
       text-transform: uppercase;
       letter-spacing: 3px;
     }
@@ -48,6 +48,4 @@
   }
 }
 
-@if $export-ui-classes {
-  @include sidemenu;
-}
+@include sidemenu;

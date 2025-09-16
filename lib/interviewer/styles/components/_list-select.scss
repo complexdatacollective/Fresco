@@ -3,8 +3,8 @@
   flex-direction: column;
   height: 100%;
 
-  @include breakpoint(full) {
-    margin: 0 100px;
+  @media (min-aspect-ratio: 0.625) {
+    @apply mx-[100px];
   }
 
   max-height: inherit;

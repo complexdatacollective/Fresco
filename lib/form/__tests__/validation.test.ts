@@ -121,9 +121,8 @@ describe('Validation Utils', () => {
       const formValueValidationFn = (
         formValues: Record<string, FieldValue>,
       ) => {
-        const minLength = typeof formValues.minLength === 'number' 
-          ? formValues.minLength 
-          : 3;
+        const minLength =
+          typeof formValues.minLength === 'number' ? formValues.minLength : 3;
         return z.string().min(minLength, `Must be at least ${minLength} chars`);
       };
 

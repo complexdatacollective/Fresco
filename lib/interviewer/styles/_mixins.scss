@@ -1,0 +1,41 @@
+// Import all UI core helpers
+@use '../../ui/styles/global/core/helpers' as ui-helpers;
+@use '../../ui/styles/global/core/animation' as ui-animation;
+@use '../../ui/styles/components/scrollable' as ui-scrollable;
+
+// Re-export mixins for easy access
+@mixin clickable($depth: 1) {
+  @include ui-helpers.clickable($depth);
+}
+
+@mixin interface-centering {
+  @include ui-helpers.interface-centering;
+}
+
+@mixin interface-prompt {
+  @include ui-helpers.interface-prompt;
+}
+
+@mixin text-input($class-name: 'text-input') {
+  @include ui-helpers.text-input($class-name);
+}
+
+@mixin scrollable($top-height: 2rem) {
+  @include ui-scrollable.scrollable($top-height);
+}
+
+@mixin transition-properties($properties, $easing, $duration) {
+  @include ui-animation.transition-properties($properties, $easing, $duration);
+}
+
+@mixin transition-properties-with-delay($properties, $easing, $duration, $delay: 0s) {
+  @include ui-animation.transition-properties-with-delay($properties, $easing, $duration, $delay);
+}
+
+@mixin group-transition-with-delay($transition-name, $duration, $delay) {
+  @include ui-animation.group-transition-with-delay($transition-name, $duration, $delay);
+}
+
+@mixin gpu {
+  transform: translate3d(0, 0, 0);
+}

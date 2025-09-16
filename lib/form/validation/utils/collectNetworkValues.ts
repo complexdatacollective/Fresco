@@ -1,5 +1,8 @@
 import { type StageSubject } from '@codaco/protocol-validation';
-import { entityAttributesProperty, type NcNetwork } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  type NcNetwork,
+} from '@codaco/shared-consts';
 
 export default function collectNetworkValues(
   network: NcNetwork,

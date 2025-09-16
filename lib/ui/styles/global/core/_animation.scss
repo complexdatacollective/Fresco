@@ -1,3 +1,6 @@
+@use 'sass:map';
+@use 'sass:list';
+
 $animation-default-scale-factor: 1;
 $animation-default-scale-factor-ms: 1000;
 $animation-easing-ios: cubic-bezier(0.23, 1, 0.32, 1);
@@ -97,7 +100,7 @@ $transition-presets: (
 @mixin transition-properties($properties, $easing, $duration) {
   $transitions: ();
   @each $value in $properties {
-    $transitions: append($transitions, $value $duration $easing, comma);
+    $transitions: list.append($transitions, $value $duration $easing, comma);
   }
   transition: $transitions;
 }
@@ -110,7 +113,7 @@ $transition-presets: (
 ) {
   $transitions: ();
   @each $value in $properties {
-    $transitions: append($transitions, $value $duration $easing $delay, comma);
+    $transitions: list.append($transitions, $value $duration $easing $delay, comma);
   }
   transition: $transitions;
 }
@@ -137,12 +140,12 @@ $transition-presets: (
   $transition-name,
   $duration: var(--animation-duration-standard)
 ) {
-  $transition: map-get($transition-presets, $transition-name);
-  $properties: map-keys(map-get($transition, 'start'));
+  $transition: map.get($transition-presets, $transition-name);
+  $properties: map.keys(map.get($transition, 'start'));
 
   &-appear,
   &-enter {
-    @each $key, $value in map-get($transition, 'start') {
+    @each $key, $value in map.get($transition, 'start') {
       #{$key}: $value;
     }
 
@@ -152,14 +155,14 @@ $transition-presets: (
         var(--animation-easing),
         $duration
       );
-      @each $key, $value in map-get($transition, 'end') {
+      @each $key, $value in map.get($transition, 'end') {
         #{$key}: $value;
       }
     }
   }
 
   &-leave {
-    @each $key, $value in map-get($transition, 'end') {
+    @each $key, $value in map.get($transition, 'end') {
       #{$key}: $value;
     }
 
@@ -169,7 +172,7 @@ $transition-presets: (
         var(--animation-easing),
         $duration
       );
-      @each $key, $value in map-get($transition, 'start') {
+      @each $key, $value in map.get($transition, 'start') {
         #{$key}: $value;
       }
     }
@@ -177,11 +180,11 @@ $transition-presets: (
 }
 
 @mixin group-transition-with-delay($transition-name, $duration, $delay) {
-  $transition: map-get($transition-presets, $transition-name);
-  $properties: map-keys(map-get($transition, 'start'));
+  $transition: map.get($transition-presets, $transition-name);
+  $properties: map.keys(map.get($transition, 'start'));
 
   &-appear {
-    @each $key, $value in map-get($transition, 'start') {
+    @each $key, $value in map.get($transition, 'start') {
       #{$key}: $value;
     }
 
@@ -192,14 +195,14 @@ $transition-presets: (
         $duration,
         $delay
       );
-      @each $key, $value in map-get($transition, 'end') {
+      @each $key, $value in map.get($transition, 'end') {
         #{$key}: $value;
       }
     }
   }
 
   &-enter {
-    @each $key, $value in map-get($transition, 'start') {
+    @each $key, $value in map.get($transition, 'start') {
       #{$key}: $value;
     }
 
@@ -210,14 +213,14 @@ $transition-presets: (
         $duration,
         $delay
       );
-      @each $key, $value in map-get($transition, 'end') {
+      @each $key, $value in map.get($transition, 'end') {
         #{$key}: $value;
       }
     }
   }
 
   &-leave {
-    @each $key, $value in map-get($transition, 'end') {
+    @each $key, $value in map.get($transition, 'end') {
       #{$key}: $value;
     }
 
@@ -227,7 +230,7 @@ $transition-presets: (
         var(--animation-easing),
         $duration
       );
-      @each $key, $value in map-get($transition, 'start') {
+      @each $key, $value in map.get($transition, 'start') {
         #{$key}: $value;
       }
     }

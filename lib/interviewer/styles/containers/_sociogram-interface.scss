@@ -1,5 +1,9 @@
+@use '../../../ui/styles/global/core/spacing';
+
+@use '../mixins';
+
 .sociogram-interface {
-  @include interface-centering;
+  @include mixins.interface-centering;
 
   align-items: center;
   display: flex;
@@ -15,7 +19,7 @@
     top: 0;
     right: 0;
     bottom: 0;
-    inset: unit(2);
+    inset: 1.2rem;
   }
 
   &__concentric-circles {
@@ -34,9 +38,9 @@
     position: absolute;
     z-index: var(--z-panel);
     background: var(--nc-panel-bg-muted);
-    width: units.unit(40);
-    bottom: spacing(large);
-    right: spacing(large);
+    width: 24rem;
+    bottom: spacing.spacing(large);
+    right: spacing.spacing(large);
     border-bottom: 5px solid var(--nc-primary);
     border-radius: var(--nc-border-radius);
     box-shadow: 0 0 4rem 0 var(--nc-modal-window-box-shadow);
@@ -47,8 +51,8 @@
       display: flex;
       justify-content: flex-end;
       text-align: center;
-      padding: 0 units.unit(2);
-      flex: 0 0 units.unit(4);
+      padding: 0 1.2rem;
+      flex: 0 0 2.4rem;
       align-items: center;
     }
 
@@ -56,7 +60,7 @@
       --number-of-lines: 13;
       --prompt-text-size: 1.2rem;
 
-      padding: 0 units.unit(2);
+      padding: 0 1.2rem;
       line-height: 1.1;
 
       .prompt {
