@@ -1,5 +1,5 @@
 import { type Stage } from '@codaco/protocol-validation';
-import { type NcNode } from '@codaco/shared-consts';
+import { VariableValue, type NcNode } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -10,11 +10,14 @@ import UIChildConnector from '~/lib/ui/components/FamilyTree/ChildConnector';
 import UIExPartnerConnector from '~/lib/ui/components/FamilyTree/ExPartnerConnector';
 import UIOffspringConnector from '~/lib/ui/components/FamilyTree/OffspringConnector';
 import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector';
+// import NumberInput from '~/lib/ui/components/Fields/Number';
+import NumberInput from '~/lib/form/components/fields/Number';
+import Form from '~/lib/form/components/Form';
+import Prompt from '~/lib/ui/components/Prompts/Prompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { updatePedigreeStageMetadata } from '../../../ducks/modules/session';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch, type RootState } from '../../../store';
-import Form from '../../Form';
 import { type StageProps } from '../../Stage';
 import CensusStep2Form from './CensusStep2Form';
 import FamilyTreeLayout from './FamilyTreeLayout';
@@ -133,24 +136,24 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   // return either an empty array or an array of integers from 1 to the number of relations
   const arrayFromRelationCount = (
-    formData: Record<string, string>,
+    formData: Record<string, number>,
     relation: string,
   ) => {
-    if (typeof formData[relation] != 'string') {
+    if (typeof formData[relation] != 'number' || formData[relation] < 1) {
       return [];
     } else {
-      return [...Array(parseInt(formData[relation])).keys()];
+      return [...Array(formData[relation]).keys()];
     }
   };
 
-  const egoChildCheck = (formData: Record<string, string>) => {
-    const sons = formData.sons ? parseInt(formData.sons, 10) : 0;
-    const daughters = formData.daughters ? parseInt(formData.daughters, 10) : 0;
+  const egoChildCheck = (formData: Record<string, number>) => {
+    const sons = formData.sons ? formData.sons : 0;
+    const daughters = formData.daughters ? formData.daughters : 0;
 
     return sons > 0 || daughters > 0;
   };
 
-  const generatePlaceholderNodes = (formData: Record<string, string>) => {
+  const generatePlaceholderNodes = (formData: Record<string, number>) => {
     // Use a temporary local array to accumulate nodes before setting
     const tempNodes: PlaceholderNodeProps[] = [];
 
@@ -339,45 +342,94 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   // TODO: clean up all the state code tracking tree nodes.
   // there's like 3 different instances of state tracking the same thing
 
+  const numberValidation = {
+    onChange: ({ value }) => {
+      if (value === '' || value == null) return undefined;
+      if (value < 0) return 'Number must be 0 or greater';
+
+      return undefined;
+    },
+  };
+
   const renderCensusForm = () => {
     const step1CensusForm = {
       fields: [
-        { variable: 'brothers', prompt: 'How many brothers do you have?' },
-        { variable: 'sisters', prompt: 'How many sisters do you have?' },
-        { variable: 'sons', prompt: 'How many sons do you have?' },
-        { variable: 'daughters', prompt: 'How many daughters do you have?' },
         {
+          name: 'brothers',
+          variable: 'brothers',
+          label: 'How many brothers do you have?',
+          Component: NumberInput,
+          validation: numberValidation,
+        },
+        {
+          name: 'sisters',
+          variable: 'sisters',
+          label: 'How many sisters do you have?',
+          Component: NumberInput,
+          validation: numberValidation,
+        },
+        {
+          name: 'sons',
+          variable: 'sons',
+          label: 'How many sons do you have?',
+          Component: NumberInput,
+          validation: numberValidation,
+        },
+        {
+          name: 'daughters',
+          variable: 'daughters',
+          label: 'How many daughters do you have?',
+          Component: NumberInput,
+          validation: numberValidation,
+        },
+        {
+          name: 'maternal-uncles',
           variable: 'maternal-uncles',
-          prompt: 'How many brothers does your mother have?',
+          label: 'How many brothers does your mother have?',
+          Component: NumberInput,
+          validation: numberValidation,
         },
         {
+          name: 'maternal-aunts',
           variable: 'maternal-aunts',
-          prompt: 'How many sisters does your mother have?',
+          label: 'How many sisters does your mother have?',
+          Component: NumberInput,
+          validation: numberValidation,
         },
         {
+          name: 'paternal-uncles',
           variable: 'paternal-uncles',
-          prompt: 'How many brothers does your father have?',
+          label: 'How many brothers does your father have?',
+          Component: NumberInput,
+          validation: numberValidation,
         },
         {
+          name: 'paternal-aunts',
           variable: 'paternal-aunts',
-          prompt: 'How many sisters does your father have?',
+          label: 'How many sisters does your father have?',
+          Component: NumberInput,
+          validation: numberValidation,
         },
       ],
     };
 
-    const handleSubmitCensusForm = (formData: Record<string, string>) => {
+    const handleSubmitCensusForm = (data: {
+      value: Record<string, VariableValue>;
+    }) => {
+      const formData = data.value;
+
       moveForward();
       generatePlaceholderNodes(formData);
     };
 
     return (
       <div className="interface ego-form alter-form family-pedigree-interface">
+        <Prompt text="This is the first step" />
         <div className="ego-form__form-container">
           <Form
             {...step1CensusForm}
             className="family-member-count-form"
-            form="FamilyPedigree"
-            onSubmit={handleSubmitCensusForm}
+            handleSubmit={handleSubmitCensusForm}
           />
         </div>
       </div>
@@ -411,6 +463,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     return (
       <div className="family-pedigree-interface">
+        <Prompt text="This is the second step" />
         <CensusStep2Form
           selectedNode={null}
           form={step2CensusForm}
@@ -537,27 +590,34 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             );
           })}
         </div>
+        <div className="node-layout" ref={elementRef}>
+          <div className="inner-node-layout">
+            <FamilyTreePlaceholderNodeList
+              items={positionedNodesWithOffsets(
+                positionedNodes,
+                xOffset,
+                yOffset,
+              )}
+              listId={`${stage.id}_MAIN_NODE_LIST`}
+              id="MAIN_NODE_LIST"
+              accepts={({ meta }: { meta: { itemType: string | null } }) =>
+                get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
+              }
+              itemType="PLACEHOLDER_NODE"
+              onDrop={() => {}}
+              onItemClick={() => {}}
+            />
 
-        <FamilyTreePlaceholderNodeList
-          items={positionedNodesWithOffsets(positionedNodes, xOffset, yOffset)}
-          listId={`${stage.id}_MAIN_NODE_LIST`}
-          id="MAIN_NODE_LIST"
-          accepts={({ meta }: { meta: { itemType: string | null } }) =>
-            get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
-          }
-          itemType="PLACEHOLDER_NODE"
-          onDrop={() => {}}
-          onItemClick={() => {}}
-        />
-
-        <NodeBin
-          accepts={(node: PlaceholderNodeProps & { itemType: string }) =>
-            node.itemType === 'PLACEHOLDER_NODE'
-          }
-          dropHandler={(meta: PlaceholderNodeProps) =>
-            removePlaceholderNode(meta.id)
-          }
-        />
+            <NodeBin
+              accepts={(node: PlaceholderNodeProps & { itemType: string }) =>
+                node.itemType === 'PLACEHOLDER_NODE'
+              }
+              dropHandler={(meta: PlaceholderNodeProps) =>
+                removePlaceholderNode(meta.id)
+              }
+            />
+          </div>
+        </div>
       </div>
     );
   };
@@ -565,6 +625,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const renderFamilyTreeCompletion = () => {
     return (
       <div className="family-pedigree-interface">
+        <Prompt text="This is the third step" />
         <div className="edge-layout">
           {positionedNodes.map((node) => {
             return (

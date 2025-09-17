@@ -9,7 +9,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
 import Form from '~/lib/form/components/Form';
-import { FIRST_LOAD_UI_ELEMENT_DELAY } from '~/lib/interviewer/containers/Interfaces/utils/constants';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
@@ -71,7 +70,9 @@ const CensusStep2Form = (props: NodeFormProps) => {
         }}
       />
     ),
-    validation: {},
+    validation: {
+      onSubmit: (value) => (value?.value ? undefined : 'Relation is required'),
+    },
   };
 
   const hasAuntOrUncle = step2Nodes.some((node) =>
@@ -287,7 +288,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'auntRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     uncle: {
       fieldLabel: 'Whos is the uncle related to?',
@@ -298,7 +302,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'uncleRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     halfSister: {
       fieldLabel: 'Who is the parent of your half sister?',
@@ -309,7 +316,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'halfSisterRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     halfBrother: {
       fieldLabel: 'Who is the parent of your half brother?',
@@ -320,7 +330,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'halfBrotherRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     firstCousinMale: {
       fieldLabel: 'Who is the parent of your first cousin?',
@@ -328,7 +341,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'firstCousinMaleRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     firstCousinFemale: {
       fieldLabel: 'Who is the parent of your first cousin?',
@@ -336,7 +352,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'firstCousinFemaleRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     niece: {
       fieldLabel: 'Who is the parent of your niece?',
@@ -344,7 +363,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'nieceRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     nephew: {
       fieldLabel: 'Who is the parent of your nephew?',
@@ -352,7 +374,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'nephewRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     granddaughter: {
       fieldLabel: 'Who is the parent of your granddaughter?',
@@ -360,7 +385,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'granddaughterRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
     grandson: {
       fieldLabel: 'Who is the parent of your granddaughter?',
@@ -368,7 +396,10 @@ const CensusStep2Form = (props: NodeFormProps) => {
       type: 'ordinal',
       variable: 'grandsonRelation',
       Component: RadioGroup,
-      validation: {},
+      validation: {
+        onSubmit: (value) =>
+          value?.value ? undefined : 'Relation is required',
+      },
     },
   };
 
@@ -423,6 +454,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
           break;
         }
@@ -444,6 +476,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
           break;
         }
@@ -470,6 +503,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
               partnerId: egoNode.id,
               xPos: undefined,
               yPos: undefined,
+              isEgo: false,
             };
 
             updatedEgo = { ...egoNode, partnerId };
@@ -492,6 +526,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
 
           const updatedEgoWithChildren: PlaceholderNodeProps = {
@@ -544,6 +579,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
               childIds: [],
               xPos: undefined,
               yPos: undefined,
+              isEgo: false,
             };
 
             parentsArray = [selectedRelative, partnerNode];
@@ -562,6 +598,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
 
           const updatedRelativeWithHalfSibling: PlaceholderNodeProps = {
@@ -610,6 +647,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
               partnerId: selectedRelative.id,
               xPos: undefined,
               yPos: undefined,
+              isEgo: false,
             };
 
             updatedSelectedRelative = { ...selectedRelative, partnerId };
@@ -633,6 +671,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
 
           const updatedRelativeWithCousin: PlaceholderNodeProps = {
@@ -682,6 +721,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
               partnerId: selectedRelative.id,
               xPos: undefined,
               yPos: undefined,
+              isEgo: false,
             };
 
             updatedSelectedRelative = { ...selectedRelative, partnerId };
@@ -705,6 +745,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
 
           const updatedRelativeWithChild: PlaceholderNodeProps = {
@@ -753,6 +794,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
               partnerId: selectedChild.id,
               xPos: undefined,
               yPos: undefined,
+              isEgo: false,
             };
 
             updatedSelectedChild = { ...selectedChild, partnerId };
@@ -776,6 +818,7 @@ const CensusStep2Form = (props: NodeFormProps) => {
             childIds: [],
             xPos: undefined,
             yPos: undefined,
+            isEgo: false,
           };
 
           const updatedChildWithGrandchild: PlaceholderNodeProps = {
@@ -829,21 +872,21 @@ const CensusStep2Form = (props: NodeFormProps) => {
     onClose();
   }, [onClose]);
 
-  const variants = {
-    initial: { opacity: 0, y: '100%' },
-    animate: {
-      opacity: 1,
-      y: '0rem',
-      transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
-    },
-  };
+  // const variants = {
+  //   initial: { opacity: 0, y: '100%' },
+  //   animate: {
+  //     opacity: 1,
+  //     y: '0rem',
+  //     transition: { delay: FIRST_LOAD_UI_ELEMENT_DELAY },
+  //   },
+  // };
 
   return (
     <>
       <AnimatePresence>
         <motion.div
           className="name-generator-interface__add-button"
-          variants={variants}
+          // variants={variants}
         >
           <ActionButton
             disabled={disabled}

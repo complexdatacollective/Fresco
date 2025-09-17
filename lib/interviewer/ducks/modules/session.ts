@@ -92,6 +92,7 @@ const PedigreeStageMetadataEntrySchema = z.object({
   id: z.string(),
   gender: z.string(),
   label: z.string(),
+  isEgo: z.boolean(),
   partnerId: z.string(),
   exPartnerId: z.string(),
   xPos: z.number(),
