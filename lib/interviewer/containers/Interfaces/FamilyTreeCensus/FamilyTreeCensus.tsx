@@ -13,6 +13,7 @@ import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector'
 // import NumberInput from '~/lib/ui/components/Fields/Number';
 import NumberInput from '~/lib/form/components/fields/Number';
 import Form from '~/lib/form/components/Form';
+import { Scroller } from '~/lib/ui/components';
 import Prompt from '~/lib/ui/components/Prompts/Prompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { updatePedigreeStageMetadata } from '../../../ducks/modules/session';
@@ -355,56 +356,48 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const step1CensusForm = {
       fields: [
         {
-          name: 'brothers',
           variable: 'brothers',
           label: 'How many brothers do you have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'sisters',
           variable: 'sisters',
           label: 'How many sisters do you have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'sons',
           variable: 'sons',
           label: 'How many sons do you have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'daughters',
           variable: 'daughters',
           label: 'How many daughters do you have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'maternal-uncles',
           variable: 'maternal-uncles',
           label: 'How many brothers does your mother have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'maternal-aunts',
           variable: 'maternal-aunts',
           label: 'How many sisters does your mother have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'paternal-uncles',
           variable: 'paternal-uncles',
           label: 'How many brothers does your father have?',
           Component: NumberInput,
           validation: numberValidation,
         },
         {
-          name: 'paternal-aunts',
           variable: 'paternal-aunts',
           label: 'How many sisters does your father have?',
           Component: NumberInput,
@@ -428,7 +421,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         <div className="ego-form__form-container">
           <Form
             {...step1CensusForm}
-            className="family-member-count-form"
+            id="family-member-count-form"
             handleSubmit={handleSubmitCensusForm}
           />
         </div>
@@ -455,6 +448,30 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     );
   };
 
+  const nodeMaxX = Math.max(
+    ...positionedNodes.map((n) => (n.xPos ?? 0) + 100),
+    850,
+  );
+
+  const edgeMaxX = Math.max(
+    ...positionedNodes.flatMap((node) => {
+      const partnerX = familyTreeNodesById[node.partnerId]?.xPos ?? 0;
+      const exPartnerX = familyTreeNodesById[node.exPartnerId]?.xPos ?? 0;
+      const childrenX = node.childIds.map(
+        (id) => familyTreeNodesById[id]?.xPos ?? 0,
+      );
+
+      return [partnerX, exPartnerX, ...childrenX];
+    }),
+  );
+
+  const canvasWidth = Math.max(nodeMaxX, edgeMaxX + 300);
+
+  const canvasHeight = Math.max(
+    ...positionedNodes.map((n) => (n.yPos ?? 0) + 200),
+    200,
+  );
+
   const renderFamilyTreeShells = () => {
     const step2CensusForm = {
       fields: [],
@@ -472,152 +489,167 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           setPlaceholderNodes={setPlaceholderNodesBulk}
           egoNodeId={egoNodeId}
         />
-        <div className="edge-layout">
-          {positionedNodes.map((node) => {
-            return (
-              node.partnerId != null && (
-                <UIPartnerConnector
-                  key={crypto.randomUUID()}
-                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
-                  xEndPos={
-                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) -
-                    20 +
-                    xOffset
-                  }
-                  yPos={node.yPos + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              node.exPartnerId != null && (
-                <UIExPartnerConnector
-                  key={crypto.randomUUID()}
-                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
-                  xEndPos={
-                    (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) -
-                    20 +
-                    xOffset
-                  }
-                  yPos={node.yPos + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              node.partnerId != null &&
-              (node.childIds?.length ?? 0) > 0 && (
-                <UIOffspringConnector
-                  key={crypto.randomUUID()}
-                  xPos={
-                    ((node.xPos ?? 0) +
-                      (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                      2 +
-                    xOffset
-                  }
-                  yStartPos={(node.yPos ?? 0) + yOffset}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              node.exPartnerId != null &&
-              (node.childIds?.length ?? 0) > 0 && (
-                <UIOffspringConnector
-                  key={crypto.randomUUID()}
-                  xPos={
-                    ((node.xPos ?? 0) +
-                      (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0)) /
-                      2 +
-                    xOffset
-                  }
-                  yStartPos={(node.yPos ?? 0) - 5 + yOffset}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              familyTreeNodesById[node.partnerId] != null &&
-              familyTreeNodesById[node.partnerId] != null &&
-              node.childIds.length > 0 &&
-              node.childIds.map((child) => {
-                const childNode = familyTreeNodesById[child];
+        <Scroller className="family-tree-census-scroller">
+          <div
+            className="census-node-canvas"
+            style={{
+              position: 'relative',
+              width: canvasWidth,
+              height: canvasHeight,
+            }}
+          >
+            <div className="edge-layout">
+              {positionedNodes.map((node) => {
                 return (
-                  <UIChildConnector
-                    key={crypto.randomUUID()}
-                    xStartPos={(childNode.xPos ?? 0) + xOffset}
-                    xEndPos={
-                      ((node.xPos ?? 0) +
-                        (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                        2 +
-                      xOffset
-                    }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset}
-                    height={rowHeight / 3 - 15}
-                  />
+                  node.partnerId != null && (
+                    <UIPartnerConnector
+                      key={crypto.randomUUID()}
+                      xStartPos={(node.xPos ?? 0) + 10 + xOffset}
+                      xEndPos={
+                        (familyTreeNodesById[node.partnerId]?.xPos ?? 0) -
+                        20 +
+                        xOffset
+                      }
+                      yPos={node.yPos + yOffset}
+                    />
+                  )
                 );
-              })
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              familyTreeNodesById[node.exPartnerId] != null &&
-              familyTreeNodesById[node.exPartnerId] != null &&
-              node.childIds.length > 0 &&
-              node.childIds.map((child) => {
-                const childNode = familyTreeNodesById[child];
+              })}
+              {positionedNodes.map((node) => {
                 return (
-                  <UIChildConnector
-                    key={crypto.randomUUID()}
-                    xStartPos={(childNode.xPos ?? 0) + xOffset}
-                    xEndPos={
-                      ((node.xPos ?? 0) +
-                        (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0)) /
-                        2 +
-                      xOffset
-                    }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset}
-                    height={rowHeight / 3 - 15}
-                  />
+                  node.exPartnerId != null && (
+                    <UIExPartnerConnector
+                      key={crypto.randomUUID()}
+                      xStartPos={(node.xPos ?? 0) + 10 + xOffset}
+                      xEndPos={
+                        (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) -
+                        20 +
+                        xOffset
+                      }
+                      yPos={node.yPos + yOffset}
+                    />
+                  )
                 );
-              })
-            );
-          })}
-        </div>
-        <div className="node-layout" ref={elementRef}>
-          <div className="inner-node-layout">
-            <FamilyTreePlaceholderNodeList
-              items={positionedNodesWithOffsets(
-                positionedNodes,
-                xOffset,
-                yOffset,
-              )}
-              listId={`${stage.id}_MAIN_NODE_LIST`}
-              id="MAIN_NODE_LIST"
-              accepts={({ meta }: { meta: { itemType: string | null } }) =>
-                get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
-              }
-              itemType="PLACEHOLDER_NODE"
-              onDrop={() => {}}
-              onItemClick={() => {}}
-            />
-
-            <NodeBin
-              accepts={(node: PlaceholderNodeProps & { itemType: string }) =>
-                node.itemType === 'PLACEHOLDER_NODE'
-              }
-              dropHandler={(meta: PlaceholderNodeProps) =>
-                removePlaceholderNode(meta.id)
-              }
-            />
+              })}
+              {positionedNodes.map((node) => {
+                return (
+                  node.partnerId != null &&
+                  (node.childIds?.length ?? 0) > 0 && (
+                    <UIOffspringConnector
+                      key={crypto.randomUUID()}
+                      xPos={
+                        ((node.xPos ?? 0) +
+                          (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
+                          2 +
+                        xOffset
+                      }
+                      yStartPos={(node.yPos ?? 0) + yOffset}
+                      yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
+                    />
+                  )
+                );
+              })}
+              {positionedNodes.map((node) => {
+                return (
+                  node.exPartnerId != null &&
+                  (node.childIds?.length ?? 0) > 0 && (
+                    <UIOffspringConnector
+                      key={crypto.randomUUID()}
+                      xPos={
+                        ((node.xPos ?? 0) +
+                          (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0)) /
+                          2 +
+                        xOffset
+                      }
+                      yStartPos={(node.yPos ?? 0) - 5 + yOffset}
+                      yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
+                    />
+                  )
+                );
+              })}
+              {positionedNodes.map((node) => {
+                return (
+                  familyTreeNodesById[node.partnerId] != null &&
+                  familyTreeNodesById[node.partnerId] != null &&
+                  node.childIds.length > 0 &&
+                  node.childIds.map((child) => {
+                    const childNode = familyTreeNodesById[child];
+                    return (
+                      <UIChildConnector
+                        key={crypto.randomUUID()}
+                        xStartPos={(childNode.xPos ?? 0) + xOffset}
+                        xEndPos={
+                          ((node.xPos ?? 0) +
+                            (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
+                            2 +
+                          xOffset
+                        }
+                        yPos={
+                          (childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset
+                        }
+                        height={rowHeight / 3 - 15}
+                      />
+                    );
+                  })
+                );
+              })}
+              {positionedNodes.map((node) => {
+                return (
+                  familyTreeNodesById[node.exPartnerId] != null &&
+                  familyTreeNodesById[node.exPartnerId] != null &&
+                  node.childIds.length > 0 &&
+                  node.childIds.map((child) => {
+                    const childNode = familyTreeNodesById[child];
+                    return (
+                      <UIChildConnector
+                        key={crypto.randomUUID()}
+                        xStartPos={(childNode.xPos ?? 0) + xOffset}
+                        xEndPos={
+                          ((node.xPos ?? 0) +
+                            (familyTreeNodesById[node.exPartnerId]?.xPos ??
+                              0)) /
+                            2 +
+                          xOffset
+                        }
+                        yPos={
+                          (childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset
+                        }
+                        height={rowHeight / 3 - 15}
+                      />
+                    );
+                  })
+                );
+              })}
+            </div>
+            <div className="node-layout" ref={elementRef}>
+              <div className="inner-node-layout">
+                <FamilyTreePlaceholderNodeList
+                  items={positionedNodesWithOffsets(
+                    positionedNodes,
+                    xOffset,
+                    yOffset,
+                  )}
+                  listId={`${stage.id}_MAIN_NODE_LIST`}
+                  id="MAIN_NODE_LIST"
+                  accepts={({ meta }: { meta: { itemType: string | null } }) =>
+                    get(meta, 'itemType', null) === 'PLACEHOLDER_NODE'
+                  }
+                  itemType="PLACEHOLDER_NODE"
+                  onDrop={() => {}}
+                  onItemClick={() => {}}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        </Scroller>
+        <NodeBin
+          accepts={(node: PlaceholderNodeProps & { itemType: string }) =>
+            node.itemType === 'PLACEHOLDER_NODE'
+          }
+          dropHandler={(meta: PlaceholderNodeProps) =>
+            removePlaceholderNode(meta.id)
+          }
+        />
       </div>
     );
   };
@@ -626,123 +658,136 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return (
       <div className="family-pedigree-interface">
         <Prompt text="This is the third step" />
-        <div className="edge-layout">
-          {positionedNodes.map((node) => {
-            return (
-              node.partnerId != null && (
-                <UIPartnerConnector
-                  key={`partner-${node.id}`}
-                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
-                  xEndPos={
-                    (familyTreeNodesById[node.partnerId]?.xPos ?? 0) -
-                    20 +
-                    xOffset
-                  }
-                  yPos={node.yPos + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              node.exPartnerId != null && (
-                <UIExPartnerConnector
-                  key={crypto.randomUUID()}
-                  xStartPos={(node.xPos ?? 0) + 10 + xOffset}
-                  xEndPos={
-                    (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) -
-                    20 +
-                    xOffset
-                  }
-                  yPos={node.yPos + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              node.partnerId != null &&
-              (node.childIds?.length ?? 0) > 0 && (
-                <UIOffspringConnector
-                  key={`offspring-${node.id}`}
-                  xPos={
-                    ((node.xPos ?? 0) +
-                      (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                      2 +
-                    xOffset
-                  }
-                  yStartPos={(node.yPos ?? 0) + yOffset}
-                  yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
-                />
-              )
-            );
-          })}
-          {positionedNodes.map((node) => {
-            return (
-              (node.partnerId != null || node.exPartnerId != null) &&
-              (node.childIds?.length ?? 0) > 0 &&
-              node.childIds.map((child) => {
-                const childNode = familyTreeNodesById[child];
+        <Scroller className="family-tree-census-scroller">
+          <div
+            className="census-node-canvas"
+            style={{
+              position: 'relative',
+              width: canvasWidth,
+              height: canvasHeight,
+            }}
+          >
+            <div className="edge-layout">
+              {positionedNodes.map((node) => {
                 return (
-                  <UIChildConnector
-                    key={crypto.randomUUID()}
-                    xStartPos={(childNode.xPos ?? 0) + xOffset}
-                    xEndPos={
-                      ((node.xPos ?? 0) +
-                        (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
-                        2 +
-                      xOffset
-                    }
-                    yPos={(childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset}
-                    height={rowHeight / 3 - 15}
-                  />
+                  node.partnerId != null && (
+                    <UIPartnerConnector
+                      key={`partner-${node.id}`}
+                      xStartPos={(node.xPos ?? 0) + 10 + xOffset}
+                      xEndPos={
+                        (familyTreeNodesById[node.partnerId]?.xPos ?? 0) -
+                        20 +
+                        xOffset
+                      }
+                      yPos={node.yPos + yOffset}
+                    />
+                  )
                 );
-              })
-            );
-          })}
-        </div>
-        <div className="node-layout" ref={elementRef}>
-          <div className="inner-node-layout">
-            {positionedNodes.map((node) => {
-              if (node.networkNode) {
+              })}
+              {positionedNodes.map((node) => {
                 return (
-                  <FamilyTreeNodeNetworkBacked
-                    key={node.id}
-                    id={node.id}
-                    isEgo={node.isEgo || false}
-                    gender={node.gender}
-                    label={node.label}
-                    xPos={node.xPos + xOffset}
-                    yPos={node.yPos + yOffset}
-                    yOffset={yOffset}
-                    parentIds={node.parentIds}
-                    childIds={node.childIds}
-                    networkNode={node.networkNode}
-                    handleClick={
-                      node.isEgo
-                        ? () => {}
-                        : (node) => setSelectedNode(node.networkNode)
-                    }
-                  />
+                  node.exPartnerId != null && (
+                    <UIExPartnerConnector
+                      key={crypto.randomUUID()}
+                      xStartPos={(node.xPos ?? 0) + 10 + xOffset}
+                      xEndPos={
+                        (familyTreeNodesById[node.exPartnerId]?.xPos ?? 0) -
+                        20 +
+                        xOffset
+                      }
+                      yPos={node.yPos + yOffset}
+                    />
+                  )
                 );
-              } else {
+              })}
+              {positionedNodes.map((node) => {
                 return (
-                  <FamilyTreeNode
-                    key={crypto.randomUUID()}
-                    id={node.id}
-                    isEgo={node.isEgo || false}
-                    gender={node.gender}
-                    parentIds={node.parentIds}
-                    label={node.label}
-                    xPos={node.xPos + xOffset}
-                    yPos={node.yPos + yOffset}
-                    handleClick={(node) => setSelectedNode(node)}
-                  />
+                  node.partnerId != null &&
+                  (node.childIds?.length ?? 0) > 0 && (
+                    <UIOffspringConnector
+                      key={`offspring-${node.id}`}
+                      xPos={
+                        ((node.xPos ?? 0) +
+                          (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
+                          2 +
+                        xOffset
+                      }
+                      yStartPos={(node.yPos ?? 0) + yOffset}
+                      yEndPos={(node.yPos ?? 0) + rowHeight / 3 + 30 + yOffset}
+                    />
+                  )
                 );
-              }
-            })}
+              })}
+              {positionedNodes.map((node) => {
+                return (
+                  (node.partnerId != null || node.exPartnerId != null) &&
+                  (node.childIds?.length ?? 0) > 0 &&
+                  node.childIds.map((child) => {
+                    const childNode = familyTreeNodesById[child];
+                    return (
+                      <UIChildConnector
+                        key={crypto.randomUUID()}
+                        xStartPos={(childNode.xPos ?? 0) + xOffset}
+                        xEndPos={
+                          ((node.xPos ?? 0) +
+                            (familyTreeNodesById[node.partnerId]?.xPos ?? 0)) /
+                            2 +
+                          xOffset
+                        }
+                        yPos={
+                          (childNode.yPos ?? 0) - rowHeight / 3 - 15 + yOffset
+                        }
+                        height={rowHeight / 3 - 15}
+                      />
+                    );
+                  })
+                );
+              })}
+            </div>
+            <div className="node-layout" ref={elementRef}>
+              <div className="inner-node-layout">
+                {positionedNodes.map((node) => {
+                  if (node.networkNode) {
+                    return (
+                      <FamilyTreeNodeNetworkBacked
+                        key={node.id}
+                        id={node.id}
+                        isEgo={node.isEgo || false}
+                        gender={node.gender}
+                        label={node.label}
+                        xPos={node.xPos + xOffset}
+                        yPos={node.yPos + yOffset}
+                        yOffset={yOffset}
+                        parentIds={node.parentIds}
+                        childIds={node.childIds}
+                        networkNode={node.networkNode}
+                        handleClick={
+                          node.isEgo
+                            ? () => {}
+                            : (node) => setSelectedNode(node.networkNode)
+                        }
+                      />
+                    );
+                  } else {
+                    return (
+                      <FamilyTreeNode
+                        key={crypto.randomUUID()}
+                        id={node.id}
+                        isEgo={node.isEgo || false}
+                        gender={node.gender}
+                        parentIds={node.parentIds}
+                        label={node.label}
+                        xPos={node.xPos + xOffset}
+                        yPos={node.yPos + yOffset}
+                        handleClick={(node) => setSelectedNode(node)}
+                      />
+                    );
+                  }
+                })}
+              </div>
+            </div>
           </div>
-        </div>
+        </Scroller>
         {selectedNode != null ? renderNodeForm() : null}
       </div>
     );
@@ -758,7 +803,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     }
   };
 
-  return <div>{renderActiveStep()}</div>;
+  return <>{renderActiveStep()}</>;
 };
 
 export default withNoSSRWrapper(FamilyTreeCensus);

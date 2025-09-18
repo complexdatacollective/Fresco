@@ -62,19 +62,6 @@ export const NodeTransition = ({
   </motion.div>
 );
 
-export const nodeListVariants = {
-  initial: { opacity: 0 },
-  animate: {
-    opacity: 1,
-    transition: {
-      when: 'beforeChildren',
-      delayChildren: 0.25,
-      staggerChildren: 0.05,
-    },
-  },
-  exit: { opacity: 0 },
-};
-
 type NodeListProps = {
   items?: PlaceholderNodeProps[];
   itemType?: string;
@@ -126,13 +113,7 @@ const FamilyTreePlaceholderNodeList = memo(
     );
 
     return (
-      <motion.div
-        {...dropProps}
-        className={classNames}
-        variants={nodeListVariants}
-        layout
-        key="node-list"
-      >
+      <motion.div {...dropProps} className={classNames} key="node-list">
         <AnimatePresence mode="sync">
           {items.map((node: PlaceholderNodeProps) => {
             const isDraggable = !node.unDeletable;
