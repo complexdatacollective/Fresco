@@ -340,9 +340,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     dispatch(updatePedigreeStageMetadata(updatedNodes));
   };
 
-  // TODO: clean up all the state code tracking tree nodes.
-  // there's like 3 different instances of state tracking the same thing
-
   const numberValidation = {
     onChange: ({ value }) => {
       if (value === '' || value == null) return undefined;
