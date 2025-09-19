@@ -7,18 +7,18 @@ import { cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
-  base: 'inline-flex focusable items-center justify-center rounded-full text-sm font-semibold disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate text-foreground',
+  base: 'inline-flex focusable items-center justify-center rounded-full text-sm font-semibold disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate',
   variants: {
     variant: {
-      default: 'bg-primary hover:bg-primary/90 text-primary-foreground',
-      success: 'bg-success text-success-foreground hover:bg-success/90',
-      accent: 'bg-accent text-accent-foreground hover:bg-accent/90',
-      info: 'bg-info text-info-foreground hover:bg-info/90',
+      default: 'bg-primary hover:bg-primary/90 text-primary-contrast',
+      success: 'bg-success text-success-contrast hover:bg-success/90',
+      accent: 'bg-accent text-accent-contrast hover:bg-accent/90',
+      info: 'bg-info text-info-contrast hover:bg-info/90',
       destructive:
-        'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        'bg-destructive text-destructive-contrast hover:bg-destructive/90',
       outline:
-        'bg-transparent hover:bg-accent hover:text-accent-foreground border',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        'bg-transparent hover:bg-accent hover:text-accent-contrast border',
+      secondary: 'bg-secondary text-secondary-contrast hover:bg-secondary/80',
       ghost: 'hover:text-accent',
       tableHeader:
         'hover:text-accent data-[state=open]:text-accent !p-0 rounded-none',

@@ -20,11 +20,11 @@ const roundCheckboxStyles = cx(
 );
 
 const roundCheckboxPositiveStyles = cx(
-  'bg-success border-success text-success-foreground',
+  'bg-success border-success text-success-contrast',
 );
 
 const roundCheckboxNegativeStyles = cx(
-  'bg-destructive border-destructive text-destructive-foreground',
+  'bg-destructive border-destructive text-destructive-contrast',
 );
 
 const roundCheckboxUnselectedStyles = cx('bg-input border-border');
@@ -113,8 +113,8 @@ export function BooleanField({
           onClick={() => onChange?.(null)}
           disabled={disabled}
           className={cx(
-            'text-muted-foreground text-left text-sm underline',
-            'hover:text-foreground',
+            'text-muted-contrast text-left text-sm underline',
+            'hover:text-contrast',
             transitionStyles,
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}

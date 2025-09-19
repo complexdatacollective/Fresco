@@ -33,9 +33,8 @@ const toastVariants = cva({
     variant: {
       default: '',
       destructive:
-        'destructive group border-destructive bg-destructive text-destructive-foreground',
-      success:
-        'success group border-success bg-success text-success-foreground',
+        'destructive group border-destructive bg-destructive text-destructive-contrast',
+      success: 'success group border-success bg-success text-success-contrast',
     },
   },
   defaultVariants: {
@@ -65,7 +64,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cx(
-      'focus:ring-ring ring-offset-background hover:bg-secondary group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive inline-flex h-8 shrink-0 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50',
+      'focus:ring-ring ring-offset-background hover:bg-secondary group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-contrast group-[.destructive]:focus:ring-destructive inline-flex h-8 shrink-0 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50',
       className,
     )}
     {...props}

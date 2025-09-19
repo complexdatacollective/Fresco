@@ -1,9 +1,9 @@
 'use client';
 
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { cva, type VariantProps } from '~/utils/cva';
 import { X } from 'lucide-react';
 import * as React from 'react';
+import { cva, type VariantProps } from '~/utils/cva';
 
 import { cx } from '~/utils/cva';
 
@@ -102,7 +102,7 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cx('text-foreground text-lg font-semibold', className)}
+    className={cx('text-contrast text-lg font-semibold', className)}
     {...props}
   />
 ));
@@ -114,7 +114,7 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}
-    className={cx('text-muted-foreground text-sm', className)}
+    className={cx('text-muted-contrast text-sm', className)}
     {...props}
   />
 ));

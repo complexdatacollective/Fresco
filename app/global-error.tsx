@@ -9,7 +9,6 @@ import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { cardClasses } from '~/components/ui/card';
 import { useToast } from '~/components/ui/use-toast';
 import { cx } from '~/utils/cva';
 
@@ -49,10 +48,7 @@ ${error.stack}`;
       <ErrorReportNotifier error={error} />
       <ResponsiveContainer
         baseSize="60%"
-        className={cx(
-          cardClasses,
-          'shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl',
-        )}
+        className={cx('shadow-platinum-dark m-10 w-[30rem] p-10 shadow-xl')}
       >
         <div className="mb-6 flex flex-col items-center justify-center gap-2">
           <Image

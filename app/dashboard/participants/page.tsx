@@ -1,6 +1,5 @@
 import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
@@ -20,9 +19,7 @@ export default async function ParticipantPage() {
       </ResponsiveContainer>
       <ImportExportSection />
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ParticipantsTable />
-        </Section>
+        <ParticipantsTable />
       </ResponsiveContainer>
     </>
   );

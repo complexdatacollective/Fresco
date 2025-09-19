@@ -9,16 +9,16 @@ export const transitionStyles = 'transition-all duration-200';
 // Text and Typography Styles
 // ============================================================================
 export const textStyles = {
-  base: 'text-input-foreground placeholder:text-input-foreground/50 placeholder:italic',
+  base: 'text-input-contrast placeholder:text-input-contrast/50 placeholder:italic',
   invalid: 'aria-[invalid=true]:text-destructive',
   disabled:
-    'disabled:text-muted-foreground disabled:placeholder:text-muted-foreground/50',
-  readOnly: 'is-read-only:text-muted-foreground',
+    'disabled:text-muted-contrast disabled:placeholder:text-muted-contrast/50',
+  readOnly: 'is-read-only:text-muted-contrast',
 } as const;
 
 export const labelTextStyles = {
-  base: 'text-foreground select-none text-balance',
-  disabled: 'group-has-[input:disabled]:text-muted-foreground',
+  base: 'text-contrast select-none text-balance',
+  disabled: 'group-has-[input:disabled]:text-muted-contrast',
   size: {
     sm: 'text-sm',
     md: 'text-base',
@@ -128,7 +128,7 @@ export const interactiveElementStyles = {
   checkedInvalid:
     'group-data-[invalid=true]:checked:border-destructive group-data-[invalid=true]:checked:bg-destructive',
   checkedDisabled:
-    'disabled:checked:bg-muted-foreground disabled:checked:border-muted-foreground',
+    'disabled:checked:bg-muted-contrast disabled:checked:border-muted-contrast',
   invalidBorder: 'group-data-[invalid=true]:border-destructive',
   focus: cx(
     'focus:outline-none focus:ring-4 focus:ring-accent/10 focus:ring-offset-0',
@@ -222,7 +222,7 @@ export function buildVariantStyles(variant: keyof typeof variantStyles) {
 // Legacy exports for backward compatibility
 // ============================================================================
 export const focusVariants = cva({
-  base: 'transition-all duration-300 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-input-foreground/10 focus-visible:ring-offset-0',
+  base: 'transition-all duration-300 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-input-contrast/10 focus-visible:ring-offset-0',
 });
 
 export const spacingVariants = cva({

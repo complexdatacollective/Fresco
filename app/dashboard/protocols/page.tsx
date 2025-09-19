@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import PageHeader from '~/components/typography/PageHeader';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
@@ -23,9 +22,7 @@ export default async function ProtocolsPage() {
         </Suspense>
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ProtocolsTable />
-        </Section>
+        <ProtocolsTable />
       </ResponsiveContainer>
     </>
   );

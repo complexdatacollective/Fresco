@@ -48,13 +48,13 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         aria-describedby={description ? `${id}-description` : undefined}
         onClose={closeDialog} // Needed so that closing via keyboard still returns a value
         className={cx(
-          'spring-medium',
+          'spring-discrete-medium elevation-high',
           'bg-transparent', // Or else rounded corner content will have white edges
           'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
           'backdrop:transition-opacity',
           'backdrop:duration-300',
           'backdrop:transition-discrete',
-          'm-auto transition-discrete not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
+          'm-auto not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
         )}
         {...rest}
       >
@@ -63,7 +63,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           layout="size"
           level={0}
           className={cx(
-            'text-surface-0-foreground h-10/12 w-2xl rounded-lg bg-white',
+            'text-surface-0-contrast max-h-10/12 w-2xl rounded-lg bg-white',
 
             // Accent overrides the primary hue so that nested buttons inherit color
             accent === 'success' && '[--primary:var(--success)]',
@@ -79,8 +79,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           {description && (
             <Paragraph id={`${id}-description`}>{description}</Paragraph>
           )}
-          {children}
-          {footer}
+          <div className="mt-4 flex-grow overflow-y-auto">{children}</div>
+          {footer && (
+            <footer className="mt-6 flex flex-row-reverse justify-start gap-3 rtl:flex-row rtl:justify-end">
+              {footer}
+            </footer>
+          )}
           <CloseButton onClick={closeDialog} />
         </Surface>
       </dialog>

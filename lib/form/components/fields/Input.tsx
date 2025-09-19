@@ -146,7 +146,7 @@ export const affixVariants = cva({
   base: cx(
     'flex items-center justify-center shrink-0 grow-0',
     'bg-muted/50', // Subtle background for affix areas
-    'text-muted-foreground',
+    'text-muted-contrast',
   ),
   variants: {
     size: {

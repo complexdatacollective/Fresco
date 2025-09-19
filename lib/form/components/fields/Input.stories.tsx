@@ -381,7 +381,7 @@ export const WithPasswordToggle: Story = {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="hover:text-foreground"
+            className="hover:text-contrast"
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -445,7 +445,7 @@ export const WithClearButton: Story = {
             <button
               type="button"
               onClick={() => setValue('')}
-              className="hover:text-foreground"
+              className="hover:text-contrast"
             >
               <X className="h-4 w-4" />
             </button>

@@ -103,7 +103,7 @@ export function SelectField({
         variant,
         className: cx(
           className,
-          isEmpty(selectProps.value) && '!text-input-foreground/50 italic',
+          isEmpty(selectProps.value) && '!text-input-contrast/50 italic',
         ),
       })}
     >

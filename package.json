@@ -13,6 +13,7 @@
     "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
+    "test-units": "vitest --run --project=units",
     "test-storybook": "vitest --project=storybook",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "tsc --noEmit",

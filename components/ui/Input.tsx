@@ -36,9 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </Label>
         )}
         {hint && (
-          <span className="text-muted-foreground text-sm leading-5">
-            {hint}
-          </span>
+          <span className="text-muted-contrast text-sm leading-5">{hint}</span>
         )}
         <div className="relative flex items-center justify-end">
           {leftAdornment && (
@@ -48,7 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={id}
             type={type}
             className={cx(
-              'focus-visible:ring-ring rounded-input border-border bg-input text-input-foreground ring-offset-background placeholder:text-muted-foreground flex h-10 w-full border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
+              'focus-visible:ring-ring rounded-input border-border bg-input text-input-contrast ring-offset-background placeholder:text-muted-contrast flex h-10 w-full border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
               !!leftAdornment && 'pl-10',
               !!rightAdornment && 'pr-10',
               !!error && 'border-destructive',

@@ -117,6 +117,7 @@ const NodeForm = (props: NodeFormProps) => {
       <ControlledDialog
         open={show}
         title={form.title!}
+        description="Please fill out the form below. Fields marked with * are required."
         closeDialog={handleClose}
         footer={
           <Button
@@ -132,7 +133,7 @@ const NodeForm = (props: NodeFormProps) => {
         <Form
           id="node-form"
           onSubmit={handleSubmit}
-          className="mt-4"
+          className="w-full"
           key={`${show}`}
         >
           {fieldComponents}

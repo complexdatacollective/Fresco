@@ -116,19 +116,23 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
               closeDialog={() => closeDialog(dialog.id, null)}
               accent={dialog.accent}
               ref={dialog.ref}
+              footer={
+                <>
+                  <Button
+                    onClick={() => closeDialog(dialog.id, true)}
+                    color="primary"
+                  >
+                    {dialog.confirmText ?? 'Acknowledge'}
+                  </Button>
+                  {!dialog.hideCancel && (
+                    <Button onClick={() => closeDialog(dialog.id, null)}>
+                      {dialog.cancelText ?? 'Cancel'}
+                    </Button>
+                  )}
+                </>
+              }
             >
               {dialog.children}
-              <Button
-                onClick={() => closeDialog(dialog.id, true)}
-                color="primary"
-              >
-                {dialog.confirmText ?? 'Acknowledge'}
-              </Button>
-              {!dialog.hideCancel && (
-                <Button onClick={() => closeDialog(dialog.id, null)}>
-                  {dialog.cancelText ?? 'Cancel'}
-                </Button>
-              )}
             </Dialog>
           );
         }

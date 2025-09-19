@@ -18,7 +18,7 @@ function ReportNotifier({ state = 'idle' }: { state?: ReportStates }) {
         {state === 'loading' && (
           <motion.div
             key="loading"
-            className="text-muted-foreground flex items-center text-sm"
+            className="text-muted-contrast flex items-center text-sm"
             variants={labelAnimationVariants}
             initial="hidden"
             animate="visible"

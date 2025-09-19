@@ -125,7 +125,7 @@ export const MotionSurfaceExample: StoryFn<typeof Surface> = () => (
 
 // **New Story: Nested Surfaces**
 export const NestedSurfaces: StoryFn<typeof Surface> = () => (
-  <div className="bg-background text-foreground p-10">
+  <div className="bg-background text-contrast p-10">
     <div className="flex items-center gap-10">
       Background
       <Button color="default">Default Button</Button>

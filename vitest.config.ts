@@ -24,7 +24,7 @@ export default defineConfig({
             '**/*.stories.tsx', // Exclude Storybook files from unit tests
             '**/*.stories.ts',
           ],
-          name: 'unit tests',
+          name: 'units',
         },
         resolve: {
           alias: {

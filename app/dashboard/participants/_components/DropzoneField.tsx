@@ -79,7 +79,7 @@ export default function DropzoneField<T>({
         </Label>
       )}
       {hint && (
-        <span className="text-muted-foreground text-sm leading-5">{hint}</span>
+        <span className="text-muted-contrast text-sm leading-5">{hint}</span>
       )}
       <div
         ref={controller.field.ref}

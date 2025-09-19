@@ -24,7 +24,7 @@ export function DataTablePagination<TData>({
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex w-full flex-col items-center justify-end gap-4 overflow-auto px-2 py-1 sm:flex-row sm:gap-8">
-      {/* <div className="flex-1 whitespace-nowrap text-sm text-muted-foreground">
+      {/* <div className="flex-1 whitespace-nowrap text-sm text-muted-contrast">
         {table.getFilteredSelectedRowModel().rows.length} of{' '}
         {table.getFilteredRowModel().rows.length} row(s) selected.
       </div> */}

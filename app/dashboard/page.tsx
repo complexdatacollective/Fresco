@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import Section from '~/components/layout/Section';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
@@ -46,9 +45,7 @@ export default async function Home({
         </Paragraph>
       </ResponsiveContainer>
       <ResponsiveContainer maxWidth="6xl">
-        <Section>
-          <ActivityFeed />
-        </Section>
+        <ActivityFeed />
       </ResponsiveContainer>
     </>
   );

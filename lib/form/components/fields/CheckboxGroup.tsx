@@ -114,7 +114,7 @@ export const checkboxVisualVariants = cva({
     'group-data-[invalid=true]:peer-checked:border-destructive group-data-[invalid=true]:peer-checked:bg-destructive',
     // Disabled state
     'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
-    'peer-disabled:peer-checked:bg-muted-foreground peer-disabled:peer-checked:border-muted-foreground',
+    'peer-disabled:peer-checked:bg-muted-contrast peer-disabled:peer-checked:border-muted-contrast',
   ),
   variants: {
     size: {
@@ -131,13 +131,13 @@ export const checkboxVisualVariants = cva({
 // Checkbox check icon styles
 export const checkboxIconVariants = cva({
   base: cx(
-    'text-accent-foreground pointer-events-none',
+    'text-accent-contrast pointer-events-none',
     'opacity-0 scale-0',
     transitionStyles,
     // Show when checked
     'peer-checked:opacity-100 peer-checked:scale-100',
     // Disabled state
-    'peer-disabled:text-muted-foreground',
+    'peer-disabled:text-muted-contrast',
   ),
   variants: {
     size: {

@@ -1,166 +1,199 @@
 @import 'tailwindcss';
 
+@import './colors.css';
+@import './themes/default.css';
+
 @plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/aspect-ratio';
-@plugin '@tailwindcss/container-queries';
 @plugin 'tailwindcss-animate';
-@plugin '@tailwindcss/typography';
-@plugin './tailwind-motion-spring';
+@plugin './plugins/tailwind-motion-spring.ts';
+@plugin './plugins//tailwind-elevation.ts';
 
 @theme {
   --color-*: initial;
-  --color-neon-coral: hsl(var(--neon-coral));
-  --color-neon-coral-dark: hsl(var(--neon-coral--dark));
 
-  --color-sea-green: hsl(var(--sea-green));
-  --color-sea-green-dark: hsl(var(--sea-green--dark));
+  /* 
+    Semantic colors 
+  */
+  --color-background: oklch(var(--background));
 
-  --color-slate-blue: hsl(var(--slate-blue));
-  --color-slate-blue-dark: hsl(var(--slate-blue--dark));
+  /* Components should redefine --text so that children inherit the correct color */
+  --color-text: oklch(var(--text));
 
-  --color-navy-taupe: hsl(var(--navy-taupe));
-  --color-navy-taupe-dark: hsl(var(--navy-taupe--dark));
+  --color-neutral: oklch(var(--neutral));
+  --color-neutral-contrast: oklch(var(--neutral-contrast));
 
-  --color-cyber-grape: hsl(var(--cyber-grape));
-  --color-cyber-grape-dark: hsl(var(--cyber-grape--dark));
+  --color-primary: oklch(var(--primary));
+  --color-primary-contrast: oklch(var(--primary-contrast));
 
-  --color-mustard: hsl(var(--mustard));
-  --color-mustard-dark: hsl(var(--mustard--dark));
+  --color-accent: oklch(var(--accent));
+  --color-accent-contrast: oklch(var(--accent-contrast));
 
-  --color-rich-black: hsl(var(--rich-black));
-  --color-rich-black-dark: hsl(var(--rich-black--dark));
+  --color-secondary: oklch(var(--secondary));
+  --color-secondary-contrast: oklch(var(--secondary-contrast));
 
-  --color-charcoal: hsl(var(--charcoal));
-  --color-charcoal-dark: hsl(var(--charcoal--dark));
+  --color-surface: oklch(var(--surface));
+  --color-surface-contrast: oklch(var(--surface-contrast));
+  --color-surface-1: oklch(var(--surface-1));
+  --color-surface-1-contrast: oklch(var(--surface-1-contrast));
+  --color-surface-2: oklch(var(--surface-2));
+  --color-surface-2-contrast: oklch(var(--surface-2-contrast));
+  --color-surface-3: oklch(var(--surface-3));
+  --color-surface-3-contrast: oklch(var(--surface-3-contrast));
 
-  --color-platinum: hsl(var(--platinum));
-  --color-platinum-dark: hsl(var(--platinum--dark));
+  /* States */
+  --color-destructive: oklch(var(--destructive));
+  --color-destructive-contrast: oklch(var(--destructive-contrast));
 
-  --color-sea-serpent: hsl(var(--sea-serpent));
-  --color-sea-serpent-dark: hsl(var(--sea-serpent--dark));
+  --color-warning: oklch(var(--warning));
+  --color-warning-contrast: oklch(var(--warning-contrast));
 
-  --color-purple-pizazz: hsl(var(--purple-pizazz));
-  --color-purple-pizazz-dark: hsl(var(--purple-pizazz--dark));
+  --color-success: oklch(var(--success));
+  --color-success-contrast: oklch(var(--success-contrast));
 
-  --color-paradise-pink: hsl(var(--paradise-pink));
-  --color-paradise-pink-dark: hsl(var(--paradise-pink--dark));
+  --color-info: oklch(var(--info));
+  --color-info-contrast: oklch(var(--info-contrast));
 
-  --color-cerulean-blue: hsl(var(--cerulean-blue));
-  --color-cerulean-blue-dark: hsl(var(--cerulean-blue--dark));
+  --color-selected: oklch(var(--selected));
 
-  --color-kiwi: hsl(var(--kiwi));
-  --color-kiwi-dark: hsl(var(--kiwi--dark));
+  --ring: oklch(var(--ring));
 
-  --color-neon-carrot: hsl(var(--neon-carrot));
-  --color-neon-carrot-dark: hsl(var(--neon-carrot--dark));
+  /* UI elements */
+  --color-link: oklch(var(--link));
 
-  --color-barbie-pink: hsl(var(--barbie-pink));
-  --color-barbie-pink-dark: hsl(var(--barbie-pink--dark));
+  --color-input: oklch(var(--input));
+  --color-input-contrast: oklch(var(--input-contrast));
+  --color-input-placeholder: oklch(var(--input-placeholder));
 
-  --color-tomato: hsl(var(--tomato));
-  --color-tomato-dark: hsl(var(--tomato--dark));
+  --color-overlay: oklch(var(--overlay));
+
+  /* Color sequences */
+  --color-node-1: oklch(var(--node-1));
+  --color-node-1-contrast: oklch(var(--node-1-contrast));
+  --color-node-2: oklch(var(--node-2));
+  --color-node-2-contrast: oklch(var(--node-2-contrast));
+  --color-node-3: oklch(var(--node-3));
+  --color-node-3-contrast: oklch(var(--node-3-contrast));
+  --color-node-4: oklch(var(--node-4));
+  --color-node-4-contrast: oklch(var(--node-4-contrast));
+  --color-node-5: oklch(var(--node-5));
+  --color-node-5-contrast: oklch(var(--node-5-contrast));
+  --color-node-6: oklch(var(--node-6));
+  --color-node-6-contrast: oklch(var(--node-6-contrast));
+  --color-node-7: oklch(var(--node-7));
+  --color-node-7-contrast: oklch(var(--node-7-contrast));
+  --color-node-8: oklch(var(--node-8));
+  --color-node-8-contrast: oklch(var(--node-8-contrast));
+
+  --color-edge-1: oklch(var(--edge-1));
+  --color-edge-2: oklch(var(--edge-2));
+  --color-edge-3: oklch(var(--edge-3));
+  --color-edge-4: oklch(var(--edge-4));
+  --color-edge-5: oklch(var(--edge-5));
+  --color-edge-6: oklch(var(--edge-6));
+  --color-edge-7: oklch(var(--edge-7));
+  --color-edge-8: oklch(var(--edge-8));
+  --color-edge-9: oklch(var(--edge-9));
+  --color-edge-10: oklch(var(--edge-10));
+
+  --color-ord-1: oklch(var(--ord-1));
+  --color-ord-2: oklch(var(--ord-2));
+  --color-ord-3: oklch(var(--ord-3));
+  --color-ord-4: oklch(var(--ord-4));
+  --color-ord-5: oklch(var(--ord-5));
+  --color-ord-6: oklch(var(--ord-6));
+  --color-ord-7: oklch(var(--ord-7));
+  --color-ord-8: oklch(var(--ord-8));
+  --color-ord-9: oklch(var(--ord-9));
+  --color-ord-10: oklch(var(--ord-10));
+
+  --color-cat-1: oklch(var(--cat-1));
+  --color-cat-2: oklch(var(--cat-2));
+  --color-cat-3: oklch(var(--cat-3));
+  --color-cat-4: oklch(var(--cat-4));
+  --color-cat-5: oklch(var(--cat-5));
+  --color-cat-6: oklch(var(--cat-6));
+  --color-cat-7: oklch(var(--cat-7));
+  --color-cat-8: oklch(var(--cat-8));
+  --color-cat-9: oklch(var(--cat-9));
+  --color-cat-10: oklch(var(--cat-10));
+
+  /* Named colors */
+  --color-neon-coral: oklch(var(--neon-coral));
+  --color-neon-coral-dark: oklch(var(--neon-coral--dark));
+
+  --color-sea-green: oklch(var(--sea-green));
+  --color-sea-green-dark: oklch(var(--sea-green--dark));
+
+  --color-slate-blue: oklch(var(--slate-blue));
+  --color-slate-blue-dark: oklch(var(--slate-blue--dark));
+
+  --color-navy-taupe: oklch(var(--navy-taupe));
+  --color-navy-taupe-dark: oklch(var(--navy-taupe--dark));
+
+  --color-cyber-grape: oklch(var(--cyber-grape));
+  --color-cyber-grape-dark: oklch(var(--cyber-grape--dark));
+
+  --color-mustard: oklch(var(--mustard));
+  --color-mustard-dark: oklch(var(--mustard--dark));
+
+  --color-rich-black: oklch(var(--rich-black));
+  --color-rich-black-dark: oklch(var(--rich-black--dark));
+
+  --color-charcoal: oklch(var(--charcoal));
+  --color-charcoal-dark: oklch(var(--charcoal--dark));
+
+  --color-platinum: oklch(var(--platinum));
+  --color-platinum-dark: oklch(var(--platinum--dark));
+
+  --color-sea-serpent: oklch(var(--sea-serpent));
+  --color-sea-serpent-dark: oklch(var(--sea-serpent--dark));
+
+  --color-purple-pizazz: oklch(var(--purple-pizazz));
+  --color-purple-pizazz-dark: oklch(var(--purple-pizazz--dark));
+
+  --color-paradise-pink: oklch(var(--paradise-pink));
+  --color-paradise-pink-dark: oklch(var(--paradise-pink--dark));
+
+  --color-cerulean-blue: oklch(var(--cerulean-blue));
+  --color-cerulean-blue-dark: oklch(var(--cerulean-blue--dark));
+
+  --color-kiwi: oklch(var(--kiwi));
+  --color-kiwi-dark: oklch(var(--kiwi--dark));
+
+  --color-neon-carrot: oklch(var(--neon-carrot));
+  --color-neon-carrot-dark: oklch(var(--neon-carrot--dark));
+
+  --color-barbie-pink: oklch(var(--barbie-pink));
+  --color-barbie-pink-dark: oklch(var(--barbie-pink--dark));
+
+  --color-tomato: oklch(var(--tomato));
+  --color-tomato-dark: oklch(var(--tomato--dark));
 
   --color-transparent: transparent;
-  --color-white: hsl(var(--white));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  --color-white: oklch(var(--white));
+  --color-black: oklch(var(--black));
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  /*
+    Spacing
+  */
+  --spacing-*: initial;
+  --spacing: 0.25rem;
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  /*
+    Breakpoints/Containers
+  */
+  --breakpoint-*: initial;
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  /* Device-based breakpoints */
+  --breakpoint-mobile: 20rem; /* 320px - minimum mobile */
+  --breakpoint-tablet: 48rem; /* 768px - small tablets, iPad Mini */
+  --breakpoint-laptop: 80rem; /* 1280px - small laptops, iPad Pro 12.9" */
+  --breakpoint-desktop: 120rem; /* 1920px - full HD desktop */
+  --breakpoint-desktop-lg: 160rem; /* 2560px - 2K/4K displays */
 
-  --color-success: hsl(var(--success));
-  --color-success-foreground: hsl(var(--success-foreground));
-
-  --color-info: hsl(var(--info));
-  --color-info-foreground: hsl(var(--info-foreground));
-
-  --color-warning: hsl(var(--warning));
-  --color-warning-foreground: hsl(var(--warning-foreground));
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --color-panel: hsl(var(--panel));
-  --color-panel-foreground: hsl(var(--foreground));
-
-  --color-input: hsl(var(--input));
-  --color-input-foreground: hsl(var(--input-foreground));
-  --color-input-placeholder: hsl(var(--input-placeholder));
-
-  --color-border: hsl(var(--border));
-  --color-link: hsl(var(--link));
-
-  --color-overlay: hsl(var(--overlay));
-
-  --color-selected: hsl(var(--selected));
-
-  /* interviewer - node sequence colors */
-  --node-color-seq-1: var(--color-neon-coral);
-  --node-color-seq-1-dark: var(--color-neon-coral-dark);
-
-  --node-color-seq-2: var(--color-sea-serpent);
-  --node-color-seq-2-dark: var(--color-sea-serpent-dark);
-
-  --node-color-seq-3: var(--color-purple-pizazz);
-  --node-color-seq-3-dark: var(--color-purple-pizazz-dark);
-
-  --node-color-seq-4: var(--color-neon-carrot);
-  --node-color-seq-4-dark: var(--color-neon-carrot-dark);
-
-  --node-color-seq-5: var(--color-kiwi);
-  --node-color-seq-5-dark: var(--color-kiwi-dark);
-
-  --node-color-seq-6: var(--color-cerulean-blue);
-  --node-color-seq-6-dark: var(--color-cerulean-blue-dark);
-
-  --node-color-seq-7: var(--color-paradise-pink);
-  --node-color-seq-7-dark: var(--color-paradise-pink-dark);
-
-  --node-color-seq-8: var(--color-mustard);
-  --node-color-seq-8-dark: var(--color-mustard-dark);
-
-  /* edge sequence colors */
-  --edge-color-seq-1: var(--color-mustard);
-  --edge-color-seq-1-dark: var(--color-mustard-dark);
-
-  --edge-color-seq-2: var(--color-neon-coral);
-  --edge-color-seq-2-dark: var(--color-neon-coral-dark);
-
-  --edge-color-seq-3: var(--color-kiwi);
-  --edge-color-seq-3-dark: var(--color-kiwi-dark);
-
-  --edge-color-seq-4: var(--color-paradise-pink);
-  --edge-color-seq-4-dark: var(--color-paradise-pink-dark);
-
-  --edge-color-seq-5: var(--color-tomato);
-  --edge-color-seq-5-dark: var(--color-tomato-dark);
-
-  --edge-color-seq-6: var(--color-sea-serpent);
-  --edge-color-seq-6-dark: var(--color-sea-serpent-dark);
-
-  --edge-color-seq-7: var(--color-slate-blue);
-  --edge-color-seq-7-dark: var(--color-slate-blue-dark);
-
-  --edge-color-seq-8: var(--color-sea-green);
-  --edge-color-seq-8-dark: var(--color-sea-green-dark);
-
-  --edge-color-seq-9: var(--color-cerulean-blue);
-  --edge-color-seq-9-dark: var(--color-cerulean-blue-dark);
+  /*
+    Border radius
+  */
 
   --radius-*: initial;
   --radius-none: 0px;
@@ -173,6 +206,10 @@
   --radius-3xl: 1.5rem;
   --radius-full: 9999px;
   --radius-input: 0.75rem;
+
+  /*
+    Animation
+  */
 
   --animate-wiggle: wiggle 1s ease-in-out infinite;
   --animate-shake: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
@@ -265,233 +302,9 @@
   }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-platinum-dark, currentColor);
-  }
-}
-
-@layer base {
-  :root {
-    /* UI Colors */
-    /* To generate dark color variants, subtract 5% from the lightness. */
-    --dark-mod: 5%;
-    --neon-coral-hue: 342;
-    --neon-coral-saturation: 76.9%;
-    --neon-coral-lightness: 50.8%;
-    --neon-coral: var(--neon-coral-hue) var(--neon-coral-saturation)
-      var(--neon-coral-lightness);
-    --neon-coral--dark: var(--neon-coral-hue) var(--neon-coral-saturation)
-      calc(var(--neon-coral-lightness) - var(--dark-mod));
-
-    --mustard-hue: 46;
-    --mustard-saturation: 100%;
-    --mustard-lightness: 47%;
-    --mustard: var(--mustard-hue) var(--mustard-saturation)
-      var(--mustard-lightness);
-    --mustard--dark: var(--mustard-hue) var(--mustard-saturation)
-      calc(var(--mustard-lightness) - var(--dark-mod));
-
-    --sea-green-hue: 168;
-    --sea-green-saturation: 100%;
-    --sea-green-lightness: 35%;
-    --sea-green: var(--sea-green-hue) var(--sea-green-saturation)
-      var(--sea-green-lightness);
-    --sea-green--dark: var(--sea-green-hue) var(--sea-green-saturation)
-      calc(var(--sea-green-lightness) - var(--dark-mod));
-
-    --slate-blue-hue: 237;
-    --slate-blue-saturation: 79%;
-    --slate-blue-lightness: 65%;
-    --slate-blue: var(--slate-blue-hue) var(--slate-blue-saturation)
-      var(--slate-blue-lightness);
-    --slate-blue--dark: var(--slate-blue-hue) var(--slate-blue-saturation)
-      calc(var(--slate-blue-lightness) - var(--dark-mod));
-
-    --navy-taupe-hue: 248;
-    --navy-taupe-saturation: 34%;
-    --navy-taupe-lightness: 25%;
-    --navy-taupe: var(--navy-taupe-hue) var(--navy-taupe-saturation)
-      var(--navy-taupe-lightness);
-    --navy-taupe--dark: var(--navy-taupe-hue) var(--navy-taupe-saturation)
-      calc(var(--navy-taupe-lightness) - var(--dark-mod));
-
-    --cyber-grape-hue: 240;
-    --cyber-grape-saturation: 33%;
-    --cyber-grape-lightness: 29%;
-    --cyber-grape: var(--cyber-grape-hue) var(--cyber-grape-saturation)
-      var(--cyber-grape-lightness);
-    --cyber-grape--dark: var(--cyber-grape-hue) var(--cyber-grape-saturation)
-      calc(var(--cyber-grape-lightness) - var(--dark-mod));
-
-    --rich-black-hue: 240;
-    --rich-black-saturation: 35%;
-    --rich-black-lightness: 10%;
-    --rich-black: var(--rich-black-hue) var(--rich-black-saturation)
-      var(--rich-black-lightness);
-
-    --charcoal-hue: 231;
-    --charcoal-saturation: 4%;
-    --charcoal-lightness: 43%;
-    --charcoal: var(--charcoal-hue) var(--charcoal-saturation)
-      var(--charcoal-lightness);
-
-    --platinum-hue: 210;
-    --platinum-saturation: 43%;
-    --platinum-lightness: 95%;
-    --platinum: var(--platinum-hue) var(--platinum-saturation)
-      var(--platinum-lightness);
-    --platinum--dark: var(--platinum-hue) var(--platinum-saturation)
-      calc(var(--platinum-lightness) - var(--dark-mod));
-
-    --sea-serpent-hue: 190;
-    --sea-serpent-saturation: 87%;
-    --sea-serpent-lightness: 47%;
-    --sea-serpent: var(--sea-serpent-hue) var(--sea-serpent-saturation)
-      var(--sea-serpent-lightness);
-    --sea-serpent--dark: var(--sea-serpent-hue) var(--sea-serpent-saturation)
-      calc(var(--sea-serpent-lightness) - var(--dark-mod));
-
-    --purple-pizazz-hue: 291;
-    --purple-pizazz-saturation: 86%;
-    --purple-pizazz-lightness: 52%;
-    --purple-pizazz: var(--purple-pizazz-hue) var(--purple-pizazz-saturation)
-      var(--purple-pizazz-lightness);
-    --purple-pizazz--dark: var(--purple-pizazz-hue)
-      var(--purple-pizazz-saturation)
-      calc(var(--purple-pizazz-lightness) - var(--dark-mod));
-
-    --paradise-pink-hue: 331;
-    --paradise-pink-saturation: 100%;
-    --paradise-pink-lightness: 57%;
-    --paradise-pink: var(--paradise-pink-hue) var(--paradise-pink-saturation)
-      var(--paradise-pink-lightness);
-    --paradise-pink--dark: var(--paradise-pink-hue)
-      var(--paradise-pink-saturation)
-      calc(var(--paradise-pink-lightness) - var(--dark-mod));
-
-    --cerulean-blue-hue: 216;
-    --cerulean-blue-saturation: 100%;
-    --cerulean-blue-lightness: 53%;
-    --cerulean-blue: var(--cerulean-blue-hue) var(--cerulean-blue-saturation)
-      var(--cerulean-blue-lightness);
-    --cerulean-blue--dark: var(--cerulean-blue-hue)
-      var(--cerulean-blue-saturation)
-      calc(var(--cerulean-blue-lightness) - var(--dark-mod));
-
-    --kiwi-hue: 103;
-    --kiwi-saturation: 46%;
-    --kiwi-lightness: 56%;
-    --kiwi: var(--kiwi-hue) var(--kiwi-saturation) var(--kiwi-lightness);
-    --kiwi--dark: var(--kiwi-hue) var(--kiwi-saturation)
-      calc(var(--kiwi-lightness) - var(--dark-mod));
-
-    --neon-carrot-hue: 32;
-    --neon-carrot-saturation: 92%;
-    --neon-carrot-lightness: 52%;
-    --neon-carrot: var(--neon-carrot-hue) var(--neon-carrot-saturation)
-      var(--neon-carrot-lightness);
-    --neon-carrot--dark: var(--neon-carrot-hue) var(--neon-carrot-saturation)
-      calc(var(--neon-carrot-lightness) - var(--dark-mod));
-
-    --barbie-pink-hue: 328;
-    --barbie-pink-saturation: 100%;
-    --barbie-pink-lightness: 47%;
-    --barbie-pink: var(--barbie-pink-hue) var(--barbie-pink-saturation)
-      var(--barbie-pink-lightness);
-    --barbie-pink--dark: var(--barbie-pink-hue) var(--barbie-pink-saturation)
-      calc(var(--barbie-pink-lightness) - var(--dark-mod));
-
-    --tomato-hue: 356;
-    --tomato-saturation: 77%;
-    --tomato-lightness: 54%;
-    --tomato: var(--tomato-hue) var(--tomato-saturation) var(--tomato-lightness);
-    --tomato--dark: var(--tomato-hue) var(--tomato-saturation)
-      calc(var(--tomato-lightness) - var(--dark-mod));
-
-    --white: 0 0% 100%;
-
-    /* Semantic slots */
-    --background: var(--platinum);
-    --foreground: var(--cyber-grape);
-
-    --primary: var(--cyber-grape);
-    --primary-foreground: var(--white);
-
-    --secondary: var(--neon-coral);
-    --secondary-foreground: var(--white);
-
-    --muted: var(--platinum);
-    --muted-foreground: var(--cyber-grape-hue)
-      calc(var(--cyber-grape-saturation) - 10%)
-      calc(var(--cyber-grape-lightness) - 10%);
-
-    --accent: var(--slate-blue);
-    --accent-foreground: var(--white);
-
-    --destructive: var(--tomato--dark);
-    --destructive-foreground: var(--white);
-
-    --warning: var(--neon-carrot);
-    --warning-foreground: var(--white);
-
-    --info: var(--cerulean-blue);
-    --info-foreground: var(--white);
-
-    --success: var(--sea-green);
-    --success-foreground: var(--white);
-
-    --border: var(--platinum--dark);
-
-    --link: var(--neon-coral);
-
-    --card: 0 0% 100%;
-
-    --panel: var(--platinum);
-
-    --input: 0 0% 100%;
-    --input-foreground: var(--cyber-grape);
-
-    --popover: var(--white);
-    --popover-foreground: var(--foreground);
-
-    --overlay: var(--platinum);
-
-    --selected: var(--mustard);
-
-    /* Surfaces */
-    --surface-0: var(--white);
-    --surface-0-foreground: var(--color-charcoal);
-
-    --surface-1: 97% 0.001 var(--cyber-grape-hue);
-    --surface-1-foreground: var(--color-charcoal);
-
-    --surface-2: 95% 0.001 var(--cyber-grape-hue);
-    --surface-2-foreground: var(--color-charcoal);
-
-    --surface-3: 93% 0.001 var(--cyber-grape-hue);
-    --surface-3-foreground: var(--color-charcoal);
-
-    --surface-4: 91% 0.001 var(--cyber-grape-hue);
-    --surface-4-foreground: var(--color-charcoal);
-  }
-}
-
 @layer base {
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-text;
     font-family: 'Open Sans', sans-serif;
   }
 

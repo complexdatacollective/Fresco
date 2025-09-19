@@ -54,14 +54,14 @@ export function DataTableColumnHeader<TData, TValue>({
             aria-label="Sort ascending"
             onClick={() => column.toggleSorting(false)}
           >
-            <ArrowUp className="text-foreground/70 mr-2 h-3.5 w-3.5" />
+            <ArrowUp className="text-contrast/70 mr-2 h-3.5 w-3.5" />
             Asc
           </DropdownMenuItem>
           <DropdownMenuItem
             aria-label="Sort descending"
             onClick={() => column.toggleSorting(true)}
           >
-            <ArrowDown className="text-foreground/70 mr-2 h-3.5 w-3.5" />
+            <ArrowDown className="text-contrast/70 mr-2 h-3.5 w-3.5" />
             Desc
           </DropdownMenuItem>
         </DropdownMenuContent>

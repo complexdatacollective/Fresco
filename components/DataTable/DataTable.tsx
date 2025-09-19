@@ -215,7 +215,7 @@ export function DataTable<TData, TValue>({
       </Table>
       <div>
         <div className="flex justify-between py-4">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-muted-contrast text-sm">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>

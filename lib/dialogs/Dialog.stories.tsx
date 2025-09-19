@@ -33,12 +33,20 @@ export default meta;
 type Story = StoryObj<typeof Dialog>;
 
 const DialogTemplate = (args: DialogProps) => (
-  <Dialog {...args} open ref={undefined}>
+  <Dialog
+    {...args}
+    open
+    ref={undefined}
+    footer={
+      <>
+        <Button color="primary" onClick={args.closeDialog}>
+          Continue
+        </Button>
+        <Button onClick={args.closeDialog}>Cancel</Button>
+      </>
+    }
+  >
     <p>This is the content inside the dialog.</p>
-    <Button color="sea-green" onClick={args.closeDialog}>
-      Continue
-    </Button>
-    <Button onClick={args.closeDialog}>Cancel</Button>
   </Dialog>
 );
 

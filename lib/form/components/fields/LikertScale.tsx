@@ -121,7 +121,7 @@ export function LikertScaleField({
               <div
                 key={index}
                 className={cx(
-                  'text-muted-foreground absolute max-w-20 text-sm leading-tight',
+                  'text-muted-contrast absolute max-w-20 text-sm leading-tight',
                   isFirst ? 'text-left' : isLast ? 'text-right' : 'text-center',
                 )}
                 style={{

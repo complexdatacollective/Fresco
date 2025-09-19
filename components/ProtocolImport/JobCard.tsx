@@ -70,7 +70,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           {error && (
             <Button
               size="sm"
-              className="hover:bg-destructive-dark hover:text-destructive-foreground-dark bg-destructive text-destructive-foreground"
+              className="hover:bg-destructive-dark hover:text-destructive-contrast-dark bg-destructive text-destructive-contrast"
               variant="outline"
               onClick={(e) => {
                 e.preventDefault();

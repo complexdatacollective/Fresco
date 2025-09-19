@@ -1,12 +1,13 @@
 import { use } from 'react';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import { Skeleton } from '~/components/ui/skeleton';
 import { cx } from '~/utils/cva';
 
 const statCardClasses = cx(
-  'flex flex-col gap-4 rounded-xl border border-[hsl(var(--platinum--dark))] bg-card p-4 text-card-foreground shadow-xl shadow-platinum-dark transition-all',
-  'sm:flex-row sm:items-center md:p-6 lg:gap-6 lg:p-10',
-  ' hover:scale-[102%]',
+  'flex flex-col gap-4 p-4 transition-all',
+  'tablet:flex-row tablet:items-center laptop:p-6 desktop:gap-6 desktop:p-10',
+  'hover:scale-[102%]',
 );
 function StatCard({
   title,
@@ -22,13 +23,13 @@ function StatCard({
   const data = use(dataPromise);
 
   return (
-    <div className={statCardClasses}>
-      <div className="hidden md:block">{icon}</div>
+    <Surface className={statCardClasses}>
+      <div className="tablet:block hidden">{icon}</div>
       <div>
         <Heading variant="h4-all-caps">{title}</Heading>
         <Heading variant="h1">{data[render]}</Heading>
       </div>
-    </div>
+    </Surface>
   );
 }
 

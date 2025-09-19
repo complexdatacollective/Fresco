@@ -2,7 +2,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { FileText } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { setAppSetting } from '~/actions/appSettings';
-import Section from '~/components/layout/Section';
+import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
@@ -38,7 +38,7 @@ function Documentation() {
         </Paragraph>
       </div>
       <div className="flex flex-col gap-2">
-        <Section classNames="flex gap-10">
+        <Surface className="flex gap-10">
           <div className="flex-1">
             <Heading variant="h4-all-caps" className="mb-2">
               About Fresco
@@ -55,8 +55,8 @@ function Documentation() {
               </Button>
             </a>
           </div>
-        </Section>
-        <Section classNames="flex gap-10">
+        </Surface>
+        <Surface className="flex gap-10">
           <div className="flex-1">
             <Heading variant="h4-all-caps" className="mb-2">
               Using Fresco
@@ -74,7 +74,7 @@ function Documentation() {
               </Button>
             </a>
           </div>
-        </Section>
+        </Surface>
       </div>
 
       <div className="flex justify-end pt-12">

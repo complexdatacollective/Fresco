@@ -20,13 +20,13 @@ const buttonVariants = cva({
   ],
   variants: {
     color: {
-      'primary': 'bg-primary text-primary-foreground hover:bg-primary',
-      'secondary': 'bg-secondary text-secondary-foreground hover:bg-secondary',
+      'primary': 'bg-primary text-primary-contrast hover:bg-primary',
+      'secondary': 'bg-secondary text-secondary-contrast hover:bg-secondary',
       'destructive':
-        'bg-destructive text-destructive-foreground hover:bg-destructive',
-      'success': 'bg-success text-success-foreground hover:bg-success',
-      'warning': 'bg-warning text-warning-foreground hover:bg-warning',
-      'info': 'bg-info text-info-foreground hover:bg-info',
+        'bg-destructive text-destructive-contrast hover:bg-destructive',
+      'success': 'bg-success text-success-contrast hover:bg-success',
+      'warning': 'bg-warning text-warning-contrast hover:bg-warning',
+      'info': 'bg-info text-info-contrast hover:bg-info',
       'white': 'bg-white text-charcoal hover:bg-white',
       'platinum': 'bg-platinum text-charcoal hover:bg-platinum-dark',
       'platinum-dark': 'bg-platinum-dark text-charcoal hover:bg-platinum-dark',

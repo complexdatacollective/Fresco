@@ -5,14 +5,14 @@ import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 const surfaceVariants = cva({
+  base: 'rounded-xl',
   variants: {
     level: {
-      // Level 0 is for dialogs and popovers
-      0: 'bg-surface-0 text-surface-0-foreground [--background:var(--surface-0)] [--foreground:var(--surface-0-foreground)]',
-      1: 'bg-surface-1 text-surface-1-foreground [--background:var(--surface-1)] [--foreground:var(--surface-1-foreground)]',
-      2: 'bg-surface-2 text-surface-2-foreground [--background:var(--surface-2)] [--foreground:var(--surface-2-foreground)]',
-      3: 'bg-surface-3 text-surface-3-foreground [--background:var(--surface-3)] [--foreground:var(--surface-3-foreground)]',
-      4: 'bg-surface-4 text-surface-4-foreground [--background:var(--surface-4)] [--foreground:var(--surface-4-foreground)]',
+      0: 'bg-surface text-surface-contrast border border-surface-contrast/10 tablet:shadow-xl',
+      1: 'bg-surface-1 text-surface-1-contrast',
+      2: 'bg-surface-2 text-surface-2-contrast',
+      3: 'bg-surface-3 text-surface-3-contrast',
+      4: 'bg-surface-4 text-surface-4-contrast',
     },
     spacing: {
       none: '',
@@ -24,6 +24,7 @@ const surfaceVariants = cva({
     },
   },
   defaultVariants: {
+    level: 0,
     spacing: 'md',
   },
 });
@@ -40,8 +41,6 @@ type SurfaceProps<T extends ElementType = 'div'> = {
  * and allows for spacing to be applied. It is intended to be used as a container
  * to construct hierarchical layouts, and is explicitly designed to support
  * being nested.
- *
- * Note that Surface level '0' is a special case that is used for dialogs and popovers.
  */
 const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
   ({ as, children, level, spacing, className, ...rest }, ref) => {
