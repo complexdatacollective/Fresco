@@ -433,15 +433,6 @@ $headings: (
   line-height: $headings-line-height;
 }
 
-@each $heading-tag, $heading-properties in $headings {
-  #{$heading-tag} {
-    $font-size: list.nth($heading-properties, 1);
-    $font-family: list.nth($heading-properties, 2);
-
-    @include text($font-size, $font-family);
-  }
-}
-
 @include typography.type-set(
   'quicksand',
   base,

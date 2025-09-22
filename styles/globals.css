@@ -6,7 +6,7 @@
 @plugin '@tailwindcss/forms';
 @plugin 'tailwindcss-animate';
 @plugin './plugins/tailwind-motion-spring.ts';
-@plugin './plugins//tailwind-elevation.ts';
+@plugin './plugins/tailwind-elevation/index.ts';
 
 @theme {
   --color-*: initial;
@@ -18,9 +18,6 @@
 
   /* Components should redefine --text so that children inherit the correct color */
   --color-text: oklch(var(--text));
-
-  --color-neutral: oklch(var(--neutral));
-  --color-neutral-contrast: oklch(var(--neutral-contrast));
 
   --color-primary: oklch(var(--primary));
   --color-primary-contrast: oklch(var(--primary-contrast));
@@ -206,6 +203,15 @@
   --radius-3xl: 1.5rem;
   --radius-full: 9999px;
   --radius-input: 0.75rem;
+
+  /*
+    Shadows and Elevation
+  */
+  --elevation-oomph: 0.5; /* 0 to 1, where 1 is most oomph */
+  --elevation-crispy: 0.5; /* 0 to 1 */
+  --elevation-light-x: 1; /* -1 to 1, where 1 is light from the right */
+  --elevation-light-y: -1; /* -1 to 1, where -1 is light from the top */
+  --elevation-resolution: 0.3; /* 0 to 1, where 1 is highest resolution */
 
   /*
     Animation

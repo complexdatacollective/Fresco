@@ -7,58 +7,110 @@ import { cva, cx, type VariantProps } from '~/utils/cva';
 import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
-  base: 'inline-flex focusable items-center justify-center rounded-full text-sm font-semibold disabled:pointer-events-none disabled:opacity-50 text-nowrap truncate',
+  base: cx(
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded-full text-sm tracking-wide transition-colors cursor-pointer',
+    'disabled:pointer-events-none disabled:cursor-not-allowed disabled:saturate-50',
+  ),
   variants: {
     variant: {
-      default: 'bg-primary hover:bg-primary/90 text-primary-contrast',
-      success: 'bg-success text-success-contrast hover:bg-success/90',
-      accent: 'bg-accent text-accent-contrast hover:bg-accent/90',
-      info: 'bg-info text-info-contrast hover:bg-info/90',
-      destructive:
-        'bg-destructive text-destructive-contrast hover:bg-destructive/90',
+      default:
+        'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
       outline:
-        'bg-transparent hover:bg-accent hover:text-accent-contrast border',
-      secondary: 'bg-secondary text-secondary-contrast hover:bg-secondary/80',
-      ghost: 'hover:text-accent',
-      tableHeader:
-        'hover:text-accent data-[state=open]:text-accent !p-0 rounded-none',
-      link: 'underline-offset-4 hover:underline',
+        'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:bg-[var(--scoped-bg)] hover:text-[var(--scoped-text)]',
+      text: 'text-[var(--scoped-bg)] hover:bg-[var(--scoped-bg)] hover:text-[var(--scoped-text)]',
+      link: 'text-[var(--scoped-bg)] hover:underline', // Appears as a link
+    },
+    color: {
+      default: cx(
+        // bg: mix of 5% of text color and background color
+        '[--scoped-bg:color-mix(in_oklab,oklch(var(--text))_6%,oklch(var(--background)))]',
+        // text: use the foreground color
+        '[--scoped-text:oklch(var(--text))]',
+      ),
+      primary:
+        '[--scoped-bg:var(--color-primary)] [--scoped-text:var(--color-primary-contrast)]',
+      secondary:
+        '[--scoped-bg:var(--color-secondary)] [--scoped-text:var(--color-secondary-contrast)]',
+      warning:
+        '[--scoped-bg:var(--color-warning)] [--scoped-text:var(--color-warning-contrast)]',
+      info: '[--scoped-bg:var(--color-info)] [--scoped-text:var(--color-info-contrast)]',
+      destructive:
+        '[--scoped-bg:var(--color-destructive)] [--scoped-text:var(--color-destructive-contrast)]',
+      accent:
+        '[--scoped-bg:var(--color-accent)] [--scoped-text:var(--color-accent-contrast)]',
+      success:
+        '[--scoped-bg:var(--color-success)] [--scoped-text:var(--color-success-contrast)]',
+    },
+    hasIcon: { true: 'gap-2' },
+    iconPosition: {
+      left: 'flex-row',
+      right: 'flex-row-reverse',
     },
     size: {
-      default: 'h-10 px-6 py-2',
-      xs: 'h-6 px-3 text-xs',
-      sm: 'h-8 px-4',
-      lg: 'h-12 px-8 text-lg',
-      icon: 'h-10 w-10',
+      xs: 'h-8 w-full px-3 text-xs sm:w-auto',
+      sm: 'h-10 w-full px-4 text-base-sm sm:w-auto',
+      default: 'h-12 w-full px-8 sm:w-auto',
+      lg: 'h-16 w-full px-8 text-base sm:w-auto',
+      icon: 'flex h-10 w-10 shrink-0 rounded-full',
     },
   },
   defaultVariants: {
     variant: 'default',
+    color: 'default',
     size: 'default',
   },
   compoundVariants: [
     {
-      variant: 'tableHeader',
-      size: 'sm',
+      variant: ['outline', 'text', 'link'],
+      color: 'default',
+      className: 'text-text',
     },
   ],
 });
 
+export type ButtonVariants = VariantProps<typeof buttonVariants>;
+
 export type ButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant'];
+  color?: VariantProps<typeof buttonVariants>['color'];
   size?: VariantProps<typeof buttonVariants>['size'];
   asChild?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      color,
+      size,
+      asChild = false,
+      children,
+      icon,
+      iconPosition = 'left',
+      ...props
+    },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
-        className={cx(buttonVariants({ variant, size, className }))}
+        className={buttonVariants({
+          variant,
+          color,
+          size,
+          hasIcon: !!icon,
+          iconPosition: iconPosition,
+          className,
+        })}
         ref={ref}
         {...props}
-      />
+      >
+        {icon}
+        {children}
+      </Comp>
     );
   },
 );
@@ -66,12 +118,18 @@ Button.displayName = 'Button';
 
 const ButtonSkeleton = (props: ButtonProps) => {
   const classes = cx(
-    buttonVariants({ variant: props.variant, size: props.size }),
+    buttonVariants({
+      variant: props.variant,
+      color: props.color,
+      size: props.size,
+    }),
     props.className,
   );
 
   return <Skeleton className={classes} />;
 };
+
+export default Button;
 
 export { Button, ButtonSkeleton, buttonVariants };
 

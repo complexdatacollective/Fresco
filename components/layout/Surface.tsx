@@ -8,11 +8,11 @@ const surfaceVariants = cva({
   base: 'rounded-xl',
   variants: {
     level: {
-      0: 'bg-surface text-surface-contrast border border-surface-contrast/10 tablet:shadow-xl',
-      1: 'bg-surface-1 text-surface-1-contrast',
-      2: 'bg-surface-2 text-surface-2-contrast',
-      3: 'bg-surface-3 text-surface-3-contrast',
-      4: 'bg-surface-4 text-surface-4-contrast',
+      0: 'bg-surface text-surface-contrast border border-surface-contrast/10 elevation-high [--text:var(--color-surface-contrast)] [--background:var(--color-surface)]',
+      1: 'bg-surface-1 text-surface-1-contrast elevation-medium [--text:var(--color-surface-1-contrast)] [--background:var(--color-surface-1)]',
+      2: 'bg-surface-2 text-surface-2-contrast elevation-medium [--text:var(--color-surface-2-contrast)] [--background:var(--color-surface-2)]',
+      3: 'bg-surface-3 text-surface-3-contrast elevation-medium [--text:var(--color-surface-3-contrast)] [--background:var(--color-surface-3)]',
+      4: 'bg-surface-4 text-surface-4-contrast elevation-low [--text:var(--color-surface-4-contrast)] [--background:var(--color-surface-4)]',
     },
     spacing: {
       none: '',

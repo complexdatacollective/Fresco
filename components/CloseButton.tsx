@@ -13,11 +13,12 @@ export default function CloseButton(props: CloseButtonProps) {
     <Button
       {...rest}
       title="Close"
-      variant="outline"
+      variant="text"
       size="icon"
       className={cx('absolute top-2 ltr:right-2 rtl:left-2', className)}
     >
       <X />
+      <span className="sr-only">Close</span>
     </Button>
   );
 }

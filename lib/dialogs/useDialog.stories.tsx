@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { StoryObj } from '@storybook/react';
 import { fn } from 'storybook/test';
-import { Button } from '../ui/components';
+import Button from '~/components/ui/Button';
 import { useDialog } from './DialogProvider';
 
 const meta = {

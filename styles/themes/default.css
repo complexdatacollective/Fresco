@@ -24,7 +24,7 @@
     --accent-contrast: var(--white);
 
     --secondary: 60% 0.1 var(--base-hue);
-    --secondary-contrast: var(--text);
+    --secondary-contrast: var(--white);
 
     --surface: var(--background);
     --surface-contrast: var(--text);

@@ -49,15 +49,13 @@
     var(--sea-serpent-chroma) var(--sea-serpent-hue);
 
   /* Purple pizzazz */
-  --purple-pizzazz-lightness: 62.49%;
-  --purple-pizzazz-chroma: 0.288;
-  --purple-pizzazz-hue: 320.46;
-  --purple-pizzazz: var(--purple-pizzazz-lightness) var(--purple-pizzazz-chroma)
-    var(--purple-pizzazz-hue);
-  --purple-pizzazz--dark: calc(
-      var(--purple-pizzazz-lightness) - var(--dark-mod)
-    )
-    var(--purple-pizzazz-chroma) var(--purple-pizzazz-hue);
+  --purple-pizazz-lightness: 62.49%;
+  --purple-pizazz-chroma: 0.288;
+  --purple-pizazz-hue: 320.46;
+  --purple-pizazz: var(--purple-pizazz-lightness) var(--purple-pizazz-chroma)
+    var(--purple-pizazz-hue);
+  --purple-pizazz--dark: calc(var(--purple-pizazz-lightness) - var(--dark-mod))
+    var(--purple-pizazz-chroma) var(--purple-pizazz-hue);
 
   /* Paradise Pink */
   --paradise-pink-lightness: 65.86%;

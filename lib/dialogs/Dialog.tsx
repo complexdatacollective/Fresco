@@ -48,13 +48,14 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         aria-describedby={description ? `${id}-description` : undefined}
         onClose={closeDialog} // Needed so that closing via keyboard still returns a value
         className={cx(
-          'spring-discrete-medium elevation-high',
+          'spring-discrete-medium',
           'bg-transparent', // Or else rounded corner content will have white edges
           'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
           'backdrop:transition-opacity',
           'backdrop:duration-300',
           'backdrop:transition-discrete',
           'm-auto not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
+          'elevation-high [--bg-scope:oklch(50%_0_0)]',
         )}
         {...rest}
       >
@@ -63,14 +64,14 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           layout="size"
           level={0}
           className={cx(
-            'text-surface-0-contrast max-h-10/12 w-2xl rounded-lg bg-white',
+            'text-surface-0-contrast max-h-10/12 w-2xl overflow-hidden rounded-lg',
 
             // Accent overrides the primary hue so that nested buttons inherit color
-            accent === 'success' && '[--primary:var(--success)]',
-            accent === 'warning' && '[--primary:var(--warning)]',
-            accent === 'info' && '[--primary:var(--info)]',
-            accent === 'danger' && '[--primary:var(--destructive)]',
-            'border-primary border-b-4',
+            accent === 'success' && '[--color-primary:var(--color-success)]',
+            accent === 'warning' && '[--color-primary:var(--color-warning)]',
+            accent === 'info' && '[--color-primary:var(--color-info)]',
+            accent === 'danger' && '[--color-primary:var(--color-destructive)]',
+            'border-b-primary border-b-4',
           )}
         >
           <Heading variant="h2" id={`${id}-title`}>
