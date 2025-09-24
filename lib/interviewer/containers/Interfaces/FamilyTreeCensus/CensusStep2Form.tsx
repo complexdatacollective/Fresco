@@ -64,8 +64,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
     show,
   });
 
-  const useFullScreenForms = false;
-
   const { handleSubmit } = usePlaceholderNodeFormSubmit({
     egoNodeId,
     step2Nodes,
@@ -102,19 +100,16 @@ const CensusStep2Form = (props: NodeFormProps) => {
         title={form.title}
         onClose={handleClose}
         className="node-form"
-        forceEnableFullscreen={useFullScreenForms}
         footer={
-          !useFullScreenForms && (
-            <Button
-              key="submit"
-              aria-label="Submit"
-              onClick={() => {
-                formRef.current?.requestSubmit();
-              }}
-            >
-              Finished
-            </Button>
-          )
+          <Button
+            key="submit"
+            aria-label="Submit"
+            onClick={() => {
+              formRef.current?.requestSubmit();
+            }}
+          >
+            Finished
+          </Button>
         }
         allowMaximize={false}
       >

@@ -1,4 +1,3 @@
-// usePlaceholderNodeFormSubmit.ts
 import { useCallback } from 'react';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { useRelatives } from './useRelatives';
@@ -41,7 +40,7 @@ export function usePlaceholderNodeFormSubmit({
       let newNode: PlaceholderNodeProps;
       let newNodeParentIds: string[] = [];
 
-      // 🔑 Decide maternal vs paternal prefix
+      // Decide maternal vs paternal prefix
       const relationLabel =
         step2Nodes.find(
           (n) => n.id === fullData[`${fullData.relation}Relation`],
@@ -159,7 +158,7 @@ export function usePlaceholderNodeFormSubmit({
           ]);
           setShow(false);
           onClose();
-          return; // ⬅ prevent duplicate update at the end
+          return; // prevent duplicate update at the end
         }
 
         case 'halfBrother':
@@ -228,7 +227,7 @@ export function usePlaceholderNodeFormSubmit({
           ]);
           setShow(false);
           onClose();
-          return; // ⬅ prevent duplicate update at the end
+          return; // prevent duplicate update at the end
         }
 
         case 'firstCousinMale':
