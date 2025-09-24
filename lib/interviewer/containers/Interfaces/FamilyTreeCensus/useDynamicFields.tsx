@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
+import {
+  buildBaseOptions,
+  createRelationField,
+  getRelationFlags,
+} from './dynamicFieldsUtils';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { type RelativeOption } from './useRelatives';
 
-type FieldConfig = {
+export type FieldConfig = {
   fieldLabel: string;
   options: { label: string; value: string }[];
   type: string;
@@ -58,177 +63,86 @@ export function useDynamicFields({
       },
     };
 
-    const hasAuntOrUncle = step2Nodes.some((n) => /aunt|uncle/i.test(n.label));
-    const hasSiblings = step2Nodes.some((n) => /brother|sister/i.test(n.label));
-    const hasChildren = step2Nodes.some((n) =>
-      ['son', 'daughter'].includes(n.label),
-    );
+    const flags = getRelationFlags(step2Nodes);
 
     const dynamicBaseField = {
       ...baseField,
-      options: [
-        { label: 'Aunt', value: 'aunt' },
-        { label: 'Uncle', value: 'uncle' },
-        { label: 'Daughter', value: 'daughter' },
-        { label: 'Son', value: 'son' },
-        { label: 'Brother', value: 'brother' },
-        { label: 'Sister', value: 'sister' },
-        { label: 'Half Sister', value: 'halfSister' },
-        { label: 'Half Brother', value: 'halfBrother' },
-        ...(hasAuntOrUncle
-          ? [
-              { label: 'First Cousin (Male)', value: 'firstCousinMale' },
-              { label: 'First Cousin (Female)', value: 'firstCousinFemale' },
-            ]
-          : []),
-        ...(hasSiblings
-          ? [
-              { label: 'Niece', value: 'niece' },
-              { label: 'Nephew', value: 'nephew' },
-            ]
-          : []),
-        ...(hasChildren
-          ? [
-              { label: 'Granddaughter', value: 'granddaughter' },
-              { label: 'Grandson', value: 'grandson' },
-            ]
-          : []),
-      ],
+      options: buildBaseOptions(flags),
     };
 
     const additionalFieldsMap: Record<string, FieldConfig> = {
-      aunt: {
-        fieldLabel: 'Who is the aunt related to?',
-        options: [
+      aunt: createRelationField('Who is the aunt related to?', 'auntRelation', [
+        { label: 'Father', value: father?.id ?? '' },
+        { label: 'Mother', value: mother?.id ?? '' },
+      ]),
+      uncle: createRelationField(
+        'Who is the uncle related to?',
+        'uncleRelation',
+        [
           { label: 'Father', value: father?.id ?? '' },
           { label: 'Mother', value: mother?.id ?? '' },
         ],
-        type: 'ordinal',
-        variable: 'auntRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      uncle: {
-        fieldLabel: 'Who is the uncle related to?',
-        options: [
+      ),
+      halfSister: createRelationField(
+        'Who is the parent of your half sister?',
+        'halfSisterRelation',
+        [
           { label: 'Father', value: father?.id ?? '' },
           { label: 'Mother', value: mother?.id ?? '' },
         ],
-        type: 'ordinal',
-        variable: 'uncleRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      halfSister: {
-        fieldLabel: 'Who is the parent of your half sister?',
-        options: [
+      ),
+      halfBrother: createRelationField(
+        'Who is the parent of your half brother?',
+        'halfBrotherRelation',
+        [
           { label: 'Father', value: father?.id ?? '' },
           { label: 'Mother', value: mother?.id ?? '' },
         ],
-        type: 'ordinal',
-        variable: 'halfSisterRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      halfBrother: {
-        fieldLabel: 'Who is the parent of your half brother?',
-        options: [
-          { label: 'Father', value: father?.id ?? '' },
-          { label: 'Mother', value: mother?.id ?? '' },
-        ],
-        type: 'ordinal',
-        variable: 'halfBrotherRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      firstCousinMale: {
-        fieldLabel: 'Who is the parent of your first cousin?',
-        options: firstCousinOptions,
-        type: 'ordinal',
-        variable: 'firstCousinMaleRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      firstCousinFemale: {
-        fieldLabel: 'Who is the parent of your first cousin?',
-        options: firstCousinOptions,
-        type: 'ordinal',
-        variable: 'firstCousinFemaleRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      niece: {
-        fieldLabel: 'Who is the parent of your niece?',
-        options: nieceOptions,
-        type: 'ordinal',
-        variable: 'nieceRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      nephew: {
-        fieldLabel: 'Who is the parent of your nephew?',
-        options: nieceOptions,
-        type: 'ordinal',
-        variable: 'nephewRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      granddaughter: {
-        fieldLabel: 'Who is the parent of your granddaughter?',
-        options: grandchildrenOptions,
-        type: 'ordinal',
-        variable: 'granddaughterRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
-      grandson: {
-        fieldLabel: 'Who is the parent of your grandson?',
-        options: grandchildrenOptions,
-        type: 'ordinal',
-        variable: 'grandsonRelation',
-        Component: RadioGroup,
-        validation: {
-          onSubmit: (value: { value: string }) =>
-            value?.value ? undefined : 'Relation is required',
-        },
-      },
+      ),
+      firstCousinMale: createRelationField(
+        'Who is the parent of your first cousin?',
+        'firstCousinMaleRelation',
+        firstCousinOptions,
+      ),
+      firstCousinFemale: createRelationField(
+        'Who is the parent of your first cousin?',
+        'firstCousinFemaleRelation',
+        firstCousinOptions,
+      ),
+      niece: createRelationField(
+        'Who is the parent of your niece?',
+        'nieceRelation',
+        nieceOptions,
+      ),
+      nephew: createRelationField(
+        'Who is the parent of your nephew?',
+        'nephewRelation',
+        nieceOptions,
+      ),
+      granddaughter: createRelationField(
+        'Who is the parent of your granddaughter?',
+        'granddaughterRelation',
+        grandchildrenOptions,
+      ),
+      grandson: createRelationField(
+        'Who is the parent of your grandson?',
+        'grandsonRelation',
+        grandchildrenOptions,
+      ),
     };
 
-    const processedFields: FieldConfig[] = [
+    const additionalField = relationValue
+      ? additionalFieldsMap[relationValue]
+      : null;
+
+    const processed: FieldConfig[] = [
       dynamicBaseField,
-      ...(relationValue && additionalFieldsMap[relationValue]
-        ? [{ ...additionalFieldsMap[relationValue], _uniqueKey: Date.now() }]
+      ...(additionalField
+        ? [{ ...additionalField, _uniqueKey: Date.now() }]
         : []),
     ];
 
-    return processedFields;
+    return processed;
   }, [
     step2Nodes,
     father,

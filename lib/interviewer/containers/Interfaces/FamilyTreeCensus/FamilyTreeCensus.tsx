@@ -3,22 +3,22 @@ import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import NumberInput from '~/lib/form/components/fields/Number';
+import Form from '~/lib/form/components/Form';
 import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
-import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
+import {
+  getNetworkEgo,
+  getNetworkNodes,
+} from '~/lib/interviewer/selectors/session';
+import { Scroller } from '~/lib/ui/components';
 import UIChildConnector from '~/lib/ui/components/FamilyTree/ChildConnector';
 import UIExPartnerConnector from '~/lib/ui/components/FamilyTree/ExPartnerConnector';
 import UIOffspringConnector from '~/lib/ui/components/FamilyTree/OffspringConnector';
 import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector';
-// import NumberInput from '~/lib/ui/components/Fields/Number';
-import NumberInput from '~/lib/form/components/fields/Number';
-import Form from '~/lib/form/components/Form';
-import { getNetworkNodes } from '~/lib/interviewer/selectors/session';
-import { Scroller } from '~/lib/ui/components';
 import Prompt from '~/lib/ui/components/Prompts/Prompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { updatePedigreeStageMetadata } from '../../../ducks/modules/session';
-import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch } from '../../../store';
 import { type StageProps } from '../../Stage';
 import CensusStep2Form from './CensusStep2Form';
@@ -34,6 +34,9 @@ type FamilyTreeCensusProps = StageProps & {
 const rowHeight = 205;
 const xOffset = 200;
 const yOffset = 100;
+const siblingSpacing = 150;
+const partnerSpacing = 120;
+const generationSpacing = 180;
 
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { getNavigationHelpers, registerBeforeNext, stage } = props;
@@ -67,9 +70,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     }));
 
     const layout = new FamilyTreeLayout(cloned, {
-      siblings: 150,
-      partners: 120,
-      generations: 180,
+      siblings: siblingSpacing,
+      partners: partnerSpacing,
+      generations: generationSpacing,
     });
 
     return layout.nodes;
@@ -125,13 +128,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     PlaceholderNodeProps[]
   >([]);
 
-  // const familyTreeNodeList = new FamilyTreeNodeList(familyTreeNodes, nodes);
   const [selectedNode, setSelectedNode] = useState<
     PlaceholderNodeProps | NcNode | null
   >(null);
   const [egoNodeId, setEgoNodeId] = useState<string>('');
 
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const dispatch = useAppDispatch();
 
   // return either an empty array or an array of integers from 1 to the number of relations
@@ -147,9 +148,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const egoChildCheck = (formData: Record<string, number>) => {
-    const sons = formData.sons ? formData.sons : 0;
-    const daughters = formData.daughters ? formData.daughters : 0;
-
+    const sons = formData.sons ?? 0;
+    const daughters = formData.daughters ?? 0;
     return sons > 0 || daughters > 0;
   };
 
@@ -162,6 +162,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const createNode = (
       gender: string,
       label: string,
+      relationType: string,
       isEgo: boolean,
     ): PlaceholderNodeProps => {
       return {
@@ -169,6 +170,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         isEgo,
         gender,
         label,
+        relationType,
         parentIds: [],
         childIds: [],
         xPos: undefined,
@@ -178,22 +180,44 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     };
 
     // Helper to add node and push to tempNodes array
-    const addNode = (gender: string, label: string, isEgo = false) => {
-      const node = createNode(gender, label, isEgo);
+    const addNode = (
+      gender: string,
+      label: string,
+      relationType?: string,
+      isEgo = false,
+    ) => {
+      const effectiveRelationType = relationType ?? label;
+      const node = createNode(gender, label, effectiveRelationType, isEgo);
       tempNodes.push(node);
       return node;
     };
 
     // Create family members
-    const maternalGrandmother = addNode('female', 'maternal grandmother');
-    const maternalGrandfather = addNode('male', 'maternal grandfather');
+    const maternalGrandmother = addNode(
+      'female',
+      'maternal grandmother',
+      'grandmother',
+    );
+    const maternalGrandfather = addNode(
+      'male',
+      'maternal grandfather',
+      'grandfather',
+    );
     maternalGrandfather.partnerId = maternalGrandmother.id;
     maternalGrandfather.unDeletable = true;
     maternalGrandmother.partnerId = maternalGrandfather.id;
     maternalGrandmother.unDeletable = true;
 
-    const paternalGrandmother = addNode('female', 'paternal grandmother');
-    const paternalGrandfather = addNode('male', 'paternal grandfather');
+    const paternalGrandmother = addNode(
+      'female',
+      'paternal grandmother',
+      'grandmother',
+    );
+    const paternalGrandfather = addNode(
+      'male',
+      'paternal grandfather',
+      'grandfather',
+    );
     paternalGrandfather.partnerId = paternalGrandmother.id;
     paternalGrandfather.unDeletable = true;
     paternalGrandmother.partnerId = paternalGrandfather.id;
@@ -224,6 +248,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       isEgo: true,
       gender: 'female',
       label: (networkEgo?.attributes.name as string) ?? 'self',
+      relationType: 'self',
       parentIds: [],
       childIds: [],
       xPos: undefined,
@@ -259,7 +284,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
 
     if (egoChildCheck(formData)) {
-      const partner = addNode('male', `${ego.label}'s partner`);
+      const partner = addNode('male', `${ego.label}'s partner`, 'unrelated');
       ego.partnerId = partner.id;
       partner.partnerId = ego.id;
 
@@ -279,7 +304,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     }
 
     arrayFromRelationCount(formData, 'paternal-uncles').forEach(() => {
-      const uncle = addNode('male', 'paternal uncle');
+      const uncle = addNode('male', 'paternal uncle', 'uncle');
       paternalGrandfather.childIds?.push(uncle.id ?? '');
       paternalGrandmother.childIds?.push(uncle.id ?? '');
       uncle.parentIds?.push(
@@ -289,7 +314,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
 
     arrayFromRelationCount(formData, 'paternal-aunts').forEach(() => {
-      const aunt = addNode('female', 'paternal aunt');
+      const aunt = addNode('female', 'paternal aunt', 'aunt');
       paternalGrandfather.childIds?.push(aunt.id ?? '');
       paternalGrandmother.childIds?.push(aunt.id ?? '');
       aunt.parentIds?.push(
@@ -299,7 +324,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
 
     arrayFromRelationCount(formData, 'maternal-uncles').forEach(() => {
-      const uncle = addNode('male', 'maternal uncle');
+      const uncle = addNode('male', 'maternal uncle', 'uncle');
       maternalGrandfather.childIds?.push(uncle.id ?? '');
       maternalGrandmother.childIds?.push(uncle.id ?? '');
       uncle.parentIds?.push(
@@ -309,7 +334,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     });
 
     arrayFromRelationCount(formData, 'maternal-aunts').forEach(() => {
-      const aunt = addNode('female', 'maternal aunt');
+      const aunt = addNode('female', 'maternal aunt', 'aunt');
       maternalGrandfather.childIds?.push(aunt.id ?? '');
       maternalGrandmother.childIds?.push(aunt.id ?? '');
       aunt.parentIds?.push(

@@ -81,7 +81,7 @@ export function useRelatives(
     // Ego’s children
     const egoChildren = nodes.filter((n) => n.parentIds?.includes(ego.id));
 
-    // Derived options
+    // Options
     const grandchildrenOptions: RelativeOption[] = [];
     let daughterCount = 0;
     let sonCount = 0;
@@ -152,7 +152,7 @@ export function useRelatives(
       }
     });
 
-    // Helper for arbitrary subject
+    // Helper for other relations
     function getParents(subjectId: string) {
       const subject = nodes.find((n) => n.id === subjectId);
       if (!subject) return { mother: null, father: null };

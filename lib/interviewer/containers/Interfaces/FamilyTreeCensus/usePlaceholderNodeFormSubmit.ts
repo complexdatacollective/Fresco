@@ -55,13 +55,13 @@ export function usePlaceholderNodeFormSubmit({
         case 'uncle': {
           const parentsObject = getParents(
             fullData[`${fullData.relation}Relation`] as string,
-            step2Nodes,
           );
           parentsArray = Object.values(parentsObject).filter(Boolean);
           newNode = {
             id: crypto.randomUUID(),
             gender: fullData.relation === 'aunt' ? 'female' : 'male',
             label: `${labelPrefix} ${fullData.relation}`,
+            relationType: fullData.relation,
             parentIds: parentsArray.map((p) => p.id),
             childIds: [],
             xPos: undefined,
@@ -84,6 +84,7 @@ export function usePlaceholderNodeFormSubmit({
             id: crypto.randomUUID(),
             gender: fullData.relation === 'sister' ? 'female' : 'male',
             label: fullData.relation,
+            relationType: fullData.relation,
             parentIds: parentsArray.map((p) => p.id),
             childIds: [],
             xPos: undefined,
@@ -107,8 +108,9 @@ export function usePlaceholderNodeFormSubmit({
               id: partnerId,
               gender: egoNode.gender === 'male' ? 'female' : 'male',
               label: `${egoNode.label}'s partner`,
+              relationType: 'unrelated',
               parentIds: [],
-              childIds: [...(egoNode.childIds || [])],
+              childIds: [...(egoNode.childIds ?? [])],
               partnerId: egoNode.id,
               xPos: undefined,
               yPos: undefined,
@@ -128,7 +130,8 @@ export function usePlaceholderNodeFormSubmit({
           newNode = {
             id: crypto.randomUUID(),
             gender: fullData.relation === 'son' ? 'male' : 'female',
-            label: fullData.relation.toLowerCase(),
+            label: fullData.relation,
+            relationType: fullData.relation,
             parentIds: newNodeParentIds,
             childIds: [],
             xPos: undefined,
@@ -138,14 +141,14 @@ export function usePlaceholderNodeFormSubmit({
 
           const updatedEgoWithChildren: PlaceholderNodeProps = {
             ...updatedEgo,
-            childIds: [...(updatedEgo.childIds || []), newNode.id],
+            childIds: [...(updatedEgo.childIds ?? []), newNode.id],
           };
 
           const updatedPartnerWithChildren: PlaceholderNodeProps | undefined =
             partnerNode
               ? {
                   ...partnerNode,
-                  childIds: [...(partnerNode.childIds || []), newNode.id],
+                  childIds: [...(partnerNode.childIds ?? []), newNode.id],
                 }
               : undefined;
 
@@ -179,6 +182,7 @@ export function usePlaceholderNodeFormSubmit({
               id: partnerId,
               gender: selectedRelative.gender === 'male' ? 'female' : 'male',
               label: `${selectedRelative.label}'s ex partner`,
+              relationType: 'unrelated',
               parentIds: [],
               childIds: [],
               xPos: undefined,
@@ -197,6 +201,7 @@ export function usePlaceholderNodeFormSubmit({
                 ? 'half brother'
                 : 'half sister'
             }`,
+            relationType: fullData.relation,
             parentIds: newNodeParentIds,
             childIds: [],
             xPos: undefined,
@@ -207,13 +212,13 @@ export function usePlaceholderNodeFormSubmit({
           const updatedRelativeWithHalfSibling: PlaceholderNodeProps = {
             ...selectedRelative,
             exPartnerId: partnerNode.id,
-            childIds: [...(selectedRelative.childIds || []), newNode.id],
+            childIds: [...(selectedRelative.childIds ?? []), newNode.id],
           };
 
           const updatedPartnerWithHalfSibling: PlaceholderNodeProps = {
             ...partnerNode,
             exPartnerId: selectedRelative.id,
-            childIds: [...(partnerNode.childIds || []), newNode.id],
+            childIds: [...(partnerNode.childIds ?? []), newNode.id],
           };
 
           setPlaceholderNodes([
@@ -245,8 +250,9 @@ export function usePlaceholderNodeFormSubmit({
               id: partnerId,
               gender: selectedRelative.gender === 'male' ? 'female' : 'male',
               label: `${selectedRelative.label}'s partner`,
+              relationType: 'unrelated',
               parentIds: [],
-              childIds: [...(selectedRelative.childIds || [])],
+              childIds: [...(selectedRelative.childIds ?? [])],
               partnerId: selectedRelative.id,
               xPos: undefined,
               yPos: undefined,
@@ -284,6 +290,7 @@ export function usePlaceholderNodeFormSubmit({
               fullData.relation === 'firstCousinFemale'
                 ? `${labelPrefix} cousin`
                 : fullData.relation,
+            relationType: fullData.relation,
             parentIds: newNodeParentIds,
             childIds: [],
             xPos: undefined,
@@ -293,14 +300,14 @@ export function usePlaceholderNodeFormSubmit({
 
           const updatedRelativeWithChild: PlaceholderNodeProps = {
             ...updatedSelectedRelative,
-            childIds: [...(updatedSelectedRelative.childIds || []), newNode.id],
+            childIds: [...(updatedSelectedRelative.childIds ?? []), newNode.id],
           };
 
           const updatedPartnerWithChild: PlaceholderNodeProps | undefined =
             partnerNode
               ? {
                   ...partnerNode,
-                  childIds: [...(partnerNode.childIds || []), newNode.id],
+                  childIds: [...(partnerNode.childIds ?? []), newNode.id],
                 }
               : undefined;
 
@@ -322,7 +329,7 @@ export function usePlaceholderNodeFormSubmit({
       // 🔑 Generic case → update parents + new node
       const updatedParents = parentsArray.map((parent) => ({
         ...parent,
-        childIds: [...(parent.childIds || []), newNode.id],
+        childIds: [...(parent.childIds ?? []), newNode.id],
       }));
 
       setPlaceholderNodes([...updatedParents, newNode]);

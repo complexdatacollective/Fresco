@@ -16,7 +16,7 @@ import { Button, Scroller } from '~/lib/ui/components';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch } from '../../../store';
 import Overlay from '../../Overlay';
-import { PlaceholderNodeProps } from './FamilyTreeNode';
+import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   selectedNode: PlaceholderNodeProps | NcNode | null;

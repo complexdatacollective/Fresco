@@ -32,6 +32,7 @@ export type PlaceholderNodeProps = {
   networkNode?: NcNode;
   gender: string;
   label: string;
+  relationType: string;
   parentIds?: string[];
   childIds?: string[];
   partnerId?: string;

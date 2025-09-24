@@ -1,4 +1,4 @@
-import { Stage } from '@codaco/protocol-validation';
+import { type Stage } from '@codaco/protocol-validation';
 import {
   entityPrimaryKeyProperty,
   type EntityAttributesProperty,
@@ -11,7 +11,7 @@ import {
 } from '~/lib/interviewer/ducks/modules/session';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
 import { useAppDispatch } from '../../../store';
-import { PlaceholderNodeProps } from './FamilyTreeNode';
+import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 const getStringNodeAttribute = (node: NcNode, key: string): string => {
   const val = getEntityAttributes(node)[key];
@@ -26,7 +26,7 @@ const getNumberNodeAttribute = (
   return typeof val === 'number' ? val : undefined;
 };
 
-interface UseFamilyTreeNodesReturn {
+type UseFamilyTreeNodesReturn = {
   placeholderNodes: PlaceholderNodeProps[];
   setPlaceholderNodesBulk: (nodes: PlaceholderNodeProps[]) => void;
   removePlaceholderNode: (nodeId: string) => void;
@@ -35,7 +35,7 @@ interface UseFamilyTreeNodesReturn {
     attributes: NcNode[EntityAttributesProperty],
   ) => void;
   allNodes: PlaceholderNodeProps[];
-}
+};
 
 function useFamilyTreeNodes(
   networkNodes: NcNode[],
@@ -88,7 +88,7 @@ function useFamilyTreeNodes(
 
   const allNodes = useMemo(() => {
     const networkIds = new Set(
-      networkNodes.map((n) => n[entityPrimaryKeyProperty] as string),
+      networkNodes.map((n) => n[entityPrimaryKeyProperty]),
     );
     const placeholdersOnly = placeholderNodes.filter(
       (p) => !networkIds.has(p.id),
@@ -120,9 +120,9 @@ function useFamilyTreeNodes(
                 ...p,
                 label:
                   (attributes.name as string) ??
-                  (Object.values(attributes).find(
+                  Object.values(attributes).find(
                     (val) => typeof val === 'string',
-                  ) as string) ??
+                  )! ??
                   p.label,
               }
             : p,
