@@ -15,8 +15,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(next@14.2.32(@babel/core@7.28.3)(@playwright/test@1.55.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.91.0))
       '@codaco/protocol-validation':
-        specifier: file:../network-canvas-monorepo/packages/protocol-validation
-        version: file:../network-canvas-monorepo/packages/protocol-validation
+        specifier: 5.0.2
+        version: 5.0.2
       '@codaco/shared-consts':
         specifier: 4.0.0
         version: 4.0.0
@@ -1121,17 +1121,13 @@ packages:
     peerDependencies:
       next: 13 || 14 || 15
 
-  '@codaco/protocol-validation@file:../network-canvas-monorepo/packages/protocol-validation':
-    resolution: {directory: ../network-canvas-monorepo/packages/protocol-validation, type: directory}
+  '@codaco/protocol-validation@5.0.2':
+    resolution: {integrity: sha512-HH68/XTI4dPy1WDTpNzhn5PM44+0fj4ZNFkWMqRsPpRgRvhbnnVR+bynDsk/BGKxPF9gdvqx2wvBX0AUbdGOMw==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
   '@codaco/shared-consts@4.0.0':
     resolution: {integrity: sha512-j39tdNf93FlZ4R2ycZ+FpHNjzgAXcz92fVpC59Cg7k0loWkuMpoEfArzaZyI0mXGT0BEned5BJ+kG7hBu77wDw==}
-    engines: {node: '>=20.0.0'}
-
-  '@codaco/shared-consts@file:../network-canvas-monorepo/packages/shared-consts':
-    resolution: {directory: ../network-canvas-monorepo/packages/shared-consts, type: directory}
     engines: {node: '>=20.0.0'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -8853,17 +8849,13 @@ snapshots:
       next: 14.2.32(@babel/core@7.28.3)(@playwright/test@1.55.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.91.0)
       zod: 3.25.76
 
-  '@codaco/protocol-validation@file:../network-canvas-monorepo/packages/protocol-validation':
+  '@codaco/protocol-validation@5.0.2':
     dependencies:
-      '@codaco/shared-consts': file:../network-canvas-monorepo/packages/shared-consts
+      '@codaco/shared-consts': 4.0.0
       ajv: 8.17.1
       zod: 3.25.76
 
   '@codaco/shared-consts@4.0.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@codaco/shared-consts@file:../network-canvas-monorepo/packages/shared-consts':
     dependencies:
       zod: 3.25.76
 
