@@ -2,19 +2,12 @@ import { type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
 import { memo, type ReactNode } from 'react';
-import { useSelector } from 'react-redux';
-import {
-  useDndStore,
-  useDragSource,
-  useDropTarget,
-  type DndStore,
-} from '~/lib/dnd';
+import { useDragSource, useDropTarget } from '~/lib/dnd';
 import { cn } from '~/utils/shadcn';
 import {
   MotionFamilyTreeNode,
-  PlaceholderNodeProps,
+  type PlaceholderNodeProps,
 } from '../containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
-import { getCurrentStageId } from '../selectors/session';
 
 type DraggableMotionNodeProps = {
   node: PlaceholderNodeProps;
@@ -82,8 +75,6 @@ const FamilyTreePlaceholderNodeList = memo(
     accepts: _accepts,
     onDrop,
   }: NodeListProps) => {
-    const stageId = useSelector(getCurrentStageId);
-
     // Use new DND hooks
     const { dropProps, isOver, willAccept } = useDropTarget({
       id: id ?? 'node-list',
@@ -95,11 +86,6 @@ const FamilyTreePlaceholderNodeList = memo(
         }
       },
     });
-
-    const dragItem = useDndStore((state: DndStore) => state.dragItem);
-    const meta =
-      (dragItem?.metadata as PlaceholderNodeProps) ??
-      ({} as PlaceholderNodeProps);
 
     const isValidTarget = willAccept;
     const isHovering = isValidTarget && isOver;

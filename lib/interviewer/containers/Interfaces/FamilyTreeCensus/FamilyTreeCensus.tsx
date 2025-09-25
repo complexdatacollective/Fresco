@@ -1,10 +1,11 @@
-import { type Stage } from '@codaco/protocol-validation';
+import { type Stage, type Form as TForm } from '@codaco/protocol-validation';
 import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import NumberInput from '~/lib/form/components/fields/Number';
 import Form from '~/lib/form/components/Form';
+import { type FieldComponentProps } from '~/lib/form/types';
 import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import {
@@ -124,10 +125,6 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
   registerBeforeNext(beforeNext);
 
-  const [familyTreeNodes, setFamilyTreeNodes] = useState<
-    PlaceholderNodeProps[]
-  >([]);
-
   const [selectedNode, setSelectedNode] = useState<
     PlaceholderNodeProps | NcNode | null
   >(null);
@@ -137,7 +134,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   // return either an empty array or an array of integers from 1 to the number of relations
   const arrayFromRelationCount = (
-    formData: Record<string, number>,
+    formData: Record<string, VariableValue>,
     relation: string,
   ) => {
     if (typeof formData[relation] != 'number' || formData[relation] < 1) {
@@ -147,7 +144,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     }
   };
 
-  const egoChildCheck = (formData: Record<string, number>) => {
+  const egoChildCheck = (formData: Record<string, VariableValue>) => {
     const sons = formData.sons ?? 0;
     const daughters = formData.daughters ?? 0;
     return sons > 0 || daughters > 0;
@@ -155,7 +152,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   let keyCounter = 0;
 
-  const generatePlaceholderNodes = (formData: Record<string, number>) => {
+  const generatePlaceholderNodes = (
+    formData: Record<string, VariableValue>,
+  ) => {
     // Use a temporary local array to accumulate nodes before setting
     const tempNodes: PlaceholderNodeProps[] = [];
 
@@ -244,7 +243,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     father.unDeletable = true;
 
     const ego: PlaceholderNodeProps = {
-      id: networkEgo?._uid! || crypto.randomUUID(),
+      id: networkEgo?._uid ?? crypto.randomUUID(),
       isEgo: true,
       gender: 'female',
       label: (networkEgo?.attributes.name as string) ?? 'self',
@@ -255,9 +254,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       yPos: undefined,
       unDeletable: true,
       networkNode: {
-        _uid: networkEgo?._uid!,
-        type: stage.subject.type,
-        attributes: networkEgo?.attributes,
+        _uid: networkEgo!._uid,
+        type: stage.type,
+        attributes: networkEgo!.attributes,
         promptIDs: [],
         stageId: stage.id,
       },
@@ -362,17 +361,45 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     setPlaceholderNodesBulk(updatedNodes);
 
-    setFamilyTreeNodes(updatedNodes);
     dispatch(updatePedigreeStageMetadata(updatedNodes));
   };
 
+  // const numberValidation = {
+  //   onChange: ({ value }: { value: number }) => {
+  //     if (value < 0) return 'Number must be 0 or greater';
+  //     return undefined;
+  //   },
+  // };
+
   const numberValidation = {
-    onChange: ({ value }) => {
-      if (value === '' || value == null) return undefined;
-      if (value < 0) return 'Number must be 0 or greater';
+    onChange: (params: {
+      value: VariableValue;
+      fieldApi: { form: { store: unknown }; name: string };
+    }): string | undefined => {
+      const { value } = params;
+
+      // only validate numbers
+      if (typeof value === 'number') {
+        if (value < 0) return 'Number must be 0 or greater';
+      }
 
       return undefined;
     },
+  };
+
+  const NumberField: React.FC<FieldComponentProps> = (props) => {
+    // Provide defaults for props NumberInput expects
+    const { label = '', fieldLabel = label, ...rest } = props;
+
+    return (
+      <NumberInput
+        adornmentLeft={undefined}
+        adornmentRight={undefined}
+        label={label}
+        fieldLabel={fieldLabel}
+        {...rest} // spread any remaining props from Form
+      />
+    );
   };
 
   const renderCensusForm = () => {
@@ -381,49 +408,49 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         {
           variable: 'brothers',
           label: 'How many brothers do you have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'sisters',
           label: 'How many sisters do you have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'sons',
           label: 'How many sons do you have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'daughters',
           label: 'How many daughters do you have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'maternal-uncles',
           label: 'How many brothers does your mother have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'maternal-aunts',
           label: 'How many sisters does your mother have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'paternal-uncles',
           label: 'How many brothers does your father have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
         {
           variable: 'paternal-aunts',
           label: 'How many sisters does your father have?',
-          Component: NumberInput,
+          Component: NumberField,
           validation: numberValidation,
         },
       ],
@@ -432,10 +459,15 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     const handleSubmitCensusForm = (data: {
       value: Record<string, VariableValue>;
     }) => {
-      const formData = data.value;
+      const numericFormData = Object.entries(data.value).reduce<
+        Record<string, number>
+      >((acc, [key, value]) => {
+        if (typeof value === 'number') acc[key] = value;
+        return acc;
+      }, {});
 
       moveForward();
-      generatePlaceholderNodes(formData);
+      generatePlaceholderNodes(numericFormData);
     };
 
     return (
@@ -453,7 +485,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   const renderNodeForm = () => {
-    const step3NameForm = stage.form;
+    const step3NameForm = stage.form as TForm;
 
     return (
       <div className="name-generator-interface">

@@ -92,13 +92,13 @@ const PedigreeStageMetadataEntrySchema = z.object({
   id: z.string(),
   gender: z.string(),
   label: z.string(),
-  isEgo: z.boolean(),
-  partnerId: z.string(),
-  exPartnerId: z.string(),
-  xPos: z.number(),
-  yPos: z.number(),
-  childIds: z.array(z.string()),
-  parentIds: z.array(z.string()),
+  isEgo: z.boolean().optional(),
+  partnerId: z.string().optional(),
+  exPartnerId: z.string().optional(),
+  xPos: z.number().optional(),
+  yPos: z.number().optional(),
+  childIds: z.array(z.string()).optional(),
+  parentIds: z.array(z.string()).optional(),
 });
 
 export type PedigreeStageMetadataEntry = z.infer<
