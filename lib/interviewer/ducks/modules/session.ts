@@ -88,26 +88,6 @@ export const StageMetadataSchema = z.record(
 export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 type StageMetadata = z.infer<typeof StageMetadataSchema>;
 
-const PedigreeStageMetadataEntrySchema = z.object({
-  id: z.string(),
-  gender: z.string(),
-  label: z.string(),
-  isEgo: z.boolean().optional(),
-  partnerId: z.string().optional(),
-  exPartnerId: z.string().optional(),
-  xPos: z.number().optional(),
-  yPos: z.number().optional(),
-  childIds: z.array(z.string()).optional(),
-  parentIds: z.array(z.string()).optional(),
-});
-
-export type PedigreeStageMetadataEntry = z.infer<
-  typeof PedigreeStageMetadataEntrySchema
->;
-
-const PedigreeStageMetadataSchema = z.array(PedigreeStageMetadataEntrySchema);
-export type PedigreeStageMetadata = z.infer<typeof PedigreeStageMetadataSchema>;
-
 export type SessionState = {
   id: string;
   startTime: string;
@@ -118,7 +98,6 @@ export type SessionState = {
   currentStep: number;
   promptIndex?: number;
   stageMetadata?: StageMetadata; // Used as temporary storage by DyadCensus/TieStrengthCensus
-  pedigreeStageMetadata?: PedigreeStageMetadata; // Used as temp storage by placeholder family nodes in FamilyTreeCensus
   stageRequiresEncryption?: boolean; // Set to true by the stage if it detects that nodes it creates require encryption
 };
 
@@ -126,7 +105,6 @@ const actionTypes = {
   updatePrompt: 'SESSION/UPDATE_PROMPT',
   updateStage: 'SESSION/UPDATE_STAGE',
   updateStageMetadata: 'SESSION/UPDATE_STAGE_METADATA',
-  updatePedigreeStageMetadata: 'SESSIONS/UPDATE_PEDIGREE_STAGE_METADATA',
   addNode: 'NETWORK/ADD_NODE' as const,
   deleteNode: 'NETWORK/DELETE_NODE' as const,
   updateNode: 'NETWORK/UPDATE_NODE' as const,
@@ -405,10 +383,6 @@ export const updateStageMetadata = createAction<StageMetadataEntry[]>(
   actionTypes.updateStageMetadata,
 );
 
-export const updatePedigreeStageMetadata = createAction<
-  PedigreeStageMetadataEntry[]
->(actionTypes.updatePedigreeStageMetadata);
-
 const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
@@ -686,13 +660,6 @@ const sessionReducer = createReducer(initialState, (builder) => {
         ...state.stageMetadata,
         [currentStep]: stageMetadata,
       },
-    });
-  });
-
-  builder.addCase(updatePedigreeStageMetadata, (state, action) => {
-    return withLastUpdated({
-      ...state,
-      pedigreeStageMetadata: action.payload,
     });
   });
 

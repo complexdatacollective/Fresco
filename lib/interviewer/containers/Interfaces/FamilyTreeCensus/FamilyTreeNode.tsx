@@ -2,9 +2,10 @@ import type { NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
 import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
-import { getPedigreeStageMetadata } from '~/lib/interviewer/selectors/session';
+import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
 import { useNodeLabel } from '../Anonymisation/useNodeLabel';
+import { getFamilyTreeNodes } from './censusMetadataUtil';
 
 const genderShapes: Record<string, string> = {
   male: 'square',
@@ -83,7 +84,10 @@ export const FamilyTreeNodeNetworkBacked = (props: PlaceholderNodeProps) => {
     handleClick = () => undefined,
   } = props;
 
-  const placeholderNodes = useSelector(getPedigreeStageMetadata);
+  const stageMetadata = useSelector(getStageMetadata);
+
+  const placeholderNodes = getFamilyTreeNodes(stageMetadata!);
+
   const ego = placeholderNodes?.find((n) => n.isEgo);
 
   function classifyRelation(node: Node, ego: Node): RelationKey | null {

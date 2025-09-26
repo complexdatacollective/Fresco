@@ -9,8 +9,11 @@ import { type FieldComponentProps } from '~/lib/form/types';
 import { useFieldContext } from '~/lib/form/utils/formContexts';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
-import { updatePedigreeStageMetadata } from '~/lib/interviewer/ducks/modules/session';
-import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
+import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import {
+  getNetworkEgo,
+  getStageMetadata,
+} from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Scroller } from '~/lib/ui/components';
 import {
@@ -22,6 +25,7 @@ import {
 } from '~/lib/ui/components/FamilyTree';
 import Prompt from '~/lib/ui/components/Prompts/Prompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+import { updateFamilyTreeMetadata } from './censusMetadataUtil';
 import CensusStep2Form from './CensusStep2Form';
 import FamilyTreeLayout from './FamilyTreeLayout';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
@@ -152,6 +156,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   };
 
   let keyCounter = 0;
+  const stageMetadata = useSelector(getStageMetadata);
 
   const generatePlaceholderNodes = (
     formData: Record<string, VariableValue>,
@@ -362,7 +367,9 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
     setPlaceholderNodesBulk(updatedNodes);
 
-    dispatch(updatePedigreeStageMetadata(updatedNodes));
+    const censusMetadata: [number, string, string, boolean][] =
+      updateFamilyTreeMetadata(stageMetadata ?? [], updatedNodes);
+    dispatch(updateStageMetadata(censusMetadata));
   };
 
   const numberValidation = {

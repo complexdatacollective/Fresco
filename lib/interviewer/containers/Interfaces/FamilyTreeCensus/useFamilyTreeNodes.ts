@@ -8,11 +8,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
   addNode,
-  updatePedigreeStageMetadata,
+  updateStageMetadata,
 } from '~/lib/interviewer/ducks/modules/session';
-import { getNetworkNodes } from '~/lib/interviewer/selectors/session';
+import {
+  getNetworkNodes,
+  getStageMetadata,
+} from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
+import { updateFamilyTreeMetadata } from './censusMetadataUtil';
 import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 const getStringNodeAttribute = (node: NcNode, key: string): string => {
@@ -46,6 +50,8 @@ function useFamilyTreeNodes(
     PlaceholderNodeProps[]
   >([]);
   const dispatch = useAppDispatch();
+
+  const stageMetadata = useSelector(getStageMetadata);
 
   const setPlaceholderNodesBulk = useCallback(
     (nodes: PlaceholderNodeProps[]) => {
@@ -100,8 +106,10 @@ function useFamilyTreeNodes(
   }, [placeholderNodes, networkNodesAsPlaceholders, networkNodes]);
 
   useEffect(() => {
-    dispatch(updatePedigreeStageMetadata(placeholderNodes));
-  }, [placeholderNodes, dispatch]);
+    const censusMetadata: [number, string, string, boolean][] =
+      updateFamilyTreeMetadata(stageMetadata ?? [], placeholderNodes);
+    dispatch(updateStageMetadata(censusMetadata));
+  }, [placeholderNodes]);
 
   const commitPlaceholderNode = useCallback(
     (

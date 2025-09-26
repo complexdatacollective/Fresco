@@ -9,10 +9,11 @@ import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
   getNodeTypeLabel,
-  getPedigreeStageMetadata,
+  getStageMetadata,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
+import { getFamilyTreeNodes } from './censusMetadataUtil';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
 import { useDynamicFields } from './useDynamicFields';
 import { usePlaceholderNodeFormSubmit } from './usePlaceholderNodeFormSubmit';
@@ -41,7 +42,8 @@ const CensusStep2Form = (props: NodeFormProps) => {
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
-  const step2Nodes = useSelector(getPedigreeStageMetadata);
+  const stageMetadata = useSelector(getStageMetadata);
+  const step2Nodes = getFamilyTreeNodes(stageMetadata!);
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);

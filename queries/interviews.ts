@@ -113,7 +113,7 @@ export const getInterviewById = async (interviewId: string) => {
       },
       participantId: 'cme0esbwe0003p5ezwm541nma',
       protocolId: 'cme0erq4d0000p5ezi593j7gn',
-      currentStep: 0,
+      currentStep: 1, // necessary for getStageMetadata to not return undefined
       stageMetadata: null,
       protocol: {
         id: 'cme0erq4d0000p5ezi593j7gn',
@@ -122,6 +122,7 @@ export const getInterviewById = async (interviewId: string) => {
         description: null,
         importedAt: '2025-08-06T20:16:11.005Z',
         stages: [
+          {},
           {
             id: 'e312ff80-7301-11f0-af9e-5d5fda83c493',
             label: 'Example2',
