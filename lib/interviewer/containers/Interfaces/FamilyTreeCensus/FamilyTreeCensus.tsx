@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import NumberInput from '~/lib/form/components/fields/Number';
 import Form from '~/lib/form/components/Form';
 import { type FieldComponentProps } from '~/lib/form/types';
+import { useFieldContext } from '~/lib/form/utils/formContexts';
 import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import {
@@ -364,32 +365,19 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     dispatch(updatePedigreeStageMetadata(updatedNodes));
   };
 
-  // const numberValidation = {
-  //   onChange: ({ value }: { value: number }) => {
-  //     if (value < 0) return 'Number must be 0 or greater';
-  //     return undefined;
-  //   },
-  // };
-
   const numberValidation = {
-    onChange: (params: {
-      value: VariableValue;
-      fieldApi: { form: { store: unknown }; name: string };
-    }): string | undefined => {
-      const { value } = params;
-
-      // only validate numbers
-      if (typeof value === 'number') {
-        if (value < 0) return 'Number must be 0 or greater';
-      }
-
+    onChange: ({ value }: { value: number }) => {
+      if (value < 0) return 'Number must be 0 or greater';
       return undefined;
     },
   };
 
   const NumberField: React.FC<FieldComponentProps> = (props) => {
-    // Provide defaults for props NumberInput expects
     const { label = '', fieldLabel = label, ...rest } = props;
+    const fieldContext = useFieldContext();
+
+    const safeValue =
+      fieldContext.state.value === 0 ? '0' : fieldContext.state.value;
 
     return (
       <NumberInput
@@ -397,7 +385,8 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         adornmentRight={undefined}
         label={label}
         fieldLabel={fieldLabel}
-        {...rest} // spread any remaining props from Form
+        value={safeValue}
+        {...rest}
       />
     );
   };
