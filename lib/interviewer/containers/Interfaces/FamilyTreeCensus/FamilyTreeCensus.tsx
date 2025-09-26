@@ -7,22 +7,24 @@ import NumberInput from '~/lib/form/components/fields/Number';
 import Form from '~/lib/form/components/Form';
 import { type FieldComponentProps } from '~/lib/form/types';
 import { useFieldContext } from '~/lib/form/utils/formContexts';
-import FamilyTreePlaceholderNodeList from '~/lib/interviewer/components/FamilyTreePlaceholderNodeList';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
+import { type StageProps } from '~/lib/interviewer/containers/Stage';
+import { updatePedigreeStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import {
   getNetworkEgo,
   getNetworkNodes,
 } from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { Scroller } from '~/lib/ui/components';
-import UIChildConnector from '~/lib/ui/components/FamilyTree/ChildConnector';
-import UIExPartnerConnector from '~/lib/ui/components/FamilyTree/ExPartnerConnector';
-import UIOffspringConnector from '~/lib/ui/components/FamilyTree/OffspringConnector';
-import UIPartnerConnector from '~/lib/ui/components/FamilyTree/PartnerConnector';
+import {
+  FamilyTreePlaceholderNodeList,
+  UIChildConnector,
+  UIExPartnerConnector,
+  UIOffspringConnector,
+  UIPartnerConnector,
+} from '~/lib/ui/components/FamilyTree';
 import Prompt from '~/lib/ui/components/Prompts/Prompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { updatePedigreeStageMetadata } from '../../../ducks/modules/session';
-import { useAppDispatch } from '../../../store';
-import { type StageProps } from '../../Stage';
 import CensusStep2Form from './CensusStep2Form';
 import FamilyTreeLayout from './FamilyTreeLayout';
 import type { PlaceholderNodeProps } from './FamilyTreeNode';
