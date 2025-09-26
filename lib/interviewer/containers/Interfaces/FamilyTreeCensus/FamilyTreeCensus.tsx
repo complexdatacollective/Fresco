@@ -93,6 +93,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   }
 
   const elementRef = useRef(null);
+  const step1FormRef = useRef<HTMLFormElement>(null);
   // keep an index to the step that we're viewing
   // and configure navigation logic
   const [activeIndex, setActiveIndex] = useState(0);
@@ -118,6 +119,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         }));
         setPlaceholderNodesBulk(nodesWithOffsets);
       }
+      step1FormRef.current?.requestSubmit();
       nextItem();
     } else if (direction === 'backwards') {
       previousItem();
@@ -467,6 +469,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             {...step1CensusForm}
             id="family-member-count-form"
             handleSubmit={handleSubmitCensusForm}
+            ref={step1FormRef}
           />
         </div>
       </div>
