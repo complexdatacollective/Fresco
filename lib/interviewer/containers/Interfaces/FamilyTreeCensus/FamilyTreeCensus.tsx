@@ -382,9 +382,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const NumberField: React.FC<FieldComponentProps> = (props) => {
     const { label = '', fieldLabel = label, ...rest } = props;
     const fieldContext = useFieldContext();
+    const fieldContextValue = fieldContext.state.value;
 
     const safeValue =
-      fieldContext.state.value === 0 ? '0' : fieldContext.state.value;
+      fieldContextValue === 0 || fieldContextValue === null
+        ? '0'
+        : fieldContextValue;
 
     return (
       <NumberInput
@@ -462,7 +465,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         return acc;
       }, {});
 
-      moveForward();
+      moveForward(); // fires along with beforeNext so twice if arrow nav is hit.
       generatePlaceholderNodes(numericFormData);
     };
 
