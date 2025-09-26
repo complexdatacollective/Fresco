@@ -3,11 +3,11 @@ import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
 import { memo, type ReactNode } from 'react';
 import { useDragSource, useDropTarget } from '~/lib/dnd';
-import { cn } from '~/utils/shadcn';
 import {
   MotionFamilyTreeNode,
   type PlaceholderNodeProps,
-} from '../containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import { cn } from '~/utils/shadcn';
 
 type DraggableMotionNodeProps = {
   node: PlaceholderNodeProps;

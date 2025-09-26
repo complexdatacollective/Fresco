@@ -5,12 +5,14 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   addNode,
   updatePedigreeStageMetadata,
 } from '~/lib/interviewer/ducks/modules/session';
+import { getNetworkNodes } from '~/lib/interviewer/selectors/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
-import { useAppDispatch } from '../../../store';
 import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 const getStringNodeAttribute = (node: NcNode, key: string): string => {
@@ -38,7 +40,6 @@ type UseFamilyTreeNodesReturn = {
 };
 
 function useFamilyTreeNodes(
-  networkNodes: NcNode[],
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>,
 ): UseFamilyTreeNodesReturn {
   const [placeholderNodes, setPlaceholderNodes] = useState<
@@ -56,6 +57,8 @@ function useFamilyTreeNodes(
     },
     [],
   );
+
+  const networkNodes = useSelector(getNetworkNodes);
 
   const networkNodesAsPlaceholders = useMemo(() => {
     const existingMap = new Map(placeholderNodes.map((p) => [p.id, p]));

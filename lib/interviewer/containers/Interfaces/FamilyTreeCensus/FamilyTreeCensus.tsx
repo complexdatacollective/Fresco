@@ -10,10 +10,7 @@ import { useFieldContext } from '~/lib/form/utils/formContexts';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { updatePedigreeStageMetadata } from '~/lib/interviewer/ducks/modules/session';
-import {
-  getNetworkEgo,
-  getNetworkNodes,
-} from '~/lib/interviewer/selectors/session';
+import { getNetworkEgo } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Scroller } from '~/lib/ui/components';
 import {
@@ -46,14 +43,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { getNavigationHelpers, registerBeforeNext, stage } = props;
 
   const networkEgo = useSelector(getNetworkEgo);
-  const networkNodes = useSelector(getNetworkNodes);
 
   const {
     setPlaceholderNodesBulk,
     allNodes,
     commitPlaceholderNode,
     removePlaceholderNode,
-  } = useFamilyTreeNodes(networkNodes, stage);
+  } = useFamilyTreeNodes(stage);
 
   const positionedNodes = useMemo(() => {
     if (allNodes.length === 0) return [];
