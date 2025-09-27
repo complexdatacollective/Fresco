@@ -465,7 +465,11 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         return acc;
       }, {});
 
-      moveForward(); // fires along with beforeNext so twice if arrow nav is hit.
+      // blocks a second moveForward if the nav arrow is clicked
+      if (step1FormRef.current) {
+        moveForward();
+      }
+
       generatePlaceholderNodes(numericFormData);
     };
 
