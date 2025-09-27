@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import type { PlaceholderNodeProps } from './FamilyTreeNode';
-import { useRelatives } from './useRelatives';
+import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 
 type VariableValue = string | number | boolean | null;
 
@@ -40,7 +40,7 @@ export function usePlaceholderNodeFormSubmit({
       let newNode: PlaceholderNodeProps;
       let newNodeParentIds: string[] = [];
 
-      // Decide maternal vs paternal prefix
+      // decide maternal vs paternal prefix
       const relationLabel =
         step2Nodes.find(
           (n) => n.id === fullData[`${fullData.relation}Relation`],
@@ -325,7 +325,6 @@ export function usePlaceholderNodeFormSubmit({
           return;
       }
 
-      // 🔑 Generic case → update parents + new node
       const updatedParents = parentsArray.map((parent) => ({
         ...parent,
         childIds: [...(parent.childIds ?? []), newNode.id],

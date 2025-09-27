@@ -1,4 +1,4 @@
-import { type PlaceholderNodeProps } from './FamilyTreeNode';
+import { type PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 
 type StageMetadataSchema = [number, string, string, boolean];
 const FAMILY_TREE_KEY = 'allCensusNodes';

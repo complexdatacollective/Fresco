@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { PlaceholderNodeProps } from './FamilyTreeNode';
+import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 
 export type RelativeOption = { label: string; value: string };
 

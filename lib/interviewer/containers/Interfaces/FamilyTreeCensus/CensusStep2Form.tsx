@@ -4,6 +4,11 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
+import { getFamilyTreeNodes } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/censusMetadataUtil';
+import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
+import { usePlaceholderNodeFormSubmit } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/usePlaceholderNodeFormSubmit';
+import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
@@ -13,11 +18,6 @@ import {
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
-import { getFamilyTreeNodes } from './censusMetadataUtil';
-import type { PlaceholderNodeProps } from './FamilyTreeNode';
-import { useDynamicFields } from './useDynamicFields';
-import { usePlaceholderNodeFormSubmit } from './usePlaceholderNodeFormSubmit';
-import { useRelatives } from './useRelatives';
 
 type NodeFormProps = {
   selectedNode: NcNode | null;
@@ -37,6 +37,16 @@ const CensusStep2Form = (props: NodeFormProps) => {
     setPlaceholderNodes,
     egoNodeId,
   } = props;
+
+  const getInitialValues = useCallback(
+    () => selectedNode?.[entityAttributesProperty] ?? {},
+    [selectedNode],
+  );
+
+  const handleClose = useCallback(() => {
+    setShow(false);
+    onClose();
+  }, [onClose]);
 
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
@@ -74,16 +84,6 @@ const CensusStep2Form = (props: NodeFormProps) => {
     setShow,
     onClose,
   });
-
-  const getInitialValues = useCallback(
-    () => selectedNode?.[entityAttributesProperty] ?? {},
-    [selectedNode],
-  );
-
-  const handleClose = useCallback(() => {
-    setShow(false);
-    onClose();
-  }, [onClose]);
 
   return (
     <>

@@ -2,10 +2,10 @@ import type { NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
 import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
+import { useNodeLabel } from '~/lib/interviewer/containers/Interfaces/Anonymisation/useNodeLabel';
+import { getFamilyTreeNodes } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/censusMetadataUtil';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import UINode from '~/lib/ui/components/FamilyTree/FamilyTreeNode';
-import { useNodeLabel } from '../Anonymisation/useNodeLabel';
-import { getFamilyTreeNodes } from './censusMetadataUtil';
 
 const genderShapes: Record<string, string> = {
   male: 'square',

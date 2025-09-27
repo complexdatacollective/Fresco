@@ -1,10 +1,10 @@
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
-  NcNode,
+  type NcNode,
 } from '@codaco/shared-consts';
+import { type PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
-import { PlaceholderNodeProps } from './FamilyTreeNode';
 
 const getStringNodeAttribute = (node: NcNode, attribute: string): string => {
   let value = getEntityAttributes(node)[attribute];
@@ -48,7 +48,7 @@ class FamilyTreeNodeList {
     const placeholderNodeFromNetworkNode = (
       node: NcNode,
     ): PlaceholderNodeProps => {
-      let parents = node[entityAttributesProperty]['parents'];
+      let parents = node[entityAttributesProperty].parents;
       parents = typeof parents == 'object' ? parents : 0;
       return {
         id: node[entityPrimaryKeyProperty],

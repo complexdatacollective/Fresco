@@ -8,6 +8,16 @@ import Form from '~/lib/form/components/Form';
 import { type FieldComponentProps } from '~/lib/form/types';
 import { useFieldContext } from '~/lib/form/utils/formContexts';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
+import { updateFamilyTreeMetadata } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/censusMetadataUtil';
+import CensusStep2Form from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/CensusStep2Form';
+import FamilyTreeLayout from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeLayout';
+import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import {
+  FamilyTreeNode,
+  FamilyTreeNodeNetworkBacked,
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import FamilyTreeNodeForm from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNodeForm';
+import useFamilyTreeNodes from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useFamilyTreeNodes';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import {
@@ -25,13 +35,6 @@ import {
 } from '~/lib/ui/components/FamilyTree';
 import Prompt from '~/lib/ui/components/Prompts/Prompt';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { updateFamilyTreeMetadata } from './censusMetadataUtil';
-import CensusStep2Form from './CensusStep2Form';
-import FamilyTreeLayout from './FamilyTreeLayout';
-import type { PlaceholderNodeProps } from './FamilyTreeNode';
-import { FamilyTreeNode, FamilyTreeNodeNetworkBacked } from './FamilyTreeNode';
-import FamilyTreeNodeForm from './FamilyTreeNodeForm';
-import useFamilyTreeNodes from './useFamilyTreeNodes';
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;

@@ -11,12 +11,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
+import { type PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import Overlay from '~/lib/interviewer/containers/Overlay';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
+import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
-import { getAdditionalAttributesSelector } from '../../../selectors/prop';
-import { useAppDispatch } from '../../../store';
-import Overlay from '../../Overlay';
-import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 type FamilyTreeNodeFormProps = {
   selectedNode: PlaceholderNodeProps | NcNode | null;

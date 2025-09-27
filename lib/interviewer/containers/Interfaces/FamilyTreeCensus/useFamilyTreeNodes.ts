@@ -6,6 +6,8 @@ import {
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { updateFamilyTreeMetadata } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/censusMetadataUtil';
+import { type PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 import {
   addNode,
   updateStageMetadata,
@@ -16,8 +18,6 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
-import { updateFamilyTreeMetadata } from './censusMetadataUtil';
-import { type PlaceholderNodeProps } from './FamilyTreeNode';
 
 const getStringNodeAttribute = (node: NcNode, key: string): string => {
   const val = getEntityAttributes(node)[key];

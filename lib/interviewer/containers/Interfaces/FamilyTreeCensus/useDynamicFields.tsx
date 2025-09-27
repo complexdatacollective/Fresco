@@ -4,9 +4,9 @@ import {
   buildBaseOptions,
   createRelationField,
   getRelationFlags,
-} from './dynamicFieldsUtils';
-import type { PlaceholderNodeProps } from './FamilyTreeNode';
-import { type RelativeOption } from './useRelatives';
+} from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/dynamicFieldsUtils';
+import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import { type RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 
 export type FieldConfig = {
   fieldLabel: string;
