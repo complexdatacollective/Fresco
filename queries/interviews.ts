@@ -1,4 +1,4 @@
-import { VersionedProtocol } from '@codaco/protocol-validation';
+import { type VersionedProtocol } from '@codaco/protocol-validation';
 import 'server-only';
 import { stringify } from 'superjson';
 import { prisma } from '~/utils/db';
