@@ -11,10 +11,10 @@ export default function CloseButton(props: CloseButtonProps) {
   const { className, ...rest } = props;
   return (
     <Button
-      {...rest}
       title="Close"
       variant="text"
       size="icon"
+      {...rest}
       className={cx('absolute top-2 ltr:right-2 rtl:left-2', className)}
     >
       <X />

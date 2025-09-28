@@ -95,6 +95,9 @@ export default plugin.withOptions<PluginConfig>(
       };
 
       const shadowUtilities: Record<string, Record<string, string>> = {
+        '.elevation-none': {
+          'box-shadow': 'none',
+        },
         '.elevation-low': {
           'box-shadow': generateShadow('low'),
         },

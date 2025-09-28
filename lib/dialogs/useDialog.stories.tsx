@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { StoryObj } from '@storybook/react';
+import type { StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
 import { useDialog } from './DialogProvider';
@@ -40,12 +40,11 @@ export const Default: Story = {
     const confirmDialog = async () => {
       // Return type should be boolean | null
       const result = await openDialog({
-        type: 'confirm',
+        type: 'acknowledge',
         title: 'Confirm dialog title',
         description:
           'confirm dialog description, which is read by screen readers',
-        cancelText: 'Custom cancel text',
-        confirmText: 'Custom confirm text',
+        actions: { primary: { label: 'Continue', value: true } },
       });
 
       console.log('got result', result);

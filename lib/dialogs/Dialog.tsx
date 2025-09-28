@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'motion/react';
 import React, { forwardRef, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
@@ -11,7 +10,6 @@ import { cx } from '~/utils/cva';
 export type DialogProps = {
   title: string;
   description?: string;
-  footer?: React.ReactNode;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
 } & React.DialogHTMLAttributes<HTMLDialogElement>;
@@ -35,10 +33,7 @@ export type DialogProps = {
  *   observer... but that's a bit much)
  */
 export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
-  (
-    { title, description, children, closeDialog, accent, footer, ...rest },
-    ref,
-  ) => {
+  ({ title, description, children, closeDialog, accent, ...rest }, ref) => {
     const id = useId();
     // TODO: automatic focus on least destructive action, or initialFocusEl ref.
     return (
@@ -49,43 +44,40 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         onClose={closeDialog} // Needed so that closing via keyboard still returns a value
         className={cx(
           'spring-discrete-medium',
-          'bg-transparent', // Or else rounded corner content will have white edges
-          'backdrop:bg-charcoal/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
+          'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
+          'backdrop:bg-navy-taupe/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
           'backdrop:transition-opacity',
           'backdrop:duration-300',
           'backdrop:transition-discrete',
           'm-auto not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
-          'elevation-high [--bg-scope:oklch(50%_0_0)]',
+          '[--bg-scope:oklch(50%_0_0)]',
+
+          // Accent overrides the primary hue so that nested buttons inherit color
+          accent === 'success' && '[--color-primary:var(--color-success)]',
+          accent === 'warning' && '[--color-primary:var(--color-warning)]',
+          accent === 'info' && '[--color-primary:var(--color-info)]',
+          accent === 'danger' && '[--color-primary:var(--color-destructive)]',
         )}
         {...rest}
       >
         <Surface
-          as={motion.div}
-          layout="size"
           level={0}
           className={cx(
-            'text-surface-0-contrast max-h-10/12 w-2xl overflow-hidden rounded-lg',
-
-            // Accent overrides the primary hue so that nested buttons inherit color
-            accent === 'success' && '[--color-primary:var(--color-success)]',
-            accent === 'warning' && '[--color-primary:var(--color-warning)]',
-            accent === 'info' && '[--color-primary:var(--color-info)]',
-            accent === 'danger' && '[--color-primary:var(--color-destructive)]',
-            'border-b-primary border-b-4',
+            'w-full md:w-auto',
+            'max-w-2xl',
+            'max-h-10/12',
+            'border-b-primary elevation-none overflow-hidden rounded-lg border-b-4',
           )}
         >
-          <Heading variant="h2" id={`${id}-title`}>
+          <Heading variant="h2" id={`${id}-title`} className="me-8">
             {title}
           </Heading>
           {description && (
-            <Paragraph id={`${id}-description`}>{description}</Paragraph>
+            <Paragraph id={`${id}-description`} intent="lead" className="mb-4">
+              {description}
+            </Paragraph>
           )}
-          <div className="mt-4 flex-grow overflow-y-auto">{children}</div>
-          {footer && (
-            <footer className="mt-6 flex flex-row-reverse justify-start gap-3 rtl:flex-row rtl:justify-end">
-              {footer}
-            </footer>
-          )}
+          {children}
           <CloseButton onClick={closeDialog} />
         </Surface>
       </dialog>

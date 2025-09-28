@@ -39,10 +39,10 @@ const DialogTemplate = (args: DialogProps) => (
     ref={undefined}
     footer={
       <>
+        <Button onClick={args.closeDialog}>Cancel</Button>
         <Button color="primary" onClick={args.closeDialog}>
           Continue
         </Button>
-        <Button onClick={args.closeDialog}>Cancel</Button>
       </>
     }
   >

@@ -8,19 +8,19 @@ const surfaceVariants = cva({
   base: 'rounded-xl',
   variants: {
     level: {
-      0: 'bg-surface text-surface-contrast border border-surface-contrast/10 elevation-high [--text:var(--color-surface-contrast)] [--background:var(--color-surface)]',
-      1: 'bg-surface-1 text-surface-1-contrast elevation-medium [--text:var(--color-surface-1-contrast)] [--background:var(--color-surface-1)]',
-      2: 'bg-surface-2 text-surface-2-contrast elevation-medium [--text:var(--color-surface-2-contrast)] [--background:var(--color-surface-2)]',
-      3: 'bg-surface-3 text-surface-3-contrast elevation-medium [--text:var(--color-surface-3-contrast)] [--background:var(--color-surface-3)]',
-      4: 'bg-surface-4 text-surface-4-contrast elevation-low [--text:var(--color-surface-4-contrast)] [--background:var(--color-surface-4)]',
+      0: 'bg-surface text-surface-contrast border border-surface-contrast/10 elevation-high [--color-text:var(--color-surface-contrast)] [--color-background:var(--color-surface)]',
+      1: 'bg-surface-1 text-surface-1-contrast elevation-medium [--color-text:var(--color-surface-1-contrast)] [--color-background:var(--color-surface-1)]',
+      2: 'bg-surface-2 text-surface-2-contrast elevation-medium [--color-text:var(--color-surface-2-contrast)] [--color-background:var(--color-surface-2)]',
+      3: 'bg-surface-3 text-surface-3-contrast elevation-medium [--color-text:var(--color-surface-3-contrast)] [--color-background:var(--color-surface-3)]',
+      4: 'bg-surface-4 text-surface-4-contrast elevation-low [--color-text:var(--color-surface-4-contrast)] [--color-background:var(--color-surface-4)]',
     },
     spacing: {
       none: '',
       xs: 'px-2 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 lg:px-4 lg:py-2',
       sm: 'px-4 py-2 sm:px-4 sm:py-2 md:px-6 md:py-4 lg:px-8 lg:py-6',
       md: 'px-8 py-6 md:px-10 md:py-8 lg:px-12 lg:py-8',
-      lg: 'px-8 py-6 sm:px-10 sm:py-8 md:px-12 md:py-10 lg:px-16 lg:py-10',
-      xl: 'px-10 py-8 sm:px-12 sm:py-10 md:px-16 md:py-12 lg:px-20 lg:py-12',
+      lg: 'px-10 py-8 sm:px-10 sm:py-8 md:px-16 md:py-12 lg:px-20 lg:py-16',
+      xl: 'px-10 py-8 sm:px-10 sm:py-8 md:px-20 md:py-16 lg:px-28 lg:py-20',
     },
   },
   defaultVariants: {

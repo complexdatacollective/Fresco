@@ -12,27 +12,48 @@ import { Button } from '~/components/ui/Button';
 import { generatePublicId } from '~/utils/generatePublicId';
 import { Dialog } from './Dialog';
 
-type ConfirmDialog = {
-  type: 'confirm';
-  hideCancel?: boolean;
-  confirmText?: string;
-  cancelText?: string;
-  children?: React.ReactNode;
+type DialogActions<P = unknown, S = unknown, C = unknown> = {
+  primary: {
+    label: string;
+    value: P;
+  };
+  secondary?: {
+    label: string;
+    value: S;
+  };
+  cancel: {
+    label: string;
+    value: C;
+  };
 };
 
-type CustomDialog<T> = {
-  type: 'custom';
-  renderContent: (resolve: (value: T | null) => void) => React.ReactNode;
-};
-
-type Dialog<T> = {
+type BaseDialog = {
   id?: string;
   title: string;
   description: string;
-  accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
-} & (ConfirmDialog | CustomDialog<T>);
+  intent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
+  children?: React.ReactNode;
+};
 
-type DialogState = Dialog<unknown> & {
+type AcknowledgeDialog = BaseDialog & {
+  type: 'acknowledge';
+  actions: Omit<DialogActions<boolean>, 'secondary' | 'cancel'>;
+};
+
+// Make a choice - no is a valid option
+type ChoiceDialog<P = unknown, S = unknown, C = null> = BaseDialog & {
+  type: 'choice';
+  intent: 'default' | 'danger' | 'success' | 'warning' | 'info';
+  actions: DialogActions<P, S, C>;
+};
+
+type CustomDialog = BaseDialog & {
+  type: 'custom';
+};
+
+type Dialog<P, S, C> = AcknowledgeDialog | ChoiceDialog<P, S, C> | CustomDialog;
+
+type DialogState = Dialog<unknown, unknown, unknown> & {
   id: string;
   resolveCallback: (value: unknown) => void;
   ref: RefObject<HTMLDialogElement>;
@@ -40,7 +61,9 @@ type DialogState = Dialog<unknown> & {
 
 type DialogContextType = {
   closeDialog: <T = boolean>(id: string, value: T | null) => Promise<void>;
-  openDialog: <T = boolean>(dialogProps: Dialog<T>) => Promise<T | null>;
+  openDialog: <P = unknown, S = unknown, C = unknown>(
+    dialogProps: Dialog<P, S, C>,
+  ) => Promise<T | null>;
 };
 
 const DialogContext = createContext<DialogContextType | null>(null);
@@ -51,7 +74,9 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [dialogs, setDialogs] = useState<DialogState[]>([]);
 
   const openDialog = useCallback(
-    async <T = boolean,>(dialogProps: Dialog<T>): Promise<T | null> => {
+    async <P = unknown, S = unknown, C = unknown>(
+      dialogProps: Dialog<P, S, C>,
+    ): Promise<T | null> => {
       const dialogRef = React.createRef<HTMLDialogElement>();
 
       return new Promise((resolveCallback) => {
@@ -76,7 +101,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const closeDialog = useCallback(
-    async <T = boolean,>(id: string, value: T | null) => {
+    async <T = boolean,>(id: string, value: T | null = null) => {
       const dialog = dialogs.find((dialog) => dialog.id === id);
 
       if (!dialog) {
@@ -103,55 +128,87 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
     openDialog,
   };
 
+  const renderDialogActions = (dialog: DialogState) => {
+    if (dialog.type === 'acknowledge') {
+      return (
+        <Button
+          color="primary"
+          onClick={() => closeDialog(dialog.id, dialog.actions.primary.value)}
+        >
+          {dialog.actions.primary.label}
+        </Button>
+      );
+    }
+
+    if (dialog.type === 'choice') {
+      // Calculate which button should be autofocused based on the dialog intent
+      // Aim: least destructive action
+      // If danger, focus cancel
+      // If warning, focus secondary (if exists) or cancel
+      // Otherwise, focus primary
+      let autoFocusButton: 'primary' | 'secondary' | 'cancel' = 'primary';
+      if (dialog.intent === 'danger') {
+        autoFocusButton = 'cancel';
+      } else if (dialog.intent === 'warning') {
+        autoFocusButton = dialog.actions.secondary ? 'secondary' : 'cancel';
+      }
+
+      // Render buttons in order: secondary, cancel, primary
+      // Primary is visually highlighted
+      // Cancel is not always present
+      // Secondary is optional
+      return (
+        <>
+          {dialog.actions.secondary && (
+            <Button
+              onClick={() =>
+                closeDialog(dialog.id, dialog.actions.secondary!.value)
+              }
+              autoFocus={autoFocusButton === 'secondary'}
+            >
+              {dialog.actions.secondary.label}
+            </Button>
+          )}
+          {dialog.actions.cancel && (
+            <Button
+              onClick={() =>
+                closeDialog(dialog.id, dialog.actions.cancel.value)
+              }
+              autoFocus={autoFocusButton === 'cancel'}
+            >
+              {dialog.actions.cancel.label}
+            </Button>
+          )}
+          <Button
+            color="primary"
+            onClick={() => closeDialog(dialog.id, dialog.actions.primary.value)}
+            autoFocus={autoFocusButton === 'primary'}
+          >
+            {dialog.actions.primary.label}
+          </Button>
+        </>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <DialogContext.Provider value={contextValue}>
       {children}
-      {dialogs.map((dialog) => {
-        if (dialog.type === 'confirm') {
-          return (
-            <Dialog
-              key={dialog.id}
-              title={dialog.title}
-              description={dialog.description}
-              closeDialog={() => closeDialog(dialog.id, null)}
-              accent={dialog.accent}
-              ref={dialog.ref}
-              footer={
-                <>
-                  <Button
-                    onClick={() => closeDialog(dialog.id, true)}
-                    color="primary"
-                  >
-                    {dialog.confirmText ?? 'Acknowledge'}
-                  </Button>
-                  {!dialog.hideCancel && (
-                    <Button onClick={() => closeDialog(dialog.id, null)}>
-                      {dialog.cancelText ?? 'Cancel'}
-                    </Button>
-                  )}
-                </>
-              }
-            >
-              {dialog.children}
-            </Dialog>
-          );
-        }
-
-        if (dialog.type === 'custom') {
-          return (
-            <Dialog
-              key={dialog.id}
-              title={dialog.title}
-              description={dialog.description}
-              closeDialog={() => closeDialog(dialog.id, null)}
-              accent={dialog.accent}
-              ref={dialog.ref}
-            >
-              {dialog.renderContent((value) => closeDialog(dialog.id, value))}
-            </Dialog>
-          );
-        }
-      })}
+      {dialogs.map((dialog) => (
+        <Dialog
+          key={dialog.id}
+          title={dialog.title}
+          description={dialog.description}
+          closeDialog={() => closeDialog(dialog.id)}
+          accent={dialog.intent}
+          ref={dialog.ref}
+        >
+          {dialog.children}
+          {renderDialogActions(dialog)}
+        </Dialog>
+      ))}
     </DialogContext.Provider>
   );
 };

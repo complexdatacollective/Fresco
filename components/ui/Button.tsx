@@ -8,7 +8,7 @@ import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
   base: cx(
-    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded-full text-sm tracking-wide transition-colors cursor-pointer',
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded-full text-md tracking-wide transition-colors cursor-pointer',
     'disabled:pointer-events-none disabled:cursor-not-allowed disabled:saturate-50',
   ),
   variants: {
@@ -47,10 +47,10 @@ const buttonVariants = cva({
       right: 'flex-row-reverse',
     },
     size: {
-      xs: 'h-8 w-full px-3 text-xs sm:w-auto',
-      sm: 'h-10 w-full px-4 text-base-sm sm:w-auto',
-      default: 'h-12 w-full px-8 sm:w-auto',
-      lg: 'h-16 w-full px-8 text-base sm:w-auto',
+      xs: 'h-8 px-3 text-xs sm:w-auto',
+      sm: 'h-10 px-4 text-base-sm sm:w-auto',
+      default: 'h-12 px-8 sm:w-auto',
+      lg: 'h-16 px-8 text-base sm:w-auto',
       icon: 'flex h-10 w-10 shrink-0 rounded-full',
     },
   },

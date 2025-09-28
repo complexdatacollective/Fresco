@@ -6,7 +6,7 @@ import { cva, cx, type VariantProps } from '~/utils/cva';
 export const paragraphVariants = cva({
   base: 'text-pretty font-normal',
   variants: {
-    style: {
+    intent: {
       default: '',
       blockquote: 'mt-6 border-l-2 pl-6 italic',
       inlineCode:
@@ -25,25 +25,25 @@ export const paragraphVariants = cva({
     },
   },
   defaultVariants: {
-    style: 'default',
+    intent: 'default',
     margin: 'default',
   },
 });
 
 type ParagraphProps = {
-  style?: VariantProps<typeof paragraphVariants>['style'];
+  intent?: VariantProps<typeof paragraphVariants>['intent'];
   emphasis?: VariantProps<typeof paragraphVariants>['emphasis'];
   margin?: VariantProps<typeof paragraphVariants>['margin'];
   asChild?: boolean;
 } & React.HTMLAttributes<HTMLParagraphElement>;
 
 const Paragraph = forwardRef<HTMLParagraphElement, ParagraphProps>(
-  ({ className, style, margin, emphasis, ...props }, ref) => {
+  ({ className, intent, margin, emphasis, ...props }, ref) => {
     return (
       <p
         ref={ref}
         className={cx(
-          paragraphVariants({ style, margin, emphasis, className }),
+          paragraphVariants({ intent, margin, emphasis, className }),
         )}
         {...props}
       />
