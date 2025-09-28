@@ -8,6 +8,7 @@ import { type SessionState } from '../ducks/modules/session';
 
 // Sync data implemented as fetch request
 const syncFn = async (id: string, data: SessionState) => {
+  console.log('syncfn', id);
   try {
     // eslint-disable-next-line no-console
     console.log('🚀 Syncing data with server...');
