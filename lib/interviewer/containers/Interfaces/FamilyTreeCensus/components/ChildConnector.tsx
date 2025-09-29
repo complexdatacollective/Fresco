@@ -5,7 +5,7 @@ import { forwardRef } from 'react';
  * Renders a connector between children and their parents' offspring connector.
  */
 
-const FamilyTreeChildConnector = forwardRef<
+const ChildConnector = forwardRef<
   HTMLDivElement,
   {
     xStartPos: number;
@@ -50,6 +50,6 @@ const FamilyTreeChildConnector = forwardRef<
   );
 });
 
-FamilyTreeChildConnector.displayName = 'FamilyTreeChildConnector';
+ChildConnector.displayName = 'ChildConnector';
 
-export default FamilyTreeChildConnector;
+export default ChildConnector;

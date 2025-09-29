@@ -5,7 +5,7 @@ import { forwardRef } from 'react';
  * Renders a connector between parents and children.
  */
 
-const FamilyTreeOffspringConnector = forwardRef<
+const OffspringConnector = forwardRef<
   HTMLDivElement,
   { xPos: number; yStartPos: number; yEndPos: number }
 >((props, ref) => {
@@ -27,6 +27,6 @@ const FamilyTreeOffspringConnector = forwardRef<
   );
 });
 
-FamilyTreeOffspringConnector.displayName = 'FamilyTreeOffspringConnector';
+OffspringConnector.displayName = 'OffspringConnector';
 
-export default FamilyTreeOffspringConnector;
+export default OffspringConnector;

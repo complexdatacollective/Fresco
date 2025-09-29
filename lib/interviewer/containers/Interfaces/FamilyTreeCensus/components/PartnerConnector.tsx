@@ -5,7 +5,7 @@ import { forwardRef } from 'react';
  * Renders a connector between partners.
  */
 
-const FamilyTreePartnerConnector = forwardRef<
+const PartnerConnector = forwardRef<
   HTMLDivElement,
   { xStartPos?: number; xEndPos?: number; yPos?: number }
 >((props, ref) => {
@@ -38,6 +38,6 @@ const FamilyTreePartnerConnector = forwardRef<
   );
 });
 
-FamilyTreePartnerConnector.displayName = 'FamilyTreePartnerConnector';
+PartnerConnector.displayName = 'PartnerConnector';
 
-export default FamilyTreePartnerConnector;
+export default PartnerConnector;

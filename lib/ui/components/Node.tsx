@@ -17,11 +17,12 @@ export type NodeColorSequence = (typeof NodeColors)[number];
 
 type UINodeProps = {
   color?: NodeColorSequence;
+  shape?: 'circle' | 'square';
   label?: string;
   selected?: boolean;
   linking?: boolean;
   loading?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 } & Omit<HTMLAttributes<HTMLButtonElement>, 'color'> & {
     disabled?: boolean;
   };
@@ -33,6 +34,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
   const {
     label = 'Node',
     color = 'node-color-seq-1',
+    shape = 'circle',
     selected = false,
     linking = false,
     loading = false,
@@ -40,9 +42,11 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     ...buttonProps
   } = props;
   const classes = cn(
-    'inline-flex items-center justify-center rounded-full shadow-lg relative transition-all duration-300 spring-[0.2,0.5]',
+    'inline-flex items-center justify-center shadow-lg relative transition-all duration-300',
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
+    shape === 'square' ? 'rounded-md' : 'rounded-full',
+    size === 'xs' && 'h-24 w-24',
     size === 'sm' && 'h-32 w-32',
     size === 'md' && 'h-40 w-40',
     size === 'lg' && 'h-48 w-48',
