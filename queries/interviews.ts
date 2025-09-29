@@ -161,7 +161,7 @@ export const getInterviewById = async (interviewId: string) => {
         edgeType: 'family',
         edgeVariable: 'relationship',
         step1: {
-          text: 'Build your family',
+          text: 'First, enter the number of each type of family member in your family tree. These will be used to create placeholders in the next step.',
         },
         step2: {
           text: 'Here is your family. You may add additional relatives by using the person icon in the bottom right corner. To remove any relative, drag toward the bottom center of the screen where a trash icon will appear.',
