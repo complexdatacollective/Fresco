@@ -4,8 +4,8 @@ import { useStore } from 'zustand';
 import { createUseState } from '~/utils/createUseState';
 import {
   createFamilyTreeStore,
-  FamilyTreeStore,
-  FamilyTreeStoreApi,
+  type FamilyTreeStore,
+  type FamilyTreeStoreApi,
 } from './store';
 
 const FamilyTreeContext = createContext<FamilyTreeStoreApi | undefined>(

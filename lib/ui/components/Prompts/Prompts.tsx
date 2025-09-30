@@ -1,4 +1,4 @@
-import { Prompt as TPrompt } from '@codaco/protocol-validation';
+import { type Prompt as TPrompt } from '@codaco/protocol-validation';
 import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';

@@ -22,7 +22,7 @@ type UINodeProps = {
   selected?: boolean;
   linking?: boolean;
   loading?: boolean;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
+  size?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
 } & Omit<HTMLAttributes<HTMLButtonElement>, 'color'> & {
     disabled?: boolean;
   };
@@ -46,6 +46,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     'disabled:saturate-50 disabled:cursor-not-allowed',
     'text-white text-lg font-semibold',
     shape === 'square' ? 'rounded-md' : 'rounded-full',
+    size === 'xxs' && 'h-18 w-18',
     size === 'xs' && 'h-24 w-24',
     size === 'sm' && 'h-32 w-32',
     size === 'md' && 'h-40 w-40',

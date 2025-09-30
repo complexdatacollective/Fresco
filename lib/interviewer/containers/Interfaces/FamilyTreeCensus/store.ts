@@ -130,8 +130,8 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
       // Layout algorithm
       const runFamilyTreeLayout = (
         spacing: TreeSpacing = {
-          siblings: 200,
-          partners: 200, // Node size is 180, so 200 leaves a small gap
+          siblings: 250,
+          partners: 200, // Keep in sync with node size!
           generations: 200,
         },
       ): Map<string, { x: number; y: number }> => {
@@ -296,8 +296,14 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
                   const centerX =
                     childXPositions.reduce((a, b) => a + b, 0) /
                     childXPositions.length;
-                  const leftX = Math.max(nextX, centerX - spacing.partners / 2);
-                  const rightX = leftX + spacing.partners;
+                  let leftX = centerX - spacing.partners / 2;
+                  let rightX = centerX + spacing.partners / 2;
+
+                  // Adjust positions if they conflict with nextX
+                  if (nextX > 0) {
+                    leftX = Math.max(nextX, leftX);
+                    rightX = Math.max(nextX + spacing.partners, rightX);
+                  }
 
                   positions.set(nodeId, { x: leftX, y });
                   positions.set(partnerId, { x: rightX, y });
