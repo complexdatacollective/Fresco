@@ -4,8 +4,8 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 export const FAMILY_TREE_CONFIG = {
-  nodeContainerWidth: 180,
-  nodeContainerHeight: 180,
+  nodeContainerWidth: 150,
+  nodeContainerHeight: 160,
   nodeWidth: 80,
   nodeHeight: 80,
   padding: 40,
@@ -25,7 +25,7 @@ enableMapSet();
 
 type Gender = 'male' | 'female';
 
-type Node = {
+export type Node = {
   id?: string;
   label: string;
   gender: Gender;
@@ -35,7 +35,7 @@ type Node = {
   y?: number;
 };
 
-type Edge = {
+export type Edge = {
   id?: string;
   source: string;
   target: string;
