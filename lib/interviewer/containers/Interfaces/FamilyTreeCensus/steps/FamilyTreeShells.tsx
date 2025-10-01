@@ -1,7 +1,7 @@
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import AddFamilyMemberForm from '../components/AddFamilyMemberForm';
 import EdgeRenderer from '../components/EdgeRenderer';
 import FamilyTreeNode from '../components/FamilyTreeNode';
+import { CensusForm } from './CensusForm';
 
 export const FamilyTreeShells = () => {
   const getNodesArray = useFamilyTreeStore((state) => state.getNodesAsArray);
@@ -9,8 +9,7 @@ export const FamilyTreeShells = () => {
 
   return (
     <>
-      <div>hello</div>
-      <AddFamilyMemberForm />
+      {/* <AddFamilyMemberForm /> */}
       <div className="census-node-canvas relative h-full w-full overflow-x-auto">
         <div className="relative h-full w-full">
           <EdgeRenderer />
@@ -27,6 +26,7 @@ export const FamilyTreeShells = () => {
           ))}
         </div>
       </div>
+      <CensusForm />
     </>
   );
 };

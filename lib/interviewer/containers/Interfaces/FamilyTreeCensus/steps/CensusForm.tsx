@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Button } from '~/lib/ui/components';
 import NumberInput from '~/lib/ui/components/Fields/Number';
+import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 export const CensusForm = () => {
+  const [show, setShow] = useState(true);
+
   const [fields, setFields] = useState<
     {
       variable: string;
@@ -99,10 +103,8 @@ export const CensusForm = () => {
       );
     };
 
-  /**
-   * When the values change, we need to recalculate the placeholder nodes.
-   */
-  useEffect(() => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const fieldValueMap = fields.reduce(
       (acc, field) => {
         // Convert string value to number, defaulting to 0 if empty
@@ -114,30 +116,42 @@ export const CensusForm = () => {
     );
 
     generatePlaceholderNetwork(fieldValueMap);
-  }, [fields]);
+    setShow(false);
+  };
 
   return (
-    <div className="flex overflow-y-auto md:h-full md:items-center">
-      <div className="mx-auto w-full gap-6 px-10 *:mb-0! md:grid md:max-w-5xl md:grid-cols-2">
-        {fields.map(({ variable, label, error, value }) => (
-          <NumberInput
-            tabIndex={0}
-            key={variable}
-            placeholder="0"
-            input={{
-              name: variable,
-              value: value,
-              onChange: handleSetFieldValue(variable),
-              onBlur: () => {
-                // No-op
-              },
-            }}
-            meta={{ error, invalid: !!error, touched: !!error }}
-            label={label}
-            className="mb-4"
-          />
-        ))}
+    <Overlay
+      show={show}
+      title="Family Tree Census"
+      onClose={() => setShow(false)}
+      forceDisableFullscreen
+      className="!max-w-3xl"
+    >
+      <div className="flex flex-col">
+        <div className="mx-auto w-full gap-6 px-10 *:mb-0! md:grid md:max-w-5xl md:grid-cols-2">
+          {fields.map(({ variable, label, error, value }) => (
+            <NumberInput
+              tabIndex={0}
+              key={variable}
+              placeholder="0"
+              input={{
+                name: variable,
+                value: value,
+                onChange: handleSetFieldValue(variable),
+                onBlur: () => {
+                  // No-op
+                },
+              }}
+              meta={{ error, invalid: !!error, touched: !!error }}
+              label={label}
+              className="mb-4"
+            />
+          ))}
+        </div>
+        <div className="mb-8 flex items-center justify-end">
+          <Button onClick={handleSubmit}>Generate Family Tree</Button>
+        </div>
       </div>
-    </div>
+    </Overlay>
   );
 };

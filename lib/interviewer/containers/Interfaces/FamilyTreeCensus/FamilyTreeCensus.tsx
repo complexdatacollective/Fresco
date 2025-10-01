@@ -116,6 +116,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
             text: promptText,
           }))}
           currentPromptId={currentStepIndex.toString()}
+          className="shrink-0"
         />
         {CurrentStepComponent && <CurrentStepComponent />}
       </div>
