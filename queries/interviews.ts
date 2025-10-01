@@ -158,8 +158,11 @@ export const getInterviewById = async (interviewId: string) => {
           entity: 'node',
           type: 'person',
         },
-        edgeType: 'family',
-        edgeVariable: 'relationship',
+        edgeType: {
+          entity: 'edge',
+          type: 'family',
+        },
+        relationshipTypeVariable: 'relationship',
         step1: {
           text: 'First, enter the number of each type of family member in your family tree. These will be used to create placeholders in the next step.',
         },

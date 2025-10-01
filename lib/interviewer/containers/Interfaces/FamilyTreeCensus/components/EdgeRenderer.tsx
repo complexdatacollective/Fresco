@@ -1,18 +1,35 @@
+import { createSelector } from '@reduxjs/toolkit';
+import { invariant } from 'es-toolkit';
 import { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import {
+  getCurrentStage,
+  getEdgeColorForType,
+} from '~/lib/interviewer/selectors/session';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import { FAMILY_TREE_CONFIG, type Edge } from '../store';
 
 const EDGE_WIDTH = 5;
 
+const getEdgeType = createSelector(getCurrentStage, (stage) => {
+  invariant(
+    stage.type === 'FamilyTreeCensus',
+    'Stage must be FamilyTreeCensus',
+  );
+
+  return stage.edgeType.type;
+});
+
 export default function EdgeRenderer() {
-  // Using Maps directly from store - these are stable references
   const nodeMap = useFamilyTreeStore((state) => state.network.nodes);
   const edgesMap = useFamilyTreeStore((state) => state.network.edges);
 
-  // Convert edges map to array and process them
+  const edgeType = useSelector(getEdgeType);
+  const edgeColor = useSelector(getEdgeColorForType(edgeType));
+
+  // More useful data structures for the things we need to do in this component
   const { parentEdgesByChild, parentEdgesByParent, partnershipEdges } =
     useMemo(() => {
-      // Convert Map to array of edges with IDs
       const edges = Array.from(edgesMap.entries()).map(([id, edge]) => ({
         id,
         ...edge,
@@ -48,7 +65,7 @@ export default function EdgeRenderer() {
       };
     }, [edgesMap]);
 
-  // Process all edge types in a single pass to generate SVG elements
+  // Process all edge types in a single pass to improve performance
   const svgElements = useMemo(() => {
     const elements: JSX.Element[] = [];
 
@@ -73,7 +90,7 @@ export default function EdgeRenderer() {
               y1={coords.y1 - EDGE_WIDTH}
               x2={coords.x2}
               y2={coords.y2 - EDGE_WIDTH}
-              stroke="#807ea1"
+              stroke={`var(--${edgeColor})`}
               strokeWidth={EDGE_WIDTH}
             />
             <line
@@ -81,7 +98,7 @@ export default function EdgeRenderer() {
               y1={coords.y1 + EDGE_WIDTH}
               x2={coords.x2}
               y2={coords.y2 + EDGE_WIDTH}
-              stroke="#807ea1"
+              stroke={`var(--${edgeColor})`}
               strokeWidth={EDGE_WIDTH}
             />
           </g>,
@@ -94,7 +111,7 @@ export default function EdgeRenderer() {
               y1={coords.y1}
               x2={coords.x2}
               y2={coords.y2}
-              stroke="#807ea1"
+              stroke={`var(--${edgeColor})`}
               strokeWidth={EDGE_WIDTH}
             />
             <line
@@ -102,7 +119,7 @@ export default function EdgeRenderer() {
               y1={coords.y1 - 10}
               x2={(coords.x1 + coords.x2) / 2 - 15}
               y2={coords.y2 + 10}
-              stroke="#807ea1"
+              stroke={`var(--${edgeColor})`}
               strokeWidth={EDGE_WIDTH}
             />
             <line
@@ -110,7 +127,7 @@ export default function EdgeRenderer() {
               y1={coords.y1 - 10}
               x2={(coords.x1 + coords.x2) / 2 - 5}
               y2={coords.y2 + 10}
-              stroke="#807ea1"
+              stroke={`var(--${edgeColor})`}
               strokeWidth={EDGE_WIDTH}
             />
           </g>,
@@ -122,7 +139,6 @@ export default function EdgeRenderer() {
     const processedPairs = new Set<string>();
 
     for (const partnerEdge of partnershipEdges) {
-      // Create a stable key for this pair to avoid duplicates
       const pairKey = [partnerEdge.source, partnerEdge.target].sort().join('-');
       if (processedPairs.has(pairKey)) continue;
       processedPairs.add(pairKey);
@@ -167,7 +183,7 @@ export default function EdgeRenderer() {
           y1={yStartPos}
           x2={xPos}
           y2={yEndPos}
-          stroke="#807ea1"
+          stroke={`var(--${edgeColor})`}
           strokeWidth={EDGE_WIDTH}
         />,
       );
@@ -210,7 +226,7 @@ export default function EdgeRenderer() {
             y1={yPos}
             x2={xStartPos}
             y2={yPos + height}
-            stroke="#807ea1"
+            stroke={`var(--${edgeColor})`}
             strokeWidth={EDGE_WIDTH}
             strokeLinecap="round"
           />
@@ -220,7 +236,7 @@ export default function EdgeRenderer() {
             y1={yPos}
             x2={xEndPos}
             y2={yPos}
-            stroke="#807ea1"
+            stroke={`var(--${edgeColor})`}
             strokeWidth={EDGE_WIDTH}
             strokeLinecap="round"
           />
