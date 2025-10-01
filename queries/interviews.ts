@@ -163,11 +163,12 @@ export const getInterviewById = async (interviewId: string) => {
           type: 'family',
         },
         relationshipTypeVariable: 'relationship',
-        step1: {
-          text: 'First, enter the number of each type of family member in your family tree. These will be used to create placeholders in the next step.',
+        scaffoldingStep: {
+          text: 'Create your family tree. You may add additional relatives by using the person icon in the bottom right corner. To remove any relative, drag toward the bottom center of the screen where a trash icon will appear.',
+          showQuickStartModal: true,
         },
-        step2: {
-          text: 'Here is your family. You may add additional relatives by using the person icon in the bottom right corner. To remove any relative, drag toward the bottom center of the screen where a trash icon will appear.',
+        nameGenerationStep: {
+          text: 'Next, tap on each person to provide their name and age. If you don\'t know their name, you can write "Don\'t know".',
           form: {
             title: 'Add personal info',
             fields: [
@@ -182,29 +183,23 @@ export const getInterviewById = async (interviewId: string) => {
             ],
           },
         },
-        step3: {
-          text: 'Please review the family you have constructed. If you would like to add more details, tap on a person or relationship to edit.',
-          attributes: [
-            {
-              id: 'cancer',
-              label:
-                'Tap on a person to indicate if they have ever been diagnosed with cancer.',
-              variable: 'cancer',
-            },
-            {
-              id: 'diabetes',
-              label:
-                'Tap on a person to indicate if they have ever been diagnosed with diabetes.',
-              variable: 'diabetes',
-            },
-            {
-              id: 'glaucoma',
-              label:
-                'Tap on a person to indicate if they have ever been diagnosed with glaucoma.',
-              variable: 'glaucoma',
-            },
-          ],
-        },
+        diseaseNominationStep: [
+          {
+            id: 'cancer',
+            text: 'Tap on a person to indicate if they have ever been diagnosed with cancer.',
+            variable: 'cancer',
+          },
+          {
+            id: 'diabetes',
+            text: 'Tap on a person to indicate if they have ever been diagnosed with diabetes.',
+            variable: 'diabetes',
+          },
+          {
+            id: 'glaucoma',
+            text: 'Tap on a person to indicate if they have ever been diagnosed with glaucoma.',
+            variable: 'glaucoma',
+          },
+        ],
       },
     ],
   };

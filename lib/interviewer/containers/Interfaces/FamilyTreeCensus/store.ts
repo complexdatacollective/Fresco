@@ -48,7 +48,7 @@ type NetworkState = {
 };
 
 type FamilyTreeState = {
-  step: number;
+  step: 'scaffoldingStep' | 'nameGenerationStep' | 'diseaseNominationStep';
   network: NetworkState;
 };
 
@@ -60,17 +60,18 @@ type NetworkActions = {
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
   generatePlaceholderNetwork: (formData: Record<string, number>) => void;
-  getNetworkAsObject: () => { nodes: Node[]; edges: Edge[] };
   runLayout: () => void;
   getNodesAsArray: () => Node[];
 };
 
 type FamilyTreeAction = {
-  setStep: (step: number) => void;
+  setStep: (
+    step: 'scaffoldingStep' | 'nameGenerationStep' | 'diseaseNominationStep',
+  ) => void;
 } & NetworkActions;
 
 const initialState: FamilyTreeState = {
-  step: 0,
+  step: 'scaffoldingStep',
   network: {
     nodes: new Map(),
     edges: new Map(),

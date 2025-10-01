@@ -2,6 +2,7 @@ import { type Prompt as TPrompt } from '@codaco/protocol-validation';
 import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';
+import { cn } from '~/utils/shadcn';
 import Pips from './Pips';
 import Prompt from './Prompt';
 
@@ -9,6 +10,7 @@ type PromptsProps = {
   prompts: TPrompt[];
   currentPromptId?: string;
   speakable?: boolean;
+  className?: string;
 };
 
 /**
@@ -18,6 +20,7 @@ const Prompts = ({
   currentPromptId = '0',
   prompts,
   speakable = false,
+  className,
 }: PromptsProps) => {
   const prevPromptRef = useRef<number>();
 
@@ -41,7 +44,10 @@ const Prompts = ({
   };
 
   return (
-    <motion.div className="prompts text-balance" variants={variants}>
+    <motion.div
+      className={cn('prompts text-balance', className)}
+      variants={variants}
+    >
       {prompts.length > 1 ? (
         <Pips count={prompts.length} currentIndex={currentIndex} />
       ) : (

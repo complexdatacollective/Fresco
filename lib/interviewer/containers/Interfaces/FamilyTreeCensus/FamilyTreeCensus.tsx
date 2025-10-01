@@ -1,69 +1,130 @@
 import { type Stage } from '@codaco/protocol-validation';
+import { type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence } from 'motion/react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
+import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { FamilyTreePrompts } from './components/FamilyTreePrompts';
-import { FamilyTreeProvider, useFamilyTreeState } from './FamilyTreeProvider';
-import { CensusForm } from './steps/CensusForm';
+import { FamilyTreeProvider } from './FamilyTreeProvider';
 import { FamilyTreeShells } from './steps/FamilyTreeShells';
 
-const FamilyTreeCompletion = () => {
+const DiseaseNomination = () => {
   return <div>Family tree completion</div>;
 };
 
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
 };
+
+/**
+ * Given a FamilyTreeCensus stage, return the ordered list of steps,
+ * including steps for each disease nomination step if present.
+ *
+ * Provide an ascending numerical index, starting at 0
+ */
+const getStageSteps = (
+  stage: FamilyTreeCensusProps['stage'],
+): Map<
+  string,
+  {
+    id: string;
+    promptText: string;
+    component: React.ComponentType;
+  }
+> => {
+  const steps = new Map<
+    string,
+    {
+      id: string;
+      promptText: string;
+      component: React.ComponentType;
+    }
+  >();
+
+  let stepIndex = 0;
+
+  // Scaffolding step
+  steps.set('scaffoldingStep', {
+    id: stepIndex.toString(),
+    promptText: stage.scaffoldingStep.text,
+    component: FamilyTreeShells,
+  });
+  stepIndex += 1;
+
+  // Name generation step
+  steps.set('nameGenerationStep', {
+    id: stepIndex.toString(),
+    promptText: stage.nameGenerationStep.text,
+    component: FamilyTreeShells,
+  });
+  stepIndex += 1;
+
+  // Disease nomination steps, if any
+  if (stage.diseaseNominationStep) {
+    for (const diseaseStep of stage.diseaseNominationStep) {
+      steps.set(`diseaseNominationStep-${stepIndex}`, {
+        id: stepIndex.toString(),
+        promptText: diseaseStep.text,
+        component: DiseaseNomination,
+      });
+      stepIndex += 1;
+    }
+  }
+
+  return steps;
+};
+
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { registerBeforeNext, stage } = props;
 
   /**
    * Steps:
-   *  1. Census form (number of each type of family member)
-   *  2. Family tree shells (placeholders for each family member)
-   *  3. Family tree completion (fill in details for each family member)
+   *  1. Scaffolding step, with optional quick start modal
+   *  2. Name generation, with name interpretation via form
+   *  3. Disease nomination (optional)
    */
-  const StepComponents = [CensusForm, FamilyTreeShells, FamilyTreeCompletion];
+  const steps = getStageSteps(stage);
 
-  const [currentStep, setCurrentStep] = useFamilyTreeState(
-    (state) => state.step,
-    (state) => state.setStep,
-  );
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  /**
-   * Once step one has been completed, it cannot be revisited.
-   */
   registerBeforeNext((direction) => {
     if (direction === 'forwards') {
-      if (currentStep >= StepComponents.length - 1) {
-        return true; // Allow navigation to next stage
+      const isLastStep = currentStepIndex === steps.size - 1;
+      if (isLastStep) {
+        return true;
       }
 
-      setCurrentStep((s) => s + 1);
+      setCurrentStepIndex((prev) => prev + 1);
       return false;
     } else if (direction === 'backwards') {
-      if (currentStep <= 0) {
-        return true; // Allow navigation to previous stage
+      if (currentStepIndex === 0) {
+        return true;
       }
 
-      setCurrentStep((s) => s - 1);
+      setCurrentStepIndex((prev) => prev - 1);
       return false;
     }
     return false;
   });
 
-  const CurrentStepComponent = StepComponents[currentStep];
+  const CurrentStepComponent = steps.get(
+    currentStepIndex.toString(),
+  )?.component;
 
   const stageElement = document.getElementById('stage');
 
   return (
     <>
       <div className="flex grow flex-col gap-4">
-        <div className="flex-shrink-0">
-          <FamilyTreePrompts />
-        </div>
+        <Prompts
+          prompts={Array.from(steps.values()).map(({ id, promptText }) => ({
+            id,
+            text: promptText,
+          }))}
+          currentPromptId={currentStepIndex.toString()}
+        />
         <AnimatePresence mode="wait" initial={false}>
           {CurrentStepComponent && <CurrentStepComponent />}
         </AnimatePresence>
@@ -71,13 +132,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       {stageElement &&
         createPortal(
           <NodeBin
-            accepts={() => true}
             dropHandler={() => {
               console.log('dropped on bin');
             }}
-            // accepts={(node: { itemType?: string }) =>
-            //   node.itemType === 'PLACEHOLDER_NODE'
-            // }
+            accepts={(node: NcNode & { itemType?: string }) =>
+              node.itemType === 'PLACEHOLDER_NODE'
+            }
             // dropHandler={(meta: NcNode) => removePlaceholderNode(meta.id)}
           />,
           stageElement,
