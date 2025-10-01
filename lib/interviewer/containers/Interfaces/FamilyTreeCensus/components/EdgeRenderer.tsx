@@ -246,13 +246,42 @@ export default function EdgeRenderer() {
     }
 
     return elements;
-  }, [nodeMap, parentEdgesByChild, parentEdgesByParent, partnershipEdges]);
+  }, [
+    nodeMap,
+    parentEdgesByChild,
+    parentEdgesByParent,
+    partnershipEdges,
+    edgeColor,
+  ]);
+
+  // Determine SVG dimensions to encompass all nodes and edges
+  const svgDimensions = useMemo(() => {
+    let maxX = 0;
+    let maxY = 0;
+
+    for (const node of nodeMap.values()) {
+      if (node.x !== undefined && node.y !== undefined) {
+        maxX = Math.max(
+          maxX,
+          node.x + FAMILY_TREE_CONFIG.nodeContainerWidth * 2,
+        );
+        maxY = Math.max(maxY, node.y + FAMILY_TREE_CONFIG.nodeContainerHeight);
+      }
+    }
+
+    return {
+      width: maxX + FAMILY_TREE_CONFIG.padding,
+      height: maxY + FAMILY_TREE_CONFIG.padding,
+    };
+  }, [nodeMap]);
 
   return (
     <svg
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute top-0 left-0 h-full w-full"
+      className="absolute top-0 left-0 min-h-full min-w-full"
+      width={svgDimensions.width}
+      height={svgDimensions.height}
     >
       {svgElements}
     </svg>
