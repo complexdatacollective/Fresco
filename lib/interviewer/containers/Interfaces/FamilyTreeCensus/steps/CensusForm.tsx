@@ -125,10 +125,10 @@ export const CensusForm = () => {
       title="Family Tree Census"
       onClose={() => setShow(false)}
       forceDisableFullscreen
-      className="!max-w-3xl"
+      className="!w-auto"
     >
       <div className="flex flex-col">
-        <div className="mx-auto w-full gap-6 px-10 *:mb-0! md:grid md:max-w-5xl md:grid-cols-2">
+        <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
           {fields.map(({ variable, label, error, value }) => (
             <NumberInput
               tabIndex={0}
