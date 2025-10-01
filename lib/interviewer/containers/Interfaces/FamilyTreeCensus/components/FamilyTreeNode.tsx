@@ -1,5 +1,6 @@
 import { useDragSource } from '~/lib/dnd';
 import { Node } from '~/lib/ui/components';
+import { FAMILY_TREE_CONFIG } from '../store';
 
 export default function FamilyTreeNode(props: {
   label: string;
@@ -18,18 +19,28 @@ export default function FamilyTreeNode(props: {
     disabled: !allowDrag,
   });
   return (
-    <div className="absolute" style={{ top: y, left: x }}>
+    <div
+      className="absolute"
+      style={{
+        top: y,
+        left: x,
+        width: FAMILY_TREE_CONFIG.nodeContainerWidth,
+        height: FAMILY_TREE_CONFIG.nodeContainerHeight,
+      }}
+    >
       <div
-        className="flex h-[150px] w-[150px] flex-col items-center gap-2 text-center"
+        className="relative flex flex-col items-center gap-2 text-center"
         {...dragProps}
-        data-node-container
       >
         <Node
+          className="shrink-0"
           color="node-color-seq-1"
-          size="xxs"
           label=""
           shape={shape}
-          data-node-visual="true"
+          style={{
+            width: FAMILY_TREE_CONFIG.nodeWidth,
+            height: FAMILY_TREE_CONFIG.nodeHeight,
+          }}
         />
         {isEgo && (
           <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">

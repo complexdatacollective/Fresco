@@ -39,6 +39,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     linking = false,
     loading = false,
     size = 'md',
+    className,
     ...buttonProps
   } = props;
   const classes = cn(
@@ -73,6 +74,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     // Linking state uses the ::before pseudo-element
     linking &&
       'shadow-none border-5 border-selected before:content-[""] before:absolute before:-inset-4 before:-z-10 before:bg-selected before:rounded-full before:animate-linking before:origin-center before:opacity-50 before:shadow-lg',
+    className,
   );
 
   const labelClasses = cn(

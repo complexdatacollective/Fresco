@@ -3,6 +3,24 @@ import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+export const FAMILY_TREE_CONFIG = {
+  nodeContainerWidth: 180,
+  nodeContainerHeight: 180,
+  nodeWidth: 80,
+  nodeHeight: 80,
+  padding: 40,
+  get rowHeight() {
+    return this.nodeContainerHeight + this.padding;
+  },
+  get siblingSpacing() {
+    // Controls padding between siblings
+    return this.nodeContainerWidth;
+  },
+  get partnerSpacing() {
+    return this.nodeContainerWidth;
+  },
+};
+
 enableMapSet();
 
 type Gender = 'male' | 'female';
@@ -21,7 +39,7 @@ type Edge = {
   id?: string;
   source: string;
   target: string;
-  relationship: string;
+  relationship: 'parent' | 'partner' | 'ex-partner';
 };
 
 type NetworkState = {
@@ -44,7 +62,6 @@ type NetworkActions = {
   generatePlaceholderNetwork: (formData: Record<string, number>) => void;
   getNetworkAsObject: () => { nodes: Node[]; edges: Edge[] };
   runLayout: () => void;
-  invalidateNetworkCache: () => void;
 };
 
 type FamilyTreeAction = {
@@ -72,13 +89,6 @@ type TreeSpacing = {
   generations: number;
 };
 
-// Cache for stable network objects to prevent infinite re-renders
-let networkCache: {
-  nodes: Node[];
-  edges: Edge[];
-  nodesVersion: number;
-  edgesVersion: number;
-} | null = null;
 export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
   return createStore<FamilyTreeStore>()(
     immer((set, get) => {
@@ -130,9 +140,9 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
       // Layout algorithm
       const runFamilyTreeLayout = (
         spacing: TreeSpacing = {
-          siblings: 250,
-          partners: 200, // Keep in sync with node size!
-          generations: 200,
+          siblings: FAMILY_TREE_CONFIG.siblingSpacing,
+          partners: FAMILY_TREE_CONFIG.partnerSpacing,
+          generations: FAMILY_TREE_CONFIG.rowHeight,
         },
       ): Map<string, { x: number; y: number }> => {
         const nodes = get().network.nodes;
@@ -379,11 +389,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             state.step = step;
           }),
 
-        // Helper to invalidate cache when network changes
-        invalidateNetworkCache: () => {
-          networkCache = null;
-        },
-
         addNode: ({
           id = crypto.randomUUID(),
           label,
@@ -407,7 +412,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               y,
             });
           });
-          get().invalidateNetworkCache();
           return id;
         },
 
@@ -417,7 +421,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             invariant(node, `Node with ID ${id} does not exist`);
             Object.assign(node, updates);
           });
-          get().invalidateNetworkCache();
         },
 
         removeNode: (id) => {
@@ -434,7 +437,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               state.network.edges.delete(edgeId),
             );
           });
-          get().invalidateNetworkCache();
         },
 
         addEdge: ({ id, source, target, relationship }) => {
@@ -445,7 +447,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             }
             state.network.edges.set(edgeId, { source, target, relationship });
           });
-          get().invalidateNetworkCache();
           return edgeId;
         },
 
@@ -453,7 +454,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           set((state) => {
             state.network.edges.delete(id);
           });
-          get().invalidateNetworkCache();
         },
 
         clearNetwork: () => {
@@ -461,7 +461,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             state.network.nodes.clear();
             state.network.edges.clear();
           });
-          get().invalidateNetworkCache();
         },
 
         generatePlaceholderNetwork: (formData) => {
@@ -739,22 +738,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
         getNetworkAsObject: () => {
           const state = get();
 
-          // Use Map size as a simple version indicator
-          const nodesVersion = state.network.nodes.size;
-          const edgesVersion = state.network.edges.size;
-
-          // Return cached version if nothing has changed
-          if (
-            networkCache &&
-            networkCache.nodesVersion === nodesVersion &&
-            networkCache.edgesVersion === edgesVersion
-          ) {
-            return {
-              nodes: networkCache.nodes,
-              edges: networkCache.edges,
-            };
-          }
-
           // Create new arrays and cache them
           const nodes = Array.from(state.network.nodes.entries()).map(
             ([id, node]) => ({
@@ -769,13 +752,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               ...edge,
             }),
           );
-
-          networkCache = {
-            nodes,
-            edges,
-            nodesVersion,
-            edgesVersion,
-          };
 
           return {
             nodes,
@@ -796,7 +772,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               }
             }
           });
-          get().invalidateNetworkCache();
         },
       };
     }),

@@ -9,27 +9,45 @@ import { usePrompts } from '~/lib/interviewer/behaviours/withPrompt';
 import {
   addEdge,
   deleteEdge,
+  type DyadCensusMetadataItem,
   edgeExists,
   updateEdge,
   updateStageMetadata,
-  type StageMetadataEntry,
 } from '~/lib/interviewer/ducks/modules/session';
 import { getStageMetadata } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 
 const matchEntry =
   (promptIndex: number, pair: Pair) =>
-  ([p, a, b]: StageMetadataEntry) =>
+  ([p, a, b]: DyadCensusMetadataItem) =>
     (p === promptIndex && a === pair[0] && b === pair[1]) ||
     (p === promptIndex && b === pair[0] && a === pair[1]);
 
+// Type guard to check if state is DyadCensusMetadataItem[]
+const isDyadCensusMetadata = (
+  state: unknown,
+): state is DyadCensusMetadataItem[] => {
+  return (
+    Array.isArray(state) &&
+    state.every(
+      (item) =>
+        Array.isArray(item) &&
+        item.length === 4 &&
+        typeof item[0] === 'number' &&
+        typeof item[1] === 'string' &&
+        typeof item[2] === 'string' &&
+        typeof item[3] === 'boolean',
+    )
+  );
+};
+
 const getStageMetadataResponse = (
-  state: StageMetadataEntry[] | undefined,
+  state: unknown,
   promptIndex: number,
   pair: Pair,
 ) => {
-  // If the state is not an array or the pair is not a pair, return false
-  if (!Array.isArray(state) || pair.length !== 2) {
+  // If the state is not the correct array type or the pair is not a pair, return false
+  if (!isDyadCensusMetadata(state) || pair.length !== 2) {
     return {
       exists: false,
       value: undefined,
@@ -125,13 +143,20 @@ export default function useEdgeState(
         }),
       );
 
-      const newStageMetadata = [
-        ...(stageMetadata?.filter(
-          (item) => !matchEntry(promptIndex, pair)(item),
-        ) ?? []),
-      ] as StageMetadataEntry[];
+      // Only update if stageMetadata is DyadCensusMetadataItem[]
+      if (isDyadCensusMetadata(stageMetadata)) {
+        const newStageMetadata: DyadCensusMetadataItem[] = [
+          ...stageMetadata.filter(
+            (item) => !matchEntry(promptIndex, pair)(item),
+          ),
+        ];
 
-      dispatch(updateStageMetadata(newStageMetadata));
+        dispatch(updateStageMetadata(newStageMetadata));
+      } else {
+        // If it's not the right type, just clear it
+        const emptyMetadata: DyadCensusMetadataItem[] = [];
+        dispatch(updateStageMetadata(emptyMetadata));
+      }
 
       return;
     }
@@ -142,12 +167,14 @@ export default function useEdgeState(
       }
 
       // Construct new stage metadata from scratch
-      const newStageMetadata = [
-        ...(stageMetadata?.filter(
-          (item) => !matchEntry(promptIndex, pair)(item),
-        ) ?? []),
+      const existingMetadata = isDyadCensusMetadata(stageMetadata)
+        ? stageMetadata.filter((item) => !matchEntry(promptIndex, pair)(item))
+        : [];
+
+      const newStageMetadata: DyadCensusMetadataItem[] = [
+        ...existingMetadata,
         [promptIndex, ...pair, value],
-      ] as StageMetadataEntry[];
+      ];
 
       const action = updateStageMetadata(newStageMetadata);
 
