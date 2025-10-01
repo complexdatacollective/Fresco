@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@codaco/analytics": "7.0.0",
-    "@codaco/protocol-validation": "link:/Users/jmh629/Projects/network-canvas/packages/protocol-validation",
+    "@codaco/protocol-validation": "^7.0.1",
     "@codaco/shared-consts": "4.0.0",
     "@hookform/resolvers": "^5.2.1",
     "@lucia-auth/adapter-prisma": "^3.0.2",
