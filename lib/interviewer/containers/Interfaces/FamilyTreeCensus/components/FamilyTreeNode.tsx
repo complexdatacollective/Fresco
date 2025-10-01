@@ -1,4 +1,6 @@
+import { useSelector } from 'react-redux';
 import { useDragSource } from '~/lib/dnd';
+import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
 import { FAMILY_TREE_CONFIG } from '../store';
 
@@ -11,6 +13,7 @@ export default function FamilyTreeNode(props: {
   y: number;
 }) {
   const { label, allowDrag, x, y, shape, isEgo } = props;
+  const nodeColor = useSelector(getNodeColorSelector);
 
   const { dragProps } = useDragSource({
     type: 'node',
@@ -34,7 +37,7 @@ export default function FamilyTreeNode(props: {
       >
         <Node
           className="shrink-0"
-          color="node-color-seq-1"
+          color={nodeColor}
           label=""
           shape={shape}
           style={{
