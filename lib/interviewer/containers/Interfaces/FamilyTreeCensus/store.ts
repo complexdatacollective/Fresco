@@ -46,7 +46,6 @@ type NetworkActions = {
   clearNetwork: () => void;
   generatePlaceholderNetwork: (formData: Record<string, number>) => void;
   runLayout: () => void;
-  getNodesAsArray: () => Node[];
 };
 
 type FamilyTreeAction = {
@@ -881,16 +880,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
 
           store.runLayout();
-        },
-
-        getNodesAsArray: () => {
-          const state = get();
-          return Array.from(state.network.nodes.entries()).map(
-            ([id, node]) => ({
-              id,
-              ...node,
-            }),
-          );
         },
 
         runLayout: () => {

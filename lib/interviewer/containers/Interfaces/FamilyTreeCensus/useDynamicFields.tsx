@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import RadioGroup from '~/lib/form/components/fields/RadioGroup';
-import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 import { type RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import {
   buildBaseOptions,
@@ -37,10 +36,10 @@ export function useDynamicFields({
   grandchildrenOptions: RelativeOption[];
   show: boolean;
 }) {
-  const [relationValue, setRelationValue] = useState('');
+  const [relationValue, setRelationValue] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!show) setRelationValue('');
+    if (!show) setRelationValue(null);
   }, [show]);
 
   const processedFields = useMemo(() => {

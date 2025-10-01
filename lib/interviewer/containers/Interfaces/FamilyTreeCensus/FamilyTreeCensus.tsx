@@ -7,7 +7,7 @@ import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { FamilyTreeProvider } from './FamilyTreeProvider';
-import { FamilyTreeShells } from './steps/FamilyTreeShells';
+import { FamilyTreeShells } from './components/FamilyTreeShells';
 
 const DiseaseNomination = () => {
   return <div>Family tree completion</div>;

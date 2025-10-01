@@ -1,11 +1,13 @@
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import EdgeRenderer from '../components/EdgeRenderer';
-import FamilyTreeNode from '../components/FamilyTreeNode';
 import { CensusForm } from './CensusForm';
+import EdgeRenderer from './EdgeRenderer';
+import FamilyTreeNode from './FamilyTreeNode';
 
 export const FamilyTreeShells = () => {
-  const getNodesArray = useFamilyTreeStore((state) => state.getNodesAsArray);
-  const nodes = getNodesArray();
+  const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
+  const nodes = Array.from(
+    nodesMap.entries().map(([id, node]) => ({ id, ...node })),
+  );
 
   return (
     <>
