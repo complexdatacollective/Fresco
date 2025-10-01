@@ -1,5 +1,7 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { AnimatePresence } from 'motion/react';
+import { createPortal } from 'react-dom';
+import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
 import { FamilyTreePrompts } from './components/FamilyTreePrompts';
@@ -54,15 +56,33 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
 
   const CurrentStepComponent = StepComponents[currentStep];
 
+  const stageElement = document.getElementById('stage');
+
   return (
-    <div className="flex grow flex-col gap-4">
-      <div className="flex-shrink-0">
-        <FamilyTreePrompts />
+    <>
+      <div className="flex grow flex-col gap-4">
+        <div className="flex-shrink-0">
+          <FamilyTreePrompts />
+        </div>
+        <AnimatePresence mode="wait" initial={false}>
+          {CurrentStepComponent && <CurrentStepComponent />}
+        </AnimatePresence>
       </div>
-      <AnimatePresence mode="wait" initial={false}>
-        {CurrentStepComponent && <CurrentStepComponent />}
-      </AnimatePresence>
-    </div>
+      {stageElement &&
+        createPortal(
+          <NodeBin
+            accepts={() => true}
+            dropHandler={() => {
+              console.log('dropped on bin');
+            }}
+            // accepts={(node: { itemType?: string }) =>
+            //   node.itemType === 'PLACEHOLDER_NODE'
+            // }
+            // dropHandler={(meta: NcNode) => removePlaceholderNode(meta.id)}
+          />,
+          stageElement,
+        )}
+    </>
   );
 };
 

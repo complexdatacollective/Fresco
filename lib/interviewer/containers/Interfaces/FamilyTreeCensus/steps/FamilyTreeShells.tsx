@@ -1,4 +1,3 @@
-import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import EdgeRenderer from '../components/EdgeRenderer';
 import FamilyTreeNode from '../components/FamilyTreeNode';
@@ -22,7 +21,7 @@ export const FamilyTreeShells = () => {
         setPlaceholderNodes={setPlaceholderNodesBulk}
         egoNodeId={egoNodeId}
       /> */}
-      <div className="census-node-canvas relative h-full w-full">
+      <div className="census-node-canvas relative h-full w-full overflow-x-auto">
         <div className="relative h-full w-full">
           <EdgeRenderer />
           {nodes.map((node) => (
@@ -37,18 +36,6 @@ export const FamilyTreeShells = () => {
           ))}
         </div>
       </div>
-      <NodeBin
-        accepts={() => true}
-        dropHandler={() => {
-          console.log('dropped on bin');
-        }}
-        // accepts={(node: { itemType: string }) =>
-        //   node.itemType === 'PLACEHOLDER_NODE'
-        // }
-        // dropHandler={(meta: PlaceholderNodeProps) =>
-        //   removePlaceholderNode(meta.id)
-        // }
-      />
     </>
   );
 };
