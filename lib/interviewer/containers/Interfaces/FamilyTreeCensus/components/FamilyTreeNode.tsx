@@ -57,14 +57,14 @@ export default function FamilyTreeNode(props: {
             ...nodeColor(),
           }}
           color="custom"
-          label=""
+          label={isEgo ? `You` : ''}
           shape={shape}
         />
         {isEgo && (
           <svg
             viewBox="0 0 300 300"
             xmlns="http://www.w3.org/2000/svg"
-            className="absolute -top-10 h-6 w-6"
+            className="absolute right-6 bottom-8 block h-30 w-30"
           >
             <defs>
               <marker

@@ -19,9 +19,10 @@ export const FamilyTreeShells = () => {
             <FamilyTreeNode
               key={node.id}
               label={node.label}
+              isEgo={node.isEgo}
+              allowDrag={node.readOnly !== true}
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
-              allowDrag={true}
               x={node.x ?? 0}
               y={node.y ?? 0}
             />
