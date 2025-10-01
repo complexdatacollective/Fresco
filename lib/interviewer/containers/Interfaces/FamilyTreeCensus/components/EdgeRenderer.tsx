@@ -6,8 +6,9 @@ import {
   getCurrentStage,
   getEdgeColorForType,
 } from '~/lib/interviewer/selectors/session';
+import { FAMILY_TREE_CONFIG } from '../config';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
-import { FAMILY_TREE_CONFIG, type Edge } from '../store';
+import { type Edge } from '../store';
 
 const EDGE_WIDTH = 5;
 

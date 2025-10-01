@@ -1,6 +1,5 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { type NcNode } from '@codaco/shared-consts';
-import { AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
@@ -27,17 +26,15 @@ type FamilyTreeCensusProps = StageProps & {
 const getStageSteps = (
   stage: FamilyTreeCensusProps['stage'],
 ): Map<
-  string,
+  number,
   {
-    id: string;
     promptText: string;
     component: React.ComponentType;
   }
 > => {
   const steps = new Map<
-    string,
+    number,
     {
-      id: string;
       promptText: string;
       component: React.ComponentType;
     }
@@ -46,16 +43,14 @@ const getStageSteps = (
   let stepIndex = 0;
 
   // Scaffolding step
-  steps.set('scaffoldingStep', {
-    id: stepIndex.toString(),
+  steps.set(stepIndex, {
     promptText: stage.scaffoldingStep.text,
     component: FamilyTreeShells,
   });
   stepIndex += 1;
 
   // Name generation step
-  steps.set('nameGenerationStep', {
-    id: stepIndex.toString(),
+  steps.set(stepIndex, {
     promptText: stage.nameGenerationStep.text,
     component: FamilyTreeShells,
   });
@@ -64,8 +59,7 @@ const getStageSteps = (
   // Disease nomination steps, if any
   if (stage.diseaseNominationStep) {
     for (const diseaseStep of stage.diseaseNominationStep) {
-      steps.set(`diseaseNominationStep-${stepIndex}`, {
-        id: stepIndex.toString(),
+      steps.set(stepIndex, {
         promptText: diseaseStep.text,
         component: DiseaseNomination,
       });
@@ -109,9 +103,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     return false;
   });
 
-  const CurrentStepComponent = steps.get(
-    currentStepIndex.toString(),
-  )?.component;
+  const CurrentStepComponent = steps.get(currentStepIndex)?.component;
 
   const stageElement = document.getElementById('stage');
 
@@ -119,15 +111,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     <>
       <div className="flex grow flex-col gap-4">
         <Prompts
-          prompts={Array.from(steps.values()).map(({ id, promptText }) => ({
-            id,
+          prompts={Array.from(steps.entries()).map(([id, { promptText }]) => ({
+            id: id.toString(),
             text: promptText,
           }))}
           currentPromptId={currentStepIndex.toString()}
         />
-        <AnimatePresence mode="wait" initial={false}>
-          {CurrentStepComponent && <CurrentStepComponent />}
-        </AnimatePresence>
+        {CurrentStepComponent && <CurrentStepComponent />}
       </div>
       {stageElement &&
         createPortal(

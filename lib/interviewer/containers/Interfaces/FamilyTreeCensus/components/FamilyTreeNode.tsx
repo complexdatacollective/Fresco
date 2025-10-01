@@ -2,9 +2,10 @@ import { useSelector } from 'react-redux';
 import { useDragSource } from '~/lib/dnd';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
 import { Node } from '~/lib/ui/components';
-import { FAMILY_TREE_CONFIG } from '../store';
+import { FAMILY_TREE_CONFIG } from '../config';
 
 export default function FamilyTreeNode(props: {
+  interviewNetworkId?: string;
   label: string;
   shape: 'circle' | 'square';
   allowDrag: boolean;
@@ -12,8 +13,21 @@ export default function FamilyTreeNode(props: {
   x: number;
   y: number;
 }) {
-  const { label, allowDrag, x, y, shape, isEgo } = props;
-  const nodeColor = useSelector(getNodeColorSelector);
+  const { label, allowDrag, x, y, shape, isEgo, interviewNetworkId } = props;
+  const nodeTypeColor = useSelector(getNodeColorSelector);
+
+  const nodeColor = () => {
+    if (isEgo || interviewNetworkId)
+      return {
+        '--base': `var(--${nodeTypeColor})`,
+        '--dark': `var(--${nodeTypeColor}-dark)`,
+      };
+
+    return {
+      '--base': `var(--color-platinum)`,
+      '--dark': `var(--color-platinum-dark)`,
+    };
+  };
 
   const { dragProps } = useDragSource({
     type: 'node',
@@ -37,16 +51,21 @@ export default function FamilyTreeNode(props: {
       >
         <Node
           className="shrink-0"
-          color={nodeColor}
-          label=""
-          shape={shape}
           style={{
             width: FAMILY_TREE_CONFIG.nodeWidth,
             height: FAMILY_TREE_CONFIG.nodeHeight,
+            ...nodeColor(),
           }}
+          color="custom"
+          label=""
+          shape={shape}
         />
         {isEgo && (
-          <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            viewBox="0 0 300 300"
+            xmlns="http://www.w3.org/2000/svg"
+            className="absolute -top-10 h-6 w-6"
+          >
             <defs>
               <marker
                 id="arrow"

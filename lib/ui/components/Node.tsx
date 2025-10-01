@@ -11,6 +11,7 @@ export const NodeColors = [
   'node-color-seq-6',
   'node-color-seq-7',
   'node-color-seq-8',
+  'custom',
 ] as const;
 
 export type NodeColorSequence = (typeof NodeColors)[number];

@@ -1,17 +1,13 @@
-import { type Form as TForm } from '@codaco/protocol-validation';
-import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
-import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
 import { usePlaceholderNodeFormSubmit } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/usePlaceholderNodeFormSubmit';
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import { getFamilyTreeNodes } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/censusMetadataUtil';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
-import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
   getNodeTypeLabel,
   getStageMetadata,
@@ -19,38 +15,9 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
 
-type NodeFormProps = {
-  selectedNode: NcNode | null;
-  form: TForm;
-  disabled: boolean;
-  onClose: () => void;
-  setPlaceholderNodes: (nodes: PlaceholderNodeProps[]) => void;
-  egoNodeId: string;
-};
-
-const AddFamilyMemberForm = (props: NodeFormProps) => {
-  const {
-    selectedNode,
-    form,
-    disabled,
-    onClose,
-    setPlaceholderNodes,
-    egoNodeId,
-  } = props;
-
-  const getInitialValues = useCallback(
-    () => selectedNode?.[entityAttributesProperty] ?? {},
-    [selectedNode],
-  );
-
-  const handleClose = useCallback(() => {
-    setShow(false);
-    onClose();
-  }, [onClose]);
-
+const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
   const stageMetadata = useSelector(getStageMetadata);
   const step2Nodes = getFamilyTreeNodes(stageMetadata!);
@@ -82,7 +49,6 @@ const AddFamilyMemberForm = (props: NodeFormProps) => {
     newNodeAttributes,
     setPlaceholderNodes,
     setShow,
-    onClose,
   });
 
   return (
@@ -90,7 +56,6 @@ const AddFamilyMemberForm = (props: NodeFormProps) => {
       <AnimatePresence>
         <motion.div className="name-generator-interface__add-button">
           <ActionButton
-            disabled={disabled}
             onClick={() => setShow(true)}
             icon={icon}
             title={`Add ${nodeType}...`}
@@ -99,8 +64,8 @@ const AddFamilyMemberForm = (props: NodeFormProps) => {
       </AnimatePresence>
       <Overlay
         show={show}
-        title={form.title}
-        onClose={handleClose}
+        title="Add Relative"
+        onClose={() => setShow(false)}
         className="node-form"
         footer={
           <Button
@@ -120,7 +85,6 @@ const AddFamilyMemberForm = (props: NodeFormProps) => {
             ref={formRef}
             fields={processedFields}
             handleSubmit={handleSubmit}
-            getInitialValues={getInitialValues}
             focusFirstInput={true}
           />
         </Scroller>

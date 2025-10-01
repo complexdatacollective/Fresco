@@ -2,41 +2,26 @@ import { invariant } from 'es-toolkit';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-
-export const FAMILY_TREE_CONFIG = {
-  nodeContainerWidth: 150,
-  nodeContainerHeight: 160,
-  nodeWidth: 80,
-  nodeHeight: 80,
-  padding: 40,
-  get rowHeight() {
-    return this.nodeContainerHeight + this.padding;
-  },
-  get siblingSpacing() {
-    // Controls padding between siblings
-    return this.nodeContainerWidth;
-  },
-  get partnerSpacing() {
-    return this.nodeContainerWidth;
-  },
-};
+import { FAMILY_TREE_CONFIG } from './config';
 
 enableMapSet();
 
-type Gender = 'male' | 'female';
+type Sex = 'male' | 'female';
 
 export type Node = {
   id?: string;
   label: string;
-  gender: Gender;
+  sex: Sex;
   readOnly?: boolean;
   isEgo?: boolean;
+  interviewNetworkId?: string;
   x?: number;
   y?: number;
 };
 
 export type Edge = {
   id?: string;
+  interviewNetworkId?: string;
   source: string;
   target: string;
   relationship: 'parent' | 'partner' | 'ex-partner';
@@ -292,7 +277,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
 
               // Order couple by gender (female first)
               const [leftId, rightId] =
-                node?.gender === 'male'
+                node?.sex === 'male'
                   ? [partnerId, nodeId]
                   : [nodeId, partnerId];
 
@@ -555,7 +540,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
         addNode: ({
           id = crypto.randomUUID(),
           label,
-          gender,
+          sex,
           readOnly = false,
           isEgo = false,
           x,
@@ -568,7 +553,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             );
             state.network.nodes.set(id, {
               label,
-              gender,
+              sex,
               readOnly,
               isEgo,
               x,
@@ -639,13 +624,13 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           addNode({
             id: 'maternal-grandmother',
             label: 'maternal grandmother',
-            gender: 'female',
+            sex: 'female',
             readOnly: true,
           });
           addNode({
             id: 'maternal-grandfather',
             label: 'maternal grandfather',
-            gender: 'male',
+            sex: 'male',
             readOnly: true,
           });
           addEdge({
@@ -658,13 +643,13 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           addNode({
             id: 'paternal-grandmother',
             label: 'paternal grandmother',
-            gender: 'female',
+            sex: 'female',
             readOnly: true,
           });
           addNode({
             id: 'paternal-grandfather',
             label: 'paternal grandfather',
-            gender: 'male',
+            sex: 'male',
             readOnly: true,
           });
           addEdge({
@@ -677,7 +662,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           addNode({
             id: 'mother',
             label: 'mother',
-            gender: 'female',
+            sex: 'female',
             readOnly: true,
           });
           addEdge({
@@ -695,7 +680,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           addNode({
             id: 'father',
             label: 'father',
-            gender: 'male',
+            sex: 'male',
             readOnly: true,
           });
           addEdge({
@@ -718,7 +703,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           addNode({
             id: 'ego',
             label: 'self',
-            gender: 'female',
+            sex: 'female',
             readOnly: true,
             isEgo: true,
           }); // TODO: Make dynamic based on user input
@@ -737,7 +722,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           arrayFromRelationCount(formData, 'brothers').forEach(() => {
             const brotherId = addNode({
               label: 'brother',
-              gender: 'male',
+              sex: 'male',
               readOnly: false,
             });
             addEdge({
@@ -755,7 +740,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           arrayFromRelationCount(formData, 'sisters').forEach(() => {
             const sisterId = addNode({
               label: 'sister',
-              gender: 'female',
+              sex: 'female',
               readOnly: false,
             });
             addEdge({
@@ -775,7 +760,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             const egoPartnerId = addNode({
               id: 'ego-partner',
               label: "self's partner",
-              gender: 'male', // TODO: Make dynamic based on user input
+              sex: 'male', // TODO: Make dynamic based on user input
               readOnly: true,
             });
             addEdge({
@@ -787,7 +772,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             arrayFromRelationCount(formData, 'sons').forEach(() => {
               const sonId = addNode({
                 label: 'son',
-                gender: 'male',
+                sex: 'male',
                 readOnly: true,
               });
               addEdge({
@@ -805,7 +790,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             arrayFromRelationCount(formData, 'daughters').forEach(() => {
               const daughterId = addNode({
                 label: 'daughter',
-                gender: 'female',
+                sex: 'female',
                 readOnly: false,
               });
               addEdge({
@@ -825,7 +810,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           arrayFromRelationCount(formData, 'paternal-uncles').forEach(() => {
             const uncleId = addNode({
               label: 'paternal uncle',
-              gender: 'male',
+              sex: 'male',
               readOnly: false,
             });
             addEdge({
@@ -843,7 +828,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           arrayFromRelationCount(formData, 'paternal-aunts').forEach(() => {
             const auntId = addNode({
               label: 'paternal aunt',
-              gender: 'female',
+              sex: 'female',
               readOnly: false,
             });
             addEdge({
@@ -862,7 +847,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           arrayFromRelationCount(formData, 'maternal-uncles').forEach(() => {
             const uncleId = addNode({
               label: 'maternal uncle',
-              gender: 'male',
+              sex: 'male',
               readOnly: false,
             });
             addEdge({
@@ -880,7 +865,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           arrayFromRelationCount(formData, 'maternal-aunts').forEach(() => {
             const auntId = addNode({
               label: 'maternal aunt',
-              gender: 'female',
+              sex: 'female',
               readOnly: false,
             });
             addEdge({
