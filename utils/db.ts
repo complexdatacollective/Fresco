@@ -1,6 +1,6 @@
 import {
   CodebookSchema,
-  ProtocolSchema,
+  CurrentProtocolSchema,
   stageSchema,
 } from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
@@ -59,7 +59,7 @@ const createPrismaClient = () =>
             if (!experiments) {
               return null;
             }
-            return ProtocolSchema.shape.experiments.parse(experiments);
+            return CurrentProtocolSchema.shape.experiments.parse(experiments);
           },
         },
       },

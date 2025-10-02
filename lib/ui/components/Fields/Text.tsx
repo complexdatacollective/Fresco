@@ -3,7 +3,10 @@ import React, { type InputHTMLAttributes, memo, useId, useState } from 'react';
 import Icon from '../Icon';
 import MarkdownLabel from './MarkdownLabel';
 
-type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
+type TextInputProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'value' | 'onChange' | 'onBlur' | 'onFocus'
+> & {
   input: {
     name: string;
     value: string;
@@ -36,6 +39,7 @@ const TextInput = ({
   hidden = false,
   adornmentLeft,
   adornmentRight,
+  ...rest
 }: TextInputProps) => {
   const id = useId();
   const [hasFocus, setFocus] = useState(false);
@@ -82,6 +86,7 @@ const TextInput = ({
           type={type}
           onBlur={handleBlur}
           onFocus={handleFocus}
+          {...rest}
         />
         {adornmentLeft && (
           <div className="form-field-text__adornment-left">{adornmentLeft}</div>

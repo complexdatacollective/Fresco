@@ -115,7 +115,7 @@ export const useProtocolImport = () => {
           : protocolJson;
 
       const validationResult = await validateProtocol(
-        protocolToValidate as Protocol,
+        protocolToValidate,
       );
 
       if (!validationResult.isValid) {

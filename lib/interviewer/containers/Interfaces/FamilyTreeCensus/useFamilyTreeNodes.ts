@@ -6,8 +6,8 @@ import {
 } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { updateFamilyTreeMetadata } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/censusMetadataUtil';
 import { type PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import { updateFamilyTreeMetadata } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/censusMetadataUtil';
 import {
   addNode,
   updateStageMetadata,

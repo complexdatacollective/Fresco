@@ -73,20 +73,28 @@ export function edgeExists(
   return false;
 }
 
-const StageMetadataEntrySchema = z.tuple([
-  z.number(),
-  z.string(),
-  z.string(),
-  z.boolean(),
+const FamilyTreeCensusStageMetadataSchema = z.object({
+  hasSeenScaffoldPrompt: z.boolean(),
+});
+
+const DyadCensusMetadataItem = z.tuple([
+  z.number(), // prompt index
+  z.string(), // entity a
+  z.string(), // entity b
+  z.boolean(), // is present
 ]);
 
+export type DyadCensusMetadataItem = z.infer<typeof DyadCensusMetadataItem>;
+
+const DyadCensusStageMetadataSchema = z.array(DyadCensusMetadataItem);
+
 export const StageMetadataSchema = z.record(
-  z.string(),
-  z.array(StageMetadataEntrySchema),
+  z.string(), // stage ID
+  z.union([FamilyTreeCensusStageMetadataSchema, DyadCensusStageMetadataSchema]),
 );
 
-export type StageMetadataEntry = z.infer<typeof StageMetadataEntrySchema>;
 type StageMetadata = z.infer<typeof StageMetadataSchema>;
+export type StageMetadataEntry = StageMetadata[string];
 
 export type SessionState = {
   id: string;
@@ -379,7 +387,7 @@ export const updateEdge = createAction<{
   newAttributeData?: NcEdge[EntityAttributesProperty];
 }>(actionTypes.updateEdge);
 
-export const updateStageMetadata = createAction<StageMetadataEntry[]>(
+export const updateStageMetadata = createAction<StageMetadataEntry>(
   actionTypes.updateStageMetadata,
 );
 
