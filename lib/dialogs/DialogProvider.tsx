@@ -204,9 +204,9 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
           closeDialog={() => closeDialog(dialog.id)}
           accent={dialog.intent}
           ref={dialog.ref}
+          footer={renderDialogActions(dialog)}
         >
           {dialog.children}
-          {renderDialogActions(dialog)}
         </Dialog>
       ))}
     </DialogContext.Provider>

@@ -11,11 +11,11 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ActionButton from '~/components/interview/ActionButton';
+import Button from '~/components/ui/Button';
 import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { Form } from '~/lib/form';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
-import { Button } from '~/lib/ui/components';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getAdditionalAttributesSelector } from '../../../selectors/prop';
 import { useAppDispatch } from '../../../store';
@@ -125,6 +125,7 @@ const NodeForm = (props: NodeFormProps) => {
             type="submit"
             form="node-form"
             aria-label="Finished"
+            color="primary"
           >
             Finished
           </Button>

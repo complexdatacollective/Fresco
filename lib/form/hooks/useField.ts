@@ -40,7 +40,7 @@ export type UseFieldConfig = {
   fieldProps: {
     'value': FieldValue;
     'onChange': ChangeHandler; // Handles both direct value changes and event-based changes
-    'onBlur': () => void;
+    'onBlur': (e: React.FocusEvent) => void;
     'aria-required': boolean; // Indicates if the field is required
     'aria-invalid': boolean; // Indicates if the field is invalid
     'aria-describedby': string; // IDs of elements that provide additional information about the field
@@ -128,13 +128,29 @@ export function useField(config: {
     [config.name, setFieldValue, validateField],
   );
 
-  const handleBlur = useCallback(() => {
-    console.log('handleBlur', config.name);
-    setFieldTouched(config.name, true);
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      // Skip validation if clicking on a dialog close element
+      const relatedTarget = e.relatedTarget;
 
-    // TODO: cache validation result if value hasn't changed.
-    void validateField(config.name);
-  }, [config.name, validateField, setFieldTouched]);
+      if (relatedTarget?.hasAttribute('data-dialog-close')) {
+        return;
+      }
+
+      // Skip validation if this field is inside a dialog that's closing
+      const target = e.target as HTMLElement;
+      const parentDialog = target.closest('dialog');
+      if (parentDialog && !parentDialog.open) {
+        return;
+      }
+
+      setFieldTouched(config.name, true);
+
+      // TODO: cache validation result if value hasn't changed.
+      void validateField(config.name);
+    },
+    [config.name, validateField, setFieldTouched],
+  );
 
   // Ensure the value is never undefined to prevent uncontrolled to controlled warnings
   const currentValue = fieldState?.value ?? config.initialValue;

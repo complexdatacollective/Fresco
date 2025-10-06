@@ -12,6 +12,7 @@ export type DialogProps = {
   description?: string;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
+  footer?: React.ReactNode;
 } & React.DialogHTMLAttributes<HTMLDialogElement>;
 
 /**
@@ -33,7 +34,10 @@ export type DialogProps = {
  *   observer... but that's a bit much)
  */
 export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
-  ({ title, description, children, closeDialog, accent, ...rest }, ref) => {
+  (
+    { title, description, children, closeDialog, accent, footer, ...rest },
+    ref,
+  ) => {
     const id = useId();
     // TODO: automatic focus on least destructive action, or initialFocusEl ref.
     return (
@@ -42,6 +46,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         aria-labelledby={`${id}-title`}
         aria-describedby={description ? `${id}-description` : undefined}
         onClose={closeDialog} // Needed so that closing via keyboard still returns a value
+        onClick={(e) => {
+          // Close dialog when clicking on backdrop (the dialog element itself, not children)
+          if (e.target === e.currentTarget) {
+            closeDialog();
+          }
+        }}
         className={cx(
           'spring-discrete-medium',
           'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
@@ -78,7 +88,10 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
             </Paragraph>
           )}
           {children}
-          <CloseButton onClick={closeDialog} />
+          {footer && (
+            <footer className="mt-4 flex justify-end gap-2">{footer}</footer>
+          )}
+          <CloseButton onClick={closeDialog} data-dialog-close />
         </Surface>
       </dialog>
     );
