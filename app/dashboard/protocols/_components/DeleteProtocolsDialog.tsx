@@ -3,16 +3,8 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useState } from 'react';
 import { deleteProtocols } from '~/actions/protocols';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 type DeleteProtocolsDialogProps = {
@@ -62,71 +54,17 @@ export const DeleteProtocolsDialog = ({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={handleCancelDialog}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete{' '}
-            <strong>
-              {protocolsToDelete.length}{' '}
-              {protocolsToDelete.length > 1 ? <>protocols.</> : <>protocol.</>}
-            </strong>
-          </AlertDialogDescription>
-          {protocolsInfo.hasInterviews &&
-            !protocolsInfo.hasUnexportedInterviews && (
-              <Alert variant="info">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Warning</AlertTitle>
-                <AlertDescription>
-                  {protocolsToDelete.length > 1 ? (
-                    <>
-                      One or more of the selected protocols have interview data
-                      that will also be deleted. This data is marked as having
-                      been exported, but you may wish to confirm this before
-                      proceeding.
-                    </>
-                  ) : (
-                    <>
-                      The selected protocol has interview data that will also be
-                      deleted. This data is marked as having been exported, but
-                      you may wish to confirm this before proceeding.
-                    </>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
-          {protocolsInfo.hasUnexportedInterviews && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Warning</AlertTitle>
-              <AlertDescription>
-                {protocolsToDelete.length > 1 ? (
-                  <>
-                    One or more of the selected protocols have interview data
-                    that <strong>has not yet been exported.</strong> Deleting
-                    these protocols will also delete its interview data.
-                  </>
-                ) : (
-                  <>
-                    The selected protocol has interview data that
-                    <strong> has not yet been exported.</strong> Deleting this
-                    protocol will also delete its interview data.
-                  </>
-                )}
-              </AlertDescription>
-            </Alert>
-          )}
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} onClick={handleCancelDialog}>
+    <ControlledDialog
+      open={open}
+      closeDialog={() => handleCancelDialog()}
+      title="Are you absolutely sure?"
+      description="This action cannot be undone. This will permanently delete the selected protocols."
+      footer={
+        <>
+          <Button disabled={isDeleting} onClick={handleCancelDialog}>
             Cancel
-          </AlertDialogCancel>
-          <Button
-            disabled={isDeleting}
-            onClick={() => void handleConfirm()}
-            variant="destructive"
-          >
+          </Button>
+          <Button disabled={isDeleting} onClick={() => void handleConfirm()}>
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
@@ -137,8 +75,52 @@ export const DeleteProtocolsDialog = ({
               </>
             )}
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </>
+      }
+    >
+      {protocolsInfo.hasInterviews &&
+        !protocolsInfo.hasUnexportedInterviews && (
+          <Alert variant="info">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Warning</AlertTitle>
+            <AlertDescription>
+              {protocolsToDelete.length > 1 ? (
+                <>
+                  One or more of the selected protocols have interview data that
+                  will also be deleted. This data is marked as having been
+                  exported, but you may wish to confirm this before proceeding.
+                </>
+              ) : (
+                <>
+                  The selected protocol has interview data that will also be
+                  deleted. This data is marked as having been exported, but you
+                  may wish to confirm this before proceeding.
+                </>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+      {protocolsInfo.hasUnexportedInterviews && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Warning</AlertTitle>
+          <AlertDescription>
+            {protocolsToDelete.length > 1 ? (
+              <>
+                One or more of the selected protocols have interview data that{' '}
+                <strong>has not yet been exported.</strong> Deleting these
+                protocols will also delete its interview data.
+              </>
+            ) : (
+              <>
+                The selected protocol has interview data that
+                <strong> has not yet been exported.</strong> Deleting this
+                protocol will also delete its interview data.
+              </>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+    </ControlledDialog>
   );
 };

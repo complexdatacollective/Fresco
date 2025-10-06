@@ -93,7 +93,7 @@ export default function DropzoneField<T>({
         {!controller.field.value && (
           <>
             <FileText className="text-primary" size={28} />
-            <Paragraph style="smallText">
+            <Paragraph intent="smallText">
               Drag & drop file here, or click to select.
             </Paragraph>
           </>
@@ -101,7 +101,7 @@ export default function DropzoneField<T>({
         {controller.field.value && (
           <>
             <FileCheck size={28} />
-            <Paragraph style="smallText">
+            <Paragraph intent="smallText">
               File selected. Click import to continue, or drop a new file here
               to replace.
             </Paragraph>

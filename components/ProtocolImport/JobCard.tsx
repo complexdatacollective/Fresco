@@ -2,10 +2,10 @@ import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { forwardRef, useEffect, useState } from 'react';
 import { cx } from '~/utils/cva';
+import CloseButton from '../CloseButton';
 import Heading from '../typography/Heading';
 import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
-import { CloseButton } from '../ui/CloseButton';
 import ErrorDialog from '../ui/ErrorDialog';
 import { type ImportJob } from './JobReducer';
 
@@ -61,7 +61,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
           >
             {id}
           </Heading>
-          <Paragraph style="smallText" key={status} title={status}>
+          <Paragraph intent="smallText" key={status} title={status}>
             {!error
               ? `${status}...`
               : 'There was an error importing this protocol.'}

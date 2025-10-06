@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { cx } from '~/utils/cva';
 import Banner from '../Banner/Banner';
+import CloseButton from '../CloseButton';
 import Paragraph from '../typography/Paragraph';
 import { Button } from '../ui/Button';
-import { CloseButton } from '../ui/CloseButton';
 import FeedbackButton from './FeedbackButton';
 import SignOutModal from './SignOutModal';
 
@@ -55,7 +55,7 @@ const FeedbackBanner = () => {
             setOpenSignOutModal={setOpenSignOutModal}
           />
           <Button
-            variant="ghost"
+            variant="text"
             size="sm"
             className="font-bold"
             onClick={returnToDashboard}

@@ -60,7 +60,7 @@ ${error.stack}`;
             Something went wrong.
           </Heading>
         </div>
-        <Paragraph style="lead" className="mb-0">
+        <Paragraph intent="lead" className="mb-0">
           Fresco encountered an error while trying to load the page, and could
           not continue.
         </Paragraph>
@@ -71,7 +71,7 @@ ${error.stack}`;
           attempt to load the page again.
         </Paragraph>
         <div className="mt-4 flex flex-col gap-2">
-          <Button onClick={copyDebugInfoToClipboard} variant="ghost">
+          <Button onClick={copyDebugInfoToClipboard} variant="outline">
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>

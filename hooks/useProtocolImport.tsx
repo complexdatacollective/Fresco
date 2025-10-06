@@ -10,7 +10,7 @@ import {
   jobInitialState,
   jobReducer,
 } from '~/components/ProtocolImport/JobReducer';
-import { AlertDialogDescription } from '~/components/ui/AlertDialog';
+import Paragraph from '~/components/typography/Paragraph';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { uploadFiles } from '~/lib/uploadthing-client-helpers';
 import { getNewAssetIds, getProtocolByHash } from '~/queries/protocols';
@@ -91,12 +91,12 @@ export const useProtocolImport = () => {
             error: {
               title: 'Protocol version not supported',
               description: (
-                <AlertDialogDescription>
+                <>
                   The protocol you uploaded is not compatible with this version
                   of the app. Fresco supports protocols using version number
                   {APP_SUPPORTED_SCHEMA_VERSIONS.length > 1 ? 's' : ''}{' '}
                   {formatNumberList(APP_SUPPORTED_SCHEMA_VERSIONS)}.
-                </AlertDialogDescription>
+                </>
               ),
             },
           },
@@ -126,11 +126,11 @@ export const useProtocolImport = () => {
               title: 'The protocol is invalid!',
               description: (
                 <>
-                  <AlertDialogDescription>
+                  <Paragraph>
                     The protocol you uploaded is invalid. See the details below
                     for specific validation errors that were found.
-                  </AlertDialogDescription>
-                  <AlertDialogDescription>
+                  </Paragraph>
+                  <Paragraph>
                     If you believe that your protocol should be valid please ask
                     for help via our{' '}
                     <Link
@@ -140,7 +140,7 @@ export const useProtocolImport = () => {
                       community forum
                     </Link>
                     .
-                  </AlertDialogDescription>
+                  </Paragraph>
                 </>
               ),
               additionalContent: (
@@ -184,11 +184,11 @@ export const useProtocolImport = () => {
             error: {
               title: 'Protocol already exists',
               description: (
-                <AlertDialogDescription>
+                <Paragraph>
                   The protocol you attempted to import already exists in the
                   database. Delete the existing protocol first before attempting
                   to import it again.
-                </AlertDialogDescription>
+                </Paragraph>
               ),
             },
           },
@@ -366,9 +366,7 @@ export const useProtocolImport = () => {
             rawError: error,
             error: {
               title: 'Database error during protocol import',
-              description: (
-                <AlertDialogDescription>{error.message}</AlertDialogDescription>
-              ),
+              description: <Paragraph>{error.message}</Paragraph>,
               additionalContent: (
                 <ErrorDetails errorText={error.originalError.toString()}>
                   <pre>{error.originalError.toString()}</pre>
@@ -386,10 +384,10 @@ export const useProtocolImport = () => {
             error: {
               title: 'Error importing protocol',
               description: (
-                <AlertDialogDescription>
+                <Paragraph>
                   There was an unknown error while importing your protocol. The
                   information below might help us to debug the issue.
-                </AlertDialogDescription>
+                </Paragraph>
               ),
               additionalContent: (
                 <ErrorDetails errorText={JSON.stringify(error, null, 2)}>

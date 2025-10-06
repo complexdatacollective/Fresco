@@ -15,7 +15,7 @@ export default function Hint({
   // This could be implemented via zod registries: https://zod.dev/metadata
 
   return (
-    <Paragraph id={id} margin="none" style="smallText">
+    <Paragraph id={id} margin="none" intent="smallText">
       {children}
     </Paragraph>
   );

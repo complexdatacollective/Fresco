@@ -61,7 +61,7 @@ ${error.stack}`;
             There&apos;s a problem with Fresco.
           </Heading>
         </div>
-        <Paragraph style="lead" className="mb-0">
+        <Paragraph intent="lead" className="mb-0">
           Fresco encountered a serious error and is unable to continue.
         </Paragraph>
         <Paragraph>

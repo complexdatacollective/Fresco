@@ -162,7 +162,7 @@ export const affixVariants = cva({
 
 type InputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> &
   VariantProps<typeof inputWrapperVariants> & {
-    onChange: (value: FieldValue) => void;
+    onChange?: (value: FieldValue) => void;
     // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
     prefixComponent?: ReactNode;
     suffixComponent?: ReactNode;
@@ -198,7 +198,7 @@ export function InputField({
         value = String(value);
     }
 
-    onChange(value);
+    onChange?.(value);
   };
 
   return (

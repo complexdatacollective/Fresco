@@ -12,7 +12,7 @@ const PageHeader = ({
     <Heading variant="h1" className="mb-2">
       {headerText}
     </Heading>
-    <Paragraph style="lead">{subHeaderText}</Paragraph>
+    <Paragraph intent="lead">{subHeaderText}</Paragraph>
   </div>
 );
 

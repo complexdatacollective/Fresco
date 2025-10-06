@@ -31,7 +31,7 @@ export const Default: Story = {
           success: true,
         };
       }}
-      className="w-2xl rounded-md bg-white p-10 shadow-2xl"
+      className="elevation-high w-2xl rounded-md bg-white p-10"
     >
       <Field
         name="name"
@@ -116,18 +116,6 @@ export const Default: Story = {
           type="tel"
         />
       </FieldGroup>
-      {/* <Field
-        name="hobbies"
-        label="Hobbies"
-        hint="Add your hobbies (at least 2 required)"
-        Component={InputArrayField}
-        placeholder="Enter hobby"
-        addButtonText="Add Hobby"
-        initialValue={['Reading']}
-        validation={z
-          .array(z.string().min(1, 'Hobby cannot be empty'))
-          .min(2, 'At least 2 hobbies required')}
-      /> */}
 
       <SubmitButton className="mt-6" />
     </Form>
