@@ -118,11 +118,18 @@
   --charcoal--dark: calc(var(--charcoal-lightness) - var(--dark-mod))
     var(--charcoal-chroma) var(--charcoal-hue);
 
-  /* 
+  /*
   These colors are essentially variations of cyber grape:
   */
   --navy-taupe: 28% var(--cyber-grape-chroma) var(--cyber-grape-hue);
+  --navy-taupe--dark: calc(28% - var(--dark-mod)) var(--cyber-grape-chroma)
+    var(--cyber-grape-hue);
   --rich-black: 2% var(--cyber-grape-chroma) var(--cyber-grape-hue);
+  --rich-black--dark: calc(2% - var(--dark-mod)) var(--cyber-grape-chroma)
+    var(--cyber-grape-hue);
   --platinum: 95.93% 0.009 var(--cyber-grape-hue);
+  --platinum--dark: calc(95.93% - var(--dark-mod)) 0.009 var(--cyber-grape-hue);
   --slate-blue: 55% calc(var(--cyber-grape-chroma) * 2.2) var(--cyber-grape-hue);
+  --slate-blue--dark: calc(55% - var(--dark-mod))
+    calc(var(--cyber-grape-chroma) * 2.2) var(--cyber-grape-hue);
 }

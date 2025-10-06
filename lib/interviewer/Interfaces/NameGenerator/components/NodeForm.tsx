@@ -35,6 +35,8 @@ const NodeForm = (props: NodeFormProps) => {
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
   const icon = useSelector(getNodeIconName);
 
+  console.log('NodeForm render', icon);
+
   const [show, setShow] = useState(false);
 
   const dispatch = useAppDispatch();

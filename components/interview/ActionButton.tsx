@@ -2,7 +2,7 @@ import { PlusIcon } from 'lucide-react';
 import type dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import Icon from '../Icon';
+import Icon, { InterviewerIconName } from '../Icon';
 
 export type NodeIcon = keyof typeof dynamicIconImports;
 
@@ -20,7 +20,7 @@ const actionButtonVariants = cva({
 });
 
 const mainIconVariants = cva({
-  base: 'bg-primary text-white absolute inset-0 flex items-center justify-center rounded-full shadow-2xl scale-90',
+  base: 'bg-primary text-white absolute inset-0 flex items-center justify-center rounded-full shadow-2xl scale-90 overflow-hidden',
   variants: {
     disabled: {
       true: 'opacity-50 cursor-not-allowed pointer-events-none',
@@ -53,7 +53,7 @@ const plusIconVariants = cva({
 
 type ActionButtonProps = Omit<React.ComponentProps<'button'>, 'ref' | 'color'> &
   VariantProps<typeof actionButtonVariants> & {
-    iconName: NodeIcon;
+    iconName: InterviewerIconName;
   };
 
 const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
@@ -66,7 +66,7 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
         className={cx(actionButtonVariants({ disabled }), className)}
       >
         <div className={mainIconVariants({ disabled })}>
-          <Icon name={iconName} className="h-24 w-24" strokeWidth={1.5} />
+          <Icon name={iconName} className="h-full w-full" />
         </div>
         <div className={plusContainerVariants()}>
           <div>

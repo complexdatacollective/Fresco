@@ -4,8 +4,10 @@ import customIcons from '~/lib/ui/components/icons';
 type CustomIconName = keyof typeof customIcons;
 type LucideIconName = keyof typeof icons;
 
+export type InterviewerIconName = CustomIconName | LucideIconName;
+
 type IconProps = {
-  name: CustomIconName | LucideIconName;
+  name: InterviewerIconName;
 } & LucideProps;
 
 function isCustomIcon(name: string): name is CustomIconName {
@@ -20,7 +22,7 @@ export default function Icon({ name, ...props }: IconProps) {
   // Check custom icons first
   if (isCustomIcon(name)) {
     const CustomIcon = customIcons[name];
-    return <CustomIcon />;
+    return <CustomIcon {...props} />;
   }
 
   // Fall back to Lucide icons
@@ -31,5 +33,8 @@ export default function Icon({ name, ...props }: IconProps) {
   }
 
   // Invalid icon name
+  console.warn(
+    `Icon "${name}" not found in customIcons or lucide-react icons.`,
+  );
   return null;
 }
