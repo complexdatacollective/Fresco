@@ -343,11 +343,18 @@ export const EditExistingNode: Story = {
         age: 28,
         gender: 'female',
         occupation: 'Software Engineer',
-        isEmployed: true,
       },
     },
     form: basicForm,
     disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "This story demonstrates the initialValues feature. When editing an existing node, the form fields are pre-populated with the node's current attribute values. The form uses the `initialValues` parameter passed to `useProtocolForm` to set the initial field values.",
+      },
+    },
   },
 };
 
@@ -391,6 +398,69 @@ export const SingleFieldForm: Story = {
       ],
     },
     disabled: false,
+  },
+};
+
+// Form with multiple field types to demonstrate initialValues comprehensively
+const comprehensiveForm: TForm = {
+  title: 'Complete Profile',
+  fields: [
+    {
+      variable: 'name',
+      prompt: 'What is their name?',
+    },
+    {
+      variable: 'age',
+      prompt: 'How old are they?',
+    },
+    {
+      variable: 'gender',
+      prompt: 'What is their gender?',
+    },
+    {
+      variable: 'occupation',
+      prompt: 'What do they do for work?',
+    },
+    {
+      variable: 'favoriteColors',
+      prompt: 'What are their favorite colors?',
+    },
+    {
+      variable: 'isEmployed',
+      prompt: 'Are they currently employed?',
+    },
+    {
+      variable: 'bio',
+      prompt: 'Tell us a bit about them',
+    },
+  ],
+};
+
+export const EditWithMultipleFieldTypes: Story = {
+  args: {
+    selectedNode: {
+      [entityPrimaryKeyProperty]: 'node-3',
+      type: 'person',
+      [entityAttributesProperty]: {
+        name: 'Jordan Lee',
+        age: 32,
+        gender: 'non_binary',
+        occupation: 'UX Designer',
+        favoriteColors: ['blue', 'purple'],
+        isEmployed: true,
+        bio: 'A creative professional passionate about user experience and accessibility.',
+      },
+    },
+    form: comprehensiveForm,
+    disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'This story demonstrates initialValues with multiple field types including text, number, radio group, checkbox group, toggle, and textarea. All fields are pre-populated with the existing node data, showing how the form system handles different data types for initial values.',
+      },
+    },
   },
 };
 

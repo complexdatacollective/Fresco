@@ -154,7 +154,10 @@ const EgoForm = (props: EgoFormProps) => {
     [scrollProgress, showScrollStatus, isOverflowing],
   );
 
-  const fieldComponents = useProtocolForm(form.fields);
+  const fieldComponents = useProtocolForm({
+    fields: form.fields,
+    initialValues: egoAttributes,
+  });
 
   return (
     <div className="ego-form alter-form">
@@ -167,9 +170,7 @@ const EgoForm = (props: EgoFormProps) => {
             <h1>{introductionPanel!.title}</h1>
             <Markdown label={introductionPanel!.text} />
           </div>
-          <Form initialValues={egoAttributes} onSubmit={handleSubmitForm}>
-            {fieldComponents}
-          </Form>
+          <Form onSubmit={handleSubmitForm}>{fieldComponents}</Form>
         </Scroller>
       </div>
       <AnimatePresence>

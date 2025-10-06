@@ -2,7 +2,7 @@ import { PlusIcon } from 'lucide-react';
 import type dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import DynamicLucideIcon from '../DynamicLucideIcon';
+import Icon from '../Icon';
 
 export type NodeIcon = keyof typeof dynamicIconImports;
 
@@ -66,11 +66,7 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
         className={cx(actionButtonVariants({ disabled }), className)}
       >
         <div className={mainIconVariants({ disabled })}>
-          <DynamicLucideIcon
-            name={iconName}
-            className="h-24 w-24"
-            strokeWidth={1.5}
-          />
+          <Icon name={iconName} className="h-24 w-24" strokeWidth={1.5} />
         </div>
         <div className={plusContainerVariants()}>
           <div>

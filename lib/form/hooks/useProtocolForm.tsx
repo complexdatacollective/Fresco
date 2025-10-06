@@ -22,7 +22,7 @@ import { TextAreaField } from '../components/fields/TextArea';
 import { ToggleField } from '../components/fields/Toggle';
 import { ToggleButtonGroupField } from '../components/fields/ToggleButtonGroup';
 import { VisualAnalogScaleField } from '../components/fields/VisualAnalogScale';
-import { type FieldValidation } from '../types';
+import { type FieldValidation, type FieldValue } from '../types';
 import { validations } from '../validation';
 
 // @ts-expect-error Slider component erroneously exists - will be removed
@@ -44,9 +44,11 @@ const fieldTypeMap: Record<ComponentType, React.ElementType> = {
 export default function useProtocolForm({
   fields,
   autoFocus = false,
+  initialValues,
 }: {
   fields: FormField[];
   autoFocus?: boolean;
+  initialValues?: Record<string, FieldValue>;
 }) {
   const validationContext = useSelector(getValidationContext);
 
@@ -67,11 +69,17 @@ export default function useProtocolForm({
       before?: number;
       after?: number;
       validation?: FieldValidation;
+      initialValue?: FieldValue;
     } = {
-      name: field.name,
+      name: field.variable,
       label: field.label,
       component: field.component,
     };
+
+    // Set initial value if provided
+    if (initialValues?.[field.variable] !== undefined) {
+      props.initialValue = initialValues[field.variable];
+    }
 
     // process validation
     if (field.validation) {
@@ -94,7 +102,7 @@ export default function useProtocolForm({
                     ctx.addIssue({
                       code: 'custom',
                       message: issue.message,
-                      path: [field.name, ...issue.path],
+                      path: [field.variable, ...issue.path],
                     });
                   });
                 }
@@ -102,7 +110,7 @@ export default function useProtocolForm({
                 ctx.addIssue({
                   code: 'custom',
                   message: 'An error occurred while validating.',
-                  path: [field.name],
+                  path: [field.variable],
                 });
               }
             },

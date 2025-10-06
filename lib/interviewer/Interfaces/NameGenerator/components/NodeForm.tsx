@@ -73,7 +73,7 @@ const NodeForm = (props: NodeFormProps) => {
   const fieldComponents = useProtocolForm({
     fields: form.fields,
     autoFocus: true,
-    initialValues: selectedNode?.[entityAttributesProperty] ?? {},
+    initialValues: selectedNode?.[entityAttributesProperty],
   });
 
   // Handle form submission
@@ -108,8 +108,7 @@ const NodeForm = (props: NodeFormProps) => {
           <ActionButton
             disabled={disabled}
             onClick={() => setShow(true)}
-            iconName="user"
-            // icon={icon}
+            iconName={icon}
             title={`Add...`}
           />
         </motion.div>

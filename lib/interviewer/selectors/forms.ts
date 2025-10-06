@@ -26,6 +26,7 @@ export const selectFieldMetadata = createSelector(
 
       return {
         ...(codebookEntry as CodebookVariableWithComponent),
+        variable,
         label: prompt,
       };
     });
