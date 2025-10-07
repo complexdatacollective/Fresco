@@ -12,7 +12,7 @@
     "ts-lint": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
     "ts-lint:watch": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental --watch",
     "start": "next start",
-    "vercel-build": "node ./setup-database.js && node ./initialize.js && next build",
+    "netlify-build": "node ./setup-database.js && node ./initialize.js && next build",
     "knip": "knip",
     "test": "vitest",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",

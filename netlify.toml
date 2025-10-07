@@ -1,0 +1,8 @@
+[build]
+  command = "pnpm netlify-build"
+  publish = ".next"
+
+[[integrations]]
+    name = "Neon"
+
+
