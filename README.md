@@ -15,4 +15,4 @@ Thanks to [Chromatic](https://www.chromatic.com/) for providing the visual testi
 
 ## Deploy button
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/complexdatacollective/Fresco&branch=deployment/netlify&fullConfiguration=true&requiredExtensions="neon")
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/complexdatacollective/Fresco&branch=deployment/netlify&requiredExtensions="neon")
