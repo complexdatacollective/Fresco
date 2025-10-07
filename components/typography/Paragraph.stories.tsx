@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import Heading from './Heading';
 import Paragraph from './Paragraph';
 
 const meta = {
@@ -143,7 +144,7 @@ export const Margins: Story = {
 export const RealWorldExample: Story = {
   render: () => (
     <div className="max-w-2xl">
-      <h2 className="text-2xl">Understanding Type Systems</h2>
+      <Heading level="h2">Understanding Type Systems</Heading>
 
       <Paragraph intent="lead">
         A well-designed type system is the foundation of effective communication
@@ -173,10 +174,10 @@ export const RealWorldExample: Story = {
 export const LongFormContent: Story = {
   render: () => (
     <div className="max-w-2xl">
-      <Paragraph emphasis="muted" intent="smallText">
+      <Paragraph emphasis="muted" intent="smallText" margin="none">
         Article
       </Paragraph>
-      <h2 className="text-4xl">The History of Typography</h2>
+      <Heading level="h2">The History of Typography</Heading>
 
       <Paragraph intent="lead">
         Typography has evolved dramatically since the invention of the printing

@@ -4,22 +4,22 @@ import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const paragraphVariants = cva({
-  base: 'text-pretty text-base',
+  base: 'text-pretty font-normal text-base',
   variants: {
     intent: {
       default: '',
-      blockquote: 'mt-6 border-l-2 pl-6 italic',
+      blockquote: 'mt-4 border-l-2 pl-6 italic',
       inlineCode:
-        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
-      lead: 'mb-6 text-lg',
+        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold',
+      lead: 'text-lg',
       smallText: 'text-sm',
     },
     emphasis: {
-      default: '',
+      default: 'opacity-100',
       muted: 'text-current/60',
     },
     margin: {
-      default: 'not-first:mt-4',
+      default: 'mb-4',
       none: 'mt-0',
     },
   },
@@ -31,8 +31,8 @@ export const paragraphVariants = cva({
 
 type ParagraphProps = {
   intent?: VariantProps<typeof paragraphVariants>['intent'];
-  emphasis?: VariantProps<typeof paragraphVariants>['emphasis'];
   margin?: VariantProps<typeof paragraphVariants>['margin'];
+  emphasis?: VariantProps<typeof paragraphVariants>['emphasis'];
   asChild?: boolean;
 } & React.HTMLAttributes<HTMLParagraphElement>;
 

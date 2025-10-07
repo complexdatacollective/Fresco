@@ -5,7 +5,7 @@ import React from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const headingVariants = cva({
-  base: 'text-balance mt-4',
+  base: 'text-balance',
   variants: {
     level: {
       h1: 'scroll-m-20 text-3xl',
@@ -19,9 +19,14 @@ export const headingVariants = cva({
       'page-heading': 'text-4xl',
     },
     margin: {
-      default: 'not-first:mt-4',
-      none: 'mt-0',
+      default: 'mb-2',
+      none: 'mb-0',
     },
+  },
+  defaultVariants: {
+    level: 'h2',
+    variant: 'default',
+    margin: 'default',
   },
 });
 

@@ -40,7 +40,7 @@
     calc(-0.0075em + 0.0125vw),
     -0.01em
   );
-  --text-lg--font-weight: 400;
+  --text-lg--font-weight: 600;
 
   /* Level 2: xl */
   --text-xl: clamp(1.266rem, calc(1.141rem + 0.625vw), 1.563rem);
@@ -50,7 +50,7 @@
     calc(-0.0125em + 0.0125vw),
     -0.015em
   );
-  --text-xl--font-weight: 400;
+  --text-xl--font-weight: 600;
 
   /* Level 3: 2xl */
   --text-2xl: clamp(1.424rem, calc(1.174rem + 1.25vw), 1.953rem);
