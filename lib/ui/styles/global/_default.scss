@@ -275,23 +275,10 @@ $schema-colors: (
 
 @include color-sequence('schema-color-seq', $schema-colors, true);
 
-$base-line-height: 1.5;
-$netcanvas-font-stack: 'Quicksand', 'Open Sans', sans-serif;
-$system-font-stack: 'system-ui', sans-serif;
-
 :root {
   // Typographic base styles
-  --nc-heading-font-family: #{$netcanvas-font-stack};
-  --nc-body-font-family: #{$system-font-stack};
-  --code-font: courier;
   --interface-prompt-flex-basis: 8rem;
-  --nc-base-font-size: min(
-    max(14px, calc(0.875rem + ((1vw - 6.4px) * 0.3125))),
-    18px
-  );
-  --nc-border-radius: 0.75rem;
-
-  font-size: var(--nc-base-font-size);
+  --nc-base-font-size: 16px --nc-border-radius: 0.75rem;
 
   // Link color
   --nc-link-color: var(--color-neon-coral);
@@ -387,19 +374,11 @@ $system-font-stack: 'system-ui', sans-serif;
   }
 }
 
-html {
-  font-family: var(--nc-body-font-family);
-  font-size: var(--nc-base-font-size);
-}
-
 a {
   color: var(--nc-link-color);
 }
 
 // Headings
-
-$headings-font-weight: 600 !default;
-$headings-line-height: 1.1 !default;
 
 // Based of px sizes in style guide (em values were inconsistent)
 $headings: (
@@ -423,142 +402,6 @@ $headings: (
     0.75rem,
     var(--nc-heading-font-family),
   ),
-);
-
-@mixin text($font-size, $font-family) {
-  font-family: $font-family;
-  font-size: $font-size;
-  font-weight: $headings-font-weight;
-  letter-spacing: 0.05rem;
-  line-height: $headings-line-height;
-}
-
-@include typography.type-set(
-  'quicksand',
-  base,
-  (
-    font-family: var(--nc-heading-font-family),
-    font-size: 1rem,
-    line-height: $base-line-height,
-    font-weight: $headings-font-weight,
-  )
-);
-@include typography.type-set(
-  'light',
-  base,
-  (
-    font-weight: 300,
-  )
-);
-@include typography.type-set(
-  'medium',
-  base,
-  (
-    font-weight: 500,
-  )
-);
-@include typography.type-set(
-  'bold',
-  base,
-  (
-    font-weight: 700,
-  )
-);
-@include typography.type-set(
-  'center',
-  base,
-  (
-    text-align: center,
-  )
-);
-// H1  - questions, form, and menu headlines
-@include typography.type-set(
-  'main-title',
-  base,
-  (
-    font-family: var(--nc-heading-font-family),
-    font-size: 3rem,
-    font-weight: 700,
-    text-align: center,
-  )
-);
-
-@include typography.type-set(
-  'title-1',
-  base,
-  (
-    font-family: var(--nc-heading-font-family),
-    font-size: 2.3rem,
-    font-weight: 700,
-    text-align: center,
-    width: 100%,
-  )
-);
-
-// H2 - Form question headlines, buttons, text links
-@include typography.type-set(
-  'title-2',
-  base,
-  (
-    font-size: 1.2rem,
-    font-weight: 500,
-  )
-);
-
-// H3 - Large nodes, name generator panel, ordinal bins, categorial bins
-@include typography.type-set(
-  'title-3',
-  base,
-  (
-    font-size: 1.05rem,
-    font-weight: $headings-font-weight,
-    text-align: center,
-  )
-);
-// H4 - Menu items, error message headline, body copy
-@include typography.type-set(
-  'title-4',
-  base,
-  (
-    font-size: 1rem,
-    line-height: $base-line-height,
-  )
-);
-// H5 - Small nodes, context bins, number counter, form field label
-@include typography.type-set(
-  'title-5',
-  base,
-  (
-    font-size: 0.8rem,
-    line-height: $base-line-height,
-  )
-);
-
-// Copy sizes
-@include typography.type-set(
-  'copy-large',
-  base,
-  (
-    font-size: 1.1rem,
-    line-height: $base-line-height,
-  )
-);
-@include typography.type-set(
-  'copy-standard',
-  base,
-  (
-    font-size: 1rem,
-    line-height: $base-line-height,
-  )
-);
-@include typography.type-set(
-  'copy-small',
-  base,
-  (
-    font-size: 0.7rem,
-    line-height: $base-line-height,
-    font-weight: 100,
-  )
 );
 
 @if $export-ui-classes {

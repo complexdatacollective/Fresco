@@ -2,7 +2,7 @@ import { PlusIcon } from 'lucide-react';
 import type dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import Icon, { InterviewerIconName } from '../Icon';
+import Icon, { type InterviewerIconName } from '../Icon';
 
 export type NodeIcon = keyof typeof dynamicIconImports;
 

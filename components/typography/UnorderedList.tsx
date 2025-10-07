@@ -8,7 +8,12 @@ export default function UnorderedList({
   className?: string;
 }) {
   return (
-    <ul className={cx('my-2 ml-8 list-disc [&>li]:mt-1', className)}>
+    <ul
+      className={cx(
+        'mt-4 ml-8 list-disc text-base [&>li]:mt-2 [li>&]:mt-0',
+        className,
+      )}
+    >
       {children}
     </ul>
   );

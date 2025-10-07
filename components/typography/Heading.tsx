@@ -5,17 +5,18 @@ import React from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const headingVariants = cva({
-  base: 'text-balance',
+  base: 'text-balance mt-4',
   variants: {
+    level: {
+      h1: 'scroll-m-20 text-3xl',
+      h2: 'scroll-m-20 text-2xl ',
+      h3: 'scroll-m-20 text-xl',
+      h4: 'scroll-m-20 text-lg',
+    },
     variant: {
-      'h1': 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
-      'h2': 'scroll-m-20 text-3xl font-semibold tracking-tight',
-      'h3': 'scroll-m-20 text-2xl font-semibold tracking-tight',
-      'h4': 'scroll-m-20 text-xl font-semibold tracking-tight',
-      'h4-all-caps':
-        'scroll-m-20 text-sm font-extrabold tracking-widest uppercase',
-      'label':
-        'scroll-m-20 text-md font-bold tracking-normal peer-disabled:opacity-70 peer-disabled:cursor-not-allowed',
+      'default': '',
+      'all-caps': 'uppercase tracking-widest',
+      'page-heading': 'text-4xl',
     },
     margin: {
       default: 'not-first:mt-4',
@@ -24,19 +25,7 @@ export const headingVariants = cva({
   },
 });
 
-type VariantPropType = VariantProps<typeof headingVariants>;
-
-const variantElementMap: Record<
-  NonNullable<VariantPropType['variant']>,
-  string
-> = {
-  'h1': 'h1',
-  'h2': 'h2',
-  'h3': 'h3',
-  'h4': 'h4',
-  'h4-all-caps': 'h4',
-  'label': 'label',
-};
+export type VariantPropType = VariantProps<typeof headingVariants>;
 
 type HeadingProps = {
   asChild?: boolean;
@@ -45,13 +34,11 @@ type HeadingProps = {
   VariantProps<typeof headingVariants>;
 
 const Heading = React.forwardRef<HTMLElement, HeadingProps>(
-  ({ className, variant, as, asChild, ...props }, ref) => {
-    const Comp = asChild
-      ? Slot
-      : (as ?? (variant ? variantElementMap[variant] : undefined) ?? 'div');
+  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
+    const Comp = asChild ? Slot : (as ?? level ?? 'div');
     return (
       <Comp
-        className={cx(headingVariants({ variant, className }))}
+        className={cx(headingVariants({ variant, level, margin, className }))}
         ref={ref}
         {...props}
       />

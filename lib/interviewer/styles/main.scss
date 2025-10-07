@@ -8,11 +8,6 @@
 $font-path: '~/lib/ui/assets/fonts';
 $image-path: '~/lib/ui/assets/images';
 
-body,
-html {
-  overflow: hidden;
-}
-
 // Override UI toast style for now (make wider)
 .toast-container-list {
   align-items: flex-end;

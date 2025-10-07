@@ -4,20 +4,19 @@ import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const paragraphVariants = cva({
-  base: 'text-pretty font-normal',
+  base: 'text-pretty text-base',
   variants: {
     intent: {
       default: '',
       blockquote: 'mt-6 border-l-2 pl-6 italic',
       inlineCode:
         'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
-      lead: 'mb-3 text-lg text-opacity-70 font-semibold md:text-xl leading-6',
-      mutedText: 'text-muted',
+      lead: 'mb-6 text-lg',
       smallText: 'text-sm',
     },
     emphasis: {
       default: '',
-      muted: 'text-muted',
+      muted: 'text-current/60',
     },
     margin: {
       default: 'not-first:mt-4',

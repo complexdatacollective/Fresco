@@ -9,7 +9,7 @@ const PageHeader = ({
   subHeaderText: string;
 }) => (
   <div>
-    <Heading variant="h1" className="mb-2">
+    <Heading level="h1" variant="page-heading" className="mb-2">
       {headerText}
     </Heading>
     <Paragraph intent="lead">{subHeaderText}</Paragraph>

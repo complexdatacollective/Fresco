@@ -56,7 +56,7 @@ const JobCard = forwardRef<HTMLLIElement, JobCardProps>(
         </motion.div>
         <motion.div className="w-72" layout>
           <Heading
-            className="text-md text-balance-['unset'] flex-1 truncate"
+            className="text-balance-['unset'] flex-1 truncate text-base"
             variant="h4"
           >
             {id}

@@ -1,16 +1,8 @@
 import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '~/components/ui/AlertDialog';
 import { Button } from '~/components/ui/Button';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 
 type DeleteParticipantsDialog = {
   open: boolean;
@@ -84,25 +76,16 @@ export const DeleteParticipantsDialog = ({
   }, [haveInterviews, haveUnexportedInterviews, participantCount]);
 
   return (
-    <AlertDialog open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete{' '}
-            <strong>
-              {`${participantCount} participant${
-                participantCount > 1 ? 's' : ''
-              }`}
-            </strong>
-            .
-          </AlertDialogDescription>
-          {dialogContent}
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} onClick={onCancel}>
+    <ControlledDialog
+      open={open}
+      closeDialog={onCancel}
+      title="Are you absolutely sure?"
+      description={`This action cannot be undone. This will permanently delete ${participantCount} participant${participantCount > 1 ? 's' : ''}.`}
+      footer={
+        <>
+          <Button onClick={onCancel} disabled={isDeleting}>
             Cancel
-          </AlertDialogCancel>
+          </Button>
           <Button
             disabled={isDeleting}
             onClick={async () => {
@@ -110,7 +93,7 @@ export const DeleteParticipantsDialog = ({
               await onConfirm();
               setIsDeleting(false);
             }}
-            variant="destructive"
+            color="destructive"
           >
             {isDeleting ? (
               <>
@@ -122,8 +105,10 @@ export const DeleteParticipantsDialog = ({
               </>
             )}
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </>
+      }
+    >
+      {dialogContent}
+    </ControlledDialog>
   );
 };

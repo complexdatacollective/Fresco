@@ -80,7 +80,7 @@ function ProtocolUploader({
       <Portal>
         <motion.div
           layout
-          className="text-md fixed right-6 bottom-4 z-10 w-[400px]"
+          className="fixed right-6 bottom-4 z-10 w-[400px] text-base"
         >
           <motion.ul className="relative flex flex-col-reverse gap-2" layout>
             <AnimatePresence mode="popLayout">

@@ -1,11 +1,12 @@
 'use client';
 
+import { Slot } from '@radix-ui/react-slot';
 import React, { forwardRef, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
+import { headingVariants } from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { cx } from '~/utils/cva';
+import { cx, type VariantProps } from '~/utils/cva';
 
 export type DialogProps = {
   title: string;
@@ -79,9 +80,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
             'border-b-primary elevation-none overflow-hidden rounded-lg border-b-4',
           )}
         >
-          <Heading variant="h2" id={`${id}-title`} className="me-8">
+          <DialogHeading level="h2" id={`${id}-title`} className="me-8">
             {title}
-          </Heading>
+          </DialogHeading>
           {description && (
             <Paragraph id={`${id}-description`} intent="lead" className="mb-4">
               {description}
@@ -99,3 +100,24 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
 );
 
 Dialog.displayName = 'Dialog';
+
+type DialogHeadingProps = {
+  asChild?: boolean;
+  as?: string;
+} & React.HTMLAttributes<HTMLHeadingElement> &
+  VariantProps<typeof headingVariants>;
+
+const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
+  ({ className, variant, level, margin, as, asChild, ...props }, ref) => {
+    const Comp = asChild ? Slot : (as ?? level ?? 'h2');
+    return (
+      <Comp
+        className={cx(headingVariants({ variant, level, margin, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+
+DialogHeading.displayName = 'DialogHeading';
