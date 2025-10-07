@@ -3,4 +3,4 @@
   publish = ".next"
 
 [template]
-  required-extensions = ["neon"]
+  required-extensions = ["supabase"]
