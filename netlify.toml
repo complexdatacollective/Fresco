@@ -2,9 +2,5 @@
   command = "pnpm netlify-build"
   publish = ".next"
 
-[environment]
-  POSTGRES_PRISMA_URL = "${DATABASE_URL}"
-  POSTGRES_URL_NON_POOLING = "${DATABASE_URL}"
-
-[[integrations]]
-    name = "Neon"
+[template]
+  required-extensions = ["neon"]
