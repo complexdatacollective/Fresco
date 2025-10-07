@@ -16,25 +16,25 @@
   --text-*: initial;
   /* Level -2: xs */
   --text-xs: clamp(0.79rem, calc(0.733rem + 0.283vw), 0.64rem);
-  --text-xs--line-height: clamp(1.3rem, calc(1.2rem + 0.5vw), 1.12rem);
+  --text-xs--line-height: clamp(1.43rem, calc(1.32rem + 0.55vw), 1.232rem);
   --text-xs--letter-spacing: clamp(0.025em, calc(0.02em + 0.025vw), 0.04em);
   --text-xs--font-weight: 400;
 
   /* Level -1: sm */
   --text-sm: clamp(0.889rem, calc(0.844rem + 0.223vw), 0.8rem);
-  --text-sm--line-height: clamp(1.42rem, calc(1.35rem + 0.36vw), 1.36rem);
+  --text-sm--line-height: clamp(1.562rem, calc(1.485rem + 0.396vw), 1.496rem);
   --text-sm--letter-spacing: clamp(0.015em, calc(0.01em + 0.025vw), 0.025em);
   --text-sm--font-weight: 400;
 
   /* Level 0: base */
   --text-base: 1rem;
-  --text-base--line-height: clamp(1.5rem, calc(1.475rem + 0.125vw), 1.6rem);
+  --text-base--line-height: clamp(1.65rem, calc(1.623rem + 0.138vw), 1.76rem);
   --text-base--letter-spacing: 0;
   --text-base--font-weight: 400;
 
   /* Level 1: lg */
   --text-lg: clamp(1.125rem, calc(1.063rem + 0.313vw), 1.25rem);
-  --text-lg--line-height: clamp(1.63rem, calc(1.54rem + 0.47vw), 1.94rem);
+  --text-lg--line-height: clamp(1.793rem, calc(1.694rem + 0.517vw), 2.134rem);
   --text-lg--letter-spacing: clamp(
     -0.005em,
     calc(-0.0075em + 0.0125vw),
@@ -44,7 +44,7 @@
 
   /* Level 2: xl */
   --text-xl: clamp(1.266rem, calc(1.141rem + 0.625vw), 1.563rem);
-  --text-xl--line-height: clamp(1.77rem, calc(1.57rem + 1vw), 2.34rem);
+  --text-xl--line-height: clamp(1.947rem, calc(1.727rem + 1.1vw), 2.574rem);
   --text-xl--letter-spacing: clamp(
     -0.01em,
     calc(-0.0125em + 0.0125vw),
@@ -54,7 +54,7 @@
 
   /* Level 3: 2xl */
   --text-2xl: clamp(1.424rem, calc(1.174rem + 1.25vw), 1.953rem);
-  --text-2xl--line-height: clamp(1.85rem, calc(1.5rem + 1.75vw), 2.73rem);
+  --text-2xl--line-height: clamp(2.035rem, calc(1.65rem + 1.925vw), 3.003rem);
   --text-2xl--letter-spacing: clamp(
     -0.015em,
     calc(-0.0175em + 0.0125vw),
@@ -64,7 +64,7 @@
 
   /* Level 4: 3xl */
   --text-3xl: clamp(1.602rem, calc(1.143rem + 2.295vw), 2.441rem);
-  --text-3xl--line-height: clamp(1.92rem, calc(1.34rem + 2.9vw), 3.17rem);
+  --text-3xl--line-height: clamp(2.112rem, calc(1.474rem + 3.19vw), 3.487rem);
   --text-3xl--letter-spacing: clamp(
     -0.02em,
     calc(-0.0225em + 0.0125vw),
@@ -74,7 +74,7 @@
 
   /* Level 5: 4xl */
   --text-4xl: clamp(1.802rem, calc(1.052rem + 3.75vw), 3.052rem);
-  --text-4xl--line-height: clamp(1.98rem, calc(1.1rem + 4.4vw), 3.66rem);
+  --text-4xl--line-height: clamp(2.178rem, calc(1.21rem + 4.84vw), 4.026rem);
   --text-4xl--letter-spacing: clamp(
     -0.025em,
     calc(-0.0275em + 0.0125vw),
@@ -251,7 +251,7 @@
     Spacing
   */
   --spacing-*: initial;
-  --spacing: 0.25em;
+  --spacing: 0.33em;
 
   /*
     Breakpoints/Containers
