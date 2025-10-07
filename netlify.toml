@@ -2,6 +2,9 @@
   command = "pnpm netlify-build"
   publish = ".next"
 
+[template]
+  required-extensions = ["neon"]
+
 [template.environment]
   POSTGRES_PRISMA_URL = "Prisma connection URL"
   POSTGRES_URL_NON_POOLING = "Direct Postgres connection URL"
