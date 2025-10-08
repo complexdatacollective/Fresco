@@ -5,8 +5,7 @@ import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTree
 type VariableValue = string | number | boolean | null;
 
 type UsePlaceholderNodeFormSubmitArgs = {
-  egoNodeId: string;
-  step2Nodes: PlaceholderNodeProps[];
+  nodes: PlaceholderNodeProps[];
   newNodeAttributes: Partial<PlaceholderNodeProps>;
   setPlaceholderNodes: (nodes: PlaceholderNodeProps[]) => void;
   setShow: (show: boolean) => void;
@@ -14,14 +13,13 @@ type UsePlaceholderNodeFormSubmitArgs = {
 };
 
 export function usePlaceholderNodeFormSubmit({
-  egoNodeId,
-  step2Nodes,
+  nodes,
   newNodeAttributes,
   setPlaceholderNodes,
   setShow,
   onClose,
 }: UsePlaceholderNodeFormSubmitArgs) {
-  const { getParents } = useRelatives(egoNodeId, step2Nodes);
+  const { getParents } = useRelatives(nodes);
   const getExPartnerForParent = (
     allNodes: PlaceholderNodeProps[],
     parentNode: PlaceholderNodeProps,
@@ -42,9 +40,8 @@ export function usePlaceholderNodeFormSubmit({
 
       // decide maternal vs paternal prefix
       const relationLabel =
-        step2Nodes.find(
-          (n) => n.id === fullData[`${fullData.relation}Relation`],
-        )?.label ?? '';
+        nodes.find((n) => n.id === fullData[`${fullData.relation}Relation`])
+          ?.label ?? '';
 
       const isMaternal = /mother|maternal/i.test(relationLabel);
       const labelPrefix = isMaternal ? 'maternal' : 'paternal';
@@ -72,12 +69,10 @@ export function usePlaceholderNodeFormSubmit({
 
         case 'brother':
         case 'sister': {
-          const egoNode = step2Nodes.find((n) => n.id === egoNodeId);
+          const egoNode = nodes.filter((node) => node.isEgo === true);
           if (!egoNode) break;
 
-          parentsArray = step2Nodes.filter((n) =>
-            egoNode.parentIds.includes(n.id),
-          );
+          parentsArray = nodes.filter((n) => egoNode.parentIds.includes(n.id));
 
           newNode = {
             id: crypto.randomUUID(),
@@ -95,7 +90,7 @@ export function usePlaceholderNodeFormSubmit({
 
         case 'son':
         case 'daughter': {
-          const egoNode = step2Nodes.find((n) => n.id === egoNodeId);
+          const egoNode = nodes.filter((node) => node.isEgo === true);
           if (!egoNode) break;
 
           let updatedEgo: PlaceholderNodeProps = egoNode;
@@ -119,7 +114,7 @@ export function usePlaceholderNodeFormSubmit({
             parentsArray = [updatedEgo, partnerNode];
             newNodeParentIds = [updatedEgo.id, partnerId];
           } else {
-            partnerNode = step2Nodes.find((n) => n.id === egoNode.partnerId);
+            partnerNode = nodes.find((n) => n.id === egoNode.partnerId);
             if (partnerNode) {
               parentsArray = [egoNode, partnerNode];
               newNodeParentIds = [egoNode.id, partnerNode.id];
@@ -163,13 +158,13 @@ export function usePlaceholderNodeFormSubmit({
 
         case 'halfBrother':
         case 'halfSister': {
-          const selectedRelative = step2Nodes.find(
+          const selectedRelative = nodes.find(
             (n) => n.id === fullData[`${fullData.relation}Relation`],
           );
           if (!selectedRelative) break;
 
           let partnerNode: PlaceholderNodeProps;
-          const exPartner = getExPartnerForParent(step2Nodes, selectedRelative);
+          const exPartner = getExPartnerForParent(nodes, selectedRelative);
 
           if (exPartner) {
             partnerNode = exPartner;
@@ -237,7 +232,7 @@ export function usePlaceholderNodeFormSubmit({
         case 'granddaughter':
         case 'grandson': {
           const relativeId = fullData[`${fullData.relation}Relation`] as string;
-          const selectedRelative = step2Nodes.find((n) => n.id === relativeId);
+          const selectedRelative = nodes.find((n) => n.id === relativeId);
           if (!selectedRelative) break;
 
           let updatedSelectedRelative: PlaceholderNodeProps = selectedRelative;
@@ -261,7 +256,7 @@ export function usePlaceholderNodeFormSubmit({
             parentsArray = [updatedSelectedRelative, partnerNode];
             newNodeParentIds = [updatedSelectedRelative.id, partnerId];
           } else {
-            partnerNode = step2Nodes.find(
+            partnerNode = nodes.find(
               (n) => n.id === selectedRelative.partnerId,
             );
             if (partnerNode) {
@@ -334,7 +329,7 @@ export function usePlaceholderNodeFormSubmit({
       setShow(false);
       onClose();
     },
-    [newNodeAttributes, onClose, step2Nodes, setPlaceholderNodes, setShow],
+    [newNodeAttributes, onClose, nodes, setPlaceholderNodes, setShow],
   );
 
   return { handleSubmit };

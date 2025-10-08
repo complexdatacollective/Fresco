@@ -6,6 +6,7 @@ import { FAMILY_TREE_CONFIG } from '../config';
 
 export default function FamilyTreeNode(props: {
   interviewNetworkId?: string;
+  placeholderId: string;
   label: string;
   shape: 'circle' | 'square';
   allowDrag: boolean;
@@ -13,7 +14,16 @@ export default function FamilyTreeNode(props: {
   x: number;
   y: number;
 }) {
-  const { label, allowDrag, x, y, shape, isEgo, interviewNetworkId } = props;
+  const {
+    placeholderId,
+    label,
+    allowDrag,
+    x,
+    y,
+    shape,
+    isEgo,
+    interviewNetworkId,
+  } = props;
   const nodeTypeColor = useSelector(getNodeColorSelector);
 
   const nodeColor = () => {
@@ -31,7 +41,7 @@ export default function FamilyTreeNode(props: {
 
   const { dragProps } = useDragSource({
     type: 'node',
-    metadata: { itemType: 'FAMILY_TREE_NODE' },
+    metadata: { itemType: 'FAMILY_TREE_NODE', placeholderId: placeholderId },
     announcedName: label,
     disabled: !allowDrag,
   });

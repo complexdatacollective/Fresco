@@ -45,6 +45,7 @@ type NetworkActions = {
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
   generatePlaceholderNetwork: (formData: Record<string, number>) => void;
+  addPlaceholderNode: (formData) => void;
   runLayout: () => void;
 };
 
@@ -570,6 +571,8 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
         },
 
+        // TODO: add back in the functionality where deleting all children removes
+        // read only from non blood partner/ex-partner
         removeNode: (id) => {
           set((state) => {
             state.network.nodes.delete(id);
@@ -772,7 +775,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               const sonId = addNode({
                 label: 'son',
                 sex: 'male',
-                readOnly: true,
+                readOnly: false,
               });
               addEdge({
                 source: 'ego',
@@ -880,6 +883,203 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
 
           store.runLayout();
+        },
+
+        // addPlaceholderNode: (formData) => {
+        //   const store = get();
+        //   const { addNode, addEdge } = store;
+        //   const { value } = formData;
+        //   console.log(value);
+        //   console.log(value.relation);
+        //   console.log(value[`${value.relation}Relation`]);
+
+        //   const newRelative = value.relation;
+
+        //   const newRelativeId = addNode({
+        //     label: newRelative,
+        //     sex: 'female',
+        //     readOnly: false,
+        //   });
+        //   addEdge({
+        //     source: value[`${newRelative}Relation`],
+        //     target: newRelativeId,
+        //     relationship: 'parent',
+        //   });
+
+        //   store.runLayout();
+        // },
+
+        addPlaceholderNode: (relation: string, anchorId?: string) => {
+          const store = get();
+          const { addNode, addEdge, network } = store;
+
+          const inferSex = (relation: string): Sex => {
+            if (/brother|uncle|son|nephew|father|grandfather/i.test(relation))
+              return 'male';
+            if (/sister|aunt|daughter|niece|mother|grandmother/i.test(relation))
+              return 'female';
+            return 'female';
+          };
+
+          const ensurePartner = (nodeId: string): string | null => {
+            const node = network.nodes.get(nodeId);
+            if (!node) return null;
+
+            // Check if partner already exists
+            for (const [, edge] of network.edges) {
+              if (
+                edge.relationship === 'partner' &&
+                (edge.source === nodeId || edge.target === nodeId)
+              ) {
+                return edge.source === nodeId ? edge.target : edge.source;
+              }
+            }
+
+            // If not, create one
+            const partnerSex = node.sex === 'male' ? 'female' : 'male';
+            const partnerId = addNode({
+              label: `${node.label}'s partner`,
+              sex: partnerSex,
+              readOnly: true,
+            });
+
+            addEdge({
+              source: partnerId,
+              target: nodeId,
+              relationship: 'partner',
+            });
+
+            return partnerId;
+          };
+
+          const ensureExPartner = (nodeId: string): string | null => {
+            const node = network.nodes.get(nodeId);
+            console.log(nodeId);
+            if (!node) return null;
+
+            // Check if an ex-partner already exists
+            for (const [, edge] of network.edges) {
+              if (
+                edge.relationship === 'ex-partner' &&
+                (edge.source === nodeId || edge.target === nodeId)
+              ) {
+                return edge.source === nodeId ? edge.target : edge.source;
+              }
+            }
+
+            // Otherwise create a new ex-partner
+            const exPartnerSex = node.sex === 'male' ? 'female' : 'male';
+            const exPartnerId = addNode({
+              label: `${node.label}'s ex-partner`,
+              sex: exPartnerSex,
+              readOnly: true,
+            });
+
+            addEdge({
+              source: exPartnerId,
+              target: nodeId,
+              relationship: 'ex-partner',
+            });
+
+            return exPartnerId;
+          };
+
+          const connectAsChild = (parentId: string) => {
+            addEdge({
+              source: parentId,
+              target: newNodeId,
+              relationship: 'parent',
+            });
+          };
+
+          const sex = inferSex(relation);
+          const newNodeId = addNode({
+            label: relation,
+            sex,
+            readOnly: false,
+          });
+
+          const rel = relation.toLowerCase();
+          console.log(rel);
+
+          // half siblings (step-sibling or step-child)
+          if (rel.includes('half')) {
+            if (!anchorId) {
+              console.warn(`Step relation requires anchorId`);
+              return newNodeId;
+            }
+            const exPartnerId = ensureExPartner(anchorId);
+            if (exPartnerId) connectAsChild(exPartnerId);
+            connectAsChild(anchorId);
+          }
+
+          // ego’s children
+          else if (rel.includes('son') || rel.includes('daughter')) {
+            const egoId = 'ego';
+            if (network.nodes.has(egoId)) {
+              const partnerId = ensurePartner(egoId);
+              connectAsChild(egoId);
+              if (partnerId) connectAsChild(partnerId);
+            }
+          }
+
+          // siblings (brother, sister)
+          else if (rel.includes('brother') || rel.includes('sister')) {
+            // always connect to both parents
+            if (network.nodes.has('mother')) connectAsChild('mother');
+            if (network.nodes.has('father')) connectAsChild('father');
+          }
+
+          // nieces and nephews (child of ego’s sibling)
+          else if (rel.includes('niece') || rel.includes('nephew')) {
+            if (!anchorId) {
+              console.warn(`Niece/nephew relation requires anchorId`);
+              return newNodeId;
+            }
+            const partnerId = ensurePartner(anchorId);
+            connectAsChild(anchorId);
+            if (partnerId) connectAsChild(partnerId);
+          }
+
+          // cousins (child of aunt/uncle)
+          else if (rel.includes('cousin')) {
+            if (!anchorId) {
+              console.warn(`Cousin relation requires anchorId`);
+              return newNodeId;
+            }
+            const partnerId = ensurePartner(anchorId);
+            connectAsChild(anchorId);
+            if (partnerId) connectAsChild(partnerId);
+          }
+
+          // grandchildren
+          else if (rel.includes('grandson') || rel.includes('granddaughter')) {
+            if (!anchorId) {
+              console.warn(`Grandchild relation requires anchorId`);
+              return newNodeId;
+            }
+            const partnerId = ensurePartner(anchorId);
+            connectAsChild(anchorId);
+            if (partnerId) connectAsChild(partnerId);
+          }
+
+          // aunt/uncle
+          else if (rel.includes('aunt') || rel.includes('uncle')) {
+            // anchorId should be either 'mother' or 'father'
+            if (!anchorId) {
+              console.warn(`Aunt/uncle relation requires anchorId`);
+              return newNodeId;
+            }
+            // find grandparents of that parent
+            for (const [, edge] of network.edges) {
+              if (edge.relationship === 'parent' && edge.target === anchorId) {
+                connectAsChild(edge.source);
+              }
+            }
+          }
+
+          store.runLayout();
+          return newNodeId;
         },
 
         runLayout: () => {

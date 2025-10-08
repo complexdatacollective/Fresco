@@ -3,6 +3,14 @@ import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfac
 
 export type RelativeOption = { label: string; value: string };
 
+const motherKey = 'mother';
+const fatherKey = 'father';
+const maternalMotherKey = 'maternal-grandmother';
+const maternalFatherKey = 'maternal-grandfather';
+const paternalMotherKey = 'paternal-grandmother';
+const paternalFatherKey = 'paternal-grandfather';
+const egoKey = 'ego';
+
 type RelativesResult = {
   mother: PlaceholderNodeProps | null;
   father: PlaceholderNodeProps | null;
@@ -19,12 +27,9 @@ type RelativesResult = {
   };
 };
 
-export function useRelatives(
-  egoId: string,
-  nodes: PlaceholderNodeProps[],
-): RelativesResult {
+export function useRelatives(nodesMap, edgesMap): RelativesResult {
   return useMemo(() => {
-    const ego = nodes.find((n) => n.id === egoId) ?? null;
+    const ego = nodesMap.get(egoKey);
 
     if (!ego) {
       return {
@@ -41,62 +46,85 @@ export function useRelatives(
       };
     }
 
-    // Parents
-    const mother =
-      nodes.find(
-        (n) =>
-          ego.parentIds?.includes(n.id) && n.gender.toLowerCase() === 'female',
-      ) ?? null;
-    const father =
-      nodes.find(
-        (n) =>
-          ego.parentIds?.includes(n.id) && n.gender.toLowerCase() === 'male',
-      ) ?? null;
+    // const edges = Array.from(
+    //   edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
+    // );
+    // const nodes = Array.from(
+    //   nodesMap.entries().map(([id, node]) => ({ id, ...node })),
+    // );
+
+    const mother = nodesMap.get(motherKey);
+    const father = nodesMap.get(fatherKey);
+
+    function getSiblingsByParent(
+      parentKeys: (string | null)[],
+      edgesMap: Map<string, Edge>,
+      nodesMap: Map<string, PlaceholderNodeProps>,
+      subjectKey?: string, // optional
+    ): Map<string, PlaceholderNodeProps> {
+      const siblings = new Map<string, PlaceholderNodeProps>();
+
+      parentKeys.forEach((parentKey) => {
+        if (!parentKey) return;
+
+        for (const [, edge] of edgesMap.entries()) {
+          if (edge.relationship === 'parent' && edge.source === parentKey) {
+            const childId = edge.target;
+
+            // only skip if subjectKey is provided AND matches
+            if (subjectKey && childId === subjectKey) continue;
+
+            const childNode = nodesMap.get(childId);
+            if (childNode) siblings.set(childId, childNode);
+          }
+        }
+      });
+
+      return siblings;
+    }
 
     // Ego’s siblings
-    const egoSiblings = nodes.filter(
-      (n) =>
-        n.id !== ego.id &&
-        n.parentIds?.some((pid) => ego.parentIds?.includes(pid)),
+    const egoSiblings = getSiblingsByParent(
+      [motherKey, fatherKey],
+      edgesMap,
+      nodesMap,
+      egoKey,
+    );
+    // Maternal aunts/uncles
+    const maternalSiblings = getSiblingsByParent(
+      [maternalMotherKey, maternalFatherKey],
+      edgesMap,
+      nodesMap,
+      motherKey,
+    );
+    // Paternal aunts/uncles
+    const paternalSiblings = getSiblingsByParent(
+      [paternalMotherKey, paternalFatherKey],
+      edgesMap,
+      nodesMap,
+      fatherKey,
     );
 
-    // Mother’s siblings (maternal aunts/uncles)
-    const maternalSiblings = mother
-      ? nodes.filter(
-          (n) =>
-            n.id !== mother.id &&
-            n.parentIds?.some((pid) => mother.parentIds?.includes(pid)),
-        )
-      : [];
-
-    // Father’s siblings (paternal aunts/uncles)
-    const paternalSiblings = father
-      ? nodes.filter(
-          (n) =>
-            n.id !== father.id &&
-            n.parentIds?.some((pid) => father.parentIds?.includes(pid)),
-        )
-      : [];
-
     // Ego’s children
-    const egoChildren = nodes.filter((n) => n.parentIds?.includes(ego.id));
+    const egoChildren = getSiblingsByParent([egoKey], edgesMap, nodesMap);
 
     // Options
     const grandchildrenOptions: RelativeOption[] = [];
     let daughterCount = 0;
     let sonCount = 0;
-    egoChildren.forEach((child) => {
-      if (child.gender.toLowerCase() === 'female') {
+
+    egoChildren.forEach((child, key) => {
+      if (child.sex === 'female') {
         daughterCount++;
         grandchildrenOptions.push({
           label: `Daughter #${daughterCount}`,
-          value: child.id,
+          value: key,
         });
       } else {
         sonCount++;
         grandchildrenOptions.push({
           label: `Son #${sonCount}`,
-          value: child.id,
+          value: key,
         });
       }
     });
@@ -104,13 +132,13 @@ export function useRelatives(
     const nieceOptions: RelativeOption[] = [];
     let sisterCount = 0;
     let brotherCount = 0;
-    egoSiblings.forEach((sib) => {
-      if (sib.gender.toLowerCase() === 'female') {
+    egoSiblings.forEach((sibling, key) => {
+      if (sibling.sex === 'female') {
         sisterCount++;
-        nieceOptions.push({ label: `Sister #${sisterCount}`, value: sib.id });
+        nieceOptions.push({ label: `Sister #${sisterCount}`, value: key });
       } else {
         brotherCount++;
-        nieceOptions.push({ label: `Brother #${brotherCount}`, value: sib.id });
+        nieceOptions.push({ label: `Brother #${brotherCount}`, value: key });
       }
     });
 
@@ -120,51 +148,55 @@ export function useRelatives(
     let paternalAuntCount = 0;
     let paternalUncleCount = 0;
 
-    maternalSiblings.forEach((sib) => {
-      if (sib.gender.toLowerCase() === 'female') {
+    maternalSiblings.forEach((sibling, key) => {
+      if (sibling.sex === 'female') {
         maternalAuntCount++;
         firstCousinOptions.push({
           label: `Maternal Aunt #${maternalAuntCount}`,
-          value: sib.id,
+          value: key,
         });
       } else {
         maternalUncleCount++;
         firstCousinOptions.push({
           label: `Maternal Uncle #${maternalUncleCount}`,
-          value: sib.id,
+          value: key,
         });
       }
     });
 
-    paternalSiblings.forEach((sib) => {
-      if (sib.gender.toLowerCase() === 'female') {
+    paternalSiblings.forEach((sibling, key) => {
+      if (sibling.sex === 'female') {
         paternalAuntCount++;
         firstCousinOptions.push({
           label: `Paternal Aunt #${paternalAuntCount}`,
-          value: sib.id,
+          value: key,
         });
       } else {
         paternalUncleCount++;
         firstCousinOptions.push({
           label: `Paternal Uncle #${paternalUncleCount}`,
-          value: sib.id,
+          value: key,
         });
       }
     });
 
     // Helper for other relations
     function getParents(subjectId: string) {
-      const subject = nodes.find((n) => n.id === subjectId);
-      if (!subject) return { mother: null, father: null };
-
       let mother: PlaceholderNodeProps | null = null;
       let father: PlaceholderNodeProps | null = null;
 
-      (subject.parentIds ?? []).forEach((pid) => {
-        const parent = nodes.find((n) => n.id === pid);
-        if (!parent) return;
-        if (parent.gender.toLowerCase() === 'female') mother = parent;
-        else if (parent.gender.toLowerCase() === 'male') father = parent;
+      // Iterate over edges and find parent -> subject relationships
+      edgesMap.forEach((edge, key) => {
+        if (edge.relationship === 'parent' && edge.target === subjectId) {
+          const parent = nodesMap.get(edge.source);
+          if (!parent) return;
+
+          if (parent.sex === 'female') {
+            mother = parent;
+          } else if (parent.sex === 'male') {
+            father = parent;
+          }
+        }
       });
 
       return { mother, father };
@@ -182,5 +214,5 @@ export function useRelatives(
       firstCousinOptions,
       getParents,
     };
-  }, [egoId, nodes]);
+  }, [nodesMap, edgesMap]);
 }

@@ -4,15 +4,11 @@ import type { FieldConfig } from '~/lib/interviewer/containers/Interfaces/Family
 import type { RelativeOption } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 
 export function getRelationFlags(nodes: PlaceholderNodeProps[]) {
-  const hasAuntOrUncle = nodes.some((n) =>
-    ['aunt', 'uncle'].includes(n.relationType),
-  );
+  const hasAuntOrUncle = nodes.some((n) => /\b(aunt|uncle)\b/i.test(n.label));
   const hasSiblings = nodes.some((n) =>
-    ['brother', 'sister', 'halfBrother', 'halfSister'].includes(n.relationType),
+    ['brother', 'sister', 'halfBrother', 'halfSister'].includes(n.label),
   );
-  const hasChildren = nodes.some((n) =>
-    ['son', 'daughter'].includes(n.relationType),
-  );
+  const hasChildren = nodes.some((n) => ['son', 'daughter'].includes(n.label));
 
   return { hasAuntOrUncle, hasSiblings, hasChildren };
 }

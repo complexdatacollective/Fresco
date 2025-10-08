@@ -3,24 +3,38 @@ import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useDynamicFields';
-import { usePlaceholderNodeFormSubmit } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/usePlaceholderNodeFormSubmit';
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
-import { getFamilyTreeNodes } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/censusMetadataUtil';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
+import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
   getNodeTypeLabel,
-  getStageMetadata,
   getStageSubject,
 } from '~/lib/interviewer/selectors/session';
 import { ActionButton, Button, Scroller } from '~/lib/ui/components';
+import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 const AddFamilyMemberForm = () => {
   const subject = useSelector(getStageSubject)!;
   const nodeType = useSelector(getNodeTypeLabel(subject.type));
   const icon = useSelector(getNodeIconName);
-  const stageMetadata = useSelector(getStageMetadata);
-  const step2Nodes = getFamilyTreeNodes(stageMetadata!);
+  const nodesMap = useFamilyTreeStore((state) => state.network.nodes);
+  const nodes = Array.from(
+    nodesMap.entries().map(([id, node]) => ({ id, ...node })),
+  );
+  const edgesMap = useFamilyTreeStore((state) => state.network.edges);
+  const edges = Array.from(
+    edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
+  );
+
+  console.log('NODES AND EDGES', nodes, edges);
+
+  const addPlaceholderNode = useFamilyTreeStore(
+    (state) => state.addPlaceholderNode,
+  );
+
+  // TODO: probably remove this? might not be needed
+  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -31,10 +45,10 @@ const AddFamilyMemberForm = () => {
     grandchildrenOptions,
     nieceOptions,
     firstCousinOptions,
-  } = useRelatives(egoNodeId, step2Nodes);
+  } = useRelatives(nodesMap ?? new Map(), edgesMap ?? new Map());
 
   const { processedFields } = useDynamicFields({
-    step2Nodes,
+    nodes,
     father,
     mother,
     firstCousinOptions,
@@ -43,13 +57,13 @@ const AddFamilyMemberForm = () => {
     show,
   });
 
-  const { handleSubmit } = usePlaceholderNodeFormSubmit({
-    egoNodeId,
-    step2Nodes,
-    newNodeAttributes,
-    setPlaceholderNodes,
-    setShow,
-  });
+  const handleSubmit = (formData) => {
+    const { value } = formData;
+    const relation = value.relation;
+    const anchorId = value[`${relation}Relation`];
+    addPlaceholderNode(relation, anchorId);
+    setShow(false);
+  };
 
   return (
     <>

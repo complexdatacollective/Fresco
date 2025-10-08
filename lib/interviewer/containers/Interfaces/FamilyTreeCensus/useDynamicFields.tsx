@@ -7,6 +7,9 @@ import {
   getRelationFlags,
 } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/utils/dynamicFieldsUtils';
 
+const fatherKey = 'father';
+const motherKey = 'mother';
+
 export type FieldConfig = {
   fieldLabel: string;
   options: { label: string; value: string }[];
@@ -20,7 +23,7 @@ export type FieldConfig = {
 };
 
 export function useDynamicFields({
-  step2Nodes,
+  nodes,
   father,
   mother,
   firstCousinOptions,
@@ -28,7 +31,7 @@ export function useDynamicFields({
   grandchildrenOptions,
   show,
 }: {
-  step2Nodes: PlaceholderNodeProps[];
+  nodes: PlaceholderNodeProps[];
   father: PlaceholderNodeProps | null;
   mother: PlaceholderNodeProps | null;
   firstCousinOptions: RelativeOption[];
@@ -62,7 +65,7 @@ export function useDynamicFields({
       },
     };
 
-    const flags = getRelationFlags(step2Nodes);
+    const flags = getRelationFlags(nodes);
 
     const dynamicBaseField = {
       ...baseField,
@@ -71,31 +74,31 @@ export function useDynamicFields({
 
     const additionalFieldsMap: Record<string, FieldConfig> = {
       aunt: createRelationField('Who is the aunt related to?', 'auntRelation', [
-        { label: 'Father', value: father?.id ?? '' },
-        { label: 'Mother', value: mother?.id ?? '' },
+        { label: 'Father', value: fatherKey },
+        { label: 'Mother', value: motherKey },
       ]),
       uncle: createRelationField(
         'Who is the uncle related to?',
         'uncleRelation',
         [
-          { label: 'Father', value: father?.id ?? '' },
-          { label: 'Mother', value: mother?.id ?? '' },
+          { label: 'Father', value: fatherKey },
+          { label: 'Mother', value: motherKey },
         ],
       ),
       halfSister: createRelationField(
         'Who is the parent of your half sister?',
         'halfSisterRelation',
         [
-          { label: 'Father', value: father?.id ?? '' },
-          { label: 'Mother', value: mother?.id ?? '' },
+          { label: 'Father', value: fatherKey },
+          { label: 'Mother', value: motherKey },
         ],
       ),
       halfBrother: createRelationField(
         'Who is the parent of your half brother?',
         'halfBrotherRelation',
         [
-          { label: 'Father', value: father?.id ?? '' },
-          { label: 'Mother', value: mother?.id ?? '' },
+          { label: 'Father', value: fatherKey },
+          { label: 'Mother', value: motherKey },
         ],
       ),
       firstCousinMale: createRelationField(
@@ -143,9 +146,7 @@ export function useDynamicFields({
 
     return processed;
   }, [
-    step2Nodes,
-    father,
-    mother,
+    nodes,
     firstCousinOptions,
     nieceOptions,
     grandchildrenOptions,

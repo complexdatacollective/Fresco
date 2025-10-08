@@ -6,8 +6,8 @@ import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
-import { FamilyTreeProvider } from './FamilyTreeProvider';
 import { FamilyTreeShells } from './components/FamilyTreeShells';
+import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 
 const DiseaseNomination = () => {
   return <div>Family tree completion</div>;
@@ -106,6 +106,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const CurrentStepComponent = steps.get(currentStepIndex)?.component;
 
   const stageElement = document.getElementById('stage');
+  const removeNode = useFamilyTreeStore((state) => state.removeNode);
 
   return (
     <>
@@ -123,13 +124,12 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
       {stageElement &&
         createPortal(
           <NodeBin
-            dropHandler={() => {
-              console.log('dropped on bin');
+            dropHandler={(node) => {
+              removeNode(node.placeholderId);
             }}
             accepts={(node: NcNode & { itemType?: string }) =>
-              node.itemType === 'PLACEHOLDER_NODE'
+              node.itemType === 'FAMILY_TREE_NODE'
             }
-            // dropHandler={(meta: NcNode) => removePlaceholderNode(meta.id)}
           />,
           stageElement,
         )}
