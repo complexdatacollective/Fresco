@@ -73,6 +73,11 @@ type FormSubmissionResult<T extends z.ZodType> =
   | { success: false; errors: z.ZodError<z.infer<T>> };
 
 /**
+ * Type for field errors object (used for scrolling to first error)
+ */
+export type FormFieldErrors = Record<string, string[] | null>;
+
+/**
  * Props that all fields **must** handle.
  */
 export type BaseFieldProps = {

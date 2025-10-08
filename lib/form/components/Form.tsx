@@ -28,6 +28,7 @@ export default function Form<T extends z.ZodType>(props: FormProps<T>) {
   const { formProps, formErrors } = useForm({
     onSubmit,
     onSubmitInvalid: (errors) => {
+      console.log('Form submission failed with errors:', errors);
       scrollToFirstError(errors);
     },
   });

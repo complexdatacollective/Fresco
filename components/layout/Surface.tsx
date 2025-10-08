@@ -4,7 +4,7 @@ import { motion, type MotionProps } from 'motion/react';
 import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
-const surfaceVariants = cva({
+export const surfaceVariants = cva({
   base: 'rounded-xl',
   variants: {
     level: {

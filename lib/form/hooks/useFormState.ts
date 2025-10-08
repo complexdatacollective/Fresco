@@ -14,7 +14,7 @@ export type FormStateValues = {
     {
       value: FieldValue;
       meta: {
-        errors: ZodError | null;
+        errors: string[] | null;
         isValidating: boolean;
         isTouched: boolean;
         isDirty: boolean;
@@ -22,8 +22,8 @@ export type FormStateValues = {
       };
     }
   >;
-  /** Form-level validation errors */
-  formErrors: ZodError | null;
+  /** All errors in the form (both field and form level) */
+  errors: ZodError | null;
   /** Whether the form is currently being submitted */
   isSubmitting: boolean;
   /** Whether the form is currently being validated */
@@ -64,7 +64,7 @@ export default function useFormState(): FormStateValues {
   return useFormStore(
     useShallow((state: FormStore<ZodType<unknown>>) => ({
       fields: state.fields,
-      formErrors: state.formErrors,
+      errors: state.errors,
       isSubmitting: state.isSubmitting,
       isValidating: state.isValidating,
       isDirty: state.isDirty,

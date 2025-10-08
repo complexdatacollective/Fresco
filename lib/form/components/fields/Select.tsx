@@ -1,5 +1,4 @@
 import { compose, cx, type VariantProps } from 'cva';
-import { isEmpty } from 'es-toolkit/compat';
 import { type SelectHTMLAttributes } from 'react';
 import { cva } from '~/utils/cva';
 import {
@@ -101,10 +100,7 @@ export function SelectField({
       className={selectVariants({
         size,
         variant,
-        className: cx(
-          className,
-          isEmpty(selectProps.value) && '!text-input-contrast/50 italic',
-        ),
+        className,
       })}
     >
       {placeholder && <option value="">{placeholder}</option>}

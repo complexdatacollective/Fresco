@@ -10,15 +10,21 @@ export function useForm<TValues extends z.ZodType>(
   const isUnmountingRef = useRef(false);
   const configRef = useRef(config); // Config is static, so this avoids needing to specify it in effect deps
   configRef.current = config;
+  const errorsRef = useRef<z.ZodError<z.infer<TValues>> | null>(null);
 
   const registerForm = useFormStore((state) => state.registerForm);
   const validateForm = useFormStore((state) => state.validateForm);
   const getFormValues = useFormStore((state) => state.getFormValues);
   const getFormErrors = useFormStore((state) => state.getFormErrors);
   const reset = useFormStore((state) => state.reset);
-  const setFormErrors = useFormStore((state) => state.setFormErrors);
-  const formErrors = useFormStore((state) => state.formErrors);
+  const setErrors = useFormStore((state) => state.setErrors);
   const setSubmitting = useFormStore((state) => state.setSubmitting);
+  const errors = useFormStore((state) => state.errors);
+
+  // Keep errors ref in sync with store using useEffect
+  useLayoutEffect(() => {
+    errorsRef.current = errors as z.ZodError<z.infer<TValues>> | null;
+  }, [errors]);
 
   // Register form once on mount. layout effect used to ensure it runs before fields register.
   useLayoutEffect(() => {
@@ -42,20 +48,25 @@ export function useForm<TValues extends z.ZodType>(
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
+      console.log('Form handleSubmit');
       e.preventDefault(); // Prevent default form submission
       setSubmitting(true);
-      setFormErrors(null);
+      setErrors(null);
 
       try {
         const isValid = await validateForm(); // Run field level validation
 
         if (!isValid) {
-          const errors = getFormErrors();
-          if (errors && configRef.current.onSubmitInvalid) {
-            configRef.current.onSubmitInvalid(
-              errors as z.ZodError<z.infer<TValues>>,
-            );
-          }
+          console.log('Form validation failed');
+          // Wait a tick for the store to update with errors
+          setTimeout(() => {
+            const currentErrors = errorsRef.current;
+            console.log('Form errors:', currentErrors);
+            if (currentErrors && configRef.current.onSubmitInvalid) {
+              console.log('Calling onSubmitInvalid callback');
+              configRef.current.onSubmitInvalid(currentErrors);
+            }
+          }, 0);
 
           return;
         }
@@ -66,21 +77,24 @@ export function useForm<TValues extends z.ZodType>(
 
         // Handle the submission result
         if (result && !result.success && result.errors) {
-          setFormErrors(result.errors);
+          setErrors(result.errors);
         }
       } catch (error) {
         // Handle form submission errors
-        setFormErrors(null); // Clear any previous form errors
+        setErrors(null); // Clear any previous form errors
       } finally {
         setSubmitting(false);
       }
     },
-    [setSubmitting, validateForm, getFormValues, getFormErrors, setFormErrors],
+    [setSubmitting, validateForm, getFormValues, setErrors],
   );
 
   const handleReset = useCallback(() => {
     reset();
   }, [reset]);
+
+  // Extract form-level errors from the unified error store
+  const formErrors = getFormErrors();
 
   return {
     formProps: {

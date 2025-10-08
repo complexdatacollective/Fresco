@@ -529,7 +529,7 @@ describe('FormStore', () => {
           email: 'test@example.com',
         });
         expect(store.getState().isSubmitting).toBe(false);
-        expect(store.getState().formErrors).toBeNull();
+        expect(store.getState().errors).toBeNull();
       });
 
       it('should submit even if form validation fails (current implementation)', async () => {
@@ -581,7 +581,7 @@ describe('FormStore', () => {
 
         expect(mockOnSubmit).toHaveBeenCalled();
         expect(store.getState().isSubmitting).toBe(false);
-        expect(store.getState().formErrors).toBeDefined();
+        expect(store.getState().errors).toBeDefined();
       });
 
       it('should handle submission exceptions', async () => {

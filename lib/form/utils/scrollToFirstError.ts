@@ -1,12 +1,17 @@
-import { type FormFieldErrors } from '~/lib/form/types';
+import { type ZodError } from 'zod';
 import { scrollParent } from '~/lib/interviewer/utils/scrollParent';
 
-export const scrollToFirstError = (errors: FormFieldErrors) => {
+export const scrollToFirstError = (errors: ZodError | null) => {
+  console.log(errors);
   // Todo: first item is an assumption that may not be valid. Should iterate and check
   // vertical position to ensure it is actually the "first" in page order (topmost).
-  if (!errors) return;
+  if (!errors || errors.issues.length === 0) return;
 
-  const firstError = Object.keys(errors)[0];
+  // Find the first field-level error (not form-level)
+  const firstFieldError = errors.issues.find((issue) => issue.path.length > 0);
+  if (!firstFieldError) return;
+
+  const firstError = firstFieldError.path.join('.');
   const el: HTMLElement | null = document.querySelector(
     `[data-field-name="${firstError}"]`,
   );

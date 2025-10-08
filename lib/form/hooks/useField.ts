@@ -10,18 +10,18 @@ import type {
 /**
  * Helper function to determine if a field should show an error message.
  */
-function useFieldShouldShowError(name: string) {
-  const fieldState = useFormStore((state) => state.getFieldState(name));
-
+function useFieldShouldShowError(
+  name: string,
+  fieldState: FieldState | undefined,
+  fieldErrors: string[] | null,
+) {
   if (!fieldState) {
     return false;
   }
 
   const { meta } = fieldState;
 
-  return Boolean(
-    !meta.isValid && meta.isTouched && meta.errors && meta.errors.length > 0,
-  );
+  return Boolean(meta.isTouched && fieldErrors && fieldErrors.length > 0);
 }
 
 export type UseFieldConfig = {
@@ -66,6 +66,22 @@ export function useField(config: {
   const fieldState: FieldState | undefined = useFormStore((state) =>
     state.getFieldState(config.name),
   );
+  // Get errors from the unified store by selecting the errors object (not calling getFieldErrors)
+  // This prevents infinite loops by avoiding creating new arrays on every selector call
+  const errors = useFormStore((state) => state.errors);
+
+  // Extract field errors from the unified error store
+  const fieldErrors = errors
+    ? errors.issues
+        .filter((issue) => {
+          return (
+            issue.path.length > 0 &&
+            (issue.path[0] === config.name ||
+              issue.path.join('.') === config.name)
+          );
+        })
+        .map((issue) => issue.message)
+    : null;
   const registerField: (config: FieldConfig) => void = useFormStore(
     (store) => store.registerField,
   );
@@ -80,7 +96,11 @@ export function useField(config: {
     (store) => store.validateField,
   );
 
-  const shouldShowError = useFieldShouldShowError(config.name);
+  const shouldShowError = useFieldShouldShowError(
+    config.name,
+    fieldState,
+    fieldErrors,
+  );
 
   // Register field on mount - use useLayoutEffect to ensure it runs after form registration
   useEffect(() => {
@@ -160,7 +180,7 @@ export function useField(config: {
     id,
     meta: {
       shouldShowError,
-      errors: fieldState?.meta.errors ?? null,
+      errors: fieldErrors,
       isValid: fieldState?.meta.isValid ?? false,
       isTouched: fieldState?.meta.isTouched ?? false,
       isDirty: fieldState?.meta.isDirty ?? false,
@@ -174,7 +194,7 @@ export function useField(config: {
       'onChange': handleChange,
       'onBlur': handleBlur,
       'aria-required': config.required ?? false,
-      'aria-invalid': shouldShowError && !fieldState?.meta.isValid,
+      'aria-invalid': shouldShowError,
       /**
        * Set this so that screen readers can properly announce the hint and error messages.
        * If either the hint or error ID is not present, it will be ignored by the screen reader.
