@@ -5,18 +5,19 @@ import { type InputHTMLAttributes } from 'react';
 import { cx } from '~/utils/cva';
 
 const toggleStyles = cx(
-  'relative inline-flex h-8 w-16 items-center rounded-full',
-  'bg-primary',
-  'transition-colors',
+  'relative inline-flex h-6 w-12 items-center rounded-full',
+  'bg-input-contrast/10 border-input-contrast/20',
+  'transition-colors duration-300 ease-in-out',
   'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/10',
   'disabled:cursor-not-allowed disabled:opacity-50',
-  'data-[state=checked]:bg-accent data-[state=checked]:border-accent',
+  'data-[state=checked]:bg-accent',
+  'shadow-inner',
 );
 
 const toggleThumbStyles = cx(
-  'pointer-events-none block h-8 w-8 rounded-full bg-background shadow-sm',
-  'ring-0 transition-transform',
-  'data-[state=checked]:translate-x-[32px]',
+  'pointer-events-none block h-5 w-5 absolute left-0.5 rounded-full bg-background shadow-sm',
+  'ring-0 transition-transform duration-300 ease-in-out',
+  'data-[state=checked]:translate-x-6',
 );
 
 type ToggleFieldProps = Omit<
@@ -49,12 +50,7 @@ export function ToggleField({
         checked={value}
         disabled={disabled}
         readOnly
-        style={{
-          position: 'absolute',
-          pointerEvents: 'none',
-          opacity: 0,
-          margin: 0,
-        }}
+        className="pointer-events-none absolute m-0 opacity-0"
         {...inputProps}
       />
     </Switch.Root>

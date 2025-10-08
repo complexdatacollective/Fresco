@@ -1,13 +1,11 @@
 'use client';
 
-import * as LabelPrimitive from '@radix-ui/react-label';
 import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
-import { headingVariants } from '~/components/typography/Heading';
-import { cx, type VariantProps } from '~/utils/cva';
+import { Label as UILabel } from '~/components/ui/Label';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
@@ -40,11 +38,11 @@ const defaultMarkdownRenderers = {
 };
 
 const Label = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+  React.ElementRef<typeof UILabel>,
+  React.ComponentPropsWithoutRef<typeof UILabel> & {
     required?: boolean;
-  } & VariantProps<typeof headingVariants>
->(({ className, required, children, ...props }, ref) => {
+  }
+>(({ required, children, ...props }, ref) => {
   const processedChildren = React.useMemo(() => {
     if (typeof children === 'string') {
       return escapeAngleBracket(children);
@@ -53,11 +51,7 @@ const Label = React.forwardRef<
   }, [children]);
 
   return (
-    <LabelPrimitive.Root
-      ref={ref}
-      className={cx(headingVariants({ variant: 'label' }), className)}
-      {...props}
-    >
+    <UILabel ref={ref} {...props}>
       {typeof processedChildren === 'string' ? (
         <ReactMarkdown
           allowedElements={ALLOWED_MARKDOWN_LABEL_TAGS}
@@ -77,9 +71,10 @@ const Label = React.forwardRef<
           *
         </span>
       )}
-    </LabelPrimitive.Root>
+    </UILabel>
   );
 });
-Label.displayName = LabelPrimitive.Root.displayName;
+
+Label.displayName = UILabel.displayName;
 
 export { Label };

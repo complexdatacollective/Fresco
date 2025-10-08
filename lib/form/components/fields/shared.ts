@@ -39,11 +39,11 @@ export const backgroundStyles = {
 // Border Styles
 // ============================================================================
 export const borderStyles = {
-  base: 'rounded-lg border border-border',
+  base: 'rounded-lg border focus-within:border-accent/50',
   invalid: 'aria-[invalid=true]:border-destructive',
   focus: 'focus:border-accent/50',
   focusInvalid: 'aria-[invalid=true]:focus:border-destructive',
-  focusReadOnly: 'is-read-only:focus:border-border',
+  focusReadOnly: 'is-read-only:focus:',
 } as const;
 
 // ============================================================================
@@ -81,7 +81,7 @@ export const sizeStyles = {
     gap: 'gap-2',
   },
   md: {
-    height: 'h-12',
+    height: 'h-10',
     text: 'text-base',
     padding: 'py-2 px-4',
     gap: 'gap-3',
@@ -121,7 +121,7 @@ export const variantStyles = {
 // ============================================================================
 export const interactiveElementStyles = {
   base: cx(
-    'shrink-0 border-2 border-border bg-input cursor-pointer',
+    'shrink-0 border-2  bg-input cursor-pointer',
     'appearance-none relative',
   ),
   checked: 'checked:border-accent checked:bg-accent',
@@ -247,7 +247,7 @@ export const scaleSliderStyles = {
     'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
   ),
   track: cx(
-    'relative h-6 w-full grow overflow-hidden rounded-full bg-input border border-border',
+    'relative h-6 w-full grow overflow-hidden rounded-full bg-input border ',
   ),
   thumb: cx(
     'block h-8 w-8 rounded-full bg-accent transition-all duration-200',

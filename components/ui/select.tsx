@@ -22,7 +22,7 @@ const SelectValue = React.forwardRef<
 SelectValue.displayName = SelectPrimitive.Value.displayName;
 
 export const selectTriggerStyles = cx(
-  'text-input-contrast bg-input rounded-input flex h-10 w-full items-center justify-between border border-border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-contrast disabled:cursor-not-allowed disabled:opacity-50',
+  'text-input-contrast bg-input rounded-input flex h-10 w-full items-center justify-between border  px-3 py-2 text-sm ring-offset-background placeholder:text-muted-contrast disabled:cursor-not-allowed disabled:opacity-50',
   'focus:ring-ring focus:outline-hidden focus:ring-2 focus:ring-offset-2',
 );
 

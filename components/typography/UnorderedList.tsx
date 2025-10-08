@@ -10,7 +10,7 @@ export default function UnorderedList({
   return (
     <ul
       className={cx(
-        'mb-4 ml-8 list-disc text-base [&>li]:mb-2 [li>&]:mb-0',
+        'mb-4 ml-8 list-disc text-base [&>li]:my-2 [li>&]:mb-0',
         className,
       )}
     >

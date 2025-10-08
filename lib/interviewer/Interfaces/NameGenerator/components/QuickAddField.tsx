@@ -275,7 +275,7 @@ function SimpleNode({
     'rounded-full w-[130px] h-[130px] transition-all',
     'bg-[linear-gradient(145deg,var(--bg)_50%,var(--bg-dark)_50%)]',
     'flex justify-center items-center',
-    'text-2xl',
+    'text-base',
     selected && 'outline-5 outline-white/50',
   );
 

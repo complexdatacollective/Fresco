@@ -5,7 +5,7 @@ import React, { forwardRef, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
 import { headingVariants } from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import { paragraphVariants } from '~/components/typography/Paragraph';
 import { cx, type VariantProps } from '~/utils/cva';
 
 export type DialogProps = {
@@ -54,6 +54,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           }
         }}
         className={cx(
+          'h-auto max-h-10/12 overflow-hidden',
           'spring-discrete-medium',
           'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
           'backdrop:bg-navy-taupe/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
@@ -74,19 +75,20 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         <Surface
           level={0}
           className={cx(
+            'flex flex-col',
             'w-full md:w-auto',
             'max-w-2xl',
-            'max-h-10/12',
+            'max-h-full',
             'border-b-primary elevation-none overflow-hidden rounded-lg border-b-4',
           )}
         >
-          <DialogHeading level="h2" id={`${id}-title`} className="me-8">
+          <DialogHeading id={`${id}-title`} className="me-8">
             {title}
           </DialogHeading>
           {description && (
-            <Paragraph id={`${id}-description`} intent="lead" className="mb-4">
+            <DialogDescription id={`${id}-description`}>
               {description}
-            </Paragraph>
+            </DialogDescription>
           )}
           {children}
           {footer && (
@@ -121,3 +123,24 @@ const DialogHeading = forwardRef<HTMLElement, DialogHeadingProps>(
 );
 
 DialogHeading.displayName = 'DialogHeading';
+
+type DialogDescriptionProps = {
+  asChild?: boolean;
+} & React.HTMLAttributes<HTMLParagraphElement> &
+  VariantProps<typeof paragraphVariants>;
+
+const DialogDescription = forwardRef<
+  HTMLParagraphElement,
+  DialogDescriptionProps
+>(({ className, intent, emphasis, margin, asChild, ...props }, ref) => {
+  const Comp = asChild ? Slot : 'p';
+  return (
+    <Comp
+      className={cx(paragraphVariants({ intent, emphasis, margin, className }))}
+      ref={ref}
+      {...props}
+    />
+  );
+});
+
+DialogDescription.displayName = 'DialogDescription';

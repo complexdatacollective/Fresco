@@ -57,13 +57,17 @@ export const Default: Story = {
         title: 'Custom Dialog',
         description: 'This is a custom dialog',
         // 'resolve' should be inferred as (value: string | null) => void
-        renderContent: (resolve) => {
+        actions: (resolve) => {
           const handleConfirm = async () => {
             const confirmed = await openDialog({
-              type: 'confirm',
+              type: 'choice',
               title: 'Are you really sure?',
-              accent: 'danger',
+              intent: 'danger',
               description: 'This action cannot be undone.',
+              actions: {
+                primary: { label: 'Yes, delete it', value: true },
+                cancel: { label: 'No, cancel', value: false },
+              },
             });
 
             if (confirmed) {
@@ -71,14 +75,13 @@ export const Default: Story = {
             }
           };
 
-          return (
-            <>
-              <Button onClick={handleConfirm} color="primary">
-                Do a dangerous thing
-              </Button>
-              <Button onClick={() => resolve(null)}>Cancel</Button>
-            </>
-          );
+          return {
+            primary: {
+              label: 'Do a dangerous thing',
+              onClick: handleConfirm,
+            },
+            cancel: { label: 'Cancel', onClick: () => resolve(null) },
+          };
         },
       });
 

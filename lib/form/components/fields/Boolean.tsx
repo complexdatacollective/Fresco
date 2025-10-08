@@ -27,13 +27,13 @@ const roundCheckboxNegativeStyles = cx(
   'bg-destructive border-destructive text-destructive-contrast',
 );
 
-const roundCheckboxUnselectedStyles = cx('bg-input border-border');
+const roundCheckboxUnselectedStyles = cx('bg-input ');
 
 const buttonPositiveStyles = cx('border-success border-2');
 
 const buttonNegativeStyles = cx('border-destructive border-2');
 
-const buttonUnselectedStyles = cx('border-border');
+const buttonUnselectedStyles = cx('');
 
 type BooleanFieldProps = Omit<
   HTMLAttributes<HTMLFieldSetElement>,

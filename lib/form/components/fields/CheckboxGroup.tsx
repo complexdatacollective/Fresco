@@ -2,6 +2,8 @@ import { Check } from 'lucide-react';
 import { type FieldsetHTMLAttributes } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 import {
+  backgroundStyles,
+  borderStyles,
   cursorStyles,
   interactiveElementSizes,
   interactiveElementStyles,
@@ -19,6 +21,10 @@ export const checkboxGroupVariants = cva({
     // Disabled state styles
     opacityStyles.disabled,
     cursorStyles.disabled,
+    borderStyles.base,
+    borderStyles.invalid,
+    backgroundStyles.disabled,
+    backgroundStyles.readOnly,
   ),
   variants: {
     orientation: {
@@ -26,9 +32,9 @@ export const checkboxGroupVariants = cva({
       horizontal: 'flex flex-row flex-wrap gap-4',
     },
     size: {
-      sm: sizeStyles.sm.text,
-      md: sizeStyles.md.text,
-      lg: sizeStyles.lg.text,
+      sm: cx(sizeStyles.sm.text, sizeStyles.sm.padding),
+      md: cx(sizeStyles.md.text, sizeStyles.md.padding),
+      lg: cx(sizeStyles.lg.text, sizeStyles.lg.padding),
     },
     useColumns: {
       true: cx(
@@ -132,7 +138,7 @@ export const checkboxVisualVariants = cva({
 export const checkboxIconVariants = cva({
   base: cx(
     'text-accent-contrast pointer-events-none',
-    'opacity-0 scale-0',
+    // 'opacity-0 scale-0',
     transitionStyles,
     // Show when checked
     'peer-checked:opacity-100 peer-checked:scale-100',

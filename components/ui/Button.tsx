@@ -48,9 +48,9 @@ const buttonVariants = cva({
     },
     size: {
       xs: 'h-8 px-3 text-xs sm:w-auto',
-      sm: 'h-10 px-4 text-base-sm sm:w-auto',
-      default: 'h-12 px-8 sm:w-auto',
-      lg: 'h-16 px-8 text-base sm:w-auto',
+      sm: 'h-8 px-4 text-base-sm sm:w-auto',
+      default: 'h-10 px-8 sm:w-auto',
+      lg: 'h-14 px-8 text-base sm:w-auto',
       icon: 'flex h-10 w-10 shrink-0 rounded-full',
     },
   },

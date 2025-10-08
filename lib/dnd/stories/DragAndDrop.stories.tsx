@@ -126,7 +126,7 @@ function DropZone({
 
 function ScrollableContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border-border bg-cyber-grape h-96 overflow-y-auto rounded-lg border p-4 text-white">
+    <div className="bg-cyber-grape h-96 overflow-y-auto rounded-lg border p-4 text-white">
       <h3 className="mt-0">Scrollable Container</h3>
       <p className="text-white/50">
         This demonstrates dragging from/to scrollable containers

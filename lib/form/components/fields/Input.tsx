@@ -65,7 +65,7 @@ export const inputWrapperVariants = compose(
       'has-[input:focus-visible]:outline-none has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-accent/10 has-[input:focus-visible]:ring-offset-0',
       'has-[[aria-invalid=true]]:has-[input:focus]:border-destructive',
       'has-[[aria-invalid=true]]:has-[input:focus-visible]:ring-destructive/20',
-      'has-[input:is-read-only]:has-[input:focus]:border-border',
+      'has-[input:is-read-only]:has-[input:focus]:',
       // Additional :has selectors for state management
       'has-[[aria-invalid=true]]:border-destructive',
       'has-[input:disabled]:bg-muted',
@@ -149,6 +149,10 @@ export const affixVariants = cva({
     'text-muted-contrast',
   ),
   variants: {
+    position: {
+      prefix: 'pe-0',
+      suffix: 'ps-0',
+    },
     size: {
       sm: cx(sizeStyles.sm.text, sizeStyles.sm.padding),
       md: cx(sizeStyles.md.text, sizeStyles.md.padding),
@@ -160,8 +164,12 @@ export const affixVariants = cva({
   },
 });
 
-type InputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> &
+type InputFieldProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'type'
+> &
   VariantProps<typeof inputWrapperVariants> & {
+    type: 'text' | 'number';
     onChange?: (value: FieldValue) => void;
     // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
     prefixComponent?: ReactNode;
@@ -185,13 +193,7 @@ export function InputField({
       case 'number':
         value = Number(value);
         break;
-      case 'radio':
-      case 'checkbox':
-        value = e.target.checked;
-        break;
-
       case 'text':
-      case 'datetime-local':
         value = String(value);
         break;
       default:
@@ -203,13 +205,21 @@ export function InputField({
 
   return (
     <div className={inputWrapperVariants({ size, variant, className })}>
-      {prefix && <div className={affixVariants({ size })}>{prefix}</div>}
+      {prefix && (
+        <div className={affixVariants({ size, position: 'prefix' })}>
+          {prefix}
+        </div>
+      )}
       <input
         {...inputProps}
         onChange={handleChange}
         className={inputVariants({ size })}
       />
-      {suffix && <div className={affixVariants({ size })}>{suffix}</div>}
+      {suffix && (
+        <div className={affixVariants({ size, position: 'suffix' })}>
+          {suffix}
+        </div>
+      )}
     </div>
   );
 }
