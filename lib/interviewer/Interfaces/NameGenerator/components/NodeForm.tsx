@@ -134,7 +134,7 @@ const NodeForm = (props: NodeFormProps) => {
         <Form
           id="node-form"
           onSubmit={handleSubmit}
-          className="w-full overflow-y-auto"
+          className="w-full"
           key={`${show}`}
         >
           {fieldComponents}

@@ -1,8 +1,8 @@
-import { type ZodError, type ZodType } from 'zod';
+import { type ZodType } from 'zod';
 import { useShallow } from 'zustand/react/shallow';
 import { type FormStore } from '../store/formStore';
 import { useFormStore } from '../store/formStoreProvider';
-import type { FieldValue } from '../types';
+import type { FieldValue, FlattenedErrors } from '../types';
 
 /**
  * Form state values with submission method
@@ -23,7 +23,7 @@ export type FormStateValues = {
     }
   >;
   /** All errors in the form (both field and form level) */
-  errors: ZodError | null;
+  errors: FlattenedErrors | null;
   /** Whether the form is currently being submitted */
   isSubmitting: boolean;
   /** Whether the form is currently being validated */

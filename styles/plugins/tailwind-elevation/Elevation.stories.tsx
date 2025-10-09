@@ -1,7 +1,7 @@
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 
 const meta: Meta = {
-  title: 'Styles/Elevation System',
+  title: 'Systems/Elevation',
   parameters: {
     layout: 'fullscreen',
   },
@@ -12,7 +12,7 @@ export default meta;
 
 // Shadow Elevation Levels
 export const ElevationLevels: StoryFn = () => (
-  <div className="bg-surface bg-scope h-full h-screen space-y-8 p-8">
+  <div className="bg-surface bg-scope h-screen space-y-8 p-8">
     <h2 className="text-text mb-6 text-2xl font-bold">Elevation Levels</h2>
     <p className="text-text mb-8 opacity-70">
       Three elevation levels create depth hierarchy using mathematically

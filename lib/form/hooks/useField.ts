@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useFormStore } from '../store/formStoreProvider';
 import type {
   ChangeHandler,
@@ -11,7 +12,6 @@ import type {
  * Helper function to determine if a field should show an error message.
  */
 function useFieldShouldShowError(
-  name: string,
   fieldState: FieldState | undefined,
   fieldErrors: string[] | null,
 ) {
@@ -19,9 +19,9 @@ function useFieldShouldShowError(
     return false;
   }
 
-  const { meta } = fieldState;
+  const { state } = fieldState;
 
-  return Boolean(meta.isTouched && fieldErrors && fieldErrors.length > 0);
+  return Boolean(state.isTouched && fieldErrors && fieldErrors.length > 0);
 }
 
 export type UseFieldConfig = {
@@ -56,51 +56,22 @@ export function useField(config: {
   required?: boolean;
   validation?: FieldConfig['validation'];
 }): UseFieldConfig {
-  // Create an ID that can be used to link Label, Hint, and Field.
   const id = useId();
 
-  // Get the stable store API reference
   const isUnmountingRef = useRef(false);
 
-  // Subscribe to the specific field state using Zustand's useStore hook
-  const fieldState: FieldState | undefined = useFormStore((state) =>
-    state.getFieldState(config.name),
-  );
-  // Get errors from the unified store by selecting the errors object (not calling getFieldErrors)
-  // This prevents infinite loops by avoiding creating new arrays on every selector call
-  const errors = useFormStore((state) => state.errors);
+  const fieldState = useFormStore((state) => state.getFieldState(config.name));
 
-  // Extract field errors from the unified error store
-  const fieldErrors = errors
-    ? errors.issues
-        .filter((issue) => {
-          return (
-            issue.path.length > 0 &&
-            (issue.path[0] === config.name ||
-              issue.path.join('.') === config.name)
-          );
-        })
-        .map((issue) => issue.message)
-    : null;
-  const registerField: (config: FieldConfig) => void = useFormStore(
-    (store) => store.registerField,
+  const fieldErrors = useFormStore(
+    useShallow((state) => state.getFieldErrors(config.name)),
   );
-  const unregisterField: (fieldName: string) => void = useFormStore(
-    (store) => store.unregisterField,
-  );
-  const setFieldValue: (fieldName: string, value: FieldValue) => void =
-    useFormStore((store) => store.setFieldValue);
-  const setFieldTouched: (fieldName: string, touched: boolean) => void =
-    useFormStore((store) => store.setFieldTouched);
-  const validateField: (fieldName: string) => Promise<void> = useFormStore(
-    (store) => store.validateField,
-  );
+  const registerField = useFormStore((store) => store.registerField);
+  const unregisterField = useFormStore((store) => store.unregisterField);
+  const setFieldValue = useFormStore((store) => store.setFieldValue);
+  const setFieldTouched = useFormStore((store) => store.setFieldTouched);
+  const validateField = useFormStore((store) => store.validateField);
 
-  const shouldShowError = useFieldShouldShowError(
-    config.name,
-    fieldState,
-    fieldErrors,
-  );
+  const shouldShowError = useFieldShouldShowError(fieldState, fieldErrors);
 
   // Register field on mount - use useLayoutEffect to ensure it runs after form registration
   useEffect(() => {
@@ -181,10 +152,10 @@ export function useField(config: {
     meta: {
       shouldShowError,
       errors: fieldErrors,
-      isValid: fieldState?.meta.isValid ?? false,
-      isTouched: fieldState?.meta.isTouched ?? false,
-      isDirty: fieldState?.meta.isDirty ?? false,
-      isValidating: fieldState?.meta.isValidating ?? false,
+      isValid: fieldState?.state.isValid ?? false,
+      isTouched: fieldState?.state.isTouched ?? false,
+      isDirty: fieldState?.state.isDirty ?? false,
+      isValidating: fieldState?.state.isValidating ?? false,
     },
     containerProps: {
       'data-field-name': config.name, // Used for scrolling to field errors

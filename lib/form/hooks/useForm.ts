@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useRef, type FormEvent } from 'react';
 import type z from 'zod';
 import { useFormStore } from '../store/formStoreProvider';
-import type { FormConfig } from '../types';
+import type { FlattenedErrors, FormConfig } from '../types';
 
 export function useForm<TValues extends z.ZodType>(
   config: FormConfig<TValues>,
@@ -10,7 +10,7 @@ export function useForm<TValues extends z.ZodType>(
   const isUnmountingRef = useRef(false);
   const configRef = useRef(config); // Config is static, so this avoids needing to specify it in effect deps
   configRef.current = config;
-  const errorsRef = useRef<z.ZodError<z.infer<TValues>> | null>(null);
+  const errorsRef = useRef<FlattenedErrors | null>(null);
 
   const registerForm = useFormStore((state) => state.registerForm);
   const validateForm = useFormStore((state) => state.validateForm);
@@ -23,7 +23,7 @@ export function useForm<TValues extends z.ZodType>(
 
   // Keep errors ref in sync with store using useEffect
   useLayoutEffect(() => {
-    errorsRef.current = errors as z.ZodError<z.infer<TValues>> | null;
+    errorsRef.current = errors;
   }, [errors]);
 
   // Register form once on mount. layout effect used to ensure it runs before fields register.
@@ -77,7 +77,11 @@ export function useForm<TValues extends z.ZodType>(
 
         // Handle the submission result
         if (result && !result.success && result.errors) {
-          setErrors(result.errors);
+          const flattened = result.errors.flatten();
+          setErrors({
+            formErrors: flattened.formErrors,
+            fieldErrors: flattened.fieldErrors as Record<string, string[]>,
+          });
         }
       } catch (error) {
         // Handle form submission errors

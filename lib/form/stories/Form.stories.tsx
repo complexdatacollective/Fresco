@@ -9,7 +9,7 @@ import { RadioGroupField } from '../components/fields/RadioGroup';
 import { SelectField } from '../components/fields/Select';
 
 const meta: Meta<typeof Form> = {
-  title: 'Systems/Form/Form',
+  title: 'Systems/Form',
   component: Form,
   parameters: {
     layout: 'centered',
@@ -116,6 +116,93 @@ export const Default: Story = {
           type="tel"
         />
       </FieldGroup>
+
+      <SubmitButton className="mt-6" />
+    </Form>
+  ),
+};
+
+export const WithSubmitErrors: Story = {
+  render: () => (
+    <Form
+      onSubmit={async (data) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        console.log('form-submitted', data);
+
+        // Simulate server-side validation errors
+        // This demonstrates how to return both form-level and field-level errors
+        const schema = z
+          .object({
+            username: z
+              .string()
+              .min(3, 'Username must be at least 3 characters'),
+            email: z.string().email('Invalid email address'),
+            password: z
+              .string()
+              .min(8, 'Password must be at least 8 characters'),
+            confirmPassword: z.string(),
+          })
+          .refine((data) => data.password === data.confirmPassword, {
+            message: 'Passwords do not match',
+            path: [], // Empty path = form-level error
+          })
+          .refine((data) => data.username !== 'admin', {
+            message: 'Username "admin" is already taken',
+            path: ['username'], // Field-level error
+          })
+          .refine((data) => !data.email.endsWith('@blocked.com'), {
+            message: 'Email domain is blocked',
+            path: ['email'], // Field-level error
+          });
+
+        const result = schema.safeParse(data);
+
+        if (!result.success) {
+          return {
+            success: false,
+            errors: result.error,
+          };
+        }
+
+        return {
+          success: true,
+        };
+      }}
+      className="elevation-high w-2xl rounded-md bg-white p-10"
+    >
+      <Field
+        name="username"
+        label="Username"
+        placeholder="Enter username"
+        hint="Try entering 'admin' to see a field-level error"
+        Component={InputField}
+        type="text"
+      />
+      <Field
+        name="email"
+        label="Email"
+        placeholder="Enter email"
+        hint="Try ending with '@blocked.com' to see a field-level error"
+        Component={InputField}
+        type="text"
+      />
+      <Field
+        name="password"
+        label="Password"
+        placeholder="Enter password"
+        hint="Enter different passwords to see a form-level error"
+        Component={InputField}
+        type="text"
+      />
+      <Field
+        name="confirmPassword"
+        label="Confirm Password"
+        placeholder="Confirm password"
+        hint="Make sure passwords match"
+        Component={InputField}
+        type="text"
+      />
 
       <SubmitButton className="mt-6" />
     </Form>

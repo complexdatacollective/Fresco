@@ -4,6 +4,12 @@ import type * as z from 'zod/v4';
 
 export type FieldValue = VariableValue | undefined;
 
+// Type for flattened errors from Zod
+export type FlattenedErrors = {
+  formErrors: string[];
+  fieldErrors: Record<string, string[]>;
+};
+
 export type FieldValidation =
   | z.ZodType
   | ((
@@ -17,8 +23,7 @@ export type ValidationResult<T extends z.ZodTypeAny> =
 export type FieldState<T extends FieldValue = FieldValue> = {
   value: T;
   initialValue?: T;
-  meta: {
-    errors: string[] | null;
+  state: {
     isValidating: boolean;
     isTouched: boolean;
     isDirty: boolean;
@@ -54,7 +59,7 @@ export type FormSubmitHandler<T extends z.ZodType> = (
 
 export type FormConfig<T extends z.ZodType> = {
   onSubmit: FormSubmitHandler<T>;
-  onSubmitInvalid?: (errors: z.ZodError<z.infer<T>>) => void;
+  onSubmitInvalid?: (errors: FlattenedErrors) => void;
 };
 
 // Context for validation functions

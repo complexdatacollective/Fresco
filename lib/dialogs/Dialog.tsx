@@ -54,7 +54,8 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           }
         }}
         className={cx(
-          'h-auto max-h-10/12 overflow-hidden',
+          'flex', // Needed for content overflow to work correctly
+          'overflow-hidden md:max-h-10/12',
           'spring-discrete-medium',
           'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
           'backdrop:bg-navy-taupe/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
@@ -78,19 +79,21 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
             'flex flex-col',
             'w-full md:w-auto',
             'max-w-2xl',
-            'max-h-full',
+            'h-auto max-h-full',
             'border-b-primary elevation-none overflow-hidden rounded-lg border-b-4',
           )}
         >
           <DialogHeading id={`${id}-title`} className="me-8">
             {title}
           </DialogHeading>
-          {description && (
-            <DialogDescription id={`${id}-description`}>
-              {description}
-            </DialogDescription>
-          )}
-          {children}
+          <div className="-mx-8 overflow-y-auto px-8">
+            {description && (
+              <DialogDescription id={`${id}-description`}>
+                {description}
+              </DialogDescription>
+            )}
+            {children}
+          </div>
           {footer && (
             <footer className="mt-4 flex justify-end gap-2">{footer}</footer>
           )}

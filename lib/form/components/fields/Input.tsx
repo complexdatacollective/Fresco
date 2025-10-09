@@ -187,17 +187,19 @@ export function InputField({
 }: InputFieldProps) {
   // Change handler that coerces the value passed on onChange based on the input type
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value: FieldValue = e.target.value;
+    const rawValue = e.target.value;
+    let value: FieldValue = rawValue;
 
     switch (inputProps.type) {
       case 'number':
-        value = Number(value);
+        // Allow clearing the field - empty string should be undefined, not 0
+        value = rawValue === '' ? undefined : Number(rawValue);
         break;
       case 'text':
-        value = String(value);
+        value = String(rawValue);
         break;
       default:
-        value = String(value);
+        value = String(rawValue);
     }
 
     onChange?.(value);

@@ -1,26 +1,25 @@
-import { type ZodError } from 'zod';
 import { scrollParent } from '~/lib/interviewer/utils/scrollParent';
+import type { FlattenedErrors } from '../types';
 
-export const scrollToFirstError = (errors: ZodError | null) => {
-  console.log(errors);
+export const scrollToFirstError = (errors: FlattenedErrors | null) => {
   // Todo: first item is an assumption that may not be valid. Should iterate and check
   // vertical position to ensure it is actually the "first" in page order (topmost).
-  if (!errors || errors.issues.length === 0) return;
+  if (!errors) return;
 
-  // Find the first field-level error (not form-level)
-  const firstFieldError = errors.issues.find((issue) => issue.path.length > 0);
-  if (!firstFieldError) return;
+  // Get the first field with errors
+  const fieldNames = Object.keys(errors.fieldErrors);
+  if (fieldNames.length === 0) return;
 
-  const firstError = firstFieldError.path.join('.');
+  const firstFieldName = fieldNames[0];
   const el: HTMLElement | null = document.querySelector(
-    `[data-field-name="${firstError}"]`,
+    `[data-field-name="${firstFieldName}"]`,
   );
 
   // If element is not found, prevent crash.
   if (!el) {
     // eslint-disable-next-line no-console
     console.warn(
-      `scrollToFirstError(): Element [data-field-name="${firstError}"] not found in DOM`,
+      `scrollToFirstError(): Element [data-field-name="${firstFieldName}"] not found in DOM`,
     );
     return;
   }

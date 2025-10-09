@@ -83,8 +83,7 @@ describe('FormStore', () => {
       expect(field?.value).toBe('test@example.com');
       expect(field?.initialValue).toBe('test@example.com');
       expect(field?.validation).toBeDefined();
-      expect(field?.meta).toEqual({
-        errors: null,
+      expect(field?.state).toEqual({
         isValidating: false,
         isTouched: false,
         isDirty: false,
@@ -141,7 +140,7 @@ describe('FormStore', () => {
       const field = store.getState().getFieldState('email');
 
       expect(field?.value).toBe('new@example.com');
-      expect(field?.meta.isDirty).toBe(true);
+      expect(field?.state.isDirty).toBe(true);
     });
 
     it('should not update value for non-existent field', () => {
@@ -162,9 +161,10 @@ describe('FormStore', () => {
       await store.getState().validateField('email');
       const field = store.getState().getFieldState('email');
       const state = store.getState();
+      const fieldErrors = state.getFieldErrors('email');
 
-      expect(field?.meta.errors).toEqual(['Invalid email format']);
-      expect(field?.meta.isValid).toBe(false);
+      expect(fieldErrors).toEqual(['Invalid email format']);
+      expect(field?.state.isValid).toBe(false);
       expect(state.isValid).toBe(false);
     });
 
@@ -187,22 +187,23 @@ describe('FormStore', () => {
       await store.getState().validateField('email');
 
       const field = store.getState().getFieldState('email');
-      expect(field?.meta.errors).toBeNull();
-      expect(field?.meta.isValid).toBe(true);
+      const fieldErrors = store.getState().getFieldErrors('email');
+      expect(fieldErrors).toBeNull();
+      expect(field?.state.isValid).toBe(true);
     });
 
     it('should set field touched', () => {
       store.getState().setFieldTouched('email', true);
       const field = store.getState().getFieldState('email');
 
-      expect(field?.meta.isTouched).toBe(true);
+      expect(field?.state.isTouched).toBe(true);
     });
 
     it('should set field dirty when value changes', () => {
       store.getState().setFieldValue('email', 'new@example.com');
       const field = store.getState().getFieldState('email');
 
-      expect(field?.meta.isDirty).toBe(true);
+      expect(field?.state.isDirty).toBe(true);
       // Note: form-level isDirty is not automatically calculated in current implementation
     });
   });
@@ -261,12 +262,12 @@ describe('FormStore', () => {
 
       store.getState().setFieldValue('field1', 'changed_value');
       const field1 = store.getState().getFieldState('field1');
-      expect(field1?.meta.isDirty).toBe(true);
+      expect(field1?.state.isDirty).toBe(true);
 
       // Reset the field to make it not dirty
       store.getState().resetField('field1');
       const resetField1 = store.getState().getFieldState('field1');
-      expect(resetField1?.meta.isDirty).toBe(false);
+      expect(resetField1?.state.isDirty).toBe(false);
     });
 
     it('should update form validating state based on any field validating', () => {
@@ -365,10 +366,11 @@ describe('FormStore', () => {
       await store.getState().validateField('email');
       const field = store.getState().getFieldState('email');
       const state = store.getState();
+      const fieldErrors = state.getFieldErrors('email');
 
-      expect(field?.meta.isValidating).toBe(false);
-      expect(field?.meta.isValid).toBe(true);
-      expect(field?.meta.errors).toBeNull();
+      expect(field?.state.isValidating).toBe(false);
+      expect(field?.state.isValid).toBe(true);
+      expect(fieldErrors).toBeNull();
       expect(state.isValid).toBe(true);
     });
 
@@ -388,10 +390,11 @@ describe('FormStore', () => {
       await store.getState().validateField('email');
       const field = store.getState().getFieldState('email');
       const state = store.getState();
+      const fieldErrors = state.getFieldErrors('email');
 
       // Note: isValidating is not set to false in error case in current implementation
-      expect(field?.meta.isValid).toBe(false);
-      expect(field?.meta.errors).toEqual(['Email is required']);
+      expect(field?.state.isValid).toBe(false);
+      expect(fieldErrors).toEqual(['Email is required']);
       expect(state.isValid).toBe(false);
     });
 
@@ -400,12 +403,11 @@ describe('FormStore', () => {
 
       await store.getState().validateField('email');
       const field = store.getState().getFieldState('email');
+      const fieldErrors = store.getState().getFieldErrors('email');
 
-      expect(field?.meta.isValidating).toBe(false);
-      expect(field?.meta.isValid).toBe(false);
-      expect(field?.meta.errors).toEqual([
-        'Something went wrong during validation',
-      ]);
+      expect(field?.state.isValidating).toBe(false);
+      expect(field?.state.isValid).toBe(false);
+      expect(fieldErrors).toEqual(['Something went wrong during validation']);
     });
 
     it('should not validate non-existent field', async () => {
@@ -485,8 +487,9 @@ describe('FormStore', () => {
       expect(state.isValid).toBe(false);
 
       const field1 = state.getFieldState('field1');
-      expect(field1?.meta.errors).toEqual(['Field1 is required']);
-      expect(field1?.meta.isValid).toBe(false);
+      const field1Errors = state.getFieldErrors('field1');
+      expect(field1Errors).toEqual(['Field1 is required']);
+      expect(field1?.state.isValid).toBe(false);
     });
   });
 
@@ -712,13 +715,14 @@ describe('FormStore', () => {
 
       store.getState().resetField('email');
       const field = store.getState().getFieldState('email');
+      const fieldErrors = store.getState().getFieldErrors('email');
 
       expect(field?.value).toBe('initial@example.com');
-      expect(field?.meta.errors).toBeNull();
-      expect(field?.meta.isTouched).toBe(false);
-      expect(field?.meta.isDirty).toBe(false);
-      expect(field?.meta.isValid).toBe(true);
-      expect(field?.meta.isValidating).toBe(false);
+      expect(fieldErrors).toBeNull();
+      expect(field?.state.isTouched).toBe(false);
+      expect(field?.state.isDirty).toBe(false);
+      expect(field?.state.isValid).toBe(true);
+      expect(field?.state.isValidating).toBe(false);
     });
 
     it('should not error when resetting non-existent field', () => {
@@ -785,7 +789,7 @@ describe('FormStore', () => {
 
       // Set validation error
       const mockError = new z.ZodError([
-        { code: 'custom', message: 'validation error', path: ['test'] },
+        { code: 'custom', message: 'validation error', path: [] },
       ]);
       mockValidateFieldValue.mockResolvedValue({
         success: false,
@@ -794,11 +798,12 @@ describe('FormStore', () => {
       await store.getState().validateField('test');
 
       const field = store.getState().getFieldState('test');
+      const fieldErrors = store.getState().getFieldErrors('test');
       expect(field?.value).toBe('new value');
-      expect(field?.meta.isTouched).toBe(true);
-      expect(field?.meta.isDirty).toBe(true);
-      expect(field?.meta.errors).toEqual(['validation error']);
-      expect(field?.meta.isValid).toBe(false);
+      expect(field?.state.isTouched).toBe(true);
+      expect(field?.state.isDirty).toBe(true);
+      expect(fieldErrors).toEqual(['validation error']);
+      expect(field?.state.isValid).toBe(false);
     });
   });
 });
