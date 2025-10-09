@@ -28,8 +28,8 @@ import {
   ExportOptionsSchema,
   type FormattedSession,
 } from '~/lib/network-exporters/utils/types';
-import { ensureError } from '~/utils/ensureError';
 import { cx } from '~/utils/cva';
+import { ensureError } from '~/utils/ensureError';
 import ExportOptionsView from './ExportOptionsView';
 
 const ExportingStateAnimation = () => {
@@ -42,7 +42,7 @@ const ExportingStateAnimation = () => {
         )}
       >
         <Loader2 className="h-20 w-20 animate-spin" />
-        <Heading variant="h4">
+        <Heading level="h4">
           Exporting and zipping files. Please wait...
         </Heading>
       </div>

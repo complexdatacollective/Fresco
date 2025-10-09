@@ -9,7 +9,7 @@ import { paragraphVariants } from '~/components/typography/Paragraph';
 import { cx, type VariantProps } from '~/utils/cva';
 
 export type DialogProps = {
-  title: string;
+  title?: string;
   description?: string;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
@@ -86,17 +86,15 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           <DialogHeading id={`${id}-title`} className="me-8">
             {title}
           </DialogHeading>
-          <div className="-mx-8 overflow-y-auto px-8">
+          <DialogContent>
             {description && (
               <DialogDescription id={`${id}-description`}>
                 {description}
               </DialogDescription>
             )}
             {children}
-          </div>
-          {footer && (
-            <footer className="mt-4 flex justify-end gap-2">{footer}</footer>
-          )}
+          </DialogContent>
+          {footer && <DialogFooter>{footer}</DialogFooter>}
           <CloseButton onClick={closeDialog} data-dialog-close />
         </Surface>
       </dialog>
@@ -147,3 +145,31 @@ const DialogDescription = forwardRef<
 });
 
 DialogDescription.displayName = 'DialogDescription';
+
+const DialogContent = ({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div className={cx('-mx-8 overflow-y-auto px-8', className)} {...props}>
+      {children}
+    </div>
+  );
+};
+
+const DialogFooter = ({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLElement>) => {
+  return (
+    <footer className={cx('mt-4 flex justify-end gap-2', className)} {...props}>
+      {children}
+    </footer>
+  );
+};
+
+DialogFooter.displayName = 'DialogFooter';
+
+export { DialogContent, DialogDescription, DialogFooter, DialogHeading };

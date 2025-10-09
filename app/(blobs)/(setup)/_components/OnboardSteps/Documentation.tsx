@@ -30,7 +30,7 @@ function Documentation() {
   return (
     <div className="max-w-[30rem]">
       <div className="mb-4">
-        <Heading variant="h2">Documentation</Heading>
+        <Heading level="h2">Documentation</Heading>
         <Paragraph>
           This is the end of the onboarding process. You are now ready to use
           Fresco! For further help and information, consider using the resources
@@ -40,7 +40,7 @@ function Documentation() {
       <div className="flex flex-col gap-2">
         <Surface className="flex gap-10">
           <div className="flex-1">
-            <Heading variant="h4-all-caps" className="mb-2">
+            <Heading level="h4" variant="all-caps" className="mb-2">
               About Fresco
             </Heading>
             Visit our documentation site to learn more about Fresco.
@@ -58,7 +58,7 @@ function Documentation() {
         </Surface>
         <Surface className="flex gap-10">
           <div className="flex-1">
-            <Heading variant="h4-all-caps" className="mb-2">
+            <Heading level="h4" variant="all-caps" className="mb-2">
               Using Fresco
             </Heading>
             Read our guide on the basic workflow for using Fresco to conduct

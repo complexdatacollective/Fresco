@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useRef, type ReactNode } from 'react';
-import { type ZodType } from 'zod';
 import { useStore } from 'zustand';
 import {
   createFormStore,
@@ -27,9 +26,7 @@ export const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
   );
 };
 
-export const useFormStore = <T,>(
-  selector: (store: FormStore<ZodType<unknown>>) => T,
-): T => {
+export const useFormStore = <T,>(selector: (store: FormStore) => T): T => {
   const formStoreContext = useContext(FormStoreContext);
 
   if (!formStoreContext) {
@@ -40,7 +37,7 @@ export const useFormStore = <T,>(
 };
 
 export const useFormStoreSelector = <T,>(
-  selector: (store: FormStore<ZodType<unknown>>) => T,
+  selector: (store: FormStore) => T,
 ): T => {
   const formStoreContext = useContext(FormStoreContext);
 

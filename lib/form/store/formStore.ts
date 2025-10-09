@@ -1,5 +1,4 @@
 import { enableMapSet } from 'immer';
-import { type z, type ZodAny } from 'zod';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import type {
@@ -16,7 +15,7 @@ import { validateFieldValue } from '../utils/validation';
 // Enable Map/Set support in Immer
 enableMapSet();
 
-export type FormStore<T extends z.ZodType> = {
+export type FormStore = {
   fields: Map<string, FieldState>;
   // Single unified error store - flattened structure for easier access and Immer compatibility
   errors: FlattenedErrors | null;
@@ -25,11 +24,11 @@ export type FormStore<T extends z.ZodType> = {
   isDirty: boolean;
   isValid: boolean;
   context: Record<string, unknown>;
-  submitHandler: FormSubmitHandler<T> | null;
+  submitHandler: FormSubmitHandler | null;
   submitInvalidHandler: ((errors: FlattenedErrors) => void) | null;
 
   // Form management
-  registerForm: (config: FormConfig<T>) => void;
+  registerForm: (config: FormConfig) => void;
   reset: () => void;
 
   // Field management
@@ -62,8 +61,8 @@ export type FormStore<T extends z.ZodType> = {
 };
 export type FormStoreApi = ReturnType<typeof createFormStore>;
 
-export const createFormStore = <T extends z.ZodType = ZodAny>() => {
-  return createStore<FormStore<T>>()(
+export const createFormStore = () => {
+  return createStore<FormStore>()(
     immer((set, get, _store) => ({
       fields: new Map(),
       errors: null,

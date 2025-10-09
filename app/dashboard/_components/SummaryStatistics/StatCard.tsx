@@ -26,8 +26,12 @@ function StatCard({
     <Surface className={statCardClasses}>
       <div className="tablet:block hidden">{icon}</div>
       <div>
-        <Heading variant="h4-all-caps">{title}</Heading>
-        <Heading variant="h1">{data[render]}</Heading>
+        <Heading level="h4" variant="all-caps" margin="none">
+          {title}
+        </Heading>
+        <Heading level="h1" margin="none">
+          {data[render]}
+        </Heading>
       </div>
     </Surface>
   );
@@ -44,7 +48,9 @@ export function StatCardSkeleton({
     <div className={statCardClasses}>
       <div className="hidden md:block">{icon}</div>
       <div>
-        <Heading variant="h4-all-caps">{title}</Heading>
+        <Heading level="h4" variant="all-caps">
+          {title}
+        </Heading>
         <Skeleton className="mt-2 h-10 w-32" />
       </div>
     </div>

@@ -53,12 +53,12 @@ export type FieldConfig = {
   validation?: FieldValidation;
 };
 
-export type FormSubmitHandler<T extends z.ZodType> = (
-  values: Record<string, unknown>,
-) => FormSubmissionResult<T> | Promise<FormSubmissionResult<T>>;
+export type FormSubmitHandler = (
+  values: unknown,
+) => FormSubmissionResult | Promise<FormSubmissionResult>;
 
-export type FormConfig<T extends z.ZodType> = {
-  onSubmit: FormSubmitHandler<T>;
+export type FormConfig = {
+  onSubmit: FormSubmitHandler;
   onSubmitInvalid?: (errors: FlattenedErrors) => void;
 };
 
@@ -73,9 +73,18 @@ export type ValidationContext = {
  * Zod schemas for form submission results
  * These provide both type generation and runtime validation
  */
-type FormSubmissionResult<T extends z.ZodType> =
-  | { success: true; errors?: never }
-  | { success: false; errors: z.ZodError<z.infer<T>> };
+export type FormSubmissionResult =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+
+      // General form errors not tied to a specific field
+      formErrors?: string[];
+      // Field-specific errors
+      fieldErrors?: Record<string, string[]>;
+    };
 
 /**
  * Type for field errors object (used for scrolling to first error)

@@ -42,7 +42,8 @@ const AlertTitle = React.forwardRef<
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <Heading
-    variant="h4-all-caps"
+    level="h4"
+    variant="all-caps"
     ref={ref}
     className={cx(className)}
     {...props}

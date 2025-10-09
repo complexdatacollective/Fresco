@@ -16,7 +16,9 @@ const quicksand = Quicksand({
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${quicksand.className} antialiased`}>
+      <body
+        className={`${quicksand.className} bg-background bg-scope antialiased`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

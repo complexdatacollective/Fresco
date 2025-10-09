@@ -9,7 +9,7 @@ function ConnectUploadThing() {
   return (
     <div className="w-[30rem]">
       <div className="mb-4">
-        <Heading variant="h2">Connect UploadThing</Heading>
+        <Heading level="h2">Connect UploadThing</Heading>
         <Paragraph>
           Fresco uses a third-party service called UploadThing to store media
           files, including protocol assets. In order to use this service, you

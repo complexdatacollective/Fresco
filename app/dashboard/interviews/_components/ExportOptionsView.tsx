@@ -76,7 +76,9 @@ const ExportOptionsView = ({
     <div className="flex flex-col gap-4 overflow-y-auto">
       <div className={sectionClasses}>
         <div>
-          <Heading variant="h4-all-caps">Export GraphML Files</Heading>
+          <Heading level="h4" variant="all-caps">
+            Export GraphML Files
+          </Heading>
           <Paragraph intent="smallText">
             GraphML is the main file format used by the Network Canvas software.
             GraphML files can be used to manually import your data into Server,
@@ -92,7 +94,9 @@ const ExportOptionsView = ({
       </div>
       <div className={sectionClasses}>
         <div>
-          <Heading variant="h4-all-caps">Export CSV Files</Heading>
+          <Heading level="h4" variant="all-caps">
+            Export CSV Files
+          </Heading>
           <Paragraph intent="smallText">
             CSV is a widely used format for storing network data, but this wider
             compatibility comes at the expense of robustness. If you enable this
@@ -111,7 +115,9 @@ const ExportOptionsView = ({
       </div>
       <div className={sectionClasses}>
         <div>
-          <Heading variant="h4-all-caps">Use Screen Layout Coordinates</Heading>
+          <Heading level="h4" variant="all-caps">
+            Use Screen Layout Coordinates
+          </Heading>
           <Paragraph intent="smallText">
             By default Interviewer exports sociogram node coordinates as
             normalized X/Y values (a number between 0 and 1 for each axis, with

@@ -17,7 +17,7 @@ export default function Loading() {
       </ResponsiveContainer>
       <SummaryStatisticsSkeleton />
       <ResponsiveContainer>
-        <Heading variant="h2">Recent Activity</Heading>
+        <Heading level="h2">Recent Activity</Heading>
         <Paragraph>
           This table summarizes the most recent activity within Fresco. Use it
           to keep track of new protocols, interviews, and participants.

@@ -39,7 +39,7 @@ function OnboardSteps({ steps }: { steps: string[] }) {
             )}
           </div>
           <div className="flex flex-col">
-            <Heading variant={'h4-all-caps'} className="m-0 text-xs">
+            <Heading level="h4" variant="all-caps" className="m-0 text-xs">
               {step}
             </Heading>
           </div>

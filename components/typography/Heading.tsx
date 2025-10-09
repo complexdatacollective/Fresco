@@ -28,6 +28,9 @@ export const headingVariants = cva({
     variant: 'default',
     margin: 'default',
   },
+  compoundVariants: [
+    { level: 'h4', variant: 'all-caps', className: '!m-0 font-bold' },
+  ],
 });
 
 export type VariantPropType = VariantProps<typeof headingVariants>;

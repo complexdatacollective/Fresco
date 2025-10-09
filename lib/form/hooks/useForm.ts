@@ -1,11 +1,8 @@
 import { useCallback, useLayoutEffect, useRef, type FormEvent } from 'react';
-import type z from 'zod';
 import { useFormStore } from '../store/formStoreProvider';
 import type { FlattenedErrors, FormConfig } from '../types';
 
-export function useForm<TValues extends z.ZodType>(
-  config: FormConfig<TValues>,
-) {
+export function useForm(config: FormConfig) {
   const registeredRef = useRef(false);
   const isUnmountingRef = useRef(false);
   const configRef = useRef(config); // Config is static, so this avoids needing to specify it in effect deps
@@ -29,7 +26,7 @@ export function useForm<TValues extends z.ZodType>(
   // Register form once on mount. layout effect used to ensure it runs before fields register.
   useLayoutEffect(() => {
     if (!registeredRef.current && !isUnmountingRef.current) {
-      const formConfig: FormConfig<TValues> = {
+      const formConfig: FormConfig = {
         onSubmit: configRef.current.onSubmit,
         onSubmitInvalid: configRef.current.onSubmitInvalid,
       };
@@ -48,7 +45,6 @@ export function useForm<TValues extends z.ZodType>(
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
-      console.log('Form handleSubmit');
       e.preventDefault(); // Prevent default form submission
       setSubmitting(true);
       setErrors(null);
@@ -57,13 +53,10 @@ export function useForm<TValues extends z.ZodType>(
         const isValid = await validateForm(); // Run field level validation
 
         if (!isValid) {
-          console.log('Form validation failed');
           // Wait a tick for the store to update with errors
           setTimeout(() => {
             const currentErrors = errorsRef.current;
-            console.log('Form errors:', currentErrors);
             if (currentErrors && configRef.current.onSubmitInvalid) {
-              console.log('Calling onSubmitInvalid callback');
               configRef.current.onSubmitInvalid(currentErrors);
             }
           }, 0);
@@ -75,14 +68,17 @@ export function useForm<TValues extends z.ZodType>(
         // The schema is passed to onSubmit which provides type safety
         const result = await configRef.current.onSubmit?.(values);
 
-        // Handle the submission result
-        if (result && !result.success && result.errors) {
-          const flattened = result.errors.flatten();
-          setErrors({
-            formErrors: flattened.formErrors,
-            fieldErrors: flattened.fieldErrors as Record<string, string[]>,
-          });
+        if (result.success) {
+          // Clear errors on successful submission
+          setErrors(null);
+          return;
         }
+
+        // Handle the submission result
+        setErrors({
+          formErrors: result.formErrors ?? [],
+          fieldErrors: result.fieldErrors ?? {},
+        });
       } catch (error) {
         // Handle form submission errors
         setErrors(null); // Clear any previous form errors

@@ -7,15 +7,15 @@
 @layer theme {
   :root {
     /* Used for relative color values */
-    --base-hue: 281;
+    --base-hue: 275;
 
-    --background: var(--white);
+    --background: 98% 0.01 var(--base-hue);
     --text: 10% 0.22 var(--base-hue);
 
     --neutral: var(--platinum);
     --neutral-contrast: var(--charcoal);
 
-    --primary: 34% 0.2 var(--base-hue);
+    --primary: 25% 0.15 var(--base-hue);
     --primary-contrast: var(--white);
 
     /* For visual emphasis */
@@ -26,7 +26,7 @@
     --secondary: 60% 0.1 var(--base-hue);
     --secondary-contrast: var(--white);
 
-    --surface: var(--background);
+    --surface: 100% 0.005 var(--base-hue);
     --surface-contrast: var(--text);
     --surface-1: 91.5% 0.01 var(--base-hue);
     --surface-1-contrast: var(--text);

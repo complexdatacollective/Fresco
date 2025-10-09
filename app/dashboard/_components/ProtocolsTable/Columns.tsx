@@ -91,7 +91,7 @@ export const getProtocolColumns = (
             }
             content={
               <>
-                <Heading variant="h4-all-caps">
+                <Heading level="h4" variant="all-caps">
                   Anonymous Participation URLs
                 </Heading>
                 <Paragraph>

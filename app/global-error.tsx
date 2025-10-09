@@ -3,7 +3,6 @@
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
 import ErrorReportNotifier from '~/components/ErrorReportNotifier';
-import FeedbackButton from '~/components/Feedback/FeedbackButton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Link from '~/components/Link';
 import Heading from '~/components/typography/Heading';
@@ -57,7 +56,7 @@ ${error.stack}`;
             height={80}
             alt="Error robot"
           />
-          <Heading variant="h1" className="text-destructive">
+          <Heading level="h1" className="text-destructive">
             There&apos;s a problem with Fresco.
           </Heading>
         </div>
@@ -78,7 +77,6 @@ ${error.stack}`;
             Copy Debug Information
             <ClipboardCopy className="ml-2" />
           </Button>
-          <FeedbackButton variant="outline" />
           <Button onClick={handleReset} variant="default" className="flex">
             Try Again
           </Button>

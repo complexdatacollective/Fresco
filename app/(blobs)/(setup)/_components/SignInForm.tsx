@@ -10,25 +10,15 @@ import { loginSchema } from '~/schemas/auth';
 export const SignInForm = () => {
   const router = useRouter();
 
-  const handleSubmit: FormSubmitHandler<typeof loginSchema> = async (data) => {
+  const handleSubmit: FormSubmitHandler = async (data) => {
     const result = await login(data);
 
     if (result.success === true) {
       router.push('/dashboard');
-      return {
-        success: true,
-      };
+      return result;
     }
 
-    const errors = {
-      form: result.formErrors,
-      fields: result.fieldErrors,
-    };
-
-    return {
-      success: false,
-      errors,
-    };
+    return result;
   };
 
   return (

@@ -11,17 +11,10 @@ import InfoTooltip from '~/components/InfoTooltip';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { ControlledDialog } from '~/lib/dialogs/ControlledDialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
 import { useFormStore } from '~/lib/form/store/formStoreProvider';
-import { type FormSubmitHandler } from '~/lib/form/types';
 import {
   participantIdentifierSchema,
   participantLabelSchema,
@@ -45,7 +38,7 @@ function ParticipantModal({
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit: FormSubmitHandler = async (data) => {
+  const handleSubmit = async (data) => {
     setError(null);
 
     const typedData = data as {
@@ -95,52 +88,53 @@ function ParticipantModal({
     : undefined;
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {editingParticipant ? 'Edit Participant' : 'Add Participant'}
-          </DialogTitle>
-        </DialogHeader>
-        {error && (
-          <div className="mb-6 flex flex-wrap">
-            <ActionError errorTitle="Error" errorDescription={error} />
-          </div>
-        )}
-        <Form
-          key={editingParticipant?.id ?? 'new'} // Force form reset when editing different participant
-          onSubmit={handleSubmit}
-          initialValues={initialValues}
-          className="flex flex-col gap-2"
-        >
-          <IdentifierField
-            existingParticipants={existingParticipants}
-            editingParticipant={editingParticipant}
-          />
-          <Field
-            key="label"
-            name="label"
-            label="Label"
-            hint="This optional field allows you to provide a human readable label. This could be a name, or an internal project label for this participant. It does not need to be unique, and will not be exposed to participants."
-            placeholder="Enter optional label..."
-            validation={participantLabelSchema}
-            Component={InputField}
-          />
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <SubmitButton key="submit">
-              {editingParticipant ? 'Update' : 'Submit'}
-            </SubmitButton>
-          </DialogFooter>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <ControlledDialog
+      open={open}
+      closeDialog={() => handleOpenChange(open)}
+      title={editingParticipant ? 'Edit Participant' : 'Add Participant'}
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <SubmitButton key="submit">
+            {editingParticipant ? 'Update' : 'Submit'}
+          </SubmitButton>
+        </>
+      }
+    >
+      {error && (
+        <div className="mb-6 flex flex-wrap">
+          <ActionError errorTitle="Error" errorDescription={error} />
+        </div>
+      )}
+      <Form
+        key={editingParticipant?.id ?? 'new'} // Force form reset when editing different participant
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-2"
+      >
+        <IdentifierField
+          existingParticipants={existingParticipants}
+          editingParticipant={editingParticipant}
+          initialValue={initialValues?.identifier}
+        />
+        <Field
+          key="label"
+          name="label"
+          label="Label"
+          hint="This optional field allows you to provide a human readable label. This could be a name, or an internal project label for this participant. It does not need to be unique, and will not be exposed to participants."
+          placeholder="Enter optional label..."
+          validation={participantLabelSchema}
+          Component={InputField}
+          type="text"
+          initialValue={initialValues?.label}
+        />
+      </Form>
+    </ControlledDialog>
   );
 }
 
@@ -148,9 +142,11 @@ function ParticipantModal({
 function IdentifierField({
   existingParticipants,
   editingParticipant,
+  initialValue,
 }: {
   existingParticipants: Participant[];
   editingParticipant?: Participant | null;
+  initialValue?: string;
 }) {
   const setFieldValue = useFormStore((state) => state.setFieldValue);
 
@@ -179,7 +175,9 @@ function IdentifierField({
         trigger={<HelpCircle className="h-4 w-4" />}
         content={
           <>
-            <Heading variant="h4-all-caps">Participant Identifiers</Heading>
+            <Heading level="h4" variant="all-caps">
+              Participant Identifiers
+            </Heading>
             <Paragraph>
               Participant identifiers are used by Fresco to onboard
               participants. They might be exposed to the participant during this
@@ -203,13 +201,14 @@ function IdentifierField({
       hint={hint}
       placeholder="Enter an identifier..."
       validation={identifierValidation}
+      type="text"
       Component={InputField}
       required
       autoFocus
       suffixComponent={
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           size="xs"
           onClick={() => {
             setFieldValue('identifier', `p-${createId()}`);
@@ -218,6 +217,7 @@ function IdentifierField({
           Generate
         </Button>
       }
+      initialValue={initialValue}
     />
   );
 }

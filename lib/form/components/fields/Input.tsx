@@ -169,7 +169,7 @@ type InputFieldProps = Omit<
   'size' | 'type'
 > &
   VariantProps<typeof inputWrapperVariants> & {
-    type: 'text' | 'number';
+    type?: 'text' | 'number' | 'email' | 'password';
     onChange?: (value: FieldValue) => void;
     // NOTE: these cannot be 'prefix' and 'suffix' because these collide with RDFa attributes in @types/react@18.3.18
     prefixComponent?: ReactNode;
@@ -183,6 +183,7 @@ export function InputField({
   prefixComponent: prefix,
   suffixComponent: suffix,
   onChange,
+  type = 'text',
   ...inputProps
 }: InputFieldProps) {
   // Change handler that coerces the value passed on onChange based on the input type
@@ -190,16 +191,17 @@ export function InputField({
     const rawValue = e.target.value;
     let value: FieldValue = rawValue;
 
-    switch (inputProps.type) {
+    switch (type) {
       case 'number':
         // Allow clearing the field - empty string should be undefined, not 0
         value = rawValue === '' ? undefined : Number(rawValue);
         break;
       case 'text':
-        value = String(rawValue);
-        break;
+      case 'email':
+      case 'password':
       default:
         value = String(rawValue);
+        break;
     }
 
     onChange?.(value);

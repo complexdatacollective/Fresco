@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import SuperJSON from 'superjson';
-import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
 import {
   getInterviewById,
@@ -51,7 +50,6 @@ export default async function Page({
 
   return (
     <>
-      {session && <FeedbackBanner />}
       <InterviewShell rawPayload={rawInterview} />
     </>
   );

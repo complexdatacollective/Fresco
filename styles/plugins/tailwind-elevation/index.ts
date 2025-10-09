@@ -70,11 +70,11 @@ export default plugin.withOptions<PluginConfig>(
         lightX = 0,
         lightY = -0.5,
         oomph = 0.5,
-        crispy = 0.5,
+        crispy = 0.75,
         resolution = 0.3,
       } = options;
 
-      const defaultShadowColor = 'oklch(100% 0 0)';
+      const defaultShadowColor = 'oklch(100% 1 0)';
 
       const generateShadow = (elevation: Elevation) => {
         return generateShadowLayers(
@@ -89,7 +89,7 @@ export default plugin.withOptions<PluginConfig>(
         )
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
             // Create shadows by reducing background lightness by 40%
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) calc(l * 0.73) c h / ${opacity})`;
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--bg-scope, ${defaultShadowColor}) calc(l * 0.75) c h / ${opacity})`;
           })
           .join(', ');
       };

@@ -26,7 +26,7 @@ export default function SettingsSection({
       )}
     >
       <div className="flex-1">
-        <Heading variant="h4-all-caps" className="mb-2">
+        <Heading level="h4" variant="all-caps" className="mb-2">
           {heading}
         </Heading>
         {children}
