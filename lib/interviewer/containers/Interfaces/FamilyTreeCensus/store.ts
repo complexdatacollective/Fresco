@@ -10,6 +10,7 @@ type Sex = 'male' | 'female';
 
 export type Node = {
   id?: string;
+  name?: string;
   label: string;
   sex: Sex;
   readOnly?: boolean;

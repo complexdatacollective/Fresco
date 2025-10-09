@@ -7,15 +7,18 @@ import { FAMILY_TREE_CONFIG } from '../config';
 export default function FamilyTreeNode(props: {
   interviewNetworkId?: string;
   placeholderId: string;
+  name?: string;
   label: string;
   shape: 'circle' | 'square';
   allowDrag: boolean;
   isEgo?: boolean;
   x: number;
   y: number;
+  handleClick?: () => void;
 }) {
   const {
     placeholderId,
+    name,
     label,
     allowDrag,
     x,
@@ -23,6 +26,7 @@ export default function FamilyTreeNode(props: {
     shape,
     isEgo,
     interviewNetworkId,
+    handleClick,
   } = props;
   const nodeTypeColor = useSelector(getNodeColorSelector);
 
@@ -53,6 +57,9 @@ export default function FamilyTreeNode(props: {
         left: x,
         width: FAMILY_TREE_CONFIG.nodeContainerWidth,
         height: FAMILY_TREE_CONFIG.nodeContainerHeight,
+      }}
+      onClick={() => {
+        handleClick?.();
       }}
     >
       <div
@@ -105,7 +112,7 @@ export default function FamilyTreeNode(props: {
           https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor 
         */}
         <div className="flex flex-col gap-0.5 text-white">
-          <h4>{label}</h4>
+          <h4>{name ?? label}</h4>
           <h5 className="!font-normal">{label}</h5>
         </div>
       </div>

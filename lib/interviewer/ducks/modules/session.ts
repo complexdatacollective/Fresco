@@ -395,7 +395,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
   builder.addCase(addNode.fulfilled, (state, action) => {
     const { secureAttributes, sessionMeta, modelData } = action.payload;
     const { promptId, stageId } = sessionMeta;
-    invariant(promptId, 'Prompt ID is required to add a node');
+    //invariant(promptId, 'Prompt ID is required to add a node');
     invariant(stageId, 'Stage ID is required to add a node');
 
     const {
@@ -408,7 +408,7 @@ const sessionReducer = createReducer(initialState, (builder) => {
       type,
       [entityAttributesProperty]: attributeData,
       [entitySecureAttributesMeta]: secureAttributes,
-      promptIDs: [promptId],
+      //promptIDs: [promptId],
       stageId: stageId,
     };
 

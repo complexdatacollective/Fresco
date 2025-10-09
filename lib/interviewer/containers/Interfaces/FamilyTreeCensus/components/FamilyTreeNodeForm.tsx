@@ -1,7 +1,6 @@
 import { type Form as TForm } from '@codaco/protocol-validation';
 import {
   type EntityAttributesProperty,
-  entityAttributesProperty,
   type EntityPrimaryKey,
   entityPrimaryKeyProperty,
   type NcNode,
@@ -11,37 +10,66 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Form from '~/lib/form/components/Form';
 import { useProtocolFieldProcessor } from '~/lib/form/hooks/useProtocolFieldProcessor';
-import { type PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
+import { type Node } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
 import Overlay from '~/lib/interviewer/containers/Overlay';
-import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
+import {
+  addNode as addNetworkNode,
+  updateNode as updateNetworkNode,
+} from '~/lib/interviewer/ducks/modules/session';
 import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button, Scroller } from '~/lib/ui/components';
+import { useFamilyTreeStore } from '../FamilyTreeProvider';
 
 type FamilyTreeNodeFormProps = {
-  selectedNode: PlaceholderNodeProps | NcNode | null;
+  nodeType: string;
+  selectedNode: Node | void;
   form: TForm;
   onClose: () => void;
-  addNode: (attributes: NcNode[EntityAttributesProperty]) => void;
 };
 
 const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
-  const { selectedNode, form, onClose, addNode } = props;
+  const { nodeType, selectedNode, form, onClose } = props;
 
   const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
 
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
+  const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
   const dispatch = useAppDispatch();
 
+  const commitShellNode = useCallback(
+    (node: Node, attributes: NcNode[EntityAttributesProperty]) => {
+      if (node.id) {
+        void dispatch(
+          addNetworkNode({
+            type: nodeType,
+            modelData: { [entityPrimaryKeyProperty]: node.id },
+            attributeData: attributes,
+          }),
+        ).then(() => {
+          if (node.id) {
+            updateShellNode(node.id, {
+              interviewNetworkId: node.id,
+              ...attributes,
+            });
+          }
+        });
+      }
+    },
+    [dispatch, nodeType, updateShellNode],
+  );
   const updateNode = useCallback(
     (payload: {
       nodeId: NcNode[EntityPrimaryKey];
-      newModelData?: Record<string, unknown>;
       newAttributeData: NcNode[EntityAttributesProperty];
-    }) => dispatch(updateNodeAction(payload)),
-    [dispatch],
+    }) => {
+      void dispatch(updateNetworkNode(payload)).then(() => {
+        updateShellNode(payload.nodeId, payload.newAttributeData);
+      });
+    },
+    [dispatch, updateShellNode],
   );
 
   const processedFields = useProtocolFieldProcessor({
@@ -51,33 +79,38 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
     },
   });
 
-  const getInitialValues = useCallback(
-    () => selectedNode?.[entityAttributesProperty] ?? {},
-    [selectedNode],
-  );
+  const getInitialValues = useCallback(() => {
+    const values: Record<string, string> = {};
+    if (selectedNode) {
+      form.fields.forEach((field) => {
+        if (selectedNode[field.variable] != null) {
+          values[field.variable] = selectedNode[field.variable];
+        }
+      });
+    }
+    return values;
+  }, [selectedNode, form.fields]);
 
   const handleSubmit = useCallback(
     ({ value }: { value: Record<string, VariableValue> }) => {
-      if (!selectedNode) return;
+      if (!selectedNode || !selectedNode.id) return;
 
-      if ('_uid' in selectedNode) {
+      if (selectedNode.interviewNetworkId) {
         // Existing node → update only the editable fields
         console.log('[Form] Updating existing node', {
-          id: selectedNode[entityPrimaryKeyProperty],
+          id: selectedNode.id,
           value,
         });
-        const selectedUID = selectedNode[entityPrimaryKeyProperty];
         void updateNode({
-          nodeId: selectedUID,
+          nodeId: selectedNode.id,
           newAttributeData: value,
         });
       } else {
-        // Placeholder → enrich with parentIds + label and commit
-        const { parentIds, label } = selectedNode;
+        // Placeholder → label and commit
+        const { label } = selectedNode;
         const fullPayload = {
           ...newNodeAttributes,
           ...value,
-          parentIds,
           label,
         };
 
@@ -85,13 +118,13 @@ const FamilyTreeNodeForm = (props: FamilyTreeNodeFormProps) => {
           placeholder: selectedNode,
           fullPayload,
         });
-        addNode(fullPayload);
+        commitShellNode(selectedNode, fullPayload);
       }
 
       setShow(false);
       onClose();
     },
-    [selectedNode, newNodeAttributes, onClose, addNode, updateNode],
+    [selectedNode, newNodeAttributes, commitShellNode, onClose, updateNode],
   );
 
   // When a selected node is passed in, we are editing an existing node.

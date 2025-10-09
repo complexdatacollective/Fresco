@@ -119,7 +119,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           currentPromptId={currentStepIndex.toString()}
           className="shrink-0"
         />
-        {CurrentStepComponent && <CurrentStepComponent />}
+        {CurrentStepComponent && <CurrentStepComponent stage={stage} />}
       </div>
       {stageElement &&
         createPortal(
