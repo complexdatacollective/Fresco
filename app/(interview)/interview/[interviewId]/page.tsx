@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { syncInterview } from '~/actions/interviews';
-import FeedbackBanner from '~/components/Feedback/FeedbackBanner';
 import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewById } from '~/queries/interviews';
 import { getServerSession } from '~/utils/auth';
@@ -44,7 +43,6 @@ export default async function Page({
 
   return (
     <>
-      {session && <FeedbackBanner />}
       <InterviewShell interview={interview} syncInterview={syncInterview} />
     </>
   );
