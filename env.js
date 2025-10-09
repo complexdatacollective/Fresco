@@ -44,8 +44,10 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    DATABASE_URL: process.env.DATABASE_URL,
-    DATABASE_URL_UNPOOLED: process.env.DATABASE_URL_UNPOOLED,
+    // Prefer new Neon variable names, but fall back to old ones for backwards compatibility
+    DATABASE_URL: process.env.DATABASE_URL ?? process.env.POSTGRES_PRISMA_URL,
+    DATABASE_URL_UNPOOLED:
+      process.env.DATABASE_URL_UNPOOLED ?? process.env.POSTGRES_URL_NON_POOLING,
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
