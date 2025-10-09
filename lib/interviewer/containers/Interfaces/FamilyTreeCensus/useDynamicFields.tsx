@@ -24,16 +24,12 @@ export type FieldConfig = {
 
 export function useDynamicFields({
   nodes,
-  father,
-  mother,
   firstCousinOptions,
   nieceOptions,
   grandchildrenOptions,
   show,
 }: {
   nodes: PlaceholderNodeProps[];
-  father: PlaceholderNodeProps | null;
-  mother: PlaceholderNodeProps | null;
   firstCousinOptions: RelativeOption[];
   nieceOptions: RelativeOption[];
   grandchildrenOptions: RelativeOption[];

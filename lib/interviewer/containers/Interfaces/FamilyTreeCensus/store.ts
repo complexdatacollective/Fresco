@@ -93,15 +93,32 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
         return null;
       };
 
-      const getChildren = (nodeId: string): string[] => {
+      const getExPartner = (nodeId: string): string | null => {
         const edges = get().network.edges;
-        const children: string[] = [];
         for (const [, edge] of Array.from(edges.entries())) {
-          if (edge.relationship === 'parent' && edge.source === nodeId) {
-            children.push(edge.target);
+          if (edge.relationship === 'ex-partner') {
+            if (edge.source === nodeId) return edge.target;
+            if (edge.target === nodeId) return edge.source;
           }
         }
-        return children;
+        return null;
+      };
+
+      const getParentToChildrenMap = (): Map<string, string[]> => {
+        const edges = get().network.edges;
+        const map = new Map<string, string[]>();
+        for (const [, edge] of Array.from(edges.entries())) {
+          if (edge.relationship === 'parent') {
+            if (!map.has(edge.source)) map.set(edge.source, []);
+            map.get(edge.source)!.push(edge.target);
+          }
+        }
+        return map;
+      };
+
+      const getChildren = (nodeId: string): string[] => {
+        const map = getParentToChildrenMap();
+        return map.get(nodeId) ?? [];
       };
 
       const getParents = (nodeId: string): string[] => {
@@ -194,12 +211,18 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
         }
 
-        // Ensure partners are on the same layer
         for (const [nodeId] of Array.from(nodes.entries())) {
           const partnerId = getPartner(nodeId);
-          if (partnerId) {
+          const exPartnerId = getExPartner(nodeId);
+
+          // Combine both partner types into a single array for iteration
+          const relatedPartners = [partnerId, exPartnerId].filter(
+            (id): id is string => !!id,
+          );
+
+          for (const relatedPartnerId of relatedPartners) {
             const nodeLayer = nodeToLayer.get(nodeId);
-            const partnerLayer = nodeToLayer.get(partnerId);
+            const partnerLayer = nodeToLayer.get(relatedPartnerId);
 
             if (
               nodeLayer !== undefined &&
@@ -209,7 +232,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               const targetLayer = Math.max(nodeLayer, partnerLayer);
 
               // Move both to the deeper layer
-              [nodeId, partnerId].forEach((id) => {
+              [nodeId, relatedPartnerId].forEach((id) => {
                 const oldLayer = nodeToLayer.get(id)!;
                 if (oldLayer !== targetLayer) {
                   // Remove from old layer
@@ -225,6 +248,48 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
                   layers.get(targetLayer)!.push(id);
                 }
               });
+            }
+          }
+        }
+
+        /**
+         * Enforce child layers >= parent layer + 1
+         * propagate downwards so grandchildren are moved
+         */
+        const parentToChildren = getParentToChildrenMap();
+
+        // seed with all parents that have children
+        const propagateQueue: string[] = Array.from(parentToChildren.keys());
+
+        while (propagateQueue.length > 0) {
+          const parentId = propagateQueue.shift()!;
+          const parentLayer = nodeToLayer.get(parentId);
+          if (parentLayer === undefined) continue; // if parent not assigned, continue
+
+          const children = parentToChildren.get(parentId) ?? [];
+          for (const childId of children) {
+            // ensure child layer is one greater than parent layer
+            const childLayer = nodeToLayer.get(childId) ?? parentLayer + 1;
+            if (childLayer <= parentLayer) {
+              const newChildLayer = parentLayer + 1;
+
+              // remove from old layer assignment (if present)
+              const oldLayer = nodeToLayer.get(childId);
+              if (oldLayer !== undefined) {
+                const oldList = layers.get(oldLayer) ?? [];
+                layers.set(
+                  oldLayer,
+                  oldList.filter((id) => id !== childId),
+                );
+              }
+
+              // set child's new layer and add to layers map
+              nodeToLayer.set(childId, newChildLayer);
+              if (!layers.has(newChildLayer)) layers.set(newChildLayer, []);
+              layers.get(newChildLayer)!.push(childId);
+
+              // enqueue child so its own children (grandchildren) will be checked
+              propagateQueue.push(childId);
             }
           }
         }
@@ -273,7 +338,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             if (partnerId && layerNodes.includes(partnerId)) {
               // Handle couple
               const node = getNodeById(nodeId);
-              const partner = getNodeById(partnerId);
 
               // Order couple by gender (female first)
               const [leftId, rightId] =
@@ -439,72 +503,82 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             if (!nodeId || placedNodes.has(nodeId)) continue;
 
             const partnerId = getPartner(nodeId);
-
             if (partnerId && layerNodes.includes(partnerId)) {
-              // Handle couple
-              const sharedChildren = getSharedChildren(nodeId, partnerId);
+              const nodeData = getNodeById(nodeId);
 
+              // canonical couple (female left, male right)
+              const leftPartnerId =
+                nodeData?.sex === 'male' ? partnerId : nodeId;
+              const rightPartnerId =
+                leftPartnerId === nodeId ? partnerId : nodeId;
+
+              const leftExId = getExPartner(leftPartnerId);
+              const rightExId = getExPartner(rightPartnerId);
+
+              const sharedChildren = getSharedChildren(
+                leftPartnerId,
+                rightPartnerId,
+              );
+
+              // center the couple around their children, if any
+              let centerX: number | undefined;
               if (sharedChildren.length > 0) {
-                // Place parents over children
-                const childXPositions = sharedChildren
-                  .map((childId) => positions.get(childId)?.x)
+                const childXs = sharedChildren
+                  .map((c) => positions.get(c)?.x)
                   .filter((x): x is number => x !== undefined);
-
-                if (childXPositions.length > 0) {
-                  const centerX =
-                    childXPositions.reduce((a, b) => a + b, 0) /
-                    childXPositions.length;
-                  let leftX = centerX - spacing.partners / 2;
-                  let rightX = centerX + spacing.partners / 2;
-
-                  // Adjust positions if they conflict with nextX
-                  if (nextX > 0) {
-                    leftX = Math.max(nextX, leftX);
-                    rightX = Math.max(nextX + spacing.partners, rightX);
-                  }
-
-                  positions.set(nodeId, { x: leftX, y });
-                  positions.set(partnerId, { x: rightX, y });
-                  nextX = rightX + spacing.siblings;
-                } else {
-                  // No children positioned yet
-                  positions.set(nodeId, { x: nextX, y });
-                  positions.set(partnerId, { x: nextX + spacing.partners, y });
-                  nextX = nextX + spacing.partners + spacing.siblings;
-                }
-              } else {
-                // Couple with no children
-                positions.set(nodeId, { x: nextX, y });
-                positions.set(partnerId, { x: nextX + spacing.partners, y });
-                nextX = nextX + spacing.partners + spacing.siblings;
+                if (childXs.length > 0)
+                  centerX = childXs.reduce((a, b) => a + b, 0) / childXs.length;
               }
 
-              placedNodes.add(nodeId);
-              placedNodes.add(partnerId);
-              i++; // Skip partner in next iteration
+              // reserve space for exes
+              const leftReserve = leftExId ? spacing.partners : 0;
+              const rightReserve = rightExId ? spacing.partners : 0;
+
+              // base placement
+              let leftX =
+                typeof centerX === 'number'
+                  ? centerX - spacing.partners / 2
+                  : nextX + leftReserve;
+              let rightX = leftX + spacing.partners;
+
+              if (leftX < nextX + leftReserve) {
+                const shift = nextX + leftReserve - leftX;
+                leftX += shift;
+                rightX += shift;
+              }
+
+              positions.set(leftPartnerId, { x: leftX, y });
+              positions.set(rightPartnerId, { x: rightX, y });
+              placedNodes.add(leftPartnerId);
+              placedNodes.add(rightPartnerId);
+
+              // ex-partners
+              if (leftExId) {
+                positions.set(leftExId, { x: leftX - spacing.partners, y });
+                placedNodes.add(leftExId);
+              }
+              if (rightExId) {
+                positions.set(rightExId, { x: rightX + spacing.partners, y });
+                placedNodes.add(rightExId);
+              }
+
+              nextX = rightX + rightReserve + spacing.siblings;
+              i++; // skip partner
             } else {
-              // Single node
+              // single nodes
               const children = getChildren(nodeId);
+              const childXs = children
+                .map((c) => positions.get(c)?.x)
+                .filter((x): x is number => x !== undefined);
 
-              if (children.length > 0) {
-                // Position over children if they exist
-                const childXPositions = children
-                  .map((childId) => positions.get(childId)?.x)
-                  .filter((x): x is number => x !== undefined);
-
-                if (childXPositions.length > 0) {
-                  const centerX =
-                    childXPositions.reduce((a, b) => a + b, 0) /
-                    childXPositions.length;
-                  positions.set(nodeId, { x: Math.max(nextX, centerX), y });
-                  nextX = Math.max(
-                    nextX + spacing.siblings,
-                    centerX + spacing.siblings,
-                  );
-                } else {
-                  positions.set(nodeId, { x: nextX, y });
-                  nextX += spacing.siblings;
-                }
+              if (childXs.length > 0) {
+                const centerX =
+                  childXs.reduce((a, b) => a + b, 0) / childXs.length;
+                positions.set(nodeId, { x: Math.max(nextX, centerX), y });
+                nextX = Math.max(
+                  nextX + spacing.siblings,
+                  centerX + spacing.siblings,
+                );
               } else {
                 positions.set(nodeId, { x: nextX, y });
                 nextX += spacing.siblings;
@@ -587,6 +661,9 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               state.network.edges.delete(edgeId),
             );
           });
+          const store = get();
+
+          store.runLayout();
         },
 
         addEdge: ({ id, source, target, relationship }) => {
@@ -885,38 +962,20 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           store.runLayout();
         },
 
-        // addPlaceholderNode: (formData) => {
-        //   const store = get();
-        //   const { addNode, addEdge } = store;
-        //   const { value } = formData;
-        //   console.log(value);
-        //   console.log(value.relation);
-        //   console.log(value[`${value.relation}Relation`]);
-
-        //   const newRelative = value.relation;
-
-        //   const newRelativeId = addNode({
-        //     label: newRelative,
-        //     sex: 'female',
-        //     readOnly: false,
-        //   });
-        //   addEdge({
-        //     source: value[`${newRelative}Relation`],
-        //     target: newRelativeId,
-        //     relationship: 'parent',
-        //   });
-
-        //   store.runLayout();
-        // },
-
         addPlaceholderNode: (relation: string, anchorId?: string) => {
           const store = get();
           const { addNode, addEdge, network } = store;
 
           const inferSex = (relation: string): Sex => {
-            if (/brother|uncle|son|nephew|father|grandfather/i.test(relation))
+            if (
+              /brother|uncle|son|nephew|father|grandfather|Male/i.test(relation)
+            )
               return 'male';
-            if (/sister|aunt|daughter|niece|mother|grandmother/i.test(relation))
+            if (
+              /sister|aunt|daughter|niece|mother|grandmother|Female/i.test(
+                relation,
+              )
+            )
               return 'female';
             return 'female';
           };
@@ -944,8 +1003,8 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             });
 
             addEdge({
-              source: partnerId,
-              target: nodeId,
+              source: node.sex === 'female' ? partnerId : nodeId,
+              target: node.sex === 'female' ? nodeId : partnerId,
               relationship: 'partner',
             });
 
@@ -976,8 +1035,8 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             });
 
             addEdge({
-              source: exPartnerId,
-              target: nodeId,
+              source: node.sex === 'male' ? exPartnerId : nodeId,
+              target: node.sex === 'male' ? nodeId : exPartnerId,
               relationship: 'ex-partner',
             });
 
@@ -1000,12 +1059,11 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
 
           const rel = relation.toLowerCase();
-          console.log(rel);
 
-          // half siblings (step-sibling or step-child)
+          // half siblings
           if (rel.includes('half')) {
             if (!anchorId) {
-              console.warn(`Step relation requires anchorId`);
+              console.warn(`half relation requires anchorId`);
               return newNodeId;
             }
             const exPartnerId = ensureExPartner(anchorId);
@@ -1014,7 +1072,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           }
 
           // ego’s children
-          else if (rel.includes('son') || rel.includes('daughter')) {
+          else if (rel === 'son' || rel === 'daughter') {
             const egoId = 'ego';
             if (network.nodes.has(egoId)) {
               const partnerId = ensurePartner(egoId);
@@ -1065,12 +1123,10 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
 
           // aunt/uncle
           else if (rel.includes('aunt') || rel.includes('uncle')) {
-            // anchorId should be either 'mother' or 'father'
             if (!anchorId) {
               console.warn(`Aunt/uncle relation requires anchorId`);
               return newNodeId;
             }
-            // find grandparents of that parent
             for (const [, edge] of network.edges) {
               if (edge.relationship === 'parent' && edge.target === anchorId) {
                 connectAsChild(edge.source);

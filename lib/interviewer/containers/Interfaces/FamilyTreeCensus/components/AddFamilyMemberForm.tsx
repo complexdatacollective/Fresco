@@ -6,7 +6,6 @@ import { useDynamicFields } from '~/lib/interviewer/containers/Interfaces/Family
 import { useRelatives } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/useRelatives';
 import Overlay from '~/lib/interviewer/containers/Overlay';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
-import { getAdditionalAttributesSelector } from '~/lib/interviewer/selectors/prop';
 import {
   getNodeTypeLabel,
   getStageSubject,
@@ -33,24 +32,14 @@ const AddFamilyMemberForm = () => {
     (state) => state.addPlaceholderNode,
   );
 
-  // TODO: probably remove this? might not be needed
-  const newNodeAttributes = useSelector(getAdditionalAttributesSelector);
-
   const [show, setShow] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const {
-    mother,
-    father,
-    grandchildrenOptions,
-    nieceOptions,
-    firstCousinOptions,
-  } = useRelatives(nodesMap ?? new Map(), edgesMap ?? new Map());
+  const { grandchildrenOptions, nieceOptions, firstCousinOptions } =
+    useRelatives(nodesMap ?? new Map(), edgesMap ?? new Map());
 
   const { processedFields } = useDynamicFields({
     nodes,
-    father,
-    mother,
     firstCousinOptions,
     nieceOptions,
     grandchildrenOptions,
