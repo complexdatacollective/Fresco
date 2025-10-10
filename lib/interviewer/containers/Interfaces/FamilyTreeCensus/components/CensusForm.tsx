@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { updateEgo } from '~/lib/interviewer/ducks/modules/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { Button } from '~/lib/ui/components';
+import { Radio, RadioGroup } from '~/lib/ui/components/Fields';
 import NumberInput from '~/lib/ui/components/Fields/Number';
 import Overlay from '../../../Overlay';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
@@ -65,6 +68,13 @@ export const CensusForm = () => {
     },
   ]);
 
+  const sexOptions = [
+    { value: 'female', label: 'Female' },
+    { value: 'male', label: 'Male' },
+  ];
+  type Sex = 'male' | 'female';
+  const [sexValue, setSexValue] = useState<Sex>('female');
+
   const generatePlaceholderNetwork = useFamilyTreeStore(
     (state) => state.generatePlaceholderNetwork,
   );
@@ -103,6 +113,13 @@ export const CensusForm = () => {
       );
     };
 
+  const dispatch = useAppDispatch();
+  const updateNode = useFamilyTreeStore((state) => state.updateNode);
+  const saveEgoSex = useCallback(() => {
+    void dispatch(updateEgo({ sex: sexValue }));
+    updateNode('ego', { interviewNetworkId: 'ego', sex: sexValue });
+  }, [dispatch, sexValue, updateNode]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const fieldValueMap = fields.reduce(
@@ -116,6 +133,7 @@ export const CensusForm = () => {
     );
 
     generatePlaceholderNetwork(fieldValueMap);
+    saveEgoSex();
     setShow(false);
   };
 
@@ -128,6 +146,20 @@ export const CensusForm = () => {
       className="!w-auto"
     >
       <div className="flex flex-col">
+        <div className="w-full *:mb-0!">
+          <RadioGroup
+            optionComponent={Radio}
+            input={{
+              name: 'sex',
+              value: sexValue,
+              onChange: (value: string) => {
+                setSexValue(value);
+              },
+            }}
+            label={'What is your sex?'}
+            options={sexOptions}
+          />
+        </div>
         <div className="w-full gap-6 *:mb-0! md:grid md:grid-cols-2">
           {fields.map(({ variable, label, error, value }) => (
             <NumberInput
