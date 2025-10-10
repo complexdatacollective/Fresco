@@ -1136,7 +1136,6 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
 
           const ensureExPartner = (nodeId: string): string | null => {
             const node = network.nodes.get(nodeId);
-            console.log(nodeId);
             if (!node) return null;
 
             // Check if an ex-partner already exists

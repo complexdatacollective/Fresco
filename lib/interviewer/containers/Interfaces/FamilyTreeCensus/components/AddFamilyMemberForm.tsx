@@ -26,8 +26,6 @@ const AddFamilyMemberForm = () => {
     edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
   );
 
-  console.log('NODES AND EDGES', nodes, edges);
-
   const addPlaceholderNode = useFamilyTreeStore(
     (state) => state.addPlaceholderNode,
   );
