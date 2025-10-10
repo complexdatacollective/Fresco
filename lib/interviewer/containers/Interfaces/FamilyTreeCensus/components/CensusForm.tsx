@@ -132,7 +132,7 @@ export const CensusForm = () => {
       {} as Record<string, number>,
     );
 
-    generatePlaceholderNetwork(fieldValueMap);
+    generatePlaceholderNetwork(fieldValueMap, sexValue);
     saveEgoSex();
     setShow(false);
   };

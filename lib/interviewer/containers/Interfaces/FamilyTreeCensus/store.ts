@@ -45,7 +45,10 @@ type NetworkActions = {
   addEdge: (edge: Omit<Edge, 'id'> & { id?: string }) => string | undefined;
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
-  generatePlaceholderNetwork: (formData: Record<string, number>) => void;
+  generatePlaceholderNetwork: (
+    formData: Record<string, number>,
+    egoSex: Sex,
+  ) => void;
   addPlaceholderNode: (formData) => void;
   runLayout: () => void;
 };
@@ -504,11 +507,23 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             if (partnerId && layerNodes.includes(partnerId)) {
               const nodeData = getNodeById(nodeId);
 
-              // canonical couple (female left, male right)
-              const leftPartnerId =
-                nodeData?.sex === 'male' ? partnerId : nodeId;
-              const rightPartnerId =
-                leftPartnerId === nodeId ? partnerId : nodeId;
+              let leftPartnerId: string;
+              let rightPartnerId: string;
+
+              if (nodeData?.isEgo) {
+                // ego always on consistent side (e.g., left for male, right for female)
+                if (nodeData.sex === 'male') {
+                  leftPartnerId = nodeId;
+                  rightPartnerId = partnerId;
+                } else {
+                  leftPartnerId = partnerId;
+                  rightPartnerId = nodeId;
+                }
+              } else {
+                // normal couple rule
+                leftPartnerId = nodeData?.sex === 'male' ? partnerId : nodeId;
+                rightPartnerId = leftPartnerId === nodeId ? partnerId : nodeId;
+              }
 
               const leftExId = getExPartner(leftPartnerId);
               const rightExId = getExPartner(rightPartnerId);
@@ -790,7 +805,7 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
         },
 
-        generatePlaceholderNetwork: (formData) => {
+        generatePlaceholderNetwork: (formData, egoSex) => {
           const store = get();
 
           // Clear existing network
@@ -882,10 +897,10 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           addNode({
             id: 'ego',
             label: 'self',
-            sex: 'female',
+            sex: egoSex,
             readOnly: true,
             isEgo: true,
-          }); // TODO: Make dynamic based on user input
+          });
           addEdge({
             source: 'father',
             target: 'ego',
@@ -939,12 +954,12 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             const egoPartnerId = addNode({
               id: 'ego-partner',
               label: "self's partner",
-              sex: 'male', // TODO: Make dynamic based on user input
+              sex: egoSex === 'female' ? 'male' : 'female',
               readOnly: true,
             });
             addEdge({
-              target: 'ego',
-              source: egoPartnerId,
+              target: egoSex === 'female' ? 'ego' : egoPartnerId,
+              source: egoSex === 'female' ? egoPartnerId : 'ego',
               relationship: 'partner',
             });
 
