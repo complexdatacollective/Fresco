@@ -295,11 +295,71 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           }
         }
 
+        // Determine side ('maternal', 'paternal', or 'neutral') for each node
+        const sides = new Map<string, 'maternal' | 'paternal' | 'neutral'>();
+        const motherId = 'mother';
+        const fatherId = 'father';
+
+        sides.set(motherId, 'maternal');
+        sides.set(fatherId, 'paternal');
+
+        // Parent’s siblings (aunts/uncles)
+        const addSideToParentSiblings = (
+          parentId: string,
+          side: 'maternal' | 'paternal',
+        ) => {
+          if (!parentId) return;
+          const grandParents = getParents(parentId);
+          if (grandParents.length === 0) return;
+
+          // Find siblings: all other children of the same grandparents
+          for (const [nodeId] of nodes.entries()) {
+            const nodeParents = getParents(nodeId);
+            if (
+              nodeParents.length > 0 &&
+              nodeParents.sort().join('|') === grandParents.sort().join('|')
+            ) {
+              sides.set(nodeId, side);
+            }
+          }
+        };
+
+        addSideToParentSiblings(motherId, 'maternal');
+        addSideToParentSiblings(fatherId, 'paternal');
+
+        // Propagate sides to their partners and descendants
+        const propagateSide = (
+          startIds: string[],
+          side: 'maternal' | 'paternal',
+        ) => {
+          const queue = [...startIds];
+          const visited = new Set<string>();
+          while (queue.length > 0) {
+            const nodeId = queue.shift()!;
+            if (visited.has(nodeId)) continue;
+            visited.add(nodeId);
+
+            sides.set(nodeId, side);
+            const partner = getPartner(nodeId);
+            const exPartner = getExPartner(nodeId);
+            const related = [partner, exPartner, ...getChildren(nodeId)].filter(
+              Boolean,
+            );
+            queue.push(...related);
+          }
+        };
+
+        const maternalRoots = [...sides.entries()]
+          .filter(([, side]) => side === 'maternal')
+          .map(([id]) => id);
+        const paternalRoots = [...sides.entries()]
+          .filter(([, side]) => side === 'paternal')
+          .map(([id]) => id);
+        propagateSide(maternalRoots, 'maternal');
+        propagateSide(paternalRoots, 'paternal');
+
         // Order nodes within each layer based on family relationships
         const maxLayer = Math.max(...Array.from(layers.keys()));
-
-        // Track parent couple IDs from the previous (younger) layer
-        let lastLevelParentIds = new Set<string>();
 
         // Process layers from youngest to oldest
         for (let layer = maxLayer; layer >= 0; layer--) {
@@ -408,86 +468,29 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
 
           // Build ordered list based on parent relationships
           const orderedNodes: string[] = [];
-          const placedCouples = new Set<string>();
-          const orderedParentIds = new Set<string>();
 
           for (const parentId of parentIds) {
-            // Add solo children first
+            // Add solo children
             orderedNodes.push(...(solos.get(parentId) ?? []));
-            orderedParentIds.add(parentId);
 
-            // Add couples in order corresponding to their children's order
-            let relatedCouples = couples.get(parentId) ?? [];
-
-            // Place couples that match the order from the children's layer
-            for (const coupleIdFromChild of lastLevelParentIds) {
-              const matchedCouples = relatedCouples.filter(
-                (couple) => couple.coupleId === coupleIdFromChild,
-              );
-
-              for (const couple of matchedCouples) {
-                if (placedCouples.has(couple.coupleId)) continue;
-                orderedNodes.push(couple.leftPartnerId, couple.rightPartnerId);
-                placedCouples.add(couple.coupleId);
-                orderedParentIds.add(couple.leftParentsId);
-                orderedParentIds.add(couple.rightParentsId);
-              }
-
-              // Keep only unplaced couples
-              relatedCouples = relatedCouples.filter(
-                (couple) =>
-                  couple.coupleId !== coupleIdFromChild &&
-                  !placedCouples.has(couple.coupleId),
-              );
-            }
-
-            // Add remaining couples (those without children)
-            for (const couple of relatedCouples) {
-              if (placedCouples.has(couple.coupleId)) continue;
-
-              // Find first sibling position
-              const targetIndex = orderedNodes.findIndex((nodeId) => {
-                const parentsId = getParentsId(nodeId);
-                return (
-                  parentsId === couple.leftParentsId ||
-                  parentsId === couple.rightParentsId
-                );
-              });
-
-              if (targetIndex > -1) {
-                // Check if sibling has partner to the left
-                const siblingId = orderedNodes[targetIndex];
-                const prevNodeId = orderedNodes[targetIndex - 1];
-                const prevPartner = prevNodeId ? getPartner(prevNodeId) : null;
-
-                if (prevPartner === siblingId) {
-                  // Insert after the sibling couple
-                  orderedNodes.splice(
-                    targetIndex + 1,
-                    0,
-                    couple.leftPartnerId,
-                    couple.rightPartnerId,
-                  );
-                } else {
-                  // Insert before the sibling
-                  orderedNodes.splice(
-                    targetIndex,
-                    0,
-                    couple.leftPartnerId,
-                    couple.rightPartnerId,
-                  );
-                }
-              } else {
-                // Add at the end
-                orderedNodes.push(couple.leftPartnerId, couple.rightPartnerId);
-              }
-
-              placedCouples.add(couple.coupleId);
-              orderedParentIds.add(couple.leftParentsId);
+            // Add all couples
+            const couplesForParent = couples.get(parentId) ?? [];
+            for (const couple of couplesForParent) {
+              if (!orderedNodes.includes(couple.leftPartnerId))
+                orderedNodes.push(couple.leftPartnerId);
+              if (!orderedNodes.includes(couple.rightPartnerId))
+                orderedNodes.push(couple.rightPartnerId);
             }
           }
 
-          lastLevelParentIds = orderedParentIds;
+          // Global side sort (maternal left, neutral center, paternal right)
+          orderedNodes.sort((a, b) => {
+            const sideOrder = { maternal: -1, neutral: 0, paternal: 1 };
+            const sideA = sides.get(a) ?? 'neutral';
+            const sideB = sides.get(b) ?? 'neutral';
+            return sideOrder[sideA] - sideOrder[sideB];
+          });
+
           layers.set(layer, orderedNodes);
         }
 
