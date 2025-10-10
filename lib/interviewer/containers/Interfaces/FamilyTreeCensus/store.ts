@@ -83,10 +83,12 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
       // Network traversal utilities
       const getNodeById = (id: string) => get().network.nodes.get(id);
 
-      const getPartner = (nodeId: string): string | null => {
-        const edges = get().network.edges;
-        for (const [, edge] of Array.from(edges.entries())) {
-          if (edge.relationship === 'partner') {
+      const getRelationship = (
+        nodeId: string,
+        type: 'partner' | 'ex-partner',
+      ) => {
+        for (const edge of get().network.edges.values()) {
+          if (edge.relationship === type) {
             if (edge.source === nodeId) return edge.target;
             if (edge.target === nodeId) return edge.source;
           }
@@ -94,16 +96,8 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
         return null;
       };
 
-      const getExPartner = (nodeId: string): string | null => {
-        const edges = get().network.edges;
-        for (const [, edge] of Array.from(edges.entries())) {
-          if (edge.relationship === 'ex-partner') {
-            if (edge.source === nodeId) return edge.target;
-            if (edge.target === nodeId) return edge.source;
-          }
-        }
-        return null;
-      };
+      const getPartner = (id: string) => getRelationship(id, 'partner');
+      const getExPartner = (id: string) => getRelationship(id, 'ex-partner');
 
       const getParentToChildrenMap = (): Map<string, string[]> => {
         const edges = get().network.edges;
@@ -607,6 +601,92 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
         return positions;
       };
 
+      const updateReadOnly = (id: string | null) => {
+        if (!id) return;
+        const node = get().network.nodes.get(id);
+        if (!node || node.isEgo) return;
+        get().updateNode(id, { readOnly: true });
+      };
+
+      // marks both parents of a newly added child node readOnly
+      const markParentAndPartnersReadOnly = (parentId: string) => {
+        const partnerId = getPartner?.(parentId);
+        const exPartnerId = getExPartner?.(parentId);
+
+        updateReadOnly(parentId);
+        updateReadOnly(partnerId);
+        updateReadOnly(exPartnerId);
+      };
+
+      // unlock a parent (and its partner) if they have no children left
+      const unlockParentIfNoChildren = (parentId: string) => {
+        const network = get().network;
+        const parentNode = network.nodes.get(parentId);
+        if (!parentNode) return;
+        if (parentNode.isEgo) return; // never unlock ego
+
+        // check any remaining 'parent' edges where this node is the source?
+        let hasChildren = false;
+        for (const edge of network.edges.values()) {
+          if (edge.relationship === 'parent' && edge.source === parentId) {
+            hasChildren = true;
+            break;
+          }
+        }
+
+        if (!hasChildren) {
+          set((draft) => {
+            const parent = draft.network.nodes.get(parentId);
+            if (parent && !parent.isEgo) {
+              parent.readOnly = false;
+            }
+
+            // unlock partner (if present)
+            const partnerId: string | null = getPartner(parentId);
+            if (partnerId) {
+              const partnerNode = draft.network.nodes.get(partnerId);
+              if (partnerNode && !partnerNode.isEgo) {
+                partnerNode.readOnly = false;
+              }
+            }
+
+            // unlock ex-partner (if present)
+            const exPartnerId = getExPartner(parentId);
+            if (exPartnerId) {
+              const exNode = draft.network.nodes.get(exPartnerId);
+              // do not unlock ego parents
+              if (
+                exNode &&
+                exNode.label.toLowerCase() !== 'mother' &&
+                exNode.label.toLowerCase() !== 'father'
+              ) {
+                exNode.readOnly = false;
+              }
+            }
+          });
+        }
+      };
+
+      // if a deleted node had a partner, see if they should also be deleted
+      const maybeDeletePartner = (partnerId?: string) => {
+        if (!partnerId) return;
+        const network = get().network;
+        const partnerNode = network.nodes.get(partnerId);
+        if (!partnerNode || partnerNode.isEgo) return;
+
+        // count how many remaining relationship edges this partner still has
+        const hasOtherConnections = Array.from(network.edges.values()).some(
+          (edge) =>
+            edge.relationship &&
+            (edge.source === partnerId || edge.target === partnerId),
+        );
+
+        if (!hasOtherConnections) {
+          // no remaining relationships, delete partner too
+          get().removeNode(partnerId);
+        }
+      };
+
       return {
         ...init,
 
@@ -649,25 +729,35 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
           });
         },
 
-        // TODO: add back in the functionality where deleting all children removes
-        // read only from non blood partner/ex-partner
         removeNode: (id) => {
+          // track parents before deletion
+          const parents = getParents(id);
+
+          // track potential partners before deletion
+          const partnerId = getPartner(id);
+          const exPartnerId = getExPartner(id);
+
           set((state) => {
-            state.network.nodes.delete(id);
-            // Remove all edges connected to this node
+            const { nodes, edges } = state.network;
+
+            // remove this node and all edges connected to it
+            nodes.delete(id);
             const edgesToRemove: string[] = [];
-            state.network.edges.forEach((edge, edgeId) => {
+            edges.forEach((edge, edgeId) => {
               if (edge.source === id || edge.target === id) {
                 edgesToRemove.push(edgeId);
               }
             });
-            edgesToRemove.forEach((edgeId) =>
-              state.network.edges.delete(edgeId),
-            );
+            edgesToRemove.forEach((edgeId) => edges.delete(edgeId));
           });
-          const store = get();
 
-          store.runLayout();
+          // check if parents should be unlocked
+          parents.forEach((parentId) => unlockParentIfNoChildren(parentId));
+
+          maybeDeletePartner(partnerId);
+          maybeDeletePartner(exPartnerId);
+
+          get().runLayout();
         },
 
         addEdge: ({ id, source, target, relationship }) => {
@@ -678,6 +768,12 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
             }
             state.network.edges.set(edgeId, { source, target, relationship });
           });
+
+          // if this edge is a parent–child connection, mark the parents readOnly
+          if (relationship === 'parent') {
+            markParentAndPartnersReadOnly(source);
+          }
+
           return edgeId;
         },
 
