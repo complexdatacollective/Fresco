@@ -17,7 +17,7 @@ export default function FormErrors({ errors, className }: FormErrorsProps) {
         animate={{ opacity: 1, height: 'auto' }}
         exit={{ opacity: 0, height: 0 }}
         className={cx(
-          'border-destructive/20 bg-destructive/5 rounded-lg border p-4',
+          'border-destructive/20 bg-destructive/5 rounded border p-4',
           className,
         )}
       >

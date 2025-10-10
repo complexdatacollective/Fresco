@@ -11,6 +11,7 @@ export default function SubmitButton(
 
   return (
     <MotionButton
+      color="primary"
       type="submit"
       aria-label="Submit"
       disabled={isSubmitting ?? !isValid}

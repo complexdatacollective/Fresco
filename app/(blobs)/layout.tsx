@@ -1,7 +1,7 @@
-import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import Image from 'next/image';
-import type { PropsWithChildren } from 'react';
 import Link from 'next/link';
+import type { PropsWithChildren } from 'react';
+import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (

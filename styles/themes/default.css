@@ -57,8 +57,11 @@
 
     --link: var(--accent);
 
+    --outline: 90% 0.01 var(--base-hue); /* Used for borders */
+
     --input: var(--white);
     --input-contrast: var(--cyber-grape);
+    --input-placeholder: 40% 0.05 var(--base-hue);
 
     --overlay: 10% 0.075 var(--base-hue);
 
@@ -112,8 +115,7 @@
     --cat-9: var(--tomato);
     --cat-10: var(--slate-blue);
 
-    --border-radius: 1.75rem;
-    --border-color: 90% 0.01 var(--base-hue);
+    --radius: 1.75rem;
   }
 
   /** 

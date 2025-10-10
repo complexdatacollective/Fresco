@@ -11,11 +11,10 @@ import {
   type SortingState,
   type Table as TTable,
 } from '@tanstack/react-table';
-import { FileUp, Loader } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileUp, Loader } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { makeDefaultColumns } from '~/components/DataTable/DefaultColumns';
 import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
 import {
   Table,
   TableBody,
@@ -24,6 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import { InputField } from '~/lib/form/components/fields/Input';
+import Surface from '../layout/Surface';
 
 type CustomTable<TData> = TTable<TData> & {
   options?: {
@@ -146,11 +147,11 @@ export function DataTable<TData, TValue>({
   }, [handleExportSelected, table, setRowSelection]);
 
   return (
-    <>
+    <Surface>
       {(filterColumnAccessorKey || headerItems) && (
         <div className="flex items-center gap-2 pt-1 pb-4">
           {filterColumnAccessorKey && (
-            <Input
+            <InputField
               name="filter"
               placeholder={`Filter by ${filterColumnAccessorKey}...`}
               value={
@@ -219,22 +220,24 @@ export function DataTable<TData, TValue>({
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <div className="space-x-2">
+          <div className="flex space-x-2">
             <Button
-              variant="outline"
+              variant="text"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
+              <ChevronLeft />
               Previous
             </Button>
             <Button
-              variant="outline"
+              variant="text"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
               Next
+              <ChevronRight />
             </Button>
           </div>
         </div>
@@ -275,6 +278,6 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
-    </>
+    </Surface>
   );
 }

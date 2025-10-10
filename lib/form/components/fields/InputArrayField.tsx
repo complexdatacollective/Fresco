@@ -47,7 +47,7 @@ function Item({
       exit={{ opacity: 0 }}
       key={value}
       value={value}
-      className="bg-card rounded-md border p-3 shadow-sm"
+      className="bg-card rounded border p-3 shadow-sm"
       dragListener={false}
       dragControls={controls}
     >

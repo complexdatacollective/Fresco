@@ -131,7 +131,7 @@ const PassphraseOverlay = ({
     <Overlay show={show} title="Enter your Passphrase" onClose={onClose}>
       <div className="flex flex-col">
         {passphraseInvalid && (
-          <p className="bg-accent/50 rounded-md p-6 text-white">
+          <p className="bg-accent/50 rounded p-6 text-white">
             There was an error decrypting the data with the passphrase entered.
             Please try again.
           </p>

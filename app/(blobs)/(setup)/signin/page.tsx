@@ -22,7 +22,7 @@ export default async function Page() {
   }
 
   return (
-    <div className={cx(containerClasses, 'w-[25rem]')}>
+    <div className={cx(containerClasses)}>
       <Heading level="h2">Sign In To Fresco</Heading>
       <SandboxCredentials />
       <SignInForm />

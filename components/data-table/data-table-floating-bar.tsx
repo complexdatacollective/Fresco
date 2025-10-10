@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
 import { type Table } from '@tanstack/react-table';
+import { CrossIcon } from 'lucide-react';
+import React from 'react';
 import { Button } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
-import { CrossIcon } from 'lucide-react';
 
 type DataTableFloatingBarProps<TData> = {
   table: Table<TData>;
@@ -21,7 +21,7 @@ export function DataTableFloatingBar<TData>({
   return (
     <div
       className={cx(
-        'mx-auto flex w-fit items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-white',
+        'mx-auto flex w-fit items-center gap-2 rounded bg-zinc-900 px-4 py-2 text-white',
         className,
       )}
       {...props}

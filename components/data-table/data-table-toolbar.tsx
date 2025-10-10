@@ -11,7 +11,7 @@ import {
   type DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Button, buttonVariants } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
+import { InputField } from '~/lib/form/components/fields/Input';
 import { cx } from '~/utils/cva';
 
 type DataTableToolbarProps<TData> = {
@@ -39,7 +39,7 @@ export function DataTableToolbar<TData>({
           searchableColumns.map(
             (column) =>
               table.getColumn(column.id ? String(column.id) : '') && (
-                <Input
+                <InputField
                   name="Filter"
                   key={String(column.id)}
                   placeholder={`Filter ${column.title}...`}
@@ -53,7 +53,7 @@ export function DataTableToolbar<TData>({
                       .getColumn(String(column.id))
                       ?.setFilterValue(event.target.value)
                   }
-                  className="mt-0"
+                  className="max-w-sm"
                 />
               ),
           )}
@@ -72,8 +72,8 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             aria-label="Reset filters"
-            variant="ghost"
-            className="h-10 px-2 lg:px-3"
+            variant="link"
+            className="px-2 lg:px-3"
             onClick={() => table.resetColumnFilters()}
           >
             Reset
@@ -87,7 +87,6 @@ export function DataTableToolbar<TData>({
             aria-label="Delete selected rows"
             variant="outline"
             size="sm"
-            className="h-10"
             onClick={(event) => {
               startTransition(() => {
                 table.toggleAllPageRowsSelected(false);
@@ -106,7 +105,6 @@ export function DataTableToolbar<TData>({
                 buttonVariants({
                   variant: 'outline',
                   size: 'sm',
-                  className: 'h-10',
                 }),
               )}
             >

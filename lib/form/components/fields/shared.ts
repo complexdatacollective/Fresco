@@ -39,7 +39,7 @@ export const backgroundStyles = {
 // Border Styles
 // ============================================================================
 export const borderStyles = {
-  base: 'rounded-lg border focus-within:border-accent/50',
+  base: 'rounded border border-outline focus-within:border-accent/50',
   invalid: 'aria-[invalid=true]:border-destructive',
   focus: 'focus:border-accent/50',
   focusInvalid: 'aria-[invalid=true]:focus:border-destructive',
@@ -247,7 +247,7 @@ export const scaleSliderStyles = {
     'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
   ),
   track: cx(
-    'relative h-6 w-full grow overflow-hidden rounded-full bg-input border ',
+    'relative h-6 w-full grow overflow-hidden rounded bg-input border ',
   ),
   thumb: cx(
     'block h-8 w-8 rounded-full bg-accent transition-all duration-200',

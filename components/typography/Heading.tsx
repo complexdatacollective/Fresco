@@ -29,7 +29,7 @@ export const headingVariants = cva({
     margin: 'default',
   },
   compoundVariants: [
-    { level: 'h4', variant: 'all-caps', className: '!m-0 font-bold' },
+    { level: 'h4', variant: 'all-caps', className: 'font-bold text-base' },
   ],
 });
 

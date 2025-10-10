@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import { isEqual } from 'ohash';
 import { memo, type ComponentProps, type ReactNode } from 'react';
 import { useSelector } from 'react-redux';
-import { cx } from '~/utils/cva';
 import {
   useDndStore,
   useDragSource,
@@ -13,6 +12,7 @@ import {
   type DndStore,
 } from '~/lib/dnd';
 import { type DropCallback } from '~/lib/dnd/types';
+import { cx } from '~/utils/cva';
 import { getCurrentStageId } from '../selectors/session';
 import { MotionNode } from './Node';
 
@@ -136,7 +136,7 @@ const NodeList = memo(
     const isHovering = isValidTarget && isOver;
 
     const classNames = cx(
-      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded-md gap-6 basis-full overflow-y-auto',
+      'flex flex-wrap justify-center grow shrink-0 transition-background duration-300 content-start rounded gap-6 basis-full overflow-y-auto',
       // Fix: Empty NodeLists need minimum dimensions for proper drop zone bounds
       items.length === 0 && 'min-h-[800px] min-w-[300px]',
       willAccept && 'bg-[var(--nc-node-list-action-bg)]',

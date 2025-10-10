@@ -54,11 +54,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           }
         }}
         className={cx(
+          'not-open:pointer-events-none',
           'flex', // Needed for content overflow to work correctly
           'overflow-hidden md:max-h-10/12',
           'spring-discrete-medium',
           'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
-          'backdrop:bg-navy-taupe/70 backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
+          'backdrop:bg-overlay backdrop:backdrop-blur-xs not-open:backdrop:opacity-0 open:backdrop:delay-100 backdrop:starting:opacity-0',
           'backdrop:transition-opacity',
           'backdrop:duration-300',
           'backdrop:transition-discrete',
@@ -75,12 +76,13 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
       >
         <Surface
           level={0}
+          wrapperClassName="@container-normal"
           className={cx(
             'flex flex-col',
             'w-full md:w-auto',
             'max-w-2xl',
             'h-auto max-h-full',
-            'border-b-primary elevation-none overflow-hidden rounded-lg border-b-4',
+            'border-b-primary elevation-none overflow-hidden border-b-4',
           )}
         >
           <DialogHeading id={`${id}-title`} className="me-8">

@@ -19,7 +19,7 @@ export const paragraphVariants = cva({
       muted: 'text-current/60',
     },
     margin: {
-      default: 'mb-4',
+      default: 'not-last:mb-4',
       none: 'mt-0',
     },
   },

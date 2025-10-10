@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
+import Surface from '../layout/Surface';
 import Heading from '../typography/Heading';
 import { paragraphVariants } from '../typography/Paragraph';
 
 const alertVariants = cva({
-  base: 'relative w-full bg-card text-contrast rounded-lg border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-contrast gap-2 grid my-6',
+  base: 'relative w-full bg-card text-contrast rounded border p-4 [&>svg~*]:pl-6 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-contrast my-6',
   variants: {
     variant: {
       default: '',
@@ -28,7 +29,7 @@ const Alert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
 >(({ className, variant, ...props }, ref) => (
-  <div
+  <Surface
     ref={ref}
     role="alert"
     className={cx(alertVariants({ variant }), className)}
@@ -45,7 +46,7 @@ const AlertTitle = React.forwardRef<
     level="h4"
     variant="all-caps"
     ref={ref}
-    className={cx(className)}
+    className={cx('!m-0', className)}
     {...props}
   />
 ));
@@ -55,14 +56,7 @@ const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cx(
-      paragraphVariants({ style: 'smallText', margin: 'none' }),
-      className,
-    )}
-    {...props}
-  />
+  <div ref={ref} className={cx(paragraphVariants(), className)} {...props} />
 ));
 AlertDescription.displayName = 'AlertDescription';
 

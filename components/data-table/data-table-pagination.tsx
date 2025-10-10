@@ -7,13 +7,7 @@ import {
 } from 'lucide-react';
 import { pageSizes } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
+import { SelectField } from '~/lib/form/components/fields/Select';
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -31,23 +25,17 @@ export function DataTablePagination<TData>({
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
-          <Select
+          <SelectField
             value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
+            onChange={(value) => {
               table.setPageSize(Number(value));
             }}
-          >
-            <SelectTrigger className="w-[70px]">
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {pageSizes.map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            options={pageSizes.map((size) => ({
+              label: size.toLocaleString(),
+              value: size,
+            }))}
+            placeholder={table.getState().pagination.pageSize.toLocaleString()}
+          />
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
           Page {table.getState().pagination.pageIndex + 1} of{' '}

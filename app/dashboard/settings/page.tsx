@@ -42,7 +42,7 @@ export default async function Settings() {
           subHeaderText="Here you can configure your installation of Fresco."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer className="gap-4">
+      <ResponsiveContainer className="tablet:gap-10 desktop-lg:gap-10 gap-6">
         <Suspense fallback={<VersionSectionSkeleton />}>
           <VersionSection />
         </Suspense>

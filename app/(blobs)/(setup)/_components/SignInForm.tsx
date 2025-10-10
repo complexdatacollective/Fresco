@@ -1,9 +1,12 @@
 'use client';
 
+import { User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { login } from '~/actions/auth';
+import { DialogFooter } from '~/lib/dialogs/Dialog';
 import { Field, Form, SubmitButton } from '~/lib/form';
 import { InputField } from '~/lib/form/components/fields/Input';
+import PasswordField from '~/lib/form/components/fields/PasswordField';
 import { type FormSubmitHandler } from '~/lib/form/types';
 import { loginSchema } from '~/schemas/auth';
 
@@ -22,7 +25,7 @@ export const SignInForm = () => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="w-full">
+    <Form onSubmit={handleSubmit} className="w-full min-w-sm">
       <Field
         key="username"
         name="username"
@@ -31,18 +34,20 @@ export const SignInForm = () => {
         validation={loginSchema.shape.username}
         Component={InputField}
         autoComplete="username"
+        prefixComponent={<User2 className="h-4 w-4" />}
       />
       <Field
         key="password"
         name="password"
         label="Password"
         placeholder="Enter your password"
-        Component={InputField}
+        Component={PasswordField}
         validation={loginSchema.shape.password}
-        type="password"
         autoComplete="current-password"
       />
-      <SubmitButton key="submit" className="mt-6" />
+      <DialogFooter>
+        <SubmitButton key="submit" />
+      </DialogFooter>
     </Form>
   );
 };

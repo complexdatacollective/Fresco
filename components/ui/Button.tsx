@@ -8,7 +8,7 @@ import { Skeleton } from './skeleton';
 
 const buttonVariants = cva({
   base: cx(
-    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded-full text-base tracking-wide transition-colors cursor-pointer',
+    'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
     'disabled:pointer-events-none disabled:cursor-not-allowed disabled:saturate-50',
   ),
   variants: {

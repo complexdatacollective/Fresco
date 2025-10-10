@@ -1,13 +1,11 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { cardClasses } from '~/components/ui/card';
 import { Switch } from '~/components/ui/switch';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { cx } from '~/utils/cva';
 
 const sectionClasses = cx(
-  cardClasses,
   'p-4 flex gap-4',
   '[&_div]:[flex-basis:fit-content]',
   '[&_div:nth-child(2)]:flex [&_div:nth-child(2)]:items-center [&_div:nth-child(2)]:justify-center [&_div:nth-child(2)]:p-4',

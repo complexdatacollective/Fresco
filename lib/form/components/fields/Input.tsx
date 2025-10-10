@@ -216,6 +216,7 @@ export function InputField({
       )}
       <input
         {...inputProps}
+        type={type}
         onChange={handleChange}
         className={inputVariants({ size })}
       />

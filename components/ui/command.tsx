@@ -1,8 +1,9 @@
 'use client';
 
 import { Command as CommandPrimitive } from 'cmdk';
-import { Search } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import * as React from 'react';
+import { InputField } from '~/lib/form/components/fields/Input';
 import { cx } from '~/utils/cva';
 
 const Command = React.forwardRef<
@@ -12,7 +13,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cx(
-      'bg-background text-text-contrast flex h-full w-full flex-col overflow-hidden rounded-md',
+      'bg-background text-text-contrast flex h-full w-full flex-col overflow-hidden rounded',
       className,
     )}
     {...props}
@@ -21,17 +22,14 @@ const Command = React.forwardRef<
 Command.displayName = CommandPrimitive.displayName;
 
 const CommandInput = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
+  React.ElementRef<typeof InputField>,
+  React.ComponentPropsWithoutRef<typeof InputField>
+>(({ className, ...props }) => (
   <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-    <CommandPrimitive.Input
-      ref={ref}
-      className={cx(
-        'placeholder:text-muted-contrast flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
-        className,
-      )}
+    <InputField
+      size="sm"
+      prefixComponent={<SearchIcon />}
+      className={cx(className)}
       {...props}
     />
   </div>

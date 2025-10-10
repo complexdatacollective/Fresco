@@ -5,7 +5,7 @@ import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const surfaceVariants = cva({
-  base: 'rounded-xl',
+  base: 'rounded-sm @xl:rounded @4xl:rounded-lg elevation-low @lg:elevation-medium @4xl:elevation-high bg-scope',
   variants: {
     level: {
       0: 'bg-surface text-surface-contrast border border-surface-contrast/10 [--color-text:var(--color-surface-contrast)] [--color-background:var(--color-surface)]',
@@ -40,6 +40,7 @@ export type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 
 type SurfaceProps<T extends ElementType = 'div'> = {
   as?: T;
+  wrapperClassName?: string;
 } & SurfaceVariants &
   Omit<React.ComponentPropsWithoutRef<T>, keyof SurfaceVariants | 'as'>;
 
@@ -50,16 +51,21 @@ type SurfaceProps<T extends ElementType = 'div'> = {
  * being nested.
  */
 const SurfaceComponent = forwardRef<HTMLDivElement, SurfaceProps>(
-  ({ as, children, level, spacing, className, ...rest }, ref) => {
+  (
+    { as, children, level, spacing, className, wrapperClassName, ...rest },
+    ref,
+  ) => {
     const Component = as ?? 'div'; // Default to 'div' if `as` is not provided
     return (
-      <Component
-        ref={ref}
-        {...rest}
-        className={cx(surfaceVariants({ level, spacing }), className)}
-      >
-        {children}
-      </Component>
+      <div className={cx('@container', wrapperClassName)}>
+        <Component
+          ref={ref}
+          {...rest}
+          className={cx(surfaceVariants({ level, spacing }), className)}
+        >
+          {children}
+        </Component>
+      </div>
     );
   },
 );

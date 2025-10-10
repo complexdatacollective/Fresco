@@ -31,7 +31,7 @@ export const Default: Story = {
           success: true,
         };
       }}
-      className="elevation-high w-2xl rounded-md bg-white p-10"
+      className="elevation-high w-2xl rounded bg-white p-10"
     >
       <Field
         name="name"
@@ -169,7 +169,7 @@ export const WithSubmitErrors: Story = {
           success: true,
         };
       }}
-      className="elevation-high w-2xl rounded-md bg-white p-10"
+      className="elevation-high w-2xl rounded bg-white p-10"
     >
       <Field
         name="username"

@@ -127,10 +127,11 @@ export const ParticipantsTableClient = ({
             </div>
             <Button
               color="destructive"
-              variant="text"
+              variant="outline"
               onClick={handleDeleteAll}
+              className="shrink-0"
             >
-              <Trash className="mr-2 inline-block h-4 w-4" />
+              <Trash className="mr-2 h-4 w-4" />
               Delete All
             </Button>
           </>
