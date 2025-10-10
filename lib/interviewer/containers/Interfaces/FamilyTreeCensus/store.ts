@@ -958,8 +958,8 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               readOnly: true,
             });
             addEdge({
-              target: egoSex === 'female' ? 'ego' : egoPartnerId,
-              source: egoSex === 'female' ? egoPartnerId : 'ego',
+              target: egoPartnerId,
+              source: 'ego',
               relationship: 'partner',
             });
 
@@ -1117,11 +1117,19 @@ export const createFamilyTreeStore = (init: FamilyTreeState = initialState) => {
               readOnly: true,
             });
 
-            addEdge({
-              source: node.sex === 'female' ? partnerId : nodeId,
-              target: node.sex === 'female' ? nodeId : partnerId,
-              relationship: 'partner',
-            });
+            if (node.isEgo) {
+              addEdge({
+                source: nodeId,
+                target: partnerId,
+                relationship: 'partner',
+              });
+            } else {
+              addEdge({
+                source: node.sex === 'female' ? partnerId : nodeId,
+                target: node.sex === 'female' ? nodeId : partnerId,
+                relationship: 'partner',
+              });
+            }
 
             return partnerId;
           };
