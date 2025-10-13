@@ -1,7 +1,7 @@
 'use client';
 
 import { Slot } from '@radix-ui/react-slot';
-import React, { forwardRef, useId } from 'react';
+import React, { forwardRef, type ReactNode, useId } from 'react';
 import CloseButton from '~/components/CloseButton';
 import Surface from '~/components/layout/Surface';
 import { headingVariants } from '~/components/typography/Heading';
@@ -10,7 +10,7 @@ import { cx, type VariantProps } from '~/utils/cva';
 
 export type DialogProps = {
   title?: string;
-  description?: string;
+  description?: ReactNode;
   accent?: 'default' | 'danger' | 'success' | 'warning' | 'info';
   closeDialog: () => void;
   footer?: React.ReactNode;
@@ -54,8 +54,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           }
         }}
         className={cx(
-          'not-open:pointer-events-none',
-          'flex', // Needed for content overflow to work correctly
+          // '@container',
+          'inset-0 h-screen w-screen', // Full screen to cover everything
+          'flex items-center justify-center', // Needed for content overflow to work correctly
           'overflow-hidden md:max-h-10/12',
           'spring-discrete-medium',
           'rounded-lg bg-transparent', // Or else rounded corner content will have white edges
@@ -63,7 +64,8 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           'backdrop:transition-opacity',
           'backdrop:duration-300',
           'backdrop:transition-discrete',
-          'm-auto not-open:-translate-y-12 not-open:opacity-0 starting:-translate-y-12 starting:opacity-0',
+          'not-open:pointer-events-none not-open:opacity-0 starting:pointer-events-none',
+          'm-auto not-open:-translate-y-12 starting:-translate-y-12 starting:opacity-0',
           '[--bg-scope:oklch(50%_0_0)]',
 
           // Accent overrides the primary hue so that nested buttons inherit color
@@ -76,7 +78,6 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
       >
         <Surface
           level={0}
-          wrapperClassName="@container-normal"
           className={cx(
             'flex flex-col',
             'w-full md:w-auto',

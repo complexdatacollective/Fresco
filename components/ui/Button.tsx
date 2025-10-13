@@ -9,16 +9,16 @@ import { Skeleton } from './skeleton';
 const buttonVariants = cva({
   base: cx(
     'font-semibold inline-flex items-center justify-center truncate text-nowrap rounded text-base tracking-wide transition-colors cursor-pointer',
-    'disabled:pointer-events-none disabled:cursor-not-allowed disabled:saturate-50',
+    'disabled:cursor-not-allowed disabled:opacity-50',
   ),
   variants: {
     variant: {
       default:
-        'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
+        'bg-[var(--scoped-bg)] text-[var(--scoped-text)] hover:enabled:bg-[color-mix(in_oklch,var(--scoped-bg)_95%,var(--scoped-text))]',
       outline:
-        'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:bg-[var(--scoped-bg)] hover:text-[var(--scoped-text)]',
-      text: 'text-[var(--scoped-bg)] hover:bg-[var(--scoped-bg)] hover:text-[var(--scoped-text)]',
-      link: 'text-[var(--scoped-bg)] hover:underline', // Appears as a link
+        'border border-[var(--scoped-bg)] text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
+      text: 'text-[var(--scoped-bg)] hover:enabled:bg-[var(--scoped-bg)] hover:enabled:text-[var(--scoped-text)]',
+      link: 'text-[var(--scoped-bg)] hover:enabled:underline',
     },
     color: {
       default: cx(

@@ -77,6 +77,7 @@ export const DeleteParticipantsDialog = ({
 
   return (
     <ControlledDialog
+      accent="danger"
       open={open}
       closeDialog={onCancel}
       title="Are you absolutely sure?"

@@ -105,16 +105,12 @@ const ImportCSVModal = ({
         title="Import participants"
         footer={
           <>
-            <Button
-              onClick={() => setShowImportDialog(false)}
-              variant="outline"
-            >
-              Cancel
-            </Button>
+            <Button onClick={() => setShowImportDialog(false)}>Cancel</Button>
             <Button
               disabled={isSubmitting || !isValid}
               form="uploadFile"
               type="submit"
+              color="primary"
             >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -124,7 +120,7 @@ const ImportCSVModal = ({
           </>
         }
       >
-        <Alert variant="info" className="my-4">
+        <Alert variant="info" className="m-0">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>CSV file requirements</AlertTitle>
           <AlertDescription>
@@ -151,11 +147,10 @@ const ImportCSVModal = ({
             </Paragraph>
           </AlertDescription>
         </Alert>
-
         <form
           id="uploadFile"
           onSubmit={handleSubmit(async (data) => await onSubmit(data))}
-          className="flex flex-col"
+          className="mt-4 flex w-full flex-col"
         >
           <DropzoneField control={control} name="csvFile" />
         </form>

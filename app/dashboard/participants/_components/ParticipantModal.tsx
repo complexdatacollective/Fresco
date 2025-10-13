@@ -115,7 +115,6 @@ function ParticipantModal({
       <Form
         key={editingParticipant?.id ?? 'new'} // Force form reset when editing different participant
         onSubmit={handleSubmit}
-        className="flex flex-col gap-2"
       >
         <IdentifierField
           existingParticipants={existingParticipants}

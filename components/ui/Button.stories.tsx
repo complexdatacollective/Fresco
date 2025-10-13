@@ -1,6 +1,27 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Check, Plus, Settings, X } from 'lucide-react';
+import {
+  Check,
+  ChevronRight,
+  Download,
+  Plus,
+  Settings,
+  Trash,
+  Upload,
+  X,
+} from 'lucide-react';
 import { Button, ButtonSkeleton, MotionButton } from './Button';
+
+const iconMap = {
+  none: undefined,
+  check: <Check className="h-4 w-4" />,
+  plus: <Plus className="h-4 w-4" />,
+  x: <X className="h-4 w-4" />,
+  settings: <Settings className="h-4 w-4" />,
+  download: <Download className="h-4 w-4" />,
+  upload: <Upload className="h-4 w-4" />,
+  trash: <Trash className="h-4 w-4" />,
+  chevronRight: <ChevronRight className="h-4 w-4" />,
+};
 
 const meta = {
   title: 'UI/Button',
@@ -37,6 +58,11 @@ const meta = {
     asChild: {
       control: 'boolean',
     },
+    icon: {
+      control: 'select',
+      options: Object.keys(iconMap),
+      mapping: iconMap,
+    },
     iconPosition: {
       control: 'select',
       options: ['left', 'right'],
@@ -50,17 +76,39 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: 'Button',
+    variant: 'default',
+    color: 'default',
+    size: 'default',
+    disabled: false,
+    icon: 'none',
+    iconPosition: 'left',
   },
 };
 
 export const Variants: Story = {
-  render: () => (
+  args: {
+    children: 'Button',
+    color: 'default',
+    size: 'default',
+    disabled: false,
+    icon: 'none',
+    iconPosition: 'left',
+  },
+  render: (args) => (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4">
-        <Button variant="default">Default</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="text">Text</Button>
-        <Button variant="link">Link</Button>
+        <Button {...args} variant="default">
+          Default
+        </Button>
+        <Button {...args} variant="outline">
+          Outline
+        </Button>
+        <Button {...args} variant="text">
+          Text
+        </Button>
+        <Button {...args} variant="link">
+          Link
+        </Button>
       </div>
     </div>
   ),
@@ -171,6 +219,24 @@ export const MotionVariant: Story = {
 export const ColorVariantCombinations: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
+      <div className="mb-2 flex items-center gap-4">
+        <span className="w-24 text-sm font-medium"></span>
+        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+          Default
+        </span>
+        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+          Outline
+        </span>
+        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+          Text
+        </span>
+        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+          Link
+        </span>
+        <span className="text-muted-foreground w-24 text-center text-xs font-medium">
+          Disabled
+        </span>
+      </div>
       {(
         [
           'default',
@@ -184,45 +250,23 @@ export const ColorVariantCombinations: Story = {
       ).map((color) => (
         <div key={color} className="flex items-center gap-4">
           <span className="w-24 text-sm font-medium capitalize">{color}:</span>
-          <Button variant="default" color={color}>
+          <Button variant="default" color={color} className="w-24">
             Default
           </Button>
-          <Button variant="outline" color={color}>
+          <Button variant="outline" color={color} className="w-24">
             Outline
           </Button>
-          <Button variant="text" color={color}>
+          <Button variant="text" color={color} className="w-24">
             Text
           </Button>
-          <Button variant="link" color={color}>
+          <Button variant="link" color={color} className="w-24">
             Link
+          </Button>
+          <Button variant="default" color={color} disabled className="w-24">
+            Disabled
           </Button>
         </div>
       ))}
     </div>
   ),
-};
-
-export const AsLink: Story = {
-  render: () => (
-    <div className="flex gap-4">
-      <Button asChild>
-        <a href="#" target="_blank" rel="noopener noreferrer">
-          Link Button
-        </a>
-      </Button>
-      <Button variant="link" asChild>
-        <a href="#" target="_blank" rel="noopener noreferrer">
-          Styled as Link
-        </a>
-      </Button>
-    </div>
-  ),
-};
-
-export const CustomClassName: Story = {
-  args: {
-    children: 'Custom Styled',
-    className:
-      'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600',
-  },
 };

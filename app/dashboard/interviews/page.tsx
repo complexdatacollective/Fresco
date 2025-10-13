@@ -16,7 +16,7 @@ export default async function InterviewPage() {
           subHeaderText="View and manage your interview data."
         />
       </ResponsiveContainer>
-      <ResponsiveContainer maxWidth="8xl" baseSize="content">
+      <ResponsiveContainer maxWidth="8xl">
         <InterviewsTableServer />
       </ResponsiveContainer>
     </>

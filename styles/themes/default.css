@@ -70,7 +70,7 @@
     --node-1-contrast: var(--white);
     --node-2: var(--sea-serpent);
     --node-2-contrast: var(--white);
-    --node-3: var(--purple-pizzazz);
+    --node-3: var(--purple-pizazz);
     --node-3-contrast: var(--white);
     --node-4: var(--neon-carrot);
     --node-4-contrast: var(--white);
@@ -84,7 +84,7 @@
     --node-8-contrast: var(--white);
 
     --edge-1: var(--mustard);
-    --edge-2: var(--purple-pizzazz);
+    --edge-2: var(--purple-pizazz);
     --edge-3: var(--neon-coral);
     --edge-4: var(--kiwi);
     --edge-5: var(--paradise-pink);
@@ -105,7 +105,7 @@
 
     /* used by categorical and convex hulls */
     --cat-1: var(--sea-serpent);
-    --cat-2: var(--purple-pizzazz);
+    --cat-2: var(--purple-pizazz);
     --cat-3: var(--mustard);
     --cat-4: var(--paradise-pink);
     --cat-5: var(--kiwi);

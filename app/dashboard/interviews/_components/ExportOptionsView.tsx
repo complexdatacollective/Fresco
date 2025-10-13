@@ -1,7 +1,7 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
-import { Switch } from '~/components/ui/switch';
+import { ToggleField as Switch } from '~/lib/form/components/fields/Toggle';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { cx } from '~/utils/cva';
 
@@ -85,8 +85,8 @@ const ExportOptionsView = ({
         </div>
         <div>
           <Switch
-            checked={exportOptions.exportGraphML}
-            onCheckedChange={handleGraphMLSwitch}
+            value={exportOptions.exportGraphML}
+            onChange={handleGraphMLSwitch}
           />
         </div>
       </div>
@@ -105,10 +105,7 @@ const ExportOptionsView = ({
           </Paragraph>
         </div>
         <div>
-          <Switch
-            checked={exportOptions.exportCSV}
-            onCheckedChange={handleCSVSwitch}
-          />
+          <Switch value={exportOptions.exportCSV} onChange={handleCSVSwitch} />
         </div>
       </div>
       <div className={sectionClasses}>
@@ -125,8 +122,8 @@ const ExportOptionsView = ({
         </div>
         <div>
           <Switch
-            checked={exportOptions.globalOptions.useScreenLayoutCoordinates}
-            onCheckedChange={handleScreenLayoutCoordinatesSwitch}
+            value={exportOptions.globalOptions.useScreenLayoutCoordinates}
+            onChange={handleScreenLayoutCoordinatesSwitch}
           />
         </div>
       </div>
