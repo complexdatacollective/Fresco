@@ -84,8 +84,8 @@ importers:
         specifier: ^7.3.3
         version: 7.3.3(next@14.2.30(@babel/core@7.28.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react@18.3.1)(uploadthing@7.7.4(next@14.2.30(@babel/core@7.28.4)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(tailwindcss@4.1.13))
       '@xmldom/xmldom':
-        specifier: ^0.8.10
-        version: 0.8.10
+        specifier: ^0.8.11
+        version: 0.8.11
       animejs:
         specifier: ^2.2.0
         version: 2.2.0
@@ -3388,8 +3388,8 @@ packages:
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
 
-  '@xmldom/xmldom@0.8.10':
-    resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
+  '@xmldom/xmldom@0.8.11':
+    resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
     engines: {node: '>=10.0.0'}
 
   '@xtuc/ieee754@1.2.0':
@@ -11078,7 +11078,7 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@xmldom/xmldom@0.8.10': {}
+  '@xmldom/xmldom@0.8.11': {}
 
   '@xtuc/ieee754@1.2.0': {}
 
