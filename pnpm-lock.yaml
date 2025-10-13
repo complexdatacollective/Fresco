@@ -18,8 +18,8 @@ importers:
         specifier: 3.0.0
         version: 3.0.0
       '@codaco/shared-consts':
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^5.0.0
+        version: 5.0.0
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.62.0(react@18.3.1))
@@ -1105,8 +1105,9 @@ packages:
   '@codaco/protocol-validation@3.0.0':
     resolution: {integrity: sha512-23/nKuVKyKzHfEzQKVFFpCIibe+j3biLPuYKK+Ly7kyNygeEO/MydMGHWYTQUoAKUjIlBXRryGhdHt5uen9/8A==}
 
-  '@codaco/shared-consts@0.0.2':
-    resolution: {integrity: sha512-qPmZQm50NhIuQGznQx00kdCxXJ/rOW8UkCrLPQObmPFjq3iIOTwBjAWddq7gRBsDByRfdB/gMCwcd7Pay2aOFQ==}
+  '@codaco/shared-consts@5.0.0':
+    resolution: {integrity: sha512-7neTWHNjw6Y7FdVOU8htO2OshADlpS9vI+5mQEDWOdtlL8BdHmBflqQlZE8lFjzBin8tUI9jIlxsLlMYOpjm/w==}
+    engines: {node: '>=20.0.0'}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -7831,6 +7832,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -8801,7 +8805,9 @@ snapshots:
 
   '@codaco/protocol-validation@3.0.0': {}
 
-  '@codaco/shared-consts@0.0.2': {}
+  '@codaco/shared-consts@5.0.0':
+    dependencies:
+      zod: 4.1.12
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -16386,5 +16392,7 @@ snapshots:
       zod: 3.25.76
 
   zod@3.25.76: {}
+
+  zod@4.1.12: {}
 
   zwitch@2.0.4: {}
