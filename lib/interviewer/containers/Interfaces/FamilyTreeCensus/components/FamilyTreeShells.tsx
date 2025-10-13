@@ -1,6 +1,14 @@
 import { type Stage } from '@codaco/protocol-validation';
-import { useState } from 'react';
+import type {
+  EntityAttributesProperty,
+  EntityPrimaryKey,
+  NcNode,
+  VariableValue,
+} from '@codaco/shared-consts';
+import { useCallback, useState } from 'react';
 import { type Node } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/store';
+import { updateNode as updateNetworkNode } from '~/lib/interviewer/ducks/modules/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import { useFamilyTreeStore } from '../FamilyTreeProvider';
 import AddFamilyMemberForm from './AddFamilyMemberForm';
 import { CensusForm } from './CensusForm';
@@ -16,11 +24,26 @@ export const FamilyTreeShells = (
     nodesMap.entries().map(([id, node]) => ({ id, ...node })),
   );
   const [selectedNode, setSelectedNode] = useState<Node | void>(undefined);
+  const highlightVariable = stage.diseaseVariable;
+
+  const dispatch = useAppDispatch();
+  const updateShellNode = useFamilyTreeStore((state) => state.updateNode);
+  const updateNode = useCallback(
+    (payload: {
+      nodeId: NcNode[EntityPrimaryKey];
+      newAttributeData: NcNode[EntityAttributesProperty];
+    }) => {
+      void dispatch(updateNetworkNode(payload)).then(() => {
+        updateShellNode(payload.nodeId, payload.newAttributeData);
+      });
+    },
+    [dispatch, updateShellNode],
+  );
 
   return (
     <>
       <AddFamilyMemberForm />
-      {stage.stage.nameGenerationStep && (
+      {stage.enableNameGeneration && (
         <FamilyTreeNodeForm
           nodeType={stage.stage.subject.type}
           selectedNode={selectedNode}
@@ -45,8 +68,18 @@ export const FamilyTreeShells = (
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}
               y={node.y ?? 0}
+              selected={node.interviewNetworkId && node[highlightVariable]}
               handleClick={() => {
                 setSelectedNode(node);
+                if (node.interviewNetworkId && highlightVariable) {
+                  const diseaseData: Record<string, VariableValue> = {
+                    [highlightVariable]: !node[highlightVariable],
+                  };
+                  updateNode({
+                    nodeId: node.id,
+                    newAttributeData: diseaseData,
+                  });
+                }
               }}
             />
           ))}

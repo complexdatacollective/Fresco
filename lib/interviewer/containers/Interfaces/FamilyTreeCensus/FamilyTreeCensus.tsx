@@ -13,10 +13,6 @@ import { getEdgeType } from './components/EdgeRenderer';
 import { FamilyTreeShells } from './components/FamilyTreeShells';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 
-const DiseaseNomination = () => {
-  return <div>Family tree completion</div>;
-};
-
 type FamilyTreeCensusProps = StageProps & {
   stage: Extract<Stage, { type: 'FamilyTreeCensus' }>;
 };
@@ -34,6 +30,7 @@ const getStageSteps = (
   {
     promptText: string;
     component: React.ComponentType;
+    diseaseVariable: string | null;
   }
 > => {
   const steps = new Map<
@@ -41,6 +38,7 @@ const getStageSteps = (
     {
       promptText: string;
       component: React.ComponentType;
+      diseaseVariable: string | null;
     }
   >();
 
@@ -50,6 +48,7 @@ const getStageSteps = (
   steps.set(stepIndex, {
     promptText: stage.scaffoldingStep.text,
     component: FamilyTreeShells,
+    diseaseVariable: null,
   });
   stepIndex += 1;
 
@@ -65,7 +64,8 @@ const getStageSteps = (
     for (const diseaseStep of stage.diseaseNominationStep) {
       steps.set(stepIndex, {
         promptText: diseaseStep.text,
-        component: DiseaseNomination,
+        component: FamilyTreeShells,
+        diseaseVariable: diseaseStep.variable,
       });
       stepIndex += 1;
     }
@@ -127,6 +127,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   });
 
   const CurrentStepComponent = steps.get(currentStepIndex)?.component;
+  const diseaseVariable = steps.get(currentStepIndex)?.diseaseVariable;
 
   const stageElement = document.getElementById('stage');
   const removeNode = useFamilyTreeStore((state) => state.removeNode);
@@ -142,7 +143,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
           currentPromptId={currentStepIndex.toString()}
           className="shrink-0"
         />
-        {CurrentStepComponent && <CurrentStepComponent stage={stage} />}
+        {CurrentStepComponent && (
+          <CurrentStepComponent
+            stage={stage}
+            enableNameGeneration={currentStepIndex === 1}
+            diseaseVariable={diseaseVariable}
+          />
+        )}
       </div>
       {stageElement &&
         createPortal(

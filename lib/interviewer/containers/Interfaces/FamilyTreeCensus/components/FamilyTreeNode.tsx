@@ -14,6 +14,7 @@ export default function FamilyTreeNode(props: {
   isEgo?: boolean;
   x: number;
   y: number;
+  selected?: boolean;
   handleClick?: () => void;
 }) {
   const {
@@ -26,6 +27,7 @@ export default function FamilyTreeNode(props: {
     shape,
     isEgo,
     interviewNetworkId,
+    selected,
     handleClick,
   } = props;
   const nodeTypeColor = useSelector(getNodeColorSelector);
@@ -76,6 +78,7 @@ export default function FamilyTreeNode(props: {
           color="custom"
           label={isEgo ? `You` : ''}
           shape={shape}
+          selected={selected}
         />
         {isEgo && (
           <svg
