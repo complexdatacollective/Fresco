@@ -12,7 +12,7 @@ import { type Edge } from '../store';
 
 const EDGE_WIDTH = 5;
 
-const getEdgeType = createSelector(getCurrentStage, (stage) => {
+export const getEdgeType = createSelector(getCurrentStage, (stage) => {
   invariant(
     stage.type === 'FamilyTreeCensus',
     'Stage must be FamilyTreeCensus',

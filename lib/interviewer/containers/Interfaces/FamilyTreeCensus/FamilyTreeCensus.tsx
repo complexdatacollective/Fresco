@@ -2,10 +2,14 @@ import { type Stage } from '@codaco/protocol-validation';
 import { type NcNode } from '@codaco/shared-consts';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useSelector } from 'react-redux';
 import NodeBin from '~/lib/interviewer/components/NodeBin';
 import { type StageProps } from '~/lib/interviewer/containers/Stage';
+import { addEdge } from '~/lib/interviewer/ducks/modules/session';
+import { useAppDispatch } from '~/lib/interviewer/store';
 import Prompts from '~/lib/ui/components/Prompts/Prompts';
 import { withNoSSRWrapper } from '~/utils/NoSSRWrapper';
+import { getEdgeType } from './components/EdgeRenderer';
 import { FamilyTreeShells } from './components/FamilyTreeShells';
 import { FamilyTreeProvider, useFamilyTreeStore } from './FamilyTreeProvider';
 
@@ -73,6 +77,24 @@ const getStageSteps = (
 const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
   const { registerBeforeNext, stage } = props;
 
+  const dispatch = useAppDispatch();
+  const edgesMap = useFamilyTreeStore((state) => state.network.edges);
+  const edges = Array.from(
+    edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
+  );
+  const edgeType = useSelector(getEdgeType);
+  const saveEdges = () => {
+    edges.forEach((edge) => {
+      void dispatch(
+        addEdge({
+          from: edge.source,
+          to: edge.target,
+          type: edgeType,
+        }),
+      );
+    });
+  };
+
   /**
    * Steps:
    *  1. Scaffolding step, with optional quick start modal
@@ -87,6 +109,7 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
     if (direction === 'forwards') {
       const isLastStep = currentStepIndex === steps.size - 1;
       if (isLastStep) {
+        saveEdges();
         return true;
       }
 
