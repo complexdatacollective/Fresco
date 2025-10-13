@@ -122,11 +122,7 @@ export function useField(config: {
 
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
-      // Skip validation if the field hasn't been touched
-      if (!fieldState?.state.isTouched) {
-        return;
-      }
-
+      console.log('Field blur', config.name);
       // Skip validation if clicking on a dialog close element
       const relatedTarget = e.relatedTarget;
 
@@ -141,12 +137,10 @@ export function useField(config: {
         return;
       }
 
-      setFieldTouched(config.name, true);
-
       // TODO: cache validation result if value hasn't changed.
       void validateField(config.name);
     },
-    [config.name, validateField, setFieldTouched, fieldState?.state.isTouched],
+    [config.name, validateField],
   );
 
   // Ensure the value is never undefined to prevent uncontrolled to controlled warnings

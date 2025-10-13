@@ -15,5 +15,9 @@ export const ControlledDialog = ({ open, ...rest }: DialogProps) => {
     }
   }, [open]);
 
+  if (!open) {
+    return null;
+  }
+
   return <Dialog {...rest} ref={ref} />;
 };

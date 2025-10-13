@@ -17,7 +17,6 @@ enableMapSet();
 
 export type FormStore = {
   fields: Map<string, FieldState>;
-  // Single unified error store - flattened structure for easier access and Immer compatibility
   errors: FlattenedErrors | null;
   isSubmitting: boolean;
   isValidating: boolean;
@@ -141,6 +140,11 @@ export const createFormStore = () => {
 
           state.fields.get(fieldName)!.value = value;
           state.fields.get(fieldName)!.state.isDirty = true;
+          state.fields.get(fieldName)!.state.isTouched = true;
+          state.isDirty = true;
+
+          // Validate field by calling validateField
+          void state.validateField(fieldName);
         });
       },
 

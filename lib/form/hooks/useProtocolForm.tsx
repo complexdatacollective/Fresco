@@ -170,6 +170,8 @@ export default function useProtocolForm({
 
       const autoFocusField = autoFocus && index === 0;
 
+      console.log('auto', autoFocusField, fieldProps.name);
+
       return (
         <Field
           key={index}

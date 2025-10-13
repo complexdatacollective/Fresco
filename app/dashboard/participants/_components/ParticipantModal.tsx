@@ -202,8 +202,6 @@ function IdentifierField({
       validation={identifierValidation}
       type="text"
       Component={InputField}
-      required
-      autoFocus
       suffixComponent={
         <Button
           type="button"

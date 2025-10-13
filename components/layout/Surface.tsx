@@ -5,7 +5,7 @@ import { type ElementType, forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
 
 export const surfaceVariants = cva({
-  base: 'rounded-sm @xl:rounded @4xl:rounded-lg elevation-low @lg:elevation-medium @4xl:elevation-high bg-scope',
+  base: 'rounded-sm @xl:rounded @4xl:rounded-lg elevation-low @lg:elevation-medium @4xl:elevation-high',
   variants: {
     level: {
       0: 'bg-surface text-surface-contrast border border-surface-contrast/10 [--color-text:var(--color-surface-contrast)] [--color-background:var(--color-surface)]',

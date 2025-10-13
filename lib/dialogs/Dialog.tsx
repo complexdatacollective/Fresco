@@ -40,7 +40,6 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
     ref,
   ) => {
     const id = useId();
-    // TODO: automatic focus on least destructive action, or initialFocusEl ref.
     return (
       <dialog
         ref={ref}
@@ -54,7 +53,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           }
         }}
         className={cx(
-          // '@container',
+          '@container',
           'inset-0 h-screen w-screen', // Full screen to cover everything
           'flex items-center justify-center', // Needed for content overflow to work correctly
           'overflow-hidden md:max-h-10/12',
@@ -64,9 +63,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
           'backdrop:transition-opacity',
           'backdrop:duration-300',
           'backdrop:transition-discrete',
-          'not-open:pointer-events-none not-open:opacity-0 starting:pointer-events-none',
+          'not-open:opacity-0 starting:pointer-events-none',
           'm-auto not-open:-translate-y-12 starting:-translate-y-12 starting:opacity-0',
-          '[--bg-scope:oklch(50%_0_0)]',
+          '[--bg-scope:var(--color-platinum-dark)]', // set scope to backdrop color
 
           // Accent overrides the primary hue so that nested buttons inherit color
           accent === 'success' && '[--color-primary:var(--color-success)]',
@@ -79,11 +78,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(
         <Surface
           level={0}
           className={cx(
+            'relative',
             'flex flex-col',
             'w-full md:w-auto',
             'max-w-2xl',
             'h-auto max-h-full',
-            'border-b-primary elevation-none overflow-hidden border-b-4',
+            'border-primary/75 elevation-none overflow-hidden border-1',
           )}
         >
           <DialogHeading id={`${id}-title`} className="me-8">
