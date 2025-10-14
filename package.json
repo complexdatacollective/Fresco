@@ -49,7 +49,7 @@
     "@reduxjs/toolkit": "^1.9.7",
     "@tanstack/react-table": "^8.21.3",
     "@uploadthing/react": "^7.3.3",
-    "@xmldom/xmldom": "^0.8.10",
+    "@xmldom/xmldom": "^0.8.11",
     "animejs": "^2.2.0",
     "archiver": "^7.0.1",
     "async": "^3.2.6",
