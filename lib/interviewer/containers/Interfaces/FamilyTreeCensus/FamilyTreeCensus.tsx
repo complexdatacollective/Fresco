@@ -146,12 +146,13 @@ const FamilyTreeCensus = (props: FamilyTreeCensusProps) => {
         {CurrentStepComponent && (
           <CurrentStepComponent
             stage={stage}
-            enableNameGeneration={currentStepIndex === 1}
             diseaseVariable={diseaseVariable}
+            stepIndex={currentStepIndex}
           />
         )}
       </div>
       {stageElement &&
+        currentStepIndex === 0 &&
         createPortal(
           <NodeBin
             dropHandler={(node) => {

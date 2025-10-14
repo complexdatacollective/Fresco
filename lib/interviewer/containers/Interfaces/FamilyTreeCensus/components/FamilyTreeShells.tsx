@@ -42,8 +42,8 @@ export const FamilyTreeShells = (
 
   return (
     <>
-      <AddFamilyMemberForm />
-      {stage.enableNameGeneration && (
+      {stage.stepIndex === 0 && <AddFamilyMemberForm />}
+      {stage.stepIndex === 1 && (
         <FamilyTreeNodeForm
           nodeType={stage.stage.subject.type}
           selectedNode={selectedNode}
@@ -63,7 +63,7 @@ export const FamilyTreeShells = (
               name={node.name}
               label={node.label}
               isEgo={node.isEgo}
-              allowDrag={node.readOnly !== true}
+              allowDrag={node.readOnly !== true && stage.stepIndex === 0}
               interviewNetworkId={node.interviewNetworkId}
               shape={node.sex === 'female' ? 'circle' : 'square'}
               x={node.x ?? 0}

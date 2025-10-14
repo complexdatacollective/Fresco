@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import type { PlaceholderNodeProps } from '~/lib/interviewer/containers/Interfaces/FamilyTreeCensus/FamilyTreeNode';
 
 export type RelativeOption = { label: string; value: string };
 
@@ -12,18 +11,18 @@ const paternalFatherKey = 'paternal-grandfather';
 const egoKey = 'ego';
 
 type RelativesResult = {
-  mother: PlaceholderNodeProps | null;
-  father: PlaceholderNodeProps | null;
-  maternalSiblings: PlaceholderNodeProps[];
-  paternalSiblings: PlaceholderNodeProps[];
-  egoSiblings: PlaceholderNodeProps[];
-  egoChildren: PlaceholderNodeProps[];
+  mother;
+  father;
+  maternalSiblings;
+  paternalSiblings;
+  egoSiblings;
+  egoChildren;
   grandchildrenOptions: RelativeOption[];
   nieceOptions: RelativeOption[];
   firstCousinOptions: RelativeOption[];
   getParents: (subjectId: string) => {
-    mother: PlaceholderNodeProps | null;
-    father: PlaceholderNodeProps | null;
+    mother;
+    father;
   };
 };
 
@@ -45,13 +44,6 @@ export function useRelatives(nodesMap, edgesMap): RelativesResult {
         getParents: () => ({ mother: null, father: null }),
       };
     }
-
-    // const edges = Array.from(
-    //   edgesMap.entries().map(([id, edge]) => ({ id, ...edge })),
-    // );
-    // const nodes = Array.from(
-    //   nodesMap.entries().map(([id, node]) => ({ id, ...node })),
-    // );
 
     const mother = nodesMap.get(motherKey);
     const father = nodesMap.get(fatherKey);
